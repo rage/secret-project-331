@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQueryClient, type QueryObserverResult } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import {
   BellXmark,
   CheckCircle,
@@ -65,7 +65,6 @@ const linkStyles = css`
 interface CourseAuditingCardProps {
   id: string
   courseAuditingData: CourseAuditingData
-  refetch: () => Promise<QueryObserverResult<CourseAuditingData[], unknown>>
 }
 
 enum UpdateStatus {
@@ -95,11 +94,7 @@ export const initDefaultValues = (data: CourseAuditingData) => {
   }
 }
 
-const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
-  id,
-  courseAuditingData,
-  refetch,
-}) => {
+const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAuditingData }) => {
   const { confirm } = useDialog()
   const { t } = useTranslation()
 
@@ -110,15 +105,12 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
   const methods = useForm<EditCourseAuditingData>({
     defaultValues: initDefaultValues(courseAuditingData),
   })
-  const [readOnly, setReadOnly] = useState<CourseAuditingData>(
-    initDefaultValues(courseAuditingData),
-  )
 
-  const defaultModuleUhCourseCode = readOnly.modules.find(
+  const defaultModuleUhCourseCode = courseAuditingData.modules.find(
     (module) => module.order_number === 0,
   )?.uh_course_code
 
-  const { control, handleSubmit, reset, getValues } = methods
+  const { control, handleSubmit, reset } = methods
   const { isDirty } = useFormState({ control })
 
   // oxlint-disable-next-line i18next/no-literal-string
@@ -180,7 +172,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
         })),
       },
       path: {
-        course_id: readOnly.id,
+        course_id: courseAuditingData.id,
       },
     })
   })
@@ -192,8 +184,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
       onSuccess: (updated: CourseAuditingData) => {
         reset(initDefaultValues(updated))
 
-        setReadOnly(updated)
-        //refetch()
+        //setReadOnly(updated)
 
         queryClient.setQueryData(getCoursesForAuditingQueryKey(), (old: CourseAuditingData[]) => {
           if (!old) {
@@ -245,7 +236,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   font-size: 1.5rem;
                 `}
               >
-                {readOnly.name}
+                {courseAuditingData.name}
               </h1>
               <div
                 className={css`
@@ -256,7 +247,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   margin-top: 0.5rem;
                 `}
               >
-                {readOnly.organization_name}
+                {courseAuditingData.organization_name}
               </div>
             </div>
 
@@ -373,7 +364,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                     type="button"
                     variant="secondary"
                     onClick={() =>
-                      appendPrereq({ id: v4(), course_id: readOnly.id, prerequisite: "" })
+                      appendPrereq({ id: v4(), course_id: courseAuditingData.id, prerequisite: "" })
                     }
                   >
                     {t("add-new-prerequisite")}
@@ -433,7 +424,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                     type="button"
                     variant="secondary"
                     onClick={() =>
-                      appendAudience({ id: v4(), course_id: readOnly.id, audience: "" })
+                      appendAudience({ id: v4(), course_id: courseAuditingData.id, audience: "" })
                     }
                   >
                     {t("add-new-audience")}
@@ -455,18 +446,17 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
             >
               <ContentDisplayBox
                 label={t("text-field-label-description")}
-                content={readOnly.description}
+                content={courseAuditingData.description}
               />
 
               <CourseMetadata
                 courseId={courseAuditingData.id}
                 defaultModuleUhCourseCode={defaultModuleUhCourseCode}
                 reset={reset}
-                readOnly={readOnly}
-                setReadOnly={setReadOnly}
+                readOnly={courseAuditingData}
                 queryClient={queryClient}
               />
-              {readOnly.closed_at ? (
+              {courseAuditingData.closed_at ? (
                 <div
                   className={css`
                     display: flex;
@@ -477,16 +467,16 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   <div className={contentRowStyles}>
                     <ContentDisplayBox
                       label={t("closed-at")}
-                      content={<TimeComponent date={parseISO(readOnly.closed_at)} />}
+                      content={<TimeComponent date={parseISO(courseAuditingData.closed_at)} />}
                     />
                     <ContentDisplayBox
                       label={t("closed-course-successor-id")}
-                      content={readOnly.closed_course_successor_id}
+                      content={courseAuditingData.closed_course_successor_id}
                     />
                   </div>
                   <ContentDisplayBox
                     label={t("closed-additional-message")}
-                    content={readOnly.closed_additional_message}
+                    content={courseAuditingData.closed_additional_message}
                   />
                 </div>
               ) : (
@@ -497,8 +487,8 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                 <ContentDisplayBox
                   label={t("prerequisites-fieldset-title")}
                   content={
-                    readOnly.prerequisites.length > 0 &&
-                    readOnly.prerequisites.map((prerequisite) => (
+                    courseAuditingData.prerequisites.length > 0 &&
+                    courseAuditingData.prerequisites.map((prerequisite) => (
                       <ul
                         key={prerequisite.id}
                         className={css`
@@ -532,8 +522,8 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                 <ContentDisplayBox
                   label={t("audiences-fieldset-title")}
                   content={
-                    readOnly.audiences.length > 0 &&
-                    readOnly.audiences.map((audience) => (
+                    courseAuditingData.audiences.length > 0 &&
+                    courseAuditingData.audiences.map((audience) => (
                       <ul
                         key={audience.id}
                         className={css`
@@ -565,7 +555,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
                   }
                 />
               </div>
-              {readOnly.modules.map((module) => (
+              {courseAuditingData.modules.map((module) => (
                 <div
                   key={module.id}
                   className={css`
@@ -608,19 +598,22 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({
           >
             <TimeComponent
               label={t("label-created")}
-              date={parseISO(readOnly.created_at)}
+              date={parseISO(courseAuditingData.created_at)}
               right={false}
               boldLabel
             />
             <TimeComponent
               label={t("label-updated")}
-              date={parseISO(readOnly.updated_at)}
+              date={parseISO(courseAuditingData.updated_at)}
               right={true}
               boldLabel
             />
             <Link
               className={linkStyles}
-              href={courseMaterialFrontPageHref(readOnly.organization_slug, readOnly.slug)}
+              href={courseMaterialFrontPageHref(
+                courseAuditingData.organization_slug,
+                courseAuditingData.slug,
+              )}
             >
               {t("course-auditing-card-open-course-front-page")}
             </Link>

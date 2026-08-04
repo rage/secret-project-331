@@ -71,7 +71,7 @@ const EditClosedFields = (): React.ReactElement => {
           <div
             className={css`
               display: flex;
-              align-items: anchor-center;
+              align-items: flex-start;
               justify-content: space-between;
               gap: 1rem;
             `}

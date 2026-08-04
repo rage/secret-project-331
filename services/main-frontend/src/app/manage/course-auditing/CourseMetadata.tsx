@@ -2,17 +2,13 @@
 
 import { css } from "@emotion/css"
 import type { QueryClient } from "@tanstack/react-query"
-import React, { useState, type Dispatch, type SetStateAction } from "react"
+import React, { useState } from "react"
 import type { UseFormReset } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import AIMetadataForm from "@/components/CourseMetadata/AIMetadataForm"
+import AIMetadataForm from "@/components/forms/AIMetadataForm"
 import { getCoursesForAuditingQueryKey } from "@/generated/api/@tanstack/react-query.generated"
-import type {
-  CourseAuditingData,
-  CourseMetadata,
-  CourseMetadataUpdate,
-} from "@/generated/api/types.generated"
+import type { CourseAuditingData, CourseMetadata } from "@/generated/api/types.generated"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { undefinedToNull } from "@/shared-module/common/utils/nullability"
 import { Button } from "@/shared-module/components"
@@ -24,7 +20,6 @@ interface Props {
   defaultModuleUhCourseCode: string | null | undefined
   reset: UseFormReset<EditCourseAuditingData>
   readOnly: CourseAuditingData
-  setReadOnly: Dispatch<SetStateAction<CourseAuditingData>>
   queryClient: QueryClient
 }
 
@@ -33,7 +28,6 @@ const CourseMetadata: React.FC<Props> = ({
   defaultModuleUhCourseCode,
   reset,
   readOnly,
-  setReadOnly,
   queryClient,
 }) => {
   const { t } = useTranslation()
@@ -51,7 +45,7 @@ const CourseMetadata: React.FC<Props> = ({
     console.log(updatedData)
     reset(initDefaultValues(updatedData))
 
-    setReadOnly(updatedData)
+    //setReadOnly(updatedData)
 
     queryClient.setQueryData(getCoursesForAuditingQueryKey(), (old: CourseAuditingData[]) => {
       if (!old) {

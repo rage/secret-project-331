@@ -10,12 +10,10 @@ import {
   getSisuCourseLlmDescriptionsOptions,
   updateMetadataMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
-import { updateMetadata } from "@/generated/api/sdk.generated"
-import type { Course, CourseMetadata, CourseMetadataUpdate } from "@/generated/api/types.generated"
+import type { CourseMetadata } from "@/generated/api/types.generated"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { QueryResults } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"

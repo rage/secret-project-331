@@ -9,24 +9,29 @@ import type {
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { Course, CourseToAudit } from "@/generated/api/types.generated"
+import AIMetadataForm from "@/components/forms/AIMetadataForm"
+import type { Course } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Button from "@/shared-module/common/components/Button"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 
-import AIDescriptionForm from "../courses/[id]/overview/AIDescriptionForm"
-import type { EditCourseAuditingData } from "./CourseAuditingCard"
-
 interface Props {
-  course: CourseToAudit
+  courseId: string
   refetch: (
     options?: (RefetchOptions & RefetchQueryFilters) | undefined,
-  ) => Promise<QueryObserverResult<CourseToAudit, Error>>
+  ) => Promise<QueryObserverResult<Course, Error>>
 }
 
-const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
+const CourseMetadata: React.FC<React.PropsWithChildren<Props>> = ({ courseId, refetch }) => {
   const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
+
+  const courseStructure = useCourseStructure(courseId)
+
+  const defaultModule = courseStructure.data?.modules.find((module) => module.order_number === 0)
+
+  const hasCourseCode =
+    defaultModule?.uh_course_code !== null && defaultModule?.uh_course_code !== undefined
 
   const handleOnUpdateCourse = async () => {
     await refetch()
@@ -34,36 +39,25 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
 
   return (
     <div>
-      {course.uh_course_code ? (
+      <div>
         <Button
           className={css`
             margin: 0.5rem 0;
           `}
+          disabled={!hasCourseCode}
           variant="primary"
           size="medium"
           onClick={() => setShowForm(true)}
         >
-          {t("generate-ai-description")}
+          {t("generate-ai-metadata")}
         </Button>
-      ) : (
-        <div>
-          <Button
-            className={css`
-              margin: 0.5rem 0;
-            `}
-            disabled
-            variant="primary"
-            size="medium"
-            onClick={() => setShowForm(true)}
-          >
-            {t("generate-ai-description")}
-          </Button>
+        {!hasCourseCode && (
           <GenericInfobox>{t("missing-uh-course-code-notification")}</GenericInfobox>
-        </div>
-      )}
+        )}
+      </div>
 
-      <AIDescriptionForm
-        course={course}
+      <AIMetadataForm
+        courseId={courseId}
         onSubmitForm={handleOnUpdateCourse}
         open={showForm}
         onClose={() => setShowForm(false)}
@@ -72,4 +66,4 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
   )
 }
 
-export default CourseDescription
+export default CourseMetadata

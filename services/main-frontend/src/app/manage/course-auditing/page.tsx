@@ -250,12 +250,7 @@ const CourseAuditing = () => {
           >
             {t("course-auditing-showing-courses", { count: filteredCourses.length })}
             {filteredCourses.map((course) => (
-              <CourseAuditingCard
-                key={course.id}
-                id={course.id}
-                courseAuditingData={course}
-                refetch={getCoursesForAuditing.refetch}
-              />
+              <CourseAuditingCard key={course.id} id={course.id} courseAuditingData={course} />
             ))}
           </div>
         )}

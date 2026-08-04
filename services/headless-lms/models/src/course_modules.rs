@@ -349,7 +349,7 @@ WHERE deleted_at IS NULL
     .map(|x| x.into())
     .fetch_all(conn)
     .await?;
-    Ok(res.into())
+    Ok(res)
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModule> {

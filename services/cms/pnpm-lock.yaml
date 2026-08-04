@@ -47,12 +47,6 @@ importers:
       '@fontsource/inter':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/josefin-sans':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource/lato':
-        specifier: ^5.3.0
-        version: 5.3.0
       '@fontsource/raleway':
         specifier: ^5.3.0
         version: 5.3.0
@@ -1993,12 +1987,6 @@ packages:
 
   '@fontsource/inter@5.3.0':
     resolution: {integrity: sha512-RofMylZmjlJEfELXeNHFWBRcSs75rGU/6bV2S2jfnvv/3rPXPGe0LgUJTklcHZ9lM4OZmAVFhcJPnACfb91A3g==}
-
-  '@fontsource/josefin-sans@5.3.0':
-    resolution: {integrity: sha512-N2xY1l8gBCNrlRa0tMnjUtbSJb/rqWmPLgLSMq6H+EY2/uerAHtbyoHsQQKwhMA8hJat7S+OSk6saxGMceKKvA==}
-
-  '@fontsource/lato@5.3.0':
-    resolution: {integrity: sha512-0WhF/4rhrw+ErIyneKvhHn2YAl+xf8GDtllgOgOzDmeaSlLQtjpChXaQOpWhG2BchQW0WJy2zLV12Hdg0ndOMw==}
 
   '@fontsource/raleway@5.3.0':
     resolution: {integrity: sha512-BTWr1I14Ji0DWpS/KCIq/CXcvxXWgMO73gynWpbYv7A5wlPhLevozgRmdPJvZmUf0fhH+Lju+F4nigJ6Ums24A==}
@@ -12447,10 +12435,6 @@ snapshots:
 
   '@fontsource/inter@5.3.0': {}
 
-  '@fontsource/josefin-sans@5.3.0': {}
-
-  '@fontsource/lato@5.3.0': {}
-
   '@fontsource/raleway@5.3.0': {}
 
   '@fontsource/roboto-mono@5.3.0': {}
@@ -22781,8 +22765,6 @@ time:
   '@emotion/styled@11.14.1': '2025-06-26T10:49:15.752Z'
   '@fontsource-variable/inter@5.3.0': '2026-07-19T03:50:25.793Z'
   '@fontsource/inter@5.3.0': '2026-07-19T03:40:13.819Z'
-  '@fontsource/josefin-sans@5.3.0': '2026-07-19T03:40:26.514Z'
-  '@fontsource/lato@5.3.0': '2026-07-19T03:41:00.015Z'
   '@fontsource/raleway@5.3.0': '2026-07-19T03:45:34.357Z'
   '@fontsource/roboto-mono@5.3.0': '2026-07-19T03:45:49.869Z'
   '@fontsource/space-mono@5.3.0': '2026-07-19T03:46:52.213Z'

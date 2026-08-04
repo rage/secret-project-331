@@ -95,7 +95,7 @@ async fn get_course_exercises(
 
     let mut slides = Vec::new();
     // process only exercises of open chapters
-    let open_chapter_ids = models::chapters::course_chapters(&mut conn, *course)
+    let open_chapter_ids = models::chapters::get_course_chapters(&mut conn, *course)
         .await?
         .into_iter()
         .filter(DatabaseChapter::has_opened)

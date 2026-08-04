@@ -179,7 +179,12 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           padding: 20px;
         `}
       >
-        <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
+        <ErrorBanner
+          error={currentConversationInfo.error}
+          variant="readOnly"
+          maxHeightVH={50}
+          listMaxHeightVH={35}
+        />
         <Button onClick={() => currentConversationInfo.refetch()} variant="secondary" size="small">
           {t("try-again")}
         </Button>

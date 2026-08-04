@@ -566,7 +566,10 @@ pub async fn delete_certificate_configuration(
             Some(authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?);
     }
 
-    models::certificate_configurations::delete(&mut conn, *configuration_id).await?;
+    let mut tx = conn.begin().await?;
+    models::certificate_configurations::delete(&mut tx, *configuration_id).await?;
+    tx.commit().await?;
+
     let token = token.ok_or_else(|| {
         controller_err!(
             InternalServerError,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    output,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\",\n    response_id\nFROM chatbot_conversation_message_tool_outputs\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM chatbot_conversation_message_tool_outputs\nWHERE chatbot_conversation_message_id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -16,39 +16,6 @@
       },
       {
         "ordinal": 1,
-        "name": "created_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_message_tool_outputs",
-            "name": "created_at"
-          }
-        }
-      },
-      {
-        "ordinal": 2,
-        "name": "updated_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_message_tool_outputs",
-            "name": "updated_at"
-          }
-        }
-      },
-      {
-        "ordinal": 3,
-        "name": "deleted_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_message_tool_outputs",
-            "name": "deleted_at"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
         "name": "chatbot_conversation_message_id",
         "type_info": "Uuid",
         "origin": {
@@ -59,7 +26,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 2,
         "name": "output",
         "type_info": "Varchar",
         "origin": {
@@ -70,7 +37,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 3,
         "name": "tool_call_id",
         "type_info": "Varchar",
         "origin": {
@@ -81,8 +48,41 @@
         }
       },
       {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
         "ordinal": 7,
-        "name": "tool_kind: ToolKind",
+        "name": "tool_kind",
         "type_info": {
           "Custom": {
             "name": "tool_kind",
@@ -122,13 +122,13 @@
       false,
       false,
       false,
+      false,
+      false,
+      false,
       true,
-      false,
-      false,
-      false,
       false,
       false
     ]
   },
-  "hash": "4d019c14eec967a274587dbb22d51fb44e3a5ff4dd2fbd3a3eca37d8d5d514fb"
+  "hash": "e51045b80103b15b947adb0c3aaf03a2bcc40cf67cf1472833aa542c24cf56b8"
 }

@@ -123,7 +123,7 @@ async fn send_message(
         .get("anonymous-token")
         .and_then(|anonymous_token| anonymous_token.to_str().ok());
 
-    let anonymous_token = if let Some(anonymous_token) = anonymous_token_req {
+    let anonymous_token = if let (Some(anonymous_token), None) = (anonymous_token_req, user) {
         Some(anonymous_token.to_owned())
     } else {
         None
@@ -289,7 +289,7 @@ async fn current_conversation_info(
         .get("anonymous-token")
         .and_then(|anonymous_token| anonymous_token.to_str().ok());
 
-    let anonymous_token = if let Some(anonymous_token) = anonymous_token_req {
+    let anonymous_token = if let (Some(anonymous_token), None) = (anonymous_token_req, user) {
         Some(anonymous_token.to_owned())
     } else {
         None

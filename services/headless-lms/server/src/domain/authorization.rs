@@ -324,12 +324,12 @@ pub async fn authorize_access_to_chatbot(
     Ok(token)
 }
 
-/** Extracts anonymous token from request headers and returns it appropriately */
+/** Extracts anonymous token from request headers and returns it */
 pub fn handle_anonymous_token(req: HttpRequest, user: Option<AuthUser>) -> Option<String> {
     let anonymous_token_value = req
         .headers()
-        .get("anonymous-token")
-        .and_then(|anonymous_token| anonymous_token.to_str().ok());
+        .get("authorization")
+        .and_then(|anonymous_token| anonymous_token.to_str().ok()?.strip_prefix("Bearer "));
 
     let anonymous_token = if let (Some(anonymous_token), None) = (anonymous_token_value, user) {
         Some(anonymous_token.to_owned())

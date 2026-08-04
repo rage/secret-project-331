@@ -12,7 +12,7 @@ const useCurrentConversationInfo = (
         chatbot_configuration_id: chatbotConfigurationId,
       },
       headers: {
-        "anonymous-token": anonymousToken,
+        authorization: `Bearer ${anonymousToken}`,
       },
     }),
   )

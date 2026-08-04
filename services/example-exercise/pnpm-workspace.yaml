@@ -51,9 +51,10 @@ minimumReleaseAgeExclude:
   - "typescript@7.0.2"
   - "@typescript/typescript-*"
   - "@typescript/typescript6@6.0.2"
-  - postcss@8.5.10
+  - postcss@8.5.10 || 8.5.18 || 8.5.23
   - "@babel/plugin-transform-modules-systemjs@7.29.4"
   - qs@6.15.2
   - esbuild@0.28.1
   - "@babel/core@7.29.1"
   - js-yaml@4.1.2
+  - fast-uri@3.1.5

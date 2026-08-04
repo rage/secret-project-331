@@ -61,10 +61,15 @@ minimumReleaseAgeExclude:
   - "typescript@7.0.2"
   - "@typescript/typescript-*"
   - "@typescript/typescript6@6.0.2"
-  - postcss@8.5.10
+  - postcss@8.5.10 || 8.5.12 || 8.5.18 || 8.5.23
   - "@babel/plugin-transform-modules-systemjs@7.29.4"
   - qs@6.15.2
   - tmp@0.2.6 || 0.2.7
   - "@babel/core@7.29.1"
-  - dompurify@3.4.6 || 3.4.7 || 3.4.8 || 3.4.9 || 3.4.11
-  - js-yaml@4.1.2
+  - dompurify@3.4.6 || 3.4.7 || 3.4.8 || 3.4.9 || 3.4.11 || 3.4.12
+  - js-yaml@4.1.2 || 5.1.1 || 5.2.1 || 5.2.2
+  - brace-expansion@5.0.7 || 5.0.8 || 5.0.9
+  - body-parser@2.3.0
+  - svgo@3.3.4
+  - sharp@0.35.0
+  - fast-uri@3.1.5

@@ -2,18 +2,25 @@
   "name": "example-exercise",
   "version": "1.0.1",
   "type": "module",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
+  },
   "scripts": {
     "build": "rsbuild build",
     "dev": "rsbuild dev --port 3002",
     "start": "node server.mjs",
     "test": "vitest run",
+    "test:playwright": "playwright test",
+    "test:playwright:diagnostics": "playwright test --project=plugin-contract-chromium --debug",
+    "test:playwright:focused": "playwright test --project=plugin-contract-chromium",
+    "test:playwright:iframe-boundary": "playwright test --project=iframe-boundary-chromium --project=iframe-boundary-firefox --project=iframe-boundary-webkit",
+    "test:playwright:plugin-contract": "playwright test --project=plugin-contract-chromium",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "test:playwright": "playwright test",
-    "test:playwright:plugin-contract": "playwright test --project=plugin-contract-chromium",
-    "test:playwright:iframe-boundary": "playwright test --project=iframe-boundary-chromium --project=iframe-boundary-firefox --project=iframe-boundary-webkit",
-    "test:playwright:focused": "playwright test --project=plugin-contract-chromium",
-    "test:playwright:diagnostics": "playwright test --project=plugin-contract-chromium --debug",
     "verify": "pnpm run typecheck && pnpm run build && pnpm run test && pnpm run test:playwright"
   },
   "dependencies": {
@@ -52,12 +59,5 @@
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.9"
-  },
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
   }
 }

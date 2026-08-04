@@ -117,19 +117,15 @@ impl ChatbotTool for CourseFinderTool {
 
         let courses = courses::get_by_ids(conn, &course_ids).await?;
 
-        let course_occurrences: HashMap<Uuid, CourseOccurrences> = courses
+        let mut course_occurrences: Vec<CourseOccurrences> = courses
             .into_iter()
-            .map(|course| {
-                let count = counts[&course.id];
-                (
-                    course.id,
-                    CourseOccurrences {
-                        course,
-                        occurrences: count,
-                    },
-                )
+            .map(|course| CourseOccurrences {
+                occurrences: counts[&course.id],
+                course,
             })
             .collect();
+
+        course_occurrences.sort_by(|a, b| b.occurrences.cmp(&a.occurrences));
         println!("OUTPUT: {:#?}", course_occurrences);
         Ok(CourseFinderTool {
             state: CourseFinderState {
@@ -145,7 +141,7 @@ impl ChatbotTool for CourseFinderTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("You get a JSON with course id as a key and course info and course occurrences as values.. The value tuple will have the course info as one value and the amount how many times the course matched with the user query. When answering the user, present the course with most occurrences first, because this means that it matched better with the user query. Do not return the JSON of the courses to the user. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
+        Some("You will get a order array as the output. Every value in the array has two values, course information and its relevancy to the user query. When answering the user, present the course with most occurrences first, because this means that it matched better with the user query. Do not return the JSON of the courses to the user. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
     }
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
@@ -198,7 +194,7 @@ impl ChatbotTool for CourseFinderTool {
 
 #[derive(Debug)]
 pub struct CourseFinderState {
-    courses: HashMap<Uuid, CourseOccurrences>,
+    courses: Vec<CourseOccurrences>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

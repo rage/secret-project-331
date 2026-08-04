@@ -133,10 +133,12 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
                   width: 40px;
                   height: 40px;
                   color: #000;
-                  ${leftAlignTitle &&
-                  `
+                  ${
+                    leftAlignTitle &&
+                    `
                     margin-top: -6px;
-                  `}
+                  `
+                  }
                   &:hover {
                     background-color: #f0f0f0;
                   }
@@ -186,9 +188,11 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
             ${!disableContentScroll && "overflow-y: auto;"}
 
             @media (max-width: 480px) {
-              ${!noPadding &&
-              `padding-left: 1rem;
-              padding-right: 1rem;`}
+              ${
+                !noPadding &&
+                `padding-left: 1rem;
+              padding-right: 1rem;`
+              }
             }
           `}
         >

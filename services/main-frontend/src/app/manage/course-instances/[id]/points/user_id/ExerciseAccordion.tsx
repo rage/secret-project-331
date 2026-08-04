@@ -75,15 +75,19 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
         transition:
           border-color 0.2s ease,
           box-shadow 0.2s ease;
-        ${isExpanded &&
-        `
+        ${
+          isExpanded &&
+          `
           border-color: ${baseTheme.colors.green[400]};
           box-shadow: 0 4px 12px ${baseTheme.colors.clear[400]};
-        `}
-        ${userExerciseState === undefined &&
-        `opacity: 0.5;
+        `
+        }
+        ${
+          userExerciseState === undefined &&
+          `opacity: 0.5;
          cursor: not-allowed;
-        `}
+        `
+        }
       `}
       data-testid={"exercise-status"}
     >
@@ -144,9 +148,9 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
         >
           <div
             className={css`
-              color: ${userExerciseState
-                ? baseTheme.colors.green[700]
-                : baseTheme.colors.gray[500]};
+              color: ${
+                userExerciseState ? baseTheme.colors.green[700] : baseTheme.colors.gray[500]
+              };
               font-size: 1rem;
               font-weight: 600;
               line-height: 1;

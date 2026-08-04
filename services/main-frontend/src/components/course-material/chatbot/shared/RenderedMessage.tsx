@@ -81,6 +81,13 @@ const messageStyle = css`
   h6 {
     font-size: 0.6rem;
   }
+  ul,
+  ol {
+    padding-left: 1.75rem;
+  }
+  li {
+    padding-bottom: 0.25rem;
+  }
 `
 
 export enum MessageRenderType {

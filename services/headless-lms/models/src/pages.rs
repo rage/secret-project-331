@@ -15,7 +15,7 @@ use utoipa::ToSchema;
 use crate::{
     CourseOrExamId, SpecFetcher,
     chapters::{
-        self, Chapter, DatabaseChapter, course_chapters, get_chapter, get_chapter_by_page_id,
+        self, Chapter, DatabaseChapter, get_chapter, get_chapter_by_page_id, get_course_chapters,
     },
     course_instances::{self, CourseInstance},
     courses::{self, Course, CourseContextData, CourseMaterialCourse},
@@ -4127,7 +4127,7 @@ pub async fn reorder_pages(
 ) -> ModelResult<()> {
     let db_pages =
         get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
-    let chapters = course_chapters(conn, course_id).await?;
+    let chapters = get_course_chapters(conn, course_id).await?;
 
     let mut chapter_pages: HashMap<Option<Uuid>, Vec<&Page>> = HashMap::new();
 
@@ -4265,7 +4265,7 @@ pub async fn reorder_chapters(
     chapters: &[Chapter],
     course_id: Uuid,
 ) -> ModelResult<()> {
-    let db_chapters = course_chapters(conn, course_id).await?;
+    let db_chapters = get_course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
     // Look for the modified chapter in the existing database
 

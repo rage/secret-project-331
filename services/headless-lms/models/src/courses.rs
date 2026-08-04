@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    chapters::{Chapter, course_chapters},
+    chapters::{Chapter, get_course_chapters},
     course_audiences::{CourseAudience, EditCourseAudience},
     course_instances::CourseInstance,
     course_modules::{CourseModule, ModifiedModule},
@@ -1010,7 +1010,7 @@ pub async fn get_course_structure(
 ) -> ModelResult<CourseStructure> {
     let course = get_course(conn, course_id).await?;
     let pages = get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
-    let chapters = course_chapters(conn, course_id)
+    let chapters = get_course_chapters(conn, course_id)
         .await?
         .iter()
         .map(|chapter| Chapter::from_database_chapter(chapter, file_store, app_conf))

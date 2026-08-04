@@ -13,13 +13,21 @@ export interface BannerExtraProps {
   variant?: "text" | "link" | "readOnly" | "frontendCrash"
   error: unknown | string
   contextMessage?: React.ReactNode
+  maxHeightVH?: number
+  listMaxHeightVH?: number
 }
 
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
 const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
   const { t } = useTranslation()
-  const { variant: __variant = "text", error: unknownError, contextMessage } = props
+  const {
+    variant: __variant = "text",
+    error: unknownError,
+    contextMessage,
+    maxHeightVH,
+    listMaxHeightVH,
+  } = props
   const compact = __variant === "frontendCrash"
   const isFrontendCrash = __variant === "frontendCrash"
   const normalized = normalizeErrorForDisplay(unknownError, t)
@@ -45,7 +53,12 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
     parsed.technicalDetails?.raw !== undefined
 
   return (
-    <BannerWrapper compact={compact} isFrontendCrash={isFrontendCrash} role="alert">
+    <BannerWrapper
+      compact={compact}
+      isFrontendCrash={isFrontendCrash}
+      maxHeightVH={maxHeightVH}
+      role="alert"
+    >
       <Content compact={compact}>
         <Text compact={compact}>
           <h2>{displayCopy.title}</h2>
@@ -74,7 +87,7 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
           codeLine ||
           parsed.requestId ||
           (parsed.retryAfterSeconds !== null && parsed.retryAfterSeconds !== undefined)) && (
-          <DetailTag>
+          <DetailTag listMaxHeightVH={listMaxHeightVH}>
             <details>
               <summary>{t("show-error-source")}</summary>
               <ul>

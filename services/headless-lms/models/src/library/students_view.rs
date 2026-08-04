@@ -328,7 +328,7 @@ pub async fn get_progress_structure(
     course_id: Uuid,
 ) -> ModelResult<CourseStudentsProgressStructure> {
     let course = crate::courses::get_course(conn, course_id).await?;
-    let chapters = crate::chapters::course_chapters(conn, course_id).await?;
+    let chapters = crate::chapters::get_course_chapters(conn, course_id).await?;
     let chapter_availability = chapters::fetch_chapter_availability(conn, course_id).await?;
 
     Ok(CourseStudentsProgressStructure {

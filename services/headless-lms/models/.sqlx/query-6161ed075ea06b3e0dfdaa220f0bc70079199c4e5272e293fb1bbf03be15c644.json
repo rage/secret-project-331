@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  color,\n  course_id,\n  deleted_at,\n  chapter_image_path,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  copied_from,\n  deadline,\n  course_module_id\nFROM chapters\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n",
+  "query": "\nSELECT *\nFROM chapters\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n",
   "describe": {
     "columns": [
       {
@@ -16,28 +16,6 @@
       },
       {
         "ordinal": 1,
-        "name": "created_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chapters",
-            "name": "created_at"
-          }
-        }
-      },
-      {
-        "ordinal": 2,
-        "name": "updated_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chapters",
-            "name": "updated_at"
-          }
-        }
-      },
-      {
-        "ordinal": 3,
         "name": "name",
         "type_info": "Varchar",
         "origin": {
@@ -48,24 +26,46 @@
         }
       },
       {
-        "ordinal": 4,
-        "name": "color",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "chapters",
-            "name": "color"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
+        "ordinal": 2,
         "name": "course_id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
             "table": "chapters",
             "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "chapter_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "updated_at"
           }
         }
       },
@@ -82,28 +82,6 @@
       },
       {
         "ordinal": 7,
-        "name": "chapter_image_path",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "chapters",
-            "name": "chapter_image_path"
-          }
-        }
-      },
-      {
-        "ordinal": 8,
-        "name": "chapter_number",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "chapters",
-            "name": "chapter_number"
-          }
-        }
-      },
-      {
-        "ordinal": 9,
         "name": "front_page_id",
         "type_info": "Uuid",
         "origin": {
@@ -114,7 +92,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 8,
         "name": "opens_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -125,7 +103,18 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 9,
+        "name": "chapter_image_path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_image_path"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
         "name": "copied_from",
         "type_info": "Uuid",
         "origin": {
@@ -136,7 +125,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 11,
         "name": "deadline",
         "type_info": "Timestamptz",
         "origin": {
@@ -147,13 +136,24 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 12,
         "name": "course_module_id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
             "table": "chapters",
             "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "color",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "color"
           }
         }
       }
@@ -168,17 +168,17 @@
       false,
       false,
       false,
-      true,
+      false,
       false,
       true,
       true,
+      true,
+      true,
+      true,
+      true,
       false,
-      true,
-      true,
-      true,
-      true,
-      false
+      true
     ]
   },
-  "hash": "78a6905e84ce0cdd8ac41e9fb923260b69f24e946cfe2efdad7ab15084f1658c"
+  "hash": "6161ed075ea06b3e0dfdaa220f0bc70079199c4e5272e293fb1bbf03be15c644"
 }

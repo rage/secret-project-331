@@ -1720,7 +1720,7 @@ mod tests {
         let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
             .await
             .unwrap();
-        let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
+        let copied_chapters = crate::chapters::get_course_chapters(tx.as_mut(), copied_course.id)
             .await
             .unwrap();
         assert_eq!(copied_chapters.len(), 1);
@@ -1737,7 +1737,7 @@ mod tests {
         let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
             .await
             .unwrap();
-        let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
+        let copied_chapters = crate::chapters::get_course_chapters(tx.as_mut(), copied_course.id)
             .await
             .unwrap();
         let copied_chapter = copied_chapters.first().unwrap();
@@ -1934,7 +1934,7 @@ mod tests {
         let copied_task = copied_tasks.first().unwrap();
         assert_eq!(copied_task.copied_from, Some(task));
 
-        let original_course_chapters = crate::chapters::course_chapters(tx.as_mut(), course.id)
+        let original_course_chapters = crate::chapters::get_course_chapters(tx.as_mut(), course.id)
             .await
             .unwrap();
         for original_chapter in original_course_chapters {

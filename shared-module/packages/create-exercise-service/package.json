@@ -48,11 +48,11 @@
     "@inquirer/prompts": "^8.5.2"
   },
   "devDependencies": {
-    "@types/node": "^26.0.1",
+    "@types/node": "^26.1.2",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "publint": "0.3.21",
-    "tsdown": "0.22.7",
-    "tsx": "^4.22.4",
+    "publint": "0.3.22",
+    "tsdown": "0.22.14",
+    "tsx": "^4.23.1",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   }
 }

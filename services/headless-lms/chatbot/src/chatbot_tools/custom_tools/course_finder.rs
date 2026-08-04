@@ -141,7 +141,7 @@ impl ChatbotTool for CourseFinderTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("You will get a order array as the output. Every value in the array has two values, course information and its relevancy to the user query. When answering the user, present the course with most occurrences first, because this means that it matched better with the user query. Do not return the JSON of the courses to the user. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
+        Some("Do not return the whole JSON of the courses to the user. Present the most suitable courses based on the user query. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
     }
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {

@@ -17,9 +17,9 @@
     "sync-once": "tsx sync.ts --once"
   },
   "dependencies": {
-    "@fontsource-variable/inter": "^5.2.6",
-    "@fontsource/inter": "^5.2.6",
-    "@parcel/watcher": "^2.5.6",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@parcel/watcher": "^2.6.0",
     "date-fns-tz": "^3.2.0",
     "lodash": "^4.18.1",
     "react-aria-components": "^1.19.0"
@@ -27,6 +27,6 @@
   "devDependencies": {
     "@types/lodash": "^4.17.24",
     "esbuild": "^0.28.1",
-    "tsx": "^4.22.4"
+    "tsx": "^4.23.1"
   }
 }

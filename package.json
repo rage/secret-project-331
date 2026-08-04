@@ -3,25 +3,33 @@
   "version": "0.0.0",
   "description": "",
   "homepage": "https://github.com/rage/secret-project-331#readme",
+  "main": "index.js",
+  "packageManager": "pnpm@11.9.0",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/rage/secret-project-331/issues"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rage/secret-project-331.git"
   },
-  "type": "module",
-  "main": "index.js",
   "scripts": {
     "codegen:openapi-ts": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI TS clients is to run the bin/generate-bindings command.\"; exit 1'",
     "create-exercise-service": "bin/create-exercise-service",
+    "export-openapi": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI specs is to run the bin/generate-bindings command.\"; exit 1'",
+    "format": "oxfmt",
+    "format:bindings": "oxfmt shared-module/packages/common/src/bindings.ts",
+    "format:check": "oxfmt --check",
+    "format:generated-docs": "oxfmt services/headless-lms/server/generated-docs/",
     "lint": "oxlint --fix",
     "lint:ci": "oxlint --max-warnings=0",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check",
-    "format:bindings": "oxfmt shared-module/packages/common/src/bindings.ts",
-    "format:generated-docs": "oxfmt services/headless-lms/server/generated-docs/",
-    "export-openapi": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI specs is to run the bin/generate-bindings command.\"; exit 1'",
     "lint:css": "stylelint '**/*.tsx'",
     "lint:no-inline-api-paths": "bash -lc \"! rg -n '(/api/v0/|/api/ws/)' services/cms/src services/main-frontend/src --glob '!**/generated/**' --glob '!**/services/mediaUpload.ts' --glob '!**/hooks/playground/usePlaygroundQueriesAndMutations.tsx' --glob '!**/app/playground-views/page.tsx' --glob '!**/app/playground-views/PlaygroundPreview.tsx' --glob '!**/certificates/CertificateView.tsx' --glob '!**/tabs/CertificatesTab.tsx' --glob '!**/components/course-material/chatbot/shared/hooks/useChatbotStateAndData.ts'\"",
     "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
@@ -50,13 +58,5 @@
     "ts-auto-guard": "^5.1.3",
     "tsx": "^4.22.4",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
-  },
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
-  "packageManager": "pnpm@11.9.0"
+  }
 }

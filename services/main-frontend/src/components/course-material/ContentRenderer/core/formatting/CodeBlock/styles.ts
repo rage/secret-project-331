@@ -16,11 +16,28 @@ export const preStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
   white-space: pre-wrap;
   overflow-wrap: break-word;
   padding: 16px;
-  ${allowFullWidth &&
-  `
+  ${allowFullWidth
+    ? `
     margin-top: -1.5rem;
     margin-bottom: -1.5rem;
-  `}
+  `
+    : ""}
+`
+
+export const codeBlockStyles = css`
+  background-color: #1a2333;
+  border-radius: 4px;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0;
+  .code-line {
+    display: block;
+  }
+  .highlighted-line {
+    background-color: rgba(255, 255, 100, 0.1);
+    margin: 0 -16px;
+    padding: 0 16px 0 13px;
+    border-left: 3px solid #ffd700;
+  }
 `
 
 export const buttonStyles = css`

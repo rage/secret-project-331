@@ -1,16 +1,19 @@
 "use client"
 
 import { css } from "@emotion/css"
+import hljs from "highlight.js"
 import type { DOMAttributes, ReactPortal } from "react"
 import React, { memo, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
+import { defaultFontSizePx } from "@/shared-module/common/styles/constants"
 import { planCitationPortals } from "@/utils/course-material/chatbotCitationPortals"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
 import { getRemarkable } from "@/utils/course-material/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
+import { codeBlockStyles, preStyles } from "../../ContentRenderer/core/formatting/CodeBlock/styles"
 import CitationButton from "./CitationButton"
 
 const PORTAL_PLACEHOLDER_QUERY_SELECTOR = "[data-chatbot-citation='true']"
@@ -46,6 +49,13 @@ const messageStyle = css`
     /*the pre element corresponds to md raw text, this property
     will force long strings in it to wrap and not overflow */
     white-space: pre-wrap;
+    padding: 0;
+    border-radius: 0.4rem;
+    ${preStyles(defaultFontSizePx, false)}
+  }
+  code {
+    ${codeBlockStyles}
+    border-radius: 0.4rem;
   }
   button {
     /*Citations are inside button tags, it's assumed button tags wouldn't
@@ -110,7 +120,7 @@ interface MessageWithPortalsComponentProps {
   msg: string
 }
 
-const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
+const MemoMessageWithInnerHTML: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
   /* this span is the parent to the portal containers. memo it so that it won't be
    re-rendered when the portals are created */
   return (
@@ -121,7 +131,7 @@ const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = 
   )
 })
 
-MessageWithPortalsComponent.displayName = "MessageWithPortalsComponent"
+MemoMessageWithInnerHTML.displayName = "MemoMessageWithInnerHTML"
 
 const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
@@ -137,6 +147,9 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   // the message needs to be rendered before we can put portals in it, so this state is
   // set as true only when the initial render is complete and citations should be shown
   const [readyForPortal, setReadyForPortal] = useState(false)
+  // the message needs to be rendered before we can style the code blocks, same as
+  // readyForPortal
+  const [readyForCode, setReadyForCode] = useState(false)
 
   useLayoutEffect(() => {
     if (renderOption === MessageRenderType.ChatbotWithCitations) {
@@ -144,7 +157,12 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     } else {
       setReadyForPortal(false)
     }
-  }, [renderOption])
+    if (Array.from(thisNode.current?.querySelectorAll<Element>("code") ?? []).length > 0) {
+      setReadyForCode(true)
+    } else {
+      setReadyForCode(false)
+    }
+  }, [renderOption, thisNode])
 
   let portals: ReactPortal[] | null = useMemo(() => {
     if (!readyForPortal) {
@@ -187,6 +205,16 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     readyForPortal,
   ])
 
+  useMemo(() => {
+    if (!readyForCode) {
+      return
+    }
+    const codeNodes = Array.from(thisNode.current?.querySelectorAll<Element>("code") ?? [])
+    codeNodes.forEach((node) => {
+      hljs.highlightElement(node as HTMLElement)
+    })
+  }, [thisNode, readyForCode])
+
   let renderedMessage = useMemo(() => {
     switch (renderOption) {
       case MessageRenderType.User:
@@ -206,16 +234,15 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
 
   if (renderOption === MessageRenderType.ChatbotNoCitations) {
     return (
-      <span
-        className={messageStyle}
-        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(renderedMessage) }}
-      ></span>
+      <span ref={thisNode}>
+        <MemoMessageWithInnerHTML msg={renderedMessage} />
+      </span>
     )
   }
 
   return (
     <span ref={thisNode}>
-      <MessageWithPortalsComponent msg={renderedMessage} />
+      <MemoMessageWithInnerHTML msg={renderedMessage} />
       {readyForPortal && portals}
     </span>
   )

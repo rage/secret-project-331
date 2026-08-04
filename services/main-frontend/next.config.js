@@ -55,6 +55,12 @@ const config = {
         as: "*.js",
       },
     },
+    resolveAlias: {
+      // @citation-js/core statically imports node-fetch, which requires node:fs/node:net
+      // (via fetch-blob) even though citation-js only calls it outside the browser. Turbopack
+      // refuses to bundle those for the client, so alias it to a fetch()-based shim there.
+      "node-fetch": { browser: "./src/shims/browserNodeFetch.js" },
+    },
   },
   compiler: {
     emotion: {

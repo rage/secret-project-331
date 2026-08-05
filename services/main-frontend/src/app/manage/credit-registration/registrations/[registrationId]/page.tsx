@@ -14,7 +14,7 @@ import { useAdminCreditRegistration } from "@/components/credit-registration/adm
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
-import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
+import { MIDDLE_DOT, STACKED, TONE } from "@/components/credit-registration/constants"
 import { registrationErrorHelp } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   headingCss,
@@ -39,8 +39,6 @@ import {
   Table,
 } from "@/shared-module/components"
 
-// oxlint-disable-next-line i18next/no-literal-string
-const STACKED = "stacked" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const ARROW = " → "
 // oxlint-disable-next-line i18next/no-literal-string

@@ -459,35 +459,13 @@ pub async fn admin_transition_credit_registration(
                 (AdminTransitionOutcome::NoChange, row.state, false)
             } else {
                 credit_registrations::set_needs_admin_attention(&mut tx, id, false).await?;
-                models::credit_registration_events::insert(
-                    &mut tx,
-                    &models::credit_registration_events::NewCreditRegistrationEvent {
-                        actor_user_id: Some(user.id),
-                        message: Some(reason.to_string()),
-                        ..models::credit_registration_events::NewCreditRegistrationEvent::new(
-                            id,
-                            CreditRegistrationEventKind::AdminAction,
-                        )
-                    },
-                )
-                .await?;
+                insert_admin_action_event(&mut tx, id, user.id, reason).await?;
                 (AdminTransitionOutcome::Applied, row.state, false)
             }
         }
         AdminCreditRegistrationTransitionTarget::CheckNow => {
             credit_registrations::make_due_now(&mut tx, id).await?;
-            models::credit_registration_events::insert(
-                &mut tx,
-                &models::credit_registration_events::NewCreditRegistrationEvent {
-                    actor_user_id: Some(user.id),
-                    message: Some(reason.to_string()),
-                    ..models::credit_registration_events::NewCreditRegistrationEvent::new(
-                        id,
-                        CreditRegistrationEventKind::AdminAction,
-                    )
-                },
-            )
-            .await?;
+            insert_admin_action_event(&mut tx, id, user.id, reason).await?;
             (
                 AdminTransitionOutcome::Applied,
                 row.state,
@@ -553,6 +531,29 @@ pub async fn admin_transition_credit_registration(
         state: after_state,
         needs_admin_attention,
     }))
+}
+
+/// Records an admin action against the row's timeline without moving its state, for the two
+/// transitions that only clear a flag or reschedule the row.
+async fn insert_admin_action_event(
+    tx: &mut PgConnection,
+    id: Uuid,
+    actor_user_id: Uuid,
+    reason: &str,
+) -> Result<(), ControllerError> {
+    models::credit_registration_events::insert(
+        tx,
+        &models::credit_registration_events::NewCreditRegistrationEvent {
+            actor_user_id: Some(actor_user_id),
+            message: Some(reason.to_string()),
+            ..models::credit_registration_events::NewCreditRegistrationEvent::new(
+                id,
+                CreditRegistrationEventKind::AdminAction,
+            )
+        },
+    )
+    .await?;
+    Ok(())
 }
 
 async fn one_admin_row(

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useCallback, useEffect, useMemo, useRef } from "react"
+import React, { useCallback, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -18,7 +18,7 @@ import type {
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Button, Checkbox, QueryResult, Table, TextField } from "@/shared-module/components"
+import { Button, QueryResult, Table, TextField } from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
 
@@ -57,8 +57,6 @@ const CLEARABLE_PARAMS = [...NARROWING_PARAMS, PARAM_SEARCH, PARAM_ATTENTION, PA
 
 interface FilterFields {
   search: string
-  needs_admin_attention: boolean
-  include_superseded: boolean
 }
 
 const controlsCss = css`
@@ -95,6 +93,12 @@ const stackedCellCss = css`
   display: grid;
 `
 
+const checkboxLabelCss = css`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+`
+
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
 const RegistrationsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -110,12 +114,10 @@ const RegistrationsPage: React.FC = () => {
   const { control, watch, reset, handleSubmit } = useForm<FilterFields>({
     defaultValues: {
       search: param(PARAM_SEARCH) ?? "",
-      needs_admin_attention: param(PARAM_ATTENTION) === TRUE,
-      include_superseded: param(PARAM_SUPERSEDED) === TRUE,
     },
   })
-  const attention = watch("needs_admin_attention")
-  const superseded = watch("include_superseded")
+  const attention = param(PARAM_ATTENTION) === TRUE
+  const superseded = param(PARAM_SUPERSEDED) === TRUE
   const typedSearch = watch("search")
   // Refetching mid-word would reshuffle the table under the operator's cursor.
   const searchPending = typedSearch.trim() !== (param(PARAM_SEARCH) ?? "")
@@ -136,25 +138,6 @@ const RegistrationsPage: React.FC = () => {
     },
     [router, searchParams],
   )
-
-  // `searchParams` still holds the pre-navigation URL for a render or two after `router.replace`,
-  // so a toggle compared against it would re-fire while a navigation is in flight.
-  const attentionSyncedRef = useRef(param(PARAM_ATTENTION) === TRUE)
-  const supersededSyncedRef = useRef(param(PARAM_SUPERSEDED) === TRUE)
-
-  useEffect(() => {
-    if (attentionSyncedRef.current !== attention) {
-      attentionSyncedRef.current = attention
-      applyParams({ [PARAM_ATTENTION]: attention ? TRUE : undefined })
-    }
-  }, [attention, applyParams])
-
-  useEffect(() => {
-    if (supersededSyncedRef.current !== superseded) {
-      supersededSyncedRef.current = superseded
-      applyParams({ [PARAM_SUPERSEDED]: superseded ? TRUE : undefined })
-    }
-  }, [superseded, applyParams])
 
   const query = useMemo(() => {
     const state = param(PARAM_STATE)
@@ -199,16 +182,26 @@ const RegistrationsPage: React.FC = () => {
         <Button variant="secondary" size="medium" type="submit">
           {t("button-text-search")}
         </Button>
-        <Checkbox
-          name="needs_admin_attention"
-          control={control}
-          label={t("credit-registration-admin-only-needs-attention")}
-        />
-        <Checkbox
-          name="include_superseded"
-          control={control}
-          label={t("credit-registration-admin-show-superseded")}
-        />
+        <label className={checkboxLabelCss}>
+          <input
+            type="checkbox"
+            checked={attention}
+            onChange={(e) =>
+              applyParams({ [PARAM_ATTENTION]: e.target.checked ? TRUE : undefined })
+            }
+          />
+          {t("credit-registration-admin-only-needs-attention")}
+        </label>
+        <label className={checkboxLabelCss}>
+          <input
+            type="checkbox"
+            checked={superseded}
+            onChange={(e) =>
+              applyParams({ [PARAM_SUPERSEDED]: e.target.checked ? TRUE : undefined })
+            }
+          />
+          {t("credit-registration-admin-show-superseded")}
+        </label>
       </form>
       {activeNarrowings.length > 0 && (
         <div className={chipsCss}>
@@ -226,11 +219,7 @@ const RegistrationsPage: React.FC = () => {
             type="button"
             className={chipCss}
             onClick={() => {
-              // Marks the toggles synced before `reset` trips their effects, so the clear
-              // navigates only once.
-              attentionSyncedRef.current = false
-              supersededSyncedRef.current = false
-              reset({ search: "", needs_admin_attention: false, include_superseded: false })
+              reset({ search: "" })
               applyParams(Object.fromEntries(CLEARABLE_PARAMS.map((name) => [name, undefined])))
             }}
           >

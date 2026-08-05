@@ -19,7 +19,7 @@ pub async fn ensure_registration_rows_for_eligible_completions(
     // directions: it is the only handle Suotar's log and ours share on one registration.
     let created = sqlx::query_scalar!(
         r#"
-WITH eligible AS (
+WITH registrable_completion AS (
   SELECT uuid_generate_v4() AS id,
     cmc.id AS course_module_completion_id,
     cmc.user_id,
@@ -83,7 +83,7 @@ inserted AS (
     course_module_id,
     course_instance_id,
     'cr-' || id
-  FROM eligible ON CONFLICT DO NOTHING
+  FROM registrable_completion ON CONFLICT DO NOTHING
   RETURNING id
 ),
 events AS (

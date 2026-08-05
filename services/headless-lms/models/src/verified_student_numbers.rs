@@ -1,5 +1,7 @@
 use utoipa::ToSchema;
 
+use crate::credit_registration_events::CreditRegistrationEventKind;
+use crate::library::credit_registration::student_number_change::record_student_number_change;
 use crate::prelude::*;
 
 /// How a student number was proven to belong to an account.
@@ -450,4 +452,32 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Retires `current_link_id` (the account's link the caller already resolved, if any), inserts `new`
+/// in its place, clears the mailed links to `new`'s number that are no longer owed, and audits the
+/// change on the account's live registrations.
+///
+/// Returns the new link's id and how many of the account's registrations the change unblocked.
+pub async fn replace_verified_student_number(
+    conn: &mut PgConnection,
+    current_link_id: Option<Uuid>,
+    new: &NewVerifiedStudentNumber,
+    actor_user_id: Uuid,
+    event_kind: CreditRegistrationEventKind,
+    event_message: &str,
+) -> ModelResult<(Uuid, i64)> {
+    if let Some(id) = current_link_id {
+        soft_delete(conn, id).await?;
+    }
+    let verified_student_number_id = insert(conn, PKeyPolicy::Generate, new).await?;
+    crate::student_number_verification_tokens::soft_delete_unused_for_student_number(
+        conn,
+        &new.student_number,
+    )
+    .await?;
+    let affected_registration_count =
+        record_student_number_change(conn, new.user_id, actor_user_id, event_kind, event_message)
+            .await?;
+    Ok((verified_student_number_id, affected_registration_count))
 }

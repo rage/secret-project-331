@@ -30,7 +30,7 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::credit_registration_phases::PhaseContext;
 use crate::domain::credit_registration_phases::linking_mail_resend::{
-    LinkingMailResendOutcome, resend_linking_mail,
+    LinkingMailResendOutcome, ResendDecision, resend_linking_mail_for_target,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
@@ -612,21 +612,6 @@ pub async fn resend_course_credit_registration_linking_email(
         )
         .await;
     };
-    if verified_student_numbers::get_by_student_number(&mut conn, &student_number)
-        .await?
-        .is_some()
-    {
-        return finish_resend(
-            &mut conn,
-            &user,
-            *course_id,
-            &payload,
-            Some(&student_number),
-            ResendLinkingEmailOutcome::AlreadyLinked,
-            token,
-        )
-        .await;
-    }
 
     let ctx = PhaseContext {
         pool: &pool,
@@ -635,19 +620,31 @@ pub async fn resend_course_credit_registration_linking_email(
         caller: RESEND_CALLER,
         base_url: &app_conf.base_url,
     };
-    let outcome = match resend_linking_mail(&ctx, *course_id, &student_number).await? {
-        LinkingMailResendOutcome::Claimed => ResendLinkingEmailOutcome::Queued,
-        LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress => {
+    let attempt = resend_linking_mail_for_target(
+        &ctx,
+        *course_id,
+        &student_number,
+        Box::pin(async { Ok(0) }),
+    )
+    .await?;
+    let outcome = match attempt.decision {
+        ResendDecision::AlreadyLinked => ResendLinkingEmailOutcome::AlreadyLinked,
+        ResendDecision::Attempted(LinkingMailResendOutcome::Claimed) => {
+            ResendLinkingEmailOutcome::Queued
+        }
+        ResendDecision::Attempted(LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress) => {
             ResendLinkingEmailOutcome::AlreadyMailedToEveryKnownAddress
         }
-        LinkingMailResendOutcome::RefusedByRateCap => ResendLinkingEmailOutcome::RefusedByRateCap,
-        LinkingMailResendOutcome::NoAddressInStudyRegistry => {
+        ResendDecision::Attempted(LinkingMailResendOutcome::RefusedByRateCap) => {
+            ResendLinkingEmailOutcome::RefusedByRateCap
+        }
+        ResendDecision::Attempted(LinkingMailResendOutcome::NoAddressInStudyRegistry) => {
             ResendLinkingEmailOutcome::NoAddressInStudyRegistry
         }
-        LinkingMailResendOutcome::NotOnTheCourseRoster => {
+        ResendDecision::Attempted(LinkingMailResendOutcome::NotOnTheCourseRoster) => {
             ResendLinkingEmailOutcome::NotOnTheCourseRoster
         }
-        LinkingMailResendOutcome::StudyRegistryUnavailable => {
+        ResendDecision::Attempted(LinkingMailResendOutcome::StudyRegistryUnavailable) => {
             ResendLinkingEmailOutcome::StudyRegistryUnavailable
         }
     };

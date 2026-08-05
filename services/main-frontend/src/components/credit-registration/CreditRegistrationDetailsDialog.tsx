@@ -10,6 +10,7 @@ import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { Badge, DescriptionList, Dialog, QueryResult } from "@/shared-module/components"
 
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
+import { STACKED } from "./constants"
 import {
   registrationErrorHelp,
   registrationExplanation,
@@ -58,8 +59,6 @@ const sectionHeadingCss = css`
   margin: 1.5rem 0 0.5rem;
 `
 
-// oxlint-disable-next-line i18next/no-literal-string
-const STACKED = "stacked" as const
 // A support-established link rests on judgement, so it is toned apart from a confirmed one.
 // oxlint-disable-next-line i18next/no-literal-string
 const SUPPORT_LINK_TONE = "warning" as const

@@ -700,10 +700,8 @@ async fn current_generation(
 
 async fn reset(store: &MockSuotarStore, generation: &str, scope: ResetScope) -> Outcome {
     match scope {
-        ResetScope::World => {
-            store.flush().await?;
-            Ok(json!({ "flushed": true }))
-        }
+        // `Reset { scope: World }` never reaches this match — `run()` intercepts it first.
+        ResetScope::World => unreachable!("world reset is handled in `run` before dispatch"),
         ResetScope::Faults => {
             store.clear_faults(generation).await?;
             Ok(json!({ "cleared": "faults" }))
@@ -930,10 +928,14 @@ async fn transition(
         match to {
             SubmissionTarget::Registered => {
                 let attainment_id = ids::final_attainment_id(id);
-                new_attainments.insert(
-                    attainment_id.clone(),
-                    registered_attainment(&submission, &attainment_id, &defaults, now),
+                let attainment = MockAttainment::from_submission(
+                    &submission,
+                    &attainment_id,
+                    AttainmentState::Attained,
+                    &defaults,
+                    now,
                 );
+                new_attainments.insert(attainment_id.clone(), attainment);
                 submission.lifecycle = SubmissionLifecycle::Registered {
                     attainment_id,
                     registered_at: now,
@@ -941,9 +943,13 @@ async fn transition(
             }
             SubmissionTarget::Misregistered => {
                 let attainment_id = ids::final_attainment_id(id);
-                let mut attainment =
-                    registered_attainment(&submission, &attainment_id, &defaults, now);
-                attainment.state = AttainmentState::Misregistered;
+                let attainment = MockAttainment::from_submission(
+                    &submission,
+                    &attainment_id,
+                    AttainmentState::Misregistered,
+                    &defaults,
+                    now,
+                );
                 new_attainments.insert(attainment_id.clone(), attainment);
                 submission.lifecycle = SubmissionLifecycle::Misregistered {
                     attainment_id,
@@ -979,34 +985,6 @@ async fn transition(
         "submittedAttainmentIds": touched,
         "attainmentIds": new_attainments.keys().collect::<Vec<_>>(),
     }))
-}
-
-fn registered_attainment(
-    submission: &MockSubmission,
-    attainment_id: &str,
-    defaults: &WorldDefaults,
-    now: DateTime<Utc>,
-) -> MockAttainment {
-    MockAttainment {
-        id: attainment_id.to_string(),
-        attainment_type: "CourseUnitAttainment".to_string(),
-        state: AttainmentState::Attained,
-        person_id: submission.person_id.clone(),
-        student_number: submission.student_number.clone(),
-        course_code: submission.course_code.clone(),
-        course_unit_id: submission.course_unit_id.clone(),
-        assessment_item_id: submission.assessment_item_id.clone(),
-        course_unit_realisation_id: submission.realisation_id.clone(),
-        attainment_date: submission.attainment_date,
-        registration_date: now.date_naive(),
-        grade_scale_id: submission.grade_scale_id.clone(),
-        grade_id: submission.grade_id.clone(),
-        passed: defaults
-            .scale(&submission.grade_scale_id)
-            .and_then(|scale| scale.grade(&submission.grade_id))
-            .is_some_and(|grade| grade.passed),
-        from_submission: Some(submission.submitted_attainment_id.clone()),
-    }
 }
 
 pub async fn arm_fault(

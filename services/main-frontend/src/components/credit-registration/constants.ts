@@ -9,3 +9,5 @@ export const TONE = {
 } as const
 
 export const MIDDLE_DOT = " · "
+
+export const STACKED = "stacked" as const

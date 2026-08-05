@@ -1,5 +1,8 @@
 //! The account-linking funnel, resending and hand-resolving linking mails, and manual links.
 
+use std::future::Future;
+use std::pin::Pin;
+
 use headless_lms_models::course_module_suotar_realisations;
 use headless_lms_models::credit_registration_account_linking_emails::{
     self, StaleUnclaimedLinkingMails,
@@ -8,6 +11,7 @@ use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
 };
+use headless_lms_models::credit_registrations;
 use headless_lms_models::credit_registrations::CreditRegistrationState;
 use headless_lms_models::email_deliveries::EmailSendStatus;
 use headless_lms_models::library::credit_registration::account_linking::{
@@ -16,12 +20,12 @@ use headless_lms_models::library::credit_registration::account_linking::{
 use headless_lms_models::verified_student_numbers::{
     self, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
 };
-use headless_lms_models::{credit_registrations, student_number_verification_tokens};
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration_phases::PhaseContext;
 use crate::domain::credit_registration_phases::linking_mail_resend::{
-    LinkingMailResendOutcome, ResolvedPerson, resend_linking_mail, resolve_person,
+    LinkingMailResendOutcome, ResendDecision, ResolvedPerson, resend_linking_mail_for_target,
+    resolve_person,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
@@ -450,49 +454,43 @@ pub async fn admin_resend_account_linking_email(
         ));
     }
 
-    if verified_student_numbers::get_by_student_number(&mut conn, student_number)
-        .await?
-        .is_some()
-    {
-        return finish_resend(
-            &mut conn,
-            &user,
-            &payload,
-            student_number,
-            AdminResendOutcome::AlreadyLinked,
-            0,
-            token,
-        )
-        .await;
-    }
-
-    let retired_mail_count = match &override_reason {
-        Some(reason) => {
-            retire_capped_mails(
-                &mut conn,
-                user.id,
-                GLOBAL_ADMIN_ROLE,
-                payload.course_id,
-                student_number,
-                reason,
-            )
-            .await?
-        }
-        None => 0,
-    };
-
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESEND_CALLER);
-    let outcome = match resend_linking_mail(&ctx, payload.course_id, student_number).await? {
-        LinkingMailResendOutcome::Claimed => AdminResendOutcome::Queued,
-        LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress => {
+    // Boxed so both the no-op and the override branch, which reaches for `conn`, type-check as the
+    // same value; it only runs once the shared helper has confirmed the number is not already linked.
+    let before_send: Pin<Box<dyn Future<Output = anyhow::Result<i64>> + '_>> =
+        match &override_reason {
+            Some(reason) => Box::pin(async {
+                Ok(retire_capped_mails(
+                    &mut conn,
+                    user.id,
+                    GLOBAL_ADMIN_ROLE,
+                    payload.course_id,
+                    student_number,
+                    reason,
+                )
+                .await?)
+            }),
+            None => Box::pin(async { Ok(0) }),
+        };
+    let attempt =
+        resend_linking_mail_for_target(&ctx, payload.course_id, student_number, before_send)
+            .await?;
+    let outcome = match attempt.decision {
+        ResendDecision::AlreadyLinked => AdminResendOutcome::AlreadyLinked,
+        ResendDecision::Attempted(LinkingMailResendOutcome::Claimed) => AdminResendOutcome::Queued,
+        ResendDecision::Attempted(LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress) => {
             AdminResendOutcome::AlreadyMailedToEveryKnownAddress
         }
-        LinkingMailResendOutcome::RefusedByRateCap => AdminResendOutcome::RefusedByRateCap,
-        LinkingMailResendOutcome::NoAddressInStudyRegistry => {
+        ResendDecision::Attempted(LinkingMailResendOutcome::RefusedByRateCap) => {
+            AdminResendOutcome::RefusedByRateCap
+        }
+        ResendDecision::Attempted(LinkingMailResendOutcome::NoAddressInStudyRegistry) => {
             AdminResendOutcome::NoAddressInStudyRegistry
         }
-        LinkingMailResendOutcome::NotOnTheCourseRoster => AdminResendOutcome::NotOnTheCourseRoster,
-        LinkingMailResendOutcome::StudyRegistryUnavailable => {
+        ResendDecision::Attempted(LinkingMailResendOutcome::NotOnTheCourseRoster) => {
+            AdminResendOutcome::NotOnTheCourseRoster
+        }
+        ResendDecision::Attempted(LinkingMailResendOutcome::StudyRegistryUnavailable) => {
             AdminResendOutcome::StudyRegistryUnavailable
         }
     };
@@ -503,7 +501,7 @@ pub async fn admin_resend_account_linking_email(
         &payload,
         student_number,
         outcome,
-        retired_mail_count,
+        attempt.retired_mail_count,
         token,
     )
     .await
@@ -698,41 +696,28 @@ pub async fn admin_manually_link_student_number(
     let mut tx = conn.begin().await?;
     // A student who changed programmes has a new number; the old link is retired, not deleted, so the
     // audit trail survives.
-    if let Some(current) =
-        verified_student_numbers::get_by_user_id(&mut tx, payload.user_id).await?
-    {
-        verified_student_numbers::soft_delete(&mut tx, current.id).await?;
-    }
-    let verified_student_number_id = verified_student_numbers::insert(
-        &mut tx,
-        PKeyPolicy::Generate,
-        &NewVerifiedStudentNumber {
-            user_id: payload.user_id,
-            student_number: student_number.to_string(),
-            sisu_person_id: person.sisu_person_id.clone(),
-            first_names: Some(person.first_names.clone()),
-            last_name: Some(person.last_name.clone()),
-            verified_via: StudentNumberVerificationMethod::AdminManual,
-            // No mailbox was proved, so there is no address the proof could rest on.
-            verified_via_email: None,
-            verified_via_email_match_field: None,
-            account_email_verified_at: None,
-            linked_by_user_id: Some(user.id),
-            link_reason: Some(reason.clone()),
-            verified_from_course_id: None,
-        },
-    )
-    .await?;
-    // The number is established, so the outstanding mailed links to it are no longer owed.
-    student_number_verification_tokens::soft_delete_unused_for_student_number(
-        &mut tx,
-        student_number,
-    )
-    .await?;
-    let affected_registration_count =
-        models::library::credit_registration::student_number_change::record_student_number_change(
+    let current_link_id = verified_student_numbers::get_by_user_id(&mut tx, payload.user_id)
+        .await?
+        .map(|current| current.id);
+    let (verified_student_number_id, affected_registration_count) =
+        verified_student_numbers::replace_verified_student_number(
             &mut tx,
-            payload.user_id,
+            current_link_id,
+            &NewVerifiedStudentNumber {
+                user_id: payload.user_id,
+                student_number: student_number.to_string(),
+                sisu_person_id: person.sisu_person_id.clone(),
+                first_names: Some(person.first_names.clone()),
+                last_name: Some(person.last_name.clone()),
+                verified_via: StudentNumberVerificationMethod::AdminManual,
+                // No mailbox was proved, so there is no address the proof could rest on.
+                verified_via_email: None,
+                verified_via_email_match_field: None,
+                account_email_verified_at: None,
+                linked_by_user_id: Some(user.id),
+                link_reason: Some(reason.clone()),
+                verified_from_course_id: None,
+            },
             user.id,
             models::credit_registration_events::CreditRegistrationEventKind::AdminAction,
             "An administrator linked this student number by hand.",

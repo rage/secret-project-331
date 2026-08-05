@@ -22,7 +22,7 @@ import {
   TextField,
 } from "@/shared-module/components"
 
-import { MIDDLE_DOT, TONE } from "../constants"
+import { MIDDLE_DOT, STACKED, TONE } from "../constants"
 import { noteCss } from "../styles"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
@@ -44,8 +44,6 @@ interface Fields {
 
 // oxlint-disable-next-line i18next/no-literal-string
 const LINKED = "linked"
-// oxlint-disable-next-line i18next/no-literal-string
-const STACKED = "stacked" as const
 
 const formCss = css`
   display: grid;

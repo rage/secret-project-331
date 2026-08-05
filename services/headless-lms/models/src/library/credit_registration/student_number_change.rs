@@ -3,16 +3,13 @@
 //! recompute stay in one place regardless of who acted.
 
 use crate::credit_registration_events::CreditRegistrationEventKind;
-use crate::credit_registrations::{
-    AdminCreditRegistrationFilters, CreditRegistrationState, RegistrationScope,
-};
+use crate::credit_registrations::RegistrationScope;
 use crate::prelude::*;
 
 use super::preconditions::{PRECONDITIONS_LIMIT, recompute_preconditions};
 
 /// Audits a change to `subject_user_id`'s linked student number on every registration it can affect,
-/// then applies it. Returns how many registrations changed whether they wait for a number, which is
-/// narrower than how many rows the recompute moved.
+/// then applies it. Returns how many of the account's registrations the recompute moved.
 pub async fn record_student_number_change(
     conn: &mut PgConnection,
     subject_user_id: Uuid,
@@ -34,7 +31,6 @@ pub async fn record_student_number_change(
         Some(message),
     )
     .await?;
-    let waiting_before = count_waiting_for_student_number(conn, subject_user_id).await?;
     recompute_preconditions(
         conn,
         &RegistrationScope {
@@ -42,24 +38,6 @@ pub async fn record_student_number_change(
             ..RegistrationScope::default()
         },
         PRECONDITIONS_LIMIT,
-    )
-    .await?;
-    let waiting_after = count_waiting_for_student_number(conn, subject_user_id).await?;
-    Ok((waiting_before - waiting_after).abs())
-}
-
-/// Live registrations of one account waiting for a student number, whatever course they are on.
-async fn count_waiting_for_student_number(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-) -> ModelResult<i64> {
-    crate::credit_registrations::count_admin_facing(
-        conn,
-        &AdminCreditRegistrationFilters {
-            user_id: Some(user_id),
-            states: Some(&[CreditRegistrationState::PendingStudentNumber]),
-            ..AdminCreditRegistrationFilters::default()
-        },
     )
     .await
 }

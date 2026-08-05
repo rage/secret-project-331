@@ -5,12 +5,16 @@
 //! ledger, and the claim goes through [`claim_linking_mails`], so the caps and dedup guard apply
 //! exactly as they do to the worker.
 
+use std::future::Future;
+use std::pin::Pin;
+
 use headless_lms_models::course_module_suotar_realisations::{
     get_active_for_course, listing_request_item_id,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
     ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails,
 };
+use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::services::suotar::{
     ListByCourseRequestItem, ResolvePersonRequestItem, SuotarCallContext, SuotarEndpoint,
     SuotarItemStatus,
@@ -125,8 +129,54 @@ pub async fn resend_linking_mail(
     Ok(LinkingMailResendOutcome::NoAddressInStudyRegistry)
 }
 
-/// What the study registry says one student number belongs to. `Ok(None)` means it answered and does
-/// not know the number; `Err` means we could not ask.
+/// What [`resend_linking_mail_for_target`] decided.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResendDecision {
+    /// The number is already linked to an account, so no linking mail is owed.
+    AlreadyLinked,
+    Attempted(LinkingMailResendOutcome),
+}
+
+/// The outcome of one resend attempt, plus how many capped mails an override retired to get there.
+pub struct ResendAttempt {
+    pub decision: ResendDecision,
+    /// Always zero without an override; only the admin-facing endpoint can pass one.
+    pub retired_mail_count: i64,
+}
+
+/// Shared by the teacher- and admin-facing resend endpoints: refuses a target that is already linked,
+/// otherwise runs `before_send` (the admin path's rate-cap override; the teacher path passes a no-op)
+/// and reruns the send path exactly as the worker would.
+///
+/// `before_send` runs strictly after the already-linked check and before [`resend_linking_mail`], so an
+/// override never retires mails for a number that turns out to already be linked.
+pub async fn resend_linking_mail_for_target<'a>(
+    ctx: &PhaseContext<'_>,
+    course_id: Uuid,
+    student_number: &str,
+    before_send: Pin<Box<dyn Future<Output = anyhow::Result<i64>> + 'a>>,
+) -> anyhow::Result<ResendAttempt> {
+    let already_linked = {
+        let mut conn = ctx.pool.acquire().await?;
+        verified_student_numbers::get_by_student_number(&mut conn, student_number)
+            .await?
+            .is_some()
+    };
+    if already_linked {
+        return Ok(ResendAttempt {
+            decision: ResendDecision::AlreadyLinked,
+            retired_mail_count: 0,
+        });
+    }
+    let retired_mail_count = before_send.await?;
+    let decision =
+        ResendDecision::Attempted(resend_linking_mail(ctx, course_id, student_number).await?);
+    Ok(ResendAttempt {
+        decision,
+        retired_mail_count,
+    })
+}
+
 pub struct ResolvedPerson {
     pub sisu_person_id: String,
     pub first_names: String,
@@ -137,6 +187,8 @@ pub struct ResolvedPerson {
 
 /// Looks one student number up in the study registry without changing anything: no ledger row, no
 /// claimed mail slot, just the call log row every study registry call writes.
+///
+/// `Ok(None)` means the registry answered and does not know the number; `Err` means we could not ask.
 pub async fn resolve_person(
     ctx: &PhaseContext<'_>,
     student_number: &str,

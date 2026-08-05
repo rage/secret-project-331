@@ -213,6 +213,39 @@ pub struct MockAttainment {
     pub from_submission: Option<String>,
 }
 
+impl MockAttainment {
+    /// Shared by `logic::register` (auto/manual ripening) and `commands::transition` (test-forced
+    /// transitions): both mint an attainment from a submission and differ only in the state they land in.
+    pub fn from_submission(
+        submission: &MockSubmission,
+        attainment_id: &str,
+        state: AttainmentState,
+        defaults: &WorldDefaults,
+        now: DateTime<Utc>,
+    ) -> Self {
+        Self {
+            id: attainment_id.to_string(),
+            attainment_type: "CourseUnitAttainment".to_string(),
+            state,
+            person_id: submission.person_id.clone(),
+            student_number: submission.student_number.clone(),
+            course_code: submission.course_code.clone(),
+            course_unit_id: submission.course_unit_id.clone(),
+            assessment_item_id: submission.assessment_item_id.clone(),
+            course_unit_realisation_id: submission.realisation_id.clone(),
+            attainment_date: submission.attainment_date,
+            registration_date: now.date_naive(),
+            grade_scale_id: submission.grade_scale_id.clone(),
+            grade_id: submission.grade_id.clone(),
+            passed: defaults
+                .scale(&submission.grade_scale_id)
+                .and_then(|scale| scale.grade(&submission.grade_id))
+                .is_some_and(|grade| grade.passed),
+            from_submission: Some(submission.submitted_attainment_id.clone()),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MockSubmission {

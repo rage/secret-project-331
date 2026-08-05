@@ -571,42 +571,29 @@ pub async fn claim_student_number_verification_token(
 
     // A student who changed programmes has a new number; the old link is retired, not deleted, so the
     // audit trail survives.
-    if let Some(link) = current_link {
-        verified_student_numbers::soft_delete(&mut tx, link.id).await?;
-    }
-    verified_student_numbers::insert(
-        &mut tx,
-        PKeyPolicy::Generate,
-        &NewVerifiedStudentNumber {
-            user_id: user.id,
-            student_number: verification_token.student_number.clone(),
-            sisu_person_id: verification_token.sisu_person_id.clone(),
-            first_names: verification_token.first_names.clone(),
-            last_name: verification_token.last_name.clone(),
-            verified_via: StudentNumberVerificationMethod::EmailedLink,
-            verified_via_email: Some(verification_token.emailed_to.clone()),
-            verified_via_email_match_field: None,
-            account_email_verified_at: None,
-            linked_by_user_id: None,
-            link_reason: None,
-            verified_from_course_id: verification_token.course_id,
-        },
-    )
-    .await?;
-    // The number is established, so the other outstanding links to it are no longer owed.
-    student_number_verification_tokens::soft_delete_unused_for_student_number(
-        &mut tx,
-        &verification_token.student_number,
-    )
-    .await?;
-    let newly_unblocked_registration_count = record_student_number_change(
-        &mut tx,
-        user.id,
-        user.id,
-        CreditRegistrationEventKind::StudentAction,
-        "The student linked a student number.",
-    )
-    .await?;
+    let (_, newly_unblocked_registration_count) =
+        verified_student_numbers::replace_verified_student_number(
+            &mut tx,
+            current_link.map(|link| link.id),
+            &NewVerifiedStudentNumber {
+                user_id: user.id,
+                student_number: verification_token.student_number.clone(),
+                sisu_person_id: verification_token.sisu_person_id.clone(),
+                first_names: verification_token.first_names.clone(),
+                last_name: verification_token.last_name.clone(),
+                verified_via: StudentNumberVerificationMethod::EmailedLink,
+                verified_via_email: Some(verification_token.emailed_to.clone()),
+                verified_via_email_match_field: None,
+                account_email_verified_at: None,
+                linked_by_user_id: None,
+                link_reason: None,
+                verified_from_course_id: verification_token.course_id,
+            },
+            user.id,
+            CreditRegistrationEventKind::StudentAction,
+            "The student linked a student number.",
+        )
+        .await?;
     tx.commit().await?;
 
     auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {

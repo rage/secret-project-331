@@ -337,22 +337,6 @@ pub async fn run_phase_once(
     let Some(implementation) = phase.implementation() else {
         return Ok(PhaseTick::NotImplemented);
     };
-    // Built before the guards below and awaited after them: an unpolled future does nothing, so a
-    // paused phase costs no database connection.
-    let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> =
-        match implementation {
-            ImplementedPhase::Materialize => Box::pin(run_materialize(ctx, scope)),
-            ImplementedPhase::Preconditions => Box::pin(run_preconditions(ctx, scope)),
-            ImplementedPhase::ResolveEnrolments => Box::pin(resolve_enrolments::run(ctx, scope)),
-            ImplementedPhase::Import => Box::pin(import::run(ctx, scope)),
-            ImplementedPhase::Verify => Box::pin(verify::run(ctx, scope)),
-            ImplementedPhase::LegacyMirror => Box::pin(run_legacy_mirror(ctx, scope)),
-            ImplementedPhase::EnrolmentDiscovery => Box::pin(enrolment_discovery::run(ctx, scope)),
-            ImplementedPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
-            ImplementedPhase::ProductTokenRefresh => {
-                Box::pin(product_token_refresh::run(ctx, scope))
-            }
-        };
     let mut conn = ctx.pool.acquire().await?;
     if credit_registration_phase_state::is_paused(&mut conn, phase.as_str()).await? {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::Paused));
@@ -370,6 +354,21 @@ pub async fn run_phase_once(
         credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
     }
     drop(conn);
+
+    let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> =
+        match implementation {
+            ImplementedPhase::Materialize => Box::pin(run_materialize(ctx, scope)),
+            ImplementedPhase::Preconditions => Box::pin(run_preconditions(ctx, scope)),
+            ImplementedPhase::ResolveEnrolments => Box::pin(resolve_enrolments::run(ctx, scope)),
+            ImplementedPhase::Import => Box::pin(import::run(ctx, scope)),
+            ImplementedPhase::Verify => Box::pin(verify::run(ctx, scope)),
+            ImplementedPhase::LegacyMirror => Box::pin(run_legacy_mirror(ctx, scope)),
+            ImplementedPhase::EnrolmentDiscovery => Box::pin(enrolment_discovery::run(ctx, scope)),
+            ImplementedPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
+            ImplementedPhase::ProductTokenRefresh => {
+                Box::pin(product_token_refresh::run(ctx, scope))
+            }
+        };
 
     let outcome = match body.await {
         Ok(outcome) => outcome,

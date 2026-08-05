@@ -386,28 +386,13 @@ pub fn register(working: &mut WorkingSet, submitted_attainment_id: &str, now: Da
         return;
     };
     let attainment_id = ids::final_attainment_id(submitted_attainment_id);
-    let passed = working
-        .defaults
-        .scale(&submission.grade_scale_id)
-        .and_then(|scale| scale.grade(&submission.grade_id))
-        .is_some_and(|grade| grade.passed);
-    let attainment = MockAttainment {
-        id: attainment_id.clone(),
-        attainment_type: "CourseUnitAttainment".to_string(),
-        state: AttainmentState::Attained,
-        person_id: submission.person_id.clone(),
-        student_number: submission.student_number.clone(),
-        course_code: submission.course_code.clone(),
-        course_unit_id: submission.course_unit_id.clone(),
-        assessment_item_id: submission.assessment_item_id.clone(),
-        course_unit_realisation_id: submission.realisation_id.clone(),
-        attainment_date: submission.attainment_date,
-        registration_date: now.date_naive(),
-        grade_scale_id: submission.grade_scale_id.clone(),
-        grade_id: submission.grade_id.clone(),
-        passed,
-        from_submission: Some(submitted_attainment_id.to_string()),
-    };
+    let attainment = MockAttainment::from_submission(
+        &submission,
+        &attainment_id,
+        AttainmentState::Attained,
+        &working.defaults,
+        now,
+    );
     let key = person_course_key(&submission.student_number, &submission.course_code);
     working
         .attainments

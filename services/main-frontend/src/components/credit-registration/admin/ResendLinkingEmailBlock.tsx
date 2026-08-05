@@ -14,6 +14,7 @@ import type {
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Infobox, TextField } from "@/shared-module/components"
 
+import { widenedLookup } from "../labelFrom"
 import { linkingEmailSentence } from "../teacherCreditRegistrations"
 
 interface Props {
@@ -48,8 +49,6 @@ const OUTCOME_KEYS = {
   study_registry_unavailable: "credit-registration-resend-registry-unavailable",
 } as const satisfies Record<ResendLinkingEmailOutcome, string>
 
-type OutcomeKey = (typeof OUTCOME_KEYS)[ResendLinkingEmailOutcome]
-
 const SUCCESS_OUTCOME: ResendLinkingEmailOutcome = "queued"
 // oxlint-disable-next-line i18next/no-literal-string
 const QUEUED_TONE = "info" as const
@@ -77,9 +76,7 @@ const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
     { onSuccess: setResult },
   )
 
-  const outcomeKey: OutcomeKey | undefined = result
-    ? (OUTCOME_KEYS as Record<string, OutcomeKey | undefined>)[result.outcome]
-    : undefined
+  const outcomeKey = result ? widenedLookup(OUTCOME_KEYS, result.outcome) : undefined
 
   return (
     <form className={rootCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>

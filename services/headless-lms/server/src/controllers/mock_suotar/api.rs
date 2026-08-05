@@ -723,6 +723,15 @@ impl ParsedRequest {
     }
 }
 
+/// Collects the distinct values of one field across a request's items, in first-seen order.
+fn unique_field<T>(items: &[T], field: impl Fn(&T) -> &str) -> Vec<String> {
+    items
+        .iter()
+        .map(|item| field(item).to_string())
+        .unique()
+        .collect()
+}
+
 async fn load(
     store: &MockSuotarStore,
     generation: &str,
@@ -733,14 +742,7 @@ async fn load(
     let loaded = match parsed {
         ParsedRequest::ResolvePersons(items) => {
             let persons = store
-                .load_persons(
-                    generation,
-                    &items
-                        .iter()
-                        .map(|i| i.student_number.clone())
-                        .unique()
-                        .collect::<Vec<_>>(),
-                )
+                .load_persons(generation, &unique_field(items, |i| &i.student_number))
                 .await?;
             WorkingSet {
                 persons,
@@ -751,16 +753,8 @@ async fn load(
             store
                 .load_for_person_course(
                     generation,
-                    &items
-                        .iter()
-                        .map(|i| i.student_number.clone())
-                        .unique()
-                        .collect::<Vec<_>>(),
-                    &items
-                        .iter()
-                        .map(|i| i.course_code.clone())
-                        .unique()
-                        .collect::<Vec<_>>(),
+                    &unique_field(items, |i| &i.student_number),
+                    &unique_field(items, |i| &i.course_code),
                 )
                 .await?
         }
@@ -768,16 +762,8 @@ async fn load(
             store
                 .load_for_person_course(
                     generation,
-                    &items
-                        .iter()
-                        .map(|i| i.student_number.clone())
-                        .unique()
-                        .collect::<Vec<_>>(),
-                    &items
-                        .iter()
-                        .map(|i| i.course_code.clone())
-                        .unique()
-                        .collect::<Vec<_>>(),
+                    &unique_field(items, |i| &i.student_number),
+                    &unique_field(items, |i| &i.course_code),
                 )
                 .await?
         }
@@ -785,11 +771,7 @@ async fn load(
             store
                 .load_for_verify(
                     generation,
-                    &items
-                        .iter()
-                        .map(|i| i.submitted_attainment_id.clone())
-                        .unique()
-                        .collect::<Vec<_>>(),
+                    &unique_field(items, |i| &i.submitted_attainment_id),
                 )
                 .await?
         }
@@ -797,11 +779,7 @@ async fn load(
             let product_tokens = store
                 .load_product_tokens(
                     generation,
-                    &items
-                        .iter()
-                        .map(|i| i.open_university_product_id.clone())
-                        .unique()
-                        .collect::<Vec<_>>(),
+                    &unique_field(items, |i| &i.open_university_product_id),
                 )
                 .await?;
             WorkingSet {
@@ -811,14 +789,7 @@ async fn load(
         }
         ParsedRequest::ListByCourse(items) => {
             store
-                .load_for_list_by_course(
-                    generation,
-                    &items
-                        .iter()
-                        .map(|i| i.course_code.clone())
-                        .unique()
-                        .collect::<Vec<_>>(),
-                )
+                .load_for_list_by_course(generation, &unique_field(items, |i| &i.course_code))
                 .await?
         }
     };

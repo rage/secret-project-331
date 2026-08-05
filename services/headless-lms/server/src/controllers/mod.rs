@@ -25,7 +25,6 @@ pub mod mock_suotar;
 pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
-
 use crate::domain::error::{ControllerError, ControllerErrorType};
 use actix_web::{
     HttpRequest, HttpResponse, ResponseError,

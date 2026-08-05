@@ -27,6 +27,7 @@ pub async fn insert_course_prerequisites(
     embeddings: Vec<Vec<f32>>,
 ) -> ModelResult<Vec<CoursePrerequisite>> {
     let embed_vecs: Vec<Vector> = embeddings.into_iter().map(Vector::from).collect();
+
     let res = sqlx::query_as!(
         CoursePrerequisite,
         r#"

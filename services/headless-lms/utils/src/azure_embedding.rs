@@ -5,20 +5,31 @@ use secrecy::ExposeSecret;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
-struct EmbeddingRequest {
-    model: String,
-    input: Vec<String>,
+#[derive(Serialize, Deserialize)]
+pub struct EmbeddingRequest {
+    pub model: String,
+    pub input: Vec<String>,
 }
 
-#[derive(Deserialize)]
-struct EmbeddingResponse {
-    data: Vec<Embedding>,
+#[derive(Deserialize, Serialize)]
+pub struct EmbeddingResponse {
+    pub object: String,
+    pub model: String,
+    pub usage: EmbeddingResponseUsage,
+    pub data: Vec<Embedding>,
 }
 
-#[derive(Deserialize)]
-struct Embedding {
-    embedding: Vec<f32>,
+#[derive(Deserialize, Serialize)]
+pub struct Embedding {
+    pub embedding: Vec<f32>,
+    pub index: i32,
+    pub object: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct EmbeddingResponseUsage {
+    pub prompt_tokens: i32,
+    pub total_tokens: i32,
 }
 
 pub async fn create_embeddings(input: Vec<String>) -> UtilResult<Vec<Vec<f32>>> {
@@ -56,8 +67,11 @@ pub async fn create_embeddings(input: Vec<String>) -> UtilResult<Vec<Vec<f32>>> 
         })
         .send()
         .await?;
+
     if response.status().is_success() {
-        let json: EmbeddingResponse = serde_json::from_str(&response.text().await?)?;
+        let body = &response.text().await?;
+        let json: EmbeddingResponse = serde_json::from_str(body)?;
+
         let embeddings: Vec<Vec<f32>> = json.data.iter().map(|e| e.embedding.to_owned()).collect();
         Ok(embeddings)
     } else {

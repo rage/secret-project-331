@@ -1,11 +1,13 @@
+use crate::prelude::*;
 use headless_lms_chatbot::{
     azure_chatbot::InputItem, cms_ai_suggestion::USER_PROMPT_PREFIX,
     course_description_summary::USER_PROMPT as DESCRIPTION_USER_PROMPT,
     llm_utils::AzureCompletionRequest, message_suggestion::USER_PROMPT,
 };
+use headless_lms_utils::azure_embedding::{
+    Embedding, EmbeddingRequest, EmbeddingResponse, EmbeddingResponseUsage,
+};
 use regex::Regex;
-
-use crate::prelude::*;
 
 fn get_response(base_url: String) -> Result<String, ControllerError> {
     let url1 = format!("{base_url}/api/v0/mock-document-storage/test/documents/document1");
@@ -111,8 +113,8 @@ const CMS_SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature":
 
 const DESCRIPTION_SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature": 1,"top_p": 0.98,"service_tier": "default","model": "mock-gpt","reasoning": {"effort": "medium","summary": "detailed"},"background": false,"text": {"format": {"type": "text"},"verbosity": "medium"},"tools": [],"tool_choice": "auto","truncation": "disabled","id": "resp_0","object": "response","status": "completed","created_at": 1776144780,"completed_at": 1776144781,"error": null,"incomplete_details": null,"output": [{"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [{ "text": "{\"modules\":[{\"description\":\"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly. No hard prerequisites; Linux operating systems and web development experience are useful.\",\"prerequisites\":[\"No hard prerequisites\",\"Linux operating systems and web development experience are useful\"],\"course_code\":\"TKT21036\"}],\"audience\":[\"everyone\"],\"course_description\":\"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly.\"}"}],"annotations": [],"logprobs": []}],"instructions": null,"usage": {"input_tokens": 30,"input_tokens_details": {"cached_tokens": 0},"output_tokens": 15,"output_tokens_details": {"reasoning_tokens": 0},"total_tokens": 45},"parallel_tool_calls": true,"agent_reference": null}"#;
 
-// GET /api/v0/mock_azure/test/v1/responses
-// POST /api/v0/mock_azure/test/v1/responses
+// GET /api/v0/mock_azure/api/projects/test/openai/v1/responses
+// POST /api/v0/mock_azure/api/projects/test/openai/v1/responses
 async fn mock_azure_chat_responses(
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<AzureCompletionRequest>,
@@ -147,7 +149,7 @@ async fn mock_azure_chat_responses(
         .collect::<Vec<&str>>();
     let cms_suggest_match = message.contains(USER_PROMPT_PREFIX);
     let description_suggestion_match = message.contains(DESCRIPTION_USER_PROMPT);
-    let res = if !suggest_prompt_match.is_empty() {
+    let res: String = if !suggest_prompt_match.is_empty() {
         SUGGESTION.to_string()
     } else if cms_suggest_match {
         CMS_SUGGESTION.to_string()
@@ -160,13 +162,47 @@ async fn mock_azure_chat_responses(
     token.authorized_ok(res)
 }
 
+async fn mock_azure_embeddings(
+    app_conf: web::Data<ApplicationConfiguration>,
+    payload: web::Json<EmbeddingRequest>,
+) -> ControllerResult<String> {
+    assert!(app_conf.test_chatbot && app_conf.test_mode);
+
+    let mock_response = EmbeddingResponse {
+        object: "list".to_string(),
+        model: "mock-embedder-3-small".to_string(),
+        usage: EmbeddingResponseUsage {
+            prompt_tokens: payload.input.len() as i32,
+            total_tokens: payload.input.len() as i32,
+        },
+        data: payload
+            .input
+            .iter()
+            .enumerate()
+            .map(|(index, _)| Embedding {
+                index: index as i32,
+                embedding: vec![0.0; 1536],
+                object: "embedding".to_string(),
+            })
+            .collect(),
+    };
+    let res = serde_json::to_string(&mock_response)?;
+    let token = skip_authorize();
+    token.authorized_ok(res)
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
-        "/test/v1/responses",
+        "/api/projects/test/openai/v1/responses",
         web::get().to(mock_azure_chat_responses),
     )
     .route(
-        "/test/v1/responses",
+        "/api/projects/test/openai/v1/responses",
         web::post().to(mock_azure_chat_responses),
+    )
+    .route("openai/v1/embeddings", web::get().to(mock_azure_embeddings))
+    .route(
+        "openai/v1/embeddings",
+        web::post().to(mock_azure_embeddings),
     );
 }

@@ -124,7 +124,7 @@ impl ChatbotTool for CourseFinderTool {
             })
             .collect();
 
-        course_occurrences.sort_by(|a, b| b.occurrences.cmp(&a.occurrences));
+        course_occurrences.sort_by_key(|b| std::cmp::Reverse(b.occurrences));
 
         Ok(CourseFinderTool {
             state: CourseFinderState {

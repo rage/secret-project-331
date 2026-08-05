@@ -243,7 +243,7 @@ impl AzureChatbotConfiguration {
 
     pub fn responses_endpoint(&self) -> anyhow::Result<Url> {
         Ok(self.api_base.join(&format!(
-            "/api/projects/{}/openai/v1/responses",
+            "api/projects/{}/openai/v1/responses",
             self.project_name
         ))?)
     }
@@ -387,9 +387,10 @@ impl AzureConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let chatbot_config = Some(AzureChatbotConfiguration {
             api_key: SecretString::new(String::new().into()),
-            api_base: Url::parse(&base_url)?.join("/api/v0/mock-azure/test/v1/responses")?,
-            project_name: String::new().into(),
+            api_base: Url::parse(&base_url)?.join("/api/v0/mock-azure/")?,
+            project_name: String::from("test"),
         });
+
         let search_config = Some(AzureSearchConfiguration {
             vectorizer_resource_uri: "".to_string(),
             vectorizer_deployment_id: "".to_string(),

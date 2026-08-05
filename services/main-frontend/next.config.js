@@ -1,13 +1,12 @@
 /* oxlint-disable import/order */
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
-const externallyEmbeddableIFrameResponseHeaders =
-  require("./src/shared-module/common/utils/responseHeaders").externallyEmbeddableIFrameResponseHeaders
+const chatbotEmbedResponseHeaders =
+  require("./src/shared-module/common/utils/responseHeaders").chatbotEmbedResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 
 // Trusted types blocked on: https://github.com/vercel/next.js/issues/32209
 const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: false })
-const iframeResponseHeaders = externallyEmbeddableIFrameResponseHeaders
 
 /** @type {import('next').NextConfig} */
 const config = {
@@ -30,7 +29,7 @@ const config = {
       },
       {
         source: "/chatbot-embed/:id",
-        headers: iframeResponseHeaders,
+        headers: chatbotEmbedResponseHeaders,
       },
     ]
   },

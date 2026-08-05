@@ -25,7 +25,15 @@ export async function setupChatbotEmbedServer(): Promise<void> {
   _setupPromise = new Promise<void>((resolve, reject) => {
     const server = http.createServer((_req, res) => {
       res.writeHead(200, { "Content-Type": "text/html" })
-      res.end("<!doctype html><title>ChatbotEmbed server</title><h1>hello world</h1>")
+      res.end(`<!doctype html>
+              <html>
+                <head>
+                  <title>ChatbotEmbed server</title>
+                </head>
+                <body>
+                  <iframe width="750" height="750" src="http://project-331.local/chatbot-embed/a65eb511-3299-451b-bd13-66d34a451ea0"></iframe>
+                </body>
+              </html>`)
     })
 
     function tryPort(port: number) {

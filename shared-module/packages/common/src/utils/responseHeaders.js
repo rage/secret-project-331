@@ -89,4 +89,15 @@ const externallyEmbeddableIFrameResponseHeaders = [
   { key: "Access-Control-Allow-Origin", value: "*" },
 ]
 
-module.exports = { generateNormalResponseHeaders, externallyEmbeddableIFrameResponseHeaders }
+const chatbotEmbedResponseHeaders = [
+  {
+    key: "Content-Security-Policy",
+    value: "frame-ancestors http://127.0.0.1:*;",
+  },
+]
+
+module.exports = {
+  generateNormalResponseHeaders,
+  externallyEmbeddableIFrameResponseHeaders,
+  chatbotEmbedResponseHeaders,
+}

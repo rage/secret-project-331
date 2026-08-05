@@ -7,6 +7,9 @@ use utoipa::ToSchema;
 use crate::credit_registrations::CreditRegistrationState;
 use crate::prelude::*;
 
+pub const GLOBAL_ADMIN_ROLE: &str = "global_admin";
+pub const COURSE_TEACHER_ROLE: &str = "course_teacher";
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
 #[sqlx(
     type_name = "credit_registration_admin_action",
@@ -85,6 +88,33 @@ pub struct NewCreditRegistrationAdminAction {
     /// Scrub before passing if this ever carries a Suotar payload.
     pub details: Option<serde_json::Value>,
     pub affected_row_count: Option<i32>,
+}
+
+impl NewCreditRegistrationAdminAction {
+    /// The fields every call site names; everything else defaults to `None` and is overridden with
+    /// struct-update syntax where it varies, the same way [`crate::credit_registrations::Transition`]
+    /// is built from [`crate::credit_registrations::Transition::to`].
+    pub fn new(
+        action: CreditRegistrationAdminAction,
+        target_kind: CreditRegistrationAdminActionTarget,
+        actor_user_id: Uuid,
+        actor_role: &str,
+    ) -> Self {
+        Self {
+            action,
+            target_kind,
+            target_id: None,
+            target_phase: None,
+            actor_user_id,
+            actor_role: actor_role.to_string(),
+            actor_course_id: None,
+            reason: None,
+            before_state: None,
+            after_state: None,
+            details: None,
+            affected_row_count: None,
+        }
+    }
 }
 
 /// Call in the same transaction as the effect it audits.

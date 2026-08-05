@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -18,10 +17,11 @@ import type {
   AdminTransitionCreditRegistrationResult,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Button, Dialog, Infobox, Select, TextArea } from "@/shared-module/components"
+import { Button, Dialog, Infobox, Select } from "@/shared-module/components"
 
 import { TONE } from "../constants"
 import { noteCss } from "../styles"
+import { ReasonField, isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props {
   registration: AdminCreditRegistrationRow
@@ -62,8 +62,9 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
   const [result, setResult] = useState<AdminTransitionCreditRegistrationResult | null>(null)
   const [appliedTarget, setAppliedTarget] =
     useState<AdminCreditRegistrationTransitionTarget | null>(null)
-  const { control, handleSubmit, watch } = useForm<Fields>({
-    defaultValues: { to_state: READY_TO_SUBMIT, reason: "" },
+  const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
+    to_state: READY_TO_SUBMIT,
+    reason: "",
   })
   const reason = watch("reason")
 
@@ -143,18 +144,15 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
               { value: CHECK_NOW, label: t("credit-registration-admin-target-check-now") },
             ]}
           />
-          <TextArea
-            name="reason"
+          <ReasonField
             control={control}
-            label={t("label-reason")}
             description={t("description-credit-registration-transition-reason")}
-            rules={{ required: t("required-field") }}
           />
           <Button
             variant="primary"
             size="medium"
             type="submit"
-            disabled={mutation.isPending || reason.trim() === ""}
+            disabled={isReasonConfirmDisabled(mutation.isPending, reason)}
           >
             {t("button-text-confirm")}
           </Button>

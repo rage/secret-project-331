@@ -9,12 +9,13 @@ use headless_lms_models::credit_registration_events::CreditRegistrationEventKind
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationState, Transition, claim_due,
-    increment_verify_attempt_count, map_code, schedule_next_attempt,
-    set_sisu_attainment_if_unclaimed, transition, verify_request_item_id,
+    increment_verify_attempt_count, schedule_next_attempt, set_sisu_attainment_if_unclaimed,
+    transition, verify_request_item_id,
 };
-use headless_lms_models::library::credit_registration::classification::{
+use headless_lms_models::library::credit_registration::backoff::{
     next_attempt_at, verify_backoff_secs,
 };
+use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_selection::attainment_matching_submission;
 use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, RowFacts, uncertain_recheck_outcome, verify_error_outcome,
@@ -32,7 +33,7 @@ use sqlx::Connection;
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, apply_outcome,
-    counts_as_failed, every_item_failed_transiently, response_item_json, row_facts,
+    counts_as_failed, every_item_failed_transiently, requests_json, response_item_json, row_facts,
 };
 
 /// The one code that means the submission became an attainment.
@@ -125,10 +126,7 @@ async fn poll(
             },
         )
         .collect();
-    let requests: Vec<serde_json::Value> = items
-        .iter()
-        .map(|item| serde_json::to_value(item).unwrap_or_default())
-        .collect();
+    let requests = requests_json(&items);
     let response = ctx
         .suotar_client
         .verify_attainments(
@@ -299,10 +297,7 @@ async fn recover(
         return Ok(PhaseRunOutcome::default());
     }
 
-    let requests: Vec<serde_json::Value> = items
-        .iter()
-        .map(|item| serde_json::to_value(item).unwrap_or_default())
-        .collect();
+    let requests = requests_json(&items);
     let response = ctx
         .suotar_client
         .resolve_enrolments(

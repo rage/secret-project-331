@@ -17,16 +17,18 @@ use headless_lms_models::{
         StudentCreditRegistration,
     },
     email_deliveries::{EmailSendStatus, EmailSendStatusReport},
-    library::credit_registration::{
-        StudentFacingCreditRegistrationStatus, apply_consent_change, recompute_preconditions,
-    },
+    library::credit_registration::StudentFacingCreditRegistrationStatus,
     open_university_product_access_tokens,
     student_number_verification_tokens::{self, StudentNumberVerificationToken},
     verified_student_numbers::{
         self, NewVerifiedStudentNumber, StudentNumberVerificationMethod, VerifiedStudentNumber,
     },
 };
-use models::library::credit_registration::preconditions::PRECONDITIONS_LIMIT;
+use models::library::credit_registration::preconditions::{
+    PRECONDITIONS_LIMIT, recompute_preconditions,
+};
+use models::library::credit_registration::student_number_change::record_student_number_change;
+use models::library::credit_registration::withdrawal::apply_consent_change;
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
@@ -424,6 +426,8 @@ pub async fn unlink_my_student_number(
     let affected_registration_count = record_student_number_change(
         &mut tx,
         user.id,
+        user.id,
+        CreditRegistrationEventKind::StudentAction,
         "The student unlinked their student number.",
     )
     .await?;
@@ -595,9 +599,14 @@ pub async fn claim_student_number_verification_token(
         &verification_token.student_number,
     )
     .await?;
-    let newly_unblocked_registration_count =
-        record_student_number_change(&mut tx, user.id, "The student linked a student number.")
-            .await?;
+    let newly_unblocked_registration_count = record_student_number_change(
+        &mut tx,
+        user.id,
+        user.id,
+        CreditRegistrationEventKind::StudentAction,
+        "The student linked a student number.",
+    )
+    .await?;
     tx.commit().await?;
 
     auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
@@ -981,59 +990,6 @@ async fn count_in_state(
             course_id: Some(course_id),
             user_id: Some(user_id),
             states: Some(&[state]),
-            ..models::credit_registrations::AdminCreditRegistrationFilters::default()
-        },
-    )
-    .await?;
-    Ok(count)
-}
-
-/// Audits a student's change to their linked number on every registration it can affect, then applies
-/// it. Returns how many registrations changed whether they wait for a number, which is narrower than
-/// how many rows the recompute moved.
-async fn record_student_number_change(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    message: &str,
-) -> Result<i64, ControllerError> {
-    let affected: Vec<Uuid> = models::credit_registrations::get_by_user_id(conn, user_id)
-        .await?
-        .into_iter()
-        .filter(|row| row.superseded_by_id.is_none() && row.terminal_at.is_none())
-        .map(|row| row.id)
-        .collect();
-    models::credit_registration_events::insert_many(
-        conn,
-        &affected,
-        CreditRegistrationEventKind::StudentAction,
-        Some(user_id),
-        Some(message),
-    )
-    .await?;
-    let waiting_before = count_waiting_for_student_number(conn, user_id).await?;
-    recompute_preconditions(
-        conn,
-        &RegistrationScope {
-            user_id: Some(user_id),
-            ..RegistrationScope::default()
-        },
-        PRECONDITIONS_LIMIT,
-    )
-    .await?;
-    let waiting_after = count_waiting_for_student_number(conn, user_id).await?;
-    Ok((waiting_before - waiting_after).abs())
-}
-
-/// Live registrations of one account waiting for a student number, whatever course they are on.
-async fn count_waiting_for_student_number(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-) -> Result<i64, ControllerError> {
-    let count = models::credit_registrations::count_admin_facing(
-        conn,
-        &models::credit_registrations::AdminCreditRegistrationFilters {
-            user_id: Some(user_id),
-            states: Some(&[CreditRegistrationState::PendingStudentNumber]),
             ..models::credit_registrations::AdminCreditRegistrationFilters::default()
         },
     )

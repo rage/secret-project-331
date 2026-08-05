@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
 import type { MyStudiesCourse } from "@/generated/api/types.generated"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
@@ -11,7 +12,6 @@ import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Badge, Disclosure, Link } from "@/shared-module/components"
 
-import { MIDDLE_DOT, TONE } from "../constants"
 import CourseCompletionsTable from "./CourseCompletionsTable"
 import CourseProgressSection from "./CourseProgressSection"
 

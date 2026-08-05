@@ -1,17 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
-  getAccountLinkingStatsQueryKey,
-  getCreditRegistrationOverviewQueryKey,
-  listCreditRegistrationsForAdminQueryKey,
-  listVerifiedStudentNumbersForAdminQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
 import {
   adminManuallyLinkStudentNumber,
   adminResolveStudentNumberForLinking,
@@ -27,13 +19,14 @@ import {
   DescriptionList,
   Dialog,
   Infobox,
-  TextArea,
   TextField,
 } from "@/shared-module/components"
 
 import { MIDDLE_DOT, TONE } from "../constants"
 import { noteCss } from "../styles"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
+import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
+import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import RelativeTime, { ABSENT } from "./RelativeTime"
 
 interface Props {
@@ -69,16 +62,14 @@ const rowCss = css`
 /** The API enforces the same two gates: the preview must have run, and a reason is required. */
 const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
+  const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const [preview, setPreview] = useState<AdminResolveStudentNumberResult | null>(null)
   const [result, setResult] = useState<AdminManuallyLinkStudentNumberResult | null>(null)
-  const { control, handleSubmit, watch } = useForm<Fields>({
-    defaultValues: {
-      student_number: studentNumber,
-      user_id: "",
-      resending_cannot_work: false,
-      reason: "",
-    },
+  const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
+    student_number: studentNumber,
+    user_id: "",
+    resending_cannot_work: false,
+    reason: "",
   })
   const fields = watch()
 
@@ -103,12 +94,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
       onSuccess: (data) => {
         setResult(data)
         // Linking resolves waiting registrations synchronously, so their state changes too.
-        void Promise.all([
-          queryClient.invalidateQueries({ queryKey: listVerifiedStudentNumbersForAdminQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
-        ])
+        void invalidateAfterLinkingChange()
       },
     },
   )
@@ -201,12 +187,9 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
             control={control}
             label={t("credit-registration-admin-manual-link-confirm-checkbox")}
           />
-          <TextArea
-            name="reason"
+          <ReasonField
             control={control}
-            label={t("label-reason")}
             description={t("credit-registration-admin-manual-link-reason-description")}
-            rules={{ required: t("required-field") }}
           />
           <Button
             variant="primary"

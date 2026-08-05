@@ -287,16 +287,43 @@ pub struct AdminVerifiedStudentNumber {
     pub live_registration_count: i64,
 }
 
-/// Live links only, newest first: a retired link is not a number we hold.
+/// A row with the page's total attached, so a page and its count can only come from one query.
+struct AdminPageRow {
+    id: Uuid,
+    user_id: Uuid,
+    user_email: Option<String>,
+    first_name: Option<String>,
+    last_name: Option<String>,
+    student_number: String,
+    sisu_person_id: String,
+    verified_at: DateTime<Utc>,
+    verified_via: StudentNumberVerificationMethod,
+    verified_via_email: Option<String>,
+    linked_by_user_id: Option<Uuid>,
+    link_reason: Option<String>,
+    verified_from_course_id: Option<Uuid>,
+    live_registration_count: i64,
+    total_count: i64,
+}
+
+/// Live links only, newest first: a retired link is not a number we hold. Returns the page together
+/// with how many rows match the filters in total, from one query via `COUNT(*) OVER()`.
+///
+/// `search` is escaped here, not by the caller: `escape_like_pattern` is easy to forget to call, and
+/// forgetting it would let `%`/`_` in a student number match more than intended.
 pub async fn get_admin_page(
     conn: &mut PgConnection,
     verified_via: Option<StudentNumberVerificationMethod>,
     search: Option<&str>,
     limit: i64,
     offset: i64,
-) -> ModelResult<Vec<AdminVerifiedStudentNumber>> {
-    let res = sqlx::query_as!(
-        AdminVerifiedStudentNumber,
+) -> ModelResult<(Vec<AdminVerifiedStudentNumber>, i64)> {
+    let search_pattern = search
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(|s| crate::library::students_view::escape_like_pattern(&s.to_lowercase()));
+    let rows = sqlx::query_as!(
+        AdminPageRow,
         r#"
 SELECT vsn.id,
   vsn.user_id,
@@ -317,7 +344,8 @@ SELECT vsn.id,
     WHERE cr.user_id = vsn.user_id
       AND cr.superseded_by_id IS NULL
       AND cr.deleted_at IS NULL
-  ) AS "live_registration_count!"
+  ) AS "live_registration_count!",
+  COUNT(*) OVER () AS "total_count!"
 FROM verified_student_numbers vsn
   LEFT JOIN user_details ud ON ud.user_id = vsn.user_id
 WHERE vsn.deleted_at IS NULL
@@ -336,43 +364,52 @@ ORDER BY vsn.verified_at DESC,
 LIMIT $3 OFFSET $4
         "#,
         verified_via as Option<StudentNumberVerificationMethod>,
-        search,
+        search_pattern.as_deref(),
         limit,
         offset,
     )
     .fetch_all(conn)
     .await?;
-    Ok(res)
-}
-
-pub async fn count_admin_page(
-    conn: &mut PgConnection,
-    verified_via: Option<StudentNumberVerificationMethod>,
-    search: Option<&str>,
-) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
-        r#"
-SELECT COUNT(*) AS "count!"
-FROM verified_student_numbers vsn
-  LEFT JOIN user_details ud ON ud.user_id = vsn.user_id
-WHERE vsn.deleted_at IS NULL
-  AND (
-    $1::student_number_verification_method IS NULL
-    OR vsn.verified_via = $1
-  )
-  AND (
-    $2::text IS NULL
-    OR LOWER(vsn.student_number) LIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
-  )
-        "#,
-        verified_via as Option<StudentNumberVerificationMethod>,
-        search,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(count)
+    let total_count = rows.first().map_or(0, |row| row.total_count);
+    let data = rows
+        .into_iter()
+        .map(|row| {
+            let AdminPageRow {
+                id,
+                user_id,
+                user_email,
+                first_name,
+                last_name,
+                student_number,
+                sisu_person_id,
+                verified_at,
+                verified_via,
+                verified_via_email,
+                linked_by_user_id,
+                link_reason,
+                verified_from_course_id,
+                live_registration_count,
+                total_count: _,
+            } = row;
+            AdminVerifiedStudentNumber {
+                id,
+                user_id,
+                user_email,
+                first_name,
+                last_name,
+                student_number,
+                sisu_person_id,
+                verified_at,
+                verified_via,
+                verified_via_email,
+                linked_by_user_id,
+                link_reason,
+                verified_from_course_id,
+                live_registration_count,
+            }
+        })
+        .collect();
+    Ok((data, total_count))
 }
 
 /// Live links per method, so an admin-established one is never hidden inside a total.

@@ -1,22 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  getMyCourseCreditRegistrationConsentQueryKey,
-  getMyCreditRegistrationConsentsQueryKey,
-  getMyCreditRegistrationsQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
-import { setMyCourseCreditRegistrationConsent } from "@/generated/api/sdk.generated"
-import type {
-  MyCourseCreditRegistrationConsent,
-  SetMyCourseCreditRegistrationConsentResult,
-} from "@/generated/api/types.generated"
+import type { MyCourseCreditRegistrationConsent } from "@/generated/api/types.generated"
+import { useSetCreditRegistrationConsent } from "@/hooks/course-material/useCourseCreditRegistrationConsent"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Dialog } from "@/shared-module/components"
 
@@ -57,33 +47,11 @@ const CreditRegistrationConsentDialog: React.FC<CreditRegistrationConsentDialogP
   onClose,
 }) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
   const ects = sumEcts(consent)
   const existingCompletions = consent.registrable_completion_count
   const modulesRegisterSeparately = consent.modules.length > 1
 
-  const answer = useToastMutation<SetMyCourseCreditRegistrationConsentResult, unknown, boolean>(
-    async (consentGiven) =>
-      await setMyCourseCreditRegistrationConsent({
-        path: { course_id: consent.course_id },
-        body: { consent_given: consentGiven },
-      }),
-    { notify: false },
-    {
-      onSuccess: async () => {
-        await Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: getMyCourseCreditRegistrationConsentQueryKey({
-              path: { course_id: consent.course_id },
-            }),
-          }),
-          queryClient.invalidateQueries({ queryKey: getMyCreditRegistrationsQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: getMyCreditRegistrationConsentsQueryKey() }),
-        ])
-        onClose()
-      },
-    },
-  )
+  const answer = useSetCreditRegistrationConsent({ notify: false })
 
   return (
     <Dialog
@@ -112,7 +80,12 @@ const CreditRegistrationConsentDialog: React.FC<CreditRegistrationConsentDialogP
             variant="secondary"
             size="medium"
             disabled={answer.isPending}
-            onClick={() => answer.mutate(false)}
+            onClick={() =>
+              answer.mutate(
+                { courseId: consent.course_id, consentGiven: false },
+                { onSuccess: onClose },
+              )
+            }
             data-testid="credit-registration-consent-decline-button"
           >
             {t("credit-registration-consent-decline")}
@@ -121,7 +94,12 @@ const CreditRegistrationConsentDialog: React.FC<CreditRegistrationConsentDialogP
             variant="primary"
             size="medium"
             disabled={answer.isPending}
-            onClick={() => answer.mutate(true)}
+            onClick={() =>
+              answer.mutate(
+                { courseId: consent.course_id, consentGiven: true },
+                { onSuccess: onClose },
+              )
+            }
             data-testid="credit-registration-consent-accept-button"
           >
             {t("credit-registration-consent-accept")}

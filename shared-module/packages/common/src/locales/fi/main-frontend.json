@@ -1543,6 +1543,7 @@
   "link-student-number-success-heading": "Opiskelijanumero liitetty",
   "link-student-number-success-unblocked_one": "{{count}} suoritus kirjataan nyt.",
   "link-student-number-success-unblocked_other": "{{count}} suoritusta kirjataan nyt.",
+  "link-student-number-unusable": "Tätä linkkiä ei voi enää käyttää.",
   "link-student-number-wrong-account": "Väärä tili? Kirjaudu ulos ja kirjaudu sisään toisella.",
   "link-test-exam": "Testaa koetta",
   "link-text-all-organizations": "Kaikki organisaatiot",

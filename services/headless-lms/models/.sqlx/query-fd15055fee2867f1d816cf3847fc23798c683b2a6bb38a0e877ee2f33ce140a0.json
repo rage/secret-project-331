@@ -1,0 +1,127 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH facts AS (\n  SELECT cr.id,\n    cr.state,\n    cr.next_attempt_at,\n    cr.state_entered_at,\n    cr.first_failed_at,\n    cr.submitted_attainment_id IS NOT NULL AS has_submitted_attainment,\n    (\n      cr.selected_enrolment_id IS NOT NULL\n      AND cr.grade_id IS NOT NULL\n    ) AS has_payload_snapshot,\n    cmc.deleted_at IS NOT NULL AS completion_deleted,\n    (\n      cmc.deleted_at IS NULL\n      AND cmc.passed\n      AND cmc.eligible_for_ects\n      AND cmc.prerequisite_modules_completed\n      AND NOT cmc.needs_to_be_reviewed\n    ) AS eligible,\n    consent.consent_given IS TRUE AS consented,\n    -- Declining and withdrawing look the same in the flag; only the timestamp tells them apart,\n    -- and only withdrawal blocks a row. Declining leaves it waiting for a change of mind.\n    (\n      consent.consent_given IS FALSE\n      AND consent.consent_given_at IS NOT NULL\n    ) AS consent_withdrawn,\n    vsn.id IS NOT NULL AS has_student_number,\n    -- True once the account has relinked to a different verified student number since this row's\n    -- payload was frozen for import: vsn is the current link, cr.student_number/sisu_person_id are\n    -- what was frozen. A relink soft-deletes and re-inserts in the same transaction, so\n    -- has_student_number stays true throughout and would otherwise never catch this.\n    (\n      cr.student_number IS NOT NULL\n      AND (\n        vsn.student_number IS DISTINCT FROM cr.student_number\n        OR vsn.sisu_person_id IS DISTINCT FROM cr.sisu_person_id\n      )\n    ) AS frozen_identity_stale\n  FROM credit_registrations cr\n    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n    LEFT JOIN course_credit_registration_consents consent ON consent.user_id = cr.user_id\n    AND consent.course_id = cr.course_id\n    AND consent.deleted_at IS NULL\n    LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n    AND vsn.deleted_at IS NULL\n    LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n    AND conf.deleted_at IS NULL\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.terminal_at IS NULL\n    -- Only a human moves a row the study registry reversed.\n    AND cr.state <> 'misregistered'\n    AND conf.paused_at IS NULL\n    AND ($2::uuid IS NULL OR cr.course_id = $2)\n    AND ($3::uuid IS NULL OR cr.user_id = $3)\n    AND (\n      cardinality($4::uuid []) = 0\n      OR cr.id = ANY($4::uuid [])\n    )\n),\ntargets AS (\n  SELECT facts.*,\n    CASE\n      -- Withdrawal of something already sent. The request is out of our hands, so we stop asking.\n      -- This WHEN and the `consent_withdrawn THEN 'blocked'` one below reimplement\n      -- withdrawal::withdrawal_target() in SQL; kept in sync only by\n      -- preconditions::tests::withdrawal_does_what_the_rule_says_from_every_state.\n      WHEN facts.state IN (\n        'submitting',\n        'submission_uncertain',\n        'awaiting_verification'\n      )\n      AND facts.consent_withdrawn THEN 'abandoned_by_consent_withdrawal'\n      -- A worker committed `submitting` and never came back with an answer. There is no way to\n      -- know whether the request landed, so the row is never imported again.\n      WHEN facts.state = 'submitting'\n      AND facts.state_entered_at < now() - ($5::bigint * INTERVAL '1 second') THEN 'submission_uncertain'\n      WHEN facts.state IN (\n        'submitting',\n        'submission_uncertain',\n        'awaiting_verification'\n      ) THEN facts.state\n      WHEN facts.completion_deleted THEN 'cancelled'\n      WHEN facts.consent_withdrawn THEN 'blocked'\n      WHEN facts.state = 'failed_retryable'\n      AND NOT facts.eligible THEN 'blocked'\n      WHEN facts.state = 'failed_retryable'\n      AND facts.first_failed_at < now() - ($6::bigint * INTERVAL '1 second') THEN 'failed_permanent'\n      -- Resumed at whichever state matches how far it had got; decided outside this query.\n      WHEN facts.state = 'failed_retryable'\n      AND facts.next_attempt_at <= now() THEN NULL\n      WHEN facts.state = 'failed_retryable' THEN facts.state\n      -- Eligibility lost after the row had already moved on is what `blocked` is for; a row still\n      -- waiting on prerequisites is simply where it belongs.\n      WHEN NOT facts.eligible\n      AND facts.state <> 'pending_prerequisites' THEN 'blocked'\n      WHEN NOT facts.eligible THEN 'pending_prerequisites'\n      WHEN NOT facts.consented THEN 'pending_consent'\n      WHEN NOT facts.has_student_number THEN 'pending_student_number'\n      -- The periodic look for an enrolment that may have appeared since.\n      WHEN facts.state = 'no_usable_enrolment'\n      AND facts.next_attempt_at > now() THEN facts.state\n      -- A relink after the payload was frozen must not let the row import against the account's\n      -- previous number: send it back to resolve a fresh payload against the current one.\n      WHEN facts.state = 'checking_enrolment'\n      AND facts.frozen_identity_stale THEN 'ready_to_submit'\n      -- Already queued for import with its payload frozen; sending it back would resolve again\n      -- forever.\n      WHEN facts.state = 'checking_enrolment' THEN facts.state\n      -- A resolve-enrolments call for this row is in flight; only that phase's own commit may\n      -- move it, or import could claim it before the enrolment is actually resolved.\n      WHEN facts.state = 'resolving_enrolment' THEN facts.state\n      ELSE 'ready_to_submit'\n    END::credit_registration_state AS target\n  FROM facts\n)\nSELECT id,\n  state AS \"state: CreditRegistrationState\",\n  target AS \"target?: CreditRegistrationState\",\n  consent_withdrawn AS \"consent_withdrawn!\",\n  has_submitted_attainment AS \"has_submitted_attainment!\",\n  has_payload_snapshot AS \"has_payload_snapshot!\"\nFROM targets\nWHERE target IS NULL\n  OR target <> state\nORDER BY state_entered_at\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "state: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "target?: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "consent_withdrawn!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "has_submitted_attainment!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "has_payload_snapshot!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "UuidArray",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "fd15055fee2867f1d816cf3847fc23798c683b2a6bb38a0e877ee2f33ce140a0"
+}

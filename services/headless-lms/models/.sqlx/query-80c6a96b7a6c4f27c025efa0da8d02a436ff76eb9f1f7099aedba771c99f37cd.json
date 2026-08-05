@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT course_module_id,\n  state AS \"state: CreditRegistrationState\",\n  COUNT(*) AS \"count!\"\nFROM credit_registrations\nWHERE course_id = $1\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY course_module_id,\n  state\n        ",
+  "query": "\nSELECT course_module_id,\n  state AS \"state: CreditRegistrationState\",\n  COUNT(*) AS \"count!\",\n  COUNT(*) FILTER (WHERE needs_admin_attention) AS \"needs_admin_attention_count!\"\nFROM credit_registrations\nWHERE course_id = $1\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY course_module_id,\n  state\n        ",
   "describe": {
     "columns": [
       {
@@ -57,6 +57,12 @@
         "name": "count!",
         "type_info": "Int8",
         "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "needs_admin_attention_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -67,8 +73,9 @@
     "nullable": [
       false,
       false,
+      null,
       null
     ]
   },
-  "hash": "b81eb667c10bea2bdbbbb594685b6911344c038aa45a53749e82b40e274d4263"
+  "hash": "80c6a96b7a6c4f27c025efa0da8d02a436ff76eb9f1f7099aedba771c99f37cd"
 }

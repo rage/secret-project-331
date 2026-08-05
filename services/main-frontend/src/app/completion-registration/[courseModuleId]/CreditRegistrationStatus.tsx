@@ -18,11 +18,9 @@ import {
   getMyCreditRegistrationForCourseModuleOptions,
   getMyCreditRegistrationForCourseModuleQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
-import {
-  requestCreditRegistrationEnrolmentRecheck,
-  setMyCourseCreditRegistrationConsent,
-} from "@/generated/api/sdk.generated"
+import { requestCreditRegistrationEnrolmentRecheck } from "@/generated/api/sdk.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
+import { useSetCreditRegistrationConsent } from "@/hooks/course-material/useCourseCreditRegistrationConsent"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import {
   userSettingsStudentNumberRoute,
@@ -175,16 +173,7 @@ const LiveRegistration: React.FC<{
     })
   }
 
-  const giveConsent = useToastMutation<void, unknown, void>(
-    async () => {
-      await setMyCourseCreditRegistrationConsent({
-        path: { course_id: registration.course_id },
-        body: { consent_given: true },
-      })
-    },
-    { notify: true, method: "PUT" },
-    { onSuccess: invalidate },
-  )
+  const giveConsent = useSetCreditRegistrationConsent()
 
   const recheckEnrolment = useToastMutation<void, unknown, void>(
     async () => {
@@ -238,7 +227,9 @@ const LiveRegistration: React.FC<{
             variant="primary"
             size="medium"
             isLoading={giveConsent.isPending}
-            onClick={() => giveConsent.mutate()}
+            onClick={() =>
+              giveConsent.mutate({ courseId: registration.course_id, consentGiven: true })
+            }
           >
             {t("credit-registration-action-give-consent")}
           </Button>

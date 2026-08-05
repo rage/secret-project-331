@@ -8,7 +8,7 @@ study registry's own error text is never returned, and nothing here can override
 use headless_lms_models::course_module_suotar_realisations::CourseModuleSuotarRealisation;
 use headless_lms_models::course_modules::CourseModuleCreditRegistrationConfig;
 use headless_lms_models::credit_registration_admin_actions::{
-    CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
+    COURSE_TEACHER_ROLE, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
@@ -301,21 +301,18 @@ pub async fn get_course_credit_registration_summary(
     let counts =
         models::credit_registrations::count_by_module_and_state_for_course(&mut conn, *course_id)
             .await?;
-    let attention: HashMap<Uuid, i64> =
-        models::credit_registrations::count_needing_admin_attention_by_module_for_course(
-            &mut conn, *course_id,
-        )
-        .await?
-        .into_iter()
-        .collect();
+    let mut attention: HashMap<Uuid, i64> = HashMap::new();
+    for (module_id, _, _, needs_admin_attention_count) in &counts {
+        *attention.entry(*module_id).or_insert(0) += needs_admin_attention_count;
+    }
 
     let modules = configs
         .into_iter()
         .map(|config| {
             let counts_by_state: Vec<CreditRegistrationStateCount> = counts
                 .iter()
-                .filter(|(module_id, _, _)| *module_id == config.course_module_id)
-                .map(|(_, state, count)| CreditRegistrationStateCount {
+                .filter(|(module_id, _, _, _)| *module_id == config.course_module_id)
+                .map(|(_, state, count, _)| CreditRegistrationStateCount {
                     state: *state,
                     count: *count,
                 })
@@ -706,21 +703,19 @@ async fn finish_resend(
     models::credit_registration_admin_actions::record(
         conn,
         &NewCreditRegistrationAdminAction {
-            action: CreditRegistrationAdminAction::ResendLinkEmail,
-            target_kind: CreditRegistrationAdminActionTarget::Course,
             target_id: Some(course_id),
-            target_phase: None,
-            actor_user_id: user.id,
-            actor_role: "course_teacher".to_string(),
             actor_course_id: Some(course_id),
             reason: payload.reason.clone(),
-            before_state: None,
-            after_state: None,
             details: Some(serde_json::json!({
                 "outcome": outcome,
                 "student_number": student_number,
             })),
-            affected_row_count: None,
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::ResendLinkEmail,
+                CreditRegistrationAdminActionTarget::Course,
+                user.id,
+                COURSE_TEACHER_ROLE,
+            )
         },
     )
     .await?;

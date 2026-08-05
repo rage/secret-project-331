@@ -106,46 +106,12 @@ pub async fn replace_for_course_module(
     Ok(())
 }
 
-pub async fn get_by_course_module_id(
+/// Shared by [`get_by_course_module_id`] and [`get_by_course_id`], which differ only in which of
+/// these is `Some`.
+async fn realisations_for(
     conn: &mut PgConnection,
-    course_module_id: Uuid,
-) -> ModelResult<Vec<CourseModuleSuotarRealisation>> {
-    let res = sqlx::query_as!(
-        CourseModuleSuotarRealisation,
-        r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_module_id,
-  course_unit_realisation_id,
-  label,
-  active,
-  last_listed_at,
-  last_listed_person_count,
-  last_already_linked_count,
-  last_mailed_count,
-  last_suppressed_by_dedup_count,
-  last_suppressed_by_rate_cap_count,
-  last_no_address_count,
-  last_listing_attempted_at,
-  last_listing_error AS "last_listing_error?: CreditRegistrationErrorCode",
-  consecutive_listing_failures
-FROM course_module_suotar_realisations
-WHERE course_module_id = $1
-  AND deleted_at IS NULL
-ORDER BY created_at
-        "#,
-        course_module_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_by_course_id(
-    conn: &mut PgConnection,
-    course_id: Uuid,
+    course_module_id: Option<Uuid>,
+    course_id: Option<Uuid>,
 ) -> ModelResult<Vec<CourseModuleSuotarRealisation>> {
     let res = sqlx::query_as!(
         CourseModuleSuotarRealisation,
@@ -170,17 +136,35 @@ SELECT cmsr.id,
   cmsr.consecutive_listing_failures
 FROM course_module_suotar_realisations cmsr
   JOIN course_modules cm ON cm.id = cmsr.course_module_id
-WHERE cm.course_id = $1
+WHERE ($1::uuid IS NULL OR cmsr.course_module_id = $1)
+  AND (
+    $2::uuid IS NULL
+    OR (cm.course_id = $2 AND cm.deleted_at IS NULL)
+  )
   AND cmsr.deleted_at IS NULL
-  AND cm.deleted_at IS NULL
 ORDER BY cm.order_number,
   cmsr.created_at
         "#,
-        course_id
+        course_module_id,
+        course_id,
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_by_course_module_id(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<Vec<CourseModuleSuotarRealisation>> {
+    realisations_for(conn, Some(course_module_id), None).await
+}
+
+pub async fn get_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseModuleSuotarRealisation>> {
+    realisations_for(conn, None, Some(course_id)).await
 }
 
 /// The id `list-by-course` echoes back for one realisation. Derived rather than stored, so the

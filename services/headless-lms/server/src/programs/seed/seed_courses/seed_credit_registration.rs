@@ -32,8 +32,8 @@ use headless_lms_models::{
     course_module_completions::{self, NewCourseModuleCompletionSeed},
     credit_registration_account_linking_emails::{self, NewAccountLinkingEmail},
     credit_registration_admin_actions::{
-        self, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
-        NewCreditRegistrationAdminAction,
+        self, COURSE_TEACHER_ROLE, CreditRegistrationAdminAction,
+        CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE, NewCreditRegistrationAdminAction,
     },
     credit_registrations::{
         self, CreditRegistrationErrorCode, CreditRegistrationState, NewCreditRegistration,
@@ -1499,36 +1499,33 @@ async fn seed_admin_actions(
     credit_registration_admin_actions::record(
         conn,
         &NewCreditRegistrationAdminAction {
-            action: CreditRegistrationAdminAction::TransitionItem,
-            target_kind: CreditRegistrationAdminActionTarget::CreditRegistration,
             target_id: Some(SUPERSEDED_ATTEMPT_1_ID),
-            target_phase: None,
-            actor_user_id: admin_user_id,
-            actor_role: "global_admin".to_string(),
-            actor_course_id: None,
             reason: Some("Seeded fixture: checked Sisu by hand and requeued".to_string()),
             before_state: Some(CreditRegistrationState::SubmissionUncertain),
             after_state: Some(CreditRegistrationState::Registered),
-            details: None,
             affected_row_count: Some(1),
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::TransitionItem,
+                CreditRegistrationAdminActionTarget::CreditRegistration,
+                admin_user_id,
+                GLOBAL_ADMIN_ROLE,
+            )
         },
     )
     .await?;
     credit_registration_admin_actions::record(
         conn,
         &NewCreditRegistrationAdminAction {
-            action: CreditRegistrationAdminAction::ResendLinkEmail,
-            target_kind: CreditRegistrationAdminActionTarget::StudentNumberVerificationToken,
             target_id: Some(cx.v5(b"linking-token:valid")),
-            target_phase: None,
-            actor_user_id: teacher_user_id,
-            actor_role: "course_teacher".to_string(),
             actor_course_id: Some(course_id),
             reason: Some("Seeded fixture: student reported the mail never arrived".to_string()),
-            before_state: None,
-            after_state: None,
-            details: None,
             affected_row_count: Some(1),
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::ResendLinkEmail,
+                CreditRegistrationAdminActionTarget::StudentNumberVerificationToken,
+                teacher_user_id,
+                COURSE_TEACHER_ROLE,
+            )
         },
     )
     .await?;

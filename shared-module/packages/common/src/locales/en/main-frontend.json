@@ -1655,6 +1655,7 @@
   "link-student-number-success-heading": "Student number linked",
   "link-student-number-success-unblocked_one": "{{count}} completion will now be registered.",
   "link-student-number-success-unblocked_other": "{{count}} completions will now be registered.",
+  "link-student-number-unusable": "This link can no longer be used.",
   "link-student-number-wrong-account": "Wrong account? Log out and log in with another one.",
   "link-test-exam": "Test exam",
   "link-text-all-organizations": "All organizations",

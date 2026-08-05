@@ -103,9 +103,14 @@ WHERE sisu_person_id = ANY($1::text [])
 /// Batched form of [`claim_send_slot`], keyed by token: returns the
 /// `student_number_verification_token_id` of every row actually inserted, so the caller can tell
 /// which candidates lost the race to the unique index.
+///
+/// `token_ids[i]` is the token already minted for `new[i]`, taken separately rather than read from
+/// `new[i].student_number_verification_token_id`: that field stays `Option` because it really can be
+/// absent on the single-row [`claim_send_slot`], but a batched claim always has one.
 pub async fn claim_send_slots(
     conn: &mut PgConnection,
     new: &[NewAccountLinkingEmail],
+    token_ids: &[Uuid],
 ) -> ModelResult<HashSet<Uuid>> {
     if new.is_empty() {
         return Ok(HashSet::new());
@@ -114,13 +119,6 @@ pub async fn claim_send_slots(
     let sisu_person_ids: Vec<String> = new.iter().map(|n| n.sisu_person_id.clone()).collect();
     let course_ids: Vec<Uuid> = new.iter().map(|n| n.course_id).collect();
     let emailed_tos: Vec<String> = new.iter().map(|n| n.emailed_to.clone()).collect();
-    let token_ids: Vec<Uuid> = new
-        .iter()
-        .map(|n| {
-            n.student_number_verification_token_id
-                .expect("a batched claim always mints its token before claiming its slot")
-        })
-        .collect();
 
     let claimed = sqlx::query_scalar!(
         r#"
@@ -138,7 +136,7 @@ RETURNING student_number_verification_token_id AS "token_id!"
         &sisu_person_ids,
         &course_ids,
         &emailed_tos,
-        &token_ids,
+        token_ids,
     )
     .fetch_all(conn)
     .await?;
@@ -422,8 +420,7 @@ WITH mails AS (
     CASE
       WHEN e.email_delivery_id IS NULL THEN 'queued'
       WHEN ed.sent THEN 'sent'
-      WHEN NOT ed.retryable
-        OR (ed.first_failed_at IS NOT NULL AND ed.first_failed_at < $2) THEN 'send_failed'
+      WHEN credit_registration_link_mail_is_hard_failure(ed.retryable, ed.first_failed_at, $2) THEN 'send_failed'
       WHEN ed.retry_count > 0 THEN 'retrying'
       ELSE 'queued'
     END AS status
@@ -456,7 +453,8 @@ pub struct LinkingMailFailureDomain {
 }
 
 /// Domains behind a hard send failure in the window, worst first. Same predicate as
-/// [`get_send_status_totals_since`]; change one and the tile and this table name different mails.
+/// [`get_send_status_totals_since`], enforced by both calling `credit_registration_link_mail_is_hard_failure`
+/// rather than each repeating the condition.
 pub async fn get_send_failure_domains_since(
     conn: &mut PgConnection,
     since: DateTime<Utc>,
@@ -476,10 +474,7 @@ WHERE e.sent_at >= $1
   AND e.deleted_at IS NULL
   AND position('@' IN e.emailed_to) > 0
   AND NOT ed.sent
-  AND (
-    NOT ed.retryable
-    OR (ed.first_failed_at IS NOT NULL AND ed.first_failed_at < $2)
-  )
+  AND credit_registration_link_mail_is_hard_failure(ed.retryable, ed.first_failed_at, $2)
 GROUP BY substring(e.emailed_to FROM position('@' IN e.emailed_to) + 1)
 ORDER BY COUNT(*) DESC,
   substring(e.emailed_to FROM position('@' IN e.emailed_to) + 1) ASC
@@ -509,10 +504,7 @@ FROM credit_registration_account_linking_emails e
 WHERE e.course_id = $1
   AND e.deleted_at IS NULL
   AND NOT ed.sent
-  AND (
-    NOT ed.retryable
-    OR (ed.first_failed_at IS NOT NULL AND ed.first_failed_at < $2)
-  )
+  AND credit_registration_link_mail_is_hard_failure(ed.retryable, ed.first_failed_at, $2)
         "#,
         course_id,
         retry_window_expired_before,

@@ -4,7 +4,6 @@ import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { formatInTimeZone } from "date-fns-tz"
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { isSuccessState } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
@@ -13,6 +12,7 @@ import {
   useSuotarHealth,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
+import { ReasonConfirmDialog } from "@/components/credit-registration/admin/ReasonConfirmDialog"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import Sparkline from "@/components/credit-registration/admin/Sparkline"
 import { TONE } from "@/components/credit-registration/constants"
@@ -37,13 +37,11 @@ import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/uti
 import {
   Badge,
   Button,
-  Dialog,
   Disclosure,
   Link,
   QueryResult,
   StatTile,
   Table,
-  TextArea,
 } from "@/shared-module/components"
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -70,11 +68,6 @@ const chipsCss = css`
 const phaseActionsCss = css`
   display: flex;
   gap: 0.4rem;
-`
-
-const dialogFormCss = css`
-  display: grid;
-  gap: 0.75rem;
 `
 
 const chipCss = css`
@@ -370,10 +363,6 @@ const PhaseActions: React.FC<{ phase: CreditRegistrationPhaseStatus }> = ({ phas
   const queryClient = useQueryClient()
   const { confirm } = useDialog()
   const [pauseOpen, setPauseOpen] = useState(false)
-  const { control, handleSubmit, watch } = useForm<{ reason: string }>({
-    defaultValues: { reason: "" },
-  })
-  const pauseReason = watch("reason")
 
   const invalidateOverview = () =>
     queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() })
@@ -444,32 +433,14 @@ const PhaseActions: React.FC<{ phase: CreditRegistrationPhaseStatus }> = ({ phas
           </Button>
         </>
       )}
-      <Dialog
+      <ReasonConfirmDialog
         open={pauseOpen}
         onClose={() => setPauseOpen(false)}
         title={t("credit-registration-admin-phase-pause-title", { phase: phase.phase })}
-      >
-        <form
-          className={dialogFormCss}
-          onSubmit={handleSubmit((fields) => pauseMutation.mutate(fields))}
-        >
-          <TextArea
-            name="reason"
-            control={control}
-            label={t("label-reason")}
-            description={t("credit-registration-admin-phase-pause-reason-description")}
-            rules={{ required: t("required-field") }}
-          />
-          <Button
-            variant="primary"
-            size="medium"
-            type="submit"
-            disabled={pauseMutation.isPending || pauseReason.trim() === ""}
-          >
-            {t("button-text-confirm")}
-          </Button>
-        </form>
-      </Dialog>
+        reasonDescription={t("credit-registration-admin-phase-pause-reason-description")}
+        isPending={pauseMutation.isPending}
+        onConfirm={(reason) => pauseMutation.mutate({ reason })}
+      />
     </div>
   )
 }

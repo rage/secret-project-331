@@ -9,7 +9,6 @@ use utoipa::ToSchema;
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
 use crate::library::students_view::escape_like_pattern;
 use crate::prelude::*;
-use crate::suotar_api_calls::SuotarEndpoint;
 use crate::verified_student_numbers::StudentNumberVerificationMethod;
 
 /// What the pipeline does next with a ledger row.
@@ -145,19 +144,6 @@ impl CreditRegistrationErrorCode {
         Self::RetryWindowExpired,
         Self::Unknown,
     ];
-}
-
-/// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.
-pub fn map_code(endpoint: SuotarEndpoint, code: &str) -> Option<CreditRegistrationErrorCode> {
-    let mapped = map_wire_code(code)?;
-    // Import's contract has no per-item transient, so one arriving there is no evidence that
-    // nothing was created; retrying it could put a second attainment on a transcript.
-    if endpoint == SuotarEndpoint::ImportAttainments
-        && mapped == CreditRegistrationErrorCode::SisuTemporarilyUnavailable
-    {
-        return Some(CreditRegistrationErrorCode::SisuTimeout);
-    }
-    Some(mapped)
 }
 
 /// The contract's own mapping of a per-item `code`, before any hardening of ours.
@@ -804,29 +790,6 @@ WHERE id = $1
     Ok(())
 }
 
-pub async fn set_sisu_attainment(
-    conn: &mut PgConnection,
-    id: Uuid,
-    sisu_attainment_id: &str,
-    sisu_attainment_type: Option<&str>,
-) -> ModelResult<()> {
-    sqlx::query!(
-        r#"
-UPDATE credit_registrations
-SET sisu_attainment_id = $2,
-  sisu_attainment_type = $3
-WHERE id = $1
-  AND deleted_at IS NULL
-        "#,
-        id,
-        sisu_attainment_id,
-        sisu_attainment_type,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
 /// Records the attainment the study registry holds, unless another live row already claims it.
 ///
 /// Two rows may legitimately be told about one attainment — a grade improvement Sisu declines names
@@ -1068,16 +1031,19 @@ GROUP BY state
     Ok(rows.into_iter().map(|r| (r.state, r.count)).collect())
 }
 
-/// Live rows of one course per module and state, for the teacher's per-module summary.
+/// Live rows of one course per module and state, for the teacher's per-module summary, with how many
+/// of each need a human folded in: both counts are read off the same scan, since the summary always
+/// wants them together.
 pub async fn count_by_module_and_state_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<(Uuid, CreditRegistrationState, i64)>> {
+) -> ModelResult<Vec<(Uuid, CreditRegistrationState, i64, i64)>> {
     let rows = sqlx::query!(
         r#"
 SELECT course_module_id,
   state AS "state: CreditRegistrationState",
-  COUNT(*) AS "count!"
+  COUNT(*) AS "count!",
+  COUNT(*) FILTER (WHERE needs_admin_attention) AS "needs_admin_attention_count!"
 FROM credit_registrations
 WHERE course_id = $1
   AND superseded_by_id IS NULL
@@ -1091,33 +1057,14 @@ GROUP BY course_module_id,
     .await?;
     Ok(rows
         .into_iter()
-        .map(|r| (r.course_module_id, r.state, r.count))
-        .collect())
-}
-
-/// Live rows of one course needing a human, per module.
-pub async fn count_needing_admin_attention_by_module_for_course(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<(Uuid, i64)>> {
-    let rows = sqlx::query!(
-        r#"
-SELECT course_module_id,
-  COUNT(*) AS "count!"
-FROM credit_registrations
-WHERE course_id = $1
-  AND needs_admin_attention
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
-GROUP BY course_module_id
-        "#,
-        course_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(rows
-        .into_iter()
-        .map(|r| (r.course_module_id, r.count))
+        .map(|r| {
+            (
+                r.course_module_id,
+                r.state,
+                r.count,
+                r.needs_admin_attention_count,
+            )
+        })
         .collect())
 }
 
@@ -1202,35 +1149,68 @@ struct TeacherFacingRow {
 }
 
 impl From<TeacherFacingRow> for TeacherCreditRegistration {
+    // Destructured field-by-field with no `..`, on purpose: a column added to `TeacherFacingRow`
+    // without also adding it here (and to `TeacherCreditRegistration`) is a compile error instead of
+    // being silently dropped.
     fn from(row: TeacherFacingRow) -> Self {
+        let TeacherFacingRow {
+            id,
+            user_id,
+            first_name,
+            last_name,
+            email,
+            course_id,
+            course_module_id,
+            course_module_name,
+            course_instance_id,
+            course_module_completion_id,
+            completion_date,
+            state,
+            state_entered_at,
+            error_code,
+            needs_admin_attention,
+            next_attempt_at,
+            registered_at,
+            sisu_attainment_id,
+            grade_id,
+            credits,
+            attempt_number,
+            superseded_by_id,
+            student_number,
+            student_number_verified_at,
+            student_number_verified_via,
+            sisu_person_id,
+            enrolment_realisation_name,
+            total_count: _,
+        } = row;
         Self {
-            id: row.id,
-            user_id: row.user_id,
-            first_name: row.first_name,
-            last_name: row.last_name,
-            email: row.email,
-            course_id: row.course_id,
-            course_module_id: row.course_module_id,
-            course_module_name: row.course_module_name,
-            course_instance_id: row.course_instance_id,
-            course_module_completion_id: row.course_module_completion_id,
-            completion_date: row.completion_date,
-            state: row.state,
-            state_entered_at: row.state_entered_at,
-            error_code: row.error_code,
-            needs_admin_attention: row.needs_admin_attention,
-            next_attempt_at: row.next_attempt_at,
-            registered_at: row.registered_at,
-            sisu_attainment_id: row.sisu_attainment_id,
-            grade_id: row.grade_id,
-            credits: row.credits,
-            attempt_number: row.attempt_number,
-            superseded_by_id: row.superseded_by_id,
-            student_number: row.student_number,
-            student_number_verified_at: row.student_number_verified_at,
-            student_number_verified_via: row.student_number_verified_via,
-            sisu_person_id: row.sisu_person_id,
-            enrolment_realisation_name: row.enrolment_realisation_name,
+            id,
+            user_id,
+            first_name,
+            last_name,
+            email,
+            course_id,
+            course_module_id,
+            course_module_name,
+            course_instance_id,
+            course_module_completion_id,
+            completion_date,
+            state,
+            state_entered_at,
+            error_code,
+            needs_admin_attention,
+            next_attempt_at,
+            registered_at,
+            sisu_attainment_id,
+            grade_id,
+            credits,
+            attempt_number,
+            superseded_by_id,
+            student_number,
+            student_number_verified_at,
+            student_number_verified_via,
+            sisu_person_id,
+            enrolment_realisation_name,
         }
     }
 }
@@ -1531,47 +1511,92 @@ struct AdminFacingRow {
 }
 
 impl From<AdminFacingRow> for AdminCreditRegistration {
+    // Destructured field-by-field with no `..`, on purpose: a column added to `AdminFacingRow`
+    // without also adding it here (and to `AdminCreditRegistration`) is a compile error instead of
+    // being silently dropped.
     fn from(row: AdminFacingRow) -> Self {
+        let AdminFacingRow {
+            id,
+            created_at,
+            user_id,
+            first_name,
+            last_name,
+            email,
+            course_id,
+            course_name,
+            course_module_id,
+            course_module_name,
+            course_instance_id,
+            course_module_completion_id,
+            completion_date,
+            state,
+            state_entered_at,
+            error_code,
+            needs_admin_attention,
+            next_attempt_at,
+            last_attempt_at,
+            submitted_at,
+            registered_at,
+            terminal_at,
+            student_number,
+            sisu_person_id,
+            uh_course_code,
+            selected_enrolment_id,
+            grade_scale_id,
+            grade_id,
+            credits,
+            request_item_id,
+            submitted_attainment_id,
+            sisu_attainment_id,
+            submit_retry_count,
+            verify_attempt_count,
+            attempt_number,
+            superseded_by_id,
+            verified_student_number,
+            verified_student_number_at,
+            verified_student_number_via,
+            total_count: _,
+        } = row;
         Self {
-            id: row.id,
-            created_at: row.created_at,
-            user_id: row.user_id,
-            first_name: row.first_name,
-            last_name: row.last_name,
-            email: row.email,
-            course_id: row.course_id,
-            course_name: row.course_name,
-            course_module_id: row.course_module_id,
-            course_module_name: row.course_module_name,
-            course_instance_id: row.course_instance_id,
-            course_module_completion_id: row.course_module_completion_id,
-            completion_date: row.completion_date,
-            state: row.state,
-            state_entered_at: row.state_entered_at,
-            error_code: row.error_code,
-            needs_admin_attention: row.needs_admin_attention,
-            next_attempt_at: row.next_attempt_at,
-            last_attempt_at: row.last_attempt_at,
-            submitted_at: row.submitted_at,
-            registered_at: row.registered_at,
-            terminal_at: row.terminal_at,
-            student_number: row.student_number,
-            sisu_person_id: row.sisu_person_id,
-            uh_course_code: row.uh_course_code,
-            selected_enrolment_id: row.selected_enrolment_id,
-            grade_scale_id: row.grade_scale_id,
-            grade_id: row.grade_id,
-            credits: row.credits,
-            request_item_id: row.request_item_id,
-            submitted_attainment_id: row.submitted_attainment_id,
-            sisu_attainment_id: row.sisu_attainment_id,
-            submit_retry_count: row.submit_retry_count,
-            verify_attempt_count: row.verify_attempt_count,
-            attempt_number: row.attempt_number,
-            superseded_by_id: row.superseded_by_id,
-            verified_student_number: row.verified_student_number,
-            verified_student_number_at: row.verified_student_number_at,
-            verified_student_number_via: row.verified_student_number_via,
+            id,
+            created_at,
+            user_id,
+            first_name,
+            last_name,
+            email,
+            course_id,
+            course_name,
+            course_module_id,
+            course_module_name,
+            course_instance_id,
+            course_module_completion_id,
+            completion_date,
+            state,
+            state_entered_at,
+            error_code,
+            needs_admin_attention,
+            next_attempt_at,
+            last_attempt_at,
+            submitted_at,
+            registered_at,
+            terminal_at,
+            student_number,
+            sisu_person_id,
+            uh_course_code,
+            selected_enrolment_id,
+            grade_scale_id,
+            grade_id,
+            credits,
+            request_item_id,
+            submitted_attainment_id,
+            sisu_attainment_id,
+            submit_retry_count,
+            verify_attempt_count,
+            attempt_number,
+            superseded_by_id,
+            verified_student_number,
+            verified_student_number_at,
+            verified_student_number_via,
         }
     }
 }
@@ -2193,149 +2218,5 @@ mod tests {
         .unwrap();
         assert!(!resolved.needs_admin_attention);
         assert_eq!(resolved.error_code, None);
-    }
-
-    #[test]
-    fn every_documented_error_code_maps() {
-        use CreditRegistrationErrorCode as Code;
-        let cases = [
-            (
-                SuotarEndpoint::ResolvePersons,
-                "personNotFound",
-                Code::PersonNotFound,
-            ),
-            (
-                SuotarEndpoint::ResolvePersons,
-                "sisuTemporarilyUnavailable",
-                Code::SisuTemporarilyUnavailable,
-            ),
-            (
-                SuotarEndpoint::ResolveEnrolments,
-                "personNotFound",
-                Code::PersonNotFound,
-            ),
-            (
-                SuotarEndpoint::ResolveEnrolments,
-                "courseCodeNotFound",
-                Code::CourseCodeNotFound,
-            ),
-            (
-                SuotarEndpoint::ResolveEnrolments,
-                "enrolmentNotFound",
-                Code::EnrolmentNotFound,
-            ),
-            (
-                SuotarEndpoint::ResolveEnrolments,
-                "enrolmentNotAccepted",
-                Code::EnrolmentNotAccepted,
-            ),
-            (
-                SuotarEndpoint::ImportAttainments,
-                "invalidGradeForGradeScale",
-                Code::InvalidGradeForGradeScale,
-            ),
-            (
-                SuotarEndpoint::ImportAttainments,
-                "courseNotAllowed",
-                Code::CourseNotAllowed,
-            ),
-            (
-                SuotarEndpoint::ImportAttainments,
-                "invalidCredits",
-                Code::InvalidCredits,
-            ),
-            (
-                SuotarEndpoint::ImportAttainments,
-                "studyRightNotValid",
-                Code::StudyRightNotValid,
-            ),
-            (
-                SuotarEndpoint::ImportAttainments,
-                "acceptorNotFound",
-                Code::AcceptorNotFound,
-            ),
-            (
-                SuotarEndpoint::ImportAttainments,
-                "sisuValidationFailed",
-                Code::SisuValidationFailed,
-            ),
-            (
-                SuotarEndpoint::ImportAttainments,
-                "sisuTimeout",
-                Code::SisuTimeout,
-            ),
-            (
-                SuotarEndpoint::VerifyAttainments,
-                "misregistered",
-                Code::Misregistered,
-            ),
-            (
-                SuotarEndpoint::VerifyAttainments,
-                "sisuTemporarilyUnavailable",
-                Code::SisuTemporarilyUnavailable,
-            ),
-            (
-                SuotarEndpoint::ListByCourse,
-                "courseCodeNotFound",
-                Code::CourseCodeNotFound,
-            ),
-            (
-                SuotarEndpoint::ResolvePersons,
-                "unauthorized",
-                Code::Unauthorized,
-            ),
-            (
-                SuotarEndpoint::ResolvePersons,
-                "malformedRequest",
-                Code::MalformedRequest,
-            ),
-        ];
-        for (endpoint, code, expected) in cases {
-            assert_eq!(
-                map_code(endpoint, code),
-                Some(expected),
-                "{code} on {endpoint:?}"
-            );
-        }
-    }
-
-    #[test]
-    fn no_code_that_needs_no_recording_becomes_an_error() {
-        for (endpoint, code) in [
-            (SuotarEndpoint::ResolvePersons, "personFound"),
-            (SuotarEndpoint::ResolveEnrolments, "enrolmentFound"),
-            (SuotarEndpoint::ImportAttainments, "sent"),
-            (SuotarEndpoint::ImportAttainments, "registered"),
-            (SuotarEndpoint::ImportAttainments, "duplicateAttainment"),
-            (SuotarEndpoint::ImportAttainments, "notImprovedAttainment"),
-            (SuotarEndpoint::VerifyAttainments, "registered"),
-            (SuotarEndpoint::ProductAccessTokens, "found"),
-            (SuotarEndpoint::ListByCourse, "enrolmentsListed"),
-            (SuotarEndpoint::VerifyAttainments, "notRegistered"),
-        ] {
-            assert_eq!(map_code(endpoint, code), None, "{code} on {endpoint:?}");
-        }
-    }
-
-    #[test]
-    fn an_item_level_transient_on_import_is_uncertain_rather_than_retryable() {
-        assert_eq!(
-            map_code(
-                SuotarEndpoint::ImportAttainments,
-                "sisuTemporarilyUnavailable"
-            ),
-            Some(CreditRegistrationErrorCode::SisuTimeout)
-        );
-    }
-
-    #[test]
-    fn a_code_suotar_adds_later_maps_to_unknown_rather_than_failing() {
-        assert_eq!(
-            map_code(
-                SuotarEndpoint::VerifyAttainments,
-                "somethingSuotarAddedLater"
-            ),
-            Some(CreditRegistrationErrorCode::Unknown)
-        );
     }
 }

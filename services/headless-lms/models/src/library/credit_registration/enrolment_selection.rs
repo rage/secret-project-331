@@ -23,7 +23,7 @@ pub enum NoUsableEnrolment {
     /// The study right does not cover the day the work was completed.
     StudyRightExpired,
     /// The enrolment cannot carry this many credits, which is a mismatch in our configuration.
-    CreditsTooSmall,
+    CreditsOutOfRange,
 }
 
 impl NoUsableEnrolment {
@@ -32,7 +32,7 @@ impl NoUsableEnrolment {
             Self::None => CreditRegistrationErrorCode::EnrolmentNotFound,
             Self::NotAccepted => CreditRegistrationErrorCode::EnrolmentNotAccepted,
             Self::StudyRightExpired => CreditRegistrationErrorCode::StudyRightNotValid,
-            Self::CreditsTooSmall => CreditRegistrationErrorCode::InvalidCredits,
+            Self::CreditsOutOfRange => CreditRegistrationErrorCode::InvalidCredits,
         }
     }
 
@@ -44,7 +44,7 @@ impl NoUsableEnrolment {
             Self::StudyRightExpired => {
                 "No enrolment has a study right covering the completion date."
             }
-            Self::CreditsTooSmall => {
+            Self::CreditsOutOfRange => {
                 "No enrolment can carry the credits configured for this module."
             }
         }
@@ -92,7 +92,7 @@ pub fn select_enrolment<'a>(
         .filter(|enrolment| credits_fit(&enrolment.credits, criteria.credits))
         .collect();
     if usable.is_empty() {
-        return Err(NoUsableEnrolment::CreditsTooSmall);
+        return Err(NoUsableEnrolment::CreditsOutOfRange);
     }
     usable
         .into_iter()
@@ -261,10 +261,10 @@ mod tests {
         let candidates = [small];
         assert_eq!(
             select_enrolment(&candidates, criteria()),
-            Err(NoUsableEnrolment::CreditsTooSmall)
+            Err(NoUsableEnrolment::CreditsOutOfRange)
         );
         assert_eq!(
-            NoUsableEnrolment::CreditsTooSmall.error_code(),
+            NoUsableEnrolment::CreditsOutOfRange.error_code(),
             CreditRegistrationErrorCode::InvalidCredits
         );
     }

@@ -419,6 +419,11 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   onChange: (event) => {
                     if (isTurningOn(event)) {
                       setValue("enable_registering_completion_to_uh_open_university", false)
+                    } else {
+                      // Otherwise these survive in form state and still go out in the submit payload.
+                      setValue("credit_registration.open_university_product_id", "")
+                      setValue("credit_registration.grade_scale_id", DERIVED_GRADE_SCALE)
+                      realisations.replace([])
                     }
                   },
                 }}
@@ -458,6 +463,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                           name={`credit_registration.realisations.${index}.course_unit_realisation_id`}
                           control={control}
                           label={t("label-course-unit-realisation-id")}
+                          rules={{ required: t("required-field") }}
                         />
                         <NewTextField
                           name={`credit_registration.realisations.${index}.label`}

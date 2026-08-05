@@ -9,12 +9,12 @@ import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/r
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { Badge, DescriptionList, Dialog, QueryResult } from "@/shared-module/components"
 
+import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
 import {
   registrationErrorHelp,
   registrationExplanation,
   registrationStatusLabel,
 } from "./creditRegistrationCopy"
-import ResendLinkingEmailBlock from "./ResendLinkingEmailBlock"
 import {
   isAdminEstablishedLink,
   linkingEmailSentence,

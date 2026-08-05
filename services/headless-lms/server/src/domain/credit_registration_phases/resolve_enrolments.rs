@@ -14,11 +14,12 @@ use headless_lms_models::credit_registration_events::{
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
-    claim_due, map_code, schedule_next_attempt, set_payload_snapshot, transition,
+    claim_due, schedule_next_attempt, set_payload_snapshot, transition,
 };
-use headless_lms_models::library::credit_registration::classification::{
+use headless_lms_models::library::credit_registration::backoff::{
     next_attempt_at, submit_backoff_secs,
 };
+use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
     EnrolmentCriteria, any_attained_by_person, attainment_for_course_unit, select_enrolment,
 };
@@ -40,7 +41,8 @@ use sqlx::Connection;
 
 use super::{
     OutcomeEvent, PhaseContext, PhaseScope, apply_outcome, counts_as_failed,
-    every_item_failed_transiently, request_level_failure, response_item_json, row_facts,
+    every_item_failed_transiently, request_level_failure, requests_json, response_item_json,
+    row_facts,
 };
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -114,10 +116,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         });
     }
 
-    let requests: Vec<serde_json::Value> = items
-        .iter()
-        .map(|item| serde_json::to_value(item).unwrap_or_default())
-        .collect();
+    let requests = requests_json(&items);
     let response = ctx
         .suotar_client
         .resolve_enrolments(

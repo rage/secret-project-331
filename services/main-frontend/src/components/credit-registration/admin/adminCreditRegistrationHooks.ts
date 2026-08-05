@@ -1,12 +1,16 @@
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 import {
   getAccountLinkingStatsOptions,
+  getAccountLinkingStatsQueryKey,
   getCreditRegistrationForAdminOptions,
   getCreditRegistrationOverviewOptions,
+  getCreditRegistrationOverviewQueryKey,
   getSuotarHealthOptions,
   listCreditRegistrationsForAdminOptions,
+  listCreditRegistrationsForAdminQueryKey,
   listVerifiedStudentNumbersForAdminOptions,
+  listVerifiedStudentNumbersForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   ListCreditRegistrationsForAdminData,
@@ -64,3 +68,15 @@ export const useAdminVerifiedStudentNumbers = (
     ...listVerifiedStudentNumbersForAdminOptions({ query }),
     refetchInterval: LIST_REFETCH_INTERVAL_MS,
   })
+
+/** Both the unlink and manual-link mutations recompute linking preconditions, so they invalidate the same surfaces. */
+export const useInvalidateAfterLinkingChange = () => {
+  const queryClient = useQueryClient()
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: listVerifiedStudentNumbersForAdminQueryKey() }),
+      queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
+      queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+      queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
+    ])
+}

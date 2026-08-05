@@ -215,7 +215,10 @@ const UnusableLink: React.FC<{ preview: StudentNumberVerificationTokenPreview }>
       </Infobox>
     )
   }
-  return <Infobox>{t("link-student-number-expired")}</Infobox>
+  if (preview.expired) {
+    return <Infobox>{t("link-student-number-expired")}</Infobox>
+  }
+  return <Infobox>{t("link-student-number-unusable")}</Infobox>
 }
 
 const ClaimOutcome: React.FC<{ result: ClaimStudentNumberVerificationTokenResult }> = ({

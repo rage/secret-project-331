@@ -9,11 +9,12 @@ use headless_lms_models::credit_registration_events::CreditRegistrationEventKind
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
-    claim_due, map_code, set_sisu_attainment_if_unclaimed, set_submitted_attainment, transition,
+    claim_due, set_sisu_attainment_if_unclaimed, set_submitted_attainment, transition,
 };
-use headless_lms_models::library::credit_registration::classification::VERIFY_FIRST_DELAY_SECS;
+use headless_lms_models::library::credit_registration::SUOTAR_PUSH_REGISTRAR_ID;
+use headless_lms_models::library::credit_registration::backoff::VERIFY_FIRST_DELAY_SECS;
+use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::grade_mapping::is_known_grade;
-use headless_lms_models::library::credit_registration::legacy_mirror::SUOTAR_PUSH_REGISTRAR_ID;
 use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, import_success_state, submission_uncertain, submit_error_outcome,
     unanswered_item_outcome,
@@ -27,7 +28,8 @@ use sqlx::{Connection, PgConnection};
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, apply_outcome,
-    every_item_failed_transiently, request_level_failure, response_item_json, row_facts,
+    every_item_failed_transiently, request_level_failure, requests_json, response_item_json,
+    row_facts,
 };
 
 /// The only state this phase claims; the absence of `submitting`, `submission_uncertain` and
@@ -110,10 +112,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         });
     }
 
-    let requests: Vec<serde_json::Value> = items
-        .iter()
-        .map(|item| serde_json::to_value(item).unwrap_or_default())
-        .collect();
+    let requests = requests_json(&items);
     let response = ctx
         .suotar_client
         .import_attainments(

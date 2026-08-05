@@ -1,9 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -13,8 +11,10 @@ import {
 import {
   useAccountLinkingStats,
   useAdminVerifiedStudentNumbers,
+  useInvalidateAfterLinkingChange,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminResendLinkingEmailDialog from "@/components/credit-registration/admin/AdminResendLinkingEmailDialog"
+import { ReasonConfirmDialog } from "@/components/credit-registration/admin/ReasonConfirmDialog"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
 import {
@@ -24,27 +24,12 @@ import {
   sectionsCss,
   tilesCss,
 } from "@/components/credit-registration/styles"
-import {
-  getAccountLinkingStatsQueryKey,
-  getCreditRegistrationOverviewQueryKey,
-  listCreditRegistrationsForAdminQueryKey,
-  listVerifiedStudentNumbersForAdminQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
 import { adminUnlinkStudentNumber } from "@/generated/api/sdk.generated"
 import type { AccountLinkingStats, EmailSendStatus } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
-import {
-  Badge,
-  Button,
-  Dialog,
-  Meter,
-  QueryResult,
-  StatTile,
-  Table,
-  TextArea,
-} from "@/shared-module/components"
+import { Badge, Button, Meter, QueryResult, StatTile, Table } from "@/shared-module/components"
 
 const WINDOW_DAYS = 30
 const STUDENT_NUMBER_PAGE_SIZE = 25
@@ -61,11 +46,6 @@ const funnelCss = css`
   max-width: 40rem;
 `
 
-const formCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
 const listCss = css`
   margin: 0;
   padding-inline-start: 1rem;
@@ -76,12 +56,8 @@ const UnlinkButton: React.FC<{ verifiedStudentNumberId: string; number: string }
   number,
 }) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const { control, handleSubmit, watch } = useForm<{ reason: string }>({
-    defaultValues: { reason: "" },
-  })
-  const reason = watch("reason")
+  const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const mutation = useToastMutation(
     (fields: { reason: string }) =>
       adminUnlinkStudentNumber({
@@ -93,12 +69,7 @@ const UnlinkButton: React.FC<{ verifiedStudentNumberId: string; number: string }
       onSuccess: () => {
         setOpen(false)
         // Unlinking recomputes preconditions synchronously, so registration state moves too.
-        void Promise.all([
-          queryClient.invalidateQueries({ queryKey: listVerifiedStudentNumbersForAdminQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
-        ])
+        void invalidateAfterLinkingChange()
       },
     },
   )
@@ -108,25 +79,14 @@ const UnlinkButton: React.FC<{ verifiedStudentNumberId: string; number: string }
       <Button variant="tertiary" size="medium" onClick={() => setOpen(true)}>
         {t("button-text-unlink")}
       </Button>
-      <Dialog open={open} onClose={() => setOpen(false)} title={t("button-text-unlink")}>
-        <form className={formCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
-          <p>{t("credit-registration-admin-unlink-warning", { number })}</p>
-          <TextArea
-            name="reason"
-            control={control}
-            label={t("label-reason")}
-            rules={{ required: t("required-field") }}
-          />
-          <Button
-            variant="primary"
-            size="medium"
-            type="submit"
-            disabled={mutation.isPending || reason.trim() === ""}
-          >
-            {t("button-text-confirm")}
-          </Button>
-        </form>
-      </Dialog>
+      <ReasonConfirmDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t("button-text-unlink")}
+        message={t("credit-registration-admin-unlink-warning", { number })}
+        isPending={mutation.isPending}
+        onConfirm={(reason) => mutation.mutate({ reason })}
+      />
     </>
   )
 }

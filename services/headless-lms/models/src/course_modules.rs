@@ -787,10 +787,15 @@ pub struct CourseModuleCreditRegistrationConfig {
     pub credit_registration_config_check_message: Option<String>,
 }
 
-pub async fn get_credit_registration_config(
+/// Shared by every getter below, so the 13-column join lives in one place. `enabled_only` isn't a
+/// "this id or any" filter like the other two: the by-id and by-course lookups want every module,
+/// opted in or not, while the all-modules listing wants only the opted-in ones.
+async fn credit_registration_configs(
     conn: &mut PgConnection,
-    course_module_id: Uuid,
-) -> ModelResult<CourseModuleCreditRegistrationConfig> {
+    course_module_id: Option<Uuid>,
+    course_id: Option<Uuid>,
+    enabled_only: bool,
+) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
     let res = sqlx::query_as!(
         CourseModuleCreditRegistrationConfig,
         r#"
@@ -811,14 +816,37 @@ SELECT cm.id AS course_module_id,
 FROM course_modules cm
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
   AND c.deleted_at IS NULL
-WHERE cm.id = $1
+WHERE ($1::uuid IS NULL OR cm.id = $1)
+  AND ($2::uuid IS NULL OR cm.course_id = $2)
+  AND (NOT $3::bool OR cm.enable_credit_registration_via_suotar)
   AND cm.deleted_at IS NULL
+ORDER BY cm.course_id,
+  cm.order_number
         "#,
-        course_module_id
+        course_module_id,
+        course_id,
+        enabled_only,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_credit_registration_config(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<CourseModuleCreditRegistrationConfig> {
+    credit_registration_configs(conn, Some(course_module_id), None, false)
+        .await?
+        .into_iter()
+        .next()
+        .ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::RecordNotFound,
+                "Course module not found".to_string(),
+                None,
+            )
+        })
 }
 
 /// Every module of one course with its Suotar configuration, opted in or not: the module editor has
@@ -827,70 +855,14 @@ pub async fn get_credit_registration_configs_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
-    let res = sqlx::query_as!(
-        CourseModuleCreditRegistrationConfig,
-        r#"
-SELECT cm.id AS course_module_id,
-  cm.course_id,
-  cm.enable_credit_registration_via_suotar,
-  cm.uh_course_code,
-  cm.ects_credits,
-  c.open_university_product_id AS "open_university_product_id?",
-  c.grade_scale_id AS "credit_registration_grade_scale_id?",
-  c.paused_at AS "credit_registration_paused_at?",
-  c.paused_by_user_id AS "credit_registration_paused_by_user_id?",
-  c.pause_reason AS "credit_registration_pause_reason?",
-  c.config_checked_at AS "credit_registration_config_checked_at?",
-  c.course_code_resolves AS "credit_registration_course_code_resolves?",
-  c.product_token_found AS "credit_registration_product_token_found?",
-  c.config_check_message AS "credit_registration_config_check_message?"
-FROM course_modules cm
-  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
-  AND c.deleted_at IS NULL
-WHERE cm.course_id = $1
-  AND cm.deleted_at IS NULL
-ORDER BY cm.order_number
-        "#,
-        course_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
+    credit_registration_configs(conn, None, Some(course_id), false).await
 }
 
 /// Every module opted in to credit registration via Suotar, paused ones included.
 pub async fn get_all_suotar_enabled(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
-    let res = sqlx::query_as!(
-        CourseModuleCreditRegistrationConfig,
-        r#"
-SELECT cm.id AS course_module_id,
-  cm.course_id,
-  cm.enable_credit_registration_via_suotar,
-  cm.uh_course_code,
-  cm.ects_credits,
-  c.open_university_product_id AS "open_university_product_id?",
-  c.grade_scale_id AS "credit_registration_grade_scale_id?",
-  c.paused_at AS "credit_registration_paused_at?",
-  c.paused_by_user_id AS "credit_registration_paused_by_user_id?",
-  c.pause_reason AS "credit_registration_pause_reason?",
-  c.config_checked_at AS "credit_registration_config_checked_at?",
-  c.course_code_resolves AS "credit_registration_course_code_resolves?",
-  c.product_token_found AS "credit_registration_product_token_found?",
-  c.config_check_message AS "credit_registration_config_check_message?"
-FROM course_modules cm
-  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
-  AND c.deleted_at IS NULL
-WHERE cm.enable_credit_registration_via_suotar
-  AND cm.deleted_at IS NULL
-ORDER BY cm.course_id,
-  cm.order_number
-        "#,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
+    credit_registration_configs(conn, None, None, true).await
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

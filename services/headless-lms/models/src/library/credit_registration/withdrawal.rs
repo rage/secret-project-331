@@ -28,6 +28,11 @@ pub async fn apply_consent_change(
 
 /// The state a row moves to when the student withdraws consent, or `None` when withdrawal changes
 /// nothing about it.
+///
+/// Mirrored in SQL by the `consent_withdrawn` arms of `pending_moves`'s `CASE` in
+/// `preconditions.rs`, so withdrawal is decided immediately rather than waiting for a recompute
+/// tick. The two are kept in sync only by
+/// `preconditions::tests::withdrawal_does_what_the_rule_says_from_every_state`, not the compiler.
 pub fn withdrawal_target(state: CreditRegistrationState) -> Option<CreditRegistrationState> {
     use CreditRegistrationState as State;
     match state {

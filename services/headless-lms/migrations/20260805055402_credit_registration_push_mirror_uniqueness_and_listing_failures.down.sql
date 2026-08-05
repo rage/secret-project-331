@@ -1,3 +1,5 @@
+DROP FUNCTION credit_registration_link_mail_is_hard_failure(BOOLEAN, TIMESTAMP WITH TIME ZONE, TIMESTAMP WITH TIME ZONE);
+
 ALTER TABLE course_module_suotar_realisations DROP COLUMN consecutive_listing_failures,
   DROP COLUMN last_listing_error,
   DROP COLUMN last_listing_attempted_at;

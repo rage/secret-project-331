@@ -396,77 +396,11 @@ LIMIT $2
     Ok(res)
 }
 
-/// One endpoint's traffic over a window.
+/// One endpoint's traffic over a window, one of possibly several computed together by
+/// [`get_endpoint_stats_for_windows`].
 ///
 /// `duration_ms IS NULL` means still in flight, since the row is inserted before the request
 /// leaves; the counts below take finished calls only, or one in progress would read as a failure.
-#[derive(Debug, Clone, PartialEq)]
-pub struct SuotarEndpointStats {
-    pub endpoint: SuotarEndpoint,
-    pub call_count: i64,
-    pub failed_call_count: i64,
-    pub in_flight_count: i64,
-    pub ok_item_count: i64,
-    pub error_item_count: i64,
-    pub p50_duration_ms: Option<i32>,
-    pub p95_duration_ms: Option<i32>,
-    pub last_success_at: Option<DateTime<Utc>>,
-    pub last_failure_at: Option<DateTime<Utc>>,
-    /// Suotar's own request-level code from the most recent failure, or `None` for a transport
-    /// failure, which never reached Suotar and so has no code.
-    pub last_request_level_error_code: Option<String>,
-}
-
-pub async fn get_endpoint_stats(
-    conn: &mut PgConnection,
-    since: DateTime<Utc>,
-) -> ModelResult<Vec<SuotarEndpointStats>> {
-    let rows = sqlx::query_as!(
-        SuotarEndpointStats,
-        r#"
-SELECT endpoint AS "endpoint!: SuotarEndpoint",
-  COUNT(*) FILTER (WHERE duration_ms IS NOT NULL) AS "call_count!",
-  COUNT(*) FILTER (
-    WHERE duration_ms IS NOT NULL
-      AND NOT succeeded
-  ) AS "failed_call_count!",
-  COUNT(*) FILTER (WHERE duration_ms IS NULL) AS "in_flight_count!",
-  COALESCE(SUM(ok_item_count), 0) AS "ok_item_count!",
-  COALESCE(SUM(error_item_count), 0) AS "error_item_count!",
-  PERCENTILE_DISC(0.5) WITHIN GROUP (
-    ORDER BY duration_ms
-  ) AS "p50_duration_ms",
-  PERCENTILE_DISC(0.95) WITHIN GROUP (
-    ORDER BY duration_ms
-  ) AS "p95_duration_ms",
-  MAX(started_at) FILTER (WHERE succeeded) AS "last_success_at",
-  MAX(started_at) FILTER (
-    WHERE duration_ms IS NOT NULL
-      AND NOT succeeded
-  ) AS "last_failure_at",
-  (
-    ARRAY_AGG(
-      request_level_error_code
-      ORDER BY started_at DESC
-    ) FILTER (
-      WHERE duration_ms IS NOT NULL
-        AND NOT succeeded
-        AND request_level_error_code IS NOT NULL
-    )
-  ) [1] AS "last_request_level_error_code"
-FROM suotar_api_calls
-WHERE started_at >= $1
-  AND deleted_at IS NULL
-GROUP BY endpoint
-        "#,
-        since,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(rows)
-}
-
-/// [`SuotarEndpointStats`] for one of several windows at once.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SuotarEndpointStatsForWindow {
     pub window_secs: i64,
@@ -483,8 +417,8 @@ pub struct SuotarEndpointStatsForWindow {
     pub last_request_level_error_code: Option<String>,
 }
 
-/// Batched form of [`get_endpoint_stats`]: one scan of the table joined against the window list,
-/// instead of one full pass per window.
+/// One scan of the table joined against the window list, so several windows cost one pass rather
+/// than one full pass each. A single window is just a one-element `window_secs`.
 pub async fn get_endpoint_stats_for_windows(
     conn: &mut PgConnection,
     window_secs: &[i64],

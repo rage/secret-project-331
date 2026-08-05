@@ -1,11 +1,11 @@
-//! How an error code is treated and how long the pipeline waits before trying again. The one place
-//! retryability is decided; the mock Suotar's fault validator reads it too.
+//! How an error code is treated: the one place retryability is decided. The mock Suotar's fault
+//! validator reads it too. Timing (how long to wait) is [`super::backoff`].
 
-use rand::RngExt;
 use utoipa::ToSchema;
 
 use crate::credit_registrations::{CreditRegistrationErrorCode, map_wire_code};
 use crate::prelude::*;
+use crate::suotar_api_calls::SuotarEndpoint;
 
 /// What may be done about an error code. The class is the contract's, not the endpoint's: the
 /// import phase is the only place that upgrades a code to [`Retryability::VerifyOnly`].
@@ -18,15 +18,6 @@ pub enum Retryability {
     PermanentNeedsStudent,
     PermanentNeedsAdmin,
     PermanentNeedsConfig,
-}
-
-impl Retryability {
-    pub fn is_permanent(self) -> bool {
-        matches!(
-            self,
-            Self::PermanentNeedsStudent | Self::PermanentNeedsAdmin | Self::PermanentNeedsConfig
-        )
-    }
 }
 
 pub fn retryability(code: CreditRegistrationErrorCode) -> Retryability {
@@ -68,76 +59,22 @@ pub fn is_retryable_transient_wire_code(code: &str) -> bool {
     wire_code_retryability(code) == Some(Retryability::RetryableTransient)
 }
 
-pub const SUBMIT_BASE_BACKOFF_SECS: i64 = 60;
-pub const SUBMIT_MAX_BACKOFF_SECS: i64 = 6 * 60 * 60;
-/// After this long in failure a row stops being retried and becomes a support case.
-pub const SUBMIT_MAX_RETRY_AGE_SECS: i64 = 7 * 24 * 60 * 60;
-/// Sisu needs a few minutes before a submitted attainment shows up, so the first poll waits.
-pub const VERIFY_FIRST_DELAY_SECS: i64 = 120;
-pub const VERIFY_BASE_BACKOFF_SECS: i64 = 300;
-pub const VERIFY_MAX_BACKOFF_SECS: i64 = 6 * 60 * 60;
-/// After this, polling drops to daily and a human looks. Never a failure: the attainment may exist,
-/// and calling it failed would invite a second submission.
-pub const VERIFY_MAX_AGE_SECS: i64 = 14 * 24 * 60 * 60;
-pub const VERIFY_GIVE_UP_POLL_SECS: i64 = 24 * 60 * 60;
-pub const JITTER_MAX_SECS: i64 = 30;
-
-/// How long before the pipeline looks for an enrolment again on its own; a student recheck or
-/// enrolment discovery can wake the row sooner.
-pub const NO_USABLE_ENROLMENT_RECHECK_SECS: i64 = 24 * 60 * 60;
-
-/// How long between the checks that look for an attainment we may or may not have created.
-pub const UNCERTAIN_RECHECK_SECS: i64 = 15 * 60;
-/// After this many fruitless checks a human is asked to look in Sisu. The row still never resubmits.
-pub const UNCERTAIN_MAX_CHECKS: i32 = 3;
-
-/// A row still `submitting` this long belongs to a worker that died mid-call. Must stay comfortably
-/// longer than the client's request timeout, so a live request is never condemned.
-pub const SUBMITTING_RECOVERY_GRACE_SECS: i64 = 120;
-
-fn exponential(base_secs: i64, max_secs: i64, attempt: i32) -> i64 {
-    let shift = attempt.clamp(0, 32) as u32;
-    base_secs
-        .saturating_mul(2_i64.saturating_pow(shift))
-        .min(max_secs)
-}
-
-pub fn submit_backoff_secs(retry_count: i32) -> i64 {
-    exponential(
-        SUBMIT_BASE_BACKOFF_SECS,
-        SUBMIT_MAX_BACKOFF_SECS,
-        retry_count,
-    )
-}
-
-/// The import phase schedules the first poll, so one prior attempt still means the base delay.
-pub fn verify_backoff_secs(attempt_count: i32) -> i64 {
-    exponential(
-        VERIFY_BASE_BACKOFF_SECS,
-        VERIFY_MAX_BACKOFF_SECS,
-        attempt_count.saturating_sub(1),
-    )
-}
-
-/// Spreads a batch that failed together, so it does not come back as one thundering herd.
-pub fn next_attempt_at(now: DateTime<Utc>, delay_secs: i64) -> DateTime<Utc> {
-    let jitter = rand::rng().random_range(0..=JITTER_MAX_SECS);
-    now + chrono::Duration::seconds(delay_secs.saturating_add(jitter))
-}
-
-pub fn submit_window_expired(first_failed_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
-    first_failed_at.is_some_and(|first| (now - first).num_seconds() >= SUBMIT_MAX_RETRY_AGE_SECS)
-}
-
-pub fn verify_window_expired(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
-    submitted_at.is_some_and(|submitted| (now - submitted).num_seconds() >= VERIFY_MAX_AGE_SECS)
+/// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.
+pub fn map_code(endpoint: SuotarEndpoint, code: &str) -> Option<CreditRegistrationErrorCode> {
+    let mapped = map_wire_code(code)?;
+    // Import's contract has no per-item transient, so one arriving there is no evidence that
+    // nothing was created; retrying it could put a second attainment on a transcript.
+    if endpoint == SuotarEndpoint::ImportAttainments
+        && mapped == CreditRegistrationErrorCode::SisuTemporarilyUnavailable
+    {
+        return Some(CreditRegistrationErrorCode::SisuTimeout);
+    }
+    Some(mapped)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::credit_registrations::map_code;
-    use crate::suotar_api_calls::SuotarEndpoint;
     use Retryability as Class;
 
     /// Import's hardening must not reach the wire class, or the mock's fault validator would stop
@@ -164,56 +101,146 @@ mod tests {
     }
 
     #[test]
-    fn backoff_doubles_and_then_stops_growing() {
-        assert_eq!(submit_backoff_secs(0), SUBMIT_BASE_BACKOFF_SECS);
-        assert_eq!(submit_backoff_secs(1), SUBMIT_BASE_BACKOFF_SECS * 2);
-        assert_eq!(submit_backoff_secs(3), SUBMIT_BASE_BACKOFF_SECS * 8);
-        assert_eq!(submit_backoff_secs(30), SUBMIT_MAX_BACKOFF_SECS);
-        assert_eq!(submit_backoff_secs(i32::MAX), SUBMIT_MAX_BACKOFF_SECS);
-    }
-
-    #[test]
-    fn verify_backoff_starts_at_the_base_after_the_first_poll() {
-        assert_eq!(verify_backoff_secs(1), VERIFY_BASE_BACKOFF_SECS);
-        assert_eq!(verify_backoff_secs(2), VERIFY_BASE_BACKOFF_SECS * 2);
-        assert_eq!(verify_backoff_secs(100), VERIFY_MAX_BACKOFF_SECS);
-    }
-
-    #[test]
-    fn the_retry_window_runs_from_the_first_failure() {
-        let now = Utc::now();
-        assert!(!submit_window_expired(None, now));
-        assert!(!submit_window_expired(
-            Some(now - chrono::Duration::days(6)),
-            now
-        ));
-        assert!(submit_window_expired(
-            Some(now - chrono::Duration::days(8)),
-            now
-        ));
-    }
-
-    #[test]
-    fn the_verify_window_runs_from_the_submission() {
-        let now = Utc::now();
-        assert!(!verify_window_expired(None, now));
-        assert!(!verify_window_expired(
-            Some(now - chrono::Duration::days(13)),
-            now
-        ));
-        assert!(verify_window_expired(
-            Some(now - chrono::Duration::days(15)),
-            now
-        ));
-    }
-
-    #[test]
-    fn jitter_never_shortens_a_backoff() {
-        let now = Utc::now();
-        for _ in 0..50 {
-            let scheduled = next_attempt_at(now, 60);
-            assert!((scheduled - now).num_seconds() >= 60);
-            assert!((scheduled - now).num_seconds() <= 60 + JITTER_MAX_SECS);
+    fn every_documented_error_code_maps() {
+        use CreditRegistrationErrorCode as Code;
+        let cases = [
+            (
+                SuotarEndpoint::ResolvePersons,
+                "personNotFound",
+                Code::PersonNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolvePersons,
+                "sisuTemporarilyUnavailable",
+                Code::SisuTemporarilyUnavailable,
+            ),
+            (
+                SuotarEndpoint::ResolveEnrolments,
+                "personNotFound",
+                Code::PersonNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolveEnrolments,
+                "courseCodeNotFound",
+                Code::CourseCodeNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolveEnrolments,
+                "enrolmentNotFound",
+                Code::EnrolmentNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolveEnrolments,
+                "enrolmentNotAccepted",
+                Code::EnrolmentNotAccepted,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "invalidGradeForGradeScale",
+                Code::InvalidGradeForGradeScale,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "courseNotAllowed",
+                Code::CourseNotAllowed,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "invalidCredits",
+                Code::InvalidCredits,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "studyRightNotValid",
+                Code::StudyRightNotValid,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "acceptorNotFound",
+                Code::AcceptorNotFound,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "sisuValidationFailed",
+                Code::SisuValidationFailed,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "sisuTimeout",
+                Code::SisuTimeout,
+            ),
+            (
+                SuotarEndpoint::VerifyAttainments,
+                "misregistered",
+                Code::Misregistered,
+            ),
+            (
+                SuotarEndpoint::VerifyAttainments,
+                "sisuTemporarilyUnavailable",
+                Code::SisuTemporarilyUnavailable,
+            ),
+            (
+                SuotarEndpoint::ListByCourse,
+                "courseCodeNotFound",
+                Code::CourseCodeNotFound,
+            ),
+            (
+                SuotarEndpoint::ResolvePersons,
+                "unauthorized",
+                Code::Unauthorized,
+            ),
+            (
+                SuotarEndpoint::ResolvePersons,
+                "malformedRequest",
+                Code::MalformedRequest,
+            ),
+        ];
+        for (endpoint, code, expected) in cases {
+            assert_eq!(
+                map_code(endpoint, code),
+                Some(expected),
+                "{code} on {endpoint:?}"
+            );
         }
+    }
+
+    #[test]
+    fn no_code_that_needs_no_recording_becomes_an_error() {
+        for (endpoint, code) in [
+            (SuotarEndpoint::ResolvePersons, "personFound"),
+            (SuotarEndpoint::ResolveEnrolments, "enrolmentFound"),
+            (SuotarEndpoint::ImportAttainments, "sent"),
+            (SuotarEndpoint::ImportAttainments, "registered"),
+            (SuotarEndpoint::ImportAttainments, "duplicateAttainment"),
+            (SuotarEndpoint::ImportAttainments, "notImprovedAttainment"),
+            (SuotarEndpoint::VerifyAttainments, "registered"),
+            (SuotarEndpoint::ProductAccessTokens, "found"),
+            (SuotarEndpoint::ListByCourse, "enrolmentsListed"),
+            (SuotarEndpoint::VerifyAttainments, "notRegistered"),
+        ] {
+            assert_eq!(map_code(endpoint, code), None, "{code} on {endpoint:?}");
+        }
+    }
+
+    #[test]
+    fn an_item_level_transient_on_import_is_uncertain_rather_than_retryable() {
+        assert_eq!(
+            map_code(
+                SuotarEndpoint::ImportAttainments,
+                "sisuTemporarilyUnavailable"
+            ),
+            Some(CreditRegistrationErrorCode::SisuTimeout)
+        );
+    }
+
+    #[test]
+    fn a_code_suotar_adds_later_maps_to_unknown_rather_than_failing() {
+        assert_eq!(
+            map_code(
+                SuotarEndpoint::VerifyAttainments,
+                "somethingSuotarAddedLater"
+            ),
+            Some(CreditRegistrationErrorCode::Unknown)
+        );
     }
 }

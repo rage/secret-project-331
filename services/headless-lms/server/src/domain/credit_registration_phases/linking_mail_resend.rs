@@ -12,7 +12,8 @@ use headless_lms_models::library::credit_registration::account_linking::{
     ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails,
 };
 use headless_lms_utils::services::suotar::{
-    ListByCourseRequestItem, SuotarCallContext, SuotarEndpoint, SuotarItemStatus,
+    ListByCourseRequestItem, ResolvePersonRequestItem, SuotarCallContext, SuotarEndpoint,
+    SuotarItemStatus,
 };
 use uuid::Uuid;
 
@@ -122,4 +123,46 @@ pub async fn resend_linking_mail(
         return Ok(LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress);
     }
     Ok(LinkingMailResendOutcome::NoAddressInStudyRegistry)
+}
+
+/// What the study registry says one student number belongs to. `Ok(None)` means it answered and does
+/// not know the number; `Err` means we could not ask.
+pub struct ResolvedPerson {
+    pub sisu_person_id: String,
+    pub first_names: String,
+    pub last_name: String,
+    /// The registry's own per-item code, an identifier rather than prose.
+    pub code: String,
+}
+
+/// Looks one student number up in the study registry without changing anything: no ledger row, no
+/// claimed mail slot, just the call log row every study registry call writes.
+pub async fn resolve_person(
+    ctx: &PhaseContext<'_>,
+    student_number: &str,
+) -> Result<Option<ResolvedPerson>, ()> {
+    let request_item_id = format!("admin-{student_number}");
+    let response = ctx
+        .suotar_client
+        .resolve_persons(
+            SuotarCallContext::new(ctx.caller),
+            vec![ResolvePersonRequestItem {
+                request_item_id: request_item_id.clone(),
+                student_number: student_number.to_string(),
+            }],
+        )
+        .await
+        .map_err(|_| ())?;
+    let Some(item) = response.item(&request_item_id) else {
+        return Err(());
+    };
+    let Some(result) = item.result.as_ref() else {
+        return Ok(None);
+    };
+    Ok(Some(ResolvedPerson {
+        sisu_person_id: result.person_id.clone(),
+        first_names: result.first_names.clone(),
+        last_name: result.last_name.clone(),
+        code: item.code.clone(),
+    }))
 }

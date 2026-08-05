@@ -7,8 +7,7 @@ use crate::credit_registrations::{
 };
 use crate::prelude::*;
 
-use super::classification::{SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS};
-use super::outcomes::resume_state;
+use super::backoff::{SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS};
 
 /// How many rows one iteration may move.
 pub const PRECONDITIONS_LIMIT: i64 = 500;
@@ -22,6 +21,21 @@ struct PendingMove {
     consent_withdrawn: bool,
     has_submitted_attainment: bool,
     has_payload_snapshot: bool,
+}
+
+/// Where a `failed_retryable` row goes when its backoff elapses, derived from how far it had got.
+/// Never `submitting`: only the import phase writes that, in the transaction before it sends.
+fn resume_state(
+    has_submitted_attainment_id: bool,
+    has_payload_snapshot: bool,
+) -> CreditRegistrationState {
+    if has_submitted_attainment_id {
+        CreditRegistrationState::AwaitingVerification
+    } else if has_payload_snapshot {
+        CreditRegistrationState::CheckingEnrolment
+    } else {
+        CreditRegistrationState::ReadyToSubmit
+    }
 }
 
 /// Applies at most `limit` moves to the scoped rows and returns how many moved.
@@ -97,6 +111,8 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
             event_message: Some("Retried for a week without success.".to_string()),
             ..base
         },
+        // These two arms also key off `pending.state`, not just `target`: the message differs by
+        // where the row came from, unlike every arm above.
         State::PendingStudentNumber if pending.state != State::PendingConsent => Transition {
             event_message: Some("No verified student number is linked to the account.".to_string()),
             ..base
@@ -186,6 +202,9 @@ targets AS (
   SELECT facts.*,
     CASE
       -- Withdrawal of something already sent. The request is out of our hands, so we stop asking.
+      -- This WHEN and the `consent_withdrawn THEN 'blocked'` one below reimplement
+      -- withdrawal::withdrawal_target() in SQL; kept in sync only by
+      -- preconditions::tests::withdrawal_does_what_the_rule_says_from_every_state.
       WHEN facts.state IN (
         'submitting',
         'submission_uncertain',
@@ -875,6 +894,22 @@ mod tests {
                 "withdrawal from {state:?}"
             );
         }
+    }
+
+    #[test]
+    fn a_retry_resumes_where_the_row_had_got_to() {
+        assert_eq!(
+            resume_state(false, false),
+            CreditRegistrationState::ReadyToSubmit
+        );
+        assert_eq!(
+            resume_state(false, true),
+            CreditRegistrationState::CheckingEnrolment
+        );
+        assert_eq!(
+            resume_state(true, true),
+            CreditRegistrationState::AwaitingVerification
+        );
     }
 
     #[tokio::test]

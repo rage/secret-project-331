@@ -693,7 +693,9 @@ impl SuotarClient {
                 );
             }
         };
-        let items: Vec<SuotarResponseItem<R>> = match serde_json::from_str(&text) {
+        let items: Vec<SuotarResponseItem<R>> = match serde_json::from_value(
+            (*raw_response).clone(),
+        ) {
             Ok(items) => items,
             Err(error) => {
                 return failed(

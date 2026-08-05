@@ -8,8 +8,12 @@
 use std::collections::HashMap;
 
 use crate::credit_registration_account_linking_emails::{
-    ExistingLinkingMailFact, NewAccountLinkingEmail, claim_send_slots,
+    self, ExistingLinkingMailFact, NewAccountLinkingEmail, claim_send_slots,
     get_existing_facts_for_persons,
+};
+use crate::credit_registration_admin_actions::{
+    CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
+    NewCreditRegistrationAdminAction,
 };
 use crate::prelude::*;
 use crate::student_number_verification_tokens::{
@@ -129,6 +133,7 @@ pub async fn claim_linking_mails_batch(
 
     // Tokens are minted before any slot is claimed: the random value cannot come from SQL.
     let mut new_slots = Vec::with_capacity(to_claim.len());
+    let mut token_ids = Vec::with_capacity(to_claim.len());
     let mut token_owner: HashMap<Uuid, usize> = HashMap::new();
     for (person_index, address) in &to_claim {
         let person = &people[*person_index];
@@ -147,6 +152,7 @@ pub async fn claim_linking_mails_batch(
         )
         .await?;
         token_owner.insert(token_id, *person_index);
+        token_ids.push(token_id);
         new_slots.push(NewAccountLinkingEmail {
             student_number: person.student_number.clone(),
             sisu_person_id: person.sisu_person_id.clone(),
@@ -157,7 +163,7 @@ pub async fn claim_linking_mails_batch(
         });
     }
 
-    let claimed_token_ids = claim_send_slots(conn, &new_slots).await?;
+    let claimed_token_ids = claim_send_slots(conn, &new_slots, &token_ids).await?;
     let lost_token_ids: Vec<Uuid> = token_owner
         .keys()
         .filter(|id| !claimed_token_ids.contains(id))
@@ -174,6 +180,75 @@ pub async fn claim_linking_mails_batch(
         }
     }
     Ok(outcomes)
+}
+
+/// Retires the linking-mail rows the caps are counting for this person, so the ordinary claim path can
+/// take a slot again. No parameter relaxes a cap: the single writer of the ledger evaluates them from
+/// the rows that exist, so getting past one means soft-deleting rows, audited as its own action.
+pub async fn retire_capped_mails(
+    conn: &mut PgConnection,
+    actor_user_id: Uuid,
+    actor_role: &str,
+    course_id: Uuid,
+    student_number: &str,
+    reason: &str,
+) -> ModelResult<i64> {
+    let Some(person_id) = person_id_of_mails(conn, course_id, student_number).await? else {
+        return Ok(0);
+    };
+    let quiet_since = Utc::now() - chrono::Duration::seconds(LINKING_MAIL_QUIET_PERIOD_SECS);
+    let mails =
+        credit_registration_account_linking_emails::get_by_sisu_person_id(conn, &person_id).await?;
+    // This course's rows carry the dedup guard and the lifetime cap; a recent row on any course
+    // carries the quiet period, which is about the person's inbox rather than one course.
+    let retired: Vec<Uuid> = mails
+        .iter()
+        .filter(|mail| mail.course_id == course_id || mail.sent_at >= quiet_since)
+        .map(|mail| mail.id)
+        .collect();
+    if retired.is_empty() {
+        return Ok(0);
+    }
+
+    let mut tx = conn.begin().await?;
+    for id in &retired {
+        credit_registration_account_linking_emails::soft_delete(&mut tx, *id).await?;
+    }
+    crate::credit_registration_admin_actions::record(
+        &mut tx,
+        &NewCreditRegistrationAdminAction {
+            target_id: Some(course_id),
+            reason: Some(reason.to_string()),
+            details: Some(serde_json::json!({
+                "student_number": student_number,
+                "retired_linking_email_ids": retired,
+            })),
+            affected_row_count: Some(i32::try_from(retired.len()).unwrap_or(i32::MAX)),
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::OverrideRateCap,
+                CreditRegistrationAdminActionTarget::Course,
+                actor_user_id,
+                actor_role,
+            )
+        },
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(retired.len() as i64)
+}
+
+async fn person_id_of_mails(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    student_number: &str,
+) -> ModelResult<Option<String>> {
+    let mails = credit_registration_account_linking_emails::get_by_course_id_and_student_number(
+        conn,
+        course_id,
+        student_number,
+    )
+    .await?;
+    Ok(mails.into_iter().next().map(|mail| mail.sisu_person_id))
 }
 
 /// How many mails the caps still allow this person for this course.
@@ -240,7 +315,10 @@ fn distinct_addresses(addresses: &[String]) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::credit_registration_account_linking_emails::get_by_sisu_person_id;
+    use crate::credit_registration_account_linking_emails::{
+        count_sent_for_person_and_course, get_by_sisu_person_id,
+    };
+    use crate::credit_registration_admin_actions::{self, GLOBAL_ADMIN_ROLE};
     use crate::student_number_verification_tokens::{claim, get_by_ids};
     use crate::test_helper::*;
 
@@ -380,5 +458,88 @@ mod tests {
 
         assert!(claim(tx.as_mut(), &token.token, user).await.unwrap());
         assert!(!claim(tx.as_mut(), &token.token, user).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn the_rate_cap_override_retires_the_ledger_rows_and_audits_itself() {
+        insert_data!(:tx, :user, :org, :course);
+
+        let claimed = claim_linking_mails(
+            tx.as_mut(),
+            &DiscoveredPerson {
+                sisu_person_id: "hy-hlo-1".to_string(),
+                student_number: "012345678".to_string(),
+                first_names: Some("Aada Maria".to_string()),
+                last_name: Some("Virtanen".to_string()),
+                course_id: course,
+                addresses: vec!["aada@helsinki.fi".to_string()],
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(claimed.claimed, 1);
+        assert_eq!(
+            count_sent_for_person_and_course(tx.as_mut(), "hy-hlo-1", course)
+                .await
+                .unwrap(),
+            1
+        );
+
+        let retired = retire_capped_mails(
+            tx.as_mut(),
+            user,
+            GLOBAL_ADMIN_ROLE,
+            course,
+            "012345678",
+            "The recipient's mail host rejects everything we send.",
+        )
+        .await
+        .unwrap();
+        assert_eq!(retired, 1);
+        assert_eq!(
+            count_sent_for_person_and_course(tx.as_mut(), "hy-hlo-1", course)
+                .await
+                .unwrap(),
+            0
+        );
+
+        let actions = credit_registration_admin_actions::get_by_actor(tx.as_mut(), user, 10)
+            .await
+            .unwrap();
+        assert_eq!(actions.len(), 1);
+        let action = &actions[0];
+        assert_eq!(
+            action.action,
+            CreditRegistrationAdminAction::OverrideRateCap
+        );
+        assert_eq!(action.actor_role, GLOBAL_ADMIN_ROLE);
+        assert_eq!(
+            action.reason.as_deref(),
+            Some("The recipient's mail host rejects everything we send.")
+        );
+        assert_eq!(action.affected_row_count, Some(1));
+    }
+
+    #[tokio::test]
+    async fn an_override_with_nothing_to_retire_writes_nothing() {
+        insert_data!(:tx, :user, :org, :course);
+
+        let retired = retire_capped_mails(
+            tx.as_mut(),
+            user,
+            GLOBAL_ADMIN_ROLE,
+            course,
+            "012345678",
+            "No mails yet.",
+        )
+        .await
+        .unwrap();
+        assert_eq!(retired, 0);
+        assert!(
+            credit_registration_admin_actions::get_by_actor(tx.as_mut(), user, 10)
+                .await
+                .unwrap()
+                .is_empty()
+        );
     }
 }

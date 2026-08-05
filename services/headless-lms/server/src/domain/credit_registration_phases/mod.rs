@@ -6,11 +6,8 @@
 pub mod breaker;
 mod enrolment_discovery;
 mod import;
-mod legacy_mirror;
 mod link_emails;
 pub mod linking_mail_resend;
-mod materialize;
-mod preconditions;
 mod product_token_refresh;
 mod resolve_enrolments;
 mod verify;
@@ -21,11 +18,19 @@ use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, scrub_text, suotar_exchange_details,
 };
 use headless_lms_models::credit_registrations::{CreditRegistration, Transition};
-use headless_lms_models::library::credit_registration::classification::{
-    is_retryable_transient_wire_code, next_attempt_at,
+use headless_lms_models::library::credit_registration::backoff::next_attempt_at;
+use headless_lms_models::library::credit_registration::classification::is_retryable_transient_wire_code;
+use headless_lms_models::library::credit_registration::legacy_mirror::{
+    LEGACY_MIRROR_LIMIT, mirror_successes_to_legacy_ledger,
+};
+use headless_lms_models::library::credit_registration::materialize::{
+    MATERIALIZE_LIMIT, ensure_registration_rows_for_eligible_completions,
 };
 use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, RowFacts, request_level_outcome,
+};
+use headless_lms_models::library::credit_registration::preconditions::{
+    PRECONDITIONS_LIMIT, recompute_preconditions,
 };
 use headless_lms_models::suotar_api_calls::SuotarEndpoint as SuotarApiEndpoint;
 use headless_lms_models::{credit_registration_phase_state, credit_registrations};
@@ -285,6 +290,36 @@ pub(crate) fn worker_name(caller: &str, phase: CreditRegistrationPhase) -> Strin
     format!("{caller}/{}", phase.as_str())
 }
 
+async fn run_materialize(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
+    let mut conn = ctx.pool.acquire().await?;
+    let created =
+        ensure_registration_rows_for_eligible_completions(&mut conn, scope, MATERIALIZE_LIMIT)
+            .await?;
+    Ok(PhaseRunOutcome::processed(created))
+}
+
+/// Database-only, so it keeps running while the study registry is unreachable.
+async fn run_preconditions(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
+    let mut conn = ctx.pool.acquire().await?;
+    let moved = recompute_preconditions(&mut conn, scope, PRECONDITIONS_LIMIT).await?;
+    Ok(PhaseRunOutcome::processed(moved))
+}
+
+async fn run_legacy_mirror(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
+    let mut conn = ctx.pool.acquire().await?;
+    let mirrored = mirror_successes_to_legacy_ledger(&mut conn, scope, LEGACY_MIRROR_LIMIT).await?;
+    Ok(PhaseRunOutcome::processed(mirrored))
+}
+
 /// Runs exactly one iteration of one phase. The match below is the only place a phase
 /// implementation is registered; it is exhaustive over [`ImplementedPhase`], so a variant added
 /// there without a dispatch arm here fails to compile rather than running as `NotImplemented`.
@@ -304,12 +339,12 @@ pub async fn run_phase_once(
     // paused phase costs no database connection.
     let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> =
         match implementation {
-            ImplementedPhase::Materialize => Box::pin(materialize::run(ctx, scope)),
-            ImplementedPhase::Preconditions => Box::pin(preconditions::run(ctx, scope)),
+            ImplementedPhase::Materialize => Box::pin(run_materialize(ctx, scope)),
+            ImplementedPhase::Preconditions => Box::pin(run_preconditions(ctx, scope)),
             ImplementedPhase::ResolveEnrolments => Box::pin(resolve_enrolments::run(ctx, scope)),
             ImplementedPhase::Import => Box::pin(import::run(ctx, scope)),
             ImplementedPhase::Verify => Box::pin(verify::run(ctx, scope)),
-            ImplementedPhase::LegacyMirror => Box::pin(legacy_mirror::run(ctx, scope)),
+            ImplementedPhase::LegacyMirror => Box::pin(run_legacy_mirror(ctx, scope)),
             ImplementedPhase::EnrolmentDiscovery => Box::pin(enrolment_discovery::run(ctx, scope)),
             ImplementedPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
             ImplementedPhase::ProductTokenRefresh => {
@@ -379,6 +414,15 @@ pub(crate) fn listed_person_addresses(person: &ListedPerson) -> Vec<String> {
     .flatten()
     .filter(|address| !address.trim().is_empty())
     .collect()
+}
+
+/// The request bodies as sent, kept alongside the typed items so a rejected batch can pair each row
+/// with what was actually asked of it for the audit log.
+pub(crate) fn requests_json<T: serde::Serialize>(items: &[T]) -> Vec<serde_json::Value> {
+    items
+        .iter()
+        .map(|item| serde_json::to_value(item).unwrap_or_default())
+        .collect()
 }
 
 /// The response item for one request item, read from the raw body rather than rebuilt from the

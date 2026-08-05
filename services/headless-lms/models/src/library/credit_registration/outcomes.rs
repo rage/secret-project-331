@@ -8,11 +8,12 @@ use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistratio
 use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
 
-use super::classification::{
-    NO_USABLE_ENROLMENT_RECHECK_SECS, Retryability, UNCERTAIN_MAX_CHECKS, UNCERTAIN_RECHECK_SECS,
-    VERIFY_GIVE_UP_POLL_SECS, retryability, submit_backoff_secs, submit_window_expired,
-    verify_backoff_secs, verify_window_expired,
+use super::backoff::{
+    NO_USABLE_ENROLMENT_RECHECK_SECS, UNCERTAIN_MAX_CHECKS, UNCERTAIN_RECHECK_SECS,
+    VERIFY_GIVE_UP_POLL_SECS, submit_backoff_secs, submit_window_expired, verify_backoff_secs,
+    verify_window_expired,
 };
+use super::classification::{Retryability, retryability};
 
 /// The row's scheduling history, which is all these decisions need from it.
 #[derive(Debug, Clone, PartialEq)]
@@ -244,21 +245,6 @@ pub fn import_success_state(code: &str) -> Option<CreditRegistrationState> {
     }
 }
 
-/// Where a `failed_retryable` row goes when its backoff elapses, derived from how far it had got.
-/// Never `submitting`: only the import phase writes that, in the transaction before it sends.
-pub fn resume_state(
-    has_submitted_attainment_id: bool,
-    has_payload_snapshot: bool,
-) -> CreditRegistrationState {
-    if has_submitted_attainment_id {
-        CreditRegistrationState::AwaitingVerification
-    } else if has_payload_snapshot {
-        CreditRegistrationState::CheckingEnrolment
-    } else {
-        CreditRegistrationState::ReadyToSubmit
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -316,7 +302,7 @@ mod tests {
             ]
         );
         assert_eq!(
-            crate::credit_registrations::map_code(
+            super::super::classification::map_code(
                 SuotarEndpoint::ImportAttainments,
                 "sisuTemporarilyUnavailable"
             ),
@@ -514,12 +500,5 @@ mod tests {
         });
         assert_eq!(after.needs_admin_attention, Some(true));
         assert_eq!(after.to_state, State::SubmissionUncertain);
-    }
-
-    #[test]
-    fn a_retry_resumes_where_the_row_had_got_to() {
-        assert_eq!(resume_state(false, false), State::ReadyToSubmit);
-        assert_eq!(resume_state(false, true), State::CheckingEnrolment);
-        assert_eq!(resume_state(true, true), State::AwaitingVerification);
     }
 }

@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -13,11 +12,12 @@ import {
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { AdminResendAccountLinkingEmailResult } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Button, Checkbox, Dialog, Infobox, TextArea } from "@/shared-module/components"
+import { Button, Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
 import { MIDDLE_DOT, TONE } from "../constants"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
+import { ReasonField, isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props {
   studentNumber: string
@@ -72,8 +72,9 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   const [open, setOpen] = useState(false)
   const [manualLinkOpen, setManualLinkOpen] = useState(false)
   const [result, setResult] = useState<AdminResendAccountLinkingEmailResult | null>(null)
-  const { control, handleSubmit, watch } = useForm<Fields>({
-    defaultValues: { override_rate_caps: false, reason: "" },
+  const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
+    override_rate_caps: false,
+    reason: "",
   })
   const override = watch("override_rate_caps")
   const reason = watch("reason")
@@ -161,28 +162,28 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
             label={t("credit-registration-admin-resend-override-label")}
             description={t("credit-registration-admin-resend-override-description")}
           />
-          <TextArea
-            name="reason"
+          <ReasonField
             control={control}
-            label={t("label-reason")}
             description={t("credit-registration-admin-resend-reason-description")}
-            {...(override ? { rules: { required: t("required-field") } } : {})}
+            isRequired={override}
           />
           <Button
             variant="primary"
             size="medium"
             type="submit"
-            disabled={mutation.isPending || (override && reason.trim() === "")}
+            disabled={isReasonConfirmDisabled(mutation.isPending, reason, override)}
           >
             {t("button-text-confirm")}
           </Button>
         </form>
       </Dialog>
-      <AdminManualLinkDialog
-        open={manualLinkOpen}
-        onClose={() => setManualLinkOpen(false)}
-        studentNumber={studentNumber}
-      />
+      {manualLinkOpen && (
+        <AdminManualLinkDialog
+          open={manualLinkOpen}
+          onClose={() => setManualLinkOpen(false)}
+          studentNumber={studentNumber}
+        />
+      )}
     </div>
   )
 }

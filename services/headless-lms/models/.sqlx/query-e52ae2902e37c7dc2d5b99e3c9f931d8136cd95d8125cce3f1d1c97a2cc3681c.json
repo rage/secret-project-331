@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  course_unit_realisation_id,\n  label,\n  active,\n  last_listed_at,\n  last_listed_person_count,\n  last_already_linked_count,\n  last_mailed_count,\n  last_suppressed_by_dedup_count,\n  last_suppressed_by_rate_cap_count,\n  last_no_address_count,\n  last_listing_attempted_at,\n  last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  consecutive_listing_failures\nFROM course_module_suotar_realisations\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at\n        ",
+  "query": "\nSELECT cmsr.id,\n  cmsr.created_at,\n  cmsr.updated_at,\n  cmsr.deleted_at,\n  cmsr.course_module_id,\n  cmsr.course_unit_realisation_id,\n  cmsr.label,\n  cmsr.active,\n  cmsr.last_listed_at,\n  cmsr.last_listed_person_count,\n  cmsr.last_already_linked_count,\n  cmsr.last_mailed_count,\n  cmsr.last_suppressed_by_dedup_count,\n  cmsr.last_suppressed_by_rate_cap_count,\n  cmsr.last_no_address_count,\n  cmsr.last_listing_attempted_at,\n  cmsr.last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  cmsr.consecutive_listing_failures\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\nWHERE ($1::uuid IS NULL OR cmsr.course_module_id = $1)\n  AND (\n    $2::uuid IS NULL\n    OR (cm.course_id = $2 AND cm.deleted_at IS NULL)\n  )\n  AND cmsr.deleted_at IS NULL\nORDER BY cm.order_number,\n  cmsr.created_at\n        ",
   "describe": {
     "columns": [
       {
@@ -234,6 +234,7 @@
     ],
     "parameters": {
       "Left": [
+        "Uuid",
         "Uuid"
       ]
     },
@@ -258,5 +259,5 @@
       false
     ]
   },
-  "hash": "0286ce1498ba848177fa1304f75f170f93bdebbb19d3642ebd85ed528369d89d"
+  "hash": "e52ae2902e37c7dc2d5b99e3c9f931d8136cd95d8125cce3f1d1c97a2cc3681c"
 }

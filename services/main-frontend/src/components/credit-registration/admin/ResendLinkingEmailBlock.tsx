@@ -14,7 +14,7 @@ import type {
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Infobox, TextField } from "@/shared-module/components"
 
-import { linkingEmailSentence } from "./teacherCreditRegistrations"
+import { linkingEmailSentence } from "../teacherCreditRegistrations"
 
 interface Props {
   registration: CourseCreditRegistration

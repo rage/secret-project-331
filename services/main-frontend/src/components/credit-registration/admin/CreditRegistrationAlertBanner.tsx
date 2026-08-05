@@ -8,6 +8,7 @@ import type { CreditRegistrationAlertSeverity } from "@/generated/api/types.gene
 import { Infobox } from "@/shared-module/components"
 
 import { TONE } from "../constants"
+import { widenedLookup } from "../labelFrom"
 import { alertSentence } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationOverview } from "./adminCreditRegistrationHooks"
 
@@ -45,7 +46,7 @@ const CreditRegistrationAlertBanner: React.FC = () => {
         <Infobox
           key={alert.id}
           tone={alert.severity === "critical" ? TONE.WARNING : TONE.INFO}
-          heading={t(SEVERITY_KEYS[alert.severity] ?? SEVERITY_KEYS.warning)}
+          heading={t(widenedLookup(SEVERITY_KEYS, alert.severity) ?? SEVERITY_KEYS.warning)}
         >
           {alertSentence(t, alert.id, alert.count, alert.subject)}
         </Infobox>

@@ -1,24 +1,16 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { CheckShield } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import SectionCard from "@/components/credit-registration/SectionCard"
-import {
-  getMyCreditRegistrationConsentsOptions,
-  getMyCreditRegistrationConsentsQueryKey,
-  getMyCreditRegistrationsQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
-import { setMyCourseCreditRegistrationConsent } from "@/generated/api/sdk.generated"
-import type {
-  MyCreditRegistrationConsent,
-  SetMyCourseCreditRegistrationConsentResult,
-} from "@/generated/api/types.generated"
+import { getMyCreditRegistrationConsentsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { MyCreditRegistrationConsent } from "@/generated/api/types.generated"
+import { useSetCreditRegistrationConsent } from "@/hooks/course-material/useCourseCreditRegistrationConsent"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { TableColumn } from "@/shared-module/components"
@@ -57,31 +49,10 @@ const ConsentsCard: React.FC = () => {
 
 const ConsentsTable: React.FC<{ consents: MyCreditRegistrationConsent[] }> = ({ consents }) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
   const { confirm } = useDialog()
   const [unblocked, setUnblocked] = React.useState<number | null>(null)
 
-  const answer = useToastMutation<
-    SetMyCourseCreditRegistrationConsentResult,
-    unknown,
-    { courseId: string; consentGiven: boolean }
-  >(
-    async ({ courseId, consentGiven }) =>
-      await setMyCourseCreditRegistrationConsent({
-        path: { course_id: courseId },
-        body: { consent_given: consentGiven },
-      }),
-    { notify: true, method: "PUT" },
-    {
-      onSuccess: async (result) => {
-        setUnblocked(result.newly_unblocked_registration_count)
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: getMyCreditRegistrationConsentsQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: getMyCreditRegistrationsQueryKey() }),
-        ])
-      },
-    },
-  )
+  const answer = useSetCreditRegistrationConsent()
 
   const answerText = (consent: MyCreditRegistrationConsent): string => {
     if (consent.consent_given === true) {
@@ -120,7 +91,12 @@ const ConsentsTable: React.FC<{ consents: MyCreditRegistrationConsent[] }> = ({ 
                 t("confirm-withdraw-credit-registration-consent-title"),
               )
               if (confirmed) {
-                answer.mutate({ courseId: consent.course_id, consentGiven: false })
+                answer.mutate(
+                  { courseId: consent.course_id, consentGiven: false },
+                  {
+                    onSuccess: (result) => setUnblocked(result.newly_unblocked_registration_count),
+                  },
+                )
               }
             }}
           >
@@ -131,7 +107,12 @@ const ConsentsTable: React.FC<{ consents: MyCreditRegistrationConsent[] }> = ({ 
             variant="primary"
             size="small"
             disabled={answer.isPending}
-            onClick={() => answer.mutate({ courseId: consent.course_id, consentGiven: true })}
+            onClick={() =>
+              answer.mutate(
+                { courseId: consent.course_id, consentGiven: true },
+                { onSuccess: (result) => setUnblocked(result.newly_unblocked_registration_count) },
+              )
+            }
           >
             {consent.registrable_completion_count > 0
               ? t("button-allow-credit-registration-with-completions", {

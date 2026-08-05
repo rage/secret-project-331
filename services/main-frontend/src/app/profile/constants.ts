@@ -1,12 +1,5 @@
 // SCREAMING_CASE so the i18next literal-string lint ignores these display constants.
 
-export const TONE = {
-  NEUTRAL: "neutral",
-  SUCCESS: "success",
-} as const
-
-export const MIDDLE_DOT = " · "
-
 /** Placeholder for a value the student has not earned yet. */
 export const EM_DASH = "—"
 

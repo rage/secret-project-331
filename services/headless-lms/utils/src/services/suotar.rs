@@ -1292,6 +1292,7 @@ mod tests {
         assert!(!SuotarErrorVariant::TransportNotDelivered.outcome_may_have_landed());
         assert!(!SuotarErrorVariant::Unauthorized.outcome_may_have_landed());
         assert!(!SuotarErrorVariant::MalformedRequest.outcome_may_have_landed());
+        assert!(!SuotarErrorVariant::RequestLevelError.outcome_may_have_landed());
         assert!(SuotarErrorVariant::TransportUnknown.outcome_may_have_landed());
         assert!(SuotarErrorVariant::ServerError.outcome_may_have_landed());
         assert!(SuotarErrorVariant::Deserialization.outcome_may_have_landed());

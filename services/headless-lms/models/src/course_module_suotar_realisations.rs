@@ -200,11 +200,16 @@ pub struct RealisationToList {
     pub uh_course_code: Option<String>,
 }
 
-/// The realisations one discovery iteration takes, stalest attempt first.
+/// Claims the realisations one discovery iteration takes, stalest attempt first.
+///
+/// Locks the rows `FOR UPDATE SKIP LOCKED` and stamps `last_listing_attempted_at` in the same
+/// transaction the caller commits before dropping the connection: the stamp is what keeps a second
+/// concurrent run from reselecting the same realisations once the lock itself is released ahead of
+/// the (potentially slow) Suotar call.
 ///
 /// Ordering only: due-ness comes from the phase's own interval, never from the timestamps. Attempts
 /// order the queue rather than successes, so a realisation that keeps failing cannot starve the rest.
-pub async fn get_stalest_for_listing(
+pub async fn claim_stalest_for_listing(
     conn: &mut PgConnection,
     limit: i64,
     course_id: Option<Uuid>,
@@ -230,16 +235,30 @@ WHERE cmsr.active
 ORDER BY COALESCE(cmsr.last_listing_attempted_at, cmsr.last_listed_at) ASC NULLS FIRST,
   cmsr.id
 LIMIT $1
+FOR UPDATE OF cmsr SKIP LOCKED
         "#,
         limit,
         course_id,
     )
-    .fetch_all(conn)
+    .fetch_all(&mut *conn)
     .await?;
+    let ids: Vec<Uuid> = res.iter().map(|row| row.id).collect();
+    if !ids.is_empty() {
+        sqlx::query!(
+            r#"
+UPDATE course_module_suotar_realisations
+SET last_listing_attempted_at = now()
+WHERE id = ANY($1)
+            "#,
+            &ids,
+        )
+        .execute(conn)
+        .await?;
+    }
     Ok(res)
 }
 
-/// Every active realisation of one course, unpaginated: unlike [`get_stalest_for_listing`], which
+/// Every active realisation of one course, unpaginated: unlike [`claim_stalest_for_listing`], which
 /// pages by staleness for the scheduler, this one must not miss any of them.
 pub async fn get_active_for_course(
     conn: &mut PgConnection,

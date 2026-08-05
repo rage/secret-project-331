@@ -130,16 +130,34 @@ impl CreditRegistrationPhase {
         }
     }
 
-    /// Whether [`run_phase_once`] has an implementation registered for the phase. Has to name the
-    /// same phases as that function's not-implemented arm.
+    /// Whether [`run_phase_once`] has an implementation registered for the phase, derived from
+    /// [`implementation`](Self::implementation) so it cannot list a different set of phases than
+    /// the dispatch actually runs.
     pub fn is_implemented(self) -> bool {
-        !matches!(
-            self,
-            Self::StudentNotifications | Self::ConfigValidation | Self::RetentionSweep
-        )
+        self.implementation().is_some()
     }
 
-    /// Whether the phase talks to the study registry, and so shares the circuit breaker.
+    /// Which [`ImplementedPhase`] runs this phase, or `None` for one with no dispatch arm yet.
+    /// [`run_phase_once`]'s dispatch match is over the returned type, so adding a phase there
+    /// without adding it here fails to compile instead of silently never running.
+    fn implementation(self) -> Option<ImplementedPhase> {
+        match self {
+            Self::Materialize => Some(ImplementedPhase::Materialize),
+            Self::Preconditions => Some(ImplementedPhase::Preconditions),
+            Self::ResolveEnrolments => Some(ImplementedPhase::ResolveEnrolments),
+            Self::Import => Some(ImplementedPhase::Import),
+            Self::Verify => Some(ImplementedPhase::Verify),
+            Self::LegacyMirror => Some(ImplementedPhase::LegacyMirror),
+            Self::EnrolmentDiscovery => Some(ImplementedPhase::EnrolmentDiscovery),
+            Self::LinkEmails => Some(ImplementedPhase::LinkEmails),
+            Self::ProductTokenRefresh => Some(ImplementedPhase::ProductTokenRefresh),
+            Self::StudentNotifications | Self::ConfigValidation | Self::RetentionSweep => None,
+        }
+    }
+
+    /// Whether the phase talks to the study registry, and so shares the circuit breaker with the
+    /// other such phases of its own worker process (`breaker::BREAKERS` is process-local, not
+    /// shared between `credit-registrar` and `suotar-syncer`).
     pub fn calls_study_registry(self) -> bool {
         matches!(
             self,
@@ -179,6 +197,22 @@ impl CreditRegistrationPhase {
             }
         }
     }
+}
+
+/// The phases [`run_phase_once`]'s dispatch match actually runs. A one-to-one mirror of the
+/// [`CreditRegistrationPhase`] variants [`CreditRegistrationPhase::implementation`] maps to `Some`;
+/// adding a variant here without a matching dispatch arm fails to compile.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ImplementedPhase {
+    Materialize,
+    Preconditions,
+    ResolveEnrolments,
+    Import,
+    Verify,
+    LegacyMirror,
+    EnrolmentDiscovery,
+    LinkEmails,
+    ProductTokenRefresh,
 }
 
 /// Which of the scope's dimensions a phase's claim query can apply. Declared rather than assumed,
@@ -252,7 +286,8 @@ pub(crate) fn worker_name(caller: &str, phase: CreditRegistrationPhase) -> Strin
 }
 
 /// Runs exactly one iteration of one phase. The match below is the only place a phase
-/// implementation is registered.
+/// implementation is registered; it is exhaustive over [`ImplementedPhase`], so a variant added
+/// there without a dispatch arm here fails to compile rather than running as `NotImplemented`.
 pub async fn run_phase_once(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
@@ -262,26 +297,25 @@ pub async fn run_phase_once(
     if !phase.scope_support().covers(scope) {
         return Ok(PhaseTick::ScopeNotSupported);
     }
-    // Built before the guards below and awaited after them: an unpolled future does nothing, so a
-    // paused or unimplemented phase costs no database connection.
-    let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> = match phase {
-        CreditRegistrationPhase::Materialize => Box::pin(materialize::run(ctx, scope)),
-        CreditRegistrationPhase::Preconditions => Box::pin(preconditions::run(ctx, scope)),
-        CreditRegistrationPhase::ResolveEnrolments => Box::pin(resolve_enrolments::run(ctx, scope)),
-        CreditRegistrationPhase::Import => Box::pin(import::run(ctx, scope)),
-        CreditRegistrationPhase::Verify => Box::pin(verify::run(ctx, scope)),
-        CreditRegistrationPhase::LegacyMirror => Box::pin(legacy_mirror::run(ctx, scope)),
-        CreditRegistrationPhase::EnrolmentDiscovery => {
-            Box::pin(enrolment_discovery::run(ctx, scope))
-        }
-        CreditRegistrationPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
-        CreditRegistrationPhase::ProductTokenRefresh => {
-            Box::pin(product_token_refresh::run(ctx, scope))
-        }
-        CreditRegistrationPhase::StudentNotifications
-        | CreditRegistrationPhase::ConfigValidation
-        | CreditRegistrationPhase::RetentionSweep => return Ok(PhaseTick::NotImplemented),
+    let Some(implementation) = phase.implementation() else {
+        return Ok(PhaseTick::NotImplemented);
     };
+    // Built before the guards below and awaited after them: an unpolled future does nothing, so a
+    // paused phase costs no database connection.
+    let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> =
+        match implementation {
+            ImplementedPhase::Materialize => Box::pin(materialize::run(ctx, scope)),
+            ImplementedPhase::Preconditions => Box::pin(preconditions::run(ctx, scope)),
+            ImplementedPhase::ResolveEnrolments => Box::pin(resolve_enrolments::run(ctx, scope)),
+            ImplementedPhase::Import => Box::pin(import::run(ctx, scope)),
+            ImplementedPhase::Verify => Box::pin(verify::run(ctx, scope)),
+            ImplementedPhase::LegacyMirror => Box::pin(legacy_mirror::run(ctx, scope)),
+            ImplementedPhase::EnrolmentDiscovery => Box::pin(enrolment_discovery::run(ctx, scope)),
+            ImplementedPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
+            ImplementedPhase::ProductTokenRefresh => {
+                Box::pin(product_token_refresh::run(ctx, scope))
+            }
+        };
     let mut conn = ctx.pool.acquire().await?;
     if credit_registration_phase_state::is_paused(&mut conn, phase.as_str()).await? {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::Paused));

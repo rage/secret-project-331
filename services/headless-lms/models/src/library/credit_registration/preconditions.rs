@@ -228,6 +228,9 @@ targets AS (
       -- Already queued for import with its payload frozen; sending it back would resolve again
       -- forever.
       WHEN facts.state = 'checking_enrolment' THEN facts.state
+      -- A resolve-enrolments call for this row is in flight; only that phase's own commit may
+      -- move it, or import could claim it before the enrolment is actually resolved.
+      WHEN facts.state = 'resolving_enrolment' THEN facts.state
       ELSE 'ready_to_submit'
     END::credit_registration_state AS target
   FROM facts

@@ -21,6 +21,7 @@ pub enum CreditRegistrationState {
     PendingConsent,
     PendingStudentNumber,
     ReadyToSubmit,
+    ResolvingEnrolment,
     CheckingEnrolment,
     NoUsableEnrolment,
     Submitting,
@@ -39,11 +40,12 @@ pub enum CreditRegistrationState {
 
 impl CreditRegistrationState {
     /// Every state, so a classification can be proven exhaustive at runtime too.
-    pub const ALL: [Self; 18] = [
+    pub const ALL: [Self; 19] = [
         Self::PendingPrerequisites,
         Self::PendingConsent,
         Self::PendingStudentNumber,
         Self::ReadyToSubmit,
+        Self::ResolvingEnrolment,
         Self::CheckingEnrolment,
         Self::NoUsableEnrolment,
         Self::Submitting,
@@ -856,8 +858,23 @@ RETURNING id
         sisu_attainment_type,
     )
     .fetch_optional(conn)
-    .await?;
-    Ok(updated.is_some())
+    .await;
+    match updated {
+        Ok(updated) => Ok(updated.is_some()),
+        // The NOT EXISTS guard above isn't atomic against a concurrent caller claiming the
+        // same sisu_attainment_id for a different row; the loser hits this unique index instead.
+        Err(err) => {
+            let err: ModelError = err.into();
+            match err.error_type() {
+                ModelErrorType::DatabaseConstraint { constraint, .. }
+                    if constraint == "uq_credit_registrations_sisu_attainment" =>
+                {
+                    Ok(false)
+                }
+                _ => Err(err),
+            }
+        }
+    }
 }
 
 /// Defers when the pipeline may next claim this row; the delay is the caller's policy.

@@ -393,13 +393,12 @@ mod tests {
     }
 
     #[test]
-    fn only_a_connection_that_never_opened_lets_an_import_batch_retry() {
+    fn only_a_request_that_may_have_reached_business_logic_leaves_an_import_batch_uncertain() {
         let facts = facts();
         for variant in [
             SuotarErrorVariant::ServerError,
             SuotarErrorVariant::TransportUnknown,
             SuotarErrorVariant::Deserialization,
-            SuotarErrorVariant::RequestLevelError,
         ] {
             assert_eq!(
                 request_level_outcome(SuotarEndpoint::ImportAttainments, variant, &facts).to_state,
@@ -411,6 +410,7 @@ mod tests {
             SuotarErrorVariant::TransportNotDelivered,
             SuotarErrorVariant::Unauthorized,
             SuotarErrorVariant::MalformedRequest,
+            SuotarErrorVariant::RequestLevelError,
         ] {
             assert_eq!(
                 request_level_outcome(SuotarEndpoint::ImportAttainments, variant, &facts).to_state,

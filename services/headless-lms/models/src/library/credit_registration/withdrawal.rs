@@ -41,6 +41,7 @@ pub fn withdrawal_target(state: CreditRegistrationState) -> Option<CreditRegistr
         | State::PendingConsent
         | State::PendingStudentNumber
         | State::ReadyToSubmit
+        | State::ResolvingEnrolment
         | State::CheckingEnrolment
         | State::NoUsableEnrolment
         | State::FailedRetryable => Some(State::Blocked),

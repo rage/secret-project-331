@@ -2,6 +2,11 @@
 //!
 //! Ends with the payload frozen and the row queued for import in `checking_enrolment`, never
 //! `submitting`: that state means a request may be in flight, and is the import phase's to write.
+//!
+//! The row spends the Suotar round trip itself in `resolving_enrolment`, not `checking_enrolment`:
+//! `import`'s claim query reads the latter, and the row's own claim lock is gone as soon as the
+//! preflight transaction below commits. Landing in a state `import` does not claim keeps a second
+//! tick of `import` from sending a request before the enrolment this one resolves is known.
 
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, suotar_exchange_details,
@@ -73,11 +78,12 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         match preflight(&context) {
             Ok(item) => {
                 // Moved out of the state this phase reads, so a second tick cannot pick it up while
-                // the request is out.
+                // the request is out; `resolving_enrolment` rather than `checking_enrolment` so
+                // `import` cannot claim it either before the payload below is actually frozen.
                 transition(
                     &mut tx,
                     row.id,
-                    &Transition::to(CreditRegistrationState::CheckingEnrolment),
+                    &Transition::to(CreditRegistrationState::ResolvingEnrolment),
                 )
                 .await?;
                 items.push(ResolveEnrolmentRequestItem {
@@ -329,8 +335,8 @@ async fn choose(
             built.snapshot.credits
         )
     });
-    // A self-transition: the row stays queued for import, and the event is what records when the
-    // enrolment was resolved.
+    // Only now does the row become claimable by `import`: the payload is frozen and the event
+    // records when the enrolment was resolved.
     transition(
         conn,
         row.id,

@@ -30,8 +30,9 @@ use super::{
     every_item_failed_transiently, request_level_failure, response_item_json, row_facts,
 };
 
-/// The only state this phase claims; the absence of `submitting` and `submission_uncertain` is what
-/// makes a second import for one row unreachable.
+/// The only state this phase claims; the absence of `submitting`, `submission_uncertain` and
+/// `resolving_enrolment` is what makes a second import for one row, or an import before its
+/// enrolment is resolved, unreachable.
 const CLAIMED_STATES: [CreditRegistrationState; 1] = [CreditRegistrationState::CheckingEnrolment];
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -409,6 +410,7 @@ mod tests {
             CreditRegistrationState::AwaitingVerification,
             CreditRegistrationState::Registered,
             CreditRegistrationState::AbandonedByConsentWithdrawal,
+            CreditRegistrationState::ResolvingEnrolment,
         ] {
             assert!(!CLAIMED_STATES.contains(&state), "{state:?}");
         }

@@ -62,10 +62,17 @@ pub enum SuotarErrorVariant {
 impl SuotarErrorVariant {
     /// Whether Suotar may have acted on the request. An import that may have landed must be
     /// verified rather than re-sent, or a transcript gets a second attainment.
+    ///
+    /// A 4xx (`Unauthorized`, `MalformedRequest`, `RequestLevelError`) never reached Suotar's
+    /// business logic, so it is as resendable as a connection that never opened; only a genuine
+    /// 5xx (`ServerError`) leaves the outcome unknown.
     pub fn outcome_may_have_landed(self) -> bool {
         !matches!(
             self,
-            Self::Unauthorized | Self::MalformedRequest | Self::TransportNotDelivered
+            Self::Unauthorized
+                | Self::MalformedRequest
+                | Self::RequestLevelError
+                | Self::TransportNotDelivered
         )
     }
 }

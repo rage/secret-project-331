@@ -30,6 +30,7 @@ impl StudentFacingCreditRegistrationStatus {
             State::PendingConsent => Self::NeedsConsent,
             State::PendingStudentNumber => Self::NeedsStudentNumber,
             State::ReadyToSubmit
+            | State::ResolvingEnrolment
             | State::CheckingEnrolment
             | State::Submitting
             | State::FailedRetryable => Self::InProgress,
@@ -67,6 +68,7 @@ mod tests {
     fn only_the_states_the_pipeline_still_owns_keep_the_page_polling() {
         let moving = [
             State::ReadyToSubmit,
+            State::ResolvingEnrolment,
             State::CheckingEnrolment,
             State::Submitting,
             State::FailedRetryable,

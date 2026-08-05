@@ -19,6 +19,7 @@ const STATE_TONES = {
   pending_consent: "action-needed",
   pending_student_number: "action-needed",
   ready_to_submit: "current",
+  resolving_enrolment: "current",
   checking_enrolment: "current",
   no_usable_enrolment: "action-needed",
   submitting: "current",

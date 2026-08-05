@@ -5,8 +5,8 @@
 //! the population the linking mail exists to reach is the people whose two addresses differ.
 
 use headless_lms_models::course_module_suotar_realisations::{
-    RealisationListingOutcome, RealisationToList, get_stalest_for_listing, listing_request_item_id,
-    mark_listing_failed, record_listing_outcome,
+    RealisationListingOutcome, RealisationToList, claim_stalest_for_listing,
+    listing_request_item_id, mark_listing_failed, record_listing_outcome,
 };
 use headless_lms_models::credit_registration_events::scrub_text;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
@@ -22,7 +22,7 @@ use headless_lms_utils::prelude::BackendError;
 use headless_lms_utils::services::suotar::{
     ListByCourseRequestItem, ListedPerson, SuotarCallContext, SuotarEndpoint, SuotarItemStatus,
 };
-use sqlx::PgConnection;
+use sqlx::{Connection, PgConnection};
 use std::collections::HashSet;
 
 use super::{
@@ -33,9 +33,11 @@ use super::{
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
     let endpoint = SuotarEndpoint::ListByCourse;
     let mut conn = ctx.pool.acquire().await?;
+    let mut tx = conn.begin().await?;
     let claimed =
-        get_stalest_for_listing(&mut conn, endpoint.max_batch_size() as i64, scope.course_id)
+        claim_stalest_for_listing(&mut tx, endpoint.max_batch_size() as i64, scope.course_id)
             .await?;
+    tx.commit().await?;
     let attempted = i32::try_from(claimed.len()).unwrap_or(i32::MAX);
 
     let mut items = Vec::new();

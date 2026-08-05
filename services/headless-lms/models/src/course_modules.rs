@@ -750,10 +750,12 @@ pub async fn get_credit_registration_course_ids_for_enrolled_user(
 SELECT DISTINCT cm.course_id
 FROM course_modules cm
   JOIN course_instance_enrollments cie ON cie.course_id = cm.course_id
+  JOIN courses c ON c.id = cm.course_id
 WHERE cie.user_id = $1
   AND cie.deleted_at IS NULL
   AND cm.enable_credit_registration_via_suotar
   AND cm.deleted_at IS NULL
+  AND c.deleted_at IS NULL
         ",
         user_id
     )

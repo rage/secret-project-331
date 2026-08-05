@@ -1869,6 +1869,7 @@ export type CreditRegistrationState =
   | "pending_consent"
   | "pending_student_number"
   | "ready_to_submit"
+  | "resolving_enrolment"
   | "checking_enrolment"
   | "no_usable_enrolment"
   | "submitting"

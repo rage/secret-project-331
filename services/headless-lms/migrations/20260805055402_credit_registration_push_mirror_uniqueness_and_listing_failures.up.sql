@@ -1,3 +1,9 @@
+-- The row spends a resolve-enrolments round trip in this state rather than checking_enrolment, so
+-- import's claim query (which reads checking_enrolment) cannot pick it up before its enrolment is
+-- actually resolved and its payload frozen.
+ALTER TYPE credit_registration_state
+ADD VALUE 'resolving_enrolment' AFTER 'ready_to_submit';
+
 -- The unique index below cannot be created while duplicate push-registrar rows exist.
 UPDATE course_module_completion_registered_to_study_registries t
 SET deleted_at = now()

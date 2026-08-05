@@ -2,10 +2,11 @@
 
 import { css } from "@emotion/css"
 import {
+  columnVisibilityFeature,
   createColumnHelper,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -21,6 +22,8 @@ import { QueryResult } from "@/shared-module/components"
 export interface DailyVisitCountsGroupedByReferrerProps {
   courseId: string
 }
+
+const tableFeaturesConfig = tableFeatures({ columnVisibilityFeature })
 
 const DailyVisitCountsGroupedByReferrer: React.FC<
   React.PropsWithChildren<DailyVisitCountsGroupedByReferrerProps>
@@ -66,20 +69,23 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
     return sorted
   }, [query.data])
 
-  const columnHelper = createColumnHelper<PageVisitDatumSummaryByCourse>()
+  const columnHelper = createColumnHelper<
+    typeof tableFeaturesConfig,
+    PageVisitDatumSummaryByCourse
+  >()
 
-  const columns = [
+  const columns = columnHelper.columns([
     columnHelper.accessor("visit_date", {
       header: t("header-visit-date"),
     }),
     columnHelper.accessor("referrer", { header: t("header-referrer") }),
     columnHelper.accessor("num_visitors", { header: t("header-number-of-visitors") }),
-  ]
+  ])
 
-  const table = useReactTable({
+  const table = useTable({
+    features: tableFeaturesConfig,
     data: aggregatedData ?? [],
     columns,
-    getCoreRowModel: getCoreRowModel(),
   })
 
   return (

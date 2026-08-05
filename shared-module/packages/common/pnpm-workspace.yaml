@@ -73,3 +73,7 @@ minimumReleaseAgeExclude:
   - svgo@3.3.4
   - sharp@0.35.0
   - fast-uri@3.1.5
+  # TanStack Table v9.0.0 stable, published today (2026-08-04) after a public beta; exempt to
+  # unblock the v8->v9 migration before the 7-day gate would otherwise clear.
+  - "@tanstack/react-table@9.0.0"
+  - "@tanstack/table-core@9.0.0"

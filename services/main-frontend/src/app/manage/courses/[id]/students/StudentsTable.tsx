@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
+import { flexRender, useTable } from "@tanstack/react-table"
 import type { ColumnDef, OnChangeFn, SortingState } from "@tanstack/react-table"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 import { colorPairs } from "./studentsTableColors"
+import { studentsTableFeatures, type StudentsTableFeatures } from "./studentsTableFeatures"
 import {
   floatingHeaderInnerCss,
   floatingHeaderShellCss,
@@ -33,8 +34,10 @@ interface ColMeta {
   minWidth?: number
 }
 
-function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): ColMeta | undefined {
-  return (colDef as ColumnDef<T, unknown> & { meta?: ColMeta })?.meta
+function getMeta<T extends object>(
+  colDef: ColumnDef<StudentsTableFeatures, T, unknown> | undefined,
+): ColMeta | undefined {
+  return (colDef as ColumnDef<StudentsTableFeatures, T, unknown> & { meta?: ColMeta })?.meta
 }
 
 // Estimated row height (px) used by the virtualizer before real rows are measured.
@@ -49,7 +52,7 @@ const spacerCellStyle = (height: number): React.CSSProperties => ({
 })
 
 interface StudentsTableProps<T extends object> {
-  columns: ColumnDef<T, unknown>[]
+  columns: ColumnDef<StudentsTableFeatures, T, unknown>[]
   data: T[]
   colorHeaders?: boolean
   colorColumns?: boolean
@@ -83,7 +86,8 @@ export function StudentsTable<T extends object>({
   const chapterHeaderStart = progressMode ? 2 : 1 // upper headers (groups) start index
   const subHeaderStart = progressMode ? 3 : 1 // lower headers / leaf cells start index
 
-  const table = useReactTable({
+  const table = useTable({
+    features: studentsTableFeatures,
     columns,
     data,
     state: { sorting: sorting ?? [] },
@@ -91,7 +95,6 @@ export function StudentsTable<T extends object>({
     ...(onSortingChange ? { onSortingChange } : {}),
     manualSorting: true,
     enableSortingRemoval: false,
-    getCoreRowModel: getCoreRowModel(),
   })
 
   const rows = table.getRowModel().rows

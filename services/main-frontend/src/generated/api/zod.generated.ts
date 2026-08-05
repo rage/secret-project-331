@@ -99,47 +99,6 @@ export const zAccountLinkingFunnel = z.object({
     }),
 })
 
-export const zAccountLinkingRealisationCounters = z.object({
-  already_linked_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  course_id: z.uuid(),
-  course_module_id: z.uuid(),
-  course_module_name: z.string().nullish(),
-  course_name: z.string(),
-  course_unit_realisation_id: z.string(),
-  label: z.string().nullish(),
-  last_listed_at: z.iso.datetime().nullish(),
-  listed_person_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  mailed_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  no_address_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  suppressed_by_dedup_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  suppressed_by_rate_cap_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  uh_course_code: z.string().nullish(),
-})
-
 export const zAccountLinkingSendStatusTotals = z.object({
   queued: z.coerce
     .bigint()
@@ -1081,56 +1040,6 @@ export const zCourseModuleCreditRegistrationConfig = z.object({
   uh_course_code: z.string().nullish(),
 })
 
-export const zCourseModuleSuotarRealisation = z.object({
-  active: z.boolean(),
-  course_module_id: z.uuid(),
-  course_unit_realisation_id: z.string(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  id: z.uuid(),
-  label: z.string().nullish(),
-  last_already_linked_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  last_listed_at: z.iso.datetime().nullish(),
-  last_listed_person_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  last_mailed_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  last_no_address_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  last_suppressed_by_dedup_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  last_suppressed_by_rate_cap_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  updated_at: z.iso.datetime(),
-})
-
-/**
- * Every module of the course with its Suotar configuration, for the module editor.
- */
-export const zCourseCreditRegistrationModuleConfigs = z.object({
-  modules: z.array(zCourseModuleCreditRegistrationConfig),
-  realisations: z.array(zCourseModuleSuotarRealisation),
-})
-
 export const zCourseModuleSuotarRealisationEdit = z.object({
   active: z.boolean(),
   course_unit_realisation_id: z.string(),
@@ -1430,6 +1339,109 @@ export const zCreditRegistrationErrorCode = z.enum([
   "retry_window_expired",
   "unknown",
 ])
+
+export const zAccountLinkingRealisationCounters = z.object({
+  already_linked_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  consecutive_listing_failures: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  course_id: z.uuid(),
+  course_module_id: z.uuid(),
+  course_module_name: z.string().nullish(),
+  course_name: z.string(),
+  course_unit_realisation_id: z.string(),
+  label: z.string().nullish(),
+  last_listed_at: z.iso.datetime().nullish(),
+  last_listing_attempted_at: z.iso.datetime().nullish(),
+  last_listing_error: zCreditRegistrationErrorCode.nullish(),
+  listed_person_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  mailed_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  no_address_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  suppressed_by_dedup_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  suppressed_by_rate_cap_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  uh_course_code: z.string().nullish(),
+})
+
+export const zCourseModuleSuotarRealisation = z.object({
+  active: z.boolean(),
+  consecutive_listing_failures: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  course_module_id: z.uuid(),
+  course_unit_realisation_id: z.string(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  label: z.string().nullish(),
+  last_already_linked_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  last_listed_at: z.iso.datetime().nullish(),
+  last_listed_person_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  last_listing_attempted_at: z.iso.datetime().nullish(),
+  last_listing_error: zCreditRegistrationErrorCode.nullish(),
+  last_mailed_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  last_no_address_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  last_suppressed_by_dedup_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  last_suppressed_by_rate_cap_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  updated_at: z.iso.datetime(),
+})
+
+/**
+ * Every module of the course with its Suotar configuration, for the module editor.
+ */
+export const zCourseCreditRegistrationModuleConfigs = z.object({
+  modules: z.array(zCourseModuleCreditRegistrationConfig),
+  realisations: z.array(zCourseModuleSuotarRealisation),
+})
 
 export const zCreditRegistrationErrorCodeTotal = z.object({
   error_code: zCreditRegistrationErrorCode,

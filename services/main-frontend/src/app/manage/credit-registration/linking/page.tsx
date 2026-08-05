@@ -245,10 +245,20 @@ const SendStatusSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
 
 const RealisationSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation()
+  const failingRealisationCount = stats.realisations.filter(
+    (row) => row.last_listing_error !== null,
+  ).length
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-realisations")}</h2>
       <p className={noteCss}>{t("credit-registration-admin-realisation-last-run-note")}</p>
+      {failingRealisationCount > 0 && (
+        <p className={noteCss}>
+          {t("credit-registration-admin-realisations-failing-note", {
+            count: failingRealisationCount,
+          })}
+        </p>
+      )}
       {stats.realisations.length === 0 ? (
         <p className={noteCss}>{t("credit-registration-admin-no-realisations")}</p>
       ) : (
@@ -265,6 +275,25 @@ const RealisationSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats })
             {
               header: t("label-credit-registration-last-listed"),
               cell: (row) => <RelativeTime at={row.last_listed_at} />,
+            },
+            {
+              header: t("label-credit-registration-listing-health"),
+              cell: (row) =>
+                row.last_listing_error ? (
+                  <>
+                    <Badge tone={TONE.WARNING}>
+                      {t("credit-registration-admin-listing-failing", {
+                        count: row.consecutive_listing_failures,
+                      })}
+                    </Badge>
+                    {MIDDLE_DOT}
+                    <code>{row.last_listing_error}</code>
+                    {MIDDLE_DOT}
+                    <RelativeTime at={row.last_listing_attempted_at} />
+                  </>
+                ) : (
+                  ABSENT
+                ),
             },
             {
               header: t("credit-registration-admin-funnel-discovered"),

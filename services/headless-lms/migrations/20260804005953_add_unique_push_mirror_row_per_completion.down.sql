@@ -1,1 +1,0 @@
-DROP INDEX IF EXISTS study_registry_push_mirror_completion_uniq_idx;

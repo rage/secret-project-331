@@ -36,13 +36,20 @@ export type AccountLinkingFunnel = {
 
 export type AccountLinkingRealisationCounters = {
   already_linked_count?: number | null
+  consecutive_listing_failures: number
   course_id: string
   course_module_id: string
   course_module_name?: string | null
   course_name: string
   course_unit_realisation_id: string
   label?: string | null
+  /**
+   * When the counters below were collected. Not the last attempt: a failing realisation keeps the
+   * last roster that arrived.
+   */
   last_listed_at?: string | null
+  last_listing_attempted_at?: string | null
+  last_listing_error?: null | CreditRegistrationErrorCode
   listed_person_count?: number | null
   mailed_count?: number | null
   /**
@@ -1495,6 +1502,7 @@ export type CourseModuleInfo = {
 
 export type CourseModuleSuotarRealisation = {
   active: boolean
+  consecutive_listing_failures: number
   course_module_id: string
   course_unit_realisation_id: string
   created_at: string
@@ -1504,6 +1512,8 @@ export type CourseModuleSuotarRealisation = {
   last_already_linked_count?: number | null
   last_listed_at?: string | null
   last_listed_person_count?: number | null
+  last_listing_attempted_at?: string | null
+  last_listing_error?: null | CreditRegistrationErrorCode
   last_mailed_count?: number | null
   last_no_address_count?: number | null
   last_suppressed_by_dedup_count?: number | null

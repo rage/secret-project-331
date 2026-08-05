@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cmsr.*\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\nWHERE cm.course_id = $1\n  AND cmsr.deleted_at IS NULL\n  AND cm.deleted_at IS NULL\nORDER BY cm.order_number,\n  cmsr.created_at\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  course_unit_realisation_id,\n  label,\n  active,\n  last_listed_at,\n  last_listed_person_count,\n  last_already_linked_count,\n  last_mailed_count,\n  last_suppressed_by_dedup_count,\n  last_suppressed_by_rate_cap_count,\n  last_no_address_count,\n  last_listing_attempted_at,\n  last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  consecutive_listing_failures\nFROM course_module_suotar_realisations\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at\n        ",
   "describe": {
     "columns": [
       {
@@ -16,127 +16,6 @@
       },
       {
         "ordinal": 1,
-        "name": "course_module_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "course_module_id"
-          }
-        }
-      },
-      {
-        "ordinal": 2,
-        "name": "course_unit_realisation_id",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "course_unit_realisation_id"
-          }
-        }
-      },
-      {
-        "ordinal": 3,
-        "name": "label",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "label"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
-        "name": "active",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "active"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
-        "name": "last_listed_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "last_listed_at"
-          }
-        }
-      },
-      {
-        "ordinal": 6,
-        "name": "last_listed_person_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "last_listed_person_count"
-          }
-        }
-      },
-      {
-        "ordinal": 7,
-        "name": "last_already_linked_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "last_already_linked_count"
-          }
-        }
-      },
-      {
-        "ordinal": 8,
-        "name": "last_mailed_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "last_mailed_count"
-          }
-        }
-      },
-      {
-        "ordinal": 9,
-        "name": "last_suppressed_by_dedup_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "last_suppressed_by_dedup_count"
-          }
-        }
-      },
-      {
-        "ordinal": 10,
-        "name": "last_suppressed_by_rate_cap_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "last_suppressed_by_rate_cap_count"
-          }
-        }
-      },
-      {
-        "ordinal": 11,
-        "name": "last_no_address_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_realisations",
-            "name": "last_no_address_count"
-          }
-        }
-      },
-      {
-        "ordinal": 12,
         "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -147,7 +26,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 2,
         "name": "updated_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -158,13 +37,197 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 3,
         "name": "deleted_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
             "table": "course_module_suotar_realisations",
             "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_unit_realisation_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "course_unit_realisation_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "label",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "label"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "active",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "active"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "last_listed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "last_listed_person_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listed_person_count"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "last_already_linked_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_already_linked_count"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "last_mailed_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_mailed_count"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "last_suppressed_by_dedup_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_suppressed_by_dedup_count"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "last_suppressed_by_rate_cap_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_suppressed_by_rate_cap_count"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "last_no_address_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_no_address_count"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "last_listing_attempted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listing_attempted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "last_listing_error?: CreditRegistrationErrorCode",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "acceptor_not_found",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "sisu_temporarily_unavailable",
+                "misregistered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listing_error"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "consecutive_listing_failures",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "consecutive_listing_failures"
           }
         }
       }
@@ -180,17 +243,20 @@
       false,
       true,
       false,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
+      false,
       true,
       false,
-      false,
-      true
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
     ]
   },
-  "hash": "a349c3c7e5ec8e037adee3d16b193cb88474322a4aaad034566fe667a7a1e3d6"
+  "hash": "0286ce1498ba848177fa1304f75f170f93bdebbb19d3642ebd85ed528369d89d"
 }

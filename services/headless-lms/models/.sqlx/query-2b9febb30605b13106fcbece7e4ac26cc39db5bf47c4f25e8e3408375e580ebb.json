@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_module_suotar_realisations\nSET last_listed_at = now(),\n  last_listing_attempted_at = now(),\n  last_listing_error = NULL,\n  consecutive_listing_failures = 0,\n  last_listed_person_count = $2,\n  last_already_linked_count = $3,\n  last_mailed_count = $4,\n  last_suppressed_by_dedup_count = $5,\n  last_suppressed_by_rate_cap_count = $6,\n  last_no_address_count = $7\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2b9febb30605b13106fcbece7e4ac26cc39db5bf47c4f25e8e3408375e580ebb"
+}

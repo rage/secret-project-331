@@ -12595,10 +12595,20 @@
       },
       "AccountLinkingRealisationCounters": {
         "type": "object",
-        "required": ["course_id", "course_name", "course_module_id", "course_unit_realisation_id"],
+        "required": [
+          "course_id",
+          "course_name",
+          "course_module_id",
+          "course_unit_realisation_id",
+          "consecutive_listing_failures"
+        ],
         "properties": {
           "already_linked_count": {
             "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "consecutive_listing_failures": {
+            "type": "integer",
             "format": "int32"
           },
           "course_id": {
@@ -12623,7 +12633,23 @@
           },
           "last_listed_at": {
             "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the counters below were collected. Not the last attempt: a failing realisation keeps the\nlast roster that arrived."
+          },
+          "last_listing_attempted_at": {
+            "type": ["string", "null"],
             "format": "date-time"
+          },
+          "last_listing_error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode",
+                "description": "Set while the listing attempts since `last_listed_at` are failing, so an empty course and an\nunreachable one do not read alike."
+              }
+            ]
           },
           "listed_person_count": {
             "type": ["integer", "null"],
@@ -16877,11 +16903,16 @@
           "updated_at",
           "course_module_id",
           "course_unit_realisation_id",
-          "active"
+          "active",
+          "consecutive_listing_failures"
         ],
         "properties": {
           "active": {
             "type": "boolean"
+          },
+          "consecutive_listing_failures": {
+            "type": "integer",
+            "format": "int32"
           },
           "course_module_id": {
             "type": "string",
@@ -16916,6 +16947,20 @@
           "last_listed_person_count": {
             "type": ["integer", "null"],
             "format": "int32"
+          },
+          "last_listing_attempted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listing_error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
           },
           "last_mailed_count": {
             "type": ["integer", "null"],

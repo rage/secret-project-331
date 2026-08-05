@@ -6,11 +6,13 @@
 
 use headless_lms_models::course_module_suotar_realisations::{
     RealisationListingOutcome, RealisationToList, get_stalest_for_listing, listing_request_item_id,
-    mark_listing_attempted, record_listing_outcome,
+    mark_listing_failed, record_listing_outcome,
 };
 use headless_lms_models::credit_registration_events::scrub_text;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
-use headless_lms_models::credit_registrations::recheck_no_usable_enrolment_now;
+use headless_lms_models::credit_registrations::{
+    CreditRegistrationErrorCode, map_wire_code, recheck_no_usable_enrolment_now,
+};
 use headless_lms_models::library::credit_registration::account_linking::{
     DiscoveredPerson, claim_linking_mails_batch,
 };
@@ -48,7 +50,12 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 realisation.course_module_id
             );
             items_failed += 1;
-            mark_listing_attempted(&mut conn, realisation.id).await?;
+            mark_listing_failed(
+                &mut conn,
+                realisation.id,
+                CreditRegistrationErrorCode::MissingUhCourseCode,
+            )
+            .await?;
             continue;
         };
         items.push(ListByCourseRequestItem {
@@ -86,31 +93,33 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     for realisation in &realisations {
         let item = response.item(&listing_request_item_id(realisation.id));
         let listed = match item {
-            Some(item) if item.status == SuotarItemStatus::Ok => Some(
-                item.result
-                    .as_ref()
-                    .map(|result| result.people.as_slice())
-                    .unwrap_or_default(),
-            ),
+            Some(item) if item.status == SuotarItemStatus::Ok => Ok(item
+                .result
+                .as_ref()
+                .map(|result| result.people.as_slice())
+                .unwrap_or_default()),
             Some(item) => {
                 warn!(
                     "Listing realisation {} failed with {}.",
                     realisation.course_unit_realisation_id, item.code
                 );
-                None
+                Err(map_wire_code(&item.code).unwrap_or(CreditRegistrationErrorCode::Unknown))
             }
             None => {
                 warn!(
                     "The study registry did not answer for realisation {}.",
                     realisation.course_unit_realisation_id
                 );
-                None
+                Err(CreditRegistrationErrorCode::UnexpectedResponse)
             }
         };
-        let Some(people) = listed else {
-            items_failed += 1;
-            mark_listing_attempted(&mut conn, realisation.id).await?;
-            continue;
+        let people = match listed {
+            Ok(people) => people,
+            Err(error) => {
+                items_failed += 1;
+                mark_listing_failed(&mut conn, realisation.id, error).await?;
+                continue;
+            }
         };
         let outcome = reconcile(&mut conn, realisation, people).await?;
         record_listing_outcome(&mut conn, realisation.id, &outcome).await?;

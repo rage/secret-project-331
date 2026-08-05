@@ -420,7 +420,14 @@ pub struct AccountLinkingRealisationCounters {
     pub course_unit_realisation_id: String,
     pub label: Option<String>,
     pub uh_course_code: Option<String>,
+    /// When the counters below were collected. Not the last attempt: a failing realisation keeps the
+    /// last roster that arrived.
     pub last_listed_at: Option<DateTime<Utc>>,
+    pub last_listing_attempted_at: Option<DateTime<Utc>>,
+    /// Set while the listing attempts since `last_listed_at` are failing, so an empty course and an
+    /// unreachable one do not read alike.
+    pub last_listing_error: Option<CreditRegistrationErrorCode>,
+    pub consecutive_listing_failures: i32,
     pub listed_person_count: Option<i32>,
     pub already_linked_count: Option<i32>,
     pub mailed_count: Option<i32>,
@@ -1198,6 +1205,9 @@ pub async fn get_account_linking_stats(
             label: row.label,
             uh_course_code: row.uh_course_code,
             last_listed_at: row.last_listed_at,
+            last_listing_attempted_at: row.last_listing_attempted_at,
+            last_listing_error: row.last_listing_error,
+            consecutive_listing_failures: row.consecutive_listing_failures,
             listed_person_count: row.last_listed_person_count,
             already_linked_count: row.last_already_linked_count,
             mailed_count: row.last_mailed_count,

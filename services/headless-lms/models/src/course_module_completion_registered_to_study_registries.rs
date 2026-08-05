@@ -65,6 +65,37 @@ RETURNING *
     Ok(res.id)
 }
 
+/// Like [insert], but a pre-existing registration for the same completion is left untouched
+/// instead of erroring, for seeding scripts that may rerun against already-seeded data.
+pub async fn insert_or_ignore(
+    conn: &mut PgConnection,
+    new_completion_registration: &NewCourseModuleCompletionRegisteredToStudyRegistry,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO course_module_completion_registered_to_study_registries (
+    course_id,
+    course_module_completion_id,
+    course_module_id,
+    study_registry_registrar_id,
+    user_id,
+    real_student_number
+  )
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT DO NOTHING
+        ",
+        new_completion_registration.course_id,
+        new_completion_registration.course_module_completion_id,
+        new_completion_registration.course_module_id,
+        new_completion_registration.study_registry_registrar_id,
+        new_completion_registration.user_id,
+        new_completion_registration.real_student_number,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn insert_bulk(
     conn: &mut PgConnection,
     new_completion_registrations: Vec<NewCourseModuleCompletionRegisteredToStudyRegistry>,
@@ -73,7 +104,6 @@ pub async fn insert_bulk(
         return Ok(vec![]);
     }
 
-    // Create separate vectors for each column
     let ids: Vec<Uuid> = (0..new_completion_registrations.len())
         .map(|_| Uuid::new_v4())
         .collect();
@@ -161,45 +191,29 @@ pub async fn mark_completions_as_registered_to_study_registry(
     let ids: Vec<Uuid> = completions.iter().map(|x| x.completion_id).collect();
     let completions_by_id = course_module_completions::get_by_ids_as_map(conn, &ids).await?;
 
-    // Validate all completions exist before proceeding
-    for completion in &completions {
-        if !completions_by_id.contains_key(&completion.completion_id) {
-            return Err(ModelError::new(
-                ModelErrorType::PreconditionFailed,
-                format!(
-                    "Cannot find completion with id: {}. This completion does not exist in the database.",
-                    completion.completion_id
-                ),
-                None,
-            ));
-        }
+    let mut new_registrations = Vec::with_capacity(completions.len());
+    for completion in completions {
+        let module_completion = completions_by_id
+            .get(&completion.completion_id)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    format!(
+                        "Cannot find completion with id: {}. This completion does not exist in the database.",
+                        completion.completion_id
+                    ),
+                    None,
+                )
+            })?;
+        new_registrations.push(NewCourseModuleCompletionRegisteredToStudyRegistry {
+            course_id: module_completion.course_id,
+            course_module_completion_id: completion.completion_id,
+            course_module_id: module_completion.course_module_id,
+            study_registry_registrar_id,
+            user_id: module_completion.user_id,
+            real_student_number: completion.student_number,
+        });
     }
-
-    let new_registrations = completions
-        .into_iter()
-        .map(|completion| {
-            let module_completion = completions_by_id
-                .get(&completion.completion_id)
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::PreconditionFailed,
-                        format!(
-                            "Completion with id {} not found after validation - this should never happen",
-                            completion.completion_id
-                        ),
-                        None,
-                    )
-                })?;
-            Ok(NewCourseModuleCompletionRegisteredToStudyRegistry {
-                course_id: module_completion.course_id,
-                course_module_completion_id: completion.completion_id,
-                course_module_id: module_completion.course_module_id,
-                study_registry_registrar_id,
-                user_id: module_completion.user_id,
-                real_student_number: completion.student_number,
-            })
-        })
-        .collect::<ModelResult<Vec<_>>>()?;
 
     let mut tx = conn.begin().await?;
 
@@ -384,41 +398,6 @@ WHERE id IN (
     .await?;
 
     Ok(res.rows_affected() as i64)
-}
-
-pub async fn insert_record(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    completion_id: Uuid,
-    module_id: Uuid,
-    registrar_id: Uuid,
-    user_id: Uuid,
-    real_student_number: &str,
-) -> ModelResult<()> {
-    sqlx::query!(
-        r#"
-        INSERT INTO course_module_completion_registered_to_study_registries (
-            course_id,
-            course_module_completion_id,
-            course_module_id,
-            study_registry_registrar_id,
-            user_id,
-            real_student_number
-        )
-        VALUES ($1,$2,$3,$4,$5,$6)
-        ON CONFLICT DO NOTHING
-        "#,
-        course_id,
-        completion_id,
-        module_id,
-        registrar_id,
-        user_id,
-        real_student_number
-    )
-    .execute(conn)
-    .await?;
-
-    Ok(())
 }
 
 #[cfg(test)]

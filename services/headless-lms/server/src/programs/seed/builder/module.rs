@@ -147,9 +147,13 @@ impl CompletionBuilder {
         let completion_id = course_module_completions::insert_seed_row(conn, &seed).await?;
 
         // Mark registration attempt (seed always sets this)
-        course_module_completions::update_registration_attempt(conn, completion_id)
-            .await
-            .ok();
+        course_module_completions::update_completion_registration_attempt_date(
+            conn,
+            completion_id,
+            Utc::now(),
+        )
+        .await
+        .ok();
 
         if let Some(r) = &self.register {
             let registrar_id = if let Some(id) = r.registrar_id {
@@ -161,14 +165,16 @@ impl CompletionBuilder {
             };
 
             if let Some(student_number) = &r.real_student_number {
-                course_module_completion_registered_to_study_registries::insert_record(
+                course_module_completion_registered_to_study_registries::insert_or_ignore(
                     conn,
-                    course_id,
-                    completion_id,
-                    course_module_id,
-                    registrar_id,
-                    self.user_id,
-                    student_number,
+                    &course_module_completion_registered_to_study_registries::NewCourseModuleCompletionRegisteredToStudyRegistry {
+                        course_id,
+                        course_module_completion_id: completion_id,
+                        course_module_id,
+                        study_registry_registrar_id: registrar_id,
+                        user_id: self.user_id,
+                        real_student_number: student_number.clone(),
+                    },
                 )
                 .await
                 .context("insert registry record")?;

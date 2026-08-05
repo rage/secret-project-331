@@ -30,30 +30,6 @@ pub struct CourseModuleCompletion {
     pub needs_to_be_reviewed: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
-
-pub struct CourseModuleAverage {
-    pub id: Uuid,
-    pub course_id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
-    pub average_duration: Option<u64>,
-    pub average_points: i32,
-    pub total_points: i32,
-    pub total_student: i32,
-}
-
-// Define the CourseModulePointsAverage struct to match the result of the SQL query
-#[derive(Debug, Serialize, Deserialize)]
-
-pub struct CourseModulePointsAverage {
-    pub course_id: Uuid,
-    pub average_points: Option<f32>,
-    pub total_points: Option<i32>,
-    pub total_student: Option<i32>,
-}
-
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub enum CourseModuleCompletionGranter {
     Automatic,
@@ -441,31 +417,7 @@ WHERE user_id = $1
     .fetch_all(conn)
     .await?;
 
-    let best_grade = completions
-        .into_iter()
-        .max_by(|completion_a, completion_b| {
-            let score_a = match completion_a.grade {
-                Some(grade) => grade as f32,
-                None => match completion_a.passed {
-                    true => 0.5,
-                    false => -1.0,
-                },
-            };
-
-            let score_b = match completion_b.grade {
-                Some(grade) => grade as f32,
-                None => match completion_b.passed {
-                    true => 0.5,
-                    false => -1.0,
-                },
-            };
-
-            score_a
-                .partial_cmp(&score_b)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-    Ok(best_grade)
+    Ok(select_best_completion(completions))
 }
 
 /// Finds the best grade
@@ -861,22 +813,4 @@ pub async fn find_existing(
     .await?;
 
     Ok(row.id)
-}
-
-pub async fn update_registration_attempt(
-    conn: &mut PgConnection,
-    completion_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query!(
-        r#"
-        UPDATE course_module_completions
-        SET completion_registration_attempt_date = now()
-        WHERE id = $1
-        "#,
-        completion_id
-    )
-    .execute(conn)
-    .await?;
-
-    Ok(())
 }

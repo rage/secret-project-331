@@ -17,7 +17,9 @@ use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, scrub_text, suotar_exchange_details,
 };
-use headless_lms_models::credit_registrations::{CreditRegistration, Transition};
+use headless_lms_models::credit_registrations::{
+    CreditRegistration, CreditRegistrationState, Transition,
+};
 use headless_lms_models::library::credit_registration::backoff::next_attempt_at;
 use headless_lms_models::library::credit_registration::classification::is_retryable_transient_wire_code;
 use headless_lms_models::library::credit_registration::legacy_mirror::{
@@ -439,11 +441,17 @@ pub(crate) fn response_item_json(
 }
 
 /// Applies one decided outcome to one row, with the exchange that produced it.
+///
+/// `expected_from_state` guards against writing back a decision made from a row snapshot that an
+/// `await` (an external call, or just the gap since claiming) has let go stale: pass the state the
+/// phase itself put the row in before that `await`, or `Some(registration.state)` when the phase
+/// never moved the row before its own `await`.
 pub(crate) async fn apply_outcome(
     conn: &mut PgConnection,
     registration: &CreditRegistration,
     outcome: &Outcome,
     event: OutcomeEvent<'_>,
+    expected_from_state: Option<CreditRegistrationState>,
 ) -> anyhow::Result<()> {
     // Only if the request carried this number: a student who linked a working one while the request
     // was out must not lose the link they just made.
@@ -468,6 +476,7 @@ pub(crate) async fn apply_outcome(
             event_message: event.message.map(str::to_string),
             suotar_api_call_id: event.suotar_api_call_id,
             event_details: Some(suotar_exchange_details(event.request, event.response)),
+            expected_from_state,
             ..Transition::to(outcome.to_state)
         },
     )
@@ -511,12 +520,16 @@ pub(crate) fn every_item_failed_transiently<R>(response: &SuotarBatchResponse<R>
 
 /// Applies one request-level outcome to every row of a rejected batch, and reports the iteration as
 /// failed so the circuit breaker sees it.
+///
+/// `expected_from_state` is the state the caller's own preflight transition put every row in, since
+/// `rows` was collected before that transition's effect and is stale by the time this runs.
 pub(crate) async fn request_level_failure(
     ctx: &PhaseContext<'_>,
     endpoint: SuotarApiEndpoint,
     error: &UtilError,
     rows: &[CreditRegistration],
     requests: &[serde_json::Value],
+    expected_from_state: CreditRegistrationState,
 ) -> anyhow::Result<PhaseRunOutcome> {
     let variant = suotar_error_variant(error);
     let mut conn = ctx.pool.acquire().await?;
@@ -532,6 +545,7 @@ pub(crate) async fn request_level_failure(
                 request: Some(request),
                 ..OutcomeEvent::default()
             },
+            Some(expected_from_state),
         )
         .await?;
     }

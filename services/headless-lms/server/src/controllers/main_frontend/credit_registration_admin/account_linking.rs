@@ -40,6 +40,21 @@ const RESOLVE_CALLER: &str = "admin-resolve-person";
 /// ledger rows.
 const RESEND_QUIET_PERIOD_SECS: i64 = 60;
 
+fn phase_context<'a>(
+    pool: &'a web::Data<PgPool>,
+    suotar_client: &'a web::Data<headless_lms_utils::services::suotar::SuotarClient>,
+    app_conf: &'a ApplicationConfiguration,
+    caller: &'a str,
+) -> PhaseContext<'a> {
+    PhaseContext {
+        pool,
+        suotar_client,
+        test_mode: app_conf.test_mode,
+        caller,
+        base_url: &app_conf.base_url,
+    }
+}
+
 /// The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
 /// whole, the `_in_window` ones from the window: there is no single denominator.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -466,13 +481,7 @@ pub async fn admin_resend_account_linking_email(
         None => 0,
     };
 
-    let ctx = PhaseContext {
-        pool: &pool,
-        suotar_client: &suotar_client,
-        test_mode: app_conf.test_mode,
-        caller: RESEND_CALLER,
-        base_url: &app_conf.base_url,
-    };
+    let ctx = phase_context(&pool, &suotar_client, &app_conf, RESEND_CALLER);
     let outcome = match resend_linking_mail(&ctx, payload.course_id, student_number).await? {
         LinkingMailResendOutcome::Claimed => AdminResendOutcome::Queued,
         LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress => {
@@ -537,13 +546,7 @@ pub async fn admin_resolve_student_number_for_linking(
         ));
     }
 
-    let ctx = PhaseContext {
-        pool: &pool,
-        suotar_client: &suotar_client,
-        test_mode: app_conf.test_mode,
-        caller: RESOLVE_CALLER,
-        base_url: &app_conf.base_url,
-    };
+    let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
     let resolved = resolve_person(&ctx, student_number).await;
     let existing = verified_student_numbers::get_by_student_number(&mut conn, student_number)
         .await?
@@ -664,13 +667,7 @@ pub async fn admin_manually_link_student_number(
         verified_student_number_id: None,
         affected_registration_count: 0,
     };
-    let ctx = PhaseContext {
-        pool: &pool,
-        suotar_client: &suotar_client,
-        test_mode: app_conf.test_mode,
-        caller: RESOLVE_CALLER,
-        base_url: &app_conf.base_url,
-    };
+    let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
     let person: ResolvedPerson = match resolve_person(&ctx, student_number).await {
         Ok(Some(person)) => person,
         Ok(None) => {

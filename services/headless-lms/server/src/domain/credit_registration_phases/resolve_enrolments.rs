@@ -137,6 +137,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 &error,
                 &rows.iter().map(|(row, _)| row.clone()).collect::<Vec<_>>(),
                 &requests,
+                CreditRegistrationState::ResolvingEnrolment,
             )
             .await;
         }
@@ -166,6 +167,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                         message: Some("The study registry did not answer for this item."),
                         ..event
                     },
+                    Some(CreditRegistrationState::ResolvingEnrolment),
                 )
                 .await?;
                 counts_as_failed(&outcome)
@@ -182,6 +184,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                         error_message: item.error.as_ref().map(|error| error.message.as_str()),
                         ..event
                     },
+                    Some(CreditRegistrationState::ResolvingEnrolment),
                 )
                 .await?;
                 counts_as_failed(&outcome)
@@ -259,6 +262,9 @@ async fn choose(
                 ),
                 suotar_api_call_id: event.suotar_api_call_id,
                 event_details: Some(details),
+                // The row spent the Suotar round trip unlocked, so consent withdrawal or an admin
+                // action may have already moved it out of `resolving_enrolment`.
+                expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
                 ..Transition::to(CreditRegistrationState::Duplicate)
             },
         )
@@ -297,6 +303,7 @@ async fn choose(
                     message: Some(reason.message()),
                     ..event
                 },
+                Some(CreditRegistrationState::ResolvingEnrolment),
             )
             .await?;
             return Ok(true);
@@ -322,6 +329,7 @@ async fn choose(
                 row,
                 &submit_error_outcome(AuditEndpoint::ResolveEnrolments, code, &row_facts(row)),
                 event,
+                Some(CreditRegistrationState::ResolvingEnrolment),
             )
             .await?;
             return Ok(true);
@@ -344,6 +352,7 @@ async fn choose(
             event_message: clamped,
             suotar_api_call_id: event.suotar_api_call_id,
             event_details: Some(details),
+            expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
             ..Transition::to(CreditRegistrationState::CheckingEnrolment)
         },
     )

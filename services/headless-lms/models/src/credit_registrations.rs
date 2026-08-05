@@ -313,6 +313,11 @@ pub struct Transition {
     pub suotar_api_call_id: Option<Uuid>,
     /// Already scrubbed `{request, response}` payload for the event row.
     pub event_details: Option<serde_json::Value>,
+    /// Set by a caller that computed `to_state` from a row snapshot taken before an `await` (an
+    /// external call, or a gap before its own transaction) during which some other writer could
+    /// have moved the row on. `None` skips the check, for callers writing from a snapshot taken
+    /// under the same transaction's lock.
+    pub expected_from_state: Option<CreditRegistrationState>,
 }
 
 impl Transition {
@@ -327,6 +332,7 @@ impl Transition {
             actor_user_id: None,
             suotar_api_call_id: None,
             event_details: None,
+            expected_from_state: None,
         }
     }
 }
@@ -356,6 +362,19 @@ FOR UPDATE
     )
     .fetch_one(&mut *tx)
     .await?;
+
+    if let Some(expected) = transition.expected_from_state
+        && before.state != expected
+    {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            format!(
+                "Credit registration {id} is in {:?}, not the expected {expected:?}: refusing to overwrite it.",
+                before.state
+            ),
+            None,
+        ));
+    }
 
     let to_state = transition.to_state;
     let after = sqlx::query_as!(
@@ -2218,5 +2237,37 @@ mod tests {
         .unwrap();
         assert!(!resolved.needs_admin_attention);
         assert_eq!(resolved.error_code, None);
+    }
+
+    #[tokio::test]
+    async fn a_transition_expecting_a_stale_prior_state_is_refused() {
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+        let id =
+            insert_registration(tx.as_mut(), user, course, instance.id, course_module.id).await;
+
+        transition(
+            tx.as_mut(),
+            id,
+            &Transition::to(CreditRegistrationState::Blocked),
+        )
+        .await
+        .unwrap();
+
+        // As if a caller had claimed the row into `resolving_enrolment` and, after an await, is
+        // writing back based on that now-stale snapshot: the row moved to `blocked` in between.
+        let refused = transition(
+            tx.as_mut(),
+            id,
+            &Transition {
+                expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
+                ..Transition::to(CreditRegistrationState::CheckingEnrolment)
+            },
+        )
+        .await;
+        assert!(refused.is_err());
+        assert_eq!(
+            get_by_id(tx.as_mut(), id).await.unwrap().state,
+            CreditRegistrationState::Blocked
+        );
     }
 }

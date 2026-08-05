@@ -184,6 +184,7 @@ async fn poll(
                     increment_submit_retry_count: false,
                 },
                 event,
+                Some(row.state),
             )
             .await?;
             continue;
@@ -204,6 +205,7 @@ async fn poll(
                     .map(|error| error.message.as_str()),
                 ..event
             },
+            Some(row.state),
         )
         .await?;
         if counts_as_failed(&outcome) {
@@ -245,6 +247,7 @@ async fn poll_request_failure(
                 request: Some(request),
                 ..OutcomeEvent::default()
             },
+            Some(row.state),
         )
         .await?;
     }
@@ -326,6 +329,7 @@ async fn recover(
                         request: Some(request),
                         ..OutcomeEvent::default()
                     },
+                    Some(row.state),
                 )
                 .await?;
             }
@@ -388,6 +392,7 @@ async fn recover(
                                 event.response,
                             ),
                         ),
+                        expected_from_state: Some(row.state),
                         ..Transition::to(CreditRegistrationState::Duplicate)
                     },
                 )
@@ -409,6 +414,7 @@ async fn recover(
                         ),
                         ..event
                     },
+                    Some(row.state),
                 )
                 .await?;
             }

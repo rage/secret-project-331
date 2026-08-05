@@ -75,7 +75,46 @@ pub fn map_code(endpoint: SuotarEndpoint, code: &str) -> Option<CreditRegistrati
 #[cfg(test)]
 mod tests {
     use super::*;
+    use CreditRegistrationErrorCode as Code;
     use Retryability as Class;
+
+    /// Pins each code to its documented class explicitly, so a future edit that moves a code
+    /// between match arms fails here even though the match stays exhaustive to the compiler.
+    #[test]
+    fn retryability_matches_the_documented_class_for_every_code() {
+        let cases = [
+            (Code::SisuTemporarilyUnavailable, Class::RetryableTransient),
+            (Code::TransportError, Class::RetryableTransient),
+            (Code::Unauthorized, Class::RetryableTransient),
+            (Code::MalformedRequest, Class::RetryableTransient),
+            (Code::UnexpectedResponse, Class::RetryableTransient),
+            (Code::SisuTimeout, Class::VerifyOnly),
+            (Code::PersonNotFound, Class::PermanentNeedsStudent),
+            (Code::EnrolmentNotFound, Class::PermanentNeedsStudent),
+            (Code::EnrolmentNotAccepted, Class::PermanentNeedsStudent),
+            (Code::StudyRightNotValid, Class::PermanentNeedsStudent),
+            (Code::CourseCodeNotFound, Class::PermanentNeedsConfig),
+            (Code::CourseNotAllowed, Class::PermanentNeedsConfig),
+            (Code::InvalidGradeForGradeScale, Class::PermanentNeedsConfig),
+            (Code::InvalidCredits, Class::PermanentNeedsConfig),
+            (Code::NoGradeScaleMapping, Class::PermanentNeedsConfig),
+            (Code::MissingUhCourseCode, Class::PermanentNeedsConfig),
+            (Code::MissingEctsCredits, Class::PermanentNeedsConfig),
+            (Code::AcceptorNotFound, Class::PermanentNeedsAdmin),
+            (Code::SisuValidationFailed, Class::PermanentNeedsAdmin),
+            (Code::Misregistered, Class::PermanentNeedsAdmin),
+            (Code::RetryWindowExpired, Class::PermanentNeedsAdmin),
+            (Code::Unknown, Class::PermanentNeedsAdmin),
+        ];
+        assert_eq!(
+            cases.len(),
+            CreditRegistrationErrorCode::ALL.len(),
+            "every code must be covered"
+        );
+        for (code, expected) in cases {
+            assert_eq!(retryability(code), expected, "{code:?}");
+        }
+    }
 
     /// Import's hardening must not reach the wire class, or the mock's fault validator would stop
     /// refusing the one combination it guards.

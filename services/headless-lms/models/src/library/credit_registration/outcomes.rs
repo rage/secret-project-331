@@ -283,6 +283,44 @@ mod tests {
         }
     }
 
+    /// Pins each code to the exact state import() routes it to, so a future edit that misroutes one
+    /// code fails here even though the match stays exhaustive to the compiler.
+    #[test]
+    fn import_routes_every_code_to_its_documented_state() {
+        let cases = [
+            (Code::SisuTemporarilyUnavailable, State::FailedRetryable),
+            (Code::TransportError, State::FailedRetryable),
+            (Code::Unauthorized, State::FailedRetryable),
+            (Code::MalformedRequest, State::FailedRetryable),
+            (Code::UnexpectedResponse, State::FailedRetryable),
+            (Code::SisuTimeout, State::SubmissionUncertain),
+            (Code::PersonNotFound, State::PendingStudentNumber),
+            (Code::EnrolmentNotFound, State::NoUsableEnrolment),
+            (Code::EnrolmentNotAccepted, State::NoUsableEnrolment),
+            (Code::StudyRightNotValid, State::NoUsableEnrolment),
+            (Code::CourseCodeNotFound, State::FailedPermanent),
+            (Code::CourseNotAllowed, State::FailedPermanent),
+            (Code::InvalidGradeForGradeScale, State::FailedPermanent),
+            (Code::InvalidCredits, State::FailedPermanent),
+            (Code::NoGradeScaleMapping, State::FailedPermanent),
+            (Code::MissingUhCourseCode, State::FailedPermanent),
+            (Code::MissingEctsCredits, State::FailedPermanent),
+            (Code::AcceptorNotFound, State::FailedPermanent),
+            (Code::SisuValidationFailed, State::FailedPermanent),
+            (Code::Misregistered, State::FailedPermanent),
+            (Code::RetryWindowExpired, State::FailedPermanent),
+            (Code::Unknown, State::SubmissionUncertain),
+        ];
+        assert_eq!(
+            cases.len(),
+            CreditRegistrationErrorCode::ALL.len(),
+            "every code must be covered"
+        );
+        for (code, expected) in cases {
+            assert_eq!(import(code).to_state, expected, "{code:?}");
+        }
+    }
+
     /// Each of these is a refusal of the item before Sisu saw it, so nothing was created. Adding to
     /// the list is a decision about a real transcript.
     #[test]

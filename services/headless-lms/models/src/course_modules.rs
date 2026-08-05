@@ -28,9 +28,8 @@ struct CourseModulesSchema {
     enable_registering_completion_to_uh_open_university: bool,
     certification_enabled: bool,
 }
-/**
- * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
- */
+/// Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+/// `completion_policy`.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct CourseModule {

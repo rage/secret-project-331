@@ -130,6 +130,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 &error,
                 &rows,
                 &requests,
+                CreditRegistrationState::Submitting,
             )
             .await;
         }
@@ -161,6 +162,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                         ),
                         ..event
                     },
+                    Some(CreditRegistrationState::Submitting),
                 )
                 .await?;
                 true
@@ -187,6 +189,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                         error_message: item.error.as_ref().map(|error| error.message.as_str()),
                         ..event
                     },
+                    Some(CreditRegistrationState::Submitting),
                 )
                 .await?;
                 true
@@ -207,6 +210,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                                 ),
                                 ..event
                             },
+                            Some(CreditRegistrationState::Submitting),
                         )
                         .await?;
                         true
@@ -230,6 +234,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                                         ..Outcome::to(CreditRegistrationState::AwaitingVerification)
                                     },
                                     event,
+                                    Some(CreditRegistrationState::Submitting),
                                 )
                                 .await?;
                                 false
@@ -248,6 +253,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                                         ),
                                         ..event
                                     },
+                                    Some(CreditRegistrationState::Submitting),
                                 )
                                 .await?;
                                 true
@@ -270,6 +276,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                                 message: settled_message(state),
                                 ..event
                             },
+                            Some(CreditRegistrationState::Submitting),
                         )
                         .await?;
                         false

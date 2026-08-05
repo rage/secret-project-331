@@ -509,6 +509,9 @@ pub async fn admin_transition_credit_registration(
                     event_kind: CreditRegistrationEventKind::AdminAction,
                     event_message: Some(reason.to_string()),
                     actor_user_id: Some(user.id),
+                    // `row` was read before this transaction started; refuse to overwrite if the
+                    // pipeline (or another admin) has since moved the row on.
+                    expected_from_state: Some(row.state),
                     ..Transition::to(to_state)
                 },
             )

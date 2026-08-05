@@ -31,7 +31,7 @@ export async function setupChatbotEmbedServer(): Promise<void> {
                   <title>ChatbotEmbed server</title>
                 </head>
                 <body>
-                  <iframe width="750" height="750" src="http://project-331.local/chatbot-embed/a65eb511-3299-451b-bd13-66d34a451ea0"></iframe>
+                  <iframe width="750" height="750" src="http://project-331.local/chatbot-embed/8e40c36c-835b-479c-8f07-863ad408f181"></iframe>
                 </body>
               </html>`)
     })

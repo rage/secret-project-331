@@ -5,6 +5,7 @@ use headless_lms_models::{
 };
 
 use sqlx::{Pool, Postgres};
+use uuid::Uuid;
 
 pub async fn seed_global_chatbots(db_pool: Pool<Postgres>) -> anyhow::Result<()> {
     info!("inserting global chatbots");
@@ -14,7 +15,7 @@ pub async fn seed_global_chatbots(db_pool: Pool<Postgres>) -> anyhow::Result<()>
 
     chatbot_configurations::insert(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
         NewChatbotConf {
             course_id: None,
             chatbot_name: "Global chatbot".to_string(),

@@ -92,7 +92,7 @@ const externallyEmbeddableIFrameResponseHeaders = [
 const chatbotEmbedResponseHeaders = [
   {
     key: "Content-Security-Policy",
-    value: "frame-ancestors http://127.0.0.1:*;",
+    value: "frame-ancestors http://project-331.local http://127.0.0.1:*;",
   },
 ]
 

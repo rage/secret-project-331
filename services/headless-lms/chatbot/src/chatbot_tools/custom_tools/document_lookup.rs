@@ -1,13 +1,16 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use headless_lms_utils::strings::truncate_utf8_at_boundary;
+use headless_lms_utils::{
+    json_schema_types::{JSONType, JsonItem, SchemaPropertyType},
+    strings::truncate_utf8_at_boundary,
+};
 use serde::{Deserialize, Deserializer};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::{
-    azure_chatbot::{ChatbotUserContext, JSONType, JsonItem, SchemaPropertyType},
+    azure_chatbot::ChatbotUserContext,
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
         ToolProperties,

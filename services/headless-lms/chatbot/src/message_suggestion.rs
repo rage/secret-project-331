@@ -2,9 +2,8 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, InputItem, JSONType, JsonItem, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
-        SchemaPropertyType, ThinkingParams,
+        InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        RequestTextOptions, ThinkingParams,
     },
     chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
@@ -20,6 +19,9 @@ use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole,
     chatbot_conversation_messages::{ChatbotConversationMessage, Message},
+};
+use headless_lms_utils::json_schema_types::{
+    ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType,
 };
 use rand::seq::IndexedRandom;
 

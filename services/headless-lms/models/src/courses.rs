@@ -37,6 +37,30 @@ pub struct CourseContextData {
     pub is_test_mode: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct CourseMetadataUpdate {
+    course_description: Option<String>,
+    course_audiences: Vec<NewCourseAudience>,
+    course_prerequisites: Vec<NewCoursePrerequisite>,
+}
+
+#[derive(Debug, PartialEq, Deserialize, Serialize, Clone, ToSchema)]
+pub struct CourseMetadata {
+    course_description: Option<String>,
+    course_audiences: Vec<CourseAudience>,
+    course_prerequisites: Vec<CoursePrerequisite>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CompleteCourseMetadata {
+    course: Course,
+    course_instances: Vec<CourseInstance>,
+    default_module: CourseModule,
+    course_prerequisites: Vec<CoursePrerequisite>,
+    course_audiences: Vec<CourseAudience>,
+    course_organization: DatabaseOrganization,
+}
+
 /// The AI policy a teacher has selected for a course. Drives which variant of the student-facing
 /// AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
 #[derive(
@@ -221,6 +245,7 @@ pub struct NewCourse {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     pkey_policy: PKeyPolicy<Uuid>,
     course_language_group_id: Uuid,
     new_course: &NewCourse,
@@ -272,7 +297,7 @@ RETURNING id
     )
     .fetch_one(&mut *conn)
     .await?;
-    update_embedding_vector(&mut *conn, res.id, &new_course.description).await?;
+    update_embedding_vector(&mut *conn, app_config, res.id, &new_course.description).await?;
     Ok(res.id)
 }
 
@@ -854,6 +879,7 @@ pub struct CourseUpdate {
 
 pub async fn update_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     course_id: Uuid,
     course_update: CourseUpdate,
 ) -> ModelResult<Course> {
@@ -931,7 +957,7 @@ RETURNING id,
     .fetch_one(&mut *conn)
     .await?;
     if let Some(description) = &res.description {
-        update_embedding_vector(&mut *conn, res.id, description).await?;
+        update_embedding_vector(&mut *conn, app_config, res.id, description).await?;
     }
     Ok(res)
 }
@@ -1284,22 +1310,9 @@ WHERE join_code = $1
     Ok(course)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-pub struct CourseMetadataUpdate {
-    course_description: Option<String>,
-    course_audiences: Vec<NewCourseAudience>,
-    course_prerequisites: Vec<NewCoursePrerequisite>,
-}
-
-#[derive(Debug, PartialEq, Deserialize, Serialize, Clone, ToSchema)]
-pub struct CourseMetadata {
-    course_description: Option<String>,
-    course_audiences: Vec<CourseAudience>,
-    course_prerequisites: Vec<CoursePrerequisite>,
-}
-
 pub async fn set_metadata(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     course_id: Uuid,
     course_metadata: CourseMetadataUpdate,
 ) -> ModelResult<CourseMetadata> {
@@ -1330,7 +1343,8 @@ pub async fn set_metadata(
     crate::course_prerequisites::delete_batch(conn, prerequisites_to_delete).await?;
 
     let prerequisites = if !prerequisites_to_add.is_empty() {
-        let prerequisite_embeddings = create_embeddings(prerequisites_to_add.clone()).await?;
+        let prerequisite_embeddings =
+            create_embeddings(app_config, prerequisites_to_add.clone()).await?;
         insert_course_prerequisites(
             conn,
             course_id,
@@ -1369,7 +1383,7 @@ pub async fn set_metadata(
     crate::course_audiences::delete_batch(conn, audiences_to_delete).await?;
 
     let audiences = if !audiences_to_add.is_empty() {
-        let audience_embeddings = create_embeddings(audiences_to_add.clone()).await?;
+        let audience_embeddings = create_embeddings(app_config, audiences_to_add.clone()).await?;
         crate::course_audiences::insert_course_audiences(
             conn,
             course_id,
@@ -1402,7 +1416,7 @@ pub async fn set_metadata(
         ai_policy: course.ai_policy,
         course_material_ai_instructions: course.course_material_ai_instructions,
     };
-    let updated_course = update_course(conn, course_id, update_payload).await?;
+    let updated_course = update_course(conn, app_config, course_id, update_payload).await?;
 
     let res = CourseMetadata {
         course_description: updated_course.description,
@@ -1410,16 +1424,6 @@ pub async fn set_metadata(
         course_prerequisites: prerequisites,
     };
     Ok(res)
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CompleteCourseMetadata {
-    course: Course,
-    course_instances: Vec<CourseInstance>,
-    default_module: CourseModule,
-    course_prerequisites: Vec<CoursePrerequisite>,
-    course_audiences: Vec<CourseAudience>,
-    course_organization: DatabaseOrganization,
 }
 
 pub async fn get_metadata(
@@ -1451,10 +1455,11 @@ pub async fn get_metadata(
 
 pub async fn update_embedding_vector(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     course_id: Uuid,
     description: &String,
 ) -> ModelResult<()> {
-    let embedding = create_embeddings(vec![description.to_owned()])
+    let embedding = create_embeddings(app_config, vec![description.to_owned()])
         .await?
         .first()
         .expect("Embedding returned nothing")

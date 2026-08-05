@@ -87,6 +87,7 @@ impl ChatbotTool for CourseStructureTool {
                 "Course id is missing.".to_string()
             ));
         };
+
         let mut pages_info = pages::get_page_info_special_for_course(conn, course_id)
             .await
             .map_err(ChatbotError::from)?;

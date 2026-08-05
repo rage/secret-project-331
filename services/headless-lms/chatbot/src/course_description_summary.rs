@@ -1,11 +1,13 @@
-use headless_lms_utils::services::sisu::SisuDescriptions;
+use headless_lms_utils::{
+    json_schema_types::{ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType},
+    services::sisu::SisuDescriptions,
+};
 use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, InputItem, JSONType, JsonItem, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
-        SchemaPropertyType, ThinkingParams,
+        InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        RequestTextOptions, ThinkingParams,
     },
     chatbot_error::chatbot_err,
     llm_utils::{

@@ -12,6 +12,7 @@ pub mod futures;
 pub mod http;
 pub mod icu4x;
 pub mod ip_to_country;
+pub mod json_schema_types;
 pub mod language_tag_to_name;
 pub mod merge_edits;
 pub mod numbers;

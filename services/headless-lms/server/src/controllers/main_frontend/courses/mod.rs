@@ -480,9 +480,10 @@ Content-Type: application/json
         (status = 200, description = "Updated course", body = Course)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn update_course(
     payload: web::Json<CourseUpdate>,
+    app_conf: web::Data<ApplicationConfiguration>,
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -500,7 +501,9 @@ async fn update_course(
     let locking_just_enabled =
         !course_before_update.chapter_locking_enabled && course_update.chapter_locking_enabled;
 
-    let course = models::courses::update_course(&mut conn, *course_id, course_update).await?;
+    let course =
+        models::courses::update_course(&mut conn, app_conf.as_ref(), *course_id, course_update)
+            .await?;
 
     if locking_just_enabled {
         use models::{user_chapter_locking_statuses, user_course_settings};
@@ -2713,9 +2716,10 @@ POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadat
         (status = 200, description = "Updated metadata", body = CourseMetadata)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn update_metadata(
     payload: web::Json<CourseMetadataUpdate>,
+    app_conf: web::Data<ApplicationConfiguration>,
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -2723,7 +2727,9 @@ async fn update_metadata(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let metadata_update = payload.0;
-    let course = models::courses::set_metadata(&mut conn, *course_id, metadata_update).await?;
+    let course =
+        models::courses::set_metadata(&mut conn, app_conf.as_ref(), *course_id, metadata_update)
+            .await?;
 
     token.authorized_ok(web::Json(course))
 }

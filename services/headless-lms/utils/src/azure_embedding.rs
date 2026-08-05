@@ -32,9 +32,11 @@ pub struct EmbeddingResponseUsage {
     pub total_tokens: i32,
 }
 
-pub async fn create_embeddings(input: Vec<String>) -> UtilResult<Vec<Vec<f32>>> {
-    let app_config = ApplicationConfiguration::try_from_env()?;
-
+pub async fn create_embeddings(
+    app_config: &ApplicationConfiguration,
+    input: Vec<String>,
+) -> UtilResult<Vec<Vec<f32>>> {
+    let app_config = app_config.to_owned();
     let azure_config = app_config.azure_configuration.ok_or_else(|| {
         util_err!(
             EmbeddingRequestBuildError,

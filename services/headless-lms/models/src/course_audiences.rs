@@ -3,7 +3,7 @@ use pgvector::Vector;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromRow, ToSchema)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct CourseAudience {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -42,14 +42,7 @@ FROM UNNEST(
     $2::text[],
     $3::vector[]
 ) AS t(audience, embedding)
-RETURNING
-        id,
-        created_at,
-        updated_at,
-        deleted_at,
-        course_id,
-        audience,
-        embedding as "embedding: Vector"
+RETURNING *
     "#,
         course_id,
         &audiences,
@@ -67,14 +60,7 @@ pub async fn get_by_course_id(
     let res = sqlx::query_as!(
         CourseAudience,
         r#"
-SELECT
-        id,
-        created_at,
-        updated_at,
-        deleted_at,
-        course_id,
-        audience,
-        embedding as "embedding: Vector"
+SELECT *
 FROM course_audiences
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -97,14 +83,7 @@ UPDATE course_audiences
 SET deleted_at = now()
 WHERE id = ANY($1::UUID [])
 AND deleted_at IS NULL
-RETURNING
-        id,
-        created_at,
-        updated_at,
-        deleted_at,
-        course_id,
-        audience,
-        embedding as "embedding: Vector"
+RETURNING *
 "#,
         &ids_to_delete
     )

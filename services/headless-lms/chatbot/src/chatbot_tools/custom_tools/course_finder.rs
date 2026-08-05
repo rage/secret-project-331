@@ -1,24 +1,45 @@
 use std::collections::HashMap;
 
 use crate::{
-    azure_chatbot::{
-        ArrayItem, ArrayProperty, ChatbotUserContext, JSONType, JsonItem, SchemaPropertyType,
-    },
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
-        ToolProperties,
+        AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotUserContext, LLMToolParamType,
+        LLMToolParams, LLMToolType, ToolProperties,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
 };
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     course_audiences::get_course_ids_by_audience_vector,
     course_prerequisites::get_course_ids_by_prerequisite_vector,
     courses::{self, Course, get_by_description_vector},
 };
-use headless_lms_utils::azure_embedding::create_embeddings;
+use headless_lms_utils::{
+    azure_embedding::create_embeddings,
+    json_schema_types::{ArrayItem, ArrayProperty, JSONType, JsonItem, SchemaPropertyType},
+};
 use serde::{Deserialize, Deserializer, Serialize};
 use sqlx::PgConnection;
 use uuid::Uuid;
+
+#[derive(Debug)]
+pub struct CourseFinderState {
+    courses: Vec<CourseOccurrences>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct CourseFinderArguments {
+    #[serde(deserialize_with = "empty_vec_as_none")]
+    description: Option<Vec<String>>,
+    #[serde(deserialize_with = "empty_vec_as_none")]
+    prerequisites: Option<Vec<String>>,
+    #[serde(deserialize_with = "empty_vec_as_none")]
+    audiences: Option<Vec<String>>,
+}
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct CourseOccurrences {
+    course: Course,
+    occurrences: usize,
+}
 
 pub type CourseFinderTool = ToolProperties<CourseFinderState, CourseFinderArguments>;
 
@@ -42,11 +63,14 @@ impl ChatbotTool for CourseFinderTool {
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
+        app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         _user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
         let audience_courses = if let Some(audiences) = &arguments.audiences {
-            let audience_embeddings = create_embeddings(audiences.clone()).await?.to_owned();
+            let audience_embeddings = create_embeddings(app_config, audiences.clone())
+                .await?
+                .to_owned();
 
             let mut audience_courses = vec![];
 
@@ -66,8 +90,9 @@ impl ChatbotTool for CourseFinderTool {
         };
 
         let prerequisite_courses = if let Some(prerequisites) = &arguments.prerequisites {
-            let prerequisite_embeddings =
-                create_embeddings(prerequisites.clone()).await?.to_owned();
+            let prerequisite_embeddings = create_embeddings(app_config, prerequisites.clone())
+                .await?
+                .to_owned();
 
             let mut prerequisite_courses = vec![];
 
@@ -87,7 +112,9 @@ impl ChatbotTool for CourseFinderTool {
         };
 
         let description_courses = if let Some(description) = &arguments.description {
-            let description_embeddings = create_embeddings(description.clone()).await?.to_owned();
+            let description_embeddings = create_embeddings(app_config, description.clone())
+                .await?
+                .to_owned();
 
             let mut description_courses = vec![];
 
@@ -189,27 +216,6 @@ impl ChatbotTool for CourseFinderTool {
             strict: true,
         }
     }
-}
-
-#[derive(Debug)]
-pub struct CourseFinderState {
-    courses: Vec<CourseOccurrences>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct CourseFinderArguments {
-    #[serde(deserialize_with = "empty_vec_as_none")]
-    description: Option<Vec<String>>,
-    #[serde(deserialize_with = "empty_vec_as_none")]
-    prerequisites: Option<Vec<String>>,
-    #[serde(deserialize_with = "empty_vec_as_none")]
-    audiences: Option<Vec<String>>,
-}
-#[derive(Serialize, Deserialize, Clone, Debug)]
-
-pub struct CourseOccurrences {
-    course: Course,
-    occurrences: usize,
 }
 
 fn empty_vec_as_none<'de, D>(deserializer: D) -> Result<Option<Vec<String>>, D::Error>

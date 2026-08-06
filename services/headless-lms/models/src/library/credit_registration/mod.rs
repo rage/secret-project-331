@@ -19,5 +19,4 @@ pub mod withdrawal;
 
 // Only symbols reached from outside this module in more than one place are hoisted here; everything
 // else goes through its submodule's own path (`credit_registration::submodule::Item`).
-pub use legacy_mirror::SUOTAR_PUSH_REGISTRAR_ID;
 pub use student_facing_status::StudentFacingCreditRegistrationStatus;

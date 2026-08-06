@@ -6,6 +6,18 @@ ALTER TABLE course_module_suotar_realisations DROP COLUMN consecutive_listing_fa
 
 DROP INDEX IF EXISTS study_registry_push_mirror_completion_uniq_idx;
 
+-- A row this platform registered itself has no registrar to name once the column is mandatory again,
+-- and the mirror phase recreates it from the registration it derives from, so dropping it loses
+-- nothing. The registrar row that used to stand in for the platform is deliberately not brought back:
+-- no code reads it, and the migration that seeded it deletes it by id, which then matches nothing.
+DELETE FROM course_module_completion_registered_to_study_registries
+WHERE study_registry_registrar_id IS NULL;
+
+ALTER TABLE course_module_completion_registered_to_study_registries
+ALTER COLUMN study_registry_registrar_id SET NOT NULL;
+
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.study_registry_registrar_id IS 'Registrar that registered this course module completion.';
+
 -- Enum values cannot be removed, so the type is rebuilt without it. A row still in flight through
 -- resolve-enrolments folds back into checking_enrolment, the state it would have landed in anyway.
 UPDATE credit_registrations

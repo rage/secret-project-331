@@ -1,13 +1,12 @@
 //! Mirroring our successes into the legacy study-registry ledger. The mirror row makes the
 //! registry's own `?exclude_already_registered=true` skip the completion, keeps the teacher views'
 //! existing `registered` flag working, and gives support the real student number.
+//!
+//! The row's `study_registry_registrar_id` is null, which is what marks it as ours: we registered the
+//! attainment ourselves rather than handing it to a third party holding an API key.
 
 use crate::credit_registrations::RegistrationScope;
 use crate::prelude::*;
-
-/// The registrar the push path attributes its mirror rows to, seeded by migration at a fixed id.
-pub const SUOTAR_PUSH_REGISTRAR_ID: Uuid =
-    Uuid::from_u128(0x9da5_a12f_0b96_4c35_a4fe_6d42_7d9c_4292);
 
 /// How many rows one iteration may mirror.
 pub const LEGACY_MIRROR_LIMIT: i64 = 500;
@@ -37,14 +36,14 @@ WITH unmirrored AS (
       SELECT 1
       FROM course_module_completion_registered_to_study_registries r
       WHERE r.course_module_completion_id = cr.course_module_completion_id
-        AND r.study_registry_registrar_id = $2
+        AND r.study_registry_registrar_id IS NULL
         AND r.deleted_at IS NULL
     )
-    AND ($3::uuid IS NULL OR cr.course_id = $3)
-    AND ($4::uuid IS NULL OR cr.user_id = $4)
+    AND ($2::uuid IS NULL OR cr.course_id = $2)
+    AND ($3::uuid IS NULL OR cr.user_id = $3)
     AND (
-      cardinality($5::uuid []) = 0
-      OR cr.id = ANY($5::uuid [])
+      cardinality($4::uuid []) = 0
+      OR cr.id = ANY($4::uuid [])
     )
   ORDER BY cr.terminal_at
   LIMIT $1
@@ -54,27 +53,24 @@ inserted AS (
       course_id,
       course_module_completion_id,
       course_module_id,
-      study_registry_registrar_id,
       user_id,
       real_student_number
     )
   SELECT course_id,
     course_module_completion_id,
     course_module_id,
-    $2,
     user_id,
     student_number
   FROM unmirrored
-  -- The literal is SUOTAR_PUSH_REGISTRAR_ID and must match the partial index's predicate. It cannot be
-  -- $2: sqlx's compile-time check substitutes NULL for parameters, and no arbiter predicate matches that.
-  ON CONFLICT (course_module_completion_id) WHERE deleted_at IS NULL AND study_registry_registrar_id = '9da5a12f-0b96-4c35-a4fe-6d427d9c4292' DO NOTHING
+  -- Matches study_registry_push_mirror_completion_uniq_idx, so a concurrent iteration that mirrored
+  -- the same row first is not an error.
+  ON CONFLICT (course_module_completion_id) WHERE deleted_at IS NULL AND study_registry_registrar_id IS NULL DO NOTHING
   RETURNING id
 )
 SELECT COUNT(*) AS "mirrored!"
 FROM inserted
         "#,
         limit,
-        SUOTAR_PUSH_REGISTRAR_ID,
         scope.course_id,
         scope.user_id,
         &scope.credit_registration_ids,
@@ -164,16 +160,6 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn the_seeded_push_registrar_is_the_one_this_module_names() {
-        insert_data!(:tx);
-        let registrar =
-            crate::study_registry_registrars::get_by_id(tx.as_mut(), SUOTAR_PUSH_REGISTRAR_ID)
-                .await
-                .unwrap();
-        assert_eq!(registrar.name, "Suotar (push)");
-    }
-
-    #[tokio::test]
     async fn every_success_state_is_mirrored_once() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         for (index, state) in [
@@ -237,17 +223,22 @@ mod tests {
         .await
         .unwrap();
 
-        let mirrored =
-            crate::course_module_completion_registered_to_study_registries::get_by_registrar_id_and_completion_ids(
-                tx.as_mut(),
-                SUOTAR_PUSH_REGISTRAR_ID,
-                &[registration.course_module_completion_id],
-            )
-            .await
-            .unwrap();
-        assert_eq!(mirrored.len(), 1);
-        assert_eq!(mirrored[0].real_student_number, "900000101");
-        assert_eq!(mirrored[0].user_id, user);
+        let conn: &mut PgConnection = tx.as_mut();
+        let mirrored: Vec<(Uuid, String)> = sqlx::query_as(
+            "
+SELECT user_id,
+  real_student_number
+FROM course_module_completion_registered_to_study_registries
+WHERE course_module_completion_id = $1
+  AND study_registry_registrar_id IS NULL
+  AND deleted_at IS NULL
+            ",
+        )
+        .bind(registration.course_module_completion_id)
+        .fetch_all(conn)
+        .await
+        .unwrap();
+        assert_eq!(mirrored, vec![(user, "900000101".to_string())]);
     }
 
     #[tokio::test]

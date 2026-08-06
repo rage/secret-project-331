@@ -4,14 +4,13 @@
 //! or `submission_uncertain` back into a batch: a second import for one row would put a second
 //! attainment on a real transcript, and we could neither see it nor undo it.
 
-use headless_lms_models::course_module_completion_registered_to_study_registries::completion_ids_registered_by_other_registrars;
+use headless_lms_models::course_module_completion_registered_to_study_registries::completion_ids_registered_by_a_registrar;
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
     claim_due, set_sisu_attainment_if_unclaimed, set_submitted_attainment, transition,
 };
-use headless_lms_models::library::credit_registration::SUOTAR_PUSH_REGISTRAR_ID;
 use headless_lms_models::library::credit_registration::backoff::VERIFY_FIRST_DELAY_SECS;
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::grade_mapping::is_known_grade;
@@ -48,15 +47,14 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         endpoint.max_batch_size() as i64,
     )
     .await?;
-    // Every registrar but ours: a grade improvement is deliberately a second submission for the
-    // same completion.
-    let already_registered = completion_ids_registered_by_other_registrars(
+    // Registrars only, not our own mirror rows: a grade improvement is deliberately a second
+    // submission for the same completion.
+    let already_registered = completion_ids_registered_by_a_registrar(
         &mut tx,
         &claimed
             .iter()
             .map(|row| row.course_module_completion_id)
             .collect::<Vec<_>>(),
-        SUOTAR_PUSH_REGISTRAR_ID,
     )
     .await?;
 

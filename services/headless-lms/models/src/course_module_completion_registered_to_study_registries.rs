@@ -10,7 +10,8 @@ pub struct CourseModuleCompletionRegisteredToStudyRegistry {
     pub course_id: Uuid,
     pub course_module_completion_id: Uuid,
     pub course_module_id: Uuid,
-    pub study_registry_registrar_id: Uuid,
+    /// Null when this platform registered the attainment itself instead of a third-party registrar.
+    pub study_registry_registrar_id: Option<Uuid>,
     pub user_id: Uuid,
     pub real_student_number: String,
 }
@@ -338,23 +339,23 @@ WHERE study_registry_registrar_id = $1
     Ok(registrations)
 }
 
-/// Of the given completions, the ones a registrar other than `excluded_registrar_id` already
-/// registered. Excluding our own row keeps a grade improvement's second submission allowed.
-pub async fn completion_ids_registered_by_other_registrars(
+/// Of the given completions, the ones some registrar has already registered.
+///
+/// Rows this platform registered itself carry no registrar and are not counted, so a grade
+/// improvement's second submission stays allowed.
+pub async fn completion_ids_registered_by_a_registrar(
     conn: &mut PgConnection,
     completion_ids: &[Uuid],
-    excluded_registrar_id: Uuid,
 ) -> ModelResult<Vec<Uuid>> {
     let ids = sqlx::query_scalar!(
         r#"
 SELECT DISTINCT course_module_completion_id
 FROM course_module_completion_registered_to_study_registries
 WHERE course_module_completion_id = ANY($1::uuid [])
-  AND study_registry_registrar_id <> $2
+  AND study_registry_registrar_id IS NOT NULL
   AND deleted_at IS NULL
         "#,
         completion_ids,
-        excluded_registrar_id,
     )
     .fetch_all(conn)
     .await?;
@@ -469,7 +470,7 @@ mod test {
                 new_completion_id.id
             );
             assert_eq!(registration.course_module_id, course_module.id);
-            assert_eq!(registration.study_registry_registrar_id, registrar_id);
+            assert_eq!(registration.study_registry_registrar_id, Some(registrar_id));
             assert_eq!(registration.user_id, user);
         }
     }

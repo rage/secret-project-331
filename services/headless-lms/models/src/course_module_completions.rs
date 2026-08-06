@@ -3,10 +3,7 @@ use std::collections::HashMap;
 use futures::Stream;
 use utoipa::ToSchema;
 
-use crate::{
-    library::credit_registration::SUOTAR_PUSH_REGISTRAR_ID, prelude::*,
-    study_registry_registrars::StudyRegistryRegistrar,
-};
+use crate::{prelude::*, study_registry_registrars::StudyRegistryRegistrar};
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
 
@@ -724,9 +721,6 @@ pub fn stream_by_course_module_id<'a>(
         .clone()
         .map(|o| o.id)
         .unwrap_or(Uuid::nil());
-    // The flag-based NOT EXISTS below stops firing the moment a teacher turns
-    // `enable_credit_registration_via_suotar` back off, so the push registrar is always excluded.
-    let excluded_registrar_ids = [study_module_registrar_id, SUOTAR_PUSH_REGISTRAR_ID];
 
     sqlx::query_as!(
         CourseModuleCompletion,
@@ -762,12 +756,17 @@ WHERE course_module_id = ANY($1)
     SELECT course_module_completion_id
     FROM course_module_completion_registered_to_study_registries
     WHERE course_module_id = ANY($1)
-      AND study_registry_registrar_id = ANY($2::uuid [])
+      AND (
+        study_registry_registrar_id = $2
+        -- Our own rows count as already registered too, whatever the flag says now: the module check
+        -- above stops firing the moment a teacher turns the push path back off.
+        OR study_registry_registrar_id IS NULL
+      )
       AND deleted_at IS NULL
   )
         "#,
         course_module_ids,
-        &excluded_registrar_ids as &[Uuid],
+        study_module_registrar_id,
     )
     .map(StudyRegistryCompletion::from)
     .fetch(conn)

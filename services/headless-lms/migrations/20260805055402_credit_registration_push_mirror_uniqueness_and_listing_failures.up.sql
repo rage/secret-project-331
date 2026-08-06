@@ -4,26 +4,29 @@
 ALTER TYPE credit_registration_state
 ADD VALUE 'resolving_enrolment' AFTER 'ready_to_submit';
 
--- The unique index below cannot be created while duplicate push-registrar rows exist.
-UPDATE course_module_completion_registered_to_study_registries t
-SET deleted_at = now()
-FROM (
-    SELECT id,
-      ROW_NUMBER() OVER (
-        PARTITION BY course_module_completion_id
-        ORDER BY created_at, id
-      ) AS row_num
-    FROM course_module_completion_registered_to_study_registries
-    WHERE deleted_at IS NULL
-      AND study_registry_registrar_id = '9da5a12f-0b96-4c35-a4fe-6d427d9c4292'
-  ) AS dup
-WHERE t.id = dup.id
-  AND dup.row_num <> 1;
+ALTER TABLE course_module_completion_registered_to_study_registries
+ALTER COLUMN study_registry_registrar_id DROP NOT NULL;
 
--- The registrar id must match SUOTAR_PUSH_REGISTRAR_ID in legacy_mirror.rs.
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.study_registry_registrar_id IS 'Registrar that registered this course module completion. Null when this platform registered the attainment itself: that is not a third party with a key to this API, so it has no registrar row, and null is what tells the two kinds of row apart. The pull endpoints have to exclude null rows alongside the calling registrar''s own.';
+
+-- The push path used to attribute its rows to a registrar row the previous migration seeded at a
+-- fixed id: an API client nobody could authenticate as, whose only purpose was to be pointed at. A
+-- null registrar says the same thing, so the table goes back to holding third parties only.
+UPDATE course_module_completion_registered_to_study_registries
+SET study_registry_registrar_id = NULL
+WHERE study_registry_registrar_id IN (
+    SELECT id
+    FROM study_registry_registrars
+    WHERE name = 'Suotar (push)'
+  );
+
+DELETE FROM study_registry_registrars
+WHERE name = 'Suotar (push)';
+
+-- One mirror row per completion, and the arbiter the push path's insert conflicts against.
 CREATE UNIQUE INDEX study_registry_push_mirror_completion_uniq_idx ON course_module_completion_registered_to_study_registries (course_module_completion_id)
 WHERE deleted_at IS NULL
-  AND study_registry_registrar_id = '9da5a12f-0b96-4c35-a4fe-6d427d9c4292';
+  AND study_registry_registrar_id IS NULL;
 
 ALTER TABLE course_module_suotar_realisations
 ADD COLUMN last_listing_attempted_at TIMESTAMP WITH TIME ZONE,

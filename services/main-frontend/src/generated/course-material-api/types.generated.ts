@@ -978,6 +978,7 @@ export type ReviewingStage =
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
   | "Locked"
+  | "NotAnsweredAndLocked"
 
 export type SaveCourseSettingsPayload = {
   background_question_answers: Array<NewCourseBackgroundQuestionAnswer>

@@ -917,6 +917,20 @@ pub async fn move_chapter_exercises_to_manual_review(
 ) -> ModelResult<()> {
     let exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
 
+    // Same helper as get_chapter_lock_preview, so the exercises the student was warned about as
+    // unreturned are exactly the ones marked NotAnsweredAndLocked here.
+    let exercise_ids: Vec<Uuid> = exercises.iter().map(|e| e.id).collect();
+    let returned_ids: std::collections::HashSet<Uuid> =
+        user_exercise_states::get_returned_exercise_ids_for_user_and_course(
+            conn,
+            &exercise_ids,
+            user_id,
+            course_id,
+        )
+        .await?
+        .into_iter()
+        .collect();
+
     for exercise in exercises {
         let user_exercise_state_result =
             user_exercise_states::get_users_current_by_exercise(conn, user_id, &exercise).await;
@@ -938,6 +952,18 @@ pub async fn move_chapter_exercises_to_manual_review(
             || user_exercise_state.reviewing_stage == ReviewingStage::Locked
             || user_exercise_state.selected_exercise_slide_id.is_none()
         {
+            continue;
+        }
+
+        if !returned_ids.contains(&exercise.id) {
+            user_exercise_states::update_reviewing_stage(
+                conn,
+                user_id,
+                CourseOrExamId::Course(course_id),
+                exercise.id,
+                ReviewingStage::NotAnsweredAndLocked,
+            )
+            .await?;
             continue;
         }
 
@@ -1288,6 +1314,58 @@ mod tests {
                     .await
                     .unwrap();
             assert_eq!(user_exercise_state.reviewing_stage, ReviewingStage::Locked);
+        }
+
+        #[tokio::test]
+        async fn never_returned_exercise_becomes_not_answered_and_locked() {
+            insert_data!(
+                :tx,
+                :user,
+                :org,
+                :course,
+                instance: _instance,
+                :course_module,
+                :chapter,
+                :page,
+                :exercise,
+                :slide
+            );
+
+            // A selected slide with no submission is what merely viewing an exercise leaves behind.
+            user_exercise_states::upsert_selected_exercise_slide_id(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+                Some(slide),
+            )
+            .await
+            .unwrap();
+
+            user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+            )
+            .await
+            .unwrap();
+
+            move_chapter_exercises_to_manual_review(tx.as_mut(), chapter, user, course)
+                .await
+                .unwrap();
+
+            let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
+            let user_exercise_state =
+                user_exercise_states::get_users_current_by_exercise(tx.as_mut(), user, &exercise)
+                    .await
+                    .unwrap();
+            assert_eq!(
+                user_exercise_state.reviewing_stage,
+                ReviewingStage::NotAnsweredAndLocked
+            );
         }
     }
 

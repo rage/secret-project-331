@@ -47,8 +47,12 @@ const AnswersInManualReviewSection: React.FC<AnswersInManualReviewSectionProps> 
   exerciseStatusSummaries,
 }) => {
   const { t } = useTranslation()
+  // Requires a submission too: without one the linked grading page has nothing to show, so
+  // listing the exercise here would send staff to an empty page.
   const inManualReview = exerciseStatusSummaries.filter(
-    (summary) => summary.user_exercise_state?.reviewing_stage === "WaitingForManualGrading",
+    (summary) =>
+      summary.user_exercise_state?.reviewing_stage === "WaitingForManualGrading" &&
+      summary.exercise_slide_submissions.length > 0,
   )
   if (inManualReview.length === 0) {
     return null

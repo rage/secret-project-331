@@ -101,7 +101,8 @@ impl UnauthorizedReason {
     }
 }
 
-/// Bad request reasons that the frontend has a translated message for.
+/// Bad request reasons a client can branch on. Only `CourseSlugAlreadyTaken` has a web-frontend
+/// translation; the rest are consumed by the VSCode client, which renders its own message.
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum BadRequestReason {

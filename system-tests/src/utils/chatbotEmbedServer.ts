@@ -2,13 +2,24 @@ import http from "http"
 
 const REDIRECT_BASE_PORT = 8765
 const REDIRECT_PORT_COUNT = 20
+const GLOBAL_CHATBOT_CONFIGURATION_ID_TEST = "16feef52-67ba-405a-97f8-effd0653df00"
 
 let _chatbotEmbedServer: http.Server | null = null
 let _setupCount = 0
 let _setupPromise: Promise<void> | null = null
 
 export function getChatbotEmbedPort(): number {
-  return _chatbotEmbedServer?.address().port
+  if (!_chatbotEmbedServer) {
+    throw new Error("ChatbotEmbedServer is undefined")
+  }
+
+  const address = _chatbotEmbedServer.address()
+
+  if (!address || typeof address === "string") {
+    throw new Error("Incorrect address type")
+  }
+
+  return address.port
 }
 
 export async function setupChatbotEmbedServer(): Promise<void> {
@@ -31,7 +42,7 @@ export async function setupChatbotEmbedServer(): Promise<void> {
                   <title>ChatbotEmbed server</title>
                 </head>
                 <body>
-                  <iframe width="750" height="750" src="http://project-331.local/chatbot-embed/8e40c36c-835b-479c-8f07-863ad408f181"></iframe>
+                  <iframe width="750" height="750" src="http://project-331.local/chatbot-embed/${GLOBAL_CHATBOT_CONFIGURATION_ID_TEST}"></iframe>
                 </body>
               </html>`)
     })

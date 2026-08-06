@@ -137,7 +137,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
       <iframe
         width={750}
         height={750}
-        src="chatbot-embed/8e40c36c-835b-479c-8f07-863ad408f181"
+        src="chatbot-embed/16feef52-67ba-405a-97f8-effd0653df00"
       ></iframe>
     </form>
   )

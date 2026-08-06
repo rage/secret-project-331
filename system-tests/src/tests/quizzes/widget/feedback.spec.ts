@@ -24,6 +24,7 @@ test("Feedback messages can contain markdown", async ({ page }) => {
     .locator("details")
     .filter({ hasText: "Advanced options Layout" })
   await advancedOptions.locator("summary").click()
+  await expect(advancedOptions.getByText("Layout options")).toBeVisible()
   await addQuizFeedbackMessage(
     advancedOptions,
     "After an incorrect answer",

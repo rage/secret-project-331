@@ -331,13 +331,11 @@ pub fn handle_anonymous_token(req: HttpRequest, user: Option<AuthUser>) -> Optio
         .get("authorization")
         .and_then(|anonymous_token| anonymous_token.to_str().ok()?.strip_prefix("Bearer "));
 
-    let anonymous_token = if let (Some(anonymous_token), None) = (anonymous_token_value, user) {
+    if let (Some(anonymous_token), None) = (anonymous_token_value, user) {
         Some(anonymous_token.to_owned())
     } else {
         None
-    };
-
-    anonymous_token
+    }
 }
 
 /**  Can be used to check whether user is allowed to view some course material */

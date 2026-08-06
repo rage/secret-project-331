@@ -40,7 +40,6 @@
 ## Testing
 
 - How to write and run tests: [Testing Guide](./tests.md)
-- Simulating the Suotar study registry: [Mock Suotar](./mock-suotar.md)
 
 ## Design Requirements
 

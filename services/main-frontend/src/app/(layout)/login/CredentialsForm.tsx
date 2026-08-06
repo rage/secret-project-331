@@ -134,11 +134,6 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
         <Link href="/reset-password">{t("forgot-password")}</Link>
         <a href={signUpRoute(returnToForLinkToSignupPage)}>{t("create-an-account")}</a>
       </div>
-      <iframe
-        width={750}
-        height={750}
-        src="chatbot-embed/16feef52-67ba-405a-97f8-effd0653df00"
-      ></iframe>
     </form>
   )
 }

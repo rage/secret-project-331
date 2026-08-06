@@ -205,7 +205,7 @@ async fn new_conversation(
         &mut conn,
         PKeyPolicy::Generate,
         user.map(|u| u.id),
-        anonymous_token.clone(),
+        anonymous_token.as_ref().map(|a| a.to_owned()),
         configuration.id,
     )
     .await?;

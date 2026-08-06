@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
+import { monospaceFont } from "@/shared-module/common/styles"
 import { Badge, DescriptionList, Dialog, QueryResult } from "@/shared-module/components"
 
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
@@ -50,7 +51,7 @@ const timestampCss = css`
 `
 
 const ledgerStateCss = css`
-  font-family: var(--font-family-mono, monospace);
+  font-family: ${monospaceFont};
   color: var(--color-gray-600);
 `
 

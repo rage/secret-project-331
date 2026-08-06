@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useCallback, useMemo } from "react"
+import React, { useCallback, useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -17,8 +17,9 @@ import type {
 } from "@/generated/api/types.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Button, QueryResult, Table, TextField } from "@/shared-module/components"
+import { Button, Checkbox, QueryResult, Table, TextField } from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
 
@@ -57,6 +58,8 @@ const CLEARABLE_PARAMS = [...NARROWING_PARAMS, PARAM_SEARCH, PARAM_ATTENTION, PA
 
 interface FilterFields {
   search: string
+  attention: boolean
+  superseded: boolean
 }
 
 const controlsCss = css`
@@ -93,12 +96,6 @@ const stackedCellCss = css`
   display: grid;
 `
 
-const checkboxLabelCss = css`
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-`
-
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
 const RegistrationsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -111,13 +108,15 @@ const RegistrationsPage: React.FC = () => {
     [searchParams],
   )
 
+  const attention = param(PARAM_ATTENTION) === TRUE
+  const superseded = param(PARAM_SUPERSEDED) === TRUE
   const { control, watch, reset, handleSubmit } = useForm<FilterFields>({
     defaultValues: {
       search: param(PARAM_SEARCH) ?? "",
+      attention,
+      superseded,
     },
   })
-  const attention = param(PARAM_ATTENTION) === TRUE
-  const superseded = param(PARAM_SUPERSEDED) === TRUE
   const typedSearch = watch("search")
   // Refetching mid-word would reshuffle the table under the operator's cursor.
   const searchPending = typedSearch.trim() !== (param(PARAM_SEARCH) ?? "")
@@ -139,6 +138,23 @@ const RegistrationsPage: React.FC = () => {
     [router, searchParams],
   )
 
+  // The checkboxes only push into the query string; the params above stay the source of truth for
+  // what is filtered, so an externally changed URL cannot disagree with what the boxes show.
+  const checkedAttention = watch("attention")
+  const checkedSuperseded = watch("superseded")
+  useEffect(() => {
+    const changes: Record<string, string | undefined> = {}
+    if (checkedAttention !== attention) {
+      changes[PARAM_ATTENTION] = checkedAttention ? TRUE : undefined
+    }
+    if (checkedSuperseded !== superseded) {
+      changes[PARAM_SUPERSEDED] = checkedSuperseded ? TRUE : undefined
+    }
+    if (Object.keys(changes).length > 0) {
+      applyParams(changes)
+    }
+  }, [checkedAttention, checkedSuperseded, attention, superseded, applyParams])
+
   const query = useMemo(() => {
     const state = param(PARAM_STATE)
     const errorCode = param(PARAM_ERROR_CODE)
@@ -150,15 +166,15 @@ const RegistrationsPage: React.FC = () => {
     return {
       page: paginationInfo.page,
       limit: paginationInfo.limit,
-      ...(state ? { state: [state as CreditRegistrationState] } : {}),
-      ...(errorCode ? { error_code: [errorCode as CreditRegistrationErrorCode] } : {}),
-      ...(courseId ? { course_id: courseId } : {}),
-      ...(courseModuleId ? { course_module_id: courseModuleId } : {}),
-      ...(userId ? { user_id: userId } : {}),
-      ...(studentNumber ? { student_number: studentNumber } : {}),
-      ...(param(PARAM_ATTENTION) === TRUE ? { needs_admin_attention: true } : {}),
-      ...(search ? { search } : {}),
-      ...(param(PARAM_SUPERSEDED) === TRUE ? { include_superseded: true } : {}),
+      ...includeIf(state, { state: [state as CreditRegistrationState] }),
+      ...includeIf(errorCode, { error_code: [errorCode as CreditRegistrationErrorCode] }),
+      ...includeIf(courseId, { course_id: courseId }),
+      ...includeIf(courseModuleId, { course_module_id: courseModuleId }),
+      ...includeIf(userId, { user_id: userId }),
+      ...includeIf(studentNumber, { student_number: studentNumber }),
+      ...includeIf(param(PARAM_ATTENTION) === TRUE, { needs_admin_attention: true }),
+      ...includeIf(search, { search }),
+      ...includeIf(param(PARAM_SUPERSEDED) === TRUE, { include_superseded: true }),
     }
   }, [param, paginationInfo.page, paginationInfo.limit])
 
@@ -182,26 +198,16 @@ const RegistrationsPage: React.FC = () => {
         <Button variant="secondary" size="medium" type="submit">
           {t("button-text-search")}
         </Button>
-        <label className={checkboxLabelCss}>
-          <input
-            type="checkbox"
-            checked={attention}
-            onChange={(e) =>
-              applyParams({ [PARAM_ATTENTION]: e.target.checked ? TRUE : undefined })
-            }
-          />
-          {t("credit-registration-admin-only-needs-attention")}
-        </label>
-        <label className={checkboxLabelCss}>
-          <input
-            type="checkbox"
-            checked={superseded}
-            onChange={(e) =>
-              applyParams({ [PARAM_SUPERSEDED]: e.target.checked ? TRUE : undefined })
-            }
-          />
-          {t("credit-registration-admin-show-superseded")}
-        </label>
+        <Checkbox
+          name="attention"
+          control={control}
+          label={t("credit-registration-admin-only-needs-attention")}
+        />
+        <Checkbox
+          name="superseded"
+          control={control}
+          label={t("credit-registration-admin-show-superseded")}
+        />
       </form>
       {activeNarrowings.length > 0 && (
         <div className={chipsCss}>
@@ -219,7 +225,7 @@ const RegistrationsPage: React.FC = () => {
             type="button"
             className={chipCss}
             onClick={() => {
-              reset({ search: "" })
+              reset({ search: "", attention: false, superseded: false })
               applyParams(Object.fromEntries(CLEARABLE_PARAMS.map((name) => [name, undefined])))
             }}
           >

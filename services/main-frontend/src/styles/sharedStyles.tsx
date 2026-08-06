@@ -60,7 +60,7 @@ export const actionButtonStyle = css`
 `
 
 export const settingsCardCss = css`
-  background: #fff;
+  background: var(--color-clear-50);
   border: 1px solid var(--color-gray-100);
   border-radius: 12px;
   padding: 1.25rem;

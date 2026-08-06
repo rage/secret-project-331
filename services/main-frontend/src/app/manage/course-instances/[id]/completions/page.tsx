@@ -27,14 +27,13 @@ import type {
   UserWithModuleCompletions,
 } from "@/generated/api/types.generated"
 import CaretDownIcon from "@/imgs/caret-down.svg"
-import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import ChapterPointsDashboard from "../ChapterPointsDashboard"
 import CompletionRegistrationPreview from "../CompletionRegistrationPreview"

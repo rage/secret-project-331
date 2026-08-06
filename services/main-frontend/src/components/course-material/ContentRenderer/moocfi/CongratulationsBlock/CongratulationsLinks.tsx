@@ -6,8 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import { Link } from "@/shared-module/components"
+import { Button, Link } from "@/shared-module/components"
 
 const COMPLETION_REGISTRATION_BASE_PATH = `/completion-registration`
 const GENERATE_CERTIFICATE_BASE_PATH = `/generate-certificate`

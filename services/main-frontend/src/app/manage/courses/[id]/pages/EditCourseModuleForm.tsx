@@ -46,7 +46,7 @@ export interface EditCourseModuleFormFields {
 }
 
 const creditRegistrationSectionCss = css`
-  border-top: 1px solid #e1e3e5;
+  border-top: 1px solid ${baseTheme.colors.gray[100]};
   padding-top: 1rem;
   margin-bottom: 1rem;
 `

@@ -3,23 +3,19 @@
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { Pencil } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
-import { Controller, useForm } from "react-hook-form"
+import React, { useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { refetchEmailVerificationStatusForUser } from "@/components/EmailVerificationSection"
 import { updateUserInfo } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { refetchUserDetailsForUser } from "@/hooks/useUserDetailsForUserQuery"
-import Button from "@/shared-module/common/components/Button"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button, Checkbox, ComboBox, TextField } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
 interface SelectUserInfoFormFields {
@@ -50,13 +46,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    control,
-    register,
-    reset,
-  } = useForm<SelectUserInfoFormFields>({
+  const { handleSubmit, control, reset } = useForm<SelectUserInfoFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
@@ -68,7 +58,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     },
   })
 
-  const countriesOptions = React.useMemo(
+  const countriesOptions = useMemo(
     () =>
       Object.entries(countries).map(([code]) => ({
         value: code,
@@ -122,7 +112,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     setIsEditing(false)
   }
 
-  const selectedCountryLabel = React.useMemo(() => {
+  const selectedCountryLabel = useMemo(() => {
     if (!country) {
       return ""
     }
@@ -365,57 +355,53 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           `}
         >
           <TextField
+            name="email"
+            control={control}
             label={t("email")}
             placeholder={t("email")}
-            {...register("email", {
+            isRequired
+            rules={{
               required: t("required-field"),
               validate: {
                 isValidEmail: (value) =>
                   value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
               },
-            })}
-            required
-            {...omitUndefined({ error: errors.email })}
+            }}
           />
 
           <div></div>
 
           <TextField
+            name="first_name"
+            control={control}
             label={t("first-name")}
             placeholder={t("enter-first-name")}
-            {...register("first_name", {
-              required: t("required-field"),
-            })}
-            required
-            {...omitUndefined({ error: errors.first_name })}
+            isRequired
+            rules={{ required: t("required-field") }}
           />
 
           <TextField
+            name="last_name"
+            control={control}
             label={t("last-name")}
             placeholder={t("enter-last-name")}
-            {...register("last_name", {
-              required: t("required-field"),
-            })}
-            required
-            {...omitUndefined({ error: errors.last_name })}
+            isRequired
+            rules={{ required: t("required-field") }}
           />
 
-          <Controller
+          <ComboBox
             name="country"
             control={control}
+            label={t("enter-country-question")}
+            items={countriesOptions}
+            getItemKey={(item) => item.value}
+            getItemTextValue={(item) => item.label}
+            isRequired
             rules={{ required: t("required-field") }}
-            render={({ field }) => (
-              <SearchableSelectField
-                label={t("enter-country-question")}
-                options={countriesOptions}
-                onChangeByValue={field.onChange}
-                value={field.value}
-                required={true}
-                {...omitUndefined({ error: errors.country?.message })}
-                placeholder={t("label-select-country")}
-              />
-            )}
-          />
+            placeholder={t("label-select-country")}
+          >
+            {(item) => item.label}
+          </ComboBox>
         </div>
 
         <div
@@ -423,13 +409,14 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             margin-top: 1rem;
           `}
         >
-          <CheckBox
+          <Checkbox
             className={css`
               padding-top: 8px;
             `}
+            name="emailCommunicationConsent"
+            control={control}
             label={t("email-communication-consent-checkbox-text")}
-            {...register("emailCommunicationConsent")}
-          ></CheckBox>
+          />
         </div>
 
         <div

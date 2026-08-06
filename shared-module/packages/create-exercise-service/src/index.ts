@@ -23,12 +23,20 @@ const BUNDLED_TEMPLATE_DIR = join(SCRIPT_DIR, "template")
 export type SharedModuleStrategy = "vendor" | "npm"
 
 /** The @moocfi/exercise-* packages a standalone (npm-mode) project depends on. */
+export type ExercisePackageName =
+  | "@moocfi/exercise-protocol"
+  | "@moocfi/exercise-client"
+  | "@moocfi/exercise-react"
+  | "@moocfi/exercise-service-test-utils"
+
 const NPM_RUNTIME_PACKAGES = [
   "@moocfi/exercise-protocol",
   "@moocfi/exercise-client",
   "@moocfi/exercise-react",
-]
-const NPM_DEV_PACKAGES = ["@moocfi/exercise-service-test-utils"]
+] as const satisfies readonly ExercisePackageName[]
+const NPM_DEV_PACKAGES = [
+  "@moocfi/exercise-service-test-utils",
+] as const satisfies readonly ExercisePackageName[]
 
 /** The literal service name used throughout the example-exercise template. */
 const TEMPLATE_SERVICE_NAME = "example-exercise"
@@ -38,9 +46,10 @@ const TEMPLATE_SERVICE_NAME = "example-exercise"
  * `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve. The
  * exercise-service code is a layered set — exercise-protocol ← exercise-client ← exercise-react
  * (the iframe child's React adapter); the template imports nothing from common/components or the
- * host-side exercise-iframe-host. exercise-service-test-utils is vendored for the inherited e2e
- * suite (`e2e/protocol.spec.ts`); it declares no runtime deps, so it adds nothing to the generated
- * package.json (its `@playwright/test` comes from the template's devDependencies).
+ * host-side exercise-iframe-host. exercise-service-test-utils is vendored for the inherited
+ * plugin contract suite (`playwright/plugin-contract/protocol.spec.ts`); it declares no runtime
+ * deps, so it adds nothing to the generated package.json (its `@playwright/test` comes from the
+ * template's devDependencies).
  */
 const VENDORED_PACKAGES = [
   "exercise-protocol",
@@ -49,7 +58,7 @@ const VENDORED_PACKAGES = [
   "exercise-service-test-utils",
 ]
 
-/** Top-level entries in the template that must never be copied into a generated project. */
+/** Entries in the template that must never be copied into a generated project. */
 export const COPY_EXCLUDES = new Set([
   "node_modules",
   "dist",
@@ -61,13 +70,14 @@ export const COPY_EXCLUDES = new Set([
   "pnpm-workspace.yaml",
   "tsconfig.tsbuildinfo",
   ".vscode",
-  // Playwright outputs from running the template's e2e suite; git-ignored, but the copier doesn't
+  // Playwright outputs from running the template's browser suites; git-ignored, but the copier doesn't
   // read .gitignore, so exclude them explicitly (they also hold binaries that name replacement would
   // corrupt).
   "test-results",
   "playwright-report",
   "blob-report",
   ".playwright-cli",
+  "playwright/.cache",
   // moocfi-internal deployment files (private GCR base images + pnpm workspace); broken in a
   // standalone project, so not generated.
   "Dockerfile",
@@ -140,7 +150,8 @@ export async function copyTemplate(src: string, dest: string): Promise<void> {
       }
       const rel = relative(src, source)
       const topLevel = rel.split(sep)[0] ?? ""
-      if (COPY_EXCLUDES.has(topLevel)) {
+      const normalizedRel = rel.split(sep).join("/")
+      if (COPY_EXCLUDES.has(topLevel) || COPY_EXCLUDES.has(normalizedRel)) {
         return false
       }
       // The synced shared-module copy is git-ignored and excluded from tsc; we vendor a fresh one.
@@ -197,6 +208,7 @@ async function buildPackageJson(
   port: number,
   strategy: SharedModuleStrategy,
   exercisePackagesVersion: string,
+  exercisePackageSpecifiers: Partial<Record<ExercisePackageName, string>>,
 ): Promise<void> {
   const pkg = await readJson<PackageJson>(join(projectPath, "package.json"))
 
@@ -213,11 +225,12 @@ async function buildPackageJson(
   Object.assign(merged, pkg.dependencies)
   if (strategy === "npm") {
     for (const npmPkg of NPM_RUNTIME_PACKAGES) {
-      merged[npmPkg] = `^${exercisePackagesVersion}`
+      merged[npmPkg] = exercisePackageSpecifiers[npmPkg] ?? `^${exercisePackagesVersion}`
     }
     pkg.devDependencies = { ...pkg.devDependencies }
     for (const npmPkg of NPM_DEV_PACKAGES) {
-      pkg.devDependencies[npmPkg] = `^${exercisePackagesVersion}`
+      pkg.devDependencies[npmPkg] =
+        exercisePackageSpecifiers[npmPkg] ?? `^${exercisePackagesVersion}`
     }
   }
 
@@ -347,6 +360,29 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
 
 export type PackageManager = "npm" | "yarn" | "pnpm"
 
+function assertPortableExercisePackageSpecifiers(
+  specifiers: Partial<Record<ExercisePackageName, string>>,
+): void {
+  for (const [packageName, specifier] of Object.entries(specifiers)) {
+    const protocol = ["file:", "link:", "portal:"].find((candidate) =>
+      specifier.startsWith(candidate),
+    )
+    if (!protocol) {
+      continue
+    }
+
+    const filePath = specifier.slice(protocol.length)
+    const isAbsolute =
+      filePath.startsWith("/") || filePath.startsWith("\\") || /^[A-Za-z]:[\\/]/.test(filePath)
+    if (isAbsolute) {
+      throw new Error(
+        `Absolute ${protocol} specifier for ${packageName} is not portable: ${specifier}. ` +
+          `Use a ${protocol} path relative to the generated project instead.`,
+      )
+    }
+  }
+}
+
 export interface ScaffoldOptions {
   projectName: string
   /** Absolute path the project will be created at. */
@@ -363,6 +399,13 @@ export interface ScaffoldOptions {
   templateDir?: string
   /** Version to pin the generated `@moocfi/exercise-*` deps to (npm mode). Defaults to the CLI's. */
   exercisePackagesVersion?: string
+  /**
+   * Per-package npm specifier overrides for locally packed or otherwise unpublished packages.
+   * Relative `file:`, `link:`, and `portal:` paths are preserved verbatim; absolute local paths are
+   * rejected so the generated package.json remains portable. Ignored when `sharedModule` is
+   * "vendor".
+   */
+  exercisePackageSpecifiers?: Partial<Record<ExercisePackageName, string>>
 }
 
 /** Create a standalone React exercise service from the example-exercise template. */
@@ -372,6 +415,11 @@ export async function scaffoldReactProject(options: ScaffoldOptions): Promise<vo
   const templateDir =
     options.templateDir ?? (strategy === "npm" ? BUNDLED_TEMPLATE_DIR : MONOREPO_TEMPLATE_DIR)
   const exercisePackagesVersion = options.exercisePackagesVersion ?? (await readCliVersion())
+  const exercisePackageSpecifiers = options.exercisePackageSpecifiers ?? {}
+
+  if (strategy === "npm") {
+    assertPortableExercisePackageSpecifiers(exercisePackageSpecifiers)
+  }
 
   if (await isNonEmptyDir(absoluteProjectPath)) {
     throw new Error(
@@ -399,7 +447,14 @@ export async function scaffoldReactProject(options: ScaffoldOptions): Promise<vo
   await parameterize(absoluteProjectPath, projectName)
 
   console.log("Generating package.json...")
-  await buildPackageJson(absoluteProjectPath, projectName, port, strategy, exercisePackagesVersion)
+  await buildPackageJson(
+    absoluteProjectPath,
+    projectName,
+    port,
+    strategy,
+    exercisePackagesVersion,
+    exercisePackageSpecifiers,
+  )
 }
 
 async function main() {

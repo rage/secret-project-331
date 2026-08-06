@@ -501,6 +501,15 @@ export type CustomViewExerciseTasks = {
   task_submissions: Array<CustomViewExerciseTaskSubmission>
 }
 
+/**
+ * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
+ */
+export type EmailVerificationMethod =
+  | "emailed_code"
+  | "password_reset_backfill"
+  | "tmc_confirmed"
+  | "admin_asserted"
+
 export type ExamData = {
   ended: boolean
   ends_at: string
@@ -1121,6 +1130,12 @@ export type UserDetail = {
   created_at: string
   email: string
   email_communication_consent?: boolean | null
+  /**
+   * When the user last proved control of the address in `email`. `None` means unproven. Cleared
+   * by a database trigger on every address change, so a value here always refers to `email`.
+   */
+  email_verified_at?: string | null
+  email_verified_method?: null | EmailVerificationMethod
   first_name?: string | null
   last_name?: string | null
   search_helper?: string | null

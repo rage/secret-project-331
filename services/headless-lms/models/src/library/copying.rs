@@ -282,6 +282,7 @@ WHERE id = $2;
         .await?;
     copy_chatbot_configurations(&mut tx, copied_course.id, src_course_id).await?;
     copy_cheater_thresholds(&mut tx, copied_course.id, src_course_id).await?;
+    copy_course_module_suotar_configurations(&mut tx, copied_course.id, src_course_id).await?;
     copy_course_custom_privacy_policy_checkbox_texts(&mut tx, copied_course.id, src_course_id)
         .await?;
     copy_exercise_repositories(&mut tx, copied_course.id, src_course_id).await?;
@@ -1144,9 +1145,11 @@ SELECT uuid_generate_v5($1, cctr.id::text),
   uuid_generate_v5($1, cctr.course_module_id::text)
 FROM certificate_configuration_to_requirements cctr
   JOIN course_modules cm ON cctr.course_module_id = cm.id
+  JOIN certificate_configurations cc ON cctr.certificate_configuration_id = cc.id
 WHERE cm.course_id = $2
   AND cctr.deleted_at IS NULL
-  AND cm.deleted_at IS NULL;
+  AND cm.deleted_at IS NULL
+  AND cc.deleted_at IS NULL;
         ",
         new_course_id,
         old_course_id
@@ -1243,6 +1246,44 @@ WHERE course_module_id = $3
         new_course_id,
         new_default_module.id,
         old_default_module.id
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+/// Copies what a teacher typed, matching the `uh_course_code` and `ects_credits` that
+/// `copy_course_modules` already carries over. The pause record and the config-check verdict are
+/// dropped on purpose: they describe the source course. Realisations are per-term and not copied.
+async fn copy_course_module_suotar_configurations(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO course_module_suotar_configurations (
+    id,
+    course_module_id,
+    open_university_product_id,
+    grade_scale_id
+  )
+SELECT uuid_generate_v5($1, cmsc.id::text),
+  uuid_generate_v5($1, cmsc.course_module_id::text),
+  cmsc.open_university_product_id,
+  cmsc.grade_scale_id
+FROM course_module_suotar_configurations cmsc
+  JOIN course_modules cm ON cm.id = cmsc.course_module_id
+WHERE cm.course_id = $2
+  AND cmsc.deleted_at IS NULL
+  AND cm.deleted_at IS NULL
+  AND (
+    cmsc.open_university_product_id IS NOT NULL
+    OR cmsc.grade_scale_id IS NOT NULL
+  );
+        ",
+        new_course_id,
+        old_course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -1552,6 +1593,123 @@ mod tests {
         )
     }
 
+    async fn insert_certificate_configuration(conn: &mut PgConnection) -> Uuid {
+        let background_svg_file_upload_id = crate::file_uploads::insert(
+            &mut *conn,
+            "background.svg",
+            "certificates/background.svg",
+            "image/svg+xml",
+            None,
+        )
+        .await
+        .unwrap();
+        let configuration = crate::certificate_configurations::DatabaseCertificateConfiguration {
+            id: Uuid::new_v4(),
+            certificate_owner_name_y_pos: None,
+            certificate_owner_name_x_pos: None,
+            certificate_owner_name_font_size: None,
+            certificate_owner_name_text_color: None,
+            certificate_owner_name_text_anchor: None,
+            certificate_validate_url_y_pos: None,
+            certificate_validate_url_x_pos: None,
+            certificate_validate_url_font_size: None,
+            certificate_validate_url_text_color: None,
+            certificate_validate_url_text_anchor: None,
+            certificate_date_y_pos: None,
+            certificate_date_x_pos: None,
+            certificate_date_font_size: None,
+            certificate_date_text_color: None,
+            certificate_date_text_anchor: None,
+            certificate_locale: None,
+            paper_size: None,
+            background_svg_path: "certificates/background.svg".to_string(),
+            background_svg_file_upload_id,
+            overlay_svg_path: None,
+            overlay_svg_file_upload_id: None,
+            render_certificate_grade: false,
+            certificate_grade_y_pos: None,
+            certificate_grade_x_pos: None,
+            certificate_grade_font_size: None,
+            certificate_grade_text_color: None,
+            certificate_grade_text_anchor: None,
+        };
+        crate::certificate_configurations::insert(conn, &configuration)
+            .await
+            .unwrap()
+            .id
+    }
+
+    async fn certificate_configurations_for_course(
+        conn: &mut PgConnection,
+        course_id: Uuid,
+    ) -> Vec<crate::certificate_configurations::CertificateConfigurationAndRequirements> {
+        crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(
+            conn, course_id,
+        )
+        .await
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn copies_certificate_configurations() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+        let configuration = insert_certificate_configuration(tx.as_mut()).await;
+        crate::certificate_configuration_to_requirements::insert(
+            tx.as_mut(),
+            configuration,
+            Some(course_module.id),
+        )
+        .await
+        .unwrap();
+
+        let new_course = create_new_course(org, "en-NZ".into());
+        let copied_course = copy_course(tx.as_mut(), course, &new_course, true, user)
+            .await
+            .unwrap();
+
+        let copied = certificate_configurations_for_course(tx.as_mut(), copied_course.id).await;
+        assert_eq!(copied.len(), 1);
+        let required_module_id = *copied[0]
+            .requirements
+            .course_module_ids
+            .first()
+            .expect("the copied configuration should require a module");
+        let required_module = crate::course_modules::get_by_id(tx.as_mut(), required_module_id)
+            .await
+            .unwrap();
+        assert_eq!(required_module.course_id, copied_course.id);
+        assert_eq!(required_module.copied_from, Some(course_module.id));
+    }
+
+    /// Older data can hold requirements pointing at a deleted configuration.
+    #[tokio::test]
+    async fn skips_requirements_of_deleted_certificate_configurations() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+        let configuration = insert_certificate_configuration(tx.as_mut()).await;
+        crate::certificate_configurations::delete(tx.as_mut(), configuration)
+            .await
+            .unwrap();
+        // `delete` clears requirements, so the link has to come after it.
+        crate::certificate_configuration_to_requirements::insert(
+            tx.as_mut(),
+            configuration,
+            Some(course_module.id),
+        )
+        .await
+        .unwrap();
+
+        let new_course = create_new_course(org, "en-IE".into());
+        let copied_course = copy_course(tx.as_mut(), course, &new_course, true, user)
+            .await
+            .unwrap();
+
+        assert!(
+            certificate_configurations_for_course(tx.as_mut(), copied_course.id)
+                .await
+                .is_empty()
+        );
+    }
+
     #[tokio::test]
     async fn copies_course_chapters() {
         insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter);
@@ -1562,7 +1720,7 @@ mod tests {
         let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
             .await
             .unwrap();
-        let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
+        let copied_chapters = crate::chapters::get_course_chapters(tx.as_mut(), copied_course.id)
             .await
             .unwrap();
         assert_eq!(copied_chapters.len(), 1);
@@ -1579,7 +1737,7 @@ mod tests {
         let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
             .await
             .unwrap();
-        let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
+        let copied_chapters = crate::chapters::get_course_chapters(tx.as_mut(), copied_course.id)
             .await
             .unwrap();
         let copied_chapter = copied_chapters.first().unwrap();
@@ -1776,7 +1934,7 @@ mod tests {
         let copied_task = copied_tasks.first().unwrap();
         assert_eq!(copied_task.copied_from, Some(task));
 
-        let original_course_chapters = crate::chapters::course_chapters(tx.as_mut(), course.id)
+        let original_course_chapters = crate::chapters::get_course_chapters(tx.as_mut(), course.id)
             .await
             .unwrap();
         for original_chapter in original_course_chapters {

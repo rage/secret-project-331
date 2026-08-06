@@ -58,13 +58,15 @@ POST `/api/v0/course-material/user-details/update-user-info` - Updates the users
         (status = 200, description = "Updated user details", body = UserDetail)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 pub async fn update_user_info(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
+    let existing = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
     let res = models::user_details::update_user_info(
         &mut conn,
         user.id,
@@ -75,6 +77,16 @@ pub async fn update_user_info(
         payload.email_communication_consent,
     )
     .await?;
+
+    if existing.email != res.email {
+        // A database trigger has already cleared `email_verified_at` for the old address.
+        domain::email_ownership_verification::queue_verification_email_best_effort(
+            &mut conn,
+            app_conf.enable_email_ownership_verification,
+            user.id,
+        )
+        .await;
+    }
 
     let token = skip_authorize();
     token.authorized_ok(web::Json(res))

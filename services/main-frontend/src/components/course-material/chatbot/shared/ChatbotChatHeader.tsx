@@ -182,7 +182,12 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
           padding: 20px;
         `}
       >
-        <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
+        <ErrorBanner
+          error={currentConversationInfo.error}
+          variant="readOnly"
+          maxHeightVH={50}
+          listMaxHeightVH={35}
+        />
       </div>
     )
   }

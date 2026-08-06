@@ -554,7 +554,7 @@ async fn get_chapters(
     let exercise_deadline_overrides =
         models::chapters::exercise_deadline_overrides_by_chapter_for_course(&mut conn, *course_id)
             .await?;
-    let chapters = models::chapters::course_chapters(&mut conn, *course_id)
+    let chapters = models::chapters::get_course_chapters(&mut conn, *course_id)
         .await?
         .into_iter()
         .map(|chapter| {

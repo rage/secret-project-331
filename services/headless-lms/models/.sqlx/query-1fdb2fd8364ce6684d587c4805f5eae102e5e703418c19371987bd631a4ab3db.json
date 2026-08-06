@@ -1,0 +1,186 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_module_suotar_configurations (\n    course_module_id,\n    open_university_product_id,\n    grade_scale_id\n  )\nVALUES ($1, $2, $3) ON CONFLICT (course_module_id) DO\nUPDATE\nSET open_university_product_id = $2,\n  grade_scale_id = $3,\n  deleted_at = NULL\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "open_university_product_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "open_university_product_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "grade_scale_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "grade_scale_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "paused_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "paused_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "paused_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "paused_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "pause_reason",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "pause_reason"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "config_checked_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "config_checked_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "course_code_resolves",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "course_code_resolves"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "product_token_found",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "product_token_found"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "config_check_message",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "config_check_message"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "deleted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "1fdb2fd8364ce6684d587c4805f5eae102e5e703418c19371987bd631a4ab3db"
+}

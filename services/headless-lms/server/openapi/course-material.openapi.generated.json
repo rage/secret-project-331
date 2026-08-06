@@ -4542,6 +4542,11 @@
           }
         }
       },
+      "EmailVerificationMethod": {
+        "type": "string",
+        "description": "How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.",
+        "enum": ["emailed_code", "password_reset_backfill", "tmc_confirmed", "admin_asserted"]
+      },
       "ExamData": {
         "type": "object",
         "required": [
@@ -6611,6 +6616,21 @@
           },
           "email_communication_consent": {
             "type": ["boolean", "null"]
+          },
+          "email_verified_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the user last proved control of the address in `email`. `None` means unproven. Cleared\nby a database trigger on every address change, so a value here always refers to `email`."
+          },
+          "email_verified_method": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EmailVerificationMethod"
+              }
+            ]
           },
           "first_name": {
             "type": ["string", "null"]

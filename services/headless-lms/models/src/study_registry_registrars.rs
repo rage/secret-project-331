@@ -81,13 +81,18 @@ AND deleted_at IS NULL
     Ok(())
 }
 
+/// Registrar for the seeds' legacy pull-flow completion registrations, created on first use.
+///
+/// Matched by name, not `created_at` order: on a fresh database the only row is the Suotar push
+/// registrar seeded by a migration, and handing that one out would put fixture rows in reach of the
+/// migration's revert.
 pub async fn get_or_create_default_registrar(conn: &mut PgConnection) -> ModelResult<Uuid> {
-    // Try to find an existing registrar
     let existing = sqlx::query!(
         r#"
         SELECT id
         FROM study_registry_registrars
-        WHERE deleted_at IS NULL
+        WHERE name = 'Default Registrar'
+          AND deleted_at IS NULL
         ORDER BY created_at
         LIMIT 1
         "#,
@@ -99,7 +104,6 @@ pub async fn get_or_create_default_registrar(conn: &mut PgConnection) -> ModelRe
         return Ok(row.id);
     }
 
-    // Insert a new registrar
     let inserted = sqlx::query!(
         r#"
         INSERT INTO study_registry_registrars (

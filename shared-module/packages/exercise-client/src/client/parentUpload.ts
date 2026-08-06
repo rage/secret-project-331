@@ -1,6 +1,13 @@
 import type { FileUploadMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isUploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 
+export interface UploadedFile {
+  requestId: string
+  id: string
+  file: File
+  url: string
+}
+
 /**
  * The subset of {@link MessagePort} this client needs. Declaring it as an interface (rather than
  * depending on the DOM `MessagePort`) keeps the client easy to unit test with a fake port. A real
@@ -18,7 +25,8 @@ export class FileUploadError extends Error {}
 export interface ParentUploadClientOptions {
   /**
    * How long to wait for the parent's `upload-result` before rejecting. Guards against a host that
-   * never answers — e.g. one predating file-upload support, or a reply that can't be correlated.
+   * never answers — e.g. one predating file-upload support. Replies with unknown request IDs are
+   * ignored because they do not belong to a pending upload.
    * Uploads of large files over slow links are legitimately slow, so the default is generous.
    * Default: 120000 (2 minutes).
    */
@@ -51,7 +59,8 @@ export class ParentUploadClient {
   private readonly pending = new Map<
     string,
     {
-      resolve: (urls: Map<string, string>) => void
+      files: readonly File[]
+      resolve: (files: UploadedFile[]) => void
       reject: (error: Error) => void
       timer: ReturnType<typeof setTimeout>
     }
@@ -68,20 +77,19 @@ export class ParentUploadClient {
   }
 
   /**
-   * Asks the parent to upload `files` (a `Map` of name -> `File`/`Blob`/string). Resolves with a
-   * `Map` of name -> stored URL on success, rejects with a {@link FileUploadError} if the parent
+   * Asks the parent to upload files. Resolves with host-assigned ids paired to the original files in
+   * input order, rejects with a {@link FileUploadError} if the parent
    * reports failure or the client is disposed before the reply arrives.
    */
-  public uploadFiles(files: Map<string, string | Blob>): Promise<Map<string, string>> {
+  public uploadFiles(files: readonly File[]): Promise<UploadedFile[]> {
     if (this.disposed) {
       return Promise.reject(new FileUploadError("Upload client has been disposed"))
     }
     const requestId = this.generateRequestId()
-    const message: FileUploadMessage = { message: "file-upload", requestId, files }
-    return new Promise<Map<string, string>>((resolve, reject) => {
+    const message: FileUploadMessage = { message: "file-upload", requestId, files: [...files] }
+    return new Promise<UploadedFile[]>((resolve, reject) => {
       // Reject rather than hang forever if the parent never replies — a host that predates
-      // file-upload support ignores the message, and an uncorrelated reply is dropped when it's
-      // ambiguous (see handleMessage). Without this the promise would never settle.
+      // file-upload support ignores the message. Without this the promise would never settle.
       const timer = setTimeout(() => {
         this.pending.delete(requestId)
         reject(
@@ -91,7 +99,7 @@ export class ParentUploadClient {
         )
       }, this.timeoutMs)
       // Register the resolver before posting so a response can never race ahead of it.
-      this.pending.set(requestId, { resolve, reject, timer })
+      this.pending.set(requestId, { files, resolve, reject, timer })
       // oxlint-disable-next-line require-post-message-target-origin -- MessagePort.postMessage takes no targetOrigin (that arg is window-only)
       this.port.postMessage(message)
     })
@@ -112,34 +120,45 @@ export class ParentUploadClient {
   }
 
   private handleMessage(data: unknown): void {
-    if (!isUploadResultMessage(data)) {
+    if (
+      !data ||
+      typeof data !== "object" ||
+      (data as { message?: unknown }).message !== "upload-result" ||
+      typeof (data as { requestId?: unknown }).requestId !== "string"
+    ) {
       return
     }
-    // Correlate by requestId. A parent that predates correlation may omit it; in that case fall back
-    // to the single in-flight upload so behaviour is never worse than the old one-at-a-time model.
-    // When the id is missing and several uploads are pending the reply is ambiguous — we never guess
-    // (matching the wrong upload would resolve it with another's URLs), so it's dropped and each
-    // upload's timeout settles its promise instead.
-    const entry =
-      // oxlint-disable-next-line eqeqeq -- `!= null` intentionally matches both null and undefined (requestId is `string | null | undefined`)
-      data.requestId != null
-        ? this.pending.get(data.requestId)
-        : this.pending.size === 1
-          ? this.pending.values().next().value
-          : undefined
+    const requestId = (data as { requestId: string }).requestId
+    const entry = this.pending.get(requestId)
     if (!entry) {
-      // Unknown / already-resolved id, or an ambiguous uncorrelated reply; ignore.
+      // Unknown or already-resolved request id.
       return
     }
     clearTimeout(entry.timer)
-    // oxlint-disable-next-line eqeqeq -- `!= null` intentionally matches both null and undefined (requestId is `string | null | undefined`)
-    if (data.requestId != null) {
-      this.pending.delete(data.requestId)
-    } else {
-      this.pending.clear()
+    this.pending.delete(requestId)
+    if (!isUploadResultMessage(data)) {
+      entry.reject(new FileUploadError("The parent returned an invalid upload result"))
+      return
     }
     if (data.success) {
-      entry.resolve(data.urls)
+      if (data.files.length !== entry.files.length) {
+        entry.reject(
+          new FileUploadError(
+            `The parent returned ${data.files.length} uploaded files for ${entry.files.length} requested files`,
+          ),
+        )
+        return
+      }
+      const uploadedFiles: UploadedFile[] = []
+      for (const [index, file] of entry.files.entries()) {
+        const result = data.files[index]
+        if (!result || typeof result.id !== "string" || typeof result.url !== "string") {
+          entry.reject(new FileUploadError("The parent returned an invalid uploaded file result"))
+          return
+        }
+        uploadedFiles.push({ requestId: data.requestId, id: result.id, file, url: result.url })
+      }
+      entry.resolve(uploadedFiles)
     } else {
       entry.reject(new FileUploadError(data.error))
     }

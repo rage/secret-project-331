@@ -1,8 +1,8 @@
 import { expect, test } from "../fixtures/chatbotEmbed"
 
 test.describe("Chatbot iframe embed testing", () => {
-  test.beforeEach(async ({ page, chatbotEmbedServerPort }) => {
-    await page.goto(`http://127.0.0.1:${chatbotEmbedServerPort}`)
+  test.beforeEach(async ({ page, chatbotEmbedServer }) => {
+    await page.goto(chatbotEmbedServer)
   })
 
   test("Chatbot is visible", async ({ page }) => {

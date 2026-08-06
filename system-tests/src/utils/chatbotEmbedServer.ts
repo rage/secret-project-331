@@ -8,7 +8,7 @@ let _chatbotEmbedServer: http.Server | null = null
 let _setupCount = 0
 let _setupPromise: Promise<void> | null = null
 
-export function getChatbotEmbedPort(): number {
+export function getChatbotEmbedServer(): string {
   if (!_chatbotEmbedServer) {
     throw new Error("ChatbotEmbedServer is undefined")
   }
@@ -19,7 +19,7 @@ export function getChatbotEmbedPort(): number {
     throw new Error("Incorrect address type")
   }
 
-  return address.port
+  return `http://127.0.0.1:${address.port}`
 }
 
 export async function setupChatbotEmbedServer(): Promise<void> {

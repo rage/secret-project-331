@@ -1,9 +1,9 @@
 import { test as base } from "@playwright/test"
 
 import {
-  getChatbotEmbedPort,
   setupChatbotEmbedServer,
   teardownChatbotEmbedServer,
+  getChatbotEmbedServer,
 } from "../utils/chatbotEmbedServer"
 
 /**
@@ -15,12 +15,12 @@ import {
  */
 // Empty object type required by Playwright's extend() for "no extra test fixtures"
 // oxlint-disable-next-line typescript/no-empty-object-type, typescript/ban-types -- Playwright extend() requires {} for the no-extra-fixtures type arg
-export const test = base.extend<{}, { chatbotEmbedServerPort: number }>({
-  chatbotEmbedServerPort: [
+export const test = base.extend<{}, { chatbotEmbedServer: string }>({
+  chatbotEmbedServer: [
     async ({}, use) => {
       await setupChatbotEmbedServer()
-      const port = getChatbotEmbedPort()
-      await use(port)
+      const server = getChatbotEmbedServer()
+      await use(server)
       await teardownChatbotEmbedServer()
     },
     { scope: "worker", auto: true },

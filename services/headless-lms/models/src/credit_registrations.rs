@@ -449,6 +449,54 @@ RETURNING *
     Ok(after)
 }
 
+/// Backdates `state_entered_at` for a registration, so a test can simulate a row that has been
+/// sitting in its state long enough for a backoff or timeout to fire.
+///
+/// Exists only for test setup: [`transition`] owns this stamp, and calling this from a live path
+/// would desynchronize it from the state it is supposed to describe.
+pub async fn set_state_entered_at_for_testing(
+    conn: &mut PgConnection,
+    id: Uuid,
+    state_entered_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE credit_registrations
+SET state_entered_at = $2
+WHERE id = $1
+        ",
+        id,
+        state_entered_at,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Backdates `first_failed_at` for a registration, so a test can simulate a retry window that
+/// started long enough ago for its retry limit to have elapsed.
+///
+/// Exists only for test setup: [`transition`] owns this stamp, and calling this from a live path
+/// would desynchronize it from the failure it is supposed to describe.
+pub async fn set_first_failed_at_for_testing(
+    conn: &mut PgConnection,
+    id: Uuid,
+    first_failed_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE credit_registrations
+SET first_failed_at = $2
+WHERE id = $1
+        ",
+        id,
+        first_failed_at,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Which rows a phase iteration may touch. Empty means every row, which is what production runs; a
 /// narrowed scope lets a test drive the pipeline for its own course on a shared database.
 #[derive(Debug, Clone, Default, PartialEq)]

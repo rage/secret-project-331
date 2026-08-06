@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_module_completion_registered_to_study_registries (\n    id,\n    course_id,\n    course_module_completion_id,\n    course_module_id,\n    study_registry_registrar_id,\n    user_id,\n    real_student_number\n)\nSELECT * FROM UNNEST(\n    $1::uuid[],\n    $2::uuid[],\n    $3::uuid[],\n    $4::uuid[],\n    $5::uuid[],\n    $6::uuid[],\n    $7::text[]\n)\nRETURNING *\n        ",
+  "query": "\nINSERT INTO course_module_completion_registered_to_study_registries (\n    id,\n    course_id,\n    course_module_completion_id,\n    course_module_id,\n    study_registry_registrar_id,\n    user_id,\n    real_student_number\n)\nSELECT * FROM UNNEST(\n    $1::uuid[],\n    $2::uuid[],\n    $3::uuid[],\n    $4::uuid[],\n    $5::uuid[],\n    $6::uuid[],\n    $7::text[]\n)\n-- Matches cmc_registered_to_study_registries_completion_registrar_idx, so a registrar's repeated\n-- POST for a completion it already registered stays idempotent instead of erroring.\nON CONFLICT (course_module_completion_id, study_registry_registrar_id) WHERE deleted_at IS NULL DO NOTHING\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -138,5 +138,5 @@
       false
     ]
   },
-  "hash": "df82d324b6dc5c1eb1f8cbb1fdd7f9753791a84b26be632e1bc4ddae9971c768"
+  "hash": "e4125383168febd2239ef0ec6840d3322880c0ddbf2b80f8484712bd4a887ee7"
 }

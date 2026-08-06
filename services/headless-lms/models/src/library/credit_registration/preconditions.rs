@@ -385,23 +385,21 @@ mod tests {
     }
 
     async fn entered_state_long_ago(conn: &mut PgConnection, id: Uuid) {
-        sqlx::query(
-            "UPDATE credit_registrations SET state_entered_at = now() - INTERVAL '1 hour'
-             WHERE id = $1",
+        crate::credit_registrations::set_state_entered_at_for_testing(
+            conn,
+            id,
+            Utc::now() - chrono::Duration::hours(1),
         )
-        .bind(id)
-        .execute(conn)
         .await
         .unwrap();
     }
 
     async fn first_failed_long_ago(conn: &mut PgConnection, id: Uuid) {
-        sqlx::query(
-            "UPDATE credit_registrations SET first_failed_at = now() - INTERVAL '8 days'
-             WHERE id = $1",
+        crate::credit_registrations::set_first_failed_at_for_testing(
+            conn,
+            id,
+            Utc::now() - chrono::Duration::days(8),
         )
-        .bind(id)
-        .execute(conn)
         .await
         .unwrap();
     }
@@ -410,14 +408,13 @@ mod tests {
         crate::course_module_suotar_configurations::upsert(conn, course_module_id, None, None)
             .await
             .unwrap();
-        sqlx::query(
-            "UPDATE course_module_suotar_configurations
-             SET paused_at = now(), paused_by_user_id = $2
-             WHERE course_module_id = $1",
+        crate::course_module_suotar_configurations::set_paused(
+            conn,
+            course_module_id,
+            Some(Utc::now()),
+            Some(user_id),
+            None,
         )
-        .bind(course_module_id)
-        .bind(user_id)
-        .execute(conn)
         .await
         .unwrap();
     }

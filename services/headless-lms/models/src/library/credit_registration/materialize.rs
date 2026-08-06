@@ -117,12 +117,20 @@ mod tests {
     use crate::credit_registrations::{CreditRegistrationState, import_request_item_id};
     use crate::test_helper::*;
 
-    async fn enable_suotar(conn: &mut PgConnection, course_module_id: Uuid) {
-        sqlx::query(
-            "UPDATE course_modules SET enable_credit_registration_via_suotar = TRUE WHERE id = $1",
+    async fn enable_suotar(
+        conn: &mut PgConnection,
+        course_module: &crate::course_modules::CourseModule,
+    ) {
+        crate::course_modules::update(
+            conn,
+            course_module.id,
+            &crate::course_modules::NewCourseModule::new(
+                course_module.course_id,
+                course_module.name.clone(),
+                course_module.order_number,
+            )
+            .set_enable_credit_registration_via_suotar(true),
         )
-        .bind(course_module_id)
-        .execute(conn)
         .await
         .unwrap();
     }
@@ -164,7 +172,7 @@ mod tests {
     #[tokio::test]
     async fn a_completion_on_an_enabled_module_gets_a_row_addressed_by_its_own_id() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), course_module.id).await;
+        enable_suotar(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,
@@ -202,7 +210,7 @@ mod tests {
     #[tokio::test]
     async fn running_twice_creates_nothing_the_second_time() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), course_module.id).await;
+        enable_suotar(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,
@@ -265,7 +273,7 @@ mod tests {
     #[tokio::test]
     async fn a_failed_or_ects_ineligible_completion_never_gets_a_row() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), course_module.id).await;
+        enable_suotar(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,
@@ -304,7 +312,7 @@ mod tests {
     #[tokio::test]
     async fn a_completion_the_pull_path_already_registered_is_skipped() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), course_module.id).await;
+        enable_suotar(tx.as_mut(), &course_module).await;
         let completion = add_completion(
             tx.as_mut(),
             course,
@@ -353,7 +361,7 @@ mod tests {
     #[tokio::test]
     async fn a_scoped_run_leaves_another_courses_completions_alone() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), course_module.id).await;
+        enable_suotar(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,
@@ -391,7 +399,7 @@ mod tests {
     #[tokio::test]
     async fn the_limit_bounds_one_iteration() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), course_module.id).await;
+        enable_suotar(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,

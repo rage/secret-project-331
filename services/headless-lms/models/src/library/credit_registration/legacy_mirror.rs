@@ -62,9 +62,9 @@ inserted AS (
     user_id,
     student_number
   FROM unmirrored
-  -- Matches study_registry_push_mirror_completion_uniq_idx, so a concurrent iteration that mirrored
-  -- the same row first is not an error.
-  ON CONFLICT (course_module_completion_id) WHERE deleted_at IS NULL AND study_registry_registrar_id IS NULL DO NOTHING
+  -- Matches cmc_registered_to_study_registries_completion_registrar_idx, so a concurrent iteration
+  -- that mirrored the same row first is not an error.
+  ON CONFLICT (course_module_completion_id, study_registry_registrar_id) WHERE deleted_at IS NULL DO NOTHING
   RETURNING id
 )
 SELECT COUNT(*) AS "mirrored!"
@@ -223,22 +223,15 @@ mod tests {
         .await
         .unwrap();
 
-        let conn: &mut PgConnection = tx.as_mut();
-        let mirrored: Vec<(Uuid, String)> = sqlx::query_as(
-            "
-SELECT user_id,
-  real_student_number
-FROM course_module_completion_registered_to_study_registries
-WHERE course_module_completion_id = $1
-  AND study_registry_registrar_id IS NULL
-  AND deleted_at IS NULL
-            ",
+        let mirrored = crate::course_module_completion_registered_to_study_registries::get_platform_registered_row_for_completion(
+            tx.as_mut(),
+            registration.course_module_completion_id,
         )
-        .bind(registration.course_module_completion_id)
-        .fetch_all(conn)
         .await
+        .unwrap()
         .unwrap();
-        assert_eq!(mirrored, vec![(user, "900000101".to_string())]);
+        assert_eq!(mirrored.user_id, user);
+        assert_eq!(mirrored.real_student_number, "900000101");
     }
 
     #[tokio::test]

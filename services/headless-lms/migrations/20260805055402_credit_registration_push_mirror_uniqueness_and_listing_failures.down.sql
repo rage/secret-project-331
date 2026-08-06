@@ -4,7 +4,7 @@ ALTER TABLE course_module_suotar_realisations DROP COLUMN consecutive_listing_fa
   DROP COLUMN last_listing_error,
   DROP COLUMN last_listing_attempted_at;
 
-DROP INDEX IF EXISTS study_registry_push_mirror_completion_uniq_idx;
+DROP INDEX IF EXISTS cmc_registered_to_study_registries_completion_registrar_idx;
 
 -- A row this platform registered itself has no registrar to name once the column is mandatory again,
 -- and the mirror phase recreates it from the registration it derives from, so dropping it loses

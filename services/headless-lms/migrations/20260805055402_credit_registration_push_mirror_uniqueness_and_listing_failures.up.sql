@@ -23,10 +23,30 @@ WHERE study_registry_registrar_id IN (
 DELETE FROM study_registry_registrars
 WHERE name = 'Suotar (push)';
 
--- One mirror row per completion, and the arbiter the push path's insert conflicts against.
-CREATE UNIQUE INDEX study_registry_push_mirror_completion_uniq_idx ON course_module_completion_registered_to_study_registries (course_module_completion_id)
+-- Must stay ahead of the index below, which cannot be built while duplicates remain.
+WITH ranked AS (
+  SELECT id,
+    ROW_NUMBER() OVER (
+      PARTITION BY course_module_completion_id,
+      study_registry_registrar_id
+      ORDER BY created_at ASC,
+        id ASC
+    ) AS rn
+  FROM course_module_completion_registered_to_study_registries
+  WHERE deleted_at IS NULL
+)
+UPDATE course_module_completion_registered_to_study_registries
+SET deleted_at = now()
 WHERE deleted_at IS NULL
-  AND study_registry_registrar_id IS NULL;
+  AND id IN (
+    SELECT id
+    FROM ranked
+    WHERE rn > 1
+  );
+
+-- Arbiter for both the push mirror's insert and the pull path's insert.
+CREATE UNIQUE INDEX cmc_registered_to_study_registries_completion_registrar_idx ON course_module_completion_registered_to_study_registries (course_module_completion_id, study_registry_registrar_id) NULLS NOT DISTINCT
+WHERE deleted_at IS NULL;
 
 ALTER TABLE course_module_suotar_realisations
 ADD COLUMN last_listing_attempted_at TIMESTAMP WITH TIME ZONE,

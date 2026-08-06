@@ -142,3 +142,23 @@ pub async fn link_configuration_to_module_if_missing(
 
     Ok(())
 }
+
+/// Run in the same transaction as deleting the configuration: requirements that outlive their
+/// configuration break course copying.
+pub async fn delete_by_certificate_configuration_id(
+    conn: &mut PgConnection,
+    certificate_configuration_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE certificate_configuration_to_requirements
+SET deleted_at = now()
+WHERE certificate_configuration_id = $1
+  AND deleted_at IS NULL
+",
+        certificate_configuration_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}

@@ -1,3 +1,5 @@
+import { v4 } from "uuid"
+
 import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
 import type { FileUploadResultEntry } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
@@ -10,12 +12,28 @@ const isUploadResultEntry = (value: unknown): value is FileUploadResultEntry =>
 /**
  * The sole main-frontend adapter for iframe uploads. The iframe supplies only browser files; this
  * host assigns UUID multipart field names and the backend echoes those ids in input order.
+ *
+ * Uses `uuid`'s `v4` rather than `crypto.randomUUID` on purpose: the course-material iframe host is
+ * served over plain HTTP from a custom hostname (e.g. `http://project-331.local/...`), which is not
+ * a secure context, and `crypto.randomUUID` is only defined in secure contexts (HTTPS / localhost).
+ * `v4` falls back to `crypto.getRandomValues`, which works in insecure contexts too.
+ *
+ * The files arrive from the sandboxed iframe over postMessage. Uploading those objects as-is makes
+ * Chrome treat the multipart body as a streaming upload, which it only allows over HTTP/2 or QUIC —
+ * so on the plain-HTTP dev host the POST fails at the network layer with net::ERR_H2_OR_QUIC_REQUIRED
+ * before reaching the backend. Re-materializing each file into an in-memory `File` (backed by a known
+ * ArrayBuffer) gives the body a concrete byte source, so the browser sends a normal buffered upload.
  */
 export async function uploadFilesFromExerciseIframe(
   exerciseServiceSlug: string,
   files: readonly File[],
 ): Promise<FileUploadResultEntry[]> {
-  const uploads = files.map((file) => [crypto.randomUUID(), file] as const)
+  const uploads = await Promise.all(
+    files.map(
+      async (file) =>
+        [v4(), new File([await file.arrayBuffer()], file.name, { type: file.type })] as const,
+    ),
+  )
   const ids = uploads.map(([id]) => id)
   const body = Object.fromEntries(uploads)
   const response = await uploadFilesFromExerciseService({

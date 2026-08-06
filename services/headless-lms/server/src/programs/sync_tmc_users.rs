@@ -4,6 +4,7 @@ Syncs tmc users
 use std::env;
 
 use crate::config::program_config::ProgramConfig;
+use crate::domain::email_ownership_verification::queue_verification_email_best_effort;
 use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_tokens;
 use crate::setup_tracing;
 use anyhow::Context;
@@ -42,6 +43,10 @@ pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     setup_tracing()?;
     let database_url = ProgramConfig::database_url_with_default();
+    // The same variable the server reads into
+    // `ApplicationConfiguration::enable_email_ownership_verification`.
+    let email_ownership_verification_enabled =
+        ProgramConfig::bool_flag("ENABLE_EMAIL_OWNERSHIP_VERIFICATION");
     let recent_changes = fetch_recently_changed_user_details().await?;
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
@@ -50,12 +55,18 @@ pub async fn main() -> anyhow::Result<()> {
     let cache = Cache::new(&ProgramConfig::required("REDIS_URL")?)?;
     let token_hmac_key = OAuthServerConfiguration::try_from_env()?.oauth_token_hmac_key;
     delete_users(&mut conn, &recent_changes, &cache, &token_hmac_key).await?;
-    update_users(&mut conn, &recent_changes).await?;
+    update_users(
+        &mut conn,
+        email_ownership_verification_enabled,
+        &recent_changes,
+    )
+    .await?;
     Ok(())
 }
 
 pub async fn update_users(
     conn: &mut PgConnection,
+    email_ownership_verification_enabled: bool,
     recent_changes: &TMCRecentChanges,
 ) -> anyhow::Result<()> {
     let email_update_list = recent_changes
@@ -91,14 +102,25 @@ pub async fn update_users(
 
     for change in email_update_list {
         if let Some(user_id) = change.user_id {
-            match update_email_for_user(
-                &mut *conn,
-                &user_id,
-                change.new_value.as_deref().unwrap_or("unknown").to_string(),
-            )
-            .await
-            {
-                Ok(email) => email,
+            // `user_details.email` is CHECKed to contain an '@', so a change carrying no new value
+            // cannot be applied at all.
+            let Some(new_email) = change.new_value.as_deref() else {
+                error!(
+                    "TMC email change {} for user {user_id} carries no new value",
+                    change.id
+                );
+                continue;
+            };
+            match update_email_for_user(&mut *conn, &user_id, new_email.to_string()).await {
+                Ok(changed_user_id) => {
+                    // The `clear_email_verification` trigger just dropped the old address's proof.
+                    queue_verification_email_best_effort(
+                        &mut *conn,
+                        email_ownership_verification_enabled,
+                        changed_user_id,
+                    )
+                    .await;
+                }
                 Err(e) => {
                     error!("Error updating user with id {}", user_id);
                     error!("Error: {}", e);

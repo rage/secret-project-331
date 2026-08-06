@@ -56,8 +56,8 @@ this; a plugin never hand-rolls it.
 - Envelope types live in `exercise-protocol/core/exercise-service-protocol-types.ts` —
   `MessageToIframe` (parent → iframe: `set-state`, `set-language`, `upload-result`,
   `dialog-response`, `repository-exercises`, `test-results`) and `MessageFromIframe` (iframe →
-  parent: `current-state`, `height-changed`, `open-link`, `open-dialog`, `file-upload`,
-  `request-iframe-reload`, `request-repository-exercises`).
+  parent: `current-state`, `height-changed`, `open-link`, `download-file`, `open-dialog`,
+  `file-upload`, `request-iframe-reload`, `request-repository-exercises`).
 - The mandatory four for any plugin: `set-state`, `current-state`, `height-changed`, `set-language`.
   `current-state`'s **`valid`** flag gates whether the host allows save/submit. `height-changed` is
   auto-sent by the vendored `HeightTrackingContainer`. Request/response pairs (`open-dialog`/
@@ -91,6 +91,36 @@ The host/backend is the upload trust boundary: validate UUID field names, file c
 per-file and aggregate byte limits, filename and file parts; reject empty/non-file/duplicate or
 invalid fields. Make a batch atomic: on an error, remove every stored object and its metadata. UI
 limits are usability checks only; the host must enforce the authoritative limits from bytes read.
+
+### Leaving the iframe: links and downloads
+
+The exercise iframe is sandboxed **without `allow-popups`**, so a `target="_blank"` link does nothing,
+a same-tab navigation would replace the exercise with the linked page, and the `download` attribute is
+ignored for cross-origin responses. A plugin therefore cannot open a link or start a download itself —
+it asks the parent:
+
+```ts
+interface OpenLinkMessage {
+  message: "open-link"
+  data: string // absolute http(s) URL
+}
+
+interface DownloadFileMessage {
+  message: "download-file"
+  url: string // absolute http(s) URL, e.g. one returned from a file-upload
+  filename?: string | null // suggested name; a hint, not a guarantee
+}
+```
+
+Use `useParentLinks(port)` (`exercise-react`) or `requestOpenLink` / `requestFileDownload`
+(`exercise-client`). The host is the trust boundary here too: it accepts only absolute `http:`/`https:`
+URLs, strips directory components from the suggested filename, and asks the user to confirm — in the
+**host's** wording, showing the URL — before opening or downloading anything. A plugin that could word
+its own security prompt could talk a user into anything, which is why it supplies only the URL and a
+name.
+
+Both messages are fire-and-forget: there is no reply, so the plugin never learns what the user chose
+and must not put any UI into a pending state waiting for it.
 
 ## The three IFrame views (served at one URL, switched by `set-state`)
 

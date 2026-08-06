@@ -264,6 +264,15 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             Some(err.into()),
                         ),
+                        "courses_slug_key_when_not_deleted"
+                        | "course_language_groups_slug_unique_non_deleted" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "A course with this slug already exists.",
+                            },
+                            err.to_string(),
+                            err
+                        ),
                         "uq_oauth_device_codes_user_code_pending" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {
                                 constraint: constraint.to_string(),
@@ -569,6 +578,27 @@ mod test {
         match err.error_type {
             ModelErrorType::DatabaseConstraint { constraint, .. } => {
                 assert_eq!(constraint, "email_templates_subject_check");
+            }
+            _ => {
+                panic!("wrong error variant")
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn course_language_groups_slug_uniqueness() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        crate::course_language_groups::insert(tx.as_mut(), PKeyPolicy::Generate, "taken-slug")
+            .await
+            .unwrap();
+        let err =
+            crate::course_language_groups::insert(tx.as_mut(), PKeyPolicy::Generate, "taken-slug")
+                .await
+                .unwrap_err();
+        match err.error_type {
+            ModelErrorType::DatabaseConstraint { constraint, .. } => {
+                assert_eq!(constraint, "course_language_groups_slug_unique_non_deleted");
             }
             _ => {
                 panic!("wrong error variant")

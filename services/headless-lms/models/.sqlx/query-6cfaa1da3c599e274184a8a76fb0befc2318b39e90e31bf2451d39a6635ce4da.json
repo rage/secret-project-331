@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_page_sync_statuses AS cps\nSET converted_markdown_content_id = data.markdown_id\nFROM (\n    SELECT unnest($1::uuid []) AS markdown_id,\n      unnest($2::uuid []) AS page_id\n  ) AS data\nWHERE cps.page_id = data.page_id\n  AND cps.deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6cfaa1da3c599e274184a8a76fb0befc2318b39e90e31bf2451d39a6635ce4da"
+}

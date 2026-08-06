@@ -20,6 +20,7 @@ pub mod main_frontend;
 pub mod mock_azure;
 pub mod mock_document_storage;
 pub mod mock_sisu;
+pub mod mock_suotar;
 pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
@@ -67,6 +68,9 @@ pub fn configure_controllers(
     }
     if app_conf.test_sisu && app_conf.test_mode {
         cfg.service(web::scope("/mock-sisu").configure(mock_sisu::_add_routes));
+    }
+    if app_conf.test_suotar && app_conf.test_mode {
+        cfg.service(web::scope("/mock-suotar").configure(mock_suotar::_add_routes));
     }
 }
 

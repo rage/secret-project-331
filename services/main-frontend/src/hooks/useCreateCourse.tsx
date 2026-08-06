@@ -103,7 +103,8 @@ export const useCreateCourse = () => {
       notify: true,
       method: "POST",
       successMessage: t("course-created-successfully"),
-      errorMessage: t("error-creating-course"),
+      // No errorMessage: it would override the localized backend copy, e.g. a taken slug.
+      errorHeader: t("error-creating-course"),
     },
     {
       // oxlint-disable-next-line eslint/require-await -- async; react-query awaits the onSuccess promise

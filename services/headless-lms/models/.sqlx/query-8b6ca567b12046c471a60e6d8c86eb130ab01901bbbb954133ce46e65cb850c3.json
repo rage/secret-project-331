@@ -1,0 +1,172 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH due AS (\n    SELECT\n        ed.id\n    FROM email_deliveries ed\n    LEFT JOIN users u ON u.id = ed.user_id\n    LEFT JOIN user_details ud ON ud.user_id = ed.user_id\n    JOIN email_templates et ON et.id = ed.email_template_id\n    WHERE ed.deleted_at IS NULL\n      AND ed.sent = FALSE\n      AND ed.retryable = TRUE\n      AND (ed.user_id IS NULL OR u.deleted_at IS NULL)\n      AND (ed.recipient_email IS NOT NULL OR ud.email IS NOT NULL)\n      AND et.deleted_at IS NULL\n      AND (ed.next_retry_at IS NULL OR ed.next_retry_at <= now())\n    ORDER BY coalesce(ed.next_retry_at, '-infinity'::timestamptz), ed.created_at\n    -- OF ed is required, not cosmetic: rows on the nullable side of an outer join cannot be locked.\n    FOR UPDATE OF ed SKIP LOCKED\n    LIMIT $1\n),\nclaimed AS (\n    UPDATE email_deliveries ed\n    SET last_attempt_at = now(),\n        -- Crash-recovery lease for claimed rows; this is not retry backoff.\n        next_retry_at = now() + interval '5 minutes'\n    FROM due\n    WHERE ed.id = due.id\n    RETURNING\n        ed.id,\n        ed.user_id,\n        ed.recipient_email,\n        ed.placeholders,\n        ed.email_template_id,\n        ed.retry_count,\n        ed.next_retry_at,\n        ed.retryable,\n        ed.first_failed_at,\n        ed.last_attempt_at\n)\nSELECT\n    c.id AS id,\n    c.user_id AS user_id,\n    COALESCE(c.recipient_email, ud.email) AS \"to!\",\n    et.subject AS subject,\n    et.content AS body,\n    et.email_template_type AS \"template_type\",\n    c.placeholders AS placeholders,\n    c.retry_count AS retry_count,\n    c.next_retry_at AS next_retry_at,\n    c.retryable AS retryable,\n    c.first_failed_at AS first_failed_at,\n    c.last_attempt_at AS last_attempt_at\nFROM claimed c\nJOIN email_templates et ON et.id = c.email_template_id\nLEFT JOIN user_details ud ON ud.user_id = c.user_id\nORDER BY c.last_attempt_at ASC;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "to!",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "subject",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "subject"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "body",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "content"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "template_type",
+        "type_info": {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code",
+                "credit_registration_account_linking",
+                "verify_email_address",
+                "credit_registration_action_needed",
+                "credit_registration_registered",
+                "credit_registration_student_number_linked"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "email_template_type"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "placeholders",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "placeholders"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "retry_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retry_count"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "next_retry_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "next_retry_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "retryable",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retryable"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "first_failed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "first_failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "last_attempt_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "last_attempt_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      null,
+      true,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "8b6ca567b12046c471a60e6d8c86eb130ab01901bbbb954133ce46e65cb850c3"
+}

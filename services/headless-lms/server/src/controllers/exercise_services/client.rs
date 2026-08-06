@@ -304,7 +304,7 @@ async fn get_course_exercises(
 
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
     let mut slides = Vec::new();
-    let open_chapter_ids = models::chapters::course_chapters(&mut conn, *course)
+    let open_chapter_ids = models::chapters::get_course_chapters(&mut conn, *course)
         .await?
         .into_iter()
         .filter(DatabaseChapter::has_opened)
@@ -417,7 +417,7 @@ async fn get_course_progress(
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
 
     let course = models::courses::get_course(&mut conn, *course).await?;
-    let open_chapter_ids = models::chapters::course_chapters(&mut conn, course.id)
+    let open_chapter_ids = models::chapters::get_course_chapters(&mut conn, course.id)
         .await?
         .into_iter()
         .filter(DatabaseChapter::has_opened)
@@ -1855,7 +1855,9 @@ mod upload_tests {
     use super::*;
     use crate::test_helper::*;
     use actix_web::http::header::{CONTENT_TYPE, HeaderMap};
-    use headless_lms_base::config::{ApplicationConfiguration, OAuthServerConfiguration};
+    use headless_lms_base::config::{
+        ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
+    };
     use headless_lms_utils::prelude::UtilResult;
     use models::exercise_slide_submissions::NewExerciseSlideSubmission;
     use models::exercise_task_gradings::UserPointsUpdateStrategy;
@@ -1869,8 +1871,12 @@ mod upload_tests {
             test_mode: true,
             test_chatbot: false,
             test_sisu: false,
+            test_suotar: false,
+            suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
+                .expect("Failed to build the mock Suotar configuration"),
             development_uuid_login: false,
             enable_admin_email_verification: false,
+            enable_email_ownership_verification: false,
             azure_configuration: None,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock".to_string().into()),

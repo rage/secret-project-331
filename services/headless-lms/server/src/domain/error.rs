@@ -101,9 +101,12 @@ impl UnauthorizedReason {
     }
 }
 
+/// Bad request reasons that the frontend has a translated message for.
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum BadRequestReason {
+    #[display("Course slug already taken")]
+    CourseSlugAlreadyTaken,
     /// The user is not enrolled on the course the requested exercise belongs to.
     #[display("Not enrolled")]
     NotEnrolled,
@@ -119,13 +122,25 @@ pub enum BadRequestReason {
 }
 
 impl BadRequestReason {
-    /// Returns the stable message key for this bad-request reason.
+    /// Returns the stable message key for this bad request reason.
     fn message_key(self) -> &'static str {
         match self {
+            Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
             Self::NotEnrolled => "not_enrolled",
             Self::UploadExpired => "upload_expired",
             Self::UnknownUpload => "unknown_upload",
             Self::DuplicateUpload => "duplicate_upload",
+        }
+    }
+
+    /// Both slug indexes collapse into one reason: they guard the same user mistake.
+    fn from_database_constraint(constraint: &str) -> Option<Self> {
+        match constraint {
+            "courses_slug_key_when_not_deleted"
+            | "course_language_groups_slug_unique_non_deleted" => {
+                Some(Self::CourseSlugAlreadyTaken)
+            }
+            _ => None,
         }
     }
 }
@@ -738,8 +753,14 @@ impl From<ModelError> for ControllerError {
                     span_trace,
                 )
             }
-            ModelErrorType::DatabaseConstraint { description, .. } => Self::new_with_traces(
-                ControllerErrorType::BadRequest,
+            ModelErrorType::DatabaseConstraint {
+                constraint,
+                description,
+            } => Self::new_with_traces(
+                BadRequestReason::from_database_constraint(constraint)
+                    .map_or(ControllerErrorType::BadRequest, |reason| {
+                        ControllerErrorType::BadRequestWithReason(reason)
+                    }),
                 description.to_string(),
                 Some(err.into()),
                 backtrace,

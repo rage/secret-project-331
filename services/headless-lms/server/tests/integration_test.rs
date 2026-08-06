@@ -7,7 +7,9 @@ use std::{env, sync::Arc};
 use actix_http::{Request, body::BoxBody};
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
 use actix_web::{App, cookie::Key, dev::ServiceResponse, test};
-use headless_lms_base::config::{ApplicationConfiguration, OAuthServerConfiguration};
+use headless_lms_base::config::{
+    ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
+};
 use headless_lms_models::{
     PKeyPolicy,
     organizations::{self, Organization},
@@ -99,9 +101,13 @@ pub async fn test_config() -> ServerConfig {
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
             enable_admin_email_verification: false,
+            enable_email_ownership_verification: false,
             azure_configuration: None,
             test_chatbot: false,
             test_sisu: false,
+            test_suotar: false,
+            suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
+                .expect("Failed to build the mock Suotar configuration"),
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
             oauth_server_configuration: OAuthServerConfiguration {

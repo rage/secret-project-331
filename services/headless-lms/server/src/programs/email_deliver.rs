@@ -6,11 +6,12 @@ use anyhow::{Context, Result};
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use futures::{FutureExt, StreamExt};
 use headless_lms_models::email_deliveries::{
-    Email, EmailDeliveryErrorInsert, FETCH_LIMIT, fetch_emails,
+    Email, EmailDeliveryErrorInsert, FETCH_LIMIT, RETRY_WINDOW_SECS, fetch_emails,
     increment_retry_and_mark_non_retryable, increment_retry_and_schedule,
-    insert_email_delivery_error, mark_as_sent,
+    insert_email_delivery_error, mark_as_sent, maybe_purge_expired_recipient_addresses,
 };
 use headless_lms_models::email_templates::EmailTemplateType;
+use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::email_processor::{self, BlockAttributes, EmailGutenbergBlock};
 use lettre::transport::smtp::Error as SmtpError;
@@ -20,19 +21,28 @@ use lettre::{
     message::{MultiPart, SinglePart, header},
 };
 use once_cell::sync::Lazy;
+use secrecy::ExposeSecret;
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::HashMap;
 use uuid::Uuid;
 const BATCH_SIZE: usize = FETCH_LIMIT as usize;
 
-const FRONTEND_BASE_URL: &str = "https://courses.mooc.fi";
+/// How often the sender asks the model to purge expired recipient addresses. The model then rolls its
+/// own 1 in 10 chance, so a sweep lands roughly every ten hours.
+const RECIPIENT_ADDRESS_PURGE_INTERVAL: Duration = Duration::from_secs(60 * 60);
+
 const BASE_BACKOFF_SECS: i64 = 60;
 const MAX_BACKOFF_SECS: i64 = 24 * 60 * 60;
-const MAX_RETRY_AGE_SECS: i64 = 3 * 24 * 60 * 60;
 const JITTER_SECS: i64 = 30;
 
 static SMTP_FROM: Lazy<String> = Lazy::new(|| {
     ProgramConfig::required("SMTP_FROM").expect("No moocfi email found in the env variables.")
+});
+/// The same variable the server reads into `ApplicationConfiguration::base_url`: a mailed link has to
+/// point at the environment that minted its token. Not `FRONTEND_BASE_URL`, which no overlay sets, so
+/// reading that sends dev and test links to production.
+static BASE_URL: Lazy<String> = Lazy::new(|| {
+    ProgramConfig::required("BASE_URL").expect("No BASE_URL found in the env variables.")
 });
 static SMTP_HOST: Lazy<String> = Lazy::new(|| {
     ProgramConfig::required("SMTP_HOST").expect("No email relay found in the env variables.")
@@ -99,7 +109,7 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
             attempt,
             "retry_window_expired",
             format!(
-                "Retry window expired before send attempt (email_id={}, user_id={}, template={:?}, first_failed_at={:?})",
+                "Retry window expired before send attempt (email_id={}, user_id={:?}, template={:?}, first_failed_at={:?})",
                 email.id, email.user_id, email.template_type, email.first_failed_at
             ),
         )
@@ -124,6 +134,7 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
             template_type,
             email.id,
             email.user_id,
+            email.placeholders.as_ref(),
             email_block,
             attempt,
         )
@@ -221,31 +232,42 @@ async fn apply_email_template_replacements(
     conn: &mut PgConnection,
     template_type: EmailTemplateType,
     email_id: Uuid,
-    user_id: Uuid,
+    user_id: Option<Uuid>,
+    placeholders: Option<&serde_json::Value>,
     blocks: Vec<EmailGutenbergBlock>,
     attempt: i32,
 ) -> anyhow::Result<TemplateApplyResult> {
     let mut replacements = HashMap::new();
+
+    if template_type == EmailTemplateType::Generic {
+        return Ok(TemplateApplyResult::Ready(blocks));
+    }
+
+    if template_type.uses_placeholder_bag() {
+        let replacements = placeholder_bag_replacements(placeholders);
+        return Ok(TemplateApplyResult::Ready(insert_placeholders(
+            blocks,
+            &replacements,
+        )));
+    }
+
+    // Every remaining template derives its values from an account.
+    let Some(user_id) = user_id else {
+        let msg = format!(
+            "Template {template_type:?} requires a user but the delivery is addressed to a raw address"
+        );
+        record_non_retryable_failure(conn, email_id, attempt, "template", msg).await?;
+        return Ok(TemplateApplyResult::Abandoned);
+    };
 
     match template_type {
         EmailTemplateType::ResetPasswordEmail => {
             if let Some(token_str) =
                 get_unused_reset_password_token_with_user_id(conn, user_id).await?
             {
-                let base = ProgramConfig::optional("FRONTEND_BASE_URL")
-                    .and_then(|value| {
-                        let trimmed = value.trim();
-                        if trimmed.is_empty() {
-                            None
-                        } else {
-                            Some(trimmed.to_string())
-                        }
-                    })
-                    .unwrap_or_else(|| FRONTEND_BASE_URL.to_string());
-
                 let reset_url = format!(
                     "{}/reset-user-password/{}",
-                    base.trim_end_matches('/'),
+                    BASE_URL.trim_end_matches('/'),
                     token_str.token
                 );
 
@@ -260,11 +282,13 @@ async fn apply_email_template_replacements(
         EmailTemplateType::DeleteUserEmail => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn, user_id,
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::AccountDeletion,
                 )
                 .await?
             {
-                replacements.insert("CODE".to_string(), code.code);
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
             } else {
                 let msg = anyhow::anyhow!("No deletion code found for user {}", user_id);
                 record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
@@ -275,11 +299,13 @@ async fn apply_email_template_replacements(
         EmailTemplateType::ConfirmEmailCode => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn, user_id,
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::AdminLogin,
                 )
                 .await?
             {
-                replacements.insert("CODE".to_string(), code.code);
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
             } else {
                 let msg = anyhow::anyhow!("No verification code found for user {}", user_id);
                 record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
@@ -287,15 +313,59 @@ async fn apply_email_template_replacements(
                 return Ok(TemplateApplyResult::Abandoned);
             }
         }
-        EmailTemplateType::Generic => {
-            return Ok(TemplateApplyResult::Ready(blocks));
+        EmailTemplateType::VerifyEmailAddress => {
+            if let Some(code) =
+                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::EmailOwnershipVerification,
+                )
+                .await?
+            {
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
+            } else {
+                let msg = anyhow::anyhow!(
+                    "No email ownership verification code found for user {}",
+                    user_id
+                );
+                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
+                    .await?;
+                return Ok(TemplateApplyResult::Abandoned);
+            }
         }
+        // Handled above. Listed rather than caught by `_` so a new template type is a compile error.
+        EmailTemplateType::Generic
+        | EmailTemplateType::CreditRegistrationAccountLinking
+        | EmailTemplateType::CreditRegistrationActionNeeded
+        | EmailTemplateType::CreditRegistrationRegistered
+        | EmailTemplateType::CreditRegistrationStudentNumberLinked => {}
     }
 
     Ok(TemplateApplyResult::Ready(insert_placeholders(
         blocks,
         &replacements,
     )))
+}
+
+/// Turns a delivery's placeholder bag into `{{ KEY }}` substitutions. Nested objects and arrays are
+/// skipped: there is no sensible rendering for them in body text.
+fn placeholder_bag_replacements(
+    placeholders: Option<&serde_json::Value>,
+) -> HashMap<String, String> {
+    let Some(serde_json::Value::Object(bag)) = placeholders else {
+        return HashMap::new();
+    };
+    bag.iter()
+        .filter_map(|(key, value)| {
+            let rendered = match value {
+                serde_json::Value::String(s) => s.clone(),
+                serde_json::Value::Number(n) => n.to_string(),
+                serde_json::Value::Bool(b) => b.to_string(),
+                _ => return None,
+            };
+            Some((key.clone(), rendered))
+        })
+        .collect()
 }
 
 fn insert_placeholders(
@@ -423,15 +493,40 @@ pub async fn main() -> anyhow::Result<()> {
     };
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
+    // Startup counts as an attempt: pods restart often, and firing on the first tick would turn every
+    // restart into another sweep.
+    let mut last_purge_attempt = tokio::time::Instant::now();
     loop {
         interval.tick().await;
         mail_sender(&pool, &mailer).await?;
+
+        // An elapsed check rather than a second interval: another `tick().await` in this loop would
+        // stall the 10 second send cycle until the hour was up and stop mail going out.
+        if last_purge_attempt.elapsed() >= RECIPIENT_ADDRESS_PURGE_INTERVAL {
+            last_purge_attempt = tokio::time::Instant::now();
+            let purged = async {
+                let mut conn = pool.acquire().await?;
+                maybe_purge_expired_recipient_addresses(&mut conn).await
+            }
+            .await;
+            // Logged, not propagated: an error out of main() restarts the pod, which would stop mail
+            // going out over a retention sweep.
+            match purged {
+                Ok(purged) if purged > 0 => {
+                    tracing::info!(
+                        "Purged retained recipient addresses from {purged} email deliveries"
+                    )
+                }
+                Ok(_) => {}
+                Err(err) => tracing::error!("Failed to purge retained recipient addresses: {err}"),
+            }
+        }
     }
 }
 
 fn retry_window_expired(first_failed_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
     match first_failed_at {
-        Some(ts) => (now - ts).num_seconds() > MAX_RETRY_AGE_SECS,
+        Some(ts) => (now - ts).num_seconds() > RETRY_WINDOW_SECS,
         None => false,
     }
 }

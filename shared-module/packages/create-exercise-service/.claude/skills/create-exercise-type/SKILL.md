@@ -237,6 +237,13 @@ Authoring gotchas (each cost a real session a debugging round-trip):
   inspect the real `File[]` request and exact bytes, then send a correlated ordered `{ id, url }[]`
   response; see `reference/08-browser-integration-testing.md`. If your grader downloads those URLs,
   they are attacker-controlled input — SSRF-guard every fetch and see reference/07 §8.
+- **Links and downloads go through the parent**: the iframe sandbox has no `allow-popups`, so a
+  `target="_blank"` link silently does nothing, a same-tab navigation would replace your exercise, and
+  the `download` attribute is ignored for cross-origin responses. Use `useParentLinks(port)`
+  (`@/shared-module/exercise-react/react/hooks/useParentLinks`) — `openLink(url)` /
+  `downloadFile({ url, filename })` — which post `open-link` / `download-file`. Absolute http(s) URLs
+  only; the host confirms with the user in its own wording and never replies, so keep such a control a
+  plain action and don't give it a pending state.
 - **If the answer view seeds state from `previous_submission`, emit a `current-state` for it** —
   otherwise the host's `valid` gate stays unset and a student can't resubmit unchanged prior work.
 

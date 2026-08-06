@@ -15,7 +15,7 @@ use utoipa::ToSchema;
 use crate::{
     CourseOrExamId, SpecFetcher,
     chapters::{
-        self, Chapter, DatabaseChapter, course_chapters, get_chapter, get_chapter_by_page_id,
+        self, Chapter, DatabaseChapter, get_chapter, get_chapter_by_page_id, get_course_chapters,
     },
     course_instances::{self, CourseInstance},
     courses::{self, Course, CourseContextData, CourseMaterialCourse},
@@ -3203,10 +3203,12 @@ async fn get_current_page_metadata(
     let page_metadata = sqlx::query_as!(
         PageMetadata,
         r#"
-SELECT p.id as page_id,
-  p.order_number as order_number,
-  p.course_id as course_id,
-  p.exam_id as exam_id,
+-- Nullability is stated per column rather than inferred: sqlx-cli 0.9.0 derives a reversed
+-- nullable array for this query, which makes every offline build of it fail.
+SELECT p.id as "page_id!",
+  p.order_number as "order_number!",
+  p.course_id as "course_id?",
+  p.exam_id as "exam_id?",
   c.id as "chapter_id?",
   c.chapter_number as "chapter_number?"
 FROM pages p
@@ -4125,7 +4127,7 @@ pub async fn reorder_pages(
 ) -> ModelResult<()> {
     let db_pages =
         get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
-    let chapters = course_chapters(conn, course_id).await?;
+    let chapters = get_course_chapters(conn, course_id).await?;
 
     let mut chapter_pages: HashMap<Option<Uuid>, Vec<&Page>> = HashMap::new();
 
@@ -4263,7 +4265,7 @@ pub async fn reorder_chapters(
     chapters: &[Chapter],
     course_id: Uuid,
 ) -> ModelResult<()> {
-    let db_chapters = course_chapters(conn, course_id).await?;
+    let db_chapters = get_course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
     // Look for the modified chapter in the existing database
 

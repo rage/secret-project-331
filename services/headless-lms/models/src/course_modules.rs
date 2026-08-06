@@ -4,7 +4,8 @@ use utoipa::ToSchema;
 
 use crate::{chapters, prelude::*};
 
-/// Matches the columns in the database.
+/// The subset of `course_modules` columns [`CourseModule`] is built from; the credit-registration
+/// ones are read through [`CourseModuleCreditRegistrationConfig`], hence no `SELECT *` here.
 struct CourseModulesSchema {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -236,7 +237,23 @@ INSERT INTO course_modules (
     uh_course_code
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled
         ",
         pkey_policy.into_uuid(),
         new_course_module.course_id,
@@ -300,7 +317,23 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseM
     let res = sqlx::query_as!(
         CourseModulesSchema,
         "
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled
 FROM course_modules
 WHERE id = $1
   AND deleted_at IS NULL
@@ -316,7 +349,23 @@ pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Ve
     let res = sqlx::query_as!(
         CourseModulesSchema,
         "
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled
 FROM course_modules
 WHERE id = ANY($1)
   AND deleted_at IS NULL
@@ -336,7 +385,23 @@ pub async fn get_by_course_id(
     let res = sqlx::query_as!(
         CourseModulesSchema,
         "
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled
 FROM course_modules
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -358,7 +423,23 @@ pub async fn get_by_course_ids(
     let res = sqlx::query_as!(
         CourseModulesSchema,
         "
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled
 FROM course_modules
 WHERE course_id = ANY($1)
 AND deleted_at IS NULL
@@ -378,7 +459,23 @@ pub async fn get_by_course_id_only_with_open_chapters(
     let res = sqlx::query_as!(
         CourseModulesSchema,
         "
-SELECT *
+SELECT cm.id,
+  cm.created_at,
+  cm.updated_at,
+  cm.deleted_at,
+  cm.name,
+  cm.course_id,
+  cm.order_number,
+  cm.copied_from,
+  cm.uh_course_code,
+  cm.automatic_completion,
+  cm.automatic_completion_number_of_exercises_attempted_treshold,
+  cm.automatic_completion_number_of_points_treshold,
+  cm.automatic_completion_requires_exam,
+  cm.completion_registration_link_override,
+  cm.ects_credits,
+  cm.enable_registering_completion_to_uh_open_university,
+  cm.certification_enabled
 FROM course_modules as cm
 WHERE EXISTS (
   SELECT 1
@@ -494,7 +591,23 @@ pub async fn get_default_by_course_id(
     let res = sqlx::query_as!(
         CourseModulesSchema,
         "
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled
 FROM course_modules
 WHERE course_id = $1
   AND name IS NULL
@@ -564,6 +677,98 @@ WHERE uh_course_code IS NOT NULL
     .into_iter()
     .filter_map(|x| x.uh_course_code)
     .collect();
+    Ok(res)
+}
+
+/// Per-module credit-registration configuration: the rollout switch and the module's own fields
+/// merged with its `course_module_suotar_configurations` row. Every field of that row is optional
+/// here because a module with no configuration row is a valid, unconfigured module.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CourseModuleCreditRegistrationConfig {
+    pub course_module_id: Uuid,
+    pub course_id: Uuid,
+    pub enable_credit_registration_via_suotar: bool,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub open_university_product_id: Option<String>,
+    /// `None` means derive the grade scale from the completion.
+    pub credit_registration_grade_scale_id: Option<String>,
+    pub credit_registration_paused_at: Option<DateTime<Utc>>,
+    pub credit_registration_paused_by_user_id: Option<Uuid>,
+    pub credit_registration_pause_reason: Option<String>,
+    pub credit_registration_config_checked_at: Option<DateTime<Utc>>,
+    /// `None` means never checked, which is not the same as a failed check.
+    pub credit_registration_course_code_resolves: Option<bool>,
+    pub credit_registration_product_token_found: Option<bool>,
+    pub credit_registration_config_check_message: Option<String>,
+}
+
+pub async fn get_credit_registration_config(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<CourseModuleCreditRegistrationConfig> {
+    let res = sqlx::query_as!(
+        CourseModuleCreditRegistrationConfig,
+        r#"
+SELECT cm.id AS course_module_id,
+  cm.course_id,
+  cm.enable_credit_registration_via_suotar,
+  cm.uh_course_code,
+  cm.ects_credits,
+  c.open_university_product_id AS "open_university_product_id?",
+  c.grade_scale_id AS "credit_registration_grade_scale_id?",
+  c.paused_at AS "credit_registration_paused_at?",
+  c.paused_by_user_id AS "credit_registration_paused_by_user_id?",
+  c.pause_reason AS "credit_registration_pause_reason?",
+  c.config_checked_at AS "credit_registration_config_checked_at?",
+  c.course_code_resolves AS "credit_registration_course_code_resolves?",
+  c.product_token_found AS "credit_registration_product_token_found?",
+  c.config_check_message AS "credit_registration_config_check_message?"
+FROM course_modules cm
+  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
+WHERE cm.id = $1
+  AND cm.deleted_at IS NULL
+        "#,
+        course_module_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Every module opted in to credit registration via Suotar, paused ones included.
+pub async fn get_all_suotar_enabled(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
+    let res = sqlx::query_as!(
+        CourseModuleCreditRegistrationConfig,
+        r#"
+SELECT cm.id AS course_module_id,
+  cm.course_id,
+  cm.enable_credit_registration_via_suotar,
+  cm.uh_course_code,
+  cm.ects_credits,
+  c.open_university_product_id AS "open_university_product_id?",
+  c.grade_scale_id AS "credit_registration_grade_scale_id?",
+  c.paused_at AS "credit_registration_paused_at?",
+  c.paused_by_user_id AS "credit_registration_paused_by_user_id?",
+  c.pause_reason AS "credit_registration_pause_reason?",
+  c.config_checked_at AS "credit_registration_config_checked_at?",
+  c.course_code_resolves AS "credit_registration_course_code_resolves?",
+  c.product_token_found AS "credit_registration_product_token_found?",
+  c.config_check_message AS "credit_registration_config_check_message?"
+FROM course_modules cm
+  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
+WHERE cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+ORDER BY cm.course_id,
+  cm.order_number
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
     Ok(res)
 }
 
@@ -652,7 +857,23 @@ SET automatic_completion = $1,
   automatic_completion_requires_exam = $4
 WHERE id = $5
   AND deleted_at IS NULL
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled
         ",
         automatic_completion,
         exercises_treshold,
@@ -677,7 +898,23 @@ UPDATE course_modules
 SET uh_course_code = $1
 WHERE id = $2
   AND deleted_at IS NULL
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled
         ",
         uh_course_code,
         id,
@@ -699,7 +936,23 @@ UPDATE course_modules
 SET enable_registering_completion_to_uh_open_university = $1
 WHERE id = $2
   AND deleted_at IS NULL
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled
         ",
         enable_registering_completion_to_uh_open_university,
         id,

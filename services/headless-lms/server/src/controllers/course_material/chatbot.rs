@@ -283,7 +283,7 @@ async fn current_conversation_info(
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,
         user.map(|u| u.id),
-        anonymous_token.clone(),
+        anonymous_token.as_ref().map(|a| a.to_owned()),
         chatbot_configuration.id,
     )
     .await?;

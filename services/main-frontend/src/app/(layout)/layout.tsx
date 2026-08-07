@@ -5,7 +5,7 @@ import React from "react"
 import Layout from "@/components/Layout"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const NoLayoutLayout = ({
+const YesLayoutLayout = ({
   children,
   params: _params,
 }: {
@@ -15,4 +15,4 @@ const NoLayoutLayout = ({
   return <Layout>{children}</Layout>
 }
 
-export default withErrorBoundary(NoLayoutLayout)
+export default withErrorBoundary(YesLayoutLayout)

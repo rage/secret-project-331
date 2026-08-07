@@ -91,8 +91,31 @@ const externallyEmbeddableIFrameResponseHeaders = [
 
 const chatbotEmbedResponseHeaders = [
   {
+    key: "Referrer-Policy",
+    value: "strict-origin-when-cross-origin",
+  },
+  {
+    key: "X-Content-Type-Options",
+    value: "nosniff",
+  },
+
+  {
+    key: "Permissions-Policy",
+    value: "fullscreen=(self)",
+  },
+  {
+    key: "X-XSS-Protection",
+    value: "1; mode=block",
+  },
+  {
+    key: "Access-Control-Allow-Private-Network",
+    value: "true",
+  },
+  { key: "Access-Control-Allow-Origin", value: "*" },
+  {
     key: "Content-Security-Policy",
-    value: "frame-ancestors *",
+    value:
+      "frame-ancestors * default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:",
   },
 ]
 

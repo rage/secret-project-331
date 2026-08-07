@@ -130,8 +130,10 @@ pub async fn get_latest_conversation_for_user(
         r#"
 SELECT *
 FROM chatbot_conversations
-WHERE user_id = $1
-  AND anonymous_token = $2
+WHERE (
+    user_id = $1
+    OR anonymous_token = $2
+  )
   AND chatbot_configuration_id = $3
   AND deleted_at IS NULL
 ORDER BY created_at DESC

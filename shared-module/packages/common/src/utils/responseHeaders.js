@@ -115,7 +115,7 @@ const chatbotEmbedResponseHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "frame-ancestors * default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:",
+      "frame-ancestors *; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:",
   },
 ]
 

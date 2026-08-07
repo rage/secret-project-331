@@ -144,8 +144,10 @@ pub async fn insert_for_conversation_user_and_configuration(
 SELECT id
 FROM chatbot_conversations
 WHERE id = $1
-  AND user_id = $2
-  AND anonymous_token = $3
+  AND (
+    user_id = $2
+    OR anonymous_token = $3
+  )
   AND chatbot_configuration_id = $4
   AND deleted_at IS NULL
         "#,

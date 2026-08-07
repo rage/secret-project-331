@@ -11,7 +11,7 @@ import {
   XmarkCircle,
 } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { FormProvider, useFieldArray, useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
@@ -82,7 +82,7 @@ export interface EditCourseAuditingData extends CourseAuditingDataUpdate {
   modules: EditModuleData[]
 }
 
-export const initDefaultValues = (data: CourseAuditingData) => {
+export const buildFormValues = (data: CourseAuditingData): EditCourseAuditingData => {
   return {
     ...data,
     closed_at: data.closed_at ? (formatDateForDateTimeLocalInputs(data.closed_at) ?? null) : null,
@@ -103,14 +103,14 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
   const queryClient = useQueryClient()
 
   const methods = useForm<EditCourseAuditingData>({
-    defaultValues: initDefaultValues(courseAuditingData),
+    defaultValues: buildFormValues(courseAuditingData),
   })
 
   const defaultModuleUhCourseCode = courseAuditingData.modules.find(
     (module) => module.order_number === 0,
   )?.uh_course_code
 
-  const { control, handleSubmit, reset } = methods
+  const { control, handleSubmit, reset, getValues } = methods
   const { isDirty } = useFormState({ control })
 
   // oxlint-disable-next-line i18next/no-literal-string
@@ -182,9 +182,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
     { method: "PUT", notify: true },
     {
       onSuccess: (updated: CourseAuditingData) => {
-        reset(initDefaultValues(updated))
-
-        //setReadOnly(updated)
+        reset(buildFormValues(updated))
 
         queryClient.setQueryData(getCoursesForAuditingQueryKey(), (old: CourseAuditingData[]) => {
           if (!old) {
@@ -208,6 +206,44 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
       },
     },
   )
+
+  const removedPrereqIds = useRef<string[]>([])
+
+  const handlePrereqRemove = (idx: number) => {
+    const prereq_id = getValues(`prerequisites.${idx}.id`)
+
+    removedPrereqIds.current.push(prereq_id)
+    removePrereq(idx)
+  }
+
+  const handlePrereqAppend = () => {
+    const prereq_id = removedPrereqIds.current.pop()
+
+    appendPrereq({
+      id: prereq_id ?? v4(),
+      course_id: courseAuditingData.id,
+      prerequisite: "",
+    })
+  }
+
+  const removedAudienceIds = useRef<string[]>([])
+
+  const handleAudienceRemove = (idx: number) => {
+    const audience_id = getValues(`audiences.${idx}.id`)
+
+    removedAudienceIds.current.push(audience_id)
+    removeAudience(idx)
+  }
+
+  const handleAudienceAppend = () => {
+    const audience_id = removedAudienceIds.current.pop()
+
+    appendAudience({
+      id: audience_id ?? v4(),
+      course_id: courseAuditingData.id,
+      audience: "",
+    })
+  }
 
   return (
     <FormProvider {...methods}>
@@ -317,13 +353,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                 <Legend>{t("prerequisites-fieldset-title")}</Legend>
 
                 {prereqFields.map((prerequisite, idx) => (
-                  <div
-                    key={prerequisite.id}
-                    className={css`
-                      display: flex;
-                      flex-flow: row wrap;
-                    `}
-                  >
+                  <div key={prerequisite.id} className={contentRowStyles}>
                     <div
                       className={css`
                         flex: 1 1 400px;
@@ -332,20 +362,28 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                       <TextField
                         control={control}
                         label={t("text-field-label-prerequisites", { index: idx + 1 })}
-                        name={`prerequisites.${idx}.prerequisite`}
+                        name={`prerequisites.${idx}.prerequisite` as const}
+                        rules={{
+                          ...nullIfEmpty,
+                          validate: (value) => {
+                            if (!nullIfEmptyString(value)) {
+                              return t("field-cannot-be-empty")
+                            }
+                            return true
+                          },
+                        }}
                       />
                     </div>
 
                     <Button
                       className={css`
                         height: fit-content;
-                        margin: 1rem;
                         padding: 0.5rem;
                       `}
                       size="small"
                       type="button"
                       variant="tertiary"
-                      onClick={() => removePrereq(idx)}
+                      onClick={() => handlePrereqRemove(idx)}
                     >
                       {t("button-remove")}
                     </Button>
@@ -363,9 +401,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                     size="medium"
                     type="button"
                     variant="secondary"
-                    onClick={() =>
-                      appendPrereq({ id: v4(), course_id: courseAuditingData.id, prerequisite: "" })
-                    }
+                    onClick={() => handlePrereqAppend()}
                   >
                     {t("add-new-prerequisite")}
                   </Button>
@@ -375,13 +411,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                 <Legend>{t("audiences-fieldset-title")}</Legend>
 
                 {audienceFields.map((audience, idx) => (
-                  <div
-                    key={audience.id}
-                    className={css`
-                      display: flex;
-                      flex-flow: row wrap;
-                    `}
-                  >
+                  <div key={audience.id} className={contentRowStyles}>
                     <div
                       className={css`
                         flex: 1 1 400px;
@@ -391,20 +421,28 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                         key={audience.id}
                         control={control}
                         label={t("text-field-label-audiences", { index: idx + 1 })}
-                        name={`audiences.${idx}.audience`}
+                        name={`audiences.${idx}.audience` as const}
+                        rules={{
+                          ...nullIfEmpty,
+                          validate: (value) => {
+                            if (!nullIfEmptyString(value)) {
+                              return t("field-cannot-be-empty")
+                            }
+                            return true
+                          },
+                        }}
                       />
                     </div>
 
                     <Button
                       className={css`
                         height: fit-content;
-                        margin: 1rem;
                         padding: 0.5rem;
                       `}
                       size="small"
                       type="button"
                       variant="tertiary"
-                      onClick={() => removeAudience(idx)}
+                      onClick={() => handleAudienceRemove(idx)}
                     >
                       {t("button-remove")}
                     </Button>
@@ -423,9 +461,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                     size="medium"
                     type="button"
                     variant="secondary"
-                    onClick={() =>
-                      appendAudience({ id: v4(), course_id: courseAuditingData.id, audience: "" })
-                    }
+                    onClick={() => handleAudienceAppend()}
                   >
                     {t("add-new-audience")}
                   </Button>
@@ -453,7 +489,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                 courseId={courseAuditingData.id}
                 defaultModuleUhCourseCode={defaultModuleUhCourseCode}
                 reset={reset}
-                readOnly={courseAuditingData}
+                courseAuditingData={courseAuditingData}
                 queryClient={queryClient}
               />
               {courseAuditingData.closed_at ? (

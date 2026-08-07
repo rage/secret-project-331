@@ -13,13 +13,13 @@ import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { undefinedToNull } from "@/shared-module/common/utils/nullability"
 import { Button } from "@/shared-module/components"
 
-import { initDefaultValues, type EditCourseAuditingData } from "./CourseAuditingCard"
+import { buildFormValues, type EditCourseAuditingData } from "./CourseAuditingCard"
 
 interface Props {
   courseId: string
   defaultModuleUhCourseCode: string | null | undefined
   reset: UseFormReset<EditCourseAuditingData>
-  readOnly: CourseAuditingData
+  courseAuditingData: CourseAuditingData
   queryClient: QueryClient
 }
 
@@ -27,7 +27,7 @@ const CourseMetadata: React.FC<Props> = ({
   courseId,
   defaultModuleUhCourseCode,
   reset,
-  readOnly,
+  courseAuditingData: courseAuditingdata,
   queryClient,
 }) => {
   const { t } = useTranslation()
@@ -35,17 +35,14 @@ const CourseMetadata: React.FC<Props> = ({
 
   const handleOnUpdateCourse = (data: CourseMetadata) => {
     const updatedData = {
-      ...readOnly,
+      ...courseAuditingdata,
       description: undefinedToNull(data.course_description),
       prerequisites: data.course_prerequisites,
       audiences: data.course_audiences,
       updated_at: data.course_updated_at,
     }
 
-    console.log(updatedData)
-    reset(initDefaultValues(updatedData))
-
-    //setReadOnly(updatedData)
+    reset(buildFormValues(updatedData))
 
     queryClient.setQueryData(getCoursesForAuditingQueryKey(), (old: CourseAuditingData[]) => {
       if (!old) {

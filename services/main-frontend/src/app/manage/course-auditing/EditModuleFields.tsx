@@ -19,7 +19,7 @@ interface Props {
 const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
   const { t } = useTranslation()
 
-  const override = useWatch({ name: `modules.${idx}.override_completion_link`, control })
+  const override = useWatch({ name: `modules.${idx}.override_completion_link` as const, control })
 
   return (
     <div
@@ -44,19 +44,19 @@ const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
       <Checkbox
         control={control}
         label={t("override-completion-registration-link")}
-        name={`modules.${idx}.override_completion_link`}
+        name={`modules.${idx}.override_completion_link` as const}
       />
       <TextField
         control={control}
         label={t("completion-registration-link")}
-        name={`modules.${idx}.completion_registration_link_override`}
+        name={`modules.${idx}.completion_registration_link_override` as const}
         rules={nullIfEmpty}
         isDisabled={!override}
       />
       <Checkbox
         control={control}
         label={t("label-enable-registering-completion-to-uh-open-university")}
-        name={`modules.${idx}.enable_registering_completion_to_uh_open_university`}
+        name={`modules.${idx}.enable_registering_completion_to_uh_open_university` as const}
       />
       <div
         key={module.id}
@@ -70,13 +70,13 @@ const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
         <TextField
           control={control}
           label={t("uh-course-code")}
-          name={`modules.${idx}.uh_course_code`}
+          name={`modules.${idx}.uh_course_code` as const}
           rules={nullIfEmpty}
         />
         <TextField
           control={control}
           label={t("ects-credits")}
-          name={`modules.${idx}.ects_credits`}
+          name={`modules.${idx}.ects_credits` as const}
           // oxlint-disable-next-line i18next/no-literal-string
           inputMode="decimal"
           type="number"

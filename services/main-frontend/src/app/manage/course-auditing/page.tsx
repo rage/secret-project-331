@@ -1,10 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { ArrowDown, Filter } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useDebounce } from "use-debounce"
@@ -15,7 +15,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, Checkbox, nullIfEmpty, QueryResult, TextField } from "@/shared-module/components"
+import { Button, nullIfEmpty, QueryResult, Switch, TextField } from "@/shared-module/components"
 
 import CourseAuditingCard from "./CourseAuditingCard"
 
@@ -26,8 +26,21 @@ export interface CourseFilter {
   short_description: boolean
 }
 
+const FieldSet = styled.fieldset`
+  margin-bottom: 1rem;
+  border: 1px solid ${baseTheme.colors.gray[200]};
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+`
+
+const Legend = styled.legend`
+  font-weight: 600;
+  padding: 0 0.25rem;
+`
+
 export const contentRowStyles = css`
   display: flex;
+  flex-flow: row wrap;
   align-items: normal;
   justify-content: space-between;
   gap: 1rem;
@@ -47,8 +60,6 @@ const CourseAuditing = () => {
       short_description: false,
     },
   })
-
-  const [expanded, setExpanded] = useState<boolean>(false)
 
   const [searchCourse, emptyUhCourseCode, notClosed, shortDescription] = watch([
     "search_course",
@@ -107,93 +118,22 @@ const CourseAuditing = () => {
       `}
     >
       <h1>{t("title-course-auditing")}</h1>
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 0;
-          padding: 1rem 1.1rem;
-          border-radius: 0.5rem;
-          border: 1px solid ${baseTheme.colors.gray[200]};
-          background: ${baseTheme.colors.gray[50]};
-        `}
-      >
-        <div
-          className={css`
-            display: flex;
-            align-items: normal;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-          `}
-        >
-          <button
-            type="button"
+      <FieldSet>
+        <Legend>{t("filters")}</Legend>
+        <div className={contentRowStyles}>
+          <div
             className={css`
-              display: flex;
-              align-items: center;
-              gap: 0.5rem;
-              margin: 0;
-              padding: 0.25rem 0.35rem;
-              margin-left: -0.35rem;
-              border: none;
-              background: transparent;
-              cursor: pointer;
-              text-align: left;
-              font: inherit;
-              color: ${baseTheme.colors.gray[900]};
-              border-radius: 0.35rem;
-
-              &:hover {
-                background: ${baseTheme.colors.gray[100]};
-              }
-
-              &:focus-visible {
-                outline: 2px solid ${baseTheme.colors.green[600]};
-                outline-offset: 2px;
-                border-radius: 0.25rem;
-              }
+              flex: 1 1 400px;
             `}
-            onClick={() => setExpanded(!expanded)}
           >
-            <span
-              className={css`
-                display: inline-flex;
-                flex-shrink: 0;
-                line-height: 0;
-                color: ${baseTheme.colors.gray[500]};
-                transform: rotate(${expanded ? "180deg" : "0deg"});
-                transition: transform 0.15s ease;
-              `}
-              aria-hidden
-            >
-              <ArrowDown size={14} />
-            </span>
-            <span
-              className={css`
-                flex-shrink: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 2.25rem;
-                height: 2.25rem;
-                border-radius: 0.375rem;
-                background: ${baseTheme.colors.green[50]};
-                color: ${baseTheme.colors.green[700]};
-              `}
-              aria-hidden
-            >
-              <Filter size={18} />
-            </span>
-            <span
-              className={css`
-                font-size: 1.15rem;
-                font-weight: 600;
-                color: ${baseTheme.colors.gray[900]};
-              `}
-            >
-              {expanded ? t("course-auditing-collapse-filter") : t("course-auditing-expand-filter")}
-            </span>
-          </button>
+            <TextField
+              name="search_course"
+              control={control}
+              rules={nullIfEmpty}
+              label={t("course-auditing-filter-search-course")}
+              description={t("course-auditing-filter-search-course-description")}
+            />
+          </div>
           <Button
             type="submit"
             variant="primary"
@@ -205,40 +145,23 @@ const CourseAuditing = () => {
           </Button>
         </div>
         <div className={contentRowStyles}>
-          <TextField
-            name="search_course"
+          <Switch
+            name="empty_uh_course_code"
             control={control}
-            rules={nullIfEmpty}
-            label={t("course-auditing-filter-search-course")}
-            description={t("course-auditing-filter-search-course-description")}
+            label={t("course-auditing-filter-empty-uh-course-code")}
+          />
+          <Switch
+            name="not_closed"
+            control={control}
+            label={t("course-auditing-filter-not-closed")}
+          />
+          <Switch
+            name="short_description"
+            control={control}
+            label={t("course-auditing-filter-short-description")}
           />
         </div>
-        {expanded && (
-          <div
-            className={css`
-              display: flex;
-              flex-direction: column;
-              gap: 1rem;
-            `}
-          >
-            <Checkbox
-              name="empty_uh_course_code"
-              control={control}
-              label={t("course-auditing-filter-empty-uh-course-code")}
-            />
-            <Checkbox
-              name="not_closed"
-              control={control}
-              label={t("course-auditing-filter-not-closed")}
-            />
-            <Checkbox
-              name="short_description"
-              control={control}
-              label={t("course-auditing-filter-short-description")}
-            />
-          </div>
-        )}
-      </div>
+      </FieldSet>
       <QueryResult query={getCoursesForAuditing} treatEmptyAsData>
         {() => (
           <div

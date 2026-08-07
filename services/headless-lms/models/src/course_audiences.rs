@@ -126,7 +126,7 @@ SET audience = EXCLUDED.audience
 WHERE EXCLUDED.deleted_at IS NULL
 RETURNING *
 ",
-        &course_id,
+        course_id,
         &audience_ids,
         &updated_audiences
     )

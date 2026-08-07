@@ -128,7 +128,7 @@ SET prerequisite = EXCLUDED.prerequisite
 WHERE EXCLUDED.deleted_at IS NULL
 RETURNING *
 ",
-        &course_id,
+        course_id,
         &prerequisite_ids,
         &updated_prerequisites
     )

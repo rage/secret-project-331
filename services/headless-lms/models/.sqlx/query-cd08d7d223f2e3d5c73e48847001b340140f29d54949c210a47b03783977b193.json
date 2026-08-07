@@ -164,7 +164,8 @@
                 "waiting_for_peer_reviews",
                 "waiting_for_manual_grading",
                 "reviewed_and_locked",
-                "locked"
+                "locked",
+                "not_answered_and_locked"
               ]
             }
           }

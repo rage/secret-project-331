@@ -422,28 +422,23 @@ pub async fn get_exercise_ids_with_submissions_for_user(
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<Vec<Uuid>> {
-    #[derive(sqlx::FromRow)]
-    struct ExerciseIdRow {
-        exercise_id: Uuid,
-    }
-
-    let rows: Vec<ExerciseIdRow> = sqlx::query_as::<_, ExerciseIdRow>(
+    let exercise_ids = sqlx::query_scalar!(
         r#"
         SELECT DISTINCT exercise_id
         FROM exercise_slide_submissions
-        WHERE exercise_id = ANY($1::uuid[])
+        WHERE exercise_id = ANY($1)
           AND user_id = $2
           AND course_id = $3
           AND deleted_at IS NULL
         "#,
+        exercise_ids,
+        user_id,
+        course_id,
     )
-    .bind(exercise_ids)
-    .bind(user_id)
-    .bind(course_id)
     .fetch_all(conn)
     .await?;
 
-    Ok(rows.into_iter().map(|r| r.exercise_id).collect())
+    Ok(exercise_ids)
 }
 
 pub async fn get_users_submissions_for_exercise(

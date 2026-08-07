@@ -71,3 +71,18 @@ SELECT NOT retryable
     AND first_failed_at < retry_window_expired_before
   )
 $$;
+
+-- A product whose refresh has never succeeded has no row to write the failure to, so the reason is
+-- lost and the product sits at the head of the refresh queue for ever. Nullable columns let the
+-- failure be recorded before any token exists, the same way a realisation records a failed listing.
+ALTER TABLE open_university_product_access_tokens
+ALTER COLUMN access_token DROP NOT NULL,
+  ALTER COLUMN state DROP NOT NULL,
+  ALTER COLUMN document_state DROP NOT NULL,
+  ALTER COLUMN last_refreshed_at DROP NOT NULL,
+  ALTER COLUMN last_refreshed_at DROP DEFAULT;
+
+COMMENT ON COLUMN open_university_product_access_tokens.access_token IS 'The token itself, null until a refresh succeeds. A secret: it must never reach a log line or a stored Suotar body sample.';
+COMMENT ON COLUMN open_university_product_access_tokens.state IS 'Token state as Suotar reports it, null until a refresh succeeds.';
+COMMENT ON COLUMN open_university_product_access_tokens.document_state IS 'Document state as Suotar reports it, null until a refresh succeeds.';
+COMMENT ON COLUMN open_university_product_access_tokens.last_refreshed_at IS 'When the token was last successfully refreshed, null if none ever has. Ordered against last_refresh_failed_at so a product that keeps failing cannot starve the rest of the queue.';

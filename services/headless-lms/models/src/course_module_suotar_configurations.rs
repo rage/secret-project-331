@@ -23,7 +23,12 @@ pub struct CourseModuleSuotarConfiguration {
 }
 
 /// The products whose access tokens are worth refreshing: those configured on an enabled, unpaused
-/// module, stalest first. One product can back several modules, so each appears once.
+/// module, least recently attempted first. One product can back several modules, so each appears
+/// once.
+///
+/// Ordered by the last attempt rather than the last success, so a product whose refresh keeps
+/// failing rotates to the back instead of holding the head of the queue and starving everything
+/// behind it.
 pub async fn get_stalest_product_ids_for_enabled_modules(
     conn: &mut PgConnection,
     limit: i64,
@@ -43,8 +48,9 @@ WHERE c.open_university_product_id IS NOT NULL
   AND cm.deleted_at IS NULL
   AND ($2::uuid IS NULL OR cm.course_id = $2)
 GROUP BY c.open_university_product_id,
-  t.last_refreshed_at
-ORDER BY t.last_refreshed_at ASC NULLS FIRST,
+  t.last_refreshed_at,
+  t.last_refresh_failed_at
+ORDER BY GREATEST(t.last_refreshed_at, t.last_refresh_failed_at) ASC NULLS FIRST,
   c.open_university_product_id
 LIMIT $1
         "#,
@@ -52,6 +58,25 @@ LIMIT $1
         course_id,
     )
     .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Whether the module already has a live configuration row. Lets a caller tell "nothing to store"
+/// apart from "the teacher cleared what was stored", which look the same in an edit payload.
+pub async fn exists(conn: &mut PgConnection, course_module_id: Uuid) -> ModelResult<bool> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM course_module_suotar_configurations
+    WHERE course_module_id = $1
+      AND deleted_at IS NULL
+  ) AS "exists!"
+        "#,
+        course_module_id,
+    )
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
@@ -91,15 +116,23 @@ RETURNING *
     Ok(res)
 }
 
+/// Who paused a module's credit registration, and why. One value rather than three arguments
+/// because `course_module_suotar_configurations_pause_pair` rejects a timestamp without an actor.
+#[derive(Debug, Clone)]
+pub struct SuotarPause<'a> {
+    pub paused_at: DateTime<Utc>,
+    pub paused_by_user_id: Uuid,
+    pub reason: Option<&'a str>,
+}
+
 /// Pauses or resumes the module. Every phase's claim query skips a paused module, so pausing freezes
 /// its ledger rows where they stand instead of cancelling them. `None` resumes.
 pub async fn set_paused(
     conn: &mut PgConnection,
     course_module_id: Uuid,
-    paused_at: Option<DateTime<Utc>>,
-    paused_by_user_id: Option<Uuid>,
-    pause_reason: Option<&str>,
+    pause: Option<SuotarPause<'_>>,
 ) -> ModelResult<()> {
+    let pause = pause.as_ref();
     sqlx::query!(
         r#"
 UPDATE course_module_suotar_configurations
@@ -110,9 +143,9 @@ WHERE course_module_id = $1
   AND deleted_at IS NULL
         "#,
         course_module_id,
-        paused_at,
-        paused_by_user_id,
-        pause_reason,
+        pause.map(|pause| pause.paused_at),
+        pause.map(|pause| pause.paused_by_user_id),
+        pause.and_then(|pause| pause.reason),
     )
     .execute(conn)
     .await?;

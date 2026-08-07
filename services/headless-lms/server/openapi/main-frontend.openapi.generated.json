@@ -16557,7 +16557,7 @@
       },
       "CourseModule": {
         "type": "object",
-        "description": "\n * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).",
+        "description": "Like [CourseModulesSchema], but the automatic-completion columns are collapsed into\n`completion_policy`.",
         "required": [
           "id",
           "created_at",
@@ -19985,8 +19985,8 @@
           "course_slug",
           "course_module_id",
           "completion_date",
-          "state",
           "student_facing_status",
+          "consent_withdrawn_while_in_flight",
           "status_is_moving",
           "next_attempt_at",
           "attempt_number",
@@ -20004,6 +20004,10 @@
           "completion_date": {
             "type": "string",
             "format": "date-time"
+          },
+          "consent_withdrawn_while_in_flight": {
+            "type": "boolean",
+            "description": "The one thing the page needs beyond the status: the outcome of an import that was already in\nflight is unknown, so it gets its own copy.\n\nThe ledger state itself is deliberately not on the wire. Eligibility includes\n`NOT needs_to_be_reviewed`, so `blocked` would tell a student they have been flagged as a\nsuspected cheater — which `users.rs` hides from them for that exact reason. Every cause of\n`not_registering` has to stay indistinguishable here."
           },
           "course_id": {
             "type": "string",
@@ -20050,6 +20054,10 @@
           "grade_id": {
             "type": ["string", "null"]
           },
+          "grade_scale_id": {
+            "type": ["string", "null"],
+            "description": "Names the scale `grade_id` is on, without which \"1\" reads as a one out of five when it means\na pass."
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -20075,9 +20083,6 @@
           },
           "sisu_attainment_id": {
             "type": ["string", "null"]
-          },
-          "state": {
-            "$ref": "#/components/schemas/CreditRegistrationState"
           },
           "status_is_moving": {
             "type": "boolean",

@@ -525,7 +525,9 @@ impl RegistrationScope {
 /// Claims up to `limit` due rows in the given states for this worker.
 ///
 /// The row locks live until the caller's transaction ends, so callers must pass a transaction. Rows
-/// on a paused course module are never claimed, enforced here so no phase can forget it.
+/// on a paused course module, or on one whose credit registration has been switched off, are never
+/// claimed: enforced here so no phase can forget it. Both freeze a row where it stands rather than
+/// cancelling it, so switching the module back on resumes the rows that were already in flight.
 pub async fn claim_due(
     conn: &mut PgConnection,
     states: &[CreditRegistrationState],
@@ -538,12 +540,15 @@ pub async fn claim_due(
 WITH due AS (
   SELECT cr.id
   FROM credit_registrations cr
+    JOIN course_modules cm ON cm.id = cr.course_module_id
+    AND cm.deleted_at IS NULL
     LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cr.course_module_id
     AND c.deleted_at IS NULL
   WHERE cr.deleted_at IS NULL
     AND cr.superseded_by_id IS NULL
     AND cr.state = ANY($1::credit_registration_state [])
     AND cr.next_attempt_at <= now()
+    AND cm.enable_credit_registration_via_suotar
     AND c.paused_at IS NULL
     AND ($3::uuid IS NULL OR cr.course_id = $3)
     AND ($4::uuid IS NULL OR cr.user_id = $4)
@@ -711,6 +716,9 @@ pub struct StudentCreditRegistration {
     pub sisu_attainment_id: Option<String>,
     pub credits: Option<f32>,
     pub grade_id: Option<String>,
+    /// Needed to read `grade_id`: "1" is a pass on the pass/fail scale and a one out of five on the
+    /// numeric one.
+    pub grade_scale_id: Option<String>,
     pub attempt_number: i32,
     pub superseded_by_id: Option<Uuid>,
     pub superseded_at: Option<DateTime<Utc>>,
@@ -748,6 +756,7 @@ SELECT cr.id,
   cr.sisu_attainment_id,
   cr.credits,
   cr.grade_id,
+  cr.grade_scale_id,
   cr.attempt_number,
   cr.superseded_by_id,
   cr.superseded_at,

@@ -6,6 +6,7 @@
 
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -439,6 +440,10 @@ pub struct SuotarClient {
     api_base_url: Url,
     authorization: SecretString,
     audit: Arc<dyn SuotarCallAudit>,
+    /// Requests that actually left for the study registry, shared by every clone of the client.
+    /// The circuit breaker reads it to tell an iteration that heard from the registry from one that
+    /// found nothing to ask about; a pre-flight refusal is not counted because it never reached it.
+    exchanges: Arc<AtomicU64>,
 }
 
 impl SuotarClient {
@@ -449,6 +454,7 @@ impl SuotarClient {
                 authorization_header_value(config.api_token.expose_secret()).into(),
             ),
             audit,
+            exchanges: Arc::new(AtomicU64::new(0)),
         }
     }
 
@@ -458,7 +464,14 @@ impl SuotarClient {
                 .expect("hardcoded url"),
             authorization: SecretString::new(authorization_header_value(MOCK_SUOTAR_TOKEN).into()),
             audit: Arc::new(NoSuotarCallAudit),
+            exchanges: Arc::new(AtomicU64::new(0)),
         }
+    }
+
+    /// How many requests this client has sent, monotonic for the life of the process. Compare two
+    /// readings to learn whether the work between them reached the study registry at all.
+    pub fn exchange_count(&self) -> u64 {
+        self.exchanges.load(Ordering::Relaxed)
     }
 
     pub async fn resolve_persons(
@@ -578,6 +591,7 @@ impl SuotarClient {
             request = request.header(CORRELATION_ID_HEADER, call_id.to_string());
         }
 
+        self.exchanges.fetch_add(1, Ordering::Relaxed);
         let (mut outcome, finished) = self
             .exchange(endpoint, request, encoded, sent_ids, clock)
             .await;
@@ -693,27 +707,37 @@ impl SuotarClient {
                 );
             }
         };
-        let items: Vec<SuotarResponseItem<R>> = match serde_json::from_value(
-            (*raw_response).clone(),
-        ) {
-            Ok(items) => items,
-            Err(error) => {
-                return failed(
-                    util_err!(
-                        SuotarClientError(SuotarErrorVariant::Deserialization),
-                        format!(
-                            "Suotar {} answered {http_status} with a body that is not a batch response",
-                            endpoint.path()
-                        ),
-                        error
-                    ),
-                    Some(http_status),
-                    duration,
-                    None,
-                    Some(raw_response),
-                );
-            }
+        let Some(array) = raw_response.as_array() else {
+            return failed(
+                util_err!(
+                    SuotarClientError(SuotarErrorVariant::Deserialization),
+                    format!(
+                        "Suotar {} answered {http_status} with a body that is not a batch response",
+                        endpoint.path()
+                    )
+                ),
+                Some(http_status),
+                duration,
+                None,
+                Some(raw_response),
+            );
         };
+        // Item by item, so one malformed entry costs only its own row: parsing the array as a whole
+        // would park every other row of the batch as unanswered too. `reconcile` then reports the
+        // dropped ids as missing, which is what an item we cannot read amounts to.
+        let items: Vec<SuotarResponseItem<R>> = array
+            .iter()
+            .filter_map(|item| match serde_json::from_value(item.clone()) {
+                Ok(parsed) => Some(parsed),
+                Err(error) => {
+                    error!(
+                        "Suotar {} answered with an item that could not be read; treating it as unanswered: {error}",
+                        endpoint.path()
+                    );
+                    None
+                }
+            })
+            .collect();
 
         let response = reconcile(
             endpoint,

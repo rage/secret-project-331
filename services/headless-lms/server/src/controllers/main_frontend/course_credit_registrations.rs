@@ -44,6 +44,13 @@ const MAX_TEACHER_RESENDS_PER_HOUR: i64 = 20;
 /// Marks the resend's study registry call in the call log as a manual action, not worker traffic.
 const RESEND_CALLER: &str = "teacher-resend";
 
+/// The by-user-ids lookup is bounded by what the caller names rather than by a page, so the payload
+/// itself has to be bounded. Comfortably above the students tab's page size.
+const MAX_USER_IDS_PER_REQUEST: usize = 500;
+
+/// A regrade adds an attempt per student. Only a bound for the query above, not a rule.
+const MAX_REGISTRATION_ROWS_PER_USER: i64 = 50;
+
 #[derive(OpenApi)]
 #[openapi(paths(
     get_course_credit_registration_module_configs,
@@ -389,6 +396,12 @@ pub async fn get_course_credit_registrations_for_users(
     )
     .await?;
 
+    if payload.user_ids.len() > MAX_USER_IDS_PER_REQUEST {
+        return Err(controller_err!(
+            BadRequest,
+            format!("Name at most {MAX_USER_IDS_PER_REQUEST} students per request.")
+        ));
+    }
     let rows = models::credit_registrations::get_teacher_facing_by_course_id(
         &mut conn,
         *course_id,
@@ -397,7 +410,10 @@ pub async fn get_course_credit_registrations_for_users(
             course_instance_id: payload.course_instance_id,
             ..TeacherCreditRegistrationFilters::default()
         },
-        i64::MAX,
+        // Every attempt of every named student, not a page: the tab renders one cell per student and
+        // a student's superseded attempts belong in it. Bounded by the cap above rather than by a
+        // page size, which is why the sibling endpoints' `Pagination` does not apply.
+        MAX_REGISTRATION_ROWS_PER_USER * MAX_USER_IDS_PER_REQUEST as i64,
         0,
     )
     .await?;
@@ -620,6 +636,9 @@ pub async fn resend_course_credit_registration_linking_email(
         caller: RESEND_CALLER,
         base_url: &app_conf.base_url,
     };
+    // Released first: the call below takes connections of its own and can hold the request for the
+    // whole Suotar timeout, so keeping this one would tie up three of the pool per resend.
+    drop(conn);
     let attempt = resend_linking_mail_for_target(
         &ctx,
         *course_id,
@@ -627,6 +646,7 @@ pub async fn resend_course_credit_registration_linking_email(
         Box::pin(async { Ok(0) }),
     )
     .await?;
+    let mut conn = pool.acquire().await?;
     let outcome = match attempt.decision {
         ResendDecision::AlreadyLinked => ResendLinkingEmailOutcome::AlreadyLinked,
         ResendDecision::Attempted(LinkingMailResendOutcome::Claimed) => {

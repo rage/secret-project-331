@@ -110,7 +110,7 @@ const RegistrationsPage: React.FC = () => {
 
   const attention = param(PARAM_ATTENTION) === TRUE
   const superseded = param(PARAM_SUPERSEDED) === TRUE
-  const { control, watch, reset, handleSubmit } = useForm<FilterFields>({
+  const { control, watch, reset, setValue, handleSubmit } = useForm<FilterFields>({
     defaultValues: {
       search: param(PARAM_SEARCH) ?? "",
       attention,
@@ -138,22 +138,13 @@ const RegistrationsPage: React.FC = () => {
     [router, searchParams],
   )
 
-  // The checkboxes only push into the query string; the params above stay the source of truth for
-  // what is filtered, so an externally changed URL cannot disagree with what the boxes show.
-  const checkedAttention = watch("attention")
-  const checkedSuperseded = watch("superseded")
+  // The params are the source of truth for what is filtered, so the boxes follow the URL: Back, or
+  // a shared link, has to move them. `setValue` does not fire the `onChange` rules below, so this
+  // cannot bounce back into the URL and undo the navigation that caused it.
   useEffect(() => {
-    const changes: Record<string, string | undefined> = {}
-    if (checkedAttention !== attention) {
-      changes[PARAM_ATTENTION] = checkedAttention ? TRUE : undefined
-    }
-    if (checkedSuperseded !== superseded) {
-      changes[PARAM_SUPERSEDED] = checkedSuperseded ? TRUE : undefined
-    }
-    if (Object.keys(changes).length > 0) {
-      applyParams(changes)
-    }
-  }, [checkedAttention, checkedSuperseded, attention, superseded, applyParams])
+    setValue("attention", attention)
+    setValue("superseded", superseded)
+  }, [attention, superseded, setValue])
 
   const query = useMemo(() => {
     const state = param(PARAM_STATE)
@@ -202,11 +193,19 @@ const RegistrationsPage: React.FC = () => {
           name="attention"
           control={control}
           label={t("credit-registration-admin-only-needs-attention")}
+          rules={{
+            onChange: (event) =>
+              applyParams({ [PARAM_ATTENTION]: event.target.checked ? TRUE : undefined }),
+          }}
         />
         <Checkbox
           name="superseded"
           control={control}
           label={t("credit-registration-admin-show-superseded")}
+          rules={{
+            onChange: (event) =>
+              applyParams({ [PARAM_SUPERSEDED]: event.target.checked ? TRUE : undefined }),
+          }}
         />
       </form>
       {activeNarrowings.length > 0 && (

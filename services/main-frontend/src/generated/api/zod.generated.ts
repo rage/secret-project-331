@@ -954,8 +954,8 @@ export const zCourseInstanceForm = z.object({
 })
 
 /**
- *
- * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+ * `completion_policy`.
  */
 export const zCourseModule = z.object({
   certification_enabled: z.boolean(),
@@ -3663,6 +3663,7 @@ export const zMyCreditRegistration = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   can_request_enrolment_recheck: z.boolean(),
   completion_date: z.iso.datetime(),
+  consent_withdrawn_while_in_flight: z.boolean(),
   course_id: z.uuid(),
   course_module_id: z.uuid(),
   course_module_name: z.string().nullish(),
@@ -3674,12 +3675,12 @@ export const zMyCreditRegistration = z.object({
   enrolment_realisation_name: z.string().nullish(),
   error_code: zCreditRegistrationErrorCode.nullish(),
   grade_id: z.string().nullish(),
+  grade_scale_id: z.string().nullish(),
   id: z.uuid(),
   linking_email: zLinkingEmailStatus.nullish(),
   next_attempt_at: z.iso.datetime(),
   registered_at: z.iso.datetime().nullish(),
   sisu_attainment_id: z.string().nullish(),
-  state: zCreditRegistrationState,
   status_is_moving: z.boolean(),
   student_facing_status: zStudentFacingCreditRegistrationStatus,
   superseded: z.boolean(),

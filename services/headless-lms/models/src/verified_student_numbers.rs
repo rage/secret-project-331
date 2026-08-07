@@ -190,6 +190,27 @@ WHERE student_number = $1
     Ok(res)
 }
 
+/// The live link for one Sisu person. Unique alongside the student number, so a programme change
+/// that issues a new number still collides here.
+pub async fn get_by_sisu_person_id(
+    conn: &mut PgConnection,
+    sisu_person_id: &str,
+) -> ModelResult<Option<VerifiedStudentNumber>> {
+    let res = sqlx::query_as!(
+        VerifiedStudentNumber,
+        r#"
+SELECT *
+FROM verified_student_numbers
+WHERE sisu_person_id = $1
+  AND deleted_at IS NULL
+        "#,
+        sisu_person_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_user_ids(
     conn: &mut PgConnection,
     user_ids: &[Uuid],

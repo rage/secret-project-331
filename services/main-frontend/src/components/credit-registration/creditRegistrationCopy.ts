@@ -2,7 +2,6 @@ import type { TFunction } from "i18next"
 
 import type {
   CreditRegistrationErrorCode,
-  CreditRegistrationState,
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
 import type { RegistrationStatusState, RegistrationStatusStep } from "@/shared-module/components"
@@ -137,15 +136,43 @@ export const registrationStepperSteps = (
   })
 }
 
-/** A withdrawal that caught an already-sent import has its own copy: the outcome is unknown. */
+/**
+ * A withdrawal that caught an already-sent import has its own copy: the outcome is unknown.
+ *
+ * Takes the one distinction as a flag rather than the ledger state, because the student-facing
+ * payload deliberately does not carry the state — it would say which of the `not_registering`
+ * causes applies, including being flagged as a suspected cheater.
+ */
 export const registrationExplanation = (
   t: TFunction,
   status: StudentFacingCreditRegistrationStatus,
-  state: CreditRegistrationState,
+  withdrawnWhileInFlight: boolean,
 ): string =>
-  state === "abandoned_by_consent_withdrawal"
+  withdrawnWhileInFlight
     ? t(WITHDRAWN_WHILE_IN_FLIGHT_KEY)
     : labelFrom(t, STATUS_EXPLANATION_KEYS, status, STATUS_EXPLANATION_KEYS.waiting_for_completion)
+
+/** Matches `grade_mapping.rs`: both spellings of the pass/fail scale are in circulation. */
+const PASS_FAIL_GRADE_SCALE_IDS = ["sis-hyl-hyv", "sis-hyv-hyl"]
+const PASS_GRADE_ID = "1"
+
+/**
+ * The grade as a student reads it. `grade_id` is the study registry's code, so on the pass/fail
+ * scale it is "1" or "0" and showing it raw reads as a one or a zero out of five.
+ */
+export const registrationGradeLabel = (
+  t: TFunction,
+  gradeId: string | null | undefined,
+  gradeScaleId: string | null | undefined,
+): string => {
+  if (!gradeId) {
+    return t("unknown-grade")
+  }
+  if (gradeScaleId && PASS_FAIL_GRADE_SCALE_IDS.includes(gradeScaleId)) {
+    return gradeId === PASS_GRADE_ID ? t("grade-pass") : t("grade-fail")
+  }
+  return gradeId
+}
 
 export const registrationErrorHelp = (
   t: TFunction,

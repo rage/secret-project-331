@@ -72,8 +72,15 @@ pub struct MyCreditRegistration {
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     pub completion_date: DateTime<Utc>,
-    pub state: CreditRegistrationState,
     pub student_facing_status: StudentFacingCreditRegistrationStatus,
+    /// The one thing the page needs beyond the status: the outcome of an import that was already in
+    /// flight is unknown, so it gets its own copy.
+    ///
+    /// The ledger state itself is deliberately not on the wire. Eligibility includes
+    /// `NOT needs_to_be_reviewed`, so `blocked` would tell a student they have been flagged as a
+    /// suspected cheater — which `users.rs` hides from them for that exact reason. Every cause of
+    /// `not_registering` has to stay indistinguishable here.
+    pub consent_withdrawn_while_in_flight: bool,
     /// Whether the pipeline is still expected to move this row: drives the status page's polling.
     pub status_is_moving: bool,
     pub error_code: Option<CreditRegistrationErrorCode>,
@@ -81,6 +88,9 @@ pub struct MyCreditRegistration {
     pub registered_at: Option<DateTime<Utc>>,
     pub sisu_attainment_id: Option<String>,
     pub grade_id: Option<String>,
+    /// Names the scale `grade_id` is on, without which "1" reads as a one out of five when it means
+    /// a pass.
+    pub grade_scale_id: Option<String>,
     pub credits: Option<f32>,
     pub attempt_number: i32,
     pub superseded: bool,
@@ -466,8 +476,7 @@ pub async fn preview_student_number_verification_token(
 
     let verification_token = get_token_or_404(&mut conn, &path).await?;
     let current_link = verified_student_numbers::get_by_user_id(&mut conn, user.id).await?;
-    let conflict =
-        find_conflicting_account(&mut conn, &verification_token.student_number, user.id).await?;
+    let conflict = find_conflicting_account(&mut conn, &verification_token, user.id).await?;
     let course_name = course_name_of_token(&mut conn, &verification_token).await?;
     let details = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
 
@@ -537,7 +546,7 @@ pub async fn claim_student_number_verification_token(
             ClaimStudentNumberVerificationTokenOutcome::Expired,
         )));
     }
-    if find_conflicting_account(&mut conn, &verification_token.student_number, user.id).await? {
+    if find_conflicting_account(&mut conn, &verification_token, user.id).await? {
         return auth_token.authorized_ok(web::Json(refused(
             ClaimStudentNumberVerificationTokenOutcome::StudentNumberAlreadyLinkedToAnotherAccount,
         )));
@@ -814,14 +823,16 @@ fn to_my_credit_registration(
         uh_course_code: row.uh_course_code,
         ects_credits: row.ects_credits,
         completion_date: row.completion_date,
-        state: row.state,
         student_facing_status: status,
+        consent_withdrawn_while_in_flight: row.state
+            == CreditRegistrationState::AbandonedByConsentWithdrawal,
         status_is_moving: status.is_moving(),
         error_code: row.error_code,
         next_attempt_at: row.next_attempt_at,
         registered_at: row.registered_at,
         sisu_attainment_id: row.sisu_attainment_id,
         grade_id: row.grade_id,
+        grade_scale_id: row.grade_scale_id,
         credits: row.credits,
         attempt_number: row.attempt_number,
         superseded: row.superseded_by_id.is_some(),
@@ -848,7 +859,7 @@ async fn resolve_enrolment_link(
     let link = open_university_product_access_tokens::get_by_product_id(conn, product_id)
         .await?
         .as_ref()
-        .map(open_university_product_access_tokens::enrolment_url);
+        .and_then(open_university_product_access_tokens::enrolment_url);
     cache.insert(product_id.clone(), link.clone());
     Ok(link)
 }
@@ -1004,14 +1015,24 @@ async fn get_token_or_404(
         .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))
 }
 
-/// Whether the number is live on some other account of ours.
+/// Whether the token's holder is already live on some other account of ours.
+///
+/// Both keys, because both are unique: a student who changed programme keeps their Sisu person id
+/// and gets a new number, so checking the number alone lets the claim through and then trips
+/// `uq_verified_student_numbers_person` — after the token has been spent, and as a bare 500.
 async fn find_conflicting_account(
     conn: &mut PgConnection,
-    student_number: &str,
+    token: &StudentNumberVerificationToken,
     user_id: Uuid,
 ) -> Result<bool, ControllerError> {
-    let holder = verified_student_numbers::get_by_student_number(conn, student_number).await?;
-    Ok(holder.is_some_and(|link| link.user_id != user_id))
+    let by_number =
+        verified_student_numbers::get_by_student_number(conn, &token.student_number).await?;
+    if by_number.is_some_and(|link| link.user_id != user_id) {
+        return Ok(true);
+    }
+    let by_person =
+        verified_student_numbers::get_by_sisu_person_id(conn, &token.sisu_person_id).await?;
+    Ok(by_person.is_some_and(|link| link.user_id != user_id))
 }
 
 async fn course_name_of_token(
@@ -1052,6 +1073,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/my/by-course-module/{course_module_id}",
             web::get().to(get_my_credit_registration_for_course_module),
         )
+        // `.route(web::post())`, never `.to()`: a resource's default route answers every method, so
+        // these mutations would run on a GET a link can trigger with the visitor's session cookie.
         .service(
             web::resource("/my/{id}/recheck-enrolment")
                 .wrap(RateLimit::new(RateLimitConfig {
@@ -1059,7 +1082,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                     per_hour: Some(30),
                     ..Default::default()
                 }))
-                .to(request_credit_registration_enrolment_recheck),
+                .route(web::post().to(request_credit_registration_enrolment_recheck)),
         )
         .route(
             "/student-number-verifications/{token}",
@@ -1072,7 +1095,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                     per_hour: Some(60),
                     ..Default::default()
                 }))
-                .to(claim_student_number_verification_token),
+                .route(web::post().to(claim_student_number_verification_token)),
         )
         .route(
             "/courses/{course_id}/consent",

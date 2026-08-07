@@ -1337,10 +1337,15 @@ pub async fn update_modules(
                 .set_enable_credit_registration_via_suotar(enable_credit_registration_via_suotar),
         )
         .await?;
-        // Skipped for a module that is neither enabled nor configured, so editing an unrelated
-        // module cannot create a configuration row for it — nor undelete one, since the upsert
-        // clears `deleted_at` while keeping a stale `paused_at`.
-        if enable_credit_registration_via_suotar || !credit_registration.is_empty() {
+        // Skipped for a module that is neither enabled nor configured and has nothing stored, so
+        // editing an unrelated module cannot create a configuration row for it — nor undelete one,
+        // since the upsert clears `deleted_at` while keeping a stale `paused_at`. A module that
+        // does have a row still writes, or clearing every field would be discarded rather than
+        // applied: the form submits the same empty payload either way.
+        if enable_credit_registration_via_suotar
+            || !credit_registration.is_empty()
+            || course_module_suotar_configurations::exists(&mut tx, id).await?
+        {
             set_credit_registration_config(&mut tx, id, &credit_registration).await?;
         }
     }

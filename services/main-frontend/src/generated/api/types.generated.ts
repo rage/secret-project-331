@@ -1340,8 +1340,8 @@ export type CourseMetadataUpdate = {
 }
 
 /**
- *
- * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+ * `completion_policy`.
  */
 export type CourseModule = {
   certification_enabled: boolean
@@ -2575,6 +2575,16 @@ export type MyCreditRegistration = {
   attempt_number: number
   can_request_enrolment_recheck: boolean
   completion_date: string
+  /**
+   * The one thing the page needs beyond the status: the outcome of an import that was already in
+   * flight is unknown, so it gets its own copy.
+   *
+   * The ledger state itself is deliberately not on the wire. Eligibility includes
+   * `NOT needs_to_be_reviewed`, so `blocked` would tell a student they have been flagged as a
+   * suspected cheater — which `users.rs` hides from them for that exact reason. Every cause of
+   * `not_registering` has to stay indistinguishable here.
+   */
+  consent_withdrawn_while_in_flight: boolean
   course_id: string
   course_module_id: string
   course_module_name?: string | null
@@ -2589,12 +2599,16 @@ export type MyCreditRegistration = {
   enrolment_realisation_name?: string | null
   error_code?: null | CreditRegistrationErrorCode
   grade_id?: string | null
+  /**
+   * Names the scale `grade_id` is on, without which "1" reads as a one out of five when it means
+   * a pass.
+   */
+  grade_scale_id?: string | null
   id: string
   linking_email?: null | LinkingEmailStatus
   next_attempt_at: string
   registered_at?: string | null
   sisu_attainment_id?: string | null
-  state: CreditRegistrationState
   /**
    * Whether the pipeline is still expected to move this row: drives the status page's polling.
    */

@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 
-use headless_lms_models::course_module_suotar_configurations;
+use headless_lms_models::course_module_suotar_configurations::{self, SuotarPause};
 use headless_lms_models::course_modules::{
     self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule,
     CourseModuleCreditRegistrationEdit, CourseModuleSuotarRealisationEdit, NewCourseModule,
@@ -361,9 +361,11 @@ impl ModuleBuilder {
                 course_module_suotar_configurations::set_paused(
                     conn,
                     module.id,
-                    Some(Utc::now()),
-                    None,
-                    Some(reason),
+                    Some(SuotarPause {
+                        paused_at: Utc::now(),
+                        paused_by_user_id: cx.teacher,
+                        reason: Some(reason),
+                    }),
                 )
                 .await
                 .context("pausing the module's credit registration")?;

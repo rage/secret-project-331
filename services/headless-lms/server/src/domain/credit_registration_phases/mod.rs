@@ -341,17 +341,19 @@ pub async fn run_phase_once(
     if credit_registration_phase_state::is_paused(&mut conn, phase.as_str()).await? {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::Paused));
     }
+    // A scoped run writes nothing to the phase-state row: that row describes the workers, and a
+    // test's traffic in it would make a dead worker look alive to the heartbeat alert.
+    let bookkeeping = scope.is_unscoped();
+    // Before the breaker check, unlike the pause above, which health.rs excludes from the staleness
+    // alert by itself. A cooldown is a worker deliberately waiting, not a worker that died, and
+    // skipping the heartbeat through it would raise a critical alert within a tick or two.
+    if bookkeeping {
+        credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
+    }
     let breaker_key = breaker::ScopeKey::of(scope);
     if phase.calls_study_registry() && breaker::is_open(&breaker_key) {
         // Only these stop: an outage must not stall the database-only phases.
         return Ok(PhaseTick::Skipped(PhaseSkipReason::CircuitBreakerOpen));
-    }
-
-    // A scoped run writes nothing to the phase-state row: that row describes the workers, and a
-    // test's traffic in it would make a dead worker look alive to the heartbeat alert.
-    let bookkeeping = scope.is_unscoped();
-    if bookkeeping {
-        credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
     }
     drop(conn);
 
@@ -370,6 +372,7 @@ pub async fn run_phase_once(
             }
         };
 
+    let exchanges_before = ctx.suotar_client.exchange_count();
     let outcome = match body.await {
         Ok(outcome) => outcome,
         Err(error) => PhaseRunOutcome {
@@ -384,7 +387,12 @@ pub async fn run_phase_once(
             phase.as_str()
         );
     }
-    if phase.calls_study_registry() {
+    // An iteration that never sent a request says nothing about whether the study registry is up,
+    // so it must neither count against the breaker nor clear a run of failures. Phases share one
+    // breaker, and an empty queue is the common case: without this, a phase with nothing to do
+    // resets the counter every tick and the breaker never opens during an outage.
+    let reached_study_registry = ctx.suotar_client.exchange_count() > exchanges_before;
+    if phase.calls_study_registry() && reached_study_registry {
         if outcome.error.is_some() {
             if breaker::record_failure(&breaker_key, breaker::cooldown(ctx.test_mode)) {
                 warn!(
@@ -491,6 +499,23 @@ pub(crate) async fn apply_outcome(
     Ok(())
 }
 
+/// Whether the error is `transition` refusing to write because another writer moved the row since
+/// the snapshot the decision was made from.
+///
+/// A phase that hits this on one row of a batch must skip that row and carry on: the row belongs to
+/// whoever moved it, and aborting the loop would leave every row after it in the state the phase's
+/// own preflight wrote, with no phase claiming that state again.
+pub(crate) fn row_moved_on(error: &anyhow::Error) -> bool {
+    error
+        .downcast_ref::<headless_lms_models::ModelError>()
+        .is_some_and(|error| {
+            matches!(
+                error.error_type(),
+                headless_lms_models::ModelErrorType::PreconditionFailed
+            )
+        })
+}
+
 /// Whether an outcome counts against the iteration's `items_failed`: an error code is a failed
 /// item, so a verify poll answered `notRegistered` is not one.
 pub(crate) fn counts_as_failed(outcome: &Outcome) -> bool {
@@ -534,7 +559,7 @@ pub(crate) async fn request_level_failure(
     let mut conn = ctx.pool.acquire().await?;
     for (row, request) in rows.iter().zip(requests.iter()) {
         let outcome = request_level_outcome(endpoint, variant, &row_facts(row));
-        apply_outcome(
+        let applied = apply_outcome(
             &mut conn,
             row,
             &outcome,
@@ -546,7 +571,16 @@ pub(crate) async fn request_level_failure(
             },
             Some(expected_from_state),
         )
-        .await?;
+        .await;
+        if let Err(error) = applied {
+            if !row_moved_on(&error) {
+                return Err(error);
+            }
+            warn!(
+                "Credit registration {} moved on before the rejection could be recorded; leaving it. {error:#}",
+                row.id
+            );
+        }
     }
     Ok(PhaseRunOutcome {
         items_processed: i32::try_from(rows.len()).unwrap_or(i32::MAX),

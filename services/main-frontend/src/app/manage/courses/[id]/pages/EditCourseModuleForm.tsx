@@ -135,6 +135,14 @@ const EditCourseModuleForm: React.FC<Props> = ({
     name: "credit_registration.realisations",
   })
 
+  // The fields stay in form state once their section is hidden and still go out in the submit
+  // payload, so whatever turns credit registration off has to blank them.
+  const clearCreditRegistrationFields = () => {
+    setValue("credit_registration.open_university_product_id", "")
+    setValue("credit_registration.grade_scale_id", DERIVED_GRADE_SCALE)
+    realisations.replace([])
+  }
+
   const onSubmitFormWrapper = (fields: EditCourseModuleFormFields) => {
     setActive(false)
     onSubmitForm(module.id, {
@@ -364,6 +372,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   // The backend rejects both registration paths at once.
                   if (isTurningOn(event)) {
                     setValue("credit_registration.enabled", false)
+                    clearCreditRegistrationFields()
                   }
                 },
               }}
@@ -420,10 +429,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                     if (isTurningOn(event)) {
                       setValue("enable_registering_completion_to_uh_open_university", false)
                     } else {
-                      // Otherwise these survive in form state and still go out in the submit payload.
-                      setValue("credit_registration.open_university_product_id", "")
-                      setValue("credit_registration.grade_scale_id", DERIVED_GRADE_SCALE)
-                      realisations.replace([])
+                      clearCreditRegistrationFields()
                     }
                   },
                 }}

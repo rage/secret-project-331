@@ -1,3 +1,24 @@
+-- A row that only ever recorded a failure has no token to make the columns mandatory again with.
+DELETE FROM open_university_product_access_tokens
+WHERE access_token IS NULL;
+
+ALTER TABLE open_university_product_access_tokens
+ALTER COLUMN last_refreshed_at
+SET DEFAULT now(),
+  ALTER COLUMN last_refreshed_at
+SET NOT NULL,
+  ALTER COLUMN document_state
+SET NOT NULL,
+  ALTER COLUMN state
+SET NOT NULL,
+  ALTER COLUMN access_token
+SET NOT NULL;
+
+COMMENT ON COLUMN open_university_product_access_tokens.access_token IS 'The token itself. A secret: it must never reach a log line or a stored Suotar body sample.';
+COMMENT ON COLUMN open_university_product_access_tokens.state IS 'Token state as Suotar reports it.';
+COMMENT ON COLUMN open_university_product_access_tokens.document_state IS 'Document state as Suotar reports it.';
+COMMENT ON COLUMN open_university_product_access_tokens.last_refreshed_at IS 'When the token was last successfully refreshed.';
+
 DROP FUNCTION credit_registration_link_mail_is_hard_failure(BOOLEAN, TIMESTAMP WITH TIME ZONE, TIMESTAMP WITH TIME ZONE);
 
 ALTER TABLE course_module_suotar_realisations DROP COLUMN consecutive_listing_failures,
@@ -39,6 +60,28 @@ WHERE before_state = 'resolving_enrolment';
 UPDATE credit_registration_admin_actions
 SET after_state = 'checking_enrolment'
 WHERE after_state = 'resolving_enrolment';
+
+-- Folded rather than renamed: on a day both states have a row, renaming collides with
+-- uq_credit_registration_daily_snapshots and the rollback fails half-applied.
+UPDATE credit_registration_daily_snapshots target
+SET count = target.count + source.count,
+  entered_count = target.entered_count + source.entered_count,
+  left_count = target.left_count + source.left_count
+FROM credit_registration_daily_snapshots source
+WHERE source.state = 'resolving_enrolment'
+  AND target.state = 'checking_enrolment'
+  AND target.snapshot_date = source.snapshot_date
+  AND target.deleted_at IS NOT DISTINCT FROM source.deleted_at;
+
+DELETE FROM credit_registration_daily_snapshots source
+WHERE source.state = 'resolving_enrolment'
+  AND EXISTS (
+    SELECT 1
+    FROM credit_registration_daily_snapshots target
+    WHERE target.state = 'checking_enrolment'
+      AND target.snapshot_date = source.snapshot_date
+      AND target.deleted_at IS NOT DISTINCT FROM source.deleted_at
+  );
 
 UPDATE credit_registration_daily_snapshots
 SET state = 'checking_enrolment'

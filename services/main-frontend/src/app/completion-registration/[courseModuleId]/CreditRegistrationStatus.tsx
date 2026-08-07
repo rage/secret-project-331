@@ -9,6 +9,7 @@ import { TONE } from "@/components/credit-registration/constants"
 import {
   registrationErrorHelp,
   registrationExplanation,
+  registrationGradeLabel,
   registrationStatusLabel,
   registrationStatusState,
   registrationStepperSteps,
@@ -213,7 +214,9 @@ const LiveRegistration: React.FC<{
       />
       <Infobox tone={state === "action-needed" || state === "failed" ? TONE.WARNING : TONE.INFO}>
         <div className={infoboxBodyCss}>
-          <p>{registrationExplanation(t, status, registration.state)}</p>
+          <p>
+            {registrationExplanation(t, status, registration.consent_withdrawn_while_in_flight)}
+          </p>
           {errorHelp ? <p>{errorHelp}</p> : null}
           {status === "needs_student_number" ? (
             <LinkingEmailLine linkingEmail={registration.linking_email} />
@@ -286,7 +289,7 @@ const EarlierAttempt: React.FC<{ attempt: MyCreditRegistration }> = ({ attempt }
       <span>
         {t("credit-registration-earlier-attempt-summary", {
           attempt: attempt.attempt_number,
-          grade: attempt.grade_id ?? t("unknown-grade"),
+          grade: registrationGradeLabel(t, attempt.grade_id, attempt.grade_scale_id),
         })}
       </span>
     </div>

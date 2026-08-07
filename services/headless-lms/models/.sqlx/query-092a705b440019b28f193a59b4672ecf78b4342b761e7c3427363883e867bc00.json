@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH due AS (\n  SELECT cr.id\n  FROM credit_registrations cr\n    LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cr.course_module_id\n    AND c.deleted_at IS NULL\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.state = ANY($1::credit_registration_state [])\n    AND cr.next_attempt_at <= now()\n    AND c.paused_at IS NULL\n    AND ($3::uuid IS NULL OR cr.course_id = $3)\n    AND ($4::uuid IS NULL OR cr.user_id = $4)\n    AND (\n      cardinality($5::uuid []) = 0\n      OR cr.id = ANY($5::uuid [])\n    )\n  ORDER BY cr.next_attempt_at\n  FOR UPDATE OF cr SKIP LOCKED\n  LIMIT $2\n)\nUPDATE credit_registrations cr\nSET last_attempt_at = now()\nFROM due\nWHERE cr.id = due.id\nRETURNING cr.*\n        ",
+  "query": "\nWITH due AS (\n  SELECT cr.id\n  FROM credit_registrations cr\n    JOIN course_modules cm ON cm.id = cr.course_module_id\n    AND cm.deleted_at IS NULL\n    LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cr.course_module_id\n    AND c.deleted_at IS NULL\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.state = ANY($1::credit_registration_state [])\n    AND cr.next_attempt_at <= now()\n    AND cm.enable_credit_registration_via_suotar\n    AND c.paused_at IS NULL\n    AND ($3::uuid IS NULL OR cr.course_id = $3)\n    AND ($4::uuid IS NULL OR cr.user_id = $4)\n    AND (\n      cardinality($5::uuid []) = 0\n      OR cr.id = ANY($5::uuid [])\n    )\n  ORDER BY cr.next_attempt_at\n  FOR UPDATE OF cr SKIP LOCKED\n  LIMIT $2\n)\nUPDATE credit_registrations cr\nSET last_attempt_at = now()\nFROM due\nWHERE cr.id = due.id\nRETURNING cr.*\n        ",
   "describe": {
     "columns": [
       {
@@ -623,5 +623,5 @@
       true
     ]
   },
-  "hash": "57a25f76c847719a2dddb598ebea3e5d69a965b89f06183dbaa454e1b6b48c23"
+  "hash": "092a705b440019b28f193a59b4672ecf78b4342b761e7c3427363883e867bc00"
 }

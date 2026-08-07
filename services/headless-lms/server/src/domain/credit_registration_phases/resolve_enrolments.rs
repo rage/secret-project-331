@@ -35,14 +35,15 @@ use headless_lms_models::library::credit_registration::submission_context::{
 use headless_lms_models::suotar_api_calls::SuotarEndpoint as AuditEndpoint;
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
-    ResolveEnrolmentRequestItem, SuotarCallContext, SuotarEndpoint, SuotarItemStatus,
+    EnrolmentResolutionResult, ResolveEnrolmentRequestItem, SuotarCallContext, SuotarEndpoint,
+    SuotarItemStatus,
 };
 use sqlx::Connection;
 
 use super::{
     OutcomeEvent, PhaseContext, PhaseScope, apply_outcome, counts_as_failed,
     every_item_failed_transiently, request_level_failure, requests_json, response_item_json,
-    row_facts,
+    row_facts, row_moved_on,
 };
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -154,51 +155,20 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
             sent_student_number: context.student_number.as_deref(),
             ..OutcomeEvent::default()
         };
-        let facts = row_facts(row);
-        let failed = match item {
-            None => {
-                let outcome =
-                    unanswered_item_outcome(AuditEndpoint::ResolveEnrolments, row.state, &facts);
-                apply_outcome(
-                    &mut conn,
-                    row,
-                    &outcome,
-                    OutcomeEvent {
-                        message: Some("The study registry did not answer for this item."),
-                        ..event
-                    },
-                    Some(CreditRegistrationState::ResolvingEnrolment),
-                )
-                .await?;
-                counts_as_failed(&outcome)
+        let applied = apply_answer(&mut conn, row, context, item, event).await;
+        let failed = match applied {
+            Ok(failed) => failed,
+            // Withdrawing consent while the request was out sends the row to `blocked`, and this
+            // answer is no longer about the row that is there now. Only this row is skipped: the
+            // rest of the batch is still sitting in `resolving_enrolment`, which no phase claims.
+            Err(error) if row_moved_on(&error) => {
+                warn!(
+                    "Credit registration {} moved on while the study registry answered; leaving it. {error:#}",
+                    row.id
+                );
+                continue;
             }
-            Some(item) if item.status == SuotarItemStatus::Error => {
-                let code = map_code(AuditEndpoint::ResolveEnrolments, &item.code)
-                    .unwrap_or(CreditRegistrationErrorCode::Unknown);
-                let outcome = submit_error_outcome(AuditEndpoint::ResolveEnrolments, code, &facts);
-                apply_outcome(
-                    &mut conn,
-                    row,
-                    &outcome,
-                    OutcomeEvent {
-                        error_message: item.error.as_ref().map(|error| error.message.as_str()),
-                        ..event
-                    },
-                    Some(CreditRegistrationState::ResolvingEnrolment),
-                )
-                .await?;
-                counts_as_failed(&outcome)
-            }
-            Some(item) => {
-                let no_enrolments = Vec::new();
-                let no_attainments = Vec::new();
-                let (enrolments, existing) = item
-                    .result
-                    .as_ref()
-                    .map(|result| (&result.enrolments, &result.existing_attainments))
-                    .unwrap_or((&no_enrolments, &no_attainments));
-                choose(&mut conn, row, context, enrolments, existing, event).await?
-            }
+            Err(error) => return Err(error),
         };
         if failed {
             items_failed += 1;
@@ -212,6 +182,65 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         error: every_item_failed_transiently(&response)
             .then(|| "Every item of the batch came back transiently unavailable.".to_string()),
     })
+}
+
+/// Applies the study registry's answer for one row. Returns whether the row ended up in a failure
+/// state; errors with `PreconditionFailed` if the row left `resolving_enrolment` meanwhile.
+async fn apply_answer(
+    conn: &mut sqlx::PgConnection,
+    row: &CreditRegistration,
+    context: &SubmissionContext,
+    item: Option<
+        &headless_lms_utils::services::suotar::SuotarResponseItem<EnrolmentResolutionResult>,
+    >,
+    event: OutcomeEvent<'_>,
+) -> anyhow::Result<bool> {
+    let facts = row_facts(row);
+    match item {
+        None => {
+            let outcome =
+                unanswered_item_outcome(AuditEndpoint::ResolveEnrolments, row.state, &facts);
+            apply_outcome(
+                conn,
+                row,
+                &outcome,
+                OutcomeEvent {
+                    message: Some("The study registry did not answer for this item."),
+                    ..event
+                },
+                Some(CreditRegistrationState::ResolvingEnrolment),
+            )
+            .await?;
+            Ok(counts_as_failed(&outcome))
+        }
+        Some(item) if item.status == SuotarItemStatus::Error => {
+            let code = map_code(AuditEndpoint::ResolveEnrolments, &item.code)
+                .unwrap_or(CreditRegistrationErrorCode::Unknown);
+            let outcome = submit_error_outcome(AuditEndpoint::ResolveEnrolments, code, &facts);
+            apply_outcome(
+                conn,
+                row,
+                &outcome,
+                OutcomeEvent {
+                    error_message: item.error.as_ref().map(|error| error.message.as_str()),
+                    ..event
+                },
+                Some(CreditRegistrationState::ResolvingEnrolment),
+            )
+            .await?;
+            Ok(counts_as_failed(&outcome))
+        }
+        Some(item) => {
+            let no_enrolments = Vec::new();
+            let no_attainments = Vec::new();
+            let (enrolments, existing) = item
+                .result
+                .as_ref()
+                .map(|result| (&result.enrolments, &result.existing_attainments))
+                .unwrap_or((&no_enrolments, &no_attainments));
+            choose(conn, row, context, enrolments, existing, event).await
+        }
+    }
 }
 
 /// Applies the choice for one answered row. Returns whether the row ended up in a failure state.

@@ -21,17 +21,23 @@ struct PendingMove {
     consent_withdrawn: bool,
     has_submitted_attainment: bool,
     has_payload_snapshot: bool,
+    frozen_identity_stale: bool,
 }
 
 /// Where a `failed_retryable` row goes when its backoff elapses, derived from how far it had got.
 /// Never `submitting`: only the import phase writes that, in the transaction before it sends.
+///
+/// `frozen_identity_stale` demotes a frozen payload to no payload at all. Nothing ever clears
+/// `selected_enrolment_id`/`grade_id`, so a row sent back to re-resolve after a relink still looks
+/// frozen; without this it would resume at `checking_enrolment` and import the previous number.
 fn resume_state(
     has_submitted_attainment_id: bool,
     has_payload_snapshot: bool,
+    frozen_identity_stale: bool,
 ) -> CreditRegistrationState {
     if has_submitted_attainment_id {
         CreditRegistrationState::AwaitingVerification
-    } else if has_payload_snapshot {
+    } else if has_payload_snapshot && !frozen_identity_stale {
         CreditRegistrationState::CheckingEnrolment
     } else {
         CreditRegistrationState::ReadyToSubmit
@@ -51,14 +57,28 @@ pub async fn recompute_preconditions(
             resume_state(
                 pending.has_submitted_attainment,
                 pending.has_payload_snapshot,
+                pending.frozen_identity_stale,
             )
         });
         if target == pending.state {
             continue;
         }
-        crate::credit_registrations::transition(conn, pending.id, &transition_for(pending, target))
-            .await?;
-        moved += 1;
+        let written = crate::credit_registrations::transition(
+            conn,
+            pending.id,
+            &transition_for(pending, target),
+        )
+        .await;
+        match written {
+            Ok(_) => moved += 1,
+            // A worker claimed the row between the snapshot and here. Its state is that phase's to
+            // own now, and the next iteration decides again from whatever it committed; writing
+            // anyway could put an in-flight import back into a state a second import claims.
+            Err(error) if matches!(error.error_type(), ModelErrorType::PreconditionFailed) => {
+                continue;
+            }
+            Err(error) => return Err(error),
+        }
     }
     Ok(moved)
 }
@@ -67,7 +87,13 @@ pub async fn recompute_preconditions(
 /// and audit message sit in one place.
 fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Transition {
     use CreditRegistrationState as State;
-    let base = Transition::to(target);
+    let base = Transition {
+        // `pending_moves` reads without a row lock, so a phase can claim and move the row in the
+        // gap before this write. Guarding on the state we decided from turns that into a refusal
+        // instead of overwriting, say, a `submitting` row whose request is already out.
+        expected_from_state: Some(pending.state),
+        ..Transition::to(target)
+    };
     match target {
         State::SubmissionUncertain => Transition {
             error_code: Some(CreditRegistrationErrorCode::SisuTimeout),
@@ -226,6 +252,12 @@ targets AS (
       AND NOT facts.eligible THEN 'blocked'
       WHEN facts.state = 'failed_retryable'
       AND facts.first_failed_at < now() - ($6::bigint * INTERVAL '1 second') THEN 'failed_permanent'
+      -- Before the resume arm below, or a retry would carry on past a precondition the student has
+      -- since removed and import would send the frozen student_number under a link they gave up.
+      WHEN facts.state = 'failed_retryable'
+      AND NOT facts.consented THEN 'pending_consent'
+      WHEN facts.state = 'failed_retryable'
+      AND NOT facts.has_student_number THEN 'pending_student_number'
       -- Resumed at whichever state matches how far it had got; decided outside this query.
       WHEN facts.state = 'failed_retryable'
       AND facts.next_attempt_at <= now() THEN NULL
@@ -259,7 +291,8 @@ SELECT id,
   target AS "target?: CreditRegistrationState",
   consent_withdrawn AS "consent_withdrawn!",
   has_submitted_attainment AS "has_submitted_attainment!",
-  has_payload_snapshot AS "has_payload_snapshot!"
+  has_payload_snapshot AS "has_payload_snapshot!",
+  frozen_identity_stale AS "frozen_identity_stale!"
 FROM targets
 WHERE target IS NULL
   OR target <> state
@@ -284,6 +317,7 @@ LIMIT $1
             consent_withdrawn: row.consent_withdrawn,
             has_submitted_attainment: row.has_submitted_attainment,
             has_payload_snapshot: row.has_payload_snapshot,
+            frozen_identity_stale: row.frozen_identity_stale,
         })
         .collect())
 }
@@ -411,9 +445,11 @@ mod tests {
         crate::course_module_suotar_configurations::set_paused(
             conn,
             course_module_id,
-            Some(Utc::now()),
-            Some(user_id),
-            None,
+            Some(crate::course_module_suotar_configurations::SuotarPause {
+                paused_at: Utc::now(),
+                paused_by_user_id: user_id,
+                reason: None,
+            }),
         )
         .await
         .unwrap();
@@ -896,16 +932,25 @@ mod tests {
     #[test]
     fn a_retry_resumes_where_the_row_had_got_to() {
         assert_eq!(
-            resume_state(false, false),
+            resume_state(false, false, false),
             CreditRegistrationState::ReadyToSubmit
         );
         assert_eq!(
-            resume_state(false, true),
+            resume_state(false, true, false),
             CreditRegistrationState::CheckingEnrolment
         );
         assert_eq!(
-            resume_state(true, true),
+            resume_state(true, true, false),
             CreditRegistrationState::AwaitingVerification
+        );
+    }
+
+    /// Resuming at `checking_enrolment` here would import the number the account no longer holds.
+    #[test]
+    fn a_retry_whose_frozen_identity_went_stale_resolves_the_enrolment_again() {
+        assert_eq!(
+            resume_state(false, true, true),
+            CreditRegistrationState::ReadyToSubmit
         );
     }
 

@@ -11,9 +11,11 @@ const useCurrentConversationInfo = (
       path: {
         chatbot_configuration_id: chatbotConfigurationId,
       },
-      headers: {
-        authorization: `Bearer ${anonymousToken}`,
-      },
+      ...(anonymousToken && {
+        headers: {
+          authorization: `Bearer ${anonymousToken}`,
+        },
+      }),
     }),
   )
 }

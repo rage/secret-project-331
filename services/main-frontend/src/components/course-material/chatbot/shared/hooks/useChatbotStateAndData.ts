@@ -84,9 +84,11 @@ const useChatbotStateAndData = (
           chatbot_configuration_id: chatbotConfigurationId,
           conversation_id: currentConversationInfo.data.current_conversation.id,
         },
-        headers: {
-          authorization: `Bearer ${anonymousToken}`,
-        },
+        ...(anonymousToken && {
+          headers: {
+            authorization: `Bearer ${anonymousToken}`,
+          },
+        }),
         responseStyle: "data",
         url: SEND_CHATBOT_MESSAGE_PATH,
       })

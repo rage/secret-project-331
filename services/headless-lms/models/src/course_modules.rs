@@ -1095,6 +1095,19 @@ pub struct CourseModuleCreditRegistrationEdit {
     pub realisations: Vec<CourseModuleSuotarRealisationEdit>,
 }
 
+impl CourseModuleCreditRegistrationEdit {
+    /// Whether the editor sent nothing worth storing. Blank strings count as empty because that is
+    /// what the form submits for an untouched field.
+    pub fn is_empty(&self) -> bool {
+        self.open_university_product_id
+            .as_deref()
+            .and_then(non_empty)
+            .is_none()
+            && self.grade_scale_id.as_deref().and_then(non_empty).is_none()
+            && self.realisations.is_empty()
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseModuleSuotarRealisationEdit {
     pub course_unit_realisation_id: String,
@@ -1324,7 +1337,12 @@ pub async fn update_modules(
                 .set_enable_credit_registration_via_suotar(enable_credit_registration_via_suotar),
         )
         .await?;
-        set_credit_registration_config(&mut tx, id, &credit_registration).await?;
+        // Skipped for a module that is neither enabled nor configured, so editing an unrelated
+        // module cannot create a configuration row for it — nor undelete one, since the upsert
+        // clears `deleted_at` while keeping a stale `paused_at`.
+        if enable_credit_registration_via_suotar || !credit_registration.is_empty() {
+            set_credit_registration_config(&mut tx, id, &credit_registration).await?;
+        }
     }
     for (chapter, module) in updates.moved_chapters {
         chapters::set_module(&mut tx, chapter, module).await?;

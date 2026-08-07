@@ -130,6 +130,13 @@ pub async fn insert_for_conversation_user_and_configuration(
     anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversationMessage> {
+    if let (Some(_user_id), Some(_anonymous_token)) = (&user_id, &anonymous_token) {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "User ID and anonymous token cannot both be present",
+            None,
+        ));
+    }
     let mut tx = conn.begin().await?;
 
     sqlx::query!(
@@ -137,16 +144,8 @@ pub async fn insert_for_conversation_user_and_configuration(
 SELECT id
 FROM chatbot_conversations
 WHERE id = $1
-  AND (
-    (
-      $2::uuid IS NOT NULL
-      AND user_id = $2
-    )
-    OR (
-      $2::uuid IS NULL
-      AND anonymous_token = $3
-    )
-  )
+  AND user_id = $2
+  AND anonymous_token = $3
   AND chatbot_configuration_id = $4
   AND deleted_at IS NULL
         "#,

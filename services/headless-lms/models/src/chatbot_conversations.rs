@@ -118,21 +118,20 @@ pub async fn get_latest_conversation_for_user(
     anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversation> {
+    if let (Some(_user_id), Some(_anonymous_token)) = (&user_id, &anonymous_token) {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "User ID and anonymous token cannot cannot both be present",
+            None,
+        ));
+    }
     let res = sqlx::query_as!(
         ChatbotConversation,
         r#"
 SELECT *
 FROM chatbot_conversations
-WHERE (
-    (
-      $1::uuid IS NOT NULL
-      AND user_id = $1
-    )
-    OR (
-      $1::uuid IS NULL
-      AND anonymous_token = $2
-    )
-  )
+WHERE user_id = $1
+  AND anonymous_token = $2
   AND chatbot_configuration_id = $3
   AND deleted_at IS NULL
 ORDER BY created_at DESC

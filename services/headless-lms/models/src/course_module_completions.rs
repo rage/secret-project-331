@@ -423,9 +423,16 @@ pub fn select_best_completion(
 ) -> Option<CourseModuleCompletion> {
     // Passed outranks not passed before grades are compared: ranking by grade alone let a failed
     // graded completion beat a passed pass/fail one, so a failure was reported as the best result.
-    completions
-        .into_iter()
-        .max_by_key(|completion| (completion.passed, completion.grade.unwrap_or(0)))
+    // `created_at` and `id` only break ties, so two equally good completions resolve to the newest
+    // one instead of to whichever order the caller's query happened to return.
+    completions.into_iter().max_by_key(|completion| {
+        (
+            completion.passed,
+            completion.grade.unwrap_or(0),
+            completion.created_at,
+            completion.id,
+        )
+    })
 }
 
 /// Get the number of students that have completed the course

@@ -1156,7 +1156,8 @@ async fn seed_import_outcomes_course(
         let mut module = ModuleBuilder::new()
             .order(order as i32)
             .ects(5.0)
-            .uh_course_code(course_code.to_string());
+            .uh_course_code(course_code.to_string())
+            .credit_registration(credit_registration_config(course_code, false));
         if order > 0 {
             module = module.name(format!("Module {course_code}"));
         }

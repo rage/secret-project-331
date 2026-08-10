@@ -81,6 +81,13 @@ impl ChatbotTool for DocumentLookupTool {
         mut arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
+        let Some(course_id) = user_context.course_id else {
+            return Err(chatbot_err!(
+                ToolUseError,
+                "Course id is missing.".to_string()
+            ));
+        };
+
         let page_id = if let Some(id) = &arguments.page_id {
             id.to_owned()
         } else if let Some(f) = &arguments.filepath {
@@ -101,7 +108,6 @@ impl ChatbotTool for DocumentLookupTool {
                 )
             ));
         };
-        let course_id = user_context.course_id;
         let page_content =
             headless_lms_models::course_page_markdown_content::get_course_page_content_by_page_id(
                 conn, page_id,

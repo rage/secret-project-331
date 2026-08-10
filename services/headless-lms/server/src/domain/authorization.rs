@@ -305,6 +305,21 @@ pub fn skip_authorize() -> AuthorizationToken {
     AuthorizationToken(())
 }
 
+/** Handles authorization for global chatbots and course chatbots */
+pub async fn authorize_access_to_chatbot(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Option<Uuid>,
+) -> Result<AuthorizationToken, ControllerError> {
+    let token = if let Some(course_id) = course_id {
+        authorize_access_to_course_material(conn, user_id, course_id).await?
+    } else {
+        authorize(conn, Act::View, user_id, Res::GlobalPermissions).await?
+    };
+
+    Ok(token)
+}
+
 /**  Can be used to check whether user is allowed to view some course material */
 pub async fn authorize_access_to_course_material(
     conn: &mut PgConnection,

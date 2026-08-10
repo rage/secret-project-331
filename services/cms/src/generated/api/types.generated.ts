@@ -32,7 +32,7 @@ export type ChartSpecGenerationResponse = {
 
 export type ChatbotConfiguration = {
   chatbot_name: string
-  course_id: string
+  course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
   default_chatbot: boolean
@@ -273,6 +273,11 @@ export type EmailTemplateType =
   | "delete_user_email"
   | "confirm_email_code"
   | "generic"
+  | "credit_registration_account_linking"
+  | "verify_email_address"
+  | "credit_registration_action_needed"
+  | "credit_registration_registered"
+  | "credit_registration_student_number_linked"
 
 export type EmailTemplateUpdate = {
   content: unknown

@@ -7,13 +7,20 @@
     "dev": "rsbuild dev --port 3002",
     "start": "node server.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "test:playwright": "playwright test",
+    "test:playwright:plugin-contract": "playwright test --project=plugin-contract-chromium",
+    "test:playwright:iframe-boundary": "playwright test --project=iframe-boundary-chromium --project=iframe-boundary-firefox --project=iframe-boundary-webkit",
+    "test:playwright:focused": "playwright test --project=plugin-contract-chromium",
+    "test:playwright:diagnostics": "playwright test --project=plugin-contract-chromium --debug",
+    "verify": "pnpm run typecheck && pnpm run build && pnpm run test && pnpm run test:playwright"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/inter": "5.2.8",
     "@fontsource/space-mono": "^5.2.9",
     "@react-aria/overlays": "^3.32.1",
     "@tanstack/react-router": "^1.170.16",

@@ -32,20 +32,34 @@ impl ChatbotTool for CourseProgressTool {
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
+        let Some(user_id) = user_context.user_id else {
+            return Err(chatbot_err!(
+                ToolUseError,
+                "User id is missing.".to_string()
+            ));
+        };
+        let Some(course_id) = user_context.course_id else {
+            return Err(chatbot_err!(
+                ToolUseError,
+                "Course id is missing.".to_string()
+            ));
+        };
+        let Some(course_name) = &user_context.course_name else {
+            return Err(chatbot_err!(
+                ToolUseError,
+                "Course name is missing.".to_string()
+            ));
+        };
         let user_progress = headless_lms_models::user_exercise_states::get_user_course_progress(
-            conn,
-            user_context.course_id,
-            user_context.user_id,
-            true,
+            conn, course_id, user_id, true,
         )
         .await?;
         let modules =
-            headless_lms_models::course_modules::get_by_course_id(conn, user_context.course_id)
-                .await?;
-        let progress = progress_info(user_progress, modules, &user_context.course_name)?;
+            headless_lms_models::course_modules::get_by_course_id(conn, course_id).await?;
+        let progress = progress_info(user_progress, modules, course_name)?;
         Result::Ok(CourseProgressTool {
             state: CourseProgressState {
-                course_name: user_context.course_name.clone(),
+                course_name: course_name.clone(),
                 progress,
             },
             arguments,

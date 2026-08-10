@@ -33,9 +33,11 @@ package packages exactly that host.
 - **`src/playwright/createHostEmulator.ts`** — a typed `@playwright/test` wrapper. It injects the
   _same_ emulator source (via `page.evaluate`) and returns an async handle:
   `setState`, `setLanguage`, `lastMessage`, `waitForMessage(type, predicate?)`,
-  `waitForCurrentState()`, `waitForViewType(vt)`, `sendUploadResult`, `respondToDialog`,
-  `driveFileUpload(filePath)`. See `services/example-exercise/e2e/protocol.spec.ts` for a full
-  example driving all three views.
+  `waitForCurrentState()`, `waitForViewType(vt)`, `waitForFileUpload()`, `fileUploadCount()`,
+  `sendUploadResult`, `respondToDialog`, and `driveFileUpload(files, target?)`. It also exports
+  `createNestedHostEmulator()` for sandboxed, distinct-origin iframe coverage. See
+  `services/example-exercise/playwright/plugin-contract/protocol.spec.ts` and
+  `services/example-exercise/playwright/iframe-boundary/nested-host.spec.ts` for examples.
 
 - **`src/protocol/stateBuilders.ts`** — typed builders for the `set-state` payloads
   (`answerExerciseState`, `exerciseEditorState`, `viewSubmissionState`, `customViewState`) with sane
@@ -43,15 +45,19 @@ package packages exactly that host.
 
 ## How it connects
 
-The emulator injects into the iframe's own **top-level page** (where `window === window.parent`), so
-its `window.postMessage(port)` satisfies the child's `source === parent` check. This fully exercises
-the _plugin_ side of the protocol. It does not model a real nested-iframe host (cross-realm port
-transfer, container resize from `height-changed`); those are the host's concern and are covered by
-`@moocfi/exercise-iframe-host`.
+`createHostEmulator()` injects into the iframe's own **top-level page** (where
+`window === window.parent`) for fast plugin-contract tests. `createNestedHostEmulator()` instead
+creates a sandboxed iframe on a distinct origin and transfers the real `MessagePort` across that
+boundary. The nested helper covers cross-realm transport and exact upload bytes; the real
+`@moocfi/exercise-iframe-host` remains covered by its own package tests.
 
 ## Testing
 
 `pnpm test` runs jest unit tests (state builders + the emulator driven through a mock
 `MessageChannel`, no browser). The Playwright wrapper is exercised by
-`services/example-exercise/e2e/protocol.spec.ts` (run locally / by the
-`create-exercise-type` skill, not in CI).
+package-local `playwright/plugin-contract/` and `playwright/iframe-boundary/` specs. Run the
+complete browser suite with `pnpm run test:playwright`, a single level with
+`pnpm run test:playwright:plugin-contract` or `pnpm run test:playwright:iframe-boundary`, and
+inspect a failing test with `pnpm run test:playwright:debug`. CI runs Chromium and Firefox for
+pull requests and adds WebKit in the full contract job. Failed runs retain Playwright traces,
+full-page screenshots, and video in `test-results/`.

@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET student_number = $2,\n  sisu_person_id = $3,\n  uh_course_code = $4,\n  selected_enrolment_id = $5,\n  selected_enrolment_kind = $6,\n  selected_enrolment_realisation_id = $7,\n  attainment_date = $8,\n  attainment_language = $9,\n  grade_scale_id = $10,\n  grade_id = $11,\n  credits = $12\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Date",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Float4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e396229f8d73a0d718d2e6099d38a9167054d435eb6d1fbd068a5e332c2c4c8c"
+}

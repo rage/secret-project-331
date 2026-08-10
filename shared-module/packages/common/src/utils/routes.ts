@@ -321,3 +321,7 @@ export function exerciseExamSubmissionsRoute(exerciseId: string) {
 export function userSettingsRoute() {
   return "/user-settings/account"
 }
+
+export function profileStudiesRoute() {
+  return "/profile/studies"
+}

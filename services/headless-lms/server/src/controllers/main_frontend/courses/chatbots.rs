@@ -95,7 +95,7 @@ async fn create_chatbot(
         PKeyPolicy::Generate,
         NewChatbotConf {
             chatbot_name: payload.into_inner(),
-            course_id: *course_id,
+            course_id: Some(*course_id),
             model_id: model.id,
             ..Default::default()
         },
@@ -137,7 +137,15 @@ async fn set_default_chatbot(
     let chatbot =
         models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
 
-    if course_id != chatbot.course_id {
+    if course_id
+        != chatbot.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Chatbot course id is missing.".to_string(),
+                None,
+            )
+        })?
+    {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
             "Chatbot course id doesn't match the course id provided.".to_string(),
@@ -186,7 +194,15 @@ async fn set_non_default_chatbot(
     let configuration =
         models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
 
-    if course_id != configuration.course_id {
+    if course_id
+        != configuration.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Chatbot course id is missing.".to_string(),
+                None,
+            )
+        })?
+    {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
             "Chatbot course id doesn't match the course id provided.".to_string(),

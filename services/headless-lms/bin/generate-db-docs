@@ -1,7 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-COMMAND="tbls doc \"postgres://headless-lms@localhost:54328/headless_lms_dev?sslmode=disable\" --force"
+# We run from services/headless-lms but the config lives at the repo root, and tbls only looks in
+# the current working directory. Without -c, local output silently loses the viewpoints CI emits.
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+COMMAND="tbls doc -c \"$REPO_ROOT/.tbls.yml\" \"postgres://headless-lms@localhost:54328/headless_lms_dev?sslmode=disable\" --force"
 
 echo "> $COMMAND"
 eval "$COMMAND"

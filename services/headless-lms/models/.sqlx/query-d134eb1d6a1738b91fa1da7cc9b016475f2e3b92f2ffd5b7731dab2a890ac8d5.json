@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE open_university_product_access_tokens\nSET last_refresh_failed_at = now(),\n  last_refresh_error = $2,\n  consecutive_failures = consecutive_failures + 1\nWHERE open_university_product_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d134eb1d6a1738b91fa1da7cc9b016475f2e3b92f2ffd5b7731dab2a890ac8d5"
+}

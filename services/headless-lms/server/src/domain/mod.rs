@@ -3,7 +3,9 @@ Helpful structs and functions that are not related to database tables.
 */
 
 pub mod authorization;
+pub mod credit_registration_phases;
 pub mod csv_export;
+pub mod email_ownership_verification;
 pub mod error;
 pub mod exercise_repositories;
 pub mod exercises;

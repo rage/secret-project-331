@@ -9,32 +9,105 @@ pub struct CoursePageMarkdownContent {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub markdown_content: String,
+    pub page_history_id: Uuid,
+    pub page_id: Uuid,
 }
 
-// stuff for the tool
+// Struct used in document_lookup chatbot tool
 pub struct CoursePageContent {
     pub page_id: Uuid,
     pub course_id: Uuid,
     pub title: String,
     pub json_content: Value,
-    /// Latest LLM-generated Markdown that has been synced to Azure.
+    /// Latest LLM-generated Markdown.
     pub markdown_content: Option<String>,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
     content: &str,
+    page_history_id: &Uuid,
+    page_id: &Uuid,
 ) -> ModelResult<CoursePageMarkdownContent> {
     let res = sqlx::query_as!(
         CoursePageMarkdownContent,
         r#"
-    INSERT INTO course_page_markdown_content (markdown_content)
-    VALUES ($1)
-    RETURNING *
+INSERT INTO course_page_markdown_content (markdown_content, page_history_id, page_id)
+VALUES ($1, $2, $3)
+RETURNING *
     "#,
-        content
+        content,
+        page_history_id,
+        page_id
     )
     .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn insert_batch(
+    conn: &mut PgConnection,
+    page_id_history_id_contents: Vec<(Uuid, (Uuid, String))>,
+) -> ModelResult<Vec<CoursePageMarkdownContent>> {
+    let (page_ids, history_ids_contents): (Vec<Uuid>, Vec<(Uuid, String)>) =
+        page_id_history_id_contents.into_iter().unzip();
+    let (history_ids, contents): (Vec<Uuid>, Vec<String>) =
+        history_ids_contents.into_iter().unzip();
+
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+
+INSERT INTO course_page_markdown_content (markdown_content, page_history_id, page_id)
+SELECT data.content, data.page_history_id, data.page_id
+FROM (
+    SELECT unnest($1::text []) AS content,
+      unnest($2::uuid []) AS page_history_id,
+      unnest($3::uuid []) AS page_id
+  ) AS data
+RETURNING *
+    "#,
+        &contents,
+        &history_ids,
+        &page_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<CoursePageMarkdownContent> {
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+SELECT * FROM course_page_markdown_content
+WHERE id = $1
+AND deleted_at IS NULL
+    "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn get_many(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<CoursePageMarkdownContent>> {
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+SELECT * FROM course_page_markdown_content
+WHERE id = ANY($1)
+AND deleted_at IS NULL
+    "#,
+        ids
+    )
+    .fetch_all(conn)
     .await?;
 
     Ok(res)

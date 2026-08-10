@@ -3125,21 +3125,14 @@
       },
       "ChatbotConversation": {
         "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "updated_at",
-          "course_id",
-          "user_id",
-          "chatbot_configuration_id"
-        ],
+        "required": ["id", "created_at", "updated_at", "user_id", "chatbot_configuration_id"],
         "properties": {
           "chatbot_configuration_id": {
             "type": "string",
             "format": "uuid"
           },
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "created_at": {
@@ -3167,13 +3160,13 @@
       "ChatbotConversationInfo": {
         "type": "object",
         "description": "Should contain all information required to display the chatbot to the user.",
-        "required": ["chatbot_name", "course_name", "hide_citations"],
+        "required": ["chatbot_name", "hide_citations"],
         "properties": {
           "chatbot_name": {
             "type": "string"
           },
           "course_name": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "current_conversation": {
             "oneOf": [
@@ -4545,6 +4538,11 @@
             }
           }
         }
+      },
+      "EmailVerificationMethod": {
+        "type": "string",
+        "description": "How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.",
+        "enum": ["emailed_code", "password_reset_backfill", "tmc_confirmed", "admin_asserted"]
       },
       "ExamData": {
         "type": "object",
@@ -6135,7 +6133,8 @@
           "WaitingForPeerReviews",
           "WaitingForManualGrading",
           "ReviewedAndLocked",
-          "Locked"
+          "Locked",
+          "NotAnsweredAndLocked"
         ]
       },
       "SaveCourseSettingsPayload": {
@@ -6615,6 +6614,21 @@
           },
           "email_communication_consent": {
             "type": ["boolean", "null"]
+          },
+          "email_verified_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the user last proved control of the address in `email`. `None` means unproven. Cleared\nby a database trigger on every address change, so a value here always refers to `email`."
+          },
+          "email_verified_method": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EmailVerificationMethod"
+              }
+            ]
           },
           "first_name": {
             "type": ["string", "null"]

@@ -28,7 +28,7 @@ pub struct ChatbotConfiguration {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
     pub enabled_to_students: bool,
     pub chatbot_name: String,
     pub model_id: Uuid,
@@ -90,7 +90,7 @@ impl Default for ChatbotConfiguration {
 #[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
 
 pub struct NewChatbotConf {
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
     pub enabled_to_students: bool,
     pub chatbot_name: String,
     pub model_id: Uuid,

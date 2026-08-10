@@ -12,6 +12,13 @@ pub struct User {
     pub email_domain: Option<String>,
 }
 
+/// The domain part of an address, as stored in `users.email_domain`.
+///
+/// Every writer of `user_details.email` must use this, or the derived column drifts silently.
+pub fn email_domain_from_email(email: &str) -> Option<&str> {
+    email.trim().split('@').next_back()
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
@@ -20,7 +27,7 @@ pub async fn insert(
     last_name: Option<&str>,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
-    let email_domain = email.trim().split('@').next_back();
+    let email_domain = email_domain_from_email(email);
     let res = sqlx::query!(
         "
 INSERT INTO users (id, email_domain)
@@ -58,7 +65,7 @@ pub async fn insert_with_upstream_id_and_moocfi_id(
     moocfi_id: Uuid,
 ) -> ModelResult<User> {
     info!("The user is not in the database yet, inserting");
-    let email_domain = email.trim().split('@').next_back();
+    let email_domain = email_domain_from_email(email);
     let mut tx = conn.begin().await?;
     let user = sqlx::query_as!(
         User,
@@ -200,11 +207,15 @@ AND deleted_at IS NULL
     Ok(res.iter().map(|x| x.id).collect::<Vec<_>>())
 }
 
+/// Points the account with this upstream id at a new address, keeping `users.email_domain` in step.
+///
+/// The `clear_email_verification` trigger drops proof of the old address as part of the update; the
+/// returned local user id lets the caller mail a fresh link.
 pub async fn update_email_for_user(
     conn: &mut PgConnection,
     upstream_id: &i32,
     new_email: String,
-) -> ModelResult<()> {
+) -> ModelResult<Uuid> {
     info!("Updating user (Upstream id: {upstream_id})");
     let mut tx = conn.begin().await?;
 
@@ -224,7 +235,7 @@ pub async fn update_email_for_user(
     .execute(&mut *tx)
     .await?;
 
-    let email_domain = new_email.trim().split('@').next_back();
+    let email_domain = email_domain_from_email(&new_email);
     sqlx::query!(
         "UPDATE users SET email_domain = $1 WHERE id = $2",
         email_domain,
@@ -236,7 +247,7 @@ pub async fn update_email_for_user(
     tx.commit().await?;
 
     info!("Email change succeeded");
-    Ok(())
+    Ok(user.id)
 }
 
 pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {

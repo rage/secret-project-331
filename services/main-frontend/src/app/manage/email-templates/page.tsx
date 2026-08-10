@@ -145,6 +145,14 @@ const EmailTemplatesList: React.FC = () => {
           return t("email-template-type-confirm-email-code")
         case "generic":
           return t("email-template-type-generic")
+        // Automation-only types, never offered by this page. Listed rather than
+        // defaulted so a new template type fails to compile here.
+        case "credit_registration_account_linking":
+        case "verify_email_address":
+        case "credit_registration_action_needed":
+        case "credit_registration_registered":
+        case "credit_registration_student_number_linked":
+          return type
       }
     },
     [t],

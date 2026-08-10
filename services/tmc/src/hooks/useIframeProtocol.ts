@@ -31,11 +31,18 @@ function sendSpecToParent(port: MessagePort, data: CurrentStateMessageData) {
   port.postMessage(currentStateMessage)
 }
 
-function sendFileUploadMsg(port: MessagePort | null, files: Map<string, string | Blob>) {
-  if (port) {
-    const fileUploadRequest: MessageToParent = { message: "file-upload", files }
-    port.postMessage(fileUploadRequest)
+function sendFileUploadMsg(port: MessagePort | null, files: readonly File[]): string | null {
+  if (!port) {
+    return null
   }
+  const requestId = v4()
+  const fileUploadRequest: MessageToParent = {
+    message: "file-upload",
+    requestId,
+    files: [...files],
+  }
+  port.postMessage(fileUploadRequest)
+  return requestId
 }
 
 function requestRepoExercises(port: MessagePort | null) {
@@ -55,6 +62,7 @@ export function useIframeProtocol() {
   const iframeIdRef = useRef(v4().slice(0, 4))
   const iframeId = iframeIdRef.current
   const latestPublicSpecRequestRef = useRef(0)
+  const pendingFileUploadRequestIdRef = useRef<string | null>(null)
 
   const debug = (message: string, ...optionalParams: unknown[]): void => {
     console.debug(`[tmc-iframe/${iframeId}]`, message, ...optionalParams)
@@ -140,22 +148,26 @@ export function useIframeProtocol() {
           }
         })
       } else if (messageData.message === "upload-result") {
+        if (messageData.requestId !== pendingFileUploadRequestIdRef.current) {
+          debug("Ignoring upload result for an unknown request", messageData.requestId)
+          return
+        }
+        pendingFileUploadRequestIdRef.current = null
         setFileUploadResponse(messageData)
         if (messageData.success) {
+          const uploadedFile = messageData.files[0]
+          if (!uploadedFile) {
+            logError("Upload succeeded without a stored file result")
+            return
+          }
           setStateAndSend(messagePort, (old) => {
             if (old && old.view_type === "answer-exercise" && old.user_answer.type === "editor") {
-              const urls = messageData.urls
-              const archiveDownloadUrl =
-                urls instanceof Map
-                  ? (Array.from(urls.values())[0] ?? null)
-                  : Array.isArray(urls)
-                    ? (urls[0] ?? null)
-                    : null
               return {
                 ...old,
                 user_answer: {
                   type: "editor",
-                  archive_download_url: archiveDownloadUrl ?? "",
+                  archive_file_id: uploadedFile.id,
+                  archive_download_url: uploadedFile.url,
                 },
               }
             }
@@ -196,9 +208,8 @@ export function useIframeProtocol() {
     fileUploadResponse,
     setStateAndSend: (updater: (s: ExerciseIframeState | null) => ExerciseIframeState | null) =>
       setStateAndSend(port, updater),
-    sendFileUploadMessage: (filename: string, file: File) => {
-      const files = new Map<string, string | Blob>([[filename, file]])
-      sendFileUploadMsg(port, files)
+    sendFileUploadMessage: (file: File) => {
+      pendingFileUploadRequestIdRef.current = sendFileUploadMsg(port, [file])
     },
     requestRepositoryExercises: () => requestRepoExercises(port),
   }

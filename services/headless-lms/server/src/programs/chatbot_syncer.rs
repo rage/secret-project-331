@@ -28,6 +28,7 @@ use headless_lms_chatbot::{
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     chapters::DatabaseChapter,
+    course_page_markdown_content::CoursePageMarkdownContent,
     pages::{Page, PageVisibility},
 };
 use headless_lms_utils::{
@@ -147,7 +148,7 @@ async fn sync_pages(
 
     let course_ids: Vec<Uuid> = chatbot_configs
         .iter()
-        .map(|config| config.course_id)
+        .filter_map(|config| config.course_id)
         .collect::<HashSet<_>>()
         .into_iter()
         .collect();
@@ -159,6 +160,7 @@ async fn sync_pages(
         )
         .await?;
 
+    // (page_id, page_history_id)
     let latest_history_ids =
         headless_lms_models::page_history::get_latest_page_history_ids_by_course_ids(
             conn,
@@ -253,6 +255,10 @@ async fn sync_pages(
         }
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
+        let md_ids: Vec<Uuid> = outdated_statuses
+            .iter()
+            .filter_map(|s| s.converted_markdown_content_id)
+            .collect();
         let pages = headless_lms_models::pages::get_by_ids_and_visibility(
             conn,
             &page_ids,
@@ -264,6 +270,7 @@ async fn sync_pages(
             sync_pages_batch(
                 conn,
                 &pages,
+                &md_ids,
                 blob_client,
                 &base_url,
                 &config.app_configuration,
@@ -333,6 +340,8 @@ async fn ensure_search_index_exists(
 async fn sync_pages_batch(
     conn: &mut PgConnection,
     pages: &[Page],
+    // map from page id to course page markdown content id
+    md_ids: &[Uuid],
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,
@@ -345,6 +354,9 @@ async fn sync_pages_batch(
         .ok_or_else(|| anyhow::anyhow!("The first page does not belong to any course."))?;
 
     let course = headless_lms_models::courses::get_course(conn, course_id).await?;
+    let chapters = headless_lms_models::chapters::get_course_chapters(conn, course_id).await?;
+    let md_contents =
+        headless_lms_models::course_page_markdown_content::get_many(conn, md_ids).await?;
     let organization =
         headless_lms_models::organizations::get_organization(conn, course.organization_id).await?;
     let task_lm = headless_lms_models::application_task_default_language_models::get_for_task(
@@ -360,6 +372,9 @@ async fn sync_pages_batch(
     ));
 
     let mut allowed_file_paths = Vec::new();
+    let mut page_revision_map = HashMap::new();
+    // newly created md. map page_id to page_history_id and md content
+    let mut new_markdown_contents_map = HashMap::new();
 
     for page in pages {
         info!("Syncing page id: {}.", page.id);
@@ -370,73 +385,83 @@ async fn sync_pages_batch(
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let sanitized_blocks = remove_sensitive_attributes(parsed_content);
 
-        let content_as_markdown = match convert_material_blocks_to_markdown_with_llm(
-            &sanitized_blocks,
-            app_config,
-            &task_lm,
-        )
-        .await
-        {
-            Ok(markdown) => {
-                info!("Successfully cleaned content for page {}", page.id);
-                // Check if the markdown is empty, or if it just contains all spaces or newlines
-                if markdown.trim().is_empty() {
-                    warn!(
-                        "Markdown is empty for page {}. Generating fallback content with a fake heading.",
-                        page.id
-                    );
-                    format!("# {}", page.title)
+        let page_md_content: Option<&CoursePageMarkdownContent> =
+            md_contents.iter().find(|x| x.page_id == page.id);
+        let latest_page_history_id: Option<&Uuid> = latest_history_ids.get(&page.id);
+
+        let up_to_date_md_content = page_md_content.and_then(|c| {
+            latest_page_history_id.and_then(|id| {
+                if id == &c.page_history_id {
+                    Some(c.markdown_content.to_string())
                 } else {
-                    markdown
-                }
-            }
-            Err(e) => {
-                let error_msg = format!("Sync failed: LLM processing error: {}", e);
-                warn!(
-                    "Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.",
-                    page.id, error_msg
-                );
-                if let Err(db_err) =
-                    headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
-                        conn, page.id, &error_msg,
-                    )
-                    .await
-                {
-                    warn!(
-                        "Failed to record sync error for page {}: {:?}",
-                        page.id, db_err
-                    );
-                }
-                // Fallback to original content
-                serde_json::to_string(&sanitized_blocks)?
-            }
-        };
-
-        // save markdown content
-        // if there is an error saving it to blobs, we can try uploading the same content
-        // if the page hasn't been changed between tries.
-        if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
-            conn,
-            &content_as_markdown,
-            page.id,
-        )
-        .await
-        {
-            warn!("Failed to save converted page content in DB: {}", e);
-        };
-
-        let blob_path = generate_blob_path(page)?;
-        let chapter: Option<DatabaseChapter> = if page.chapter_id.is_some() {
-            match headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await {
-                Ok(c) => Some(c),
-                Err(e) => {
-                    debug!("Chapter lookup failed for page {}: {}", page.id, e);
                     None
                 }
-            }
+            })
+        });
+
+        let content_as_markdown = if let Some(content) = up_to_date_md_content.to_owned() {
+            info!("Using previously generated Markdown for page {}", page.id);
+            content
         } else {
-            None
+            match convert_material_blocks_to_markdown_with_llm(
+                &sanitized_blocks,
+                app_config,
+                &task_lm,
+            )
+            .await
+            {
+                Ok(markdown) => {
+                    info!("Successfully cleaned content for page {}", page.id);
+                    // Check if the markdown is empty, or if it just contains all spaces or newlines
+                    if markdown.trim().is_empty() {
+                        warn!(
+                            "Markdown is empty for page {}. Generating fallback content with a fake heading.",
+                            page.id
+                        );
+                        format!("# {}", page.title)
+                    } else {
+                        markdown
+                    }
+                }
+                Err(e) => {
+                    let error_msg = format!("Sync failed: LLM processing error: {}", e);
+                    warn!(
+                        "Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.",
+                        page.id, error_msg
+                    );
+                    if let Err(db_err) =
+                        headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+                            conn, page.id, &error_msg,
+                        )
+                        .await
+                    {
+                        warn!(
+                            "Failed to record sync error for page {}: {:?}",
+                            page.id, db_err
+                        );
+                    }
+                    // Fallback to original content
+                    serde_json::to_string(&sanitized_blocks)?
+                }
+            }
         };
+
+        // save markdown content if new markdown was generated
+        // if there is an error saving it to blobs, we can try uploading the same content
+        // if the page hasn't been changed between tries.
+        if let Some(history_id) = latest_page_history_id
+            && up_to_date_md_content.is_none()
+        {
+            new_markdown_contents_map.insert(
+                page.id,
+                (history_id.to_owned(), content_as_markdown.to_owned()),
+            );
+        }
+
+        let blob_path = generate_blob_path(page)?;
+        let chapter: Option<&DatabaseChapter> = chapters
+            .iter()
+            .find(|c| page.chapter_id.is_some_and(|c_id| c_id == c.id));
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
@@ -489,32 +514,26 @@ async fn sync_pages_batch(
                     page.id, db_err
                 );
             }
-        } else if let Some(history_id) = latest_history_ids.get(&page.id) {
-            let mut page_revision_map = HashMap::new();
+        } else if let Some(history_id) = latest_page_history_id {
             page_revision_map.insert(page.id, *history_id);
-            if let Err(e) =
-                headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
-                    conn,
-                    page_revision_map,
-                )
-                .await
-            {
-                let error_msg = format!("Sync failed: Status update error: {}", e);
-                warn!("Failed to update sync status for page {}: {:?}", page.id, e);
-                if let Err(db_err) =
-                    headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
-                        conn, page.id, &error_msg,
-                    )
-                    .await
-                {
-                    warn!(
-                        "Failed to record status update error for page {}: {:?}",
-                        page.id, db_err
-                    );
-                }
-            }
         }
     }
+
+    if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
+        conn,
+        new_markdown_contents_map,
+    )
+    .await
+    {
+        warn!("Failed to save converted page content in DB: {}", e);
+    };
+
+    // update revision ids for all pages
+    headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
+        conn,
+        page_revision_map,
+    )
+    .await?;
 
     Ok(())
 }

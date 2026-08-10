@@ -87,7 +87,7 @@ export type ChatbotChatStreamEvent =
 
 export type ChatbotConversation = {
   chatbot_configuration_id: string
-  course_id: string
+  course_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string
@@ -100,7 +100,7 @@ export type ChatbotConversation = {
  */
 export type ChatbotConversationInfo = {
   chatbot_name: string
-  course_name: string
+  course_name?: string | null
   current_conversation?: null | ChatbotConversation
   current_conversation_message_citations?: Array<ChatbotConversationMessageCitation> | null
   current_conversation_messages?: Array<ChatbotConversationMessage> | null
@@ -499,6 +499,15 @@ export type CustomViewExerciseTasks = {
   task_gradings: Array<CustomViewExerciseTaskGrading>
   task_submissions: Array<CustomViewExerciseTaskSubmission>
 }
+
+/**
+ * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
+ */
+export type EmailVerificationMethod =
+  | "emailed_code"
+  | "password_reset_backfill"
+  | "tmc_confirmed"
+  | "admin_asserted"
 
 export type ExamData = {
   ended: boolean
@@ -969,6 +978,7 @@ export type ReviewingStage =
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
   | "Locked"
+  | "NotAnsweredAndLocked"
 
 export type SaveCourseSettingsPayload = {
   background_question_answers: Array<NewCourseBackgroundQuestionAnswer>
@@ -1120,6 +1130,12 @@ export type UserDetail = {
   created_at: string
   email: string
   email_communication_consent?: boolean | null
+  /**
+   * When the user last proved control of the address in `email`. `None` means unproven. Cleared
+   * by a database trigger on every address change, so a value here always refers to `email`.
+   */
+  email_verified_at?: string | null
+  email_verified_method?: null | EmailVerificationMethod
   first_name?: string | null
   last_name?: string | null
   search_helper?: string | null

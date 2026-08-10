@@ -310,15 +310,23 @@ pub async fn authorize_access_to_chatbot(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     course_id: Option<Uuid>,
+    publicly_accessible: bool,
 ) -> Result<AuthorizationToken, ControllerError> {
-    let token = if let Some(_user_id) = user_id {
-        if let Some(course_id) = course_id {
-            authorize_access_to_course_material(conn, user_id, course_id).await?
-        } else {
-            authorize(conn, Act::View, user_id, Res::GlobalPermissions).await?
-        }
-    } else {
+    let token = if publicly_accessible {
         skip_authorize()
+    } else {
+        match (user_id, course_id) {
+            (Some(_), Some(course_id)) => {
+                authorize_access_to_course_material(conn, user_id, course_id).await?
+            }
+            _ => {
+                return Err(ControllerError::new(
+                    ControllerErrorType::Unauthorized,
+                    "You are not authorized to access the chatbot.".to_string(),
+                    None,
+                ));
+            }
+        }
     };
 
     Ok(token)

@@ -116,6 +116,7 @@ async fn send_message(
         &mut conn,
         user.map(|u| u.id),
         chatbot_configuration.course_id,
+        chatbot_configuration.publicly_accessible,
     )
     .await?;
 
@@ -192,8 +193,13 @@ async fn new_conversation(
 
     let configuration = models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
 
-    let token =
-        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), configuration.course_id).await?;
+    let token = authorize_access_to_chatbot(
+        &mut conn,
+        user.map(|u| u.id),
+        configuration.course_id,
+        configuration.publicly_accessible,
+    )
+    .await?;
 
     let anonymous_token = if let Some(_user) = user {
         None
@@ -275,6 +281,7 @@ async fn current_conversation_info(
         &mut conn,
         user.map(|u| u.id),
         chatbot_configuration.course_id,
+        chatbot_configuration.publicly_accessible,
     )
     .await?;
 

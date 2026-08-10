@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { includeIf } from "@/shared-module/common/utils/nullability"
@@ -418,89 +419,94 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 })}
               />
             </div>
-            <div className={creditRegistrationSectionCss}>
-              <Checkbox
-                name="credit_registration.enabled"
-                control={control}
-                label={t("label-enable-credit-registration-via-suotar")}
-                description={t("description-enable-credit-registration-via-suotar")}
-                rules={{
-                  onChange: (event) => {
-                    if (isTurningOn(event)) {
-                      setValue("enable_registering_completion_to_uh_open_university", false)
-                    } else {
-                      clearCreditRegistrationFields()
-                    }
-                  },
-                }}
-              />
-              {creditRegistrationEnabled && (
-                <div className={creditRegistrationBodyCss}>
-                  <NewTextField
-                    name="credit_registration.open_university_product_id"
-                    control={control}
-                    label={t("label-open-university-product-id")}
-                    description={t("description-open-university-product-id")}
-                  />
-                  <Select
-                    name="credit_registration.grade_scale_id"
-                    control={control}
-                    label={t("label-credit-registration-grade-scale")}
-                    description={t("description-credit-registration-grade-scale")}
-                    options={[
-                      {
-                        value: DERIVED_GRADE_SCALE,
-                        label: t("grade-scale-derive-from-completion"),
-                      },
-                      { value: PASS_FAIL_GRADE_SCALE_ID, label: t("grade-scale-pass-fail") },
-                      { value: NUMERIC_GRADE_SCALE_ID, label: t("grade-scale-numeric") },
-                    ]}
-                  />
-                  <div>
-                    <div className={realisationsHeadingCss}>
-                      {t("heading-credit-registration-realisations")}
-                    </div>
-                    <div className={realisationsHintCss}>
-                      {t("hint-credit-registration-realisations")}
-                    </div>
-                    {realisations.fields.map((field, index) => (
-                      <div className={realisationRowCss} key={field.id}>
-                        <NewTextField
-                          name={`credit_registration.realisations.${index}.course_unit_realisation_id`}
-                          control={control}
-                          label={t("label-course-unit-realisation-id")}
-                          rules={{ required: t("required-field") }}
-                        />
-                        <NewTextField
-                          name={`credit_registration.realisations.${index}.label`}
-                          control={control}
-                          label={t("label-realisation-name-shown-to-students")}
-                        />
-                        <Checkbox
-                          name={`credit_registration.realisations.${index}.active`}
-                          control={control}
-                          label={t("label-realisation-active")}
-                        />
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          onPress={() => realisations.remove(index)}
-                        >
-                          {t("button-text-remove")}
-                        </Button>
+            <OnlyRenderIfPermissions
+              action={{ type: "administrate" }}
+              resource={{ type: "global_permissions" }}
+            >
+              <div className={creditRegistrationSectionCss}>
+                <Checkbox
+                  name="credit_registration.enabled"
+                  control={control}
+                  label={t("label-enable-credit-registration-via-suotar")}
+                  description={t("description-enable-credit-registration-via-suotar")}
+                  rules={{
+                    onChange: (event) => {
+                      if (isTurningOn(event)) {
+                        setValue("enable_registering_completion_to_uh_open_university", false)
+                      } else {
+                        clearCreditRegistrationFields()
+                      }
+                    },
+                  }}
+                />
+                {creditRegistrationEnabled && (
+                  <div className={creditRegistrationBodyCss}>
+                    <NewTextField
+                      name="credit_registration.open_university_product_id"
+                      control={control}
+                      label={t("label-open-university-product-id")}
+                      description={t("description-open-university-product-id")}
+                    />
+                    <Select
+                      name="credit_registration.grade_scale_id"
+                      control={control}
+                      label={t("label-credit-registration-grade-scale")}
+                      description={t("description-credit-registration-grade-scale")}
+                      options={[
+                        {
+                          value: DERIVED_GRADE_SCALE,
+                          label: t("grade-scale-derive-from-completion"),
+                        },
+                        { value: PASS_FAIL_GRADE_SCALE_ID, label: t("grade-scale-pass-fail") },
+                        { value: NUMERIC_GRADE_SCALE_ID, label: t("grade-scale-numeric") },
+                      ]}
+                    />
+                    <div>
+                      <div className={realisationsHeadingCss}>
+                        {t("heading-credit-registration-realisations")}
                       </div>
-                    ))}
-                    <Button
-                      variant="secondary"
-                      size="small"
-                      onPress={() => realisations.append(EMPTY_REALISATION)}
-                    >
-                      {t("button-text-add-realisation")}
-                    </Button>
+                      <div className={realisationsHintCss}>
+                        {t("hint-credit-registration-realisations")}
+                      </div>
+                      {realisations.fields.map((field, index) => (
+                        <div className={realisationRowCss} key={field.id}>
+                          <NewTextField
+                            name={`credit_registration.realisations.${index}.course_unit_realisation_id`}
+                            control={control}
+                            label={t("label-course-unit-realisation-id")}
+                            rules={{ required: t("required-field") }}
+                          />
+                          <NewTextField
+                            name={`credit_registration.realisations.${index}.label`}
+                            control={control}
+                            label={t("label-realisation-name-shown-to-students")}
+                          />
+                          <Checkbox
+                            name={`credit_registration.realisations.${index}.active`}
+                            control={control}
+                            label={t("label-realisation-active")}
+                          />
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onPress={() => realisations.remove(index)}
+                          >
+                            {t("button-text-remove")}
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        onPress={() => realisations.append(EMPTY_REALISATION)}
+                      >
+                        {t("button-text-add-realisation")}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </OnlyRenderIfPermissions>
           </div>
         )}
         <div

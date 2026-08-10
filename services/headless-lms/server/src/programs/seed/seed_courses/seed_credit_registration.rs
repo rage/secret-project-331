@@ -621,6 +621,25 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     .await?;
     verified_student_numbers::insert(
         &mut conn,
+        PKeyPolicy::Fixed(cx.v5(b"verified-student-number:not-consented")),
+        &NewVerifiedStudentNumber {
+            user_id: not_consented.user_id,
+            student_number: NOT_CONSENTED.student_number.to_string(),
+            sisu_person_id: NOT_CONSENTED.sisu_person_id(),
+            first_names: Some(NOT_CONSENTED.first_names.to_string()),
+            last_name: Some(NOT_CONSENTED.last_name.to_string()),
+            verified_via: StudentNumberVerificationMethod::EmailedLink,
+            verified_via_email: Some(NOT_CONSENTED.sisu_email.to_string()),
+            verified_via_email_match_field: None,
+            account_email_verified_at: None,
+            linked_by_user_id: None,
+            link_reason: None,
+            verified_from_course_id: Some(suotar_course.id),
+        },
+    )
+    .await?;
+    verified_student_numbers::insert(
+        &mut conn,
         PKeyPolicy::Fixed(cx.v5(b"verified-student-number:superseded")),
         &NewVerifiedStudentNumber {
             user_id: superseded_student.user_id,

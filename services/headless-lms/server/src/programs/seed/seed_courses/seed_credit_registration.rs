@@ -1649,7 +1649,18 @@ pub fn mock_suotar_world() -> WorldPush {
     ];
 
     let mut persons: Vec<PersonUpsert> = on_crs_101.iter().map(|f| person(f)).collect();
-    persons.extend(on_crs_admin_101.iter().map(|f| person(f)));
+    persons.extend(on_crs_admin_101.iter().map(|f| {
+        let mut upsert = person(f);
+        // Sisu's live address must differ from the mailed history below, or a resend hits the
+        // dedup guard (already mailed this address) before it ever reaches the cap it exists to
+        // demonstrate.
+        if f.student_number == ADMIN_STALE.student_number
+            || f.student_number == TEACHER_RESEND_CAPPED.student_number
+        {
+            upsert.primary_email = format!("current.{}", f.sisu_email);
+        }
+        upsert
+    }));
     persons.push(person(&NO_ENROLMENT));
     persons.push(person(&IMPORT_OUTCOMES));
     persons.push(person(&GRADE_IMPROVEMENT));

@@ -601,6 +601,18 @@ pub async fn resend_course_credit_registration_linking_email(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
+    let enabled_module_ids =
+        models::course_modules::get_credit_registration_enabled_ids_for_course(
+            &mut conn, *course_id,
+        )
+        .await?;
+    if enabled_module_ids.is_empty() {
+        return Err(controller_err!(
+            BadRequest,
+            "This course has no credit registration module configured.".to_string()
+        ));
+    }
+
     let recent = models::credit_registration_admin_actions::count_by_actor_since(
         &mut conn,
         user.id,

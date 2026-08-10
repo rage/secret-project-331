@@ -51,7 +51,7 @@ test.describe("An import the study registry never answered", () => {
     // phase-level error of its own.
     await runTickUnchecked(page.request, "import", scope)
 
-    const uncertain = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const uncertain = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "submission_uncertain",
     ])
     expect(
@@ -64,7 +64,7 @@ test.describe("An import the study registry never answered", () => {
       // Only an explicit admin transition leaves `submission_uncertain`, so this holds however
       // many workers tick in between. A second import would silently add a second attainment
       // on a real transcript.
-      const row = await myRegistrationOnCourse(page.request, SUOTAR_COURSE_SLUG)
+      const row = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
       expect(row.state).toBe("submission_uncertain")
       expect(
         await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "import_attainments"),
@@ -80,10 +80,12 @@ test.describe("An import the study registry never answered", () => {
       )
       await makeRegistrationDueNow(adminApi, uncertain.id)
       await runVerifyPollTick(page.request, scope)
-      const registered = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
-        "registered",
-        "duplicate",
-      ])
+      const registered = await waitForRegistrationState(
+        page.request,
+        adminApi,
+        SUOTAR_COURSE_SLUG,
+        ["registered", "duplicate"],
+      )
       expect(registered.sisu_attainment_id).not.toBeNull()
       expect(
         await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "import_attainments"),

@@ -298,7 +298,7 @@ worker loop skips it on every tick until it is resumed.
     request_body = AdminPausePhasePayload,
     responses(
         (status = 200, description = "The phase's status after pausing", body = CreditRegistrationPhaseStatus),
-        (status = 400, description = "No reason given, or not one of the canonical phase names")
+        (status = 422, description = "No reason given, or not one of the canonical phase names")
     )
 )]
 pub async fn admin_pause_phase(
@@ -348,7 +348,7 @@ phase.
     request_body = AdminPhaseActionPayload,
     responses(
         (status = 200, description = "The phase's status after resuming", body = CreditRegistrationPhaseStatus),
-        (status = 400, description = "Not one of the canonical phase names")
+        (status = 422, description = "Not one of the canonical phase names")
     )
 )]
 pub async fn admin_resume_phase(
@@ -397,7 +397,7 @@ immediately: the worker loop picks it up on its next tick instead of waiting out
     request_body = AdminPhaseActionPayload,
     responses(
         (status = 200, description = "The phase's status after being made due", body = CreditRegistrationPhaseStatus),
-        (status = 400, description = "Not one of the canonical phase names")
+        (status = 422, description = "Not one of the canonical phase names")
     )
 )]
 pub async fn admin_run_phase_now(

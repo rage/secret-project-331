@@ -410,7 +410,7 @@ a `misregistered` row sits outside the automatic machinery that would otherwise 
     request_body = AdminTransitionCreditRegistrationPayload,
     responses(
         (status = 200, description = "What the transition did", body = AdminTransitionCreditRegistrationResult),
-        (status = 400, description = "No reason given"),
+        (status = 422, description = "No reason given"),
         (status = 404, description = "No such registration")
     )
 )]

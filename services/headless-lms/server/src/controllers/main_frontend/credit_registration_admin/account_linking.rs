@@ -414,7 +414,7 @@ retires the ledger rows the cap is counting, as its own audited action, then run
     request_body = AdminResendAccountLinkingEmailPayload,
     responses(
         (status = 200, description = "What the attempt did", body = AdminResendAccountLinkingEmailResult),
-        (status = 400, description = "An override without a reason, or too soon after the last resend")
+        (status = 422, description = "An override without a reason, or too soon after the last resend")
     )
 )]
 pub async fn admin_resend_account_linking_email(
@@ -536,7 +536,7 @@ writes.
     request_body = AdminResolveStudentNumberPayload,
     responses(
         (status = 200, description = "Who the study registry says the number belongs to", body = AdminResolveStudentNumberResult),
-        (status = 400, description = "No student number given")
+        (status = 422, description = "No student number given")
     )
 )]
 pub async fn admin_resolve_student_number_for_linking(
@@ -660,7 +660,7 @@ reason and names the admin.
     request_body = AdminManuallyLinkStudentNumberPayload,
     responses(
         (status = 200, description = "What the attempt did", body = AdminManuallyLinkStudentNumberResult),
-        (status = 400, description = "No reason, no student number, or no person id from the preview")
+        (status = 422, description = "No reason, no student number, or no person id from the preview")
     )
 )]
 pub async fn admin_manually_link_student_number(

@@ -124,7 +124,7 @@ soft-deleted: the number a student once held is part of the audit trail.
     request_body = AdminUnlinkStudentNumberPayload,
     responses(
         (status = 200, description = "How many registrations went back to waiting", body = AdminUnlinkStudentNumberResult),
-        (status = 400, description = "No reason given"),
+        (status = 422, description = "No reason given"),
         (status = 404, description = "No such link")
     )
 )]

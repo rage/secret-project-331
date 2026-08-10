@@ -83,6 +83,7 @@
   "chapters-grid-placeholder-explanation": "Tämä lohko on sijoitettu kurssimateriaalin etusivulle, jotta voit siirtyä helposti eri lukuihin.",
   "chart-block-empty-instructions": "Lisää Vega-Lite-kaavion määrittely ja sen data.",
   "chart-block-invalid-spec-error": "Kaaviota ei voitu näyttää, koska sen määrittely on virheellinen.",
+  "chart-block-mobile-scroll-warning": "Tämä kaavio on leveämpi kuin puhelimen näyttö, joten mobiilikäyttäjät joutuvat vierittämään sivusuunnassa nähdäkseen sen kokonaan. Harkitse kaavion yksinkertaistamista tai vierekkäisten näkymien määrän vähentämistä.",
   "chart-block-no-data-file": "Tästä kaaviosta puuttuu datatiedosto.",
   "chart-data-extracted-warning": "Kaavion määrittelystä löytynyt data tallennettiin erilliseen tiedostoon, joten määrittely kuvaa nyt vain kaavion näkymän.",
   "chart-data-file": "Kaavion datatiedosto (CSV tai JSON)",

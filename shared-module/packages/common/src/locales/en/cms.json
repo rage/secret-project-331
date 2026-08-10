@@ -83,6 +83,7 @@
   "chapters-grid-placeholder-explanation": "This block is placed on the course material front page for navigating to different chapters easily.",
   "chart-block-empty-instructions": "Add a Vega-Lite chart specification and its data.",
   "chart-block-invalid-spec-error": "The chart could not be displayed because its specification is invalid.",
+  "chart-block-mobile-scroll-warning": "This chart is wider than a phone screen, so students on mobile will have to scroll sideways to see all of it. Consider simplifying the chart or reducing the number of side-by-side views.",
   "chart-block-no-data-file": "This chart is missing its data file.",
   "chart-data-extracted-warning": "Data found in the chart specification was saved as a separate file, so the specification now describes only the chart view.",
   "chart-data-file": "Chart data file (CSV or JSON)",

@@ -56,6 +56,31 @@ export const resolveChartLayout = (args: {
   return { boxHeightPx: target, scale: Math.min(1, target / naturalHeightPx) }
 }
 
+/** Content width (px) a chart gets on a small phone in portrait: roughly the smallest breakpoint
+ * (xxs = 400px) minus the course-material content padding (2 × 1.375rem ≈ 44px). Kept as a literal
+ * rather than derived from the breakpoint constants, since those are viewport thresholds and this
+ * is a content width. A chart rendered wider than this forces students on mobile to scroll
+ * sideways to see all of it. */
+export const MOBILE_CONTENT_WIDTH_PX = 360
+
+/**
+ * Whether the chart will be wider than a small phone's screen and force horizontal scrolling on
+ * mobile. Only multi-view specs can: single-view specs are refit to the viewport width, so they
+ * always fit regardless of viewport. `naturalWidthPx` is the chart's unscaled rendered width;
+ * `scale` is the CSS scale applied for height fitting (see resolveChartLayout).
+ */
+export const wouldSideScrollOnMobile = (args: {
+  isMultiView: boolean
+  naturalWidthPx: number | null
+  scale: number
+}): boolean => {
+  const { isMultiView, naturalWidthPx, scale } = args
+  if (!isMultiView || !naturalWidthPx || naturalWidthPx <= 0) {
+    return false
+  }
+  return naturalWidthPx * scale > MOBILE_CONTENT_WIDTH_PX
+}
+
 export interface ExtractedData {
   specWithoutData: Record<string, unknown>
   contents: string

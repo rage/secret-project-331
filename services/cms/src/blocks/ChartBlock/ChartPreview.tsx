@@ -7,7 +7,12 @@ import { VegaLite } from "react-vega"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
-import { DEFAULT_CHART_HEIGHT, isMultiViewSpec, resolveChartLayout } from "./chartSpec"
+import {
+  DEFAULT_CHART_HEIGHT,
+  isMultiViewSpec,
+  resolveChartLayout,
+  wouldSideScrollOnMobile,
+} from "./chartSpec"
 
 const MIN_HEIGHT = 200
 // Debounce redraws to once the resize settles, not per tick (avoids a stale canvas width).
@@ -43,6 +48,9 @@ interface ChartPreviewProps {
    * Multi-view (concat/facet/repeat) specs ignore the injected height and render at their natural
    * size, so this is the only reliable way to know how tall the chart really is. */
   onNaturalHeightChange?: (heightPx: number) => void
+  /** Show a warning below the chart when it will overflow a phone's width and force students to
+   * scroll sideways on mobile. Off by default; the authoring modal opts in. */
+  warnOnMobileOverflow?: boolean
 }
 
 const ChartPreview: React.FC<ChartPreviewProps> = ({
@@ -51,25 +59,36 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
   caption,
   showCaption,
   onNaturalHeightChange,
+  warnOnMobileOverflow,
 }) => {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLElement>(null)
   const [width, setWidth] = useState<number | null>(null)
   const [naturalHeight, setNaturalHeight] = useState<number | null>(null)
+  const [naturalWidth, setNaturalWidth] = useState<number | null>(null)
 
   const lastReportedHeightRef = useRef<number | null>(null)
+  const lastReportedWidthRef = useRef<number | null>(null)
   const chartObserverRef = useRef<ResizeObserver | undefined>(undefined)
   const heightDebounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  const reportHeight = useCallback(
+  const report = useCallback(
     (node: HTMLDivElement) => {
       // offsetHeight is the layout height, unaffected by the CSS scale we apply for resizing, so
       // it always reflects the chart's true natural height.
-      const measured = node.offsetHeight
-      if (measured > 0 && measured !== lastReportedHeightRef.current) {
-        lastReportedHeightRef.current = measured
-        setNaturalHeight(measured)
-        onNaturalHeightChange?.(measured)
+      const measuredHeight = node.offsetHeight
+      if (measuredHeight > 0 && measuredHeight !== lastReportedHeightRef.current) {
+        lastReportedHeightRef.current = measuredHeight
+        setNaturalHeight(measuredHeight)
+        onNaturalHeightChange?.(measuredHeight)
+      }
+      // The SVG's own layout width, likewise unaffected by the scale — the chart's true width. For
+      // multi-view specs this is intrinsic (not the container's), so it predicts the width the
+      // chart takes on any viewport, letting us warn about side-scrolling on a narrow phone.
+      const measuredWidth = node.querySelector("svg")?.clientWidth ?? 0
+      if (measuredWidth > 0 && measuredWidth !== lastReportedWidthRef.current) {
+        lastReportedWidthRef.current = measuredWidth
+        setNaturalWidth(measuredWidth)
       }
     },
     [onNaturalHeightChange],
@@ -88,13 +107,13 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
         if (heightDebounceRef.current) {
           clearTimeout(heightDebounceRef.current)
         }
-        heightDebounceRef.current = setTimeout(() => reportHeight(node), RESIZE_DEBOUNCE_MS)
+        heightDebounceRef.current = setTimeout(() => report(node), RESIZE_DEBOUNCE_MS)
       })
       observer.observe(node)
       chartObserverRef.current = observer
-      reportHeight(node)
+      report(node)
     },
-    [reportHeight],
+    [report],
   )
 
   useEffect(
@@ -166,6 +185,10 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
     isMultiView: multiView,
   })
 
+  const willSideScrollOnMobile =
+    Boolean(warnOnMobileOverflow) &&
+    wouldSideScrollOnMobile({ isMultiView: multiView, naturalWidthPx: naturalWidth, scale })
+
   return (
     <figure
       ref={containerRef}
@@ -222,6 +245,22 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
       )}
       {showCaption && caption?.trim() && (
         <figcaption className={chartCaptionStyle}>{caption}</figcaption>
+      )}
+      {willSideScrollOnMobile && (
+        <p
+          className={css`
+            margin: 0.75rem 0 0;
+            padding: 0.75rem 1rem;
+            background: ${baseTheme.colors.yellow[100]};
+            border: 1px solid ${baseTheme.colors.yellow[300]};
+            border-radius: 4px;
+            font-family: ${primaryFont};
+            font-size: 0.8125rem;
+            color: ${baseTheme.colors.gray[700]};
+          `}
+        >
+          {t("chart-block-mobile-scroll-warning")}
+        </p>
       )}
     </figure>
   )

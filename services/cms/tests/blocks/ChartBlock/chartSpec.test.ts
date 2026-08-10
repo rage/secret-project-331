@@ -2,8 +2,10 @@ import {
   dataFormatForUrl,
   dataUrlFromSpec,
   extractInlineData,
+  MOBILE_CONTENT_WIDTH_PX,
   specWithDataUrl,
   VEGA_LITE_SCHEMA_URL,
+  wouldSideScrollOnMobile,
 } from "../../../src/blocks/ChartBlock/chartSpec"
 
 const specWith = (data: unknown): string => JSON.stringify({ mark: "bar", data })
@@ -133,6 +135,42 @@ describe("specWithDataUrl", () => {
       $schema: VEGA_LITE_SCHEMA_URL,
       data: { url: "/files/data.json", format: { type: "json" } },
     })
+  })
+})
+
+describe("wouldSideScrollOnMobile", () => {
+  const wide = MOBILE_CONTENT_WIDTH_PX + 100
+  const narrow = MOBILE_CONTENT_WIDTH_PX - 100
+
+  it("never warns for single-view specs, however wide", () => {
+    expect(wouldSideScrollOnMobile({ isMultiView: false, naturalWidthPx: wide, scale: 1 })).toBe(
+      false,
+    )
+  })
+
+  it("warns when a multi-view chart is wider than a phone screen", () => {
+    expect(wouldSideScrollOnMobile({ isMultiView: true, naturalWidthPx: wide, scale: 1 })).toBe(
+      true,
+    )
+  })
+
+  it("does not warn when a multi-view chart fits within a phone screen", () => {
+    expect(wouldSideScrollOnMobile({ isMultiView: true, naturalWidthPx: narrow, scale: 1 })).toBe(
+      false,
+    )
+  })
+
+  it("accounts for the CSS scale: a wide chart scaled down enough no longer overflows", () => {
+    // 800px natural, but scaled to 0.4 -> 320px rendered, under the threshold.
+    expect(wouldSideScrollOnMobile({ isMultiView: true, naturalWidthPx: 800, scale: 0.4 })).toBe(
+      false,
+    )
+  })
+
+  it("does not warn when the width is unknown yet", () => {
+    expect(wouldSideScrollOnMobile({ isMultiView: true, naturalWidthPx: null, scale: 1 })).toBe(
+      false,
+    )
   })
 })
 

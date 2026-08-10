@@ -588,7 +588,13 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               overflow: auto;
             `}
           >
-            <ChartPreview spec={spec} height={height} caption={caption} showCaption />
+            <ChartPreview
+              spec={spec}
+              height={height}
+              caption={caption}
+              showCaption
+              warnOnMobileOverflow
+            />
           </div>
         </div>
       </div>

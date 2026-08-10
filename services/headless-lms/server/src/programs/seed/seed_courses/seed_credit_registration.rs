@@ -843,7 +843,13 @@ async fn seed_backfill_course(
         .order(0)
         .ects(5.0)
         .uh_course_code(CRS_BACKFILL_101.to_string())
-        .default_registrar(registrar_id);
+        .default_registrar(registrar_id)
+        // The module-edit form's start/end chapter pickers are required; without one, the spec
+        // that opts this module in through that UI finds "Confirm" permanently disabled.
+        .chapter(
+            ChapterBuilder::new(1, "Content")
+                .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:front-page")),
+        );
 
     for index in 1..=4 {
         let student = insert_student(

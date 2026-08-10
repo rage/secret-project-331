@@ -165,11 +165,34 @@ pub struct AdminTransitionCreditRegistrationResult {
     pub needs_admin_attention: bool,
 }
 
+/// `serde_urlencoded` reads a single occurrence of a key as a scalar, not a one-element sequence, so
+/// a `Vec` field otherwise refuses a query string that repeats the parameter zero or one times.
+fn one_or_many<'de, D, T>(deserializer: D) -> Result<Option<Vec<T>>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum OneOrMany<T> {
+        One(T),
+        Many(Vec<T>),
+    }
+    Ok(
+        Option::<OneOrMany<T>>::deserialize(deserializer)?.map(|repr| match repr {
+            OneOrMany::One(value) => vec![value],
+            OneOrMany::Many(values) => values,
+        }),
+    )
+}
+
 #[derive(Debug, Deserialize)]
 pub struct ListCreditRegistrationsQuery {
     page: Option<u32>,
     limit: Option<u32>,
+    #[serde(default, deserialize_with = "one_or_many")]
     state: Option<Vec<CreditRegistrationState>>,
+    #[serde(default, deserialize_with = "one_or_many")]
     error_code: Option<Vec<CreditRegistrationErrorCode>>,
     course_id: Option<Uuid>,
     course_module_id: Option<Uuid>,

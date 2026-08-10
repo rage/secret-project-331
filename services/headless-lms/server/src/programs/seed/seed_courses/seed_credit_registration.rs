@@ -216,8 +216,10 @@ pub const IMPORT_TIMEOUT: MockPersonFixture = MockPersonFixture {
 pub const NO_ENROLMENT: MockPersonFixture = MockPersonFixture {
     student_number: "900000301",
     first_names: "Zzyzx",
-    last_name: "Notenrolled",
-    sisu_email: "zzyzx.notenrolled@helsinki.example",
+    // Not "Notenrolled": its trigram distance from "notexisting" is close enough to spuriously
+    // match search-users.spec.ts's no-such-user search.
+    last_name: "Unenrolled",
+    sisu_email: "zzyzx.unenrolled@helsinki.example",
     account_email: Some("credit-registration-no-enrolment@example.com"),
 };
 /// Enrolled on one course twice, through a degree programme and through the open university, so the

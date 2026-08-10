@@ -19,6 +19,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+import { removeSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 import { createChatbotTranscript } from "@/utils/course-material/createChatbotTranscript"
 import { downloadStringAsFile } from "@/utils/course-material/downloadStringAsFile"
 
@@ -128,7 +129,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
         if (!newConversationMutation.isPending) {
           newConversationMutation.mutate()
           // oxlint-disable-next-line i18next/no-literal-string
-          localStorage.removeItem("anonymousToken")
+          removeSavedChatbotAnonymousToken()
         }
       },
       disabled: newConversationMutation.isPending,

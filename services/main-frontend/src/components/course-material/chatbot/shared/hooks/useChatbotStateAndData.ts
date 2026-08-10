@@ -12,6 +12,7 @@ import type {
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { getSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"
@@ -49,8 +50,7 @@ const useChatbotStateAndData = (
     messages: [],
   })
 
-  const anonymousToken =
-    typeof window !== "undefined" ? localStorage.getItem("anonymousToken") : null
+  const anonymousToken = getSavedChatbotAnonymousToken()
 
   const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId, anonymousToken)
   const newConversationMutation = useNewConversationMutation(

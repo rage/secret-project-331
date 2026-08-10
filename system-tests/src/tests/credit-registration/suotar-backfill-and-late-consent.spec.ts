@@ -1,16 +1,14 @@
-import { expect, test } from "@playwright/test"
-
 import {
   BACKFILL_COURSE_ID,
   BACKFILL_COURSE_SLUG,
-  myCreditRegistrations,
+  myRegistrationOnCourse,
   ORIGIN,
   PROFILE_CREDIT_REGISTRATION_URL,
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { respondToConfirmDialog } from "@/utils/dialogs"
-import { ADMIN_STORAGE_STATE } from "@/utils/fixtures"
+import { ADMIN_STORAGE_STATE, expect, test } from "@/utils/fixtures"
 import { runMaterializeTick, runPreconditionsTick } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
@@ -36,12 +34,15 @@ test.describe("The teacher opts the module in", () => {
     page,
   }) => {
     await page.goto(MODULES_URL)
-    await page.getByRole("button", { name: "Edit" }).first().click()
+    const moduleForm = page.locator('form:has-text("Default module")')
+    await moduleForm.getByRole("button", { name: "Edit" }).click()
     await page.getByLabel("Register completions to the study registry automatically").check()
     // The realisation list starts empty, and a module with no realisation is never listed.
     await page.getByRole("button", { name: "Add realisation" }).click()
     await page.getByLabel("Realisation id").last().fill(REALISATION_ID)
-    await page.getByRole("button", { name: "Confirm" }).click()
+    // Confirm: this module's own inline save, ambiguous with the "create module" panel's disabled
+    // one below it. Save changes: the page-level submit that actually persists it.
+    await moduleForm.getByLabel("Confirm").click()
     await page.getByRole("button", { name: "Save changes" }).click()
     await expect(page.getByText("Success").first()).toBeVisible()
 
@@ -73,7 +74,10 @@ test.describe("The teacher opts the module in", () => {
 test.describe("A student consenting after the fact", () => {
   test.use({ storageState: seededStudentStorageState(LATE_CONSENT_EMAIL) })
 
-  test("Late consent from the profile page unblocks the backfilled rows", async ({ page }) => {
+  test("Late consent from the profile page unblocks the backfilled rows", async ({
+    page,
+    adminApi,
+  }) => {
     await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
 
     const allow = page.getByRole("button", { name: /^Allow/ })
@@ -87,10 +91,8 @@ test.describe("A student consenting after the fact", () => {
     await runPreconditionsTick(page.request, { userEmail: LATE_CONSENT_EMAIL })
     const unblocked = await pollUntil(
       async () => {
-        const row = (await myCreditRegistrations(page.request)).find(
-          (candidate) => candidate.course_slug === BACKFILL_COURSE_SLUG,
-        )
-        return row && row.state !== "pending_consent" ? row : null
+        const row = await myRegistrationOnCourse(page.request, adminApi, BACKFILL_COURSE_SLUG)
+        return row.state !== "pending_consent" ? row : null
       },
       { description: "the backfilled row to leave pending_consent" },
     )

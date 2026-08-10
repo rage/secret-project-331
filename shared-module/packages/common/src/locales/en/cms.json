@@ -15,6 +15,7 @@
   "ai-dialog-original-text": "Original paragraph",
   "ai-dialog-title-apply": "Apply changes to paragraph",
   "ai-generate-chart": "Generate with AI",
+  "ai-generate-needs-data-file": "Add a data file first — AI generation uses your data's columns to build the chart.",
   "ai-generating-chart": "Generating the chart…",
   "ai-group-citations-integrity": "Citations & integrity",
   "ai-group-improve": "Improve",

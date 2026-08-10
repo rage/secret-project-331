@@ -405,8 +405,9 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               <div
                 className={css`
                   display: flex;
+                  flex-wrap: wrap;
                   align-items: center;
-                  gap: 0.75rem;
+                  gap: 0.5rem 0.75rem;
                   margin-top: 0.5rem;
                 `}
               >
@@ -415,10 +416,22 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                   size="small"
                   onClick={() => void handleAiGenerate()}
                   isLoading={isGenerating}
-                  disabled={!aiPrompt.trim()}
+                  disabled={!aiPrompt.trim() || !dataUrl}
                 >
                   {t("generate")}
                 </Button>
+                {!isGenerating && !dataUrl && (
+                  <span
+                    className={css`
+                      font-family: ${primaryFont};
+                      font-size: 0.8125rem;
+                      font-weight: ${fontWeights.medium};
+                      color: ${baseTheme.colors.red[600]};
+                    `}
+                  >
+                    {t("ai-generate-needs-data-file")}
+                  </span>
+                )}
                 {/* The live region must exist before content changes for screen readers to announce it. */}
                 <div aria-live="polite">
                   {isGenerating && (

@@ -15,6 +15,7 @@
   "ai-dialog-original-text": "Alkuperäinen kappale",
   "ai-dialog-title-apply": "Ota muutokset käyttöön kappaleessa",
   "ai-generate-chart": "Luo tekoälyllä",
+  "ai-generate-needs-data-file": "Lisää ensin datatiedosto — tekoäly käyttää datasi sarakkeita kaavion luomiseen.",
   "ai-generating-chart": "Luodaan kaaviota…",
   "ai-group-citations-integrity": "Lähteet ja eettisyys",
   "ai-group-improve": "Paranna",

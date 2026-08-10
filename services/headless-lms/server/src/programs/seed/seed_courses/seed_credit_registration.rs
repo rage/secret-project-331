@@ -1078,10 +1078,8 @@ async fn seed_frozen_registration(
                 first_names: Some("Zzyzx".to_string()),
                 last_name: Some(last_name.to_string()),
                 verified_via,
-                verified_via_email: Some(format!(
-                    "zzyzx.{}@helsinki.example",
-                    last_name.to_lowercase()
-                )),
+                verified_via_email: (verified_via != StudentNumberVerificationMethod::AdminManual)
+                    .then(|| format!("zzyzx.{}@helsinki.example", last_name.to_lowercase())),
                 verified_via_email_match_field: None,
                 account_email_verified_at: None,
                 linked_by_user_id: (verified_via == StudentNumberVerificationMethod::AdminManual)
@@ -1282,7 +1280,8 @@ async fn link_student_number(
             first_names: Some(fixture.first_names.to_string()),
             last_name: Some(fixture.last_name.to_string()),
             verified_via,
-            verified_via_email: Some(fixture.sisu_email.to_string()),
+            verified_via_email: (verified_via != StudentNumberVerificationMethod::AdminManual)
+                .then(|| fixture.sisu_email.to_string()),
             verified_via_email_match_field: None,
             account_email_verified_at: None,
             linked_by_user_id: (verified_via == StudentNumberVerificationMethod::AdminManual)

@@ -18,21 +18,16 @@ const HTML = `
 `
 
 let _chatbotEmbedServer: http.Server | null = null
+let _port: number | null = null
 let _setupCount = 0
 let _setupPromise: Promise<void> | null = null
 
-export function getChatbotEmbedServer(): string {
-  if (!_chatbotEmbedServer) {
-    throw new Error("ChatbotEmbedServer is undefined")
+export function getChatbotEmbedServerUri(): string {
+  if (_port === null) {
+    throw new Error("Chatbot embed server not set up.")
   }
 
-  const address = _chatbotEmbedServer.address()
-
-  if (!address || typeof address === "string") {
-    throw new Error("Incorrect address type")
-  }
-
-  return `http://127.0.0.1:${address.port}`
+  return `http://127.0.0.1:${_port}`
 }
 
 export async function setupChatbotEmbedServer(): Promise<void> {
@@ -66,6 +61,7 @@ export async function setupChatbotEmbedServer(): Promise<void> {
 
       server.listen(port, "127.0.0.1", () => {
         _chatbotEmbedServer = server
+        _port = port
         _setupPromise = null
         resolve()
       })

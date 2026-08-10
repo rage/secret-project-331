@@ -3,7 +3,7 @@ import { test as base } from "@playwright/test"
 import {
   setupChatbotEmbedServer,
   teardownChatbotEmbedServer,
-  getChatbotEmbedServer,
+  getChatbotEmbedServerUri,
 } from "../utils/chatbotEmbedServer"
 
 /**
@@ -19,7 +19,7 @@ export const test = base.extend<{}, { chatbotEmbedServer: string }>({
   chatbotEmbedServer: [
     async ({}, use) => {
       await setupChatbotEmbedServer()
-      const server = getChatbotEmbedServer()
+      const server = getChatbotEmbedServerUri()
       await use(server)
       await teardownChatbotEmbedServer()
     },

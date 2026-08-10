@@ -106,13 +106,13 @@ test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ 
         action,
         pauseReason,
       )
-      expect(response.status(), `${action} accepted an unknown phase name`).toBe(400)
+      expect(response.status(), `${action} accepted an unknown phase name`).toBe(422)
     }
   })
 
   await test.step("Pausing without a reason is refused", async () => {
     const response = await postAdminPhaseAction(page.request, phase, "pause", "   ")
-    expect(response.status()).toBe(400)
+    expect(response.status()).toBe(422)
   })
 
   try {

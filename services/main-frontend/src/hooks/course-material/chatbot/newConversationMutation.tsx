@@ -21,7 +21,11 @@ const useNewConversationMutation = (
       }),
     { notify: false },
     {
-      onSuccess: () => {
+      onSuccess: (res) => {
+        const anonymousToken = res.anonymous_token
+        if (anonymousToken && typeof window !== "undefined") {
+          localStorage.setItem("anonymousToken", anonymousToken)
+        }
         currentConversationInfo.refetch()
         setNewMessage("")
         setError(null) // Clear any existing errors when starting a new conversation

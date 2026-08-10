@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_configurations (\n    id,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    hide_citations,\n    frequency_penalty,\n    presence_penalty,\n    max_output_tokens,\n    verbosity,\n    reasoning_effort,\n    use_azure_search,\n    use_tools,\n    maintain_azure_search_index,\n    default_chatbot,\n    suggest_next_messages,\n    initial_suggested_messages\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)\nRETURNING *\n        ",
+  "query": "\nUPDATE chatbot_configurations\nSET\n    enabled_to_students = $1,\n    chatbot_name = $2,\n    prompt = $3,\n    initial_message = $4,\n    weekly_tokens_per_user = $5,\n    daily_tokens_per_user = $6,\n    temperature = $7,\n    top_p = $8,\n    frequency_penalty = $9,\n    presence_penalty = $10,\n    max_output_tokens = $11,\n    use_azure_search = $12,\n    maintain_azure_search_index = $13,\n    hide_citations = $14,\n    use_semantic_reranking = $15,\n    default_chatbot = $16,\n    model_id = $17,\n    verbosity = $18,\n    reasoning_effort = $19,\n    use_tools = $20,\n    suggest_next_messages = $21,\n    initial_suggested_messages = $22,\n    publicly_accessible = $23\nWHERE id = $24\n    AND deleted_at IS NULL\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -324,25 +324,38 @@
             "name": "max_output_tokens"
           }
         }
+      },
+      {
+        "ordinal": 27,
+        "name": "publicly_accessible",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "publicly_accessible"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Uuid",
         "Bool",
         "Varchar",
-        "Uuid",
         "Varchar",
         "Varchar",
         "Int4",
         "Int4",
         "Float4",
         "Float4",
+        "Float4",
+        "Float4",
+        "Int4",
         "Bool",
-        "Float4",
-        "Float4",
-        "Int4",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Uuid",
         {
           "Custom": {
             "name": "verbosity_level",
@@ -372,10 +385,9 @@
         },
         "Bool",
         "Bool",
+        "VarcharArray",
         "Bool",
-        "Bool",
-        "Bool",
-        "VarcharArray"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -405,8 +417,9 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },
-  "hash": "d6ba48bff31db15c7550f90c3c1597239a541099e4027619b96ab97c3beafa8e"
+  "hash": "e4ab7a5b9d1bb5088d1f257e0a6f5f81448f2693fd3df7bfcb7a3e1d17b7ae0e"
 }

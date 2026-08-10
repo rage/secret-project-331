@@ -197,6 +197,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         use_tools: data.use_tools,
         suggest_next_messages: data.suggest_next_messages,
         initial_suggested_messages: data.suggested_messages.map((v) => v.message),
+        publicly_accessible: oldChatbotConf.publicly_accessible, // keep the old publicly_accessible value
         default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
         chatbotconf_id: null,
       },

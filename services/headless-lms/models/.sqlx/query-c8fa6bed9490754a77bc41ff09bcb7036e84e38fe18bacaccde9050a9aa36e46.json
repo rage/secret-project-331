@@ -324,6 +324,17 @@
             "name": "max_output_tokens"
           }
         }
+      },
+      {
+        "ordinal": 27,
+        "name": "publicly_accessible",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "publicly_accessible"
+          }
+        }
       }
     ],
     "parameters": {
@@ -358,6 +369,7 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },

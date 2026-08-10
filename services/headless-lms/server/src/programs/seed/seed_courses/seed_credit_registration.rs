@@ -1084,7 +1084,8 @@ async fn seed_frozen_registration(
                 )),
                 verified_via_email_match_field: None,
                 account_email_verified_at: None,
-                linked_by_user_id: None,
+                linked_by_user_id: (verified_via == StudentNumberVerificationMethod::AdminManual)
+                    .then_some(cx.teacher),
                 link_reason: (verified_via == StudentNumberVerificationMethod::AdminManual).then(
                     || "Seeded fixture: the address Sisu holds rejects our mail.".to_string(),
                 ),
@@ -1284,7 +1285,8 @@ async fn link_student_number(
             verified_via_email: Some(fixture.sisu_email.to_string()),
             verified_via_email_match_field: None,
             account_email_verified_at: None,
-            linked_by_user_id: None,
+            linked_by_user_id: (verified_via == StudentNumberVerificationMethod::AdminManual)
+                .then_some(cx.teacher),
             link_reason: (verified_via == StudentNumberVerificationMethod::AdminManual)
                 .then(|| "Seeded fixture: the address Sisu holds rejects our mail.".to_string()),
             verified_from_course_id: Some(course_id),

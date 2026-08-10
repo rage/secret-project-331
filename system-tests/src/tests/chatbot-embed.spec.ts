@@ -50,10 +50,11 @@ test.describe("Chatbot iframe embed testing", () => {
         page.locator("iframe").contentFrame().getByRole("heading", { name: "Global chatbot" }),
       ).toBeVisible()
       await expect(
-        page.locator("iframe").contentFrame().getByRole("heading", { name: "About the chatbot" }),
+        page.locator("iframe").contentFrame().getByText("Chatbots can make mistakes."),
       ).toBeVisible()
+
       await expect(
-        page.locator("iframe").contentFrame().getByRole("button", { name: "Agree" }),
+        page.locator("iframe").contentFrame().getByText("Ah, there you are, my dear"),
       ).toBeVisible()
     })
   })

@@ -427,6 +427,19 @@ pub async fn admin_resend_account_linking_email(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
+    let enabled_module_ids =
+        models::course_modules::get_credit_registration_enabled_ids_for_course(
+            &mut conn,
+            payload.course_id,
+        )
+        .await?;
+    if enabled_module_ids.is_empty() {
+        return Err(controller_err!(
+            BadRequest,
+            "This course has no credit registration module configured.".to_string()
+        ));
+    }
+
     let student_number = payload.student_number.trim();
     if student_number.is_empty() {
         return Err(controller_err!(
@@ -535,6 +548,13 @@ pub async fn admin_resolve_student_number_for_linking(
 ) -> ControllerResult<web::Json<AdminResolveStudentNumberResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    if !models::course_modules::any_credit_registration_enabled(&mut conn).await? {
+        return Err(controller_err!(
+            BadRequest,
+            "No course has credit registration configured.".to_string()
+        ));
+    }
 
     let student_number = payload.student_number.trim();
     if student_number.is_empty() {
@@ -652,6 +672,13 @@ pub async fn admin_manually_link_student_number(
 ) -> ControllerResult<web::Json<AdminManuallyLinkStudentNumberResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    if !models::course_modules::any_credit_registration_enabled(&mut conn).await? {
+        return Err(controller_err!(
+            BadRequest,
+            "No course has credit registration configured.".to_string()
+        ));
+    }
 
     let ManualLinkRequest {
         reason,

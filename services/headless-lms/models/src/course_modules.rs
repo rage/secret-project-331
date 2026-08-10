@@ -738,6 +738,25 @@ ORDER BY order_number
     Ok(res)
 }
 
+/// The gate for admin actions that are not tied to one course (e.g. resolving or manually
+/// linking a student number), where `get_credit_registration_enabled_ids_for_course` has no
+/// course to check against.
+pub async fn any_credit_registration_enabled(conn: &mut PgConnection) -> ModelResult<bool> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1
+  FROM course_modules
+  WHERE enable_credit_registration_via_suotar
+    AND deleted_at IS NULL
+) AS "exists!"
+        "#
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Every course the user is enrolled on that has at least one module opted in to credit
 /// registration, so the profile page can list a course the student was never asked about.
 pub async fn get_credit_registration_course_ids_for_enrolled_user(

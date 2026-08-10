@@ -1699,13 +1699,22 @@ pub fn mock_suotar_world() -> WorldPush {
         )
     }));
     enrolments.extend(IMPORT_OUTCOME_COURSE_CODES.iter().map(|course_code| {
-        enrolment(
-            &IMPORT_OUTCOMES,
-            course_code,
-            RealisationKind::Degree,
-            wide.clone(),
-            now,
-        )
+        EnrolmentUpsert {
+            // The plain (student, kind) id would collide across all four: one student enrolled in
+            // four realisations of the same kind at once.
+            id: Some(mock_ids::enrolment_id_for_course(
+                IMPORT_OUTCOMES.student_number,
+                course_code,
+                RealisationKind::Degree,
+            )),
+            ..enrolment(
+                &IMPORT_OUTCOMES,
+                course_code,
+                RealisationKind::Degree,
+                wide.clone(),
+                now,
+            )
+        }
     }));
     enrolments.push(enrolment(
         &GRADE_IMPROVEMENT,

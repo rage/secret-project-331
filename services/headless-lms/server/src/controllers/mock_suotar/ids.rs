@@ -42,6 +42,19 @@ pub fn enrolment_id(student_number: &str, kind: RealisationKind) -> String {
     )
 }
 
+/// Per (student, course, kind): a person enrolled in more than one realisation of the same kind at
+/// once needs an id `enrolment_id` cannot give them, since that one is keyed on (student, kind) alone.
+pub fn enrolment_id_for_course(
+    student_number: &str,
+    course_code: &str,
+    kind: RealisationKind,
+) -> String {
+    derived(
+        "otm",
+        &format!("enrolment|{student_number}|{course_code}|{}", kind.as_str()),
+    )
+}
+
 pub fn study_right_id(student_number: &str, kind: RealisationKind) -> String {
     derived(
         "otm",

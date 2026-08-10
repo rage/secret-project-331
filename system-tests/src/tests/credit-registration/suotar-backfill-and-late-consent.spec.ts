@@ -54,9 +54,12 @@ test.describe("The teacher opts the module in", () => {
           course_id: BACKFILL_COURSE_ID,
           limit: 50,
         })
-        return listed.total_count > 0 ? listed : null
+        // Materialize only creates the rows; the background preconditions worker is what moves
+        // them out of `pending_prerequisites`, on its own schedule.
+        const settled = listed.data.every((row) => row.state !== "pending_prerequisites")
+        return listed.total_count > 0 && settled ? listed : null
       },
-      { description: "the backfill wave to materialise" },
+      { description: "the backfill wave to materialise and settle" },
     )
 
     // Three, not four: re-pushing a course's whole history is what this predicate prevents,

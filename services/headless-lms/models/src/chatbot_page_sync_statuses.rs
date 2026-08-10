@@ -61,22 +61,46 @@ WHERE course_id = ANY($1)
 
 pub async fn save_markdown_content(
     conn: &mut PgConnection,
-    content: &str,
-    page_id: Uuid,
+    page_id_to_history_id_md_content: HashMap<Uuid, (Uuid, String)>,
 ) -> ModelResult<()> {
-    let mut tx = conn.begin().await?;
+    // If there are no updates to perform, return early
+    if page_id_to_history_id_md_content.is_empty() {
+        return Ok(());
+    }
 
-    let res = course_page_markdown_content::insert(&mut tx, content).await?;
+    let mut tx = conn.begin().await?;
+    let res = course_page_markdown_content::insert_batch(
+        &mut tx,
+        page_id_to_history_id_md_content
+            .clone()
+            .into_iter()
+            .collect(),
+    )
+    .await?;
+
+    let (md_ids, page_ids): (Vec<Uuid>, Vec<Uuid>) = page_id_to_history_id_md_content
+        .iter()
+        .filter_map(|(p_id, (ph_id, _))| {
+            let md_content = res.iter().find(|x| &x.page_history_id == ph_id);
+            md_content.map(|content| (content.id, p_id.to_owned()))
+        })
+        .collect::<Vec<(Uuid, Uuid)>>()
+        .into_iter()
+        .unzip();
 
     sqlx::query!(
         r#"
 UPDATE chatbot_page_sync_statuses AS cps
-SET converted_markdown_content_id = $1
-WHERE cps.page_id = $2
+SET converted_markdown_content_id = data.markdown_id
+FROM (
+    SELECT unnest($1::uuid []) AS markdown_id,
+      unnest($2::uuid []) AS page_id
+  ) AS data
+WHERE cps.page_id = data.page_id
   AND cps.deleted_at IS NULL
     "#,
-        res.id,
-        &page_id
+        &md_ids,
+        &page_ids
     )
     .execute(&mut *tx)
     .await?;

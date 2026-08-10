@@ -3568,6 +3568,7 @@ export const zReviewingStage = z.enum([
   "WaitingForManualGrading",
   "ReviewedAndLocked",
   "Locked",
+  "NotAnsweredAndLocked",
 ])
 
 export const zRoleDomain = z.union([

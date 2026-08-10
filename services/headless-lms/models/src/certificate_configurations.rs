@@ -621,6 +621,7 @@ WHERE id = $28
     Ok(())
 }
 
+/// Soft-deletes the configuration's requirements too, so run this in a transaction.
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -631,7 +632,11 @@ AND deleted_at IS NULL
 ",
         id
     )
-    .execute(conn)
+    .execute(&mut *conn)
+    .await?;
+    crate::certificate_configuration_to_requirements::delete_by_certificate_configuration_id(
+        conn, id,
+    )
     .await?;
     Ok(())
 }

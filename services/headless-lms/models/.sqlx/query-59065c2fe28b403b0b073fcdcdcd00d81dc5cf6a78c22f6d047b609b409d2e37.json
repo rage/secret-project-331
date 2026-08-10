@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_messages\nSET deleted_at = NOW()\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+  "query": "\nINSERT INTO course_page_markdown_content (markdown_content, page_history_id, page_id)\nVALUES ($1, $2, $3)\nRETURNING *\n    ",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
+            "table": "course_page_markdown_content",
             "name": "id"
           }
         }
@@ -20,7 +20,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
+            "table": "course_page_markdown_content",
             "name": "created_at"
           }
         }
@@ -31,7 +31,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
+            "table": "course_page_markdown_content",
             "name": "updated_at"
           }
         }
@@ -42,37 +42,50 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
+            "table": "course_page_markdown_content",
             "name": "deleted_at"
           }
         }
       },
       {
         "ordinal": 4,
-        "name": "conversation_id",
-        "type_info": "Uuid",
+        "name": "markdown_content",
+        "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
-            "name": "conversation_id"
+            "table": "course_page_markdown_content",
+            "name": "markdown_content"
           }
         }
       },
       {
         "ordinal": 5,
-        "name": "order_number",
-        "type_info": "Int4",
+        "name": "page_history_id",
+        "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_messages",
-            "name": "order_number"
+            "table": "course_page_markdown_content",
+            "name": "page_history_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_page_markdown_content",
+            "name": "page_id"
           }
         }
       }
     ],
     "parameters": {
       "Left": [
-        "UuidArray"
+        "Text",
+        "Uuid",
+        "Uuid"
       ]
     },
     "nullable": [
@@ -81,8 +94,9 @@
       false,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "edb44fca5962bd17f9a83a47b81e89f2aa20a8762f74acae8c806d75160fd8f9"
+  "hash": "59065c2fe28b403b0b073fcdcdcd00d81dc5cf6a78c22f6d047b609b409d2e37"
 }

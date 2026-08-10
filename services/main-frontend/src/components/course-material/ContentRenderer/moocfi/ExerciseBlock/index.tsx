@@ -791,6 +791,7 @@ const ExerciseBlock: React.FC<
               {isChapterLocked &&
                 reviewingStage !== "ReviewedAndLocked" &&
                 reviewingStage !== "Locked" &&
+                reviewingStage !== "NotAnsweredAndLocked" &&
                 (isChapterNotAccessible ||
                   courseMaterialExercise.exercise.teacher_reviews_answer_after_locking !==
                     false) && (

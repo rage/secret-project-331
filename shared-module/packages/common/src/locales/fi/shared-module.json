@@ -73,6 +73,10 @@
     "chapter_not_open_yet": {
       "message": "Tämä luku ei ole vielä avoinna.",
       "title": "Luku on suljettu"
+    },
+    "course_slug_already_taken": {
+      "message": "Toinen kurssi käyttää jo tätä lyhyttä nimeä. Valitse jokin muu.",
+      "title": "Lyhyt nimi on jo käytössä"
     }
   },
   "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",

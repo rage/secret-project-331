@@ -12,6 +12,9 @@ const translations: Record<string, string> = {
   "error-message-key.authentication_required_for_exam_exercise.title": "Sign in required",
   "error-message-key.authentication_required_for_exam_exercise.message":
     "Please sign in to view exam exercises.",
+  "error-message-key.course_slug_already_taken.title": "Slug is already in use",
+  "error-message-key.course_slug_already_taken.message":
+    "Another course is already using this slug. Please choose a different one.",
   "error-issue-code.missing_exercise_type.message": "Missing exercise type for exercise task.",
 }
 
@@ -69,6 +72,27 @@ describe("resolveErrorDisplayCopy", () => {
 
     expect(resolved.title).toBe("Chapter is closed")
     expect(resolved.message).toBe("This chapter is not open yet.")
+  })
+
+  test("uses localized copy for course_slug_already_taken message key", () => {
+    const view = normalizeErrorForDisplay(
+      {
+        type: "validation_error",
+        message_key: "course_slug_already_taken",
+        message: "A course with this slug already exists.",
+        errors: [],
+      },
+      t,
+    )
+
+    expect(view.category).toBe("validation")
+
+    const resolved = resolveErrorDisplayCopy(view, t)
+
+    expect(resolved.title).toBe("Slug is already in use")
+    expect(resolved.message).toBe(
+      "Another course is already using this slug. Please choose a different one.",
+    )
   })
 
   test("uses localized copy for authentication_required_for_exam_exercise message key", () => {

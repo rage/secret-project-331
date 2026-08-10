@@ -49,6 +49,8 @@ pub enum ReviewingStage {
     ReviewedAndLocked,
     /// In this stage the exercise has been locked due to chapter locking, but no review has been performed.
     Locked,
+    /// In this stage the chapter was locked while the student had not returned an answer to the exercise. There is nothing for anyone to review, and the student can no longer answer the exercise.
+    NotAnsweredAndLocked,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

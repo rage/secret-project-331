@@ -8,6 +8,7 @@ import {
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { expect, test } from "@/utils/fixtures"
 import { getMockSuotarWorld, upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   runImportSubmissionTick,
   runMaterializeTick,
@@ -31,6 +32,7 @@ test.describe("A student the University has no enrolment for", () => {
   test.use({ storageState: seededStudentStorageState(NO_ENROLMENT_EMAIL) })
 
   test("A student the University has not enrolled is told to enrol, and recovers once they do", async ({
+    adminApi,
     page,
   }) => {
     const scope = { userEmail: NO_ENROLMENT_EMAIL }
@@ -40,7 +42,7 @@ test.describe("A student the University has no enrolment for", () => {
     await runPreconditionsTick(page.request, scope)
     await runResolveEnrolmentsTick(page.request, scope)
 
-    const stuck = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const stuck = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "no_usable_enrolment",
     ])
     expect(stuck.student_facing_status).toBe("needs_enrolment")
@@ -66,9 +68,18 @@ test.describe("A student the University has no enrolment for", () => {
           studyRightValidityPeriod: { startDate: isoDate(-YEAR), endDate: isoDate(YEAR) },
         },
       ])
+      // The daily backoff otherwise leaves the row not due yet: this is what the "check again"
+      // button is for.
+      await waitForSuccessNotification(
+        page,
+        async () => {
+          await page.getByRole("button", { name: "I have enrolled, check again" }).click()
+        },
+        "Success",
+      )
       await runResolveEnrolmentsTick(page.request, scope)
       await runImportSubmissionTick(page.request, scope)
-      await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+      await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
         "ready_to_submit",
         "submitting",
         "awaiting_verification",
@@ -87,7 +98,7 @@ test.describe("A student enrolled both as a degree student and through the Open 
     const scope = { userEmail: TWO_ENROLMENTS_EMAIL }
 
     await runPhasesUpToSubmission(page.request, scope)
-    await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "awaiting_verification",
       "registered",
       "duplicate",
@@ -97,9 +108,12 @@ test.describe("A student enrolled both as a degree student and through the Open 
     // It is read back from the mock's world because the mock derives enrolment ids from an opaque
     // UUIDv5 rather than from the student number.
     const world = (await getMockSuotarWorld(page.request)) as {
-      enrolments: { id: string; studentNumber: string; courseCode: string; realisationId: string }[]
+      enrolments: Record<
+        string,
+        { id: string; studentNumber: string; courseCode: string; realisationId: string }
+      >
     }
-    const degreeEnrolment = world.enrolments.find(
+    const degreeEnrolment = Object.values(world.enrolments).find(
       (enrolment) =>
         enrolment.studentNumber === TWO_ENROLMENTS_STUDENT_NUMBER &&
         enrolment.courseCode === CRS_101 &&

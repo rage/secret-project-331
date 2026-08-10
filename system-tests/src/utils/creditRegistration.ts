@@ -20,7 +20,7 @@
  * | `9000007xx`     | suotar-consent                   | via-suotar                  |
  * | `9000008xx`     | suotar-teacher-views             | none (states course, paused)|
  * | `9000009xx`     | suotar-admin-dashboard           | admin                       |
- * | `9000010xx`     | suotar-old-flow-coexistence      | not written yet             |
+ * | `9000010xx`     | suotar-old-flow-coexistence      | old-flow                    |
  * | `9000011xx`     | suotar-backfill-and-late-consent | backfill                    |
  * | `9000012xx`     | suotar-grade-improvement         | not written yet             |
  * | `9000013xx`     | suotar-student-emails            | not written yet             |
@@ -45,11 +45,13 @@ export const SUOTAR_COURSE_SLUG = "credit-registration-via-suotar"
 export const ADMIN_COURSE_SLUG = "credit-registration-admin"
 export const IMPORT_OUTCOMES_COURSE_SLUG = "credit-registration-import-outcomes"
 export const BACKFILL_COURSE_SLUG = "credit-registration-backfill"
+export const OLD_FLOW_COURSE_SLUG = "credit-registration-old-flow"
 
 /** Must match the `*_COURSE_ID` constants in `seed_credit_registration.rs`. */
 export const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
 export const BACKFILL_COURSE_ID = "c5ed17ea-0003-4a5e-9e6e-c0de00000003"
 export const STATES_COURSE_ID = "c5ed17ea-0007-4a5e-9e6e-c0de00000007"
+export const OLD_FLOW_COURSE_ID = "c5ed17ea-0002-4a5e-9e6e-c0de00000002"
 
 /** University course codes: what the mock Suotar keys its world on. */
 export const CRS_101 = "CRS-101"

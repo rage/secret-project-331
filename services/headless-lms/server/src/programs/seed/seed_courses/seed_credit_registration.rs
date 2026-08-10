@@ -135,6 +135,9 @@ pub const LINKING_TOKEN_CONFLICT: &str = concat!(
 pub const CRS_101: &str = "CRS-101";
 pub const CRS_102: &str = "CRS-102";
 pub const CRS_OLD_101: &str = "CRS-OLD-101";
+/// The module `suotar-old-flow-coexistence.spec.ts` treats as already cut over: Suotar-enabled, but
+/// holding a completion the legacy pull path registered before the cutover happened.
+pub const CRS_OLD_102: &str = "CRS-OLD-102";
 pub const CRS_BACKFILL_101: &str = "CRS-BACKFILL-101";
 pub const CRS_ADMIN_101: &str = "CRS-ADMIN-101";
 pub const CRS_STATES_101: &str = "CRS-STATES-101";
@@ -451,25 +454,7 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
             .seed(&mut conn, &cx)
             .await?;
 
-    let old_flow_cx = SeedContext {
-        teacher: teacher_user_id,
-        org,
-        base_course_ns: OLD_FLOW_COURSE_ID,
-    };
-    CourseBuilder::new("Credit registration old flow", OLD_FLOW_COURSE_SLUG)
-        .desc("Fixture course left on the legacy open university registration flow.")
-        .course_id(OLD_FLOW_COURSE_ID)
-        .instance(instance_config(old_flow_cx.v5(b"instance:old-flow")))
-        .module(
-            ModuleBuilder::new()
-                .order(0)
-                .ects(5.0)
-                .uh_course_code(CRS_OLD_101.to_string())
-                .register_to_open_university(true),
-        )
-        .seed(&mut conn, &old_flow_cx)
-        .await?;
-
+    seed_old_flow_course(&mut conn, org, teacher_user_id).await?;
     seed_backfill_course(&mut conn, org, teacher_user_id).await?;
     seed_import_outcomes_course(&mut conn, org, teacher_user_id).await?;
     seed_grade_improvement_course(&mut conn, org, teacher_user_id).await?;
@@ -754,6 +739,88 @@ fn instance_config(instance_id: Uuid) -> CourseInstanceConfig {
         closing_time: None,
         instance_id: Some(instance_id),
     }
+}
+
+/// Owned by `suotar-old-flow-coexistence.spec.ts`: student numbers `9000010xx`.
+///
+/// Module 0 stays on the legacy pull path outright. Module 1 stands in for a module the moment after
+/// a real cutover: Suotar is on, but its one completion predates the cutover and was already
+/// registered through the legacy pull path, which must keep it out of both the pull stream and a
+/// second, Suotar-side registration.
+async fn seed_old_flow_course(
+    conn: &mut PgConnection,
+    org: Uuid,
+    teacher_user_id: Uuid,
+) -> Result<()> {
+    let cx = SeedContext {
+        teacher: teacher_user_id,
+        org,
+        base_course_ns: OLD_FLOW_COURSE_ID,
+    };
+    let registrar_id = get_or_create_default_registrar(conn).await?;
+
+    let still_legacy = insert_student(
+        conn,
+        cx.v5(b"user:still-legacy"),
+        "credit-registration-old-flow-still-legacy@example.com",
+        "Zzyzx",
+        "Stilllegacy",
+    )
+    .await?;
+    let already_cut_over = insert_student(
+        conn,
+        cx.v5(b"user:already-cut-over"),
+        "credit-registration-old-flow-already-cut-over@example.com",
+        "Zzyzx",
+        "Alreadycutover",
+    )
+    .await?;
+
+    let (course, instance, _) =
+        CourseBuilder::new("Credit registration old flow", OLD_FLOW_COURSE_SLUG)
+            .desc("Fixture course left on the legacy open university registration flow.")
+            .course_id(OLD_FLOW_COURSE_ID)
+            .instance(instance_config(cx.v5(b"instance:old-flow")))
+            .module(
+                ModuleBuilder::new()
+                    .order(0)
+                    .ects(5.0)
+                    .uh_course_code(CRS_OLD_101.to_string())
+                    .register_to_open_university(true)
+                    .completion(
+                        CompletionBuilder::new(still_legacy.user_id)
+                            .email(still_legacy.email.clone())
+                            .grade(3)
+                            .passed(true)
+                            .prerequisite_modules_completed(true),
+                    ),
+            )
+            .module(
+                ModuleBuilder::new()
+                    .order(1)
+                    .name("Cut over to Suotar")
+                    .ects(5.0)
+                    .uh_course_code(CRS_OLD_102.to_string())
+                    .credit_registration(credit_registration_config(CRS_OLD_102, false))
+                    .default_registrar(registrar_id)
+                    .completion(
+                        CompletionBuilder::new(already_cut_over.user_id)
+                            .email(already_cut_over.email.clone())
+                            .grade(3)
+                            .passed(true)
+                            .prerequisite_modules_completed(true)
+                            .registered(
+                                CompletionRegisteredBuilder::new().real_student_number("900001002"),
+                            ),
+                    ),
+            )
+            .seed(conn, &cx)
+            .await?;
+
+    for student in [&still_legacy, &already_cut_over] {
+        course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
+    }
+    Ok(())
 }
 
 /// Four passed completions, one already registered by the legacy pull flow so the backfill spec can

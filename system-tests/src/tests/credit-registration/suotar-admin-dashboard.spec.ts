@@ -52,6 +52,11 @@ const SUPERSEDED_STUDENT_NUMBER = "900000901"
 
 const STALE_STUDENT_NUMBER = "900000903"
 const STALE_ADDRESS = "zzyzx.deadaddress@helsinki.example"
+// Anchored: "old." and "older." variants of the same address also carry STALE_ADDRESS as a
+// substring, so a plain text match resolves to all three list items instead of just this one.
+const STALE_ADDRESS_EXACT = new RegExp(
+  `^${STALE_ADDRESS.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+)
 
 /** Consented and linked from seed time, so it is the one row on this course a tick can register. */
 const ADMIN_LINKED_EMAIL = "credit-registration-admin-linked@example.com"
@@ -85,7 +90,7 @@ test("The three shipped tabs render, and the phases report heartbeats", async ({
 
   await page.getByRole("tab", { name: "Registrations" }).click()
   await expect(page.getByRole("table", { name: "Registrations" })).toBeVisible()
-  await expect(page.getByRole("columnheader", { name: "State" })).toBeVisible()
+  await expect(page.getByRole("columnheader", { name: "State", exact: true })).toBeVisible()
 
   await page.getByRole("tab", { name: "Account linking" }).click()
   await expect(page.getByRole("heading", { name: "Account linking" }).first()).toBeVisible()
@@ -240,8 +245,7 @@ test("Manual link is refused without a preview and without a reason", async ({ p
     .getByRole("table", { name: "People mailed to the cap without a claim" })
     .getByRole("row")
     .filter({ hasText: STALE_STUDENT_NUMBER })
-  await staleRow.getByRole("button", { name: "Send the confirmation link again" }).click()
-  await page.getByRole("button", { name: "Student cannot receive our mail at all?" }).click()
+  await staleRow.getByRole("button", { name: "Student cannot receive our mail at all?" }).click()
 
   const dialog = page.getByRole("dialog").filter({ hasText: "Link a student number by hand" })
   const confirm = dialog.getByRole("button", { name: "Link this number by hand" })
@@ -286,7 +290,7 @@ test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
     .getByRole("row")
     .filter({ hasText: STALE_STUDENT_NUMBER })
   await expect(staleRow).toBeVisible()
-  await expect(staleRow.getByText(STALE_ADDRESS)).toBeVisible()
+  await expect(staleRow.getByText(STALE_ADDRESS_EXACT)).toBeVisible()
 
   await staleRow.getByRole("button", { name: "Send the confirmation link again" }).click()
   const dialog = page.getByRole("dialog")

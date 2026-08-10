@@ -108,6 +108,7 @@ impl Predicate {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum Effect {
+    #[serde(rename_all = "camelCase")]
     ItemLevel {
         code: String,
         message: Option<String>,

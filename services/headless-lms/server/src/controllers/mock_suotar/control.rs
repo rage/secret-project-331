@@ -39,6 +39,7 @@ pub struct UnresolvedScope {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase", tag = "status")]
 pub enum PhaseTickResult {
+    #[serde(rename_all = "camelCase")]
     Ran {
         phase: String,
         items_processed: i32,
@@ -52,6 +53,7 @@ pub enum PhaseTickResult {
     Skipped { phase: String, reason: String },
     /// The scope names something this phase's claim query cannot narrow on.
     ScopeNotSupported { phase: String },
+    #[serde(rename_all = "camelCase")]
     UnknownPhase {
         phase: Option<String>,
         known_phases: Vec<String>,

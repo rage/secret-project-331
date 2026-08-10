@@ -127,14 +127,19 @@ export const answerCreditRegistrationConsent = async (
   await button.waitFor({ state: "detached" })
 }
 
-/** The subset of `getMyCreditRegistrations` these specs assert on. */
+/**
+ * The subset of `getMyCreditRegistrations` these specs assert on.
+ *
+ * No `state`: the ledger state is deliberately not on this wire (a suspected cheater must not be able
+ * to infer their own flag from it). A spec that needs it passes an `adminApi` context to
+ * `myRegistrationOnCourse`/`waitForRegistrationState`, which read it from the admin API instead.
+ */
 export interface MyCreditRegistration {
   id: string
   course_id: string
   course_slug: string
   course_module_id: string
   course_module_name: string | null
-  state: string
   student_facing_status: string
   error_code: string | null
   attempt_number: number
@@ -142,6 +147,10 @@ export interface MyCreditRegistration {
   registered_at: string | null
   sisu_attainment_id: string | null
   enrolment_link: string | null
+}
+
+export interface MyCreditRegistrationWithState extends MyCreditRegistration {
+  state: string
 }
 
 /**
@@ -178,11 +187,24 @@ export const myCreditRegistrations = (
 ): Promise<MyCreditRegistration[]> =>
   getJson<MyCreditRegistration[]>(request, `${CREDIT_REGISTRATIONS_API}/my`)
 
+/** The `state` of one registration, read from the admin API by a spec that already holds `adminApi`. */
+const adminStateOf = async (
+  adminApi: APIRequestContext,
+  registrationId: string,
+): Promise<string> => {
+  const details = await getJson<{ registration: { state: string } }>(
+    adminApi,
+    `${MAIN_FRONTEND_API}/credit-registration-admin/registrations/${registrationId}`,
+  )
+  return details.registration.state
+}
+
 /** The one live (not superseded) registration the logged-in student has on `courseSlug`. */
 export const myRegistrationOnCourse = async (
   request: APIRequestContext,
+  adminApi: APIRequestContext,
   courseSlug: string,
-): Promise<MyCreditRegistration> => {
+): Promise<MyCreditRegistrationWithState> => {
   const live = (await myCreditRegistrations(request)).filter(
     (row) => row.course_slug === courseSlug && !row.superseded,
   )
@@ -192,18 +214,19 @@ export const myRegistrationOnCourse = async (
       `Expected exactly one live registration on ${courseSlug}, found ${live.length}: ${JSON.stringify(live)}`,
     )
   }
-  return only
+  return { ...only, state: await adminStateOf(adminApi, only.id) }
 }
 
 export const waitForRegistrationState = (
   request: APIRequestContext,
+  adminApi: APIRequestContext,
   courseSlug: string,
   states: readonly string[],
   timeout?: number,
-): Promise<MyCreditRegistration> =>
+): Promise<MyCreditRegistrationWithState> =>
   pollUntil(
     async () => {
-      const row = await myRegistrationOnCourse(request, courseSlug)
+      const row = await myRegistrationOnCourse(request, adminApi, courseSlug)
       return states.includes(row.state) ? row : null
     },
     {

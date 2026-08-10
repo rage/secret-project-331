@@ -29,7 +29,7 @@ test.describe("A submission the study registry has not answered yet", () => {
   }) => {
     const scope = { userEmail: POLLING_EMAIL }
     await runPhasesUpToSubmission(page.request, scope)
-    const submitted = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const submitted = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "awaiting_verification",
     ])
 
@@ -38,7 +38,7 @@ test.describe("A submission the study registry has not answered yet", () => {
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
     // Nothing ripens a mock submission on its own, so no worker or spec could have moved this.
-    expect((await myRegistrationOnCourse(page.request, SUOTAR_COURSE_SLUG)).state).toBe(
+    expect((await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)).state).toBe(
       "awaiting_verification",
     )
 
@@ -50,7 +50,7 @@ test.describe("A submission the study registry has not answered yet", () => {
     )
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
-    const registered = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const registered = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "registered",
     ])
     expect(registered.student_facing_status).toBe("registered")
@@ -66,7 +66,7 @@ test.describe("A submission the study registry reversed after accepting it", () 
   }) => {
     const scope = { userEmail: MISREGISTERED_EMAIL }
     await runPhasesUpToSubmission(page.request, scope)
-    const submitted = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const submitted = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "awaiting_verification",
     ])
 
@@ -78,7 +78,7 @@ test.describe("A submission the study registry reversed after accepting it", () 
     )
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
-    const reversed = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const reversed = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "misregistered",
     ])
     expect(reversed.student_facing_status).toBe("failed")

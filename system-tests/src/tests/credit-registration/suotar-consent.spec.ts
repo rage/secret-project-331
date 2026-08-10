@@ -35,13 +35,13 @@ const REGISTRATION_ENDPOINTS = [
 test.describe("A student nobody has asked yet", () => {
   test.use({ storageState: seededStudentStorageState(WITHHELD_EMAIL) })
 
-  test("Withholding consent submits nothing", async ({ page }) => {
+  test("Withholding consent submits nothing", async ({ page, adminApi }) => {
     const scope = { userEmail: WITHHELD_EMAIL }
 
     await runPhasesUpToSubmission(page.request, scope)
     await runVerifyPollTick(page.request, scope)
 
-    const row = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const row = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "pending_consent",
     ])
     expect(row.student_facing_status).toBe("needs_consent")
@@ -65,7 +65,9 @@ test.describe("A student who consented and then changed their mind", () => {
     const scope = { userEmail: WITHDRAWN_EMAIL }
 
     await runPhasesUpToSubmission(page.request, scope)
-    await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, ["awaiting_verification"])
+    await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+      "awaiting_verification",
+    ])
 
     await test.step("The student withdraws from their profile", async () => {
       await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
@@ -74,7 +76,7 @@ test.describe("A student who consented and then changed their mind", () => {
     })
 
     await runPreconditionsTick(page.request, scope)
-    const abandoned = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const abandoned = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "abandoned_by_consent_withdrawal",
     ])
     // Neither a success nor a failure: the request is already out of our hands, so we cannot honestly

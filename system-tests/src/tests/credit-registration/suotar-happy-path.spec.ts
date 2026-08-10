@@ -54,7 +54,7 @@ test("Student consents, links student number, gets automatically registered end 
   await test.step("Consent unblocks the seeded completion", async () => {
     await runMaterializeTick(page.request, scope)
     await runPreconditionsTick(page.request, scope)
-    await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "ready_to_submit",
       "checking_enrolment",
       "submitting",
@@ -65,7 +65,7 @@ test("Student consents, links student number, gets automatically registered end 
   const submitted = await test.step("The completion is submitted exactly once", async () => {
     await runResolveEnrolmentsTick(page.request, scope)
     await runImportSubmissionTick(page.request, scope)
-    const row = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const row = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "awaiting_verification",
     ])
     expect(row.student_facing_status).toBe("waiting_for_sisu")
@@ -78,7 +78,7 @@ test("Student consents, links student number, gets automatically registered end 
   await test.step("Polling does not report success before the study registry does", async () => {
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
-    const row = await myRegistrationOnCourse(page.request, SUOTAR_COURSE_SLUG)
+    const row = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
     expect(row.state).toBe("awaiting_verification")
     expect(row.sisu_attainment_id).toBeNull()
   })
@@ -87,7 +87,7 @@ test("Student consents, links student number, gets automatically registered end 
     await transitionMockSuotarSubmissionsFor(page.request, STUDENT_NUMBER, "registered", CRS_101)
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
-    const registered = await waitForRegistrationState(page.request, SUOTAR_COURSE_SLUG, [
+    const registered = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
       "registered",
     ])
     expect(registered.sisu_attainment_id).not.toBeNull()
@@ -98,7 +98,7 @@ test("Student consents, links student number, gets automatically registered end 
   })
 
   await test.step("The student sees it on the status page and on their profile", async () => {
-    const row = await myRegistrationOnCourse(page.request, SUOTAR_COURSE_SLUG)
+    const row = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
     await page.goto(completionRegistrationUrl(row.course_module_id))
     await expect(page.getByRole("list", { name: "Credit registration progress" })).toBeVisible()
     await expect(page.getByText("Registered in Sisu").first()).toBeVisible()

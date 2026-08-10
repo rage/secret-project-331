@@ -106,6 +106,12 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     isSelected: selected,
     onChange: (next) => {
       field.onChange(next)
+      // `field.onChange` is RHF's own setter, not the native input event `rules.onChange`
+      // expects; without this, a caller's `rules={{ onChange: ... }}` side effect never runs.
+      rules?.onChange?.({
+        target: { checked: next, value: String(next), name: field.name },
+        type: "change",
+      })
     },
   })
 

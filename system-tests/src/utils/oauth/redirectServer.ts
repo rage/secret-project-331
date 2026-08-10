@@ -1,7 +1,11 @@
-import http from "http"
+import type http from "http"
+
+import { createHttpServer } from "../createHttpServer"
 
 const REDIRECT_BASE_PORT = 8765
 const REDIRECT_PORT_COUNT = 20
+
+const HTML = "<!doctype html><title>OAuth Callback</title><h1>Callback OK</h1>"
 
 let _redirectServer: http.Server | null = null
 let _boundPort: number | null = null
@@ -30,10 +34,7 @@ export async function setupRedirectServer(): Promise<void> {
   }
 
   _setupPromise = new Promise<void>((resolve, reject) => {
-    const server = http.createServer((_req, res) => {
-      res.writeHead(200, { "Content-Type": "text/html" })
-      res.end("<!doctype html><title>OAuth Callback</title><h1>Callback OK</h1>")
-    })
+    const server = createHttpServer(HTML)
 
     function tryPort(port: number) {
       if (port > REDIRECT_BASE_PORT + REDIRECT_PORT_COUNT - 1) {

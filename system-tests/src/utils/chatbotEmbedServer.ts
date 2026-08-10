@@ -1,8 +1,21 @@
-import http from "http"
+import type http from "http"
 
-const REDIRECT_BASE_PORT = 8765
-const REDIRECT_PORT_COUNT = 20
+import { createHttpServer } from "./createHttpServer"
+
+const BASE_PORT = 8765
+const PORT_COUNT = 20
 const GLOBAL_CHATBOT_CONFIGURATION_ID_TEST = "16feef52-67ba-405a-97f8-effd0653df00"
+const HTML = `
+<!doctype html>
+  <html>
+    <head>
+      <title>ChatbotEmbed server</title>
+    </head>
+    <body>
+      <iframe width="750" height="750" src="http://project-331.local/chatbot-embed/${GLOBAL_CHATBOT_CONFIGURATION_ID_TEST}"></iframe>
+    </body>
+  </html>
+`
 
 let _chatbotEmbedServer: http.Server | null = null
 let _setupCount = 0
@@ -34,21 +47,10 @@ export async function setupChatbotEmbedServer(): Promise<void> {
   }
 
   _setupPromise = new Promise<void>((resolve, reject) => {
-    const server = http.createServer((_req, res) => {
-      res.writeHead(200, { "Content-Type": "text/html" })
-      res.end(`<!doctype html>
-              <html>
-                <head>
-                  <title>ChatbotEmbed server</title>
-                </head>
-                <body>
-                  <iframe width="750" height="750" src="http://project-331.local/chatbot-embed/${GLOBAL_CHATBOT_CONFIGURATION_ID_TEST}"></iframe>
-                </body>
-              </html>`)
-    })
+    const server = createHttpServer(HTML)
 
     function tryPort(port: number) {
-      if (port > REDIRECT_BASE_PORT + REDIRECT_PORT_COUNT - 1) {
+      if (port > BASE_PORT + PORT_COUNT - 1) {
         _setupPromise = null
         reject(new Error("No free port in chatbotEmbed redirect range 8765..8784"))
         return
@@ -69,7 +71,7 @@ export async function setupChatbotEmbedServer(): Promise<void> {
       })
     }
 
-    tryPort(REDIRECT_BASE_PORT)
+    tryPort(BASE_PORT)
   })
 
   await _setupPromise

@@ -39,6 +39,7 @@ pub enum MockSuotarCommand {
     UpsertPersons {
         persons: Vec<PersonUpsert>,
     },
+    #[serde(rename_all = "camelCase")]
     UpsertCourseUnits {
         course_units: Vec<CourseUnitUpsert>,
     },
@@ -51,10 +52,12 @@ pub enum MockSuotarCommand {
     UpsertProductAccessTokens {
         tokens: Vec<ProductAccessTokenUpsert>,
     },
+    #[serde(rename_all = "camelCase")]
     DeletePersons {
         student_numbers: Vec<String>,
     },
     AllocatePerson(AllocatePerson),
+    #[serde(rename_all = "camelCase")]
     GenerateRoster {
         course_code: String,
         realisation_id: String,
@@ -62,18 +65,22 @@ pub enum MockSuotarCommand {
         #[serde(default)]
         student_number_prefix: Option<String>,
     },
+    #[serde(rename_all = "camelCase")]
     SetPersonBehaviour {
         student_number: String,
         patch: PersonBehaviourPatch,
     },
+    #[serde(rename_all = "camelCase")]
     SetCourseBehaviour {
         course_code: String,
         patch: CourseBehaviourPatch,
     },
+    #[serde(rename_all = "camelCase")]
     TransitionSubmission {
         submitted_attainment_id: String,
         to: SubmissionTarget,
     },
+    #[serde(rename_all = "camelCase")]
     TransitionSubmissionsFor {
         student_number: String,
         course_code: Option<String>,

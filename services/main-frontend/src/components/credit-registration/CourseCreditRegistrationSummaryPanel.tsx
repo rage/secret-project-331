@@ -76,7 +76,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
 
   return (
     <section className={rootCss}>
-      <div className={headingCss}>{t("heading-credit-registration")}</div>
+      <h2 className={headingCss}>{t("heading-credit-registration")}</h2>
       <div className={modulesCss}>
         {enabledModules.map((module) => {
           const total = liveRowCount(module)

@@ -252,6 +252,7 @@ pub async fn generate_chart_spec(
             max_output_tokens,
             tools: vec![],
             tool_choice: None,
+            parallel_tool_calls: None,
             params: params.clone(),
             text: Some(RequestTextOptions {
                 verbosity: None,

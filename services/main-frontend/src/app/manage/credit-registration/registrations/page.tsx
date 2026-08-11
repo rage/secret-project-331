@@ -2,8 +2,8 @@
 
 import { css } from "@emotion/css"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
-import React, { startTransition, useCallback, useEffect, useMemo } from "react"
+import { useSearchParams } from "next/navigation"
+import React, { useCallback, useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -99,7 +99,6 @@ const stackedCellCss = css`
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
 const RegistrationsPage: React.FC = () => {
   const { t } = useTranslation()
-  const router = useRouter()
   const searchParams = useSearchParams()
   const paginationInfo = usePaginationInfo(ROWS_PER_PAGE)
 
@@ -135,14 +134,19 @@ const RegistrationsPage: React.FC = () => {
       }
       // A narrowed result set has different pages.
       next.delete("page")
-      const target = `${window.location.pathname}?${next.toString()}`
-      // Un-transitioned, this races the per-row links' own prefetch navigations below and can
-      // lose: whichever one's soft navigation resolves last wins the actual address bar.
-      startTransition(() => {
-        router.replace(target)
-      })
+      const query = next.toString()
+      // Not router.replace: Next 16 keys this route's client cache by the search string the server
+      // rendered with — empty, since nothing here is read on the server — but stores the canonical
+      // URL of whichever URL was first loaded. A query-only navigation therefore hits that entry
+      // and snaps the address bar back to the URL the tab was opened on. replaceState hands the
+      // router the URL itself, and useSearchParams() still follows it.
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${query === "" ? "" : `?${query}`}`,
+      )
     },
-    [router, searchParams],
+    [searchParams],
   )
 
   // The params are the source of truth for what is filtered, so the boxes follow the URL: Back, or
@@ -259,8 +263,7 @@ const RegistrationsPage: React.FC = () => {
                 columns={[
                   {
                     header: t("label-state"),
-                    // Up to 50 of these render at once; prefetching every one of them competes
-                    // with the filter checkboxes' own navigations above.
+                    // Up to 50 of these render at once, and few get clicked.
                     cell: (row) => (
                       <Link href={creditRegistrationItemRoute(row.id)} prefetch={false}>
                         <AdminStateBadge

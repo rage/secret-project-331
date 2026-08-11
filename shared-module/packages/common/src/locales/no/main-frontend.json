@@ -660,6 +660,7 @@
   "help-text-exercise-involves-peer-review-and-self-review": " Etter at du har levert oppgaven, må du gi {{peer_reviews_to_give}} medstudentvurderinger av andre studenters besvarelser, og deretter gjøre en egenvurdering av din egen besvarelse. Etter det vil andre studenter vurdere besvarelsen din før du får poeng.",
   "help-text-exercise-involves-reject-and-reset-automatically": "Svaret ditt har blitt gjennomgått og må gjøres om. Vennligst prøv igjen.",
   "help-text-exercise-involves-reject-and-reset-by-staff": "Kursansvarlige har vurdert besvarelsen din og bestemt at oppgaven må gjøres på nytt. Prøv igjen.",
+  "help-text-exercise-not-answered-and-locked": "Du svarte ikke på denne øvelsen før kapittelet ble låst.",
   "help-text-flagged-answers-skip-manual-review-and-allow-retry": "Besvarelsen din ble flagget flere ganger og må gjøres på nytt. Prøv igjen",
   "help-text-increase-peer-review-priority": "Vil du fremskynde prosessen? Gjør flere medstudentvurderinger! Jo flere medstudentvurderinger du gir, jo mer vil vi prioritere å gi ditt svar til andre studenter for vurdering.",
   "help-text-no-answers-to-peer-review-yet": "Ingen svar tilgjengelig for medstudentvurdering ennå. Vennligst kom tilbake senere for å utføre medstudentvurdering.",

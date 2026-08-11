@@ -2298,6 +2298,7 @@ export type ReviewingStage =
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
   | "Locked"
+  | "NotAnsweredAndLocked"
 
 export type Role = {
   course_id?: string | null

@@ -6136,7 +6136,8 @@
           "WaitingForPeerReviews",
           "WaitingForManualGrading",
           "ReviewedAndLocked",
-          "Locked"
+          "Locked",
+          "NotAnsweredAndLocked"
         ]
       },
       "SaveCourseSettingsPayload": {

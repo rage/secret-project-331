@@ -863,6 +863,7 @@ export const zReviewingStage = z.enum([
   "WaitingForManualGrading",
   "ReviewedAndLocked",
   "Locked",
+  "NotAnsweredAndLocked",
 ])
 
 export const zExerciseStatus = z.object({

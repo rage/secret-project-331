@@ -1521,6 +1521,8 @@ mod test {
 
         #[tokio::test]
         async fn allows_valid_language_code() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1532,6 +1534,7 @@ mod test {
             let new_course = create_new_course(org, "en-US");
             let res = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1542,6 +1545,8 @@ mod test {
 
         #[tokio::test]
         async fn disallows_empty_language_code() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1553,6 +1558,7 @@ mod test {
             let new_course = create_new_course(org, "");
             let res = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1563,6 +1569,8 @@ mod test {
 
         #[tokio::test]
         async fn disallows_wrong_case_language_code() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1574,6 +1582,7 @@ mod test {
             let new_course = create_new_course(org, "en-us");
             let res = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1584,6 +1593,8 @@ mod test {
 
         #[tokio::test]
         async fn disallows_underscore_in_language_code() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1595,6 +1606,7 @@ mod test {
             let new_course = create_new_course(org, "en_US");
             let res = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1630,6 +1642,8 @@ mod test {
 
         #[tokio::test]
         async fn update_course_round_trips_ai_policy_fields() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1658,6 +1672,7 @@ mod test {
             };
             let course_id = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("a1b2c3d4-0000-0000-0000-000000000002").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1673,6 +1688,7 @@ mod test {
             // A teacher selects a policy and indicates the material has its own AI instructions.
             let updated = courses::update_course(
                 tx.as_mut(),
+                &app_config,
                 course_id,
                 CourseUpdate {
                     name: created.name.clone(),

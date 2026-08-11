@@ -1,5 +1,10 @@
+use headless_lms_base::config::{
+    ApplicationConfiguration, AzureConfiguration, OAuthServerConfiguration, SuotarConfiguration,
+};
+use secrecy::{SecretBox, SecretString};
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
+use std::sync::Arc;
 use tokio::sync::Mutex;
 
 // tried storing PgPool here but that caused strange errors
@@ -21,6 +26,30 @@ async fn get_or_init_db() -> String {
     // store initialized pool and return connection
     guard.replace(db.clone());
     db
+}
+
+pub fn init_app_conf() -> ModelResult<ApplicationConfiguration> {
+    let app_config = ApplicationConfiguration {
+        base_url: "".to_string(),
+        test_mode: true,
+        test_chatbot: true,
+        test_sisu: true,
+        test_suotar: true,
+        development_uuid_login: false,
+        enable_admin_email_verification: false,
+        enable_email_ownership_verification: false,
+        azure_configuration: AzureConfiguration::mock_conf()?,
+        suotar_configuration: SuotarConfiguration::mock_conf("")?,
+        tmc_account_creation_origin: None,
+        tmc_admin_access_token: SecretString::new("".to_string().into_boxed_str()),
+        oauth_server_configuration: OAuthServerConfiguration {
+            rsa_public_key: "".to_string(),
+            rsa_private_key: SecretString::new("".to_string().into_boxed_str()),
+            oauth_token_hmac_key: SecretString::new("".to_string().into_boxed_str()),
+            dpop_nonce_key: Arc::new(SecretBox::new(Box::new(String::new()))),
+        },
+    };
+    Ok(app_config)
 }
 
 /// Wrapper to ensure the test database isn't used without a transaction
@@ -145,8 +174,10 @@ macro_rules! insert_data {
             &mut ::rand::rng(),
             8,
         );
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let $course = $crate::library::content_management::create_new_course(
             $tx.as_mut(),
+            &app_config,
             $crate::PKeyPolicy::Generate,
             $crate::courses::NewCourse {
                 name: rs.clone(),
@@ -281,6 +312,7 @@ macro_rules! insert_data {
         insert_data!(@inner $($prev_name: $prev_var, )* $next_name: $next_var; $($tt)*);
     };
 }
+use crate::ModelResult;
 pub use crate::insert_data;
 
 // checks that correct usage of the macro compiles

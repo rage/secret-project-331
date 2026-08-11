@@ -1,4 +1,5 @@
 pub mod seed_accessibility_course;
+use headless_lms_base::config::ApplicationConfiguration;
 pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
 pub mod seed_lock_chapter_course;
@@ -83,6 +84,7 @@ pub struct CommonCourseData {
 }
 
 pub async fn seed_sample_course(
+    app_config: ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -124,6 +126,7 @@ pub async fn seed_sample_course(
     let (course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
             &mut conn,
+            &app_config,
             PKeyPolicy::Fixed(CreateNewCourseFixedIds {
                 course_id,
                 default_course_instance_id: Uuid::new_v5(
@@ -2042,6 +2045,7 @@ pub async fn seed_sample_course(
 
 pub async fn seed_cs_course_material(
     db_pool: &Pool<Postgres>,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
     langs_user_id: Uuid,
@@ -2071,6 +2075,7 @@ pub async fn seed_cs_course_material(
     let (course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
             &mut conn,
+            app_config,
             PKeyPolicy::Fixed(CreateNewCourseFixedIds {
                 course_id: Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
                 default_course_instance_id: Uuid::parse_str(
@@ -2862,6 +2867,7 @@ pub async fn seed_cs_course_material(
 }
 
 pub async fn seed_peer_review_course_without_submissions(
+    app_config: ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -2901,6 +2907,7 @@ pub async fn seed_peer_review_course_without_submissions(
 
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
         &mut conn,
+        &app_config,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id,
             default_course_instance_id: Uuid::new_v5(

@@ -9,6 +9,7 @@ use crate::programs::seed::seed_helpers::paragraph;
 use anyhow::Result;
 use chrono::Utc;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::peer_or_self_review_configs::{
     CmsPeerOrSelfReviewConfig, PeerReviewProcessingStrategy,
 };
@@ -21,6 +22,7 @@ use uuid::Uuid;
 use super::super::seed_users::SeedUsersResult;
 
 pub async fn seed_peer_review_course(
+    app_config: &ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -191,6 +193,6 @@ pub async fn seed_peer_review_course(
                         ),
                 ),
         );
-    let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
+    let (course, _default_instance, _last_module) = course.seed(&mut conn, app_config, &cx).await?;
     Ok(course.id)
 }

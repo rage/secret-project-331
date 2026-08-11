@@ -23,6 +23,7 @@
 
 use anyhow::Result;
 use chrono::{Duration, Utc};
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy, course_credit_registration_consents, course_instance_enrollments,
     course_module_completions::{self, NewCourseModuleCompletionSeed},
@@ -91,7 +92,10 @@ struct SeededStudent {
     email: String,
 }
 
-pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> Result<Uuid> {
+pub async fn seed_credit_registration(
+    app_config: &ApplicationConfiguration,
+    common_course_data: CommonCourseData,
+) -> Result<Uuid> {
     let CommonCourseData {
         db_pool,
         organization_id: org,
@@ -143,7 +147,7 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
             .ects(3.0)
             .uh_course_code("CRS-102".to_string()),
     )
-    .seed(&mut conn, &cx)
+    .seed(&mut conn, app_config, &cx)
     .await?;
 
     let old_flow_cx = SeedContext {
@@ -165,10 +169,10 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
             .uh_course_code("CRS-OLD-101".to_string())
             .register_to_open_university(true),
     )
-    .seed(&mut conn, &old_flow_cx)
+    .seed(&mut conn, app_config, &old_flow_cx)
     .await?;
 
-    seed_backfill_course(&mut conn, org, teacher_user_id).await?;
+    seed_backfill_course(&mut conn, app_config, org, teacher_user_id).await?;
 
     info!("inserting credit registration students");
 
@@ -343,6 +347,7 @@ fn instance_config(instance_id: Uuid) -> CourseInstanceConfig {
 /// assert it is skipped rather than re-pushed.
 async fn seed_backfill_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -388,7 +393,7 @@ async fn seed_backfill_course(
     .course_id(BACKFILL_COURSE_ID)
     .instance(instance_config(cx.v5(b"instance:backfill")))
     .module(module)
-    .seed(conn, &cx)
+    .seed(conn, app_config, &cx)
     .await?;
 
     for index in 1..=4 {

@@ -1297,9 +1297,12 @@ mod tests {
 
         #[tokio::test]
         async fn cannot_create_chapter_for_different_course_than_its_module() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, :user, :org, course: course_1, instance: _instance, :course_module);
             let course_2 = library::content_management::create_new_course(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Generate,
                 NewCourse {
                     name: "".to_string(),

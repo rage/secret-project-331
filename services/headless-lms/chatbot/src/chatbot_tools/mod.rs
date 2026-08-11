@@ -30,6 +30,7 @@ pub trait ChatbotTool {
     /// Create a new instance after parsing arguments
     fn from_db_and_arguments(
         conn: &mut PgConnection,
+        app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
@@ -76,7 +77,7 @@ pub trait ChatbotTool {
     {
         async {
             let parsed = Self::parse_arguments(args_string)?;
-            Self::from_db_and_arguments(conn, parsed, user_context).await
+            Self::from_db_and_arguments(conn, app_config, parsed, user_context).await
         }
     }
 }

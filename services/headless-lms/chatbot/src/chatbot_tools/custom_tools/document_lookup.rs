@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::{
     json_schema_types::{JSONType, JsonItem, SchemaPropertyType},
     strings::truncate_utf8_at_boundary,
@@ -81,6 +82,7 @@ impl ChatbotTool for DocumentLookupTool {
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
+        _app_config: &ApplicationConfiguration,
         mut arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {

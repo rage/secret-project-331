@@ -222,8 +222,10 @@ macro_rules! insert_data {
             &mut ::rand::rng(),
             8,
         );
+        let server_config = test_config().await;
         let $course = headless_lms_models::library::content_management::create_new_course(
             $tx.as_mut(),
+            server_config.app_conf.as_ref(),
             headless_lms_models::PKeyPolicy::Generate,
             headless_lms_models::courses::NewCourse {
                 name: rs.clone(),

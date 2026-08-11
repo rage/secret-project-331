@@ -794,7 +794,7 @@ pub async fn process_output_item(
 /// Returns a stream to be consumed in the caller.
 async fn parse_tool<'a>(
     conn: &'a mut PgConnection,
-    app_config: &ApplicationConfiguration,
+    app_config: &'a headless_lms_base::config::ApplicationConfiguration,
     mut lines: PeekableLinesStream<'a>,
     conversation_id: Uuid,
     user_context: &'a ChatbotUserContext,

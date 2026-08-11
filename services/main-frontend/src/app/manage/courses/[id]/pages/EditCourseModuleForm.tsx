@@ -78,9 +78,6 @@ const realisationRowCss = css`
   margin-bottom: 0.75rem;
 `
 
-/** `useController` puts the new value in `target.value`, never in `target.checked`. */
-const isTurningOn = (event: { target: { value?: unknown } }): boolean => Boolean(event.target.value)
-
 const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseModuleFormFields => {
   return {
     name: module.name,
@@ -118,7 +115,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
     control,
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isValid, isSubmitting, dirtyFields },
     reset,
     setValue,
     watch,
@@ -144,6 +141,36 @@ const EditCourseModuleForm: React.FC<Props> = ({
     realisations.replace([])
   }
 
+  const openUniversityRegistrationEnabled = watch(
+    "enable_registering_completion_to_uh_open_university",
+  )
+  const creditRegistrationEnabled = watch("credit_registration.enabled")
+
+  // The backend rejects both registration paths at once. Gated on `dirtyFields`, which only a
+  // real user edit sets, so loading a module that already has one enabled doesn't wipe the other
+  // the moment this mounts.
+  useEffect(() => {
+    if (!dirtyFields.enable_registering_completion_to_uh_open_university) {
+      return
+    }
+    if (openUniversityRegistrationEnabled) {
+      setValue("credit_registration.enabled", false)
+      clearCreditRegistrationFields()
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [openUniversityRegistrationEnabled])
+  useEffect(() => {
+    if (!dirtyFields.credit_registration?.enabled) {
+      return
+    }
+    if (creditRegistrationEnabled) {
+      setValue("enable_registering_completion_to_uh_open_university", false)
+    } else {
+      clearCreditRegistrationFields()
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [creditRegistrationEnabled])
+
   const onSubmitFormWrapper = (fields: EditCourseModuleFormFields) => {
     setActive(false)
     onSubmitForm(module.id, {
@@ -157,7 +184,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
 
   const isChecked = watch("automatic_completion")
   const overrideLink = watch("override_completion_link")
-  const creditRegistrationEnabled = watch("credit_registration.enabled")
 
   return (
     <form
@@ -368,15 +394,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
               name="enable_registering_completion_to_uh_open_university"
               control={control}
               label={t("label-enable-registering-completion-to-uh-open-university")}
-              rules={{
-                onChange: (event) => {
-                  // The backend rejects both registration paths at once.
-                  if (isTurningOn(event)) {
-                    setValue("credit_registration.enabled", false)
-                    clearCreditRegistrationFields()
-                  }
-                },
-              }}
             />
             <div
               className={css`
@@ -429,15 +446,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   control={control}
                   label={t("label-enable-credit-registration-via-suotar")}
                   description={t("description-enable-credit-registration-via-suotar")}
-                  rules={{
-                    onChange: (event) => {
-                      if (isTurningOn(event)) {
-                        setValue("enable_registering_completion_to_uh_open_university", false)
-                      } else {
-                        clearCreditRegistrationFields()
-                      }
-                    },
-                  }}
                 />
                 {creditRegistrationEnabled && (
                   <div className={creditRegistrationBodyCss}>

@@ -1,10 +1,28 @@
 import { test as base } from "@playwright/test"
 
-import {
-  setupChatbotEmbedServer,
-  teardownChatbotEmbedServer,
-  getChatbotEmbedServerUri,
-} from "../utils/chatbotEmbedServer"
+import { getChatbotEmbedServerUri } from "@/utils/chatbotEmbedServer"
+import { setupServer, teardownServer } from "@/utils/setupServer"
+
+const GLOBAL_CHATBOT_CONFIGURATION_ID_TEST = "16feef52-67ba-405a-97f8-effd0653df00"
+const HTML = `
+<!doctype html>
+  <html>
+    <head>
+      <title>ChatbotEmbed server</title>
+    </head>
+    <body>
+      <iframe width="750" height="750" src="http://project-331.local/chatbot-embed/${GLOBAL_CHATBOT_CONFIGURATION_ID_TEST}"></iframe>
+    </body>
+  </html>
+`
+
+const chatbotEmbedServerContext = {
+  port: null,
+  setupCount: 0,
+  setupPromise: null,
+  server: null,
+  html: HTML,
+}
 
 /**
  * ChatbotEmbed test fixtures. Use this test in any spec that needs the ChatbotEmbed server.
@@ -18,10 +36,10 @@ import {
 export const test = base.extend<{}, { chatbotEmbedServer: string }>({
   chatbotEmbedServer: [
     async ({}, use) => {
-      await setupChatbotEmbedServer()
-      const server = getChatbotEmbedServerUri()
+      await setupServer(chatbotEmbedServerContext)
+      const server = getChatbotEmbedServerUri(chatbotEmbedServerContext.port)
       await use(server)
-      await teardownChatbotEmbedServer()
+      await teardownServer(chatbotEmbedServerContext.setupCount)
     },
     { scope: "worker", auto: true },
   ],

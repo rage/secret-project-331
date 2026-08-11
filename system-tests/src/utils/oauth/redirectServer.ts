@@ -1,83 +1,22 @@
 import type http from "http"
 
-import { createHttpServer } from "../createHttpServer"
-
-const REDIRECT_BASE_PORT = 8765
-const REDIRECT_PORT_COUNT = 20
-
-const HTML = "<!doctype html><title>OAuth Callback</title><h1>Callback OK</h1>"
-
-let _redirectServer: http.Server | null = null
-let _boundPort: number | null = null
-let _setupCount = 0
-let _setupPromise: Promise<void> | null = null
+import { setupRedirectServer } from "@/fixtures/oauth"
 
 /**
  * Redirect URI for this worker's callback server. Must be called after ensureRedirectServer().
  */
-export function getRedirectUri(): string {
-  if (_boundPort === null) {
-    throw new Error("Redirect server not set up; call ensureRedirectServer() first")
+export function getRedirectServerUri(boundPort: number | null): string {
+  if (boundPort === null) {
+    throw new Error("Redirect server not set up; call ensureServer() first")
   }
-  return `http://127.0.0.1:${_boundPort}/callback`
-}
-
-export async function setupRedirectServer(): Promise<void> {
-  if (_setupPromise) {
-    await _setupPromise
-    return
-  }
-
-  _setupCount++
-  if (_redirectServer) {
-    return
-  }
-
-  _setupPromise = new Promise<void>((resolve, reject) => {
-    const server = createHttpServer(HTML)
-
-    function tryPort(port: number) {
-      if (port > REDIRECT_BASE_PORT + REDIRECT_PORT_COUNT - 1) {
-        _setupPromise = null
-        reject(new Error("No free port in OAuth redirect range 8765..8784"))
-        return
-      }
-      server.once("error", (err: NodeJS.ErrnoException) => {
-        if (err.code === "EADDRINUSE") {
-          tryPort(port + 1)
-        } else {
-          _setupPromise = null
-          reject(err)
-        }
-      })
-      server.listen(port, "127.0.0.1", () => {
-        _redirectServer = server
-        _boundPort = port
-        _setupPromise = null
-        resolve()
-      })
-    }
-
-    tryPort(REDIRECT_BASE_PORT)
-  })
-
-  await _setupPromise
-}
-
-// oxlint-disable-next-line require-await -- async for the Promise<void> public API; callers await it
-export async function teardownRedirectServer(): Promise<void> {
-  _setupCount--
-  if (_setupCount <= 0) {
-    _setupCount = 0
-    // Do not close the server; process exit cleans up. Avoids races with in-flight redirects.
-  }
+  return `http://127.0.0.1:${boundPort}/callback`
 }
 
 /**
  * Ensure this worker has its own callback server (one port in 8765..8784 per worker).
  */
-export async function ensureRedirectServer(): Promise<void> {
-  if (_redirectServer) {
+export async function ensureServer(redirectServer: http.Server | null): Promise<void> {
+  if (redirectServer) {
     return
   }
   await setupRedirectServer()

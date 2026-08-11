@@ -7,7 +7,6 @@ import {
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
-import { respondToConfirmDialog } from "@/utils/dialogs"
 import { ADMIN_STORAGE_STATE, expect, test } from "@/utils/fixtures"
 import { runMaterializeTick, runPreconditionsTick } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
@@ -86,7 +85,6 @@ test.describe("A student consenting after the fact", () => {
     const allow = page.getByRole("button", { name: /^Allow/ })
     await expect(allow).toBeVisible()
     await allow.click()
-    await respondToConfirmDialog(page, true)
 
     // The count is the whole point of asking late: the student is told what consenting will do.
     await expect(page.getByTestId("credit-registration-newly-unblocked")).toBeVisible()

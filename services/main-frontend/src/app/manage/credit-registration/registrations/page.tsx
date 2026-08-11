@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useCallback, useEffect, useMemo } from "react"
+import React, { startTransition, useCallback, useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -135,7 +135,12 @@ const RegistrationsPage: React.FC = () => {
       }
       // A narrowed result set has different pages.
       next.delete("page")
-      router.replace(`${window.location.pathname}?${next.toString()}`)
+      const target = `${window.location.pathname}?${next.toString()}`
+      // Un-transitioned, this races the per-row links' own prefetch navigations below and can
+      // lose: whichever one's soft navigation resolves last wins the actual address bar.
+      startTransition(() => {
+        router.replace(target)
+      })
     },
     [router, searchParams],
   )
@@ -254,8 +259,10 @@ const RegistrationsPage: React.FC = () => {
                 columns={[
                   {
                     header: t("label-state"),
+                    // Up to 50 of these render at once; prefetching every one of them competes
+                    // with the filter checkboxes' own navigations above.
                     cell: (row) => (
-                      <Link href={creditRegistrationItemRoute(row.id)}>
+                      <Link href={creditRegistrationItemRoute(row.id)} prefetch={false}>
                         <AdminStateBadge
                           state={row.state}
                           superseded={row.superseded}

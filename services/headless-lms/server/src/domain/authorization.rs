@@ -10,6 +10,7 @@ use actix_web::{FromRequest, HttpRequest, Responder};
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
 use futures::Future;
+use headless_lms_models::chatbot_configurations::ChatbotConfiguration;
 use headless_lms_models::{self as models, roles::UserRole, users::User};
 use headless_lms_utils::http::REQWEST_CLIENT;
 use headless_lms_utils::services::tmc::TMCUser;
@@ -309,13 +310,12 @@ pub fn skip_authorize() -> AuthorizationToken {
 pub async fn authorize_access_to_chatbot(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
-    course_id: Option<Uuid>,
-    publicly_accessible: bool,
+    chatbot_configuration: &ChatbotConfiguration,
 ) -> Result<AuthorizationToken, ControllerError> {
-    let token = if publicly_accessible {
+    let token = if chatbot_configuration.publicly_accessible {
         skip_authorize()
     } else {
-        match (user_id, course_id) {
+        match (user_id, chatbot_configuration.course_id) {
             (Some(_), Some(course_id)) => {
                 authorize_access_to_course_material(conn, user_id, course_id).await?
             }

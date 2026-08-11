@@ -11,7 +11,6 @@ function generateNormalResponseHeaders(options = {}) {
       key: "X-Content-Type-Options",
       value: "nosniff",
     },
-
     {
       key: "Permissions-Policy",
       value: [
@@ -62,7 +61,6 @@ const externallyEmbeddableIFrameResponseHeaders = [
     key: "X-Content-Type-Options",
     value: "nosniff",
   },
-
   {
     key: "Permissions-Policy",
     value: "fullscreen=(self)",
@@ -98,7 +96,6 @@ const chatbotEmbedResponseHeaders = [
     key: "X-Content-Type-Options",
     value: "nosniff",
   },
-
   {
     key: "Permissions-Policy",
     value: "fullscreen=(self)",

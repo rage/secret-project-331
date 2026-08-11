@@ -453,10 +453,9 @@ pub async fn admin_resend_account_linking_email(
         None
     };
 
-    let recent = models::credit_registration_admin_actions::count_by_actor_since(
+    let recent = models::credit_registration_admin_actions::count_queued_resends_by_actor_since(
         &mut conn,
         user.id,
-        CreditRegistrationAdminAction::ResendLinkEmail,
         Utc::now() - chrono::Duration::seconds(RESEND_QUIET_PERIOD_SECS),
     )
     .await?;

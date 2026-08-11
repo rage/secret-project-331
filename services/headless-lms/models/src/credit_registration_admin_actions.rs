@@ -184,6 +184,33 @@ WHERE actor_user_id = $1
     Ok(count)
 }
 
+/// Backs the admin resend endpoint's own quiet period. Unlike `count_by_actor_since`, a refused
+/// attempt (no mail sent) doesn't count: otherwise a refusal would block the immediate
+/// override-and-retry the rate cap's own "send anyway" option exists to offer.
+pub async fn count_queued_resends_by_actor_since(
+    conn: &mut PgConnection,
+    actor_user_id: Uuid,
+    since: DateTime<Utc>,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registration_admin_actions
+WHERE actor_user_id = $1
+  AND action = $2
+  AND details ->> 'outcome' = 'queued'
+  AND created_at >= $3
+  AND deleted_at IS NULL
+        "#,
+        actor_user_id,
+        CreditRegistrationAdminAction::ResendLinkEmail as CreditRegistrationAdminAction,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 pub async fn get_recent(
     conn: &mut PgConnection,
     limit: i64,

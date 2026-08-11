@@ -108,7 +108,25 @@ pub async fn upsert_course_prerequisites(
 ) -> ModelResult<Vec<CoursePrerequisite>> {
     let prerequisite_ids: Vec<Uuid> = course_prerequisites.iter().map(|p| p.id).collect();
 
-    //TODO: verify ids
+    let id_count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM course_prerequisites
+WHERE id = ANY($2)
+  AND course_id != $1
+"#,
+        course_id,
+        &prerequisite_ids,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    if id_count != 0 {
+        return Err(model_err!(
+            InvalidRequest,
+            "Ids of some given prerequisite entries already exists on other courses.".to_string()
+        ));
+    }
 
     let updated_prerequisites: Vec<String> = course_prerequisites
         .iter()

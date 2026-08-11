@@ -24,6 +24,8 @@ export interface CourseFilter {
   empty_uh_course_code: boolean
   not_closed: boolean
   short_description: boolean
+  no_prerequisites: boolean
+  no_audiences: boolean
 }
 
 const FieldSet = styled.fieldset`
@@ -58,14 +60,25 @@ const CourseAuditing = () => {
       empty_uh_course_code: false,
       not_closed: true,
       short_description: false,
+      no_prerequisites: false,
+      no_audiences: false,
     },
   })
 
-  const [searchCourse, emptyUhCourseCode, notClosed, shortDescription] = watch([
+  const [
+    searchCourse,
+    emptyUhCourseCode,
+    notClosed,
+    shortDescription,
+    noPrerequisites,
+    noAudiences,
+  ] = watch([
     "search_course",
     "empty_uh_course_code",
     "not_closed",
     "short_description",
+    "no_prerequisites",
+    "no_audiences",
   ])
 
   const [debouncedSearchCourse] = useDebounce(searchCourse, 300)
@@ -103,10 +116,24 @@ const CourseAuditing = () => {
           ) {
             return false
           }
+          if (noPrerequisites && course.prerequisites.length > 0) {
+            return false
+          }
+          if (noAudiences && course.audiences.length > 0) {
+            return false
+          }
           return true
         })
         .sort((a, b) => a.name.localeCompare(b.name)),
-    [courseData, debouncedSearchCourse, emptyUhCourseCode, notClosed, shortDescription],
+    [
+      courseData,
+      debouncedSearchCourse,
+      emptyUhCourseCode,
+      notClosed,
+      shortDescription,
+      noPrerequisites,
+      noAudiences,
+    ],
   )
 
   return (
@@ -144,7 +171,16 @@ const CourseAuditing = () => {
             {t("button-reset")}
           </Button>
         </div>
-        <div className={contentRowStyles}>
+        <div
+          className={css`
+            color: ${baseTheme.colors.gray[500]};
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+            margin: 2rem 0;
+            text-align: start;
+            gap: 0.5rem;
+          `}
+        >
           <Switch
             name="empty_uh_course_code"
             control={control}
@@ -160,6 +196,8 @@ const CourseAuditing = () => {
             control={control}
             label={t("course-auditing-filter-short-description")}
           />
+          <Switch name="no_prerequisites" control={control} label={t("prerequisites-not-set")} />
+          <Switch name="no_audiences" control={control} label={t("audiences-not-set")} />
         </div>
       </FieldSet>
       <QueryResult query={getCoursesForAuditing} treatEmptyAsData>

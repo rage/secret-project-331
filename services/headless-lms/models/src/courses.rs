@@ -548,13 +548,13 @@ WHERE id = $1
     let uh_course_codes: Vec<Option<String>> = data_update
         .modules
         .iter()
-        .map(|m| m.uh_course_code.clone())
+        .map(|m| m.uh_course_code.to_owned())
         .collect();
 
     let completion_registration_link_overrides: Vec<Option<String>> = data_update
         .modules
         .iter()
-        .map(|m| m.completion_registration_link_override.clone())
+        .map(|m| m.completion_registration_link_override.to_owned())
         .collect();
 
     let ects_credits: Vec<Option<f32>> =
@@ -591,11 +591,11 @@ FROM (
   ) AS v
 WHERE cm.id = v.id
 "#,
-        &module_ids[..],
-        &uh_course_codes[..] as &[Option<String>],
-        &completion_registration_link_overrides[..] as &[Option<String>],
-        &ects_credits[..] as &[Option<f32>],
-        &enable_registering_completion_to_uh_open_university[..],
+        &module_ids,
+        &uh_course_codes as &[Option<String>],
+        &completion_registration_link_overrides as &[Option<String>],
+        &ects_credits as &[Option<f32>],
+        &enable_registering_completion_to_uh_open_university,
     )
     .execute(&mut *tx)
     .await?;

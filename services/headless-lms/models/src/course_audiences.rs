@@ -106,7 +106,25 @@ pub async fn upsert_course_audiences(
 ) -> ModelResult<Vec<CourseAudience>> {
     let audience_ids: Vec<Uuid> = course_audiences.iter().map(|a| a.id).collect();
 
-    //TODO: verify ids
+    let id_count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM course_audiences
+WHERE id = ANY($2)
+  AND course_id != $1
+"#,
+        course_id,
+        &audience_ids,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    if id_count != 0 {
+        return Err(model_err!(
+            InvalidRequest,
+            "Ids of some given audience entries already exists on other courses.".to_string()
+        ));
+    }
 
     let updated_audiences: Vec<String> = course_audiences
         .iter()
@@ -130,7 +148,7 @@ RETURNING *
         &audience_ids,
         &updated_audiences
     )
-    .fetch_all(conn)
+    .fetch_all(&mut *conn)
     .await?;
 
     Ok(res)

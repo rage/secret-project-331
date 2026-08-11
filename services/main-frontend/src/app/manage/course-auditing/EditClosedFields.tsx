@@ -16,6 +16,7 @@ import {
 } from "@/shared-module/components"
 
 import type { EditCourseAuditingData } from "./CourseAuditingCard"
+import { contentRowStyles } from "./page"
 
 const EditClosedFields = (): React.ReactElement => {
   const { t } = useTranslation()
@@ -68,38 +69,43 @@ const EditClosedFields = (): React.ReactElement => {
             gap: 1rem;
           `}
         >
-          <div
-            className={css`
-              display: flex;
-              align-items: flex-start;
-              justify-content: space-between;
-              gap: 1rem;
-            `}
-          >
-            <DateTimeLocalField
-              control={control}
-              label={t("closed-at")}
-              name={"closed_at"}
-              rules={nullIfEmpty}
-              hourCycle={24}
-              // oxlint-disable-next-line i18next/no-literal-string
-              fieldSize={"sm"}
-            />
-            <TextField
-              control={control}
-              label={t("closed-course-successor-id")}
-              name={"closed_course_successor_id"}
-              errorMessage={errors.closed_course_successor_id?.message}
-              rules={{
-                ...nullIfEmpty,
-                validate: (value) => {
-                  if (!value) {
-                    return true
-                  }
-                  return validateUUID(value) || t("invalid-uuid-format")
-                },
-              }}
-            />
+          <div className={contentRowStyles}>
+            <div
+              className={css`
+                flex: auto;
+              `}
+            >
+              <DateTimeLocalField
+                control={control}
+                label={t("closed-at")}
+                name={"closed_at"}
+                rules={nullIfEmpty}
+                hourCycle={24}
+                // oxlint-disable-next-line i18next/no-literal-string
+                fieldSize={"sm"}
+              />
+            </div>
+            <div
+              className={css`
+                flex: auto;
+              `}
+            >
+              <TextField
+                control={control}
+                label={t("closed-course-successor-id")}
+                name={"closed_course_successor_id"}
+                errorMessage={errors.closed_course_successor_id?.message}
+                rules={{
+                  ...nullIfEmpty,
+                  validate: (value) => {
+                    if (!value) {
+                      return true
+                    }
+                    return validateUUID(value) || t("invalid-uuid-format")
+                  },
+                }}
+              />
+            </div>
           </div>
           <TextArea
             control={control}

@@ -3,13 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
-import {
-  BellXmark,
-  CheckCircle,
-  FloppyDiskSave,
-  Pencil,
-  XmarkCircle,
-} from "@vectopus/atlas-icons-react"
+import { FloppyDiskSave, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useRef, useState } from "react"
 import { FormProvider, useFieldArray, useForm, useFormState } from "react-hook-form"
@@ -26,7 +20,7 @@ import type {
   ModifiedModule,
 } from "@/generated/api/types.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -34,7 +28,14 @@ import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-
 import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { Button, Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  Link,
+  nullIfEmpty,
+  TextArea,
+  TextField,
+} from "@/shared-module/components"
 
 import ContentDisplayBox from "./ContentDisplayBox"
 import CourseMetadata from "./CourseMetadata"
@@ -67,12 +68,6 @@ interface CourseAuditingCardProps {
   courseAuditingData: CourseAuditingData
 }
 
-enum UpdateStatus {
-  none = 0,
-  saved = 1,
-  failed = 2,
-}
-
 export interface EditModuleData extends ModifiedModule {
   override_completion_link: boolean
 }
@@ -99,7 +94,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
   const { t } = useTranslation()
 
   const [editing, setEditing] = useState<boolean>(false)
-  const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.none)
   const queryClient = useQueryClient()
 
   const methods = useForm<EditCourseAuditingData>({
@@ -143,10 +137,12 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
       )
       if (confirmed) {
         reset()
+        updateMutation.reset()
         setEditing(!editing)
       }
     } else {
       reset()
+      updateMutation.reset()
       setEditing(!editing)
     }
   }
@@ -179,7 +175,12 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
 
   const updateMutation = useToastMutationOptions(
     updateCourseAuditingDataMutation(),
-    { method: "PUT", notify: true },
+    {
+      method: "PUT",
+      notify: true,
+      successMessage: t("course-edited-successfully"),
+      errorHeader: t("error-editing-course"),
+    },
     {
       onSuccess: (updated: CourseAuditingData) => {
         reset(buildFormValues(updated))
@@ -191,19 +192,17 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
           return old.map((o) => (o.id === updated.id ? updated : o))
         })
 
-        setStatus(UpdateStatus.saved)
         setEditing(false)
-        setStatus(UpdateStatus.none)
       },
-      onError: () => {
-        showErrorNotification({
-          message: t("course-auditing-update-error"),
-        })
-        setStatus(UpdateStatus.failed)
-        window.setTimeout(() => {
-          setStatus(UpdateStatus.none)
-        }, 4000)
-      },
+      // onError: () => {
+      //   showErrorNotification({
+      //     message: t("course-auditing-update-error"),
+      //   })
+      //   setStatus(UpdateStatus.failed)
+      //   window.setTimeout(() => {
+      //     setStatus(UpdateStatus.none)
+      //   }, 4000)
+      // },
     },
   )
 
@@ -300,13 +299,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                   variant={"icon"}
                   size={"small"}
                 >
-                  {status === UpdateStatus.none ? (
-                    <FloppyDiskSave size={25} />
-                  ) : status === UpdateStatus.saved ? (
-                    <CheckCircle size={25} />
-                  ) : (
-                    <BellXmark size={25} />
-                  )}
+                  <FloppyDiskSave size={25} />
                 </Button>
                 <Button
                   aria-label={t("button-text-cancel")}
@@ -330,7 +323,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
               </div>
             )}
           </div>
-
           {editing ? (
             <div
               className={css`
@@ -339,6 +331,9 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                 gap: 1rem;
               `}
             >
+              {updateMutation.isError && (
+                <ErrorBanner error={updateMutation.error} variant="readOnly" />
+              )}
               <TextArea
                 control={control}
                 label={t("text-field-label-description")}
@@ -346,8 +341,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                 rules={nullIfEmpty}
                 autoResize={true}
               />
-
-              <ClosedSectionFields />
 
               <FieldSet>
                 <Legend>{t("prerequisites-fieldset-title")}</Legend>
@@ -468,6 +461,8 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                 </div>
               </FieldSet>
 
+              <ClosedSectionFields />
+
               {moduleFields.map((module, idx) => (
                 <EditModuleFields key={module.id} control={control} module={module} idx={idx} />
               ))}
@@ -484,40 +479,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                 label={t("text-field-label-description")}
                 content={courseAuditingData.description}
               />
-
-              <CourseMetadata
-                courseId={courseAuditingData.id}
-                defaultModuleUhCourseCode={defaultModuleUhCourseCode}
-                reset={reset}
-                courseAuditingData={courseAuditingData}
-                queryClient={queryClient}
-              />
-              {courseAuditingData.closed_at ? (
-                <div
-                  className={css`
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
-                  `}
-                >
-                  <div className={contentRowStyles}>
-                    <ContentDisplayBox
-                      label={t("closed-at")}
-                      content={<TimeComponent date={parseISO(courseAuditingData.closed_at)} />}
-                    />
-                    <ContentDisplayBox
-                      label={t("closed-course-successor-id")}
-                      content={courseAuditingData.closed_course_successor_id}
-                    />
-                  </div>
-                  <ContentDisplayBox
-                    label={t("closed-additional-message")}
-                    content={courseAuditingData.closed_additional_message}
-                  />
-                </div>
-              ) : (
-                <ContentDisplayBox label={t("closed-at")} />
-              )}
 
               <div className={contentRowStyles}>
                 <ContentDisplayBox
@@ -591,7 +552,40 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                   }
                 />
               </div>
-              {courseAuditingData.modules.map((module) => (
+              <CourseMetadata
+                courseId={courseAuditingData.id}
+                defaultModuleUhCourseCode={defaultModuleUhCourseCode}
+                reset={reset}
+                courseAuditingData={courseAuditingData}
+                queryClient={queryClient}
+              />
+              {courseAuditingData.closed_at ? (
+                <div
+                  className={css`
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                  `}
+                >
+                  <div className={contentRowStyles}>
+                    <ContentDisplayBox
+                      label={t("closed-at")}
+                      content={<TimeComponent date={parseISO(courseAuditingData.closed_at)} />}
+                    />
+                    <ContentDisplayBox
+                      label={t("closed-course-successor-id")}
+                      content={courseAuditingData.closed_course_successor_id}
+                    />
+                  </div>
+                  <ContentDisplayBox
+                    label={t("closed-additional-message")}
+                    content={courseAuditingData.closed_additional_message}
+                  />
+                </div>
+              ) : (
+                <ContentDisplayBox label={t("closed-at")} />
+              )}
+              {courseAuditingData.modules.map((module, idx) => (
                 <div
                   key={module.id}
                   className={css`
@@ -614,7 +608,24 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                     label={t("completion-registration-link")}
                     content={module.completion_registration_link_override}
                   />
+
+                  <Checkbox
+                    control={control}
+                    label={t("label-enable-registering-completion-to-uh-open-university")}
+                    name={
+                      `modules.${idx}.enable_registering_completion_to_uh_open_university` as const
+                    }
+                    isDisabled={true}
+                  />
                   <div className={contentRowStyles}>
+                    <ContentDisplayBox
+                      label={t("label-enable-registering-completion-to-uh-open-university")}
+                      content={
+                        module.enable_registering_completion_to_uh_open_university
+                          ? "TRUE"
+                          : "FALSE"
+                      }
+                    />
                     <ContentDisplayBox
                       label={t("uh-course-code")}
                       content={module.uh_course_code}
@@ -628,8 +639,11 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
           <div
             className={css`
               display: flex;
+              flex-flow: row wrap;
+              align-items: normal;
               justify-content: space-between;
-              padding-top: 1rem;
+              gap: 1rem;
+              margin-top: 1rem;
             `}
           >
             <TimeComponent

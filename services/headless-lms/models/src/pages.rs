@@ -1000,14 +1000,14 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
     SELECT
         p.id as page_id,
         p.title as page_title,
-        c.id as "course_id?",
-        c.name as "course_name?",
-        c.slug as "course_slug?",
-        o.slug as "organization_slug?"
+        c.id as "course_id",
+        c.name as "course_name",
+        c.slug as "course_slug",
+        o.slug as "organization_slug"
     FROM pages p
-    LEFT JOIN courses c
+    JOIN courses c
         on c.id = p.course_id
-    LEFT JOIN organizations o
+    JOIN organizations o
         on o.id = c.organization_id
     WHERE p.id = $1;
         "#,

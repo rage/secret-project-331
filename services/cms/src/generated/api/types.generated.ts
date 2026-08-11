@@ -35,6 +35,7 @@ export type ChatbotConfiguration = {
   model_id: string
   presence_penalty: number
   prompt: string
+  publicly_accessible: boolean
   reasoning_effort: ReasoningEffortLevel
   suggest_next_messages: boolean
   temperature: number

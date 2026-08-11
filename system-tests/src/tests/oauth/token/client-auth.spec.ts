@@ -1,5 +1,5 @@
 import type { Page } from "../../../fixtures/oauth"
-import { expect, test } from "../../../fixtures/oauth"
+import { expect, getRedirectUri, test } from "../../../fixtures/oauth"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
@@ -10,7 +10,6 @@ import {
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 

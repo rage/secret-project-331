@@ -104,15 +104,7 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     isDisabled,
     isReadOnly,
     isSelected: selected,
-    onChange: (next) => {
-      field.onChange(next)
-      // `field.onChange` is RHF's own setter, not the native input event `rules.onChange`
-      // expects; without this, a caller's `rules={{ onChange: ... }}` side effect never runs.
-      rules?.onChange?.({
-        target: { checked: next, value: String(next), name: field.name },
-        type: "change",
-      })
-    },
+    onChange: field.onChange,
   })
 
   const inputValue =
@@ -157,6 +149,10 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
       inputProps.onBlur?.(e)
       field.onBlur()
     },
+    // `useToggleState`'s own onChange also fires from its internal press handling, not just
+    // this native event, so a caller's `rules={{ onChange }}` goes here instead: the native
+    // change event is the only one guaranteed to fire once with the settled checked value.
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => rules?.onChange?.(e),
   })
 
   return (

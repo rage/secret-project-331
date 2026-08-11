@@ -93,7 +93,6 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
     {
       onSuccess: (data) => {
         setResult(data)
-        setOpen(false)
         // A resend only changes linking-mail state, never a registration's own lifecycle state.
         void Promise.all([
           queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
@@ -105,7 +104,14 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
 
   return (
     <div className={rootCss}>
-      <Button variant="secondary" size="medium" onClick={() => setOpen(true)}>
+      <Button
+        variant="secondary"
+        size="medium"
+        onClick={() => {
+          setResult(null)
+          setOpen(true)
+        }}
+      >
         {t("button-text-resend-linking-email")}
       </Button>
       {hasMailHistory && (
@@ -118,36 +124,36 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
           {t("credit-registration-admin-manual-link-last-resort")}
         </button>
       )}
-      {result && (
-        <Infobox tone={result.outcome === QUEUED ? TONE.INFO : TONE.WARNING}>
-          <div>{resendOutcomeLabel(t, result.outcome)}</div>
-          <div>
-            {t("credit-registration-admin-resend-mails-so-far", {
-              sent: result.mails_sent_for_this_course,
-              max: result.max_mails_per_person_and_course,
-            })}
-          </div>
-          {result.retired_mail_count > 0 && (
-            <div>
-              {t("credit-registration-admin-resend-retired-mails", {
-                count: result.retired_mail_count,
-              })}
-            </div>
-          )}
-          {result.linking_emails.map((mail) => (
-            <div key={mail.id}>
-              {mail.emailed_to}
-              {MIDDLE_DOT}
-              {sendStatusLabel(t, mail.send_status.email_send_status)}
-            </div>
-          ))}
-        </Infobox>
-      )}
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
         title={t("button-text-resend-linking-email")}
       >
+        {result && (
+          <Infobox tone={result.outcome === QUEUED ? TONE.INFO : TONE.WARNING}>
+            <div>{resendOutcomeLabel(t, result.outcome)}</div>
+            <div>
+              {t("credit-registration-admin-resend-mails-so-far", {
+                sent: result.mails_sent_for_this_course,
+                max: result.max_mails_per_person_and_course,
+              })}
+            </div>
+            {result.retired_mail_count > 0 && (
+              <div>
+                {t("credit-registration-admin-resend-retired-mails", {
+                  count: result.retired_mail_count,
+                })}
+              </div>
+            )}
+            {result.linking_emails.map((mail) => (
+              <div key={mail.id}>
+                {mail.emailed_to}
+                {MIDDLE_DOT}
+                {sendStatusLabel(t, mail.send_status.email_send_status)}
+              </div>
+            ))}
+          </Infobox>
+        )}
         <form className={formCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
           <p>
             {t("credit-registration-admin-resend-dialog-target", {

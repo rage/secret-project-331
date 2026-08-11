@@ -93,14 +93,22 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
     {
       onSuccess: (data) => {
         setResult(data)
-        // A resend only changes linking-mail state, never a registration's own lifecycle state.
-        void Promise.all([
-          queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
-          queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
-        ])
       },
     },
   )
+
+  const closeDialog = () => {
+    setOpen(false)
+    if (result) {
+      // Deferred to close, not fired from onSuccess: a resend that lifts this row out of the
+      // stale-addresses table it's rendered in would otherwise unmount the dialog — and the
+      // outcome it's showing — the moment the refetch lands.
+      void Promise.all([
+        queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
+        queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+      ])
+    }
+  }
 
   return (
     <div className={rootCss}>
@@ -124,11 +132,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
           {t("credit-registration-admin-manual-link-last-resort")}
         </button>
       )}
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        title={t("button-text-resend-linking-email")}
-      >
+      <Dialog open={open} onClose={closeDialog} title={t("button-text-resend-linking-email")}>
         {result && (
           <Infobox tone={result.outcome === QUEUED ? TONE.INFO : TONE.WARNING}>
             <div>{resendOutcomeLabel(t, result.outcome)}</div>

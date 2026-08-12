@@ -72,10 +72,7 @@ impl ChatbotTool for CourseFinderTool {
                 .await?
                 .to_owned();
 
-            let audience_courses =
-                get_course_ids_by_audience_vectors(conn, audience_embeddings, audiences.clone())
-                    .await?;
-            audience_courses
+            get_course_ids_by_audience_vectors(conn, audience_embeddings, audiences.clone()).await?
         } else {
             vec![]
         };
@@ -85,13 +82,12 @@ impl ChatbotTool for CourseFinderTool {
                 .await?
                 .to_owned();
 
-            let prerequisite_courses = get_course_ids_by_prerequisite_vectors(
+            get_course_ids_by_prerequisite_vectors(
                 conn,
                 prerequisite_embeddings,
                 prerequisites.clone(),
             )
-            .await?;
-            prerequisite_courses
+            .await?
         } else {
             vec![]
         };
@@ -101,10 +97,7 @@ impl ChatbotTool for CourseFinderTool {
                 .await?
                 .to_owned();
 
-            let description_courses =
-                get_by_description_vectors(conn, description_embeddings, description.clone())
-                    .await?;
-            description_courses
+            get_by_description_vectors(conn, description_embeddings, description.clone()).await?
         } else {
             vec![]
         };

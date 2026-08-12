@@ -162,6 +162,8 @@ async fn mock_azure_chat_responses(
     token.authorized_ok(res)
 }
 
+// GET /api/v0/mock_azure/openai/v1/embeddings
+// POST /api/v0/mock_azure/openai/v1/embeddings
 async fn mock_azure_embeddings(
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<EmbeddingRequest>,

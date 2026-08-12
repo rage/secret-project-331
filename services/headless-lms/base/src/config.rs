@@ -40,6 +40,7 @@ pub struct ApplicationConfiguration {
     pub test_chatbot: bool,
     pub test_sisu: bool,
     pub test_suotar: bool,
+    pub seed_embedding: bool,
     pub development_uuid_login: bool,
     pub enable_admin_email_verification: bool,
     pub enable_email_ownership_verification: bool,
@@ -68,6 +69,8 @@ impl ApplicationConfiguration {
 
         // No mock fallback unlike Azure: credit registration writes to the real student registry.
         let test_suotar = test_mode && bool_env_false_by_default("USE_MOCK_SUOTAR_ENDPOINT");
+
+        let seed_embedding = false;
 
         let azure_configuration = if test_chatbot {
             AzureConfiguration::mock_conf()?
@@ -106,6 +109,7 @@ impl ApplicationConfiguration {
             test_chatbot,
             test_sisu,
             test_suotar,
+            seed_embedding,
             development_uuid_login,
             enable_admin_email_verification,
             enable_email_ownership_verification,
@@ -119,14 +123,15 @@ impl ApplicationConfiguration {
 
     pub fn mock_conf() -> anyhow::Result<Self> {
         let test_mode = true;
-        let base_url = "http://project-331.local".to_string();
+        let base_url = "http://project-331.local/".to_string();
         let development_uuid_login = false;
         let enable_admin_email_verification = false;
         let enable_email_ownership_verification = false;
         let azure_configuration = AzureConfiguration::mock_conf()?;
-        let test_chatbot = false;
-        let test_sisu = false;
+        let test_chatbot = true;
+        let test_sisu = true;
         let test_suotar = false;
+        let seed_embedding = true;
         let suotar_configuration = SuotarConfiguration::mock_conf("http://project-331.local")
             .expect("Failed to build the mock Suotar configuration");
         let tmc_account_creation_origin = None;
@@ -145,6 +150,7 @@ impl ApplicationConfiguration {
             test_chatbot,
             test_sisu,
             test_suotar,
+            seed_embedding,
             development_uuid_login,
             enable_admin_email_verification,
             enable_email_ownership_verification,
@@ -288,6 +294,7 @@ impl AzureChatbotConfiguration {
     }
 
     pub fn embeddings_endpoint(&self) -> anyhow::Result<Url> {
+        println!("EMBEDDINGS ENDPOINT BASE: {}", self.api_base);
         Ok(self.api_base.join("openai/v1/embeddings")?)
     }
 }

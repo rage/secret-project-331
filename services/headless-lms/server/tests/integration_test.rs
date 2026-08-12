@@ -102,6 +102,7 @@ pub async fn test_config() -> ServerConfig {
             test_chatbot: false,
             test_sisu: false,
             test_suotar: false,
+            seed_embedding: false,
             suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
                 .expect("Failed to build the mock Suotar configuration"),
             tmc_account_creation_origin: None,

@@ -59,6 +59,7 @@ pub async fn create_embeddings(
     })?;
 
     let api_endpoint = chatbot_config.embeddings_endpoint()?;
+    println!("ENDPOINT: {}", api_endpoint);
     let response = REQWEST_CLIENT
         .post(api_endpoint)
         .header("Content-Type", "application/json")

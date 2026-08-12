@@ -98,10 +98,7 @@ pub async fn get_course_ids_by_prerequisite_vectors(
     prerequisite_vecs: Vec<Vec<f32>>,
     prerequisite_keywords: Vec<String>,
 ) -> ModelResult<Vec<Uuid>> {
-    let vectors: Vec<Vector> = prerequisite_vecs
-        .into_iter()
-        .map(|v| Vector::from(v))
-        .collect();
+    let vectors: Vec<Vector> = prerequisite_vecs.into_iter().map(Vector::from).collect();
     let res = sqlx::query_scalar!(
         r#"
 SELECT course_id

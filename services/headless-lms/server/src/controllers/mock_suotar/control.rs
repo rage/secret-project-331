@@ -150,6 +150,7 @@ mod tests {
             test_chatbot: false,
             test_sisu: false,
             test_suotar,
+            seed_embedding: false,
             development_uuid_login: false,
             enable_admin_email_verification: false,
             enable_email_ownership_verification: false,

@@ -297,7 +297,9 @@ RETURNING id
     )
     .fetch_one(&mut *conn)
     .await?;
-    update_embedding_vector(&mut *conn, app_config, res.id, &new_course.description).await?;
+    if !app_config.seed_embedding {
+        update_embedding_vector(&mut *conn, app_config, res.id, &new_course.description).await?;
+    }
     Ok(res.id)
 }
 
@@ -755,10 +757,9 @@ RETURNING *
     .fetch_one(&mut *conn)
     .await?;
     if let (Some(description), Some(old_description)) = (&res.description, &old_course.description)
+        && description != old_description
     {
-        if description != old_description {
-            update_embedding_vector(&mut *conn, app_config, res.id, description).await?;
-        }
+        update_embedding_vector(&mut *conn, app_config, res.id, description).await?;
     }
     Ok(res)
 }
@@ -1140,10 +1141,7 @@ pub async fn get_by_description_vectors(
     description_vecs: Vec<Vec<f32>>,
     description_keywords: Vec<String>,
 ) -> ModelResult<Vec<Uuid>> {
-    let vectors: Vec<Vector> = description_vecs
-        .into_iter()
-        .map(|v| Vector::from(v))
-        .collect();
+    let vectors: Vec<Vector> = description_vecs.into_iter().map(Vector::from).collect();
     let res = sqlx::query_scalar!(
         r#"
 SELECT id

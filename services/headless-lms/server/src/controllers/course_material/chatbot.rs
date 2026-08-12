@@ -30,7 +30,8 @@ use rand::distr::{Alphanumeric, SampleString};
     new_conversation,
     current_conversation_info,
     all_user_conversations,
-    conversation_info
+    conversation_info,
+    current_conversation_id
 ))]
 pub(crate) struct CourseMaterialChatbotApiDoc;
 
@@ -512,6 +513,52 @@ async fn conversation_info(
 }
 
 /**
+GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`
+
+Returns current chatbot conversation id.
+*/
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}/conversations/current/id",
+    operation_id = "getCurrentConversationId",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Current conversation ID", body = Option<Uuid>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn current_conversation_id(
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+    params: web::Path<Uuid>,
+    req: HttpRequest,
+) -> ControllerResult<web::Json<Option<Uuid>>> {
+    let mut conn = pool.acquire().await?;
+    let chatbot_configuration =
+        models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
+
+    let token =
+        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
+
+    let anonymous_token = handle_anonymous_token(req, user);
+
+    let current_conversation = chatbot_conversations::get_latest_conversation_for_user(
+        &mut conn,
+        user.map(|u| u.id),
+        anonymous_token,
+        chatbot_configuration.id,
+    )
+    .await
+    .optional()?;
+
+    let current_conversation_id = current_conversation.map(|c| c.id);
+    token.authorized_ok(web::Json(current_conversation_id))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -542,5 +589,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{chatbot_configuration_id}/conversations/{conversation_id}",
         web::get().to(conversation_info),
+    )
+    .route(
+        "/{chatbot_configuration_id}/conversations/current/id",
+        web::get().to(current_conversation_id),
     );
 }

@@ -205,10 +205,11 @@ pub const NOT_CONSENTED: MockPersonFixture = MockPersonFixture {
 /// The import that times out. Its own person, so the fault keyed on this student number cannot reach
 /// another spec's row on the shared course.
 ///
-/// Deliberately absent from `mock_suotar_world`'s `on_crs_101`: the live credit-registrar worker
-/// runs continuously against the seeded, already-completed row, and a pre-seeded enrolment would let
-/// it import for real before the spec ever arms the `sisuTimeout` fault. Its own spec creates the
-/// person and enrolment itself, atomically with the fault.
+/// Has a seeded person but, unlike its `on_crs_101` neighbours, no seeded enrolment: a pre-seeded one
+/// would let some other spec's unscoped tick resolve and import the row for real before this one ever
+/// arms the `sisuTimeout` fault. Its own spec creates the enrolment atomically with the fault. Keeping
+/// the person seeded matters — without it, that same unscoped tick answers `personNotFound`, which
+/// drops `verified_student_number` and strands the row in `pending_student_number` for good.
 pub const IMPORT_TIMEOUT: MockPersonFixture = MockPersonFixture {
     student_number: "900000402",
     first_names: "Zzyzx",
@@ -1658,6 +1659,7 @@ pub fn mock_suotar_world() -> WorldPush {
         &SUPERSEDED,
         &FAST_TRACK_VERIFIED,
         &FAST_TRACK_TWIN,
+        &IMPORT_TIMEOUT,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
@@ -1691,6 +1693,9 @@ pub fn mock_suotar_world() -> WorldPush {
 
     let mut enrolments: Vec<EnrolmentUpsert> = on_crs_101
         .iter()
+        // Like `NO_ENROLMENT`, minus the person: `IMPORT_TIMEOUT`'s own spec creates its enrolment,
+        // so no earlier, unscoped resolve-enrolments sweep can resolve it before the fault is armed.
+        .filter(|fixture| fixture.student_number != IMPORT_TIMEOUT.student_number)
         .map(|fixture| enrolment(fixture, CRS_101, RealisationKind::Degree, wide.clone(), now))
         .collect();
     enrolments.extend(BACKFILL_STUDENTS.iter().map(|fixture| {

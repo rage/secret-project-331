@@ -148,6 +148,32 @@ LIMIT 1
     Ok(res)
 }
 
+pub async fn get_conversation_for_user(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    chatbot_configuration_id: Uuid,
+    conversation_id: Uuid,
+) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE user_id = $1
+  AND chatbot_configuration_id = $2
+  AND id = $3
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+        "#,
+        user_id,
+        chatbot_configuration_id,
+        conversation_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_all_conversations_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -188,6 +214,68 @@ pub async fn get_current_conversation_info(
 
     let current_conversation =
         get_latest_conversation_for_user(tx, user_id, anonymous_token, chatbot_configuration_id)
+            .await
+            .optional()?;
+    // the messages are sorted by response_order_number
+    let current_conversation_messages = OptionFuture::from(
+        current_conversation
+            .clone()
+            .map(|c| crate::chatbot_conversation_messages::get_by_conversation_id(tx, c.id)),
+    )
+    .await
+    .transpose()?;
+
+    let current_conversation_message_citations =
+        OptionFuture::from(current_conversation.clone().map(|c| {
+            crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, c.id)
+        }))
+        .await
+        .transpose()?;
+
+    let suggested_messages = if chatbot_configuration.suggest_next_messages
+        && let Some(ccm) = &current_conversation_messages
+        && let Some(last_ccm) = ccm.last()
+    {
+        let sm = crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
+            tx,
+            last_ccm.id.to_owned(),
+        )
+        .await?;
+        // return an empty vec if there are not yet any suggested messages
+        Some(sm)
+    } else {
+        None
+    };
+
+    Ok(ChatbotConversationInfo {
+        current_conversation,
+        current_conversation_messages,
+        current_conversation_message_citations,
+        suggested_messages,
+        // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
+        chatbot_name: chatbot_configuration.chatbot_name,
+        course_name: course.map(|course| course.name),
+        hide_citations: chatbot_configuration.hide_citations,
+    })
+}
+
+/// Gets the current conversation for the user, if any. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
+pub async fn get_conversation_info(
+    tx: &mut PgConnection,
+    user_id: Option<Uuid>,
+    chatbot_configuration_id: Uuid,
+    conversation_id: Uuid,
+) -> ModelResult<ChatbotConversationInfo> {
+    let chatbot_configuration =
+        crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
+    let course = if let Some(course_id) = chatbot_configuration.course_id {
+        Some(crate::courses::get_course(tx, course_id).await?)
+    } else {
+        None
+    };
+
+    let current_conversation =
+        get_conversation_for_user(tx, user_id, chatbot_configuration_id, conversation_id)
             .await
             .optional()?;
     // the messages are sorted by response_order_number

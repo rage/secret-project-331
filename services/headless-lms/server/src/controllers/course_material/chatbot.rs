@@ -29,7 +29,8 @@ use rand::distr::{Alphanumeric, SampleString};
     send_message,
     new_conversation,
     current_conversation_info,
-    all_user_conversations
+    all_user_conversations,
+    conversation_info
 ))]
 pub(crate) struct CourseMaterialChatbotApiDoc;
 
@@ -393,6 +394,124 @@ async fn all_user_conversations(
 }
 
 /**
+GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id`
+
+Returns specific chatbot conversation for the user.
+*/
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}/conversations/{conversation_id}",
+    operation_id = "getConversationInfo",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id"),
+        ("conversation_id" = Uuid, Path, description = "Conversation id")
+    ),
+    responses(
+        (
+            status = 200,
+            description = "Selected chatbot conversation info",
+            body = ChatbotConversationInfo
+        )
+    )
+)]
+#[instrument(skip(pool, app_conf))]
+async fn conversation_info(
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    params: web::Path<(Uuid, Uuid)>,
+) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
+    let mut conn = pool.acquire().await?;
+    let chatbot_configuration_id = params.0;
+    let conversation_id = params.1;
+    let chatbot_configuration =
+        models::chatbot_configurations::get_by_id(&mut conn, chatbot_configuration_id).await?;
+
+    let token =
+        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
+
+    let res = chatbot_conversations::get_conversation_info(
+        &mut conn,
+        user.map(|u| u.id),
+        chatbot_configuration.id,
+        conversation_id,
+    )
+    .await?;
+
+    if chatbot_configuration.suggest_next_messages
+        // suggested_messages is None if suggest_next_messages=false
+        && let Some(suggested_messages) = &res.suggested_messages
+        && suggested_messages.is_empty()
+        && let Some(current_conversation_messages) = &res.current_conversation_messages
+        && let Some(last_message) = current_conversation_messages.last()
+        && let Some(course_name) = &res.course_name
+    {
+        let initial_suggested_messages = if last_message.order_number == 1 {
+            // for the first message, get initial_suggested_messages
+            let initial_suggested_messages = chatbot_configuration
+                .initial_suggested_messages
+                .unwrap_or(vec![]);
+            // take 3 random elements
+            if initial_suggested_messages.len() > 3 {
+                let mut rng = rand::rng();
+                initial_suggested_messages
+                    .sample(&mut rng, 3)
+                    .cloned()
+                    .collect()
+            } else {
+                initial_suggested_messages
+            }
+        } else {
+            // for other messages, generate suggested messages
+            let course_description = if let Some(course_id) = chatbot_configuration.course_id {
+                models::courses::get_course(&mut conn, course_id)
+                    .await?
+                    .description
+            } else {
+                None
+            };
+            let message_suggest_llm =
+                models::application_task_default_language_models::get_for_task(
+                    &mut conn,
+                    ApplicationTask::MessageSuggestion,
+                )
+                .await?;
+
+            headless_lms_chatbot::message_suggestion::generate_suggested_messages(
+                &app_conf,
+                message_suggest_llm,
+                current_conversation_messages,
+                chatbot_configuration.initial_suggested_messages,
+                course_name,
+                course_description,
+            )
+            .await?
+        };
+
+        if !initial_suggested_messages.is_empty() {
+            headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(
+                &mut conn,
+                &last_message.id,
+                initial_suggested_messages,
+            )
+            .await?;
+        }
+
+        let res = chatbot_conversations::get_conversation_info(
+            &mut conn,
+            user.map(|u| u.id),
+            chatbot_configuration.id,
+            conversation_id,
+        )
+        .await?;
+        return token.authorized_ok(web::Json(res));
+    }
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -419,5 +538,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{chatbot_configuration_id}/conversations/all",
         web::get().to(all_user_conversations),
+    )
+    .route(
+        "/{chatbot_configuration_id}/conversations/{conversation_id}",
+        web::get().to(conversation_info),
     );
 }

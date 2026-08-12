@@ -116,6 +116,45 @@ impl ApplicationConfiguration {
             oauth_server_configuration,
         })
     }
+
+    pub fn mock_conf() -> anyhow::Result<Self> {
+        let test_mode = true;
+        let base_url = "http://project-331.local".to_string();
+        let development_uuid_login = false;
+        let enable_admin_email_verification = false;
+        let enable_email_ownership_verification = false;
+        let azure_configuration = AzureConfiguration::mock_conf()?;
+        let test_chatbot = false;
+        let test_sisu = false;
+        let test_suotar = false;
+        let suotar_configuration = SuotarConfiguration::mock_conf("http://project-331.local")
+            .expect("Failed to build the mock Suotar configuration");
+        let tmc_account_creation_origin = None;
+        let tmc_admin_access_token = SecretString::new("mock-access-token".to_string().into());
+        let oauth_server_configuration = OAuthServerConfiguration {
+            rsa_public_key: "temp-change-when-needed".into(),
+            rsa_private_key: SecretString::new("test-change".into()),
+            oauth_token_hmac_key: SecretString::new("pippuri".into()),
+            dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
+                "test-key".into(),
+            ))),
+        };
+        Ok(Self {
+            base_url,
+            test_mode,
+            test_chatbot,
+            test_sisu,
+            test_suotar,
+            development_uuid_login,
+            enable_admin_email_verification,
+            enable_email_ownership_verification,
+            azure_configuration,
+            suotar_configuration,
+            tmc_account_creation_origin,
+            tmc_admin_access_token,
+            oauth_server_configuration,
+        })
+    }
 }
 
 /// TODO: Suotar has not confirmed whether they want `Basic` or `Bearer`; `Basic` is what they

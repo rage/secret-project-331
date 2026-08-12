@@ -1,10 +1,6 @@
-use headless_lms_base::config::{
-    ApplicationConfiguration, AzureConfiguration, OAuthServerConfiguration, SuotarConfiguration,
-};
-use secrecy::{SecretBox, SecretString};
+use headless_lms_base::config::ApplicationConfiguration;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
-use std::sync::Arc;
 use tokio::sync::Mutex;
 
 // tried storing PgPool here but that caused strange errors
@@ -29,26 +25,7 @@ async fn get_or_init_db() -> String {
 }
 
 pub fn init_app_conf() -> ModelResult<ApplicationConfiguration> {
-    let app_config = ApplicationConfiguration {
-        base_url: "".to_string(),
-        test_mode: true,
-        test_chatbot: true,
-        test_sisu: true,
-        test_suotar: true,
-        development_uuid_login: false,
-        enable_admin_email_verification: false,
-        enable_email_ownership_verification: false,
-        azure_configuration: AzureConfiguration::mock_conf()?,
-        suotar_configuration: SuotarConfiguration::mock_conf("")?,
-        tmc_account_creation_origin: None,
-        tmc_admin_access_token: SecretString::new("".to_string().into_boxed_str()),
-        oauth_server_configuration: OAuthServerConfiguration {
-            rsa_public_key: "".to_string(),
-            rsa_private_key: SecretString::new("".to_string().into_boxed_str()),
-            oauth_token_hmac_key: SecretString::new("".to_string().into_boxed_str()),
-            dpop_nonce_key: Arc::new(SecretBox::new(Box::new(String::new()))),
-        },
-    };
+    let app_config = ApplicationConfiguration::mock_conf()?;
     Ok(app_config)
 }
 

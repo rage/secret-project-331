@@ -9,9 +9,9 @@ use crate::{
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
-    course_audiences::get_course_ids_by_audience_vector,
-    course_prerequisites::get_course_ids_by_prerequisite_vector,
-    courses::{self, Course, get_by_description_vector},
+    course_audiences::get_course_ids_by_audience_vectors,
+    course_prerequisites::get_course_ids_by_prerequisite_vectors,
+    courses::{self, Course, get_by_description_vectors},
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings,
@@ -72,18 +72,20 @@ impl ChatbotTool for CourseFinderTool {
                 .await?
                 .to_owned();
 
-            let mut audience_courses = vec![];
+            let mut audience_courses =
+                get_course_ids_by_audience_vectors(conn, audience_embeddings, audiences.clone())
+                    .await?;
 
-            for index in 0..audience_embeddings.len() {
-                audience_courses.extend(
-                    get_course_ids_by_audience_vector(
-                        conn,
-                        audience_embeddings[index].clone(),
-                        audiences[index].clone(),
-                    )
-                    .await?,
-                );
-            }
+            // for index in 0..audience_embeddings.len() {
+            //     audience_courses.extend(
+            //         get_course_ids_by_audience_vector(
+            //             conn,
+            //             audience_embeddings[index].clone(),
+            //             audiences[index].clone(),
+            //         )
+            //         .await?,
+            //     );
+            //}
             audience_courses
         } else {
             vec![]
@@ -94,18 +96,23 @@ impl ChatbotTool for CourseFinderTool {
                 .await?
                 .to_owned();
 
-            let mut prerequisite_courses = vec![];
+            let mut prerequisite_courses = get_course_ids_by_prerequisite_vectors(
+                conn,
+                prerequisite_embeddings,
+                prerequisites.clone(),
+            )
+            .await?;
 
-            for index in 0..prerequisite_embeddings.len() {
-                prerequisite_courses.extend(
-                    get_course_ids_by_prerequisite_vector(
-                        conn,
-                        prerequisite_embeddings[index].clone(),
-                        prerequisites[index].clone(),
-                    )
-                    .await?,
-                );
-            }
+            // for index in 0..prerequisite_embeddings.len() {
+            //     prerequisite_courses.extend(
+            //         get_course_ids_by_prerequisite_vector(
+            //             conn,
+            //             prerequisite_embeddings[index].clone(),
+            //             prerequisites[index].clone(),
+            //         )
+            //         .await?,
+            //     );
+            // }
             prerequisite_courses
         } else {
             vec![]
@@ -116,18 +123,20 @@ impl ChatbotTool for CourseFinderTool {
                 .await?
                 .to_owned();
 
-            let mut description_courses = vec![];
+            let mut description_courses =
+                get_by_description_vectors(conn, description_embeddings, description.clone())
+                    .await?;
 
-            for index in 0..description_embeddings.len() {
-                description_courses.extend(
-                    get_by_description_vector(
-                        conn,
-                        description_embeddings[index].clone(),
-                        description[index].clone(),
-                    )
-                    .await?,
-                );
-            }
+            // for index in 0..description_embeddings.len() {
+            //     description_courses.extend(
+            //         get_by_description_vector(
+            //             conn,
+            //             description_embeddings[index].clone(),
+            //             description[index].clone(),
+            //         )
+            //         .await?,
+            //     );
+            // }
             description_courses
         } else {
             vec![]

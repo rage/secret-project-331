@@ -92,32 +92,34 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn get_course_ids_by_audience_vector(
+pub async fn get_course_ids_by_audience_vectors(
     conn: &mut PgConnection,
-    audience_vec: Vec<f32>,
-    audience_keyword: String,
+    audience_vecs: Vec<Vec<f32>>,
+    audience_keywords: Vec<String>,
 ) -> ModelResult<Vec<Uuid>> {
-    let vector = Vector::from(audience_vec);
+    let vectors: Vec<Vector> = audience_vecs.into_iter().map(|v| Vector::from(v)).collect();
     let res = sqlx::query_scalar!(
         r#"
 SELECT course_id
 FROM (
     SELECT
-        course_id,
-        MIN(embedding <#> $1::vector) AS distance
-    FROM course_audiences
-    GROUP BY course_id
+        a.course_id,
+        MIN(a.embedding <#> v.embedding) AS distance
+    FROM course_audiences a
+    CROSS JOIN unnest($1::vector[]) AS v(embedding)
+    GROUP BY a.course_id
     ORDER BY distance ASC
     LIMIT 5
-) t
+)
 UNION ALL
-SELECT course_id
-FROM course_audiences
-WHERE to_tsvector('english', audience)
-@@ websearch_to_tsquery('english', $2)
+SELECT DISTINCT a.course_id
+FROM course_audiences a
+CROSS JOIN unnest($2::text[]) AS k(keyword)
+WHERE to_tsvector('english', a.audience)
+    @@ websearch_to_tsquery('english', k.keyword)
         "#,
-        vector,
-        audience_keyword
+        &vectors as _,
+        &audience_keywords
     )
     .fetch_all(conn)
     .await?;

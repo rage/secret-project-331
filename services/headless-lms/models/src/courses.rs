@@ -1479,32 +1479,37 @@ WHERE id = $2
     Ok(())
 }
 
-pub async fn get_by_description_vector(
+pub async fn get_by_description_vectors(
     conn: &mut PgConnection,
-    description_vec: Vec<f32>,
-    description_keyword: String,
+    description_vecs: Vec<Vec<f32>>,
+    description_keywords: Vec<String>,
 ) -> ModelResult<Vec<Uuid>> {
-    let vector = Vector::from(description_vec);
+    let vectors: Vec<Vector> = description_vecs
+        .into_iter()
+        .map(|v| Vector::from(v))
+        .collect();
     let res = sqlx::query_scalar!(
         r#"
 SELECT id
 FROM (
     SELECT
-        id,
-        MIN(embedding <#> $1::vector) AS distance
-    FROM courses
-    GROUP BY id
+        c.id,
+        MIN(c.embedding <#> v.embedding) AS distance
+    FROM courses c
+    CROSS JOIN unnest($1::vector[]) AS v(embedding)
+    GROUP BY c.id
     ORDER BY distance ASC
     LIMIT 5
 ) t
 UNION ALL
-SELECT id
-FROM courses
-WHERE to_tsvector('english', description)
-@@ websearch_to_tsquery('english', $2)
+SELECT DISTINCT c.id
+FROM courses c
+CROSS JOIN unnest($2::text[]) AS k(keyword)
+WHERE to_tsvector('english', c.description)
+@@ websearch_to_tsquery('english', k.keyword)
         "#,
-        vector,
-        description_keyword
+        &vectors as _,
+        &description_keywords
     )
     .fetch_all(conn)
     .await?;

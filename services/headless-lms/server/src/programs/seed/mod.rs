@@ -39,7 +39,7 @@ use tracing::info;
 pub async fn main() -> anyhow::Result<()> {
     let base_url = ProgramConfig::required("BASE_URL")?;
     let db_pool = setup_seed_environment().await?;
-    let app_config = ApplicationConfiguration::try_from_env()?;
+    let app_config = ApplicationConfiguration::mock_conf()?;
     let jwt_password = secrecy::SecretString::new(ProgramConfig::required("JWT_PASSWORD")?.into());
     let jwt_key = Arc::new(JwtKey::new(&jwt_password).expect("Failed to create JwtKey"));
 

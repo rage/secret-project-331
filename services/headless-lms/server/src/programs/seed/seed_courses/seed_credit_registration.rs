@@ -204,6 +204,11 @@ pub const NOT_CONSENTED: MockPersonFixture = MockPersonFixture {
 };
 /// The import that times out. Its own person, so the fault keyed on this student number cannot reach
 /// another spec's row on the shared course.
+///
+/// Deliberately absent from `mock_suotar_world`'s `on_crs_101`: the live credit-registrar worker
+/// runs continuously against the seeded, already-completed row, and a pre-seeded enrolment would let
+/// it import for real before the spec ever arms the `sisuTimeout` fault. Its own spec creates the
+/// person and enrolment itself, atomically with the fault.
 pub const IMPORT_TIMEOUT: MockPersonFixture = MockPersonFixture {
     student_number: "900000402",
     first_names: "Zzyzx",
@@ -1653,7 +1658,6 @@ pub fn mock_suotar_world() -> WorldPush {
         &SUPERSEDED,
         &FAST_TRACK_VERIFIED,
         &FAST_TRACK_TWIN,
-        &IMPORT_TIMEOUT,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,

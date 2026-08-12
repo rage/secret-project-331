@@ -1,7 +1,22 @@
 import { test as base } from "@playwright/test"
 
-import { setupRedirectServer, teardownRedirectServer } from "../utils/oauth/redirectServer"
+import { ensureServer, getRedirectServerUri } from "@/utils/oauth/redirectServer"
+import { setupServer, teardownServer } from "@/utils/setupServer"
 
+const HTML = "<!doctype html><title>OAuth Callback</title><h1>Callback OK</h1>"
+
+const redirectServerContext = {
+  port: null,
+  setupCount: 0,
+  setupPromise: null,
+  server: null,
+  html: HTML,
+}
+
+export const setupRedirectServer = () => setupServer(redirectServerContext)
+export const teardownRedirectServer = () => teardownServer(redirectServerContext.setupCount)
+export const getRedirectUri = () => getRedirectServerUri(redirectServerContext.port)
+export const ensureRedirectServer = () => ensureServer(redirectServerContext.server)
 /**
  * OAuth test fixtures. Use this test in any spec that needs the OAuth callback server.
  *

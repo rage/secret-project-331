@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test"
 import { expect } from "@playwright/test"
 
-import { ensureRedirectServer } from "./redirectServer"
+import { ensureRedirectServer } from "@/fixtures/oauth"
 
 export class ConsentPage {
   private page: Page

@@ -65,13 +65,14 @@ export const zChapterWithStatus = z.object({
 })
 
 export const zChatbotConversation = z.object({
+  anonymous_token: z.string().nullish(),
   chatbot_configuration_id: z.uuid(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   updated_at: z.iso.datetime(),
-  user_id: z.uuid(),
+  user_id: z.uuid().nullish(),
 })
 
 export const zChatbotConversationMessageCitation = z.object({

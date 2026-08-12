@@ -1,7 +1,8 @@
 import crypto from "crypto"
 
+import { ensureRedirectServer, getRedirectUri } from "@/fixtures/oauth"
+
 import { AUTHORIZE, TEST_CLIENT_ID } from "./constants"
-import { ensureRedirectServer, getRedirectUri } from "./redirectServer"
 
 export interface OAuthUrlOptions {
   codeChallenge?: string

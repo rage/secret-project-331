@@ -314,36 +314,7 @@ pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot,
-  is_unlisted,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -360,36 +331,7 @@ pub async fn all_courses_user_enrolled_to(
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -413,36 +355,7 @@ pub async fn all_courses_with_roles_for_user(
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -478,36 +391,7 @@ pub async fn get_all_language_versions_of_course(
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot,
-  is_unlisted,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -603,36 +487,7 @@ pub async fn get_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult
     let course = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -652,36 +507,7 @@ pub async fn get_by_id_and_join_code(
     let course = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE id = $1
   AND join_code = $2
@@ -883,6 +709,7 @@ pub async fn update_course(
     course_id: Uuid,
     course_update: CourseUpdate,
 ) -> ModelResult<Course> {
+    let old_course = get_course(conn, course_id).await?;
     let res = sqlx::query_as!(
         Course,
         r#"
@@ -905,36 +732,7 @@ SET name = $1,
   course_material_ai_instructions = $16
 WHERE id = $17
   AND deleted_at IS NULL
-RETURNING id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+RETURNING *
     "#,
         course_update.name,
         course_update.description,
@@ -956,8 +754,11 @@ RETURNING id,
     )
     .fetch_one(&mut *conn)
     .await?;
-    if let Some(description) = &res.description {
-        update_embedding_vector(&mut *conn, app_config, res.id, description).await?;
+    if let (Some(description), Some(old_description)) = (&res.description, &old_course.description)
+    {
+        if description != old_description {
+            update_embedding_vector(&mut *conn, app_config, res.id, description).await?;
+        }
     }
     Ok(res)
 }
@@ -1013,36 +814,7 @@ UPDATE courses
 SET deleted_at = now()
 WHERE id = $1
 AND deleted_at IS NULL
-RETURNING id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+RETURNING *
     "#,
         course_id
     )
@@ -1055,36 +827,7 @@ pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> M
     let course = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -1153,36 +896,7 @@ pub async fn get_by_ids(conn: &mut PgConnection, course_ids: &[Uuid]) -> ModelRe
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   AND deleted_at IS NULL
@@ -1201,36 +915,7 @@ pub async fn get_by_organization_id(
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -1269,36 +954,7 @@ pub async fn get_course_with_join_code(
     let course = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+SELECT *
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;

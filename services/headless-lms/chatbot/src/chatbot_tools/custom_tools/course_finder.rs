@@ -72,20 +72,9 @@ impl ChatbotTool for CourseFinderTool {
                 .await?
                 .to_owned();
 
-            let mut audience_courses =
+            let audience_courses =
                 get_course_ids_by_audience_vectors(conn, audience_embeddings, audiences.clone())
                     .await?;
-
-            // for index in 0..audience_embeddings.len() {
-            //     audience_courses.extend(
-            //         get_course_ids_by_audience_vector(
-            //             conn,
-            //             audience_embeddings[index].clone(),
-            //             audiences[index].clone(),
-            //         )
-            //         .await?,
-            //     );
-            //}
             audience_courses
         } else {
             vec![]
@@ -96,23 +85,12 @@ impl ChatbotTool for CourseFinderTool {
                 .await?
                 .to_owned();
 
-            let mut prerequisite_courses = get_course_ids_by_prerequisite_vectors(
+            let prerequisite_courses = get_course_ids_by_prerequisite_vectors(
                 conn,
                 prerequisite_embeddings,
                 prerequisites.clone(),
             )
             .await?;
-
-            // for index in 0..prerequisite_embeddings.len() {
-            //     prerequisite_courses.extend(
-            //         get_course_ids_by_prerequisite_vector(
-            //             conn,
-            //             prerequisite_embeddings[index].clone(),
-            //             prerequisites[index].clone(),
-            //         )
-            //         .await?,
-            //     );
-            // }
             prerequisite_courses
         } else {
             vec![]
@@ -123,20 +101,9 @@ impl ChatbotTool for CourseFinderTool {
                 .await?
                 .to_owned();
 
-            let mut description_courses =
+            let description_courses =
                 get_by_description_vectors(conn, description_embeddings, description.clone())
                     .await?;
-
-            // for index in 0..description_embeddings.len() {
-            //     description_courses.extend(
-            //         get_by_description_vector(
-            //             conn,
-            //             description_embeddings[index].clone(),
-            //             description[index].clone(),
-            //         )
-            //         .await?,
-            //     );
-            // }
             description_courses
         } else {
             vec![]
@@ -183,7 +150,7 @@ impl ChatbotTool for CourseFinderTool {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: "course_finder".to_string(),
-            description: "Find suitable courses for the user if they want to find available courses for their conditions. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message. The arguments are arrays of keywords for the parameters the user is using to search the courses. At least one of the three arguments is required. This tool is useful to find any courses if the user wants recommendations for courses they can take.".to_string(),
+            description: "Find suitable courses for the user if they want to find available courses for their conditions. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message. The arguments are arrays of keywords for the parameters the user is using to search the courses. At least one of the three arguments is required. Match on any single argument will find a course so it is safe to provide all types of arguments when suitable. This tool is useful to find any courses if the user wants recommendations for courses they can take.".to_string(),
             parameters: LLMToolParams {
                 tool_type: LLMToolParamType::Object,
                 properties: HashMap::from([

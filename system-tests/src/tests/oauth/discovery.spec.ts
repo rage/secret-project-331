@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import { setupRedirectServer, teardownRedirectServer } from "@/fixtures/oauth"
+
 import {
   AUTHORIZE,
   BASE,
@@ -9,7 +11,6 @@ import {
   USERINFO,
   WELL_KNOWN,
 } from "../../utils/oauth/constants"
-import { setupRedirectServer, teardownRedirectServer } from "../../utils/oauth/redirectServer"
 
 test.beforeAll(async () => {
   await setupRedirectServer()

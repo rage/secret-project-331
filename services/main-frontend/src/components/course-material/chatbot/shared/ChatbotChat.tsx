@@ -17,7 +17,6 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
   isCourseMaterialBlock,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
-
   const chatbotStateAndData = useChatbotStateAndData(
     chatbotConfigurationId,
     isCourseMaterialBlock ? undefined : setIsOpen,

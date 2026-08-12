@@ -3125,8 +3125,11 @@
       },
       "ChatbotConversation": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "user_id", "chatbot_configuration_id"],
+        "required": ["id", "created_at", "updated_at", "chatbot_configuration_id"],
         "properties": {
+          "anonymous_token": {
+            "type": ["string", "null"]
+          },
           "chatbot_configuration_id": {
             "type": "string",
             "format": "uuid"
@@ -3152,7 +3155,7 @@
             "format": "date-time"
           },
           "user_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           }
         }
@@ -6133,7 +6136,8 @@
           "WaitingForPeerReviews",
           "WaitingForManualGrading",
           "ReviewedAndLocked",
-          "Locked"
+          "Locked",
+          "NotAnsweredAndLocked"
         ]
       },
       "SaveCourseSettingsPayload": {

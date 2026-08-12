@@ -308,6 +308,7 @@ export type ChatbotConfiguration = {
   model_id: string
   presence_penalty: number
   prompt: string
+  publicly_accessible: boolean
   reasoning_effort: ReasoningEffortLevel
   suggest_next_messages: boolean
   temperature: number
@@ -1747,6 +1748,7 @@ export type NewChatbotConf = {
   model_id: string
   presence_penalty: number
   prompt: string
+  publicly_accessible: boolean
   reasoning_effort: ReasoningEffortLevel
   suggest_next_messages: boolean
   temperature: number
@@ -2299,6 +2301,7 @@ export type ReviewingStage =
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
   | "Locked"
+  | "NotAnsweredAndLocked"
 
 export type Role = {
   course_id?: string | null

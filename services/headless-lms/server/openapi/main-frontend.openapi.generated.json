@@ -12223,7 +12223,8 @@
           "use_semantic_reranking",
           "use_tools",
           "default_chatbot",
-          "suggest_next_messages"
+          "suggest_next_messages",
+          "publicly_accessible"
         ],
         "properties": {
           "chatbot_name": {
@@ -12288,6 +12289,9 @@
           },
           "prompt": {
             "type": "string"
+          },
+          "publicly_accessible": {
+            "type": "boolean"
           },
           "reasoning_effort": {
             "$ref": "#/components/schemas/ReasoningEffortLevel"
@@ -16609,7 +16613,8 @@
           "use_semantic_reranking",
           "use_tools",
           "default_chatbot",
-          "suggest_next_messages"
+          "suggest_next_messages",
+          "publicly_accessible"
         ],
         "properties": {
           "chatbot_name": {
@@ -16666,6 +16671,9 @@
           },
           "prompt": {
             "type": "string"
+          },
+          "publicly_accessible": {
+            "type": "boolean"
           },
           "reasoning_effort": {
             "$ref": "#/components/schemas/ReasoningEffortLevel"
@@ -18403,7 +18411,8 @@
           "WaitingForPeerReviews",
           "WaitingForManualGrading",
           "ReviewedAndLocked",
-          "Locked"
+          "Locked",
+          "NotAnsweredAndLocked"
         ]
       },
       "Role": {

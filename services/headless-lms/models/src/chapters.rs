@@ -1,6 +1,7 @@
 use std::{collections::HashMap, path::PathBuf};
 
 use crate::CourseOrExamId;
+use crate::exercise_slide_submissions;
 use crate::exercises;
 use crate::exercises::GradingProgress;
 use crate::library::user_exercise_state_updater;
@@ -917,6 +918,20 @@ pub async fn move_chapter_exercises_to_manual_review(
 ) -> ModelResult<()> {
     let exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
 
+    // Same predicate as the repair in migration 20260806122511, so a locked state and a repaired
+    // one classify an answer identically.
+    let exercise_ids: Vec<Uuid> = exercises.iter().map(|e| e.id).collect();
+    let answered_ids: std::collections::HashSet<Uuid> =
+        exercise_slide_submissions::get_exercise_ids_with_submissions_for_user(
+            conn,
+            &exercise_ids,
+            user_id,
+            course_id,
+        )
+        .await?
+        .into_iter()
+        .collect();
+
     for exercise in exercises {
         let user_exercise_state_result =
             user_exercise_states::get_users_current_by_exercise(conn, user_id, &exercise).await;
@@ -938,6 +953,18 @@ pub async fn move_chapter_exercises_to_manual_review(
             || user_exercise_state.reviewing_stage == ReviewingStage::Locked
             || user_exercise_state.selected_exercise_slide_id.is_none()
         {
+            continue;
+        }
+
+        if !answered_ids.contains(&exercise.id) {
+            user_exercise_states::update_reviewing_stage(
+                conn,
+                user_id,
+                CourseOrExamId::Course(course_id),
+                exercise.id,
+                ReviewingStage::NotAnsweredAndLocked,
+            )
+            .await?;
             continue;
         }
 
@@ -1248,6 +1275,21 @@ mod tests {
             .await
             .unwrap();
 
+            exercise_slide_submissions::insert_exercise_slide_submission(
+                tx.as_mut(),
+                exercise_slide_submissions::NewExerciseSlideSubmission {
+                    exercise_slide_id: slide,
+                    course_id: Some(course),
+                    exam_id: None,
+                    user_id: user,
+                    exercise_id: exercise,
+                    user_points_update_strategy:
+                        crate::exercise_task_gradings::UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+                },
+            )
+            .await
+            .unwrap();
+
             let user_exercise_slide_state =
                 user_exercise_slide_states::get_or_insert_by_unique_index(
                     tx.as_mut(),
@@ -1288,6 +1330,136 @@ mod tests {
                     .await
                     .unwrap();
             assert_eq!(user_exercise_state.reviewing_stage, ReviewingStage::Locked);
+        }
+
+        #[tokio::test]
+        async fn never_returned_exercise_becomes_not_answered_and_locked() {
+            insert_data!(
+                :tx,
+                :user,
+                :org,
+                :course,
+                instance: _instance,
+                :course_module,
+                :chapter,
+                :page,
+                :exercise,
+                :slide
+            );
+
+            // A selected slide with no submission is what merely viewing an exercise leaves behind.
+            user_exercise_states::upsert_selected_exercise_slide_id(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+                Some(slide),
+            )
+            .await
+            .unwrap();
+
+            user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+            )
+            .await
+            .unwrap();
+
+            move_chapter_exercises_to_manual_review(tx.as_mut(), chapter, user, course)
+                .await
+                .unwrap();
+
+            let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
+            let user_exercise_state =
+                user_exercise_states::get_users_current_by_exercise(tx.as_mut(), user, &exercise)
+                    .await
+                    .unwrap();
+            assert_eq!(
+                user_exercise_state.reviewing_stage,
+                ReviewingStage::NotAnsweredAndLocked
+            );
+        }
+
+        #[tokio::test]
+        async fn submitted_peer_review_exercise_still_goes_to_manual_grading() {
+            insert_data!(
+                :tx,
+                :user,
+                :org,
+                :course,
+                instance: _instance,
+                :course_module,
+                :chapter,
+                :page,
+                :exercise,
+                :slide
+            );
+
+            exercises::set_exercise_to_use_exercise_specific_peer_or_self_review_config(
+                tx.as_mut(),
+                exercise,
+                true,
+                false,
+                false,
+            )
+            .await
+            .unwrap();
+
+            user_exercise_states::upsert_selected_exercise_slide_id(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+                Some(slide),
+            )
+            .await
+            .unwrap();
+
+            user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(course),
+                None,
+            )
+            .await
+            .unwrap();
+
+            // A submitted peer review answer sits at activity_progress InProgress until the reviews
+            // are done, so answered-ness has to be decided by the submission, not that column.
+            exercise_slide_submissions::insert_exercise_slide_submission(
+                tx.as_mut(),
+                exercise_slide_submissions::NewExerciseSlideSubmission {
+                    exercise_slide_id: slide,
+                    course_id: Some(course),
+                    exam_id: None,
+                    user_id: user,
+                    exercise_id: exercise,
+                    user_points_update_strategy:
+                        crate::exercise_task_gradings::UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+                },
+            )
+            .await
+            .unwrap();
+
+            move_chapter_exercises_to_manual_review(tx.as_mut(), chapter, user, course)
+                .await
+                .unwrap();
+
+            let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
+            let user_exercise_state =
+                user_exercise_states::get_users_current_by_exercise(tx.as_mut(), user, &exercise)
+                    .await
+                    .unwrap();
+            assert_eq!(
+                user_exercise_state.reviewing_stage,
+                ReviewingStage::WaitingForManualGrading
+            );
         }
     }
 

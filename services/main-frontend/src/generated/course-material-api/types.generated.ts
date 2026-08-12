@@ -86,13 +86,14 @@ export type ChatbotChatStreamEvent =
     }
 
 export type ChatbotConversation = {
+  anonymous_token?: string | null
   chatbot_configuration_id: string
   course_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string
   updated_at: string
-  user_id: string
+  user_id?: string | null
 }
 
 /**
@@ -978,6 +979,7 @@ export type ReviewingStage =
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
   | "Locked"
+  | "NotAnsweredAndLocked"
 
 export type SaveCourseSettingsPayload = {
   background_question_answers: Array<NewCourseBackgroundQuestionAnswer>

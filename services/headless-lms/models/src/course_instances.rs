@@ -117,17 +117,17 @@ pub async fn get_course_instance_with_info(
         CourseInstanceWithCourseInfo,
         r#"
 SELECT
-    c.id AS "course_id!",
-    c.slug AS "course_slug!",
-    c.name AS "course_name!",
+    c.id AS "course_id",
+    c.slug AS "course_slug",
+    c.name AS "course_name",
     c.description AS course_description,
     ci.id AS "course_instance_id!",
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,
-    o.name AS "organization_name!"
+    o.name AS "organization_name"
 FROM course_instances AS ci
-  LEFT JOIN courses AS c ON ci.course_id = c.id
-  LEFT JOIN organizations AS o ON o.id = c.organization_id
+  JOIN courses AS c ON ci.course_id = c.id
+  JOIN organizations AS o ON o.id = c.organization_id
 WHERE ci.id = $1
   AND ci.deleted_at IS NULL
   AND c.deleted_at IS NULL

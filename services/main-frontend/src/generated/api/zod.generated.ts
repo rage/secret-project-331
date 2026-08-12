@@ -2471,6 +2471,7 @@ export const zReviewingStage = z.enum([
   "WaitingForManualGrading",
   "ReviewedAndLocked",
   "Locked",
+  "NotAnsweredAndLocked",
 ])
 
 export const zRoleDomain = z.union([
@@ -3063,6 +3064,7 @@ export const zChatbotConfiguration = z.object({
   model_id: z.uuid(),
   presence_penalty: z.number(),
   prompt: z.string(),
+  publicly_accessible: z.boolean(),
   reasoning_effort: zReasoningEffortLevel,
   suggest_next_messages: z.boolean(),
   temperature: z.number(),
@@ -3100,6 +3102,7 @@ export const zNewChatbotConf = z.object({
   model_id: z.uuid(),
   presence_penalty: z.number(),
   prompt: z.string(),
+  publicly_accessible: z.boolean(),
   reasoning_effort: zReasoningEffortLevel,
   suggest_next_messages: z.boolean(),
   temperature: z.number(),

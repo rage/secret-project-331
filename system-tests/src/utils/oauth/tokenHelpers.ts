@@ -2,9 +2,10 @@ import crypto from "crypto"
 
 import { expect } from "@playwright/test"
 
+import { getRedirectUri } from "@/fixtures/oauth"
+
 import { TEST_CLIENT_ID, TEST_CLIENT_SECRET, TOKEN, USERINFO } from "./constants"
 import { type AuthMode, makeDPoP, toB64Url } from "./dpop"
-import { getRedirectUri } from "./redirectServer"
 
 export async function exchangeCodeForToken(code: string, mode: AuthMode, codeVerifier?: string) {
   const headers: Record<string, string> = {

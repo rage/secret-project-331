@@ -127,6 +127,7 @@ export const Meter: React.FC<MeterProps> = ({
   return (
     // react-aria sets role="meter progressbar" (an old multi-role fallback trick); axe-core treats
     // that as an invalid role and rejects the aria-value* attributes it puts on the same element.
+    // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- aria-valuenow is in meterProps
     <div {...meterProps} role="meter" className={cx(rootCss, className)}>
       {showLabel ? (
         <div className={labelRowCss}>

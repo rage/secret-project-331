@@ -14,8 +14,9 @@ interface Props {
   attemptNumber?: number
 }
 
+// Not `opacity`: it blends the badge's already contrast-checked fg/bg toward the page background,
+// collapsing the ratio below WCAG AA. The strikethrough alone carries the "no longer current" cue.
 const supersededCss = css`
-  opacity: 0.6;
   text-decoration: line-through;
 `
 

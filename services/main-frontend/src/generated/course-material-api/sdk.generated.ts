@@ -15,6 +15,8 @@ import { client } from "./client.generated"
 import type {
   AcknowledgeAiUsageNoticeData,
   AcknowledgeAiUsageNoticeResponses,
+  AllUserConversationsData,
+  AllUserConversationsResponses,
   ClaimCodeFromCodeGiveawayData,
   ClaimCodeFromCodeGiveawayResponses,
   DeleteCourseMaterialGlossaryTermData,
@@ -179,6 +181,7 @@ import type {
 } from "./types.generated"
 import {
   zAcknowledgeAiUsageNoticeResponse,
+  zAllUserConversationsResponse,
   zClaimCodeFromCodeGiveawayResponse,
   zFetchExamEnrollmentResponse,
   zFetchExamForTestingResponse,
@@ -447,6 +450,22 @@ export const getDefaultChatbotConfigurationForCourse = <ThrowOnError extends boo
       await zGetDefaultChatbotConfigurationForCourseResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/default-for-course/{course_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current`
+ *
+ * Returns all conversations for the user.
+ */
+export const allUserConversations = <ThrowOnError extends boolean = true>(
+  options: Options<AllUserConversationsData, ThrowOnError>,
+): RequestResult<AllUserConversationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<AllUserConversationsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zAllUserConversationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/all",
     ...options,
   })
 

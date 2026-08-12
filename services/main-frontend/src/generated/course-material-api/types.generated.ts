@@ -1360,6 +1360,28 @@ export type GetDefaultChatbotConfigurationForCourseResponses = {
 export type GetDefaultChatbotConfigurationForCourseResponse =
   GetDefaultChatbotConfigurationForCourseResponses[keyof GetDefaultChatbotConfigurationForCourseResponses]
 
+export type AllUserConversationsData = {
+  body?: never
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/all"
+}
+
+export type AllUserConversationsResponses = {
+  /**
+   * All conversations for user
+   */
+  200: Array<ChatbotConversation>
+}
+
+export type AllUserConversationsResponse =
+  AllUserConversationsResponses[keyof AllUserConversationsResponses]
+
 export type GetChatbotCurrentConversationInfoData = {
   body?: never
   path: {

@@ -7,8 +7,11 @@ import { useTranslation } from "react-i18next"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Select } from "@/shared-module/components"
+
+import SideBar from "./SideBar"
 
 interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
@@ -70,40 +73,66 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
   }, [chatbots, courses, t])
 
   return (
-    <div>
-      <form>
-        <Select
-          id={"chatbot-select"}
-          control={control}
-          name={"id"}
-          label={t("select-chatbot")}
-          options={chatbotOptions}
-          searchEnabled={true}
-          searchPlaceholder={t("chatbot-search-placeholder")}
-        />
-      </form>
+    <BreakFromCentered sidebar={false}>
       <div
         className={css`
-          margin-top: 1rem;
-          height: 75vh;
+          display: grid;
+          grid-template-columns: 1fr 4fr;
+          margin: 0 1rem;
+          gap: 0.5rem;
         `}
       >
         {configuration_id === undefined ? (
           <div
             className={css`
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 75vh;
               border-radius: 10px;
               box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+              height: 75vh;
+              margin: 0;
+              padding: 0;
+              height: 100%;
             `}
           ></div>
         ) : (
-          <ChatbotChat chatbotConfigurationId={configuration_id} isCourseMaterialBlock={true} />
+          <SideBar configurationId={configuration_id} />
         )}
+
+        <div>
+          <form>
+            <Select
+              id={"chatbot-select"}
+              control={control}
+              name={"id"}
+              label={t("select-chatbot")}
+              options={chatbotOptions}
+              searchEnabled={true}
+              searchPlaceholder={t("chatbot-search-placeholder")}
+            />
+          </form>
+          <div
+            className={css`
+              margin-top: 0.5rem;
+              height: 75vh;
+            `}
+          >
+            {configuration_id === undefined ? (
+              <div
+                className={css`
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 75vh;
+                  border-radius: 10px;
+                  box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+                `}
+              ></div>
+            ) : (
+              <ChatbotChat chatbotConfigurationId={configuration_id} isCourseMaterialBlock={true} />
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </BreakFromCentered>
   )
 }
 

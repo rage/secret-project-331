@@ -266,6 +266,40 @@
         }
       }
     },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/all": {
+      "get": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nGET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current`\n\nReturns all conversations for the user.",
+        "operationId": "AllUserConversations",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All conversations for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatbotConversation"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current": {
       "get": {
         "tags": ["course-material-chatbot"],

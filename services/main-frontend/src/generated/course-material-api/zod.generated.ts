@@ -1427,6 +1427,15 @@ export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
  */
 export const zGetDefaultChatbotConfigurationForCourseResponse = z.uuid().nullable()
 
+export const zAllUserConversationsPath = z.object({
+  chatbot_configuration_id: z.uuid(),
+})
+
+/**
+ * All conversations for user
+ */
+export const zAllUserConversationsResponse = z.array(zChatbotConversation)
+
 export const zGetChatbotCurrentConversationInfoPath = z.object({
   chatbot_configuration_id: z.uuid(),
 })

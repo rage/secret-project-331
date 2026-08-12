@@ -28,7 +28,8 @@ use rand::distr::{Alphanumeric, SampleString};
     get_default_chatbot_configuration_for_course,
     send_message,
     new_conversation,
-    current_conversation_info
+    current_conversation_info,
+    all_user_conversations
 ))]
 pub(crate) struct CourseMaterialChatbotApiDoc;
 
@@ -352,6 +353,46 @@ async fn current_conversation_info(
 }
 
 /**
+GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current`
+
+Returns all conversations for the user.
+*/
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}/conversations/all",
+    operation_id = "AllUserConversations",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "All conversations for user", body = Vec<ChatbotConversation>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn all_user_conversations(
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+    params: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<ChatbotConversation>>> {
+    let mut conn = pool.acquire().await?;
+
+    let chatbot_configuration =
+        models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
+
+    let token =
+        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
+
+    let res = chatbot_conversations::get_all_conversations_for_user(
+        &mut conn,
+        user.unwrap().id,
+        chatbot_configuration.id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -374,5 +415,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/default-for-course/{course_id}",
         web::get().to(get_default_chatbot_configuration_for_course),
+    )
+    .route(
+        "/{chatbot_configuration_id}/conversations/all",
+        web::get().to(all_user_conversations),
     );
 }

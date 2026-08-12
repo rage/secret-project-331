@@ -8,6 +8,7 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from "@tanst
 import { client } from "../client.generated"
 import {
   acknowledgeAiUsageNotice,
+  allUserConversations,
   claimCodeFromCodeGiveaway,
   deleteCourseMaterialGlossaryTerm,
   endExamTime,
@@ -92,6 +93,8 @@ import {
 import type {
   AcknowledgeAiUsageNoticeData,
   AcknowledgeAiUsageNoticeResponse,
+  AllUserConversationsData,
+  AllUserConversationsResponse,
   ClaimCodeFromCodeGiveawayData,
   ClaimCodeFromCodeGiveawayResponse,
   DeleteCourseMaterialGlossaryTermData,
@@ -494,6 +497,32 @@ export const getDefaultChatbotConfigurationForCourseOptions = (
         throwOnError: true,
       }),
     queryKey: getDefaultChatbotConfigurationForCourseQueryKey(options),
+  })
+
+export const allUserConversationsQueryKey = (options: Options<AllUserConversationsData>) =>
+  createQueryKey("allUserConversations", options)
+
+/**
+ *
+ * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current`
+ *
+ * Returns all conversations for the user.
+ */
+export const allUserConversationsOptions = (options: Options<AllUserConversationsData>) =>
+  queryOptions<
+    AllUserConversationsResponse,
+    DefaultError,
+    AllUserConversationsResponse,
+    ReturnType<typeof allUserConversationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await allUserConversations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: allUserConversationsQueryKey(options),
   })
 
 export const getChatbotCurrentConversationInfoQueryKey = (

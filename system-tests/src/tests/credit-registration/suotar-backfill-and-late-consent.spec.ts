@@ -46,6 +46,10 @@ test.describe("The teacher opts the module in", () => {
     await expect(page.getByText("Success").first()).toBeVisible()
 
     await runMaterializeTick(page.request, { courseSlug: BACKFILL_COURSE_SLUG })
+    // Materialize only creates the rows; ticking preconditions ourselves is what moves them out of
+    // `pending_prerequisites` — waiting on the background worker's own schedule instead made this
+    // flaky.
+    await runPreconditionsTick(page.request, { courseSlug: BACKFILL_COURSE_SLUG })
 
     const rows = await pollUntil(
       async () => {
@@ -53,8 +57,6 @@ test.describe("The teacher opts the module in", () => {
           course_id: BACKFILL_COURSE_ID,
           limit: 50,
         })
-        // Materialize only creates the rows; the background preconditions worker is what moves
-        // them out of `pending_prerequisites`, on its own schedule.
         const settled = listed.data.every((row) => row.state !== "pending_prerequisites")
         return listed.total_count > 0 && settled ? listed : null
       },

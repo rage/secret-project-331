@@ -29,7 +29,7 @@ const ProfileLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const showCreditRegistrationTab = myStudies.data?.any_module_supports_credit_registration === true
 
   return (
-    <div
+    <main
       className={css`
         max-width: 1100px;
         margin: 0 auto;
@@ -93,7 +93,7 @@ const ProfileLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         ) : null}
         <TabPanel>{children}</TabPanel>
       </Tabs>
-    </div>
+    </main>
   )
 }
 

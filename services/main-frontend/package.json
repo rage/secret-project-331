@@ -2,13 +2,6 @@
   "name": "main-frontend",
   "version": "0.1.0",
   "private": true,
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --turbopack",
@@ -118,5 +111,12 @@
     "stylelint-config-recommended": "^18.0.0",
     "ts-jest": "^29.4.12",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

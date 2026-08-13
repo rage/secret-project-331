@@ -3125,8 +3125,11 @@
       },
       "ChatbotConversation": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "user_id", "chatbot_configuration_id"],
+        "required": ["id", "created_at", "updated_at", "chatbot_configuration_id"],
         "properties": {
+          "anonymous_token": {
+            "type": ["string", "null"]
+          },
           "chatbot_configuration_id": {
             "type": "string",
             "format": "uuid"
@@ -3152,7 +3155,7 @@
             "format": "date-time"
           },
           "user_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           }
         }
@@ -6133,7 +6136,8 @@
           "WaitingForPeerReviews",
           "WaitingForManualGrading",
           "ReviewedAndLocked",
-          "Locked"
+          "Locked",
+          "NotAnsweredAndLocked"
         ]
       },
       "SaveCourseSettingsPayload": {
@@ -6750,6 +6754,7 @@
           "order_number",
           "prerequisite_modules_completed",
           "enable_registering_completion_to_uh_open_university",
+          "enable_credit_registration_via_suotar",
           "certification_enabled"
         ],
         "properties": {
@@ -6764,6 +6769,9 @@
             "type": "boolean"
           },
           "default": {
+            "type": "boolean"
+          },
+          "enable_credit_registration_via_suotar": {
             "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {

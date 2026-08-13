@@ -15,7 +15,8 @@ import type {
   VerifyEmailOwnershipResult,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Badge, Button, DescriptionList } from "@/shared-module/components"
+import { Badge, Button, DescriptionList, Dialog } from "@/shared-module/components"
+import { settingsCardCss } from "@/styles/sharedStyles"
 
 import OneTimeCodeForm from "./forms/OneTimeCodeForm"
 
@@ -30,16 +31,6 @@ const OUTCOME_KEYS = {
   already_verified: "message-email-is-already-verified",
   recently_sent: "message-email-verification-code-was-just-sent",
 } as const satisfies Record<RequestEmailVerificationOutcome, string>
-
-const cardCss = css`
-  background: #fff;
-  border: 1px solid var(--color-gray-100);
-  border-radius: 12px;
-  padding: 1.25rem;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.02);
-`
 
 const headerCss = css`
   display: flex;
@@ -105,13 +96,14 @@ const EmailVerificationSection: React.FC = () => {
 
   // Nothing until the status is known: a skeleton that then vanishes is worse than a card that
   // arrives late. Nothing either when the feature is off, when the buttons would only hit endpoints
-  // that 404.
-  if (!status || !status.verification_enabled) {
+  // that 404, or when the deployment has no verify_email_address template, when the send button
+  // would 500.
+  if (!status || !status.verification_enabled || !status.template_configured) {
     return null
   }
 
   return (
-    <div className={cardCss} data-testid="email-verification-section">
+    <div className={settingsCardCss} data-testid="email-verification-section">
       <div className={headerCss}>
         <div className={iconChipCss}>
           <Envelope size={16} />
@@ -128,6 +120,7 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
   const queryClient = useQueryClient()
   const [outcome, setOutcome] = React.useState<RequestEmailVerificationOutcome | null>(null)
   const [codeRefused, setCodeRefused] = React.useState(false)
+  const [codeDialogOpen, setCodeDialogOpen] = React.useState(false)
 
   const invalidateStatus = async () => {
     await queryClient.invalidateQueries({
@@ -142,6 +135,9 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
       onSuccess: async (result) => {
         setOutcome(result)
         setCodeRefused(false)
+        // Opens the dialog right away for a fresh send; a code already pending on page load (e.g.
+        // from signup) instead waits for the user to open it via the "enter code" button.
+        setCodeDialogOpen(true)
         await invalidateStatus()
       },
     },
@@ -154,6 +150,9 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
       onSuccess: async (result) => {
         setCodeRefused(result === "invalid")
         setOutcome(null)
+        if (result !== "invalid") {
+          setCodeDialogOpen(false)
+        }
         await invalidateStatus()
       },
     },
@@ -181,31 +180,14 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
         {verified ? t("badge-email-verified") : t("badge-email-not-verified")}
       </Badge>
 
-      <p>
-        {verified
-          ? t("message-email-verification-what-it-means")
-          : t("message-email-not-verified-explanation")}
-      </p>
+      {verified ? <p>{t("message-email-verification-what-it-means")}</p> : null}
 
       <DescriptionList items={items} />
 
       {verified ? null : pendingCode ? (
-        <OneTimeCodeForm
-          containerClassName={codeFormCss}
-          message={t("message-enter-the-verification-code-we-emailed-you")}
-          onSubmit={async (code) => {
-            await submitCode.mutateAsync(code)
-          }}
-          submitLabel={t("button-text-verify")}
-          error={codeRefused ? t("incorrect-code") : null}
-          isSubmitting={submitCode.isPending}
-          resend={{
-            helperText: t("message-did-not-receive-the-verification-code"),
-            label: t("resend"),
-            onResend: () => requestCode.mutate(),
-            cooldownSeconds: RESEND_COOLDOWN_SECONDS,
-          }}
-        />
+        <Button variant="secondary" size="medium" onClick={() => setCodeDialogOpen(true)}>
+          {t("button-enter-verification-code")}
+        </Button>
       ) : (
         <Button
           variant="secondary"
@@ -217,11 +199,35 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
         </Button>
       )}
 
-      {outcome ? (
-        <p className={outcomeCss} data-testid="email-verification-request-outcome">
-          {t(OUTCOME_KEYS[outcome])}
-        </p>
-      ) : null}
+      {verified || !pendingCode ? null : (
+        <Dialog
+          open={codeDialogOpen}
+          onClose={() => setCodeDialogOpen(false)}
+          title={t("button-enter-verification-code")}
+        >
+          <OneTimeCodeForm
+            containerClassName={codeFormCss}
+            message={t("message-enter-the-verification-code-we-emailed-you")}
+            onSubmit={async (code) => {
+              await submitCode.mutateAsync(code)
+            }}
+            submitLabel={t("button-text-verify")}
+            error={codeRefused ? t("incorrect-code") : null}
+            isSubmitting={submitCode.isPending}
+            resend={{
+              helperText: t("message-did-not-receive-the-verification-code"),
+              label: t("resend"),
+              onResend: () => requestCode.mutate(),
+              cooldownSeconds: RESEND_COOLDOWN_SECONDS,
+            }}
+          />
+          {outcome ? (
+            <p className={outcomeCss} data-testid="email-verification-request-outcome">
+              {t(OUTCOME_KEYS[outcome])}
+            </p>
+          ) : null}
+        </Dialog>
+      )}
     </div>
   )
 }

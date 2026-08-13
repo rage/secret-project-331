@@ -17,12 +17,22 @@ import {
   addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
+  adminManuallyLinkStudentNumber,
+  adminMaterializeCreditRegistrations,
+  adminPausePhase,
+  adminResendAccountLinkingEmail,
+  adminResolveStudentNumberForLinking,
+  adminResumePhase,
+  adminRunPhaseNow,
+  adminTransitionCreditRegistration,
+  adminUnlinkStudentNumber,
   advanceCourseDesignerStage,
   approveOauthConsent,
   approveOauthDeviceVerification,
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
+  claimStudentNumberVerificationToken,
   configureChatbot,
   confirmCourseSuspectedCheater,
   createChapter,
@@ -93,6 +103,7 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAccountLinkingStats,
   getAllChatbots,
   getAllCourses,
   getAvgTimeToFirstSubmissionHistory,
@@ -118,6 +129,10 @@ import {
   getCourseCompletionsHistoryByInstance,
   getCourseCompletionsHistoryCustomTimePeriod,
   getCourseCompletionStatsForEmailDomain,
+  getCourseCreditRegistrationModuleConfigs,
+  getCourseCreditRegistrations,
+  getCourseCreditRegistrationsForUsers,
+  getCourseCreditRegistrationSummary,
   getCourseDailySubmissionCounts,
   getCourseDailyUsersWhoSubmittedSomething,
   getCourseDefaultPeerReview,
@@ -170,6 +185,9 @@ import {
   getCourseUsersCountsByExercise,
   getCourseUserSettingsForUser,
   getCourseWeekdayHourSubmissionCounts,
+  getCreditRegistrationDetails,
+  getCreditRegistrationForAdmin,
+  getCreditRegistrationOverview,
   getCurrentTime,
   getEditProposalCount,
   getEditProposals,
@@ -194,9 +212,14 @@ import {
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
+  getMyCourseCreditRegistrationConsent,
   getMyCourses,
+  getMyCreditRegistrationConsents,
+  getMyCreditRegistrationForCourseModule,
+  getMyCreditRegistrations,
   getMyEmailVerificationStatus,
   getMyStudies,
+  getMyVerifiedStudentNumber,
   getNumberOfPeopleCompletedACourse,
   getNumberOfPeopleDoneAtLeastOneExercise,
   getNumberOfPeopleRegisteredCompletionToStudyRegistry,
@@ -245,6 +268,7 @@ import {
   getStudentCompletionsByCountry,
   getStudentEnrollmentsByCountry,
   getStudentsByCountryTotals,
+  getSuotarHealth,
   getTotalUsersCompletedCourse,
   getTotalUsersCompletedCourseByInstance,
   getTotalUsersCompletedCourseCustomTimePeriod,
@@ -277,18 +301,23 @@ import {
   hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
+  listCreditRegistrationsForAdmin,
   listOwnSubmissionShares,
+  listVerifiedStudentNumbersForAdmin,
   markFeedbackAsRead,
   type Options,
   postOauthUserInfo,
   previewCourseInstanceCompletions,
+  previewStudentNumberVerificationToken,
   processEditProposal,
   receivePlaygroundGrading,
   releaseExamGrades,
   removeCoursePlanMember,
   removeRole,
   reprocessCourseCompletions,
+  requestCreditRegistrationEnrolmentRecheck,
   requestEmailVerificationCode,
+  resendCourseCreditRegistrationLinkingEmail,
   resetCourseProgressForEveryone,
   resetCourseProgressForTeacherThemselves,
   resetExercisesForSelectedUsers,
@@ -307,11 +336,13 @@ import {
   setCourseJoinCode,
   setCourseModuleCertificateGeneration,
   setExamCourse,
+  setMyCourseCreditRegistrationConsent,
   softDeleteOrganization,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
   unhideCourseFromMyCourses,
+  unlinkMyStudentNumber,
   unsetExamCourse,
   updateCertificateConfiguration,
   updateChapter,
@@ -347,6 +378,24 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdminManuallyLinkStudentNumberData,
+  AdminManuallyLinkStudentNumberResponse,
+  AdminMaterializeCreditRegistrationsData,
+  AdminMaterializeCreditRegistrationsResponse,
+  AdminPausePhaseData,
+  AdminPausePhaseResponse,
+  AdminResendAccountLinkingEmailData,
+  AdminResendAccountLinkingEmailResponse,
+  AdminResolveStudentNumberForLinkingData,
+  AdminResolveStudentNumberForLinkingResponse,
+  AdminResumePhaseData,
+  AdminResumePhaseResponse,
+  AdminRunPhaseNowData,
+  AdminRunPhaseNowResponse,
+  AdminTransitionCreditRegistrationData,
+  AdminTransitionCreditRegistrationResponse,
+  AdminUnlinkStudentNumberData,
+  AdminUnlinkStudentNumberResponse,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponse,
   ApproveOauthConsentData,
@@ -357,6 +406,8 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponse,
+  ClaimStudentNumberVerificationTokenData,
+  ClaimStudentNumberVerificationTokenResponse,
   ConfigureChatbotData,
   ConfigureChatbotResponse,
   ConfirmCourseSuspectedCheaterData,
@@ -476,6 +527,8 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAccountLinkingStatsData,
+  GetAccountLinkingStatsResponse,
   GetAllChatbotsData,
   GetAllChatbotsResponse,
   GetAllCoursesData,
@@ -523,6 +576,14 @@ import type {
   GetCourseCompletionsHistoryResponse,
   GetCourseCompletionStatsForEmailDomainData,
   GetCourseCompletionStatsForEmailDomainResponse,
+  GetCourseCreditRegistrationModuleConfigsData,
+  GetCourseCreditRegistrationModuleConfigsResponse,
+  GetCourseCreditRegistrationsData,
+  GetCourseCreditRegistrationsForUsersData,
+  GetCourseCreditRegistrationsForUsersResponse,
+  GetCourseCreditRegistrationsResponse,
+  GetCourseCreditRegistrationSummaryData,
+  GetCourseCreditRegistrationSummaryResponse,
   GetCourseDailySubmissionCountsData,
   GetCourseDailySubmissionCountsResponse,
   GetCourseDailyUsersWhoSubmittedSomethingData,
@@ -624,6 +685,12 @@ import type {
   GetCourseUserSettingsForUserResponse,
   GetCourseWeekdayHourSubmissionCountsData,
   GetCourseWeekdayHourSubmissionCountsResponse,
+  GetCreditRegistrationDetailsData,
+  GetCreditRegistrationDetailsResponse,
+  GetCreditRegistrationForAdminData,
+  GetCreditRegistrationForAdminResponse,
+  GetCreditRegistrationOverviewData,
+  GetCreditRegistrationOverviewResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
   GetEditProposalCountData,
@@ -672,12 +739,22 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponse,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponse,
+  GetMyCourseCreditRegistrationConsentData,
+  GetMyCourseCreditRegistrationConsentResponse,
   GetMyCoursesData,
   GetMyCoursesResponse,
+  GetMyCreditRegistrationConsentsData,
+  GetMyCreditRegistrationConsentsResponse,
+  GetMyCreditRegistrationForCourseModuleData,
+  GetMyCreditRegistrationForCourseModuleResponse,
+  GetMyCreditRegistrationsData,
+  GetMyCreditRegistrationsResponse,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponse,
   GetMyStudiesData,
   GetMyStudiesResponse,
+  GetMyVerifiedStudentNumberData,
+  GetMyVerifiedStudentNumberResponse,
   GetNumberOfPeopleCompletedACourseData,
   GetNumberOfPeopleCompletedACourseResponse,
   GetNumberOfPeopleDoneAtLeastOneExerciseData,
@@ -770,6 +847,8 @@ import type {
   GetStudentEnrollmentsByCountryResponse,
   GetStudentsByCountryTotalsData,
   GetStudentsByCountryTotalsResponse,
+  GetSuotarHealthData,
+  GetSuotarHealthResponse,
   GetTotalUsersCompletedCourseByInstanceData,
   GetTotalUsersCompletedCourseByInstanceResponse,
   GetTotalUsersCompletedCourseCustomTimePeriodData,
@@ -832,12 +911,18 @@ import type {
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
+  ListCreditRegistrationsForAdminData,
+  ListCreditRegistrationsForAdminResponse,
   ListOwnSubmissionSharesData,
   ListOwnSubmissionSharesResponse,
+  ListVerifiedStudentNumbersForAdminData,
+  ListVerifiedStudentNumbersForAdminResponse,
   MarkFeedbackAsReadData,
   PostOauthUserInfoData,
   PreviewCourseInstanceCompletionsData,
   PreviewCourseInstanceCompletionsResponse,
+  PreviewStudentNumberVerificationTokenData,
+  PreviewStudentNumberVerificationTokenResponse,
   ProcessEditProposalData,
   ReceivePlaygroundGradingData,
   ReleaseExamGradesData,
@@ -846,8 +931,12 @@ import type {
   RemoveRoleData,
   ReprocessCourseCompletionsData,
   ReprocessCourseCompletionsResponse,
+  RequestCreditRegistrationEnrolmentRecheckData,
+  RequestCreditRegistrationEnrolmentRecheckResponse,
   RequestEmailVerificationCodeData,
   RequestEmailVerificationCodeResponse,
+  ResendCourseCreditRegistrationLinkingEmailData,
+  ResendCourseCreditRegistrationLinkingEmailResponse,
   ResetCourseProgressForEveryoneData,
   ResetCourseProgressForEveryoneResponse,
   ResetCourseProgressForTeacherThemselvesData,
@@ -881,6 +970,8 @@ import type {
   SetCourseModuleCertificateGenerationData,
   SetCourseModuleCertificateGenerationResponse,
   SetExamCourseData,
+  SetMyCourseCreditRegistrationConsentData,
+  SetMyCourseCreditRegistrationConsentResponse,
   SoftDeleteOrganizationData,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
@@ -889,6 +980,8 @@ import type {
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponse,
   UnhideCourseFromMyCoursesData,
+  UnlinkMyStudentNumberData,
+  UnlinkMyStudentNumberResponse,
   UnsetExamCourseData,
   UpdateCertificateConfigurationData,
   UpdateCertificateConfigurationResponse,
@@ -1660,6 +1753,266 @@ export const deleteCodeGiveawayCodeMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The
+ * registrations of the named students, for the students tab's current page.
+ */
+export const getCourseCreditRegistrationsForUsersMutation = (
+  options?: Partial<Options<GetCourseCreditRegistrationsForUsersData>>,
+): UseMutationOptions<
+  GetCourseCreditRegistrationsForUsersResponse,
+  DefaultError,
+  Options<GetCourseCreditRegistrationsForUsersData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    GetCourseCreditRegistrationsForUsersResponse,
+    DefaultError,
+    Options<GetCourseCreditRegistrationsForUsersData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await getCourseCreditRegistrationsForUsers({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseCreditRegistrationsQueryKey = (
+  options: Options<GetCourseCreditRegistrationsData>,
+) => createQueryKey("getCourseCreditRegistrations", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
+ * course's registrations, filtered by state and searched by student name, email or student number.
+ */
+export const getCourseCreditRegistrationsOptions = (
+  options: Options<GetCourseCreditRegistrationsData>,
+) =>
+  queryOptions<
+    GetCourseCreditRegistrationsResponse,
+    DefaultError,
+    GetCourseCreditRegistrationsResponse,
+    ReturnType<typeof getCourseCreditRegistrationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCreditRegistrations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCreditRegistrationsQueryKey(options),
+  })
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
+>(
+  queryKey: QueryKey<Options>,
+  page: K,
+) => {
+  const params = { ...queryKey[0] }
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const getCourseCreditRegistrationsInfiniteQueryKey = (
+  options: Options<GetCourseCreditRegistrationsData>,
+): QueryKey<Options<GetCourseCreditRegistrationsData>> =>
+  createQueryKey("getCourseCreditRegistrations", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
+ * course's registrations, filtered by state and searched by student name, email or student number.
+ */
+export const getCourseCreditRegistrationsInfiniteOptions = (
+  options: Options<GetCourseCreditRegistrationsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    GetCourseCreditRegistrationsResponse,
+    DefaultError,
+    InfiniteData<GetCourseCreditRegistrationsResponse>,
+    QueryKey<Options<GetCourseCreditRegistrationsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetCourseCreditRegistrationsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetCourseCreditRegistrationsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getCourseCreditRegistrations({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getCourseCreditRegistrationsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+export const getCourseCreditRegistrationModuleConfigsQueryKey = (
+  options: Options<GetCourseCreditRegistrationModuleConfigsData>,
+) => createQueryKey("getCourseCreditRegistrationModuleConfigs", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs` - The
+ * course's per-module credit registration configuration.
+ */
+export const getCourseCreditRegistrationModuleConfigsOptions = (
+  options: Options<GetCourseCreditRegistrationModuleConfigsData>,
+) =>
+  queryOptions<
+    GetCourseCreditRegistrationModuleConfigsResponse,
+    DefaultError,
+    GetCourseCreditRegistrationModuleConfigsResponse,
+    ReturnType<typeof getCourseCreditRegistrationModuleConfigsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCreditRegistrationModuleConfigs({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCreditRegistrationModuleConfigsQueryKey(options),
+  })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off
+ * another account-linking mail for one person on this course.
+ *
+ * The target has to be on this course's roster in the study registry and hold no link with us. The caps
+ * of the ordinary claim path apply and nothing here relaxes them.
+ */
+export const resendCourseCreditRegistrationLinkingEmailMutation = (
+  options?: Partial<Options<ResendCourseCreditRegistrationLinkingEmailData>>,
+): UseMutationOptions<
+  ResendCourseCreditRegistrationLinkingEmailResponse,
+  DefaultError,
+  Options<ResendCourseCreditRegistrationLinkingEmailData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ResendCourseCreditRegistrationLinkingEmailResponse,
+    DefaultError,
+    Options<ResendCourseCreditRegistrationLinkingEmailData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await resendCourseCreditRegistrationLinkingEmail({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseCreditRegistrationSummaryQueryKey = (
+  options: Options<GetCourseCreditRegistrationSummaryData>,
+) => createQueryKey("getCourseCreditRegistrationSummary", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
+ * counts plus the two reasons a student of this course will not get credits.
+ */
+export const getCourseCreditRegistrationSummaryOptions = (
+  options: Options<GetCourseCreditRegistrationSummaryData>,
+) =>
+  queryOptions<
+    GetCourseCreditRegistrationSummaryResponse,
+    DefaultError,
+    GetCourseCreditRegistrationSummaryResponse,
+    ReturnType<typeof getCourseCreditRegistrationSummaryQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCreditRegistrationSummary({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCreditRegistrationSummaryQueryKey(options),
+  })
+
+export const getCreditRegistrationDetailsQueryKey = (
+  options: Options<GetCreditRegistrationDetailsData>,
+) => createQueryKey("getCreditRegistrationDetails", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One
+ * registration with its timeline and the other attempts for the same completion.
+ *
+ * Authorized on the row's own course: a course id from the caller would let a teacher of one course pair
+ * it with a foreign registration id.
+ */
+export const getCreditRegistrationDetailsOptions = (
+  options: Options<GetCreditRegistrationDetailsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationDetailsResponse,
+    DefaultError,
+    GetCreditRegistrationDetailsResponse,
+    ReturnType<typeof getCreditRegistrationDetailsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationDetails({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationDetailsQueryKey(options),
+  })
+
 export const getCourseInstanceQueryKey = (options: Options<GetCourseInstanceData>) =>
   createQueryKey("getCourseInstance", options)
 
@@ -1971,40 +2324,6 @@ export const getCourseInstancePointsOptions = (options: Options<GetCourseInstanc
       }),
     queryKey: getCourseInstancePointsQueryKey(options),
   })
-
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
->(
-  queryKey: QueryKey<Options>,
-  page: K,
-) => {
-  const params = { ...queryKey[0] }
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any),
-    }
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers,
-    }
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any),
-    }
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any),
-    }
-  }
-  return params as unknown as typeof page
-}
 
 export const getCourseInstancePointsInfiniteQueryKey = (
   options: Options<GetCourseInstancePointsData>,
@@ -5534,6 +5853,808 @@ export const getCourseWeekdayHourSubmissionCountsOptions = (
       }),
     queryKey: getCourseWeekdayHourSubmissionCountsQueryKey(options),
   })
+
+export const getAccountLinkingStatsQueryKey = (options?: Options<GetAccountLinkingStatsData>) =>
+  createQueryKey("getAccountLinkingStats", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
+ * per-realisation counters, the send-status totals and the stale-address list.
+ */
+export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkingStatsData>) =>
+  queryOptions<
+    GetAccountLinkingStatsResponse,
+    DefaultError,
+    GetAccountLinkingStatsResponse,
+    ReturnType<typeof getAccountLinkingStatsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingStats({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingStatsQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student
+ * number to an account on an admin's judgement.
+ *
+ * The last resort, for a student whose mailbox host will not accept our mail at all. An admin's judgement
+ * stands in for proof of mailbox control, so the link is marked `admin_manual` forever, carries the
+ * reason and names the admin.
+ */
+export const adminManuallyLinkStudentNumberMutation = (
+  options?: Partial<Options<AdminManuallyLinkStudentNumberData>>,
+): UseMutationOptions<
+  AdminManuallyLinkStudentNumberResponse,
+  DefaultError,
+  Options<AdminManuallyLinkStudentNumberData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminManuallyLinkStudentNumberResponse,
+    DefaultError,
+    Options<AdminManuallyLinkStudentNumberData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminManuallyLinkStudentNumber({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another
+ * account-linking mail for one person on one course.
+ *
+ * The mail goes to the addresses the study registry holds, and the recipient still has to open the link
+ * while signed in, so the ownership proof is intact. An override does not ask a cap for an exemption: it
+ * retires the ledger rows the cap is counting, as its own audited action, then runs the ordinary path.
+ */
+export const adminResendAccountLinkingEmailMutation = (
+  options?: Partial<Options<AdminResendAccountLinkingEmailData>>,
+): UseMutationOptions<
+  AdminResendAccountLinkingEmailResponse,
+  DefaultError,
+  Options<AdminResendAccountLinkingEmailData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminResendAccountLinkingEmailResponse,
+    DefaultError,
+    Options<AdminResendAccountLinkingEmailData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminResendAccountLinkingEmail({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one
+ * student number up in the study registry without changing anything.
+ *
+ * The preview a manual link is gated on. Writes nothing but the call log row every study registry call
+ * writes.
+ */
+export const adminResolveStudentNumberForLinkingMutation = (
+  options?: Partial<Options<AdminResolveStudentNumberForLinkingData>>,
+): UseMutationOptions<
+  AdminResolveStudentNumberForLinkingResponse,
+  DefaultError,
+  Options<AdminResolveStudentNumberForLinkingData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminResolveStudentNumberForLinkingResponse,
+    DefaultError,
+    Options<AdminResolveStudentNumberForLinkingData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminResolveStudentNumberForLinking({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
+ * completions and recomputes preconditions, now.
+ *
+ * Runs the two database-only steps directly rather than through the phase dispatcher, because the
+ * phase-state row describes the worker loops: an admin pressing a button must not make a dead worker look
+ * alive.
+ */
+export const adminMaterializeCreditRegistrationsMutation = (
+  options?: Partial<Options<AdminMaterializeCreditRegistrationsData>>,
+): UseMutationOptions<
+  AdminMaterializeCreditRegistrationsResponse,
+  DefaultError,
+  Options<AdminMaterializeCreditRegistrationsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminMaterializeCreditRegistrationsResponse,
+    DefaultError,
+    Options<AdminMaterializeCreditRegistrationsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminMaterializeCreditRegistrations({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCreditRegistrationOverviewQueryKey = (
+  options?: Options<GetCreditRegistrationOverviewData>,
+) => createQueryKey("getCreditRegistrationOverview", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/overview` - Everything the Overview tab and the
+ * alert banner render, in one request so the tiles cannot contradict each other.
+ */
+export const getCreditRegistrationOverviewOptions = (
+  options?: Options<GetCreditRegistrationOverviewData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationOverviewResponse,
+    DefaultError,
+    GetCreditRegistrationOverviewResponse,
+    ReturnType<typeof getCreditRegistrationOverviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationOverview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationOverviewQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the
+ * worker loop skips it on every tick until it is resumed.
+ */
+export const adminPausePhaseMutation = (
+  options?: Partial<Options<AdminPausePhaseData>>,
+): UseMutationOptions<AdminPausePhaseResponse, DefaultError, Options<AdminPausePhaseData>> => {
+  const mutationOptions: UseMutationOptions<
+    AdminPausePhaseResponse,
+    DefaultError,
+    Options<AdminPausePhaseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminPausePhase({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused
+ * phase.
+ */
+export const adminResumePhaseMutation = (
+  options?: Partial<Options<AdminResumePhaseData>>,
+): UseMutationOptions<AdminResumePhaseResponse, DefaultError, Options<AdminResumePhaseData>> => {
+  const mutationOptions: UseMutationOptions<
+    AdminResumePhaseResponse,
+    DefaultError,
+    Options<AdminResumePhaseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminResumePhase({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due
+ * immediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.
+ */
+export const adminRunPhaseNowMutation = (
+  options?: Partial<Options<AdminRunPhaseNowData>>,
+): UseMutationOptions<AdminRunPhaseNowResponse, DefaultError, Options<AdminRunPhaseNowData>> => {
+  const mutationOptions: UseMutationOptions<
+    AdminRunPhaseNowResponse,
+    DefaultError,
+    Options<AdminRunPhaseNowData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminRunPhaseNow({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const listCreditRegistrationsForAdminQueryKey = (
+  options?: Options<ListCreditRegistrationsForAdminData>,
+) => createQueryKey("listCreditRegistrationsForAdmin", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
+ * and sorted.
+ */
+export const listCreditRegistrationsForAdminOptions = (
+  options?: Options<ListCreditRegistrationsForAdminData>,
+) =>
+  queryOptions<
+    ListCreditRegistrationsForAdminResponse,
+    DefaultError,
+    ListCreditRegistrationsForAdminResponse,
+    ReturnType<typeof listCreditRegistrationsForAdminQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listCreditRegistrationsForAdmin({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listCreditRegistrationsForAdminQueryKey(options),
+  })
+
+export const listCreditRegistrationsForAdminInfiniteQueryKey = (
+  options?: Options<ListCreditRegistrationsForAdminData>,
+): QueryKey<Options<ListCreditRegistrationsForAdminData>> =>
+  createQueryKey("listCreditRegistrationsForAdmin", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
+ * and sorted.
+ */
+export const listCreditRegistrationsForAdminInfiniteOptions = (
+  options?: Options<ListCreditRegistrationsForAdminData>,
+) => {
+  const opts = infiniteQueryOptions<
+    ListCreditRegistrationsForAdminResponse,
+    DefaultError,
+    InfiniteData<ListCreditRegistrationsForAdminResponse>,
+    QueryKey<Options<ListCreditRegistrationsForAdminData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListCreditRegistrationsForAdminData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListCreditRegistrationsForAdminData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listCreditRegistrationsForAdmin({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listCreditRegistrationsForAdminInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+export const getCreditRegistrationForAdminQueryKey = (
+  options: Options<GetCreditRegistrationForAdminData>,
+) => createQueryKey("getCreditRegistrationForAdmin", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}` - One
+ * row with its timeline, the calls that timeline refers to, the other attempts for the same completion,
+ * the actions taken on it and its linking mails.
+ */
+export const getCreditRegistrationForAdminOptions = (
+  options: Options<GetCreditRegistrationForAdminData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationForAdminResponse,
+    DefaultError,
+    GetCreditRegistrationForAdminResponse,
+    ReturnType<typeof getCreditRegistrationForAdminQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationForAdmin({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationForAdminQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`
+ * - Moves one row by hand.
+ *
+ * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
+ * re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because
+ * a `misregistered` row sits outside the automatic machinery that would otherwise have checked it.
+ */
+export const adminTransitionCreditRegistrationMutation = (
+  options?: Partial<Options<AdminTransitionCreditRegistrationData>>,
+): UseMutationOptions<
+  AdminTransitionCreditRegistrationResponse,
+  DefaultError,
+  Options<AdminTransitionCreditRegistrationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminTransitionCreditRegistrationResponse,
+    DefaultError,
+    Options<AdminTransitionCreditRegistrationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminTransitionCreditRegistration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const listVerifiedStudentNumbersForAdminQueryKey = (
+  options?: Options<ListVerifiedStudentNumbersForAdminData>,
+) => createQueryKey("listVerifiedStudentNumbersForAdmin", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/student-numbers` - A page of the live links, for
+ * spot-checking and support.
+ */
+export const listVerifiedStudentNumbersForAdminOptions = (
+  options?: Options<ListVerifiedStudentNumbersForAdminData>,
+) =>
+  queryOptions<
+    ListVerifiedStudentNumbersForAdminResponse,
+    DefaultError,
+    ListVerifiedStudentNumbersForAdminResponse,
+    ReturnType<typeof listVerifiedStudentNumbersForAdminQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listVerifiedStudentNumbersForAdmin({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listVerifiedStudentNumbersForAdminQueryKey(options),
+  })
+
+export const listVerifiedStudentNumbersForAdminInfiniteQueryKey = (
+  options?: Options<ListVerifiedStudentNumbersForAdminData>,
+): QueryKey<Options<ListVerifiedStudentNumbersForAdminData>> =>
+  createQueryKey("listVerifiedStudentNumbersForAdmin", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/student-numbers` - A page of the live links, for
+ * spot-checking and support.
+ */
+export const listVerifiedStudentNumbersForAdminInfiniteOptions = (
+  options?: Options<ListVerifiedStudentNumbersForAdminData>,
+) => {
+  const opts = infiniteQueryOptions<
+    ListVerifiedStudentNumbersForAdminResponse,
+    DefaultError,
+    InfiniteData<ListVerifiedStudentNumbersForAdminResponse>,
+    QueryKey<Options<ListVerifiedStudentNumbersForAdminData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListVerifiedStudentNumbersForAdminData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListVerifiedStudentNumbersForAdminData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listVerifiedStudentNumbersForAdmin({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listVerifiedStudentNumbersForAdminInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/student-numbers/{id}/unlink` - Retires one link.
+ *
+ * A reason is required, so the request carries a body rather than being a `DELETE`. The row is
+ * soft-deleted: the number a student once held is part of the audit trail.
+ */
+export const adminUnlinkStudentNumberMutation = (
+  options?: Partial<Options<AdminUnlinkStudentNumberData>>,
+): UseMutationOptions<
+  AdminUnlinkStudentNumberResponse,
+  DefaultError,
+  Options<AdminUnlinkStudentNumberData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminUnlinkStudentNumberResponse,
+    DefaultError,
+    Options<AdminUnlinkStudentNumberData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminUnlinkStudentNumber({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getSuotarHealthQueryKey = (options?: Options<GetSuotarHealthData>) =>
+  createQueryKey("getSuotarHealth", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-health` - Per-endpoint call counts,
+ * success rates and latency percentiles over an hour, a day and a week.
+ */
+export const getSuotarHealthOptions = (options?: Options<GetSuotarHealthData>) =>
+  queryOptions<
+    GetSuotarHealthResponse,
+    DefaultError,
+    GetSuotarHealthResponse,
+    ReturnType<typeof getSuotarHealthQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getSuotarHealth({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getSuotarHealthQueryKey(options),
+  })
+
+export const getMyCourseCreditRegistrationConsentQueryKey = (
+  options: Options<GetMyCourseCreditRegistrationConsentData>,
+) => createQueryKey("getMyCourseCreditRegistrationConsent", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - The signed-in
+ * account's credit registration consent for one course.
+ */
+export const getMyCourseCreditRegistrationConsentOptions = (
+  options: Options<GetMyCourseCreditRegistrationConsentData>,
+) =>
+  queryOptions<
+    GetMyCourseCreditRegistrationConsentResponse,
+    DefaultError,
+    GetMyCourseCreditRegistrationConsentResponse,
+    ReturnType<typeof getMyCourseCreditRegistrationConsentQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCourseCreditRegistrationConsent({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCourseCreditRegistrationConsentQueryKey(options),
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in
+ * account's answer and applies it to that course's registrations at once.
+ */
+export const setMyCourseCreditRegistrationConsentMutation = (
+  options?: Partial<Options<SetMyCourseCreditRegistrationConsentData>>,
+): UseMutationOptions<
+  SetMyCourseCreditRegistrationConsentResponse,
+  DefaultError,
+  Options<SetMyCourseCreditRegistrationConsentData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetMyCourseCreditRegistrationConsentResponse,
+    DefaultError,
+    Options<SetMyCourseCreditRegistrationConsentData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setMyCourseCreditRegistrationConsent({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getMyCreditRegistrationsQueryKey = (options?: Options<GetMyCreditRegistrationsData>) =>
+  createQueryKey("getMyCreditRegistrations", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my` - Every credit registration of the signed-in
+ * account, newest completion first.
+ */
+export const getMyCreditRegistrationsOptions = (options?: Options<GetMyCreditRegistrationsData>) =>
+  queryOptions<
+    GetMyCreditRegistrationsResponse,
+    DefaultError,
+    GetMyCreditRegistrationsResponse,
+    ReturnType<typeof getMyCreditRegistrationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCreditRegistrations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCreditRegistrationsQueryKey(options),
+  })
+
+export const getMyCreditRegistrationForCourseModuleQueryKey = (
+  options: Options<GetMyCreditRegistrationForCourseModuleData>,
+) => createQueryKey("getMyCreditRegistrationForCourseModule", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The
+ * signed-in account's registration for one course module, or null when the pipeline has not created one
+ * yet.
+ */
+export const getMyCreditRegistrationForCourseModuleOptions = (
+  options: Options<GetMyCreditRegistrationForCourseModuleData>,
+) =>
+  queryOptions<
+    GetMyCreditRegistrationForCourseModuleResponse,
+    DefaultError,
+    GetMyCreditRegistrationForCourseModuleResponse,
+    ReturnType<typeof getMyCreditRegistrationForCourseModuleQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCreditRegistrationForCourseModule({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCreditRegistrationForCourseModuleQueryKey(options),
+  })
+
+export const getMyCreditRegistrationConsentsQueryKey = (
+  options?: Options<GetMyCreditRegistrationConsentsData>,
+) => createQueryKey("getMyCreditRegistrationConsents", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/consents` - One row per course the signed-in
+ * account is enrolled on that offers credit registration, asked or not.
+ */
+export const getMyCreditRegistrationConsentsOptions = (
+  options?: Options<GetMyCreditRegistrationConsentsData>,
+) =>
+  queryOptions<
+    GetMyCreditRegistrationConsentsResponse,
+    DefaultError,
+    GetMyCreditRegistrationConsentsResponse,
+    ReturnType<typeof getMyCreditRegistrationConsentsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCreditRegistrationConsents({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCreditRegistrationConsentsQueryKey(options),
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
+ * from the signed-in account.
+ *
+ * Registrations that have not been sent go back to waiting; credits already in Sisu are untouched.
+ */
+export const unlinkMyStudentNumberMutation = (
+  options?: Partial<Options<UnlinkMyStudentNumberData>>,
+): UseMutationOptions<
+  UnlinkMyStudentNumberResponse,
+  DefaultError,
+  Options<UnlinkMyStudentNumberData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UnlinkMyStudentNumberResponse,
+    DefaultError,
+    Options<UnlinkMyStudentNumberData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await unlinkMyStudentNumber({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getMyVerifiedStudentNumberQueryKey = (
+  options?: Options<GetMyVerifiedStudentNumberData>,
+) => createQueryKey("getMyVerifiedStudentNumber", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/student-number` - The student number linked to the
+ * signed-in account, or null.
+ */
+export const getMyVerifiedStudentNumberOptions = (
+  options?: Options<GetMyVerifiedStudentNumberData>,
+) =>
+  queryOptions<
+    GetMyVerifiedStudentNumberResponse,
+    DefaultError,
+    GetMyVerifiedStudentNumberResponse,
+    ReturnType<typeof getMyVerifiedStudentNumberQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyVerifiedStudentNumber({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyVerifiedStudentNumberQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to
+ * look for an enrolment again, for a row parked because the study registry had none.
+ */
+export const requestCreditRegistrationEnrolmentRecheckMutation = (
+  options?: Partial<Options<RequestCreditRegistrationEnrolmentRecheckData>>,
+): UseMutationOptions<
+  RequestCreditRegistrationEnrolmentRecheckResponse,
+  DefaultError,
+  Options<RequestCreditRegistrationEnrolmentRecheckData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RequestCreditRegistrationEnrolmentRecheckResponse,
+    DefaultError,
+    Options<RequestCreditRegistrationEnrolmentRecheckData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await requestCreditRegistrationEnrolmentRecheck({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const previewStudentNumberVerificationTokenQueryKey = (
+  options: Options<PreviewStudentNumberVerificationTokenData>,
+) => createQueryKey("previewStudentNumberVerificationToken", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the
+ * mailed link would link, without linking it.
+ *
+ * Writes nothing: the link has to survive a mail scanner fetching it.
+ */
+export const previewStudentNumberVerificationTokenOptions = (
+  options: Options<PreviewStudentNumberVerificationTokenData>,
+) =>
+  queryOptions<
+    PreviewStudentNumberVerificationTokenResponse,
+    DefaultError,
+    PreviewStudentNumberVerificationTokenResponse,
+    ReturnType<typeof previewStudentNumberVerificationTokenQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await previewStudentNumberVerificationToken({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: previewStudentNumberVerificationTokenQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends
+ * a mailed link and links the student number to the signed-in account.
+ *
+ * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
+ * and the session says which of our accounts the person wants to use.
+ */
+export const claimStudentNumberVerificationTokenMutation = (
+  options?: Partial<Options<ClaimStudentNumberVerificationTokenData>>,
+): UseMutationOptions<
+  ClaimStudentNumberVerificationTokenResponse,
+  DefaultError,
+  Options<ClaimStudentNumberVerificationTokenData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ClaimStudentNumberVerificationTokenResponse,
+    DefaultError,
+    Options<ClaimStudentNumberVerificationTokenData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await claimStudentNumberVerificationToken({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getEmailTemplatesQueryKey = (options?: Options<GetEmailTemplatesData>) =>
   createQueryKey("getEmailTemplates", options)

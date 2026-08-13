@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT cm.course_id\nFROM course_modules cm\n  JOIN course_instance_enrollments cie ON cie.course_id = cm.course_id\n  JOIN courses c ON c.id = cm.course_id\nWHERE cie.user_id = $1\n  AND cie.deleted_at IS NULL\n  AND cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b3568213e032d3edda30636ad55c06fd3ef4bc802c541d199fc65453629cfc9e"
+}

@@ -1,0 +1,130 @@
+/*!
+Handlers for HTTP requests to `/api/v0/main-frontend/credit-registration-admin`.
+
+Every mutating handler writes its `credit_registration_admin_actions` row in the transaction that has
+the effect. Admins see recipient addresses in full and the scrubbed study registry bodies; the
+registry's own error text is returned to nobody.
+*/
+
+mod account_linking;
+mod dashboard;
+mod ledger;
+mod materialize;
+mod student_numbers;
+
+use headless_lms_models::credit_registration_account_linking_emails::{
+    self, CreditRegistrationAccountLinkingEmail,
+};
+use headless_lms_models::email_deliveries::EmailSendStatusReport;
+use headless_lms_models::student_number_verification_tokens;
+use utoipa::{OpenApi, ToSchema};
+
+use crate::domain::authorization::AuthorizationToken;
+use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    dashboard::get_credit_registration_overview,
+    dashboard::get_suotar_health,
+    dashboard::admin_pause_phase,
+    dashboard::admin_resume_phase,
+    dashboard::admin_run_phase_now,
+    ledger::list_credit_registrations_for_admin,
+    ledger::get_credit_registration_for_admin,
+    ledger::admin_transition_credit_registration,
+    account_linking::get_account_linking_stats,
+    account_linking::admin_resend_account_linking_email,
+    account_linking::admin_resolve_student_number_for_linking,
+    account_linking::admin_manually_link_student_number,
+    student_numbers::list_verified_student_numbers_for_admin,
+    student_numbers::admin_unlink_student_number,
+    materialize::admin_materialize_credit_registrations
+))]
+pub(crate) struct MainFrontendCreditRegistrationAdminApiDoc;
+
+/// Every handler here gates on the same check; a submodule calls this instead of repeating it.
+async fn authorize_credit_registration_admin(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> Result<AuthorizationToken, ControllerError> {
+    authorize(
+        conn,
+        Act::Administrate,
+        Some(user_id),
+        Res::GlobalPermissions,
+    )
+    .await
+}
+
+/// Refuses an empty or whitespace reason. Every audited action names one.
+fn required_reason(reason: &str) -> Result<&str, ControllerError> {
+    let trimmed = reason.trim();
+    if trimmed.is_empty() {
+        return Err(controller_err!(
+            BadRequest,
+            "A reason is required.".to_string()
+        ));
+    }
+    Ok(trimmed)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminLinkingEmail {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub student_number: String,
+    pub sisu_person_id: String,
+    /// In full.
+    pub emailed_to: String,
+    pub claimed_at: DateTime<Utc>,
+    pub send_status: EmailSendStatusReport,
+    pub token_claimed_by_user_id: Option<Uuid>,
+    pub token_used_at: Option<DateTime<Utc>>,
+    pub token_expires_at: Option<DateTime<Utc>>,
+}
+
+/// Shared by the ledger detail view and the account-linking admin views: both show a person's linking
+/// mails alongside the token each one carries.
+async fn build_linking_emails(
+    conn: &mut PgConnection,
+    mails: Vec<CreditRegistrationAccountLinkingEmail>,
+) -> Result<Vec<AdminLinkingEmail>, ControllerError> {
+    let ids: Vec<Uuid> = mails.iter().map(|mail| mail.id).collect();
+    let reports =
+        credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
+    let token_ids: Vec<Uuid> = mails
+        .iter()
+        .filter_map(|mail| mail.student_number_verification_token_id)
+        .collect();
+    let tokens = student_number_verification_tokens::get_by_ids(conn, &token_ids).await?;
+    Ok(mails
+        .into_iter()
+        .map(|mail| {
+            let token = mail
+                .student_number_verification_token_id
+                .and_then(|token_id| tokens.get(&token_id));
+            AdminLinkingEmail {
+                send_status: reports.get(&mail.id).cloned().unwrap_or_else(
+                    credit_registration_account_linking_emails::not_handed_over_yet,
+                ),
+                id: mail.id,
+                course_id: mail.course_id,
+                student_number: mail.student_number,
+                sisu_person_id: mail.sisu_person_id,
+                emailed_to: mail.emailed_to,
+                claimed_at: mail.sent_at,
+                token_claimed_by_user_id: token.and_then(|row| row.claimed_by_user_id),
+                token_used_at: token.and_then(|row| row.used_at),
+                token_expires_at: token.map(|row| row.expires_at),
+            }
+        })
+        .collect())
+}
+
+pub fn _add_routes(cfg: &mut ServiceConfig) {
+    dashboard::_add_routes(cfg);
+    ledger::_add_routes(cfg);
+    account_linking::_add_routes(cfg);
+    student_numbers::_add_routes(cfg);
+    materialize::_add_routes(cfg);
+}

@@ -1,8 +1,7 @@
-import { expect, test } from "../../../fixtures/oauth"
+import { expect, getRedirectUri, test } from "../../../fixtures/oauth"
 import { AUTHORIZE, TEST_CLIENT_ID } from "../../../utils/oauth/constants"
 import { navigateAndWaitForOAuthError } from "../../../utils/oauth/errorHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
 test.describe("/authorize endpoint - PKCE Validation", () => {

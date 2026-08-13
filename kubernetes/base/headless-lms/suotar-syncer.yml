@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: suotar-syncer
+  labels:
+    app: suotar-syncer
+    deploymentType: with-init-container
+    needs-db: "true"
+spec:
+  # A second replica would race for the same linking-mail slots and double-count the per-realisation
+  # counters.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: suotar-syncer
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: suotar-syncer
+    spec:
+      containers:
+        - name: suotar-syncer
+          image: headless-lms
+          command: ["bin/run", "suotar-syncer"]
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 20m
+            limits:
+              memory: 500Mi
+              cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
+      initContainers:
+        - name: headless-lms-wait-for-db
+          image: headless-lms
+          command:
+            - bash
+            - "-c"
+            - |
+              echo Waiting for postgres to be available
+              timeout 120 ./wait-for-db.sh
+              ./wait-for-db-migrations.sh
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 20m
+            limits:
+              memory: 500Mi
+              cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets

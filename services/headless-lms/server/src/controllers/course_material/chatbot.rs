@@ -17,7 +17,11 @@ use headless_lms_models::{chatbot_configurations, courses};
 use rand::seq::IndexedRandom;
 use utoipa::OpenApi;
 
-use crate::{domain::authorization::authorize_access_to_chatbot, prelude::*};
+use crate::{
+    domain::authorization::{authorize_access_to_chatbot, handle_anonymous_token},
+    prelude::*,
+};
+use rand::distr::{Alphanumeric, SampleString};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -96,9 +100,10 @@ Sends a new chat message to the chatbot.
 async fn send_message(
     pool: web::Data<PgPool>,
     params: web::Path<(Uuid, Uuid)>,
-    user: AuthUser,
+    user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<String>,
+    req: HttpRequest,
 ) -> ControllerResult<HttpResponse> {
     let message = payload.into_inner();
     let chatbot_configuration_id = params.0;
@@ -108,13 +113,16 @@ async fn send_message(
         chatbot_configurations::get_by_id(&mut conn, chatbot_configuration_id).await?;
 
     let token =
-        authorize_access_to_chatbot(&mut conn, Some(user.id), chatbot_configuration.course_id)
-            .await?;
+        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
 
     let conversation = chatbot_conversations::get_by_id(&mut conn, conversation_id).await?;
-    if conversation.user_id != user.id
+
+    let anonymous_token = handle_anonymous_token(req, user);
+
+    if conversation.user_id != user.map(|u| u.id)
         || conversation.chatbot_configuration_id != chatbot_configuration_id
         || conversation.course_id != chatbot_configuration.course_id
+        || conversation.anonymous_token != anonymous_token
     {
         return Err(controller_err!(
             Forbidden,
@@ -130,7 +138,7 @@ async fn send_message(
     };
 
     let chatbot_user = ChatbotUserContext {
-        user_id: Some(user.id.to_owned()),
+        user_id: user.map(|u| u.id),
         course_id: chatbot_configuration.course_id,
         course_name,
     };
@@ -173,20 +181,26 @@ Sends a new chat message to the chatbot.
 #[instrument(skip(pool))]
 async fn new_conversation(
     pool: web::Data<PgPool>,
-    user: AuthUser,
+    user: Option<AuthUser>,
     params: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<ChatbotConversation>> {
     let mut conn = pool.acquire().await?;
 
     let configuration = models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
 
-    let token =
-        authorize_access_to_chatbot(&mut conn, Some(user.id), configuration.course_id).await?;
+    let token = authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &configuration).await?;
+
+    let anonymous_token = if let Some(_user) = user {
+        None
+    } else {
+        Some(Alphanumeric.sample_string(&mut rand::rng(), 128))
+    };
 
     let conversation = models::chatbot_conversations::create_for_user_and_configuration(
         &mut conn,
         PKeyPolicy::Generate,
-        user.id,
+        user.map(|u| u.id),
+        anonymous_token.as_ref().map(|a| a.to_owned()),
         configuration.id,
     )
     .await?;
@@ -210,7 +224,8 @@ async fn new_conversation(
                     ..Default::default()
                 }),
             },
-            user.id,
+            user.map(|u| u.id),
+            anonymous_token,
             configuration.id,
         )
         .await?;
@@ -239,24 +254,27 @@ Returns the current conversation for the user.
         )
     )
 )]
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool, app_conf, req))]
 async fn current_conversation_info(
     pool: web::Data<PgPool>,
-    user: AuthUser,
+    user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     params: web::Path<Uuid>,
+    req: HttpRequest,
 ) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
     let mut conn = pool.acquire().await?;
     let chatbot_configuration =
         models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
 
     let token =
-        authorize_access_to_chatbot(&mut conn, Some(user.id), chatbot_configuration.course_id)
-            .await?;
+        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
+
+    let anonymous_token = handle_anonymous_token(req, user);
 
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,
-        user.id,
+        user.map(|u| u.id),
+        anonymous_token.as_ref().map(|a| a.to_owned()),
         chatbot_configuration.id,
     )
     .await?;
@@ -322,7 +340,8 @@ async fn current_conversation_info(
 
         let res = chatbot_conversations::get_current_conversation_info(
             &mut conn,
-            user.id,
+            user.map(|u| u.id),
+            anonymous_token,
             chatbot_configuration.id,
         )
         .await?;

@@ -431,6 +431,41 @@ WHERE user_id = $1
     Ok(submissions)
 }
 
+/// Of the given exercises, the ones the user has an existing answer to.
+///
+/// This is the predicate for "there is something to review": it matches the joins
+/// get_all_answers_requiring_attention uses, so an exercise missing from the result has nothing a
+/// teacher could grade. Prefer this over
+/// user_exercise_states::get_returned_exercise_ids_for_user_and_course when deciding whether an
+/// answer exists — that one keys off activity_progress, which stays InProgress for a submitted
+/// peer review exercise and so under-reports answers.
+///
+/// Kept in sync with the repair in migration 20260806122511.
+pub async fn get_exercise_ids_with_submissions_for_user(
+    conn: &mut PgConnection,
+    exercise_ids: &[Uuid],
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let exercise_ids = sqlx::query_scalar!(
+        r#"
+        SELECT DISTINCT exercise_id
+        FROM exercise_slide_submissions
+        WHERE exercise_id = ANY($1)
+          AND user_id = $2
+          AND course_id = $3
+          AND deleted_at IS NULL
+        "#,
+        exercise_ids,
+        user_id,
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(exercise_ids)
+}
+
 pub async fn get_users_submissions_for_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,

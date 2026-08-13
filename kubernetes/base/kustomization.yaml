@@ -21,3 +21,5 @@ resources:
   - headless-lms/mailchimp-syncer.yml
   - headless-lms/email-deliver.yml
   - headless-lms/exercise-service-client-upload-reaper.yml
+  - headless-lms/credit-registrar.yml
+  - headless-lms/suotar-syncer.yml

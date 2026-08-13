@@ -131,6 +131,24 @@ WHERE ues.course_id = $1
     .fetch(conn)
 }
 
+/// None when no active user has this email. Case-insensitive, matching the users_email unique index.
+pub async fn get_active_user_id_by_email_case_insensitive(
+    conn: &mut PgConnection,
+    email: &str,
+) -> ModelResult<Option<Uuid>> {
+    let id = sqlx::query_scalar!(
+        "SELECT ud.user_id
+         FROM user_details ud
+         JOIN users u ON u.id = ud.user_id
+         WHERE LOWER(ud.email) = LOWER($1)
+           AND u.deleted_at IS NULL",
+        email
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(id)
+}
+
 pub async fn search_for_user_details_by_email(
     conn: &mut PgConnection,
     email: &str,

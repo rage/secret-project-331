@@ -57,21 +57,6 @@ COMMENT ON COLUMN course_module_suotar_realisations.last_listing_attempted_at IS
 COMMENT ON COLUMN course_module_suotar_realisations.last_listing_error IS 'Why the last listing attempt failed, null once one succeeds. What separates a failed listing from an empty course: the last_* counters keep describing the last roster that did arrive.';
 COMMENT ON COLUMN course_module_suotar_realisations.consecutive_listing_failures IS 'Failed listing attempts since the last successful one.';
 
--- Single definition of "hard send failure", shared by get_send_status_totals_since,
--- get_send_failure_domains_since and count_send_failed_for_course in
--- credit_registration_account_linking_emails.rs, so the three cannot drift apart.
-CREATE FUNCTION credit_registration_link_mail_is_hard_failure(
-    retryable BOOLEAN,
-    first_failed_at TIMESTAMP WITH TIME ZONE,
-    retry_window_expired_before TIMESTAMP WITH TIME ZONE
-  ) RETURNS BOOLEAN LANGUAGE sql IMMUTABLE PARALLEL SAFE AS $$
-SELECT NOT retryable
-  OR (
-    first_failed_at IS NOT NULL
-    AND first_failed_at < retry_window_expired_before
-  )
-$$;
-
 -- A product whose refresh has never succeeded has no row to write the failure to, so the reason is
 -- lost and the product sits at the head of the refresh queue for ever. Nullable columns let the
 -- failure be recorded before any token exists, the same way a realisation records a failed listing.

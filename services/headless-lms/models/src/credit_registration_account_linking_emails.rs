@@ -8,7 +8,10 @@ use std::collections::{HashMap, HashSet};
 
 use utoipa::ToSchema;
 
-use crate::email_deliveries::{EmailSendStatus, EmailSendStatusReport, get_send_statuses};
+use crate::email_deliveries::{
+    EmailSendStatus, EmailSendStatusFacts, EmailSendStatusReport, derive_email_send_status,
+    get_send_statuses, is_hard_send_failure,
+};
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -409,41 +412,70 @@ pub async fn get_send_status_totals_since(
     since: DateTime<Utc>,
     now: DateTime<Utc>,
 ) -> ModelResult<LinkingMailSendStatusTotals> {
-    let retry_window_expired_before =
-        now - chrono::Duration::seconds(crate::email_deliveries::RETRY_WINDOW_SECS);
-    let row = sqlx::query_as!(
-        LinkingMailSendStatusTotals,
+    struct Row {
+        sent_at: DateTime<Utc>,
+        email_delivery_id: Option<Uuid>,
+        delivery_sent: Option<bool>,
+        retryable: Option<bool>,
+        first_failed_at: Option<DateTime<Utc>>,
+        retry_count: Option<i32>,
+    }
+    let rows = sqlx::query_as!(
+        Row,
         r#"
-WITH mails AS (
-  SELECT
-    e.sent_at,
-    CASE
-      WHEN e.email_delivery_id IS NULL THEN 'queued'
-      WHEN ed.sent THEN 'sent'
-      WHEN credit_registration_link_mail_is_hard_failure(ed.retryable, ed.first_failed_at, $2) THEN 'send_failed'
-      WHEN ed.retry_count > 0 THEN 'retrying'
-      ELSE 'queued'
-    END AS status
-  FROM credit_registration_account_linking_emails e
-    LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
-  WHERE e.sent_at >= $1
-    AND e.deleted_at IS NULL
-)
 SELECT
-  COUNT(*) AS "mails_in_window!",
-  COUNT(*) FILTER (WHERE status = 'queued') AS "queued!",
-  COUNT(*) FILTER (WHERE status = 'retrying') AS "retrying!",
-  COUNT(*) FILTER (WHERE status = 'sent') AS "sent!",
-  COUNT(*) FILTER (WHERE status = 'send_failed') AS "send_failed!",
-  MAX(sent_at) FILTER (WHERE status = 'send_failed') AS "last_send_failed_at"
-FROM mails
+  e.sent_at,
+  e.email_delivery_id,
+  ed.sent AS delivery_sent,
+  ed.retryable,
+  ed.first_failed_at,
+  ed.retry_count
+FROM credit_registration_account_linking_emails e
+  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+WHERE e.sent_at >= $1
+  AND e.deleted_at IS NULL
         "#,
         since,
-        retry_window_expired_before,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(row)
+
+    let mut totals = LinkingMailSendStatusTotals {
+        mails_in_window: rows.len() as i64,
+        ..Default::default()
+    };
+    for row in rows {
+        let status = match row.email_delivery_id {
+            None => EmailSendStatus::Queued,
+            Some(_) => {
+                let facts = EmailSendStatusFacts {
+                    sent: row.delivery_sent.unwrap_or(false),
+                    retryable: row.retryable.unwrap_or(false),
+                    retry_count: row.retry_count.unwrap_or(0),
+                    next_retry_at: None,
+                    first_failed_at: row.first_failed_at,
+                    last_attempt_at: None,
+                    failure_code: None,
+                    failure_is_transient: None,
+                };
+                derive_email_send_status(&facts, now).email_send_status
+            }
+        };
+        match status {
+            EmailSendStatus::Queued => totals.queued += 1,
+            EmailSendStatus::Retrying => totals.retrying += 1,
+            EmailSendStatus::Sent => totals.sent += 1,
+            EmailSendStatus::SendFailed => {
+                totals.send_failed += 1;
+                totals.last_send_failed_at = Some(
+                    totals
+                        .last_send_failed_at
+                        .map_or(row.sent_at, |prev| prev.max(row.sent_at)),
+                );
+            }
+        }
+    }
+    Ok(totals)
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -453,38 +485,54 @@ pub struct LinkingMailFailureDomain {
 }
 
 /// Domains behind a hard send failure in the window, worst first. Same predicate as
-/// [`get_send_status_totals_since`], enforced by both calling `credit_registration_link_mail_is_hard_failure`
-/// rather than each repeating the condition.
+/// [`get_send_status_totals_since`], enforced by both calling
+/// [`crate::email_deliveries::is_hard_send_failure`] rather than each repeating the condition.
 pub async fn get_send_failure_domains_since(
     conn: &mut PgConnection,
     since: DateTime<Utc>,
     now: DateTime<Utc>,
 ) -> ModelResult<Vec<LinkingMailFailureDomain>> {
-    let retry_window_expired_before =
-        now - chrono::Duration::seconds(crate::email_deliveries::RETRY_WINDOW_SECS);
+    struct Row {
+        emailed_to: String,
+        retryable: bool,
+        first_failed_at: Option<DateTime<Utc>>,
+    }
     let rows = sqlx::query_as!(
-        LinkingMailFailureDomain,
+        Row,
         r#"
-SELECT
-  substring(e.emailed_to FROM position('@' IN e.emailed_to) + 1) AS "domain!",
-  COUNT(*) AS "count!"
+SELECT e.emailed_to, ed.retryable, ed.first_failed_at
 FROM credit_registration_account_linking_emails e
   JOIN email_deliveries ed ON ed.id = e.email_delivery_id
 WHERE e.sent_at >= $1
   AND e.deleted_at IS NULL
   AND position('@' IN e.emailed_to) > 0
   AND NOT ed.sent
-  AND credit_registration_link_mail_is_hard_failure(ed.retryable, ed.first_failed_at, $2)
-GROUP BY substring(e.emailed_to FROM position('@' IN e.emailed_to) + 1)
-ORDER BY COUNT(*) DESC,
-  substring(e.emailed_to FROM position('@' IN e.emailed_to) + 1) ASC
         "#,
         since,
-        retry_window_expired_before,
     )
     .fetch_all(conn)
     .await?;
-    Ok(rows)
+
+    let mut counts: HashMap<String, i64> = HashMap::new();
+    for row in rows {
+        if !is_hard_send_failure(row.retryable, row.first_failed_at, now) {
+            continue;
+        }
+        let at = row
+            .emailed_to
+            .find('@')
+            .expect("filtered by position('@' IN e.emailed_to) > 0 in the query above");
+        *counts
+            .entry(row.emailed_to[at + 1..].to_string())
+            .or_insert(0) += 1;
+    }
+
+    let mut domains: Vec<LinkingMailFailureDomain> = counts
+        .into_iter()
+        .map(|(domain, count)| LinkingMailFailureDomain { domain, count })
+        .collect();
+    domains.sort_by(|a, b| b.count.cmp(&a.count).then_with(|| a.domain.cmp(&b.domain)));
+    Ok(domains)
 }
 
 /// Hard send failures for one course, all time. Same predicate as [`get_send_status_totals_since`],
@@ -494,24 +542,28 @@ pub async fn count_send_failed_for_course(
     course_id: Uuid,
     now: DateTime<Utc>,
 ) -> ModelResult<i64> {
-    let retry_window_expired_before =
-        now - chrono::Duration::seconds(crate::email_deliveries::RETRY_WINDOW_SECS);
-    let count = sqlx::query_scalar!(
+    struct Row {
+        retryable: bool,
+        first_failed_at: Option<DateTime<Utc>>,
+    }
+    let rows = sqlx::query_as!(
+        Row,
         r#"
-SELECT COUNT(*) AS "count!"
+SELECT ed.retryable, ed.first_failed_at
 FROM credit_registration_account_linking_emails e
   JOIN email_deliveries ed ON ed.id = e.email_delivery_id
 WHERE e.course_id = $1
   AND e.deleted_at IS NULL
   AND NOT ed.sent
-  AND credit_registration_link_mail_is_hard_failure(ed.retryable, ed.first_failed_at, $2)
         "#,
         course_id,
-        retry_window_expired_before,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(count)
+    Ok(rows
+        .into_iter()
+        .filter(|row| is_hard_send_failure(row.retryable, row.first_failed_at, now))
+        .count() as i64)
 }
 
 /// One person and course mailed to the cap without a single claim: the stale-address population,

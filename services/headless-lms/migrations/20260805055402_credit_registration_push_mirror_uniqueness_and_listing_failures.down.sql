@@ -19,8 +19,6 @@ COMMENT ON COLUMN open_university_product_access_tokens.state IS 'Token state as
 COMMENT ON COLUMN open_university_product_access_tokens.document_state IS 'Document state as Suotar reports it.';
 COMMENT ON COLUMN open_university_product_access_tokens.last_refreshed_at IS 'When the token was last successfully refreshed.';
 
-DROP FUNCTION credit_registration_link_mail_is_hard_failure(BOOLEAN, TIMESTAMP WITH TIME ZONE, TIMESTAMP WITH TIME ZONE);
-
 ALTER TABLE course_module_suotar_realisations DROP COLUMN consecutive_listing_failures,
   DROP COLUMN last_listing_error,
   DROP COLUMN last_listing_attempted_at;

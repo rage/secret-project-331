@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ed.retryable, ed.first_failed_at\nFROM credit_registration_account_linking_emails e\n  JOIN email_deliveries ed ON ed.id = e.email_delivery_id\nWHERE e.course_id = $1\n  AND e.deleted_at IS NULL\n  AND NOT ed.sent\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "retryable",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retryable"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "first_failed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "first_failed_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "882def5968e181335ba24bfb1fbe347fc52dc9aa2fe94e8d6481ee06f6dbeee7"
+}

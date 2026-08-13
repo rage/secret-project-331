@@ -180,13 +180,13 @@ async fn resolve_scope(
     pool: &PgPool,
     query: &RunTickQuery,
 ) -> anyhow::Result<Result<PhaseScope, UnresolvedScope>> {
-    let mut conn = pool.acquire().await?;
     let mut scope = PhaseScope {
         course_id: query.course_id,
         user_id: query.user_id,
         credit_registration_ids: Vec::new(),
     };
     if let Some(slug) = &query.course_slug {
+        let mut conn = pool.acquire().await?;
         let found = models::courses::get_active_course_id_by_slug(&mut conn, slug).await?;
         match found {
             Some(id) => scope.course_id = Some(id),
@@ -200,6 +200,7 @@ async fn resolve_scope(
         }
     }
     if let Some(email) = &query.user_email {
+        let mut conn = pool.acquire().await?;
         let found =
             models::user_details::get_active_user_id_by_email_case_insensitive(&mut conn, email)
                 .await?;

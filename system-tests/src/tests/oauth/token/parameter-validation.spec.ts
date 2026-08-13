@@ -1,4 +1,4 @@
-import { expect, test } from "../../../fixtures/oauth"
+import { expect, getRedirectUri, test } from "../../../fixtures/oauth"
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import {
@@ -9,7 +9,6 @@ import {
 } from "../../../utils/oauth/constants"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import { getRedirectUri } from "../../../utils/oauth/redirectServer"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
 const TOKEN_PARAM_USER = getOAuthTestUser("token-parameter-validation")

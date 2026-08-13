@@ -10,7 +10,6 @@ import React from "react"
 import { getCourseMaterialPrivacyLink } from "@/generated/course-material-api/sdk.generated"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
-import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
@@ -21,10 +20,6 @@ interface LayoutProps {
   children: ReactNode
   noVisibleLayout?: boolean
 }
-
-const DynamicToaster = dynamicImport<Record<string, never>>(
-  () => import("@/shared-module/common/components/Notifications/ToasterNotifications"),
-)
 
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
@@ -80,12 +75,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
     </>
   )
 
-  return (
-    <>
-      {visibleLayout}
-      <DynamicToaster />
-    </>
-  )
+  return visibleLayout
 }
 
 export default withNoSsr(Layout)

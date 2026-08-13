@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  e.sent_at,\n  e.email_delivery_id,\n  ed.sent AS delivery_sent,\n  ed.retryable,\n  ed.first_failed_at,\n  ed.retry_count\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sent_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sent_at"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "email_delivery_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "email_delivery_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "delivery_sent",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "sent"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "retryable",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retryable"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "first_failed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "first_failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "retry_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retry_count"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "2db6309936cbb729effe976a625ca4c4f0c0f0cfde745b3d5fb68dc15580549a"
+}

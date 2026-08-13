@@ -1,6 +1,8 @@
 /* oxlint-disable import/order */
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
+const chatbotEmbedResponseHeaders =
+  require("./src/shared-module/common/utils/responseHeaders").chatbotEmbedResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 
 // Trusted types blocked on: https://github.com/vercel/next.js/issues/32209
@@ -24,6 +26,10 @@ const config = {
       {
         source: "/(.*)",
         headers: normalResponseHeaders,
+      },
+      {
+        source: "/chatbot-embed/:id",
+        headers: chatbotEmbedResponseHeaders,
       },
     ]
   },

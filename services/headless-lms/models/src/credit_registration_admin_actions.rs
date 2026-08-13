@@ -7,6 +7,9 @@ use utoipa::ToSchema;
 use crate::credit_registrations::CreditRegistrationState;
 use crate::prelude::*;
 
+pub const GLOBAL_ADMIN_ROLE: &str = "global_admin";
+pub const COURSE_TEACHER_ROLE: &str = "course_teacher";
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
 #[sqlx(
     type_name = "credit_registration_admin_action",
@@ -87,6 +90,33 @@ pub struct NewCreditRegistrationAdminAction {
     pub affected_row_count: Option<i32>,
 }
 
+impl NewCreditRegistrationAdminAction {
+    /// The fields every call site names; everything else defaults to `None` and is overridden with
+    /// struct-update syntax where it varies, the same way [`crate::credit_registrations::Transition`]
+    /// is built from [`crate::credit_registrations::Transition::to`].
+    pub fn new(
+        action: CreditRegistrationAdminAction,
+        target_kind: CreditRegistrationAdminActionTarget,
+        actor_user_id: Uuid,
+        actor_role: &str,
+    ) -> Self {
+        Self {
+            action,
+            target_kind,
+            target_id: None,
+            target_phase: None,
+            actor_user_id,
+            actor_role: actor_role.to_string(),
+            actor_course_id: None,
+            reason: None,
+            before_state: None,
+            after_state: None,
+            details: None,
+            affected_row_count: None,
+        }
+    }
+}
+
 /// Call in the same transaction as the effect it audits.
 pub async fn record(
     conn: &mut PgConnection,
@@ -127,6 +157,58 @@ RETURNING id
     .fetch_one(conn)
     .await?;
     Ok(res.id)
+}
+
+/// Backs the per-actor guard on the resend endpoints: one person's actions of one kind in a window.
+pub async fn count_by_actor_since(
+    conn: &mut PgConnection,
+    actor_user_id: Uuid,
+    action: CreditRegistrationAdminAction,
+    since: DateTime<Utc>,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registration_admin_actions
+WHERE actor_user_id = $1
+  AND action = $2
+  AND created_at >= $3
+  AND deleted_at IS NULL
+        "#,
+        actor_user_id,
+        action as CreditRegistrationAdminAction,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
+/// Backs the admin resend endpoint's own quiet period. Unlike `count_by_actor_since`, a refused
+/// attempt (no mail sent) doesn't count: otherwise a refusal would block the immediate
+/// override-and-retry the rate cap's own "send anyway" option exists to offer.
+pub async fn count_queued_resends_by_actor_since(
+    conn: &mut PgConnection,
+    actor_user_id: Uuid,
+    since: DateTime<Utc>,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registration_admin_actions
+WHERE actor_user_id = $1
+  AND action = $2
+  AND details ->> 'outcome' = 'queued'
+  AND created_at >= $3
+  AND deleted_at IS NULL
+        "#,
+        actor_user_id,
+        CreditRegistrationAdminAction::ResendLinkEmail as CreditRegistrationAdminAction,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
 }
 
 pub async fn get_recent(

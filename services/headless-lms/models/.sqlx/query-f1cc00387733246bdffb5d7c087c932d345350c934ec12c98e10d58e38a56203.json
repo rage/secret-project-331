@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cmsr.id AS \"id!\",\n  cmsr.course_module_id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  cmsr.course_unit_realisation_id AS \"course_unit_realisation_id!\",\n  cm.uh_course_code AS \"uh_course_code?\"\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cmsr.active\n  AND cmsr.deleted_at IS NULL\n  AND cm.enable_credit_registration_via_suotar\n  AND c.paused_at IS NULL\n  AND cm.deleted_at IS NULL\n  AND cm.course_id = $1\nORDER BY cmsr.id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_module_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_unit_realisation_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "course_unit_realisation_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "uh_course_code?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "uh_course_code"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "f1cc00387733246bdffb5d7c087c932d345350c934ec12c98e10d58e38a56203"
+}

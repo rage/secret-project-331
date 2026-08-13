@@ -51,6 +51,7 @@ pub struct ChatbotConfiguration {
     pub default_chatbot: bool,
     pub suggest_next_messages: bool,
     pub initial_suggested_messages: Option<Vec<String>>,
+    pub publicly_accessible: bool,
 }
 
 impl Default for ChatbotConfiguration {
@@ -83,6 +84,7 @@ impl Default for ChatbotConfiguration {
             default_chatbot: false,
             suggest_next_messages: false,
             initial_suggested_messages: None,
+            publicly_accessible: false,
         }
     }
 }
@@ -114,6 +116,7 @@ pub struct NewChatbotConf {
     pub chatbotconf_id: Option<Uuid>,
     pub suggest_next_messages: bool,
     pub initial_suggested_messages: Option<Vec<String>>,
+    pub publicly_accessible: bool,
 }
 
 impl Default for NewChatbotConf {
@@ -144,6 +147,7 @@ impl Default for NewChatbotConf {
             chatbotconf_id: None,
             suggest_next_messages: chatbot_conf.suggest_next_messages,
             initial_suggested_messages: chatbot_conf.initial_suggested_messages,
+            publicly_accessible: chatbot_conf.publicly_accessible,
         }
     }
 }
@@ -213,9 +217,10 @@ INSERT INTO chatbot_configurations (
     maintain_azure_search_index,
     default_chatbot,
     suggest_next_messages,
-    initial_suggested_messages
+    initial_suggested_messages,
+    publicly_accessible
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
 RETURNING *
         "#,
         pkey_policy.into_uuid(),
@@ -241,6 +246,7 @@ RETURNING *
         input.default_chatbot,
         input.suggest_next_messages,
         input.initial_suggested_messages.as_deref(),
+        input.publicly_accessible
     )
     .fetch_one(conn)
     .await?;
@@ -279,8 +285,9 @@ SET
     reasoning_effort = $19,
     use_tools = $20,
     suggest_next_messages = $21,
-    initial_suggested_messages = $22
-WHERE id = $23
+    initial_suggested_messages = $22,
+    publicly_accessible = $23
+WHERE id = $24
     AND deleted_at IS NULL
 RETURNING *
 "#,
@@ -306,6 +313,7 @@ RETURNING *
         input.use_tools,
         input.suggest_next_messages,
         input.initial_suggested_messages.as_deref(),
+        input.publicly_accessible,
         chatbot_configuration_id,
     )
     .fetch_one(conn)

@@ -7,7 +7,7 @@ import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import ChartBlockEditor from "./ChartBlockEditor"
 import ChartBlockSave from "./ChartBlockSave"
-import { DEFAULT_CHART_HEIGHT, VEGA_LITE_SCHEMA_URL } from "./chartSpec"
+import { DEFAULT_CHART_HEIGHT } from "./chartSpec"
 
 export interface ChartBlockAttributes {
   spec: string
@@ -18,25 +18,6 @@ export interface ChartBlockAttributes {
 
 export { DEFAULT_CHART_HEIGHT }
 
-// Served from main-frontend's public/ at the site root, so both the cms editor and the
-// course-material renderer can load it by this URL.
-export const EXAMPLE_DATA_URL = "/chart-block-example-data.json"
-
-export const DEFAULT_VEGA_LITE_SPEC = JSON.stringify(
-  {
-    $schema: VEGA_LITE_SCHEMA_URL,
-    description: "A simple bar chart",
-    data: { url: EXAMPLE_DATA_URL, format: { type: "json" } },
-    mark: "bar",
-    encoding: {
-      x: { field: "category", type: "nominal", axis: { labelAngle: 0 } },
-      y: { field: "value", type: "quantitative" },
-    },
-  },
-  null,
-  2,
-)
-
 const ChartBlockConfiguration: BlockConfiguration<ChartBlockAttributes> = {
   title: "ChartBlock",
   description: "Renders a Vega-Lite chart from a JSON specification",
@@ -45,7 +26,7 @@ const ChartBlockConfiguration: BlockConfiguration<ChartBlockAttributes> = {
     spec: {
       type: "string",
       // Empty by default so a new block starts data-first: the editor asks for a data file before
-      // revealing the spec editor. The example is opt-in via "Reset to example".
+      // revealing the spec editor.
       default: "",
     },
     caption: {

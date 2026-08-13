@@ -21,7 +21,6 @@ import { TextField } from "@/shared-module/components/components/TextField"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ChartBlockAttributes } from "."
-import { DEFAULT_VEGA_LITE_SPEC } from "."
 import ChartPreview from "./ChartPreview"
 import {
   dataFormatForUrl,
@@ -604,13 +603,6 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                   domProps={{ "aria-expanded": showAiPanel, "aria-controls": AI_PANEL_ID }}
                 >
                   {t("ai-generate-chart")}
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="small"
-                  onClick={() => updateSpec(DEFAULT_VEGA_LITE_SPEC)}
-                >
-                  {t("reset-to-example")}
                 </Button>
               </div>
             </div>

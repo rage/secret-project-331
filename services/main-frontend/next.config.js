@@ -18,6 +18,12 @@ const config = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    // Next's CLI type-check mode requires typescript/bin/tsc, which our `typescript` ->
+    // @typescript/typescript6 alias does not provide (it ships bin/tsc6). Its API mode
+    // resolves the alias fine, and the build skips type-checking anyway.
+    useTypeScriptCli: false,
+  },
   output: "standalone",
   outputFileTracingRoot: ".",
   // oxlint-disable-next-line require-await -- Next.js config expects headers() to return a Promise

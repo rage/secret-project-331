@@ -234,11 +234,14 @@ jobs:
         working-directory: ./shared-module/packages/components
       - name: Typecheck
         run: pnpm exec tsc -p ./shared-module/packages/components --noEmit
+      - name: Run tests
+        run: pnpm run test
+        working-directory: ./shared-module/packages/components
       - name: Test Summary
         if: always()
         run: |
           {
-            echo "## 🧱 Shared Module Components Typecheck"
+            echo "## 🧱 Shared Module Components Tests"
             echo "- **Status**: ${{ job.status }}"
             echo "- **Service**: Shared Module Components"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -312,11 +315,14 @@ jobs:
         working-directory: ./services/example-exercise
       - name: Typecheck
         run: pnpm exec tsc -p ./services/example-exercise --noEmit
+      - name: Run tests
+        run: pnpm run test
+        working-directory: ./services/example-exercise
       - name: Test Summary
         if: always()
         run: |
           {
-            echo "## 🧩 Example Exercise Typecheck"
+            echo "## 🧩 Example Exercise Tests"
             echo "- **Status**: ${{ job.status }}"
             echo "- **Service**: Example Exercise"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -336,11 +342,14 @@ jobs:
         working-directory: ./services/tmc
       - name: Typecheck
         run: pnpm exec tsc -p ./services/tmc --noEmit
+      - name: Run tests
+        run: pnpm run test
+        working-directory: ./services/tmc
       - name: Test Summary
         if: always()
         run: |
           {
-            echo "## 🧪 TMC Typecheck"
+            echo "## 🧪 TMC Tests"
             echo "- **Status**: ${{ job.status }}"
             echo "- **Service**: TMC"
           } >> "$GITHUB_STEP_SUMMARY"

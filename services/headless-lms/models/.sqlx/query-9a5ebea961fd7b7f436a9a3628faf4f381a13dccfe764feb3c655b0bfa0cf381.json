@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT verified_via AS \"verified_via: StudentNumberVerificationMethod\",\n  COUNT(*) AS \"count!\"\nFROM verified_student_numbers\nWHERE deleted_at IS NULL\n  AND ($1::timestamptz IS NULL OR verified_at >= $1)\nGROUP BY verified_via\n        ",
+  "query": "\nSELECT verified_via,\n  COUNT(*) AS \"count!\"\nFROM verified_student_numbers\nWHERE deleted_at IS NULL\n  AND ($1::timestamptz IS NULL OR verified_at >= $1)\nGROUP BY verified_via\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "verified_via: StudentNumberVerificationMethod",
+        "name": "verified_via",
         "type_info": {
           "Custom": {
             "name": "student_number_verification_method",
@@ -42,5 +42,5 @@
       null
     ]
   },
-  "hash": "f2b04db5c98a593e8074b1bbe757d955e3eb713ce943bc3d128fb8755ac2dcba"
+  "hash": "9a5ebea961fd7b7f436a9a3628faf4f381a13dccfe764feb3c655b0bfa0cf381"
 }

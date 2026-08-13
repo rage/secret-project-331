@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT vsn.id,\n  vsn.user_id,\n  ud.email AS \"user_email?\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  vsn.student_number,\n  vsn.sisu_person_id,\n  vsn.verified_at,\n  vsn.verified_via AS \"verified_via: StudentNumberVerificationMethod\",\n  vsn.verified_via_email,\n  vsn.linked_by_user_id,\n  vsn.link_reason,\n  vsn.verified_from_course_id,\n  (\n    SELECT COUNT(*)\n    FROM credit_registrations cr\n    WHERE cr.user_id = vsn.user_id\n      AND cr.superseded_by_id IS NULL\n      AND cr.deleted_at IS NULL\n  ) AS \"live_registration_count!\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM verified_student_numbers vsn\n  LEFT JOIN user_details ud ON ud.user_id = vsn.user_id\nWHERE vsn.deleted_at IS NULL\n  AND (\n    $1::student_number_verification_method IS NULL\n    OR vsn.verified_via = $1\n  )\n  AND (\n    $2::text IS NULL\n    OR LOWER(vsn.student_number) LIKE '%' || $2 || '%' ESCAPE '\\'\n    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\\'\n  )\nORDER BY vsn.verified_at DESC,\n  vsn.id\nLIMIT $3 OFFSET $4\n        ",
+  "query": "\nSELECT vsn.id,\n  vsn.user_id,\n  ud.email AS \"user_email?\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  vsn.student_number,\n  vsn.sisu_person_id,\n  vsn.verified_at,\n  vsn.verified_via,\n  vsn.verified_via_email,\n  vsn.linked_by_user_id,\n  vsn.link_reason,\n  vsn.verified_from_course_id,\n  (\n    SELECT COUNT(*)\n    FROM credit_registrations cr\n    WHERE cr.user_id = vsn.user_id\n      AND cr.superseded_by_id IS NULL\n      AND cr.deleted_at IS NULL\n  ) AS \"live_registration_count!\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM verified_student_numbers vsn\n  LEFT JOIN user_details ud ON ud.user_id = vsn.user_id\nWHERE vsn.deleted_at IS NULL\n  AND (\n    $1::student_number_verification_method IS NULL\n    OR vsn.verified_via = $1\n  )\n  AND (\n    $2::text IS NULL\n    OR LOWER(vsn.student_number) LIKE '%' || $2 || '%' ESCAPE '\\'\n    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\\'\n  )\nORDER BY vsn.verified_at DESC,\n  vsn.id\nLIMIT $3 OFFSET $4\n        ",
   "describe": {
     "columns": [
       {
@@ -93,7 +93,7 @@
       },
       {
         "ordinal": 8,
-        "name": "verified_via: StudentNumberVerificationMethod",
+        "name": "verified_via",
         "type_info": {
           "Custom": {
             "name": "student_number_verification_method",
@@ -207,5 +207,5 @@
       null
     ]
   },
-  "hash": "9e908596721f60e43c97588476e96b8d7fcb7ef290ac9cd1941534ec3e289c8d"
+  "hash": "fd875659c0be13d2f3891bf1d748676a7170288b00147bfbf07925b69b7f886e"
 }

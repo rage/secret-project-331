@@ -55,8 +55,8 @@ impl SuotarEndpoint {
         }
     }
 
-    /// Import is smallest because a request-level failure re-queues the whole batch; list-by-course
-    /// because its responses carry a person per enrolment.
+    /// ListByCourse is smallest because each response item carries a full person per enrolment;
+    /// ImportAttainments is next because a request-level failure re-queues the whole batch.
     pub fn max_batch_size(self) -> usize {
         match self {
             Self::ResolvePersons | Self::ResolveEnrolments | Self::ProductAccessTokens => 50,

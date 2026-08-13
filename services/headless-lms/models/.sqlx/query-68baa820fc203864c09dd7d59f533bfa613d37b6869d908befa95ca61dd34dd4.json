@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cmsr.id,\n  cm.course_id,\n  c.name AS course_name,\n  cmsr.course_module_id,\n  cm.name AS course_module_name,\n  cmsr.course_unit_realisation_id,\n  cmsr.label,\n  cm.uh_course_code,\n  cmsr.last_listed_at,\n  cmsr.last_listed_person_count,\n  cmsr.last_already_linked_count,\n  cmsr.last_mailed_count,\n  cmsr.last_suppressed_by_dedup_count,\n  cmsr.last_suppressed_by_rate_cap_count,\n  cmsr.last_no_address_count,\n  cmsr.last_listing_attempted_at,\n  cmsr.last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  cmsr.consecutive_listing_failures\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\n  JOIN courses c ON c.id = cm.course_id\nWHERE cmsr.active\n  AND cmsr.deleted_at IS NULL\n  AND cm.deleted_at IS NULL\nORDER BY c.name,\n  cmsr.course_unit_realisation_id\n        ",
+  "query": "\nSELECT cmsr.id,\n  cm.course_id,\n  c.name AS course_name,\n  cmsr.course_module_id,\n  cm.name AS course_module_name,\n  cmsr.course_unit_realisation_id,\n  cmsr.label,\n  cm.uh_course_code,\n  cmsr.last_listed_at,\n  cmsr.last_listed_person_count,\n  cmsr.last_already_linked_count,\n  cmsr.last_mailed_count,\n  cmsr.last_suppressed_by_dedup_count,\n  cmsr.last_suppressed_by_rate_cap_count,\n  cmsr.last_no_address_count,\n  cmsr.last_listing_attempted_at,\n  cmsr.last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  cmsr.consecutive_listing_failures\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\n  JOIN courses c ON c.id = cm.course_id\nWHERE cmsr.active\n  AND cmsr.deleted_at IS NULL\n  AND cm.deleted_at IS NULL\n  AND c.deleted_at IS NULL\nORDER BY c.name,\n  cmsr.course_unit_realisation_id\n        ",
   "describe": {
     "columns": [
       {
@@ -256,5 +256,5 @@
       false
     ]
   },
-  "hash": "047b5b52df307b0198363d41541a262eaa4096f2fada3dffc1cff67b6c1e71af"
+  "hash": "68baa820fc203864c09dd7d59f533bfa613d37b6869d908befa95ca61dd34dd4"
 }

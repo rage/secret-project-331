@@ -1,4 +1,4 @@
-use crate::{course_module_completions, prelude::*};
+use crate::{course_module_completions, error::missing_model_error, prelude::*};
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct CourseModuleCompletionRegisteredToStudyRegistry {
@@ -198,16 +198,13 @@ pub async fn mark_completions_as_registered_to_study_registry(
     for completion in completions {
         let module_completion = completions_by_id
             .get(&completion.completion_id)
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::PreconditionFailed,
-                    format!(
-                        "Cannot find completion with id: {}. This completion does not exist in the database.",
-                        completion.completion_id
-                    ),
-                    None,
-                )
-            })?;
+            .ok_or_else(missing_model_error(
+                ModelErrorType::PreconditionFailed,
+                format!(
+                    "Cannot find completion with id: {}. This completion does not exist in the database.",
+                    completion.completion_id
+                ),
+            ))?;
         new_registrations.push(NewCourseModuleCompletionRegisteredToStudyRegistry {
             course_id: module_completion.course_id,
             course_module_completion_id: completion.completion_id,

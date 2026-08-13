@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cmsr.id,\n  cmsr.created_at,\n  cmsr.updated_at,\n  cmsr.deleted_at,\n  cmsr.course_module_id,\n  cmsr.course_unit_realisation_id,\n  cmsr.label,\n  cmsr.active,\n  cmsr.last_listed_at,\n  cmsr.last_listed_person_count,\n  cmsr.last_already_linked_count,\n  cmsr.last_mailed_count,\n  cmsr.last_suppressed_by_dedup_count,\n  cmsr.last_suppressed_by_rate_cap_count,\n  cmsr.last_no_address_count,\n  cmsr.last_listing_attempted_at,\n  cmsr.last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  cmsr.consecutive_listing_failures\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\nWHERE ($1::uuid IS NULL OR cmsr.course_module_id = $1)\n  AND (\n    $2::uuid IS NULL\n    OR (cm.course_id = $2 AND cm.deleted_at IS NULL)\n  )\n  AND cmsr.deleted_at IS NULL\nORDER BY cm.order_number,\n  cmsr.created_at\n        ",
+  "query": "\nSELECT cmsr.id,\n  cmsr.created_at,\n  cmsr.updated_at,\n  cmsr.deleted_at,\n  cmsr.course_module_id,\n  cmsr.course_unit_realisation_id,\n  cmsr.label,\n  cmsr.active,\n  cmsr.last_listed_at,\n  cmsr.last_listed_person_count,\n  cmsr.last_already_linked_count,\n  cmsr.last_mailed_count,\n  cmsr.last_suppressed_by_dedup_count,\n  cmsr.last_suppressed_by_rate_cap_count,\n  cmsr.last_no_address_count,\n  cmsr.last_listing_attempted_at,\n  cmsr.last_listing_error AS \"last_listing_error?\",\n  cmsr.consecutive_listing_failures\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\nWHERE ($1::uuid IS NULL OR cmsr.course_module_id = $1)\n  AND ($2::uuid IS NULL OR cm.course_id = $2)\n  AND cm.deleted_at IS NULL\n  AND cmsr.deleted_at IS NULL\nORDER BY cm.order_number,\n  cmsr.created_at\n        ",
   "describe": {
     "columns": [
       {
@@ -181,7 +181,7 @@
       },
       {
         "ordinal": 16,
-        "name": "last_listing_error?: CreditRegistrationErrorCode",
+        "name": "last_listing_error?",
         "type_info": {
           "Custom": {
             "name": "credit_registration_error_code",
@@ -259,5 +259,5 @@
       false
     ]
   },
-  "hash": "e52ae2902e37c7dc2d5b99e3c9f931d8136cd95d8125cce3f1d1c97a2cc3681c"
+  "hash": "5aa084576a040b145da0eb6269784a1179f43f023a807cbcf045bd933b50f22e"
 }

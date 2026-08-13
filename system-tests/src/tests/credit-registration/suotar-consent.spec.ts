@@ -8,6 +8,7 @@ import {
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { expect, test } from "@/utils/fixtures"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   runPhasesUpToSubmission,
   runPreconditionsTick,
@@ -71,8 +72,10 @@ test.describe("A student who consented and then changed their mind", () => {
 
     await test.step("The student withdraws from their profile", async () => {
       await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
-      await page.getByRole("button", { name: "Withdraw" }).first().click()
-      await respondToConfirmDialog(page, true)
+      await waitForSuccessNotification(page, async () => {
+        await page.getByRole("button", { name: "Withdraw" }).first().click()
+        await respondToConfirmDialog(page, true)
+      })
     })
 
     await runPreconditionsTick(page.request, scope)

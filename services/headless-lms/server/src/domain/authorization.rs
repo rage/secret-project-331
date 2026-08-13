@@ -320,10 +320,9 @@ pub async fn authorize_access_to_chatbot(
                 authorize_access_to_course_material(conn, user_id, course_id).await?
             }
             _ => {
-                return Err(ControllerError::new(
-                    ControllerErrorType::Unauthorized,
-                    "You are not authorized to access the chatbot.".to_string(),
-                    None,
+                return Err(controller_err!(
+                    Unauthorized,
+                    "You are not authorized to access the chatbot.".to_string()
                 ));
             }
         }
@@ -332,7 +331,8 @@ pub async fn authorize_access_to_chatbot(
     Ok(token)
 }
 
-/** Extracts anonymous token from request headers and returns it */
+/// Returns the bearer token only when there is no authenticated user, for the anonymous
+/// chatbot-embed path; a logged-in request's token is never surfaced here.
 pub fn handle_anonymous_token(req: HttpRequest, user: Option<AuthUser>) -> Option<String> {
     let anonymous_token_value = req
         .headers()

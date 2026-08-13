@@ -19,6 +19,9 @@ const SEVERITY_KEYS = {
   warning: "credit-registration-alert-severity-warning",
 } as const satisfies Record<CreditRegistrationAlertSeverity, string>
 
+// oxlint-disable-next-line i18next/no-literal-string
+const CRITICAL_SEVERITY: CreditRegistrationAlertSeverity = "critical"
+
 const rootCss = css`
   display: grid;
   gap: 0.5rem;
@@ -45,7 +48,7 @@ const CreditRegistrationAlertBanner: React.FC = () => {
       {shown.map((alert) => (
         <Infobox
           key={alert.id}
-          tone={alert.severity === "critical" ? TONE.WARNING : TONE.INFO}
+          tone={alert.severity === CRITICAL_SEVERITY ? TONE.WARNING : TONE.INFO}
           heading={t(widenedLookup(SEVERITY_KEYS, alert.severity) ?? SEVERITY_KEYS.warning)}
         >
           {alertSentence(t, alert.id, alert.count, alert.subject)}

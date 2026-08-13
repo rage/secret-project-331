@@ -438,6 +438,7 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
                     .ects(5.0)
                     .uh_course_code(CRS_101.to_string())
                     .credit_registration(credit_registration_config(CRS_101, true))
+                    // suotar-in-course-banner.spec.ts needs a chapter page it can actually read.
                     .chapter(
                         ChapterBuilder::new(1, "Registering credits")
                             .opens(Utc::now())

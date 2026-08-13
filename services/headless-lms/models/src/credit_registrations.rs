@@ -366,13 +366,12 @@ FOR UPDATE
     if let Some(expected) = transition.expected_from_state
         && before.state != expected
     {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
+        return Err(model_err!(
+            PreconditionFailed,
             format!(
                 "Credit registration {id} is in {:?}, not the expected {expected:?}: refusing to overwrite it.",
                 before.state
-            ),
-            None,
+            )
         ));
     }
 
@@ -749,8 +748,8 @@ SELECT cr.id,
   cm.ects_credits,
   cr.course_module_completion_id,
   cmc.completion_date,
-  cr.state AS "state: CreditRegistrationState",
-  cr.error_code AS "error_code?: CreditRegistrationErrorCode",
+  cr.state,
+  cr.error_code AS "error_code?",
   cr.next_attempt_at,
   cr.registered_at,
   cr.sisu_attainment_id,
@@ -1094,7 +1093,7 @@ pub async fn count_by_state(
 ) -> ModelResult<Vec<(CreditRegistrationState, i64)>> {
     let rows = sqlx::query!(
         r#"
-SELECT state AS "state: CreditRegistrationState",
+SELECT state,
   COUNT(*) AS "count!"
 FROM credit_registrations
 WHERE superseded_by_id IS NULL
@@ -1117,7 +1116,7 @@ pub async fn count_by_module_and_state_for_course(
     let rows = sqlx::query!(
         r#"
 SELECT course_module_id,
-  state AS "state: CreditRegistrationState",
+  state,
   COUNT(*) AS "count!",
   COUNT(*) FILTER (WHERE needs_admin_attention) AS "needs_admin_attention_count!"
 FROM credit_registrations
@@ -1316,9 +1315,9 @@ SELECT cr.id,
   cr.course_instance_id,
   cr.course_module_completion_id,
   cmc.completion_date,
-  cr.state AS "state: CreditRegistrationState",
+  cr.state,
   cr.state_entered_at,
-  cr.error_code AS "error_code?: CreditRegistrationErrorCode",
+  cr.error_code AS "error_code?",
   cr.needs_admin_attention,
   cr.next_attempt_at,
   cr.registered_at,
@@ -1329,7 +1328,7 @@ SELECT cr.id,
   cr.superseded_by_id,
   vsn.student_number AS "student_number?",
   vsn.verified_at AS "student_number_verified_at?",
-  vsn.verified_via AS "student_number_verified_via?: StudentNumberVerificationMethod",
+  vsn.verified_via AS "student_number_verified_via?",
   vsn.sisu_person_id AS "sisu_person_id?",
   r.label AS "enrolment_realisation_name?",
   COUNT(*) OVER () AS "total_count!"
@@ -1704,9 +1703,9 @@ SELECT cr.id,
   cr.course_instance_id,
   cr.course_module_completion_id,
   cmc.completion_date,
-  cr.state AS "state: CreditRegistrationState",
+  cr.state,
   cr.state_entered_at,
-  cr.error_code AS "error_code?: CreditRegistrationErrorCode",
+  cr.error_code AS "error_code?",
   cr.needs_admin_attention,
   cr.next_attempt_at,
   cr.last_attempt_at,
@@ -1729,7 +1728,7 @@ SELECT cr.id,
   cr.superseded_by_id,
   vsn.student_number AS "verified_student_number?",
   vsn.verified_at AS "verified_student_number_at?",
-  vsn.verified_via AS "verified_student_number_via?: StudentNumberVerificationMethod",
+  vsn.verified_via AS "verified_student_number_via?",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
@@ -1847,7 +1846,7 @@ pub async fn count_by_error_code(
 ) -> ModelResult<Vec<CreditRegistrationErrorCodeCount>> {
     let rows = sqlx::query!(
         r#"
-SELECT error_code AS "error_code!: CreditRegistrationErrorCode",
+SELECT error_code AS "error_code!",
   COUNT(*) FILTER (WHERE terminal_at IS NULL) AS "in_flight_count!",
   COUNT(*) FILTER (
     WHERE state IN ('failed_permanent', 'misregistered')
@@ -1903,7 +1902,7 @@ pub async fn get_oldest_non_terminal(
         OldestNonTerminalRegistration,
         r#"
 SELECT id,
-  state AS "state: CreditRegistrationState",
+  state,
   state_entered_at
 FROM credit_registrations
 WHERE terminal_at IS NULL
@@ -1983,7 +1982,7 @@ pub async fn count_stuck(
     let rows = sqlx::query_as!(
         StuckRegistrationCount,
         r#"
-SELECT cr.state AS "state!: CreditRegistrationState",
+SELECT cr.state AS "state!",
   COUNT(*) AS "count!",
   COUNT(*) FILTER (
     WHERE now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs * 3)

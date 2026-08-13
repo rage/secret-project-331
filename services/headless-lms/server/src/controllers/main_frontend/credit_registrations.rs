@@ -898,7 +898,12 @@ async fn resolve_linking_email(
             credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
         *cache = Some(LinkingMailCache { mails, reports });
     }
-    let cache = cache.as_ref().expect("populated above");
+    let cache = cache.as_ref().ok_or_else(|| {
+        controller_err!(
+            InternalServerError,
+            "linking mail cache was not populated".to_string()
+        )
+    })?;
     let Some(mail) = cache
         .mails
         .iter()
@@ -1010,7 +1015,7 @@ async fn get_token_or_404(
     conn: &mut PgConnection,
     token: &str,
 ) -> Result<StudentNumberVerificationToken, ControllerError> {
-    student_number_verification_tokens::get_by_token(conn, &DbSecret::new(token))
+    student_number_verification_tokens::get_by_token_any_state(conn, &DbSecret::new(token))
         .await?
         .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))
 }

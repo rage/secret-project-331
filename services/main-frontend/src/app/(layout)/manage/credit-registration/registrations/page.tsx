@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { useAdminCreditRegistrations } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import RelativeTime from "@/components/credit-registration/admin/RelativeTime"
+import { labelFrom } from "@/components/credit-registration/labelFrom"
 import { noteCss } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationErrorCode,
@@ -55,6 +56,16 @@ const NARROWING_PARAMS = [
 ]
 
 const CLEARABLE_PARAMS = [...NARROWING_PARAMS, PARAM_SEARCH, PARAM_ATTENTION, PARAM_SUPERSEDED]
+
+/** Chip labels for `NARROWING_PARAMS`; the value itself stays untranslated, matching AdminStateBadge. */
+const FILTER_LABEL_KEYS: Record<string, string> = {
+  [PARAM_STATE]: "label-state",
+  [PARAM_ERROR_CODE]: "label-error-code",
+  [PARAM_COURSE_ID]: "label-course",
+  [PARAM_COURSE_MODULE_ID]: "label-course-module-id",
+  [PARAM_USER_ID]: "label-user-id",
+  [PARAM_STUDENT_NUMBER]: "label-student-number",
+}
 
 interface FilterFields {
   search: string
@@ -235,7 +246,7 @@ const RegistrationsPage: React.FC = () => {
               className={chipCss}
               onClick={() => applyParams({ [name]: undefined })}
             >
-              {name}: {param(name)}
+              {labelFrom(t, FILTER_LABEL_KEYS, name, name)}: {param(name)}
             </button>
           ))}
           <button

@@ -518,10 +518,9 @@ WHERE e.sent_at >= $1
         if !is_hard_send_failure(row.retryable, row.first_failed_at, now) {
             continue;
         }
-        let at = row
-            .emailed_to
-            .find('@')
-            .expect("filtered by position('@' IN e.emailed_to) > 0 in the query above");
+        let Some(at) = row.emailed_to.find('@') else {
+            continue;
+        };
         *counts
             .entry(row.emailed_to[at + 1..].to_string())
             .or_insert(0) += 1;

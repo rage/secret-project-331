@@ -8038,7 +8038,7 @@ export type AdminManuallyLinkStudentNumberErrors = {
   /**
    * No reason, no student number, or no person id from the preview
    */
-  400: unknown
+  422: unknown
 }
 
 export type AdminManuallyLinkStudentNumberResponses = {
@@ -8062,7 +8062,7 @@ export type AdminResendAccountLinkingEmailErrors = {
   /**
    * An override without a reason, or too soon after the last resend
    */
-  400: unknown
+  422: unknown
 }
 
 export type AdminResendAccountLinkingEmailResponses = {
@@ -8086,7 +8086,7 @@ export type AdminResolveStudentNumberForLinkingErrors = {
   /**
    * No student number given
    */
-  400: unknown
+  422: unknown
 }
 
 export type AdminResolveStudentNumberForLinkingResponses = {
@@ -8149,7 +8149,7 @@ export type AdminPausePhaseErrors = {
   /**
    * No reason given, or not one of the canonical phase names
    */
-  400: unknown
+  422: unknown
 }
 
 export type AdminPausePhaseResponses = {
@@ -8177,7 +8177,7 @@ export type AdminResumePhaseErrors = {
   /**
    * Not one of the canonical phase names
    */
-  400: unknown
+  422: unknown
 }
 
 export type AdminResumePhaseResponses = {
@@ -8205,7 +8205,7 @@ export type AdminRunPhaseNowErrors = {
   /**
    * Not one of the canonical phase names
    */
-  400: unknown
+  422: unknown
 }
 
 export type AdminRunPhaseNowResponses = {
@@ -8334,13 +8334,13 @@ export type AdminTransitionCreditRegistrationData = {
 
 export type AdminTransitionCreditRegistrationErrors = {
   /**
-   * No reason given
-   */
-  400: unknown
-  /**
    * No such registration
    */
   404: unknown
+  /**
+   * No reason given
+   */
+  422: unknown
 }
 
 export type AdminTransitionCreditRegistrationResponses = {
@@ -8401,13 +8401,13 @@ export type AdminUnlinkStudentNumberData = {
 
 export type AdminUnlinkStudentNumberErrors = {
   /**
-   * No reason given
-   */
-  400: unknown
-  /**
    * No such link
    */
   404: unknown
+  /**
+   * No reason given
+   */
+  422: unknown
 }
 
 export type AdminUnlinkStudentNumberResponses = {

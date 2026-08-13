@@ -281,13 +281,13 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             Some(err.into()),
                         ),
-                        "uq_credit_registrations_sisu_attainment" => ModelError::new(
-                            ModelErrorType::DatabaseConstraint {
+                        "uq_credit_registrations_sisu_attainment" => model_err!(
+                            DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "This Sisu attainment is already claimed by another credit registration.",
                             },
                             err.to_string(),
-                            Some(err.into()),
+                            err
                         ),
                         _ => ModelError::new(
                             ModelErrorType::Database,

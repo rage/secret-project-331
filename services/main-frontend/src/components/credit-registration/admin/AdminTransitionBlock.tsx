@@ -42,6 +42,10 @@ const CLEAR_ATTENTION = "clear_needs_admin_attention" as const
 const CHECK_NOW = "check_now" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const SUBMISSION_UNCERTAIN = "submission_uncertain"
+// oxlint-disable-next-line i18next/no-literal-string
+const APPLIED = "applied" as const
+// oxlint-disable-next-line i18next/no-literal-string
+const REFUSED_WITHOUT_CONSENT = "refused_without_consent" as const
 
 const rootCss = css`
   display: grid;
@@ -98,7 +102,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
   }
 
   const describeResult = (finished: AdminTransitionCreditRegistrationResult): string => {
-    if (finished.outcome === "refused_without_consent") {
+    if (finished.outcome === REFUSED_WITHOUT_CONSENT) {
       return t("credit-registration-admin-transition-refused-without-consent")
     }
     if (appliedTarget === CHECK_NOW) {
@@ -116,7 +120,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
         {t("button-text-credit-registration-transition")}
       </Button>
       {result && (
-        <Infobox tone={result.outcome === "applied" ? TONE.INFO : TONE.WARNING}>
+        <Infobox tone={result.outcome === APPLIED ? TONE.INFO : TONE.WARNING}>
           {describeResult(result)}
         </Infobox>
       )}

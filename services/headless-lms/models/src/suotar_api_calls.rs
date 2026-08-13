@@ -436,7 +436,7 @@ WITH windows AS (
   SELECT * FROM UNNEST($1::bigint [], $2::timestamptz []) AS w(window_secs, since)
 )
 SELECT w.window_secs AS "window_secs!",
-  c.endpoint AS "endpoint!: SuotarEndpoint",
+  c.endpoint,
   COUNT(*) FILTER (WHERE c.duration_ms IS NOT NULL) AS "call_count!",
   COUNT(*) FILTER (
     WHERE c.duration_ms IS NOT NULL

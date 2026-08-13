@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.created_at,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state AS \"state: CreditRegistrationState\",\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?: CreditRegistrationErrorCode\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.last_attempt_at,\n  cr.submitted_at,\n  cr.registered_at,\n  cr.terminal_at,\n  cr.student_number,\n  cr.sisu_person_id,\n  cr.uh_course_code,\n  cr.selected_enrolment_id,\n  cr.grade_scale_id,\n  cr.grade_id,\n  cr.credits,\n  cr.request_item_id,\n  cr.submitted_attainment_id,\n  cr.sisu_attainment_id,\n  cr.submit_retry_count,\n  cr.verify_attempt_count,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  vsn.student_number AS \"verified_student_number?\",\n  vsn.verified_at AS \"verified_student_number_at?\",\n  vsn.verified_via AS \"verified_student_number_via?: StudentNumberVerificationMethod\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND ($1::bool OR cr.superseded_by_id IS NULL)\n  AND (\n    $2::credit_registration_state [] IS NULL\n    OR cr.state = ANY($2)\n  )\n  AND (\n    $3::credit_registration_error_code [] IS NULL\n    OR cr.error_code = ANY($3)\n  )\n  AND ($4::uuid IS NULL OR cr.course_id = $4)\n  AND ($5::uuid IS NULL OR cr.course_module_id = $5)\n  AND ($6::uuid IS NULL OR cr.user_id = $6)\n  AND (\n    $7::text IS NULL\n    OR cr.student_number = $7\n    OR vsn.student_number = $7\n  )\n  AND (NOT $8::bool OR cr.needs_admin_attention)\n  AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)\n  AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)\n  AND (\n    $11::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.sisu_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.error_message) LIKE '%' || $11 || '%' ESCAPE '\\'\n  )\n  AND (\n    $12::uuid IS NULL\n    OR cr.id = $12\n    OR cr.user_id = $12\n    OR cr.course_module_completion_id = $12\n  )\nORDER BY CASE\n    WHEN $13::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count\n  END DESC NULLS LAST,\n  CASE $13::text\n    WHEN 'created' THEN cr.created_at\n    WHEN 'time_in_state' THEN cr.state_entered_at\n    ELSE COALESCE(cr.last_attempt_at, cr.state_entered_at)\n  END DESC,\n  cr.id\nLIMIT $14 OFFSET $15\n        ",
+  "query": "\nSELECT cr.id,\n  cr.created_at,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.last_attempt_at,\n  cr.submitted_at,\n  cr.registered_at,\n  cr.terminal_at,\n  cr.student_number,\n  cr.sisu_person_id,\n  cr.uh_course_code,\n  cr.selected_enrolment_id,\n  cr.grade_scale_id,\n  cr.grade_id,\n  cr.credits,\n  cr.request_item_id,\n  cr.submitted_attainment_id,\n  cr.sisu_attainment_id,\n  cr.submit_retry_count,\n  cr.verify_attempt_count,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  vsn.student_number AS \"verified_student_number?\",\n  vsn.verified_at AS \"verified_student_number_at?\",\n  vsn.verified_via AS \"verified_student_number_via?\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND ($1::bool OR cr.superseded_by_id IS NULL)\n  AND (\n    $2::credit_registration_state [] IS NULL\n    OR cr.state = ANY($2)\n  )\n  AND (\n    $3::credit_registration_error_code [] IS NULL\n    OR cr.error_code = ANY($3)\n  )\n  AND ($4::uuid IS NULL OR cr.course_id = $4)\n  AND ($5::uuid IS NULL OR cr.course_module_id = $5)\n  AND ($6::uuid IS NULL OR cr.user_id = $6)\n  AND (\n    $7::text IS NULL\n    OR cr.student_number = $7\n    OR vsn.student_number = $7\n  )\n  AND (NOT $8::bool OR cr.needs_admin_attention)\n  AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)\n  AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)\n  AND (\n    $11::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.sisu_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.error_message) LIKE '%' || $11 || '%' ESCAPE '\\'\n  )\n  AND (\n    $12::uuid IS NULL\n    OR cr.id = $12\n    OR cr.user_id = $12\n    OR cr.course_module_completion_id = $12\n  )\nORDER BY CASE\n    WHEN $13::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count\n  END DESC NULLS LAST,\n  CASE $13::text\n    WHEN 'created' THEN cr.created_at\n    WHEN 'time_in_state' THEN cr.state_entered_at\n    ELSE COALESCE(cr.last_attempt_at, cr.state_entered_at)\n  END DESC,\n  cr.id\nLIMIT $14 OFFSET $15\n        ",
   "describe": {
     "columns": [
       {
@@ -148,7 +148,7 @@
       },
       {
         "ordinal": 13,
-        "name": "state: CreditRegistrationState",
+        "name": "state",
         "type_info": {
           "Custom": {
             "name": "credit_registration_state",
@@ -197,7 +197,7 @@
       },
       {
         "ordinal": 15,
-        "name": "error_code?: CreditRegistrationErrorCode",
+        "name": "error_code?",
         "type_info": {
           "Custom": {
             "name": "credit_registration_error_code",
@@ -480,7 +480,7 @@
       },
       {
         "ordinal": 38,
-        "name": "verified_student_number_via?: StudentNumberVerificationMethod",
+        "name": "verified_student_number_via?",
         "type_info": {
           "Custom": {
             "name": "student_number_verification_method",
@@ -640,5 +640,5 @@
       null
     ]
   },
-  "hash": "d984fa60cc0929dcaf116800514596eac574ea561ef85a77b945b8a4c020e8e1"
+  "hash": "c48ed7dde11678cc11f8c548bd86997f975e2c64a1d7e7c06ed39a53ab517f1f"
 }

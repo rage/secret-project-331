@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH windows AS (\n  SELECT * FROM UNNEST($1::bigint [], $2::timestamptz []) AS w(window_secs, since)\n)\nSELECT w.window_secs AS \"window_secs!\",\n  c.endpoint AS \"endpoint!: SuotarEndpoint\",\n  COUNT(*) FILTER (WHERE c.duration_ms IS NOT NULL) AS \"call_count!\",\n  COUNT(*) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n  ) AS \"failed_call_count!\",\n  COUNT(*) FILTER (WHERE c.duration_ms IS NULL) AS \"in_flight_count!\",\n  COALESCE(SUM(c.ok_item_count), 0) AS \"ok_item_count!\",\n  COALESCE(SUM(c.error_item_count), 0) AS \"error_item_count!\",\n  PERCENTILE_DISC(0.5) WITHIN GROUP (\n    ORDER BY c.duration_ms\n  ) AS \"p50_duration_ms\",\n  PERCENTILE_DISC(0.95) WITHIN GROUP (\n    ORDER BY c.duration_ms\n  ) AS \"p95_duration_ms\",\n  MAX(c.started_at) FILTER (WHERE c.succeeded) AS \"last_success_at\",\n  MAX(c.started_at) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n  ) AS \"last_failure_at\",\n  (\n    ARRAY_AGG(\n      c.request_level_error_code\n      ORDER BY c.started_at DESC\n    ) FILTER (\n      WHERE c.duration_ms IS NOT NULL\n        AND NOT c.succeeded\n        AND c.request_level_error_code IS NOT NULL\n    )\n  ) [1] AS \"last_request_level_error_code\"\nFROM windows w\n  JOIN suotar_api_calls c ON c.started_at >= w.since\n  AND c.deleted_at IS NULL\nGROUP BY w.window_secs,\n  c.endpoint\n        ",
+  "query": "\nWITH windows AS (\n  SELECT * FROM UNNEST($1::bigint [], $2::timestamptz []) AS w(window_secs, since)\n)\nSELECT w.window_secs AS \"window_secs!\",\n  c.endpoint,\n  COUNT(*) FILTER (WHERE c.duration_ms IS NOT NULL) AS \"call_count!\",\n  COUNT(*) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n  ) AS \"failed_call_count!\",\n  COUNT(*) FILTER (WHERE c.duration_ms IS NULL) AS \"in_flight_count!\",\n  COALESCE(SUM(c.ok_item_count), 0) AS \"ok_item_count!\",\n  COALESCE(SUM(c.error_item_count), 0) AS \"error_item_count!\",\n  PERCENTILE_DISC(0.5) WITHIN GROUP (\n    ORDER BY c.duration_ms\n  ) AS \"p50_duration_ms\",\n  PERCENTILE_DISC(0.95) WITHIN GROUP (\n    ORDER BY c.duration_ms\n  ) AS \"p95_duration_ms\",\n  MAX(c.started_at) FILTER (WHERE c.succeeded) AS \"last_success_at\",\n  MAX(c.started_at) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n  ) AS \"last_failure_at\",\n  (\n    ARRAY_AGG(\n      c.request_level_error_code\n      ORDER BY c.started_at DESC\n    ) FILTER (\n      WHERE c.duration_ms IS NOT NULL\n        AND NOT c.succeeded\n        AND c.request_level_error_code IS NOT NULL\n    )\n  ) [1] AS \"last_request_level_error_code\"\nFROM windows w\n  JOIN suotar_api_calls c ON c.started_at >= w.since\n  AND c.deleted_at IS NULL\nGROUP BY w.window_secs,\n  c.endpoint\n        ",
   "describe": {
     "columns": [
       {
@@ -11,7 +11,7 @@
       },
       {
         "ordinal": 1,
-        "name": "endpoint!: SuotarEndpoint",
+        "name": "endpoint",
         "type_info": {
           "Custom": {
             "name": "suotar_endpoint",
@@ -116,5 +116,5 @@
       null
     ]
   },
-  "hash": "c6c03deedf651543a1f90f326404fdb979550b41c1e1ad8d1d7a7240e2cd7e23"
+  "hash": "3a1cb88e78a1303009725cc97a74f996552e704ab2bebc04189106398b0ea99b"
 }

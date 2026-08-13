@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT error_code AS \"error_code!: CreditRegistrationErrorCode\",\n  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE state IN ('failed_permanent', 'misregistered')\n  ) AS \"terminal_failure_count!\"\nFROM credit_registrations\nWHERE error_code IS NOT NULL\n  AND state <> 'abandoned_by_consent_withdrawal'\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY error_code\nORDER BY COUNT(*) DESC\n        ",
+  "query": "\nSELECT error_code AS \"error_code!\",\n  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE state IN ('failed_permanent', 'misregistered')\n  ) AS \"terminal_failure_count!\"\nFROM credit_registrations\nWHERE error_code IS NOT NULL\n  AND state <> 'abandoned_by_consent_withdrawal'\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY error_code\nORDER BY COUNT(*) DESC\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "error_code!: CreditRegistrationErrorCode",
+        "name": "error_code!",
         "type_info": {
           "Custom": {
             "name": "credit_registration_error_code",
@@ -66,5 +66,5 @@
       null
     ]
   },
-  "hash": "4cfb88e34052c471c7f2e6c7d5478605059f5e764c42f15c4404d03383f9c600"
+  "hash": "543b0a59d52b850a956287ee7c0ea65f049347ea92b6eb267f74793dbaceabdd"
 }

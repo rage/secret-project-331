@@ -3,7 +3,8 @@ import type http from "http"
 import { setupRedirectServer } from "@/fixtures/oauth"
 
 /**
- * Redirect URI for this worker's callback server. Must be called after ensureRedirectServer().
+ * Redirect URI for this worker's callback server. Must be called after ensureServer() has run
+ * (callers outside this file should go through ensureRedirectServer() in fixtures/oauth.ts).
  */
 export function getRedirectServerUri(boundPort: number | null): string {
   if (boundPort === null) {

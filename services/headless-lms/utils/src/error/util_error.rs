@@ -64,8 +64,10 @@ impl SuotarErrorVariant {
     /// verified rather than re-sent, or a transcript gets a second attainment.
     ///
     /// A 4xx (`Unauthorized`, `MalformedRequest`, `RequestLevelError`) never reached Suotar's
-    /// business logic, so it is as resendable as a connection that never opened; only a genuine
-    /// 5xx (`ServerError`) leaves the outcome unknown.
+    /// business logic, so it is as resendable as a connection that never opened
+    /// (`TransportNotDelivered`); a genuine 5xx (`ServerError`), a response that never arrived
+    /// (`TransportUnknown`), or one that arrived malformed (`Deserialization`) all leave the
+    /// outcome unknown.
     pub fn outcome_may_have_landed(self) -> bool {
         !matches!(
             self,

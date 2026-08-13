@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import { getCourseCreditRegistrationSummaryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistrationModuleSummary } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Badge, Meter, StatTile } from "@/shared-module/components"
+import { Badge, Meter, QueryResult, StatTile } from "@/shared-module/components"
 
 import BlockedStudentsDialog from "./BlockedStudentsDialog"
 import { TONE } from "./constants"
@@ -65,88 +65,92 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
   const summaryQuery = useQuery(
     getCourseCreditRegistrationSummaryOptions({ path: { course_id: courseId } }),
   )
-  const enabledModules = summaryQuery.data?.modules.filter((module) => module.enabled) ?? []
-  if (enabledModules.length === 0) {
-    return null
-  }
-  const summary = summaryQuery.data
-  if (!summary) {
-    return null
-  }
 
   return (
-    <section className={rootCss}>
-      <h2 className={headingCss}>{t("heading-credit-registration")}</h2>
-      <div className={modulesCss}>
-        {enabledModules.map((module) => {
-          const total = liveRowCount(module)
-          return (
-            <div className={moduleRowCss} key={module.course_module_id}>
-              <div className={moduleHeaderCss}>
-                <span>{module.course_module_name ?? t("default-module")}</span>
-                {module.paused && (
-                  <Badge tone={TONE.WARNING}>{t("credit-registration-module-paused")}</Badge>
-                )}
-              </div>
-              <Meter
-                value={module.success_count}
-                maxValue={Math.max(total, 1)}
-                tone={module.failed_permanent_count > 0 ? TONE.NEUTRAL : TONE.SUCCESS}
-                label={t("label-credit-registration-registered-of-completions")}
-                valueLabel={t("credit-registration-registered-of-total", {
-                  registered: module.success_count,
-                  total,
-                })}
-                showLabel
-              />
-              <div className={tilesCss}>
-                <StatTile
-                  label={t("label-credit-registration-failed")}
-                  value={module.failed_permanent_count}
-                  {...includeIf(module.failed_permanent_count > 0, { tone: TONE.ALERT })}
-                />
-                <StatTile
-                  label={t("label-credit-registration-needs-attention")}
-                  value={module.needs_admin_attention_count}
-                  {...includeIf(module.needs_admin_attention_count > 0, { tone: TONE.ALERT })}
-                />
-              </div>
+    <QueryResult query={summaryQuery}>
+      {(summary) => {
+        const enabledModules = summary.modules.filter((module) => module.enabled)
+        if (enabledModules.length === 0) {
+          return null
+        }
+        return (
+          <section className={rootCss}>
+            <h2 className={headingCss}>{t("heading-credit-registration")}</h2>
+            <div className={modulesCss}>
+              {enabledModules.map((module) => {
+                const total = liveRowCount(module)
+                return (
+                  <div className={moduleRowCss} key={module.course_module_id}>
+                    <div className={moduleHeaderCss}>
+                      <span>{module.course_module_name ?? t("default-module")}</span>
+                      {module.paused && (
+                        <Badge tone={TONE.WARNING}>{t("credit-registration-module-paused")}</Badge>
+                      )}
+                    </div>
+                    <Meter
+                      value={module.success_count}
+                      maxValue={Math.max(total, 1)}
+                      tone={module.failed_permanent_count > 0 ? TONE.NEUTRAL : TONE.SUCCESS}
+                      label={t("label-credit-registration-registered-of-completions")}
+                      valueLabel={t("credit-registration-registered-of-total", {
+                        registered: module.success_count,
+                        total,
+                      })}
+                      showLabel
+                    />
+                    <div className={tilesCss}>
+                      <StatTile
+                        label={t("label-credit-registration-failed")}
+                        value={module.failed_permanent_count}
+                        {...includeIf(module.failed_permanent_count > 0, { tone: TONE.ALERT })}
+                      />
+                      <StatTile
+                        label={t("label-credit-registration-needs-attention")}
+                        value={module.needs_admin_attention_count}
+                        {...includeIf(module.needs_admin_attention_count > 0, { tone: TONE.ALERT })}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-          )
-        })}
-      </div>
-      <div className={tilesCss}>
-        <button
-          type="button"
-          className={tileButtonCss}
-          onClick={() => setShowBlocked(true)}
-          aria-label={t("button-text-list-students-waiting-for-a-student-number")}
-        >
-          <StatTile
-            label={t("label-credit-registration-unlinked-consented-students")}
-            value={summary.blocked_students.unlinked_consented_student_count}
-          />
-        </button>
-        <StatTile
-          label={t("label-credit-registration-students-without-consent")}
-          value={summary.blocked_students.no_consent_student_count}
-        />
-        <StatTile
-          label={t("label-credit-registration-emails-we-could-not-send")}
-          value={summary.linking_emails_failed_to_send_count}
-          {...includeIf(summary.linking_emails_failed_to_send_count > 0, { tone: TONE.ALERT })}
-        />
-      </div>
-      {showBlocked && (
-        <BlockedStudentsDialog
-          courseId={courseId}
-          state={WAITING_FOR_STUDENT_NUMBER}
-          title={t("label-credit-registration-unlinked-consented-students")}
-          open={showBlocked}
-          onClose={() => setShowBlocked(false)}
-        />
-      )}
-    </section>
+            <div className={tilesCss}>
+              <button
+                type="button"
+                className={tileButtonCss}
+                onClick={() => setShowBlocked(true)}
+                aria-label={t("button-text-list-students-waiting-for-a-student-number")}
+              >
+                <StatTile
+                  label={t("label-credit-registration-unlinked-consented-students")}
+                  value={summary.blocked_students.unlinked_consented_student_count}
+                />
+              </button>
+              <StatTile
+                label={t("label-credit-registration-students-without-consent")}
+                value={summary.blocked_students.no_consent_student_count}
+              />
+              <StatTile
+                label={t("label-credit-registration-emails-we-could-not-send")}
+                value={summary.linking_emails_failed_to_send_count}
+                {...includeIf(summary.linking_emails_failed_to_send_count > 0, {
+                  tone: TONE.ALERT,
+                })}
+              />
+            </div>
+            {showBlocked && (
+              <BlockedStudentsDialog
+                courseId={courseId}
+                state={WAITING_FOR_STUDENT_NUMBER}
+                title={t("label-credit-registration-unlinked-consented-students")}
+                open={showBlocked}
+                onClose={() => setShowBlocked(false)}
+              />
+            )}
+          </section>
+        )
+      }}
+    </QueryResult>
   )
 }
 

@@ -22,12 +22,9 @@ pub fn build() -> World {
 /// a diagnostic. Staleness inside one restored template is invisible to it, which is what the flush on
 /// that path is for. The mock's only read of Postgres, and it never writes.
 pub async fn db_generation_marker(pool: &PgPool) -> Option<String> {
-    let created_at: Option<DateTime<Utc>> =
-        sqlx::query_scalar("SELECT created_at FROM courses WHERE id = $1")
-            .bind(SUOTAR_COURSE_ID)
-            .fetch_optional(pool)
-            .await
-            .ok()
-            .flatten();
-    created_at.map(|created_at| format!("db{}", created_at.timestamp_millis()))
+    let mut conn = pool.acquire().await.ok()?;
+    let course = models::courses::get_course(&mut conn, SUOTAR_COURSE_ID)
+        .await
+        .ok()?;
+    Some(format!("db{}", course.created_at.timestamp_millis()))
 }

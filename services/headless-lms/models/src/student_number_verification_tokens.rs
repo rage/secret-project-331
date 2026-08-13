@@ -133,7 +133,7 @@ RETURNING id
 }
 
 /// Looks up a token in any state, so the landing page can tell an expired link from a spent one.
-pub async fn get_by_token(
+pub async fn get_by_token_any_state(
     conn: &mut PgConnection,
     token: &DbSecret,
 ) -> ModelResult<Option<StudentNumberVerificationToken>> {

@@ -1,22 +1,22 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT course_module_id,\n  state AS \"state: CreditRegistrationState\",\n  COUNT(*) AS \"count!\",\n  COUNT(*) FILTER (WHERE needs_admin_attention) AS \"needs_admin_attention_count!\"\nFROM credit_registrations\nWHERE course_id = $1\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY course_module_id,\n  state\n        ",
+  "query": "\nSELECT id,\n  state,\n  state_entered_at\nFROM credit_registrations\nWHERE terminal_at IS NULL\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nORDER BY state_entered_at\nLIMIT 1\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "course_module_id",
+        "name": "id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
             "table": "credit_registrations",
-            "name": "course_module_id"
+            "name": "id"
           }
         }
       },
       {
         "ordinal": 1,
-        "name": "state: CreditRegistrationState",
+        "name": "state",
         "type_info": {
           "Custom": {
             "name": "credit_registration_state",
@@ -54,28 +54,24 @@
       },
       {
         "ordinal": 2,
-        "name": "count!",
-        "type_info": "Int8",
-        "origin": "Expression"
-      },
-      {
-        "ordinal": 3,
-        "name": "needs_admin_attention_count!",
-        "type_info": "Int8",
-        "origin": "Expression"
+        "name": "state_entered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state_entered_at"
+          }
+        }
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
       false,
-      null,
-      null
+      false
     ]
   },
-  "hash": "80c6a96b7a6c4f27c025efa0da8d02a436ff76eb9f1f7099aedba771c99f37cd"
+  "hash": "556f5e65621ea96b2f4acfa0f705416ccdb13337a6ea1f5b563d9092ee11c3ce"
 }

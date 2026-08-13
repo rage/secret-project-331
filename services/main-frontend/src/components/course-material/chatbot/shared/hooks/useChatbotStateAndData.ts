@@ -12,6 +12,7 @@ import type {
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { getSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
@@ -84,7 +85,7 @@ const useChatbotStateAndData = (
           chatbot_configuration_id: chatbotConfigurationId,
           conversation_id: currentConversationInfo.data.current_conversation.id,
         },
-        ...(anonymousToken && {
+        ...includeIf(anonymousToken, {
           headers: {
             authorization: `Bearer ${anonymousToken}`,
           },

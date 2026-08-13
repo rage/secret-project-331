@@ -4,7 +4,8 @@ use utoipa::ToSchema;
 
 use crate::{
     chapters, course_module_suotar_configurations, course_module_suotar_realisations,
-    library::credit_registration::grade_mapping::grade_scale_family, prelude::*,
+    error::missing_model_error, library::credit_registration::grade_mapping::grade_scale_family,
+    prelude::*,
 };
 
 /// The subset of `course_modules` columns [`CourseModule`] is built from; the credit-registration
@@ -233,11 +234,10 @@ fn validate_one_credit_registration_path(
 ) -> ModelResult<()> {
     if enable_credit_registration_via_suotar && enable_registering_completion_to_uh_open_university
     {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
+        return Err(model_err!(
+            PreconditionFailed,
             "A course module cannot register completions both via Suotar and via the open university."
-                .to_string(),
-            None,
+                .to_string()
         ));
     }
     Ok(())
@@ -858,13 +858,10 @@ pub async fn get_credit_registration_config(
         .await?
         .into_iter()
         .next()
-        .ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::RecordNotFound,
-                "Course module not found".to_string(),
-                None,
-            )
-        })
+        .ok_or_else(missing_model_error(
+            ModelErrorType::RecordNotFound,
+            "Course module not found".to_string(),
+        ))
 }
 
 /// Every module of one course with its Suotar configuration, opted in or not: the module editor has
@@ -1235,10 +1232,9 @@ pub async fn set_credit_registration_config(
     if let Some(scale) = grade_scale_id
         && grade_scale_family(scale).is_none()
     {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            format!("The study registry does not know the grade scale {scale}."),
-            None,
+        return Err(model_err!(
+            PreconditionFailed,
+            format!("The study registry does not know the grade scale {scale}.")
         ));
     }
     course_module_suotar_configurations::upsert(

@@ -356,7 +356,7 @@ SELECT vsn.id,
   vsn.student_number,
   vsn.sisu_person_id,
   vsn.verified_at,
-  vsn.verified_via AS "verified_via: StudentNumberVerificationMethod",
+  vsn.verified_via,
   vsn.verified_via_email,
   vsn.linked_by_user_id,
   vsn.link_reason,
@@ -442,7 +442,7 @@ pub async fn count_by_method_since(
 ) -> ModelResult<Vec<(StudentNumberVerificationMethod, i64)>> {
     let rows = sqlx::query!(
         r#"
-SELECT verified_via AS "verified_via: StudentNumberVerificationMethod",
+SELECT verified_via,
   COUNT(*) AS "count!"
 FROM verified_student_numbers
 WHERE deleted_at IS NULL

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state AS \"state: CreditRegistrationState\",\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?: CreditRegistrationErrorCode\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.grade_id,\n  cr.credits,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  vsn.student_number AS \"student_number?\",\n  vsn.verified_at AS \"student_number_verified_at?\",\n  vsn.verified_via AS \"student_number_verified_via?: StudentNumberVerificationMethod\",\n  vsn.sisu_person_id AS \"sisu_person_id?\",\n  r.label AS \"enrolment_realisation_name?\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registrations cr\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\n  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id\n  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id\n  AND r.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND ($1::uuid IS NULL OR cr.course_id = $1)\n  AND ($2::uuid IS NULL OR cr.id = $2)\n  AND ($3::uuid [] IS NULL OR cr.user_id = ANY($3))\n  AND (\n    $4::credit_registration_state IS NULL\n    OR cr.state = $4\n  )\n  AND (\n    $5::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $5 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $5 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $5 || '%' ESCAPE '\\'\n  )\n  AND ($6::uuid IS NULL OR cr.course_instance_id = $6)\n  AND ($7::uuid IS NULL OR cr.course_module_completion_id = $7)\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC,\n  cr.id\nLIMIT $8 OFFSET $9\n        ",
+  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.grade_id,\n  cr.credits,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  vsn.student_number AS \"student_number?\",\n  vsn.verified_at AS \"student_number_verified_at?\",\n  vsn.verified_via AS \"student_number_verified_via?\",\n  vsn.sisu_person_id AS \"sisu_person_id?\",\n  r.label AS \"enrolment_realisation_name?\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registrations cr\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\n  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id\n  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id\n  AND r.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND ($1::uuid IS NULL OR cr.course_id = $1)\n  AND ($2::uuid IS NULL OR cr.id = $2)\n  AND ($3::uuid [] IS NULL OR cr.user_id = ANY($3))\n  AND (\n    $4::credit_registration_state IS NULL\n    OR cr.state = $4\n  )\n  AND (\n    $5::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $5 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $5 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $5 || '%' ESCAPE '\\'\n  )\n  AND ($6::uuid IS NULL OR cr.course_instance_id = $6)\n  AND ($7::uuid IS NULL OR cr.course_module_completion_id = $7)\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC,\n  cr.id\nLIMIT $8 OFFSET $9\n        ",
   "describe": {
     "columns": [
       {
@@ -126,7 +126,7 @@
       },
       {
         "ordinal": 11,
-        "name": "state: CreditRegistrationState",
+        "name": "state",
         "type_info": {
           "Custom": {
             "name": "credit_registration_state",
@@ -175,7 +175,7 @@
       },
       {
         "ordinal": 13,
-        "name": "error_code?: CreditRegistrationErrorCode",
+        "name": "error_code?",
         "type_info": {
           "Custom": {
             "name": "credit_registration_error_code",
@@ -326,7 +326,7 @@
       },
       {
         "ordinal": 24,
-        "name": "student_number_verified_via?: StudentNumberVerificationMethod",
+        "name": "student_number_verified_via?",
         "type_info": {
           "Custom": {
             "name": "student_number_verification_method",
@@ -446,5 +446,5 @@
       null
     ]
   },
-  "hash": "fc0253f67ad4805700f276085cfa3cef4ee94baa8a32e9d62804dff23b5ed204"
+  "hash": "50713cade7bd0fae6d8758eeda75cb3bc9fc68ab8023c65b6e8a7497266510ae"
 }

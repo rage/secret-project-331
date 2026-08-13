@@ -2357,6 +2357,7 @@
   "title-change-requests": "Change requests",
   "title-chapter": "Chapter {{chapter-number}}: {{chapter-name}}",
   "title-chapter-only-number": "Chapter {{chapter-number}}",
+  "title-chatbot": "Chatbot",
   "title-chatbot-command-center": "Chatbot command center",
   "title-color-palette": "Color palette",
   "title-communication-with-the-iframe": "Communication with the IFrame",

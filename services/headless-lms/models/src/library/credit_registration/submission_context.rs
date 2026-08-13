@@ -22,6 +22,7 @@ pub struct SubmissionContext {
     pub completion: CompletionFacts,
 }
 
+/// The per-row facts each phase needs to act on a batch of ledger rows without a lookup per row.
 pub async fn get_submission_contexts(
     conn: &mut PgConnection,
     registration_ids: &[Uuid],
@@ -48,7 +49,9 @@ SELECT cr.id,
   cmc.completion_language
 FROM credit_registrations cr
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  AND cmc.deleted_at IS NULL
   JOIN course_modules cm ON cm.id = cr.course_module_id
+  AND cm.deleted_at IS NULL
   LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
   AND vsn.deleted_at IS NULL
   LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { baseTheme } from "@/shared-module/common/styles"
 import {
   allOrganizationsRoute,
   chatbotCommandCenterRoute,
@@ -181,7 +182,7 @@ const FrontPage = () => {
             href={creditRegistrationOverviewRoute()}
             className={css`
               cursor: pointer;
-              color: blue;
+              color: ${baseTheme.colors.blue[600]};
               text-decoration: underline;
             `}
           >

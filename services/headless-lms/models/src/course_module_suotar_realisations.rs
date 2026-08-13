@@ -132,15 +132,13 @@ SELECT cmsr.id,
   cmsr.last_suppressed_by_rate_cap_count,
   cmsr.last_no_address_count,
   cmsr.last_listing_attempted_at,
-  cmsr.last_listing_error AS "last_listing_error?: CreditRegistrationErrorCode",
+  cmsr.last_listing_error AS "last_listing_error?",
   cmsr.consecutive_listing_failures
 FROM course_module_suotar_realisations cmsr
   JOIN course_modules cm ON cm.id = cmsr.course_module_id
 WHERE ($1::uuid IS NULL OR cmsr.course_module_id = $1)
-  AND (
-    $2::uuid IS NULL
-    OR (cm.course_id = $2 AND cm.deleted_at IS NULL)
-  )
+  AND ($2::uuid IS NULL OR cm.course_id = $2)
+  AND cm.deleted_at IS NULL
   AND cmsr.deleted_at IS NULL
 ORDER BY cm.order_number,
   cmsr.created_at
@@ -330,6 +328,7 @@ FROM course_module_suotar_realisations cmsr
 WHERE cmsr.active
   AND cmsr.deleted_at IS NULL
   AND cm.deleted_at IS NULL
+  AND c.deleted_at IS NULL
 ORDER BY c.name,
   cmsr.course_unit_realisation_id
         "#,

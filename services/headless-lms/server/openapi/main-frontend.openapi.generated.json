@@ -6832,7 +6832,7 @@
               }
             }
           },
-          "400": {
+          "422": {
             "description": "No reason, no student number, or no person id from the preview"
           }
         }
@@ -6864,7 +6864,7 @@
               }
             }
           },
-          "400": {
+          "422": {
             "description": "An override without a reason, or too soon after the last resend"
           }
         }
@@ -6896,7 +6896,7 @@
               }
             }
           },
-          "400": {
+          "422": {
             "description": "No student number given"
           }
         }
@@ -6987,7 +6987,7 @@
               }
             }
           },
-          "400": {
+          "422": {
             "description": "No reason given, or not one of the canonical phase names"
           }
         }
@@ -7030,7 +7030,7 @@
               }
             }
           },
-          "400": {
+          "422": {
             "description": "Not one of the canonical phase names"
           }
         }
@@ -7073,7 +7073,7 @@
               }
             }
           },
-          "400": {
+          "422": {
             "description": "Not one of the canonical phase names"
           }
         }
@@ -7313,11 +7313,11 @@
               }
             }
           },
-          "400": {
-            "description": "No reason given"
-          },
           "404": {
             "description": "No such registration"
+          },
+          "422": {
+            "description": "No reason given"
           }
         }
       }
@@ -7421,11 +7421,11 @@
               }
             }
           },
-          "400": {
-            "description": "No reason given"
-          },
           "404": {
             "description": "No such link"
+          },
+          "422": {
+            "description": "No reason given"
           }
         }
       }

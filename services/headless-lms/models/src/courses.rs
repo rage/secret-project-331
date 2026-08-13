@@ -695,6 +695,20 @@ pub async fn get_nondeleted_course_id_by_slug(
     Ok(data)
 }
 
+/// None when no active course has this slug.
+pub async fn get_active_course_id_by_slug(
+    conn: &mut PgConnection,
+    slug: &str,
+) -> ModelResult<Option<Uuid>> {
+    let id = sqlx::query_scalar!(
+        "SELECT id FROM courses WHERE slug = $1 AND deleted_at IS NULL",
+        slug
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(id)
+}
+
 pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let organization_id = sqlx::query!("SELECT organization_id FROM courses WHERE id = $1", id)
         .fetch_one(conn)

@@ -44,7 +44,9 @@ const ChartBlockConfiguration: BlockConfiguration<ChartBlockAttributes> = {
   attributes: {
     spec: {
       type: "string",
-      default: DEFAULT_VEGA_LITE_SPEC,
+      // Empty by default so a new block starts data-first: the editor asks for a data file before
+      // revealing the spec editor. The example is opt-in via "Reset to example".
+      default: "",
     },
     caption: {
       type: "string",

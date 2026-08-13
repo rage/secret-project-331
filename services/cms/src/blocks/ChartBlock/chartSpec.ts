@@ -25,6 +25,27 @@ export const isMultiViewSpec = (parsed: unknown): boolean =>
   parsed !== null &&
   MULTI_VIEW_KEYS.some((key) => key in (parsed as Record<string, unknown>))
 
+const VIEW_KEYS = [
+  "mark",
+  "layer",
+  "vconcat",
+  "hconcat",
+  "concat",
+  "facet",
+  "repeat",
+  "spec",
+] as const
+
+/**
+ * Whether the spec actually defines a chart view. A freshly data-attached spec is just
+ * `{ $schema, data }` with no view yet — not broken, just not written. Used to avoid flagging that
+ * incomplete state as a render error.
+ */
+export const specDefinesView = (parsed: unknown): boolean =>
+  typeof parsed === "object" &&
+  parsed !== null &&
+  VIEW_KEYS.some((key) => key in (parsed as Record<string, unknown>))
+
 export interface ChartLayout {
   /** Height of the chart's box in px — the dimension the resizable bottom edge controls. */
   boxHeightPx: number

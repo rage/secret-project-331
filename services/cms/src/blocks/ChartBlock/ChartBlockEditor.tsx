@@ -8,9 +8,9 @@ import {
   InspectorControls,
 } from "@wordpress/block-editor"
 import { Placeholder, ResizableBox, ToolbarButton, ToolbarGroup } from "@wordpress/components"
-import { useDispatch } from "@wordpress/data"
+import { useDispatch, useSelect } from "@wordpress/data"
 import { image as icon } from "@wordpress/icons"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { Button } from "@/shared-module/components/components/Button"
@@ -26,8 +26,9 @@ import { DEFAULT_CHART_HEIGHT, isMultiViewSpec, resolveChartLayout } from "./cha
 
 const MIN_CHART_HEIGHT = 120
 
-// Chart renders by default; the toolbar/inspector "Edit" button opens the modal. Only height is
-// resizable (bottom edge + inspector field); width stays responsive.
+// The canvas shows a placeholder until the block has a spec, then renders the chart. A freshly
+// inserted block opens the editor modal automatically; the toolbar/inspector "Edit" button also
+// opens it. Only height is resizable (bottom edge + inspector field); width stays responsive.
 const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlockAttributes>>> = ({
   clientId,
   attributes,
@@ -38,6 +39,26 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
   const { toggleSelection } = useDispatch(blockEditorStore)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { spec, caption, height } = attributes
+
+  // Open the editor immediately when a brand-new block is inserted, so the teacher lands on the
+  // data-file step. Once only, and only for a fresh (empty) block, not when loading saved content.
+  const wasJustInserted = useSelect(
+    (select) =>
+      // `wasBlockJustInserted` exists at runtime but is missing from the store's type defs.
+      (
+        select(blockEditorStore) as unknown as {
+          wasBlockJustInserted: (clientId: string) => boolean
+        }
+      ).wasBlockJustInserted(clientId),
+    [clientId],
+  )
+  const autoOpenedRef = useRef(false)
+  useEffect(() => {
+    if (!autoOpenedRef.current && wasJustInserted && !spec?.trim()) {
+      autoOpenedRef.current = true
+      setIsModalOpen(true)
+    }
+  }, [wasJustInserted, spec])
 
   // The chart's natural (unscaled) rendered height, reported by ChartPreview. For multi-view
   // charts `height` can't size the spec, so the preview is scaled with CSS instead; this drives

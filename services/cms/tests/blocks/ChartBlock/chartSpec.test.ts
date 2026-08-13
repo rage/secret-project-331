@@ -3,6 +3,7 @@ import {
   dataUrlFromSpec,
   extractInlineData,
   MOBILE_CONTENT_WIDTH_PX,
+  specDefinesView,
   specWithDataUrl,
   VEGA_LITE_SCHEMA_URL,
   wouldSideScrollOnMobile,
@@ -171,6 +172,27 @@ describe("wouldSideScrollOnMobile", () => {
     expect(wouldSideScrollOnMobile({ isMultiView: true, naturalWidthPx: null, scale: 1 })).toBe(
       false,
     )
+  })
+})
+
+describe("specDefinesView", () => {
+  it("is true when the spec has a mark", () => {
+    expect(specDefinesView({ mark: "bar" })).toBe(true)
+  })
+
+  it("is true for composed views (layer/concat/facet/repeat)", () => {
+    expect(specDefinesView({ layer: [] })).toBe(true)
+    expect(specDefinesView({ vconcat: [] })).toBe(true)
+    expect(specDefinesView({ facet: {}, spec: {} })).toBe(true)
+  })
+
+  it("is false for a data-only starter spec with no view yet", () => {
+    expect(specDefinesView({ $schema: "x", data: { url: "/d.csv" } })).toBe(false)
+  })
+
+  it("is false for non-objects", () => {
+    expect(specDefinesView(null)).toBe(false)
+    expect(specDefinesView("mark")).toBe(false)
   })
 })
 

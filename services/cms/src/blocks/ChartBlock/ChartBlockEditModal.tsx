@@ -23,7 +23,14 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 import type { ChartBlockAttributes } from "."
 import { DEFAULT_VEGA_LITE_SPEC } from "."
 import ChartPreview from "./ChartPreview"
-import { dataFormatForUrl, dataUrlFromSpec, extractInlineData, specWithDataUrl } from "./chartSpec"
+import {
+  dataFormatForUrl,
+  dataUrlFromSpec,
+  extractInlineData,
+  specDefinesView,
+  specWithDataUrl,
+} from "./chartSpec"
+import { validateChartSpec } from "./validateChartSpec"
 
 // Config/identifier strings kept out of i18next/no-literal-string.
 const MONACO_LANGUAGE = "json"
@@ -34,6 +41,26 @@ const ALLOWED_DATA_FILE_MIMETYPES = ["text/csv", "application/json"]
 
 // Wait for a paste/edit to settle before extracting, so we upload once rather than per keystroke.
 const DATA_EXTRACTION_DEBOUNCE_MS = 800
+
+// Debounce render validation so a large spec isn't recompiled on every keystroke.
+const RENDER_VALIDATION_DEBOUNCE_MS = 300
+
+// The renderer error for a spec string, or null if it renders (or isn't a complete view yet). A
+// spec can be schema-valid JSON yet still fail to render; this runs the same compile + parse the
+// renderer does. See validateChartSpec.
+const renderErrorFor = (specString: string): string | null => {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(specString)
+  } catch {
+    return null
+  }
+  if (!specDefinesView(parsed)) {
+    return null
+  }
+  const result = validateChartSpec(parsed as object)
+  return result.ok ? null : (result.error ?? null)
+}
 
 // Let Monaco fetch the schema named in the spec's $schema field (the Vega-Lite schema),
 // enabling validation and autocompletion in the JSON editor.
@@ -48,8 +75,9 @@ const AI_PANEL_ID = "chart-block-ai-generate-panel"
 // Enough of the data file for the model to see field names and value shapes.
 const DATA_SAMPLE_MAX_CHARS = 4000
 
-// Scale the dialog with the viewport; the doubled selector beats the WP Modal's own sizing.
-const modalStyles = css`
+// The full editor needs a large, viewport-filling dialog for the Monaco editor + preview columns.
+// The doubled selector beats the WP Modal's own sizing.
+const editorModalStyles = css`
   && {
     width: min(95vw, 1800px);
     max-width: none;
@@ -67,6 +95,15 @@ const modalStyles = css`
     flex-direction: column;
     flex: 1 1 auto;
     min-height: 0;
+  }
+`
+
+// The data-file step holds only a short prompt and the upload box, so the dialog sizes to its
+// content (height auto) at a modest width.
+const dataFileModalStyles = css`
+  && {
+    width: min(90vw, 720px);
+    max-width: none;
   }
 `
 
@@ -98,6 +135,38 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   const [showAiPanel, setShowAiPanel] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [aiError, setAiError] = useState<unknown>(undefined)
+
+  // Data-first flow: a new block (empty spec) opens on the data-file step; everything else opens
+  // straight in the editor. Latched one-way: once the block has a spec, it stays in the editor.
+  const [inEditor, setInEditor] = useState(() => Boolean(spec?.trim()))
+  useEffect(() => {
+    if (spec?.trim()) {
+      setInEditor(true)
+    }
+  }, [spec])
+
+  // The uploaded data file, remembered independently of the spec text. Latched from the spec
+  // whenever it carries a data URL; only the Remove button clears it.
+  const [attachedDataUrl, setAttachedDataUrl] = useState<string | undefined>(() =>
+    dataUrlFromSpec(spec),
+  )
+  useEffect(() => {
+    const url = dataUrlFromSpec(spec)
+    if (url) {
+      setAttachedDataUrl(url)
+    }
+  }, [spec])
+
+  // A spec that is valid JSON but fails to render (see validateChartSpec) — drives the "Fix with
+  // AI" affordance. Null while the spec renders, is still incomplete, or is mid-edit invalid JSON
+  // (the header already flags that). Debounced so large specs aren't recompiled per keystroke.
+  const [renderError, setRenderError] = useState<string | null>(null)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setRenderError(spec ? renderErrorFor(spec) : null)
+    }, RENDER_VALIDATION_DEBOUNCE_MS)
+    return () => clearTimeout(timeout)
+  }, [spec])
 
   // The new shared TextField/TextArea are react-hook-form based. The caption also changes
   // outside the form (spec edits sync `description` into it), so the form is kept in sync
@@ -167,10 +236,30 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
 
   const handleSpecChange = (value: string | undefined) => {
     const next = value ?? ""
-    updateSpec(next)
+    // If a valid edit dropped the data reference while a file is still attached, re-bind it so the
+    // chart keeps its data.
+    let toSave = next
+    try {
+      const parsed = JSON.parse(next)
+      if (
+        parsed &&
+        typeof parsed === "object" &&
+        !Array.isArray(parsed) &&
+        !parsed.data &&
+        attachedDataUrl
+      ) {
+        const rebound = specWithDataUrl(next, attachedDataUrl)
+        if (rebound) {
+          toSave = JSON.stringify(rebound, null, 2)
+        }
+      }
+    } catch {
+      // Invalid JSON mid-edit; save as-is and re-bind once it's valid again.
+    }
+    updateSpec(toSave)
     // Caption and the spec's `description` mirror each other; last edit wins.
     try {
-      const description = JSON.parse(next)?.description
+      const description = JSON.parse(toSave)?.description
       if (typeof description === "string" && description.trim() && description !== caption) {
         setAttributes({ caption: description })
       }
@@ -181,53 +270,88 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
       clearTimeout(debounceRef.current)
     }
     debounceRef.current = setTimeout(() => {
-      void extractAndUploadInlineData(next)
+      void extractAndUploadInlineData(toSave)
     }, DATA_EXTRACTION_DEBOUNCE_MS)
   }
 
-  // Ask the AI to write or edit the spec; the result flows through handleSpecChange so the
-  // caption sync and inline-data extraction behave the same as for a hand-written spec.
-  const handleAiGenerate = async () => {
-    const prompt = getValues("aiPrompt").trim()
-    if (!prompt || isGenerating) {
+  // Instruction that asks the model to repair a spec, embedding the renderer's error. Not
+  // HTML-escaped so the raw error text reaches the model intact.
+  const fixPromptFor = (error: string) =>
+    t("ai-fix-chart-prompt", { error, interpolation: { escapeValue: false } })
+
+  // One round-trip to the generator, returning the produced spec with the data file re-bound.
+  const requestSpec = async (prompt: string, currentSpec: string | null): Promise<string> => {
+    let dataSample: string | undefined
+    if (attachedDataUrl) {
+      try {
+        const res = await fetch(attachedDataUrl)
+        if (res.ok) {
+          dataSample = (await res.text()).slice(0, DATA_SAMPLE_MAX_CHARS)
+        }
+      } catch {
+        // The sample is optional context; generate without it.
+      }
+    }
+    const response = await requestChartSpecGeneration({
+      body: {
+        prompt,
+        current_spec: currentSpec,
+        data_url: attachedDataUrl ?? null,
+        data_format: attachedDataUrl ? (dataFormatForUrl(attachedDataUrl)?.type ?? null) : null,
+        data_sample: dataSample ?? null,
+        page_id: pageId ?? null,
+      },
+    })
+    // Keep the teacher's data file bound even if the model changed or dropped the URL.
+    const rebound = attachedDataUrl ? specWithDataUrl(response.spec, attachedDataUrl) : null
+    return rebound ? JSON.stringify(rebound, null, 2) : response.spec
+  }
+
+  // Generate a spec and apply it. If the result won't render, retry once with the error as context;
+  // whatever comes back is applied, and if it's still broken the manual "Fix with AI" button takes
+  // over.
+  const generateSpec = async (options: { prompt: string; currentSpec: string | null }) => {
+    if (isGenerating) {
       return
     }
     setIsGenerating(true)
     setAiError(undefined)
     try {
-      // The untouched example spec is a placeholder, not something the teacher wants edited.
-      const currentSpec = latestSpecRef.current
-      const isPristineExample = currentSpec === DEFAULT_VEGA_LITE_SPEC
-      const dataUrl = isPristineExample ? undefined : dataUrlFromSpec(currentSpec)
-      let dataSample: string | undefined
-      if (dataUrl) {
-        try {
-          const res = await fetch(dataUrl)
-          if (res.ok) {
-            dataSample = (await res.text()).slice(0, DATA_SAMPLE_MAX_CHARS)
-          }
-        } catch {
-          // The sample is optional context; generate without it.
-        }
+      let result = await requestSpec(options.prompt, options.currentSpec)
+      const error = renderErrorFor(result)
+      if (error) {
+        result = await requestSpec(fixPromptFor(error), result)
       }
-      const response = await requestChartSpecGeneration({
-        body: {
-          prompt,
-          current_spec: isPristineExample || !currentSpec.trim() ? null : currentSpec,
-          data_url: dataUrl ?? null,
-          data_format: dataUrl ? (dataFormatForUrl(dataUrl)?.type ?? null) : null,
-          data_sample: dataSample ?? null,
-          page_id: pageId ?? null,
-        },
-      })
-      // Keep the teacher's data file bound even if the model changed or dropped the URL.
-      const rebound = dataUrl ? specWithDataUrl(response.spec, dataUrl) : null
-      handleSpecChange(rebound ? JSON.stringify(rebound, null, 2) : response.spec)
+      // Result flows through handleSpecChange so caption sync + inline-data extraction match a
+      // hand-written spec.
+      handleSpecChange(result)
     } catch (error) {
       setAiError(error)
     } finally {
       setIsGenerating(false)
     }
+  }
+
+  const handleAiGenerate = () => {
+    const prompt = getValues("aiPrompt").trim()
+    if (!prompt) {
+      return
+    }
+    // A fresh (empty) block has no spec to edit, so the model writes one from scratch.
+    const currentSpec = latestSpecRef.current
+    void generateSpec({
+      prompt,
+      currentSpec: currentSpec.trim() ? currentSpec : null,
+    })
+  }
+
+  // Manual repair: hand the failing spec and its error back to the model.
+  const handleAiFix = () => {
+    const brokenSpec = latestSpecRef.current
+    if (!renderError || !brokenSpec.trim()) {
+      return
+    }
+    void generateSpec({ prompt: fixPromptFor(renderError), currentSpec: brokenSpec })
   }
 
   const handleCaptionChange = (value: string) => {
@@ -285,6 +409,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
 
   const handleDataFileRemove = () => {
     setExtractedDataUrl(undefined)
+    setAttachedDataUrl(undefined)
     let parsed: Record<string, unknown>
     try {
       parsed = JSON.parse(latestSpecRef.current)
@@ -304,313 +429,401 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }
   })()
 
-  const dataUrl = dataUrlFromSpec(spec)
-
   if (!isOpen) {
     return null
   }
 
+  const dataFileSection = (
+    <>
+      {dataFileError && <ErrorBanner error={dataFileError} />}
+      {/* The live region must exist before content changes for screen readers to announce it. */}
+      <div aria-live="polite">
+        {isExtractingData && (
+          <p
+            className={css`
+              font-family: ${primaryFont};
+              font-size: 0.8125rem;
+              color: ${baseTheme.colors.gray[600]};
+              margin: 0 0 0.5rem;
+            `}
+          >
+            {t("separating-chart-data")}
+          </p>
+        )}
+        {extractedDataUrl && (
+          <div
+            className={css`
+              padding: 0.75rem 1rem;
+              margin-bottom: 0.5rem;
+              background: ${baseTheme.colors.yellow[100]};
+              border: 1px solid ${baseTheme.colors.yellow[300]};
+              border-radius: 4px;
+              font-family: ${primaryFont};
+              font-size: 0.8125rem;
+              color: ${baseTheme.colors.gray[700]};
+            `}
+          >
+            {t("chart-data-extracted-warning")}{" "}
+            <a href={extractedDataUrl} target="_blank" rel="noopener noreferrer">
+              {t("view-data-file")}
+            </a>
+          </div>
+        )}
+      </div>
+      {attachedDataUrl ? (
+        <Placeholder
+          icon={<BlockIcon icon={icon} />}
+          label={t("chart-data-file")}
+          instructions={decodeURIComponent(attachedDataUrl.split("/").pop() ?? attachedDataUrl)}
+        >
+          <Button variant="tertiary" size="medium" onClick={handleDataFileRemove}>
+            {t("remove")}
+          </Button>
+        </Placeholder>
+      ) : isExtractingData ? null : (
+        <MediaPlaceholder
+          icon={<BlockIcon icon={icon} />}
+          labels={{
+            title: t("chart-data-file"),
+            instructions: t("chart-data-file-instructions"),
+          }}
+          onSelect={handleDataFileSelect}
+          accept={ALLOWED_DATA_FILE_MIMETYPES.join(",")}
+          allowedTypes={ALLOWED_DATA_FILE_MIMETYPES}
+          onError={handleDataFileError}
+          onHTMLDrop={undefined}
+        />
+      )}
+    </>
+  )
+
   return (
-    <Modal title={t("edit-chart")} onRequestClose={onClose} className={modalStyles}>
-      <div
-        className={css`
-          display: flex;
-          flex: 1;
-          flex-wrap: wrap;
-          gap: 1.5rem;
-          align-items: stretch;
-          min-height: 0;
-          overflow: auto;
-        `}
-      >
+    <Modal
+      title={t("edit-chart")}
+      onRequestClose={onClose}
+      className={inEditor ? editorModalStyles : dataFileModalStyles}
+    >
+      {/* Data-first: a brand-new block (empty spec) asks for a data file before revealing the spec
+          editor and preview. */}
+      {!inEditor && (
         <div
           className={css`
-            flex: 1 1 360px;
-            min-width: 320px;
             display: flex;
             flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+          `}
+        >
+          <p
+            className={css`
+              margin: 0;
+              font-family: ${primaryFont};
+              font-size: 0.9375rem;
+              color: ${baseTheme.colors.gray[700]};
+            `}
+          >
+            {t("chart-block-start-with-data-file")}
+          </p>
+          {dataFileSection}
+        </div>
+      )}
+      {inEditor && (
+        <div
+          className={css`
+            display: flex;
+            flex: 1;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: stretch;
             min-height: 0;
+            overflow: auto;
           `}
         >
           <div
             className={css`
+              flex: 1 1 360px;
+              min-width: 320px;
               display: flex;
-              flex-shrink: 0;
-              align-items: center;
-              justify-content: space-between;
-              margin-bottom: 0.5rem;
+              flex-direction: column;
+              min-height: 0;
+            `}
+          >
+            <div
+              className={css`
+                display: flex;
+                flex-shrink: 0;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 0.5rem;
+              `}
+            >
+              <p
+                className={css`
+                  margin: 0;
+                  font-family: ${primaryFont};
+                  font-size: 0.8125rem;
+                  color: ${baseTheme.colors.gray[700]};
+                  font-weight: ${fontWeights.medium};
+                `}
+              >
+                {t("vega-lite-json-specification")}
+              </p>
+              <div
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                `}
+              >
+                {!isValidJson && (
+                  <span
+                    className={css`
+                      font-size: 0.75rem;
+                      color: ${baseTheme.colors.red[600]};
+                    `}
+                  >
+                    {t("invalid-json")}
+                  </span>
+                )}
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => setShowAiPanel((open) => !open)}
+                  domProps={{ "aria-expanded": showAiPanel, "aria-controls": AI_PANEL_ID }}
+                >
+                  {t("ai-generate-chart")}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => updateSpec(DEFAULT_VEGA_LITE_SPEC)}
+                >
+                  {t("reset-to-example")}
+                </Button>
+              </div>
+            </div>
+            {showAiPanel && (
+              <div
+                id={AI_PANEL_ID}
+                className={css`
+                  flex-shrink: 0;
+                  margin-bottom: 0.75rem;
+                `}
+              >
+                <TextArea
+                  name="aiPrompt"
+                  control={control}
+                  label={t("ai-chart-prompt-label")}
+                  placeholder={t("ai-chart-prompt-placeholder")}
+                  rows={3}
+                  isDisabled={isGenerating}
+                />
+                <div
+                  className={css`
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    gap: 0.5rem 0.75rem;
+                    margin-top: 0.5rem;
+                  `}
+                >
+                  <Button
+                    variant="primary"
+                    size="small"
+                    onClick={() => void handleAiGenerate()}
+                    isLoading={isGenerating}
+                    disabled={!aiPrompt.trim() || !attachedDataUrl}
+                  >
+                    {t("generate")}
+                  </Button>
+                  {!isGenerating && !attachedDataUrl && (
+                    <span
+                      className={css`
+                        font-family: ${primaryFont};
+                        font-size: 0.8125rem;
+                        font-weight: ${fontWeights.medium};
+                        color: ${baseTheme.colors.red[600]};
+                      `}
+                    >
+                      {t("ai-generate-needs-data-file")}
+                    </span>
+                  )}
+                  {/* The live region must exist before content changes for screen readers to announce it. */}
+                  <div aria-live="polite">
+                    {isGenerating && (
+                      <span
+                        className={css`
+                          font-family: ${primaryFont};
+                          font-size: 0.8125rem;
+                          color: ${baseTheme.colors.gray[600]};
+                        `}
+                      >
+                        {t("ai-generating-chart")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {aiError !== undefined && (
+                  <div
+                    className={css`
+                      margin-top: 0.5rem;
+                    `}
+                  >
+                    <ErrorBanner error={aiError} />
+                  </div>
+                )}
+              </div>
+            )}
+            <div
+              className={css`
+                /* Fills the leftover column height; the sections below keep their size. */
+                flex: 1 1 0;
+                min-height: 0;
+                border: 1px solid
+                  ${isValidJson ? baseTheme.colors.gray[400] : baseTheme.colors.red[400]};
+                border-radius: 4px;
+                overflow: hidden;
+                /* MonacoEditorImpl adds a height-less wrapper div; force it to fill so the editor can
+                 size to this box. */
+                & > div {
+                  height: 100%;
+                }
+              `}
+            >
+              <MonacoEditor
+                height="100%"
+                language={MONACO_LANGUAGE}
+                value={spec}
+                beforeMount={enableJsonSchemaSupport}
+                onChange={handleSpecChange}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 13,
+                  lineNumbers: ON,
+                  scrollBeyondLastLine: false,
+                  wordWrap: ON,
+                  tabSize: 2,
+                  // Re-measure so height: 100% tracks the flex parent.
+                  automaticLayout: true,
+                }}
+              />
+            </div>
+            <div
+              className={css`
+                flex-shrink: 0;
+                margin-top: 1rem;
+              `}
+            >
+              {dataFileSection}
+            </div>
+            <div
+              className={css`
+                flex-shrink: 0;
+                margin-top: 1rem;
+              `}
+            >
+              <TextField
+                name="caption"
+                control={control}
+                label={t("caption")}
+                isRequired
+                placeholder={t("describe-the-chart")}
+                {...(caption.trim() ? {} : { errorMessage: t("required") })}
+              />
+            </div>
+          </div>
+          <div
+            className={css`
+              flex: 1 1 360px;
+              min-width: 320px;
+              display: flex;
+              flex-direction: column;
+              min-height: 0;
             `}
           >
             <p
               className={css`
-                margin: 0;
+                margin: 0 0 0.5rem;
                 font-family: ${primaryFont};
                 font-size: 0.8125rem;
                 color: ${baseTheme.colors.gray[700]};
                 font-weight: ${fontWeights.medium};
               `}
             >
-              {t("vega-lite-json-specification")}
+              {t("preview")}
             </p>
             <div
               className={css`
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
+                flex: 1;
+                min-height: 0;
+                overflow: auto;
               `}
             >
-              {!isValidJson && (
-                <span
-                  className={css`
-                    font-size: 0.75rem;
-                    color: ${baseTheme.colors.red[600]};
-                  `}
-                >
-                  {t("invalid-json")}
-                </span>
-              )}
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={() => setShowAiPanel((open) => !open)}
-                domProps={{ "aria-expanded": showAiPanel, "aria-controls": AI_PANEL_ID }}
-              >
-                {t("ai-generate-chart")}
-              </Button>
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={() => updateSpec(DEFAULT_VEGA_LITE_SPEC)}
-              >
-                {t("reset-to-example")}
-              </Button>
-            </div>
-          </div>
-          {showAiPanel && (
-            <div
-              id={AI_PANEL_ID}
-              className={css`
-                flex-shrink: 0;
-                margin-bottom: 0.75rem;
-              `}
-            >
-              <TextArea
-                name="aiPrompt"
-                control={control}
-                label={t("ai-chart-prompt-label")}
-                placeholder={t("ai-chart-prompt-placeholder")}
-                rows={3}
-                isDisabled={isGenerating}
+              <ChartPreview
+                spec={spec}
+                height={height}
+                caption={caption}
+                showCaption
+                warnOnMobileOverflow
               />
+            </div>
+            {renderError && (
               <div
                 className={css`
-                  display: flex;
-                  flex-wrap: wrap;
-                  align-items: center;
-                  gap: 0.5rem 0.75rem;
-                  margin-top: 0.5rem;
+                  flex-shrink: 0;
+                  margin-top: 0.75rem;
+                  padding: 0.75rem 1rem;
+                  background: ${baseTheme.colors.red[100]};
+                  border: 1px solid ${baseTheme.colors.red[400]};
+                  border-radius: 4px;
                 `}
               >
+                <p
+                  className={css`
+                    margin: 0 0 0.25rem;
+                    font-family: ${primaryFont};
+                    font-size: 0.8125rem;
+                    font-weight: ${fontWeights.medium};
+                    color: ${baseTheme.colors.red[700]};
+                  `}
+                >
+                  {t("chart-render-error")}
+                </p>
+                <p
+                  className={css`
+                    margin: 0 0 0.75rem;
+                    font-family: ${primaryFont};
+                    font-size: 0.75rem;
+                    color: ${baseTheme.colors.gray[700]};
+                    word-break: break-word;
+                  `}
+                >
+                  {renderError}
+                </p>
                 <Button
                   variant="primary"
                   size="small"
-                  onClick={() => void handleAiGenerate()}
+                  onClick={handleAiFix}
                   isLoading={isGenerating}
-                  disabled={!aiPrompt.trim() || !dataUrl}
                 >
-                  {t("generate")}
+                  {t("fix-with-ai")}
                 </Button>
-                {!isGenerating && !dataUrl && (
-                  <span
+                {aiError !== undefined && (
+                  <div
                     className={css`
-                      font-family: ${primaryFont};
-                      font-size: 0.8125rem;
-                      font-weight: ${fontWeights.medium};
-                      color: ${baseTheme.colors.red[600]};
+                      margin-top: 0.5rem;
                     `}
                   >
-                    {t("ai-generate-needs-data-file")}
-                  </span>
+                    <ErrorBanner error={aiError} />
+                  </div>
                 )}
-                {/* The live region must exist before content changes for screen readers to announce it. */}
-                <div aria-live="polite">
-                  {isGenerating && (
-                    <span
-                      className={css`
-                        font-family: ${primaryFont};
-                        font-size: 0.8125rem;
-                        color: ${baseTheme.colors.gray[600]};
-                      `}
-                    >
-                      {t("ai-generating-chart")}
-                    </span>
-                  )}
-                </div>
               </div>
-              {aiError !== undefined && (
-                <div
-                  className={css`
-                    margin-top: 0.5rem;
-                  `}
-                >
-                  <ErrorBanner error={aiError} />
-                </div>
-              )}
-            </div>
-          )}
-          <div
-            className={css`
-              /* Fills the leftover column height; the sections below keep their size. */
-              flex: 1 1 0;
-              min-height: 0;
-              border: 1px solid
-                ${isValidJson ? baseTheme.colors.gray[400] : baseTheme.colors.red[400]};
-              border-radius: 4px;
-              overflow: hidden;
-              /* MonacoEditorImpl adds a height-less wrapper div; force it to fill so the editor can
-                 size to this box. */
-              & > div {
-                height: 100%;
-              }
-            `}
-          >
-            <MonacoEditor
-              height="100%"
-              language={MONACO_LANGUAGE}
-              value={spec}
-              beforeMount={enableJsonSchemaSupport}
-              onChange={handleSpecChange}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 13,
-                lineNumbers: ON,
-                scrollBeyondLastLine: false,
-                wordWrap: ON,
-                tabSize: 2,
-                // Re-measure so height: 100% tracks the flex parent.
-                automaticLayout: true,
-              }}
-            />
-          </div>
-          <div
-            className={css`
-              flex-shrink: 0;
-              margin-top: 1rem;
-            `}
-          >
-            {dataFileError && <ErrorBanner error={dataFileError} />}
-            {/* The live region must exist before content changes for screen readers to announce it. */}
-            <div aria-live="polite">
-              {isExtractingData && (
-                <p
-                  className={css`
-                    font-family: ${primaryFont};
-                    font-size: 0.8125rem;
-                    color: ${baseTheme.colors.gray[600]};
-                    margin: 0 0 0.5rem;
-                  `}
-                >
-                  {t("separating-chart-data")}
-                </p>
-              )}
-              {extractedDataUrl && (
-                <div
-                  className={css`
-                    padding: 0.75rem 1rem;
-                    margin-bottom: 0.5rem;
-                    background: ${baseTheme.colors.yellow[100]};
-                    border: 1px solid ${baseTheme.colors.yellow[300]};
-                    border-radius: 4px;
-                    font-family: ${primaryFont};
-                    font-size: 0.8125rem;
-                    color: ${baseTheme.colors.gray[700]};
-                  `}
-                >
-                  {t("chart-data-extracted-warning")}{" "}
-                  <a href={extractedDataUrl} target="_blank" rel="noopener noreferrer">
-                    {t("view-data-file")}
-                  </a>
-                </div>
-              )}
-            </div>
-            {dataUrl ? (
-              <Placeholder
-                icon={<BlockIcon icon={icon} />}
-                label={t("chart-data-file")}
-                instructions={decodeURIComponent(dataUrl.split("/").pop() ?? dataUrl)}
-              >
-                <Button variant="tertiary" size="medium" onClick={handleDataFileRemove}>
-                  {t("remove")}
-                </Button>
-              </Placeholder>
-            ) : isExtractingData ? null : (
-              <MediaPlaceholder
-                icon={<BlockIcon icon={icon} />}
-                labels={{
-                  title: t("chart-data-file"),
-                  instructions: t("chart-data-file-instructions"),
-                }}
-                onSelect={handleDataFileSelect}
-                accept={ALLOWED_DATA_FILE_MIMETYPES.join(",")}
-                allowedTypes={ALLOWED_DATA_FILE_MIMETYPES}
-                onError={handleDataFileError}
-                onHTMLDrop={undefined}
-              />
             )}
           </div>
-          <div
-            className={css`
-              flex-shrink: 0;
-              margin-top: 1rem;
-            `}
-          >
-            <TextField
-              name="caption"
-              control={control}
-              label={t("caption")}
-              isRequired
-              placeholder={t("describe-the-chart")}
-              {...(caption.trim() ? {} : { errorMessage: t("required") })}
-            />
-          </div>
         </div>
-        <div
-          className={css`
-            flex: 1 1 360px;
-            min-width: 320px;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-          `}
-        >
-          <p
-            className={css`
-              margin: 0 0 0.5rem;
-              font-family: ${primaryFont};
-              font-size: 0.8125rem;
-              color: ${baseTheme.colors.gray[700]};
-              font-weight: ${fontWeights.medium};
-            `}
-          >
-            {t("preview")}
-          </p>
-          <div
-            className={css`
-              flex: 1;
-              min-height: 0;
-              overflow: auto;
-            `}
-          >
-            <ChartPreview
-              spec={spec}
-              height={height}
-              caption={caption}
-              showCaption
-              warnOnMobileOverflow
-            />
-          </div>
-        </div>
-      </div>
+      )}
       <div
         className={css`
           display: flex;

@@ -50,23 +50,38 @@ test("Chart block editor works", async ({ page }) => {
     .getByRole("button", { name: "Edit page" })
     .click()
 
-  // Add the chart block. Its default spec renders immediately in the editor.
+  // Add the chart block. A new block starts empty and the editor opens straight to the data-first
+  // upload step — there is no spec editor until a data file is added.
   await page.getByLabel("Add block").click()
   await page.getByPlaceholder("Search").fill("chart")
   await page.getByRole("option", { name: "ChartBlock" }).click()
 
-  // Open the editing modal from the block toolbar. Assertions are scoped to the dialog because
-  // the block behind it renders the same preview messages.
-  await page.getByRole("button", { name: "Edit chart" }).first().click()
   const dialog = page.getByRole("dialog", { name: "Edit chart" })
+  // The editor opens automatically on insert, on the upload step, with no spec editor yet.
   await expect(dialog).toBeVisible()
+  await expect(dialog.getByText("Start by adding a data file")).toBeVisible()
+  await expect(
+    dialog.getByText("Upload a CSV or JSON file containing the chart data."),
+  ).toBeVisible()
+  await expect(dialog.locator(".monaco-editor")).toHaveCount(0)
 
-  // Invalid JSON is flagged and the preview shows an error rather than crashing.
+  // Uploading a data file reveals the full editor (spec + preview).
+  const [initialChooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    dialog.locator('button:has-text("Upload")').click(),
+  ])
+  await initialChooser.setFiles("src/fixtures/media/chart-data.csv")
+  await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible({ timeout: 30_000 })
+  await expect(dialog.locator(".monaco-editor").first()).toBeVisible()
+
+  // Invalid JSON is flagged and the preview shows an error rather than crashing. The uploaded data
+  // file is remembered even while the spec is broken.
   await setMonacoContent(page, "this is not valid json")
   await expect(dialog.getByText("Invalid JSON")).toBeVisible()
   await expect(
     dialog.getByText("The chart could not be displayed because its specification is invalid."),
   ).toBeVisible()
+  await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
 
   // Hardcoded inline data is lifted into a separate file that gets uploaded, and the spec is
   // rewritten to reference it by URL.
@@ -86,7 +101,6 @@ test("Chart block editor works", async ({ page }) => {
     { category: "B", value: 34 },
     { category: "C", value: 56 },
   ])
-  // The data file is now set, so the remove control is shown instead of the uploader.
   await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
 
   // Removing the data file strips it from the spec and brings back the uploader.
@@ -96,19 +110,7 @@ test("Chart block editor works", async ({ page }) => {
     dialog.getByText("Upload a CSV or JSON file containing the chart data."),
   ).toBeVisible()
 
-  // Uploading a CSV data file points the spec at the uploaded file.
-  const [csvChooser] = await Promise.all([
-    page.waitForEvent("filechooser"),
-    dialog.locator('button:has-text("Upload")').click(),
-  ])
-  await csvChooser.setFiles("src/fixtures/media/chart-data.csv")
-  await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible({ timeout: 30_000 })
-
   // A JSON data file can be uploaded the same way.
-  await dialog.getByRole("button", { name: "Remove" }).click()
-  await expect(
-    dialog.getByText("Upload a CSV or JSON file containing the chart data."),
-  ).toBeVisible()
   const [jsonChooser] = await Promise.all([
     page.waitForEvent("filechooser"),
     dialog.locator('button:has-text("Upload")').click(),
@@ -116,9 +118,9 @@ test("Chart block editor works", async ({ page }) => {
   await jsonChooser.setFiles("src/fixtures/media/chart-data.json")
   await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible({ timeout: 30_000 })
 
-  // The optional caption can be filled in. getByRole because the TextField's label element
-  // carries an aria-label of its own, which makes getByLabel ambiguous.
-  const captionInput = dialog.getByRole("textbox", { name: "Caption (optional)" })
+  // The caption can be filled in. getByRole because the TextField's label element carries an
+  // aria-label of its own, which makes getByLabel ambiguous.
+  const captionInput = dialog.getByRole("textbox", { name: "Caption" })
   await captionInput.fill("Quarterly results")
   await expect(captionInput).toHaveValue("Quarterly results")
 
@@ -137,9 +139,7 @@ test("Chart block editor works", async ({ page }) => {
   await page.getByLabel("Block: ChartBlock").click()
   await page.getByRole("button", { name: "Edit chart" }).first().click()
   await expect(dialog).toBeVisible()
-  await expect(dialog.getByRole("textbox", { name: "Caption (optional)" })).toHaveValue(
-    "Quarterly results",
-  )
+  await expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveValue("Quarterly results")
   // The spec still points at the uploaded data file.
   await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
 })

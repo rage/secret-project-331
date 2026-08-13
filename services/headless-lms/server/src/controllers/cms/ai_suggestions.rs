@@ -174,6 +174,22 @@ async fn generate_chart_spec(
         authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?
     };
 
+    // Resolve the course language so the chart's caption and labels are generated in it.
+    let language = match payload.page_id {
+        Some(page_id) => {
+            let page = models::pages::get_page(&mut conn, page_id).await?;
+            match page.course_id {
+                Some(course_id) => Some(
+                    models::courses::get_course(&mut conn, course_id)
+                        .await?
+                        .language_code,
+                ),
+                None => None,
+            }
+        }
+        None => None,
+    };
+
     let task_lm = application_task_default_language_models::get_for_task(
         &mut conn,
         ApplicationTask::ChartSpecGeneration,
@@ -186,6 +202,7 @@ async fn generate_chart_spec(
         data_url: payload.data_url.clone(),
         data_format: payload.data_format.clone(),
         data_sample: payload.data_sample.clone(),
+        language,
     };
 
     // Return the DB connection to the pool before the LLM call.

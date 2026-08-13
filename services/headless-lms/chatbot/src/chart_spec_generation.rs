@@ -48,7 +48,8 @@ Rules:
 - If a data file URL is provided, reference it exactly as given via "data": {"url": "<the url>", "format": {"type": "<the format>"}}. Never inline data values in that case and never invent a different URL.
 - If no data file is provided, include small, plausible inline example data via "data": {"values": [...]} so the chart renders.
 - When a data sample is provided, use the field names exactly as they appear in the sample and pick encoding types (quantitative, nominal, ordinal, temporal) that match the sampled values.
-- Include a concise "description" field that describes the chart for screen readers; write it in the same language as the teacher's request.
+- Include a concise "description" field that describes the chart for screen readers.
+- Write every human-readable piece of text in the chart in the target language given below: the "description", the chart "title", and every axis, legend, and encoding "title". Keep field names and other data values unchanged. If no target language is given, use the language of the teacher's request.
 - Do not set "width", "height", or "autosize"; the rendering environment controls sizing.
 - If an existing specification is provided, treat the request as an edit to it: change only what the request requires and preserve the rest.
 - Prefer simple, readable charts over decorative complexity.
@@ -68,6 +69,8 @@ pub struct ChartSpecGenerationInput {
     pub data_url: Option<String>,
     pub data_format: Option<String>,
     pub data_sample: Option<String>,
+    /// Language for all human-readable chart text (a BCP 47 code, e.g. the course's `language_code`).
+    pub language: Option<String>,
 }
 
 /// Percent-encodes characters RFC 3986 forbids in URI fragments. Vega-Lite definition
@@ -193,6 +196,11 @@ pub async fn generate_chart_spec(
         "{USER_PROMPT_PREFIX}\n\nRequest:\n{prompt}",
         prompt = input.prompt
     );
+    if let Some(language) = &input.language {
+        user_message_content
+            .push_str("\n\nTarget language for all human-readable chart text (BCP 47 code): ");
+        user_message_content.push_str(language);
+    }
     if let Some(data_url) = &input.data_url {
         user_message_content.push_str("\n\nData file URL: ");
         user_message_content.push_str(data_url);

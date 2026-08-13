@@ -37,21 +37,21 @@
   },
   "dependencies": {
     "@axe-core/playwright": "^4.12.1",
-    "axe-core": "^4.12.1",
-    "jose": "^6.2.4",
-    "js-yaml": "^5.2.2",
+    "axe-core": "^4.13.0",
+    "jose": "^6.2.8",
+    "js-yaml": "^5.2.3",
     "png-metadata": "^1.0.2",
     "tar-fs": "^3.1.3",
     "which": "^7.0.0"
   },
   "devDependencies": {
-    "@playwright/browser-chromium": "^1.62.0",
-    "@playwright/test": "^1.62.0",
+    "@playwright/browser-chromium": "^1.62.1",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^26.1.2",
     "@types/tar-fs": "^2.0.4",
     "@types/which": "^3.0.4",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "playwright": "^1.62.0",
+    "playwright": "^1.62.1",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   }
 }

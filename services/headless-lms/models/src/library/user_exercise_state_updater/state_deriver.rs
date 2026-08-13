@@ -1239,7 +1239,6 @@ mod tests {
                 cheater_detection_enabled: true,
                 ai_policy: CourseAiPolicy::NotSet,
                 course_material_ai_instructions: None,
-                embedding: None,
             }
         }
 

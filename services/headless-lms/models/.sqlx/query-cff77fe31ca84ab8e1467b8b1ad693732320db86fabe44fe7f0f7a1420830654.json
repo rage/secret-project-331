@@ -335,22 +335,6 @@
             "name": "course_material_ai_instructions"
           }
         }
-      },
-      {
-        "ordinal": 29,
-        "name": "embedding",
-        "type_info": {
-          "Custom": {
-            "name": "vector",
-            "kind": "Simple"
-          }
-        },
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "embedding"
-          }
-        }
       }
     ],
     "parameters": {
@@ -385,7 +369,6 @@
       false,
       false,
       false,
-      true,
       true
     ]
   },

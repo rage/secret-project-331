@@ -107,6 +107,7 @@ FROM (
         MIN(a.embedding <#> v.embedding) AS distance
     FROM course_audiences a
     CROSS JOIN unnest($1::vector[]) AS v(embedding)
+    WHERE deleted_at IS NULL
     GROUP BY a.course_id
     ORDER BY distance ASC
     LIMIT 5
@@ -115,7 +116,8 @@ UNION ALL
 SELECT DISTINCT a.course_id
 FROM course_audiences a
 CROSS JOIN unnest($2::text[]) AS k(keyword)
-WHERE to_tsvector('english', a.audience)
+WHERE deleted_at IS NULL
+AND to_tsvector('english', a.audience)
     @@ websearch_to_tsquery('english', k.keyword)
         "#,
         &vectors as _,

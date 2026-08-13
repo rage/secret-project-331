@@ -59,6 +59,7 @@ pub async fn create_embeddings(
     })?;
 
     let api_endpoint = chatbot_config.embeddings_endpoint()?;
+    let input_len = input.len();
     println!("ENDPOINT: {}", api_endpoint);
     let response = REQWEST_CLIENT
         .post(api_endpoint)
@@ -73,9 +74,21 @@ pub async fn create_embeddings(
 
     if response.status().is_success() {
         let body = &response.text().await?;
-        let json: EmbeddingResponse = serde_json::from_str(body)?;
+        let mut json: EmbeddingResponse = serde_json::from_str(body)?;
 
-        let embeddings: Vec<Vec<f32>> = json.data.iter().map(|e| e.embedding.to_owned()).collect();
+        if json.data.len() != input_len {
+            return Err(util_err!(
+                EmbeddingRequestBuildError,
+                format!(
+                    "Embedding API returned {} embeddings for {} inputs",
+                    json.data.len(),
+                    input_len
+                )
+            ));
+        }
+        json.data.sort_by_key(|e| e.index);
+        let embeddings: Vec<Vec<f32>> = json.data.into_iter().map(|e| e.embedding).collect();
+
         Ok(embeddings)
     } else {
         Err(util_err!(

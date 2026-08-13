@@ -21,6 +21,7 @@ use uuid::Uuid;
 
 use super::super::seed_users::SeedUsersResult;
 
+#[allow(clippy::too_many_arguments)]
 pub async fn seed_peer_review_course(
     app_config: &ApplicationConfiguration,
     course_id: Uuid,

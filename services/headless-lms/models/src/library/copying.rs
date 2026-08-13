@@ -15,7 +15,6 @@ use crate::exams::Exam;
 use crate::exams::NewExam;
 use crate::pages;
 use crate::prelude::*;
-use pgvector::Vector;
 
 pub async fn copy_course(
     conn: &mut PgConnection,
@@ -82,8 +81,7 @@ INSERT INTO courses (
     cheater_detection_enabled,
     chapter_locking_enabled,
     ai_policy,
-    course_material_ai_instructions,
-    embedding
+    course_material_ai_instructions
   )
 VALUES (
     $1,
@@ -106,8 +104,7 @@ VALUES (
     $18,
     $19,
     $20,
-    $21,
-    $22
+    $21
   )
 RETURNING id,
   name,
@@ -137,8 +134,7 @@ RETURNING id,
   chapter_locking_enabled,
   cheater_detection_enabled,
   ai_policy,
-  course_material_ai_instructions,
-  embedding as "embedding: Vector"
+  course_material_ai_instructions
         "#,
         new_course.name,
         new_course.organization_id,
@@ -160,8 +156,7 @@ RETURNING id,
         parent_course.cheater_detection_enabled,
         parent_course.chapter_locking_enabled,
         parent_course.ai_policy as CourseAiPolicy,
-        parent_course.course_material_ai_instructions,
-        parent_course.embedding as Option<Vector>
+        parent_course.course_material_ai_instructions
     )
     .fetch_one(&mut *tx)
     .await?;

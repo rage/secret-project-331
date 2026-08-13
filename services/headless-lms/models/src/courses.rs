@@ -1,5 +1,6 @@
 use crate::{
     chapters::{Chapter, get_course_chapters},
+    course_audiences::insert_course_audiences,
     course_audiences::{CourseAudience, NewCourseAudience},
     course_instances::CourseInstance,
     course_modules::CourseModule,
@@ -115,8 +116,6 @@ pub struct Course {
     pub cheater_detection_enabled: bool,
     pub ai_policy: CourseAiPolicy,
     pub course_material_ai_instructions: Option<bool>,
-    #[schema(value_type = Option<Vec<f32>>)]
-    pub embedding: Option<Vector>,
 }
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
@@ -298,7 +297,14 @@ RETURNING id
     .fetch_one(&mut *conn)
     .await?;
     if !app_config.seed_embedding {
-        update_embedding_vector(&mut *conn, app_config, res.id, &new_course.description).await?;
+        update_course_embeddings(
+            &mut *conn,
+            app_config,
+            res.id,
+            Some(&new_course.name),
+            Some(&new_course.description),
+        )
+        .await?
     }
     Ok(res.id)
 }
@@ -442,8 +448,7 @@ SELECT
     c.chapter_locking_enabled,
     c.cheater_detection_enabled,
     c.ai_policy,
-    c.course_material_ai_instructions,
-    c.embedding as "embedding: Vector"
+    c.course_material_ai_instructions
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -629,8 +634,7 @@ SELECT courses.id,
   courses.chapter_locking_enabled,
   courses.cheater_detection_enabled,
   courses.ai_policy,
-  courses.course_material_ai_instructions,
-  embedding as "embedding: Vector"
+  courses.course_material_ai_instructions
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -756,11 +760,19 @@ RETURNING *
     )
     .fetch_one(&mut *conn)
     .await?;
-    if let (Some(description), Some(old_description)) = (&res.description, &old_course.description)
-        && description != old_description
-    {
-        update_embedding_vector(&mut *conn, app_config, res.id, description).await?;
-    }
+    let title = if old_course.name != course_update.name {
+        Some(course_update.name.as_str())
+    } else {
+        None
+    };
+
+    let description = if old_course.description != course_update.description {
+        course_update.description.as_deref()
+    } else {
+        None
+    };
+
+    update_course_embeddings(conn, app_config, course_id, title, description).await?;
     Ok(res)
 }
 
@@ -997,22 +1009,6 @@ pub async fn set_metadata(
         .filter(|x| !prerequisite_old_strings.contains(x))
         .collect();
 
-    crate::course_prerequisites::delete_batch(conn, prerequisites_to_delete).await?;
-
-    let prerequisites = if !prerequisites_to_add.is_empty() {
-        let prerequisite_embeddings =
-            create_embeddings(app_config, prerequisites_to_add.clone()).await?;
-        insert_course_prerequisites(
-            conn,
-            course_id,
-            prerequisites_to_add,
-            prerequisite_embeddings,
-        )
-        .await?
-    } else {
-        vec![]
-    };
-
     let old_audiences: Vec<CourseAudience> =
         crate::course_audiences::get_by_course_id(conn, course_id).await?;
     let new_audiences: Vec<String> = course_metadata
@@ -1037,22 +1033,36 @@ pub async fn set_metadata(
         .filter(|x| !audience_old_strings.contains(x))
         .collect();
 
-    crate::course_audiences::delete_batch(conn, audiences_to_delete).await?;
+    let prerequisite_embeddings = if prerequisites_to_add.is_empty() {
+        None
+    } else {
+        Some(create_embeddings(app_config, prerequisites_to_add.clone()).await?)
+    };
 
-    let audiences = if !audiences_to_add.is_empty() {
-        let audience_embeddings = create_embeddings(app_config, audiences_to_add.clone()).await?;
-        crate::course_audiences::insert_course_audiences(
-            conn,
-            course_id,
-            audiences_to_add,
-            audience_embeddings,
-        )
-        .await?
+    let audience_embeddings = if audiences_to_add.is_empty() {
+        None
+    } else {
+        Some(create_embeddings(app_config, audiences_to_add.clone()).await?)
+    };
+
+    let mut tx = conn.begin().await?;
+
+    let prerequisites = if let Some(embeddings) = prerequisite_embeddings {
+        insert_course_prerequisites(&mut tx, course_id, prerequisites_to_add, embeddings).await?
     } else {
         vec![]
     };
 
-    let course = get_course(conn, course_id).await?;
+    let audiences = if let Some(embeddings) = audience_embeddings {
+        insert_course_audiences(&mut tx, course_id, audiences_to_add, embeddings).await?
+    } else {
+        vec![]
+    };
+
+    crate::course_prerequisites::delete_batch(&mut tx, prerequisites_to_delete).await?;
+    crate::course_audiences::delete_batch(&mut tx, audiences_to_delete).await?;
+
+    let course = get_course(&mut tx, course_id).await?;
 
     let update_payload = CourseUpdate {
         name: course.name,
@@ -1073,13 +1083,14 @@ pub async fn set_metadata(
         ai_policy: course.ai_policy,
         course_material_ai_instructions: course.course_material_ai_instructions,
     };
-    let updated_course = update_course(conn, app_config, course_id, update_payload).await?;
+    let updated_course = update_course(&mut tx, app_config, course_id, update_payload).await?;
 
     let res = CourseMetadata {
         course_description: updated_course.description,
         course_audiences: audiences,
         course_prerequisites: prerequisites,
     };
+    tx.commit().await?;
     Ok(res)
 }
 
@@ -1110,47 +1121,92 @@ pub async fn get_metadata(
     Ok(metadata)
 }
 
-pub async fn update_embedding_vector(
+pub async fn update_course_embeddings(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     course_id: Uuid,
-    description: &String,
+    title: Option<&str>,
+    description: Option<&str>,
 ) -> ModelResult<()> {
-    let embedding = create_embeddings(app_config, vec![description.to_owned()])
-        .await?
-        .first()
-        .expect("Embedding returned nothing")
-        .to_owned();
-    let vector = Vector::from(embedding);
-    let _res = sqlx::query!(
+    let title_embedding = if let Some(title) = title {
+        Some(
+            create_embeddings(app_config, vec![title.to_owned()])
+                .await?
+                .into_iter()
+                .next()
+                .ok_or_else(|| {
+                    model_err!(Generic, "The embedding API returned no title embedding.")
+                })
+                .map(Vector::from)?,
+        )
+    } else {
+        None
+    };
+
+    let description_embedding = if let Some(description) = description {
+        Some(
+            create_embeddings(app_config, vec![description.to_owned()])
+                .await?
+                .into_iter()
+                .next()
+                .ok_or_else(|| {
+                    model_err!(
+                        Generic,
+                        "The embedding API returned no description embedding."
+                    )
+                })
+                .map(Vector::from)?,
+        )
+    } else {
+        None
+    };
+
+    sqlx::query!(
         r#"
-UPDATE courses
-SET embedding = $1::vector
-WHERE id = $2
-    "#,
-        vector,
-        course_id
+INSERT INTO course_embeddings (
+    course_id,
+    title_embedding,
+    description_embedding
+)
+VALUES ($1, $2, $3)
+ON CONFLICT (course_id) WHERE deleted_at IS NULL
+DO UPDATE SET
+    title_embedding = COALESCE(
+        $2,
+        course_embeddings.title_embedding
+    ),
+    description_embedding = COALESCE(
+        $3,
+        course_embeddings.description_embedding
+    )
+"#,
+        course_id,
+        title_embedding,
+        description_embedding,
     )
     .execute(conn)
     .await?;
+
     Ok(())
 }
 
 pub async fn get_by_description_vectors(
     conn: &mut PgConnection,
-    description_vecs: Vec<Vec<f32>>,
+    query_vecs: Vec<Vec<f32>>,
     description_keywords: Vec<String>,
 ) -> ModelResult<Vec<Uuid>> {
-    let vectors: Vec<Vector> = description_vecs.into_iter().map(Vector::from).collect();
+    let vectors: Vec<Vector> = query_vecs.into_iter().map(Vector::from).collect();
     let res = sqlx::query_scalar!(
         r#"
 SELECT id
 FROM (
     SELECT
         c.id,
-        MIN(c.embedding <#> v.embedding) AS distance
-    FROM courses c
+        LEAST(MIN(ce.title_embedding <#> v.embedding),
+              MIN(ce.title_embedding <#> v.embedding)) AS distance
+    FROM courses c, course_embeddings ce
     CROSS JOIN unnest($1::vector[]) AS v(embedding)
+    WHERE c.deleted_at IS NULL AND c.id = ce.course_id
     GROUP BY c.id
     ORDER BY distance ASC
     LIMIT 5
@@ -1159,7 +1215,8 @@ UNION ALL
 SELECT DISTINCT c.id
 FROM courses c
 CROSS JOIN unnest($2::text[]) AS k(keyword)
-WHERE to_tsvector('english', c.description)
+WHERE deleted_at IS NULL
+AND to_tsvector('english', c.description)
 @@ websearch_to_tsquery('english', k.keyword)
         "#,
         &vectors as _,

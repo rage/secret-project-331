@@ -4,6 +4,13 @@
   "description": "",
   "keywords": [],
   "main": "index.js",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
+  },
   "scripts": {
     "create-login-states": "env LANGUAGE=en_US  pnpm exec playwright test --project setup",
     "help": "playwright --help",
@@ -46,12 +53,5 @@
     "@typescript/native": "npm:typescript@^7.0.2",
     "playwright": "^1.62.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
-  },
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
   }
 }

@@ -395,6 +395,7 @@ pub struct AnswerFile {
     pub mime: Option<String>,
 }
 
+/// The service's listing of an answer's files, for the host to download and store.
 #[derive(Debug, Deserialize)]
 pub struct AnswerFilesResponse {
     /// In the order the student's files should be restored in; the host records it verbatim.

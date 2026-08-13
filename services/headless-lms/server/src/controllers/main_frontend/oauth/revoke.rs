@@ -168,10 +168,10 @@ pub async fn revoke(
 fn not_found_or_storage_error(err: models::ModelError, what: &str) -> Result<(), ControllerError> {
     match err.error_type() {
         ModelErrorType::RecordNotFound | ModelErrorType::NotFound => Ok(()),
-        _ => Err(ControllerError::new(
-            ControllerErrorType::InternalServerError,
+        _ => Err(controller_err!(
+            InternalServerError,
             format!("Failed to look up {what} due to storage error"),
-            Some(err.into()),
+            err
         )),
     }
 }

@@ -1022,6 +1022,7 @@
       },
       "Course": {
         "type": "object",
+        "description": "A course the current user can browse or is enrolled in.",
         "required": ["id", "slug", "name", "organization_name"],
         "properties": {
           "description": {
@@ -1035,7 +1036,8 @@
             "type": "string"
           },
           "organization_name": {
-            "type": "string"
+            "type": "string",
+            "description": "Denormalized so a client needn't resolve the owning organization separately."
           },
           "slug": {
             "type": "string"
@@ -1091,6 +1093,7 @@
       },
       "ExerciseSlide": {
         "type": "object",
+        "description": "One selected slide of an exercise, carrying only the tasks whose exercise service can serve\nthe requesting client. An exercise with no client-servable task is omitted entirely by\nendpoints that return this type, rather than appearing with an empty `tasks`.",
         "required": [
           "slide_id",
           "exercise_id",
@@ -1190,6 +1193,7 @@
       },
       "ExerciseTask": {
         "type": "object",
+        "description": "One task of an exercise slide, as produced by a specific exercise service.\n\n`public_spec` / `model_solution_spec` are plugin-owned blobs: the exercise service\nthat produces them is the only component that interprets their shape, so the host\nforwards them verbatim and they stay opaque `serde_json::Value` here.",
         "required": ["task_id", "order_number", "assignment", "exercise_service_slug"],
         "properties": {
           "assignment": {},
@@ -1237,9 +1241,12 @@
                 "type": "object",
                 "required": ["grading_progress"],
                 "properties": {
-                  "feedback_json": {},
+                  "feedback_json": {
+                    "description": "Structured grading feedback, opaque like `ExerciseTask`'s spec fields: only the\nexercise service that produced it interprets its shape."
+                  },
                   "feedback_text": {
-                    "type": ["string", "null"]
+                    "type": ["string", "null"],
+                    "description": "Human-readable feedback, for a client to display as-is."
                   },
                   "grading_completed_at": {
                     "type": ["string", "null"],
@@ -1254,16 +1261,19 @@
                   },
                   "score_given": {
                     "type": ["number", "null"],
-                    "format": "float"
+                    "format": "float",
+                    "description": "Absent until grading has produced a value; a partial value while `grading_progress`\nis still pending."
                   }
                 }
               }
             }
           }
-        ]
+        ],
+        "description": "The grading status of a task submission, as polled after `submit`."
       },
       "GradingProgress": {
         "type": "string",
+        "description": "How far along a task submission's grading is.",
         "enum": ["Failed", "NotReady", "PendingManual", "Pending", "FullyGraded"]
       },
       "PasteResult": {

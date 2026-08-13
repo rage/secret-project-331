@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
-import React from "react"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import MainFrontedViewSubmission from "@/components/MainFrontedViewSubmission"
@@ -31,7 +31,7 @@ const SharedSubmission: React.FC = () => {
     }),
   })
 
-  const breadcrumbPieces = React.useMemo(
+  const breadcrumbPieces = useMemo(
     () => [
       {
         text: t("title-shared-submission"),

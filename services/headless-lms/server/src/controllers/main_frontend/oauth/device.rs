@@ -119,10 +119,9 @@ fn normalize_user_code(input: &str) -> String {
 
 /// A `ControllerError` for a `user_code` that has no still-pending grant.
 fn device_code_not_found() -> ControllerError {
-    ControllerError::new(
-        ControllerErrorType::NotFound,
-        "no pending device authorization for this user_code".to_string(),
-        None::<anyhow::Error>,
+    controller_err!(
+        NotFound,
+        "no pending device authorization for this user_code".to_string()
     )
 }
 

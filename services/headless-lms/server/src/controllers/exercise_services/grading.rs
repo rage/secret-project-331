@@ -7,6 +7,19 @@ POST `/api/v0/exercise-services/grading/grading-update/:submission_id`
 
 Receives a grading update from an exercise service.
 */
+#[utoipa::path(
+    post,
+    path = "/grading-update/{submission_id}",
+    operation_id = "updateExerciseTaskGrading",
+    tag = "exercise-services-grading",
+    params(
+        ("submission_id" = Uuid, Path, description = "Exercise task submission id")
+    ),
+    request_body = ExerciseTaskGradingResult,
+    responses(
+        (status = 200, description = "Grading update applied")
+    )
+)]
 #[instrument(skip(pool))]
 async fn grading_update(
     submission_id: web::Path<Uuid>,
@@ -35,10 +48,9 @@ fn verify_claim_matches_submission(
     claim_submission_id: Uuid,
 ) -> Result<(), ControllerError> {
     if submission_id != claim_submission_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Grading upload claim didn't match the submission id".to_string(),
-            None,
+        return Err(controller_err!(
+            BadRequest,
+            "Grading upload claim didn't match the submission id".to_string()
         ));
     }
     Ok(())
@@ -57,10 +69,9 @@ async fn apply_grading_update(
         models::exercise_task_gradings::get_by_exercise_task_submission_id(conn, submission_id)
             .await?
             .ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "No existing grading for the submission found".to_string(),
-                    None,
+                controller_err!(
+                    BadRequest,
+                    "No existing grading for the submission found".to_string()
                 )
             })?;
     let exercise = models::exercises::get_by_id(conn, slide.exercise_id).await?;

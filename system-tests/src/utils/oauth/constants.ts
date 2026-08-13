@@ -18,9 +18,13 @@ export const TMC_VSCODE_NOSCOPE_CLIENT_ID = "tmc-vscode-noscope-test"
 
 export const TEST_CLIENT_ID = "test-client-id"
 export const TEST_CLIENT_SECRET = "very-secret"
+// Asserted against in two UI surfaces: the consent screen's <h2> title, and the client name
+// shown in the authorized-applications settings list.
 export const APP_DISPLAY_NAME = "Test Client"
 // Redirect URI is per-worker (getRedirectUri() from redirectServer after ensureRedirectServer()). Ports 8765..8784.
 
+// Reserved for flows.spec.ts, kept out of OAUTH_SPEC_USERS's pool so its consent state can't
+// collide with a spec running in parallel.
 export const USER_EMAIL = "student1@example.com"
 export const USER_PASSWORD = "student1"
 export const USER_EMAIL_2 = "student2@example.com"

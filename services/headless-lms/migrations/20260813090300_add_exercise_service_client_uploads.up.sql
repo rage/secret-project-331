@@ -3,12 +3,13 @@ CREATE TABLE exercise_service_client_uploads (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  file_upload_id UUID NOT NULL UNIQUE REFERENCES file_uploads,
+  file_upload_id UUID NOT NULL REFERENCES file_uploads,
   exercise_id UUID NOT NULL REFERENCES exercises,
   user_id UUID NOT NULL REFERENCES users
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON exercise_service_client_uploads FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+CREATE UNIQUE INDEX uq_exercise_service_client_uploads_file_upload_id ON exercise_service_client_uploads(file_upload_id, deleted_at) NULLS NOT DISTINCT;
 CREATE INDEX idx_exercise_service_client_uploads_lookup ON exercise_service_client_uploads (exercise_id, user_id)
 WHERE deleted_at IS NULL;
 CREATE INDEX idx_exercise_service_client_uploads_created ON exercise_service_client_uploads (created_at)

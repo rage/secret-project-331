@@ -1,11 +1,19 @@
+//! Wire types for the exercise-services client API (`/api/v0/exercise-services/client`), the
+//! HTTP surface a native TMC client authenticates against and exchanges for course, exercise,
+//! and submission data. Consumed externally by `tmc-langs-rust`, so it stays free of
+//! server-internal dependencies; the `openapi` feature adds `utoipa::ToSchema` derives for the
+//! server's own OpenAPI generation and is off by default for other consumers.
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use uuid::Uuid;
 
+/// The token exchanged at the OAuth2 token endpoint; its `access_token` is the bearer token sent
+/// with every other request in this API.
 pub type Token =
     oauth2::StandardTokenResponse<oauth2::EmptyExtraTokenFields, oauth2::basic::BasicTokenType>;
 
+/// A course the current user can browse or is enrolled in.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Course {
@@ -13,9 +21,13 @@ pub struct Course {
     pub slug: String,
     pub name: String,
     pub description: Option<String>,
+    /// Denormalized so a client needn't resolve the owning organization separately.
     pub organization_name: String,
 }
 
+/// One selected slide of an exercise, carrying only the tasks whose exercise service can serve
+/// the requesting client. An exercise with no client-servable task is omitted entirely by
+/// endpoints that return this type, rather than appearing with an empty `tasks`.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlide {
@@ -29,9 +41,11 @@ pub struct ExerciseSlide {
     pub tasks: Vec<ExerciseTask>,
 }
 
-// `public_spec` / `model_solution_spec` are plugin-owned blobs: the exercise service
-// that produces them is the only component that interprets their shape, so the host
-// forwards them verbatim and they stay opaque `serde_json::Value` here.
+/// One task of an exercise slide, as produced by a specific exercise service.
+///
+/// `public_spec` / `model_solution_spec` are plugin-owned blobs: the exercise service
+/// that produces them is the only component that interprets their shape, so the host
+/// forwards them verbatim and they stay opaque `serde_json::Value` here.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseTask {
@@ -85,20 +99,27 @@ pub struct ExerciseTaskSubmissionResult {
     pub slide_submission_id: Uuid,
 }
 
+/// The grading status of a task submission, as polled after `submit`.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub enum ExerciseTaskSubmissionStatus {
     NoGradingYet,
     Grading {
         grading_progress: GradingProgress,
+        /// Absent until grading has produced a value; a partial value while `grading_progress`
+        /// is still pending.
         score_given: Option<f32>,
         grading_started_at: Option<DateTime<Utc>>,
         grading_completed_at: Option<DateTime<Utc>>,
+        /// Structured grading feedback, opaque like `ExerciseTask`'s spec fields: only the
+        /// exercise service that produced it interprets its shape.
         feedback_json: Option<serde_json::Value>,
+        /// Human-readable feedback, for a client to display as-is.
         feedback_text: Option<String>,
     },
 }
 
+/// How far along a task submission's grading is.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub enum GradingProgress {

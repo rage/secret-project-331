@@ -574,11 +574,7 @@ async fn get_exercise(
 
 /// Builds a 422 whose `message_key` the client keys its error handling on.
 fn bad_request_with_reason(reason: BadRequestReason, message: String) -> ControllerError {
-    ControllerError::new(
-        ControllerErrorType::BadRequestWithReason(reason),
-        message,
-        None,
-    )
+    controller_err!(BadRequestWithReason(reason), message)
 }
 
 /// Rejects a user who is not enrolled on the exercise's course.
@@ -1060,10 +1056,9 @@ async fn submit_exercise(
         .into_iter()
         .next()
         .ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to find exercise task submission id".to_string(),
-                None,
+            controller_err!(
+                InternalServerError,
+                "Failed to find exercise task submission id".to_string()
             )
         })?;
 
@@ -1490,10 +1485,9 @@ mod tests {
         use actix_web::http::StatusCode;
         use futures_util::FutureExt;
 
-        let err = ControllerError::new(
-            ControllerErrorType::BadRequestWithReason(BadRequestReason::NotEnrolled),
-            "User is not enrolled to this exercise's course".to_string(),
-            None,
+        let err = controller_err!(
+            BadRequestWithReason(BadRequestReason::NotEnrolled),
+            "User is not enrolled to this exercise's course".to_string()
         );
         let response = err.error_response();
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);

@@ -202,6 +202,7 @@ FOR UPDATE
     .fetch_optional(&mut *tx)
     .await?;
     if locked.is_none() {
+        tx.rollback().await?;
         return Ok(false);
     }
     let retired = sqlx::query_scalar!(

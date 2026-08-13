@@ -12,12 +12,13 @@ import {
   approveOauthDeviceVerification,
   denyOauthDeviceVerification,
 } from "@/generated/api/sdk.generated"
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, type ButtonProps, TextField } from "@/shared-module/components"
+import { Button, TextField } from "@/shared-module/components"
 
 interface DeviceCodeFields {
   userCode: string
@@ -30,14 +31,6 @@ const denyButtonStyles = css`
   --btn-secondary-bg-hover: var(--color-red-700);
   --btn-secondary-border-hover: var(--color-red-700);
 `
-
-// The system tests locate the consent buttons by these ids. Button spreads `domProps` onto the
-// <button>, but ButtonHTMLAttributes has no data-* index signature, hence the casts.
-type ButtonDomProps = NonNullable<ButtonProps["domProps"]>
-// oxlint-disable-next-line i18next/no-literal-string
-const approveButtonDomProps = { "data-testid": "oauth-device-approve-button" } as ButtonDomProps
-// oxlint-disable-next-line i18next/no-literal-string
-const denyButtonDomProps = { "data-testid": "oauth-device-deny-button" } as ButtonDomProps
 
 const DeviceVerificationPage: React.FC = () => {
   const searchParams = useSearchParams()
@@ -128,7 +121,7 @@ const DeviceVerificationPage: React.FC = () => {
             />
           </div>
           {verification.isError && (
-            <p data-testid="oauth-device-error">{t("oauth-device-code-not-found")}</p>
+            <GenericInfobox>{t("oauth-device-code-not-found")}</GenericInfobox>
           )}
           <Button variant="primary" size="large" type="submit" disabled={!inputValue.trim()}>
             {t("button-text-submit")}
@@ -162,7 +155,7 @@ const DeviceVerificationPage: React.FC = () => {
               onClick={() => approveMutation.mutate()}
               disabled={approveMutation.isPending || denyMutation.isPending}
               aria-label={t("approve")}
-              domProps={approveButtonDomProps}
+              data-testid="oauth-device-approve-button"
             >
               {t("approve")}
             </Button>
@@ -173,7 +166,7 @@ const DeviceVerificationPage: React.FC = () => {
               onClick={() => denyMutation.mutate()}
               disabled={approveMutation.isPending || denyMutation.isPending}
               aria-label={t("button-text-cancel")}
-              domProps={denyButtonDomProps}
+              data-testid="oauth-device-deny-button"
             >
               {t("button-text-cancel")}
             </Button>

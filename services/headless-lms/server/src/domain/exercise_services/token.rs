@@ -1,4 +1,7 @@
-use crate::{domain::authorization, prelude::*};
+use crate::{
+    domain::{authorization, error::as_controller_error},
+    prelude::*,
+};
 use actix_web::{FromRequest, http::header};
 use chrono::{DateTime, Utc};
 use futures_util::{FutureExt, future::LocalBoxFuture};
@@ -46,20 +49,12 @@ impl DerefMut for UserFromOAuthToken {
 
 /// Builds the `401 unauthorized` error the langs client expects for any rejected token.
 fn unauthorized(message: &str) -> ControllerError {
-    ControllerError::new(
-        ControllerErrorType::Unauthorized,
-        message.to_string(),
-        None::<anyhow::Error>,
-    )
+    controller_err!(Unauthorized, message.to_string())
 }
 
 /// Builds the `403 forbidden` error the langs client expects for a token missing the scope.
 fn forbidden(message: &str) -> ControllerError {
-    ControllerError::new(
-        ControllerErrorType::Forbidden,
-        message.to_string(),
-        None::<anyhow::Error>,
-    )
+    controller_err!(Forbidden, message.to_string())
 }
 
 /// Classify a model lookup error raised while resolving a Bearer token.
@@ -77,10 +72,10 @@ fn lookup_error(err: models::ModelError, unauthorized_message: &str) -> Controll
         }
         _ => {
             let source: anyhow::Error = err.into();
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
+            controller_err!(
+                InternalServerError,
                 "A database error occurred while validating the access token.".to_string(),
-                Some(source),
+                source
             )
         }
     }
@@ -153,18 +148,28 @@ impl FromRequest for UserFromOAuthToken {
     type Future = LocalBoxFuture<'static, Result<Self, ControllerError>>;
 
     fn from_request(req: &HttpRequest, _payload: &mut actix_http::Payload) -> Self::Future {
-        let pool = req
-            .app_data::<web::Data<PgPool>>()
-            .expect("Missing database pool")
-            .clone();
-        let app_conf = req
-            .app_data::<web::Data<ApplicationConfiguration>>()
-            .expect("Missing application configuration")
-            .clone();
-        let cache = req
-            .app_data::<web::Data<Cache>>()
-            .expect("Missing cache")
-            .clone();
+        let app_data = (|| -> Result<_, ControllerError> {
+            let pool = req
+                .app_data::<web::Data<PgPool>>()
+                .ok_or_else(|| {
+                    controller_err!(InternalServerError, "Missing database pool".to_string())
+                })?
+                .clone();
+            let app_conf = req
+                .app_data::<web::Data<ApplicationConfiguration>>()
+                .ok_or_else(|| {
+                    controller_err!(
+                        InternalServerError,
+                        "Missing application configuration".to_string()
+                    )
+                })?
+                .clone();
+            let cache = req
+                .app_data::<web::Data<Cache>>()
+                .ok_or_else(|| controller_err!(InternalServerError, "Missing cache".to_string()))?
+                .clone();
+            Ok((pool, app_conf, cache))
+        })();
 
         let auth_header = req
             .headers()
@@ -174,6 +179,7 @@ impl FromRequest for UserFromOAuthToken {
             .map(|o| SecretString::new(o.into()));
 
         async move {
+            let (pool, app_conf, cache) = app_data?;
             let Some(token) = auth_header else {
                 return Err(unauthorized("Missing bearer token"));
             };
@@ -187,13 +193,10 @@ impl FromRequest for UserFromOAuthToken {
                 if let Some(user) =
                     authorization::authenticate_test_token(&mut conn, &token, &app_conf)
                         .await
-                        .map_err(|err| {
-                            ControllerError::new(
-                                ControllerErrorType::Unauthorized,
-                                "Could not find user for test token".to_string(),
-                                Some(err),
-                            )
-                        })?
+                        .map_err(as_controller_error(
+                            ControllerErrorType::Unauthorized,
+                            "Could not find user for test token".to_string(),
+                        ))?
                 {
                     return Ok(Self(user));
                 }

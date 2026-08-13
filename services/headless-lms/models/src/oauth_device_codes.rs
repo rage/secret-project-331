@@ -236,7 +236,7 @@ impl OAuthDeviceCode {
              WHERE d.device_code_digest = c.device_code_digest
             RETURNING
                 c.last_polled_at AS "previous_polled_at",
-                d.status AS "status: DeviceCodeStatus",
+                d.status,
                 d.expires_at AS "expires_at!",
                 d.interval_seconds AS "interval_seconds!",
                 d.user_id,

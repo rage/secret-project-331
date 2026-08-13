@@ -51,8 +51,8 @@ CREATE TABLE oauth_device_codes (
   )
 );
 
-CREATE TRIGGER set_timestamp_oauth_device_codes BEFORE
-UPDATE ON oauth_device_codes FOR EACH ROW EXECUTE FUNCTION trigger_set_timestamp();
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON oauth_device_codes FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 -- Partial so denied/approved rows can be retained without blocking user_code reuse.
 CREATE UNIQUE INDEX uq_oauth_device_codes_user_code_pending ON oauth_device_codes (user_code)
@@ -65,7 +65,7 @@ COMMENT ON INDEX idx_oauth_device_codes_expires_at IS 'Speeds eviction/lookup of
 CREATE INDEX idx_oauth_device_codes_client ON oauth_device_codes (client_id);
 COMMENT ON INDEX idx_oauth_device_codes_client IS 'Speeds per-client device code lookups.';
 
-COMMENT ON TABLE oauth_device_codes IS 'Pending OAuth 2.0 Device Authorization Grants (RFC 8628). Device code stored hashed; single-use redemption enforced in application code.';
+COMMENT ON TABLE oauth_device_codes IS 'Pending OAuth 2.0 Device Authorization Grants (RFC 8628). Device code stored hashed; single-use redemption enforced in application code. No deleted_at: rows are hard-deleted on redemption or expiry instead of soft-deleted.';
 COMMENT ON COLUMN oauth_device_codes.device_code_digest IS 'HMAC digest of the one-time device_code (hashed at rest).';
 COMMENT ON COLUMN oauth_device_codes.user_code IS 'Human-typed code shown on the device (Crockford base32, XXXX-XXXX). Unique among pending rows.';
 COMMENT ON COLUMN oauth_device_codes.client_id IS 'Client that initiated the device authorization request.';

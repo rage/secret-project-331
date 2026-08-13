@@ -2,9 +2,16 @@
   "name": "secret-project-shared-module",
   "version": "0.0.0",
   "description": "",
-  "keywords": [],
   "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "keywords": [],
   "main": "index.js",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
+  },
   "scripts": {
     "sync": "tsx sync.ts",
     "sync-once": "tsx sync.ts --once"
@@ -21,12 +28,5 @@
     "@types/lodash": "^4.17.24",
     "esbuild": "^0.28.1",
     "tsx": "^4.23.1"
-  },
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
   }
 }

@@ -12,8 +12,7 @@ import { useUserDetailsForUserQuery } from "@/hooks/useUserDetailsForUserQuery"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
-import { Link, QueryResult } from "@/shared-module/components"
+import { QueryResult } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
 const AccountSettingsPage: React.FC = () => {
@@ -93,21 +92,6 @@ const AccountSettingsPage: React.FC = () => {
           </>
         )}
       </QueryResult>
-
-      {/* Pointer only: the study record lives on the profile, not on this preferences page. */}
-      <div
-        className={css`
-          display: flex;
-          flex-wrap: wrap;
-          align-items: baseline;
-          gap: 0.5rem;
-          color: ${baseTheme.colors.gray[600]};
-          font-size: 0.9375rem;
-        `}
-      >
-        <span>{t("your-course-progress-and-completions-are-in-your-profile")}</span>
-        <Link href={profileStudiesRoute()}>{t("heading-your-studies")}</Link>
-      </div>
     </div>
   )
 }

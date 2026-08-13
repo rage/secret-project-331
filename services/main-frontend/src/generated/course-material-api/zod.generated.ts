@@ -1302,6 +1302,7 @@ export const zUserModuleCompletionStatus = z.object({
   certification_enabled: z.boolean(),
   completed: z.boolean(),
   default: z.boolean(),
+  enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
   grade: z
     .int()

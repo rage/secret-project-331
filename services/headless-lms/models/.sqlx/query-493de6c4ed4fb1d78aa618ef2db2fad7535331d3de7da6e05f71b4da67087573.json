@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.emailed_to, ed.retryable, ed.first_failed_at\nFROM credit_registration_account_linking_emails e\n  JOIN email_deliveries ed ON ed.id = e.email_delivery_id\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n  AND position('@' IN e.emailed_to) > 0\n  AND NOT ed.sent\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "emailed_to",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "emailed_to"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "retryable",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retryable"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "first_failed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "first_failed_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "493de6c4ed4fb1d78aa618ef2db2fad7535331d3de7da6e05f71b4da67087573"
+}

@@ -6,6 +6,7 @@ and the OIDC discovery document advertises an `email_verified` claim.
 */
 
 use headless_lms_models::{
+    email_templates::{self, EmailTemplateType},
     user_details::{self, EmailVerificationMethod},
     user_email_codes::{self, UserEmailCodePurpose},
 };
@@ -43,6 +44,9 @@ pub struct EmailVerificationEmailInfo {
 pub struct EmailVerificationStatus {
     /// False switches the feature off entirely; the request and verify endpoints 404 then.
     pub verification_enabled: bool,
+    /// False when `verification_enabled` but the deployment has no `verify_email_address`
+    /// template: requesting a code would 500, so the frontend hides the feature instead.
+    pub template_configured: bool,
     pub email: String,
     pub email_verified_at: Option<DateTime<Utc>>,
     pub email_verified_method: Option<EmailVerificationMethod>,
@@ -107,9 +111,19 @@ pub async fn get_my_email_verification_status(
     let live_code =
         user_email_codes::get_unused_user_email_code_with_user_id(&mut conn, user.id, PURPOSE)
             .await?;
+    let template_configured = if app_conf.enable_email_ownership_verification {
+        email_templates::generic_email_template_exists(
+            &mut conn,
+            EmailTemplateType::VerifyEmailAddress,
+        )
+        .await?
+    } else {
+        false
+    };
 
     token.authorized_ok(web::Json(EmailVerificationStatus {
         verification_enabled: app_conf.enable_email_ownership_verification,
+        template_configured,
         email: details.email,
         email_verified_at: details.email_verified_at,
         email_verified_method: details.email_verified_method,

@@ -22,6 +22,32 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdminManuallyLinkStudentNumberData,
+  AdminManuallyLinkStudentNumberErrors,
+  AdminManuallyLinkStudentNumberResponses,
+  AdminMaterializeCreditRegistrationsData,
+  AdminMaterializeCreditRegistrationsResponses,
+  AdminPausePhaseData,
+  AdminPausePhaseErrors,
+  AdminPausePhaseResponses,
+  AdminResendAccountLinkingEmailData,
+  AdminResendAccountLinkingEmailErrors,
+  AdminResendAccountLinkingEmailResponses,
+  AdminResolveStudentNumberForLinkingData,
+  AdminResolveStudentNumberForLinkingErrors,
+  AdminResolveStudentNumberForLinkingResponses,
+  AdminResumePhaseData,
+  AdminResumePhaseErrors,
+  AdminResumePhaseResponses,
+  AdminRunPhaseNowData,
+  AdminRunPhaseNowErrors,
+  AdminRunPhaseNowResponses,
+  AdminTransitionCreditRegistrationData,
+  AdminTransitionCreditRegistrationErrors,
+  AdminTransitionCreditRegistrationResponses,
+  AdminUnlinkStudentNumberData,
+  AdminUnlinkStudentNumberErrors,
+  AdminUnlinkStudentNumberResponses,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponses,
   ApproveOauthConsentData,
@@ -30,6 +56,9 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponses,
+  ClaimStudentNumberVerificationTokenData,
+  ClaimStudentNumberVerificationTokenErrors,
+  ClaimStudentNumberVerificationTokenResponses,
   ConfigureChatbotData,
   ConfigureChatbotResponses,
   ConfirmCourseSuspectedCheaterData,
@@ -169,6 +198,8 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountLinkingStatsData,
+  GetAccountLinkingStatsResponses,
   GetAllChatbotsData,
   GetAllChatbotsResponses,
   GetAllCoursesData,
@@ -217,6 +248,14 @@ import type {
   GetCourseCompletionsHistoryResponses,
   GetCourseCompletionStatsForEmailDomainData,
   GetCourseCompletionStatsForEmailDomainResponses,
+  GetCourseCreditRegistrationModuleConfigsData,
+  GetCourseCreditRegistrationModuleConfigsResponses,
+  GetCourseCreditRegistrationsData,
+  GetCourseCreditRegistrationsForUsersData,
+  GetCourseCreditRegistrationsForUsersResponses,
+  GetCourseCreditRegistrationsResponses,
+  GetCourseCreditRegistrationSummaryData,
+  GetCourseCreditRegistrationSummaryResponses,
   GetCourseDailySubmissionCountsData,
   GetCourseDailySubmissionCountsResponses,
   GetCourseDailyUsersWhoSubmittedSomethingData,
@@ -324,6 +363,14 @@ import type {
   GetCourseUserSettingsForUserResponses,
   GetCourseWeekdayHourSubmissionCountsData,
   GetCourseWeekdayHourSubmissionCountsResponses,
+  GetCreditRegistrationDetailsData,
+  GetCreditRegistrationDetailsErrors,
+  GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationForAdminData,
+  GetCreditRegistrationForAdminErrors,
+  GetCreditRegistrationForAdminResponses,
+  GetCreditRegistrationOverviewData,
+  GetCreditRegistrationOverviewResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
   GetEditProposalCountData,
@@ -373,12 +420,22 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponses,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponses,
+  GetMyCourseCreditRegistrationConsentData,
+  GetMyCourseCreditRegistrationConsentResponses,
   GetMyCoursesData,
   GetMyCoursesResponses,
+  GetMyCreditRegistrationConsentsData,
+  GetMyCreditRegistrationConsentsResponses,
+  GetMyCreditRegistrationForCourseModuleData,
+  GetMyCreditRegistrationForCourseModuleResponses,
+  GetMyCreditRegistrationsData,
+  GetMyCreditRegistrationsResponses,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponses,
   GetMyStudiesData,
   GetMyStudiesResponses,
+  GetMyVerifiedStudentNumberData,
+  GetMyVerifiedStudentNumberResponses,
   GetNumberOfPeopleCompletedACourseData,
   GetNumberOfPeopleCompletedACourseResponses,
   GetNumberOfPeopleDoneAtLeastOneExerciseData,
@@ -471,6 +528,8 @@ import type {
   GetStudentEnrollmentsByCountryResponses,
   GetStudentsByCountryTotalsData,
   GetStudentsByCountryTotalsResponses,
+  GetSuotarHealthData,
+  GetSuotarHealthResponses,
   GetTotalUsersCompletedCourseByInstanceData,
   GetTotalUsersCompletedCourseByInstanceResponses,
   GetTotalUsersCompletedCourseCustomTimePeriodData,
@@ -536,6 +595,10 @@ import type {
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
+  ListCreditRegistrationsForAdminData,
+  ListCreditRegistrationsForAdminResponses,
+  ListVerifiedStudentNumbersForAdminData,
+  ListVerifiedStudentNumbersForAdminResponses,
   MarkFeedbackAsReadData,
   MarkFeedbackAsReadResponses,
   PostOauthUserInfoData,
@@ -543,6 +606,9 @@ import type {
   PostOauthUserInfoResponses,
   PreviewCourseInstanceCompletionsData,
   PreviewCourseInstanceCompletionsResponses,
+  PreviewStudentNumberVerificationTokenData,
+  PreviewStudentNumberVerificationTokenErrors,
+  PreviewStudentNumberVerificationTokenResponses,
   ProcessEditProposalData,
   ProcessEditProposalResponses,
   ReceivePlaygroundGradingData,
@@ -555,9 +621,15 @@ import type {
   RemoveRoleResponses,
   ReprocessCourseCompletionsData,
   ReprocessCourseCompletionsResponses,
+  RequestCreditRegistrationEnrolmentRecheckData,
+  RequestCreditRegistrationEnrolmentRecheckErrors,
+  RequestCreditRegistrationEnrolmentRecheckResponses,
   RequestEmailVerificationCodeData,
   RequestEmailVerificationCodeErrors,
   RequestEmailVerificationCodeResponses,
+  ResendCourseCreditRegistrationLinkingEmailData,
+  ResendCourseCreditRegistrationLinkingEmailErrors,
+  ResendCourseCreditRegistrationLinkingEmailResponses,
   ResetCourseProgressForEveryoneData,
   ResetCourseProgressForEveryoneResponses,
   ResetCourseProgressForTeacherThemselvesData,
@@ -590,6 +662,8 @@ import type {
   SetCourseModuleCertificateGenerationResponses,
   SetExamCourseData,
   SetExamCourseResponses,
+  SetMyCourseCreditRegistrationConsentData,
+  SetMyCourseCreditRegistrationConsentResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
   TeacherLockStudentChapterData,
@@ -600,6 +674,8 @@ import type {
   TeacherUnlockStudentChapterResponses,
   UnhideCourseFromMyCoursesData,
   UnhideCourseFromMyCoursesResponses,
+  UnlinkMyStudentNumberData,
+  UnlinkMyStudentNumberResponses,
   UnsetExamCourseData,
   UnsetExamCourseResponses,
   UpdateCertificateConfigurationData,
@@ -659,9 +735,19 @@ import {
   zAddCodeGiveawayCodesResponse,
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
+  zAdminManuallyLinkStudentNumberResponse,
+  zAdminMaterializeCreditRegistrationsResponse,
+  zAdminPausePhaseResponse,
+  zAdminResendAccountLinkingEmailResponse,
+  zAdminResolveStudentNumberForLinkingResponse,
+  zAdminResumePhaseResponse,
+  zAdminRunPhaseNowResponse,
+  zAdminTransitionCreditRegistrationResponse,
+  zAdminUnlinkStudentNumberResponse,
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
   zChangeUserPasswordResponse,
+  zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
   zCreateChapterResponse,
   zCreateCodeGiveawayResponse,
@@ -709,6 +795,7 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountLinkingStatsResponse,
   zGetAllChatbotsResponse,
   zGetAllCoursesResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
@@ -732,6 +819,10 @@ import {
   zGetCourseCompletionsHistoryCustomTimePeriodResponse,
   zGetCourseCompletionsHistoryResponse,
   zGetCourseCompletionStatsForEmailDomainResponse,
+  zGetCourseCreditRegistrationModuleConfigsResponse,
+  zGetCourseCreditRegistrationsForUsersResponse,
+  zGetCourseCreditRegistrationsResponse,
+  zGetCourseCreditRegistrationSummaryResponse,
   zGetCourseDailySubmissionCountsResponse,
   zGetCourseDailyUsersWhoSubmittedSomethingResponse,
   zGetCourseDesignerPlanResponse,
@@ -780,6 +871,9 @@ import {
   zGetCourseUsersCountsByExerciseResponse,
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
+  zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationForAdminResponse,
+  zGetCreditRegistrationOverviewResponse,
   zGetCurrentTimeResponse,
   zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
@@ -804,9 +898,14 @@ import {
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
+  zGetMyCourseCreditRegistrationConsentResponse,
   zGetMyCoursesResponse,
+  zGetMyCreditRegistrationConsentsResponse,
+  zGetMyCreditRegistrationForCourseModuleResponse,
+  zGetMyCreditRegistrationsResponse,
   zGetMyEmailVerificationStatusResponse,
   zGetMyStudiesResponse,
+  zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
   zGetNumberOfPeopleDoneAtLeastOneExerciseResponse,
   zGetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
@@ -849,6 +948,7 @@ import {
   zGetStudentCompletionsByCountryResponse,
   zGetStudentEnrollmentsByCountryResponse,
   zGetStudentsByCountryTotalsResponse,
+  zGetSuotarHealthResponse,
   zGetTotalUsersCompletedCourseByInstanceResponse,
   zGetTotalUsersCompletedCourseCustomTimePeriodResponse,
   zGetTotalUsersCompletedCourseResponse,
@@ -879,10 +979,15 @@ import {
   zGetUsersReturningExercisesHistoryResponse,
   zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
+  zListCreditRegistrationsForAdminResponse,
+  zListVerifiedStudentNumbersForAdminResponse,
   zPreviewCourseInstanceCompletionsResponse,
+  zPreviewStudentNumberVerificationTokenResponse,
   zRemoveCoursePlanMemberResponse,
   zReprocessCourseCompletionsResponse,
+  zRequestCreditRegistrationEnrolmentRecheckResponse,
   zRequestEmailVerificationCodeResponse,
+  zResendCourseCreditRegistrationLinkingEmailResponse,
   zResetCourseProgressForEveryoneResponse,
   zResetCourseProgressForTeacherThemselvesResponse,
   zResetExercisesForSelectedUsersResponse,
@@ -896,9 +1001,11 @@ import {
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
+  zSetMyCourseCreditRegistrationConsentResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
+  zUnlinkMyStudentNumberResponse,
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
   zUpdateChapterResponse,
@@ -1440,6 +1547,160 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The
+ * registrations of the named students, for the students tab's current page.
+ */
+export const getCourseCreditRegistrationsForUsers = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationsForUsersData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationsForUsersResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    GetCourseCreditRegistrationsForUsersResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationsForUsersResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
+ * course's registrations, filtered by state and searched by student name, email or student number.
+ */
+export const getCourseCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationsData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs` - The
+ * course's per-module credit registration configuration.
+ */
+export const getCourseCreditRegistrationModuleConfigs = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationModuleConfigsData, ThrowOnError>,
+): RequestResult<
+  GetCourseCreditRegistrationModuleConfigsResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationModuleConfigsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationModuleConfigsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs",
+    ...options,
+  })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off
+ * another account-linking mail for one person on this course.
+ *
+ * The target has to be on this course's roster in the study registry and hold no link with us. The caps
+ * of the ordinary claim path apply and nothing here relaxes them.
+ */
+export const resendCourseCreditRegistrationLinkingEmail = <ThrowOnError extends boolean = true>(
+  options: Options<ResendCourseCreditRegistrationLinkingEmailData, ThrowOnError>,
+): RequestResult<
+  ResendCourseCreditRegistrationLinkingEmailResponses,
+  ResendCourseCreditRegistrationLinkingEmailErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ResendCourseCreditRegistrationLinkingEmailResponses,
+    ResendCourseCreditRegistrationLinkingEmailErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zResendCourseCreditRegistrationLinkingEmailResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
+ * counts plus the two reasons a student of this course will not get credits.
+ */
+export const getCourseCreditRegistrationSummary = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationSummaryData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationSummaryResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationSummaryResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationSummaryResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One
+ * registration with its timeline and the other attempts for the same completion.
+ *
+ * Authorized on the row's own course: a course id from the caller would let a teacher of one course pair
+ * it with a foreign registration id.
+ */
+export const getCreditRegistrationDetails = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationDetailsData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationDetailsErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationDetailsResponses,
+    GetCreditRegistrationDetailsErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCreditRegistrationDetailsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}",
+    ...options,
+  })
 
 /**
  *
@@ -4275,6 +4536,621 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
       await zGetCourseWeekdayHourSubmissionCountsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/weekday-hour-submission-counts",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
+ * per-realisation counters, the send-status totals and the stale-address list.
+ */
+export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountLinkingStatsData, ThrowOnError>,
+): RequestResult<GetAccountLinkingStatsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountLinkingStatsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAccountLinkingStatsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student
+ * number to an account on an admin's judgement.
+ *
+ * The last resort, for a student whose mailbox host will not accept our mail at all. An admin's judgement
+ * stands in for proof of mailbox control, so the link is marked `admin_manual` forever, carries the
+ * reason and names the admin.
+ */
+export const adminManuallyLinkStudentNumber = <ThrowOnError extends boolean = true>(
+  options: Options<AdminManuallyLinkStudentNumberData, ThrowOnError>,
+): RequestResult<
+  AdminManuallyLinkStudentNumberResponses,
+  AdminManuallyLinkStudentNumberErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminManuallyLinkStudentNumberResponses,
+    AdminManuallyLinkStudentNumberErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminManuallyLinkStudentNumberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another
+ * account-linking mail for one person on one course.
+ *
+ * The mail goes to the addresses the study registry holds, and the recipient still has to open the link
+ * while signed in, so the ownership proof is intact. An override does not ask a cap for an exemption: it
+ * retires the ledger rows the cap is counting, as its own audited action, then runs the ordinary path.
+ */
+export const adminResendAccountLinkingEmail = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResendAccountLinkingEmailData, ThrowOnError>,
+): RequestResult<
+  AdminResendAccountLinkingEmailResponses,
+  AdminResendAccountLinkingEmailErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminResendAccountLinkingEmailResponses,
+    AdminResendAccountLinkingEmailErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminResendAccountLinkingEmailResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/resend",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one
+ * student number up in the study registry without changing anything.
+ *
+ * The preview a manual link is gated on. Writes nothing but the call log row every study registry call
+ * writes.
+ */
+export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResolveStudentNumberForLinkingData, ThrowOnError>,
+): RequestResult<
+  AdminResolveStudentNumberForLinkingResponses,
+  AdminResolveStudentNumberForLinkingErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminResolveStudentNumberForLinkingResponses,
+    AdminResolveStudentNumberForLinkingErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminResolveStudentNumberForLinkingResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
+ * completions and recomputes preconditions, now.
+ *
+ * Runs the two database-only steps directly rather than through the phase dispatcher, because the
+ * phase-state row describes the worker loops: an admin pressing a button must not make a dead worker look
+ * alive.
+ */
+export const adminMaterializeCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<AdminMaterializeCreditRegistrationsData, ThrowOnError>,
+): RequestResult<AdminMaterializeCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminMaterializeCreditRegistrationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminMaterializeCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/materialize",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/overview` - Everything the Overview tab and the
+ * alert banner render, in one request so the tiles cannot contradict each other.
+ */
+export const getCreditRegistrationOverview = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationOverviewData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationOverviewResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationOverviewResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationOverviewResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/overview",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the
+ * worker loop skips it on every tick until it is resumed.
+ */
+export const adminPausePhase = <ThrowOnError extends boolean = true>(
+  options: Options<AdminPausePhaseData, ThrowOnError>,
+): RequestResult<AdminPausePhaseResponses, AdminPausePhaseErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminPausePhaseResponses,
+    AdminPausePhaseErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminPausePhaseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused
+ * phase.
+ */
+export const adminResumePhase = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResumePhaseData, ThrowOnError>,
+): RequestResult<AdminResumePhaseResponses, AdminResumePhaseErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminResumePhaseResponses,
+    AdminResumePhaseErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminResumePhaseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due
+ * immediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.
+ */
+export const adminRunPhaseNow = <ThrowOnError extends boolean = true>(
+  options: Options<AdminRunPhaseNowData, ThrowOnError>,
+): RequestResult<AdminRunPhaseNowResponses, AdminRunPhaseNowErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminRunPhaseNowResponses,
+    AdminRunPhaseNowErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminRunPhaseNowResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
+ * and sorted.
+ */
+export const listCreditRegistrationsForAdmin = <ThrowOnError extends boolean = true>(
+  options?: Options<ListCreditRegistrationsForAdminData, ThrowOnError>,
+): RequestResult<ListCreditRegistrationsForAdminResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListCreditRegistrationsForAdminResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zListCreditRegistrationsForAdminResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}` - One
+ * row with its timeline, the calls that timeline refers to, the other attempts for the same completion,
+ * the actions taken on it and its linking mails.
+ */
+export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationForAdminData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationForAdminResponses,
+  GetCreditRegistrationForAdminErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationForAdminResponses,
+    GetCreditRegistrationForAdminErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationForAdminResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`
+ * - Moves one row by hand.
+ *
+ * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
+ * re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because
+ * a `misregistered` row sits outside the automatic machinery that would otherwise have checked it.
+ */
+export const adminTransitionCreditRegistration = <ThrowOnError extends boolean = true>(
+  options: Options<AdminTransitionCreditRegistrationData, ThrowOnError>,
+): RequestResult<
+  AdminTransitionCreditRegistrationResponses,
+  AdminTransitionCreditRegistrationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminTransitionCreditRegistrationResponses,
+    AdminTransitionCreditRegistrationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminTransitionCreditRegistrationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/student-numbers` - A page of the live links, for
+ * spot-checking and support.
+ */
+export const listVerifiedStudentNumbersForAdmin = <ThrowOnError extends boolean = true>(
+  options?: Options<ListVerifiedStudentNumbersForAdminData, ThrowOnError>,
+): RequestResult<ListVerifiedStudentNumbersForAdminResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListVerifiedStudentNumbersForAdminResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zListVerifiedStudentNumbersForAdminResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/student-numbers",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/student-numbers/{id}/unlink` - Retires one link.
+ *
+ * A reason is required, so the request carries a body rather than being a `DELETE`. The row is
+ * soft-deleted: the number a student once held is part of the audit trail.
+ */
+export const adminUnlinkStudentNumber = <ThrowOnError extends boolean = true>(
+  options: Options<AdminUnlinkStudentNumberData, ThrowOnError>,
+): RequestResult<
+  AdminUnlinkStudentNumberResponses,
+  AdminUnlinkStudentNumberErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminUnlinkStudentNumberResponses,
+    AdminUnlinkStudentNumberErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminUnlinkStudentNumberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/student-numbers/{verified_student_number_id}/unlink",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-health` - Per-endpoint call counts,
+ * success rates and latency percentiles over an hour, a day and a week.
+ */
+export const getSuotarHealth = <ThrowOnError extends boolean = true>(
+  options?: Options<GetSuotarHealthData, ThrowOnError>,
+): RequestResult<GetSuotarHealthResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetSuotarHealthResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetSuotarHealthResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/suotar-health",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - The signed-in
+ * account's credit registration consent for one course.
+ */
+export const getMyCourseCreditRegistrationConsent = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyCourseCreditRegistrationConsentData, ThrowOnError>,
+): RequestResult<GetMyCourseCreditRegistrationConsentResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyCourseCreditRegistrationConsentResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCourseCreditRegistrationConsentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in
+ * account's answer and applies it to that course's registrations at once.
+ */
+export const setMyCourseCreditRegistrationConsent = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyCourseCreditRegistrationConsentData, ThrowOnError>,
+): RequestResult<SetMyCourseCreditRegistrationConsentResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetMyCourseCreditRegistrationConsentResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetMyCourseCreditRegistrationConsentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my` - Every credit registration of the signed-in
+ * account, newest completion first.
+ */
+export const getMyCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyCreditRegistrationsData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyCreditRegistrationsResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zGetMyCreditRegistrationsResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registrations/my",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The
+ * signed-in account's registration for one course module, or null when the pipeline has not created one
+ * yet.
+ */
+export const getMyCreditRegistrationForCourseModule = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyCreditRegistrationForCourseModuleData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationForCourseModuleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyCreditRegistrationForCourseModuleResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCreditRegistrationForCourseModuleResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/consents` - One row per course the signed-in
+ * account is enrolled on that offers credit registration, asked or not.
+ */
+export const getMyCreditRegistrationConsents = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyCreditRegistrationConsentsData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationConsentsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetMyCreditRegistrationConsentsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCreditRegistrationConsentsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/consents",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
+ * from the signed-in account.
+ *
+ * Registrations that have not been sent go back to waiting; credits already in Sisu are untouched.
+ */
+export const unlinkMyStudentNumber = <ThrowOnError extends boolean = true>(
+  options?: Options<UnlinkMyStudentNumberData, ThrowOnError>,
+): RequestResult<UnlinkMyStudentNumberResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).delete<UnlinkMyStudentNumberResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zUnlinkMyStudentNumberResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registrations/my/student-number",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/student-number` - The student number linked to the
+ * signed-in account, or null.
+ */
+export const getMyVerifiedStudentNumber = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyVerifiedStudentNumberData, ThrowOnError>,
+): RequestResult<GetMyVerifiedStudentNumberResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetMyVerifiedStudentNumberResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetMyVerifiedStudentNumberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/student-number",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to
+ * look for an enrolment again, for a row parked because the study registry had none.
+ */
+export const requestCreditRegistrationEnrolmentRecheck = <ThrowOnError extends boolean = true>(
+  options: Options<RequestCreditRegistrationEnrolmentRecheckData, ThrowOnError>,
+): RequestResult<
+  RequestCreditRegistrationEnrolmentRecheckResponses,
+  RequestCreditRegistrationEnrolmentRecheckErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RequestCreditRegistrationEnrolmentRecheckResponses,
+    RequestCreditRegistrationEnrolmentRecheckErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRequestCreditRegistrationEnrolmentRecheckResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the
+ * mailed link would link, without linking it.
+ *
+ * Writes nothing: the link has to survive a mail scanner fetching it.
+ */
+export const previewStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
+  options: Options<PreviewStudentNumberVerificationTokenData, ThrowOnError>,
+): RequestResult<
+  PreviewStudentNumberVerificationTokenResponses,
+  PreviewStudentNumberVerificationTokenErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    PreviewStudentNumberVerificationTokenResponses,
+    PreviewStudentNumberVerificationTokenErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zPreviewStudentNumberVerificationTokenResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends
+ * a mailed link and links the student number to the signed-in account.
+ *
+ * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
+ * and the session says which of our accounts the person wants to use.
+ */
+export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
+  options: Options<ClaimStudentNumberVerificationTokenData, ThrowOnError>,
+): RequestResult<
+  ClaimStudentNumberVerificationTokenResponses,
+  ClaimStudentNumberVerificationTokenErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ClaimStudentNumberVerificationTokenResponses,
+    ClaimStudentNumberVerificationTokenErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zClaimStudentNumberVerificationTokenResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim",
     ...options,
   })
 

@@ -83,6 +83,17 @@ pub async fn main() -> anyhow::Result<()> {
         ))
     )?;
 
+    // Sequential rather than in the group above: it shares the default study registry registrar with
+    // the graded course, and get-or-create is not atomic.
+    seed_organizations::credit_registration::seed_organization_credit_registration(
+        db_pool.clone(),
+        seed_users_result,
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+        seed_file_storage_result.clone(),
+    )
+    .await?;
+
     try_join!(
         run_parallelly(seed_roles::seed_roles(
             db_pool.clone(),

@@ -14,6 +14,9 @@ interface PollUntilOptions {
  * For state Playwright's own auto-retrying assertions cannot see: a database row a worker tick was
  * supposed to write, an API response that only changes after a background job. Anything visible in
  * the DOM belongs in `expect(locator)` instead, which reports better on failure.
+ *
+ * Use `expect.poll` instead when the polling *is* the assertion: it prints the expected and received
+ * values on a timeout, where this can only name what never happened.
  */
 export const pollUntil = async <T>(
   condition: () => Promise<T>,

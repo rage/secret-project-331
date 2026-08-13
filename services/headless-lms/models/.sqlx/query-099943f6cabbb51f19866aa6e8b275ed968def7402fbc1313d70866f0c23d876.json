@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO open_university_product_access_tokens (\n    open_university_product_id,\n    access_token,\n    state,\n    document_state,\n    suotar_token_id,\n    last_refreshed_at\n  )\nVALUES ($1, $2, $3, $4, $5, now()) ON CONFLICT (open_university_product_id, deleted_at) DO\nUPDATE\nSET access_token = $2,\n  state = $3,\n  document_state = $4,\n  suotar_token_id = $5,\n  last_refreshed_at = now(),\n  last_refresh_failed_at = NULL,\n  last_refresh_error = NULL,\n  consecutive_failures = 0\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "open_university_product_access_tokens",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "099943f6cabbb51f19866aa6e8b275ed968def7402fbc1313d70866f0c23d876"
+}

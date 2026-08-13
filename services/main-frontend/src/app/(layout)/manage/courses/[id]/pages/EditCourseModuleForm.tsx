@@ -3,18 +3,25 @@
 import { css } from "@emotion/css"
 import { CheckCircle, Pencil, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
-import Checkbox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Button, Checkbox, Select, TextField as NewTextField } from "@/shared-module/components"
 
 import type { ModuleView } from "./CourseModules"
+import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
+import {
+  DERIVED_GRADE_SCALE,
+  EMPTY_REALISATION,
+  NUMERIC_GRADE_SCALE_ID,
+  PASS_FAIL_GRADE_SCALE_ID,
+} from "./creditRegistrationModuleFields"
 
 interface Props {
   module: ModuleView
@@ -36,7 +43,40 @@ export interface EditCourseModuleFormFields {
   override_completion_link: boolean
   completion_registration_link_override: string
   enable_registering_completion_to_uh_open_university: boolean
+  credit_registration: CreditRegistrationModuleFields
 }
+
+const creditRegistrationSectionCss = css`
+  border-top: 1px solid ${baseTheme.colors.gray[100]};
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+`
+
+const creditRegistrationBodyCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+`
+
+const realisationsHeadingCss = css`
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+`
+
+const realisationsHintCss = css`
+  color: ${baseTheme.colors.gray[500]};
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+`
+
+const realisationRowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+`
 
 const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseModuleFormFields => {
   return {
@@ -59,6 +99,7 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseMo
     completion_registration_link_override: module.completion_registration_link_override ?? "",
     enable_registering_completion_to_uh_open_university:
       module.enable_registering_completion_to_uh_open_university,
+    credit_registration: module.credit_registration,
   }
 }
 
@@ -71,10 +112,12 @@ const EditCourseModuleForm: React.FC<Props> = ({
   const { t } = useTranslation()
   const [active, setActive] = useState(false)
   const {
+    control,
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isValid, isSubmitting, dirtyFields },
     reset,
+    setValue,
     watch,
   } = useForm<EditCourseModuleFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -84,10 +127,59 @@ const EditCourseModuleForm: React.FC<Props> = ({
   useEffect(() => {
     reset(makeDefaultValues(module, chapters))
   }, [reset, module, chapters])
+  const realisations = useFieldArray({
+    control,
+    // oxlint-disable-next-line i18next/no-literal-string
+    name: "credit_registration.realisations",
+  })
+
+  // The fields stay in form state once their section is hidden and still go out in the submit
+  // payload, so whatever turns credit registration off has to blank them.
+  const clearCreditRegistrationFields = () => {
+    setValue("credit_registration.open_university_product_id", "")
+    setValue("credit_registration.grade_scale_id", DERIVED_GRADE_SCALE)
+    realisations.replace([])
+  }
+
+  const openUniversityRegistrationEnabled = watch(
+    "enable_registering_completion_to_uh_open_university",
+  )
+  const creditRegistrationEnabled = watch("credit_registration.enabled")
+
+  // The backend rejects both registration paths at once. Gated on `dirtyFields`, which only a
+  // real user edit sets, so loading a module that already has one enabled doesn't wipe the other
+  // the moment this mounts.
+  useEffect(() => {
+    if (!dirtyFields.enable_registering_completion_to_uh_open_university) {
+      return
+    }
+    if (openUniversityRegistrationEnabled) {
+      setValue("credit_registration.enabled", false)
+      clearCreditRegistrationFields()
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [openUniversityRegistrationEnabled])
+  useEffect(() => {
+    if (!dirtyFields.credit_registration?.enabled) {
+      return
+    }
+    if (creditRegistrationEnabled) {
+      setValue("enable_registering_completion_to_uh_open_university", false)
+    } else {
+      clearCreditRegistrationFields()
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [creditRegistrationEnabled])
 
   const onSubmitFormWrapper = (fields: EditCourseModuleFormFields) => {
     setActive(false)
-    onSubmitForm(module.id, fields)
+    onSubmitForm(module.id, {
+      ...fields,
+      // A disabled Checkbox still submits its value, unlike `register(name, { disabled })`.
+      automatic_completion_requires_exam: fields.automatic_completion
+        ? fields.automatic_completion_requires_exam
+        : false,
+    })
   }
 
   const isChecked = watch("automatic_completion")
@@ -211,8 +303,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
             </div>
 
             <Checkbox
+              name="automatic_completion"
+              control={control}
               label={t("enable-automatic-completion")}
-              {...register("automatic_completion")}
             />
             <div
               className={css`
@@ -258,10 +351,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   `}
                 >
                   <Checkbox
+                    name="automatic_completion_requires_exam"
+                    control={control}
                     label={t("automatic-completion-requires-exam")}
-                    {...register("automatic_completion_requires_exam", {
-                      disabled: !isChecked,
-                    })}
+                    isDisabled={!isChecked}
                     className={css`
                       margin-bottom: 0;
                       position: relative;
@@ -278,8 +371,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
               `}
             >
               <Checkbox
+                name="override_completion_link"
+                control={control}
                 label={t("override-completion-registration-link")}
-                {...register("override_completion_link")}
               />
               <TextField
                 label={t("completion-registration-link")}
@@ -297,8 +391,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
               />
             </div>
             <Checkbox
+              name="enable_registering_completion_to_uh_open_university"
+              control={control}
               label={t("label-enable-registering-completion-to-uh-open-university")}
-              {...register("enable_registering_completion_to_uh_open_university")}
             />
             <div
               className={css`
@@ -341,6 +436,85 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 })}
               />
             </div>
+            <OnlyRenderIfPermissions
+              action={{ type: "administrate" }}
+              resource={{ type: "global_permissions" }}
+            >
+              <div className={creditRegistrationSectionCss}>
+                <Checkbox
+                  name="credit_registration.enabled"
+                  control={control}
+                  label={t("label-enable-credit-registration-via-suotar")}
+                  description={t("description-enable-credit-registration-via-suotar")}
+                />
+                {creditRegistrationEnabled && (
+                  <div className={creditRegistrationBodyCss}>
+                    <NewTextField
+                      name="credit_registration.open_university_product_id"
+                      control={control}
+                      label={t("label-open-university-product-id")}
+                      description={t("description-open-university-product-id")}
+                    />
+                    <Select
+                      name="credit_registration.grade_scale_id"
+                      control={control}
+                      label={t("label-credit-registration-grade-scale")}
+                      description={t("description-credit-registration-grade-scale")}
+                      options={[
+                        {
+                          value: DERIVED_GRADE_SCALE,
+                          label: t("grade-scale-derive-from-completion"),
+                        },
+                        { value: PASS_FAIL_GRADE_SCALE_ID, label: t("grade-scale-pass-fail") },
+                        { value: NUMERIC_GRADE_SCALE_ID, label: t("grade-scale-numeric") },
+                      ]}
+                    />
+                    <div>
+                      <div className={realisationsHeadingCss}>
+                        {t("heading-credit-registration-realisations")}
+                      </div>
+                      <div className={realisationsHintCss}>
+                        {t("hint-credit-registration-realisations")}
+                      </div>
+                      {realisations.fields.map((field, index) => (
+                        <div className={realisationRowCss} key={field.id}>
+                          <NewTextField
+                            name={`credit_registration.realisations.${index}.course_unit_realisation_id`}
+                            control={control}
+                            label={t("label-course-unit-realisation-id")}
+                            rules={{ required: t("required-field") }}
+                          />
+                          <NewTextField
+                            name={`credit_registration.realisations.${index}.label`}
+                            control={control}
+                            label={t("label-realisation-name-shown-to-students")}
+                          />
+                          <Checkbox
+                            name={`credit_registration.realisations.${index}.active`}
+                            control={control}
+                            label={t("label-realisation-active")}
+                          />
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onPress={() => realisations.remove(index)}
+                          >
+                            {t("button-text-remove")}
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        onPress={() => realisations.append(EMPTY_REALISATION)}
+                      >
+                        {t("button-text-add-realisation")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </OnlyRenderIfPermissions>
           </div>
         )}
         <div

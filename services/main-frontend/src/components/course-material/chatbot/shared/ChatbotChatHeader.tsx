@@ -128,7 +128,6 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       onAction: () => {
         if (!newConversationMutation.isPending) {
           newConversationMutation.mutate()
-          // oxlint-disable-next-line i18next/no-literal-string
           removeSavedChatbotAnonymousToken()
         }
       },

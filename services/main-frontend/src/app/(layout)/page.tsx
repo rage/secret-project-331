@@ -7,9 +7,11 @@ import { useTranslation } from "react-i18next"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { baseTheme } from "@/shared-module/common/styles"
 import {
   allOrganizationsRoute,
   chatbotCommandCenterRoute,
+  creditRegistrationOverviewRoute,
   domainStatsRoute,
   globalPermissionsRoute,
   globalStatsRoute,
@@ -168,6 +170,23 @@ const FrontPage = () => {
             `}
           >
             {t("link-text-chatbot-command-center")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions
+        action={{ type: "administrate" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <div>
+          <Link
+            href={creditRegistrationOverviewRoute()}
+            className={css`
+              cursor: pointer;
+              color: ${baseTheme.colors.blue[600]};
+              text-decoration: underline;
+            `}
+          >
+            {t("title-credit-registration")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

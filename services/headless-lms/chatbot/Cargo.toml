@@ -17,9 +17,9 @@ secrecy.workspace = true
 # Date and time library for Rust
 chrono = { version = "0.4.45", features = ["serde"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
-futures = "0.3.33"
+futures = "0.3.34"
 # Common utilities and extension traits for the futures-rs library.
-futures-util = "0.3.33"
+futures-util = "0.3.34"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio.workspace = true
 # Utilities for working with Tokio.

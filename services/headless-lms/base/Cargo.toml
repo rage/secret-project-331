@@ -8,7 +8,7 @@ license.workspace = true
 
 [dependencies]
 tokio.workspace = true
-futures = "0.3.33"
+futures = "0.3.34"
 uuid = { version = "1.24.0", features = ["serde", "v4", "v5"] }
 serde = { version = "1.0.229", features = ["derive"] }
 chrono = { version = "0.4.45", features = ["serde"] }

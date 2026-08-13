@@ -16,7 +16,7 @@ headless-lms-utils = { path = "../utils" }
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio.workspace = true
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
-futures = "0.3.33"
+futures = "0.3.34"
 # A `dotenv` implementation for Rust
 dotenvy = "0.15"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
@@ -52,7 +52,7 @@ tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.76"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "2.0.19"
+thiserror = "2.0.20"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f0d7095c0a5e2984adc86", features = [
   "bytes-impl",

@@ -16,7 +16,7 @@ serde = { version = "1.0.229", features = ["derive"] }
 # A JSON serialization file format
 serde_json = "1.0.151"
 # derive(Error)
-thiserror = "2.0.19"
+thiserror = "2.0.20"
 # A library to generate and parse UUIDs.
 uuid = { version = "1.24.0", features = ["serde"] }
 

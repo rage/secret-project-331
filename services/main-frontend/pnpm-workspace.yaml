@@ -66,14 +66,16 @@ minimumReleaseAgeExclude:
   - qs@6.15.2
   - tmp@0.2.6 || 0.2.7
   - "@babel/core@7.29.1"
-  - js-yaml@3.15.0 || 4.1.2 || 5.1.1 || 5.2.1 || 5.2.2
+  - js-yaml@3.15.0 || 3.15.1 || 4.1.2 || 5.1.1 || 5.2.1 || 5.2.2
   - brace-expansion@5.0.7 || 5.0.8 || 5.0.9
   - body-parser@2.3.0
   - svgo@3.3.4
-  - dompurify@3.4.9 || 3.4.11 || 3.4.12
+  - dompurify@3.4.9 || 3.4.11 || 3.4.12 || 3.4.13
   - sharp@0.35.0
   - fast-uri@3.1.5
   # TanStack Table v9.0.0 stable, published today (2026-08-04) after a public beta; exempt to
   # unblock the v8->v9 migration before the 7-day gate would otherwise clear.
   - "@tanstack/react-table@9.0.0"
   - "@tanstack/table-core@9.0.0"
+  - image-size@2.0.3
+  - nanoid@3.3.17

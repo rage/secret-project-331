@@ -63,7 +63,9 @@ minimumReleaseAgeExclude:
   - qs@6.15.2
   - form-data@4.0.6
   - "@babel/core@7.29.1"
-  - js-yaml@3.15.0 || 4.1.2
+  - js-yaml@3.15.0 || 3.15.1 || 4.1.2
   - brace-expansion@5.0.7 || 5.0.8 || 5.0.9
-  - dompurify@3.4.9 || 3.4.11 || 3.4.12
+  - dompurify@3.4.9 || 3.4.11 || 3.4.12 || 3.4.13
   - fast-uri@3.1.5
+  - image-size@2.0.3
+  - nanoid@3.3.17

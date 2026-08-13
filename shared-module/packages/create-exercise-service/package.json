@@ -2,28 +2,30 @@
   "name": "@moocfi/create-exercise-service",
   "version": "0.0.2",
   "description": "Scaffolding CLI for creating new moocfi exercise services",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/rage/secret-project-331#readme",
   "keywords": [
     "create",
     "exercise-service",
     "moocfi",
     "scaffolding"
   ],
-  "homepage": "https://github.com/rage/secret-project-331#readme",
   "license": "Apache-2.0",
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rage/secret-project-331.git",
-    "directory": "shared-module/packages/create-exercise-service"
-  },
+  "main": "./dist/index.mjs",
+  "type": "module",
   "bin": {
     "create-exercise-service": "./dist/index.mjs"
   },
-  "files": [
-    "dist"
-  ],
-  "type": "module",
-  "main": "./dist/index.mjs",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
+  },
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
@@ -31,6 +33,11 @@
   "publishConfig": {
     "access": "public",
     "provenance": true
+  },
+  "repository": {
+    "directory": "shared-module/packages/create-exercise-service",
+    "type": "git",
+    "url": "git+https://github.com/rage/secret-project-331.git"
   },
   "scripts": {
     "build": "tsdown && tsx scripts/bundle-template.ts",
@@ -47,12 +54,5 @@
     "tsdown": "0.22.14",
     "tsx": "^4.23.1",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
-  },
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
   }
 }

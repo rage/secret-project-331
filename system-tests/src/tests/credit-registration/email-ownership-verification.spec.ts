@@ -71,7 +71,8 @@ test("Email ownership verification: the emailed code proves the address and an e
     await expect(section.getByText("Code sent")).toBeVisible()
   })
 
-  await test.step("Asking for another code right away is refused by the resend cap", async () => {
+  await test.step("Opening the code dialog and asking for another code right away is refused by the resend cap", async () => {
+    await page.getByRole("button", { name: "Enter verification code" }).click()
     await page.getByRole("button", { name: "Resend" }).click()
     await expect(page.getByTestId("email-verification-request-outcome")).toContainText(
       "went to your email address a moment ago",
@@ -112,6 +113,7 @@ test("Email ownership verification: the emailed code proves the address and an e
     const section = page.getByTestId("email-verification-section")
     await expect(section.getByText("Email not verified")).toBeVisible()
     await expect(section.getByText(SECOND_EMAIL, { exact: true }).first()).toBeVisible()
+    await page.getByRole("button", { name: "Enter verification code" }).click()
     await expect(page.getByTestId("one-time-code-field")).toBeVisible()
   })
 

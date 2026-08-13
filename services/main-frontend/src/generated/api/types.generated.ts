@@ -2085,6 +2085,11 @@ export type EmailVerificationStatus = {
   email_verified_method?: null | EmailVerificationMethod
   latest_verification_email?: null | EmailVerificationEmailInfo
   /**
+   * False when `verification_enabled` but the deployment has no `verify_email_address`
+   * template: requesting a code would 500, so the frontend hides the feature instead.
+   */
+  template_configured: boolean
+  /**
    * False switches the feature off entirely; the request and verify endpoints 404 then.
    */
   verification_enabled: boolean

@@ -18297,7 +18297,7 @@
       },
       "EmailVerificationStatus": {
         "type": "object",
-        "required": ["verification_enabled", "email"],
+        "required": ["verification_enabled", "template_configured", "email"],
         "properties": {
           "email": {
             "type": "string"
@@ -18325,6 +18325,10 @@
                 "$ref": "#/components/schemas/EmailVerificationEmailInfo"
               }
             ]
+          },
+          "template_configured": {
+            "type": "boolean",
+            "description": "False when `verification_enabled` but the deployment has no `verify_email_address`\ntemplate: requesting a code would 500, so the frontend hides the feature instead."
           },
           "verification_enabled": {
             "type": "boolean",

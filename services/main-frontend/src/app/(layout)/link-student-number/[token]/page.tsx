@@ -72,14 +72,14 @@ const LinkStudentNumberPage: React.FC = () => {
   const loginState = useContext(LoginStateContext)
 
   return (
-    <main className={pageCss}>
+    <div className={pageCss}>
       <h1>{t("heading-link-student-number")}</h1>
       {loginState.signedIn === true ? (
         <SignedIn token={token} />
       ) : loginState.signedIn === false ? (
         <SignInOrSignUp token={token} />
       ) : null}
-    </main>
+    </div>
   )
 }
 

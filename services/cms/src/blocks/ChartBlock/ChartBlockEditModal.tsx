@@ -72,6 +72,7 @@ const enableJsonSchemaSupport = (monaco: Monaco) => {
 }
 
 const AI_PANEL_ID = "chart-block-ai-generate-panel"
+const VEGA_JSON_EDITOR_ID = "chart-block-vega-json-editor"
 // Enough of the data file for the model to see field names and value shapes.
 const DATA_SAMPLE_MAX_CHARS = 4000
 
@@ -133,6 +134,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   const [extractedDataUrl, setExtractedDataUrl] = useState<string | undefined>(undefined)
   const [isExtractingData, setIsExtractingData] = useState(false)
   const [showAiPanel, setShowAiPanel] = useState(false)
+  const [showVegaJson, setShowVegaJson] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [aiError, setAiError] = useState<unknown>(undefined)
 
@@ -590,6 +592,14 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                 <Button
                   variant="secondary"
                   size="small"
+                  onClick={() => setShowVegaJson((shown) => !shown)}
+                  domProps={{ "aria-expanded": showVegaJson, "aria-controls": VEGA_JSON_EDITOR_ID }}
+                >
+                  {showVegaJson ? t("hide-vega-json") : t("view-vega-json")}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="small"
                   onClick={() => setShowAiPanel((open) => !open)}
                   domProps={{ "aria-expanded": showAiPanel, "aria-controls": AI_PANEL_ID }}
                 >
@@ -676,40 +686,43 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                 )}
               </div>
             )}
-            <div
-              className={css`
-                /* Fills the leftover column height; the sections below keep their size. */
-                flex: 1 1 0;
-                min-height: 0;
-                border: 1px solid
-                  ${isValidJson ? baseTheme.colors.gray[400] : baseTheme.colors.red[400]};
-                border-radius: 4px;
-                overflow: hidden;
-                /* MonacoEditorImpl adds a height-less wrapper div; force it to fill so the editor can
-                 size to this box. */
-                & > div {
-                  height: 100%;
-                }
-              `}
-            >
-              <MonacoEditor
-                height="100%"
-                language={MONACO_LANGUAGE}
-                value={spec}
-                beforeMount={enableJsonSchemaSupport}
-                onChange={handleSpecChange}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 13,
-                  lineNumbers: ON,
-                  scrollBeyondLastLine: false,
-                  wordWrap: ON,
-                  tabSize: 2,
-                  // Re-measure so height: 100% tracks the flex parent.
-                  automaticLayout: true,
-                }}
-              />
-            </div>
+            {showVegaJson && (
+              <div
+                id={VEGA_JSON_EDITOR_ID}
+                className={css`
+                  /* Fills the leftover column height; the sections below keep their size. */
+                  flex: 1 1 0;
+                  min-height: 0;
+                  border: 1px solid
+                    ${isValidJson ? baseTheme.colors.gray[400] : baseTheme.colors.red[400]};
+                  border-radius: 4px;
+                  overflow: hidden;
+                  /* MonacoEditorImpl adds a height-less wrapper div; force it to fill so the editor can
+                   size to this box. */
+                  & > div {
+                    height: 100%;
+                  }
+                `}
+              >
+                <MonacoEditor
+                  height="100%"
+                  language={MONACO_LANGUAGE}
+                  value={spec}
+                  beforeMount={enableJsonSchemaSupport}
+                  onChange={handleSpecChange}
+                  options={{
+                    minimap: { enabled: false },
+                    fontSize: 13,
+                    lineNumbers: ON,
+                    scrollBeyondLastLine: false,
+                    wordWrap: ON,
+                    tabSize: 2,
+                    // Re-measure so height: 100% tracks the flex parent.
+                    automaticLayout: true,
+                  }}
+                />
+              </div>
+            )}
             <div
               className={css`
                 flex-shrink: 0;

@@ -370,9 +370,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     t,
   ])
 
-  // Only the first migration pass may keep the editor unmounted. Later passes run with it mounted,
-  // because a remount rebuilds BlockEditorProvider's data sub-registry and takes the selection, caret
-  // position, undo history and generated style overrides with it.
+  // Only the first migration pass may keep the editor unmounted. Later passes run with it mounted: a
+  // remount rebuilds BlockEditorProvider's data sub-registry, losing the selection, the caret position,
+  // the generated style overrides, and the persistence flags that decide whether the next edit arrives
+  // as onChange, as onInput or as undo-ignored.
   const showEditor =
     isGutenbergBootstrapped && (isEditorMounted || !needToRunMigrationsAndValidations)
 

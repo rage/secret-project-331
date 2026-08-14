@@ -23,6 +23,18 @@ const createParagraphBlock = (clientId: string, content: string): BlockInstance 
   innerBlocks: [],
 })
 
+const createBlock = (
+  name: string,
+  clientId: string,
+  innerBlocks: BlockInstance[] = [],
+): BlockInstance => ({
+  name,
+  clientId,
+  isValid: true,
+  attributes: {},
+  innerBlocks,
+})
+
 describe("editorHistory", () => {
   it("keeps the state before a typing burst undoable", () => {
     const initialContent = [createParagraphBlock("a", "A")]
@@ -186,22 +198,22 @@ describe("editorHistory", () => {
   })
 
   describe("recordEditorHistoryChange", () => {
-    it("leaves the history untouched for undo-ignored changes", () => {
+    it("adds no undo level for undo-ignored changes", () => {
       const initialState = initializeEditorHistory([createParagraphBlock("a", "A")])
-      const ignoredEntry = createEditorHistoryEntry([createParagraphBlock("a", "AB")])
+      const ignoredContent = [createParagraphBlock("a", "AB")]
+      const ignoredEntry = createEditorHistoryEntry(ignoredContent)
 
-      expect(
-        recordEditorHistoryChange(initialState, ignoredEntry, {
-          persistent: false,
+      for (const persistent of [false, true]) {
+        const state = recordEditorHistoryChange(initialState, ignoredEntry, {
+          persistent,
           undoIgnore: true,
-        }),
-      ).toBe(initialState)
-      expect(
-        recordEditorHistoryChange(initialState, ignoredEntry, {
-          persistent: true,
-          undoIgnore: true,
-        }),
-      ).toBe(initialState)
+        })
+
+        expect(state.entries).toHaveLength(1)
+        expect(state.index).toBe(0)
+        expect(canUndoEditorHistory(state)).toBe(false)
+        expect(getCurrentEditorHistoryEntry(state)?.content).toBe(ignoredContent)
+      }
     })
 
     it("round-trips undo and redo across a sequence of input and change reports", () => {
@@ -234,12 +246,12 @@ describe("editorHistory", () => {
       expect(state.entries.map((entry) => entry.content)).toEqual([
         initialContent,
         typedContent,
-        splitContent,
+        ignoredContent,
         typedInSecondBlockContent,
       ])
 
       const undoneOnce = undoEditorHistory(state)
-      expect(getCurrentEditorHistoryEntry(undoneOnce)?.content).toBe(splitContent)
+      expect(getCurrentEditorHistoryEntry(undoneOnce)?.content).toBe(ignoredContent)
 
       const undoneToStart = undoEditorHistory(undoEditorHistory(undoneOnce))
       expect(getCurrentEditorHistoryEntry(undoneToStart)?.content).toBe(initialContent)
@@ -248,6 +260,103 @@ describe("editorHistory", () => {
       const redoneToEnd = redoEditorHistory(redoEditorHistory(redoEditorHistory(undoneToStart)))
       expect(getCurrentEditorHistoryEntry(redoneToEnd)?.content).toBe(typedInSecondBlockContent)
       expect(canRedoEditorHistory(redoneToEnd)).toBe(false)
+    })
+
+    describe("with an inner block template applied after an insertion", () => {
+      const savedContent = [createParagraphBlock("a", "A")]
+      const insertedContent = [createParagraphBlock("a", "A"), createBlock("moocfi/exercise", "e")]
+      const templatedContent = [
+        createParagraphBlock("a", "A"),
+        createBlock("moocfi/exercise", "e", [
+          createBlock("moocfi/exercise-settings", "settings"),
+          createBlock("moocfi/exercise-slides", "slides"),
+        ]),
+      ]
+      const typedContent = [
+        createParagraphBlock("a", "AB"),
+        createBlock("moocfi/exercise", "e", [
+          createBlock("moocfi/exercise-settings", "settings"),
+          createBlock("moocfi/exercise-slides", "slides"),
+        ]),
+      ]
+
+      /** Insert a block with a template, let the template sync land, then type one character. */
+      const recordInsertionAndKeystroke = () => {
+        let state = initializeEditorHistory(savedContent)
+        state = recordEditorHistoryChange(state, createEditorHistoryEntry(insertedContent), {
+          persistent: true,
+        })
+        state = recordEditorHistoryChange(state, createEditorHistoryEntry(templatedContent), {
+          persistent: false,
+          undoIgnore: true,
+        })
+
+        return recordEditorHistoryChange(state, createEditorHistoryEntry(typedContent), {
+          persistent: false,
+        })
+      }
+
+      it("undoes to the templated content, not to the snapshot taken before the template", () => {
+        const state = recordInsertionAndKeystroke()
+        const undoneState = undoEditorHistory(state)
+
+        expect(getCurrentEditorHistoryEntry(undoneState)?.content).toBe(templatedContent)
+        // safe: the exercise block is the second block of every entry in this fixture
+        expect(getCurrentEditorHistoryEntry(undoneState)?.content[1]!.innerBlocks).toHaveLength(2)
+      })
+
+      it("does not turn the template sync into an undo level", () => {
+        const state = recordInsertionAndKeystroke()
+
+        expect(state.entries).toHaveLength(3)
+        expect(state.index).toBe(2)
+        expect(
+          getCurrentEditorHistoryEntry(undoEditorHistory(undoEditorHistory(state)))?.content,
+        ).toBe(savedContent)
+      })
+
+      it("redoes back to the typed content", () => {
+        const state = recordInsertionAndKeystroke()
+        const undoneToStart = undoEditorHistory(undoEditorHistory(state))
+
+        expect(canUndoEditorHistory(undoneToStart)).toBe(false)
+
+        const redoneOnce = redoEditorHistory(undoneToStart)
+        expect(getCurrentEditorHistoryEntry(redoneOnce)?.content).toBe(templatedContent)
+
+        const redoneToEnd = redoEditorHistory(redoneOnce)
+        expect(getCurrentEditorHistoryEntry(redoneToEnd)?.content).toBe(typedContent)
+        expect(canRedoEditorHistory(redoneToEnd)).toBe(false)
+      })
+    })
+
+    it("keeps the first edit after a save undoable when a template sync precedes it", () => {
+      const savedContent = [createBlock("moocfi/exercise", "e")]
+      const templatedContent = [
+        createBlock("moocfi/exercise", "e", [createBlock("moocfi/exercise-slides", "slides")]),
+      ]
+      const editedContent = [
+        createBlock("moocfi/exercise", "e", [
+          createBlock("moocfi/exercise-slides", "slides"),
+          createBlock("moocfi/exercise-slide", "slide"),
+        ]),
+      ]
+
+      let state = initializeEditorHistory(savedContent)
+      state = recordEditorHistoryChange(state, createEditorHistoryEntry(templatedContent), {
+        persistent: false,
+        undoIgnore: true,
+      })
+
+      expect(state.entries).toHaveLength(1)
+      expect(canUndoEditorHistory(state)).toBe(false)
+
+      state = recordEditorHistoryChange(state, createEditorHistoryEntry(editedContent), {
+        persistent: false,
+      })
+
+      expect(canUndoEditorHistory(state)).toBe(true)
+      expect(getCurrentEditorHistoryEntry(undoEditorHistory(state))?.content).toBe(templatedContent)
     })
   })
 })

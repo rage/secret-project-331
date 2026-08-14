@@ -116,6 +116,38 @@ export const pushEditorHistoryEntry = (
   return appendEditorHistoryEntry(state, entry)
 }
 
+/**
+ * Rewrites the current entry with the content of an undo-ignored change, adding no undo level and
+ * keeping the index, the redo branch and the entry's coalescing state.
+ *
+ * Gutenberg reports its own bookkeeping edits this way, most importantly the `InnerBlocks` template
+ * synchronisation that fills a freshly inserted block with its children. Such an edit must not become
+ * an undo level, but the current entry still has to mirror the content the editor holds: otherwise
+ * undo restores the pre-template snapshot, and because that snapshot keeps the same clientIds the
+ * template sync never runs again, leaving the block permanently without its children.
+ */
+export const replaceCurrentEditorHistoryEntry = (
+  state: GutenbergEditorHistoryState,
+  entry: GutenbergEditorHistoryEntry,
+): GutenbergEditorHistoryState => {
+  const current = state.entries[state.index]
+
+  if (!current) {
+    return {
+      entries: [entry],
+      index: 0,
+    }
+  }
+
+  const entries = state.entries.slice()
+  entries[state.index] = current.transient ? { ...entry, transient: true } : entry
+
+  return {
+    entries,
+    index: state.index,
+  }
+}
+
 export interface EditorHistoryChangeOptions {
   /** Whether Gutenberg reported the change through `onChange` (persistent) or `onInput`. */
   persistent: boolean
@@ -123,14 +155,17 @@ export interface EditorHistoryChangeOptions {
   undoIgnore?: boolean | undefined
 }
 
-/** Records a change Gutenberg reported, or leaves the history untouched when it is undo-ignored. */
+/**
+ * Records a change Gutenberg reported, routing undo-ignored ones into the current entry instead of a
+ * new undo level.
+ */
 export const recordEditorHistoryChange = (
   state: GutenbergEditorHistoryState,
   entry: GutenbergEditorHistoryEntry,
   options: EditorHistoryChangeOptions,
 ): GutenbergEditorHistoryState => {
   if (options.undoIgnore) {
-    return state
+    return replaceCurrentEditorHistoryEntry(state, entry)
   }
 
   return options.persistent

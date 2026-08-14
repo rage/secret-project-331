@@ -15,6 +15,7 @@ const CMS_ROOT = fs.existsSync(path.join(process.cwd(), "src/styles"))
   ? process.cwd()
   : path.join(process.cwd(), "services/cms")
 const WORDPRESS_DIR = path.join(CMS_ROOT, "node_modules/@wordpress")
+const SOURCE_ROOT = path.join(CMS_ROOT, "src")
 
 interface PackageApi {
   packageName: string
@@ -24,122 +25,114 @@ interface PackageApi {
   files: string[]
 }
 
+/** Every file that may name a `@wordpress` module. `shared-module` is another package's code. */
+const sourceFiles = (directory: string): string[] =>
+  fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = path.join(directory, entry.name)
+    if (entry.isDirectory()) {
+      return entry.name === "shared-module" || entry.name === "generated"
+        ? []
+        : sourceFiles(entryPath)
+    }
+    return /\.(ts|tsx|scss|css)$/.test(entry.name) ? [entryPath] : []
+  })
+
+/** A named import, including the multi-line and `import type` forms. */
+const NAMED_IMPORT = /import\s+(type\s+)?\{([^}]*)\}\s+from\s+"@wordpress\/([\w-]+)"/g
+/** A side-effect import, of either the package root or a subpath. */
+const SIDE_EFFECT_IMPORT = /import\s+"@wordpress\/([\w-]+)(?:\/([^"]+))?"/g
+/** A type query, which depends on the runtime export existing just as much as an import does. */
+const TYPE_QUERY = /typeof\s+import\("@wordpress\/([\w-]+)"\)\.(\w+)/g
+/** A Sass partial, reached through the legacy `~` prefix and resolved with an implicit underscore. */
+const SASS_IMPORT = /@import\s+"~@wordpress\/([\w-]+)\/([\w-]+)"/g
+/** A declaration in `src/wordpress-shims.d.ts`, checked by the shims suite rather than as an import. */
+const MODULE_DECLARATION = /declare module "@wordpress\/[\w-]+"/g
+
 /**
- * Everything our code names inside an installed `@wordpress` package, by package.
+ * Everything our code names inside an installed `@wordpress` package, read out of `src/`.
  *
- * The single source of truth for both suites below: an entry here is a promise that the upstream
- * package still provides the thing, so removing a usage from `src/` means removing it here too.
+ * Derived rather than listed so it cannot drift: an entry is a promise that the upstream package
+ * still provides the thing, and the suites below turn every entry into an assertion.
  */
-export const WORDPRESS_PACKAGE_APIS: PackageApi[] = [
-  {
-    packageName: "base-styles",
-    namedExports: [],
-    files: [
-      "_animations.scss",
-      "_breakpoints.scss",
-      "_colors.scss",
-      "_mixins.scss",
-      "_variables.scss",
-      "_z-index.scss",
-    ],
-  },
-  { packageName: "blob", namedExports: ["createBlobURL", "revokeBlobURL"], files: [] },
-  {
-    packageName: "block-editor",
-    namedExports: [
-      "BlockControls",
-      "BlockEditorKeyboardShortcuts",
-      "BlockEditorProvider",
-      "BlockIcon",
-      "BlockInspector",
-      "BlockList",
-      "BlockTools",
-      "ButtonBlockAppender",
-      "InnerBlocks",
-      "InspectorControls",
-      "MediaPlaceholder",
-      "ObserveTyping",
-      "RichText",
-      "WritingFlow",
-      "__experimentalLibrary",
-      "__experimentalListView",
-      "__unstableEditorStyles",
-      "__unstableUseBlockSelectionClearer",
-      "useBlockProps",
-    ],
-    files: ["build-style/content.css", "build-style/style.css"],
-  },
-  {
-    packageName: "block-library",
-    namedExports: ["__experimentalGetCoreBlocks", "registerCoreBlocks"],
-    files: ["build-style/editor.css", "build-style/style.css", "build-style/theme.css"],
-  },
-  {
-    packageName: "blocks",
-    namedExports: [
-      "createBlock",
-      "createBlocksFromInnerBlocksTemplate",
-      "getBlockType",
-      "getBlockTypes",
-      "getCategories",
-      "registerBlockStyle",
-      "registerBlockType",
-      "registerBlockVariation",
-      "serialize",
-      "setCategories",
-      "unregisterBlockStyle",
-      "unregisterBlockVariation",
-    ],
-    files: [],
-  },
-  {
-    packageName: "components",
-    namedExports: [
-      "Button",
-      "ColorPalette",
-      "Dropdown",
-      "MenuGroup",
-      "MenuItem",
-      "Notice",
-      "PanelBody",
-      "Path",
-      "Placeholder",
-      "Popover",
-      "SVG",
-      "SelectControl",
-      "SlotFillProvider",
-      "TextControl",
-      "ToolbarButton",
-      "ToolbarDropdownMenu",
-      "ToolbarGroup",
-    ],
-    files: ["build-style/style.css"],
-  },
-  {
-    packageName: "compose",
-    namedExports: ["createHigherOrderComponent", "useMergeRefs"],
-    files: [],
-  },
-  { packageName: "data", namedExports: ["useDispatch", "useSelect"], files: [] },
-  {
-    packageName: "element",
-    namedExports: ["Fragment", "useEffect", "useMemo", "useState"],
-    files: [],
-  },
-  // build-style is missing from format-library's package exports, so GutenbergEditor reaches the
-  // stylesheet through a relative node_modules path that breaks if the file moves.
-  { packageName: "format-library", namedExports: [], files: ["build-style/style.css"] },
-  { packageName: "hooks", namedExports: ["addFilter", "removeFilter"], files: [] },
-  {
-    packageName: "icons",
-    namedExports: ["archive", "chevronRight", "code", "cover", "formatLTR"],
-    files: [],
-  },
-  {
-    packageName: "keyboard-shortcuts",
-    namedExports: ["ShortcutProvider", "store", "useShortcut"],
-    files: [],
-  },
+export const WORDPRESS_PACKAGE_APIS: PackageApi[] = (() => {
+  const usage = new Map<string, { namedExports: Set<string>; files: Set<string> }>()
+  const usageFor = (packageName: string) => {
+    const existing = usage.get(packageName)
+    if (existing !== undefined) {
+      return existing
+    }
+
+    const created = { namedExports: new Set<string>(), files: new Set<string>() }
+    usage.set(packageName, created)
+    return created
+  }
+
+  for (const file of sourceFiles(SOURCE_ROOT)) {
+    const source = fs.readFileSync(file, "utf8")
+
+    for (const [, typeOnly, clause, packageName] of source.matchAll(NAMED_IMPORT)) {
+      if (typeOnly !== undefined || packageName === undefined) {
+        continue
+      }
+      for (const specifier of (clause ?? "").split(",")) {
+        const name = specifier
+          .trim()
+          .split(/\s+as\s+/)[0]
+          ?.trim()
+        if (name !== undefined && name !== "" && !/^type\s/.test(name)) {
+          usageFor(packageName).namedExports.add(name)
+        }
+      }
+    }
+
+    for (const [, packageName, subpath] of source.matchAll(SIDE_EFFECT_IMPORT)) {
+      if (packageName === undefined) {
+        continue
+      }
+      if (subpath !== undefined) {
+        usageFor(packageName).files.add(subpath)
+      } else {
+        usageFor(packageName)
+      }
+    }
+
+    for (const [, packageName, name] of source.matchAll(TYPE_QUERY)) {
+      if (packageName !== undefined && name !== undefined) {
+        usageFor(packageName).namedExports.add(name)
+      }
+    }
+
+    for (const [, packageName, partial] of source.matchAll(SASS_IMPORT)) {
+      if (packageName !== undefined && partial !== undefined) {
+        usageFor(packageName).files.add(`_${partial}.scss`)
+      }
+    }
+  }
+
+  return [...usage]
+    .map(([packageName, { namedExports, files }]) => ({
+      packageName,
+      namedExports: [...namedExports].toSorted(),
+      files: [...files].toSorted(),
+    }))
+    .toSorted((left, right) => left.packageName.localeCompare(right.packageName))
+})()
+
+/** The packages the editor is built on. A new one here is worth a look, not a silent pass. */
+const EXPECTED_PACKAGES = [
+  "base-styles",
+  "blob",
+  "block-editor",
+  "block-library",
+  "blocks",
+  "components",
+  "compose",
+  "data",
+  "element",
+  "format-library",
+  "hooks",
+  "icons",
+  "keyboard-shortcuts",
 ]
 
 interface SourceContract {
@@ -327,6 +320,30 @@ const fileCases = WORDPRESS_PACKAGE_APIS.flatMap((api) =>
 const contractCases = WORDPRESS_SOURCE_CONTRACTS.flatMap((contract) =>
   contract.identifiers.map((identifier) => ({ contract, identifier })),
 )
+
+describe("the @wordpress usage this suite reads out of src", () => {
+  it("covers every package src imports", () => {
+    expect(WORDPRESS_PACKAGE_APIS.map((api) => api.packageName)).toEqual(EXPECTED_PACKAGES)
+  })
+
+  it("leaves no specifier in src unread", () => {
+    const unread = sourceFiles(SOURCE_ROOT)
+      .filter(
+        (file) =>
+          fs
+            .readFileSync(file, "utf8")
+            .replaceAll(NAMED_IMPORT, "")
+            .replaceAll(SIDE_EFFECT_IMPORT, "")
+            .replaceAll(TYPE_QUERY, "")
+            .replaceAll(SASS_IMPORT, "")
+            .replaceAll(MODULE_DECLARATION, "")
+            .match(/"~?@wordpress\//) !== null,
+      )
+      .map((file) => path.relative(SOURCE_ROOT, file).replaceAll("\\", "/"))
+
+    expect(unread).toEqual([])
+  })
+})
 
 describe("@wordpress symbols our code imports", () => {
   it.each(namedExportCases)("@wordpress/%s exports %s", (packageName, name) => {

@@ -12,6 +12,42 @@ interface RegisteredVariation {
   attributes: { providerNameSlug: string }
 }
 
+/**
+ * The DOM tag an element's component renders, or the element type itself when there is nothing to
+ * call.
+ *
+ * Calls the component instead of mounting it: @wordpress/element resolves react 18 in this install
+ * while the test tree runs react 19, so react-dom rejects the elements @wordpress/primitives builds.
+ */
+const renderedTag = (element: unknown): unknown => {
+  if (!isValidElement(element)) {
+    return element
+  }
+
+  const type: unknown = element.type
+  const render =
+    typeof type === "function" ? type : (type as { render?: unknown } | undefined)?.render
+  if (typeof render !== "function") {
+    return type
+  }
+
+  return (render(element.props, null) as { type?: unknown } | undefined)?.type
+}
+
+/** The tags and path data the icon puts on screen, or the icon itself when it is not an element. */
+const iconShape = (icon: unknown) => {
+  if (!isValidElement<{ children?: unknown }>(icon)) {
+    return icon
+  }
+
+  const child = icon.props.children
+  return {
+    tag: renderedTag(icon),
+    childTag: renderedTag(child),
+    pathData: isValidElement<{ d?: unknown }>(child) ? child.props.d : undefined,
+  }
+}
+
 const loadRegisterBlockVariations = async (
   registerBlockVariation: (blockName: string, variation: RegisteredVariation) => void,
 ) => {
@@ -44,9 +80,15 @@ describe("registerBlockVariations", () => {
       "mentimeter",
       "thinglink",
     ])
-    // A broken icon import would leave this undefined rather than fail at import time.
-    for (const { variation } of variations) {
-      expect(isValidElement(variation.icon)).toBe(true)
+
+    const expectedIcon = {
+      tag: "svg",
+      childTag: "path",
+      pathData: expect.stringMatching(/^M[\d.]/),
     }
+    expect(variations.map(({ variation }) => iconShape(variation.icon))).toEqual([
+      expectedIcon,
+      expectedIcon,
+    ])
   })
 })

@@ -73,6 +73,8 @@ const getVariationNames = (blockTypes: Map<string, MockBlockType>, blockName: st
 }
 
 interface BootstrapHarnessOptions {
+  /** Stands in for the inventory `__experimentalGetCoreBlocks()` finds in the installed package. */
+  availableCoreBlockNames?: string[]
   blockTypes?: Map<string, MockBlockType>
   customBlocksForPages?: CustomBlockDefinition[]
   customBlocksForResearchConsentForm?: CustomBlockDefinition[]
@@ -81,6 +83,7 @@ interface BootstrapHarnessOptions {
 }
 
 const loadBootstrapModule = async ({
+  availableCoreBlockNames = [...coreBlocksToRegister, ...UNSUPPORTED_CORE_BLOCKS],
   blockTypes = new Map<string, MockBlockType>(),
   customBlocksForPages = [],
   customBlocksForResearchConsentForm = [],
@@ -93,10 +96,7 @@ const loadBootstrapModule = async ({
   const unregisterBlockType = jest.fn((blockName: string) => {
     blockTypes.delete(blockName)
   })
-  const coreBlockModules: MockCoreBlockModule[] = [
-    ...coreBlocksToRegister,
-    ...UNSUPPORTED_CORE_BLOCKS,
-  ].map((blockName) => ({
+  const coreBlockModules: MockCoreBlockModule[] = availableCoreBlockNames.map((blockName) => ({
     name: blockName,
     init: () => {
       // Gutenberg keeps the first registration of a name, so seeded block types survive.
@@ -294,15 +294,36 @@ describe("ensureStandaloneGutenbergBootstrap", () => {
     }
   })
 
+  it("warns when block-library stops shipping a configured core block", async () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined)
+    const droppedUpstream = "core/table"
+    const { ensureStandaloneGutenbergBootstrap, blockTypes } = await loadBootstrapModule({
+      availableCoreBlockNames: coreBlocksToRegister.filter(
+        (blockName) => blockName !== droppedUpstream,
+      ),
+    })
+
+    ensureStandaloneGutenbergBootstrap()
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(droppedUpstream))
+    expect(blockTypes.has(droppedUpstream)).toBe(false)
+    expect(blockTypes.has("core/paragraph")).toBe(true)
+
+    warn.mockRestore()
+  })
+
   it("does not offer unsupported core blocks to editors without an allow list of their own", async () => {
-    const { ensureStandaloneGutenbergBootstrap, getDefaultAllowedBlockTypes } =
+    const { ensureStandaloneGutenbergBootstrap, getDefaultAllowedBlockTypes, blockTypes } =
       await loadBootstrapModule()
 
     ensureStandaloneGutenbergBootstrap()
 
-    expect(getDefaultAllowedBlockTypes()).toEqual(supportedCoreBlocks)
+    const allowedBlockTypes = getDefaultAllowedBlockTypes()
+    expect(allowedBlockTypes).toEqual(supportedCoreBlocks)
+    // An offered block type that nothing registered is an inserter entry that cannot be inserted.
+    expect(allowedBlockTypes.filter((blockName) => !blockTypes.has(blockName))).toEqual([])
     for (const blockName of UNSUPPORTED_CORE_BLOCKS) {
-      expect(getDefaultAllowedBlockTypes()).not.toContain(blockName)
+      expect(allowedBlockTypes).not.toContain(blockName)
     }
   })
 

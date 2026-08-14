@@ -34,14 +34,16 @@ const sourceFiles = (directory: string): string[] =>
     return entry.name.endsWith(".ts") || entry.name.endsWith(".tsx") ? [path] : []
   })
 
-const blocksPackageImports = sourceFiles(SOURCE_ROOT)
-  .map((path) => {
-    const match = /import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+"@wordpress\/blocks"/s.exec(
-      readFileSync(path, "utf8"),
-    )
-    return {
-      file: relative(SOURCE_ROOT, path).replaceAll("\\", "/"),
-      imported: (match?.[1] ?? "")
+const BLOCKS_SPECIFIER = '"@wordpress/blocks"'
+const BLOCKS_NAMED_IMPORT = /import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+"@wordpress\/blocks"/g
+/** `utils/Gutenberg/types.ts` names signatures off the module without importing any value. */
+const BLOCKS_TYPE_QUERY = /typeof\s+import\("@wordpress\/blocks"\)/g
+
+/** A file may split its type and value imports of the module, so every statement counts. */
+const importedNames = (source: string): string[] => [
+  ...new Set(
+    [...source.matchAll(BLOCKS_NAMED_IMPORT)].flatMap((match) =>
+      (match[1] ?? "")
         .split(",")
         .map((name) =>
           name
@@ -51,13 +53,35 @@ const blocksPackageImports = sourceFiles(SOURCE_ROOT)
             ?.trim(),
         )
         .filter((name): name is string => Boolean(name)),
-    }
-  })
+    ),
+  ),
+]
+
+const sources = sourceFiles(SOURCE_ROOT).map((path) => ({
+  file: relative(SOURCE_ROOT, path).replaceAll("\\", "/"),
+  source: readFileSync(path, "utf8"),
+}))
+
+const blocksPackageImports = sources
+  .map(({ file, source }) => ({ file, imported: importedNames(source) }))
   .filter(({ imported }) => imported.length > 0)
 
 describe("stored page content stays block JSON", () => {
   it("finds the @wordpress/blocks imports it means to check", () => {
     expect(blocksPackageImports.length).toBeGreaterThan(0)
+  })
+
+  it("reaches the package only through forms the checks below can read", () => {
+    const unreadableReferences = sources
+      .filter(({ source }) =>
+        source
+          .replaceAll(BLOCKS_NAMED_IMPORT, "")
+          .replaceAll(BLOCKS_TYPE_QUERY, "")
+          .includes(BLOCKS_SPECIFIER),
+      )
+      .map(({ file }) => file)
+
+    expect(unreadableReferences).toEqual([])
   })
 
   it("serializes blocks to HTML only in the debug modal", () => {

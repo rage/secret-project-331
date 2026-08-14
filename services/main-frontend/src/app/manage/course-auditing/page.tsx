@@ -28,14 +28,17 @@ export interface CourseFilter {
   no_audiences: boolean
 }
 
-const FieldSet = styled.fieldset`
+export const FieldSet = styled.fieldset`
+  display: flex;
+  flex-flow: column;
   margin-bottom: 1rem;
   border: 1px solid ${baseTheme.colors.gray[200]};
   border-radius: 4px;
-  padding: 0.5rem 1rem;
+  padding: 1rem;
+  gap: 1rem;
 `
 
-const Legend = styled.legend`
+export const Legend = styled.legend`
   font-weight: 600;
   padding: 0 0.25rem;
 `
@@ -176,7 +179,7 @@ const CourseAuditing = () => {
             color: ${baseTheme.colors.gray[500]};
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-            margin: 2rem 0;
+            margin: 0.5rem 0;
             text-align: start;
             gap: 0.5rem;
           `}
@@ -209,7 +212,7 @@ const CourseAuditing = () => {
               gap: 2rem;
             `}
           >
-            {t("course-auditing-showing-courses", { count: filteredCourses.length })}
+            <p>{t("course-auditing-showing-courses", { count: filteredCourses.length })}</p>
             {filteredCourses.map((course) => (
               <CourseAuditingCard key={course.id} id={course.id} courseAuditingData={course} />
             ))}

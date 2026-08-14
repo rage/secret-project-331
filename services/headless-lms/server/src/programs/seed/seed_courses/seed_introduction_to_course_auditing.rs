@@ -71,7 +71,7 @@ pub async fn seed_introduction_to_course_auditing(
             ModuleBuilder::new()
                 .order(2)
                 .name("Bonus module")
-                .uh_course_code("TES03".to_string())
+                .uh_course_code("TEST003".to_string())
                 .chapter(ChapterBuilder::new(3, "Chapter 3").fixed_ids(
                     cx.v5(b"5602b4f4-f07e-4a6d-82b0-c26fc0ed94c8"),
                     cx.v5(b"eb4d622c-24b4-4d18-b4da-a99ed24ca7ff"),

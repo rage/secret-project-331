@@ -98,30 +98,24 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
 
   const removedPrereqIds = useRef<string[]>([])
   const removedAudienceIds = useRef<string[]>([])
-  const prereqIds = useMemo(() => prerequisites.map((p) => p.id), [prerequisites])
-  const audienceIds = useMemo(() => audiences.map((a) => a.id), [audiences])
+  const initialPrereqIds = useMemo(() => prerequisites.map((p) => p.id), [prerequisites])
+  const initialAudienceIds = useMemo(() => audiences.map((a) => a.id), [audiences])
 
-  const methods = useForm<
-    CourseMetadataUpdate & {
-      useSuggestedDescription: boolean
-      useSuggestedPrerequisites: boolean
-      useSuggestedAudiences: boolean
-    }
-  >({
-    defaultValues: buildFormValues(course, sisuData, prereqIds, audienceIds),
+  const methods = useForm<EditCourseMetadataData>({
+    defaultValues: buildFormValues(course, sisuData, initialPrereqIds, initialAudienceIds),
   })
 
   const { control, handleSubmit, getValues, reset } = methods
 
   useEffect(() => {
-    reset(buildFormValues(course, sisuData, prereqIds, audienceIds))
+    reset(buildFormValues(course, sisuData, initialPrereqIds, initialAudienceIds))
 
     const mappedPrereqIds = getValues("course_prerequisites").map((p) => p.id)
     const mappedAudiencedIds = getValues("course_audiences").map((a) => a.id)
 
-    removedPrereqIds.current = prereqIds.filter((p) => !mappedPrereqIds.includes(p))
-    removedAudienceIds.current = audienceIds.filter((a) => !mappedAudiencedIds.includes(a))
-  }, [reset, getValues, sisuData, course, prereqIds, audienceIds])
+    removedPrereqIds.current = initialPrereqIds.filter((p) => !mappedPrereqIds.includes(p))
+    removedAudienceIds.current = initialAudienceIds.filter((a) => !mappedAudiencedIds.includes(a))
+  }, [reset, getValues, sisuData, course, initialPrereqIds, initialAudienceIds])
 
   const {
     fields: prereqField,

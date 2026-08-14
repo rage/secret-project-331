@@ -39,6 +39,7 @@ const EditClosedFields = (): React.ReactElement => {
         flex-direction: column;
         gap: 1rem;
       `}
+      data-testid="edit-closed-fields"
     >
       <div>
         <Checkbox

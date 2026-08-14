@@ -9,6 +9,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { Checkbox, nullIfEmpty, stringToNumberOrNull, TextField } from "@/shared-module/components"
 
 import type { EditCourseAuditingData, EditModuleData } from "./CourseAuditingCard"
+import { FieldSet, Legend } from "./page"
 
 interface Props {
   control: Control<EditCourseAuditingData>
@@ -22,25 +23,10 @@ const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
   const override = useWatch({ name: `modules.${idx}.override_completion_link` as const, control })
 
   return (
-    <div
-      key={module.id}
-      className={css`
-        display: flex;
-        flex-wrap: wrap;
-        flex-direction: column;
-        gap: 1rem;
-      `}
-    >
-      <div
-        className={css`
-          font-size: 1.15rem;
-          font-weight: 600;
-          color: ${baseTheme.colors.gray[900]};
-          margin: 1.5rem 0rem;
-        `}
-      >
+    <FieldSet key={module.id} data-testid="edit-module-fields">
+      <Legend>
         {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
-      </div>
+      </Legend>
       <Checkbox
         control={control}
         label={t("override-completion-registration-link")}
@@ -95,7 +81,7 @@ const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
           }}
         />
       </div>
-    </div>
+    </FieldSet>
   )
 }
 

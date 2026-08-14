@@ -23,6 +23,7 @@ const ContentDisplayBox: React.FC<ContentDisplayBoxProps> = ({ label, content })
         padding: 0.75rem 1rem;
         flex-grow: 1;
       `}
+      data-testid="content-display-box"
     >
       <div
         className={css`

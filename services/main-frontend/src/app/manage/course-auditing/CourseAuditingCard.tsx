@@ -34,22 +34,7 @@ import ContentDisplayBox from "./ContentDisplayBox"
 import CourseMetadata from "./CourseMetadata"
 import ClosedSectionFields from "./EditClosedFields"
 import EditModuleFields from "./EditModuleFields"
-import { contentRowStyles } from "./page"
-
-const FieldSet = styled.fieldset`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
-  border: 1px solid ${baseTheme.colors.gray[200]};
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  gap: 1rem;
-`
-
-const Legend = styled.legend`
-  font-weight: 600;
-  padding: 0 0.25rem;
-`
+import { contentRowStyles, FieldSet, Legend } from "./page"
 
 const linkStyles = css`
   color: ${baseTheme.colors.green[700]};
@@ -245,6 +230,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
           padding: 1rem;
           border: 1px solid rgba(0, 0, 0, 0.12);
         `}
+        data-testid="course-auditing-card"
       >
         <div
           className={css`
@@ -455,6 +441,16 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
 
             <ClosedSectionFields />
 
+            <div
+              className={css`
+                font-size: 1.15rem;
+                font-weight: 600;
+                color: ${baseTheme.colors.gray[900]};
+                margin: 0.5rem 0rem;
+              `}
+            >
+              {t("modules")}
+            </div>
             {moduleFields.map((module, idx) => (
               <EditModuleFields key={module.id} control={control} module={module} idx={idx} />
             ))}
@@ -577,25 +573,21 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
             ) : (
               <ContentDisplayBox label={t("closed-at")} />
             )}
+            <div
+              className={css`
+                font-size: 1.15rem;
+                font-weight: 600;
+                color: ${baseTheme.colors.gray[900]};
+                margin: 0.5rem 0rem;
+              `}
+            >
+              {t("modules")}
+            </div>
             {courseAuditingData.modules.map((module) => (
-              <div
-                key={module.id}
-                className={css`
-                  display: flex;
-                  flex-direction: column;
-                  gap: 1rem;
-                `}
-              >
-                <div
-                  className={css`
-                    font-size: 1.15rem;
-                    font-weight: 600;
-                    color: ${baseTheme.colors.gray[900]};
-                    margin: 0.5rem 0rem;
-                  `}
-                >
+              <FieldSet key={module.id}>
+                <Legend>
                   {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
-                </div>
+                </Legend>
                 <ContentDisplayBox
                   label={t("completion-registration-link")}
                   content={module.completion_registration_link_override}
@@ -612,7 +604,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
                   <ContentDisplayBox label={t("uh-course-code")} content={module.uh_course_code} />
                   <ContentDisplayBox label={t("ects-credits")} content={module.ects_credits} />
                 </div>
-              </div>
+              </FieldSet>
             ))}
           </div>
         )}

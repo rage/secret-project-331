@@ -1,8 +1,15 @@
+const path = require("path")
+
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 
 const normalResponseHeaders = generateNormalResponseHeaders()
+
+// @wordpress/format-library ships build-style/style.css, but unlike the other @wordpress packages we
+// import stylesheets from, its package exports map has no ./build-style/* entry — so the specifier
+// resolves only through this alias. Imported by src/components/editors/GutenbergEditor.tsx.
+const FORMAT_LIBRARY_STYLESHEET = "@wordpress/format-library/build-style/style.css"
 
 /**
  * @type {import('next').NextConfig}
@@ -31,6 +38,12 @@ const config = {
     ]
   },
   webpack(webpackConfig) {
+    webpackConfig.resolve.alias[`${FORMAT_LIBRARY_STYLESHEET}$`] = path.join(
+      __dirname,
+      "node_modules",
+      FORMAT_LIBRARY_STYLESHEET,
+    )
+
     webpackConfig.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
@@ -48,6 +61,9 @@ const config = {
     return webpackConfig
   },
   turbopack: {
+    resolveAlias: {
+      [FORMAT_LIBRARY_STYLESHEET]: `./node_modules/${FORMAT_LIBRARY_STYLESHEET}`,
+    },
     rules: {
       "*.svg": {
         loaders: [

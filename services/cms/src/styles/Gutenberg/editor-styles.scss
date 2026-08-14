@@ -6,10 +6,9 @@
   --wpds-typography-font-family-heading: "Inter Variable", Inter, sans-serif;
 }
 
+// Canvas content typography belongs to utils/Gutenberg/editorContentStyles.ts, which owns it for the
+// canvas and for block previews; a declaration repeated here loses to it.
 .editor-styles-wrapper {
-  line-height: $editor-line-height;
-  color: $gray-900;
-
   // Image align right
   .block-editor-block-list__layout.is-root-container > [data-align="right"] {
     float: right;
@@ -30,11 +29,6 @@
   :where(.wp-block)[data-align="right"] > * {
     float: right;
     margin-left: 1em;
-  }
-
-  p {
-    font-size: inherit;
-    line-height: inherit;
   }
 
   ul,

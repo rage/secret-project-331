@@ -2,7 +2,10 @@
 
 import { useQueryClient } from "@tanstack/react-query"
 
-import { getCurrentConversationIdQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import {
+  getCurrentConversationIdQueryKey,
+  allUserConversationsQueryKey,
+} from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { newChatbotConversation } from "@/generated/course-material-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { saveChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
@@ -27,6 +30,13 @@ const useNewConversationMutation = (
         saveChatbotAnonymousToken(anonymousToken)
         queryClient.refetchQueries({
           queryKey: getCurrentConversationIdQueryKey({
+            path: {
+              chatbot_configuration_id: chatbotConfigurationId,
+            },
+          }),
+        })
+        queryClient.refetchQueries({
+          queryKey: allUserConversationsQueryKey({
             path: {
               chatbot_configuration_id: chatbotConfigurationId,
             },

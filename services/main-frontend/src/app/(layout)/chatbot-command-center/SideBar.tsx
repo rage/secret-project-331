@@ -1,32 +1,33 @@
 "use client"
 
-import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
+import { Button } from "@/shared-module/components"
 
-import { allUserConversationsOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
-import { Button, QueryResult } from "@/shared-module/components"
+interface SideBarProps {
+  setSelectedConversationId: React.Dispatch<string>
+  conversations: ChatbotConversation[]
+}
+import AIChat from "@/img/course-material/ai-chat.svg"
 
-const SideBar = ({ configurationId }: { configurationId: string }) => {
-  const conversationsQuery = useQuery(
-    allUserConversationsOptions({
-      path: {
-        chatbot_configuration_id: configurationId,
-      },
-    }),
-  )
-
+const SideBar: React.FC<SideBarProps> = ({ setSelectedConversationId, conversations }) => {
   return (
-    <QueryResult query={conversationsQuery}>
-      {(conversations) =>
-        conversations.map((conversation) => (
-          <div key={conversation.id}>
-            <Button size="small" variant="tertiary" onClick={() => console.log(conversation.id)}>
-              {conversation.id}
-            </Button>
-          </div>
-        ))
-      }
-    </QueryResult>
+    <div>
+      {conversations.map((conversation) => (
+        <div key={conversation.id}>
+          <Button
+            icon={<AIChat></AIChat>}
+            iconPosition="start"
+            size="medium"
+            variant="icon"
+            onClick={() => {
+              setSelectedConversationId(conversation.id)
+            }}
+          >
+            {conversation.created_at}
+          </Button>
+        </div>
+      ))}
+    </div>
   )
 }
 

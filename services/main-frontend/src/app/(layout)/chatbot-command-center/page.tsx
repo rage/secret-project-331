@@ -8,6 +8,7 @@ import {
   getAllChatbotsOptions,
   getAllCoursesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
@@ -27,15 +28,14 @@ const ChatbotCommandCenterPage: React.FC = () => {
   })
 
   return (
-    <>
-      <h1>{t("link-text-chatbot-command-center")}</h1>
+    <BreakFromCentered sidebar={false}>
       <QueryResults
         queries={[chatbotsQuery, coursesQuery] as const}
         renderData={([chatbotsData, coursesData]) => (
           <ChatbotCommandCenter chatbots={chatbotsData} courses={coursesData} />
         )}
       />
-    </>
+    </BreakFromCentered>
   )
 }
 

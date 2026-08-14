@@ -34,6 +34,7 @@ import {
   topProgressTrackLightCss,
   wrapperCss,
   wrapperIsolationCss,
+  inheritWidthAndHeight,
 } from "./queryResultStyles"
 
 export interface FallbackArgs<E> {
@@ -139,7 +140,7 @@ export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
 export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
   const { t } = useTranslation()
   return (
-    <div className={errorStackCss}>
+    <div className={cx(errorStackCss, inheritWidthAndHeight)}>
       {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> changes styling */}
       <div className={staleStatusCss} role="status">
         {getErrorMessage(error)}
@@ -184,7 +185,7 @@ export function AnimatedQueryFrame<E>({
     const loadingLabel = t("queryResult.loading")
     return (
       <section
-        className={cx(wrapperCss, wrapperIsolationCss)}
+        className={cx(wrapperCss, wrapperIsolationCss, inheritWidthAndHeight)}
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status on <section>; <output> changes semantics/styling
         role="status"
         aria-live="polite"
@@ -197,6 +198,7 @@ export function AnimatedQueryFrame<E>({
             initialLoadingSurfaceCss,
             surfaceThemeCss,
             loadingSurfaceMinHeightCss(minHeight),
+            inheritWidthAndHeight,
           )}
         >
           <div className={skeletonBlocksCss} data-testid="query-skeleton-blocks">
@@ -207,6 +209,7 @@ export function AnimatedQueryFrame<E>({
                   skeletonBlockBaseCss,
                   skeletonToneCss,
                   skeletonBlockDimsCss(preset.width, preset.height),
+                  inheritWidthAndHeight,
                 )}
               />
             ))}
@@ -219,7 +222,7 @@ export function AnimatedQueryFrame<E>({
               transition={{ duration: 0.2 }}
             >
               <div
-                className={queryLoadingSpinnerCss}
+                className={cx(queryLoadingSpinnerCss, inheritWidthAndHeight)}
                 data-testid="query-loading-spinner"
                 aria-hidden
               />
@@ -234,7 +237,11 @@ export function AnimatedQueryFrame<E>({
 
   return (
     <section
-      className={cx(wrapperCss, refreshing ? wrapperIsolationCss : undefined)}
+      className={cx(
+        wrapperCss,
+        refreshing ? wrapperIsolationCss : undefined,
+        inheritWidthAndHeight,
+      )}
       aria-busy={refreshing || blurSettling ? "true" : undefined}
       // oxlint-disable-next-line i18next/no-literal-string
       {...((refreshing || blurSettling) && { "data-testid": "query-refreshing" })}
@@ -253,6 +260,7 @@ export function AnimatedQueryFrame<E>({
         initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.18, ease: contentEntranceEase }}
+        className={inheritWidthAndHeight}
       >
         {staleArgs ? (
           <motion.div
@@ -268,6 +276,7 @@ export function AnimatedQueryFrame<E>({
             animatedContentCss,
             refreshing ? animatedContentRefreshingCss : undefined,
             refreshing || blurSettling ? animatedContentNonInteractiveCss : undefined,
+            inheritWidthAndHeight,
           )}
           onTransitionEnd={onContentTransitionEnd}
         >

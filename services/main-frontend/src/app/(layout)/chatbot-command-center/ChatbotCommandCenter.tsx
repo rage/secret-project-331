@@ -2,16 +2,18 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useMemo } from "react"
+import { createContext, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
-import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import {
+  allUserConversationsOptions,
+  getCurrentConversationIdOptions,
+} from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Select } from "@/shared-module/components"
+import { QueryResult, Select } from "@/shared-module/components"
 
 import SideBar from "./SideBar"
 
@@ -24,8 +26,9 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
   const { t } = useTranslation()
   const { control, watch } = useForm<ChatbotConfiguration>({})
   const configuration_id = watch("id")
+  const [selectedConversationId, setSelectedConversationId] = useState<null | string>(null)
 
-  const currentConversationId = useQuery(
+  const currentConversationIdQuery = useQuery(
     getCurrentConversationIdOptions({
       path: {
         chatbot_configuration_id: configuration_id,
@@ -33,7 +36,14 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     }),
   )
 
-  const conversation_id = currentConversationId.data
+  const conversationsQuery = useQuery(
+    allUserConversationsOptions({
+      path: {
+        chatbot_configuration_id: configuration_id,
+      },
+    }),
+  )
+
   const chatbotOptions = useMemo(() => {
     const grouped = Object.values(
       chatbots.reduce(
@@ -84,79 +94,93 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
   }, [chatbots, courses, t])
 
   return (
-    <BreakFromCentered sidebar={false}>
-      <div
-        className={css`
-          display: grid;
-          grid-template-columns: 1fr 4fr;
-          margin: 0 1rem;
-          gap: 0.5rem;
-        `}
-      >
-        {configuration_id === undefined ? (
-          <div
-            className={css`
-              border-radius: 10px;
-              box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
-              height: 75vh;
-              margin: 0;
-              padding: 0;
-              height: 100%;
-            `}
-          ></div>
-        ) : (
-          <SideBar configurationId={configuration_id} />
-        )}
-
-        <div>
-          <form>
-            <Select
-              id={"chatbot-select"}
-              control={control}
-              name={"id"}
-              label={t("select-chatbot")}
-              options={chatbotOptions}
-              searchEnabled={true}
-              searchPlaceholder={t("chatbot-search-placeholder")}
-            />
-          </form>
-          <div
-            className={css`
-              margin-top: 0.5rem;
-              height: 75vh;
-            `}
-          >
-            {configuration_id === undefined ? (
-              <div
-                className={css`
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 75vh;
-                  border-radius: 10px;
-                  box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
-                `}
-              ></div>
-            ) : (
-              <ChatbotChat
-                conversationId={conversation_id}
-                chatbotConfigurationId={configuration_id}
-                isCourseMaterialBlock={true}
+    <div
+      className={css`
+        display: grid;
+        grid-template-columns: 1fr 4fr;
+        margin: 0 1rem;
+        gap: 0.5rem;
+      `}
+    >
+      {configuration_id === undefined ? (
+        <div
+          className={css`
+            border-radius: 10px;
+            box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+            height: 75vh;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+          `}
+        ></div>
+      ) : (
+        <div
+          className={css`
+            border-radius: 10px;
+            box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+            height: 75vh;
+            margin: 0;
+            padding: 0;
+            padding: 0.5rem;
+            margin-top: 4rem;
+            overflow-y: auto;
+          `}
+        >
+          <QueryResult query={conversationsQuery}>
+            {(conversations) => (
+              <SideBar
+                conversations={conversations}
+                setSelectedConversationId={setSelectedConversationId}
               />
-              // <QueryResult query={currentConversationId}>
-              //   {(currentConversation) => (
-              //     <ChatbotChat
-              //       conversationId={currentConversation}
-              //       chatbotConfigurationId={configuration_id}
-              //       isCourseMaterialBlock={true}
-              //     />
-              //   )}
-              // </QueryResult>
             )}
-          </div>
+          </QueryResult>
+        </div>
+      )}
+
+      <div>
+        <h1>{t("link-text-chatbot-command-center")}</h1>
+        <form>
+          <Select
+            id={"chatbot-select"}
+            control={control}
+            name={"id"}
+            label={t("select-chatbot")}
+            options={chatbotOptions}
+            searchEnabled={true}
+            searchPlaceholder={t("chatbot-search-placeholder")}
+          />
+        </form>
+        <div
+          className={css`
+            margin-top: 0.5rem;
+            height: 75vh;
+          `}
+        >
+          {configuration_id === undefined ? (
+            <div
+              className={css`
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 75vh;
+                border-radius: 10px;
+                box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+              `}
+            ></div>
+          ) : (
+            <QueryResult query={currentConversationIdQuery}>
+              {(conversationId) => (
+                <ChatbotChat
+                  conversationId={conversationId ?? selectedConversationId}
+                  chatbotConfigurationId={configuration_id}
+                  isCourseMaterialBlock={true}
+                />
+              )}
+            </QueryResult>
+          )}
         </div>
       </div>
-    </BreakFromCentered>
+    </div>
   )
 }
 

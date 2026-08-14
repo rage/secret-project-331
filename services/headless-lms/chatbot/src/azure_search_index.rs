@@ -261,6 +261,7 @@ pub async fn does_search_index_exist(
         .get(url)
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
@@ -562,6 +563,7 @@ pub async fn create_search_index(
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
         .body(index_json)
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
@@ -644,6 +646,7 @@ where
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
         .body(batch_json)
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 

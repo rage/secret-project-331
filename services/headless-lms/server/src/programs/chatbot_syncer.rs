@@ -62,11 +62,11 @@ pub async fn main() -> anyhow::Result<()> {
     }
 
     let db_pool = initialize_database_pool(&config.database_url).await?;
-    let mut conn = db_pool.acquire().await?;
     let blob_client = initialize_blob_client(&config).await?;
 
     let mut interval = tokio::time::interval(Duration::from_secs(SYNC_INTERVAL_SECS));
     let mut ticks = 0;
+    let mut reported_permanently_failing_page_ids: HashSet<Uuid> = HashSet::new();
 
     info!("Starting chatbot syncer.");
 
@@ -78,8 +78,22 @@ pub async fn main() -> anyhow::Result<()> {
             ticks = 0;
             info!("Still syncing for chatbot.");
         }
-        if let Err(e) = sync_pages(&mut conn, &config, &blob_client).await {
-            error!("Error during synchronization: {:?}", e);
+        // Acquired per tick so that the pool's liveness check replaces a connection that died
+        // while we were idle; a checked out connection is never healed.
+        match db_pool.acquire().await {
+            Ok(mut conn) => {
+                if let Err(e) = sync_pages(
+                    &mut conn,
+                    &config,
+                    &blob_client,
+                    &mut reported_permanently_failing_page_ids,
+                )
+                .await
+                {
+                    error!("Error during synchronization: {:?}", e);
+                }
+            }
+            Err(e) => error!("Failed to acquire a database connection: {:?}", e),
         }
     }
 }
@@ -137,10 +151,13 @@ async fn initialize_blob_client(config: &SyncerConfig) -> anyhow::Result<AzureBl
 }
 
 /// Synchronizes pages to the chatbot backend.
+/// `reported_permanently_failing_page_ids` carries the previously warned-about set across ticks so
+/// the warning is emitted on change rather than on every sweep.
 async fn sync_pages(
     conn: &mut PgConnection,
     config: &SyncerConfig,
     blob_client: &AzureBlobClient,
+    reported_permanently_failing_page_ids: &mut HashSet<Uuid>,
 ) -> anyhow::Result<()> {
     let base_url = Url::parse(&config.app_configuration.base_url)?;
     let chatbot_configs =
@@ -182,6 +199,7 @@ async fn sync_pages(
     }
 
     let mut any_changes = false;
+    let mut permanently_failing_page_ids: Vec<Uuid> = Vec::new();
 
     for (course_id, statuses) in sync_statuses.iter() {
         let page_ids: Vec<Uuid> = statuses.iter().map(|s| s.page_id).collect();
@@ -214,10 +232,7 @@ async fn sync_pages(
                 }
 
                 if status.consecutive_failures >= MAX_CONSECUTIVE_FAILURES {
-                    debug!(
-                        "Skipping page {} due to permanent failure ({} consecutive failures). Manual intervention required.",
-                        status.page_id, status.consecutive_failures
-                    );
+                    permanently_failing_page_ids.push(status.page_id);
                     return false;
                 }
 
@@ -304,6 +319,21 @@ async fn sync_pages(
         }
 
         delete_old_files(conn, *course_id, blob_client).await?;
+    }
+
+    // Only on change: a page stays permanently failing until someone intervenes, and this runs
+    // every SYNC_INTERVAL_SECS, so warning unconditionally would repeat the same line all day.
+    let permanently_failing: HashSet<Uuid> = permanently_failing_page_ids.into_iter().collect();
+    if permanently_failing != *reported_permanently_failing_page_ids {
+        if !permanently_failing.is_empty() {
+            warn!(
+                "Skipping {} pages that have failed to sync at least {} times in a row. Manual intervention required: {:?}",
+                permanently_failing.len(),
+                MAX_CONSECUTIVE_FAILURES,
+                permanently_failing
+            );
+        }
+        *reported_permanently_failing_page_ids = permanently_failing;
     }
 
     if any_changes {

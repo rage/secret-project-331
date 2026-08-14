@@ -6,6 +6,7 @@ use std::fmt::Display;
 use std::panic::Location;
 
 use backtrace::Backtrace;
+use headless_lms_authorization::error::AuthorizationError;
 use headless_lms_models::ModelError;
 use headless_lms_utils::error::util_error::UtilError;
 use tracing_error::SpanTrace;
@@ -26,6 +27,9 @@ pub enum ChatbotErrorType {
     InvalidMessageShape,
     InvalidToolName,
     InvalidToolArguments,
+    /// A client answered a tool call the conversation has no room for. The only chatbot error
+    /// type the client is at fault for, so the only one that leaves the server as a 4xx.
+    InvalidToolAnswer,
     ToolUseError,
     ChatbotModelError,
     ChatbotMessageSuggestError,
@@ -247,6 +251,17 @@ impl From<ModelError> for ChatbotError {
             err.to_string(),
             Some(err.into()),
         )
+    }
+}
+
+impl From<AuthorizationError> for ChatbotError {
+    fn from(mut err: AuthorizationError) -> ChatbotError {
+        // A check that failed because the models layer did is mapped like any other ModelError,
+        // so that a missing course does not read as a permission problem.
+        if let Some(model_error) = err.take_model_source() {
+            return model_error.into();
+        }
+        Self::new(ChatbotErrorType::Other, err.to_string(), Some(err.into()))
     }
 }
 

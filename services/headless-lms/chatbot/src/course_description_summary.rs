@@ -2,6 +2,7 @@ use headless_lms_utils::{
     json_schema_types::{ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType},
     services::sisu::SisuDescriptions,
 };
+use indexmap::IndexMap;
 use std::collections::HashMap;
 
 use crate::{
@@ -36,6 +37,90 @@ pub struct Module {
     pub course_code: String,
     pub description: String,
     pub prerequisites: Vec<String>,
+}
+
+/// The structured output format the description LLM is asked to answer in. Must stay in
+/// sync with [SisuDescriptionResponse].
+fn response_format() -> LLMRequestResponseFormatParam {
+    LLMRequestResponseFormatParam {
+        format_type: JSONType::JsonSchema,
+        name: "LLMDescriptionResponse".to_string(),
+        schema: Schema {
+            type_field: JSONType::Object,
+            description: None,
+            properties: IndexMap::from([
+                (
+                    "course_description".to_string(),
+                    SchemaPropertyType::Item(JsonItem {
+                        type_field: JSONType::String,
+                        description: None,
+                    }),
+                ),
+                (
+                    "audience".to_string(),
+                    SchemaPropertyType::ArrayProperty(ArrayProperty {
+                        type_field: JSONType::Array,
+                        description: None,
+                        items: ArrayItem::JsonItem(JsonItem {
+                            type_field: JSONType::String,
+                            description: None,
+                        }),
+                    }),
+                ),
+                (
+                    "modules".to_string(),
+                    SchemaPropertyType::ArrayProperty(ArrayProperty {
+                        type_field: JSONType::Array,
+                        description: None,
+                        items: ArrayItem::Schema(Schema {
+                            type_field: JSONType::Object,
+                            description: None,
+                            properties: IndexMap::from([
+                                (
+                                    "course_code".to_string(),
+                                    SchemaPropertyType::Item(JsonItem {
+                                        type_field: JSONType::String,
+                                        description: None,
+                                    }),
+                                ),
+                                (
+                                    "description".to_string(),
+                                    SchemaPropertyType::Item(JsonItem {
+                                        type_field: JSONType::String,
+                                        description: None,
+                                    }),
+                                ),
+                                (
+                                    "prerequisites".to_string(),
+                                    SchemaPropertyType::ArrayProperty(ArrayProperty {
+                                        type_field: JSONType::Array,
+                                        description: None,
+                                        items: ArrayItem::JsonItem(JsonItem {
+                                            type_field: JSONType::String,
+                                            description: None,
+                                        }),
+                                    }),
+                                ),
+                            ]),
+                            required: Vec::from([
+                                "course_code".to_string(),
+                                "description".to_string(),
+                                "prerequisites".to_string(),
+                            ]),
+                            additional_properties: false,
+                        }),
+                    }),
+                ),
+            ]),
+            required: Vec::from([
+                "course_description".to_string(),
+                "audience".to_string(),
+                "modules".to_string(),
+            ]),
+            additional_properties: false,
+        },
+        strict: true,
+    }
 }
 
 // You are given different type of information for an university course. There can exist multiple modules for the course which are differentiated by the module code as the key. Your task is to generate a single description combining information from all different modules but also generate module specific descriptions and prerequisites for each module. The prerequisites should be given in a list of individual requisites.
@@ -124,88 +209,11 @@ pub async fn generate_description(
         tools: vec![],
         tool_choice: None,
         parallel_tool_calls: None,
+        prompt_cache_key: None,
         params,
         text: Some(RequestTextOptions {
             verbosity: None,
-            format: Some(LLMRequestResponseFormatParam {
-                format_type: JSONType::JsonSchema,
-                name: "LLMDescriptionResponse".to_string(),
-                schema: Schema {
-                    type_field: JSONType::Object,
-                    description: None,
-                    properties: HashMap::from([
-                        (
-                            "course_description".to_string(),
-                            SchemaPropertyType::Item(JsonItem {
-                                type_field: JSONType::String,
-                                description: None,
-                            }),
-                        ),
-                        (
-                            "audience".to_string(),
-                            SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                type_field: JSONType::Array,
-                                description: None,
-                                items: ArrayItem::JsonItem(JsonItem {
-                                    type_field: JSONType::String,
-                                    description: None,
-                                }),
-                            }),
-                        ),
-                        (
-                            "modules".to_string(),
-                            SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                type_field: JSONType::Array,
-                                description: None,
-                                items: ArrayItem::Schema(Schema {
-                                    type_field: JSONType::Object,
-                                    description: None,
-                                    properties: HashMap::from([
-                                        (
-                                            "course_code".to_string(),
-                                            SchemaPropertyType::Item(JsonItem {
-                                                type_field: JSONType::String,
-                                                description: None,
-                                            }),
-                                        ),
-                                        (
-                                            "description".to_string(),
-                                            SchemaPropertyType::Item(JsonItem {
-                                                type_field: JSONType::String,
-                                                description: None,
-                                            }),
-                                        ),
-                                        (
-                                            "prerequisites".to_string(),
-                                            SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                                type_field: JSONType::Array,
-                                                description: None,
-                                                items: ArrayItem::JsonItem(JsonItem {
-                                                    type_field: JSONType::String,
-                                                    description: None,
-                                                }),
-                                            }),
-                                        ),
-                                    ]),
-                                    required: Vec::from([
-                                        "course_code".to_string(),
-                                        "description".to_string(),
-                                        "prerequisites".to_string(),
-                                    ]),
-                                    additional_properties: false,
-                                }),
-                            }),
-                        ),
-                    ]),
-                    required: Vec::from([
-                        "course_description".to_string(),
-                        "audience".to_string(),
-                        "modules".to_string(),
-                    ]),
-                    additional_properties: false,
-                },
-                strict: true,
-            }),
+            format: Some(response_format()),
         }),
     };
 
@@ -221,4 +229,53 @@ pub async fn generate_description(
             )
         })?;
     Ok(descriptions)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Pins the JSON sent to Azure, not the Rust value, so that adding fields to the
+    /// shared schema types cannot change what this feature asks the LLM for.
+    #[test]
+    fn response_format_json_is_unchanged() {
+        let serialized =
+            serde_json::to_value(response_format()).expect("The response format serializes");
+        assert_eq!(
+            serialized,
+            serde_json::json!({
+                "type": "json_schema",
+                "name": "LLMDescriptionResponse",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "course_description": { "type": "string" },
+                        "audience": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        "modules": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "course_code": { "type": "string" },
+                                    "description": { "type": "string" },
+                                    "prerequisites": {
+                                        "type": "array",
+                                        "items": { "type": "string" }
+                                    }
+                                },
+                                "required": ["course_code", "description", "prerequisites"],
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "required": ["course_description", "audience", "modules"],
+                    "additionalProperties": false
+                },
+                "strict": true
+            })
+        );
+    }
 }

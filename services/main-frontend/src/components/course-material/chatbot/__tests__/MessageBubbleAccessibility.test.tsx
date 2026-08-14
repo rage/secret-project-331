@@ -82,6 +82,7 @@ const makeChatBodyProps = (): any => ({
   dispatch: jest.fn(),
   chatbotMessageAnnouncement: "",
   newMessageMutation: { mutate: jest.fn(), isPending: false },
+  toolResponseMutation: { mutate: jest.fn(), isPending: false },
 })
 
 describe("Chat message sender attribution (issue #56)", () => {

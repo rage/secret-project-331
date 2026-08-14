@@ -12,7 +12,7 @@ shared-secret authorization header:
   first.
 */
 
-use crate::domain::authorization::{
+use crate::domain::authentication::{
     authorize_access_from_tmc_server_to_course_mooc_fi,
     get_or_create_user_from_tmc_mooc_fi_response,
 };

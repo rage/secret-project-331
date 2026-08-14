@@ -3,12 +3,18 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
+/// Who answers a tool call, which decides what happens to a call that has no output yet.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "tool_kind", rename_all = "kebab-case")]
 #[serde(rename_all = "snake_case")]
 pub enum ToolKind {
+    /// Server code, in the same turn that made the call.
     Function,
+    /// The provider, before we ever see the call.
     AzureAiSearch,
+    /// The client, in a later request. Until then the turn is suspended and the call is
+    /// legitimately unanswered, which is why the unanswered-call sweep has to leave it alone.
+    ClientTool,
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
@@ -116,6 +122,34 @@ WHERE chatbot_conversation_message_id = $1
     Ok(res)
 }
 
+/// The call of this conversation that the provider gave `tool_call_id`, answered or not.
+///
+/// Scoped to the conversation because `tool_call_id` is the provider's string and can repeat in
+/// another conversation, which would otherwise let a caller reach a call that is not theirs.
+pub async fn get_by_conversation_and_tool_call_id(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    tool_call_id: &str,
+) -> ModelResult<Option<ChatbotConversationMessageToolCall>> {
+    let res = sqlx::query_as!(
+        ChatbotConversationMessageToolCall,
+        r#"
+SELECT ccmtc.*
+FROM chatbot_conversation_message_tool_calls AS ccmtc
+  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmtc.chatbot_conversation_message_id
+WHERE ccm.conversation_id = $1
+  AND ccmtc.tool_call_id = $2
+  AND ccmtc.deleted_at IS NULL
+  AND ccm.deleted_at IS NULL
+        "#,
+        conversation_id,
+        tool_call_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn delete(
     conn: &mut PgConnection,
     id: Uuid,
@@ -136,11 +170,16 @@ RETURNING *
     Ok(res)
 }
 
-/// Sometimes during chatbot conversation streaming, the stream ends unexpectedly while
-/// a tool call has been made but not answered. This happens with provider tools that we
-/// can't control. In this case, the conversation is left in a state which is invalid,
-/// so we need to delete the un-answered tool call(s).
-pub async fn get_hanging_tool_calls_for_conversation(
+/// Every tool call of the conversation that has no output yet, whatever its kind.
+///
+/// A call is unanswered either because the turn that made it died, which leaves the conversation
+/// in a shape the LLM rejects until the call is answered, or because it is a [ToolKind::ClientTool]
+/// call whose turn is suspended waiting for the client. Callers decide which of the two they are
+/// looking at from `tool_kind`; the query does not.
+///
+/// `tool_call_id` is a provider-supplied string rather than a foreign key and is not unique
+/// across conversations, so outputs only count as answers within the same conversation.
+pub async fn get_unanswered_tool_calls_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
 ) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
@@ -157,10 +196,13 @@ WHERE ccmtc.chatbot_conversation_message_id IN (
   )
   AND ccmtc.deleted_at IS NULL
   AND NOT EXISTS (
-    SELECT id
-    FROM chatbot_conversation_message_tool_outputs
-    WHERE tool_call_id = ccmtc.tool_call_id
-      AND deleted_at IS NULL
+    SELECT ccmto.id
+    FROM chatbot_conversation_message_tool_outputs AS ccmto
+      JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmto.chatbot_conversation_message_id
+    WHERE ccmto.tool_call_id = ccmtc.tool_call_id
+      AND ccm.conversation_id = $1
+      AND ccmto.deleted_at IS NULL
+      AND ccm.deleted_at IS NULL
   )
         "#,
         conversation_id

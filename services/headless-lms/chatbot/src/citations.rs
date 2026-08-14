@@ -128,6 +128,7 @@ async fn get_course_material_document(
     let response = REQWEST_CLIENT
         .get(endpoint.clone())
         .headers(headers)
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 

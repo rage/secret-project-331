@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_messages_citations\nSET conversation_message_id = $1\nWHERE conversation_message_id IN (\n    SELECT id\n    FROM chatbot_conversation_messages\n    WHERE id IN (\n        SELECT conversation_message_id\n        FROM chatbot_conversation_message_tool_outputs\n        WHERE response_id = $2\n          AND deleted_at IS NULL\n      )\n      AND deleted_at IS NULL\n  )\nRETURNING *\n        ",
+  "query": "\nUPDATE chatbot_conversation_messages_citations\nSET conversation_message_id = $1\nWHERE conversation_id = $2\n  AND deleted_at IS NULL\n  AND conversation_message_id IN (\n    SELECT message.id\n    FROM chatbot_conversation_messages message\n      JOIN chatbot_conversation_message_tool_outputs tool_output ON tool_output.chatbot_conversation_message_id = message.id\n    WHERE message.conversation_id = $2\n      AND message.deleted_at IS NULL\n      AND tool_output.deleted_at IS NULL\n      AND message.order_number > COALESCE(\n        (\n          SELECT MAX(user_message.order_number)\n          FROM chatbot_conversation_messages user_message\n            JOIN chatbot_conversation_message_messages text_message ON text_message.chatbot_conversation_message_id = user_message.id\n          WHERE user_message.conversation_id = $2\n            AND user_message.deleted_at IS NULL\n            AND text_message.deleted_at IS NULL\n            AND text_message.message_role = 'user'\n        ),\n        0\n      )\n  )\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -128,7 +128,7 @@
     "parameters": {
       "Left": [
         "Uuid",
-        "Text"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -145,5 +145,5 @@
       true
     ]
   },
-  "hash": "339a2390fdf05a561878b3c373bcbae92922e3121705d38e1ede64a0e31cffcc"
+  "hash": "ced866984ed65551e93ac8283097c95ecf3a0fb44d5efac8f42cf8d28e0d45fc"
 }

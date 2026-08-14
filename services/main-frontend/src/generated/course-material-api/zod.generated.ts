@@ -116,6 +116,61 @@ export const zChatbotConversationSuggestedMessage = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * What the learner has open when they send a message.
+ *
+ * Only the page id is accepted: everything the model reads is looked up from the database.
+ * The context becomes a developer message, which the model weighs above the learner's own
+ * words, so a client that could write its text could give itself instructions.
+ */
+export const zChatbotPageContext = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The part of the application a chatbot message was sent from.
+ *
+ * Every surface posts to the same endpoint and several of them share a chatbot configuration,
+ * so a request has to name its surface for the backend to tell them apart.
+ */
+export const zChatbotSurface = z.enum([
+  "course_material_dialog",
+  "course_material_block",
+  "embed",
+  "configuration_preview",
+  "command_center",
+])
+
+/**
+ * What a client answered a tool call with.
+ *
+ * A client tool either runs and produces data, or puts a choice to the learner. Both are shapes
+ * of the same answer so that the confirmation gates of a later phase, which answer with
+ * [ClientToolAnswer::Decision], need no change to the wire format. The tool the call belongs to
+ * decides which shapes it accepts and what the model is told they mean.
+ */
+export const zClientToolAnswer = z.union([
+  z.object({
+    data: z.object({
+      result: z.record(z.string(), z.unknown()),
+    }),
+    type: z.enum(["Data"]),
+  }),
+  z.object({
+    data: z.object({
+      approved: z.boolean(),
+      note: z.string().nullish(),
+    }),
+    type: z.enum(["Decision"]),
+  }),
+])
+
+export const zChatbotToolResponse = z.object({
+  answer: zClientToolAnswer,
+  surface: zChatbotSurface,
+  tool_call_id: z.string(),
+})
+
 export const zCodeGiveawayStatus = z.union([
   z.object({
     tag: z.enum(["Disabled"]),
@@ -881,6 +936,12 @@ export const zSearchRequest = z.object({
   query: z.string(),
 })
 
+export const zSendChatbotMessage = z.object({
+  message: z.string(),
+  page_context: zChatbotPageContext.nullish(),
+  surface: zChatbotSurface,
+})
+
 export const zShowExerciseAnswers = z.object({
   show_exercise_answers: z.boolean(),
 })
@@ -916,6 +977,9 @@ export const zChatbotChatStreamEvent = z.union([
   }),
   z.object({
     type: z.enum(["Done"]),
+  }),
+  z.object({
+    type: z.enum(["Suspended"]),
   }),
   z.object({
     data: zStreamEventError,
@@ -1065,7 +1129,10 @@ export const zTermUpdate = z.object({
   term: z.string(),
 })
 
-export const zToolKind = z.enum(["function", "azure_ai_search"])
+/**
+ * Who answers a tool call, which decides what happens to a call that has no output yet.
+ */
+export const zToolKind = z.enum(["function", "azure_ai_search", "client_tool"])
 
 export const zChatbotConversationMessageToolCall = z.object({
   chatbot_conversation_message_id: z.uuid(),
@@ -1446,7 +1513,7 @@ export const zNewChatbotConversationPath = z.object({
  */
 export const zNewChatbotConversationResponse = zChatbotConversation
 
-export const zSendChatbotMessageBody = z.string()
+export const zSendChatbotMessageBody = zSendChatbotMessage
 
 export const zSendChatbotMessagePath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -1457,6 +1524,18 @@ export const zSendChatbotMessagePath = z.object({
  * Chatbot response stream
  */
 export const zSendChatbotMessageResponse = zChatbotChatStreamEvent
+
+export const zSendChatbotToolResponseBody = zChatbotToolResponse
+
+export const zSendChatbotToolResponsePath = z.object({
+  chatbot_configuration_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
+
+/**
+ * Chatbot response stream
+ */
+export const zSendChatbotToolResponseResponse = zChatbotChatStreamEvent
 
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),

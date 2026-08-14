@@ -63,6 +63,7 @@ pub async fn does_search_indexer_exist(
         .get(url)
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
@@ -143,6 +144,7 @@ pub async fn create_search_indexer(
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
         .json(&indexer_definition)
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
@@ -187,6 +189,7 @@ pub async fn run_search_indexer_now(
         .post(url)
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
@@ -244,6 +247,7 @@ pub async fn check_search_indexer_status(
         .get(url)
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 

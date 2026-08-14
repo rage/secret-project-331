@@ -3,7 +3,6 @@
 import { produce } from "immer"
 import { v4 } from "uuid"
 
-import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 import {
   zChatbotConversationMessageMessage,
   zChatbotConversationMessageReasoning,
@@ -18,10 +17,6 @@ export interface ChatbotState {
 
 // todo: accpt chat stream events?
 export type ChatbotAction =
-  | {
-      type: "RECEIVED_CONVERSATION_MESSAGES"
-      payload: ChatbotConversationMessage[]
-    }
   | { type: "USER_SENDS_MESSAGE"; payload: string }
   | {
       type: "RECEIVED_TEXT_DELTA"
@@ -46,11 +41,6 @@ export type ChatbotAction =
 
 const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotState => {
   return produce(state, (draftState) => {
-    if (action.type === "RECEIVED_CONVERSATION_MESSAGES") {
-      draftState.messages = action.payload.map((m) => {
-        return { message: m, finished: true, optimistic: false }
-      })
-    }
     if (action.type === "USER_SENDS_MESSAGE") {
       const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
 

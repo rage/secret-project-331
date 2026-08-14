@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM chatbot_conversation_message_tool_calls AS ccmtc\nWHERE ccmtc.chatbot_conversation_message_id IN (\n    SELECT id\n    FROM chatbot_conversation_messages\n    WHERE conversation_id = $1\n      AND deleted_at IS NULL\n  )\n  AND ccmtc.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT id\n    FROM chatbot_conversation_message_tool_outputs\n    WHERE tool_call_id = ccmtc.tool_call_id\n      AND deleted_at IS NULL\n  )\n        ",
+  "query": "\nSELECT ccmtc.*\nFROM chatbot_conversation_message_tool_calls AS ccmtc\n  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmtc.chatbot_conversation_message_id\nWHERE ccm.conversation_id = $1\n  AND ccmtc.tool_call_id = $2\n  AND ccmtc.deleted_at IS NULL\n  AND ccm.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -100,7 +100,8 @@
             "kind": {
               "Enum": [
                 "function",
-                "azure-ai-search"
+                "azure-ai-search",
+                "client-tool"
               ]
             }
           }
@@ -126,7 +127,8 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Text"
       ]
     },
     "nullable": [
@@ -142,5 +144,5 @@
       false
     ]
   },
-  "hash": "08916f5b8a92f9acf9366c004ed6bf9658021ee39cde4bcdf027424b2e8b95b8"
+  "hash": "7fd0d0e7d456a17090632f9214f037e542a41e6fe00c44fc368cae3162d4cbd6"
 }

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use crate::{
     azure_chatbot::{
@@ -27,6 +27,33 @@ use headless_lms_utils::json_schema_types::{
 #[derive(serde::Deserialize)]
 struct CmsParagraphSuggestionResponse {
     suggestions: Vec<String>,
+}
+
+/// The structured output format the suggestion LLM is asked to answer in. Must stay in
+/// sync with [CmsParagraphSuggestionResponse].
+fn response_format() -> LLMRequestResponseFormatParam {
+    LLMRequestResponseFormatParam {
+        format_type: JSONType::JsonSchema,
+        name: "CmsParagraphSuggestionResponse".to_string(),
+        schema: Schema {
+            type_field: JSONType::Object,
+            description: None,
+            properties: IndexMap::from([(
+                "suggestions".to_string(),
+                SchemaPropertyType::ArrayProperty(ArrayProperty {
+                    type_field: JSONType::Array,
+                    description: None,
+                    items: ArrayItem::JsonItem(JsonItem {
+                        type_field: JSONType::String,
+                        description: None,
+                    }),
+                }),
+            )]),
+            required: vec!["suggestions".to_string()],
+            additional_properties: false,
+        },
+        strict: true,
+    }
 }
 
 /// Returns a short human-readable instruction for the given action id. Used so the model
@@ -259,31 +286,11 @@ pub async fn generate_paragraph_suggestions(
         tools: vec![],
         tool_choice: None,
         parallel_tool_calls: None,
+        prompt_cache_key: None,
         params,
         text: Some(RequestTextOptions {
             verbosity: None,
-            format: Some(LLMRequestResponseFormatParam {
-                format_type: JSONType::JsonSchema,
-                name: "CmsParagraphSuggestionResponse".to_string(),
-                schema: Schema {
-                    type_field: JSONType::Object,
-                    description: None,
-                    properties: HashMap::from([(
-                        "suggestions".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                            type_field: JSONType::Array,
-                            description: None,
-                            items: ArrayItem::JsonItem(JsonItem {
-                                type_field: JSONType::String,
-                                description: None,
-                            }),
-                        }),
-                    )]),
-                    required: vec!["suggestions".to_string()],
-                    additional_properties: false,
-                },
-                strict: true,
-            }),
+            format: Some(response_format()),
         }),
     };
 
@@ -307,4 +314,36 @@ pub async fn generate_paragraph_suggestions(
     }
 
     Ok(response.suggestions)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Pins the JSON sent to Azure, not the Rust value, so that adding fields to the
+    /// shared schema types cannot change what this feature asks the LLM for.
+    #[test]
+    fn response_format_json_is_unchanged() {
+        let serialized =
+            serde_json::to_value(response_format()).expect("The response format serializes");
+        assert_eq!(
+            serialized,
+            serde_json::json!({
+                "type": "json_schema",
+                "name": "CmsParagraphSuggestionResponse",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "suggestions": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        }
+                    },
+                    "required": ["suggestions"],
+                    "additionalProperties": false
+                },
+                "strict": true
+            })
+        );
+    }
 }

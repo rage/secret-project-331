@@ -32,6 +32,7 @@ pub async fn does_skillset_exist(
         .get(url)
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
@@ -205,6 +206,7 @@ pub async fn create_skillset(
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
         .json(&skillset_definition)
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 

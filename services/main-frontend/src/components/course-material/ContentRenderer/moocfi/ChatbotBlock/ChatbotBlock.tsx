@@ -7,11 +7,14 @@ import { useTranslation } from "react-i18next"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/course-material/SelectionListener"
 import { getDefaultChatbotConfigurationForCourse } from "@/generated/course-material-api/sdk.generated"
+import type { ChatbotSurface } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
 
 import type { BlockRendererProps } from "../.."
+
+const SURFACE: ChatbotSurface = "course_material_block"
 
 interface ChatbotBlockProps {
   chatbotConfigurationId: string
@@ -51,6 +54,7 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
           <ChatbotChat
             chatbotConfigurationId={chatbotConfigurationId}
             isCourseMaterialBlock={true}
+            surface={SURFACE}
           />
         </div>
       </div>
@@ -78,6 +82,7 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
               <ChatbotChat
                 chatbotConfigurationId={chatbotConfigurationId}
                 isCourseMaterialBlock={true}
+                surface={SURFACE}
               />
             </div>
           </div>

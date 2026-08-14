@@ -12,6 +12,7 @@ import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
+import { ASK_MULTIPLE_CHOICE_QUESTION_TOOL } from "./multipleChoiceQuestions"
 import ThinkingIndicator from "./ThinkingIndicator"
 
 const textStyle = css`
@@ -74,11 +75,17 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
       }
       let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
       if (res2.success) {
-        let tool =
-          res2.data.tool_name === "azure_ai_search"
-            ? t("course-material-search")
-            : res2.data.tool_name.replaceAll("_", " ")
-        summaryText += `${t("chatbot-status-using-tool")} "${tool}"`
+        // A question the learner will read gets its own bubble once its arguments have arrived
+        // whole, so here it is still being written and has no choices to show yet.
+        if (res2.data.tool_name === ASK_MULTIPLE_CHOICE_QUESTION_TOOL) {
+          summaryText += t("chatbot-status-preparing-a-question")
+        } else {
+          let tool =
+            res2.data.tool_name === "azure_ai_search"
+              ? t("course-material-search")
+              : res2.data.tool_name.replaceAll("_", " ")
+          summaryText += `${t("chatbot-status-using-tool")} "${tool}"`
+        }
       }
     })
     return (
@@ -144,6 +151,15 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
         }
         if (idx === 1) {
           summaryText += `, ${t("chatbot-status-document-lookup-finished")}`
+        }
+      } else if (res2.data.tool_name === ASK_MULTIPLE_CHOICE_QUESTION_TOOL) {
+        // Only questions too malformed to render land here; the rest have their own bubble.
+        expandableText.push(t("chatbot-status-asked-a-question"))
+        if (idx === 0) {
+          summaryText += t("chatbot-status-asked-a-question")
+        }
+        if (idx === 1) {
+          summaryText += `, ${t("chatbot-status-asked-a-question")}`
         }
       } else if (res2.data.tool_name === "course_finder") {
         if (idx === 0) {

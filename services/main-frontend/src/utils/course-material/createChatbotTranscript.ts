@@ -1,4 +1,5 @@
 import { renumberFilterCitations } from "@/components/course-material/chatbot/shared/MessageBubble"
+import { questionOf } from "@/components/course-material/chatbot/shared/multipleChoiceQuestions"
 import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
 import { zChatbotConversationMessageMessage } from "@/generated/course-material-api/zod.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
@@ -27,7 +28,14 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
     .map((m) => {
       const originalMessage = zChatbotConversationMessageMessage.safeParse(m.message)
       if (!originalMessage.success) {
-        // don't put tool messages or reasoning in the transcript
+        const question = questionOf(m)
+        if (question !== null) {
+          // Left out, the transcript would jump straight to an answer that reads as if the chatbot
+          // had picked one reading of the learner's message out of thin air.
+          const choices = question.choices.map((choice) => `- ${choice}`).join("\n")
+          return `[${bot} asked:]\n${question.question}\n${choices}\n\n`
+        }
+        // don't put other tool messages or reasoning in the transcript
         return ""
       }
 

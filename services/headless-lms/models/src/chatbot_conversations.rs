@@ -30,6 +30,10 @@ pub struct ChatbotConversationInfo {
     pub chatbot_name: String,
     pub course_name: Option<String>,
     pub hide_citations: bool,
+    /// What to offer the learner as their next message. Absent when nothing should be offered: the
+    /// configuration has suggestions off, or the conversation is at a point where a suggestion does
+    /// not belong, such as a turn suspended on a question to the learner. Empty means suggestions
+    /// are wanted but none have been generated yet, which is what makes the endpoint generate them.
     pub suggested_messages: Option<Vec<ChatbotConversationSuggestedMessage>>,
 }
 
@@ -184,6 +188,9 @@ pub async fn get_current_conversation_info(
 
     let suggested_messages = if chatbot_configuration.suggest_next_messages
         && let Some(ccm) = &current_conversation_messages
+        // A suspended turn is waiting for the learner to answer the chatbot's own question, which
+        // is not a moment to suggest asking something else.
+        && !crate::chatbot_conversation_messages::turn_is_suspended(ccm)
         && let Some(last_ccm) = ccm.last()
     {
         let sm = crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(

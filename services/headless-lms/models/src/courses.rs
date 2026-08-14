@@ -249,6 +249,8 @@ pub async fn insert(
     course_language_group_id: Uuid,
     new_course: &NewCourse,
 ) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
+
     let res = sqlx::query!(
         "
 INSERT INTO courses(
@@ -294,11 +296,11 @@ RETURNING id
         new_course.join_code,
         new_course.can_add_chatbot,
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
     if !app_config.seed_embedding {
         update_course_embeddings(
-            &mut *conn,
+            &mut tx,
             app_config,
             res.id,
             Some(&new_course.name),
@@ -306,6 +308,7 @@ RETURNING id
         )
         .await?
     }
+    tx.commit().await?;
     Ok(res.id)
 }
 
@@ -730,6 +733,7 @@ pub async fn update_course(
     course_update: CourseUpdate,
 ) -> ModelResult<Course> {
     let old_course = get_course(conn, course_id).await?;
+    let mut tx = conn.begin().await?;
     let res = sqlx::query_as!(
         Course,
         r#"
@@ -772,7 +776,7 @@ RETURNING *
         course_update.course_material_ai_instructions,
         course_id
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
     let title = if old_course.name != course_update.name {
         Some(course_update.name.as_str())
@@ -786,7 +790,8 @@ RETURNING *
         None
     };
 
-    update_course_embeddings(conn, app_config, course_id, title, description).await?;
+    update_course_embeddings(&mut tx, app_config, course_id, title, description).await?;
+    tx.commit().await?;
     Ok(res)
 }
 

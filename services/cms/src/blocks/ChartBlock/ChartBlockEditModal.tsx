@@ -829,18 +829,6 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
           </div>
         </div>
       )}
-      <div
-        className={css`
-          display: flex;
-          justify-content: flex-end;
-          margin-top: 1.5rem;
-          flex-shrink: 0;
-        `}
-      >
-        <Button variant="primary" size="medium" onClick={onClose}>
-          {t("close")}
-        </Button>
-      </div>
     </Modal>
   )
 }

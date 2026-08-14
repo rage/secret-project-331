@@ -72,6 +72,9 @@ test("Chart block editor works", async ({ page }) => {
   ])
   await initialChooser.setFiles("src/fixtures/media/chart-data.csv")
   await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible({ timeout: 30_000 })
+
+  // The Vega JSON spec editor is hidden by default; reveal it to edit the spec directly.
+  await dialog.getByRole("button", { name: "View Vega JSON" }).click()
   await expect(dialog.locator(".monaco-editor").first()).toBeVisible()
 
   // Invalid JSON is flagged and the preview shows an error rather than crashing. The uploaded data
@@ -124,8 +127,8 @@ test("Chart block editor works", async ({ page }) => {
   await captionInput.fill("Quarterly results")
   await expect(captionInput).toHaveValue("Quarterly results")
 
-  // Both the header icon button and the footer button are named "Close"; use the footer one.
-  await dialog.getByRole("button", { name: "Close" }).last().click()
+  // Close via the modal's header close button.
+  await dialog.getByRole("button", { name: "Close" }).click()
   await expect(page.getByRole("dialog", { name: "Edit chart" })).toBeHidden()
 
   // The page with the chart block saves without errors.

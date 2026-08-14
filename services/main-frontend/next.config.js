@@ -76,7 +76,13 @@ const config = {
   },
   compiler: {
     emotion: {
-      autoLabel: "always",
+      // Must stay "never" while any `css` template interpolates another @emotion/css class name
+      // (~25 sites). Emotion inlines the interpolated class's raw registered string, label marker
+      // included, so autoLabel injects `label:foo` into the middle of the CSS. Next <=16.2 emitted
+      // a bare `foo`, which parsed as an unknown element selector and was harmless; 16.3 emits
+      // `label:foo`, an unknown pseudo-class that invalidates the whole selector list and silently
+      // drops the rule — which cost us the global `html, body` font-family and the css reset.
+      autoLabel: "never",
       // https://github.com/vercel/next.js/issues/40091
       // labelFormat: "[dirname]--[filename]--[local]",
     },

@@ -65,7 +65,10 @@ const config = {
   },
   compiler: {
     emotion: {
-      autoLabel: "always",
+      // See services/main-frontend/next.config.js: autoLabel must stay "never" while `css`
+      // templates interpolate other @emotion/css class names, or Next 16.3+ injects `label:foo`
+      // mid-CSS and the surrounding rule is silently dropped.
+      autoLabel: "never",
       // https://github.com/vercel/next.js/issues/40091
       // labelFormat: "[dirname]--[filename]--[local]",
     },

@@ -134,6 +134,31 @@ LIMIT 1
     Ok(res)
 }
 
+/// Whether a generic template of this type would actually be found: checks only the `"en"` and
+/// `NULL` language rows, the two the lookup above always falls back to regardless of the caller's
+/// UI language.
+pub async fn generic_email_template_exists(
+    conn: &mut PgConnection,
+    template_type: EmailTemplateType,
+) -> ModelResult<bool> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1
+  FROM email_templates
+  WHERE email_template_type = $1
+    AND course_id IS NULL
+    AND deleted_at IS NULL
+    AND (language = 'en' OR language IS NULL)
+) AS "exists!"
+        "#,
+        template_type as EmailTemplateType,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn insert_email_template(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,

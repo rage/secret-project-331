@@ -131,6 +131,8 @@ function getStatusMessageText(
       return t("help-text-answer-has-been-reviewed-and-locked")
     case "Locked":
       return t("help-text-answer-has-been-locked")
+    case "NotAnsweredAndLocked":
+      return t("help-text-exercise-not-answered-and-locked")
     case "WaitingForManualGrading":
       return t("help-text-waiting-for-manual-grading")
     case "WaitingForPeerReviews":

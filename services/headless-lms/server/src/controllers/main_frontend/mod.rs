@@ -11,10 +11,13 @@ pub mod chatbot_models;
 pub mod chatbots;
 pub mod code_giveaways;
 pub mod course_auditing;
+pub mod course_credit_registrations;
 pub mod course_designer;
 pub mod course_instances;
 pub mod course_modules;
 pub mod courses;
+pub mod credit_registration_admin;
+pub mod credit_registrations;
 pub mod email_templates;
 pub mod email_verification;
 pub mod exams;
@@ -53,10 +56,13 @@ use utoipa::OpenApi;
         (path = "/chatbots", api = chatbots::MainFrontendChatbotsApiDoc),
         (path = "/code-giveaways", api = code_giveaways::MainFrontendCodeGiveawaysApiDoc),
         (path = "/course-auditing", api = course_auditing::MainFrontendCourseAuditingApiDoc),
+        (path = "/course-credit-registrations", api = course_credit_registrations::MainFrontendCourseCreditRegistrationsApiDoc),
         (path = "/course-plans", api = course_designer::MainFrontendCourseDesignerApiDoc),
         (path = "/course-instances", api = course_instances::MainFrontendCourseInstancesApiDoc),
         (path = "/course-modules", api = course_modules::MainFrontendCourseModulesApiDoc),
         (path = "/courses", api = courses::MainFrontendCoursesApiDoc),
+        (path = "/credit-registration-admin", api = credit_registration_admin::MainFrontendCreditRegistrationAdminApiDoc),
+        (path = "/credit-registrations", api = credit_registrations::MainFrontendCreditRegistrationsApiDoc),
         (path = "/email-templates", api = email_templates::MainFrontendEmailTemplatesApiDoc),
         (path = "/email-verification", api = email_verification::MainFrontendEmailVerificationApiDoc),
         (path = "/exams", api = exams::MainFrontendExamsApiDoc),
@@ -90,10 +96,19 @@ pub struct MainFrontendRoutesApiDoc;
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/chapters").configure(chapters::_add_routes))
         .service(web::scope("/course-auditing").configure(course_auditing::_add_routes))
+        .service(
+            web::scope("/course-credit-registrations")
+                .configure(course_credit_registrations::_add_routes),
+        )
         .service(web::scope("/course-instances").configure(course_instances::_add_routes))
         .service(web::scope("/course-plans").configure(course_designer::_add_routes))
         .service(web::scope("/course-modules").configure(course_modules::_add_routes))
         .service(web::scope("/courses").configure(courses::_add_routes))
+        .service(
+            web::scope("/credit-registration-admin")
+                .configure(credit_registration_admin::_add_routes),
+        )
+        .service(web::scope("/credit-registrations").configure(credit_registrations::_add_routes))
         .service(web::scope("/email-templates").configure(email_templates::_add_routes))
         .service(web::scope("/email-verification").configure(email_verification::_add_routes))
         .service(web::scope("/exercises").configure(exercises::_add_routes))

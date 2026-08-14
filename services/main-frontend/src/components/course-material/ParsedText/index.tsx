@@ -44,7 +44,6 @@ export type ParsedTextProps<T extends Tag> = BaseParsedTextProps<T> &
   (ParsedTextPropsWithWrapperElement | ParsedTextPropsWithoutWrapperElement)
 
 const glossaryTermStyle = css`
-  border-bottom: 1px dotted;
   cursor: help;
 `
 

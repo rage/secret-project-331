@@ -1,0 +1,120 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH windows AS (\n  SELECT * FROM UNNEST($1::bigint [], $2::timestamptz []) AS w(window_secs, since)\n)\nSELECT w.window_secs AS \"window_secs!\",\n  c.endpoint,\n  COUNT(*) FILTER (WHERE c.duration_ms IS NOT NULL) AS \"call_count!\",\n  COUNT(*) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n  ) AS \"failed_call_count!\",\n  COUNT(*) FILTER (WHERE c.duration_ms IS NULL) AS \"in_flight_count!\",\n  COALESCE(SUM(c.ok_item_count), 0) AS \"ok_item_count!\",\n  COALESCE(SUM(c.error_item_count), 0) AS \"error_item_count!\",\n  PERCENTILE_DISC(0.5) WITHIN GROUP (\n    ORDER BY c.duration_ms\n  ) AS \"p50_duration_ms\",\n  PERCENTILE_DISC(0.95) WITHIN GROUP (\n    ORDER BY c.duration_ms\n  ) AS \"p95_duration_ms\",\n  MAX(c.started_at) FILTER (WHERE c.succeeded) AS \"last_success_at\",\n  MAX(c.started_at) FILTER (\n    WHERE c.duration_ms IS NOT NULL\n      AND NOT c.succeeded\n  ) AS \"last_failure_at\",\n  (\n    ARRAY_AGG(\n      c.request_level_error_code\n      ORDER BY c.started_at DESC\n    ) FILTER (\n      WHERE c.duration_ms IS NOT NULL\n        AND NOT c.succeeded\n        AND c.request_level_error_code IS NOT NULL\n    )\n  ) [1] AS \"last_request_level_error_code\"\nFROM windows w\n  JOIN suotar_api_calls c ON c.started_at >= w.since\n  AND c.deleted_at IS NULL\nGROUP BY w.window_secs,\n  c.endpoint\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "window_secs!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "endpoint",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "product_access_tokens",
+                "list_by_course"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "endpoint"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "call_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "failed_call_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "in_flight_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "ok_item_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "error_item_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "p50_duration_ms",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "p95_duration_ms",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "last_success_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 10,
+        "name": "last_failure_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 11,
+        "name": "last_request_level_error_code",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8Array",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "3a1cb88e78a1303009725cc97a74f996552e704ab2bebc04189106398b0ea99b"
+}

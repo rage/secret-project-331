@@ -1,0 +1,101 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.id AS \"id!\",\n  e.emailed_to AS \"emailed_to!\",\n  e.student_number AS \"student_number!\",\n  t.first_names AS \"first_names?\",\n  t.token AS \"token!: DbSecret\",\n  c.name AS \"course_name!\",\n  c.language_code AS \"course_language_code!\"\nFROM credit_registration_account_linking_emails e\n  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\n  JOIN courses c ON c.id = e.course_id\nWHERE e.email_delivery_id IS NULL\n  AND e.deleted_at IS NULL\n  AND t.deleted_at IS NULL\n  AND t.used_at IS NULL\n  AND t.expires_at > now()\n  AND ($2::uuid IS NULL OR e.course_id = $2)\nORDER BY e.sent_at\nFOR UPDATE OF e SKIP LOCKED\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "emailed_to!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "emailed_to"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "student_number!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "first_names?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "student_number_verification_tokens",
+            "name": "first_names"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "token!: DbSecret",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "student_number_verification_tokens",
+            "name": "token"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_language_code!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "language_code"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c2707a03d2b8388a64a2562b57b1ab84ccbf56897f45e63e388abf449c719901"
+}

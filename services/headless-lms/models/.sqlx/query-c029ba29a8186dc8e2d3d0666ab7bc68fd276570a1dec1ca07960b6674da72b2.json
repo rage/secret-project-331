@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE suotar_api_calls\nSET http_status = $2,\n  duration_ms = $3,\n  succeeded = $4,\n  ok_item_count = $5,\n  error_item_count = $6,\n  request_level_error_code = $7,\n  error_message = $8,\n  response_body_sample = $9,\n  updated_at = now()\nWHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Int4",
+        "Bool",
+        "Int4",
+        "Int4",
+        "Varchar",
+        "Text",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c029ba29a8186dc8e2d3d0666ab7bc68fd276570a1dec1ca07960b6674da72b2"
+}

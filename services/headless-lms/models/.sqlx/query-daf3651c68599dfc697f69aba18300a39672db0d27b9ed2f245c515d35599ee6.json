@@ -1,0 +1,231 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM verified_student_numbers\nWHERE user_id = $1\nORDER BY verified_at DESC\nLIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "student_number",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "sisu_person_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "sisu_person_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "first_names",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "first_names"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "last_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "verified_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "verified_via",
+        "type_info": {
+          "Custom": {
+            "name": "student_number_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_link",
+                "email_match_fast_track",
+                "admin_manual"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_via"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "verified_via_email",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_via_email"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "verified_via_email_match_field",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_via_email_match_field"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "account_email_verified_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "account_email_verified_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "linked_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "linked_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "link_reason",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "link_reason"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "verified_from_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_from_course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "deleted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "daf3651c68599dfc697f69aba18300a39672db0d27b9ed2f245c515d35599ee6"
+}

@@ -389,18 +389,26 @@ pub struct EmailSendStatusFacts {
     pub failure_is_transient: Option<bool>,
 }
 
+/// True once a delivery attempt has failed for good: not retryable at all, or retryable but its
+/// retry window has expired. Shared with `credit_registration_account_linking_emails.rs` so the
+/// two cannot drift on what counts as a hard failure.
+pub fn is_hard_send_failure(
+    retryable: bool,
+    first_failed_at: Option<DateTime<Utc>>,
+    now: DateTime<Utc>,
+) -> bool {
+    !retryable
+        || first_failed_at.is_some_and(|first| (now - first).num_seconds() > RETRY_WINDOW_SECS)
+}
+
 /// The one derivation of send status. Every surface goes through it.
 pub fn derive_email_send_status(
     facts: &EmailSendStatusFacts,
     now: DateTime<Utc>,
 ) -> EmailSendStatusReport {
-    let window_expired = facts
-        .first_failed_at
-        .is_some_and(|first| (now - first).num_seconds() > RETRY_WINDOW_SECS);
-
     let email_send_status = if facts.sent {
         EmailSendStatus::Sent
-    } else if !facts.retryable || window_expired {
+    } else if is_hard_send_failure(facts.retryable, facts.first_failed_at, now) {
         EmailSendStatus::SendFailed
     } else if facts.retry_count > 0 {
         EmailSendStatus::Retrying

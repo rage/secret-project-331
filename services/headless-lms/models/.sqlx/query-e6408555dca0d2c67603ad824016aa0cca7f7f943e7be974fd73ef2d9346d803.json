@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_module_suotar_configurations\nSET paused_at = $2,\n  paused_by_user_id = $3,\n  pause_reason = $4\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e6408555dca0d2c67603ad824016aa0cca7f7f943e7be974fd73ef2d9346d803"
+}

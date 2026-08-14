@@ -1,7 +1,9 @@
+// @wordpress/components reads the body token, @wordpress/ui (a transitive dependency that ships its
+// css inside its js) reads both. Their own fallback is wp-admin's system stack, so these are what
+// keep those packages on our font.
 :root {
   --wpds-typography-font-family-body: "Inter Variable", Inter, sans-serif;
   --wpds-typography-font-family-heading: "Inter Variable", Inter, sans-serif;
-  --wpds-typography-font-family-mono: "Space Mono", monospace;
 }
 
 .editor-styles-wrapper {
@@ -9,14 +11,12 @@
   color: $gray-900;
 
   // Image align right
-  .edit-post-visual-editor__post-title-wrapper > [data-align="right"],
   .block-editor-block-list__layout.is-root-container > [data-align="right"] {
     float: right;
     margin-bottom: 0.5rem;
   }
 
   // Image align left
-  .edit-post-visual-editor__post-title-wrapper > [data-align="left"],
   .block-editor-block-list__layout.is-root-container > [data-align="left"] {
     float: left;
     margin-bottom: 0.5rem;
@@ -146,7 +146,7 @@
 }
 
 // Hide learn more about embeds text
-.wp-block-embed .components-placeholder__learn-more {
+.wp-block-embed__learn-more {
   display: none;
 }
 
@@ -154,17 +154,21 @@
   width: 100%;
 }
 
-.wp-block.is-selected {
-  // Makes the typing caret visible on a empty block
-  outline-offset: 5px;
-  // Makes the current block highlight less distracting
-  outline-color: #bec3c7;
+// Gutenberg focuses this wrapper as the editing host whenever the selected block opts into
+// editableRoot (core/paragraph does). Upstream styles it nowhere because its own canvas is an
+// iframe, where the browser's focus ring falls outside the viewport; ours renders inline, so the
+// ring would wrap the whole canvas and its left edge would sit on the caret column.
+.block-editor-writing-flow[contenteditable="true"]:focus {
+  outline: none;
+}
 
-  // Apply the same styles to direct children, so that the highlight customization works with more block types
-  & > * {
-    outline-offset: 5px;
-    outline-color: #bec3c7;
-  }
+// Gutenberg deliberately draws no selection ring on the block being edited: its own rule is gated
+// on :not([contenteditable=true]):focus. Scoped to editable blocks so it doesn't double up with
+// that ring on the non-text blocks where it does apply. Style and width must stay explicit —
+// without them the outline paints nothing.
+.wp-block.is-selected[contenteditable="true"] {
+  outline: 1px solid #bec3c7;
+  outline-offset: 5px;
 }
 
 // Fix up and down arrows in the current blocks list
@@ -172,4 +176,31 @@
   .block-editor-block-mover-button {
     padding: 0 !important;
   }
+}
+
+// Gutenberg's chrome is metered against wp-admin's 13px body, which this app has no equivalent of,
+// and the shared css reset makes its form controls inherit size and line height from around them.
+// Chrome roots only, so the canvas keeps our content metrics; unimportant and single-class so
+// upstream's own font rules still outrank it.
+.block-editor-block-toolbar,
+.block-editor-block-inspector,
+.block-editor-inserter__menu,
+.block-editor-inserter__quick-inserter,
+.block-editor-list-view-tree,
+.components-popover {
+  font-size: $default-font-size;
+  line-height: $default-line-height;
+}
+
+// Gutenberg hardcodes wp-admin's system font stack on around twenty of its own UI selectors, which
+// no token can reach. Form controls follow whatever their container resolves to, because the shared
+// css reset forces font-family: inherit on them, so the containers are the whole fix. Matches only
+// Gutenberg's own admin-UI classes: canvas typography arrives through settings.styles, and the code
+// surfaces upstream keeps monospace must stay monospace.
+[class*="components-"],
+.components-placeholder__fieldset p,
+.block-editor-inserter,
+.block-editor-warning,
+.block-editor-warning__message {
+  font-family: var(--wpds-typography-font-family-body) !important;
 }

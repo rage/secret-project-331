@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH last_success AS (\n  SELECT MAX(started_at) AS at\n  FROM suotar_api_calls\n  WHERE succeeded\n    AND started_at >= $1\n    AND deleted_at IS NULL\n)\nSELECT COUNT(*) AS \"count!\",\n  MAX(c.started_at) AS \"last_at\"\nFROM suotar_api_calls c\n  CROSS JOIN last_success ls\nWHERE c.started_at >= $1\n  AND c.deleted_at IS NULL\n  AND c.duration_ms IS NOT NULL\n  AND NOT c.succeeded\n  AND (\n    c.http_status IS NULL\n    OR c.http_status >= 500\n  )\n  AND (\n    ls.at IS NULL\n    OR c.started_at > ls.at\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "last_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "284aa1db850ea9e837c805de1bc8c69ccf7ca6b43724644748efd6d8aa7a0701"
+}

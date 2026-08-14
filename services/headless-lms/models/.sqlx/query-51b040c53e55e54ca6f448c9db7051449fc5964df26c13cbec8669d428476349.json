@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registration_admin_actions\nWHERE actor_user_id = $1\n  AND action = $2\n  AND created_at >= $3\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_admin_action",
+            "kind": {
+              "Enum": [
+                "retry_item",
+                "retry_failed_for_course",
+                "force_recheck",
+                "mark_resolved",
+                "requeue_batch",
+                "transition_item",
+                "cancel_registration",
+                "pause_course_module",
+                "resume_course_module",
+                "pause_phase",
+                "resume_phase",
+                "run_phase_now",
+                "resend_link_email",
+                "unlink_student_number",
+                "manual_link_student_number",
+                "override_rate_cap"
+              ]
+            }
+          }
+        },
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "51b040c53e55e54ca6f448c9db7051449fc5964df26c13cbec8669d428476349"
+}

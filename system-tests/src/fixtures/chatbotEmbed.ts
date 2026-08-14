@@ -31,7 +31,6 @@ const chatbotEmbedServerContext = {
  * any test in that worker and torn down when the worker exits.
  * See: https://playwright.dev/docs/test-fixtures#worker-scoped-fixtures
  */
-// Empty object type required by Playwright's extend() for "no extra test fixtures"
 // oxlint-disable-next-line typescript/no-empty-object-type, typescript/ban-types -- Playwright extend() requires {} for the no-extra-fixtures type arg
 export const test = base.extend<{}, { chatbotEmbedServer: string }>({
   chatbotEmbedServer: [

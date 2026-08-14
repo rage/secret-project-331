@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { Sliders } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -8,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import Tab from "@/components/Tabs/Tab"
 import TabPanel from "@/components/Tabs/TabPanel"
 import Tabs from "@/components/Tabs/Tabs"
+import { getMyStudiesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -17,6 +19,11 @@ const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
   // Low baseline order: nested pages (account, permissions) register a higher order and win, and
   // this only shows for the section's redirect stub. Mirrors the course-material layout pattern.
   usePageTitle(t("user-settings"), { order: 0 })
+
+  // Same query key and gate as the profile tab bar, so no extra request and the two cannot drift.
+  // Read directly rather than through QueryResult: a failing tab list must not hide the tab content.
+  const myStudies = useQuery({ ...getMyStudiesOptions() })
+  const showStudentNumberTab = myStudies.data?.any_module_supports_credit_registration === true
 
   return (
     <div
@@ -79,6 +86,10 @@ const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
       <Tabs>
         {/* oxlint-disable-next-line i18next/no-literal-string */}
         <Tab tabName="account">{t("user-settings-account-tab")}</Tab>
+        {showStudentNumberTab ? (
+          /* oxlint-disable-next-line i18next/no-literal-string */
+          <Tab tabName="student-number">{t("user-settings-student-number-tab")}</Tab>
+        ) : null}
         {/* oxlint-disable-next-line i18next/no-literal-string */}
         <Tab tabName="permissions">{t("user-settings-permissions-tab")}</Tab>
         <TabPanel>{children}</TabPanel>

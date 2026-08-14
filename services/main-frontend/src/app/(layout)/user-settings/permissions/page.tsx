@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import { LinesClipboard, LinkChain, XmarkCircle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
@@ -23,6 +23,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { courseFrontPageRoute } from "@/shared-module/common/utils/routes"
 import { QueryResult } from "@/shared-module/components"
+import { settingsCardCss } from "@/styles/sharedStyles"
 
 const PermissionsSettingsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -82,21 +83,7 @@ const PermissionsSettingsPage: React.FC = () => {
         }
       `}
     >
-      <div
-        data-testid="research-consents-section"
-        className={css`
-          background: #fff;
-          border: 1px solid ${baseTheme.colors.gray[100]};
-          border-radius: 12px;
-          padding: 1.25rem;
-          box-shadow:
-            0 1px 3px rgba(0, 0, 0, 0.04),
-            0 1px 2px rgba(0, 0, 0, 0.02);
-          ${respondToOrLarger.md} {
-            padding: 1.75rem;
-          }
-        `}
-      >
+      <div data-testid="research-consents-section" className={settingsCardCss}>
         <div
           className={css`
             display: flex;
@@ -296,21 +283,7 @@ const PermissionsSettingsPage: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-testid="authorized-applications-section"
-        className={css`
-          background: #fff;
-          border: 1px solid ${baseTheme.colors.gray[100]};
-          border-radius: 12px;
-          padding: 1.25rem;
-          box-shadow:
-            0 1px 3px rgba(0, 0, 0, 0.04),
-            0 1px 2px rgba(0, 0, 0, 0.02);
-          ${respondToOrLarger.md} {
-            padding: 1.75rem;
-          }
-        `}
-      >
+      <div data-testid="authorized-applications-section" className={settingsCardCss}>
         <div
           className={css`
             display: flex;
@@ -457,18 +430,12 @@ const PermissionsSettingsPage: React.FC = () => {
       {getUserDetails.isSuccess && getUserDetails.data?.email && (
         <div
           data-testid="delete-account-section"
-          className={css`
-            background: #fff;
-            border: 1px solid ${baseTheme.colors.red[100]};
-            border-radius: 12px;
-            padding: 1.25rem;
-            box-shadow:
-              0 1px 3px rgba(0, 0, 0, 0.04),
-              0 1px 2px rgba(0, 0, 0, 0.02);
-            ${respondToOrLarger.md} {
-              padding: 1.75rem;
-            }
-          `}
+          className={cx(
+            settingsCardCss,
+            css`
+              border-color: ${baseTheme.colors.red[100]};
+            `,
+          )}
         >
           <div
             className={css`

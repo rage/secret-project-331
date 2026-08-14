@@ -27,30 +27,6 @@ pub struct CourseModuleCompletion {
     pub needs_to_be_reviewed: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
-
-pub struct CourseModuleAverage {
-    pub id: Uuid,
-    pub course_id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
-    pub average_duration: Option<u64>,
-    pub average_points: i32,
-    pub total_points: i32,
-    pub total_student: i32,
-}
-
-// Define the CourseModulePointsAverage struct to match the result of the SQL query
-#[derive(Debug, Serialize, Deserialize)]
-
-pub struct CourseModulePointsAverage {
-    pub course_id: Uuid,
-    pub average_points: Option<f32>,
-    pub total_points: Option<i32>,
-    pub total_student: Option<i32>,
-}
-
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub enum CourseModuleCompletionGranter {
     Automatic,
@@ -438,31 +414,7 @@ WHERE user_id = $1
     .fetch_all(conn)
     .await?;
 
-    let best_grade = completions
-        .into_iter()
-        .max_by(|completion_a, completion_b| {
-            let score_a = match completion_a.grade {
-                Some(grade) => grade as f32,
-                None => match completion_a.passed {
-                    true => 0.5,
-                    false => -1.0,
-                },
-            };
-
-            let score_b = match completion_b.grade {
-                Some(grade) => grade as f32,
-                None => match completion_b.passed {
-                    true => 0.5,
-                    false => -1.0,
-                },
-            };
-
-            score_a
-                .partial_cmp(&score_b)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-    Ok(best_grade)
+    Ok(select_best_completion(completions))
 }
 
 /// Finds the best grade
@@ -471,9 +423,16 @@ pub fn select_best_completion(
 ) -> Option<CourseModuleCompletion> {
     // Passed outranks not passed before grades are compared: ranking by grade alone let a failed
     // graded completion beat a passed pass/fail one, so a failure was reported as the best result.
-    completions
-        .into_iter()
-        .max_by_key(|completion| (completion.passed, completion.grade.unwrap_or(0)))
+    // `created_at` and `id` only break ties, so two equally good completions resolve to the newest
+    // one instead of to whichever order the caller's query happened to return.
+    completions.into_iter().max_by_key(|completion| {
+        (
+            completion.passed,
+            completion.grade.unwrap_or(0),
+            completion.created_at,
+            completion.id,
+        )
+    })
 }
 
 /// Get the number of students that have completed the course
@@ -782,11 +741,34 @@ WHERE course_module_id = ANY($1)
   -- registration until a teacher dismisses or confirms them.
   AND needs_to_be_reviewed = FALSE
   AND deleted_at IS NULL
+  -- Modules on the push path are registered by us; letting the registry pull them too would put a
+  -- second attainment on the student's transcript.
+  AND NOT EXISTS (
+    SELECT 1
+    FROM course_modules cm
+    WHERE cm.id = course_module_completions.course_module_id
+      AND cm.enable_credit_registration_via_suotar
+      AND cm.deleted_at IS NULL
+  )
+  -- A completion the push path has already sent stays out for good, whatever the flag above says now:
+  -- a pull that registered it again would put a second attainment on a real transcript.
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registrations cr
+    WHERE cr.course_module_completion_id = course_module_completions.id
+      AND cr.submitted_at IS NOT NULL
+      AND cr.deleted_at IS NULL
+  )
   AND id NOT IN (
     SELECT course_module_completion_id
     FROM course_module_completion_registered_to_study_registries
     WHERE course_module_id = ANY($1)
-      AND study_registry_registrar_id = $2
+      AND (
+        study_registry_registrar_id = $2
+        -- Our own rows count as already registered too, whatever the flag says now: the module check
+        -- above stops firing the moment a teacher turns the push path back off.
+        OR study_registry_registrar_id IS NULL
+      )
       AND deleted_at IS NULL
   )
         "#,
@@ -837,22 +819,4 @@ pub async fn find_existing(
     .await?;
 
     Ok(row.id)
-}
-
-pub async fn update_registration_attempt(
-    conn: &mut PgConnection,
-    completion_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query!(
-        r#"
-        UPDATE course_module_completions
-        SET completion_registration_attempt_date = now()
-        WHERE id = $1
-        "#,
-        completion_id
-    )
-    .execute(conn)
-    .await?;
-
-    Ok(())
 }

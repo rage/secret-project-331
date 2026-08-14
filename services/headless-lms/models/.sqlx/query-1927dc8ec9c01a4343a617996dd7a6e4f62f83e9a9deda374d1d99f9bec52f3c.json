@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.student_number AS \"student_number!\",\n  e.sisu_person_id AS \"sisu_person_id!\",\n  e.course_id AS \"course_id!\",\n  c.name AS \"course_name!\",\n  COUNT(*) AS \"mail_count!\",\n  MIN(e.sent_at) AS \"first_sent_at!\",\n  MAX(e.sent_at) AS \"last_sent_at!\",\n  ARRAY_AGG(\n    e.id\n    ORDER BY e.sent_at\n  ) AS \"mail_ids!\",\n  ARRAY_AGG(\n    e.emailed_to\n    ORDER BY e.sent_at\n  ) AS \"addresses!\"\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id\nWHERE e.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.sisu_person_id = e.sisu_person_id\n      AND vsn.deleted_at IS NULL\n  )\nGROUP BY e.student_number,\n  e.sisu_person_id,\n  e.course_id,\n  c.name\nHAVING COUNT(*) >= $1\nORDER BY MAX(e.sent_at) DESC\nLIMIT $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "student_number!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "sisu_person_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sisu_person_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "mail_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "first_sent_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "last_sent_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "mail_ids!",
+        "type_info": "UuidArray",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "addresses!",
+        "type_info": "VarcharArray",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "1927dc8ec9c01a4343a617996dd7a6e4f62f83e9a9deda374d1d99f9bec52f3c"
+}

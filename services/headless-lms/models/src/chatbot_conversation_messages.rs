@@ -131,10 +131,9 @@ pub async fn insert_for_conversation_user_and_configuration(
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversationMessage> {
     if let (Some(_user_id), Some(_anonymous_token)) = (&user_id, &anonymous_token) {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "User ID and anonymous token cannot both be present",
-            None,
+        return Err(model_err!(
+            InvalidRequest,
+            "User ID and anonymous token cannot both be present".to_string()
         ));
     }
     let mut tx = conn.begin().await?;

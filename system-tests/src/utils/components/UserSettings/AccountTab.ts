@@ -40,7 +40,8 @@ export class AccountTab {
       await this.page.getByRole("textbox", { name: "Email" }).fill(options.email)
     }
     if (options.country !== undefined) {
-      await this.page.getByLabel("Where do you live?").click()
+      // Role-scoped: the combobox's toggle button also carries "Where do you live?" in its label.
+      await this.page.getByRole("combobox", { name: "Where do you live?" }).click()
       await this.page.getByRole("option", { name: options.country }).click()
     }
     if (options.emailConsent !== undefined) {

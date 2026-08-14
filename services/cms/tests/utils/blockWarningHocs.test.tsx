@@ -190,7 +190,7 @@ describe("withHeadingHierarchyWarnings", () => {
 
   it("takes the fixed level of a custom block heading into account", async () => {
     editorState.blocks = [
-      createBlock("term", "moocfi/terminology", { title: "Key concept" }),
+      createBlock("term", "moocfi/terminology-block", { title: "Key concept" }),
       createBlock("aside", "moocfi/aside-with-image", { title: "Side note" }),
     ]
 

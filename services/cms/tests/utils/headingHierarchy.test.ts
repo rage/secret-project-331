@@ -1,11 +1,26 @@
+import fs from "fs"
+import path from "path"
+
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
+import { coreBlocksToRegister } from "../../src/blocks/supportedGutenbergBlocks"
 import {
   analyzeHeadingHierarchy,
   analyzeHeadingHierarchyForFlatBlocks,
   getHeadingHierarchyIssuesForBlock,
   HEADING_SOURCE_BLOCK_NAMES,
 } from "../../src/utils/Gutenberg/headingHierarchy"
+
+// Read as text, not imported: the block type maps pull in every editor component, and the names live
+// only in those maps as string literals anyway. Commented-out entries are stripped so a name parked
+// behind a `//` does not count as registered.
+const BLOCK_TYPE_MAPS = fs
+  .readFileSync(path.join(import.meta.dirname, "../../src/blocks/index.tsx"), "utf8")
+  .replaceAll(/^\s*\/\/.*$/gm, "")
+const customBlockNames = [...BLOCK_TYPE_MAPS.matchAll(/\["(moocfi\/[\w-]+)",/g)].map(
+  (match) => match[1] as string,
+)
+const registeredBlockNames = [...customBlockNames, ...coreBlocksToRegister]
 
 const createBlock = (
   clientId: string,
@@ -73,7 +88,7 @@ describe("analyzeHeadingHierarchy", () => {
         title: "Welcome",
         subtitle: "What you will learn",
       }),
-      createBlock("term", "moocfi/terminology", { title: "Key concept" }),
+      createBlock("term", "moocfi/terminology-block", { title: "Key concept" }),
     ]
 
     const entries = analyzeHeadingHierarchy(blocks)
@@ -82,7 +97,7 @@ describe("analyzeHeadingHierarchy", () => {
       ["moocfi/hero-section", 1, "Page title"],
       ["moocfi/ingress", 2, "Welcome"],
       ["moocfi/ingress", 3, "What you will learn"],
-      ["moocfi/terminology", 2, "Key concept"],
+      ["moocfi/terminology-block", 2, "Key concept"],
     ])
   })
 
@@ -128,10 +143,27 @@ describe("analyzeHeadingHierarchyForFlatBlocks", () => {
   it("recognizes every block name the heading warnings subscribe to", () => {
     const entries = analyzeHeadingHierarchyForFlatBlocks(
       HEADING_SOURCE_BLOCK_NAMES.map((blockName) =>
-        createBlock(blockName, blockName, { level: 2, content: blockName, title: blockName }),
+        createBlock(blockName, blockName, {
+          level: 2,
+          content: blockName,
+          title: blockName,
+          name: blockName,
+        }),
       ),
     )
 
     expect(entries.map((entry) => entry.blockName)).toEqual(HEADING_SOURCE_BLOCK_NAMES)
+  })
+})
+
+// The test above stays green under any typo in the list, because a name no block registers under
+// simply contributes nothing to the outline — no warning, no outline entry, no error.
+describe("HEADING_SOURCE_BLOCK_NAMES", () => {
+  it.each(HEADING_SOURCE_BLOCK_NAMES)("%s is a block name the editors register", (blockName) => {
+    expect(registeredBlockNames).toContain(blockName)
+  })
+
+  it("reads the registrations rather than an empty parse", () => {
+    expect(customBlockNames.length).toBeGreaterThan(40)
   })
 })

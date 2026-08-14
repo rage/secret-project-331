@@ -71,8 +71,9 @@ export const HEADING_SOURCE_BLOCK_NAMES = [
   "moocfi/landing-page-hero-section",
   "moocfi/ingress",
   "moocfi/course-objective-section",
-  "moocfi/terminology",
+  "moocfi/terminology-block",
   "moocfi/aside-with-image",
+  "moocfi/expandable-content-inner-block",
 ]
 
 const extractBlockHeadingEntries = (block: BlockInstance): RawHeadingEntry[] => {
@@ -96,12 +97,16 @@ const extractBlockHeadingEntries = (block: BlockInstance): RawHeadingEntry[] => 
       return [titleEntry, subtitleEntry].filter((entry): entry is RawHeadingEntry => entry !== null)
     }
     case "moocfi/course-objective-section":
-    case "moocfi/terminology": {
+    case "moocfi/terminology-block": {
       const entry = createRawHeadingEntry(block, 2, block.attributes?.title)
       return entry ? [entry] : []
     }
     case "moocfi/aside-with-image": {
       const entry = createRawHeadingEntry(block, 4, block.attributes?.title)
+      return entry ? [entry] : []
+    }
+    case "moocfi/expandable-content-inner-block": {
+      const entry = createRawHeadingEntry(block, 4, block.attributes?.name)
       return entry ? [entry] : []
     }
     default:

@@ -135,7 +135,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
           label={t("edit-chart")}
           instructions={t("chart-block-empty-instructions")}
         >
-          <Button variant="primary" size="medium" onClick={openModal}>
+          <Button variant="primary" size="medium" onPress={openModal}>
             {t("edit-chart")}
           </Button>
         </Placeholder>
@@ -171,7 +171,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
                   },
                 }}
               />
-              <Button variant="secondary" size="medium" onClick={openModal}>
+              <Button variant="secondary" size="medium" onPress={openModal}>
                 {t("edit-chart")}
               </Button>
             </div>

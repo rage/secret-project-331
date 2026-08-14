@@ -44,15 +44,15 @@ const DATA_EXTRACTION_DEBOUNCE_MS = 800
 // Debounce render validation so a large spec isn't recompiled on every keystroke.
 const RENDER_VALIDATION_DEBOUNCE_MS = 300
 
-// The renderer error for a spec string, or null if it renders (or isn't a complete view yet). A
-// spec can be schema-valid JSON yet still fail to render; this runs the same compile + parse the
-// renderer does. See validateChartSpec.
+// Why a spec string won't render, or null if it renders (or isn't a complete view yet): either
+// malformed JSON, or JSON that parses but fails the same compile the renderer does. See
+// validateChartSpec.
 const renderErrorFor = (specString: string): string | null => {
   let parsed: unknown
   try {
     parsed = JSON.parse(specString)
-  } catch {
-    return null
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error)
   }
   if (!specDefinesView(parsed)) {
     return null
@@ -70,19 +70,27 @@ const enableJsonSchemaSupport = (monaco: Monaco) => {
   })
 }
 
-const AI_PANEL_ID = "chart-block-ai-generate-panel"
 const VEGA_JSON_EDITOR_ID = "chart-block-vega-json-editor"
+const VEGA_JSON_RESIZE_HINT_ID = "chart-block-vega-json-resize-hint"
+const VEGA_JSON_DEFAULT_HEIGHT = 360
+const VEGA_JSON_MIN_HEIGHT = 160
+const VEGA_JSON_MAX_HEIGHT = 900
+// Height change per arrow-key press while the resize handle has focus.
+const VEGA_JSON_RESIZE_STEP = 40
+
+const clampVegaJsonHeight = (height: number) =>
+  Math.min(VEGA_JSON_MAX_HEIGHT, Math.max(VEGA_JSON_MIN_HEIGHT, height))
 // Enough of the data file for the model to see field names and value shapes.
 const DATA_SAMPLE_MAX_CHARS = 4000
 
-// The full editor needs a large, viewport-filling dialog for the Monaco editor + preview columns.
-// The doubled selector beats the WP Modal's own sizing.
+// Wide for the two columns; height sizes to content, growing with the preview or the (tall) Monaco
+// editor and capped at the viewport. The doubled selector beats the WP Modal's own sizing.
 const editorModalStyles = css`
   && {
     width: min(95vw, 1800px);
     max-width: none;
-    height: min(92vh, 1200px);
-    max-height: none;
+    height: auto;
+    max-height: min(92vh, 1200px);
   }
   /* Make WP's content and its (unstyled) children wrapper flex columns so our row fills the height. */
   .components-modal__content {
@@ -132,8 +140,9 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   const [dataFileError, setDataFileError] = useState<string | undefined>(undefined)
   const [extractedDataUrl, setExtractedDataUrl] = useState<string | undefined>(undefined)
   const [isExtractingData, setIsExtractingData] = useState(false)
-  const [showAiPanel, setShowAiPanel] = useState(false)
+  const [aiMode, setAiMode] = useState(false)
   const [showVegaJson, setShowVegaJson] = useState(false)
+  const [vegaJsonHeight, setVegaJsonHeight] = useState(VEGA_JSON_DEFAULT_HEIGHT)
   const [isGenerating, setIsGenerating] = useState(false)
   const [aiError, setAiError] = useState<unknown>(undefined)
 
@@ -158,13 +167,12 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }
   }, [spec])
 
-  // A spec that is valid JSON but fails to render (see validateChartSpec) — drives the "Fix with
-  // AI" affordance. Null while the spec renders, is still incomplete, or is mid-edit invalid JSON
-  // (the header already flags that). Debounced so large specs aren't recompiled per keystroke.
+  // Drives the error box and its "Fix with AI" affordance. Debounced so a large spec isn't
+  // recompiled per keystroke, and so a half-typed spec isn't flagged instantly.
   const [renderError, setRenderError] = useState<string | null>(null)
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setRenderError(spec ? renderErrorFor(spec) : null)
+      setRenderError(spec?.trim() ? renderErrorFor(spec) : null)
     }, RENDER_VALIDATION_DEBOUNCE_MS)
     return () => clearTimeout(timeout)
   }, [spec])
@@ -311,9 +319,12 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   // Generate a spec and apply it. If the result won't render, retry once with the error as context;
   // whatever comes back is applied, and if it's still broken the manual "Fix with AI" button takes
   // over.
-  const generateSpec = async (options: { prompt: string; currentSpec: string | null }) => {
+  const generateSpec = async (options: {
+    prompt: string
+    currentSpec: string | null
+  }): Promise<boolean> => {
     if (isGenerating) {
-      return
+      return false
     }
     setIsGenerating(true)
     setAiError(undefined)
@@ -326,24 +337,32 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
       // Result flows through handleSpecChange so caption sync + inline-data extraction match a
       // hand-written spec.
       handleSpecChange(result)
+      return true
     } catch (error) {
       setAiError(error)
+      return false
     } finally {
       setIsGenerating(false)
     }
   }
 
-  const handleAiGenerate = () => {
+  const handleAiGenerate = async () => {
     const prompt = getValues("aiPrompt").trim()
     if (!prompt) {
       return
     }
     // A fresh (empty) block has no spec to edit, so the model writes one from scratch.
     const currentSpec = latestSpecRef.current
-    void generateSpec({
+    const requestSucceeded = await generateSpec({
       prompt,
       currentSpec: currentSpec.trim() ? currentSpec : null,
     })
+    // A spec came back, so return to the editor: the preview, the render error and "Fix with AI"
+    // live there, which is what a spec that doesn't render needs. A failed request keeps the prompt
+    // open with its error instead.
+    if (requestSucceeded) {
+      setAiMode(false)
+    }
   }
 
   // Manual repair: hand the failing spec and its error back to the model.
@@ -421,6 +440,43 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     updateSpec(JSON.stringify(specWithoutData, null, 2))
   }
 
+  // Pointer drag on the JSON editor's resize handle. Pointer capture keeps events flowing to the
+  // handle even as the cursor moves outside it.
+  const vegaResizeDrag = useRef<{ startY: number; startHeight: number } | null>(null)
+  const handleVegaResizeStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Focus explicitly: the arrow keys only reach this handle once it holds focus, and a plain
+    // pointer press on a div doesn't focus it in every browser. Text selection is suppressed with
+    // user-select rather than preventDefault, which would cancel focus altogether.
+    e.currentTarget.focus()
+    e.currentTarget.setPointerCapture(e.pointerId)
+    vegaResizeDrag.current = { startY: e.clientY, startHeight: vegaJsonHeight }
+  }
+  const handleVegaResizeMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = vegaResizeDrag.current
+    if (!drag) {
+      return
+    }
+    setVegaJsonHeight(clampVegaJsonHeight(drag.startHeight + (e.clientY - drag.startY)))
+  }
+  const handleVegaResizeEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    vegaResizeDrag.current = null
+    e.currentTarget.releasePointerCapture(e.pointerId)
+  }
+  const handleVegaResizeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const step =
+      e.key === "ArrowDown"
+        ? VEGA_JSON_RESIZE_STEP
+        : e.key === "ArrowUp"
+          ? -1 * VEGA_JSON_RESIZE_STEP
+          : 0
+    if (step === 0) {
+      return
+    }
+    // Keep the arrows on the handle instead of scrolling the page behind the dialog.
+    e.preventDefault()
+    setVegaJsonHeight((height) => clampVegaJsonHeight(height + step))
+  }
+
   const isValidJson = (() => {
     try {
       JSON.parse(spec)
@@ -477,7 +533,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
           label={t("chart-data-file")}
           instructions={decodeURIComponent(attachedDataUrl.split("/").pop() ?? attachedDataUrl)}
         >
-          <Button variant="tertiary" size="medium" onClick={handleDataFileRemove}>
+          <Button variant="tertiary" size="medium" onPress={handleDataFileRemove}>
             {t("remove")}
           </Button>
         </Placeholder>
@@ -500,9 +556,11 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
 
   return (
     <Modal
-      title={t("edit-chart")}
-      onRequestClose={onClose}
-      className={inEditor ? editorModalStyles : dataFileModalStyles}
+      title={aiMode ? t("ai-generate-chart") : t("edit-chart")}
+      // In the AI prompt view, closing (escape / ×) steps back to the editor rather than closing
+      // the whole block editor.
+      onRequestClose={aiMode ? () => setAiMode(false) : onClose}
+      className={inEditor && !aiMode ? editorModalStyles : dataFileModalStyles}
     >
       {/* Data-first: a brand-new block (empty spec) asks for a data file before revealing the spec
           editor and preview. */}
@@ -530,7 +588,80 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
           {dataFileSection}
         </div>
       )}
-      {inEditor && (
+      {inEditor && aiMode && (
+        <div
+          className={css`
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+          `}
+        >
+          <TextArea
+            name="aiPrompt"
+            control={control}
+            label={t("ai-chart-prompt-label")}
+            placeholder={t("ai-chart-prompt-placeholder")}
+            rows={4}
+            isDisabled={isGenerating}
+          />
+          {!isGenerating && !attachedDataUrl && (
+            <span
+              className={css`
+                font-family: ${primaryFont};
+                font-size: 0.8125rem;
+                font-weight: ${fontWeights.medium};
+                color: ${baseTheme.colors.red[600]};
+              `}
+            >
+              {t("ai-generate-needs-data-file")}
+            </span>
+          )}
+          {/* The live region must exist before content changes for screen readers to announce it. */}
+          <div aria-live="polite">
+            {isGenerating && (
+              <span
+                className={css`
+                  font-family: ${primaryFont};
+                  font-size: 0.8125rem;
+                  color: ${baseTheme.colors.gray[600]};
+                `}
+              >
+                {t("ai-generating-chart")}
+              </span>
+            )}
+          </div>
+          {aiError !== undefined && <ErrorBanner error={aiError} />}
+          <div
+            className={css`
+              display: flex;
+              justify-content: flex-end;
+              gap: 0.75rem;
+            `}
+          >
+            <Button
+              variant="secondary"
+              size="medium"
+              onPress={() => setAiMode(false)}
+              disabled={isGenerating}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="primary"
+              size="medium"
+              onPress={() => void handleAiGenerate()}
+              isLoading={isGenerating}
+              disabled={!aiPrompt.trim() || !attachedDataUrl}
+            >
+              {t("generate")}
+            </Button>
+          </div>
+        </div>
+      )}
+      {inEditor && !aiMode && (
         <div
           className={css`
             display: flex;
@@ -591,7 +722,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                 <Button
                   variant="secondary"
                   size="small"
-                  onClick={() => setShowVegaJson((shown) => !shown)}
+                  onPress={() => setShowVegaJson((shown) => !shown)}
                   domProps={{ "aria-expanded": showVegaJson, "aria-controls": VEGA_JSON_EDITOR_ID }}
                 >
                   {showVegaJson ? t("hide-vega-json") : t("view-vega-json")}
@@ -599,121 +730,125 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                 <Button
                   variant="secondary"
                   size="small"
-                  onClick={() => setShowAiPanel((open) => !open)}
-                  domProps={{ "aria-expanded": showAiPanel, "aria-controls": AI_PANEL_ID }}
+                  onPress={() => {
+                    setAiError(undefined)
+                    setAiMode(true)
+                  }}
                 >
                   {t("ai-generate-chart")}
                 </Button>
               </div>
             </div>
-            {showAiPanel && (
-              <div
-                id={AI_PANEL_ID}
-                className={css`
-                  flex-shrink: 0;
-                  margin-bottom: 0.75rem;
-                `}
-              >
-                <TextArea
-                  name="aiPrompt"
-                  control={control}
-                  label={t("ai-chart-prompt-label")}
-                  placeholder={t("ai-chart-prompt-placeholder")}
-                  rows={3}
-                  isDisabled={isGenerating}
-                />
+            {showVegaJson && (
+              <>
                 <div
+                  id={VEGA_JSON_EDITOR_ID}
                   className={css`
-                    display: flex;
-                    flex-wrap: wrap;
-                    align-items: center;
-                    gap: 0.5rem 0.75rem;
-                    margin-top: 0.5rem;
+                    /* Height is teacher-controlled via the drag handle below; the modal grows to
+                       include it. */
+                    flex: 0 0 auto;
+                    height: ${vegaJsonHeight}px;
+                    border: 1px solid
+                      ${isValidJson ? baseTheme.colors.gray[400] : baseTheme.colors.red[400]};
+                    border-radius: 4px;
+                    overflow: hidden;
+                    /* MonacoEditorImpl adds a height-less wrapper div; force it to fill so the editor can
+                     size to this box. */
+                    & > div {
+                      height: 100%;
+                    }
                   `}
                 >
-                  <Button
-                    variant="primary"
-                    size="small"
-                    onClick={() => void handleAiGenerate()}
-                    isLoading={isGenerating}
-                    disabled={!aiPrompt.trim() || !attachedDataUrl}
-                  >
-                    {t("generate")}
-                  </Button>
-                  {!isGenerating && !attachedDataUrl && (
-                    <span
-                      className={css`
-                        font-family: ${primaryFont};
-                        font-size: 0.8125rem;
-                        font-weight: ${fontWeights.medium};
-                        color: ${baseTheme.colors.red[600]};
-                      `}
-                    >
-                      {t("ai-generate-needs-data-file")}
-                    </span>
-                  )}
-                  {/* The live region must exist before content changes for screen readers to announce it. */}
-                  <div aria-live="polite">
-                    {isGenerating && (
-                      <span
-                        className={css`
-                          font-family: ${primaryFont};
-                          font-size: 0.8125rem;
-                          color: ${baseTheme.colors.gray[600]};
-                        `}
-                      >
-                        {t("ai-generating-chart")}
-                      </span>
-                    )}
-                  </div>
+                  <MonacoEditor
+                    height="100%"
+                    language={MONACO_LANGUAGE}
+                    value={spec}
+                    beforeMount={enableJsonSchemaSupport}
+                    onChange={handleSpecChange}
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 13,
+                      lineNumbers: ON,
+                      scrollBeyondLastLine: false,
+                      wordWrap: ON,
+                      tabSize: 2,
+                      // Re-measure so height: 100% tracks the container as it's resized.
+                      automaticLayout: true,
+                      // Tab moves focus out of the editor instead of inserting an indent, so the
+                      // dialog stays keyboard-navigable. Ctrl+M toggles it back to indenting.
+                      tabFocusMode: true,
+                    }}
+                  />
                 </div>
-                {aiError !== undefined && (
+                <div
+                  className={css`
+                    flex-shrink: 0;
+                    /* The hint only helps someone operating the handle by keyboard, so it shows while
+                     the handle has focus. Its space stays reserved so focusing doesn't shift the
+                     sections below. */
+                    &:focus-within > p {
+                      opacity: 1;
+                    }
+                  `}
+                >
                   <div
+                    role="separator"
+                    aria-orientation="horizontal"
+                    aria-controls={VEGA_JSON_EDITOR_ID}
+                    aria-label={t("resize-vega-json-editor")}
+                    aria-describedby={VEGA_JSON_RESIZE_HINT_ID}
+                    aria-valuenow={vegaJsonHeight}
+                    aria-valuemin={VEGA_JSON_MIN_HEIGHT}
+                    aria-valuemax={VEGA_JSON_MAX_HEIGHT}
+                    tabIndex={0}
+                    onPointerDown={handleVegaResizeStart}
+                    onPointerMove={handleVegaResizeMove}
+                    onPointerUp={handleVegaResizeEnd}
+                    onKeyDown={handleVegaResizeKeyDown}
                     className={css`
-                      margin-top: 0.5rem;
+                      height: 12px;
+                      cursor: row-resize;
+                      touch-action: none;
+                      user-select: none;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      /* :focus, not :focus-visible — a click focuses the handle to enable the arrow
+                       keys, and that has to be visible. */
+                      &:focus {
+                        outline: 2px solid ${baseTheme.colors.green[600]};
+                        outline-offset: -2px;
+                      }
+                      /* Grip: a short bar that darkens on hover/focus. */
+                      &::after {
+                        content: "";
+                        width: 2rem;
+                        height: 3px;
+                        border-radius: 3px;
+                        background: ${baseTheme.colors.gray[400]};
+                      }
+                      &:hover::after,
+                      &:focus::after {
+                        background: ${baseTheme.colors.gray[600]};
+                      }
+                    `}
+                  />
+                  <p
+                    id={VEGA_JSON_RESIZE_HINT_ID}
+                    className={css`
+                      opacity: 0;
+                      transition: opacity 0.15s ease;
+                      margin: 0.125rem 0 0;
+                      text-align: center;
+                      font-family: ${primaryFont};
+                      font-size: 0.75rem;
+                      color: ${baseTheme.colors.gray[600]};
                     `}
                   >
-                    <ErrorBanner error={aiError} />
-                  </div>
-                )}
-              </div>
-            )}
-            {showVegaJson && (
-              <div
-                id={VEGA_JSON_EDITOR_ID}
-                className={css`
-                  /* Fills the leftover column height; the sections below keep their size. */
-                  flex: 1 1 0;
-                  min-height: 0;
-                  border: 1px solid
-                    ${isValidJson ? baseTheme.colors.gray[400] : baseTheme.colors.red[400]};
-                  border-radius: 4px;
-                  overflow: hidden;
-                  /* MonacoEditorImpl adds a height-less wrapper div; force it to fill so the editor can
-                   size to this box. */
-                  & > div {
-                    height: 100%;
-                  }
-                `}
-              >
-                <MonacoEditor
-                  height="100%"
-                  language={MONACO_LANGUAGE}
-                  value={spec}
-                  beforeMount={enableJsonSchemaSupport}
-                  onChange={handleSpecChange}
-                  options={{
-                    minimap: { enabled: false },
-                    fontSize: 13,
-                    lineNumbers: ON,
-                    scrollBeyondLastLine: false,
-                    wordWrap: ON,
-                    tabSize: 2,
-                    // Re-measure so height: 100% tracks the flex parent.
-                    automaticLayout: true,
-                  }}
-                />
-              </div>
+                    {t("vega-json-resize-hint")}
+                  </p>
+                </div>
+              </>
             )}
             <div
               className={css`
@@ -794,7 +929,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                     color: ${baseTheme.colors.red[700]};
                   `}
                 >
-                  {t("chart-render-error")}
+                  {isValidJson ? t("chart-render-error") : t("invalid-json")}
                 </p>
                 <p
                   className={css`
@@ -810,7 +945,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                 <Button
                   variant="primary"
                   size="small"
-                  onClick={handleAiFix}
+                  onPress={handleAiFix}
                   isLoading={isGenerating}
                 >
                   {t("fix-with-ai")}

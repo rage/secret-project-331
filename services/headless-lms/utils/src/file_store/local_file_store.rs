@@ -33,7 +33,9 @@ impl LocalFileStore {
         } else {
             std::fs::create_dir_all(&base_path)?;
         }
-        let cache_files_path = generate_cache_folder_dir()?;
+        let cache_files_path = generate_cache_folder_dir().unwrap_or_else(|_| {
+            PathBuf::from("/test".to_string()).join("headlesss-lms-cached-files")
+        });
         Ok(Self {
             base_path,
             base_url,

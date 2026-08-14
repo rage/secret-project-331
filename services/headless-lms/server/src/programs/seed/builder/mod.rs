@@ -17,7 +17,7 @@
 //!
 //! # async fn example() -> anyhow::Result<()> {
 //! # let mut conn = sqlx::PgConnection::connect("postgresql://").await?;
-//! # let app_config = ApplicationConfiguration::try_from_env();
+//! # let app_config = ApplicationConfiguration::try_from_env()?;
 //! # let teacher = uuid::Uuid::new_v4();
 //! # let org = uuid::Uuid::new_v4();
 //! # let base_course_ns = uuid::Uuid::new_v4();

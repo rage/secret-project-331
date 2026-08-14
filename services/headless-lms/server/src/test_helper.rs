@@ -30,6 +30,11 @@ fn default_database_url_for_tests() -> String {
     }
 }
 
+pub fn init_app_conf() -> anyhow::Result<ApplicationConfiguration> {
+    let app_config = ApplicationConfiguration::mock_conf()?;
+    Ok(app_config)
+}
+
 pub async fn test_config() -> ServerConfig {
     let database_url = env::var("DATABASE_URL_TEST")
         .or_else(|_| env::var("DATABASE_URL"))
@@ -45,8 +50,7 @@ pub async fn test_config() -> ServerConfig {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
                 .expect("Failed to initialize test file store"),
         ),
-        app_conf: ApplicationConfiguration::mock_conf()
-            .expect("Failed to initialize mock app configuration"),
+        app_conf: init_app_conf().expect("Failed to initialize mock app configuration"),
         redis_url: SecretString::new("redis://example.com".into()),
         mock_suotar_redis_db_index: 2,
         jwt_password: SecretString::new(
@@ -200,10 +204,10 @@ macro_rules! insert_data {
             &mut ::rand::rng(),
             8,
         );
-        let server_config = test_config().await;
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let $course = headless_lms_models::library::content_management::create_new_course(
             $tx.as_mut(),
-            server_config.app_conf.as_ref(),
+            &app_config,
             headless_lms_models::PKeyPolicy::Generate,
             headless_lms_models::courses::NewCourse {
                 name: rs.clone(),

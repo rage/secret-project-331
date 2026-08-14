@@ -5,6 +5,8 @@
 //! ```rust
 //! use chrono::Utc;
 //! use sqlx::Connection;
+//! use headless_lms_base::config::ApplicationConfiguration;
+//!
 //! use headless_lms_server::programs::seed::builder::{
 //!     course::CourseBuilder,
 //!     module::ModuleBuilder,
@@ -15,6 +17,7 @@
 //!
 //! # async fn example() -> anyhow::Result<()> {
 //! # let mut conn = sqlx::PgConnection::connect("postgresql://").await?;
+//! # let app_config = ApplicationConfiguration::try_from_env();
 //! # let teacher = uuid::Uuid::new_v4();
 //! # let org = uuid::Uuid::new_v4();
 //! # let base_course_ns = uuid::Uuid::new_v4();
@@ -34,7 +37,7 @@
 //!             )
 //!     );
 //!
-//! let (course, instance, module) = course.seed(&mut conn, &context).await?;
+//! let (course, instance, module) = course.seed(&mut conn, &app_config, &context).await?;
 //! # Ok(())
 //! # }
 //! ```

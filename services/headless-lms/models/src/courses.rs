@@ -1220,7 +1220,7 @@ FROM (
               MIN(ce.description_embedding <#> v.embedding)) AS distance
     FROM courses c, course_embeddings ce
     CROSS JOIN unnest($1::vector[]) AS v(embedding)
-    WHERE c.deleted_at IS NULL AND c.id = ce.course_id
+    WHERE c.deleted_at IS NULL AND ce.deleted_at IS NULL AND c.id = ce.course_id
     GROUP BY c.id
     ORDER BY distance ASC
     LIMIT 5

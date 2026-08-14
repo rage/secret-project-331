@@ -90,6 +90,17 @@
             "name": "reasoning_id"
           }
         }
+      },
+      {
+        "ordinal": 8,
+        "name": "encrypted_content",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_reasoning",
+            "name": "encrypted_content"
+          }
+        }
       }
     ],
     "parameters": {
@@ -105,7 +116,8 @@
       false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "3630dacee8c3d153af0940ec707850f1aee2777bfbb74ea630fda11b1d378244"

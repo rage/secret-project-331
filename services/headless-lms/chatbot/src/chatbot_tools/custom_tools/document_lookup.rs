@@ -1,9 +1,9 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use std::str::FromStr;
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::{
-    json_schema_types::{JSONType, JsonItem, SchemaPropertyType},
+    json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType},
     strings::truncate_utf8_at_boundary,
 };
 use serde::{Deserialize, Deserializer};
@@ -13,7 +13,7 @@ use uuid::Uuid;
 use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
+        AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotToolDeclaration, LLMToolType,
         ToolProperties,
     },
     citations::parse_document_filepath,
@@ -53,16 +53,68 @@ where
     Ok(res)
 }
 
-fn shorten_page_content(content: String) -> String {
-    let page_tokens = estimate_tokens(&content);
-    if page_tokens <= 25000 {
-        return content.to_string();
+/// Truncates page content until its estimated token count fits the budget we are willing to hand
+/// to the LLM. Scaling the byte length by the token ratio always shrinks the content, so this
+/// terminates in a pass or two.
+fn shorten_page_content(mut content: String) -> String {
+    const MAX_TOKENS: i32 = 25_000;
+    loop {
+        let tokens = estimate_tokens(&content);
+        if tokens <= MAX_TOKENS {
+            return content;
+        }
+        let max_bytes = content.len() * (MAX_TOKENS as usize - 1_000) / tokens as usize;
+        content = truncate_utf8_at_boundary(&content, max_bytes).to_string();
     }
-    // a token is ~4 chars and a char is ~4 bytes
-    let max_bytes = ((page_tokens - 1000) * 4 * 4) as usize;
+}
 
-    let shortened = truncate_utf8_at_boundary(&content, max_bytes);
-    shorten_page_content(shortened.to_string())
+impl ChatbotToolDeclaration for DocumentLookupTool {
+    const NAME: &'static str = "document_lookup";
+
+    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
+        AzureLLMFunctionToolDefinition {
+            tool_type: LLMToolType::Function,
+            name: Self::NAME.to_string(),
+            description: "Look up the full content of a specific document by the title and filepath or id (page_id). The needed arguments can be found from Azure search results or by using the course_structure tool. Either a filepath or a page_id is required to find the correct document, in addition to the document title. The document can be returned in Markdown or JSON format. The Markdown format is cleaner and preferred, but might have errors: if you suspect it's erroneous, you can request the JSON version.".to_string(),
+            parameters: Schema {
+                type_field: JSONType::Object,
+                description: None,
+                properties: IndexMap::from([
+                    (
+                        "filepath".to_string(),
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The filepath of the document to look up, as returned from Azure search. Either the filepath or page_id is required.".to_string()),
+                        }),
+                    ),
+                    (
+                        "title".to_string(),
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The title of the document to look up, as returned from Azure search. Optional.".to_string()),
+                        }),
+                    ),
+                    (
+                        "page_id".to_string(),
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The page_id of the document to look up. Either page_id or the filepath is required.".to_string()),
+                        }),
+                    ),
+                    (
+                        "format".to_string(),
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The format of the document. Optional. Valid values are 'json' and 'markdown'. Markdown content is human readable, but might have errors. ".to_string()),
+                        }),
+                    )
+                ]),
+                required: vec!["title".to_string(), "page_id".to_string(), "filepath".to_string(), "format".to_string()],
+                additional_properties: false,
+            },
+            strict: true,
+        }
+    }
 }
 
 /// Look up a document (page) from the course the chatbot is on.
@@ -164,48 +216,40 @@ impl ChatbotTool for DocumentLookupTool {
     fn get_arguments(&self) -> &Self::Arguments {
         &self.arguments
     }
+}
 
-    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
-        AzureLLMFunctionToolDefinition {
-            tool_type: LLMToolType::Function,
-            name: "document_lookup".to_string(),
-            description: "Look up the full content of a specific document by the title and filepath or id (page_id). The needed arguments can be found from Azure search results or by using the course_structure tool. Either a filepath or a page_id is required to find the correct document, in addition to the document title. The document can be returned in Markdown or JSON format. The Markdown format is cleaner and preferred, but might have errors: if you suspect it's erroneous, you can request the JSON version.".to_string(),
-            parameters: LLMToolParams {
-                tool_type: LLMToolParamType::Object,
-                properties: HashMap::from([
-                    (
-                        "filepath".to_string(),
-                        SchemaPropertyType::Item(JsonItem {
-                            type_field: JSONType::String,
-                            description: Some("The filepath of the document to look up, as returned from Azure search. Either the filepath or page_id is required.".to_string()),
-                        }),
-                    ),
-                    (
-                        "title".to_string(),
-                        SchemaPropertyType::Item(JsonItem {
-                            type_field: JSONType::String,
-                            description: Some("The title of the document to look up, as returned from Azure search. Optional.".to_string()),
-                        }),
-                    ),
-                    (
-                        "page_id".to_string(),
-                        SchemaPropertyType::Item(JsonItem {
-                            type_field: JSONType::String,
-                            description: Some("The page_id of the document to look up. Either page_id or the filepath is required.".to_string()),
-                        }),
-                    ),
-                    (
-                        "format".to_string(),
-                        SchemaPropertyType::Item(JsonItem {
-                            type_field: JSONType::String,
-                            description: Some("The format of the document. Optional. Valid values are 'json' and 'markdown'. Markdown content is human readable, but might have errors. ".to_string()),
-                        }),
-                    )
-                ]),
-                required: vec!["title".to_string(), "page_id".to_string(), "filepath".to_string(), "format".to_string()],
-                additional_properties: false,
-            },
-            strict: true,
-        }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn shorten_page_content_shortens_prose() {
+        let input = "The quick brown fox jumps over the lazy dog. ".repeat(4600);
+        assert!(input.len() > 200_000);
+
+        let shortened = shorten_page_content(input);
+
+        assert!(estimate_tokens(&shortened) <= 25_000);
+    }
+
+    #[test]
+    fn shorten_page_content_shortens_punctuation_heavy_json() {
+        let input = format!(
+            "[{}]",
+            r#"{"id":"1","name":"block","attributes":{"content":"Hei, mitä kuuluu?"}},"#
+                .repeat(2500)
+        );
+        assert!(input.len() > 150_000);
+
+        let shortened = shorten_page_content(input);
+
+        assert!(estimate_tokens(&shortened) <= 25_000);
+    }
+
+    #[test]
+    fn shorten_page_content_leaves_short_content_alone() {
+        let input = "Short enough.".to_string();
+
+        assert_eq!(shorten_page_content(input.clone()), input);
     }
 }

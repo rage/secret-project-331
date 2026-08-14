@@ -26,6 +26,8 @@ import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import ErrorDisplay from "./ErrorDisplay"
 import type { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 import MessageBubble from "./MessageBubble"
+import MultipleChoiceQuestionBubble from "./MultipleChoiceQuestionBubble"
+import { openQuestions, questionOf } from "./multipleChoiceQuestions"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import ToolCallReasoningBubble from "./ToolCallReasoningBubble"
 
@@ -34,6 +36,8 @@ import ToolCallReasoningBubble from "./ToolCallReasoningBubble"
 /// message.) User messages and assistant messages with no tool calls etc are
 /// mapped with null. The last tool calls etc. that are streamed and don't yet
 /// have an assistant message are mapped with a null key and should be shown still.
+/// A clarifying question is a tool call the learner has to read, so it gets a row of its own
+/// instead of joining the collapsed tool status items.
 const messageMapMaker = (
   messages: ChatbotConversationMessageWithStatus[],
 ): Map<
@@ -52,7 +56,7 @@ const messageMapMaker = (
       messageResult.success &&
       (messageResult.data.message_role === "user" ||
         messageResult.data.message_role === "assistant")
-    if (messageSuccess) {
+    if (messageSuccess || questionOf(m.message) !== null) {
       if (earliestItemIndex !== null) {
         let toolReasoningItemsForThisMessage = messages.slice(earliestItemIndex, idx)
         messagesMap.set(m, toolReasoningItemsForThisMessage)
@@ -97,8 +101,10 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   messageState,
   chatbotMessageAnnouncement,
   newMessageMutation,
+  toolResponseMutation,
 }) => {
   const scrollContainerRef = useRef<HTMLUListElement>(null)
+  const composerRef = useRef<HTMLTextAreaElement>(null)
   const { t } = useTranslation()
 
   const citations = useMemo(() => {
@@ -150,6 +156,22 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     return messageMapMaker(messageState.messages)
   }, [messageState.messages])
 
+  /**
+   * The questions the learner can still answer. A running stream's messages continue the fetched
+   * ones, so the optimistic user message that aborts a question closes it here as well, before the
+   * abort itself comes back from the server.
+   */
+  const openQuestionToolCallIds = useMemo(
+    () =>
+      new Set(
+        openQuestions([
+          ...(currentConversationInfo.data?.current_conversation_messages ?? []),
+          ...messageState.messages.map((m) => m.message),
+        ]).map((question) => question.toolCallId),
+      ),
+    [currentConversationInfo.data?.current_conversation_messages, messageState.messages],
+  )
+
   const scrollToBottom = useCallback(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
@@ -160,9 +182,13 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     scrollToBottom()
   }, [scrollToBottom, messagesMap, messageState.messages])
 
+  // Answering a question streams a turn the same way a new message does, so a second turn started
+  // on top of a running one writes into the same conversation and the same reducer state.
+  const isTurnInFlight = newMessageMutation.isPending || toolResponseMutation.isPending
+
   const canSubmit = useMemo(
-    () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isPending),
-    [newMessage, newMessageMutation.isPending],
+    () => Boolean(newMessage && newMessage.trim().length > 0 && !isTurnInFlight),
+    [newMessage, isTurnInFlight],
   )
 
   if (currentConversationInfo.isLoading) {
@@ -247,6 +273,32 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           if (message === null) {
             return null
           }
+          const question = questionOf(message.message)
+          if (question !== null) {
+            const isOpen = openQuestionToolCallIds.has(question.toolCallId)
+            return (
+              <li
+                key={`chatbot-question-${message.message.id}`}
+                className={messageListItemStyle}
+                aria-label={t("question-from-the-chatbot")}
+              >
+                {items !== null && <ToolCallReasoningBubble messages={items} />}
+                <MultipleChoiceQuestionBubble
+                  question={question}
+                  isOpen={isOpen}
+                  // A stream is still writing to the conversation, so the call this answers may not
+                  // be stored yet and answering it would be refused.
+                  isAnswering={isTurnInFlight}
+                  onChoose={(choiceIndex) => {
+                    // The choices go away with the answer, taking the focused button with them, and
+                    // the message field is where the learner carries on either way.
+                    composerRef.current?.focus()
+                    toolResponseMutation.mutate({ toolCallId: question.toolCallId, choiceIndex })
+                  }}
+                />
+              </li>
+            )
+          }
           let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
           if (m.success) {
             return (
@@ -265,14 +317,14 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
                   message={m.data.text ?? ""}
                   citations={citations.get(message.message.id)}
                   isFromChatbot={m.data.message_role === "assistant"}
-                  isPending={!m.data.message_is_complete && newMessageMutation.isPending}
+                  isPending={!m.data.message_is_complete && isTurnInFlight}
                 />
               </li>
             )
           }
           return null
         })}
-        {newMessageMutation.isPending && messageState.messages.length === 0 && (
+        {isTurnInFlight && messageState.messages.length === 0 && (
           <MessageBubble message={""} citations={undefined} isFromChatbot={true} isPending={true} />
         )}
         <li
@@ -283,18 +335,21 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             margin-left: 2rem;
           `}
         >
-          {!newMessageMutation.isPending &&
+          {/* The suggestions were fetched for an earlier state of the conversation, so they can
+              outlive the moment they fitted; taking one while a question waits abandons it. */}
+          {!isTurnInFlight &&
+            openQuestionToolCallIds.size === 0 &&
             currentConversationInfo.data.suggested_messages?.map((m) => (
               <SuggestedMessageChip
                 key={m.id}
                 isLoading={
-                  newMessageMutation.isPending ||
+                  isTurnInFlight ||
                   currentConversationInfo.isLoading ||
                   currentConversationInfo.isRefetching
                 }
                 message={m.message}
                 handleClick={() => {
-                  if (!newMessageMutation.isPending) {
+                  if (!isTurnInFlight) {
                     newMessageMutation.mutate(m.message)
                   }
                 }}
@@ -321,6 +376,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           `}
         >
           <TextAreaField
+            ref={composerRef}
             className={css`
               width: 100%;
               padding: 0.5rem;

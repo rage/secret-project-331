@@ -177,7 +177,13 @@ async fn execute_batch(
                 ));
             }
         };
-        let response = REQWEST_CLIENT.get(&response_url).send().await?;
+        // Bulk archive of every operation's result, so it can be far larger and slower than the
+        // JSON calls the shared client's default timeout is sized for.
+        let response = REQWEST_CLIENT
+            .get(&response_url)
+            .timeout(Duration::from_secs(600))
+            .send()
+            .await?;
         if !response.status().is_success() {
             let error_text = response.text().await.unwrap_or_default();
             return Err(anyhow::anyhow!(

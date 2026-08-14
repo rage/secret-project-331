@@ -30,6 +30,7 @@ pub async fn does_azure_datasource_exist(
         .get(url)
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
@@ -102,6 +103,7 @@ pub async fn create_azure_datasource(
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.expose_secret())
         .json(&datasource_definition)
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 

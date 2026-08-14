@@ -89,7 +89,8 @@
             "kind": {
               "Enum": [
                 "function",
-                "azure-ai-search"
+                "azure-ai-search",
+                "client-tool"
               ]
             }
           }

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::pages;
@@ -6,10 +6,10 @@ use headless_lms_utils::document_schema_processor::get_learning_objectives;
 use sqlx::PgConnection;
 
 use crate::{
-    azure_chatbot::ChatbotUserContext,
+    azure_chatbot::{ChatbotUserContext, JSONType, Schema},
     chatbot_error::chatbot_err,
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
+        AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotToolDeclaration, LLMToolType,
         ToolProperties,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
@@ -65,6 +65,26 @@ pub struct PageDocumentInfo {
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct CourseStructureArguments {}
+
+impl ChatbotToolDeclaration for CourseStructureTool {
+    const NAME: &'static str = "course_structure";
+
+    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
+        AzureLLMFunctionToolDefinition {
+            tool_type: LLMToolType::Function,
+            name: Self::NAME.to_string(),
+            description: "Get the course structure as an ordered list of all course pages. The structure lists all pages, chapters and modules that are part of the course. Each page is listed with its title, its place in the course structure (which chapter it is inside of, if any), and its learning objectives, if any. Information about the course pages' content can be found with the document_lookup tool.".to_string(),
+            parameters: Schema {
+                type_field: JSONType::Object,
+                description: None,
+                properties: IndexMap::new(),
+                required: vec![],
+                additional_properties: false,
+            },
+            strict: true,
+        }
+    }
+}
 
 impl ChatbotTool for CourseStructureTool {
     type State = CourseStructureState;
@@ -155,20 +175,5 @@ impl ChatbotTool for CourseStructureTool {
 
     fn get_arguments(&self) -> &Self::Arguments {
         &self.arguments
-    }
-
-    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
-        AzureLLMFunctionToolDefinition {
-            tool_type: LLMToolType::Function,
-            name: "course_structure".to_string(),
-            description: "Get the course structure as an ordered list of all course pages. The structure lists all pages, chapters and modules that are part of the course. Each page is listed with its title, its place in the course structure (which chapter it is inside of, if any), and its learning objectives, if any. Information about the course pages' content can be found with the document_lookup tool.".to_string(),
-            parameters: LLMToolParams {
-                tool_type: LLMToolParamType::Object,
-                properties: HashMap::new(),
-                required: vec![],
-                additional_properties: false,
-            },
-            strict: true,
-        }
     }
 }

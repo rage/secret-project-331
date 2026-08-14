@@ -9,12 +9,11 @@ use models::{
     pages::{self, NewPage},
 };
 
-use crate::controllers::auth::is_user_global_admin;
-use crate::domain::authorization::{Action as Act, Resource as Res};
 use crate::{
     controllers::helpers::file_uploading::upload_image_for_organization,
     domain::authorization::{
-        Action, Resource, authorize, authorize_with_fetched_list_of_roles, skip_authorize,
+        Action, Action as Act, AuthorizationErrorType, Resource, Resource as Res, authorize,
+        authorize_with_fetched_list_of_roles, is_user_global_admin, skip_authorize,
     },
     prelude::*,
 };
@@ -456,10 +455,10 @@ async fn get_organization(
         .await
         {
             Ok(token) => token,
-            Err(err) if matches!(err.error_type(), ControllerErrorType::Forbidden) => {
+            Err(err) if matches!(err.error_type(), AuthorizationErrorType::Forbidden) => {
                 return Err(organization_not_found());
             }
-            Err(err) => return Err(err),
+            Err(err) => return Err(err.into()),
         }
     } else {
         skip_authorize()

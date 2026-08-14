@@ -5,7 +5,7 @@ These endpoints are used by the TMC server so that it can integrate with this sy
 */
 
 use crate::{
-    domain::authorization::{
+    domain::authentication::{
         authorize_access_from_tmc_server_to_course_mooc_fi,
         get_or_create_user_from_tmc_mooc_fi_response,
     },

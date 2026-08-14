@@ -359,6 +359,7 @@ async fn process_block_chunk(
         tools: vec![],
         tool_choice: None,
         parallel_tool_calls: None,
+        prompt_cache_key: None,
         params,
         text: None,
     };

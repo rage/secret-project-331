@@ -78,6 +78,9 @@ export type ChatbotChatStreamEvent =
       type: "Done"
     }
   | {
+      type: "Suspended"
+    }
+  | {
       data: StreamEventError
       type: "Error"
     }
@@ -106,6 +109,12 @@ export type ChatbotConversationInfo = {
   current_conversation_message_citations?: Array<ChatbotConversationMessageCitation> | null
   current_conversation_messages?: Array<ChatbotConversationMessage> | null
   hide_citations: boolean
+  /**
+   * What to offer the learner as their next message. Absent when nothing should be offered: the
+   * configuration has suggestions off, or the conversation is at a point where a suggestion does
+   * not belong, such as a turn suspended on a question to the learner. Empty means suggestions
+   * are wanted but none have been generated yet, which is what makes the endpoint generate them.
+   */
   suggested_messages?: Array<ChatbotConversationSuggestedMessage> | null
 }
 
@@ -196,6 +205,79 @@ export type ChatbotConversationSuggestedMessage = {
   message: string
   updated_at: string
 }
+
+/**
+ * What the learner has open when they send a message.
+ *
+ * Only the page id is accepted: everything the model reads is looked up from the database.
+ * The context becomes a developer message, which the model weighs above the learner's own
+ * words, so a client that could write its text could give itself instructions.
+ */
+export type ChatbotPageContext = {
+  page_id: string
+}
+
+/**
+ * The part of the application a chatbot message was sent from.
+ *
+ * Every surface posts to the same endpoint and several of them share a chatbot configuration,
+ * so a request has to name its surface for the backend to tell them apart.
+ */
+export type ChatbotSurface =
+  | "course_material_dialog"
+  | "course_material_block"
+  | "embed"
+  | "configuration_preview"
+  | "command_center"
+
+export type ChatbotToolResponse = {
+  answer: ClientToolAnswer
+  /**
+   * Where the answer is coming from, which the resumed turn needs for the same reason
+   * `send-message` does: it decides which client tools the next round may offer.
+   */
+  surface: ChatbotSurface
+  /**
+   * The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event.
+   */
+  tool_call_id: string
+}
+
+/**
+ * What a client answered a tool call with.
+ *
+ * A client tool either runs and produces data, or puts a choice to the learner. Both are shapes
+ * of the same answer so that the confirmation gates of a later phase, which answer with
+ * [ClientToolAnswer::Decision], need no change to the wire format. The tool the call belongs to
+ * decides which shapes it accepts and what the model is told they mean.
+ */
+export type ClientToolAnswer =
+  | {
+      /**
+       * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+       */
+      data: {
+        /**
+         * An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not
+         * known here. Unlike the tool call arguments we hand back to clients, this one is built
+         * by the client, so declaring it a string would make the generated binding unusable.
+         */
+        result: {
+          [key: string]: unknown
+        }
+      }
+      type: "Data"
+    }
+  | {
+      /**
+       * The learner allowed or refused the call, optionally in their own words.
+       */
+      data: {
+        approved: boolean
+        note?: string | null
+      }
+      type: "Decision"
+    }
 
 export type CodeGiveawayStatus =
   | {
@@ -989,6 +1071,15 @@ export type SearchRequest = {
   query: string
 }
 
+export type SendChatbotMessage = {
+  /**
+   * What the learner wrote.
+   */
+  message: string
+  page_context?: null | ChatbotPageContext
+  surface: ChatbotSurface
+}
+
 export type ShowExerciseAnswers = {
   show_exercise_answers: boolean
 }
@@ -1056,7 +1147,10 @@ export type TermUpdate = {
   term: string
 }
 
-export type ToolKind = "function" | "azure_ai_search"
+/**
+ * Who answers a tool call, which decides what happens to a call that has no output yet.
+ */
+export type ToolKind = "function" | "azure_ai_search" | "client_tool"
 
 export type UnreturnedExercise = {
   id: string
@@ -1406,7 +1500,7 @@ export type NewChatbotConversationResponse =
   NewChatbotConversationResponses[keyof NewChatbotConversationResponses]
 
 export type SendChatbotMessageData = {
-  body: string
+  body: SendChatbotMessage
   path: {
     /**
      * Chatbot configuration id
@@ -1430,6 +1524,32 @@ export type SendChatbotMessageResponses = {
 
 export type SendChatbotMessageResponse =
   SendChatbotMessageResponses[keyof SendChatbotMessageResponses]
+
+export type SendChatbotToolResponseData = {
+  body: ChatbotToolResponse
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response"
+}
+
+export type SendChatbotToolResponseResponses = {
+  /**
+   * Chatbot response stream
+   */
+  200: ChatbotChatStreamEvent
+}
+
+export type SendChatbotToolResponseResponse =
+  SendChatbotToolResponseResponses[keyof SendChatbotToolResponseResponses]
 
 export type ClaimCodeFromCodeGiveawayData = {
   body?: never

@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use crate::{
-    azure_chatbot::ChatbotUserContext,
+    azure_chatbot::{ChatbotUserContext, JSONType, Schema},
     chatbot_error::chatbot_err,
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
+        AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotToolDeclaration, LLMToolType,
         ToolProperties,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
@@ -19,6 +19,26 @@ use headless_lms_models::{
 use sqlx::PgConnection;
 
 pub type CourseProgressTool = ToolProperties<CourseProgressState, CourseProgressArguments>;
+
+impl ChatbotToolDeclaration for CourseProgressTool {
+    const NAME: &'static str = "course_progress";
+
+    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
+        AzureLLMFunctionToolDefinition {
+            tool_type: LLMToolType::Function,
+            name: Self::NAME.to_string(),
+            description: "Get the user's progress on this course, including information about exercises attempted, points gained, the passing criteria for the course and if the user meets the criteria.".to_string(),
+            parameters: Schema {
+                type_field: JSONType::Object,
+                description: None,
+                properties: IndexMap::new(),
+                required: vec![],
+                additional_properties: false,
+            },
+            strict: true
+        }
+    }
+}
 
 impl ChatbotTool for CourseProgressTool {
     type State = CourseProgressState;
@@ -145,16 +165,6 @@ impl ChatbotTool for CourseProgressTool {
 
     fn get_arguments(&self) -> &Self::Arguments {
         &self.arguments
-    }
-
-    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
-        AzureLLMFunctionToolDefinition {
-            tool_type: LLMToolType::Function,
-            name: "course_progress".to_string(),
-            description: "Get the user's progress on this course, including information about exercises attempted, points gained, the passing criteria for the course and if the user meets the criteria.".to_string(),
-            parameters: LLMToolParams {tool_type: LLMToolParamType::Object, properties: HashMap::new(), required: vec![], additional_properties: false},
-            strict: true
-        }
     }
 }
 

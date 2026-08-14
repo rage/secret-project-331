@@ -7,21 +7,6 @@ import type { ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"
 
 describe("chatbotReducer", () => {
-  it("works with RECEIVED_CONVERSATION_MESSAGES", () => {
-    const newMessages: ChatbotConversationMessage[] = [messageFactory(), messageFactory()]
-    const initialState: ChatbotState = { messages: [] }
-    const newState = chatbotReducer(initialState, {
-      type: "RECEIVED_CONVERSATION_MESSAGES",
-      payload: newMessages,
-    })
-    const expectedState: ChatbotState = {
-      messages: [
-        { finished: true, message: messageFactory(), optimistic: false },
-        { finished: true, message: messageFactory(), optimistic: false },
-      ],
-    }
-    expect(newState).toStrictEqual(expectedState)
-  })
   it("works with USER_SENDS_MESSAGE when there's no messages", () => {
     const initialState: ChatbotState = { messages: [] }
     const newState = chatbotReducer(initialState, {

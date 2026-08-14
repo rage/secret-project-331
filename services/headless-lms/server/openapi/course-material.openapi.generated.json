@@ -359,7 +359,58 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/SendChatbotMessage"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Chatbot response stream",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotChatStreamEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response": {
+      "post": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nPOST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`\n\nAnswers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else\nis outstanding. Responds with the same stream `send-message` does, carrying either the resumed\nturn or a lone `Suspended` event when the turn is still waiting for another answer.",
+        "operationId": "sendChatbotToolResponse",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "description": "Conversation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatbotToolResponse"
               }
             }
           },
@@ -3099,6 +3150,17 @@
           },
           {
             "type": "object",
+            "description": "The turn stopped to wait for the client to answer a tool call, so it ends with neither an\nanswer nor an error. Terminal like `Done`: the client stops reading, answers the call\nthrough the tool-response endpoint, and reads the stream that returns.\n\nCarries nothing, because the call it waits on was already streamed as an unfinished\n`ToolCall` event, and survives a reload only through the conversation's messages anyway.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Suspended"]
+              }
+            }
+          },
+          {
+            "type": "object",
             "required": ["data", "type"],
             "properties": {
               "data": {
@@ -3200,7 +3262,8 @@
             "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/ChatbotConversationSuggestedMessage"
-            }
+            },
+            "description": "What to offer the learner as their next message. Absent when nothing should be offered: the\nconfiguration has suggestions off, or the conversation is at a point where a suggestion does\nnot belong, such as a turn suspended on a question to the learner. Empty means suggestions\nare wanted but none have been generated yet, which is what makes the endpoint generate them."
           }
         }
       },
@@ -3521,6 +3584,96 @@
             "format": "date-time"
           }
         }
+      },
+      "ChatbotPageContext": {
+        "type": "object",
+        "description": "What the learner has open when they send a message.\n\nOnly the page id is accepted: everything the model reads is looked up from the database.\nThe context becomes a developer message, which the model weighs above the learner's own\nwords, so a client that could write its text could give itself instructions.",
+        "required": ["page_id"],
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ChatbotSurface": {
+        "type": "string",
+        "description": "The part of the application a chatbot message was sent from.\n\nEvery surface posts to the same endpoint and several of them share a chatbot configuration,\nso a request has to name its surface for the backend to tell them apart.",
+        "enum": [
+          "course_material_dialog",
+          "course_material_block",
+          "embed",
+          "configuration_preview",
+          "command_center"
+        ]
+      },
+      "ChatbotToolResponse": {
+        "type": "object",
+        "required": ["tool_call_id", "surface", "answer"],
+        "properties": {
+          "answer": {
+            "$ref": "#/components/schemas/ClientToolAnswer"
+          },
+          "surface": {
+            "$ref": "#/components/schemas/ChatbotSurface",
+            "description": "Where the answer is coming from, which the resumed turn needs for the same reason\n`send-message` does: it decides which client tools the next round may offer."
+          },
+          "tool_call_id": {
+            "type": "string",
+            "description": "The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event."
+          }
+        }
+      },
+      "ClientToolAnswer": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The tool ran on the client. `result` is JSON of whatever shape the tool defines.",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "description": "The tool ran on the client. `result` is JSON of whatever shape the tool defines.",
+                "required": ["result"],
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "description": "An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not\nknown here. Unlike the tool call arguments we hand back to clients, this one is built\nby the client, so declaring it a string would make the generated binding unusable."
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Data"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The learner allowed or refused the call, optionally in their own words.",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "description": "The learner allowed or refused the call, optionally in their own words.",
+                "required": ["approved"],
+                "properties": {
+                  "approved": {
+                    "type": "boolean"
+                  },
+                  "note": {
+                    "type": ["string", "null"]
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Decision"]
+              }
+            }
+          }
+        ],
+        "description": "What a client answered a tool call with.\n\nA client tool either runs and produces data, or puts a choice to the learner. Both are shapes\nof the same answer so that the confirmation gates of a later phase, which answer with\n[ClientToolAnswer::Decision], need no change to the wire format. The tool the call belongs to\ndecides which shapes it accepts and what the model is told they mean."
       },
       "CodeGiveawayStatus": {
         "oneOf": [
@@ -6161,6 +6314,30 @@
           }
         }
       },
+      "SendChatbotMessage": {
+        "type": "object",
+        "required": ["message", "surface"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "What the learner wrote."
+          },
+          "page_context": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChatbotPageContext",
+                "description": "The course material page the learner has open, when they are on one."
+              }
+            ]
+          },
+          "surface": {
+            "$ref": "#/components/schemas/ChatbotSurface"
+          }
+        }
+      },
       "ShowExerciseAnswers": {
         "type": "object",
         "required": ["show_exercise_answers"],
@@ -6360,7 +6537,8 @@
       },
       "ToolKind": {
         "type": "string",
-        "enum": ["function", "azure_ai_search"]
+        "description": "Who answers a tool call, which decides what happens to a call that has no output yet.",
+        "enum": ["function", "azure_ai_search", "client_tool"]
       },
       "UnreturnedExercise": {
         "type": "object",

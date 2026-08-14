@@ -14,6 +14,7 @@ export interface ExerciseCustomViewAttributes {
 }
 
 const ExerciseCustomViewBlockConfiguration: BlockConfiguration<ExerciseCustomViewAttributes> = {
+  apiVersion: 3,
   title: "ExerciseCustomViewBlock",
   description: "ExerciseCustomView block",
   category: MOOCFI_CATEGORY_SLUG,

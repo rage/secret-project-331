@@ -34,6 +34,7 @@ export interface ExerciseAttributes {
  * ## TODO: describe how attributes are handled: normalization and denormalization
  */
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
+  apiVersion: 3,
   title: "Exercise",
   description: "Exercise",
   // Enforce exercise can't be InnerBlock - https://github.com/WordPress/gutenberg/issues/7845

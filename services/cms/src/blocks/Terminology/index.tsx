@@ -17,6 +17,7 @@ export interface TerminologyBlockAttributes {
 }
 
 const TerminologyBlockConfiguration: BlockConfiguration<TerminologyBlockAttributes> = {
+  apiVersion: 3,
   title: "Terminology Block",
   description: "Terminology Block.",
   category: MOOCFI_CATEGORY_SLUG,

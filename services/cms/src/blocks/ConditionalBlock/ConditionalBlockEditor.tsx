@@ -75,7 +75,7 @@ const Text = styled.p`
 
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
-> = ({ attributes, clientId, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
   const courseModules = useQuery(
@@ -109,7 +109,6 @@ const ConditionalBlockEditor: React.FC<
   )
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("conditional-block")}
       explanation={t("conditional-block-explanation")}
     >

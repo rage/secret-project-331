@@ -10,13 +10,10 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 
-const MapEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
-  clientId,
-}) => {
+const MapEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = () => {
   const { t } = useTranslation()
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("map-block-placeholder")}
       explanation={t("map-block-placeholder-explanation")}
     >

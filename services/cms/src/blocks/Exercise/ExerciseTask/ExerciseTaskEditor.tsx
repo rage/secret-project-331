@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { InnerBlocks } from "@wordpress/block-editor"
+import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import React, { useContext, useState } from "react"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -91,6 +91,7 @@ const ExerciseTaskEditor: React.FC<
   const dispatch = useContext(EditorContentDispatch)
 
   const exerciseServicesQuery = useAllExerciseServices()
+  const blockProps = useBlockProps()
 
   // Updated on the first render or when we collapse the editor. We use this to prevent posting the existing state back to the iframe when the iframe's internal state is updated. (The iframe input and output types are the same in this case.)
   const [privateSpecToPostToIframe, setPrivateSpecToPostToIframe] = useState(
@@ -262,9 +263,11 @@ const ExerciseTaskEditor: React.FC<
   }
 
   return (
-    <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
-      {(exerciseServices) => renderEditor(exerciseServices)}
-    </QueryResult>
+    <div {...blockProps}>
+      <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
+        {(exerciseServices) => renderEditor(exerciseServices)}
+      </QueryResult>
+    </div>
   )
 }
 

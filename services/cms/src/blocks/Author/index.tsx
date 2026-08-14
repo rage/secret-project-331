@@ -9,6 +9,7 @@ import AuthorEditor from "./AuthorEditor"
 import AuthorSave from "./AuthorSave"
 
 const AuthorConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Authors",
   description: "Author Section",
   category: MOOCFI_CATEGORY_SLUG,

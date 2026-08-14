@@ -45,10 +45,10 @@ const LANDING_PAGE_COPY_TEXT_TEMPLATE: Template[] = [
 
 const LandingPageCopyTextEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, unknown>>>
-> = ({ clientId }) => {
+> = () => {
   const { t } = useTranslation()
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <div>
         <div
           className={css`

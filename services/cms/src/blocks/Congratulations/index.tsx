@@ -9,6 +9,7 @@ import CongratulationsSave from "./CongratulationsSave"
 const CONGRATULATIONS = "Congratulations"
 
 const CongratulationsConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: CONGRATULATIONS,
   description: CONGRATULATIONS,
   category: MOOCFI_CATEGORY_SLUG,

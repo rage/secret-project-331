@@ -13,13 +13,12 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ResearchConsentCheckBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ResearchConsentQuestionAttributes>>
-> = ({ clientId, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { content } = attributes
   const { t } = useTranslation()
 
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("title-research-form-question")}
       explanation={t("research-form-checkbox-description")}
     >

@@ -15,10 +15,10 @@ const ALLOWED_NESTED_BLOCKS = ["core/image"]
 
 const AsideWithImageEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<AsideWithImageBlockAttributes>>
-> = ({ clientId, attributes: { title, content }, setAttributes }) => {
+> = ({ attributes: { title, content }, setAttributes }) => {
   const { t } = useTranslation()
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <div>
         <div
           className={css`

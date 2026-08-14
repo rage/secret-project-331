@@ -9,6 +9,7 @@ import GlossaryEditor from "./GlossaryEditor"
 import GlossarySave from "./GlossarySave"
 
 const GlossaryConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Glossary",
   description: "Glossary.",
   category: MOOCFI_CATEGORY_SLUG,

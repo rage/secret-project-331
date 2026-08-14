@@ -10,7 +10,7 @@ import type {
   SendChatbotMessageData,
 } from "@/generated/course-material-api/types.generated"
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
-import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
+import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { getSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
@@ -41,6 +41,7 @@ export interface ChatbotStateAndData {
 const useChatbotStateAndData = (
   chatbotConfigurationId: string,
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>> | undefined,
+  conversationId: string | null,
 ) => {
   const { t } = useTranslation()
   const [newMessage, setNewMessage] = useState("")
@@ -52,10 +53,14 @@ const useChatbotStateAndData = (
 
   const anonymousToken = getSavedChatbotAnonymousToken()
 
-  const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId, anonymousToken)
+  const currentConversationInfo = useConversationInfo(
+    chatbotConfigurationId,
+    conversationId,
+    anonymousToken,
+  )
+
   const newConversationMutation = useNewConversationMutation(
     chatbotConfigurationId,
-    currentConversationInfo,
     setNewMessage,
     setError,
   )

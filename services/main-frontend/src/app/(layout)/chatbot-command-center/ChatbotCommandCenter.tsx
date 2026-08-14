@@ -1,12 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
+import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Select } from "@/shared-module/components"
@@ -23,6 +25,15 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
   const { control, watch } = useForm<ChatbotConfiguration>({})
   const configuration_id = watch("id")
 
+  const currentConversationId = useQuery(
+    getCurrentConversationIdOptions({
+      path: {
+        chatbot_configuration_id: configuration_id,
+      },
+    }),
+  )
+
+  const conversation_id = currentConversationId.data
   const chatbotOptions = useMemo(() => {
     const grouped = Object.values(
       chatbots.reduce(
@@ -127,7 +138,20 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
                 `}
               ></div>
             ) : (
-              <ChatbotChat chatbotConfigurationId={configuration_id} isCourseMaterialBlock={true} />
+              <ChatbotChat
+                conversationId={conversation_id}
+                chatbotConfigurationId={configuration_id}
+                isCourseMaterialBlock={true}
+              />
+              // <QueryResult query={currentConversationId}>
+              //   {(currentConversation) => (
+              //     <ChatbotChat
+              //       conversationId={currentConversation}
+              //       chatbotConfigurationId={configuration_id}
+              //       isCourseMaterialBlock={true}
+              //     />
+              //   )}
+              // </QueryResult>
             )}
           </div>
         </div>

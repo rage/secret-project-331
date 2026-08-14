@@ -1427,6 +1427,19 @@ export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
  */
 export const zGetDefaultChatbotConfigurationForCourseResponse = z.uuid().nullable()
 
+export const zGetConversationInfoPath = z.object({
+  chatbot_configuration_id: z.uuid(),
+})
+
+export const zGetConversationInfoQuery = z.object({
+  conversation_id: z.uuid().optional(),
+})
+
+/**
+ * Selected chatbot conversation info
+ */
+export const zGetConversationInfoResponse = zChatbotConversationInfo
+
 export const zAllUserConversationsPath = z.object({
   chatbot_configuration_id: z.uuid(),
 })
@@ -1444,6 +1457,15 @@ export const zGetChatbotCurrentConversationInfoPath = z.object({
  * Current chatbot conversation info
  */
 export const zGetChatbotCurrentConversationInfoResponse = zChatbotConversationInfo
+
+export const zGetCurrentConversationIdPath = z.object({
+  chatbot_configuration_id: z.uuid(),
+})
+
+/**
+ * Current conversation ID
+ */
+export const zGetCurrentConversationIdResponse = z.uuid().nullable()
 
 export const zNewChatbotConversationPath = z.object({
   chatbot_configuration_id: z.uuid(),

@@ -1,11 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
+import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface ChatbotPreviewModalProps {
@@ -21,7 +23,21 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, undefined)
+  const currentConversationId = useQuery(
+    getCurrentConversationIdOptions({
+      path: {
+        chatbot_configuration_id: chatbotConfigurationId,
+      },
+    }),
+  )
+
+  const conversationId = currentConversationId.data
+
+  const chatbotStateAndData = useChatbotStateAndData(
+    chatbotConfigurationId,
+    undefined,
+    conversationId,
+  )
   const { currentConversationInfo, newConversationMutation } = chatbotStateAndData
   const hasStartedFreshConversation = useRef(false)
 

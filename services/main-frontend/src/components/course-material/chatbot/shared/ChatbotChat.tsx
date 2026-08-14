@@ -10,16 +10,19 @@ import useSynchronizeDefaultChatbotCommunicationChannel from "./hooks/useSynchro
 interface ChatbotChatProps {
   chatbotConfigurationId: string
   isCourseMaterialBlock: boolean
+  conversationId: string | null
 }
 
 const ChatbotChat: React.FC<ChatbotChatProps> = ({
   chatbotConfigurationId,
   isCourseMaterialBlock,
+  conversationId,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const chatbotStateAndData = useChatbotStateAndData(
     chatbotConfigurationId,
     isCourseMaterialBlock ? undefined : setIsOpen,
+    conversationId,
   )
 
   useSynchronizeDefaultChatbotCommunicationChannel(

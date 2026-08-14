@@ -151,6 +151,7 @@ LIMIT 1
 pub async fn get_conversation_for_user(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
+    anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
 ) -> ModelResult<ChatbotConversation> {
@@ -159,13 +160,17 @@ pub async fn get_conversation_for_user(
         r#"
 SELECT *
 FROM chatbot_conversations
-WHERE user_id = $1
-  AND chatbot_configuration_id = $2
-  AND id = $3
+WHERE (
+    user_id = $1
+    OR anonymous_token = $2
+  )
+  AND chatbot_configuration_id = $3
+  AND id = $4
   AND deleted_at IS NULL
 ORDER BY created_at DESC
         "#,
         user_id,
+        anonymous_token,
         chatbot_configuration_id,
         conversation_id
     )
@@ -263,6 +268,7 @@ pub async fn get_current_conversation_info(
 pub async fn get_conversation_info(
     tx: &mut PgConnection,
     user_id: Option<Uuid>,
+    anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
 ) -> ModelResult<ChatbotConversationInfo> {
@@ -274,10 +280,15 @@ pub async fn get_conversation_info(
         None
     };
 
-    let current_conversation =
-        get_conversation_for_user(tx, user_id, chatbot_configuration_id, conversation_id)
-            .await
-            .optional()?;
+    let current_conversation = get_conversation_for_user(
+        tx,
+        user_id,
+        anonymous_token,
+        chatbot_configuration_id,
+        conversation_id,
+    )
+    .await
+    .optional()?;
     // the messages are sorted by response_order_number
     let current_conversation_messages = OptionFuture::from(
         current_conversation

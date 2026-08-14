@@ -41,6 +41,8 @@ import type {
   GetChatbotCurrentConversationInfoResponses,
   GetCodeGiveawayStatusData,
   GetCodeGiveawayStatusResponses,
+  GetConversationInfoData,
+  GetConversationInfoResponses,
   GetCourseMaterialAuthenticatedUserDetailsData,
   GetCourseMaterialAuthenticatedUserDetailsResponses,
   GetCourseMaterialBackgroundQuestionsAndAnswersData,
@@ -133,6 +135,8 @@ import type {
   GetCourseMaterialUserMarketingConsentResponses,
   GetCourseMaterialUserModuleCompletionsData,
   GetCourseMaterialUserModuleCompletionsResponses,
+  GetCurrentConversationIdData,
+  GetCurrentConversationIdResponses,
   GetCurrentCourseMaterialCourseInstanceData,
   GetCurrentCourseMaterialCourseInstanceResponses,
   GetDefaultChatbotConfigurationForCourseData,
@@ -191,6 +195,7 @@ import {
   zGetAiUsageNoticeAcknowledgementResponse,
   zGetChatbotCurrentConversationInfoResponse,
   zGetCodeGiveawayStatusResponse,
+  zGetConversationInfoResponse,
   zGetCourseMaterialAuthenticatedUserDetailsResponse,
   zGetCourseMaterialBackgroundQuestionsAndAnswersResponse,
   zGetCourseMaterialChapterExerciseProgressResponse,
@@ -237,6 +242,7 @@ import {
   zGetCourseMaterialUserCourseSettingsResponse,
   zGetCourseMaterialUserMarketingConsentResponse,
   zGetCourseMaterialUserModuleCompletionsResponse,
+  zGetCurrentConversationIdResponse,
   zGetCurrentCourseMaterialCourseInstanceResponse,
   zGetDefaultChatbotConfigurationForCourseResponse,
   zLockCourseMaterialChapterResponse,
@@ -455,6 +461,22 @@ export const getDefaultChatbotConfigurationForCourse = <ThrowOnError extends boo
 
 /**
  *
+ * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
+ *
+ * Returns specific chatbot conversation for the user.
+ */
+export const getConversationInfo = <ThrowOnError extends boolean = true>(
+  options: Options<GetConversationInfoData, ThrowOnError>,
+): RequestResult<GetConversationInfoResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetConversationInfoResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetConversationInfoResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current`
  *
  * Returns all conversations for the user.
@@ -488,6 +510,22 @@ export const getChatbotCurrentConversationInfo = <ThrowOnError extends boolean =
       await zGetChatbotCurrentConversationInfoResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`
+ *
+ * Returns current chatbot conversation id.
+ */
+export const getCurrentConversationId = <ThrowOnError extends boolean = true>(
+  options: Options<GetCurrentConversationIdData, ThrowOnError>,
+): RequestResult<GetCurrentConversationIdResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCurrentConversationIdResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCurrentConversationIdResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current/id",
     ...options,
   })
 

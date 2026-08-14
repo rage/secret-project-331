@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/course-material/SelectionListener"
+import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { getDefaultChatbotConfigurationForCourse } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -22,6 +23,14 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
   const { t } = useTranslation()
   const chatbotConfigurationId = data.attributes.chatbotConfigurationId
   const courseId = data.attributes.courseId
+
+  const currentConversationIdQuery = useQuery(
+    getCurrentConversationIdOptions({
+      path: {
+        chatbot_configuration_id: chatbotConfigurationId,
+      },
+    }),
+  )
 
   const defaultChatbotConfiguration = useQuery({
     queryKey: ["chatbot", "default-for-course", courseId],
@@ -48,10 +57,15 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
             }
           `}
         >
-          <ChatbotChat
-            chatbotConfigurationId={chatbotConfigurationId}
-            isCourseMaterialBlock={true}
-          />
+          <QueryResult query={currentConversationIdQuery}>
+            {(currentConversation) => (
+              <ChatbotChat
+                conversationId={currentConversation}
+                chatbotConfigurationId={chatbotConfigurationId}
+                isCourseMaterialBlock={true}
+              />
+            )}
+          </QueryResult>
         </div>
       </div>
     )
@@ -75,10 +89,15 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
                 }
               `}
             >
-              <ChatbotChat
-                chatbotConfigurationId={chatbotConfigurationId}
-                isCourseMaterialBlock={true}
-              />
+              <QueryResult query={currentConversationIdQuery}>
+                {(currentConversation) => (
+                  <ChatbotChat
+                    conversationId={currentConversation}
+                    chatbotConfigurationId={chatbotConfigurationId}
+                    isCourseMaterialBlock={true}
+                  />
+                )}
+              </QueryResult>
             </div>
           </div>
         )

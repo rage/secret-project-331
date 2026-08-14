@@ -21,6 +21,7 @@ import {
   getAiUsageNoticeAcknowledgement,
   getChatbotCurrentConversationInfo,
   getCodeGiveawayStatus,
+  getConversationInfo,
   getCourseMaterialAuthenticatedUserDetails,
   getCourseMaterialBackgroundQuestionsAndAnswers,
   getCourseMaterialChapterExerciseProgress,
@@ -67,6 +68,7 @@ import {
   getCourseMaterialUserCourseSettings,
   getCourseMaterialUserMarketingConsent,
   getCourseMaterialUserModuleCompletions,
+  getCurrentConversationId,
   getCurrentCourseMaterialCourseInstance,
   getDefaultChatbotConfigurationForCourse,
   lockCourseMaterialChapter,
@@ -116,6 +118,8 @@ import type {
   GetChatbotCurrentConversationInfoResponse,
   GetCodeGiveawayStatusData,
   GetCodeGiveawayStatusResponse,
+  GetConversationInfoData,
+  GetConversationInfoResponse,
   GetCourseMaterialAuthenticatedUserDetailsData,
   GetCourseMaterialAuthenticatedUserDetailsResponse,
   GetCourseMaterialBackgroundQuestionsAndAnswersData,
@@ -208,6 +212,8 @@ import type {
   GetCourseMaterialUserMarketingConsentResponse,
   GetCourseMaterialUserModuleCompletionsData,
   GetCourseMaterialUserModuleCompletionsResponse,
+  GetCurrentConversationIdData,
+  GetCurrentConversationIdResponse,
   GetCurrentCourseMaterialCourseInstanceData,
   GetCurrentCourseMaterialCourseInstanceResponse,
   GetDefaultChatbotConfigurationForCourseData,
@@ -499,6 +505,32 @@ export const getDefaultChatbotConfigurationForCourseOptions = (
     queryKey: getDefaultChatbotConfigurationForCourseQueryKey(options),
   })
 
+export const getConversationInfoQueryKey = (options: Options<GetConversationInfoData>) =>
+  createQueryKey("getConversationInfo", options)
+
+/**
+ *
+ * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
+ *
+ * Returns specific chatbot conversation for the user.
+ */
+export const getConversationInfoOptions = (options: Options<GetConversationInfoData>) =>
+  queryOptions<
+    GetConversationInfoResponse,
+    DefaultError,
+    GetConversationInfoResponse,
+    ReturnType<typeof getConversationInfoQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getConversationInfo({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getConversationInfoQueryKey(options),
+  })
+
 export const allUserConversationsQueryKey = (options: Options<AllUserConversationsData>) =>
   createQueryKey("allUserConversations", options)
 
@@ -552,6 +584,32 @@ export const getChatbotCurrentConversationInfoOptions = (
         throwOnError: true,
       }),
     queryKey: getChatbotCurrentConversationInfoQueryKey(options),
+  })
+
+export const getCurrentConversationIdQueryKey = (options: Options<GetCurrentConversationIdData>) =>
+  createQueryKey("getCurrentConversationId", options)
+
+/**
+ *
+ * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`
+ *
+ * Returns current chatbot conversation id.
+ */
+export const getCurrentConversationIdOptions = (options: Options<GetCurrentConversationIdData>) =>
+  queryOptions<
+    GetCurrentConversationIdResponse,
+    DefaultError,
+    GetCurrentConversationIdResponse,
+    ReturnType<typeof getCurrentConversationIdQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCurrentConversationId({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCurrentConversationIdQueryKey(options),
   })
 
 /**

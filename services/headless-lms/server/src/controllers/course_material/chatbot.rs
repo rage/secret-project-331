@@ -35,6 +35,11 @@ use rand::distr::{Alphanumeric, SampleString};
 ))]
 pub(crate) struct CourseMaterialChatbotApiDoc;
 
+#[derive(Deserialize, Debug)]
+pub struct ConversationQuery {
+    pub conversation_id: Option<Uuid>,
+}
+
 /**
 GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`
 
@@ -395,18 +400,18 @@ async fn all_user_conversations(
 }
 
 /**
-GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id`
+GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
 
 Returns specific chatbot conversation for the user.
 */
 #[utoipa::path(
     get,
-    path = "/{chatbot_configuration_id}/conversations/{conversation_id}",
+    path = "/{chatbot_configuration_id}/conversations",
     operation_id = "getConversationInfo",
     tag = "course-material-chatbot",
     params(
         ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id"),
-        ("conversation_id" = Uuid, Path, description = "Conversation id")
+        ("conversation_id" = Option<Uuid>, Query, description = "Conversation id")
     ),
     responses(
         (
@@ -417,28 +422,43 @@ Returns specific chatbot conversation for the user.
     )
 )]
 #[instrument(skip(pool, app_conf))]
+
 async fn conversation_info(
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
-    params: web::Path<(Uuid, Uuid)>,
+    params: web::Path<Uuid>,
+    query: web::Query<ConversationQuery>,
+    req: HttpRequest,
 ) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
     let mut conn = pool.acquire().await?;
-    let chatbot_configuration_id = params.0;
-    let conversation_id = params.1;
+    let conversation_id = query.conversation_id.map(|id| id);
     let chatbot_configuration =
-        models::chatbot_configurations::get_by_id(&mut conn, chatbot_configuration_id).await?;
+        models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
 
     let token =
         authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
 
-    let res = chatbot_conversations::get_conversation_info(
-        &mut conn,
-        user.map(|u| u.id),
-        chatbot_configuration.id,
-        conversation_id,
-    )
-    .await?;
+    let anonymous_token = handle_anonymous_token(req, user);
+
+    let res = if let Some(conversation_id) = conversation_id {
+        chatbot_conversations::get_conversation_info(
+            &mut conn,
+            user.map(|u| u.id),
+            anonymous_token.as_ref().map(|a| a.to_owned()),
+            chatbot_configuration.id,
+            conversation_id,
+        )
+        .await?
+    } else {
+        chatbot_conversations::get_current_conversation_info(
+            &mut conn,
+            user.map(|u| u.id),
+            anonymous_token.as_ref().map(|a| a.to_owned()),
+            chatbot_configuration.id,
+        )
+        .await?
+    };
 
     if chatbot_configuration.suggest_next_messages
         // suggested_messages is None if suggest_next_messages=false
@@ -499,13 +519,24 @@ async fn conversation_info(
             .await?;
         }
 
-        let res = chatbot_conversations::get_conversation_info(
-            &mut conn,
-            user.map(|u| u.id),
-            chatbot_configuration.id,
-            conversation_id,
-        )
-        .await?;
+        let res = if let Some(conversation_id) = conversation_id {
+            chatbot_conversations::get_conversation_info(
+                &mut conn,
+                user.map(|u| u.id),
+                anonymous_token.as_ref().map(|a| a.to_owned()),
+                chatbot_configuration.id,
+                conversation_id,
+            )
+            .await?
+        } else {
+            chatbot_conversations::get_current_conversation_info(
+                &mut conn,
+                user.map(|u| u.id),
+                anonymous_token.as_ref().map(|a| a.to_owned()),
+                chatbot_configuration.id,
+            )
+            .await?
+        };
         return token.authorized_ok(web::Json(res));
     }
 
@@ -587,7 +618,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(all_user_conversations),
     )
     .route(
-        "/{chatbot_configuration_id}/conversations/{conversation_id}",
+        "/{chatbot_configuration_id}/conversations",
         web::get().to(conversation_info),
     )
     .route(

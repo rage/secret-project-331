@@ -1360,6 +1360,33 @@ export type GetDefaultChatbotConfigurationForCourseResponses = {
 export type GetDefaultChatbotConfigurationForCourseResponse =
   GetDefaultChatbotConfigurationForCourseResponses[keyof GetDefaultChatbotConfigurationForCourseResponses]
 
+export type GetConversationInfoData = {
+  body?: never
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+  }
+  query?: {
+    /**
+     * Conversation id
+     */
+    conversation_id?: string
+  }
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations"
+}
+
+export type GetConversationInfoResponses = {
+  /**
+   * Selected chatbot conversation info
+   */
+  200: ChatbotConversationInfo
+}
+
+export type GetConversationInfoResponse =
+  GetConversationInfoResponses[keyof GetConversationInfoResponses]
+
 export type AllUserConversationsData = {
   body?: never
   path: {
@@ -1403,6 +1430,28 @@ export type GetChatbotCurrentConversationInfoResponses = {
 
 export type GetChatbotCurrentConversationInfoResponse =
   GetChatbotCurrentConversationInfoResponses[keyof GetChatbotCurrentConversationInfoResponses]
+
+export type GetCurrentConversationIdData = {
+  body?: never
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current/id"
+}
+
+export type GetCurrentConversationIdResponses = {
+  /**
+   * Current conversation ID
+   */
+  200: string | null
+}
+
+export type GetCurrentConversationIdResponse =
+  GetCurrentConversationIdResponses[keyof GetCurrentConversationIdResponses]
 
 export type NewChatbotConversationData = {
   body?: never

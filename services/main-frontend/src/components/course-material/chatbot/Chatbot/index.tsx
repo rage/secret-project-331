@@ -1,6 +1,10 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
+
+import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { QueryResult } from "@/shared-module/components"
 
 import ChatbotChat from "../shared/ChatbotChat"
 
@@ -9,8 +13,23 @@ export interface ChatbotProps {
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
+  const currentConversationIdQuery = useQuery(
+    getCurrentConversationIdOptions({
+      path: {
+        chatbot_configuration_id: chatbotConfigurationId,
+      },
+    }),
+  )
   return (
-    <ChatbotChat chatbotConfigurationId={chatbotConfigurationId} isCourseMaterialBlock={false} />
+    <QueryResult query={currentConversationIdQuery}>
+      {(conversationId) => (
+        <ChatbotChat
+          conversationId={conversationId}
+          chatbotConfigurationId={chatbotConfigurationId}
+          isCourseMaterialBlock={false}
+        />
+      )}
+    </QueryResult>
   )
 }
 

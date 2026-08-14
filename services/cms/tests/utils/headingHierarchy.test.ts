@@ -2,7 +2,9 @@ import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 import {
   analyzeHeadingHierarchy,
+  analyzeHeadingHierarchyForFlatBlocks,
   getHeadingHierarchyIssuesForBlock,
+  HEADING_SOURCE_BLOCK_NAMES,
 } from "../../src/utils/Gutenberg/headingHierarchy"
 
 const createBlock = (
@@ -18,6 +20,9 @@ const createBlock = (
     attributes,
     innerBlocks,
   }) as BlockInstance
+
+const flattenBlocks = (blocks: BlockInstance[]): BlockInstance[] =>
+  blocks.flatMap((block) => [block, ...flattenBlocks(block.innerBlocks)])
 
 describe("analyzeHeadingHierarchy", () => {
   it("treats the hero section as h1 and allows logical heading order", () => {
@@ -37,7 +42,7 @@ describe("analyzeHeadingHierarchy", () => {
   it("warns when the first authored heading starts deeper than h2", () => {
     const blocks = [createBlock("h3", "core/heading", { level: 3, content: "Deep start" })]
 
-    const issues = getHeadingHierarchyIssuesForBlock(blocks, "h3")
+    const issues = getHeadingHierarchyIssuesForBlock(analyzeHeadingHierarchy(blocks), "h3")
 
     expect(issues).toEqual([{ type: "heading-first-should-be-h2", level: 3 }])
   })
@@ -45,7 +50,7 @@ describe("analyzeHeadingHierarchy", () => {
   it("warns when a core heading uses h1", () => {
     const blocks = [createBlock("h1", "core/heading", { level: 1, content: "Title" })]
 
-    const issues = getHeadingHierarchyIssuesForBlock(blocks, "h1")
+    const issues = getHeadingHierarchyIssuesForBlock(analyzeHeadingHierarchy(blocks), "h1")
 
     expect(issues).toEqual([{ type: "heading-h1-reserved", level: 1 }])
   })
@@ -56,7 +61,7 @@ describe("analyzeHeadingHierarchy", () => {
       createBlock("h3", "core/heading", { level: 3, content: "Skipped h2" }),
     ]
 
-    const issues = getHeadingHierarchyIssuesForBlock(blocks, "h3")
+    const issues = getHeadingHierarchyIssuesForBlock(analyzeHeadingHierarchy(blocks), "h3")
 
     expect(issues).toEqual([{ type: "heading-level-jump", level: 3, previousLevel: 1 }])
   })
@@ -94,5 +99,39 @@ describe("analyzeHeadingHierarchy", () => {
       ["objective", 2, "Goals"],
       ["inner-h3", 3, "Objective A"],
     ])
+  })
+})
+
+describe("analyzeHeadingHierarchyForFlatBlocks", () => {
+  const nestedDocument = [
+    createBlock("hero", "moocfi/hero-section", { title: "Page title" }),
+    createBlock("ingress", "moocfi/ingress", { title: "Welcome", subtitle: "What you learn" }),
+    createBlock("objective", "moocfi/course-objective-section", { title: "Goals" }, [
+      createBlock("inner-h5", "core/heading", { level: 5, content: "Objective A" }),
+      createBlock("inner-paragraph", "core/paragraph", { content: "Body text" }),
+    ]),
+    createBlock("h1", "core/heading", { level: 1, content: "Second title" }),
+  ]
+
+  it("produces the same outline as the tree analysis", () => {
+    expect(analyzeHeadingHierarchyForFlatBlocks(flattenBlocks(nestedDocument))).toEqual(
+      analyzeHeadingHierarchy(nestedDocument),
+    )
+  })
+
+  it("does not walk inner blocks, so a flattened list is not counted twice", () => {
+    const entries = analyzeHeadingHierarchyForFlatBlocks([nestedDocument[2] as BlockInstance])
+
+    expect(entries.map((entry) => entry.blockClientId)).toEqual(["objective"])
+  })
+
+  it("recognizes every block name the heading warnings subscribe to", () => {
+    const entries = analyzeHeadingHierarchyForFlatBlocks(
+      HEADING_SOURCE_BLOCK_NAMES.map((blockName) =>
+        createBlock(blockName, blockName, { level: 2, content: blockName, title: blockName }),
+      ),
+    )
+
+    expect(entries.map((entry) => entry.blockName)).toEqual(HEADING_SOURCE_BLOCK_NAMES)
   })
 })

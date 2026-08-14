@@ -294,7 +294,6 @@ impl AzureChatbotConfiguration {
     }
 
     pub fn embeddings_endpoint(&self) -> anyhow::Result<Url> {
-        println!("EMBEDDINGS ENDPOINT BASE: {}", self.api_base);
         Ok(self.api_base.join("openai/v1/embeddings")?)
     }
 }
@@ -430,7 +429,8 @@ impl AzureConfiguration {
     /// mocked with the api_endpoint from our application.
     /// Returns `Ok(Some(AzureConfiguration))`
     pub fn mock_conf() -> anyhow::Result<Option<Self>> {
-        let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
+        let base_url =
+            env::var("BASE_URL").unwrap_or_else(|_| "http://project-331.local/".to_string());
         let chatbot_config = Some(AzureChatbotConfiguration {
             api_key: SecretString::new(String::new().into()),
             api_base: Url::parse(&base_url)?.join("/api/v0/mock-azure/")?,

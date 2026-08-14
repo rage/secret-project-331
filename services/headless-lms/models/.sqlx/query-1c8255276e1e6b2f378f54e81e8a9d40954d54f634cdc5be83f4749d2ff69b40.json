@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_id\nFROM (\n    SELECT\n        a.course_id,\n        MIN(a.embedding <#> v.embedding) AS distance\n    FROM course_audiences a\n    CROSS JOIN unnest($1::vector[]) AS v(embedding)\n    WHERE deleted_at IS NULL\n    GROUP BY a.course_id\n    ORDER BY distance ASC\n    LIMIT 5\n) t\nUNION ALL\nSELECT DISTINCT a.course_id\nFROM course_audiences a\nCROSS JOIN unnest($2::text[]) AS k(keyword)\nWHERE deleted_at IS NULL\nAND to_tsvector('english', a.audience)\n    @@ websearch_to_tsquery('english', k.keyword)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "vector[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "vector",
+                  "kind": "Simple"
+                }
+              }
+            }
+          }
+        },
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "1c8255276e1e6b2f378f54e81e8a9d40954d54f634cdc5be83f4749d2ff69b40"
+}

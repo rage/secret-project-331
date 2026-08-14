@@ -1217,7 +1217,7 @@ FROM (
     SELECT
         c.id,
         LEAST(MIN(ce.title_embedding <#> v.embedding),
-              MIN(ce.title_embedding <#> v.embedding)) AS distance
+              MIN(ce.description_embedding <#> v.embedding)) AS distance
     FROM courses c, course_embeddings ce
     CROSS JOIN unnest($1::vector[]) AS v(embedding)
     WHERE c.deleted_at IS NULL AND c.id = ce.course_id

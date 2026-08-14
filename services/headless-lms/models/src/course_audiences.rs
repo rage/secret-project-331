@@ -111,7 +111,7 @@ FROM (
     GROUP BY a.course_id
     ORDER BY distance ASC
     LIMIT 5
-)
+) t
 UNION ALL
 SELECT DISTINCT a.course_id
 FROM course_audiences a

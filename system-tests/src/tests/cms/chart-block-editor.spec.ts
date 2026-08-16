@@ -25,6 +25,41 @@ const SPEC_WITH_INLINE_DATA = JSON.stringify({
   },
 })
 
+// A complete chart that carries no data reference at all. Typing this over a spec that had one
+// leaves the block relying on the attached file being re-bound.
+const SPEC_WITHOUT_DATA = JSON.stringify({
+  $schema: "https://vega.github.io/schema/vega-lite/v6.json",
+  mark: "bar",
+  encoding: {
+    x: { field: "category", type: "nominal" },
+    y: { field: "value", type: "quantitative" },
+  },
+})
+
+// Vega-Lite allows each layer its own data, which is what Altair writes when layers come from
+// different sources. Such a spec has no top-level data even though it is fully specified.
+const LAYERED_SPEC_WITH_DATA_IN_LAYERS = JSON.stringify({
+  $schema: "https://vega.github.io/schema/vega-lite/v6.json",
+  layer: [
+    {
+      data: { values: [{ category: "A", value: 12 }] },
+      mark: "bar",
+      encoding: {
+        x: { field: "category", type: "nominal" },
+        y: { field: "value", type: "quantitative" },
+      },
+    },
+    {
+      data: { values: [{ category: "A", value: 20 }] },
+      mark: "line",
+      encoding: {
+        x: { field: "category", type: "nominal" },
+        y: { field: "value", type: "quantitative" },
+      },
+    },
+  ],
+})
+
 // Creates a page and inserts an empty chart block into it, which opens the block's editor on the
 // first step of the guided flow.
 const createPageWithChartBlock = async (page: Page, title: string) => {
@@ -172,6 +207,45 @@ test("Chart block editor works", async ({ page }) => {
   await expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveValue("Quarterly results")
   // The spec still points at the uploaded data file.
   await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
+})
+
+// Opens a new block's editor with a data file attached and the Vega JSON revealed.
+const openEditorWithDataFile = async (page: Page, title: string) => {
+  await createPageWithChartBlock(page, title)
+  const dialog = page.getByRole("dialog", { name: "Edit chart" })
+  await expect(dialog.getByText("Step 1 of 3")).toBeVisible()
+  await uploadDataFile(page, "src/fixtures/media/chart-data.csv")
+  await expect(dialog.getByText("How do you want to create the chart?")).toBeVisible({
+    timeout: 30_000,
+  })
+  await dialog.getByRole("button", { name: "Write the Vega JSON myself" }).click()
+  await expect(dialog.locator(".monaco-editor").first()).toBeVisible()
+  return dialog
+}
+
+test("Chart block re-attaches the data file to a spec that dropped it", async ({ page }) => {
+  const dialog = await openEditorWithDataFile(page, "Chart block re-bind test page")
+
+  // Editing the spec down to one that references no data leaves the chart without data...
+  await setMonacoContent(page, SPEC_WITHOUT_DATA)
+  await expect(dialog.getByText("This chart is missing its data file.")).toBeVisible()
+  // ...until the attached file is bound back into it, which happens once typing settles rather
+  // than per keystroke, so that editing the spec is not interrupted.
+  await expect(dialog.getByText("This chart is missing its data file.")).toBeHidden({
+    timeout: 30_000,
+  })
+  await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
+})
+
+test("Chart block renders a spec whose data lives in its layers", async ({ page }) => {
+  const dialog = await openEditorWithDataFile(page, "Chart block layered spec test page")
+
+  // Data on the individual layers counts as data: the chart renders instead of reporting a
+  // missing file, and the attached file is not bound in on top of it.
+  await setMonacoContent(page, LAYERED_SPEC_WITH_DATA_IN_LAYERS)
+  // Vega gives its rendered chart's root SVG the "marks" class.
+  await expect(dialog.locator("svg.marks")).toBeVisible()
+  await expect(dialog.getByText("This chart is missing its data file.")).toBeHidden()
 })
 
 test("Chart block can be generated with AI", async ({ page }) => {

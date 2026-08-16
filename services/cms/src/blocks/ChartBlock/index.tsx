@@ -14,6 +14,10 @@ export interface ChartBlockAttributes {
   caption: string
   /** Chart height in pixels; width is responsive. */
   height: number
+  /** Whether `height` is still the automatic size rather than one the teacher picked. Multi-view
+   * charts show at their full natural height while this holds. Absent on blocks saved before the
+   * attribute existed; see isAutoHeight. */
+  heightIsAuto?: boolean
 }
 
 export { DEFAULT_CHART_HEIGHT }
@@ -36,6 +40,10 @@ const ChartBlockConfiguration: BlockConfiguration<ChartBlockAttributes> = {
     height: {
       type: "number",
       default: DEFAULT_CHART_HEIGHT,
+    },
+    // No default: an unset flag means the height has never been chosen.
+    heightIsAuto: {
+      type: "boolean",
     },
   },
   icon,

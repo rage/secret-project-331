@@ -22,7 +22,7 @@ import type { ChartBlockAttributes } from "."
 import BlockWrapper from "../BlockWrapper"
 import ChartBlockEditModal from "./ChartBlockEditModal"
 import ChartPreview, { chartCaptionStyle } from "./ChartPreview"
-import { DEFAULT_CHART_HEIGHT, isMultiViewSpec, resolveChartLayout } from "./chartSpec"
+import { isAutoHeight, isMultiViewSpec, resolveChartLayout } from "./chartSpec"
 
 const MIN_CHART_HEIGHT = 120
 
@@ -38,7 +38,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
   const { t } = useTranslation()
   const { toggleSelection } = useDispatch(blockEditorStore)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { spec, caption, height } = attributes
+  const { spec, caption, height, heightIsAuto } = attributes
 
   // Open the editor immediately when a brand-new block is inserted, so the teacher lands on the
   // data-file step. Once only, and only for a fresh (empty) block, not when loading saved content.
@@ -78,7 +78,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
   // scaled-to-fit height, defaulting to the chart's full natural size until it's resized.
   const { boxHeightPx } = resolveChartLayout({
     heightAttr: height,
-    autoHeightSentinel: DEFAULT_CHART_HEIGHT,
+    heightIsAuto: isAutoHeight(height, heightIsAuto),
     naturalHeightPx: naturalHeight,
     isMultiView,
   })
@@ -98,7 +98,10 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
   const openModal = () => setIsModalOpen(true)
 
   const setHeight = (value: number) => {
-    setAttributes({ height: Math.max(MIN_CHART_HEIGHT, Math.round(value)) })
+    setAttributes({
+      height: Math.max(MIN_CHART_HEIGHT, Math.round(value)),
+      heightIsAuto: false,
+    })
   }
 
   useEffect(() => {
@@ -201,6 +204,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
             <ChartPreview
               spec={spec}
               height={height}
+              heightIsAuto={heightIsAuto}
               caption={caption}
               onNaturalHeightChange={handleNaturalHeightChange}
             />

@@ -8,9 +8,10 @@ import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import {
-  DEFAULT_CHART_HEIGHT,
+  isAutoHeight,
   isMultiViewSpec,
   resolveChartLayout,
+  specHasData,
   wouldSideScrollOnMobile,
 } from "./chartSpec"
 
@@ -42,6 +43,7 @@ export const chartCaptionStyle = css`
 interface ChartPreviewProps {
   spec: string
   height: number
+  heightIsAuto?: boolean | undefined
   caption?: string
   showCaption?: boolean
   /** Reports the chart's natural (unscaled) rendered height so a caller can size its box to match.
@@ -56,6 +58,7 @@ interface ChartPreviewProps {
 const ChartPreview: React.FC<ChartPreviewProps> = ({
   spec,
   height,
+  heightIsAuto,
   caption,
   showCaption,
   onNaturalHeightChange,
@@ -157,7 +160,7 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
     }
   })()
 
-  const hasData = Boolean(parsedSpec?.data)
+  const hasData = specHasData(parsedSpec)
   const multiView = isMultiViewSpec(parsedSpec)
 
   // Vega uses `description` as the chart's accessible name; fall back to the caption.
@@ -180,7 +183,7 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
 
   const { boxHeightPx, scale } = resolveChartLayout({
     heightAttr: height,
-    autoHeightSentinel: DEFAULT_CHART_HEIGHT,
+    heightIsAuto: isAutoHeight(height, heightIsAuto),
     naturalHeightPx: naturalHeight,
     isMultiView: multiView,
   })

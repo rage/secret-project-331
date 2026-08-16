@@ -15,6 +15,9 @@ interface ChartBlockAttributes {
   caption: string
   /** Chart height in pixels; width is responsive. */
   height: number
+  /** Whether `height` is still the automatic size rather than one the teacher picked. Absent on
+   * blocks saved before the attribute existed. */
+  heightIsAuto?: boolean
 }
 
 const MIN_HEIGHT = 200
@@ -32,16 +35,40 @@ const isMultiViewSpec = (parsed: unknown): boolean =>
   parsed !== null &&
   MULTI_VIEW_KEYS.some((key) => key in (parsed as Record<string, unknown>))
 
+// Vega-Lite allows `data` on any view, not just the top level: a layered or concatenated chart
+// whose views come from different files has none there at all.
+const SUB_SPEC_KEYS = ["layer", "hconcat", "vconcat", "concat", "spec"] as const
+
+const specHasData = (parsed: unknown): boolean => {
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    return false
+  }
+  const record = parsed as Record<string, unknown>
+  if (record.data) {
+    return true
+  }
+  return SUB_SPEC_KEYS.some((key) => {
+    const value = record[key]
+    return Array.isArray(value) ? value.some((view) => specHasData(view)) : specHasData(value)
+  })
+}
+
+// Blocks saved before the heightIsAuto attribute existed have no flag; there the default height was
+// what marked "not sized yet".
+const isAutoHeight = (heightAttr: number, heightIsAuto: boolean | undefined): boolean =>
+  heightIsAuto ?? heightAttr === DEFAULT_CHART_HEIGHT
+
 const resolveChartLayout = (args: {
   heightAttr: number
+  heightIsAuto: boolean
   naturalHeightPx: number | null
   isMultiView: boolean
 }): { boxHeightPx: number; scale: number } => {
-  const { heightAttr, naturalHeightPx, isMultiView } = args
+  const { heightAttr, heightIsAuto, naturalHeightPx, isMultiView } = args
   if (!isMultiView || !naturalHeightPx || naturalHeightPx <= 0) {
     return { boxHeightPx: heightAttr, scale: 1 }
   }
-  const target = heightAttr === DEFAULT_CHART_HEIGHT ? naturalHeightPx : heightAttr
+  const target = heightIsAuto ? naturalHeightPx : heightAttr
   return { boxHeightPx: target, scale: Math.min(1, target / naturalHeightPx) }
 }
 
@@ -49,7 +76,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
   props,
 ) => {
   const { t } = useTranslation()
-  const { spec, caption, height } = props.data.attributes
+  const { spec, caption, height, heightIsAuto } = props.data.attributes
   const containerRef = useRef<HTMLElement>(null)
   const [width, setWidth] = useState<number | null>(null)
   const [naturalHeight, setNaturalHeight] = useState<number | null>(null)
@@ -124,7 +151,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
     }
   })()
 
-  const hasData = Boolean(parsedSpec?.data)
+  const hasData = specHasData(parsedSpec)
   const multiView = isMultiViewSpec(parsedSpec)
 
   // Vega uses `description` as the chart's accessible name; fall back to the caption.
@@ -147,6 +174,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
 
   const { boxHeightPx, scale } = resolveChartLayout({
     heightAttr: height,
+    heightIsAuto: isAutoHeight(height, heightIsAuto),
     naturalHeightPx: naturalHeight,
     isMultiView: multiView,
   })

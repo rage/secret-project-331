@@ -9,8 +9,7 @@ const TEXT_MIME = "text/plain"
 
 export const VEGA_LITE_SCHEMA_URL = "https://vega.github.io/schema/vega-lite/v6.json"
 
-/** Default block height in px. For multi-view charts this doubles as the "no size chosen yet"
- * sentinel, so the chart is shown at full natural size until the teacher resizes it. */
+/** Default block height in px, used until the teacher picks one. */
 export const DEFAULT_CHART_HEIGHT = 300
 
 const MULTI_VIEW_KEYS = ["vconcat", "hconcat", "concat", "facet", "repeat"] as const
@@ -46,6 +45,36 @@ export const specDefinesView = (parsed: unknown): boolean =>
   parsed !== null &&
   VIEW_KEYS.some((key) => key in (parsed as Record<string, unknown>))
 
+// Keys whose values are themselves view specifications, each of which may carry its own data.
+const SUB_SPEC_KEYS = ["layer", "hconcat", "vconcat", "concat", "spec"] as const
+
+/**
+ * Whether the spec has a data source anywhere. Vega-Lite allows `data` on any view, not just the
+ * top level — a layered or concatenated chart whose views come from different files (what Altair
+ * writes for such charts) has no top-level `data` at all, so only checking there would call a
+ * perfectly good chart data-less.
+ */
+export const specHasData = (parsed: unknown): boolean => {
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    return false
+  }
+  const record = parsed as Record<string, unknown>
+  if (record.data) {
+    return true
+  }
+  return SUB_SPEC_KEYS.some((key) => {
+    const value = record[key]
+    return Array.isArray(value) ? value.some((view) => specHasData(view)) : specHasData(value)
+  })
+}
+
+/**
+ * Whether the chart is still at its automatic size. Blocks saved before the `heightIsAuto`
+ * attribute existed have no flag, and there the default height was what marked "not sized yet".
+ */
+export const isAutoHeight = (heightAttr: number, heightIsAuto: boolean | undefined): boolean =>
+  heightIsAuto ?? heightAttr === DEFAULT_CHART_HEIGHT
+
 export interface ChartLayout {
   /** Height of the chart's box in px — the dimension the resizable bottom edge controls. */
   boxHeightPx: number
@@ -58,20 +87,20 @@ export interface ChartLayout {
  *
  * Single-view specs size themselves via the injected height, so the box is `heightAttr` and no
  * scaling is needed. Multi-view specs render at their natural height (`naturalHeightPx`); we scale
- * them uniformly to the requested height. `heightAttr === autoHeightSentinel` means the teacher
- * hasn't chosen a size yet, so the chart shows at full natural size.
+ * them uniformly to the requested height, or show them at full natural size while `heightIsAuto`
+ * says the teacher hasn't chosen one.
  */
 export const resolveChartLayout = (args: {
   heightAttr: number
-  autoHeightSentinel: number
+  heightIsAuto: boolean
   naturalHeightPx: number | null
   isMultiView: boolean
 }): ChartLayout => {
-  const { heightAttr, autoHeightSentinel, naturalHeightPx, isMultiView } = args
+  const { heightAttr, heightIsAuto, naturalHeightPx, isMultiView } = args
   if (!isMultiView || !naturalHeightPx || naturalHeightPx <= 0) {
     return { boxHeightPx: heightAttr, scale: 1 }
   }
-  const target = heightAttr === autoHeightSentinel ? naturalHeightPx : heightAttr
+  const target = heightIsAuto ? naturalHeightPx : heightAttr
   // Cap at 1: shrinking scales the chart down; growing past natural size just adds space below
   // rather than magnifying (which would blur text and force horizontal scrolling).
   return { boxHeightPx: target, scale: Math.min(1, target / naturalHeightPx) }

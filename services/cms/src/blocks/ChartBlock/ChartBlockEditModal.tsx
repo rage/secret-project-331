@@ -8,7 +8,6 @@ import { image as icon } from "@wordpress/icons"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 
-import CourseContext from "@/contexts/CourseContext"
 import PageContext from "@/contexts/PageContext"
 import { requestChartSpecGeneration } from "@/generated/api/sdk.generated"
 import { uploadFileFromPage } from "@/services/mediaUpload"
@@ -38,6 +37,7 @@ import {
   dataUrlFromSpec,
   extractInlineData,
   specDefinesView,
+  specHasData,
   specWithDataUrl,
 } from "./chartSpec"
 import { validateChartSpec } from "./validateChartSpec"
@@ -203,9 +203,16 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   setAttributes,
 }) => {
   const { t } = useTranslation()
-  const courseId = useContext(CourseContext)?.courseId
-  const pageId = useContext(PageContext)?.page.id
-  const { spec, caption, height } = attributes
+  const page = useContext(PageContext)?.page
+  const pageId = page?.id
+  // Extracted data files upload to the same place the media picker's do: the course, or on an exam
+  // page the exam.
+  const uploadType = page?.course_id
+    ? { courseId: page.course_id }
+    : page?.exam_id
+      ? { examId: page.exam_id }
+      : null
+  const { spec, caption, height, heightIsAuto } = attributes
   const [dataFileError, setDataFileError] = useState<string | undefined>(undefined)
   const [extractedDataUrl, setExtractedDataUrl] = useState<string | undefined>(undefined)
   const [isExtractingData, setIsExtractingData] = useState(false)
@@ -269,13 +276,52 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     setAttributes({ spec: next })
   }
 
+  // Rewrites that reformat the whole spec run from here, once editing has paused: applying them per
+  // keystroke would replace the JSON editor's document and move the teacher's caret.
+  const scheduleSpecSettle = (specString: string) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+    debounceRef.current = setTimeout(() => void settleSpec(specString), DATA_EXTRACTION_DEBOUNCE_MS)
+  }
+
+  const settleSpec = async (specString: string) => {
+    await extractAndUploadInlineData(reattachDataFile(specString))
+  }
+
+  // If an edit dropped the data reference while a file is still attached, point the spec back at
+  // the file so the chart keeps its data. Returns the spec now in effect.
+  const reattachDataFile = (specString: string): string => {
+    if (!attachedDataUrl) {
+      return specString
+    }
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(specString)
+    } catch {
+      return specString
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || specHasData(parsed)) {
+      return specString
+    }
+    const rebound = specWithDataUrl(specString, attachedDataUrl)
+    if (!rebound) {
+      return specString
+    }
+    const next = JSON.stringify(rebound, null, 2)
+    updateSpec(next)
+    return next
+  }
+
   // Move a pasted spec's inline data into a saved file and point the spec at it by URL.
   const extractAndUploadInlineData = async (specString: string) => {
-    if (!courseId || extractingRef.current) {
+    const extracted = extractInlineData(specString)
+    if (!extracted || !uploadType) {
       return
     }
-    const extracted = extractInlineData(specString)
-    if (!extracted) {
+    if (extractingRef.current) {
+      // Try again once the in-flight upload finishes, instead of leaving this edit's data inline.
+      scheduleSpecSettle(specString)
       return
     }
     extractingRef.current = true
@@ -289,7 +335,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
           type: extracted.mime,
         },
       )
-      const uploaded = await uploadFileFromPage(file, { courseId })
+      const uploaded = await uploadFileFromPage(file, uploadType)
       // Don't clobber edits made while the upload was in flight.
       if (latestSpecRef.current !== specString) {
         return
@@ -310,42 +356,17 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
 
   const handleSpecChange = (value: string | undefined) => {
     const next = value ?? ""
-    // If a valid edit dropped the data reference while a file is still attached, re-bind it so the
-    // chart keeps its data.
-    let toSave = next
-    try {
-      const parsed = JSON.parse(next)
-      if (
-        parsed &&
-        typeof parsed === "object" &&
-        !Array.isArray(parsed) &&
-        !parsed.data &&
-        attachedDataUrl
-      ) {
-        const rebound = specWithDataUrl(next, attachedDataUrl)
-        if (rebound) {
-          toSave = JSON.stringify(rebound, null, 2)
-        }
-      }
-    } catch {
-      // Invalid JSON mid-edit; save as-is and re-bind once it's valid again.
-    }
-    updateSpec(toSave)
+    updateSpec(next)
     // Caption and the spec's `description` mirror each other; last edit wins.
     try {
-      const description = JSON.parse(toSave)?.description
+      const description = JSON.parse(next)?.description
       if (typeof description === "string" && description.trim() && description !== caption) {
         setAttributes({ caption: description })
       }
     } catch {
       // Mid-edit invalid JSON; the caption syncs on the next valid state.
     }
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
-    }
-    debounceRef.current = setTimeout(() => {
-      void extractAndUploadInlineData(toSave)
-    }, DATA_EXTRACTION_DEBOUNCE_MS)
+    scheduleSpecSettle(next)
   }
 
   // Instruction that asks the model to repair a spec, embedding the renderer's error. Not
@@ -455,14 +476,21 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     try {
       const parsed = JSON.parse(latestSpecRef.current)
       if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        if (value.trim()) {
-          parsed.description = value
-        } else {
-          delete parsed.description
+        const wanted = value.trim() ? value : undefined
+        const current = typeof parsed.description === "string" ? parsed.description : undefined
+        // Skip the rewrite when the spec already says this — notably when this change is the echo
+        // of a caption a spec edit just synced, where re-serializing would replace the JSON
+        // editor's document under the teacher's caret.
+        if (current !== wanted) {
+          if (wanted) {
+            parsed.description = wanted
+          } else {
+            delete parsed.description
+          }
+          const nextSpec = JSON.stringify(parsed, null, 2)
+          latestSpecRef.current = nextSpec
+          attrs.spec = nextSpec
         }
-        const nextSpec = JSON.stringify(parsed, null, 2)
-        latestSpecRef.current = nextSpec
-        attrs.spec = nextSpec
       }
     } catch {
       // Spec isn't valid JSON right now; only the caption updates.
@@ -507,6 +535,10 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   }
 
   const handleDataFileRemove = () => {
+    // Drop a pending settle: it would re-attach the file being removed.
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
     setExtractedDataUrl(undefined)
     setAttachedDataUrl(undefined)
     let parsed: Record<string, unknown>
@@ -1022,6 +1054,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               <ChartPreview
                 spec={spec}
                 height={height}
+                heightIsAuto={heightIsAuto}
                 caption={caption}
                 showCaption
                 warnOnMobileOverflow

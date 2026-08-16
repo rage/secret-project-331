@@ -84,6 +84,7 @@ export type ButtonProps = PressHandlers & {
   className?: string
   children?: React.ReactNode
   domProps?: ButtonDomProps
+  "data-testid"?: string | undefined
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -117,6 +118,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       domProps,
       name,
+      "data-testid": dataTestId,
     } = props
 
     const { t } = useTranslation("shared-module")
@@ -180,6 +182,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={rootClassName}
         data-pressed={isPressed ? "true" : "false"}
         data-disabled-reason={isLoading ? "loading" : isDisabled ? "disabled" : undefined}
+        data-testid={dataTestId}
         aria-busy={isLoading ? "true" : undefined}
         formAction={formAction}
         disabled={isDisabled}

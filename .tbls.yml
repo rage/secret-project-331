@@ -85,9 +85,9 @@ viewpoints:
           - credit_registration_daily_snapshots
       - name: Legacy pull-flow mirror
         desc: >-
-          The push path mirrors its registrations into the pre-existing pull-flow ledger under a
-          registrar of its own, which keeps the existing teacher views and the pull API working
-          while modules move over one at a time.
+          The push path mirrors its registrations into the pre-existing pull-flow ledger with no
+          registrar named, which keeps the existing teacher views and the pull API working while
+          modules move over one at a time.
         tables:
           - study_registry_registrars
           - course_module_completion_registered_to_study_registries

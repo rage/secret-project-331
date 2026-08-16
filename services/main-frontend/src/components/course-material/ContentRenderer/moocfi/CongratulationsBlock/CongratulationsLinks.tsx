@@ -6,8 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import { Link } from "@/shared-module/components"
+import { Button, Link } from "@/shared-module/components"
 
 const COMPLETION_REGISTRATION_BASE_PATH = `/completion-registration`
 const GENERATE_CERTIFICATE_BASE_PATH = `/generate-certificate`
@@ -54,6 +53,12 @@ export interface CongratulationsLinksProps {
   module: UserModuleCompletionStatus
 }
 
+export const moduleOffersCreditOrCompletionRegistration = (
+  module: UserModuleCompletionStatus,
+): boolean =>
+  module.enable_credit_registration_via_suotar ||
+  module.enable_registering_completion_to_uh_open_university
+
 const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLinksProps>> = ({
   certificateConfigurationId,
   module,
@@ -72,10 +77,15 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
         }
       `}
     >
-      {module.enable_registering_completion_to_uh_open_university && (
+      {/* Same page for both flows, but on the new one the student does no registering themselves. */}
+      {moduleOffersCreditOrCompletionRegistration(module) && (
         <Cta
           href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
-          label={t("register")}
+          label={
+            module.enable_credit_registration_via_suotar
+              ? t("credit-registration-status")
+              : t("register")
+          }
           enabled={Boolean(module.completed)}
         />
       )}

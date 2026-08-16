@@ -12,6 +12,8 @@ import type {
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { includeIf } from "@/shared-module/common/utils/nullability"
+import { getSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"
@@ -49,13 +51,16 @@ const useChatbotStateAndData = (
     messages: [],
   })
 
-  const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId)
+  const anonymousToken = getSavedChatbotAnonymousToken()
+
+  const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId, anonymousToken)
   const newConversationMutation = useNewConversationMutation(
     chatbotConfigurationId,
     currentConversationInfo,
     setNewMessage,
     setError,
   )
+
   const newMessageMutation = useToastMutation(
     async (messageToSend: string) => {
       setChatbotMessageAnnouncement("")
@@ -80,6 +85,11 @@ const useChatbotStateAndData = (
           chatbot_configuration_id: chatbotConfigurationId,
           conversation_id: currentConversationInfo.data.current_conversation.id,
         },
+        ...includeIf(anonymousToken, {
+          headers: {
+            authorization: `Bearer ${anonymousToken}`,
+          },
+        }),
         responseStyle: "data",
         url: SEND_CHATBOT_MESSAGE_PATH,
       })

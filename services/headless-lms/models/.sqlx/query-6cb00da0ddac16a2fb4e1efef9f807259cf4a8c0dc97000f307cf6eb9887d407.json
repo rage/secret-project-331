@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_account_linking_emails\nSET email_delivery_id = $2\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6cb00da0ddac16a2fb4e1efef9f807259cf4a8c0dc97000f307cf6eb9887d407"
+}

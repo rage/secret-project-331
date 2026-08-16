@@ -5,19 +5,23 @@ import Script from "next/script"
 import React, { Suspense, useEffect } from "react"
 
 import DesignTokensRoot from "@/components/DesignTokensRoot"
-import Layout from "@/components/Layout"
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper"
 import { AriaRouterProvider } from "@/components/providers/AriaRouterProvider"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { installGlobalErrorReporting } from "@/shared-module/common/errors/installGlobalErrorReporting"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/constants"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import "react-medium-image-zoom/dist/styles.css"
 
 const SERVICE_NAME = "main-frontend"
+
+const DynamicToaster = dynamicImport<Record<string, never>>(
+  () => import("@/shared-module/common/components/Notifications/ToasterNotifications"),
+)
 
 const RootLayout = ({
   children,
@@ -30,8 +34,6 @@ const RootLayout = ({
     installGlobalErrorReporting({ service: SERVICE_NAME })
   }, [])
 
-  // @ts-expect-error: custom prop
-  const noVisibleLayout = Boolean(children?.noVisibleLayout)
   return (
     <html lang="en" dir={getDir("en")}>
       <body>
@@ -41,9 +43,8 @@ const RootLayout = ({
         </Script>
         <AriaRouterProvider>
           <Suspense fallback={<Spinner />}>
-            <ClientLayoutWrapper>
-              <Layout noVisibleLayout={noVisibleLayout}>{children}</Layout>
-            </ClientLayoutWrapper>
+            <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+            <DynamicToaster />
           </Suspense>
         </AriaRouterProvider>
       </body>

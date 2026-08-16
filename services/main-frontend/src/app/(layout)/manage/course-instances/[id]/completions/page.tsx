@@ -1,0 +1,414 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { maxBy } from "lodash"
+import { useParams } from "next/navigation"
+import React, { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
+
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
+import { useTeacherCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
+import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
+import FullWidthTable from "@/components/tables/FullWidthTable"
+import {
+  getCourseInstanceCompletionsOptions,
+  getCourseInstanceOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  createCourseInstanceCompletions,
+  previewCourseInstanceCompletions,
+} from "@/generated/api/sdk.generated"
+import type {
+  CourseModuleCompletionWithRegistrationInfo,
+  ManualCompletionPreview,
+  TeacherManualCompletionRequest,
+  UserWithModuleCompletions,
+} from "@/generated/api/types.generated"
+import CaretDownIcon from "@/imgs/caret-down.svg"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button, QueryResult } from "@/shared-module/components"
+
+import ChapterPointsDashboard from "../ChapterPointsDashboard"
+import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
+import type { UserCompletionRowUser } from "../UserCompletionRow"
+import UserCompletionRow from "../UserCompletionRow"
+import CompletionsExportButton from "./CompletionsExportButton"
+
+const EMAIL = "email"
+const NAME = "name"
+const NUMBER = "number"
+
+const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
+
+interface Sorting {
+  type: string
+  data: string | null
+}
+
+const CompletionsPage: React.FC = () => {
+  const { t } = useTranslation()
+  const params = useParams<{ id: string }>()
+  const courseInstanceId = params.id
+
+  const courseInstanceQuery = useQuery({
+    ...getCourseInstanceOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+  })
+
+  usePageTitle(
+    courseInstanceQuery.isLoading
+      ? null
+      : joinTitleSegments([
+          t("completions"),
+          courseInstanceQuery.data?.name || t("default-instance"),
+        ]),
+    { order: 10 },
+  )
+
+  const crumbs = useMemo(() => [{ isLoading: false as const, label: t("completions") }], [t])
+
+  useRegisterBreadcrumbs({
+    key: `course-instance:${courseInstanceId}:completions`,
+    order: 60,
+    crumbs,
+  })
+  const getCompletionsList = useQuery({
+    ...getCourseInstanceCompletionsOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+    select: (completions) => {
+      const sortedCourseModules = completions.course_modules.toSorted(
+        (a, b) => a.order_number - b.order_number,
+      )
+      return {
+        sortedCourseModules,
+        users: completions.users_with_course_module_completions.map(prepareUser),
+      }
+    },
+  })
+
+  const listedUserIds = useMemo(
+    () => getCompletionsList.data?.users.map((user) => user.userId) ?? [],
+    [getCompletionsList.data],
+  )
+  const creditRegistrationsQuery = useTeacherCreditRegistrations(
+    courseInstanceQuery.data?.course_id ?? null,
+    listedUserIds,
+  )
+  const creditRegistrations = creditRegistrationsQuery.data ?? EMPTY_CREDIT_REGISTRATIONS
+
+  const [showForm, setShowForm] = useState(false)
+  const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
+  const [completionFormData, setCompletionFormData] =
+    useState<TeacherManualCompletionRequest | null>(null)
+  const [previewData, setPreviewData] = useState<ManualCompletionPreview | null>(null)
+  const mutation = useToastMutation(
+    (data: TeacherManualCompletionRequest) =>
+      createCourseInstanceCompletions({
+        body: data,
+        path: {
+          course_instance_id: courseInstanceId,
+        },
+      }),
+    { notify: true, method: "POST", successMessage: t("completions-submitted-successfully") },
+    {
+      onSuccess: () => {
+        setCompletionFormData(null)
+        setPreviewData(null)
+        setShowForm(false)
+        getCompletionsList.refetch()
+      },
+    },
+  )
+
+  function sortUsers(first: UserCompletionRowUser, second: UserCompletionRowUser): number {
+    if (sorting.type === NUMBER) {
+      return first.userId.localeCompare(second.userId)
+    } else if (sorting.type === NAME) {
+      return `${first.lastName} ${first.firstName}`.localeCompare(
+        `${second.lastName} ${second.firstName}`,
+      )
+    } else if (sorting.type === EMAIL) {
+      return first.email.localeCompare(second.email)
+    }
+    return (
+      (maxBy(second.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0) -
+      (maxBy(first.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0)
+    )
+  }
+
+  const handlePostCompletionsPreview = async (
+    data: TeacherManualCompletionRequest,
+  ): Promise<void> => {
+    setCompletionFormData(data)
+    const previewDataFromBackend = await previewCourseInstanceCompletions({
+      body: data,
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    })
+
+    const updatedAlreadyCompletedUsers = previewDataFromBackend.already_completed_users.map(
+      (user) => {
+        const existingUser = getCompletionsList.data?.users.find((u) => u.userId === user.user_id)
+        if (!existingUser) {
+          return { ...user, previous_best_grade: null }
+        }
+
+        const completions = existingUser.moduleCompletions.get(data.course_module_id)
+        const bestGrade = completions
+          ? completions.reduce((max, curr) => {
+              let gradeValue: number
+
+              if (curr.grade !== null && curr.grade !== undefined) {
+                gradeValue = curr.grade
+              } else if (curr.passed) {
+                gradeValue = 0.5 // "pass"
+              } else {
+                gradeValue = -1 // "fail"
+              }
+
+              return gradeValue > max ? gradeValue : max
+            }, -1)
+          : null
+
+        return {
+          ...user,
+          previous_best_grade: bestGrade,
+        }
+      },
+    )
+
+    setPreviewData({
+      ...previewDataFromBackend,
+      already_completed_users: updatedAlreadyCompletedUsers,
+    })
+  }
+
+  return (
+    <>
+      <div
+        className={css`
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 2rem;
+
+          ${respondToOrLarger.md} {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0;
+          }
+        `}
+      >
+        <h2
+          className={css`
+            margin: 0;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            overflow-wrap: break-word;
+
+            ${respondToOrLarger.md} {
+              font-size: 1.8rem;
+            }
+          `}
+        >
+          {t("completions")}: {courseInstanceId}
+        </h2>
+        <CompletionsExportButton courseInstanceId={courseInstanceId} />
+      </div>
+
+      <QueryResult query={getCompletionsList}>
+        {(data) => (
+          <>
+            <div
+              className={css`
+                margin-bottom: 2rem;
+              `}
+            >
+              <ChapterPointsDashboard
+                chapterScores={data.sortedCourseModules.map((module) => ({
+                  id: module.id,
+                  name: module.name ?? t("label-default"),
+                  value: `${
+                    data.users.filter(
+                      (user) => (user.moduleCompletions.get(module.id) ?? []).length > 0,
+                    ).length
+                  }/${data.users.length}`,
+                }))}
+                userCount={data.users.length}
+              />
+            </div>
+
+            <div
+              className={css`
+                margin-bottom: 2rem;
+                padding: 1.5rem;
+                background: #f8f9fa;
+                border-radius: 8px;
+              `}
+            >
+              <Button
+                variant="primary"
+                size="small"
+                onClick={() => setShowForm(!showForm)}
+                className={css`
+                  margin-bottom: ${showForm ? "1.5rem" : "0"};
+                `}
+              >
+                {t("manually-add-completions")}
+              </Button>
+              {showForm && (
+                <div
+                  className={css`
+                    background: white;
+                    padding: 1.5rem;
+                    border-radius: 6px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                  `}
+                >
+                  <AddCompletionsForm
+                    onSubmit={handlePostCompletionsPreview}
+                    courseModules={data.sortedCourseModules}
+                    submitText={t("button-text-check")}
+                  />
+                  {previewData && completionFormData && (
+                    <CompletionRegistrationPreview
+                      manualCompletionPreview={previewData}
+                      onSubmit={(options) => {
+                        mutation.mutate({
+                          ...completionFormData,
+                          skip_duplicate_completions: options.skipDuplicateCompletions,
+                        })
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+            <FullWidthTable>
+              <thead>
+                <tr
+                  className={css`
+                    text-align: left;
+                    font-size: 13px;
+                  `}
+                >
+                  <th rowSpan={2}>
+                    {t("label-user-id")}{" "}
+                    <a
+                      href="#number"
+                      onClick={() => setSorting({ type: NUMBER, data: null })}
+                      aria-label={t("sort-by-column", { column: t("label-user-id") })}
+                    >
+                      <CaretDownIcon />
+                    </a>
+                  </th>
+                  <th rowSpan={2}>
+                    {t("student-name")}{" "}
+                    <a
+                      href="#name"
+                      onClick={() => setSorting({ type: NAME, data: null })}
+                      aria-label={t("sort-by-column", { column: t("student-name") })}
+                    >
+                      <CaretDownIcon />
+                    </a>
+                  </th>
+                  <th rowSpan={2}>
+                    {t("label-email")}{" "}
+                    <a
+                      href="#email"
+                      onClick={() => setSorting({ type: EMAIL, data: null })}
+                      aria-label={t("sort-by-column", { column: t("label-email") })}
+                    >
+                      <CaretDownIcon />
+                    </a>
+                  </th>
+                  {data.sortedCourseModules
+                    .toSorted((a, b) => a.order_number - b.order_number)
+                    .map((module) => {
+                      // oxlint-disable-next-line i18next/no-literal-string
+                      const moduleSorting = `#mod${module.order_number}`
+                      return (
+                        <th key={module.id} colSpan={2}>
+                          <div
+                            className={css`
+                              text-align: center;
+                            `}
+                          >
+                            {module.name ?? t("label-default")}{" "}
+                            <a
+                              href={moduleSorting}
+                              onClick={() => setSorting({ type: moduleSorting, data: module.id })}
+                              aria-label={t("sort-by-column", {
+                                column: module.name ?? t("label-default"),
+                              })}
+                            >
+                              <CaretDownIcon />
+                            </a>
+                          </div>
+                        </th>
+                      )
+                    })}
+                </tr>
+                <tr>
+                  {data.sortedCourseModules.map((_, i) => (
+                    <React.Fragment key={i}>
+                      <td>{t("label-grade")}</td>
+                      <td>{t("label-registered")}</td>
+                    </React.Fragment>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.users.toSorted(sortUsers).map((user) => (
+                  <UserCompletionRow
+                    key={user.userId}
+                    sortedCourseModules={data.sortedCourseModules}
+                    user={user}
+                    creditRegistrations={creditRegistrations}
+                  />
+                ))}
+              </tbody>
+            </FullWidthTable>
+            <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
+          </>
+        )}
+      </QueryResult>
+    </>
+  )
+}
+
+export default withErrorBoundary(withSignedIn(CompletionsPage))
+
+function prepareUser(user: UserWithModuleCompletions): UserCompletionRowUser {
+  const moduleCompletions = new Map<string, CourseModuleCompletionWithRegistrationInfo[]>()
+  for (const completion of user.completed_modules) {
+    const bucket = moduleCompletions.get(completion.course_module_id) ?? []
+    bucket.push(completion)
+    moduleCompletions.set(completion.course_module_id, bucket)
+  }
+  for (const completions of Array.from(moduleCompletions.values())) {
+    completions.sort((a, b) => (a.created_at >= b.created_at ? 1 : -1))
+  }
+  return {
+    moduleCompletions,
+    email: user.email,
+    firstName: user.first_name ?? null,
+    lastName: user.last_name ?? null,
+    userId: user.user_id,
+  }
+}

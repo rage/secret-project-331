@@ -10,6 +10,7 @@ use actix_web::{FromRequest, HttpRequest, Responder};
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
 use futures::Future;
+use headless_lms_models::chatbot_configurations::ChatbotConfiguration;
 use headless_lms_models::{self as models, roles::UserRole, users::User};
 use headless_lms_utils::http::REQWEST_CLIENT;
 use headless_lms_utils::services::tmc::TMCUser;
@@ -309,15 +310,40 @@ pub fn skip_authorize() -> AuthorizationToken {
 pub async fn authorize_access_to_chatbot(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
-    course_id: Option<Uuid>,
+    chatbot_configuration: &ChatbotConfiguration,
 ) -> Result<AuthorizationToken, ControllerError> {
-    let token = if let Some(course_id) = course_id {
-        authorize_access_to_course_material(conn, user_id, course_id).await?
+    let token = if chatbot_configuration.publicly_accessible {
+        skip_authorize()
     } else {
-        authorize(conn, Act::View, user_id, Res::GlobalPermissions).await?
+        match (user_id, chatbot_configuration.course_id) {
+            (Some(_), Some(course_id)) => {
+                authorize_access_to_course_material(conn, user_id, course_id).await?
+            }
+            _ => {
+                return Err(controller_err!(
+                    Unauthorized,
+                    "You are not authorized to access the chatbot.".to_string()
+                ));
+            }
+        }
     };
 
     Ok(token)
+}
+
+/// Returns the bearer token only when there is no authenticated user, for the anonymous
+/// chatbot-embed path; a logged-in request's token is never surfaced here.
+pub fn handle_anonymous_token(req: HttpRequest, user: Option<AuthUser>) -> Option<String> {
+    let anonymous_token_value = req
+        .headers()
+        .get("authorization")
+        .and_then(|anonymous_token| anonymous_token.to_str().ok()?.strip_prefix("Bearer "));
+
+    if let (Some(anonymous_token), None) = (anonymous_token_value, user) {
+        Some(anonymous_token.to_owned())
+    } else {
+        None
+    }
 }
 
 /**  Can be used to check whether user is allowed to view some course material */

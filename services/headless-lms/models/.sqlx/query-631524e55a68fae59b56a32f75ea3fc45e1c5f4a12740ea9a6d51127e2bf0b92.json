@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\",\n  MAX(started_at) AS \"last_at\"\nFROM suotar_api_calls\nWHERE started_at >= $1\n  AND deleted_at IS NULL\n  AND (\n    http_status IN (401, 403)\n    OR request_level_error_code = 'unauthorized'\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "last_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "631524e55a68fae59b56a32f75ea3fc45e1c5f4a12740ea9a6d51127e2bf0b92"
+}

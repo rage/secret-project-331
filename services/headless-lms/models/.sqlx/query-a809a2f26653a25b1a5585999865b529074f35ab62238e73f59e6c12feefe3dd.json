@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET sisu_attainment_id = $2,\n  sisu_attainment_type = $3\nWHERE id = $1\n  AND deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM credit_registrations other\n    WHERE other.sisu_attainment_id = $2\n      AND other.deleted_at IS NULL\n      AND other.id <> $1\n  )\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "a809a2f26653a25b1a5585999865b529074f35ab62238e73f59e6c12feefe3dd"
+}

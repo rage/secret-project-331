@@ -116,6 +116,7 @@ pub async fn test_config() -> ServerConfig {
             },
         },
         redis_url: SecretString::new("redis://example.com".into()),
+        mock_suotar_redis_db_index: 2,
         jwt_password: SecretString::new(
             "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
         ),

@@ -933,6 +933,271 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids": {
+      "post": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The\nregistrations of the named students, for the students tab's current page.",
+        "operationId": "getCourseCreditRegistrationsForUsers",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseCreditRegistrationUserIdsPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The named students' registrations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseCreditRegistration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list": {
+      "get": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the\ncourse's registrations, filtered by state and searched by student name, email or student number.",
+        "operationId": "getCourseCreditRegistrations",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number, from 1",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Rows per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Student name, email or student number",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Ledger state filter",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/CreditRegistrationState"
+            }
+          },
+          {
+            "name": "course_instance_id",
+            "in": "query",
+            "description": "Course instance filter",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of the course's registrations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseCreditRegistrationsPage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs": {
+      "get": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs` - The\ncourse's per-module credit registration configuration.",
+        "operationId": "getCourseCreditRegistrationModuleConfigs",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The course's per-module configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseCreditRegistrationModuleConfigs"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email": {
+      "post": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nPOST\n`/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off\nanother account-linking mail for one person on this course.\n\nThe target has to be on this course's roster in the study registry and hold no link with us. The caps\nof the ordinary claim path apply and nothing here relaxes them.",
+        "operationId": "resendCourseCreditRegistrationLinkingEmail",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendLinkingEmailPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the attempt did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendLinkingEmailResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Nothing named, or this teacher has set off too many mails this hour"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary": {
+      "get": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module\ncounts plus the two reasons a student of this course will not get credits.",
+        "operationId": "getCourseCreditRegistrationSummary",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The course's credit registration summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseCreditRegistrationSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}": {
+      "get": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One\nregistration with its timeline and the other attempts for the same completion.\n\nAuthorized on the row's own course: a course id from the caller would let a teacher of one course pair\nit with a foreign registration id.",
+        "operationId": "getCreditRegistrationDetails",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The registration with its timeline",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditRegistrationDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such registration"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-instances/{course_instance_id}": {
       "get": {
         "tags": ["course-instances"],
@@ -6509,6 +6774,979 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the\nper-realisation counters, the send-status totals and the stale-address list.",
+        "operationId": "getAccountLinkingStats",
+        "parameters": [
+          {
+            "name": "window_days",
+            "in": "query",
+            "description": "Window for the windowed funnel steps, in days",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Where account linking stands",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountLinkingStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student\nnumber to an account on an admin's judgement.\n\nThe last resort, for a student whose mailbox host will not accept our mail at all. An admin's judgement\nstands in for proof of mailbox control, so the link is marked `admin_manual` forever, carries the\nreason and names the admin.",
+        "operationId": "adminManuallyLinkStudentNumber",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminManuallyLinkStudentNumberPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the attempt did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminManuallyLinkStudentNumberResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "No reason, no student number, or no person id from the preview"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/resend": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another\naccount-linking mail for one person on one course.\n\nThe mail goes to the addresses the study registry holds, and the recipient still has to open the link\nwhile signed in, so the ownership proof is intact. An override does not ask a cap for an exemption: it\nretires the ledger rows the cap is counting, as its own audited action, then runs the ordinary path.",
+        "operationId": "adminResendAccountLinkingEmail",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminResendAccountLinkingEmailPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the attempt did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminResendAccountLinkingEmailResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "An override without a reason, or too soon after the last resend"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one\nstudent number up in the study registry without changing anything.\n\nThe preview a manual link is gated on. Writes nothing but the call log row every study registry call\nwrites.",
+        "operationId": "adminResolveStudentNumberForLinking",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminResolveStudentNumberPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Who the study registry says the number belongs to",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminResolveStudentNumberResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "No student number given"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/materialize": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible\ncompletions and recomputes preconditions, now.\n\nRuns the two database-only steps directly rather than through the phase dispatcher, because the\nphase-state row describes the worker loops: an admin pressing a button must not make a dead worker look\nalive.",
+        "operationId": "adminMaterializeCreditRegistrations",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMaterializePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "How many rows were created and moved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMaterializeResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/overview": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/overview` - Everything the Overview tab and the\nalert banner render, in one request so the tiles cannot contradict each other.",
+        "operationId": "getCreditRegistrationOverview",
+        "responses": {
+          "200": {
+            "description": "Counts, throughput, phase heartbeats and the active alerts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditRegistrationOverview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the\nworker loop skips it on every tick until it is resumed.",
+        "operationId": "adminPausePhase",
+        "parameters": [
+          {
+            "name": "phase",
+            "in": "path",
+            "description": "One of the twelve canonical phase names",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPausePhasePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The phase's status after pausing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditRegistrationPhaseStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "No reason given, or not one of the canonical phase names"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused\nphase.",
+        "operationId": "adminResumePhase",
+        "parameters": [
+          {
+            "name": "phase",
+            "in": "path",
+            "description": "One of the twelve canonical phase names",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPhaseActionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The phase's status after resuming",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditRegistrationPhaseStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not one of the canonical phase names"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due\nimmediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.",
+        "operationId": "adminRunPhaseNow",
+        "parameters": [
+          {
+            "name": "phase",
+            "in": "path",
+            "description": "One of the twelve canonical phase names",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPhaseActionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The phase's status after being made due",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditRegistrationPhaseStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not one of the canonical phase names"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/registrations": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered\nand sorted.",
+        "operationId": "listCreditRegistrationsForAdmin",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number, from 1",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Rows per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Ledger states; repeat the parameter for several",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CreditRegistrationState"
+              }
+            }
+          },
+          {
+            "name": "error_code",
+            "in": "query",
+            "description": "Error codes; repeat the parameter for several",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            }
+          },
+          {
+            "name": "course_id",
+            "in": "query",
+            "description": "Course filter",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_module_id",
+            "in": "query",
+            "description": "Course module filter",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "description": "Student filter",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "student_number",
+            "in": "query",
+            "description": "Exact student number, frozen on the row or linked to the account",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "needs_admin_attention",
+            "in": "query",
+            "description": "Only rows asking for a human",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "submitted_after",
+            "in": "query",
+            "description": "Submitted at or after",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "submitted_before",
+            "in": "query",
+            "description": "Submitted at or before",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Name, email, student number, attainment id, stored error text, or a uuid",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_superseded",
+            "in": "query",
+            "description": "Include replaced attempts",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "last_activity, created, time_in_state or attempts",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of the ledger",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCreditRegistrationsPage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}` - One\nrow with its timeline, the calls that timeline refers to, the other attempts for the same completion,\nthe actions taken on it and its linking mails.",
+        "operationId": "getCreditRegistrationForAdmin",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The row and everything that happened to it",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCreditRegistrationDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such registration"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`\n- Moves one row by hand.\n\nThe escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because\nre-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because\na `misregistered` row sits outside the automatic machinery that would otherwise have checked it.",
+        "operationId": "adminTransitionCreditRegistration",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminTransitionCreditRegistrationPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the transition did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminTransitionCreditRegistrationResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such registration"
+          },
+          "422": {
+            "description": "No reason given"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/student-numbers": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/student-numbers` - A page of the live links, for\nspot-checking and support.",
+        "operationId": "listVerifiedStudentNumbersForAdmin",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number, from 1",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Rows per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "verified_via",
+            "in": "query",
+            "description": "How the link was established",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/StudentNumberVerificationMethod"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Student number, name or email",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of the live links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminVerifiedStudentNumbersPage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/student-numbers/{verified_student_number_id}/unlink": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/student-numbers/{id}/unlink` - Retires one link.\n\nA reason is required, so the request carries a body rather than being a `DELETE`. The row is\nsoft-deleted: the number a student once held is part of the audit trail.",
+        "operationId": "adminUnlinkStudentNumber",
+        "parameters": [
+          {
+            "name": "verified_student_number_id",
+            "in": "path",
+            "description": "Verified student number id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUnlinkStudentNumberPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "How many registrations went back to waiting",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUnlinkStudentNumberResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such link"
+          },
+          "422": {
+            "description": "No reason given"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/suotar-health": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/suotar-health` - Per-endpoint call counts,\nsuccess rates and latency percentiles over an hour, a day and a week.",
+        "operationId": "getSuotarHealth",
+        "responses": {
+          "200": {
+            "description": "Study registry traffic per endpoint and window",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuotarHealth"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - The signed-in\naccount's credit registration consent for one course.",
+        "operationId": "getMyCourseCreditRegistrationConsent",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's consent for the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCourseCreditRegistrationConsent"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in\naccount's answer and applies it to that course's registrations at once.",
+        "operationId": "setMyCourseCreditRegistrationConsent",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetMyCourseCreditRegistrationConsentPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The recorded answer and what it unblocked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetMyCourseCreditRegistrationConsentResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my` - Every credit registration of the signed-in\naccount, newest completion first.",
+        "operationId": "getMyCreditRegistrations",
+        "responses": {
+          "200": {
+            "description": "The caller's credit registrations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCreditRegistration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The\nsigned-in account's registration for one course module, or null when the pipeline has not created one\nyet.",
+        "operationId": "getMyCreditRegistrationForCourseModule",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's registration for the module",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MyCreditRegistrationForCourseModule"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/consents": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my/consents` - One row per course the signed-in\naccount is enrolled on that offers credit registration, asked or not.",
+        "operationId": "getMyCreditRegistrationConsents",
+        "responses": {
+          "200": {
+            "description": "The caller's per-course consents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCreditRegistrationConsent"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/student-number": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my/student-number` - The student number linked to the\nsigned-in account, or null.",
+        "operationId": "getMyVerifiedStudentNumber",
+        "responses": {
+          "200": {
+            "description": "The caller's linked student number",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MyVerifiedStudentNumber"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["credit-registrations"],
+        "summary": "\nDELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number\nfrom the signed-in account.\n\nRegistrations that have not been sent go back to waiting; credits already in Sisu are untouched.",
+        "operationId": "unlinkMyStudentNumber",
+        "responses": {
+          "200": {
+            "description": "How many registrations went back to waiting",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnlinkMyStudentNumberResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to\nlook for an enrolment again, for a row parked because the study registry had none.",
+        "operationId": "requestCreditRegistrationEnrolmentRecheck",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether a recheck was started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestCreditRegistrationEnrolmentRecheckResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The registration is not waiting for an enrolment"
+          },
+          "403": {
+            "description": "Not the caller's registration"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the\nmailed link would link, without linking it.\n\nWrites nothing: the link has to survive a mail scanner fetching it.",
+        "operationId": "previewStudentNumberVerificationToken",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "The mailed verification token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "What the token would link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentNumberVerificationTokenPreview"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such token"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends\na mailed link and links the student number to the signed-in account.\n\nAny signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,\nand the session says which of our accounts the person wants to use.",
+        "operationId": "claimStudentNumberVerificationToken",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "The mailed verification token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "What the claim did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimStudentNumberVerificationTokenResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such token"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/email-templates": {
       "get": {
         "tags": ["email_templates"],
@@ -11287,6 +12525,306 @@
   },
   "components": {
     "schemas": {
+      "AccountLinkingFailureDomain": {
+        "type": "object",
+        "description": "Hard send failures grouped by recipient domain.",
+        "required": ["domain", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "domain": {
+            "type": "string"
+          }
+        }
+      },
+      "AccountLinkingFunnel": {
+        "type": "object",
+        "description": "The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites\nwhole, the `_in_window` ones from the window: there is no single denominator.",
+        "required": [
+          "persons_discovered_last_run",
+          "already_linked_last_run",
+          "mails_claimed_in_window",
+          "mails_sent_in_window",
+          "numbers_claimed_in_window",
+          "manual_links_in_window",
+          "suppressed_by_dedup_last_run",
+          "suppressed_by_rate_cap_last_run",
+          "no_address_in_study_registry_last_run"
+        ],
+        "properties": {
+          "already_linked_last_run": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mails_claimed_in_window": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mails_sent_in_window": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "manual_links_in_window": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Never folded into the claimed count: an admin's judgement is not a claim."
+          },
+          "no_address_in_study_registry_last_run": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "numbers_claimed_in_window": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "persons_discovered_last_run": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "suppressed_by_dedup_last_run": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "suppressed_by_rate_cap_last_run": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AccountLinkingRealisationCounters": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "course_name",
+          "course_module_id",
+          "course_unit_realisation_id",
+          "consecutive_listing_failures"
+        ],
+        "properties": {
+          "already_linked_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "consecutive_listing_failures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "course_unit_realisation_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": ["string", "null"]
+          },
+          "last_listed_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the counters below were collected. Not the last attempt: a failing realisation keeps the\nlast roster that arrived."
+          },
+          "last_listing_attempted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listing_error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode",
+                "description": "Set while the listing attempts since `last_listed_at` are failing, so an empty course and an\nunreachable one do not read alike."
+              }
+            ]
+          },
+          "listed_person_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "mailed_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "no_address_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Persons the registry holds no address for: the one population no remedy here can reach."
+          },
+          "suppressed_by_dedup_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "suppressed_by_rate_cap_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "AccountLinkingSendStatusTotals": {
+        "type": "object",
+        "required": ["queued", "retrying", "sent", "send_failed"],
+        "properties": {
+          "queued": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "retrying": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "send_failed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sent": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AccountLinkingStaleAddress": {
+        "type": "object",
+        "description": "A person mailed to the cap for one course whose number was never claimed.",
+        "required": [
+          "student_number",
+          "sisu_person_id",
+          "course_id",
+          "course_name",
+          "mail_count",
+          "first_sent_at",
+          "last_sent_at",
+          "addresses",
+          "send_statuses"
+        ],
+        "properties": {
+          "addresses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "In full, newest last, one per mail."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "first_sent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_sent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mail_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "send_statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailSendStatus"
+            }
+          },
+          "sisu_person_id": {
+            "type": "string"
+          },
+          "student_number": {
+            "type": "string"
+          }
+        }
+      },
+      "AccountLinkingStats": {
+        "type": "object",
+        "required": [
+          "window_secs",
+          "funnel",
+          "send_status_totals",
+          "hard_failure_domains",
+          "realisations",
+          "stale_addresses",
+          "links_total_by_method",
+          "links_in_window_by_method",
+          "waiting_for_student_number_count",
+          "max_mails_per_person_and_course",
+          "quiet_period_secs"
+        ],
+        "properties": {
+          "funnel": {
+            "$ref": "#/components/schemas/AccountLinkingFunnel"
+          },
+          "hard_failure_domains": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingFailureDomain"
+            }
+          },
+          "links_in_window_by_method": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerifiedStudentNumberMethodTotal"
+            }
+          },
+          "links_total_by_method": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerifiedStudentNumberMethodTotal"
+            }
+          },
+          "max_mails_per_person_and_course": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quiet_period_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "realisations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingRealisationCounters"
+            }
+          },
+          "send_status_totals": {
+            "$ref": "#/components/schemas/AccountLinkingSendStatusTotals"
+          },
+          "stale_addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingStaleAddress"
+            }
+          },
+          "waiting_for_student_number_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Accounts with a consented completion still waiting for a number."
+          },
+          "window_secs": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "ActivityProgress": {
         "type": "string",
         "description": "\nIndicates what is the user's completion status for a exercise.\n\nAs close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.",
@@ -11299,6 +12837,809 @@
           "email": {
             "type": "string",
             "format": "email"
+          }
+        }
+      },
+      "AdminCreditRegistrationDetails": {
+        "type": "object",
+        "required": [
+          "registration",
+          "attempts",
+          "events",
+          "suotar_api_calls",
+          "actions",
+          "linking_emails"
+        ],
+        "properties": {
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAdminActionRecord"
+            },
+            "description": "Admin and teacher actions targeting this row."
+          },
+          "attempts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCreditRegistrationRow"
+            },
+            "description": "Every attempt for the same completion, newest first, this one included."
+          },
+          "consent_given": {
+            "type": ["boolean", "null"]
+          },
+          "consent_withdrawn_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCreditRegistrationEvent"
+            }
+          },
+          "linking_emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLinkingEmail"
+            },
+            "description": "Every mail addressed to this person, on any course."
+          },
+          "registration": {
+            "$ref": "#/components/schemas/AdminCreditRegistrationRow"
+          },
+          "suotar_api_calls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminSuotarApiCall"
+            },
+            "description": "The calls the timeline refers to, newest first."
+          }
+        }
+      },
+      "AdminCreditRegistrationEvent": {
+        "type": "object",
+        "required": ["id", "created_at", "kind"],
+        "properties": {
+          "actor_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "details": {
+            "description": "The `{request, response}` pair, scrubbed at write time: names, student numbers and email\naddresses read `[redacted]` while their keys survive. The values we sent are on the row."
+          },
+          "error_code": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
+          },
+          "from_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationState"
+              }
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CreditRegistrationEventKind"
+          },
+          "message": {
+            "type": ["string", "null"],
+            "description": "Our own wording, written by the pipeline or by whoever acted."
+          },
+          "suotar_api_call_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "to_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationState"
+              }
+            ]
+          }
+        }
+      },
+      "AdminCreditRegistrationRow": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "user_id",
+          "course_id",
+          "course_name",
+          "course_module_id",
+          "course_instance_id",
+          "course_module_completion_id",
+          "completion_date",
+          "state",
+          "state_entered_at",
+          "needs_admin_attention",
+          "next_attempt_at",
+          "request_item_id",
+          "submit_retry_count",
+          "verify_attempt_count",
+          "attempt_number",
+          "superseded"
+        ],
+        "properties": {
+          "attempt_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "email": {
+            "type": ["string", "null"],
+            "description": "In full: masking it would leave support unable to answer the question they were asked."
+          },
+          "error_code": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "grade_id": {
+            "type": ["string", "null"]
+          },
+          "grade_scale_id": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_attempt_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "needs_admin_attention": {
+            "type": "boolean"
+          },
+          "next_attempt_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "registered_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "request_item_id": {
+            "type": "string"
+          },
+          "selected_enrolment_id": {
+            "type": ["string", "null"]
+          },
+          "sisu_attainment_id": {
+            "type": ["string", "null"]
+          },
+          "sisu_person_id": {
+            "type": ["string", "null"]
+          },
+          "state": {
+            "$ref": "#/components/schemas/CreditRegistrationState"
+          },
+          "state_entered_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "student_number": {
+            "type": ["string", "null"],
+            "description": "Frozen on the row before it was sent, so it is what we actually submitted."
+          },
+          "submit_retry_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "submitted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "submitted_attainment_id": {
+            "type": ["string", "null"]
+          },
+          "superseded": {
+            "type": "boolean"
+          },
+          "superseded_by_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "terminal_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "verified_student_number": {
+            "type": ["string", "null"],
+            "description": "The account's link now, which is not always the number frozen on the row."
+          },
+          "verified_student_number_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "verified_student_number_via": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StudentNumberVerificationMethod",
+                "description": "`admin_manual` means support established the link rather than the student proving it."
+              }
+            ]
+          },
+          "verify_attempt_count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AdminCreditRegistrationTransitionTarget": {
+        "type": "string",
+        "description": "What an admin may move a row to; everything else is the pipeline's to decide.",
+        "enum": ["ready_to_submit", "cancelled", "clear_needs_admin_attention", "check_now"]
+      },
+      "AdminCreditRegistrationsPage": {
+        "type": "object",
+        "required": ["data", "total_count", "total_pages"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCreditRegistrationRow"
+            }
+          },
+          "total_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "AdminLinkingEmail": {
+        "type": "object",
+        "required": [
+          "id",
+          "course_id",
+          "student_number",
+          "sisu_person_id",
+          "emailed_to",
+          "claimed_at",
+          "send_status"
+        ],
+        "properties": {
+          "claimed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "emailed_to": {
+            "type": "string",
+            "description": "In full."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "send_status": {
+            "$ref": "#/components/schemas/EmailSendStatusReport"
+          },
+          "sisu_person_id": {
+            "type": "string"
+          },
+          "student_number": {
+            "type": "string"
+          },
+          "token_claimed_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "token_expires_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "token_used_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
+      "AdminManualLinkOutcome": {
+        "type": "string",
+        "enum": [
+          "linked",
+          "student_number_not_found",
+          "preview_mismatch",
+          "already_linked_to_another_account",
+          "already_linked_to_this_account",
+          "study_registry_unavailable"
+        ]
+      },
+      "AdminManuallyLinkStudentNumberPayload": {
+        "type": "object",
+        "required": ["user_id", "student_number", "sisu_person_id", "reason"],
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "sisu_person_id": {
+            "type": "string",
+            "description": "From the preview. Re-resolved on arrival, and a mismatch is refused, so a typo cannot mint a\nlink to somebody else."
+          },
+          "student_number": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AdminManuallyLinkStudentNumberResult": {
+        "type": "object",
+        "required": ["outcome", "affected_registration_count"],
+        "properties": {
+          "affected_registration_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Registrations the link unblocked."
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AdminManualLinkOutcome"
+          },
+          "verified_student_number_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          }
+        }
+      },
+      "AdminMaterializePayload": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "AdminMaterializeResult": {
+        "type": "object",
+        "required": ["created_registration_count", "moved_registration_count"],
+        "properties": {
+          "created_registration_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "moved_registration_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminPausePhasePayload": {
+        "type": "object",
+        "required": ["reason"],
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminPhaseActionPayload": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "AdminResendAccountLinkingEmailPayload": {
+        "type": "object",
+        "required": ["student_number", "course_id", "override_rate_caps"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "override_rate_caps": {
+            "type": "boolean",
+            "description": "Retires the mails a cap is counting, then runs the ordinary send path. Requires a reason."
+          },
+          "reason": {
+            "type": ["string", "null"]
+          },
+          "student_number": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminResendAccountLinkingEmailResult": {
+        "type": "object",
+        "required": [
+          "outcome",
+          "retired_mail_count",
+          "linking_emails",
+          "mails_sent_for_this_course",
+          "max_mails_per_person_and_course",
+          "quiet_period_secs"
+        ],
+        "properties": {
+          "linking_emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLinkingEmail"
+            }
+          },
+          "mails_sent_for_this_course": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "max_mails_per_person_and_course": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AdminResendOutcome"
+          },
+          "quiet_period_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "retired_mail_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Mails retired to get past a cap. Always zero without an override."
+          }
+        }
+      },
+      "AdminResendOutcome": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "already_mailed_to_every_known_address",
+          "refused_by_rate_cap",
+          "no_address_in_study_registry",
+          "not_on_the_course_roster",
+          "already_linked",
+          "study_registry_unavailable"
+        ]
+      },
+      "AdminResolveStudentNumberPayload": {
+        "type": "object",
+        "required": ["student_number"],
+        "properties": {
+          "student_number": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminResolveStudentNumberResult": {
+        "type": "object",
+        "description": "The preview a manual link is gated on. No addresses from the registry — `resolve-persons` answers\nwith a name and an id only — so the addresses here are the ones we mailed.",
+        "required": ["found", "student_number", "study_registry_unavailable", "linking_emails"],
+        "properties": {
+          "already_linked_to_user_email": {
+            "type": ["string", "null"]
+          },
+          "already_linked_to_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "already_linked_via": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StudentNumberVerificationMethod"
+              }
+            ]
+          },
+          "code": {
+            "type": ["string", "null"],
+            "description": "The registry's own per-item code, an identifier rather than prose."
+          },
+          "first_names": {
+            "type": ["string", "null"]
+          },
+          "found": {
+            "type": "boolean"
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "linking_emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLinkingEmail"
+            }
+          },
+          "sisu_person_id": {
+            "type": ["string", "null"],
+            "description": "Echoed back to the manual-link endpoint, which refuses without it."
+          },
+          "student_number": {
+            "type": "string"
+          },
+          "study_registry_unavailable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AdminSuotarApiCall": {
+        "type": "object",
+        "required": [
+          "id",
+          "endpoint",
+          "started_at",
+          "succeeded",
+          "request_item_count",
+          "ok_item_count",
+          "error_item_count",
+          "worker_name",
+          "credit_registration_ids"
+        ],
+        "properties": {
+          "credit_registration_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "duration_ms": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "endpoint": {
+            "$ref": "#/components/schemas/SuotarEndpoint"
+          },
+          "error_item_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "http_status": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ok_item_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "request_body_sample": {
+            "description": "Scrubbed and sampled at write time."
+          },
+          "request_item_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "request_level_error_code": {
+            "type": ["string", "null"]
+          },
+          "response_body_sample": {},
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "succeeded": {
+            "type": "boolean"
+          },
+          "worker_name": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminTransitionCreditRegistrationPayload": {
+        "type": "object",
+        "required": ["to_state", "reason"],
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "to_state": {
+            "$ref": "#/components/schemas/AdminCreditRegistrationTransitionTarget"
+          }
+        }
+      },
+      "AdminTransitionCreditRegistrationResult": {
+        "type": "object",
+        "required": ["outcome", "state", "needs_admin_attention"],
+        "properties": {
+          "needs_admin_attention": {
+            "type": "boolean"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AdminTransitionOutcome"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CreditRegistrationState"
+          }
+        }
+      },
+      "AdminTransitionOutcome": {
+        "type": "string",
+        "enum": ["applied", "refused_without_consent", "no_change"]
+      },
+      "AdminUnlinkStudentNumberPayload": {
+        "type": "object",
+        "required": ["reason"],
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminUnlinkStudentNumberResult": {
+        "type": "object",
+        "required": ["affected_registration_count"],
+        "properties": {
+          "affected_registration_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Registrations that went back to waiting for a number."
+          }
+        }
+      },
+      "AdminVerifiedStudentNumberRow": {
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "student_number",
+          "sisu_person_id",
+          "verified_at",
+          "verified_via",
+          "live_registration_count"
+        ],
+        "properties": {
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "link_reason": {
+            "type": ["string", "null"]
+          },
+          "linked_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "live_registration_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sisu_person_id": {
+            "type": "string"
+          },
+          "student_number": {
+            "type": "string"
+          },
+          "user_email": {
+            "type": ["string", "null"],
+            "description": "In full."
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "verified_from_course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "verified_via": {
+            "$ref": "#/components/schemas/StudentNumberVerificationMethod"
+          },
+          "verified_via_email": {
+            "type": ["string", "null"],
+            "description": "The registry-held address the proof rests on, in full. `None` for an admin-established link."
+          }
+        }
+      },
+      "AdminVerifiedStudentNumbersPage": {
+        "type": "object",
+        "required": ["data", "total_count", "total_pages"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminVerifiedStudentNumberRow"
+            }
+          },
+          "total_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },
@@ -12223,7 +14564,8 @@
           "use_semantic_reranking",
           "use_tools",
           "default_chatbot",
-          "suggest_next_messages"
+          "suggest_next_messages",
+          "publicly_accessible"
         ],
         "properties": {
           "chatbot_name": {
@@ -12288,6 +14630,9 @@
           },
           "prompt": {
             "type": "string"
+          },
+          "publicly_accessible": {
+            "type": "boolean"
           },
           "reasoning_effort": {
             "$ref": "#/components/schemas/ReasoningEffortLevel"
@@ -12365,6 +14710,36 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "ClaimStudentNumberVerificationTokenOutcome": {
+        "type": "string",
+        "enum": [
+          "linked",
+          "already_linked_to_this_account",
+          "expired",
+          "already_used",
+          "student_number_already_linked_to_another_account"
+        ]
+      },
+      "ClaimStudentNumberVerificationTokenResult": {
+        "type": "object",
+        "required": ["outcome", "newly_unblocked_registration_count"],
+        "properties": {
+          "linked_course_name": {
+            "type": ["string", "null"]
+          },
+          "newly_unblocked_registration_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Completions that stopped waiting for a student number because of this claim."
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ClaimStudentNumberVerificationTokenOutcome"
+          },
+          "student_number": {
+            "type": ["string", "null"]
           }
         }
       },
@@ -13193,6 +15568,344 @@
           }
         }
       },
+      "CourseCreditRegistration": {
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "course_id",
+          "course_module_id",
+          "course_instance_id",
+          "course_module_completion_id",
+          "completion_date",
+          "state",
+          "state_entered_at",
+          "student_facing_status",
+          "needs_admin_attention",
+          "next_attempt_at",
+          "attempt_number",
+          "superseded"
+        ],
+        "properties": {
+          "attempt_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "enrolment_realisation_name": {
+            "type": ["string", "null"]
+          },
+          "error_code": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "grade_id": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "linking_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TeacherLinkingEmailStatus",
+                "description": "Only where we can join the account to a Sisu person, which needs a link past or present."
+              }
+            ]
+          },
+          "needs_admin_attention": {
+            "type": "boolean"
+          },
+          "next_attempt_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "registered_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "sisu_attainment_id": {
+            "type": ["string", "null"]
+          },
+          "state": {
+            "$ref": "#/components/schemas/CreditRegistrationState"
+          },
+          "state_entered_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "student_facing_status": {
+            "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus",
+            "description": "The same collapsed stage the student is shown, so both audiences read one classification."
+          },
+          "student_number": {
+            "type": ["string", "null"],
+            "description": "In full: a masked number cannot be checked against a student card."
+          },
+          "student_number_verified_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "student_number_verified_via": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StudentNumberVerificationMethod",
+                "description": "`admin_manual` means support established the link rather than the student proving it."
+              }
+            ]
+          },
+          "superseded": {
+            "type": "boolean"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseCreditRegistrationBlockedStudentCounts": {
+        "type": "object",
+        "description": "Why the course's enrolled students are not going to get credits. Neither count includes a student\nwho has both consented and linked a number.",
+        "required": ["unlinked_consented_student_count", "no_consent_student_count"],
+        "properties": {
+          "no_consent_student_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Never asked or declined."
+          },
+          "unlinked_consented_student_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Consented, but we hold no student number for them."
+          }
+        }
+      },
+      "CourseCreditRegistrationEvent": {
+        "type": "object",
+        "description": "One event of the item timeline, without the stored request and response bodies: those are the\nadmin dashboard's, and the study registry's own wording is never rendered.",
+        "required": ["id", "created_at", "kind"],
+        "properties": {
+          "actor_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "error_code": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
+          },
+          "from_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationState"
+              }
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CreditRegistrationEventKind"
+          },
+          "message": {
+            "type": ["string", "null"],
+            "description": "Our own wording, written by the pipeline or by whoever acted."
+          },
+          "to_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationState"
+              }
+            ]
+          }
+        }
+      },
+      "CourseCreditRegistrationModuleConfigs": {
+        "type": "object",
+        "description": "Every module of the course with its Suotar configuration, for the module editor.",
+        "required": ["modules", "realisations"],
+        "properties": {
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModuleCreditRegistrationConfig"
+            }
+          },
+          "realisations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModuleSuotarRealisation"
+            },
+            "description": "Every live realisation of every module of the course, to be grouped by `course_module_id`."
+          }
+        }
+      },
+      "CourseCreditRegistrationModuleSummary": {
+        "type": "object",
+        "required": [
+          "course_module_id",
+          "enabled",
+          "paused",
+          "counts_by_state",
+          "success_count",
+          "failed_permanent_count",
+          "needs_admin_attention_count"
+        ],
+        "properties": {
+          "counts_by_state": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationStateCount"
+            }
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "failed_permanent_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "`failed_permanent` only: a retrying row is still working and `misregistered` is not terminal."
+          },
+          "needs_admin_attention_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "success_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "`registered`, `duplicate` and `not_improved`: the credit exists in Sisu."
+          }
+        }
+      },
+      "CourseCreditRegistrationSummary": {
+        "type": "object",
+        "required": ["modules", "blocked_students", "linking_emails_failed_to_send_count"],
+        "properties": {
+          "blocked_students": {
+            "$ref": "#/components/schemas/CourseCreditRegistrationBlockedStudentCounts"
+          },
+          "linking_emails_failed_to_send_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Of the unlinked consented students, the ones whose linking mail we never managed to hand over."
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseCreditRegistrationModuleSummary"
+            }
+          }
+        }
+      },
+      "CourseCreditRegistrationUserIdsPayload": {
+        "type": "object",
+        "description": "Body for the students-tab batch: the users of the current identity-list page.",
+        "required": ["user_ids"],
+        "properties": {
+          "course_instance_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "user_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "CourseCreditRegistrationsPage": {
+        "type": "object",
+        "required": ["data", "total_pages"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseCreditRegistration"
+            }
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
       "CourseDesignerCourseSize": {
         "type": "string",
         "enum": ["small", "medium", "large"]
@@ -13848,7 +16561,7 @@
       },
       "CourseModule": {
         "type": "object",
-        "description": "\n * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).",
+        "description": "Like [CourseModulesSchema], but the automatic-completion columns are collapsed into\n`completion_policy`.",
         "required": [
           "id",
           "created_at",
@@ -14055,6 +16768,84 @@
           }
         }
       },
+      "CourseModuleCreditRegistrationConfig": {
+        "type": "object",
+        "description": "Per-module credit-registration configuration: the rollout switch and the module's own fields\nmerged with its `course_module_suotar_configurations` row. Every field of that row is optional\nhere because a module with no configuration row is a valid, unconfigured module.",
+        "required": ["course_module_id", "course_id", "enable_credit_registration_via_suotar"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "credit_registration_config_check_message": {
+            "type": ["string", "null"]
+          },
+          "credit_registration_config_checked_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "credit_registration_course_code_resolves": {
+            "type": ["boolean", "null"],
+            "description": "`None` means never checked, which is not the same as a failed check."
+          },
+          "credit_registration_grade_scale_id": {
+            "type": ["string", "null"],
+            "description": "`None` means derive the grade scale from the completion."
+          },
+          "credit_registration_pause_reason": {
+            "type": ["string", "null"]
+          },
+          "credit_registration_paused_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "credit_registration_paused_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "credit_registration_product_token_found": {
+            "type": ["boolean", "null"]
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
+          },
+          "open_university_product_id": {
+            "type": ["string", "null"]
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "CourseModuleCreditRegistrationEdit": {
+        "type": "object",
+        "description": "The module editor's writable half of the Suotar configuration. The pause and the\nconfig-validation verdict are not here: their writers are the admin dashboard and the pipeline.",
+        "required": ["realisations"],
+        "properties": {
+          "grade_scale_id": {
+            "type": ["string", "null"],
+            "description": "`None` means derive the grade scale from the completion."
+          },
+          "open_university_product_id": {
+            "type": ["string", "null"]
+          },
+          "realisations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModuleSuotarRealisationEdit"
+            },
+            "description": "The full set for the module; anything missing from it is soft-deleted."
+          }
+        }
+      },
       "CourseModuleInfo": {
         "type": "object",
         "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
@@ -14105,6 +16896,111 @@
           "uh_course_code": {
             "type": ["string", "null"],
             "description": "The module's course code in the university's registry, e.g. `BSCS1001`."
+          }
+        }
+      },
+      "CourseModuleSuotarRealisation": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_module_id",
+          "course_unit_realisation_id",
+          "active",
+          "consecutive_listing_failures"
+        ],
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "consecutive_listing_failures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_unit_realisation_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": ["string", "null"]
+          },
+          "last_already_linked_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_listed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listed_person_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_listing_attempted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listing_error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
+          },
+          "last_mailed_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_no_address_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_suppressed_by_dedup_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_suppressed_by_rate_cap_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseModuleSuotarRealisationEdit": {
+        "type": "object",
+        "required": ["course_unit_realisation_id", "active"],
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "course_unit_realisation_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": ["string", "null"],
+            "description": "Rendered to students as the name of the realisation their credits go against."
           }
         }
       },
@@ -14348,6 +17244,624 @@
           },
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "CreditRegistrationAdminAction": {
+        "type": "string",
+        "enum": [
+          "retry_item",
+          "retry_failed_for_course",
+          "force_recheck",
+          "mark_resolved",
+          "requeue_batch",
+          "transition_item",
+          "cancel_registration",
+          "pause_course_module",
+          "resume_course_module",
+          "pause_phase",
+          "resume_phase",
+          "run_phase_now",
+          "resend_link_email",
+          "unlink_student_number",
+          "manual_link_student_number",
+          "override_rate_cap"
+        ]
+      },
+      "CreditRegistrationAdminActionRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "action",
+          "target_kind",
+          "actor_user_id",
+          "actor_role"
+        ],
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/CreditRegistrationAdminAction"
+          },
+          "actor_course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "actor_role": {
+            "type": "string"
+          },
+          "actor_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "affected_row_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "after_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationState"
+              }
+            ]
+          },
+          "before_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationState"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "details": {},
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": ["string", "null"]
+          },
+          "target_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "target_kind": {
+            "$ref": "#/components/schemas/CreditRegistrationAdminActionTarget"
+          },
+          "target_phase": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreditRegistrationAdminActionTarget": {
+        "type": "string",
+        "enum": [
+          "credit_registration",
+          "course_module",
+          "course",
+          "phase",
+          "verified_student_number",
+          "student_number_verification_token"
+        ]
+      },
+      "CreditRegistrationAlert": {
+        "type": "object",
+        "required": ["id", "severity", "count"],
+        "properties": {
+          "at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When it last happened, where the rule has an instant to point at."
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "How many rows, calls or phases the rule found."
+          },
+          "id": {
+            "$ref": "#/components/schemas/CreditRegistrationAlertId"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/CreditRegistrationAlertSeverity"
+          },
+          "subject": {
+            "type": ["string", "null"],
+            "description": "An identifier the operator can act on — a phase name, a ledger state, a mail domain. Never a\nsentence, and never anything the study registry wrote."
+          }
+        }
+      },
+      "CreditRegistrationAlertId": {
+        "type": "string",
+        "enum": [
+          "credentials_rejected",
+          "study_registry_unreachable",
+          "stuck_registrations",
+          "linking_mail_send_failed",
+          "phase_heartbeat_stale"
+        ]
+      },
+      "CreditRegistrationAlertSeverity": {
+        "type": "string",
+        "enum": ["warning", "critical"]
+      },
+      "CreditRegistrationAlertThresholds": {
+        "type": "object",
+        "description": "Every number the rules used, so the UI can say \"N of M\" without holding a copy of M.",
+        "required": [
+          "credential_rejection_window_secs",
+          "unreachable_window_secs",
+          "unreachable_consecutive_failures",
+          "stuck_ready_to_submit_secs",
+          "stuck_submitting_secs",
+          "stuck_awaiting_verification_secs",
+          "stuck_failed_retryable_secs",
+          "stuck_critical_count",
+          "linking_mail_window_secs",
+          "phase_heartbeat_interval_multiplier"
+        ],
+        "properties": {
+          "credential_rejection_window_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "linking_mail_window_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "phase_heartbeat_interval_multiplier": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stuck_awaiting_verification_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stuck_critical_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stuck_failed_retryable_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stuck_ready_to_submit_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stuck_submitting_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unreachable_consecutive_failures": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unreachable_window_secs": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CreditRegistrationCircuitBreakerState": {
+        "type": "object",
+        "description": "The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own\n— and the counters live in process memory, so this says whether this server would currently skip a\nstudy registry call, not whether the workers would.",
+        "required": ["open", "consecutive_failures", "trips_after_consecutive_failures"],
+        "properties": {
+          "consecutive_failures": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "open": {
+            "type": "boolean"
+          },
+          "open_for_secs": {
+            "type": ["integer", "null"],
+            "format": "int64"
+          },
+          "trips_after_consecutive_failures": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CreditRegistrationConsentModule": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "CreditRegistrationDetails": {
+        "type": "object",
+        "required": ["course_id", "course_name", "registration", "attempts", "events"],
+        "properties": {
+          "attempts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseCreditRegistration"
+            },
+            "description": "Every attempt for the same completion, newest first, this one included."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseCreditRegistrationEvent"
+            }
+          },
+          "registration": {
+            "$ref": "#/components/schemas/CourseCreditRegistration"
+          }
+        }
+      },
+      "CreditRegistrationErrorCode": {
+        "type": "string",
+        "description": "Why a ledger row is where it is; `state` says what happens to it next.",
+        "enum": [
+          "person_not_found",
+          "course_code_not_found",
+          "enrolment_not_found",
+          "enrolment_not_accepted",
+          "invalid_grade_for_grade_scale",
+          "course_not_allowed",
+          "invalid_credits",
+          "study_right_not_valid",
+          "acceptor_not_found",
+          "sisu_validation_failed",
+          "sisu_timeout",
+          "sisu_temporarily_unavailable",
+          "misregistered",
+          "unauthorized",
+          "malformed_request",
+          "transport_error",
+          "unexpected_response",
+          "no_grade_scale_mapping",
+          "missing_uh_course_code",
+          "missing_ects_credits",
+          "retry_window_expired",
+          "unknown"
+        ]
+      },
+      "CreditRegistrationErrorCodeTotal": {
+        "type": "object",
+        "required": ["error_code", "in_flight_count", "terminal_failure_count"],
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+          },
+          "in_flight_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Rows the pipeline is still working on."
+          },
+          "terminal_failure_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Rows that ended on this code."
+          }
+        }
+      },
+      "CreditRegistrationEventKind": {
+        "type": "string",
+        "enum": [
+          "created",
+          "state_changed",
+          "suotar_response",
+          "retry_scheduled",
+          "admin_action",
+          "student_action",
+          "cancelled"
+        ]
+      },
+      "CreditRegistrationHealth": {
+        "type": "object",
+        "required": ["status", "alerts", "thresholds"],
+        "properties": {
+          "alerts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAlert"
+            },
+            "description": "Critical first, and a rejected credential first of all: nothing registers until it is fixed."
+          },
+          "status": {
+            "$ref": "#/components/schemas/HealthStatus"
+          },
+          "thresholds": {
+            "$ref": "#/components/schemas/CreditRegistrationAlertThresholds"
+          }
+        }
+      },
+      "CreditRegistrationOldestNonTerminal": {
+        "type": "object",
+        "required": ["credit_registration_id", "state", "state_entered_at"],
+        "properties": {
+          "credit_registration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CreditRegistrationState"
+          },
+          "state_entered_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreditRegistrationOverview": {
+        "type": "object",
+        "required": [
+          "health",
+          "counts_by_state",
+          "error_codes",
+          "needs_admin_attention_count",
+          "throughput",
+          "throughput_days",
+          "stuck",
+          "endpoints",
+          "circuit_breaker",
+          "phases"
+        ],
+        "properties": {
+          "circuit_breaker": {
+            "$ref": "#/components/schemas/CreditRegistrationCircuitBreakerState"
+          },
+          "counts_by_state": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationStateTotal"
+            }
+          },
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuotarEndpointStanding"
+            }
+          },
+          "error_codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationErrorCodeTotal"
+            }
+          },
+          "health": {
+            "$ref": "#/components/schemas/CreditRegistrationHealth"
+          },
+          "needs_admin_attention_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "oldest_non_terminal": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationOldestNonTerminal"
+              }
+            ]
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationPhaseStatus"
+            }
+          },
+          "stuck": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationStuckTotal"
+            }
+          },
+          "throughput": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationThroughputBucket"
+            }
+          },
+          "throughput_days": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CreditRegistrationPhaseStatus": {
+        "type": "object",
+        "description": "One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a\nnarrowed one.",
+        "required": [
+          "phase",
+          "process_name",
+          "expected_interval_secs",
+          "consecutive_failures",
+          "implemented",
+          "heartbeat_late"
+        ],
+        "properties": {
+          "consecutive_failures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expected_interval_secs": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "heartbeat_late": {
+            "type": "boolean",
+            "description": "`seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`.\nAlways `false` while paused or never heartbeated."
+          },
+          "implemented": {
+            "type": "boolean",
+            "description": "No implementation is registered for the phase yet, so it has never reported and will not."
+          },
+          "items_failed_last_run": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "items_processed_last_run": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_heartbeat_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_run_finished_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_success_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "pause_reason": {
+            "type": ["string", "null"]
+          },
+          "paused_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "process_name": {
+            "type": "string"
+          },
+          "seconds_since_heartbeat": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "Computed server-side: a page comparing its own clock against a server timestamp misjudges this\non a skewed client."
+          }
+        }
+      },
+      "CreditRegistrationState": {
+        "type": "string",
+        "description": "What the pipeline does next with a ledger row.",
+        "enum": [
+          "pending_prerequisites",
+          "pending_consent",
+          "pending_student_number",
+          "ready_to_submit",
+          "resolving_enrolment",
+          "checking_enrolment",
+          "no_usable_enrolment",
+          "submitting",
+          "submission_uncertain",
+          "awaiting_verification",
+          "registered",
+          "duplicate",
+          "not_improved",
+          "misregistered",
+          "failed_retryable",
+          "failed_permanent",
+          "blocked",
+          "cancelled",
+          "abandoned_by_consent_withdrawal"
+        ]
+      },
+      "CreditRegistrationStateCount": {
+        "type": "object",
+        "required": ["state", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CreditRegistrationState"
+          }
+        }
+      },
+      "CreditRegistrationStateTotal": {
+        "type": "object",
+        "required": ["state", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CreditRegistrationState"
+          }
+        }
+      },
+      "CreditRegistrationStuckTotal": {
+        "type": "object",
+        "required": ["state", "count", "severely_stuck_count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "oldest_state_entered_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "severely_stuck_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CreditRegistrationState"
+          }
+        }
+      },
+      "CreditRegistrationThroughputBucket": {
+        "type": "object",
+        "required": ["day", "registered_count", "other_success_count", "failed_count"],
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "failed_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "other_success_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "`duplicate` and `not_improved`: the credit exists, and we did not put it there."
+          },
+          "registered_count": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -14650,6 +18164,43 @@
           }
         }
       },
+      "EmailSendStatus": {
+        "type": "string",
+        "description": "What we can honestly say about an email we queued.\n\nWe only hand messages to an SMTP relay, so copy rendering this must never say \"delivered\" or\n\"received\".",
+        "enum": ["queued", "retrying", "sent", "send_failed"]
+      },
+      "EmailSendStatusReport": {
+        "type": "object",
+        "description": "The shared payload for every surface that reports on a queued email.",
+        "required": ["email_send_status", "retry_count"],
+        "properties": {
+          "email_send_status": {
+            "$ref": "#/components/schemas/EmailSendStatus"
+          },
+          "failure_code": {
+            "type": ["string", "null"]
+          },
+          "failure_is_transient": {
+            "type": ["boolean", "null"]
+          },
+          "last_attempt_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "next_retry_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "retry_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sent_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
       "EmailTemplate": {
         "type": "object",
         "required": ["id", "created_at", "updated_at", "template_type"],
@@ -14746,7 +18297,7 @@
       },
       "EmailVerificationStatus": {
         "type": "object",
-        "required": ["verification_enabled", "email"],
+        "required": ["verification_enabled", "template_configured", "email"],
         "properties": {
           "email": {
             "type": "string"
@@ -14774,6 +18325,10 @@
                 "$ref": "#/components/schemas/EmailVerificationEmailInfo"
               }
             ]
+          },
+          "template_configured": {
+            "type": "boolean",
+            "description": "False when `verification_enabled` but the deployment has no `verify_email_address`\ntemplate: requesting a code would 500, so the frontend hides the feature instead."
           },
           "verification_enabled": {
             "type": "boolean",
@@ -16140,6 +19695,23 @@
           }
         }
       },
+      "LinkingEmailStatus": {
+        "type": "object",
+        "description": "What we can honestly say about the linking mail: our send status, never a delivery.",
+        "required": ["email_send_status", "emailed_to_masked"],
+        "properties": {
+          "email_send_status": {
+            "$ref": "#/components/schemas/EmailSendStatus"
+          },
+          "emailed_to_masked": {
+            "type": "string"
+          },
+          "sent_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
       "ManualCompletionPreview": {
         "type": "object",
         "required": [
@@ -16246,7 +19818,9 @@
           "id",
           "order_number",
           "completion_policy",
-          "enable_registering_completion_to_uh_open_university"
+          "enable_registering_completion_to_uh_open_university",
+          "enable_credit_registration_via_suotar",
+          "credit_registration"
         ],
         "properties": {
           "completion_policy": {
@@ -16255,9 +19829,15 @@
           "completion_registration_link_override": {
             "type": ["string", "null"]
           },
+          "credit_registration": {
+            "$ref": "#/components/schemas/CourseModuleCreditRegistrationEdit"
+          },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
@@ -16354,6 +19934,236 @@
             }
           }
         ]
+      },
+      "MyCourseCreditRegistrationConsent": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "course_name",
+          "asked",
+          "credit_registration_enabled_for_course",
+          "modules",
+          "registrable_completion_count"
+        ],
+        "properties": {
+          "asked": {
+            "type": "boolean",
+            "description": "False means never asked, which is not the same as asked and declined."
+          },
+          "consent_given": {
+            "type": ["boolean", "null"]
+          },
+          "consent_given_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "consent_withdrawn_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "credit_registration_enabled_for_course": {
+            "type": "boolean"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationConsentModule"
+            }
+          },
+          "registrable_completion_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Completions already waiting on consent, so the dialog can say how many one click registers."
+          }
+        }
+      },
+      "MyCreditRegistration": {
+        "type": "object",
+        "required": [
+          "id",
+          "course_id",
+          "course_name",
+          "course_slug",
+          "course_module_id",
+          "completion_date",
+          "student_facing_status",
+          "consent_withdrawn_while_in_flight",
+          "status_is_moving",
+          "next_attempt_at",
+          "attempt_number",
+          "superseded",
+          "can_request_enrolment_recheck"
+        ],
+        "properties": {
+          "attempt_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "can_request_enrolment_recheck": {
+            "type": "boolean"
+          },
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "consent_withdrawn_while_in_flight": {
+            "type": "boolean",
+            "description": "The one thing the page needs beyond the status: the outcome of an import that was already in\nflight is unknown, so it gets its own copy.\n\nThe ledger state itself is deliberately not on the wire. Eligibility includes\n`NOT needs_to_be_reviewed`, so `blocked` would tell a student they have been flagged as a\nsuspected cheater — which `users.rs` hides from them for that exact reason. Every cause of\n`not_registering` has to stay indistinguishable here."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "course_slug": {
+            "type": "string"
+          },
+          "credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "enrolment_link": {
+            "type": ["string", "null"],
+            "description": "The open university enrolment page, for a row the study registry has no enrolment for."
+          },
+          "enrolment_realisation_name": {
+            "type": ["string", "null"]
+          },
+          "error_code": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
+          },
+          "grade_id": {
+            "type": ["string", "null"]
+          },
+          "grade_scale_id": {
+            "type": ["string", "null"],
+            "description": "Names the scale `grade_id` is on, without which \"1\" reads as a one out of five when it means\na pass."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "linking_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LinkingEmailStatus",
+                "description": "Only on a row waiting for a student number whose account was linked at some point: the mail is\naddressed to a Sisu person, and a never-linked account names none."
+              }
+            ]
+          },
+          "next_attempt_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "registered_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "sisu_attainment_id": {
+            "type": ["string", "null"]
+          },
+          "status_is_moving": {
+            "type": "boolean",
+            "description": "Whether the pipeline is still expected to move this row: drives the status page's polling."
+          },
+          "student_facing_status": {
+            "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus"
+          },
+          "superseded": {
+            "type": "boolean"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "MyCreditRegistrationConsent": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "course_name",
+          "registrable_completion_count",
+          "registered_count"
+        ],
+        "properties": {
+          "asked_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "consent_given": {
+            "type": ["boolean", "null"]
+          },
+          "consent_given_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "consent_withdrawn_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "registered_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "registrable_completion_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "MyCreditRegistrationForCourseModule": {
+        "type": "object",
+        "description": "The live registration for one course module, with the attempts a newer one replaced.",
+        "required": ["registration", "earlier_attempts"],
+        "properties": {
+          "earlier_attempts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyCreditRegistration"
+            },
+            "description": "The module's other rows, newest completion first. Shown because the study registry may hold an\nearlier attempt's attainment as well as the current one's."
+          },
+          "registration": {
+            "$ref": "#/components/schemas/MyCreditRegistration"
+          }
+        }
       },
       "MyStudies": {
         "type": "object",
@@ -16528,6 +20338,33 @@
           }
         }
       },
+      "MyVerifiedStudentNumber": {
+        "type": "object",
+        "description": "The account's linked student number, unmasked: it is the holder's own.",
+        "required": ["student_number", "verified_at", "verified_via"],
+        "properties": {
+          "first_names": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "student_number": {
+            "type": "string"
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "verified_via": {
+            "$ref": "#/components/schemas/StudentNumberVerificationMethod"
+          },
+          "verified_via_email_masked": {
+            "type": ["string", "null"],
+            "description": "The Sisu-held address the proof rests on, masked; `None` when support linked it by hand."
+          }
+        }
+      },
       "NewChapter": {
         "type": "object",
         "required": ["name", "course_id", "chapter_number"],
@@ -16588,7 +20425,8 @@
           "use_semantic_reranking",
           "use_tools",
           "default_chatbot",
-          "suggest_next_messages"
+          "suggest_next_messages",
+          "publicly_accessible"
         ],
         "properties": {
           "chatbot_name": {
@@ -16645,6 +20483,9 @@
           },
           "prompt": {
             "type": "string"
+          },
+          "publicly_accessible": {
+            "type": "boolean"
           },
           "reasoning_effort": {
             "$ref": "#/components/schemas/ReasoningEffortLevel"
@@ -16872,7 +20713,9 @@
           "order_number",
           "chapters",
           "completion_policy",
-          "enable_registering_completion_to_uh_open_university"
+          "enable_registering_completion_to_uh_open_university",
+          "enable_credit_registration_via_suotar",
+          "credit_registration"
         ],
         "properties": {
           "chapters": {
@@ -16888,9 +20731,15 @@
           "completion_registration_link_override": {
             "type": ["string", "null"]
           },
+          "credit_registration": {
+            "$ref": "#/components/schemas/CourseModuleCreditRegistrationEdit"
+          },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
@@ -18257,6 +22106,20 @@
         "type": "string",
         "enum": ["Spam", "HarmfulContent", "AiGenerated"]
       },
+      "RequestCreditRegistrationEnrolmentRecheckResult": {
+        "type": "object",
+        "required": ["recheck_started"],
+        "properties": {
+          "next_recheck_allowed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "recheck_started": {
+            "type": "boolean",
+            "description": "False when we looked so recently that asking again would tell the student nothing new."
+          }
+        }
+      },
       "RequestEmailVerificationOutcome": {
         "type": "string",
         "enum": ["queued", "already_verified", "recently_sent"]
@@ -18313,6 +22176,63 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "ResendLinkingEmailOutcome": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "already_mailed_to_every_known_address",
+          "refused_by_rate_cap",
+          "no_address_in_study_registry",
+          "not_on_the_course_roster",
+          "no_student_number_known",
+          "already_linked",
+          "study_registry_unavailable"
+        ]
+      },
+      "ResendLinkingEmailPayload": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": ["string", "null"]
+          },
+          "student_number": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "One of the two names the person; `user_id` only resolves for an account that has held a number."
+          }
+        }
+      },
+      "ResendLinkingEmailResult": {
+        "type": "object",
+        "required": ["outcome", "mails_sent_for_this_course", "max_mails_per_person_and_course"],
+        "properties": {
+          "linking_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TeacherLinkingEmailStatus",
+                "description": "The latest mail for this person and course after the attempt, whatever the outcome."
+              }
+            ]
+          },
+          "mails_sent_for_this_course": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "max_mails_per_person_and_course": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ResendLinkingEmailOutcome"
           }
         }
       },
@@ -18586,6 +22506,36 @@
           }
         }
       },
+      "SetMyCourseCreditRegistrationConsentPayload": {
+        "type": "object",
+        "required": ["consent_given"],
+        "properties": {
+          "consent_given": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetMyCourseCreditRegistrationConsentResult": {
+        "type": "object",
+        "required": ["consent_given", "newly_unblocked_registration_count"],
+        "properties": {
+          "consent_given": {
+            "type": "boolean"
+          },
+          "consent_given_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "consent_withdrawn_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "newly_unblocked_registration_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "SisuDescriptionResponse": {
         "type": "object",
         "required": ["course_description", "audience", "modules"],
@@ -18604,6 +22554,87 @@
             "items": {
               "$ref": "#/components/schemas/Module"
             }
+          }
+        }
+      },
+      "StudentFacingCreditRegistrationStatus": {
+        "type": "string",
+        "description": "The stage a student sees.",
+        "enum": [
+          "waiting_for_completion",
+          "needs_consent",
+          "needs_student_number",
+          "in_progress",
+          "needs_enrolment",
+          "waiting_for_sisu",
+          "registered",
+          "failed",
+          "not_registering"
+        ]
+      },
+      "StudentNumberVerificationMethod": {
+        "type": "string",
+        "description": "How a student number was proven to belong to an account.",
+        "enum": ["emailed_link", "email_match_fast_track", "admin_manual"]
+      },
+      "StudentNumberVerificationTokenPreview": {
+        "type": "object",
+        "description": "What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be\nable to spend the token.",
+        "required": [
+          "student_number",
+          "emailed_to_masked",
+          "expires_at",
+          "expired",
+          "already_used",
+          "already_used_by_this_account",
+          "conflicts_with_other_account",
+          "target_account_email",
+          "claimable"
+        ],
+        "properties": {
+          "already_used": {
+            "type": "boolean"
+          },
+          "already_used_by_this_account": {
+            "type": "boolean",
+            "description": "So the page can say \"you already used this link\" rather than accusing someone else."
+          },
+          "claimable": {
+            "type": "boolean"
+          },
+          "conflicts_with_other_account": {
+            "type": "boolean",
+            "description": "A support case, not something the student can resolve: moving a number between accounts on\nmailbox access alone would let anyone detach another account's link."
+          },
+          "course_name": {
+            "type": ["string", "null"]
+          },
+          "current_student_number": {
+            "type": ["string", "null"],
+            "description": "What this account is linked to now. Claiming replaces it."
+          },
+          "emailed_to_masked": {
+            "type": "string"
+          },
+          "expired": {
+            "type": "boolean"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "first_names": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "student_number": {
+            "type": "string"
+          },
+          "target_account_email": {
+            "type": "string",
+            "description": "Shown in the confirmation: being signed in to the wrong account is the common mistake."
           }
         }
       },
@@ -18635,6 +22666,123 @@
             "type": "integer",
             "format": "int32",
             "minimum": 0
+          }
+        }
+      },
+      "SuotarEndpoint": {
+        "type": "string",
+        "enum": [
+          "resolve_persons",
+          "resolve_enrolments",
+          "import_attainments",
+          "verify_attainments",
+          "product_access_tokens",
+          "list_by_course"
+        ]
+      },
+      "SuotarEndpointStanding": {
+        "type": "object",
+        "description": "Where one study registry endpoint stands, over all time.",
+        "required": ["endpoint", "consecutive_failures"],
+        "properties": {
+          "consecutive_failures": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "endpoint": {
+            "$ref": "#/components/schemas/SuotarEndpoint"
+          },
+          "last_failure_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_success_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
+      "SuotarEndpointWindowStats": {
+        "type": "object",
+        "required": [
+          "endpoint",
+          "call_count",
+          "failed_call_count",
+          "in_flight_count",
+          "ok_item_count",
+          "error_item_count"
+        ],
+        "properties": {
+          "call_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "endpoint": {
+            "$ref": "#/components/schemas/SuotarEndpoint"
+          },
+          "error_item_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "failed_call_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "in_flight_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "last_failure_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_request_level_error_code": {
+            "type": ["string", "null"],
+            "description": "The registry's own request-level code, an identifier rather than prose."
+          },
+          "last_success_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "ok_item_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "p50_duration_ms": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "p95_duration_ms": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
+      },
+      "SuotarHealth": {
+        "type": "object",
+        "required": ["windows"],
+        "properties": {
+          "windows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuotarHealthWindow"
+            }
+          }
+        }
+      },
+      "SuotarHealthWindow": {
+        "type": "object",
+        "required": ["window_secs", "endpoints"],
+        "properties": {
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuotarEndpointWindowStats"
+            }
+          },
+          "window_secs": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -18764,6 +22912,35 @@
           }
         }
       },
+      "TeacherLinkingEmailStatus": {
+        "type": "object",
+        "description": "What we can honestly say about a linking mail: our send status and the address's domain.",
+        "required": ["email_send_status", "retry_count", "emailed_to_masked"],
+        "properties": {
+          "email_send_status": {
+            "$ref": "#/components/schemas/EmailSendStatus"
+          },
+          "emailed_to_masked": {
+            "type": "string"
+          },
+          "last_attempt_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "next_retry_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "retry_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sent_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
       "TeacherManualCompletion": {
         "type": "object",
         "required": ["user_id", "passed"],
@@ -18861,6 +23038,17 @@
       "TimeGranularity": {
         "type": "string",
         "enum": ["Year", "Month", "Day"]
+      },
+      "UnlinkMyStudentNumberResult": {
+        "type": "object",
+        "required": ["affected_registration_count"],
+        "properties": {
+          "affected_registration_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Registrations that went back to waiting for a student number."
+          }
+        }
       },
       "UpdateCourseDesignerStageTaskRequest": {
         "type": "object",
@@ -19001,9 +23189,9 @@
         "required": [
           "course_module_completion_id",
           "course_name",
-          "uh_course_code",
           "email",
-          "enable_registering_completion_to_uh_open_university"
+          "enable_registering_completion_to_uh_open_university",
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "course_module_completion_id": {
@@ -19020,11 +23208,15 @@
           "email": {
             "type": "string"
           },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
+          },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
           },
           "uh_course_code": {
-            "type": "string"
+            "type": ["string", "null"],
+            "description": "`None` only on a module registering through credit registration."
           }
         }
       },
@@ -19421,6 +23613,19 @@
       "VerbosityLevel": {
         "type": "string",
         "enum": ["low", "medium", "high"]
+      },
+      "VerifiedStudentNumberMethodTotal": {
+        "type": "object",
+        "required": ["verified_via", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "verified_via": {
+            "$ref": "#/components/schemas/StudentNumberVerificationMethod"
+          }
+        }
       },
       "VerifyEmailOwnershipPayload": {
         "type": "object",

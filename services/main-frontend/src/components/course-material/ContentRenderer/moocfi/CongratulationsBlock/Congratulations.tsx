@@ -10,6 +10,7 @@ import BackgroundImage from "@/img/course-material/congratulation-bg.svg"
 import { headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
+import { moduleOffersCreditOrCompletionRegistration } from "./CongratulationsLinks"
 import ModuleCard from "./ModuleCard"
 
 const Wrapper = styled.div`
@@ -99,9 +100,7 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
   const someModuleCompleted = modules.some((module) => module.completed)
   const anyCompletedModuleAllowsRegisteringCompletion = modules.some(
     (module) =>
-      module.enable_registering_completion_to_uh_open_university &&
-      someModuleCompleted &&
-      module.completed,
+      moduleOffersCreditOrCompletionRegistration(module) && someModuleCompleted && module.completed,
   )
   const anyCompletedModuleHasCertificatesEnabled = modules.some(
     (module) => module.certification_enabled && module.completed,

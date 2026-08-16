@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test"
 import { expect } from "@playwright/test"
 
-import { ensureRedirectServer, getRedirectUri } from "./redirectServer"
+import { ensureRedirectServer, getRedirectUri } from "@/fixtures/oauth"
 
 /** Assert the browser landed on the callback and the final URL has code & expected state.
  *  Returns the authorization code for token exchange. */

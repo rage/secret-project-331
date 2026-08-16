@@ -5,6 +5,7 @@ import type { UseQueryResult } from "@tanstack/react-query"
 import { newChatbotConversation } from "@/generated/course-material-api/sdk.generated"
 import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { saveChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 const useNewConversationMutation = (
   chatbotConfigurationId: string,
@@ -21,7 +22,9 @@ const useNewConversationMutation = (
       }),
     { notify: false },
     {
-      onSuccess: () => {
+      onSuccess: (res) => {
+        const anonymousToken = res.anonymous_token
+        saveChatbotAnonymousToken(anonymousToken)
         currentConversationInfo.refetch()
         setNewMessage("")
         setError(null) // Clear any existing errors when starting a new conversation

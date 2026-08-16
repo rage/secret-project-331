@@ -1,11 +1,16 @@
 import type { TFunction } from "i18next"
 
 import type {
+  AdminBulkTransitionSkip,
   AdminManualLinkOutcome,
   AdminResendOutcome,
+  CreditRegistrationAdminAction,
+  CreditRegistrationAdminActionTarget,
   CreditRegistrationAlertId,
+  CreditRegistrationAttentionReason,
   CreditRegistrationState,
   EmailSendStatus,
+  Retryability,
 } from "@/generated/api/types.generated"
 import type { RegistrationStatusState } from "@/shared-module/components"
 
@@ -79,6 +84,90 @@ export const alertSentence = (
     subject: subject ?? "",
     total: total ?? 0,
   })
+
+const ATTENTION_REASON_KEYS = {
+  stuck_in_state: "credit-registration-admin-reason-stuck-in-state",
+  permanent_error: "credit-registration-admin-reason-permanent-error",
+  retry_window_expired: "credit-registration-admin-reason-retry-window-expired",
+  misregistered: "credit-registration-admin-reason-misregistered",
+  too_many_attempts: "credit-registration-admin-reason-too-many-attempts",
+  outcome_uncertain: "credit-registration-admin-reason-outcome-uncertain",
+  flagged_by_pipeline: "credit-registration-admin-reason-flagged-by-pipeline",
+} as const satisfies Record<CreditRegistrationAttentionReason, string>
+
+const ATTENTION_REASON_UNKNOWN_KEY = "credit-registration-admin-reason-unknown"
+
+/** Which detector put a row on the attention table. */
+export const attentionReasonLabel = (
+  t: TFunction,
+  reason: CreditRegistrationAttentionReason,
+): string => labelFrom(t, ATTENTION_REASON_KEYS, reason, ATTENTION_REASON_UNKNOWN_KEY)
+
+const BULK_SKIP_KEYS = {
+  superseded: "credit-registration-admin-skip-superseded",
+  submission_uncertain: "credit-registration-admin-skip-submission-uncertain",
+  without_consent: "credit-registration-admin-skip-without-consent",
+} as const satisfies Record<AdminBulkTransitionSkip, string>
+
+const BULK_SKIP_UNKNOWN_KEY = "credit-registration-admin-skip-unknown"
+
+/** Why a selected row was left alone. Never silence these: a skipped row is not a moved row. */
+export const bulkSkipLabel = (t: TFunction, reason: AdminBulkTransitionSkip): string =>
+  labelFrom(t, BULK_SKIP_KEYS, reason, BULK_SKIP_UNKNOWN_KEY)
+
+const RETRYABILITY_KEYS = {
+  retryable_transient: "credit-registration-admin-retryability-transient",
+  verify_only: "credit-registration-admin-retryability-verify-only",
+  permanent_needs_student: "credit-registration-admin-retryability-needs-student",
+  permanent_needs_admin: "credit-registration-admin-retryability-needs-admin",
+  permanent_needs_config: "credit-registration-admin-retryability-needs-config",
+} as const satisfies Record<Retryability, string>
+
+const RETRYABILITY_UNKNOWN_KEY = "credit-registration-admin-retryability-unknown"
+
+/** What can be done about an error code, which is the difference between waiting and fixing. */
+export const retryabilityLabel = (t: TFunction, retryability: Retryability): string =>
+  labelFrom(t, RETRYABILITY_KEYS, retryability, RETRYABILITY_UNKNOWN_KEY)
+
+const ADMIN_ACTION_KEYS = {
+  retry_item: "credit-registration-admin-action-retry-item",
+  retry_failed_for_course: "credit-registration-admin-action-retry-failed-for-course",
+  force_recheck: "credit-registration-admin-action-force-recheck",
+  mark_resolved: "credit-registration-admin-action-mark-resolved",
+  requeue_batch: "credit-registration-admin-action-requeue-batch",
+  transition_item: "credit-registration-admin-action-transition-item",
+  cancel_registration: "credit-registration-admin-action-cancel-registration",
+  pause_course_module: "credit-registration-admin-action-pause-course-module",
+  resume_course_module: "credit-registration-admin-action-resume-course-module",
+  pause_phase: "credit-registration-admin-action-pause-phase",
+  resume_phase: "credit-registration-admin-action-resume-phase",
+  run_phase_now: "credit-registration-admin-action-run-phase-now",
+  resend_link_email: "credit-registration-admin-action-resend-link-email",
+  unlink_student_number: "credit-registration-admin-action-unlink-student-number",
+  manual_link_student_number: "credit-registration-admin-action-manual-link-student-number",
+  override_rate_cap: "credit-registration-admin-action-override-rate-cap",
+} as const satisfies Record<CreditRegistrationAdminAction, string>
+
+const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"
+
+export const adminActionLabel = (t: TFunction, action: CreditRegistrationAdminAction): string =>
+  labelFrom(t, ADMIN_ACTION_KEYS, action, ADMIN_ACTION_UNKNOWN_KEY)
+
+const ADMIN_TARGET_KEYS = {
+  credit_registration: "credit-registration-admin-action-target-registration",
+  course_module: "credit-registration-admin-action-target-course-module",
+  course: "credit-registration-admin-action-target-course",
+  phase: "credit-registration-admin-action-target-phase",
+  verified_student_number: "credit-registration-admin-action-target-verified-student-number",
+  student_number_verification_token: "credit-registration-admin-action-target-token",
+} as const satisfies Record<CreditRegistrationAdminActionTarget, string>
+
+const ADMIN_TARGET_UNKNOWN_KEY = "credit-registration-admin-action-target-unknown"
+
+export const adminActionTargetLabel = (
+  t: TFunction,
+  target: CreditRegistrationAdminActionTarget,
+): string => labelFrom(t, ADMIN_TARGET_KEYS, target, ADMIN_TARGET_UNKNOWN_KEY)
 
 const SEND_STATUS_KEYS = {
   queued: "credit-registration-admin-send-status-queued",

@@ -1,9 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQueryClient } from "@tanstack/react-query"
 import { formatInTimeZone } from "date-fns-tz"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { isSuccessState } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
@@ -11,8 +10,8 @@ import {
   useCreditRegistrationOverview,
   useSuotarHealth,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
+import AdminPhaseActions from "@/components/credit-registration/admin/AdminPhaseActions"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
-import { ReasonConfirmDialog } from "@/components/credit-registration/admin/ReasonConfirmDialog"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import Sparkline from "@/components/credit-registration/admin/Sparkline"
 import { TONE } from "@/components/credit-registration/constants"
@@ -23,26 +22,14 @@ import {
   sectionsCss,
   tilesCss,
 } from "@/components/credit-registration/styles"
-import { getCreditRegistrationOverviewQueryKey } from "@/generated/api/@tanstack/react-query.generated"
-import { adminPausePhase, adminResumePhase, adminRunPhaseNow } from "@/generated/api/sdk.generated"
 import type {
   CreditRegistrationOverview,
   CreditRegistrationPhaseStatus,
   SuotarHealth,
 } from "@/generated/api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
-import {
-  Badge,
-  Button,
-  Disclosure,
-  Link,
-  QueryResult,
-  StatTile,
-  Table,
-} from "@/shared-module/components"
+import { Badge, Disclosure, Link, QueryResult, StatTile, Table } from "@/shared-module/components"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const ATTENTION_QUERY = "?needs_admin_attention=true"
@@ -63,11 +50,6 @@ const chipsCss = css`
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
-`
-
-const phaseActionsCss = css`
-  display: flex;
-  gap: 0.4rem;
 `
 
 const chipCss = css`
@@ -358,93 +340,6 @@ const PhaseHeartbeat: React.FC<{ phase: CreditRegistrationPhaseStatus }> = ({ ph
   )
 }
 
-const PhaseActions: React.FC<{ phase: CreditRegistrationPhaseStatus }> = ({ phase }) => {
-  const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  const { confirm } = useDialog()
-  const [pauseOpen, setPauseOpen] = useState(false)
-
-  const invalidateOverview = () =>
-    queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() })
-
-  const pauseMutation = useToastMutation(
-    (fields: { reason: string }) =>
-      adminPausePhase({ path: { phase: phase.phase }, body: { reason: fields.reason } }),
-    { notify: true, method: "POST" },
-    {
-      onSuccess: () => {
-        setPauseOpen(false)
-        void invalidateOverview()
-      },
-    },
-  )
-  const resumeMutation = useToastMutation(
-    () => adminResumePhase({ path: { phase: phase.phase }, body: { reason: null } }),
-    { notify: true, method: "POST" },
-    { onSuccess: () => void invalidateOverview() },
-  )
-  const runNowMutation = useToastMutation(
-    () => adminRunPhaseNow({ path: { phase: phase.phase }, body: { reason: null } }),
-    { notify: true, method: "POST" },
-    { onSuccess: () => void invalidateOverview() },
-  )
-
-  if (!phase.implemented) {
-    return null
-  }
-
-  return (
-    <div className={phaseActionsCss}>
-      {phase.paused_at ? (
-        <Button
-          variant="tertiary"
-          size="small"
-          isLoading={resumeMutation.isPending}
-          onClick={async () => {
-            const confirmed = await confirm(
-              t("credit-registration-admin-phase-resume-confirm", { phase: phase.phase }),
-            )
-            if (confirmed) {
-              resumeMutation.mutate()
-            }
-          }}
-        >
-          {t("button-text-credit-registration-phase-resume")}
-        </Button>
-      ) : (
-        <>
-          <Button variant="tertiary" size="small" onClick={() => setPauseOpen(true)}>
-            {t("button-text-credit-registration-phase-pause")}
-          </Button>
-          <Button
-            variant="tertiary"
-            size="small"
-            isLoading={runNowMutation.isPending}
-            onClick={async () => {
-              const confirmed = await confirm(
-                t("credit-registration-admin-phase-run-now-confirm", { phase: phase.phase }),
-              )
-              if (confirmed) {
-                runNowMutation.mutate()
-              }
-            }}
-          >
-            {t("button-text-credit-registration-phase-run-now")}
-          </Button>
-        </>
-      )}
-      <ReasonConfirmDialog
-        open={pauseOpen}
-        onClose={() => setPauseOpen(false)}
-        title={t("credit-registration-admin-phase-pause-title", { phase: phase.phase })}
-        reasonDescription={t("credit-registration-admin-phase-pause-reason-description")}
-        isPending={pauseMutation.isPending}
-        onConfirm={(reason) => pauseMutation.mutate({ reason })}
-      />
-    </div>
-  )
-}
-
 const PhaseSection: React.FC<{ phases: CreditRegistrationPhaseStatus[] }> = ({ phases }) => {
   const { t } = useTranslation()
   return (
@@ -482,7 +377,13 @@ const PhaseSection: React.FC<{ phases: CreditRegistrationPhaseStatus[] }> = ({ p
           },
           {
             header: t("label-actions"),
-            cell: (row) => <PhaseActions phase={row} />,
+            cell: (row) => (
+              <AdminPhaseActions
+                phase={row.phase}
+                paused={row.paused_at !== null}
+                implemented={row.implemented}
+              />
+            ),
           },
         ]}
       />

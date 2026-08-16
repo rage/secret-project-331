@@ -2,14 +2,14 @@
 
 import { css } from "@emotion/css"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import React, { useCallback, useEffect, useMemo } from "react"
+import React, { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { useAdminCreditRegistrations } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import RelativeTime from "@/components/credit-registration/admin/RelativeTime"
+import { useQueryParamFilters } from "@/components/credit-registration/admin/useQueryParamFilters"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
 import { noteCss } from "@/components/credit-registration/styles"
 import type {
@@ -110,13 +110,9 @@ const stackedCellCss = css`
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
 const RegistrationsPage: React.FC = () => {
   const { t } = useTranslation()
-  const searchParams = useSearchParams()
   const paginationInfo = usePaginationInfo(ROWS_PER_PAGE)
 
-  const param = useCallback(
-    (name: string): string | undefined => searchParams?.get(name) ?? undefined,
-    [searchParams],
-  )
+  const { param, applyParams } = useQueryParamFilters()
 
   const attention = param(PARAM_ATTENTION) === TRUE
   const superseded = param(PARAM_SUPERSEDED) === TRUE
@@ -132,33 +128,6 @@ const RegistrationsPage: React.FC = () => {
   const searchPending = typedSearch.trim() !== (param(PARAM_SEARCH) ?? "")
   const watchedAttention = watch("attention")
   const watchedSuperseded = watch("superseded")
-
-  const applyParams = useCallback(
-    (changes: Record<string, string | undefined>) => {
-      const next = new URLSearchParams(searchParams?.toString() ?? "")
-      for (const [name, value] of Object.entries(changes)) {
-        if (value === undefined || value === "") {
-          next.delete(name)
-        } else {
-          next.set(name, value)
-        }
-      }
-      // A narrowed result set has different pages.
-      next.delete("page")
-      const query = next.toString()
-      // Not router.replace: Next 16 keys this route's client cache by the search string the server
-      // rendered with — empty, since nothing here is read on the server — but stores the canonical
-      // URL of whichever URL was first loaded. A query-only navigation therefore hits that entry
-      // and snaps the address bar back to the URL the tab was opened on. replaceState hands the
-      // router the URL itself, and useSearchParams() still follows it.
-      window.history.replaceState(
-        null,
-        "",
-        `${window.location.pathname}${query === "" ? "" : `?${query}`}`,
-      )
-    },
-    [searchParams],
-  )
 
   // The params are the source of truth for what is filtered, so the boxes follow the URL: Back, or
   // a shared link, has to move them.

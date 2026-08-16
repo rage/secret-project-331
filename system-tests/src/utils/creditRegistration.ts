@@ -16,7 +16,7 @@
  * | `9000003xx`     | suotar-enrolment-problems        | via-suotar                  |
  * | `9000004xx`     | suotar-import-outcomes           | via-suotar, import-outcomes |
  * | `9000005xx`     | suotar-verify-outcomes           | via-suotar                  |
- * | `9000006xx`     | suotar-sisu-outage               | not written yet             |
+ * | `9000006xx`     | suotar-sisu-outage               | via-suotar                  |
  * | `9000007xx`     | suotar-consent                   | via-suotar                  |
  * | `9000008xx`     | suotar-teacher-views             | retry (paused), states (read)|
  * | `9000009xx`     | suotar-admin-dashboard           | admin                       |

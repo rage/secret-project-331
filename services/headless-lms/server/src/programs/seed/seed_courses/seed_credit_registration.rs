@@ -221,6 +221,17 @@ pub const IMPORT_TIMEOUT: MockPersonFixture = MockPersonFixture {
     sisu_email: "zzyzx.timedout@helsinki.example",
     account_email: Some("credit-registration-import-timeout@example.com"),
 };
+/// The outage spec's own person, so a fault keyed on this student number cannot reach another
+/// spec's row on the shared course. Enrolment left unseeded for `IMPORT_TIMEOUT`'s reason: its spec
+/// arms the outage before creating the enrolment, so no earlier unscoped sweep can import the row
+/// while the study registry is still answering normally.
+pub const SISU_OUTAGE: MockPersonFixture = MockPersonFixture {
+    student_number: "900000601",
+    first_names: "Zzyzx",
+    last_name: "Outaged",
+    sisu_email: "zzyzx.outaged@helsinki.example",
+    account_email: Some("credit-registration-sisu-outage@example.com"),
+};
 /// Deliberately absent from the mock's enrolments: the only way to reach `no_usable_enrolment`
 /// without arming a fault.
 pub const NO_ENROLMENT: MockPersonFixture = MockPersonFixture {
@@ -658,6 +669,7 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     // Consented, linked and completed; the mock's enrolments decide which of them gets stuck where.
     for fixture in [
         &IMPORT_TIMEOUT,
+        &SISU_OUTAGE,
         &NO_ENROLMENT,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
@@ -1904,6 +1916,7 @@ pub fn mock_suotar_world() -> WorldPush {
         &FAST_TRACK_SECONDARY_ONLY,
         &FAST_TRACK_NO_MATCH,
         &IMPORT_TIMEOUT,
+        &SISU_OUTAGE,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
@@ -1949,9 +1962,12 @@ pub fn mock_suotar_world() -> WorldPush {
 
     let mut enrolments: Vec<EnrolmentUpsert> = on_crs_101
         .iter()
-        // Like `NO_ENROLMENT`, minus the person: `IMPORT_TIMEOUT`'s own spec creates its enrolment,
-        // so no earlier, unscoped resolve-enrolments sweep can resolve it before the fault is armed.
-        .filter(|fixture| fixture.student_number != IMPORT_TIMEOUT.student_number)
+        // Like `NO_ENROLMENT`, minus the person: these two specs create their own enrolment, so no
+        // earlier, unscoped resolve-enrolments sweep can resolve it before their fault is armed.
+        .filter(|fixture| {
+            fixture.student_number != IMPORT_TIMEOUT.student_number
+                && fixture.student_number != SISU_OUTAGE.student_number
+        })
         .map(|fixture| enrolment(fixture, CRS_101, RealisationKind::Degree, wide.clone(), now))
         .collect();
     enrolments.extend(BACKFILL_STUDENTS.iter().map(|fixture| {

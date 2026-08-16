@@ -125,8 +125,11 @@ const nestedRuleBody = (scss: string, selector: string): string => {
 
 /**
  * What editor-styles.scss declares on the canvas root (keyed `body`) and on the plain element
- * selectors nested inside it. Nested selectors carrying a class, attribute or pseudo are Gutenberg's
- * own chrome rendered inside the canvas, which shares no properties with content typography.
+ * selectors nested inside it. At-rules are walked through rather than skipped, carrying the element
+ * they sit in: a media query changes when a declaration applies, not what it applies to, so a
+ * responsive override outranks the canvas styles just as an unconditional one does. Nested
+ * selectors carrying a class, attribute or pseudo are Gutenberg's own chrome rendered inside the
+ * canvas, which shares no properties with content typography.
  */
 const scssCanvasPropertiesByElement = (): PropertiesByElement => {
   const properties: PropertiesByElement = new Map()
@@ -151,6 +154,8 @@ const scssCanvasPropertiesByElement = (): PropertiesByElement => {
           for (const part of selector.split(",")) {
             walk(body.slice(start, index), part.trim())
           }
+        } else if (selector.startsWith("@")) {
+          walk(body.slice(start, index), element)
         }
         buffer = ""
       } else if (character === ";") {

@@ -213,6 +213,7 @@ import {
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
+  getMyCertificates,
   getMyCourseCreditRegistrationConsent,
   getMyCourses,
   getMyCreditRegistrationConsents,
@@ -738,6 +739,8 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponse,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponse,
+  GetMyCertificatesData,
+  GetMyCertificatesResponse,
   GetMyCourseCreditRegistrationConsentData,
   GetMyCourseCreditRegistrationConsentResponse,
   GetMyCoursesData,
@@ -10835,6 +10838,33 @@ export const getUserResearchConsentOptions = (options?: Options<GetUserResearchC
         throwOnError: true,
       }),
     queryKey: getUserResearchConsentQueryKey(options),
+  })
+
+export const getMyCertificatesQueryKey = (options?: Options<GetMyCertificatesData>) =>
+  createQueryKey("getMyCertificates", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/my-certificates` - Every certificate the authenticated user holds.
+ *
+ * No user id parameter, so it cannot be pointed at another account. Anyone holding a certificate's
+ * verification id can already fetch its image; this only lists which ones are the caller's.
+ */
+export const getMyCertificatesOptions = (options?: Options<GetMyCertificatesData>) =>
+  queryOptions<
+    GetMyCertificatesResponse,
+    DefaultError,
+    GetMyCertificatesResponse,
+    ReturnType<typeof getMyCertificatesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCertificates({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCertificatesQueryKey(options),
   })
 
 export const getMyCoursesQueryKey = (options?: Options<GetMyCoursesData>) =>

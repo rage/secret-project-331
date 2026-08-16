@@ -429,6 +429,8 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponses,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponses,
+  GetMyCertificatesData,
+  GetMyCertificatesResponses,
   GetMyCourseCreditRegistrationConsentData,
   GetMyCourseCreditRegistrationConsentResponses,
   GetMyCoursesData,
@@ -916,6 +918,7 @@ import {
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
+  zGetMyCertificatesResponse,
   zGetMyCourseCreditRegistrationConsentResponse,
   zGetMyCoursesResponse,
   zGetMyCreditRegistrationConsentsResponse,
@@ -7978,6 +7981,23 @@ export const getUserResearchConsent = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetUserResearchConsentResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/get-user-research-consent",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/my-certificates` - Every certificate the authenticated user holds.
+ *
+ * No user id parameter, so it cannot be pointed at another account. Anyone holding a certificate's
+ * verification id can already fetch its image; this only lists which ones are the caller's.
+ */
+export const getMyCertificates = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyCertificatesData, ThrowOnError>,
+): RequestResult<GetMyCertificatesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyCertificatesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyCertificatesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-certificates",
     ...options,
   })
 

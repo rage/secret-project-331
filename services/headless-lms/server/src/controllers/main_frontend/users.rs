@@ -4,9 +4,9 @@ use headless_lms_utils::services::tmc::TmcClient;
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo, courses::Course,
     exercise_reset_logs::ExerciseResetLog, exercise_slide_submissions::UserCourseSubmissionTime,
-    research_forms::ResearchFormQuestionAnswer, roles::Role,
-    suspected_cheaters::UserSuspectedCheaterInfo, user_research_consents::UserResearchConsent,
-    users::User,
+    generated_certificates::UserCertificate, research_forms::ResearchFormQuestionAnswer,
+    roles::Role, suspected_cheaters::UserSuspectedCheaterInfo,
+    user_research_consents::UserResearchConsent, users::User,
 };
 use secrecy::{ExposeSecret, SecretString};
 use std::collections::{HashMap, HashSet};
@@ -25,6 +25,7 @@ use utoipa::{OpenApi, ToSchema};
     hide_course_from_my_courses,
     unhide_course_from_my_courses,
     get_my_studies,
+    get_my_certificates,
     get_user_reset_exercise_logs,
     get_user_course_submission_times,
     send_reset_password_email,
@@ -557,6 +558,34 @@ async fn get_my_studies(
 }
 
 /**
+GET `/api/v0/main-frontend/users/my-certificates` - Every certificate the authenticated user holds.
+
+No user id parameter, so it cannot be pointed at another account. Anyone holding a certificate's
+verification id can already fetch its image; this only lists which ones are the caller's.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/my-certificates",
+    operation_id = "getMyCertificates",
+    tag = "users",
+    responses(
+        (status = 200, description = "The authenticated user's certificates", body = Vec<UserCertificate>)
+    )
+)]
+async fn get_my_certificates(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<UserCertificate>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let res = models::generated_certificates::get_all_by_user_id(&mut conn, user.id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of reset exercises for a user
 */
 #[instrument(skip(pool))]
@@ -912,6 +941,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     )
     .route("/my-courses", web::get().to(get_my_courses))
     .route("/my-studies", web::get().to(get_my_studies))
+    .route("/my-certificates", web::get().to(get_my_certificates))
     .route(
         "/my-courses/{course_id}/hide",
         web::post().to(hide_course_from_my_courses),

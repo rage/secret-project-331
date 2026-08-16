@@ -4499,6 +4499,19 @@ export const zUser = z.object({
     .nullish(),
 })
 
+/**
+ * A certificate as its holder's own profile lists it: what it is for, and how to open it.
+ */
+export const zUserCertificate = z.object({
+  course_id: z.uuid(),
+  course_module_name: z.string().nullish(),
+  course_name: z.string(),
+  created_at: z.iso.datetime(),
+  id: z.uuid(),
+  name_on_certificate: z.string(),
+  verification_id: z.string(),
+})
+
 export const zUserChapterLockingStatus = z.object({
   chapter_id: z.uuid(),
   course_id: z.uuid(),
@@ -8227,6 +8240,11 @@ export const zChangeUserPasswordResponse = z.boolean()
  * User research consent
  */
 export const zGetUserResearchConsentResponse = zUserResearchConsent
+
+/**
+ * The authenticated user's certificates
+ */
+export const zGetMyCertificatesResponse = z.array(zUserCertificate)
 
 /**
  * Courses for authenticated user

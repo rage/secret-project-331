@@ -3839,6 +3839,25 @@ export type User = {
   upstream_id?: number | null
 }
 
+/**
+ * A certificate as its holder's own profile lists it: what it is for, and how to open it.
+ */
+export type UserCertificate = {
+  course_id: string
+  /**
+   * `None` for a course's default module.
+   */
+  course_module_name?: string | null
+  course_name: string
+  created_at: string
+  id: string
+  name_on_certificate: string
+  /**
+   * Addresses the public validation page, which is also how the holder views the image.
+   */
+  verification_id: string
+}
+
 export type UserChapterLockingStatus = {
   chapter_id: string
   course_id: string
@@ -11756,6 +11775,22 @@ export type GetUserResearchConsentResponses = {
 
 export type GetUserResearchConsentResponse =
   GetUserResearchConsentResponses[keyof GetUserResearchConsentResponses]
+
+export type GetMyCertificatesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/users/my-certificates"
+}
+
+export type GetMyCertificatesResponses = {
+  /**
+   * The authenticated user's certificates
+   */
+  200: Array<UserCertificate>
+}
+
+export type GetMyCertificatesResponse = GetMyCertificatesResponses[keyof GetMyCertificatesResponses]
 
 export type GetMyCoursesData = {
   body?: never

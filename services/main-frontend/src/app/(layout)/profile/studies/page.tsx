@@ -12,6 +12,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Infobox, Link, QueryResult } from "@/shared-module/components"
 
 import { FIND_MORE_COURSES_URL } from "../constants"
+import CertificatesSection from "./CertificatesSection"
 import HiddenCoursesSection from "./HiddenCoursesSection"
 import StudiesCourseCard from "./StudiesCourseCard"
 import StudiesSummary from "./StudiesSummary"
@@ -72,6 +73,8 @@ const StudiesPage: React.FC = () => {
                 <StudiesCourseCard key={course.course_id} course={course} />
               ))
             )}
+
+            <CertificatesSection />
 
             {hiddenCourses.length > 0 ? (
               <div className={hiddenSectionCss}>

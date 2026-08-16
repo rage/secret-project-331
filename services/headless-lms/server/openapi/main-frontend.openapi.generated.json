@@ -12313,6 +12313,28 @@
         }
       }
     },
+    "/api/v0/main-frontend/users/my-certificates": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/my-certificates` - Every certificate the authenticated user holds.\n\nNo user id parameter, so it cannot be pointed at another account. Anyone holding a certificate's\nverification id can already fetch its image; this only lists which ones are the caller's.",
+        "operationId": "getMyCertificates",
+        "responses": {
+          "200": {
+            "description": "The authenticated user's certificates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserCertificate"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/users/my-courses": {
       "get": {
         "tags": ["users"],
@@ -23657,6 +23679,46 @@
           "upstream_id": {
             "type": ["integer", "null"],
             "format": "int32"
+          }
+        }
+      },
+      "UserCertificate": {
+        "type": "object",
+        "description": "A certificate as its holder's own profile lists it: what it is for, and how to open it.",
+        "required": [
+          "id",
+          "name_on_certificate",
+          "verification_id",
+          "created_at",
+          "course_id",
+          "course_name"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"],
+            "description": "`None` for a course's default module."
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name_on_certificate": {
+            "type": "string"
+          },
+          "verification_id": {
+            "type": "string",
+            "description": "Addresses the public validation page, which is also how the holder views the image."
           }
         }
       },

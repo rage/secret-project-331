@@ -43,7 +43,7 @@ const backfillCss = css`
   min-width: 9rem;
 `
 
-/** `null` terminal rows leave no rate to state; a course nobody has finished is not a course failing. */
+/** No terminal rows, no rate: a course nobody has finished yet is not a course failing. */
 const failureRate = (module: CreditRegistrationCourseStats): number | null => {
   const terminal = module.success_count + module.failed_count
   return terminal === 0 ? null : (module.failed_count / terminal) * PERCENT

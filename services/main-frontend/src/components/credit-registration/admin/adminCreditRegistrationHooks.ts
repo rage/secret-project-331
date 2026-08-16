@@ -37,13 +37,14 @@ import { phaseNeedsAttention } from "./phaseStatus"
 const OVERVIEW_REFETCH_INTERVAL_MS = 30_000
 const LIST_REFETCH_INTERVAL_MS = 60_000
 const LIVE_ITEM_REFETCH_INTERVAL_MS = 5_000
-/** Matches the other pod views in the repo; a wedged phase should be visible within a coffee sip. */
+/** Matches the other pod views in the repo: a wedged phase should show within seconds. */
 const PHASE_REFETCH_INTERVAL_MS = 10_000
 const ATTENTION_REFETCH_INTERVAL_MS = 20_000
 /** The tab an operator sits on during an incident. */
 const CALL_LOG_REFETCH_INTERVAL_MS = 15_000
 const RECONCILIATION_REFETCH_INTERVAL_MS = 120_000
 const HISTORY_REFETCH_INTERVAL_MS = 300_000
+/** The shortest window the health endpoint reports, which is the one the tab badge reads. */
 export const HOUR_SECS = 3600
 
 /** The alert banner shares this key with the Overview tiles, so the two cannot disagree. */

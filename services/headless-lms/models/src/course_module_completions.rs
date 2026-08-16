@@ -530,6 +530,34 @@ WHERE id = $2
     Ok(res.rows_affected() > 0)
 }
 
+/// Rewrites a completion's grade in place, so a test can regrade one.
+///
+/// Exists only for test setup, behind the mock study registry's control surface: a teacher regrade
+/// goes through the manual completion flow, which writes a *new* completion row rather than editing
+/// this one, and there is no product path that edits a completion's grade.
+pub async fn set_grade_for_testing(
+    conn: &mut PgConnection,
+    id: Uuid,
+    grade: Option<i32>,
+    passed: Option<bool>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_module_completions
+SET grade = $2,
+  passed = COALESCE($3, passed)
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        id,
+        grade,
+        passed,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn update_prerequisite_modules_completed(
     conn: &mut PgConnection,
     id: Uuid,

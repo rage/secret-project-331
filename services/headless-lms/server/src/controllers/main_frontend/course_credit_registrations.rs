@@ -11,7 +11,9 @@ use headless_lms_models::credit_registration_admin_actions::{
     COURSE_TEACHER_ROLE, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
     NewCreditRegistrationAdminAction,
 };
-use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
+use headless_lms_models::credit_registration_events::{
+    CreditRegistrationEventKind, NotImprovedAttainment,
+};
 use headless_lms_models::credit_registrations::{
     CreditRegistrationErrorCode, CreditRegistrationState, TeacherCreditRegistration,
     TeacherCreditRegistrationFilters,
@@ -194,6 +196,9 @@ pub struct CreditRegistrationDetails {
     /// Every attempt for the same completion, newest first, this one included.
     pub attempts: Vec<CourseCreditRegistration>,
     pub events: Vec<CourseCreditRegistrationEvent>,
+    /// The grade the registry already held, for a row it declined as no improvement. The
+    /// registration's own grade is what we sent.
+    pub not_improved_attainment: Option<NotImprovedAttainment>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -564,12 +569,19 @@ pub async fn get_credit_registration_details(
     })
     .collect();
 
+    let not_improved_attainment = models::credit_registration_events::get_not_improved_attainment(
+        &mut conn,
+        *credit_registration_id,
+    )
+    .await?;
+
     token.authorized_ok(web::Json(CreditRegistrationDetails {
         course_id: course.id,
         course_name: course.name,
         registration,
         attempts,
         events,
+        not_improved_attainment,
     }))
 }
 

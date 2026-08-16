@@ -319,6 +319,49 @@ ORDER BY created_at DESC
     Ok(res)
 }
 
+/// The attainment the study registry pointed at when it turned a submission down as no improvement.
+///
+/// Read back off the event the answer was recorded on rather than stored on the ledger row: the row
+/// holds what we sent, and this is what the registry already had.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct NotImprovedAttainment {
+    pub grade_id: Option<String>,
+    /// Names the scale `grade_id` is on, without which "1" reads as a one out of five when it means
+    /// a pass.
+    pub grade_scale_id: Option<String>,
+}
+
+/// The registry's verdict for a row it declined as no improvement. `None` for every other row, and
+/// for one whose answer named no attainment.
+pub async fn get_not_improved_attainment(
+    conn: &mut PgConnection,
+    credit_registration_id: Uuid,
+) -> ModelResult<Option<NotImprovedAttainment>> {
+    let found = sqlx::query_scalar!(
+        r#"
+SELECT details #> '{response,result,previousAttainment}' AS "attainment!"
+FROM credit_registration_events
+WHERE credit_registration_id = $1
+  AND to_state = 'not_improved'
+  AND details #> '{response,result,previousAttainment}' IS NOT NULL
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT 1
+        "#,
+        credit_registration_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(found.map(|attainment| NotImprovedAttainment {
+        grade_id: string_field(&attainment, "gradeId"),
+        grade_scale_id: string_field(&attainment, "gradeScaleId"),
+    }))
+}
+
+fn string_field(value: &Value, key: &str) -> Option<String> {
+    Some(value.get(key)?.as_str()?.to_string())
+}
+
 pub async fn get_recent_by_kind(
     conn: &mut PgConnection,
     kind: CreditRegistrationEventKind,

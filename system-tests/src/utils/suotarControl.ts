@@ -183,6 +183,25 @@ export const runProductTokenRefreshTick = (
 ): Promise<RanPhaseTick> => runTick(request, "product-token-refresh", scope)
 
 /**
+ * Rewrites the grade of the completion behind one ledger row.
+ *
+ * A test hook rather than a product path: a teacher regrade writes a *new* completion row, and the
+ * grade-improvement statement is about a completion edited in place. `grade: null` puts it on the
+ * pass/fail scale, which is how a spec makes two grades incomparable.
+ */
+export const regradeCompletion = async (
+  request: APIRequestContext,
+  params: { creditRegistrationId: string; grade: number | null; passed?: boolean },
+): Promise<void> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/regrade-completion`, { data: params })
+  if (!response.ok()) {
+    throw new Error(
+      `Regrading the completion of ${params.creditRegistrationId} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+}
+
+/**
  * Drives a consented completion as far as a submission, one phase per tick. Each phase claims what
  * the one before it left, so ticking them out of order waits for a state that cannot arrive.
  */

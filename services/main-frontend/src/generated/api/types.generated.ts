@@ -131,6 +131,7 @@ export type AdminCreditRegistrationDetails = {
    * Every mail addressed to this person, on any course.
    */
   linking_emails: Array<AdminLinkingEmail>
+  not_improved_attainment?: null | NotImprovedAttainment
   /**
    * The terminal-state mails queued for this row, with the same send status the student and the
    * teacher are shown.
@@ -1765,6 +1766,7 @@ export type CreditRegistrationDetails = {
   course_id: string
   course_name: string
   events: Array<CourseCreditRegistrationEvent>
+  not_improved_attainment?: null | NotImprovedAttainment
   registration: CourseCreditRegistration
 }
 
@@ -2635,6 +2637,13 @@ export type MyCreditRegistration = {
   next_attempt_at: string
   notification_email?: null | NotificationEmailStatus
   registered_at?: string | null
+  /**
+   * The registry turned this attempt down because it already holds an equal or better grade. Also
+   * a `registered` stage — the credit exists — but the student raised a grade and nothing about it
+   * changed, so it gets a line of its own. Safe to expose where the ledger state is not: every
+   * cause of it is the student's own transcript.
+   */
+  registry_already_held_equal_or_better: boolean
   sisu_attainment_id?: string | null
   /**
    * Whether the pipeline is still expected to move this row: drives the status page's polling.
@@ -2927,6 +2936,21 @@ export type NewTeacherGradingDecision = {
   justification?: string | null
   manual_points?: number | null
   user_exercise_state_id: string
+}
+
+/**
+ * The attainment the study registry pointed at when it turned a submission down as no improvement.
+ *
+ * Read back off the event the answer was recorded on rather than stored on the ledger row: the row
+ * holds what we sent, and this is what the registry already had.
+ */
+export type NotImprovedAttainment = {
+  grade_id?: string | null
+  /**
+   * Names the scale `grade_id` is on, without which "1" reads as a one out of five when it means
+   * a pass.
+   */
+  grade_scale_id?: string | null
 }
 
 /**

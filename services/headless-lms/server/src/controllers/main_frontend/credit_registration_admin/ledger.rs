@@ -6,7 +6,9 @@ use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionRecord,
     CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE, NewCreditRegistrationAdminAction,
 };
-use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
+use headless_lms_models::credit_registration_events::{
+    CreditRegistrationEventKind, NotImprovedAttainment,
+};
 use headless_lms_models::credit_registrations::{
     self, AdminCreditRegistration, AdminCreditRegistrationFilters, AdminCreditRegistrationSort,
     CreditRegistrationErrorCode, CreditRegistrationState, Transition,
@@ -139,6 +141,9 @@ pub struct AdminCreditRegistrationDetails {
     /// The terminal-state mails queued for this row, with the same send status the student and the
     /// teacher are shown.
     pub notification_emails: Vec<AdminNotificationEmail>,
+    /// The grade the registry already held, for a row it declined as no improvement. The row's own
+    /// grade is what we sent.
+    pub not_improved_attainment: Option<NotImprovedAttainment>,
     pub consent_given: Option<bool>,
     pub consent_withdrawn_at: Option<DateTime<Utc>>,
 }
@@ -429,6 +434,9 @@ pub async fn get_credit_registration_for_admin(
         )
         .collect();
 
+    let not_improved_attainment =
+        models::credit_registration_events::get_not_improved_attainment(&mut conn, id).await?;
+
     token.authorized_ok(web::Json(AdminCreditRegistrationDetails {
         registration: to_admin_row(registration),
         attempts,
@@ -437,6 +445,7 @@ pub async fn get_credit_registration_for_admin(
         actions,
         linking_emails,
         notification_emails,
+        not_improved_attainment,
         consent_given: consent.as_ref().map(|row| row.consent_given),
         consent_withdrawn_at: consent.and_then(|row| row.consent_withdrawn_at),
     }))

@@ -1266,11 +1266,14 @@ async fn seed_grade_improvement_course(
         ModuleBuilder::new()
             .order(0)
             .ects(5.0)
-            .uh_course_code(CRS_GRADED_101.to_string()),
+            .uh_course_code(CRS_GRADED_101.to_string())
+            .credit_registration(credit_registration_config(CRS_GRADED_101, false)),
     )
     .seed(conn, &cx)
     .await?;
-    seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id, true).await?;
+    let student =
+        seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id, true).await?;
+    seed_eligible_completion(conn, &student, course.id, Some(3)).await?;
     Ok(())
 }
 

@@ -218,6 +218,10 @@ const LiveRegistration: React.FC<{
           <p>
             {registrationExplanation(t, status, registration.consent_withdrawn_while_in_flight)}
           </p>
+          {/* Otherwise raising a grade and seeing "registered" unchanged reads as a lost submission. */}
+          {registration.registry_already_held_equal_or_better ? (
+            <p>{t("credit-registration-explanation-not-improved")}</p>
+          ) : null}
           {errorHelp ? <p>{errorHelp}</p> : null}
           {status === "needs_student_number" ? (
             <LinkingEmailLine linkingEmail={registration.linking_email} />

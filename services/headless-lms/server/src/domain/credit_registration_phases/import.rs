@@ -304,12 +304,13 @@ async fn apply_answer(
                             .or(result.previous_attainment.as_ref())
                     });
                     record_attainment(conn, row, attainment).await?;
+                    let message = settled_message(state, attainment);
                     apply_outcome(
                         conn,
                         row,
                         &Outcome::to(state),
                         OutcomeEvent {
-                            message: settled_message(state),
+                            message: message.as_deref(),
                             ..event
                         },
                         Some(CreditRegistrationState::Submitting),
@@ -322,16 +323,35 @@ async fn apply_answer(
     }
 }
 
-fn settled_message(state: CreditRegistrationState) -> Option<&'static str> {
+/// The timeline line for an answer that settled the row. `not_improved` names the grade the registry
+/// held, because "already equal or better" without it reads as a bug to whoever raised the grade.
+fn settled_message(
+    state: CreditRegistrationState,
+    attainment: Option<&SuotarAttainment>,
+) -> Option<String> {
     match state {
         CreditRegistrationState::Duplicate => {
-            Some("The study registry already held a matching attainment.")
+            Some("The study registry already held a matching attainment.".to_string())
         }
-        CreditRegistrationState::NotImproved => {
-            Some("The study registry already holds an equal or better attainment.")
-        }
+        CreditRegistrationState::NotImproved => Some(match held_grade(attainment) {
+            Some(grade) => format!(
+                "The study registry already holds an equal or better attainment, graded {grade}."
+            ),
+            None => "The study registry already holds an equal or better attainment.".to_string(),
+        }),
         _ => None,
     }
+}
+
+/// The registry's own grade for an attainment, with its scale named: "1" is a pass on one scale and
+/// a one out of five on the other.
+fn held_grade(attainment: Option<&SuotarAttainment>) -> Option<String> {
+    let attainment = attainment?;
+    let grade_id = attainment.grade_id.as_deref()?;
+    Some(match attainment.grade_scale_id.as_deref() {
+        Some(scale) => format!("{grade_id} on {scale}"),
+        None => grade_id.to_string(),
+    })
 }
 
 async fn record_attainment(

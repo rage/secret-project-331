@@ -32,7 +32,8 @@ use headless_lms_models::library::credit_registration::legacy_mirror::{
     LEGACY_MIRROR_LIMIT, mirror_successes_to_legacy_ledger,
 };
 use headless_lms_models::library::credit_registration::materialize::{
-    MATERIALIZE_LIMIT, ensure_registration_rows_for_eligible_completions,
+    GRADE_IMPROVEMENT_LIMIT, MATERIALIZE_LIMIT, ensure_registration_rows_for_eligible_completions,
+    start_re_attempts_for_improved_grades,
 };
 use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, RowFacts, request_level_outcome,
@@ -305,6 +306,8 @@ pub(crate) fn worker_name(caller: &str, phase: CreditRegistrationPhase) -> Strin
     format!("{caller}/{}", phase.as_str())
 }
 
+/// Both statements that create ledger rows, bounded apart from each other. Together in one phase so
+/// the Workers tab's row-creation counter accounts for every row the pipeline invented.
 async fn run_materialize(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
@@ -313,7 +316,9 @@ async fn run_materialize(
     let created =
         ensure_registration_rows_for_eligible_completions(&mut conn, scope, MATERIALIZE_LIMIT)
             .await?;
-    Ok(PhaseRunOutcome::processed(created))
+    let re_attempted =
+        start_re_attempts_for_improved_grades(&mut conn, scope, GRADE_IMPROVEMENT_LIMIT).await?;
+    Ok(PhaseRunOutcome::processed(created + re_attempted))
 }
 
 /// Database-only, so it keeps running while the study registry is unreachable.

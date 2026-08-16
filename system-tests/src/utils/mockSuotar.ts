@@ -149,6 +149,24 @@ export const upsertMockSuotarEnrolments = (
   enrolments: MockSuotarEnrolmentUpsert[],
 ) => sendCommand(request, { command: "upsertEnrolments", enrolments })
 
+export interface MockSuotarAttainmentUpsert {
+  id?: string
+  studentNumber: string
+  courseCode: string
+  kind?: MockSuotarRealisationKind
+  /** Ties into the ordering the registry answers in: the oldest attainment is listed first. */
+  attainmentDate: string
+  gradeScaleId: string
+  gradeId: string
+  passed?: boolean
+}
+
+/** An attainment the registry holds without our having submitted it. */
+export const upsertMockSuotarAttainments = (
+  request: APIRequestContext,
+  attainments: MockSuotarAttainmentUpsert[],
+) => sendCommand(request, { command: "upsertAttainments", attainments })
+
 /** A spec owns a student number, not the mock-side `hy-kur-…` id the client holds in the database. */
 export const transitionMockSuotarSubmissionsFor = (
   request: APIRequestContext,

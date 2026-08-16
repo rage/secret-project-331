@@ -12886,6 +12886,17 @@
             },
             "description": "Every mail addressed to this person, on any course."
           },
+          "not_improved_attainment": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NotImprovedAttainment",
+                "description": "The grade the registry already held, for a row it declined as no improvement. The row's own\ngrade is what we sent."
+              }
+            ]
+          },
           "notification_emails": {
             "type": "array",
             "items": {
@@ -17557,6 +17568,17 @@
               "$ref": "#/components/schemas/CourseCreditRegistrationEvent"
             }
           },
+          "not_improved_attainment": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NotImprovedAttainment",
+                "description": "The grade the registry already held, for a row it declined as no improvement. The\nregistration's own grade is what we sent."
+              }
+            ]
+          },
           "registration": {
             "$ref": "#/components/schemas/CourseCreditRegistration"
           }
@@ -20032,6 +20054,7 @@
           "completion_date",
           "student_facing_status",
           "consent_withdrawn_while_in_flight",
+          "registry_already_held_equal_or_better",
           "status_is_moving",
           "next_attempt_at",
           "attempt_number",
@@ -20136,6 +20159,10 @@
           "registered_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "registry_already_held_equal_or_better": {
+            "type": "boolean",
+            "description": "The registry turned this attempt down because it already holds an equal or better grade. Also\na `registered` stage — the credit exists — but the student raised a grade and nothing about it\nchanged, so it gets a line of its own. Safe to expose where the ledger state is not: every\ncause of it is the student's own transcript."
           },
           "sisu_attainment_id": {
             "type": ["string", "null"]
@@ -20920,6 +20947,19 @@
           "user_exercise_state_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "NotImprovedAttainment": {
+        "type": "object",
+        "description": "The attainment the study registry pointed at when it turned a submission down as no improvement.\n\nRead back off the event the answer was recorded on rather than stored on the ledger row: the row\nholds what we sent, and this is what the registry already had.",
+        "properties": {
+          "grade_id": {
+            "type": ["string", "null"]
+          },
+          "grade_scale_id": {
+            "type": ["string", "null"],
+            "description": "Names the scale `grade_id` is on, without which \"1\" reads as a one out of five when it means\na pass."
           }
         }
       },

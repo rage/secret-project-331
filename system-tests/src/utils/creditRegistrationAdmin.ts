@@ -62,11 +62,29 @@ export interface AdminNotificationEmail {
   send_status: { email_send_status: string; sent_at: string | null }
 }
 
+/** One attempt as the admin detail view reports it. */
+export interface AdminRegistrationAttempt {
+  id: string
+  state: string
+  attempt_number: number
+  superseded: boolean
+  terminal_at: string | null
+  needs_admin_attention: boolean
+  /** Frozen before the attempt was sent, so it is the grade this attempt actually carried. */
+  grade_id: string | null
+  grade_scale_id: string | null
+}
+
 export interface AdminRegistrationDetails {
+  registration: AdminRegistrationAttempt
+  /** Every attempt for the same completion, this one included. */
+  attempts: AdminRegistrationAttempt[]
   events: { details: unknown }[]
   suotar_api_calls: { request_body_sample: unknown; response_body_sample: unknown }[]
   actions: AdminRegistrationAction[]
   notification_emails: AdminNotificationEmail[]
+  /** Only on a row the study registry declined as no improvement. */
+  not_improved_attainment: { grade_id: string | null; grade_scale_id: string | null } | null
 }
 
 export interface AccountLinkingRealisationCounters {

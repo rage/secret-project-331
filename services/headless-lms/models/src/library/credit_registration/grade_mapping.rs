@@ -104,6 +104,58 @@ pub fn is_known_grade(grade_scale_id: &str, grade_id: &str) -> bool {
     }
 }
 
+/// How a grade stands against one the registry already holds.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GradeComparison {
+    Better,
+    /// Equal, worse, or a pair neither of which we recognise.
+    NotBetter,
+    /// TODO: nobody has told us how a number ranks against a pass, so the two scales are treated as
+    /// unrelated. Ask the study registry, and until then never act on a cross-scale difference.
+    NotComparable,
+}
+
+/// Whether `candidate` is worth pushing over `registered`, which is the frozen pair of an attempt
+/// the registry accepted.
+///
+/// `NotComparable` is not "unknown, try anyway": submitting on a cross-scale difference would ask
+/// the registry to replace a pass with a number, or the other way round, on a guess.
+pub fn compare_grades(
+    registered_grade_scale_id: &str,
+    registered_grade_id: &str,
+    candidate: &MappedGrade,
+) -> GradeComparison {
+    if !same_grade_scale(registered_grade_scale_id, &candidate.grade_scale_id) {
+        return GradeComparison::NotComparable;
+    }
+    let Some(family) = grade_scale_family(&candidate.grade_scale_id) else {
+        return GradeComparison::NotComparable;
+    };
+    match (
+        grade_rank(family, registered_grade_id),
+        grade_rank(family, &candidate.grade_id),
+    ) {
+        (Some(registered), Some(candidate)) if candidate > registered => GradeComparison::Better,
+        (Some(_), Some(_)) => GradeComparison::NotBetter,
+        _ => GradeComparison::NotComparable,
+    }
+}
+
+/// Where a grade sits within its own scale. Comparable only against another rank of the same scale.
+fn grade_rank(family: GradeScaleFamily, grade_id: &str) -> Option<i32> {
+    match family {
+        GradeScaleFamily::PassFail => match grade_id {
+            PASS_GRADE_ID => Some(1),
+            FAIL_GRADE_ID => Some(0),
+            _ => None,
+        },
+        GradeScaleFamily::Numeric => grade_id
+            .parse::<i32>()
+            .ok()
+            .filter(|grade| (0..=MAX_NUMERIC_GRADE).contains(grade)),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -214,6 +266,90 @@ mod tests {
         assert!(!is_known_grade(NUMERIC_GRADE_SCALE_ID, "6"));
         assert!(!is_known_grade(PASS_FAIL_GRADE_SCALE_ID, "3"));
         assert!(!is_known_grade("sis-something-else", "1"));
+    }
+
+    fn mapped(grade_scale_id: &str, grade_id: &str) -> MappedGrade {
+        MappedGrade {
+            grade_scale_id: grade_scale_id.to_string(),
+            grade_id: grade_id.to_string(),
+        }
+    }
+
+    #[test]
+    fn only_a_higher_grade_on_the_same_scale_is_better() {
+        use GradeComparison::*;
+        let numeric = |grade: &str| mapped(NUMERIC_GRADE_SCALE_ID, grade);
+        assert_eq!(
+            compare_grades(NUMERIC_GRADE_SCALE_ID, "3", &numeric("4")),
+            Better
+        );
+        assert_eq!(
+            compare_grades(NUMERIC_GRADE_SCALE_ID, "4", &numeric("4")),
+            NotBetter
+        );
+        assert_eq!(
+            compare_grades(NUMERIC_GRADE_SCALE_ID, "4", &numeric("3")),
+            NotBetter
+        );
+        assert_eq!(
+            compare_grades(
+                PASS_FAIL_GRADE_SCALE_ID,
+                FAIL_GRADE_ID,
+                &mapped(PASS_FAIL_GRADE_SCALE_ID_ALT, PASS_GRADE_ID)
+            ),
+            Better
+        );
+        assert_eq!(
+            compare_grades(
+                PASS_FAIL_GRADE_SCALE_ID,
+                PASS_GRADE_ID,
+                &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID)
+            ),
+            NotBetter
+        );
+    }
+
+    #[test]
+    fn a_grade_on_another_scale_is_never_an_improvement() {
+        use GradeComparison::*;
+        assert_eq!(
+            compare_grades(
+                NUMERIC_GRADE_SCALE_ID,
+                "3",
+                &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID)
+            ),
+            NotComparable
+        );
+        assert_eq!(
+            compare_grades(
+                PASS_FAIL_GRADE_SCALE_ID,
+                PASS_GRADE_ID,
+                &mapped(NUMERIC_GRADE_SCALE_ID, "5")
+            ),
+            NotComparable
+        );
+        assert_eq!(
+            compare_grades(
+                "sis-something-else",
+                "3",
+                &mapped("sis-something-else", "4")
+            ),
+            NotComparable
+        );
+    }
+
+    /// A pair the registry would reject is not an improvement either: the comparison must not turn a
+    /// typo in the frozen snapshot into a resubmission.
+    #[test]
+    fn an_unreadable_grade_on_a_known_scale_is_not_comparable() {
+        assert_eq!(
+            compare_grades(
+                NUMERIC_GRADE_SCALE_ID,
+                "excellent",
+                &mapped(NUMERIC_GRADE_SCALE_ID, "5")
+            ),
+            GradeComparison::NotComparable
+        );
     }
 
     #[test]

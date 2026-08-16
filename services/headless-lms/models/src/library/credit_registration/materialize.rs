@@ -2,11 +2,20 @@
 //! the backfill: flipping a module on makes every pre-existing eligible completion match, and they
 //! stop at `pending_consent`, because historical completions belong to students nobody ever asked.
 
-use crate::credit_registrations::RegistrationScope;
+use crate::credit_registrations::{
+    CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition, mark_superseded,
+    transition,
+};
 use crate::prelude::*;
+
+use super::grade_mapping::{GradeComparison, GradeSource, compare_grades, map_grade};
 
 /// How many rows one iteration may create. Also the backfill's rate limit.
 pub const MATERIALIZE_LIMIT: i64 = 500;
+
+/// How many re-attempts one iteration may start. Bounded apart from [`MATERIALIZE_LIMIT`] because
+/// each of these costs a round trip to the study registry for a credit the student already has.
+pub const GRADE_IMPROVEMENT_LIMIT: i64 = 200;
 
 /// Creates a `pending_prerequisites` row and its `created` event for every eligible completion that
 /// has none; returns the count.
@@ -105,6 +114,138 @@ FROM events
     .fetch_one(conn)
     .await?;
     Ok(created)
+}
+
+/// Supersedes accepted attempts whose completion has since been graded higher, and starts the next
+/// attempt at `ready_to_submit`; returns how many were started.
+///
+/// Only a strictly better grade on the same scale qualifies, so a downward correction and a
+/// cross-scale change both do nothing at all. Rows in `submission_uncertain` are deliberately not
+/// candidates: whether their import landed is unknown, and a successor would risk a second
+/// attainment. The new attempt is an ordinary `ready_to_submit` row from here on.
+pub async fn start_re_attempts_for_improved_grades(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<i64> {
+    let mut tx = conn.begin().await?;
+    let candidates = sqlx::query!(
+        r#"
+SELECT cr.id,
+  cr.attempt_number,
+  cr.course_module_completion_id,
+  cr.user_id,
+  cr.course_id,
+  cr.course_module_id,
+  cr.course_instance_id,
+  cr.grade_scale_id AS "registered_grade_scale_id!",
+  cr.grade_id AS "registered_grade_id!",
+  cmc.passed,
+  cmc.grade,
+  conf.grade_scale_id AS "configured_grade_scale_id?"
+FROM credit_registrations cr
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  JOIN course_modules cm ON cm.id = cr.course_module_id
+  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
+  AND conf.deleted_at IS NULL
+WHERE cr.deleted_at IS NULL
+  AND cr.superseded_by_id IS NULL
+  -- The success set only. A row whose outcome we do not know must not gain a successor, and one
+  -- abandoned by a consent withdrawal is in neither set.
+  AND cr.state IN ('registered', 'duplicate', 'not_improved')
+  AND cr.grade_scale_id IS NOT NULL
+  AND cr.grade_id IS NOT NULL
+  AND cmc.deleted_at IS NULL
+  AND cmc.passed
+  AND cmc.eligible_for_ects
+  AND cmc.prerequisite_modules_completed
+  AND NOT cmc.needs_to_be_reviewed
+  AND cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+  -- The successor is born claimable, so consent is checked here rather than left to the next
+  -- precondition pass: withdrawal stops future submissions, and a registered attempt is the one
+  -- case where the student may have withdrawn long after the row went terminal.
+  AND EXISTS (
+    SELECT 1
+    FROM course_credit_registration_consents consent
+    WHERE consent.user_id = cr.user_id
+      AND consent.course_id = cr.course_id
+      AND consent.consent_given
+      AND consent.deleted_at IS NULL
+  )
+  -- A completion untouched since the attempt was created cannot have been regraded after that
+  -- attempt froze its grade. Without it every accepted row is re-read on every iteration, and the
+  -- limit below would then keep re-reading the same two hundred forever.
+  AND cmc.updated_at > cr.created_at
+  AND ($2::uuid IS NULL OR cr.course_id = $2)
+  AND ($3::uuid IS NULL OR cr.user_id = $3)
+ORDER BY cmc.updated_at FOR
+UPDATE OF cr SKIP LOCKED
+LIMIT $1
+        "#,
+        limit,
+        scope.course_id,
+        scope.user_id,
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+
+    let mut started = 0;
+    for candidate in candidates {
+        let Ok(mapped) = map_grade(GradeSource {
+            passed: candidate.passed,
+            grade: candidate.grade,
+            configured_grade_scale_id: candidate.configured_grade_scale_id.as_deref(),
+            // No enrolment has been resolved for the next attempt yet, so the scale is the module's
+            // override or the one the completion itself implies.
+            enrolment_grade_scale_id: None,
+        }) else {
+            continue;
+        };
+        if compare_grades(
+            &candidate.registered_grade_scale_id,
+            &candidate.registered_grade_id,
+            &mapped,
+        ) != GradeComparison::Better
+        {
+            continue;
+        }
+        // `uq_credit_registrations_completion` allows one live attempt per completion and the
+        // foreign key cannot point at a row that does not exist yet: park the old attempt on
+        // itself, insert the successor, then repoint.
+        mark_superseded(&mut tx, candidate.id, candidate.id).await?;
+        let next = crate::credit_registrations::insert(
+            &mut tx,
+            PKeyPolicy::Generate,
+            &NewCreditRegistration {
+                course_module_completion_id: candidate.course_module_completion_id,
+                user_id: candidate.user_id,
+                course_id: candidate.course_id,
+                course_module_id: candidate.course_module_id,
+                course_instance_id: candidate.course_instance_id,
+                attempt_number: candidate.attempt_number + 1,
+            },
+            Some(&format!(
+                "The completion's grade rose from {} to {}, so the registered attempt was \
+                 superseded.",
+                candidate.registered_grade_id, mapped.grade_id
+            )),
+        )
+        .await?;
+        mark_superseded(&mut tx, candidate.id, next).await?;
+        // Not `pending_prerequisites`: that chain was cleared before the first attempt was
+        // accepted, the query above rechecks consent and eligibility, and a student number
+        // unlinked since sends the row back by itself when the submitter finds none.
+        transition(
+            &mut tx,
+            next,
+            &Transition::to(CreditRegistrationState::ReadyToSubmit),
+        )
+        .await?;
+        started += 1;
+    }
+    tx.commit().await?;
+    Ok(started)
 }
 
 #[cfg(test)]

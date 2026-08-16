@@ -160,6 +160,52 @@ async fn run_registrar_tick(
     token.authorized_ok(HttpResponse::Ok().json(RegistrarTickResult { phases }))
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RegradeCompletionPayload {
+    pub credit_registration_id: Uuid,
+    /// `null` puts the completion on the pass/fail scale, which is how a spec crosses grade scales.
+    pub grade: Option<i32>,
+    /// Absent leaves it alone.
+    pub passed: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct RegradeCompletionResult {
+    pub course_module_completion_id: Uuid,
+    pub grade: Option<i32>,
+}
+
+/// Rewrites the grade of the completion behind one ledger row.
+///
+/// A test hook, not a product path: the manual completion flow writes a new completion row, so
+/// nothing else in the product edits a completion's grade, and the grade-improvement statement is
+/// about exactly that edit.
+async fn regrade_completion(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    payload: web::Json<RegradeCompletionPayload>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    let mut conn = pool.acquire().await?;
+    let registration =
+        models::credit_registrations::get_by_id(&mut conn, payload.credit_registration_id).await?;
+    models::course_module_completions::set_grade_for_testing(
+        &mut conn,
+        registration.course_module_completion_id,
+        payload.grade,
+        payload.passed,
+    )
+    .await?;
+    token.authorized_ok(HttpResponse::Ok().json(RegradeCompletionResult {
+        course_module_completion_id: registration.course_module_completion_id,
+        grade: payload.grade,
+    }))
+}
+
 /// Attributed to the tick rather than to a worker, so the audit log says which traffic a test made.
 fn tick_context<'a>(
     app_conf: &'a ApplicationConfiguration,
@@ -242,6 +288,7 @@ fn known_phase_names() -> Vec<String> {
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/run-tick", web::post().to(run_tick))
         .route("/run-registrar-tick", web::post().to(run_registrar_tick))
+        .route("/regrade-completion", web::post().to(regrade_completion))
         .configure(commands::_add_routes);
 }
 

@@ -122,6 +122,11 @@ pub struct MyCreditRegistration {
     /// suspected cheater — which `users.rs` hides from them for that exact reason. Every cause of
     /// `not_registering` has to stay indistinguishable here.
     pub consent_withdrawn_while_in_flight: bool,
+    /// The registry declined this attempt because it already holds an equal or better grade. Still a
+    /// `registered` stage — the credit exists — but the student raised a grade and nothing changed,
+    /// so it earns a line of its own. Unlike the ledger state, this one is safe to expose: it says
+    /// something about the student's own transcript and nothing about how we treat them.
+    pub registry_already_held_equal_or_better: bool,
     /// Whether the pipeline is still expected to move this row: drives the status page's polling.
     pub status_is_moving: bool,
     pub error_code: Option<CreditRegistrationErrorCode>,
@@ -876,6 +881,7 @@ fn to_my_credit_registration(
         student_facing_status: status,
         consent_withdrawn_while_in_flight: row.state
             == CreditRegistrationState::AbandonedByConsentWithdrawal,
+        registry_already_held_equal_or_better: row.state == CreditRegistrationState::NotImproved,
         status_is_moving: status.is_moving(),
         error_code: row.error_code,
         next_attempt_at: row.next_attempt_at,

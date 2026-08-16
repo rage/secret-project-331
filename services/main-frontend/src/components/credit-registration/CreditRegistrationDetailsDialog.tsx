@@ -15,6 +15,7 @@ import { STACKED } from "./constants"
 import {
   registrationErrorHelp,
   registrationExplanation,
+  registrationGradeLabel,
   registrationStatusLabel,
 } from "./creditRegistrationCopy"
 import {
@@ -173,19 +174,39 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
       {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
         <ResendLinkingEmailBlock registration={registration} />
       )}
-      <div className={sectionHeadingCss}>{t("heading-credit-registration-timeline")}</div>
       <QueryResult query={detailsQuery}>
         {(details) => (
-          <ul className={timelineCss}>
-            {details.events.map((event) => (
-              <li className={timelineRowCss} key={event.id}>
-                <span className={timestampCss}>{new Date(event.created_at).toLocaleString()}</span>
-                {/* Deliberately untranslated: this is what a teacher quotes to support. */}
-                <span className={ledgerStateCss}>{event.to_state ?? event.kind}</span>
-                {event.message && <span>{event.message}</span>}
-              </li>
-            ))}
-          </ul>
+          <>
+            {/* The grade already in the registry, which is why a better one was turned down. */}
+            {details.not_improved_attainment ? (
+              <DescriptionList
+                layout={STACKED}
+                items={[
+                  {
+                    label: t("label-credit-registration-registry-held-grade"),
+                    value: registrationGradeLabel(
+                      t,
+                      details.not_improved_attainment.grade_id,
+                      details.not_improved_attainment.grade_scale_id,
+                    ),
+                  },
+                ]}
+              />
+            ) : null}
+            <div className={sectionHeadingCss}>{t("heading-credit-registration-timeline")}</div>
+            <ul className={timelineCss}>
+              {details.events.map((event) => (
+                <li className={timelineRowCss} key={event.id}>
+                  <span className={timestampCss}>
+                    {new Date(event.created_at).toLocaleString()}
+                  </span>
+                  {/* Deliberately untranslated: this is what a teacher quotes to support. */}
+                  <span className={ledgerStateCss}>{event.to_state ?? event.kind}</span>
+                  {event.message && <span>{event.message}</span>}
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </QueryResult>
     </Dialog>

@@ -22,7 +22,7 @@
  * | `9000009xx`     | suotar-admin-dashboard           | admin                       |
  * | `9000010xx`     | suotar-old-flow-coexistence      | old-flow                    |
  * | `9000011xx`     | suotar-backfill-and-late-consent | backfill                    |
- * | `9000012xx`     | suotar-grade-improvement         | not written yet             |
+ * | `9000012xx`     | suotar-grade-improvement         | grade-improvement           |
  * | `9000013xx`     | suotar-student-emails            | via-suotar                  |
  * | `9000014xx`     | suotar-fast-track-linking        | not written yet             |
  * | `9000015xx`     | suotar-in-course-banner          | not written yet             |
@@ -46,6 +46,7 @@ export const ADMIN_COURSE_SLUG = "credit-registration-admin"
 export const IMPORT_OUTCOMES_COURSE_SLUG = "credit-registration-import-outcomes"
 export const BACKFILL_COURSE_SLUG = "credit-registration-backfill"
 export const OLD_FLOW_COURSE_SLUG = "credit-registration-old-flow"
+export const GRADE_IMPROVEMENT_COURSE_SLUG = "credit-registration-grade-improvement"
 
 /** Must match the `*_COURSE_ID` constants in `seed_credit_registration.rs`. */
 export const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
@@ -56,6 +57,8 @@ export const OLD_FLOW_COURSE_ID = "c5ed17ea-0002-4a5e-9e6e-c0de00000002"
 /** University course codes: what the mock Suotar keys its world on. */
 export const CRS_101 = "CRS-101"
 export const CRS_ADMIN_101 = "CRS-ADMIN-101"
+/** The one seeded module on a graded scale rather than pass/fail. */
+export const CRS_GRADED_101 = "CRS-GRADED-101"
 
 export const CREDIT_REGISTRATION_ORGANIZATION_SLUG = "credit-registration"
 
@@ -86,6 +89,7 @@ export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-emails-no-enrolment@example.com",
   "credit-registration-emails-registered@example.com",
   "credit-registration-emails-unmailed@example.com",
+  "credit-registration-grade-improvement@example.com",
   "credit-registration-import-outcomes@example.com",
   "credit-registration-import-timeout@example.com",
   "credit-registration-link-claimer@example.com",

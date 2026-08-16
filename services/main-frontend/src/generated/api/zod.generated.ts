@@ -2902,6 +2902,17 @@ export const zModuleUpdates = z.object({
 export const zNewRegradingIdType = z.enum(["ExerciseTaskSubmissionId", "ExerciseId"])
 
 /**
+ * The attainment the study registry pointed at when it turned a submission down as no improvement.
+ *
+ * Read back off the event the answer was recorded on rather than stored on the ledger row: the row
+ * holds what we sent, and this is what the registry already had.
+ */
+export const zNotImprovedAttainment = z.object({
+  grade_id: z.string().nullish(),
+  grade_scale_id: z.string().nullish(),
+})
+
+/**
  * The same, for one of the two terminal-state mails. No address: these go to the account's own,
  * which the reader either owns or already sees.
  */
@@ -3707,6 +3718,7 @@ export const zMyCreditRegistration = z.object({
   next_attempt_at: z.iso.datetime(),
   notification_email: zNotificationEmailStatus.nullish(),
   registered_at: z.iso.datetime().nullish(),
+  registry_already_held_equal_or_better: z.boolean(),
   sisu_attainment_id: z.string().nullish(),
   status_is_moving: z.boolean(),
   student_facing_status: zStudentFacingCreditRegistrationStatus,
@@ -3962,6 +3974,7 @@ export const zAdminCreditRegistrationDetails = z.object({
   consent_withdrawn_at: z.iso.datetime().nullish(),
   events: z.array(zAdminCreditRegistrationEvent),
   linking_emails: z.array(zAdminLinkingEmail),
+  not_improved_attainment: zNotImprovedAttainment.nullish(),
   notification_emails: z.array(zAdminNotificationEmail),
   registration: zAdminCreditRegistrationRow,
   suotar_api_calls: z.array(zAdminSuotarApiCall),
@@ -4208,6 +4221,7 @@ export const zCreditRegistrationDetails = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
   events: z.array(zCourseCreditRegistrationEvent),
+  not_improved_attainment: zNotImprovedAttainment.nullish(),
   registration: zCourseCreditRegistration,
 })
 

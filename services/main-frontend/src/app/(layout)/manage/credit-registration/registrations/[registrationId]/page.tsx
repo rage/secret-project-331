@@ -32,6 +32,7 @@ import type {
   CreditRegistrationAdminActionRecord,
 } from "@/generated/api/types.generated"
 import { creditRegistrationItemRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
+import type { DescriptionListItem } from "@/shared-module/components"
 import {
   Badge,
   DescriptionList,
@@ -77,6 +78,18 @@ const attemptChainCss = css`
 const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
   const { t } = useTranslation()
   const row = details.registration
+  // Next to the grade we sent, which is the comparison that explains the verdict.
+  const heldGrade: DescriptionListItem[] = details.not_improved_attainment
+    ? [
+        {
+          label: t("label-credit-registration-registry-held-grade"),
+          value: [
+            details.not_improved_attainment.grade_scale_id ?? ABSENT,
+            details.not_improved_attainment.grade_id ?? ABSENT,
+          ].join(SLASH),
+        },
+      ]
+    : []
   return (
     <section className={sectionCss}>
       <div className={headerRowCss}>
@@ -142,6 +155,7 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
               MIDDLE_DOT +
               (row.credits ?? ABSENT),
           },
+          ...heldGrade,
           {
             label: t("label-credit-registration-enrolment"),
             value: <code>{row.selected_enrolment_id ?? ABSENT}</code>,

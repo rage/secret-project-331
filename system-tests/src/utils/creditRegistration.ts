@@ -24,7 +24,7 @@
  * | `9000011xx`     | suotar-backfill-and-late-consent | backfill                    |
  * | `9000012xx`     | suotar-grade-improvement         | grade-improvement           |
  * | `9000013xx`     | suotar-student-emails            | via-suotar                  |
- * | `9000014xx`     | suotar-fast-track-linking        | not written yet             |
+ * | `9000014xx`     | suotar-fast-track-linking        | via-suotar                  |
  * | `9000015xx`     | suotar-in-course-banner          | not written yet             |
  * | `9000016xx`     | suotar-student-profile           | none (reads seeded rows)    |
  */
@@ -98,6 +98,7 @@ export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-profile-empty@example.com",
   "credit-registration-superseded@example.com",
   "credit-registration-two-enrolments@example.com",
+  "credit-registration-verified-email@example.com",
   "credit-registration-verify-misregistered@example.com",
   "credit-registration-verify-polling@example.com",
 ] as const

@@ -663,6 +663,7 @@ pub async fn resend_course_credit_registration_linking_email(
         test_mode: app_conf.test_mode,
         caller: RESEND_CALLER,
         base_url: &app_conf.base_url,
+        suotar_conf: &app_conf.suotar_configuration,
     };
     // Released first: the call below takes connections of its own and can hold the request for the
     // whole Suotar timeout, so keeping this one would tie up three of the pool per resend.

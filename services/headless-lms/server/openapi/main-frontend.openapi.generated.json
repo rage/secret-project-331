@@ -7644,6 +7644,18 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts\naway the notice saying the pipeline linked this student number without asking.\n\nDismissing only hides the notice; the number stays linked and the unlink endpoint stays available.",
+        "operationId": "dismissMyAutoLinkNotice",
+        "responses": {
+          "200": {
+            "description": "The notice is dismissed"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment": {
       "post": {
         "tags": ["credit-registrations"],
@@ -12551,10 +12563,21 @@
           "manual_links_in_window",
           "suppressed_by_dedup_last_run",
           "suppressed_by_rate_cap_last_run",
-          "no_address_in_study_registry_last_run"
+          "no_address_in_study_registry_last_run",
+          "fast_tracked_in_window",
+          "fast_tracked_last_run"
         ],
         "properties": {
           "already_linked_last_run": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fast_tracked_in_window": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The branch that skips the mail entirely: discovered persons linked straight away because the\nstudy registry holds a verified account address for them. A terminal branch off `discovered`,\nnot a stage every person passes through."
+          },
+          "fast_tracked_last_run": {
             "type": "integer",
             "format": "int64"
           },
@@ -12627,6 +12650,36 @@
           },
           "course_unit_realisation_id": {
             "type": "string"
+          },
+          "fast_track_skipped_account_has_number_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "fast_track_skipped_name_mismatch_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "A rise here is the only early warning of a university address reissued to a different person."
+          },
+          "fast_track_skipped_no_account_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "fast_track_skipped_stale_verification_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "fast_track_skipped_unlinked_before_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "fast_track_skipped_unverified_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Matched an account that has never proved the address. The population an email-verification\ncampaign would convert."
+          },
+          "fast_tracked_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
           },
           "label": {
             "type": ["string", "null"]
@@ -16987,6 +17040,34 @@
             "type": ["integer", "null"],
             "format": "int32"
           },
+          "last_fast_track_skipped_account_has_number_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_fast_track_skipped_name_mismatch_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_fast_track_skipped_no_account_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_fast_track_skipped_stale_verification_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_fast_track_skipped_unlinked_before_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_fast_track_skipped_unverified_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_fast_tracked_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
           "last_listed_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -20162,7 +20243,7 @@
           },
           "registry_already_held_equal_or_better": {
             "type": "boolean",
-            "description": "The registry turned this attempt down because it already holds an equal or better grade. Also\na `registered` stage — the credit exists — but the student raised a grade and nothing about it\nchanged, so it gets a line of its own. Safe to expose where the ledger state is not: every\ncause of it is the student's own transcript."
+            "description": "The registry declined this attempt because it already holds an equal or better grade. Still a\n`registered` stage — the credit exists — but the student raised a grade and nothing changed,\nso it earns a line of its own. Unlike the ledger state, this one is safe to expose: it says\nsomething about the student's own transcript and nothing about how we treat them."
           },
           "sisu_attainment_id": {
             "type": ["string", "null"]
@@ -20416,13 +20497,26 @@
       "MyVerifiedStudentNumber": {
         "type": "object",
         "description": "The account's linked student number, unmasked: it is the holder's own.",
-        "required": ["student_number", "verified_at", "verified_via"],
+        "required": [
+          "student_number",
+          "verified_at",
+          "verified_via",
+          "linked_automatically",
+          "auto_link_notice_dismissed"
+        ],
         "properties": {
+          "auto_link_notice_dismissed": {
+            "type": "boolean"
+          },
           "first_names": {
             "type": ["string", "null"]
           },
           "last_name": {
             "type": ["string", "null"]
+          },
+          "linked_automatically": {
+            "type": "boolean",
+            "description": "Whether the pipeline linked this without asking, because the study registry holds this\naccount's verified address for the student number. True until the student puts the notice\naway, and the notice is what makes a wrong automatic link noticeable."
           },
           "student_number": {
             "type": "string"

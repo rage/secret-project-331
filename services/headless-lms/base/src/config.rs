@@ -125,8 +125,8 @@ pub const SUOTAR_AUTH_SCHEME: &str = "Basic";
 /// The only token the mock Suotar accepts. Public on purpose: never a real credential.
 pub const MOCK_SUOTAR_TOKEN: &str = "mock-suotar-token";
 
-/// Auto-links a student number when Sisu's address matches a verified account email. Off until that
-/// fast track exists; then it is the incident kill switch for it.
+/// Auto-links a student number when Sisu's address matches a verified account email. Off unless
+/// deliberately turned on, and the switch that turns it off again during an incident.
 const FAST_TRACK_EMAIL_MATCH_ENABLED_DEFAULT: bool = false;
 
 /// Days an `email_verified_at` may be old and still count as fast-track proof. Bounded because a
@@ -138,9 +138,7 @@ pub struct SuotarConfiguration {
     /// Ends in `/` because it is a [`Url::join`] base and joined paths must be relative.
     pub api_base_url: Url,
     pub api_token: SecretString,
-    /// Nothing reads it yet.
     pub fast_track_email_match_enabled: bool,
-    /// Nothing reads it yet.
     pub fast_track_max_email_verification_age_days: i64,
 }
 

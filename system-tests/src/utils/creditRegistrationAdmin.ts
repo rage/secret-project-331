@@ -127,6 +127,36 @@ export const adminRegistrationDetails = (
 export const accountLinkingStats = (request: APIRequestContext): Promise<AccountLinkingStats> =>
   getJson<AccountLinkingStats>(request, `${CREDIT_REGISTRATION_ADMIN_API}/account-linking`)
 
+export const ADMIN_RESOLVE_PERSON_URL = `${CREDIT_REGISTRATION_ADMIN_API}/account-linking/resolve-person`
+
+/** The subset of `adminResolveStudentNumberForLinking` the linking specs read. */
+export interface AdminResolvedStudentNumber {
+  found: boolean
+  already_linked_to_user_id: string | null
+  already_linked_via: string | null
+  linking_emails: { id: string; emailed_to: string }[]
+}
+
+/**
+ * Who the registry says a number belongs to, and every linking mail we have claimed for them. The
+ * only read that answers "was this person mailed a link", which is what the fast-track specs assert
+ * the absence of.
+ */
+export const adminResolveStudentNumber = async (
+  request: APIRequestContext,
+  studentNumber: string,
+): Promise<AdminResolvedStudentNumber> => {
+  const response = await request.post(ADMIN_RESOLVE_PERSON_URL, {
+    data: { student_number: studentNumber },
+  })
+  if (!response.ok()) {
+    throw new Error(
+      `Resolving ${studentNumber} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return (await response.json()) as AdminResolvedStudentNumber
+}
+
 export type PhaseAction = "pause" | "resume" | "run-now"
 
 /** Raw: for the specs proving an unknown phase name or a missing reason is refused. */

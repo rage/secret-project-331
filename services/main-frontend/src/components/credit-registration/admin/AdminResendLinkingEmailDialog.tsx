@@ -166,6 +166,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
             })}
           </p>
           <p>{t("credit-registration-admin-resend-dialog-addresses-note")}</p>
+          <p>{t("credit-registration-resend-address-they-can-read-hint")}</p>
           <Checkbox
             name="override_rate_caps"
             control={control}

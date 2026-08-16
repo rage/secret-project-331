@@ -157,6 +157,8 @@ import type {
   DenyOauthConsentResponses,
   DismissCourseSuspectedCheaterData,
   DismissCourseSuspectedCheaterResponses,
+  DismissMyAutoLinkNoticeData,
+  DismissMyAutoLinkNoticeResponses,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponses,
   DuplicateExamData,
@@ -5070,6 +5072,24 @@ export const getMyVerifiedStudentNumber = <ThrowOnError extends boolean = true>(
     url: "/api/v0/main-frontend/credit-registrations/my/student-number",
     ...options,
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
+ * away the notice saying the pipeline linked this student number without asking.
+ *
+ * Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
+ */
+export const dismissMyAutoLinkNotice = <ThrowOnError extends boolean = true>(
+  options?: Options<DismissMyAutoLinkNoticeData, ThrowOnError>,
+): RequestResult<DismissMyAutoLinkNoticeResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).post<DismissMyAutoLinkNoticeResponses, unknown, ThrowOnError, "data">(
+    {
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice",
+      ...options,
+    },
+  )
 
 /**
  *

@@ -21,6 +21,13 @@ export type AccountLinkingFailureDomain = {
  */
 export type AccountLinkingFunnel = {
   already_linked_last_run: number
+  /**
+   * The branch that skips the mail entirely: discovered persons linked straight away because the
+   * study registry holds a verified account address for them. A terminal branch off `discovered`,
+   * not a stage every person passes through.
+   */
+  fast_tracked_in_window: number
+  fast_tracked_last_run: number
   mails_claimed_in_window: number
   mails_sent_in_window: number
   /**
@@ -42,6 +49,20 @@ export type AccountLinkingRealisationCounters = {
   course_module_name?: string | null
   course_name: string
   course_unit_realisation_id: string
+  fast_track_skipped_account_has_number_count?: number | null
+  /**
+   * A rise here is the only early warning of a university address reissued to a different person.
+   */
+  fast_track_skipped_name_mismatch_count?: number | null
+  fast_track_skipped_no_account_count?: number | null
+  fast_track_skipped_stale_verification_count?: number | null
+  fast_track_skipped_unlinked_before_count?: number | null
+  /**
+   * Matched an account that has never proved the address. The population an email-verification
+   * campaign would convert.
+   */
+  fast_track_skipped_unverified_count?: number | null
+  fast_tracked_count?: number | null
   label?: string | null
   /**
    * When the counters below were collected. Not the last attempt: a failing realisation keeps the
@@ -1527,6 +1548,13 @@ export type CourseModuleSuotarRealisation = {
   id: string
   label?: string | null
   last_already_linked_count?: number | null
+  last_fast_track_skipped_account_has_number_count?: number | null
+  last_fast_track_skipped_name_mismatch_count?: number | null
+  last_fast_track_skipped_no_account_count?: number | null
+  last_fast_track_skipped_stale_verification_count?: number | null
+  last_fast_track_skipped_unlinked_before_count?: number | null
+  last_fast_track_skipped_unverified_count?: number | null
+  last_fast_tracked_count?: number | null
   last_listed_at?: string | null
   last_listed_person_count?: number | null
   last_listing_attempted_at?: string | null
@@ -2638,10 +2666,10 @@ export type MyCreditRegistration = {
   notification_email?: null | NotificationEmailStatus
   registered_at?: string | null
   /**
-   * The registry turned this attempt down because it already holds an equal or better grade. Also
-   * a `registered` stage — the credit exists — but the student raised a grade and nothing about it
-   * changed, so it gets a line of its own. Safe to expose where the ledger state is not: every
-   * cause of it is the student's own transcript.
+   * The registry declined this attempt because it already holds an equal or better grade. Still a
+   * `registered` stage — the credit exists — but the student raised a grade and nothing changed,
+   * so it earns a line of its own. Unlike the ledger state, this one is safe to expose: it says
+   * something about the student's own transcript and nothing about how we treat them.
    */
   registry_already_held_equal_or_better: boolean
   sisu_attainment_id?: string | null
@@ -2761,8 +2789,15 @@ export type MyStudiesTotals = {
  * The account's linked student number, unmasked: it is the holder's own.
  */
 export type MyVerifiedStudentNumber = {
+  auto_link_notice_dismissed: boolean
   first_names?: string | null
   last_name?: string | null
+  /**
+   * Whether the pipeline linked this without asking, because the study registry holds this
+   * account's verified address for the student number. True until the student puts the notice
+   * away, and the notice is what makes a wrong automatic link noticeable.
+   */
+  linked_automatically: boolean
   student_number: string
   verified_at: string
   verified_via: StudentNumberVerificationMethod
@@ -8629,6 +8664,20 @@ export type GetMyVerifiedStudentNumberResponses = {
 
 export type GetMyVerifiedStudentNumberResponse =
   GetMyVerifiedStudentNumberResponses[keyof GetMyVerifiedStudentNumberResponses]
+
+export type DismissMyAutoLinkNoticeData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice"
+}
+
+export type DismissMyAutoLinkNoticeResponses = {
+  /**
+   * The notice is dismissed
+   */
+  200: unknown
+}
 
 export type RequestCreditRegistrationEnrolmentRecheckData = {
   body?: never

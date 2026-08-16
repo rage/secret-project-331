@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE verified_student_numbers\nSET auto_link_notice_dismissed_at = now()\nWHERE user_id = $1\n  AND deleted_at IS NULL\n  AND auto_link_notice_dismissed_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b13e0a3b8c00d2a0cfe1946311d924eb18962f93c1ce1f11bb7e5dedf77546bd"
+}

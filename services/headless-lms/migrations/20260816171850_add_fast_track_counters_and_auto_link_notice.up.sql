@@ -1,0 +1,21 @@
+ALTER TABLE course_module_suotar_realisations
+ADD COLUMN last_fast_tracked_count INT,
+  ADD COLUMN last_fast_track_skipped_no_account_count INT,
+  ADD COLUMN last_fast_track_skipped_unverified_count INT,
+  ADD COLUMN last_fast_track_skipped_stale_verification_count INT,
+  ADD COLUMN last_fast_track_skipped_name_mismatch_count INT,
+  ADD COLUMN last_fast_track_skipped_account_has_number_count INT,
+  ADD COLUMN last_fast_track_skipped_unlinked_before_count INT;
+
+COMMENT ON COLUMN course_module_suotar_realisations.last_fast_tracked_count IS 'Of the last listing, how many persons were linked without a mail because the study registry holds a verified account address for them.';
+COMMENT ON COLUMN course_module_suotar_realisations.last_fast_track_skipped_no_account_count IS 'Of the last listing, how many primary addresses matched no live account here. The ordinary linking mail covers these, and this is the bucket the whole linking flow exists for.';
+COMMENT ON COLUMN course_module_suotar_realisations.last_fast_track_skipped_unverified_count IS 'Of the last listing, how many primary addresses matched an account that has never proved control of it. This is the population an email-verification campaign would convert into fast tracks.';
+COMMENT ON COLUMN course_module_suotar_realisations.last_fast_track_skipped_stale_verification_count IS 'Of the last listing, how many matched accounts had a proof older than the configured recency bound.';
+COMMENT ON COLUMN course_module_suotar_realisations.last_fast_track_skipped_name_mismatch_count IS 'Of the last listing, how many matched accounts carried a name unlike the one the study registry holds. A rise here is the observable signature of a university address reissued to a different person.';
+COMMENT ON COLUMN course_module_suotar_realisations.last_fast_track_skipped_account_has_number_count IS 'Of the last listing, how many matched accounts already held a different student number. Replacing one silently is worse than mailing the link, whose confirmation screen names both numbers.';
+COMMENT ON COLUMN course_module_suotar_realisations.last_fast_track_skipped_unlinked_before_count IS 'Of the last listing, how many matched accounts had already unlinked an automatic link for this person. Relinking them would make the unlink button theatre.';
+
+ALTER TABLE verified_student_numbers
+ADD COLUMN auto_link_notice_dismissed_at TIMESTAMP WITH TIME ZONE;
+
+COMMENT ON COLUMN verified_student_numbers.auto_link_notice_dismissed_at IS 'When the student dismissed the notice telling them this link was made automatically. Only ever set for verified_via = email_match_fast_track; the notice and its one-click unlink are the compensating control for linking without asking.';

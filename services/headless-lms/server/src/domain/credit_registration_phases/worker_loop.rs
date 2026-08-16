@@ -61,6 +61,7 @@ pub async fn run(
             test_mode: app_configuration.test_mode,
             caller: process_name,
             base_url: &app_configuration.base_url,
+            suotar_conf: &app_configuration.suotar_configuration,
         };
         let states = match phase_states(&db_pool).await {
             Ok(states) => states,

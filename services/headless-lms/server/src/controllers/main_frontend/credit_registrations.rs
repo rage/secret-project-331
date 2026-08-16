@@ -47,6 +47,7 @@ const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
     get_my_credit_registration_for_course_module,
     request_credit_registration_enrolment_recheck,
     get_my_verified_student_number,
+    dismiss_my_auto_link_notice,
     unlink_my_student_number,
     preview_student_number_verification_token,
     claim_student_number_verification_token,
@@ -177,6 +178,11 @@ pub struct MyVerifiedStudentNumber {
     pub verified_via_email_masked: Option<String>,
     pub first_names: Option<String>,
     pub last_name: Option<String>,
+    /// Whether the pipeline linked this without asking, because the study registry holds this
+    /// account's verified address for the student number. True until the student puts the notice
+    /// away, and the notice is what makes a wrong automatic link noticeable.
+    pub linked_automatically: bool,
+    pub auto_link_notice_dismissed: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -451,6 +457,34 @@ pub async fn get_my_verified_student_number(
 }
 
 /**
+POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
+away the notice saying the pipeline linked this student number without asking.
+
+Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my/student-number/dismiss-auto-link-notice",
+    operation_id = "dismissMyAutoLinkNotice",
+    tag = "credit-registrations",
+    responses(
+        (status = 200, description = "The notice is dismissed")
+    )
+)]
+pub async fn dismiss_my_auto_link_notice(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    verified_student_numbers::dismiss_auto_link_notice(&mut conn, user.id).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
 DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
 from the signed-in account.
 
@@ -484,7 +518,7 @@ pub async fn unlink_my_student_number(
     let affected_registration_count = record_student_number_change(
         &mut tx,
         user.id,
-        user.id,
+        Some(user.id),
         CreditRegistrationEventKind::StudentAction,
         "The student unlinked their student number.",
     )
@@ -646,7 +680,7 @@ pub async fn claim_student_number_verification_token(
                 link_reason: None,
                 verified_from_course_id: verification_token.course_id,
             },
-            user.id,
+            Some(user.id),
             CreditRegistrationEventKind::StudentAction,
             "The student linked a student number.",
         )
@@ -1064,6 +1098,9 @@ fn to_my_verified_student_number(link: VerifiedStudentNumber) -> MyVerifiedStude
         verified_via_email_masked: link.verified_via_email.as_deref().map(mask_email),
         first_names: link.first_names,
         last_name: link.last_name,
+        linked_automatically: link.verified_via
+            == StudentNumberVerificationMethod::EmailMatchFastTrack,
+        auto_link_notice_dismissed: link.auto_link_notice_dismissed_at.is_some(),
     }
 }
 
@@ -1129,6 +1166,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/my/student-number",
             web::delete().to(unlink_my_student_number),
+        )
+        .route(
+            "/my/student-number/dismiss-auto-link-notice",
+            web::post().to(dismiss_my_auto_link_notice),
         )
         .route(
             "/my/by-course-module/{course_module_id}",

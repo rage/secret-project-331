@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { IdCard } from "@vectopus/atlas-icons-react"
 import React from "react"
@@ -11,7 +12,7 @@ import {
   getMyVerifiedStudentNumberOptions,
   getMyVerifiedStudentNumberQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
-import { unlinkMyStudentNumber } from "@/generated/api/sdk.generated"
+import { dismissMyAutoLinkNotice, unlinkMyStudentNumber } from "@/generated/api/sdk.generated"
 import type {
   MyVerifiedStudentNumber,
   StudentNumberVerificationMethod,
@@ -31,6 +32,13 @@ const PROVENANCE_KEYS = {
   email_match_fast_track: "student-number-verified-via-email-match",
   admin_manual: "student-number-verified-via-admin-manual",
 } as const satisfies Record<StudentNumberVerificationMethod, string>
+
+const noticeActionsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`
 
 const StudentNumberCard: React.FC = () => {
   const { t } = useTranslation()
@@ -77,6 +85,16 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
     },
   )
 
+  const askAndUnlink = async () => {
+    const confirmed = await confirm(
+      t("confirm-remove-student-number-message"),
+      t("confirm-remove-student-number-title"),
+    )
+    if (confirmed) {
+      unlink.mutate()
+    }
+  }
+
   const sisuName = [link.first_names, link.last_name].filter(Boolean).join(" ")
   const items = [
     { label: t("label-student-number"), value: link.student_number },
@@ -96,25 +114,66 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
   return (
     <>
       <Badge tone={TONE.SUCCESS}>{t("badge-student-number-linked")}</Badge>
+      {link.linked_automatically && !link.auto_link_notice_dismissed && (
+        <AutoLinkNotice link={link} onUnlink={askAndUnlink} unlinkPending={unlink.isPending} />
+      )}
       <DescriptionList items={items} />
       <p>{t("student-number-credits-registered-under-this-number")}</p>
-      <Button
-        variant="secondary"
-        size="medium"
-        isLoading={unlink.isPending}
-        onClick={async () => {
-          const confirmed = await confirm(
-            t("confirm-remove-student-number-message"),
-            t("confirm-remove-student-number-title"),
-          )
-          if (confirmed) {
-            unlink.mutate()
-          }
-        }}
-      >
+      <Button variant="secondary" size="medium" isLoading={unlink.isPending} onClick={askAndUnlink}>
         {t("button-remove-student-number")}
       </Button>
     </>
+  )
+}
+
+/**
+ * The only way a student finds out we linked a number without asking them. Its unlink button is the
+ * whole point, so dismissing must not be the easier of the two to hit.
+ */
+const AutoLinkNotice: React.FC<{
+  link: MyVerifiedStudentNumber
+  onUnlink: () => void | Promise<void>
+  unlinkPending: boolean
+}> = ({ link, onUnlink, unlinkPending }) => {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+
+  const dismiss = useToastMutation<void, unknown, void>(
+    async () => {
+      await dismissMyAutoLinkNotice()
+    },
+    { notify: false },
+    {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getMyVerifiedStudentNumberQueryKey() })
+      },
+    },
+  )
+
+  return (
+    <div data-testid="auto-link-notice">
+      <Infobox tone={TONE.INFO}>
+        <p>
+          {t("student-number-linked-automatically-notice", {
+            number: link.student_number,
+            email: link.verified_via_email_masked ?? "",
+          })}
+        </p>
+        <div className={noticeActionsCss}>
+          <Button variant="secondary" size="medium" isLoading={unlinkPending} onClick={onUnlink}>
+            {t("button-not-my-student-number-unlink")}
+          </Button>
+          <Button
+            variant="tertiary"
+            size="medium"
+            isLoading={dismiss.isPending}
+            onClick={() => dismiss.mutate()}
+          >
+            {t("button-dismiss-notice")}
+          </Button>
+        </div>
+      </Infobox>
+    </div>
   )
 }
 
@@ -127,6 +186,7 @@ const NotLinked: React.FC<{
       <p>{t("student-number-not-linked")}</p>
       <Infobox>{t("student-number-how-linking-works")}</Infobox>
       <LinkingEmailLine linkingEmail={linkingEmail} />
+      {linkingEmail && <p>{t("student-number-linking-mail-resend-hint")}</p>}
       <p>{t("student-number-cannot-read-that-address")}</p>
     </>
   )

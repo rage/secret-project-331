@@ -330,6 +330,35 @@ pub struct EmailDeliveryError {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
+/// Which mails one account has been queued, newest first. There is no mail capture in this repo, so
+/// a system test asserting a message was composed reads the queue instead of an inbox.
+pub async fn get_recent_template_types_for_user_for_testing(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    limit: i64,
+) -> ModelResult<Vec<(EmailTemplateType, serde_json::Value)>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT t.email_template_type AS "template_type: EmailTemplateType",
+  COALESCE(d.placeholders, '{}'::jsonb) AS "placeholders!"
+FROM email_deliveries d
+  JOIN email_templates t ON t.id = d.email_template_id
+WHERE d.user_id = $1
+  AND d.deleted_at IS NULL
+ORDER BY d.created_at DESC
+LIMIT $2
+        "#,
+        user_id,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.template_type, row.placeholders))
+        .collect())
+}
+
 pub async fn increment_retry_and_schedule(
     conn: &mut PgConnection,
     email_id: Uuid,

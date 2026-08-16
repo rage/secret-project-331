@@ -293,6 +293,9 @@ pub struct PhaseContext<'a> {
     pub caller: &'a str,
     /// Absolute base for links in queued mail, which outlive the process that wrote them.
     pub base_url: &'a str,
+    /// Read by `enrolment-discovery` for the email-match fast track, whose enabled flag doubles as
+    /// its kill switch.
+    pub suotar_conf: &'a headless_lms_base::config::SuotarConfiguration,
 }
 
 impl PhaseContext<'_> {

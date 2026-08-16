@@ -21,6 +21,13 @@ pub struct CourseModuleSuotarRealisation {
     pub last_suppressed_by_dedup_count: Option<i32>,
     pub last_suppressed_by_rate_cap_count: Option<i32>,
     pub last_no_address_count: Option<i32>,
+    pub last_fast_tracked_count: Option<i32>,
+    pub last_fast_track_skipped_no_account_count: Option<i32>,
+    pub last_fast_track_skipped_unverified_count: Option<i32>,
+    pub last_fast_track_skipped_stale_verification_count: Option<i32>,
+    pub last_fast_track_skipped_name_mismatch_count: Option<i32>,
+    pub last_fast_track_skipped_account_has_number_count: Option<i32>,
+    pub last_fast_track_skipped_unlinked_before_count: Option<i32>,
     pub last_listing_attempted_at: Option<DateTime<Utc>>,
     pub last_listing_error: Option<CreditRegistrationErrorCode>,
     pub consecutive_listing_failures: i32,
@@ -36,6 +43,13 @@ pub struct RealisationListingOutcome {
     pub suppressed_by_dedup_count: i32,
     pub suppressed_by_rate_cap_count: i32,
     pub no_address_count: i32,
+    pub fast_tracked_count: i32,
+    pub fast_track_skipped_no_account_count: i32,
+    pub fast_track_skipped_unverified_count: i32,
+    pub fast_track_skipped_stale_verification_count: i32,
+    pub fast_track_skipped_name_mismatch_count: i32,
+    pub fast_track_skipped_account_has_number_count: i32,
+    pub fast_track_skipped_unlinked_before_count: i32,
 }
 
 pub async fn upsert(
@@ -131,6 +145,13 @@ SELECT cmsr.id,
   cmsr.last_suppressed_by_dedup_count,
   cmsr.last_suppressed_by_rate_cap_count,
   cmsr.last_no_address_count,
+  cmsr.last_fast_tracked_count,
+  cmsr.last_fast_track_skipped_no_account_count,
+  cmsr.last_fast_track_skipped_unverified_count,
+  cmsr.last_fast_track_skipped_stale_verification_count,
+  cmsr.last_fast_track_skipped_name_mismatch_count,
+  cmsr.last_fast_track_skipped_account_has_number_count,
+  cmsr.last_fast_track_skipped_unlinked_before_count,
   cmsr.last_listing_attempted_at,
   cmsr.last_listing_error AS "last_listing_error?",
   cmsr.consecutive_listing_failures
@@ -180,6 +201,8 @@ pub struct RealisationToList {
     pub course_unit_realisation_id: String,
     /// `None` means the module has no course code configured, so it cannot be listed.
     pub uh_course_code: Option<String>,
+    /// The language the mails this listing sets off are written in.
+    pub course_language_code: String,
 }
 
 /// Claims the realisations one discovery iteration takes, stalest attempt first.
@@ -203,9 +226,11 @@ SELECT cmsr.id AS "id!",
   cmsr.course_module_id AS "course_module_id!",
   cm.course_id AS "course_id!",
   cmsr.course_unit_realisation_id AS "course_unit_realisation_id!",
-  cm.uh_course_code AS "uh_course_code?"
+  cm.uh_course_code AS "uh_course_code?",
+  co.language_code AS "course_language_code!"
 FROM course_module_suotar_realisations cmsr
   JOIN course_modules cm ON cm.id = cmsr.course_module_id
+  JOIN courses co ON co.id = cm.course_id
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
   AND c.deleted_at IS NULL
 WHERE cmsr.active
@@ -253,9 +278,11 @@ SELECT cmsr.id AS "id!",
   cmsr.course_module_id AS "course_module_id!",
   cm.course_id AS "course_id!",
   cmsr.course_unit_realisation_id AS "course_unit_realisation_id!",
-  cm.uh_course_code AS "uh_course_code?"
+  cm.uh_course_code AS "uh_course_code?",
+  co.language_code AS "course_language_code!"
 FROM course_module_suotar_realisations cmsr
   JOIN course_modules cm ON cm.id = cmsr.course_module_id
+  JOIN courses co ON co.id = cm.course_id
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
   AND c.deleted_at IS NULL
 WHERE cmsr.active
@@ -293,6 +320,13 @@ pub struct RealisationDiscoveryReport {
     pub last_suppressed_by_dedup_count: Option<i32>,
     pub last_suppressed_by_rate_cap_count: Option<i32>,
     pub last_no_address_count: Option<i32>,
+    pub last_fast_tracked_count: Option<i32>,
+    pub last_fast_track_skipped_no_account_count: Option<i32>,
+    pub last_fast_track_skipped_unverified_count: Option<i32>,
+    pub last_fast_track_skipped_stale_verification_count: Option<i32>,
+    pub last_fast_track_skipped_name_mismatch_count: Option<i32>,
+    pub last_fast_track_skipped_account_has_number_count: Option<i32>,
+    pub last_fast_track_skipped_unlinked_before_count: Option<i32>,
     pub last_listing_attempted_at: Option<DateTime<Utc>>,
     pub last_listing_error: Option<CreditRegistrationErrorCode>,
     pub consecutive_listing_failures: i32,
@@ -319,6 +353,13 @@ SELECT cmsr.id,
   cmsr.last_suppressed_by_dedup_count,
   cmsr.last_suppressed_by_rate_cap_count,
   cmsr.last_no_address_count,
+  cmsr.last_fast_tracked_count,
+  cmsr.last_fast_track_skipped_no_account_count,
+  cmsr.last_fast_track_skipped_unverified_count,
+  cmsr.last_fast_track_skipped_stale_verification_count,
+  cmsr.last_fast_track_skipped_name_mismatch_count,
+  cmsr.last_fast_track_skipped_account_has_number_count,
+  cmsr.last_fast_track_skipped_unlinked_before_count,
   cmsr.last_listing_attempted_at,
   cmsr.last_listing_error AS "last_listing_error?: CreditRegistrationErrorCode",
   cmsr.consecutive_listing_failures
@@ -380,7 +421,14 @@ SET last_listed_at = now(),
   last_mailed_count = $4,
   last_suppressed_by_dedup_count = $5,
   last_suppressed_by_rate_cap_count = $6,
-  last_no_address_count = $7
+  last_no_address_count = $7,
+  last_fast_tracked_count = $8,
+  last_fast_track_skipped_no_account_count = $9,
+  last_fast_track_skipped_unverified_count = $10,
+  last_fast_track_skipped_stale_verification_count = $11,
+  last_fast_track_skipped_name_mismatch_count = $12,
+  last_fast_track_skipped_account_has_number_count = $13,
+  last_fast_track_skipped_unlinked_before_count = $14
 WHERE id = $1
   AND deleted_at IS NULL
         "#,
@@ -391,6 +439,13 @@ WHERE id = $1
         outcome.suppressed_by_dedup_count,
         outcome.suppressed_by_rate_cap_count,
         outcome.no_address_count,
+        outcome.fast_tracked_count,
+        outcome.fast_track_skipped_no_account_count,
+        outcome.fast_track_skipped_unverified_count,
+        outcome.fast_track_skipped_stale_verification_count,
+        outcome.fast_track_skipped_name_mismatch_count,
+        outcome.fast_track_skipped_account_has_number_count,
+        outcome.fast_track_skipped_unlinked_before_count,
     )
     .execute(conn)
     .await?;

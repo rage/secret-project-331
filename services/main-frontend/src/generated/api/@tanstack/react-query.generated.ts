@@ -80,6 +80,7 @@ import {
   deletePlaygroundExample,
   denyOauthConsent,
   dismissCourseSuspectedCheater,
+  dismissMyAutoLinkNotice,
   downloadCodeGiveawayCodesCsv,
   duplicateExam,
   editCourseInstance,
@@ -476,6 +477,7 @@ import type {
   DenyOauthConsentData,
   DenyOauthConsentResponse,
   DismissCourseSuspectedCheaterData,
+  DismissMyAutoLinkNoticeData,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponse,
   DuplicateExamData,
@@ -6544,6 +6546,31 @@ export const getMyVerifiedStudentNumberOptions = (
       }),
     queryKey: getMyVerifiedStudentNumberQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
+ * away the notice saying the pipeline linked this student number without asking.
+ *
+ * Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
+ */
+export const dismissMyAutoLinkNoticeMutation = (
+  options?: Partial<Options<DismissMyAutoLinkNoticeData>>,
+): UseMutationOptions<unknown, DefaultError, Options<DismissMyAutoLinkNoticeData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<DismissMyAutoLinkNoticeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await dismissMyAutoLinkNotice({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

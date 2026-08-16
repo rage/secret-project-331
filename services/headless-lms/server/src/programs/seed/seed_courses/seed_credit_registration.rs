@@ -354,6 +354,53 @@ pub const FAST_TRACK_TWIN: MockPersonFixture = MockPersonFixture {
     sisu_email: "credit-registration-unverified-twin@example.com",
     account_email: Some("credit-registration-unverified-twin@example.com"),
 };
+/// Verified far outside the recency window: a deprovisioned university address can be reissued, and
+/// the account holding it would still look verified.
+pub const FAST_TRACK_STALE: MockPersonFixture = MockPersonFixture {
+    student_number: "900001403",
+    first_names: "Zzyzx",
+    last_name: "Staleproof",
+    sisu_email: "credit-registration-stale-proof@example.com",
+    account_email: Some("credit-registration-stale-proof@example.com"),
+};
+/// The recycled-address signal: the address is proved, but the account belongs to somebody else.
+/// `seed_fast_track_near_misses` gives its account a name unlike the registry's.
+pub const FAST_TRACK_NAME_MISMATCH: MockPersonFixture = MockPersonFixture {
+    student_number: "900001404",
+    first_names: "Zzyzx",
+    last_name: "Registryname",
+    sisu_email: "credit-registration-name-mismatch@example.com",
+    account_email: Some("credit-registration-name-mismatch@example.com"),
+};
+/// Its account already holds [`FAST_TRACK_OTHER_NUMBER`], so swapping it belongs behind the mailed
+/// link's confirmation screen, which names both numbers.
+pub const FAST_TRACK_HAS_NUMBER: MockPersonFixture = MockPersonFixture {
+    student_number: "900001405",
+    first_names: "Zzyzx",
+    last_name: "Alreadynumbered",
+    sisu_email: "credit-registration-has-number@example.com",
+    account_email: Some("credit-registration-has-number@example.com"),
+};
+/// Not on any roster: only the account's existing link needs it to exist.
+pub const FAST_TRACK_OTHER_NUMBER: &str = "900001495";
+/// `mock_suotar_world` moves its account address to the registry's *secondary* field, which is
+/// self-entered there and therefore never proof.
+pub const FAST_TRACK_SECONDARY_ONLY: MockPersonFixture = MockPersonFixture {
+    student_number: "900001406",
+    first_names: "Zzyzx",
+    last_name: "Secondonly",
+    sisu_email: "zzyzx.secondonly@helsinki.example",
+    account_email: Some("credit-registration-secondary-only@example.com"),
+};
+/// A confirmed account whose address the registry simply does not hold. The population the linking
+/// mail exists for, and the regression that matters most: it must still be mailed.
+pub const FAST_TRACK_NO_MATCH: MockPersonFixture = MockPersonFixture {
+    student_number: "900001407",
+    first_names: "Zzyzx",
+    last_name: "Othermailbox",
+    sisu_email: "zzyzx.othermailbox@helsinki.example",
+    account_email: Some("credit-registration-fast-track-no-match@example.com"),
+};
 
 /// Driven all the way to `registered`, which is what earns the "your credits are in Sisu" mail.
 pub const EMAILS_REGISTERED: MockPersonFixture = MockPersonFixture {
@@ -709,6 +756,11 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
 
     // The happy-path actor answers the consent dialog itself, so its completion has to wait here.
     seed_eligible_completion(&mut conn, &not_consented, suotar_course.id, None).await?;
+    // Consented and complete already: the fast track has to unblock this row with no click at all.
+    seed_eligible_completion(&mut conn, &verified_email, suotar_course.id, None).await?;
+
+    info!("inserting credit registration fast track near misses");
+    seed_fast_track_near_misses(&mut conn, &cx).await?;
 
     info!("inserting credit registration linking tokens");
     seed_linking_tokens(&mut conn, &cx, suotar_course.id, unverified_twin.user_id).await?;
@@ -736,6 +788,70 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     push_mock_suotar_world(&base_url).await?;
 
     Ok(SUOTAR_COURSE_ID)
+}
+
+/// The accounts that make the fast track *not* fire, one per reason it may refuse. Each holds a
+/// confirmed address, so what separates them is only the thing under test; the twin above is the
+/// unconfirmed case. None of them is given a completion: being on the registry's roster is all it
+/// takes to be offered to the fast track.
+async fn seed_fast_track_near_misses(conn: &mut PgConnection, cx: &SeedContext) -> Result<()> {
+    let now = Utc::now();
+    for (fixture, verified_at) in [
+        (&FAST_TRACK_STALE, now - Duration::days(400)),
+        (&FAST_TRACK_NAME_MISMATCH, now - Duration::days(30)),
+        (&FAST_TRACK_HAS_NUMBER, now - Duration::days(30)),
+        (&FAST_TRACK_SECONDARY_ONLY, now - Duration::days(30)),
+        (&FAST_TRACK_NO_MATCH, now - Duration::days(30)),
+    ] {
+        let account_email = fixture
+            .account_email
+            .ok_or_else(|| anyhow::anyhow!("a fast track near miss needs an account"))?;
+        // Unlike its neighbours the mismatch account is a different person from the one the registry
+        // names, which is the whole fixture.
+        let (first_name, last_name) =
+            if fixture.student_number == FAST_TRACK_NAME_MISMATCH.student_number {
+                ("Qqoqq", "Accountname")
+            } else {
+                (fixture.first_names, fixture.last_name)
+            };
+        let student = insert_student(
+            conn,
+            cx.v5(account_email.as_bytes()),
+            account_email,
+            first_name,
+            last_name,
+        )
+        .await?;
+        user_details::set_email_verified(
+            conn,
+            student.user_id,
+            EmailVerificationMethod::EmailedCode,
+            verified_at,
+        )
+        .await?;
+        if fixture.student_number == FAST_TRACK_HAS_NUMBER.student_number {
+            verified_student_numbers::insert(
+                conn,
+                PKeyPolicy::Fixed(cx.v5(b"verified-student-number:fast-track-has-number")),
+                &NewVerifiedStudentNumber {
+                    user_id: student.user_id,
+                    student_number: FAST_TRACK_OTHER_NUMBER.to_string(),
+                    sisu_person_id: format!("hy-hlo-{FAST_TRACK_OTHER_NUMBER}"),
+                    first_names: Some(fixture.first_names.to_string()),
+                    last_name: Some(fixture.last_name.to_string()),
+                    verified_via: StudentNumberVerificationMethod::EmailedLink,
+                    verified_via_email: Some(account_email.to_string()),
+                    verified_via_email_match_field: None,
+                    account_email_verified_at: None,
+                    linked_by_user_id: None,
+                    link_reason: None,
+                    verified_from_course_id: None,
+                },
+            )
+            .await?;
+        }
+    }
+    Ok(())
 }
 
 /// Aligns the mock Suotar's world with the rows just written. Nothing is cleared first: the mock
@@ -1694,6 +1810,11 @@ pub fn mock_suotar_world() -> WorldPush {
         &SUPERSEDED,
         &FAST_TRACK_VERIFIED,
         &FAST_TRACK_TWIN,
+        &FAST_TRACK_STALE,
+        &FAST_TRACK_NAME_MISMATCH,
+        &FAST_TRACK_HAS_NUMBER,
+        &FAST_TRACK_SECONDARY_ONLY,
+        &FAST_TRACK_NO_MATCH,
         &IMPORT_TIMEOUT,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
@@ -1723,6 +1844,13 @@ pub fn mock_suotar_world() -> WorldPush {
         }
         upsert
     }));
+    for upsert in &mut persons {
+        // The one fixture whose account address is on the registry's secondary field. The mail still
+        // goes to both addresses; only the fast track's proof is primary-only.
+        if upsert.student_number == FAST_TRACK_SECONDARY_ONLY.student_number {
+            upsert.secondary_email = FAST_TRACK_SECONDARY_ONLY.account_email.map(str::to_string);
+        }
+    }
     persons.push(person(&NO_ENROLMENT));
     persons.push(person(&EMAILS_NO_ENROLMENT));
     persons.push(person(&IMPORT_OUTCOMES));

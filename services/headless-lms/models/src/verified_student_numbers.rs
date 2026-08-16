@@ -36,6 +36,9 @@ pub struct VerifiedStudentNumber {
     pub linked_by_user_id: Option<Uuid>,
     pub link_reason: Option<String>,
     pub verified_from_course_id: Option<Uuid>,
+    /// Only ever set for [`StudentNumberVerificationMethod::EmailMatchFastTrack`]: the other methods
+    /// have no notice to dismiss, because the student did the linking themselves.
+    pub auto_link_notice_dismissed_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -459,6 +462,24 @@ GROUP BY verified_via
         .collect())
 }
 
+/// Puts away the "we linked this for you" notice for one account's live link. Idempotent; a link the
+/// account does not own is left alone, so the caller's ownership check is the only one needed.
+pub async fn dismiss_auto_link_notice(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE verified_student_numbers
+SET auto_link_notice_dismissed_at = now()
+WHERE user_id = $1
+  AND deleted_at IS NULL
+  AND auto_link_notice_dismissed_at IS NULL
+        "#,
+        user_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Unlinks by soft-delete; relinking inserts a new row, keeping the old number for audit.
 pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
@@ -480,11 +501,12 @@ WHERE id = $1
 /// change on the account's live registrations.
 ///
 /// Returns the new link's id and how many of the account's registrations the change unblocked.
+/// `actor_user_id` is `None` when a worker made the link and no person decided it.
 pub async fn replace_verified_student_number(
     conn: &mut PgConnection,
     current_link_id: Option<Uuid>,
     new: &NewVerifiedStudentNumber,
-    actor_user_id: Uuid,
+    actor_user_id: Option<Uuid>,
     event_kind: CreditRegistrationEventKind,
     event_message: &str,
 ) -> ModelResult<(Uuid, i64)> {

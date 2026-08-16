@@ -206,6 +206,66 @@ async fn regrade_completion(
     }))
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QueuedEmailsQuery {
+    pub user_email: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct QueuedEmail {
+    pub template_type: String,
+    pub placeholders: serde_json::Value,
+}
+
+/// How many of an account's mails one read looks back over. Generous: the shared test database has a
+/// live pipeline queueing mail for everybody, and a short window would turn "exactly one" into a
+/// false pass.
+const QUEUED_EMAIL_SCAN: i64 = 200;
+
+/// The mails queued to one account, newest first. There is no mail capture in this repo, so a spec
+/// asserting a message was composed reads the send queue instead of an inbox.
+async fn queued_emails(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    query: web::Query<QueuedEmailsQuery>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    let mut conn = pool.acquire().await?;
+    let Some(user_id) = models::user_details::get_active_user_id_by_email_case_insensitive(
+        &mut conn,
+        &query.user_email,
+    )
+    .await?
+    else {
+        return token.authorized_ok(HttpResponse::BadRequest().json(UnresolvedScope {
+            status: "unresolvedScope".to_string(),
+            half: "userEmail".to_string(),
+            value: query.user_email.clone(),
+        }));
+    };
+    let queued = models::email_deliveries::get_recent_template_types_for_user_for_testing(
+        &mut conn,
+        user_id,
+        QUEUED_EMAIL_SCAN,
+    )
+    .await?
+    .into_iter()
+    .map(|(template_type, placeholders)| QueuedEmail {
+        template_type: serde_json::to_value(template_type)
+            .ok()
+            .and_then(|value| value.as_str().map(str::to_string))
+            .unwrap_or_default(),
+        placeholders,
+    })
+    .collect::<Vec<_>>();
+
+    token.authorized_ok(HttpResponse::Ok().json(queued))
+}
+
 /// Attributed to the tick rather than to a worker, so the audit log says which traffic a test made.
 fn tick_context<'a>(
     app_conf: &'a ApplicationConfiguration,
@@ -218,6 +278,7 @@ fn tick_context<'a>(
         test_mode: app_conf.test_mode,
         caller: "run-tick",
         base_url: &app_conf.base_url,
+        suotar_conf: &app_conf.suotar_configuration,
     }
 }
 
@@ -289,6 +350,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/run-tick", web::post().to(run_tick))
         .route("/run-registrar-tick", web::post().to(run_registrar_tick))
         .route("/regrade-completion", web::post().to(regrade_completion))
+        .route("/queued-emails", web::get().to(queued_emails))
         .configure(commands::_add_routes);
 }
 

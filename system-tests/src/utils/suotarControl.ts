@@ -182,6 +182,31 @@ export const runProductTokenRefreshTick = (
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "product-token-refresh", scope)
 
+/** One mail sitting in our send queue for an account. */
+export interface QueuedEmail {
+  templateType: string
+  placeholders: Record<string, string>
+}
+
+/**
+ * The mails queued to one account, newest first. No mail capture exists in this repo, so a spec
+ * asserting a message was composed reads the send queue rather than an inbox.
+ */
+export const queuedEmailsFor = async (
+  request: APIRequestContext,
+  userEmail: string,
+): Promise<QueuedEmail[]> => {
+  const response = await request.get(
+    `${CONTROL_BASE_URL}/queued-emails?userEmail=${encodeURIComponent(userEmail)}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `Reading the queued emails of ${userEmail} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return (await response.json()) as QueuedEmail[]
+}
+
 /**
  * Rewrites the grade of the completion behind one ledger row.
  *

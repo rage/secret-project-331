@@ -19,7 +19,10 @@ const SLIDE_ID = "22222222-2222-4222-8222-222222222222"
 const TASK_ID = "33333333-3333-4333-8333-333333333333"
 const EDITED_EXERCISE_NAME = "Renamed exercise"
 
-/** Block names PageEditor treats as supported on a chapter page, as far as this fixture needs. */
+/**
+ * Block names PageEditor treats as supported on a chapter page, as far as this fixture needs. The
+ * wrapper block is on the list in the real editor too, which is what makes modifyBlocks idempotent.
+ */
 const SUPPORTED_BLOCKS = [
   "core/paragraph",
   "moocfi/exercise",
@@ -27,6 +30,7 @@ const SUPPORTED_BLOCKS = [
   "moocfi/exercise-slides",
   "moocfi/exercise-slide",
   "moocfi/exercise-task",
+  "moocfi/unsupported-block-type",
 ]
 
 const savedPage: Page = {
@@ -45,6 +49,15 @@ const savedPage: Page = {
       isValid: true,
       clientId: "44444444-4444-4444-8444-444444444444",
       attributes: { id: EXERCISE_ID },
+      innerBlocks: [],
+    },
+    // Stored pages still hold blocks that are no longer registered; the editor wraps those on load
+    // and unwraps them on save, so they are the case where the two sides can drift apart.
+    {
+      name: "moocfi/logo-link",
+      isValid: true,
+      clientId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      attributes: { url: "https://example.com" },
       innerBlocks: [],
     },
   ],
@@ -148,6 +161,7 @@ const { default: LoginStateContext } =
 const { editorContentReducer } = await import("@/contexts/EditorContentContext")
 const { denormalizeDocument, normalizeDocument } = await import("@/utils/documentSchemaProcessor")
 const { modifyBlocks } = await import("@/utils/Gutenberg/modifyBlocks")
+const { removeUnsupportedBlockType } = await import("@/utils/Gutenberg/removeUnsupportedBlockType")
 const { isGutenbergBlockArray } = await import("@/utils/Gutenberg/gutenbergBlocks")
 const { default: CmsPage } = await import("../../src/pages/pages/[id]")
 
@@ -182,7 +196,7 @@ function SaveStateProbe({ data, saveMutation }: SaveStateProbeProps) {
     saveMutation.mutate(
       normalizeDocument({
         chapterId: data.chapter_id ?? null,
-        content,
+        content: removeUnsupportedBlockType(content),
         title: data.title,
         urlPath: data.url_path,
         hidden: data.hidden,
@@ -194,16 +208,19 @@ function SaveStateProbe({ data, saveMutation }: SaveStateProbeProps) {
           }
           contentDispatch({
             type: "setContent",
-            payload: denormalizeDocument({
-              content: saveResult.page.content,
-              exercises: saveResult.exercises,
-              exercise_slides: saveResult.exercise_slides,
-              exercise_tasks: saveResult.exercise_tasks,
-              url_path: saveResult.page.url_path,
-              title: saveResult.page.title,
-              chapter_id: saveResult.page.chapter_id ?? null,
-              hidden: saveResult.page.hidden,
-            }).content,
+            payload: modifyBlocks(
+              denormalizeDocument({
+                content: saveResult.page.content,
+                exercises: saveResult.exercises,
+                exercise_slides: saveResult.exercise_slides,
+                exercise_tasks: saveResult.exercise_tasks,
+                url_path: saveResult.page.url_path,
+                title: saveResult.page.title,
+                chapter_id: saveResult.page.chapter_id ?? null,
+                hidden: saveResult.page.hidden,
+              }).content,
+              SUPPORTED_BLOCKS,
+            ),
           })
         },
       },

@@ -319,7 +319,7 @@ jobs:
         run: pnpm run test
         working-directory: ./services/example-exercise
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        run: pnpm exec playwright install --with-deps chromium
         working-directory: ./services/example-exercise
       - name: Run Playwright browser tests
         run: pnpm run test:playwright
@@ -377,7 +377,7 @@ jobs:
         run: pnpm run test
         working-directory: ./shared-module/packages/exercise-client
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        run: pnpm exec playwright install --with-deps chromium
         working-directory: ./shared-module/packages/exercise-client
       - name: Run Playwright browser tests
         run: pnpm run test:playwright
@@ -408,7 +408,7 @@ jobs:
         run: pnpm run test
         working-directory: ./shared-module/packages/exercise-react
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        run: pnpm exec playwright install --with-deps chromium
         working-directory: ./shared-module/packages/exercise-react
       - name: Run Playwright browser tests
         run: pnpm run test:playwright
@@ -441,7 +441,7 @@ jobs:
         run: pnpm run test
         working-directory: ./shared-module/packages/exercise-iframe-host
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        run: pnpm exec playwright install --with-deps chromium
         working-directory: ./shared-module/packages/exercise-iframe-host
       - name: Run Playwright browser tests
         run: pnpm run test:playwright
@@ -476,7 +476,7 @@ jobs:
           git diff --exit-code src/core/exercise-service-protocol-types.guard.ts
         working-directory: ./shared-module/packages/exercise-protocol
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        run: pnpm exec playwright install --with-deps chromium
         working-directory: ./shared-module/packages/exercise-protocol
       # This package's only test suite: the guards must see real browser-realm structured-clone values.
       - name: Run Playwright browser tests
@@ -508,7 +508,7 @@ jobs:
         run: pnpm run test
         working-directory: ./shared-module/packages/exercise-service-test-utils
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        run: pnpm exec playwright install --with-deps chromium
         working-directory: ./shared-module/packages/exercise-service-test-utils
       - name: Run Playwright browser tests
         run: pnpm run test:playwright

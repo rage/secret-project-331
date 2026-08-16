@@ -318,6 +318,12 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/example-exercise
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        working-directory: ./services/example-exercise
+      - name: Run Playwright browser tests
+        run: pnpm run test:playwright
+        working-directory: ./services/example-exercise
       - name: Test Summary
         if: always()
         run: |
@@ -370,6 +376,12 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./shared-module/packages/exercise-client
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        working-directory: ./shared-module/packages/exercise-client
+      - name: Run Playwright browser tests
+        run: pnpm run test:playwright
+        working-directory: ./shared-module/packages/exercise-client
       - name: Test Summary
         if: always()
         run: |
@@ -394,6 +406,12 @@ jobs:
         working-directory: ./shared-module/packages/exercise-react
       - name: Run tests
         run: pnpm run test
+        working-directory: ./shared-module/packages/exercise-react
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        working-directory: ./shared-module/packages/exercise-react
+      - name: Run Playwright browser tests
+        run: pnpm run test:playwright
         working-directory: ./shared-module/packages/exercise-react
       - name: Test Summary
         if: always()
@@ -421,6 +439,12 @@ jobs:
         run: pnpm exec tsc -p ./shared-module/packages/exercise-iframe-host --noEmit
       - name: Run tests
         run: pnpm run test
+        working-directory: ./shared-module/packages/exercise-iframe-host
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        working-directory: ./shared-module/packages/exercise-iframe-host
+      - name: Run Playwright browser tests
+        run: pnpm run test:playwright
         working-directory: ./shared-module/packages/exercise-iframe-host
       - name: Test Summary
         if: always()
@@ -451,6 +475,13 @@ jobs:
           pnpm run generate-guards
           git diff --exit-code src/core/exercise-service-protocol-types.guard.ts
         working-directory: ./shared-module/packages/exercise-protocol
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        working-directory: ./shared-module/packages/exercise-protocol
+      # This package's only test suite: the guards must see real browser-realm structured-clone values.
+      - name: Run Playwright browser tests
+        run: pnpm run test:playwright
+        working-directory: ./shared-module/packages/exercise-protocol
       - name: Test Summary
         if: always()
         run: |
@@ -475,6 +506,12 @@ jobs:
         working-directory: ./shared-module/packages/exercise-service-test-utils
       - name: Run tests
         run: pnpm run test
+        working-directory: ./shared-module/packages/exercise-service-test-utils
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        working-directory: ./shared-module/packages/exercise-service-test-utils
+      - name: Run Playwright browser tests
+        run: pnpm run test:playwright
         working-directory: ./shared-module/packages/exercise-service-test-utils
       - name: Test Summary
         if: always()

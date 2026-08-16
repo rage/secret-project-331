@@ -11,7 +11,10 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 
 import { labelFrom, widenedLookup } from "../labelFrom"
 
-export { studentNumberVerificationLabel as verificationMethodLabel } from "../teacherCreditRegistrations"
+export {
+  notificationEmailLabel as notificationKindLabel,
+  studentNumberVerificationLabel as verificationMethodLabel,
+} from "../teacherCreditRegistrations"
 
 /** `abandoned_by_consent_withdrawal` is `upcoming`, not `failed`: neither failure nor success. */
 const STATE_TONES = {

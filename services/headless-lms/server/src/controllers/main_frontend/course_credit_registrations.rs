@@ -19,6 +19,7 @@ use headless_lms_models::credit_registrations::{
 use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::StudentFacingCreditRegistrationStatus;
 use headless_lms_models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
+use headless_lms_models::library::credit_registration::student_notifications;
 use headless_lms_models::verified_student_numbers::StudentNumberVerificationMethod;
 use headless_lms_models::{
     course_credit_registration_consents::CourseCreditRegistrationBlockedStudentCounts,
@@ -36,7 +37,7 @@ use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::services::suotar::SuotarClient;
 
-use super::credit_registrations::mask_email;
+use super::credit_registrations::{NotificationEmailStatus, mask_email};
 
 /// A fat-finger guard on top of the per-person caps, which this endpoint cannot relax.
 const MAX_TEACHER_RESENDS_PER_HOUR: i64 = 20;
@@ -115,6 +116,9 @@ pub struct CourseCreditRegistration {
     pub enrolment_realisation_name: Option<String>,
     /// Only where we can join the account to a Sisu person, which needs a link past or present.
     pub linking_email: Option<TeacherLinkingEmailStatus>,
+    /// The terminal-state mail this row's status has, if one has been queued. Same derivation the
+    /// student sees, so a teacher answering "did they hear from you" cannot be told something else.
+    pub notification_email: Option<NotificationEmailStatus>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -887,13 +891,21 @@ async fn build_teacher_registrations(
         .filter(|row| row.state == CreditRegistrationState::PendingStudentNumber)
         .collect();
     let mut statuses = linking_email_statuses(conn, course_id, &waiting).await?;
+    let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
+    let notification_mails = student_notifications::get_for_registrations(conn, &ids).await?;
 
     Ok(rows
         .into_iter()
         .map(|row| {
             let linking_email = statuses.remove(&row.id);
+            let status = StudentFacingCreditRegistrationStatus::of(row.state);
             CourseCreditRegistration {
-                student_facing_status: StudentFacingCreditRegistrationStatus::of(row.state),
+                notification_email: NotificationEmailStatus::for_status(
+                    status,
+                    row.id,
+                    &notification_mails,
+                ),
+                student_facing_status: status,
                 superseded: row.superseded_by_id.is_some(),
                 id: row.id,
                 user_id: row.user_id,

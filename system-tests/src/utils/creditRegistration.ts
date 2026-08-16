@@ -23,7 +23,7 @@
  * | `9000010xx`     | suotar-old-flow-coexistence      | old-flow                    |
  * | `9000011xx`     | suotar-backfill-and-late-consent | backfill                    |
  * | `9000012xx`     | suotar-grade-improvement         | not written yet             |
- * | `9000013xx`     | suotar-student-emails            | not written yet             |
+ * | `9000013xx`     | suotar-student-emails            | via-suotar                  |
  * | `9000014xx`     | suotar-fast-track-linking        | not written yet             |
  * | `9000015xx`     | suotar-in-course-banner          | not written yet             |
  * | `9000016xx`     | suotar-student-profile           | none (reads seeded rows)    |
@@ -83,6 +83,9 @@ export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-consent-withdrawn@example.com",
   "credit-registration-consent-withheld@example.com",
   "credit-registration-consented-linked@example.com",
+  "credit-registration-emails-no-enrolment@example.com",
+  "credit-registration-emails-registered@example.com",
+  "credit-registration-emails-unmailed@example.com",
   "credit-registration-import-outcomes@example.com",
   "credit-registration-import-timeout@example.com",
   "credit-registration-link-claimer@example.com",

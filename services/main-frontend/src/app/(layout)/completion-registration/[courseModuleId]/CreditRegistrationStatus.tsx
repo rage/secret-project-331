@@ -15,6 +15,7 @@ import {
   registrationStepperSteps,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import LinkingEmailLine from "@/components/credit-registration/LinkingEmailLine"
+import NotificationEmailLine from "@/components/credit-registration/NotificationEmailLine"
 import {
   getMyCreditRegistrationForCourseModuleOptions,
   getMyCreditRegistrationForCourseModuleQueryKey,
@@ -221,6 +222,7 @@ const LiveRegistration: React.FC<{
           {status === "needs_student_number" ? (
             <LinkingEmailLine linkingEmail={registration.linking_email} />
           ) : null}
+          <NotificationEmailLine notificationEmail={registration.notification_email} />
         </div>
       </Infobox>
       {details.length > 0 ? <DescriptionList items={details} /> : null}

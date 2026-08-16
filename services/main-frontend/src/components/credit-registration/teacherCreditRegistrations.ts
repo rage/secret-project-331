@@ -4,7 +4,9 @@ import type { TFunction } from "i18next"
 import { getCourseCreditRegistrationsForUsers } from "@/generated/api/sdk.generated"
 import type {
   CourseCreditRegistration,
+  CreditRegistrationNotificationKind,
   EmailSendStatus,
+  NotificationEmailStatus,
   StudentNumberVerificationMethod,
 } from "@/generated/api/types.generated"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
@@ -104,3 +106,36 @@ export const linkingEmailSentence = (
     address: maskedAddress,
     date: sentAt ? new Date(sentAt).toLocaleDateString(locale) : "",
   })
+
+const NOTIFICATION_EMAIL_LABEL_KEYS = {
+  action_needed: "label-credit-registration-action-needed-email",
+  registered: "label-credit-registration-registered-email",
+} as const satisfies Record<CreditRegistrationNotificationKind, string>
+
+const NOTIFICATION_EMAIL_KEYS = {
+  queued: "credit-registration-teacher-notification-email-queued",
+  retrying: "credit-registration-teacher-notification-email-retrying",
+  sent: "credit-registration-teacher-notification-email-sent",
+  send_failed: "credit-registration-teacher-notification-email-send-failed",
+} as const satisfies Record<EmailSendStatus, string>
+
+export const notificationEmailLabel = (t: TFunction, kind: CreditRegistrationNotificationKind) =>
+  labelFrom(t, NOTIFICATION_EMAIL_LABEL_KEYS, kind, NOTIFICATION_EMAIL_LABEL_KEYS.registered)
+
+/** Our own send status only: no wording here may imply a delivery. */
+export const notificationEmailSentence = (
+  t: TFunction,
+  notificationEmail: NotificationEmailStatus,
+  locale: string,
+): string =>
+  labelFrom(
+    t,
+    NOTIFICATION_EMAIL_KEYS,
+    notificationEmail.email_send_status,
+    NOTIFICATION_EMAIL_KEYS.queued,
+    {
+      date: notificationEmail.sent_at
+        ? new Date(notificationEmail.sent_at).toLocaleDateString(locale)
+        : "",
+    },
+  )

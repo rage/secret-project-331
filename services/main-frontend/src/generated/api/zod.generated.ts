@@ -1474,6 +1474,11 @@ export const zCreditRegistrationEventKind = z.enum([
 ])
 
 /**
+ * Which of the two student mails a row is owed, or already holds.
+ */
+export const zCreditRegistrationNotificationKind = z.enum(["action_needed", "registered"])
+
+/**
  * One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
  * narrowed one.
  */
@@ -1959,6 +1964,15 @@ export const zAdminLinkingEmail = z.object({
   token_claimed_by_user_id: z.uuid().nullish(),
   token_expires_at: z.iso.datetime().nullish(),
   token_used_at: z.iso.datetime().nullish(),
+})
+
+/**
+ * One of the two student terminal-state mails, in full: `send_status.failure_code` is what drives
+ * the decision to look at the relay.
+ */
+export const zAdminNotificationEmail = z.object({
+  kind: zCreditRegistrationNotificationKind,
+  send_status: zEmailSendStatusReport,
 })
 
 export const zAdminResendAccountLinkingEmailResult = z.object({
@@ -2887,6 +2901,16 @@ export const zModuleUpdates = z.object({
 
 export const zNewRegradingIdType = z.enum(["ExerciseTaskSubmissionId", "ExerciseId"])
 
+/**
+ * The same, for one of the two terminal-state mails. No address: these go to the account's own,
+ * which the reader either owns or already sees.
+ */
+export const zNotificationEmailStatus = z.object({
+  email_send_status: zEmailSendStatus,
+  kind: zCreditRegistrationNotificationKind,
+  sent_at: z.iso.datetime().nullish(),
+})
+
 export const zOrgExam = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
@@ -3681,6 +3705,7 @@ export const zMyCreditRegistration = z.object({
   id: z.uuid(),
   linking_email: zLinkingEmailStatus.nullish(),
   next_attempt_at: z.iso.datetime(),
+  notification_email: zNotificationEmailStatus.nullish(),
   registered_at: z.iso.datetime().nullish(),
   sisu_attainment_id: z.string().nullish(),
   status_is_moving: z.boolean(),
@@ -3937,6 +3962,7 @@ export const zAdminCreditRegistrationDetails = z.object({
   consent_withdrawn_at: z.iso.datetime().nullish(),
   events: z.array(zAdminCreditRegistrationEvent),
   linking_emails: z.array(zAdminLinkingEmail),
+  notification_emails: z.array(zAdminNotificationEmail),
   registration: zAdminCreditRegistrationRow,
   suotar_api_calls: z.array(zAdminSuotarApiCall),
 })
@@ -4156,6 +4182,7 @@ export const zCourseCreditRegistration = z.object({
   linking_email: zTeacherLinkingEmailStatus.nullish(),
   needs_admin_attention: z.boolean(),
   next_attempt_at: z.iso.datetime(),
+  notification_email: zNotificationEmailStatus.nullish(),
   registered_at: z.iso.datetime().nullish(),
   sisu_attainment_id: z.string().nullish(),
   state: zCreditRegistrationState,

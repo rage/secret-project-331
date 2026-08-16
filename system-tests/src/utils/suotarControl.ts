@@ -149,6 +149,15 @@ export const runVerifyPollTick = (
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "verify", scope)
 
+/**
+ * Separate from the registrar tick sequence because the whole point of these specs is that one
+ * explicit iteration queues each mail once and a second queues nothing.
+ */
+export const runStudentNotificationsTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "student-notifications", scope)
+
 export const runLegacyMirrorTick = (
   request: APIRequestContext,
   scope?: TickScope,

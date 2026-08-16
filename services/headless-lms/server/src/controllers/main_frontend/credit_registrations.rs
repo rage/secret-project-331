@@ -18,6 +18,9 @@ use headless_lms_models::{
     },
     email_deliveries::{EmailSendStatus, EmailSendStatusReport},
     library::credit_registration::StudentFacingCreditRegistrationStatus,
+    library::credit_registration::student_notifications::{
+        self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
+    },
     open_university_product_access_tokens,
     student_number_verification_tokens::{self, StudentNumberVerificationToken},
     verified_student_numbers::{
@@ -61,6 +64,44 @@ pub struct LinkingEmailStatus {
     pub emailed_to_masked: String,
 }
 
+/// The same, for one of the two terminal-state mails. No address: these go to the account's own,
+/// which the reader either owns or already sees.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct NotificationEmailStatus {
+    pub kind: CreditRegistrationNotificationKind,
+    pub email_send_status: EmailSendStatus,
+    pub sent_at: Option<DateTime<Utc>>,
+}
+
+impl NotificationEmailStatus {
+    /// The mail that belongs with the row's current status, or `None` for a status that has none:
+    /// a row shows at most one line, and an old action-needed mail on a since-registered row would
+    /// contradict the badge above it.
+    pub(crate) fn for_status(
+        status: StudentFacingCreditRegistrationStatus,
+        credit_registration_id: Uuid,
+        mails: &[RegistrationNotificationEmail],
+    ) -> Option<Self> {
+        let wanted = match status {
+            StudentFacingCreditRegistrationStatus::NeedsEnrolment => {
+                CreditRegistrationNotificationKind::ActionNeeded
+            }
+            StudentFacingCreditRegistrationStatus::Registered => {
+                CreditRegistrationNotificationKind::Registered
+            }
+            _ => return None,
+        };
+        let mail = mails.iter().find(|mail| {
+            mail.credit_registration_id == credit_registration_id && mail.kind == wanted
+        })?;
+        Some(Self {
+            kind: mail.kind,
+            email_send_status: mail.send_status.email_send_status,
+            sent_at: mail.send_status.sent_at,
+        })
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyCreditRegistration {
     pub id: Uuid,
@@ -101,6 +142,8 @@ pub struct MyCreditRegistration {
     /// Only on a row waiting for a student number whose account was linked at some point: the mail is
     /// addressed to a Sisu person, and a never-linked account names none.
     pub linking_email: Option<LinkingEmailStatus>,
+    /// The terminal-state mail this row's status has, if one has been queued.
+    pub notification_email: Option<NotificationEmailStatus>,
 }
 
 /// The live registration for one course module, with the attempts a newer one replaced.
@@ -778,6 +821,9 @@ async fn build_my_credit_registrations(
     )
     .await?;
 
+    let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
+    let notification_mails = student_notifications::get_for_registrations(conn, &ids).await?;
+
     let mut enrolment_links: HashMap<String, Option<String>> = HashMap::new();
     let mut linking_mails: Option<LinkingMailCache> = None;
     let mut res = Vec::with_capacity(rows.len());
@@ -793,11 +839,14 @@ async fn build_my_credit_registrations(
         } else {
             None
         };
+        let notification_email =
+            NotificationEmailStatus::for_status(status, row.id, &notification_mails);
         res.push(to_my_credit_registration(
             row,
             status,
             enrolment_link,
             linking_email,
+            notification_email,
         ));
     }
     Ok(res)
@@ -808,6 +857,7 @@ fn to_my_credit_registration(
     status: StudentFacingCreditRegistrationStatus,
     enrolment_link: Option<String>,
     linking_email: Option<LinkingEmailStatus>,
+    notification_email: Option<NotificationEmailStatus>,
 ) -> MyCreditRegistration {
     let can_request_enrolment_recheck = row.state == CreditRegistrationState::NoUsableEnrolment
         && row.enrolment_checked_at.is_none_or(|checked| {
@@ -840,6 +890,7 @@ fn to_my_credit_registration(
         enrolment_realisation_name: row.enrolment_realisation_name,
         enrolment_link,
         linking_email,
+        notification_email,
     }
 }
 
@@ -856,10 +907,9 @@ async fn resolve_enrolment_link(
     if let Some(cached) = cache.get(product_id) {
         return Ok(cached.clone());
     }
-    let link = open_university_product_access_tokens::get_by_product_id(conn, product_id)
-        .await?
-        .as_ref()
-        .and_then(open_university_product_access_tokens::enrolment_url);
+    let link =
+        open_university_product_access_tokens::enrolment_url_for_product(conn, Some(product_id))
+            .await?;
     cache.insert(product_id.clone(), link.clone());
     Ok(link)
 }

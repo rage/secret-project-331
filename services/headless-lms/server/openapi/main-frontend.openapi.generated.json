@@ -12848,7 +12848,8 @@
           "events",
           "suotar_api_calls",
           "actions",
-          "linking_emails"
+          "linking_emails",
+          "notification_emails"
         ],
         "properties": {
           "actions": {
@@ -12884,6 +12885,13 @@
               "$ref": "#/components/schemas/AdminLinkingEmail"
             },
             "description": "Every mail addressed to this person, on any course."
+          },
+          "notification_emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminNotificationEmail"
+            },
+            "description": "The terminal-state mails queued for this row, with the same send status the student and the\nteacher are shown."
           },
           "registration": {
             "$ref": "#/components/schemas/AdminCreditRegistrationRow"
@@ -13287,6 +13295,19 @@
           "moved_registration_count": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "AdminNotificationEmail": {
+        "type": "object",
+        "description": "One of the two student terminal-state mails, in full: `send_status.failure_code` is what drives\nthe decision to look at the relay.",
+        "required": ["kind", "send_status"],
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/CreditRegistrationNotificationKind"
+          },
+          "send_status": {
+            "$ref": "#/components/schemas/EmailSendStatusReport"
           }
         }
       },
@@ -15665,6 +15686,17 @@
             "type": "string",
             "format": "date-time"
           },
+          "notification_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NotificationEmailStatus",
+                "description": "The terminal-state mail this row's status has, if one has been queued. Same derivation the\nstudent sees, so a teacher answering \"did they hear from you\" cannot be told something else."
+              }
+            ]
+          },
           "registered_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -17607,6 +17639,11 @@
             "$ref": "#/components/schemas/CreditRegistrationAlertThresholds"
           }
         }
+      },
+      "CreditRegistrationNotificationKind": {
+        "type": "string",
+        "description": "Which of the two student mails a row is owed, or already holds.",
+        "enum": ["action_needed", "registered"]
       },
       "CreditRegistrationOldestNonTerminal": {
         "type": "object",
@@ -20085,6 +20122,17 @@
             "type": "string",
             "format": "date-time"
           },
+          "notification_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NotificationEmailStatus",
+                "description": "The terminal-state mail this row's status has, if one has been queued."
+              }
+            ]
+          },
           "registered_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -20872,6 +20920,23 @@
           "user_exercise_state_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "NotificationEmailStatus": {
+        "type": "object",
+        "description": "The same, for one of the two terminal-state mails. No address: these go to the account's own,\nwhich the reader either owns or already sees.",
+        "required": ["kind", "email_send_status"],
+        "properties": {
+          "email_send_status": {
+            "$ref": "#/components/schemas/EmailSendStatus"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CreditRegistrationNotificationKind"
+          },
+          "sent_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           }
         }
       },

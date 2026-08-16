@@ -131,6 +131,11 @@ export type AdminCreditRegistrationDetails = {
    * Every mail addressed to this person, on any course.
    */
   linking_emails: Array<AdminLinkingEmail>
+  /**
+   * The terminal-state mails queued for this row, with the same send status the student and the
+   * teacher are shown.
+   */
+  notification_emails: Array<AdminNotificationEmail>
   registration: AdminCreditRegistrationRow
   /**
    * The calls the timeline refers to, newest first.
@@ -276,6 +281,15 @@ export type AdminMaterializePayload = {
 export type AdminMaterializeResult = {
   created_registration_count: number
   moved_registration_count: number
+}
+
+/**
+ * One of the two student terminal-state mails, in full: `send_status.failure_code` is what drives
+ * the decision to look at the relay.
+ */
+export type AdminNotificationEmail = {
+  kind: CreditRegistrationNotificationKind
+  send_status: EmailSendStatusReport
 }
 
 export type AdminPausePhasePayload = {
@@ -1032,6 +1046,7 @@ export type CourseCreditRegistration = {
   linking_email?: null | TeacherLinkingEmailStatus
   needs_admin_attention: boolean
   next_attempt_at: string
+  notification_email?: null | NotificationEmailStatus
   registered_at?: string | null
   sisu_attainment_id?: string | null
   state: CreditRegistrationState
@@ -1809,6 +1824,11 @@ export type CreditRegistrationHealth = {
   status: HealthStatus
   thresholds: CreditRegistrationAlertThresholds
 }
+
+/**
+ * Which of the two student mails a row is owed, or already holds.
+ */
+export type CreditRegistrationNotificationKind = "action_needed" | "registered"
 
 export type CreditRegistrationOldestNonTerminal = {
   credit_registration_id: string
@@ -2613,6 +2633,7 @@ export type MyCreditRegistration = {
   id: string
   linking_email?: null | LinkingEmailStatus
   next_attempt_at: string
+  notification_email?: null | NotificationEmailStatus
   registered_at?: string | null
   sisu_attainment_id?: string | null
   /**
@@ -2906,6 +2927,16 @@ export type NewTeacherGradingDecision = {
   justification?: string | null
   manual_points?: number | null
   user_exercise_state_id: string
+}
+
+/**
+ * The same, for one of the two terminal-state mails. No address: these go to the account's own,
+ * which the reader either owns or already sees.
+ */
+export type NotificationEmailStatus = {
+  email_send_status: EmailSendStatus
+  kind: CreditRegistrationNotificationKind
+  sent_at?: string | null
 }
 
 export type OrgExam = {

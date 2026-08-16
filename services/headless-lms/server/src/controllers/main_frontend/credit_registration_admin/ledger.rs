@@ -11,6 +11,10 @@ use headless_lms_models::credit_registrations::{
     self, AdminCreditRegistration, AdminCreditRegistrationFilters, AdminCreditRegistrationSort,
     CreditRegistrationErrorCode, CreditRegistrationState, Transition,
 };
+use headless_lms_models::email_deliveries::EmailSendStatusReport;
+use headless_lms_models::library::credit_registration::student_notifications::{
+    self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
+};
 use headless_lms_models::suotar_api_calls;
 use headless_lms_models::verified_student_numbers::{self, StudentNumberVerificationMethod};
 use utoipa::ToSchema;
@@ -112,6 +116,14 @@ pub struct AdminSuotarApiCall {
     pub credit_registration_ids: Vec<Uuid>,
 }
 
+/// One of the two student terminal-state mails, in full: `send_status.failure_code` is what drives
+/// the decision to look at the relay.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminNotificationEmail {
+    pub kind: CreditRegistrationNotificationKind,
+    pub send_status: EmailSendStatusReport,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminCreditRegistrationDetails {
     pub registration: AdminCreditRegistrationRow,
@@ -124,6 +136,9 @@ pub struct AdminCreditRegistrationDetails {
     pub actions: Vec<CreditRegistrationAdminActionRecord>,
     /// Every mail addressed to this person, on any course.
     pub linking_emails: Vec<AdminLinkingEmail>,
+    /// The terminal-state mails queued for this row, with the same send status the student and the
+    /// teacher are shown.
+    pub notification_emails: Vec<AdminNotificationEmail>,
     pub consent_given: Option<bool>,
     pub consent_withdrawn_at: Option<DateTime<Utc>>,
 }
@@ -403,6 +418,17 @@ pub async fn get_credit_registration_for_admin(
     )
     .await?;
 
+    let notification_emails = student_notifications::get_for_registrations(&mut conn, &[id])
+        .await?
+        .into_iter()
+        .map(
+            |mail: RegistrationNotificationEmail| AdminNotificationEmail {
+                kind: mail.kind,
+                send_status: mail.send_status,
+            },
+        )
+        .collect();
+
     token.authorized_ok(web::Json(AdminCreditRegistrationDetails {
         registration: to_admin_row(registration),
         attempts,
@@ -410,6 +436,7 @@ pub async fn get_credit_registration_for_admin(
         suotar_api_calls,
         actions,
         linking_emails,
+        notification_emails,
         consent_given: consent.as_ref().map(|row| row.consent_given),
         consent_withdrawn_at: consent.and_then(|row| row.consent_withdrawn_at),
     }))

@@ -7,6 +7,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  notificationKindLabel,
   sendStatusLabel,
   verificationMethodLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
@@ -26,6 +27,7 @@ import type {
   AdminCreditRegistrationDetails,
   AdminCreditRegistrationRow,
   AdminLinkingEmail,
+  AdminNotificationEmail,
   AdminSuotarApiCall,
   CreditRegistrationAdminActionRecord,
 } from "@/generated/api/types.generated"
@@ -364,6 +366,44 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
   )
 }
 
+const NotificationSection: React.FC<{ mails: AdminNotificationEmail[] }> = ({ mails }) => {
+  const { t } = useTranslation()
+  if (mails.length === 0) {
+    return null
+  }
+  return (
+    <section className={sectionCss}>
+      <h2 className={headingCss}>{t("credit-registration-heading-notification-emails")}</h2>
+      <Table
+        caption={t("credit-registration-heading-notification-emails")}
+        rowKey={(mail) => mail.kind}
+        rows={mails}
+        columns={[
+          { header: t("label-kind"), cell: (mail) => notificationKindLabel(t, mail.kind) },
+          {
+            header: t("credit-registration-admin-send-status-header"),
+            cell: (mail) =>
+              [
+                sendStatusLabel(t, mail.send_status.email_send_status),
+                mail.send_status.failure_code,
+              ]
+                .filter(Boolean)
+                .join(MIDDLE_DOT),
+          },
+          {
+            header: t("label-credit-registration-handed-over"),
+            cell: (mail) => <RelativeTime at={mail.send_status.sent_at} />,
+          },
+          {
+            header: t("label-credit-registration-retries"),
+            cell: (mail) => mail.send_status.retry_count,
+          },
+        ]}
+      />
+    </section>
+  )
+}
+
 const AuditSection: React.FC<{ actions: CreditRegistrationAdminActionRecord[] }> = ({
   actions,
 }) => {
@@ -401,6 +441,7 @@ const RegistrationDetailPage: React.FC = () => {
           <TimelineSection details={details} />
           <ApiCallSection calls={details.suotar_api_calls} />
           <LinkingSection mails={details.linking_emails} />
+          <NotificationSection mails={details.notification_emails} />
           <section className={sectionCss}>
             <h2 className={headingCss}>{t("credit-registration-heading-actions")}</h2>
             <AdminTransitionBlock registration={details.registration} />

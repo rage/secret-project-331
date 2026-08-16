@@ -20,6 +20,8 @@ import {
 import {
   isAdminEstablishedLink,
   linkingEmailSentence,
+  notificationEmailLabel,
+  notificationEmailSentence,
   studentNumberVerificationLabel,
 } from "./teacherCreditRegistrations"
 
@@ -150,6 +152,13 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
         registration.linking_email.emailed_to_masked,
         i18n.language,
       ),
+    })
+  }
+
+  if (registration.notification_email) {
+    items.push({
+      label: notificationEmailLabel(t, registration.notification_email.kind),
+      value: notificationEmailSentence(t, registration.notification_email, i18n.language),
     })
   }
 

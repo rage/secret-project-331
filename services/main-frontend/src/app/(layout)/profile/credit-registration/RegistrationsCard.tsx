@@ -11,6 +11,7 @@ import {
   registrationStatusLabel,
   registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
+import NotificationEmailLine from "@/components/credit-registration/NotificationEmailLine"
 import SectionCard from "@/components/credit-registration/SectionCard"
 import { getMyCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
@@ -100,11 +101,14 @@ const RegistrationsTable: React.FC<{ registrations: MyCreditRegistration[] }> = 
     {
       header: t("label-status"),
       cell: (registration) => (
-        <RegistrationStatusBadge
-          state={registrationStatusState(registration.student_facing_status)}
-        >
-          {registrationStatusLabel(t, registration.student_facing_status)}
-        </RegistrationStatusBadge>
+        <>
+          <RegistrationStatusBadge
+            state={registrationStatusState(registration.student_facing_status)}
+          >
+            {registrationStatusLabel(t, registration.student_facing_status)}
+          </RegistrationStatusBadge>
+          <NotificationEmailLine notificationEmail={registration.notification_email} />
+        </>
       ),
     },
   ]

@@ -355,6 +355,33 @@ pub const FAST_TRACK_TWIN: MockPersonFixture = MockPersonFixture {
     account_email: Some("credit-registration-unverified-twin@example.com"),
 };
 
+/// Driven all the way to `registered`, which is what earns the "your credits are in Sisu" mail.
+pub const EMAILS_REGISTERED: MockPersonFixture = MockPersonFixture {
+    student_number: "900001301",
+    first_names: "Zzyzx",
+    last_name: "Mailedsuccess",
+    sisu_email: "zzyzx.mailedsuccess@helsinki.example",
+    account_email: Some("credit-registration-emails-registered@example.com"),
+};
+/// Deliberately absent from the mock's enrolments, like `NO_ENROLMENT`, so its row parks at
+/// `no_usable_enrolment` and earns the action-needed mail without arming a fault.
+pub const EMAILS_NO_ENROLMENT: MockPersonFixture = MockPersonFixture {
+    student_number: "900001302",
+    first_names: "Zzyzx",
+    last_name: "Mailedaction",
+    sisu_email: "zzyzx.mailedaction@helsinki.example",
+    account_email: Some("credit-registration-emails-no-enrolment@example.com"),
+};
+/// Never asked for consent, so its row sits at `pending_consent`: the negative half of "exactly two
+/// mails exist".
+pub const EMAILS_UNMAILED: MockPersonFixture = MockPersonFixture {
+    student_number: "900001303",
+    first_names: "Zzyzx",
+    last_name: "Nevermailed",
+    sisu_email: "zzyzx.nevermailed@helsinki.example",
+    account_email: Some("credit-registration-emails-unmailed@example.com"),
+};
+
 pub const IMPORT_OUTCOMES: MockPersonFixture = MockPersonFixture {
     student_number: "900000401",
     first_names: "Zzyzx",
@@ -565,6 +592,8 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
         &CONSENT_WITHDRAWN,
+        &EMAILS_REGISTERED,
+        &EMAILS_NO_ENROLMENT,
     ] {
         let student = seed_spec_student(
             &mut conn,
@@ -577,16 +606,18 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
         .await?;
         seed_eligible_completion(&mut conn, &student, suotar_course.id, None).await?;
     }
-    let consent_withheld = seed_spec_student(
-        &mut conn,
-        &cx,
-        &CONSENT_WITHHELD,
-        suotar_course.id,
-        suotar_instance.id,
-        false,
-    )
-    .await?;
-    seed_eligible_completion(&mut conn, &consent_withheld, suotar_course.id, None).await?;
+    for fixture in [&CONSENT_WITHHELD, &EMAILS_UNMAILED] {
+        let student = seed_spec_student(
+            &mut conn,
+            &cx,
+            fixture,
+            suotar_course.id,
+            suotar_instance.id,
+            false,
+        )
+        .await?;
+        seed_eligible_completion(&mut conn, &student, suotar_course.id, None).await?;
+    }
 
     // `not_consented` gets no row at all: a missing row is what makes the course-start dialog
     // appear, while `consent_given = false` means asked and declined.
@@ -1666,6 +1697,8 @@ pub fn mock_suotar_world() -> WorldPush {
         &VERIFY_MISREGISTERED,
         &CONSENT_WITHHELD,
         &CONSENT_WITHDRAWN,
+        &EMAILS_REGISTERED,
+        &EMAILS_UNMAILED,
     ];
     let on_crs_admin_101 = [
         &ADMIN_UNLINKED,
@@ -1688,6 +1721,7 @@ pub fn mock_suotar_world() -> WorldPush {
         upsert
     }));
     persons.push(person(&NO_ENROLMENT));
+    persons.push(person(&EMAILS_NO_ENROLMENT));
     persons.push(person(&IMPORT_OUTCOMES));
     persons.push(person(&GRADE_IMPROVEMENT));
     persons.extend(BACKFILL_STUDENTS.iter().map(person));

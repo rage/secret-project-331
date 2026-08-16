@@ -56,10 +56,17 @@ export interface AdminRegistrationAction {
   after_state: string | null
 }
 
+/** One of the two student terminal-state mails, as the admin detail view reports it. */
+export interface AdminNotificationEmail {
+  kind: "action_needed" | "registered"
+  send_status: { email_send_status: string; sent_at: string | null }
+}
+
 export interface AdminRegistrationDetails {
   events: { details: unknown }[]
   suotar_api_calls: { request_body_sample: unknown; response_body_sample: unknown }[]
   actions: AdminRegistrationAction[]
+  notification_emails: AdminNotificationEmail[]
 }
 
 export interface AccountLinkingRealisationCounters {

@@ -21,6 +21,17 @@ import { TextField } from "@/shared-module/components/components/TextField"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ChartBlockAttributes } from "."
+import {
+  type AiReturnStep,
+  type ChartEditorStep,
+  GUIDED_STEP_COUNT,
+  guidedStepNumber,
+  resolveInitialStep,
+  STEP_AI,
+  STEP_DATA,
+  STEP_EDITOR,
+  STEP_METHOD,
+} from "./chartEditorSteps"
 import ChartPreview from "./ChartPreview"
 import {
   dataFormatForUrl,
@@ -106,14 +117,72 @@ const editorModalStyles = css`
   }
 `
 
-// The data-file step holds only a short prompt and the upload box, so the dialog sizes to its
-// content (height auto) at a modest width.
-const dataFileModalStyles = css`
+// The steps before the editor hold only a short prompt and one control each, so the dialog sizes
+// to its content (height auto) at a modest width.
+const stepModalStyles = css`
   && {
     width: min(90vw, 720px);
     max-width: none;
   }
 `
+
+const stepLayoutStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+`
+
+const stepInstructionStyles = css`
+  margin: 0;
+  font-family: ${primaryFont};
+  font-size: 0.9375rem;
+  color: ${baseTheme.colors.gray[700]};
+`
+
+const stepCounterStyles = css`
+  margin: 0;
+  font-family: ${primaryFont};
+  font-size: 0.8125rem;
+  font-weight: ${fontWeights.medium};
+  color: ${baseTheme.colors.gray[500]};
+`
+
+const methodOptionStyles = css`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid ${baseTheme.colors.gray[300]};
+  border-radius: 4px;
+`
+
+const methodOptionDescriptionStyles = css`
+  margin: 0;
+  font-family: ${primaryFont};
+  font-size: 0.8125rem;
+  color: ${baseTheme.colors.gray[600]};
+`
+
+// Keeps a step's buttons at their natural width inside the column layout.
+const stepActionsStyles = css`
+  display: flex;
+`
+
+const methodOptionLinkStyles = css`
+  font-family: ${primaryFont};
+  font-size: 0.8125rem;
+`
+
+const AI_OPTION_DESCRIPTION_ID = "chart-block-ai-option-description"
+const MANUAL_OPTION_DESCRIPTION_ID = "chart-block-manual-option-description"
+
+// Vega-Altair writes Vega-Lite specifications from Python, which is a far friendlier way to author
+// one than typing the JSON by hand.
+const VEGA_ALTAIR_URL = "https://altair-viz.github.io/"
 
 interface MediaObject {
   url: string
@@ -140,20 +209,16 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   const [dataFileError, setDataFileError] = useState<string | undefined>(undefined)
   const [extractedDataUrl, setExtractedDataUrl] = useState<string | undefined>(undefined)
   const [isExtractingData, setIsExtractingData] = useState(false)
-  const [aiMode, setAiMode] = useState(false)
   const [showVegaJson, setShowVegaJson] = useState(false)
   const [vegaJsonHeight, setVegaJsonHeight] = useState(VEGA_JSON_DEFAULT_HEIGHT)
   const [isGenerating, setIsGenerating] = useState(false)
   const [aiError, setAiError] = useState<unknown>(undefined)
 
-  // Data-first flow: a new block (empty spec) opens on the data-file step; everything else opens
-  // straight in the editor. Latched one-way: once the block has a spec, it stays in the editor.
-  const [inEditor, setInEditor] = useState(() => Boolean(spec?.trim()))
-  useEffect(() => {
-    if (spec?.trim()) {
-      setInEditor(true)
-    }
-  }, [spec])
+  // Data-first flow: a new block starts on the data-file step, then picks a creation method, then
+  // lands in the editor.
+  const [step, setStep] = useState<ChartEditorStep>(() => resolveInitialStep(spec))
+  // Where cancelling or finishing the AI prompt returns to.
+  const [aiReturnStep, setAiReturnStep] = useState<AiReturnStep>(STEP_EDITOR)
 
   // The uploaded data file, remembered independently of the spec text. Latched from the spec
   // whenever it carries a data URL; only the Remove button clears it.
@@ -357,12 +422,23 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
       prompt,
       currentSpec: currentSpec.trim() ? currentSpec : null,
     })
-    // A spec came back, so return to the editor: the preview, the render error and "Fix with AI"
+    // A spec came back, so move to the editor: the preview, the render error and "Fix with AI"
     // live there, which is what a spec that doesn't render needs. A failed request keeps the prompt
     // open with its error instead.
     if (requestSucceeded) {
-      setAiMode(false)
+      // A generated chart is meant to be judged from the preview, so the JSON starts collapsed.
+      // Re-generating from the editor leaves the teacher's own toggle alone.
+      if (aiReturnStep === STEP_METHOD) {
+        setShowVegaJson(false)
+      }
+      setStep(STEP_EDITOR)
     }
+  }
+
+  const openAiPrompt = (returnStep: AiReturnStep) => {
+    setAiError(undefined)
+    setAiReturnStep(returnStep)
+    setStep(STEP_AI)
   }
 
   // Manual repair: hand the failing spec and its error back to the model.
@@ -421,6 +497,9 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }
     setDataFileError(undefined)
     updateSpec(JSON.stringify(rewritten, null, 2))
+    if (step === STEP_DATA) {
+      setStep(STEP_METHOD)
+    }
   }
 
   const handleDataFileError = (error: unknown) => {
@@ -463,18 +542,18 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     e.currentTarget.releasePointerCapture(e.pointerId)
   }
   const handleVegaResizeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const step =
+    const heightStep =
       e.key === "ArrowDown"
         ? VEGA_JSON_RESIZE_STEP
         : e.key === "ArrowUp"
           ? -1 * VEGA_JSON_RESIZE_STEP
           : 0
-    if (step === 0) {
+    if (heightStep === 0) {
       return
     }
     // Keep the arrows on the handle instead of scrolling the page behind the dialog.
     e.preventDefault()
-    setVegaJsonHeight((height) => clampVegaJsonHeight(height + step))
+    setVegaJsonHeight((current) => clampVegaJsonHeight(current + heightStep))
   }
 
   const isValidJson = (() => {
@@ -554,51 +633,95 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     </>
   )
 
+  const isRegenerating = step === STEP_AI && aiReturnStep === STEP_EDITOR
+  const stepNumber = guidedStepNumber(step, aiReturnStep)
+  const stepCounter = stepNumber !== null && (
+    <p className={stepCounterStyles}>
+      {t("step-x-of-y", { current: stepNumber, total: GUIDED_STEP_COUNT })}
+    </p>
+  )
+
+  const aiStepTitle = isRegenerating ? t("ai-regenerate-chart") : t("ai-generate-chart")
+
   return (
     <Modal
-      title={aiMode ? t("ai-generate-chart") : t("edit-chart")}
-      // In the AI prompt view, closing (escape / ×) steps back to the editor rather than closing
-      // the whole block editor.
-      onRequestClose={aiMode ? () => setAiMode(false) : onClose}
-      className={inEditor && !aiMode ? editorModalStyles : dataFileModalStyles}
+      title={step === STEP_AI ? aiStepTitle : t("edit-chart")}
+      // In the AI prompt view, closing (escape / ×) steps back where it was opened from rather than
+      // closing the whole block editor.
+      onRequestClose={step === STEP_AI ? () => setStep(aiReturnStep) : onClose}
+      className={step === STEP_EDITOR ? editorModalStyles : stepModalStyles}
     >
-      {/* Data-first: a brand-new block (empty spec) asks for a data file before revealing the spec
-          editor and preview. */}
-      {!inEditor && (
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
-            max-width: 640px;
-            margin: 0 auto;
-          `}
-        >
-          <p
-            className={css`
-              margin: 0;
-              font-family: ${primaryFont};
-              font-size: 0.9375rem;
-              color: ${baseTheme.colors.gray[700]};
-            `}
-          >
-            {t("chart-block-start-with-data-file")}
-          </p>
+      {/* Step 1 — data-first: a brand-new block asks for a data file before anything else, because
+          both ways of making the chart are built around the data's columns. */}
+      {step === STEP_DATA && (
+        <div className={stepLayoutStyles}>
+          {stepCounter}
+          <p className={stepInstructionStyles}>{t("chart-block-start-with-data-file")}</p>
           {dataFileSection}
+          {/* Uploading a file moves on by itself, so this is the way forward for someone who
+              stepped back here to check or replace the file. */}
+          {attachedDataUrl && (
+            <div className={stepActionsStyles}>
+              <Button variant="primary" size="medium" onPress={() => setStep(STEP_METHOD)}>
+                {t("continue")}
+              </Button>
+            </div>
+          )}
         </div>
       )}
-      {inEditor && aiMode && (
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
-            max-width: 640px;
-            margin: 0 auto;
-          `}
-        >
+      {/* Step 2 — how the chart itself gets written. */}
+      {step === STEP_METHOD && (
+        <div className={stepLayoutStyles}>
+          {stepCounter}
+          <p className={stepInstructionStyles}>{t("chart-block-choose-creation-method")}</p>
+          <div className={methodOptionStyles}>
+            <Button
+              variant="primary"
+              size="medium"
+              onPress={() => openAiPrompt(STEP_METHOD)}
+              aria-describedby={AI_OPTION_DESCRIPTION_ID}
+            >
+              {t("ai-generate-chart")}
+            </Button>
+            <p id={AI_OPTION_DESCRIPTION_ID} className={methodOptionDescriptionStyles}>
+              {t("chart-creation-method-ai-description")}
+            </p>
+          </div>
+          <div className={methodOptionStyles}>
+            <Button
+              variant="secondary"
+              size="medium"
+              onPress={() => {
+                setShowVegaJson(true)
+                setStep(STEP_EDITOR)
+              }}
+              aria-describedby={MANUAL_OPTION_DESCRIPTION_ID}
+            >
+              {t("write-vega-json-manually")}
+            </Button>
+            <p id={MANUAL_OPTION_DESCRIPTION_ID} className={methodOptionDescriptionStyles}>
+              {t("chart-creation-method-manual-description")}
+            </p>
+            <a
+              className={methodOptionLinkStyles}
+              href={VEGA_ALTAIR_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("vega-altair-documentation")}
+            </a>
+          </div>
+          <div className={stepActionsStyles}>
+            <Button variant="tertiary" size="medium" onPress={() => setStep(STEP_DATA)}>
+              {t("back")}
+            </Button>
+          </div>
+        </div>
+      )}
+      {/* Step 3a — describe the chart and let the model write the specification. */}
+      {step === STEP_AI && (
+        <div className={stepLayoutStyles}>
+          {stepCounter}
           <TextArea
             name="aiPrompt"
             control={control}
@@ -644,10 +767,10 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
             <Button
               variant="secondary"
               size="medium"
-              onPress={() => setAiMode(false)}
+              onPress={() => setStep(aiReturnStep)}
               disabled={isGenerating}
             >
-              {t("cancel")}
+              {aiReturnStep === STEP_METHOD ? t("back") : t("cancel")}
             </Button>
             <Button
               variant="primary"
@@ -661,7 +784,9 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
           </div>
         </div>
       )}
-      {inEditor && !aiMode && (
+      {/* The finished chart: spec, data file, caption and preview side by side. Also where an
+          already-built chart opens. */}
+      {step === STEP_EDITOR && (
         <div
           className={css`
             display: flex;
@@ -727,15 +852,8 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                 >
                   {showVegaJson ? t("hide-vega-json") : t("view-vega-json")}
                 </Button>
-                <Button
-                  variant="secondary"
-                  size="small"
-                  onPress={() => {
-                    setAiError(undefined)
-                    setAiMode(true)
-                  }}
-                >
-                  {t("ai-generate-chart")}
+                <Button variant="secondary" size="small" onPress={() => openAiPrompt(STEP_EDITOR)}>
+                  {t("ai-regenerate-chart")}
                 </Button>
               </div>
             </div>
@@ -937,7 +1055,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                     font-family: ${primaryFont};
                     font-size: 0.75rem;
                     color: ${baseTheme.colors.gray[700]};
-                    word-break: break-word;
+                    overflow-wrap: break-word;
                   `}
                 >
                   {renderError}

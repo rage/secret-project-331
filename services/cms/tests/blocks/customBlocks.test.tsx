@@ -9,6 +9,7 @@ import type { ComponentType, ReactNode } from "react"
 import { act, createElement, useCallback, useRef, useState } from "react"
 import { createRoot } from "react-dom/client"
 
+import type { ExerciseAttributes } from "@/blocks/Exercise"
 import { setupIntersectionObserverMock } from "@/shared-module/common/test-utils/mockIntersectionObserver"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
@@ -92,6 +93,7 @@ const {
 } = await import("@/blocks/index")
 const { default: BlockWrapper } = await import("@/blocks/BlockWrapper")
 const { default: BlockPlaceholderWrapper } = await import("@/blocks/BlockPlaceholderWrapper")
+const { default: ExerciseBlockContext } = await import("@/contexts/ExerciseBlockContext")
 
 const registeredBlocks = new Map<string, BlockConfiguration>()
 for (const [name, configuration] of [
@@ -171,6 +173,34 @@ const renderInEditor = async (element: ReactNode): Promise<HTMLElement> => {
   return markup
 }
 
+const EXERCISE_ATTRIBUTES: ExerciseAttributes = {
+  id: "05d75d5a-9b1c-4f4e-8b1c-2b3a4c5d6e7f",
+  name: "Exercise",
+  score_maximum: 1,
+  limit_number_of_tries: false,
+  needs_peer_review: false,
+  needs_self_review: false,
+  peer_or_self_review_config: "null",
+  peer_or_self_review_questions_config: "[]",
+  use_course_default_peer_review: false,
+}
+
+/**
+ * Puts a block inside the contexts its edit component needs to reach the branch a real editor
+ * renders. A block whose context is missing falls back to an empty wrapper, which satisfies the
+ * assertions below while leaving the branch that matters untested.
+ */
+const withBlockContext = (name: string, element: ReactNode): ReactNode => {
+  if (name === "moocfi/exercise-settings") {
+    return createElement(
+      ExerciseBlockContext.Provider,
+      { value: { attributes: EXERCISE_ATTRIBUTES, setAttributes: () => undefined } },
+      element,
+    )
+  }
+  return element
+}
+
 const renderBlockEdit = (name: string): Promise<HTMLElement> => {
   const configuration = registeredBlocks.get(name)
   if (!configuration?.edit) {
@@ -180,7 +210,9 @@ const renderBlockEdit = (name: string): Promise<HTMLElement> => {
     Object.entries(configuration.attributes).map(([key, value]) => [key, value.default]),
   )
   const Edit = configuration.edit as unknown as ComponentType<Record<string, unknown>>
-  return renderInEditor(createElement(EditHost, { Edit, initialAttributes }))
+  return renderInEditor(
+    withBlockContext(name, createElement(EditHost, { Edit, initialAttributes })),
+  )
 }
 
 beforeAll(() => {

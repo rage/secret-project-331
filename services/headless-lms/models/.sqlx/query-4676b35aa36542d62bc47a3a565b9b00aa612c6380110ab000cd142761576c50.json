@@ -532,6 +532,28 @@
             "name": "deleted_at"
           }
         }
+      },
+      {
+        "ordinal": 43,
+        "name": "action_needed_email_delivery_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "action_needed_email_delivery_id"
+          }
+        }
+      },
+      {
+        "ordinal": 44,
+        "name": "registered_email_delivery_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "registered_email_delivery_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -645,6 +667,8 @@
       true,
       false,
       false,
+      true,
+      true,
       true
     ]
   },

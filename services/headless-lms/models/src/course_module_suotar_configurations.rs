@@ -1,5 +1,6 @@
 use utoipa::ToSchema;
 
+use crate::credit_registrations::CreditRegistrationErrorCode;
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -114,6 +115,132 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+/// Everything the per-module configuration check reads, gathered in one query so validating every
+/// enabled module costs one pass rather than a fan-out per module.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SuotarModuleConfigFacts {
+    pub course_module_id: Uuid,
+    pub course_id: Uuid,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub open_university_product_id: Option<String>,
+    pub grade_scale_id: Option<String>,
+    /// The old pull path is on as well, which would register the same completion twice.
+    pub old_flow_also_enabled: bool,
+    /// A token we could actually build an enrolment link from, not merely a row.
+    pub product_token_found: bool,
+    pub active_realisation_count: i64,
+    /// At least one active realisation has been listed successfully, which proves the course code.
+    pub listed_successfully: bool,
+    pub course_code_not_found: bool,
+    /// A numeric grade scale override cannot map these, so the override and the module disagree.
+    pub has_passed_completions_without_a_grade: bool,
+}
+
+/// Every Suotar-enabled module's configuration facts, optionally narrowed to one course. Paused
+/// modules are included: a paused module's configuration is exactly what an operator is about to
+/// fix.
+pub async fn get_config_facts_for_enabled_modules(
+    conn: &mut PgConnection,
+    course_id: Option<Uuid>,
+) -> ModelResult<Vec<SuotarModuleConfigFacts>> {
+    let res = sqlx::query_as!(
+        SuotarModuleConfigFacts,
+        r#"
+SELECT cm.id AS "course_module_id!",
+  cm.course_id AS "course_id!",
+  cm.uh_course_code,
+  cm.ects_credits,
+  c.open_university_product_id AS "open_university_product_id?",
+  c.grade_scale_id AS "grade_scale_id?",
+  cm.enable_registering_completion_to_uh_open_university AS "old_flow_also_enabled!",
+  EXISTS (
+    SELECT 1
+    FROM open_university_product_access_tokens t
+    WHERE t.open_university_product_id = c.open_university_product_id
+      AND t.access_token IS NOT NULL
+      AND t.deleted_at IS NULL
+  ) AS "product_token_found!",
+  COALESCE(r.active_realisation_count, 0) AS "active_realisation_count!",
+  COALESCE(r.listed_successfully, FALSE) AS "listed_successfully!",
+  COALESCE(r.course_code_not_found, FALSE) AS "course_code_not_found!",
+  EXISTS (
+    SELECT 1
+    FROM course_module_completions cmc
+    WHERE cmc.course_module_id = cm.id
+      AND cmc.passed
+      AND cmc.grade IS NULL
+      AND cmc.deleted_at IS NULL
+  ) AS "has_passed_completions_without_a_grade!"
+FROM course_modules cm
+  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
+  LEFT JOIN LATERAL (
+    SELECT COUNT(*) AS active_realisation_count,
+      BOOL_OR(cmsr.last_listed_at IS NOT NULL) AS listed_successfully,
+      BOOL_OR(cmsr.last_listing_error = $2) AS course_code_not_found
+    FROM course_module_suotar_realisations cmsr
+    WHERE cmsr.course_module_id = cm.id
+      AND cmsr.active
+      AND cmsr.deleted_at IS NULL
+  ) r ON TRUE
+WHERE cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+  AND ($1::uuid IS NULL OR cm.course_id = $1)
+ORDER BY cm.course_id,
+  cm.order_number
+        "#,
+        course_id,
+        CreditRegistrationErrorCode::CourseCodeNotFound as CreditRegistrationErrorCode,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// What one configuration check concluded. `None` on either boolean means the check could not
+/// reach an answer, which the dashboard renders as "unknown" rather than as a failure.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct SuotarConfigCheck {
+    pub course_code_resolves: Option<bool>,
+    pub product_token_found: Option<bool>,
+    /// Every problem found, in one line for the Courses tab. `None` means the module is fine.
+    pub message: Option<String>,
+}
+
+/// Stamps the check result on the module, creating the configuration row for a module that has
+/// none: an enabled module with no configuration is itself one of the problems being reported.
+pub async fn record_config_check(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    check: &SuotarConfigCheck,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+INSERT INTO course_module_suotar_configurations (
+    course_module_id,
+    config_checked_at,
+    course_code_resolves,
+    product_token_found,
+    config_check_message
+  )
+VALUES ($1, now(), $2, $3, $4) ON CONFLICT (course_module_id) DO
+UPDATE
+SET config_checked_at = now(),
+  course_code_resolves = $2,
+  product_token_found = $3,
+  config_check_message = $4
+        "#,
+        course_module_id,
+        check.course_code_resolves,
+        check.product_token_found,
+        check.message,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 /// Who paused a module's credit registration, and why. One value rather than three arguments

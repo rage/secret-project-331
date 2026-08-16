@@ -1,0 +1,166 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id AS \"credit_registration_id!\",\n  cr.state AS \"state!: CreditRegistrationState\",\n  cr.user_id AS \"user_id!\",\n  cr.course_module_id AS \"course_module_id!\",\n  c.name AS \"course_name!\",\n  c.language_code AS \"course_language_code!\",\n  cm.name AS \"course_module_name?\",\n  ud.first_name AS \"first_name?\",\n  cm.ects_credits AS \"ects_credits?\",\n  conf.open_university_product_id AS \"open_university_product_id?\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND (\n    (\n      cr.state = 'no_usable_enrolment'\n      AND cr.action_needed_email_delivery_id IS NULL\n    )\n    OR (\n      cr.state IN ('registered', 'duplicate', 'not_improved')\n      AND cr.registered_email_delivery_id IS NULL\n    )\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\n  AND (\n    cardinality($4::uuid []) = 0\n    OR cr.id = ANY($4::uuid [])\n  )\nORDER BY cr.state_entered_at\nFOR UPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credit_registration_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "state!: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_module_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_language_code!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "language_code"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_module_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "ects_credits?",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "ects_credits"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "open_university_product_id?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "open_university_product_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "c566e6948c50f39b313145d030245e966051e9a73047f771491e7036da09dea8"
+}

@@ -4,12 +4,15 @@
 //! behave differently depending on who ran it.
 
 pub mod breaker;
+mod config_validation;
 mod enrolment_discovery;
 mod import;
 mod link_emails;
 pub mod linking_mail_resend;
 mod product_token_refresh;
 mod resolve_enrolments;
+mod retention_sweep;
+mod student_notifications;
 mod verify;
 pub mod worker_loop;
 
@@ -19,6 +22,9 @@ use headless_lms_models::credit_registration_events::{
 };
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationState, Transition,
+};
+use headless_lms_models::email_templates::{
+    EmailTemplateType, get_generic_email_template_by_type_and_language,
 };
 use headless_lms_models::library::credit_registration::backoff::next_attempt_at;
 use headless_lms_models::library::credit_registration::classification::is_retryable_transient_wire_code;
@@ -45,6 +51,7 @@ use headless_lms_utils::services::suotar::{
     ListedPerson, SuotarBatchResponse, SuotarClient, SuotarItemStatus,
 };
 use sqlx::{PgConnection, PgPool};
+use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
 use uuid::Uuid;
@@ -155,10 +162,12 @@ impl CreditRegistrationPhase {
             Self::Import => Some(ImplementedPhase::Import),
             Self::Verify => Some(ImplementedPhase::Verify),
             Self::LegacyMirror => Some(ImplementedPhase::LegacyMirror),
+            Self::StudentNotifications => Some(ImplementedPhase::StudentNotifications),
             Self::EnrolmentDiscovery => Some(ImplementedPhase::EnrolmentDiscovery),
             Self::LinkEmails => Some(ImplementedPhase::LinkEmails),
             Self::ProductTokenRefresh => Some(ImplementedPhase::ProductTokenRefresh),
-            Self::StudentNotifications | Self::ConfigValidation | Self::RetentionSweep => None,
+            Self::ConfigValidation => Some(ImplementedPhase::ConfigValidation),
+            Self::RetentionSweep => Some(ImplementedPhase::RetentionSweep),
         }
     }
 
@@ -182,7 +191,8 @@ impl CreditRegistrationPhase {
             | Self::ResolveEnrolments
             | Self::Import
             | Self::Verify
-            | Self::LegacyMirror => ScopeSupport::LEDGER,
+            | Self::LegacyMirror
+            | Self::StudentNotifications => ScopeSupport::LEDGER,
             // No ledger row exists yet, so there is no registration id to narrow on.
             Self::Materialize => ScopeSupport {
                 course: true,
@@ -190,18 +200,18 @@ impl CreditRegistrationPhase {
                 registration_ids: false,
             },
             // These reach their rows through the course module, which has no user dimension: a
-            // roster and a product token are facts about a course, not about one of our accounts.
-            Self::EnrolmentDiscovery | Self::LinkEmails | Self::ProductTokenRefresh => {
-                ScopeSupport {
-                    course: true,
-                    user: false,
-                    registration_ids: false,
-                }
-            }
-            // Not implemented yet.
-            Self::StudentNotifications | Self::ConfigValidation | Self::RetentionSweep => {
-                ScopeSupport::NONE
-            }
+            // roster, a product token and a module configuration are facts about a course, not
+            // about one of our accounts.
+            Self::EnrolmentDiscovery
+            | Self::LinkEmails
+            | Self::ProductTokenRefresh
+            | Self::ConfigValidation => ScopeSupport {
+                course: true,
+                user: false,
+                registration_ids: false,
+            },
+            // Sweeps whole tables by age; there is nothing in them to narrow on.
+            Self::RetentionSweep => ScopeSupport::NONE,
         }
     }
 }
@@ -217,9 +227,12 @@ enum ImplementedPhase {
     Import,
     Verify,
     LegacyMirror,
+    StudentNotifications,
     EnrolmentDiscovery,
     LinkEmails,
     ProductTokenRefresh,
+    ConfigValidation,
+    RetentionSweep,
 }
 
 /// Which of the scope's dimensions a phase's claim query can apply. Declared rather than assumed,
@@ -365,11 +378,16 @@ pub async fn run_phase_once(
             ImplementedPhase::Import => Box::pin(import::run(ctx, scope)),
             ImplementedPhase::Verify => Box::pin(verify::run(ctx, scope)),
             ImplementedPhase::LegacyMirror => Box::pin(run_legacy_mirror(ctx, scope)),
+            ImplementedPhase::StudentNotifications => {
+                Box::pin(student_notifications::run(ctx, scope))
+            }
             ImplementedPhase::EnrolmentDiscovery => Box::pin(enrolment_discovery::run(ctx, scope)),
             ImplementedPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
             ImplementedPhase::ProductTokenRefresh => {
                 Box::pin(product_token_refresh::run(ctx, scope))
             }
+            ImplementedPhase::ConfigValidation => Box::pin(config_validation::run(ctx, scope)),
+            ImplementedPhase::RetentionSweep => Box::pin(retention_sweep::run(ctx, scope)),
         };
 
     let exchanges_before = ctx.suotar_client.exchange_count();
@@ -410,6 +428,53 @@ pub async fn run_phase_once(
         credit_registration_phase_state::record_run(&mut conn, phase.as_str(), &outcome).await?;
     }
     Ok(PhaseTick::Ran(outcome))
+}
+
+/// One template lookup per type and language per iteration rather than per mail. `None` means no
+/// template exists, which a mail phase reports rather than failing the batch it was found in.
+#[derive(Default)]
+pub(crate) struct TemplateCache(HashMap<(EmailTemplateType, String), Option<Uuid>>);
+
+impl TemplateCache {
+    pub(crate) async fn id_for(
+        &mut self,
+        conn: &mut PgConnection,
+        template_type: EmailTemplateType,
+        language: &str,
+    ) -> anyhow::Result<Option<Uuid>> {
+        let key = (template_type, language.to_string());
+        if let Some(id) = self.0.get(&key) {
+            return Ok(*id);
+        }
+        let found =
+            match get_generic_email_template_by_type_and_language(conn, template_type, language)
+                .await
+            {
+                Ok(template) => Some(template.id),
+                Err(error)
+                    if matches!(
+                        error.error_type(),
+                        headless_lms_models::ModelErrorType::RecordNotFound
+                    ) =>
+                {
+                    None
+                }
+                Err(error) => return Err(error.into()),
+            };
+        self.0.insert(key, found);
+        Ok(found)
+    }
+}
+
+/// Templates are stored per language and courses carry a locale. The course's language, not the
+/// recipient's: the linking mail's recipient may have no account here, and an account records no UI
+/// language to prefer.
+pub(crate) fn template_language(course_language_code: &str) -> String {
+    course_language_code
+        .split(['-', '_'])
+        .next()
+        .unwrap_or(course_language_code)
+        .to_lowercase()
 }
 
 /// Every address the study registry holds for a listed person, in the order it lists them; which
@@ -661,6 +726,13 @@ mod tests {
                 assert!(name.len() <= 64, "{name}");
             }
         }
+    }
+
+    #[test]
+    fn a_locale_narrows_to_the_language_the_templates_are_stored_under() {
+        assert_eq!(template_language("fi-FI"), "fi");
+        assert_eq!(template_language("en_US"), "en");
+        assert_eq!(template_language("en"), "en");
     }
 
     #[test]

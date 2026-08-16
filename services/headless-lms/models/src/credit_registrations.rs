@@ -228,6 +228,10 @@ pub struct CreditRegistration {
     pub submitted_at: Option<DateTime<Utc>>,
     pub registered_at: Option<DateTime<Utc>>,
     pub terminal_at: Option<DateTime<Utc>>,
+    /// Set once the student mail for that outcome is queued, and never cleared: these two are the
+    /// idempotency guard for the `student-notifications` phase.
+    pub action_needed_email_delivery_id: Option<Uuid>,
+    pub registered_email_delivery_id: Option<Uuid>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

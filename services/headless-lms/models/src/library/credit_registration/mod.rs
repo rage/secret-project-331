@@ -5,6 +5,7 @@
 pub mod account_linking;
 pub mod backoff;
 pub mod classification;
+pub mod config_validation;
 pub mod enrolment_selection;
 pub mod grade_mapping;
 pub mod legacy_mirror;
@@ -13,6 +14,7 @@ pub mod outcomes;
 pub mod payload;
 pub mod preconditions;
 pub mod student_facing_status;
+pub mod student_notifications;
 pub mod student_number_change;
 pub mod submission_context;
 pub mod withdrawal;

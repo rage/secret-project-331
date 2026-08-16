@@ -609,13 +609,29 @@ WHERE c.started_at >= $1
 }
 
 /// Hard-deletes rows past the retention window: the stored bodies must stop existing.
-pub async fn delete_older_than(conn: &mut PgConnection, cutoff: DateTime<Utc>) -> ModelResult<u64> {
+///
+/// Bounded, because the first sweep after the window opens has ninety days of traffic to clear and
+/// one unbounded statement would hold every `credit_registration_events` row referencing them
+/// locked while `ON DELETE SET NULL` fires. Returns how many were deleted, so the caller can tell a
+/// finished sweep from one that hit the bound.
+pub async fn delete_older_than(
+    conn: &mut PgConnection,
+    cutoff: DateTime<Utc>,
+    limit: i64,
+) -> ModelResult<u64> {
     let res = sqlx::query!(
         r#"
 DELETE FROM suotar_api_calls
-WHERE started_at < $1
+WHERE id IN (
+    SELECT id
+    FROM suotar_api_calls
+    WHERE started_at < $1
+    ORDER BY started_at
+    LIMIT $2
+  )
         "#,
-        cutoff
+        cutoff,
+        limit,
     )
     .execute(conn)
     .await?;

@@ -1,0 +1,51 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) FILTER (\n    WHERE state IN ('registered', 'duplicate', 'not_improved')\n  ) AS \"success_count!\",\n  COUNT(*) FILTER (WHERE state = 'failed_permanent') AS \"failed_permanent_count!\",\n  COUNT(*) FILTER (WHERE state = 'cancelled') AS \"cancelled_count!\",\n  COUNT(*) FILTER (\n    WHERE state = 'abandoned_by_consent_withdrawal'\n  ) AS \"abandoned_count!\",\n  COUNT(*) FILTER (\n    WHERE state <> 'abandoned_by_consent_withdrawal'\n  ) AS \"total_count!\"\nFROM credit_registrations\nWHERE terminal_at >= $1\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "success_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "failed_permanent_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "cancelled_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "abandoned_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "total_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "6f5465e6b857dab049e56154a16422d55baa387ab89e53f88ec876c327ac67a6"
+}

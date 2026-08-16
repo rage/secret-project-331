@@ -116,6 +116,91 @@ FROM events
     Ok(created)
 }
 
+/// A completion that should have a ledger row and has none.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UnmaterialisedCompletion {
+    pub course_module_completion_id: Uuid,
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: Option<String>,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_id: Uuid,
+    pub course_module_name: Option<String>,
+    pub completion_date: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    /// No enrolment to hang a ledger row on, which is the one cause `materialize` cannot fix by
+    /// running again.
+    pub missing_enrolment: bool,
+}
+
+/// Completions [`ensure_registration_rows_for_eligible_completions`] should have picked up at least
+/// `min_age_secs` ago and did not.
+///
+/// Deliberately the same predicate as the materialise statement minus its enrolment join, which is
+/// reported per row instead: a completion whose enrolment was removed is invisible to materialise
+/// and would otherwise look like a lost row forever. Returns one row over the limit where there are
+/// more, so a caller can say so without a second count.
+pub async fn get_unmaterialised_eligible_completions(
+    conn: &mut PgConnection,
+    min_age_secs: i64,
+    limit: i64,
+) -> ModelResult<Vec<UnmaterialisedCompletion>> {
+    let res = sqlx::query_as!(
+        UnmaterialisedCompletion,
+        r#"
+SELECT cmc.id AS course_module_completion_id,
+  cmc.user_id,
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  ud.email AS "email?",
+  cmc.course_id,
+  c.name AS course_name,
+  cmc.course_module_id,
+  cm.name AS course_module_name,
+  cmc.completion_date,
+  cmc.created_at,
+  NOT EXISTS (
+    SELECT 1
+    FROM course_instance_enrollments cie
+    WHERE cie.user_id = cmc.user_id
+      AND cie.course_id = cmc.course_id
+      AND cie.deleted_at IS NULL
+  ) AS "missing_enrolment!"
+FROM course_module_completions cmc
+  JOIN course_modules cm ON cm.id = cmc.course_module_id
+  JOIN courses c ON c.id = cmc.course_id
+  LEFT JOIN user_details ud ON ud.user_id = cmc.user_id
+WHERE cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+  AND cmc.deleted_at IS NULL
+  AND cmc.passed
+  AND cmc.eligible_for_ects
+  AND cmc.created_at < now() - MAKE_INTERVAL(secs => $1::double precision)
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registrations cr
+    WHERE cr.course_module_completion_id = cmc.id
+      AND cr.deleted_at IS NULL
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM course_module_completion_registered_to_study_registries r
+    WHERE r.course_module_completion_id = cmc.id
+      AND r.deleted_at IS NULL
+  )
+ORDER BY cmc.created_at
+LIMIT $2
+        "#,
+        min_age_secs as f64,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Supersedes accepted attempts whose completion has since been graded higher, and starts the next
 /// attempt at `ready_to_submit`; returns how many were started.
 ///

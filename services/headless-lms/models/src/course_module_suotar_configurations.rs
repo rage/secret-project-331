@@ -200,6 +200,113 @@ ORDER BY cm.course_id,
     Ok(res)
 }
 
+/// A Suotar-enabled module as the Courses tab lists it: what it is configured with, what the last
+/// check concluded, and how much work it has produced.
+///
+/// The stored verdict may be older than the configuration; `config_checked_at` is `None` for a
+/// module nothing has checked yet, which is not the same as one checked and found broken.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SuotarModuleOverview {
+    pub course_module_id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_name: Option<String>,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub open_university_product_id: Option<String>,
+    pub grade_scale_id: Option<String>,
+    pub old_flow_also_enabled: bool,
+    pub paused_at: Option<DateTime<Utc>>,
+    pub pause_reason: Option<String>,
+    pub config_checked_at: Option<DateTime<Utc>>,
+    pub course_code_resolves: Option<bool>,
+    pub product_token_found: Option<bool>,
+    pub config_check_message: Option<String>,
+    pub active_realisation_count: i64,
+    pub last_listed_at: Option<DateTime<Utc>>,
+    /// Completions `materialize` would take. The ledger count beside it is what makes an unfinished
+    /// backfill visible.
+    pub eligible_completion_count: i64,
+}
+
+/// Every Suotar-enabled module, one row each, ordered by course then module order.
+pub async fn get_module_overviews(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<SuotarModuleOverview>> {
+    let res = sqlx::query_as!(
+        SuotarModuleOverview,
+        r#"
+SELECT cm.id AS "course_module_id!",
+  cm.course_id AS "course_id!",
+  c.name AS "course_name!",
+  cm.name AS course_module_name,
+  cm.uh_course_code,
+  cm.ects_credits,
+  conf.open_university_product_id AS "open_university_product_id?",
+  conf.grade_scale_id AS "grade_scale_id?",
+  cm.enable_registering_completion_to_uh_open_university AS "old_flow_also_enabled!",
+  conf.paused_at AS "paused_at?",
+  conf.pause_reason AS "pause_reason?",
+  conf.config_checked_at AS "config_checked_at?",
+  conf.course_code_resolves AS "course_code_resolves?",
+  conf.product_token_found AS "product_token_found?",
+  conf.config_check_message AS "config_check_message?",
+  COALESCE(r.active_realisation_count, 0) AS "active_realisation_count!",
+  r.last_listed_at AS "last_listed_at?",
+  (
+    SELECT COUNT(*)
+    FROM course_module_completions cmc
+    WHERE cmc.course_module_id = cm.id
+      AND cmc.deleted_at IS NULL
+      AND cmc.passed
+      AND cmc.eligible_for_ects
+  ) AS "eligible_completion_count!"
+FROM course_modules cm
+  JOIN courses c ON c.id = cm.course_id
+  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cm.id
+  AND conf.deleted_at IS NULL
+  LEFT JOIN LATERAL (
+    SELECT COUNT(*) AS active_realisation_count,
+      MAX(cmsr.last_listed_at) AS last_listed_at
+    FROM course_module_suotar_realisations cmsr
+    WHERE cmsr.course_module_id = cm.id
+      AND cmsr.active
+      AND cmsr.deleted_at IS NULL
+  ) r ON TRUE
+WHERE cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+ORDER BY c.name,
+  cm.order_number
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Enabled modules the last check found broken. A module nothing has checked yet is not counted:
+/// unknown is not a failure.
+pub async fn count_modules_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM course_module_suotar_configurations conf
+  JOIN course_modules cm ON cm.id = conf.course_module_id
+WHERE cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+  AND conf.deleted_at IS NULL
+  AND conf.config_checked_at IS NOT NULL
+  AND (
+    conf.course_code_resolves IS FALSE
+    OR conf.product_token_found IS FALSE
+  )
+        "#,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 /// What one configuration check concluded. `None` on either boolean means the check could not
 /// reach an answer, which the dashboard renders as "unknown" rather than as a failure.
 #[derive(Debug, Clone, PartialEq, Default)]

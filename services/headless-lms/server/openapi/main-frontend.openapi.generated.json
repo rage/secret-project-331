@@ -17807,6 +17807,11 @@
           "subject": {
             "type": ["string", "null"],
             "description": "An identifier the operator can act on — a phase name, a ledger state, a mail domain. Never a\nsentence, and never anything the study registry wrote."
+          },
+          "total": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "What `count` is out of, where the rule measured one. Not a threshold: thresholds are the\nsame for every evaluation and travel separately."
           }
         }
       },
@@ -17815,14 +17820,25 @@
         "enum": [
           "credentials_rejected",
           "study_registry_unreachable",
+          "sisu_unavailable",
           "stuck_registrations",
           "linking_mail_send_failed",
-          "phase_heartbeat_stale"
+          "linking_mail_rate_cap_exceeded",
+          "phase_heartbeat_stale",
+          "phase_failing",
+          "permanent_failures_accumulating",
+          "misregistrations_detected",
+          "course_configuration_broken",
+          "pipeline_idle",
+          "completions_never_entered",
+          "confirmation_latency_regressed",
+          "fast_track_name_mismatch",
+          "pipeline_paused_globally"
         ]
       },
       "CreditRegistrationAlertSeverity": {
         "type": "string",
-        "enum": ["warning", "critical"]
+        "enum": ["info", "warning", "critical"]
       },
       "CreditRegistrationAlertThresholds": {
         "type": "object",
@@ -17831,16 +17847,56 @@
           "credential_rejection_window_secs",
           "unreachable_window_secs",
           "unreachable_consecutive_failures",
+          "sisu_outage_window_secs",
+          "sisu_outage_min_items",
+          "sisu_outage_failure_share_percent",
           "stuck_ready_to_submit_secs",
           "stuck_submitting_secs",
           "stuck_awaiting_verification_secs",
           "stuck_failed_retryable_secs",
           "stuck_critical_count",
           "linking_mail_window_secs",
-          "phase_heartbeat_interval_multiplier"
+          "linking_mail_hourly_cap",
+          "phase_heartbeat_interval_multiplier",
+          "phase_consecutive_failure_limit",
+          "phase_success_interval_multiplier",
+          "terminal_window_secs",
+          "permanent_failure_count",
+          "permanent_failure_rate_percent",
+          "misregistration_critical_count",
+          "idle_queue_depth",
+          "never_entered_min_age_secs",
+          "latency_window_secs",
+          "latency_regression_floor_secs",
+          "latency_regression_factor",
+          "fast_track_name_mismatch_count"
         ],
         "properties": {
           "credential_rejection_window_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fast_track_name_mismatch_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "idle_queue_depth": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latency_regression_factor": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latency_regression_floor_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latency_window_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "linking_mail_hourly_cap": {
             "type": "integer",
             "format": "int64"
           },
@@ -17848,9 +17904,45 @@
             "type": "integer",
             "format": "int64"
           },
+          "misregistration_critical_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "never_entered_min_age_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "permanent_failure_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "permanent_failure_rate_percent": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "phase_consecutive_failure_limit": {
+            "type": "integer",
+            "format": "int32"
+          },
           "phase_heartbeat_interval_multiplier": {
             "type": "integer",
             "format": "int32"
+          },
+          "phase_success_interval_multiplier": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sisu_outage_failure_share_percent": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sisu_outage_min_items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sisu_outage_window_secs": {
+            "type": "integer",
+            "format": "int64"
           },
           "stuck_awaiting_verification_secs": {
             "type": "integer",
@@ -17869,6 +17961,10 @@
             "format": "int64"
           },
           "stuck_submitting_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "terminal_window_secs": {
             "type": "integer",
             "format": "int64"
           },

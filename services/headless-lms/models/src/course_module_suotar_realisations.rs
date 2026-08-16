@@ -452,6 +452,27 @@ WHERE id = $1
     Ok(())
 }
 
+/// How many persons the last discovery run refused to fast-track because the registry's name did
+/// not look like the matched account's, summed over the active realisations.
+///
+/// A last-run value, not a window: the counters are overwritten whole on every run.
+pub async fn sum_last_fast_track_name_mismatches(conn: &mut PgConnection) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COALESCE(
+    SUM(last_fast_track_skipped_name_mismatch_count),
+    0
+  ) AS "count!"
+FROM course_module_suotar_realisations
+WHERE active
+  AND deleted_at IS NULL
+        "#,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         r#"

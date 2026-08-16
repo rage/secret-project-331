@@ -1,0 +1,189 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id AS credit_registration_id,\n  cr.course_module_completion_id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cr.state,\n  cr.state_entered_at,\n  d.mirror_missing AS \"mirror_missing!\",\n  d.registered_by_a_registrar AS \"registered_by_a_registrar!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  CROSS JOIN LATERAL (\n    SELECT cr.state IN ('registered', 'duplicate', 'not_improved')\n      AND cr.student_number IS NOT NULL\n      AND NOT EXISTS (\n        SELECT 1\n        FROM course_module_completion_registered_to_study_registries r\n        WHERE r.course_module_completion_id = cr.course_module_completion_id\n          AND r.study_registry_registrar_id IS NULL\n          AND r.deleted_at IS NULL\n      ) AS mirror_missing,\n      cr.state NOT IN ('registered', 'duplicate', 'not_improved')\n      AND EXISTS (\n        SELECT 1\n        FROM course_module_completion_registered_to_study_registries r\n        WHERE r.course_module_completion_id = cr.course_module_completion_id\n          AND r.study_registry_registrar_id IS NOT NULL\n          AND r.deleted_at IS NULL\n      ) AS registered_by_a_registrar\n  ) d\nWHERE cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND (\n    d.mirror_missing\n    OR d.registered_by_a_registrar\n  )\nORDER BY cr.state_entered_at DESC\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credit_registration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "email?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "state",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "state_entered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state_entered_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "mirror_missing!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 12,
+        "name": "registered_by_a_registrar!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "44f45f459d539754956d1e8476deaf71d70e341624e7c128e41efa17be06e498"
+}

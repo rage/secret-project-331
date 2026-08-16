@@ -10,6 +10,7 @@ use utoipa::ToSchema;
 
 use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistrationState};
 use crate::prelude::*;
+use crate::suotar_api_calls::SuotarEndpoint;
 
 /// Replaces a redacted value; the key is kept so the payload shape survives.
 pub const REDACTED: &str = "[redacted]";
@@ -360,6 +361,131 @@ LIMIT 1
 
 fn string_field(value: &Value, key: &str) -> Option<String> {
     Some(value.get(key)?.as_str()?.to_string())
+}
+
+/// How the study registry answered the items it was asked about in a window.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct SuotarItemOutcomeTotals {
+    pub item_count: i64,
+    /// Items blamed on Sisu being down or slow, which is the only proxy we have for its uptime.
+    pub sisu_unavailable_count: i64,
+    pub last_sisu_unavailable_at: Option<DateTime<Utc>>,
+}
+
+/// Per-item outcomes in `[since, now)`, counted over events rather than rows: an item that failed
+/// really failed, whatever its row has since become.
+pub async fn count_item_outcomes_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<SuotarItemOutcomeTotals> {
+    let res = sqlx::query_as!(
+        SuotarItemOutcomeTotals,
+        r#"
+SELECT COUNT(*) AS "item_count!",
+  COUNT(*) FILTER (
+    WHERE error_code IN ('sisu_temporarily_unavailable', 'sisu_timeout')
+  ) AS "sisu_unavailable_count!",
+  MAX(created_at) FILTER (
+    WHERE error_code IN ('sisu_temporarily_unavailable', 'sisu_timeout')
+  ) AS "last_sisu_unavailable_at"
+FROM credit_registration_events
+WHERE kind = 'suotar_response'
+  AND created_at >= $1
+  AND deleted_at IS NULL
+        "#,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// One error code's standing over a window and the window before it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ErrorCodeWindowCounts {
+    pub error_code: CreditRegistrationErrorCode,
+    pub current_count: i64,
+    /// The equally long window immediately before, which is what a spike is measured against.
+    pub previous_count: i64,
+    pub user_count: i64,
+    pub course_count: i64,
+    pub first_seen_at: Option<DateTime<Utc>>,
+    pub last_seen_at: Option<DateTime<Utc>>,
+    /// The endpoints the code arrived on, empty for one recorded without a call of ours.
+    pub endpoints: Vec<SuotarEndpoint>,
+}
+
+/// Error events per code over `[now - 2 * window, now)`, split at `now - window`.
+///
+/// Counts events, so errors on attempts since superseded are included: an `invalid_credits` on
+/// attempt 1 is the configuration bug, whether or not attempt 2 succeeded.
+pub async fn get_error_code_counts_for_window(
+    conn: &mut PgConnection,
+    window_secs: i64,
+) -> ModelResult<Vec<ErrorCodeWindowCounts>> {
+    let res = sqlx::query_as!(
+        ErrorCodeWindowCounts,
+        r#"
+SELECT e.error_code AS "error_code!: CreditRegistrationErrorCode",
+  COUNT(*) FILTER (
+    WHERE e.created_at > now() - MAKE_INTERVAL(secs => $1::double precision)
+  ) AS "current_count!",
+  COUNT(*) FILTER (
+    WHERE e.created_at <= now() - MAKE_INTERVAL(secs => $1::double precision)
+  ) AS "previous_count!",
+  COUNT(DISTINCT cr.user_id) AS "user_count!",
+  COUNT(DISTINCT cr.course_id) AS "course_count!",
+  MIN(e.created_at) AS "first_seen_at",
+  MAX(e.created_at) AS "last_seen_at",
+  COALESCE(
+    ARRAY_AGG(DISTINCT call.endpoint) FILTER (
+      WHERE call.endpoint IS NOT NULL
+    ),
+    '{}'
+  ) AS "endpoints!: Vec<SuotarEndpoint>"
+FROM credit_registration_events e
+  JOIN credit_registrations cr ON cr.id = e.credit_registration_id
+  LEFT JOIN suotar_api_calls call ON call.id = e.suotar_api_call_id
+WHERE e.error_code IS NOT NULL
+  AND e.created_at > now() - MAKE_INTERVAL(secs => $1::double precision * 2)
+  AND e.deleted_at IS NULL
+  AND cr.deleted_at IS NULL
+GROUP BY e.error_code
+ORDER BY 2 DESC
+        "#,
+        window_secs as f64,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Registrations whose answers named more than one submitted attainment id, which is the shape a
+/// double submission would leave behind.
+///
+/// Per registration, not per completion: a grade improvement is a second registration row and a
+/// second attainment on purpose.
+pub async fn get_ids_with_several_submitted_attainments(
+    conn: &mut PgConnection,
+    limit: i64,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT credit_registration_id
+FROM credit_registration_events
+WHERE details #>> '{response,submittedAttainmentId}' IS NOT NULL
+  AND deleted_at IS NULL
+GROUP BY credit_registration_id
+HAVING COUNT(
+    DISTINCT details #>> '{response,submittedAttainmentId}'
+  ) > 1
+LIMIT $1
+        "#,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_recent_by_kind(

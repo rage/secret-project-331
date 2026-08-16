@@ -190,11 +190,11 @@ pub async fn get_credit_registration_overview(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let stuck_rows = credit_registrations::count_stuck(&mut conn, &stuck_thresholds()).await?;
-    let health = evaluate(&mut conn, &stuck_rows).await?;
-    let counts_by_state = credit_registrations::count_by_state(&mut conn)
-        .await?
-        .into_iter()
-        .map(|(state, count)| CreditRegistrationStateTotal { state, count })
+    let depths = credit_registrations::count_by_state(&mut conn).await?;
+    let health = evaluate(&mut conn, &stuck_rows, &depths).await?;
+    let counts_by_state = depths
+        .iter()
+        .map(|&(state, count)| CreditRegistrationStateTotal { state, count })
         .collect();
     let error_codes = credit_registrations::count_by_error_code(&mut conn)
         .await?

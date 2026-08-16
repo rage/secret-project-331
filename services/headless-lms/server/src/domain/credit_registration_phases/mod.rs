@@ -186,6 +186,39 @@ impl CreditRegistrationPhase {
         )
     }
 
+    /// The ledger states this phase is the one to move a row out of.
+    ///
+    /// The Workers tab's "queue depth it is responsible for", and the depth the failing-phase alert
+    /// asks about before calling a quiet phase wedged. Empty for the phases whose work is not a
+    /// ledger state at all: `materialize`'s queue is completions with no row yet, and the syncer's
+    /// phases work on course modules. Narrower than what `preconditions` may claim, which is every
+    /// non-terminal row: these are the states nothing else advances.
+    pub fn owned_states(self) -> &'static [CreditRegistrationState] {
+        match self {
+            Self::Preconditions => &[
+                CreditRegistrationState::PendingPrerequisites,
+                CreditRegistrationState::PendingConsent,
+                CreditRegistrationState::PendingStudentNumber,
+                CreditRegistrationState::NoUsableEnrolment,
+                CreditRegistrationState::FailedRetryable,
+                CreditRegistrationState::Blocked,
+            ],
+            Self::ResolveEnrolments => &[
+                CreditRegistrationState::ReadyToSubmit,
+                CreditRegistrationState::ResolvingEnrolment,
+            ],
+            Self::Import => &[
+                CreditRegistrationState::CheckingEnrolment,
+                CreditRegistrationState::Submitting,
+            ],
+            Self::Verify => &[
+                CreditRegistrationState::AwaitingVerification,
+                CreditRegistrationState::SubmissionUncertain,
+            ],
+            _ => &[],
+        }
+    }
+
     pub fn scope_support(self) -> ScopeSupport {
         match self {
             Self::Preconditions

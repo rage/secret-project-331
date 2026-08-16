@@ -2010,6 +2010,391 @@ ORDER BY 1
     Ok(rows)
 }
 
+/// What the pipeline finished in a window. Rows abandoned by a consent withdrawal are in no column
+/// and in no total: they are neither a success nor a failure of ours.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TerminalOutcomeTotals {
+    /// `registered`, `duplicate` and `not_improved`.
+    pub success_count: i64,
+    pub failed_permanent_count: i64,
+    pub cancelled_count: i64,
+    pub abandoned_count: i64,
+    /// The denominator of the success rate: everything above except the abandoned.
+    pub total_count: i64,
+}
+
+pub async fn count_terminal_outcomes_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<TerminalOutcomeTotals> {
+    let res = sqlx::query_as!(
+        TerminalOutcomeTotals,
+        r#"
+SELECT COUNT(*) FILTER (
+    WHERE state IN ('registered', 'duplicate', 'not_improved')
+  ) AS "success_count!",
+  COUNT(*) FILTER (WHERE state = 'failed_permanent') AS "failed_permanent_count!",
+  COUNT(*) FILTER (WHERE state = 'cancelled') AS "cancelled_count!",
+  COUNT(*) FILTER (
+    WHERE state = 'abandoned_by_consent_withdrawal'
+  ) AS "abandoned_count!",
+  COUNT(*) FILTER (
+    WHERE state <> 'abandoned_by_consent_withdrawal'
+  ) AS "total_count!"
+FROM credit_registrations
+WHERE terminal_at >= $1
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Live rows that entered one state within the window. `misregistered` is not terminal, so
+/// `terminal_at` cannot answer this.
+pub async fn count_entered_state_since(
+    conn: &mut PgConnection,
+    state: CreditRegistrationState,
+    since: DateTime<Utc>,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registrations
+WHERE state = $1
+  AND state_entered_at >= $2
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+        state as CreditRegistrationState,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
+/// How long registration took, in seconds, for rows that reached `registered` in a window.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RegistrationLatency {
+    pub registered_count: i64,
+    /// `terminal_at - created_at`: the student's wait, most of which is theirs to end.
+    pub p50_end_to_end_secs: Option<i64>,
+    pub p95_end_to_end_secs: Option<i64>,
+    /// `registered_at - submitted_at`: how long the study registry took, which is the number to
+    /// quote at them.
+    pub p50_confirmation_secs: Option<i64>,
+    pub p95_confirmation_secs: Option<i64>,
+}
+
+pub async fn get_registration_latency_between(
+    conn: &mut PgConnection,
+    from: DateTime<Utc>,
+    to: DateTime<Utc>,
+) -> ModelResult<RegistrationLatency> {
+    let res = sqlx::query_as!(
+        RegistrationLatency,
+        r#"
+SELECT COUNT(*) AS "registered_count!",
+  CEIL(
+    EXTRACT(
+      EPOCH
+      FROM PERCENTILE_DISC(0.5) WITHIN GROUP (
+          ORDER BY terminal_at - created_at
+        )
+    )
+  )::bigint AS "p50_end_to_end_secs",
+  CEIL(
+    EXTRACT(
+      EPOCH
+      FROM PERCENTILE_DISC(0.95) WITHIN GROUP (
+          ORDER BY terminal_at - created_at
+        )
+    )
+  )::bigint AS "p95_end_to_end_secs",
+  CEIL(
+    EXTRACT(
+      EPOCH
+      FROM PERCENTILE_DISC(0.5) WITHIN GROUP (
+          ORDER BY registered_at - submitted_at
+        )
+    )
+  )::bigint AS "p50_confirmation_secs",
+  CEIL(
+    EXTRACT(
+      EPOCH
+      FROM PERCENTILE_DISC(0.95) WITHIN GROUP (
+          ORDER BY registered_at - submitted_at
+        )
+    )
+  )::bigint AS "p95_confirmation_secs"
+FROM credit_registrations
+WHERE state = 'registered'
+  AND terminal_at >= $1
+  AND terminal_at < $2
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+        from,
+        to,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Live volumes per course module, for the Courses tab's one row per module.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ModuleRegistrationTotals {
+    pub course_module_id: Uuid,
+    pub total_count: i64,
+    pub success_count: i64,
+    pub in_flight_count: i64,
+    pub failed_count: i64,
+    pub abandoned_count: i64,
+    pub needs_admin_attention_count: i64,
+    pub awaiting_consent_count: i64,
+    pub last_registered_at: Option<DateTime<Utc>>,
+    /// The code most of the module's failing rows carry, which is usually the whole diagnosis.
+    pub top_error_code: Option<CreditRegistrationErrorCode>,
+}
+
+/// `failed_count` is `failed_permanent` and `misregistered` only; a withdrawal is in neither that
+/// column nor the success one, so both are shown and the two never add up to the total by design.
+pub async fn count_by_module(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<ModuleRegistrationTotals>> {
+    let res = sqlx::query_as!(
+        ModuleRegistrationTotals,
+        r#"
+SELECT course_module_id,
+  COUNT(*) AS "total_count!",
+  COUNT(*) FILTER (
+    WHERE state IN ('registered', 'duplicate', 'not_improved')
+  ) AS "success_count!",
+  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS "in_flight_count!",
+  COUNT(*) FILTER (
+    WHERE state IN ('failed_permanent', 'misregistered')
+  ) AS "failed_count!",
+  COUNT(*) FILTER (
+    WHERE state = 'abandoned_by_consent_withdrawal'
+  ) AS "abandoned_count!",
+  COUNT(*) FILTER (WHERE needs_admin_attention) AS "needs_admin_attention_count!",
+  COUNT(*) FILTER (WHERE state = 'pending_consent') AS "awaiting_consent_count!",
+  MAX(registered_at) AS "last_registered_at",
+  (
+    SELECT inner_cr.error_code
+    FROM credit_registrations inner_cr
+    WHERE inner_cr.course_module_id = cr.course_module_id
+      AND inner_cr.error_code IS NOT NULL
+      AND inner_cr.state <> 'abandoned_by_consent_withdrawal'
+      AND inner_cr.superseded_by_id IS NULL
+      AND inner_cr.deleted_at IS NULL
+    GROUP BY inner_cr.error_code
+    ORDER BY COUNT(*) DESC,
+      inner_cr.error_code
+    LIMIT 1
+  ) AS "top_error_code?: CreditRegistrationErrorCode"
+FROM credit_registrations cr
+WHERE superseded_by_id IS NULL
+  AND deleted_at IS NULL
+GROUP BY course_module_id
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// One row the Errors tab wants a human to look at, with the detectors that picked it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AttentionRegistration {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: Option<String>,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_id: Uuid,
+    pub course_module_name: Option<String>,
+    pub state: CreditRegistrationState,
+    pub state_entered_at: DateTime<Utc>,
+    pub error_code: Option<CreditRegistrationErrorCode>,
+    pub attempt_count: i32,
+    pub needs_admin_attention: bool,
+    pub next_attempt_at: DateTime<Utc>,
+    pub student_number: Option<String>,
+    pub stuck_in_state: bool,
+    pub permanent_error: bool,
+    pub retry_window_expired: bool,
+    pub misregistered: bool,
+    pub too_many_attempts: bool,
+    pub outcome_uncertain: bool,
+    pub flagged_by_pipeline: bool,
+}
+
+/// Rows at least one attention detector picked, worst-waiting first.
+///
+/// Superseded rows and `abandoned_by_consent_withdrawal` are excluded in the query rather than left
+/// to a predicate elsewhere: a false positive here costs an operator's attention directly.
+/// `thresholds` are the same seconds [`count_stuck`] uses, so the table and the alert cannot
+/// disagree about what stuck means.
+pub async fn get_attention_items(
+    conn: &mut PgConnection,
+    thresholds: &StuckThresholds,
+    too_many_attempts: i32,
+    limit: i64,
+) -> ModelResult<Vec<AttentionRegistration>> {
+    let res = sqlx::query_as!(
+        AttentionRegistration,
+        r#"
+SELECT cr.id,
+  cr.user_id,
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  ud.email AS "email?",
+  cr.course_id,
+  c.name AS course_name,
+  cr.course_module_id,
+  cm.name AS course_module_name,
+  cr.state,
+  cr.state_entered_at,
+  cr.error_code AS "error_code?",
+  cr.submit_retry_count + cr.verify_attempt_count AS "attempt_count!",
+  cr.needs_admin_attention,
+  cr.next_attempt_at,
+  cr.student_number,
+  d.stuck_in_state AS "stuck_in_state!",
+  d.permanent_error AS "permanent_error!",
+  d.retry_window_expired AS "retry_window_expired!",
+  d.misregistered AS "misregistered!",
+  d.too_many_attempts AS "too_many_attempts!",
+  d.outcome_uncertain AS "outcome_uncertain!",
+  d.flagged_by_pipeline AS "flagged_by_pipeline!"
+FROM credit_registrations cr
+  JOIN courses c ON c.id = cr.course_id
+  JOIN course_modules cm ON cm.id = cr.course_module_id
+  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
+  CROSS JOIN LATERAL (
+    SELECT CASE cr.state
+        WHEN 'ready_to_submit' THEN $1::double precision
+        WHEN 'submitting' THEN $2::double precision
+        WHEN 'awaiting_verification' THEN $3::double precision
+        WHEN 'failed_retryable' THEN $4::double precision
+      END AS threshold_secs
+  ) t
+  CROSS JOIN LATERAL (
+    SELECT cr.terminal_at IS NULL
+      AND t.threshold_secs IS NOT NULL
+      AND now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs) AS stuck_in_state,
+      cr.state = 'failed_permanent'
+      AND cr.needs_admin_attention AS permanent_error,
+      cr.error_code = 'retry_window_expired' AS retry_window_expired,
+      cr.state = 'misregistered' AS misregistered,
+      cr.submit_retry_count + cr.verify_attempt_count >= $5 AS too_many_attempts,
+      cr.state = 'submission_uncertain' AS outcome_uncertain,
+      cr.needs_admin_attention AS flagged_by_pipeline
+  ) d
+WHERE cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND cr.state <> 'abandoned_by_consent_withdrawal'
+  AND (
+    d.stuck_in_state
+    OR d.permanent_error
+    OR d.retry_window_expired
+    OR d.misregistered
+    OR d.too_many_attempts
+    OR d.outcome_uncertain
+    OR d.flagged_by_pipeline
+  )
+ORDER BY cr.state_entered_at
+LIMIT $6
+        "#,
+        thresholds.ready_to_submit_secs as f64,
+        thresholds.submitting_secs as f64,
+        thresholds.awaiting_verification_secs as f64,
+        thresholds.failed_retryable_secs as f64,
+        too_many_attempts,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Live rows in one state, newest activity first, for the Reconciliation lists.
+pub async fn get_live_by_state(
+    conn: &mut PgConnection,
+    state: CreditRegistrationState,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistration>> {
+    let res = sqlx::query_as!(
+        CreditRegistration,
+        r#"
+SELECT *
+FROM credit_registrations
+WHERE state = $1
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+ORDER BY state_entered_at DESC
+LIMIT $2
+        "#,
+        state as CreditRegistrationState,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Makes every due-later `failed_retryable` row due now; returns how many. The button pressed once
+/// the study registry says an outage is over.
+///
+/// Only `failed_retryable`: no other state's backoff means "waiting out an outage", and
+/// `submission_uncertain` must never be swept forward in bulk.
+pub async fn requeue_retryable_now(
+    conn: &mut PgConnection,
+    course_id: Option<Uuid>,
+    course_module_id: Option<Uuid>,
+    limit: i64,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+WITH due AS (
+  SELECT id
+  FROM credit_registrations
+  WHERE state = 'failed_retryable'
+    AND next_attempt_at > now()
+    AND superseded_by_id IS NULL
+    AND deleted_at IS NULL
+    AND ($2::uuid IS NULL OR course_id = $2)
+    AND ($3::uuid IS NULL OR course_module_id = $3)
+  ORDER BY next_attempt_at
+  LIMIT $1
+),
+updated AS (
+  UPDATE credit_registrations cr
+  SET next_attempt_at = now()
+  FROM due
+  WHERE cr.id = due.id
+  RETURNING cr.id
+)
+SELECT COUNT(*) AS "count!"
+FROM updated
+        "#,
+        limit,
+        course_id,
+        course_module_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 /// How long a row may sit in one state before it counts as stuck. Seconds, per state.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct StuckThresholds {

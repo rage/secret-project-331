@@ -1,0 +1,128 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.error_code AS \"error_code!: CreditRegistrationErrorCode\",\n  COUNT(*) FILTER (\n    WHERE e.created_at > now() - MAKE_INTERVAL(secs => $1::double precision)\n  ) AS \"current_count!\",\n  COUNT(*) FILTER (\n    WHERE e.created_at <= now() - MAKE_INTERVAL(secs => $1::double precision)\n  ) AS \"previous_count!\",\n  COUNT(DISTINCT cr.user_id) AS \"user_count!\",\n  COUNT(DISTINCT cr.course_id) AS \"course_count!\",\n  MIN(e.created_at) AS \"first_seen_at\",\n  MAX(e.created_at) AS \"last_seen_at\",\n  COALESCE(\n    ARRAY_AGG(DISTINCT call.endpoint) FILTER (\n      WHERE call.endpoint IS NOT NULL\n    ),\n    '{}'\n  ) AS \"endpoints!: Vec<SuotarEndpoint>\"\nFROM credit_registration_events e\n  JOIN credit_registrations cr ON cr.id = e.credit_registration_id\n  LEFT JOIN suotar_api_calls call ON call.id = e.suotar_api_call_id\nWHERE e.error_code IS NOT NULL\n  AND e.created_at > now() - MAKE_INTERVAL(secs => $1::double precision * 2)\n  AND e.deleted_at IS NULL\n  AND cr.deleted_at IS NULL\nGROUP BY e.error_code\nORDER BY 2 DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "error_code!: CreditRegistrationErrorCode",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "acceptor_not_found",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "sisu_temporarily_unavailable",
+                "misregistered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "error_code"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "current_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "previous_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "user_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "first_seen_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "last_seen_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "endpoints!: Vec<SuotarEndpoint>",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_endpoint[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "suotar_endpoint",
+                  "kind": {
+                    "Enum": [
+                      "resolve_persons",
+                      "resolve_enrolments",
+                      "import_attainments",
+                      "verify_attainments",
+                      "product_access_tokens",
+                      "list_by_course"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Float8"
+      ]
+    },
+    "nullable": [
+      true,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "142074d05fae37662521504fa88a2cb295890b9e75fd34a1fc76fd8c0da450c9"
+}

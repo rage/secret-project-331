@@ -49,9 +49,20 @@ export const isSuccessState = (state: CreditRegistrationState): boolean =>
 const ALERT_KEYS = {
   credentials_rejected: "credit-registration-alert-credentials-rejected",
   study_registry_unreachable: "credit-registration-alert-study-registry-unreachable",
+  sisu_unavailable: "credit-registration-alert-sisu-unavailable",
   stuck_registrations: "credit-registration-alert-stuck-registrations",
   linking_mail_send_failed: "credit-registration-alert-linking-mail-send-failed",
+  linking_mail_rate_cap_exceeded: "credit-registration-alert-linking-mail-rate-cap-exceeded",
   phase_heartbeat_stale: "credit-registration-alert-phase-heartbeat-stale",
+  phase_failing: "credit-registration-alert-phase-failing",
+  permanent_failures_accumulating: "credit-registration-alert-permanent-failures-accumulating",
+  misregistrations_detected: "credit-registration-alert-misregistrations-detected",
+  course_configuration_broken: "credit-registration-alert-course-configuration-broken",
+  pipeline_idle: "credit-registration-alert-pipeline-idle",
+  completions_never_entered: "credit-registration-alert-completions-never-entered",
+  confirmation_latency_regressed: "credit-registration-alert-confirmation-latency-regressed",
+  fast_track_name_mismatch: "credit-registration-alert-fast-track-name-mismatch",
+  pipeline_paused_globally: "credit-registration-alert-pipeline-paused-globally",
 } as const satisfies Record<CreditRegistrationAlertId, string>
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
@@ -61,7 +72,13 @@ export const alertSentence = (
   id: CreditRegistrationAlertId,
   count: number,
   subject: string | null | undefined,
-): string => labelFrom(t, ALERT_KEYS, id, GENERIC_ALERT_KEY, { count, subject: subject ?? "" })
+  total: number | null | undefined,
+): string =>
+  labelFrom(t, ALERT_KEYS, id, GENERIC_ALERT_KEY, {
+    count,
+    subject: subject ?? "",
+    total: total ?? 0,
+  })
 
 const SEND_STATUS_KEYS = {
   queued: "credit-registration-admin-send-status-queued",

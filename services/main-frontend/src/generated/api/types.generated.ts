@@ -1764,29 +1764,61 @@ export type CreditRegistrationAlert = {
    * sentence, and never anything the study registry wrote.
    */
   subject?: string | null
+  /**
+   * What `count` is out of, where the rule measured one. Not a threshold: thresholds are the
+   * same for every evaluation and travel separately.
+   */
+  total?: number | null
 }
 
 export type CreditRegistrationAlertId =
   | "credentials_rejected"
   | "study_registry_unreachable"
+  | "sisu_unavailable"
   | "stuck_registrations"
   | "linking_mail_send_failed"
+  | "linking_mail_rate_cap_exceeded"
   | "phase_heartbeat_stale"
+  | "phase_failing"
+  | "permanent_failures_accumulating"
+  | "misregistrations_detected"
+  | "course_configuration_broken"
+  | "pipeline_idle"
+  | "completions_never_entered"
+  | "confirmation_latency_regressed"
+  | "fast_track_name_mismatch"
+  | "pipeline_paused_globally"
 
-export type CreditRegistrationAlertSeverity = "warning" | "critical"
+export type CreditRegistrationAlertSeverity = "info" | "warning" | "critical"
 
 /**
  * Every number the rules used, so the UI can say "N of M" without holding a copy of M.
  */
 export type CreditRegistrationAlertThresholds = {
   credential_rejection_window_secs: number
+  fast_track_name_mismatch_count: number
+  idle_queue_depth: number
+  latency_regression_factor: number
+  latency_regression_floor_secs: number
+  latency_window_secs: number
+  linking_mail_hourly_cap: number
   linking_mail_window_secs: number
+  misregistration_critical_count: number
+  never_entered_min_age_secs: number
+  permanent_failure_count: number
+  permanent_failure_rate_percent: number
+  phase_consecutive_failure_limit: number
   phase_heartbeat_interval_multiplier: number
+  phase_success_interval_multiplier: number
+  sisu_outage_failure_share_percent: number
+  sisu_outage_min_items: number
+  sisu_outage_window_secs: number
   stuck_awaiting_verification_secs: number
   stuck_critical_count: number
   stuck_failed_retryable_secs: number
   stuck_ready_to_submit_secs: number
   stuck_submitting_secs: number
+  terminal_window_secs: number
   unreachable_consecutive_failures: number
   unreachable_window_secs: number
 }

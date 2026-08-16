@@ -396,6 +396,127 @@ LIMIT $2
     Ok(res)
 }
 
+/// The narrowings the API log applies, all of them in SQL.
+#[derive(Debug, Clone, Default)]
+pub struct SuotarApiCallFilters {
+    pub endpoint: Option<SuotarEndpoint>,
+    pub succeeded: Option<bool>,
+    /// The phase or manual action that made the call, matched exactly.
+    pub worker_name: Option<String>,
+    pub started_after: Option<DateTime<Utc>>,
+    pub started_before: Option<DateTime<Utc>>,
+    /// Searches the ledger rows a call covered, never the bodies: the bodies are scrubbed, so a
+    /// student number is not in them to find.
+    pub credit_registration_id: Option<Uuid>,
+}
+
+/// A call with the page's total attached, so a page and its count cannot come from two queries.
+pub struct SuotarApiCallPageRow {
+    pub call: SuotarApiCall,
+    pub total_count: i64,
+}
+
+/// A page of the call log, newest first. Bodies come back exactly as stored, which is scrubbed.
+pub async fn get_page(
+    conn: &mut PgConnection,
+    filters: &SuotarApiCallFilters,
+    limit: i64,
+    offset: i64,
+) -> ModelResult<Vec<SuotarApiCallPageRow>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  endpoint AS "endpoint!: SuotarEndpoint",
+  request_item_count,
+  http_status,
+  duration_ms,
+  succeeded,
+  ok_item_count,
+  error_item_count,
+  request_level_error_code,
+  error_message,
+  request_body_sample,
+  response_body_sample,
+  credit_registration_ids,
+  worker_name,
+  started_at,
+  COUNT(*) OVER () AS "total_count!"
+FROM suotar_api_calls
+WHERE deleted_at IS NULL
+  AND (
+    $1::suotar_endpoint IS NULL
+    OR endpoint = $1
+  )
+  AND ($2::bool IS NULL OR succeeded = $2)
+  AND ($3::text IS NULL OR worker_name = $3)
+  AND ($4::timestamptz IS NULL OR started_at >= $4)
+  AND ($5::timestamptz IS NULL OR started_at <= $5)
+  AND (
+    $6::uuid IS NULL
+    OR credit_registration_ids @> ARRAY [$6::uuid]
+  )
+ORDER BY started_at DESC,
+  id
+LIMIT $7 OFFSET $8
+        "#,
+        filters.endpoint as Option<SuotarEndpoint>,
+        filters.succeeded,
+        filters.worker_name.as_deref(),
+        filters.started_after,
+        filters.started_before,
+        filters.credit_registration_id,
+        limit,
+        offset,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| SuotarApiCallPageRow {
+            total_count: row.total_count,
+            call: SuotarApiCall {
+                id: row.id,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                deleted_at: row.deleted_at,
+                endpoint: row.endpoint,
+                request_item_count: row.request_item_count,
+                http_status: row.http_status,
+                duration_ms: row.duration_ms,
+                succeeded: row.succeeded,
+                ok_item_count: row.ok_item_count,
+                error_item_count: row.error_item_count,
+                request_level_error_code: row.request_level_error_code,
+                error_message: row.error_message,
+                request_body_sample: row.request_body_sample,
+                response_body_sample: row.response_body_sample,
+                credit_registration_ids: row.credit_registration_ids,
+                worker_name: row.worker_name,
+                started_at: row.started_at,
+            },
+        })
+        .collect())
+}
+
+/// The distinct `worker_name` values in the log, so the filter offers what exists rather than a
+/// hardcoded list of phase names.
+pub async fn get_worker_names(conn: &mut PgConnection) -> ModelResult<Vec<String>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT DISTINCT worker_name
+FROM suotar_api_calls
+WHERE deleted_at IS NULL
+ORDER BY worker_name
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// One endpoint's traffic over a window, one of possibly several computed together by
 /// [`get_endpoint_stats_for_windows`].
 ///

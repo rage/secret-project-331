@@ -9,6 +9,7 @@ import {
 } from "@/utils/creditRegistration"
 import {
   accountLinkingStats,
+  adminAuditLog,
   adminOverview,
   adminRegistrationDetails,
   listAdminRegistrations,
@@ -324,9 +325,33 @@ test("A global-admin action recorded against a registration shows up on its deta
   })
 })
 
-test.fixme("An action targeting a phase or a student number verification is visible somewhere", () => {
-  // Those two are written but have no reader anywhere: no route, no page. Course-targeted ones now
-  // have both, on the teacher's own per-course history.
+test("Phase- and student-number-targeted actions are readable from the audit log", async ({
+  page,
+}) => {
+  // Run-now only stamps `next_run_at`, which no tick endpoint consults, so this leaves nothing for a
+  // concurrent spec to trip over.
+  const phase = "config-validation"
+  await runPhaseNow(page.request, phase)
+
+  await test.step("A phase-targeted action is found by phase", async () => {
+    const actions = await adminAuditLog(page.request, {
+      target_kind: "phase",
+      target_phase: phase,
+    })
+    expect(actions.data.map((row) => row.action)).toContain("run_phase_now")
+  })
+
+  await test.step("A token-targeted teacher action is found by actor kind", async () => {
+    const actions = await adminAuditLog(page.request, {
+      target_kind: "student_number_verification_token",
+      actor_role: "course_teacher",
+    })
+    expect(actions.data[0]).toMatchObject({
+      action: "resend_link_email",
+      actor_role: "course_teacher",
+      reason: "Seeded fixture: student reported the mail never arrived",
+    })
+  })
 })
 
 test("A discovery run writes the per-realisation counters", async ({ page }) => {

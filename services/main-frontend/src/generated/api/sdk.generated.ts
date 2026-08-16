@@ -22,20 +22,32 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdminBulkTransitionCreditRegistrationsData,
+  AdminBulkTransitionCreditRegistrationsErrors,
+  AdminBulkTransitionCreditRegistrationsResponses,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberErrors,
   AdminManuallyLinkStudentNumberResponses,
   AdminMaterializeCreditRegistrationsData,
   AdminMaterializeCreditRegistrationsResponses,
+  AdminPauseCourseModuleCreditRegistrationData,
+  AdminPauseCourseModuleCreditRegistrationErrors,
+  AdminPauseCourseModuleCreditRegistrationResponses,
   AdminPausePhaseData,
   AdminPausePhaseErrors,
   AdminPausePhaseResponses,
+  AdminRequeueRetryableCreditRegistrationsData,
+  AdminRequeueRetryableCreditRegistrationsErrors,
+  AdminRequeueRetryableCreditRegistrationsResponses,
   AdminResendAccountLinkingEmailData,
   AdminResendAccountLinkingEmailErrors,
   AdminResendAccountLinkingEmailResponses,
   AdminResolveStudentNumberForLinkingData,
   AdminResolveStudentNumberForLinkingErrors,
   AdminResolveStudentNumberForLinkingResponses,
+  AdminResumeCourseModuleCreditRegistrationData,
+  AdminResumeCourseModuleCreditRegistrationErrors,
+  AdminResumeCourseModuleCreditRegistrationResponses,
   AdminResumePhaseData,
   AdminResumePhaseErrors,
   AdminResumePhaseResponses,
@@ -372,14 +384,26 @@ import type {
   GetCourseUserSettingsForUserResponses,
   GetCourseWeekdayHourSubmissionCountsData,
   GetCourseWeekdayHourSubmissionCountsResponses,
+  GetCreditRegistrationAttentionItemsData,
+  GetCreditRegistrationAttentionItemsResponses,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationErrorsByCodeData,
+  GetCreditRegistrationErrorsByCodeResponses,
   GetCreditRegistrationForAdminData,
   GetCreditRegistrationForAdminErrors,
   GetCreditRegistrationForAdminResponses,
   GetCreditRegistrationOverviewData,
   GetCreditRegistrationOverviewResponses,
+  GetCreditRegistrationPipelineHistoryData,
+  GetCreditRegistrationPipelineHistoryResponses,
+  GetCreditRegistrationReconciliationData,
+  GetCreditRegistrationReconciliationResponses,
+  GetCreditRegistrationStatsByCourseData,
+  GetCreditRegistrationStatsByCourseResponses,
+  GetCreditRegistrationThresholdsData,
+  GetCreditRegistrationThresholdsResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
   GetEditProposalCountData,
@@ -541,6 +565,9 @@ import type {
   GetStudentEnrollmentsByCountryResponses,
   GetStudentsByCountryTotalsData,
   GetStudentsByCountryTotalsResponses,
+  GetSuotarApiCallData,
+  GetSuotarApiCallErrors,
+  GetSuotarApiCallResponses,
   GetSuotarHealthData,
   GetSuotarHealthResponses,
   GetTotalUsersCompletedCourseByInstanceData,
@@ -608,8 +635,14 @@ import type {
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
+  ListCreditRegistrationAdminActionsData,
+  ListCreditRegistrationAdminActionsResponses,
+  ListCreditRegistrationPhasesData,
+  ListCreditRegistrationPhasesResponses,
   ListCreditRegistrationsForAdminData,
   ListCreditRegistrationsForAdminResponses,
+  ListSuotarApiCallsData,
+  ListSuotarApiCallsResponses,
   ListVerifiedStudentNumbersForAdminData,
   ListVerifiedStudentNumbersForAdminResponses,
   MarkFeedbackAsReadData,
@@ -753,9 +786,11 @@ import {
   zAddCodeGiveawayCodesResponse,
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
+  zAdminBulkTransitionCreditRegistrationsResponse,
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
   zAdminPausePhaseResponse,
+  zAdminRequeueRetryableCreditRegistrationsResponse,
   zAdminResendAccountLinkingEmailResponse,
   zAdminResolveStudentNumberForLinkingResponse,
   zAdminResumePhaseResponse,
@@ -891,9 +926,15 @@ import {
   zGetCourseUsersCountsByExerciseResponse,
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
+  zGetCreditRegistrationAttentionItemsResponse,
   zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
   zGetCreditRegistrationOverviewResponse,
+  zGetCreditRegistrationPipelineHistoryResponse,
+  zGetCreditRegistrationReconciliationResponse,
+  zGetCreditRegistrationStatsByCourseResponse,
+  zGetCreditRegistrationThresholdsResponse,
   zGetCurrentTimeResponse,
   zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
@@ -970,6 +1011,7 @@ import {
   zGetStudentCompletionsByCountryResponse,
   zGetStudentEnrollmentsByCountryResponse,
   zGetStudentsByCountryTotalsResponse,
+  zGetSuotarApiCallResponse,
   zGetSuotarHealthResponse,
   zGetTotalUsersCompletedCourseByInstanceResponse,
   zGetTotalUsersCompletedCourseCustomTimePeriodResponse,
@@ -1001,7 +1043,10 @@ import {
   zGetUsersReturningExercisesHistoryResponse,
   zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
+  zListCreditRegistrationAdminActionsResponse,
+  zListCreditRegistrationPhasesResponse,
   zListCreditRegistrationsForAdminResponse,
+  zListSuotarApiCallsResponse,
   zListVerifiedStudentNumbersForAdminResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zPreviewStudentNumberVerificationTokenResponse,
@@ -4783,6 +4828,158 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
+ * wants a human to look at, with the detectors that picked each.
+ *
+ * Superseded attempts and rows abandoned by a consent withdrawal are outside every detector: neither
+ * is something a person can act on.
+ */
+export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationAttentionItemsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationAttentionItemsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationAttentionItemsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationAttentionItemsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/attention",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit` - A page of the global action log,
+ * newest first.
+ *
+ * Covers admin and course-teacher actors alike, and every target kind: a registration, a course
+ * module, a course, a phase, a student-number link or its token.
+ */
+export const listCreditRegistrationAdminActions = <ThrowOnError extends boolean = true>(
+  options?: Options<ListCreditRegistrationAdminActionsData, ThrowOnError>,
+): RequestResult<ListCreditRegistrationAdminActionsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListCreditRegistrationAdminActionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zListCreditRegistrationAdminActionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/audit",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * its validated configuration and its volumes.
+ */
+export const getCreditRegistrationStatsByCourse = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationStatsByCourseData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationStatsByCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationStatsByCourseResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationStatsByCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause` - Stops every
+ * phase from claiming this module's rows.
+ *
+ * Freezes the rows where they stand rather than cancelling them, so resuming picks up what was already
+ * in flight.
+ */
+export const adminPauseCourseModuleCreditRegistration = <ThrowOnError extends boolean = true>(
+  options: Options<AdminPauseCourseModuleCreditRegistrationData, ThrowOnError>,
+): RequestResult<
+  AdminPauseCourseModuleCreditRegistrationResponses,
+  AdminPauseCourseModuleCreditRegistrationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminPauseCourseModuleCreditRegistrationResponses,
+    AdminPauseCourseModuleCreditRegistrationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/resume` - Lets the
+ * phases claim this module's rows again.
+ */
+export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResumeCourseModuleCreditRegistrationData, ThrowOnError>,
+): RequestResult<
+  AdminResumeCourseModuleCreditRegistrationResponses,
+  AdminResumeCourseModuleCreditRegistrationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminResumeCourseModuleCreditRegistrationResponses,
+    AdminResumeCourseModuleCreditRegistrationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/resume",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/errors/by-code` - Error events per code over a
+ * window and the window before it, with the terminal verdicts of the same window beside them.
+ *
+ * Counts events, not rows: an error that happened really happened, whether or not a later attempt
+ * succeeded, and hiding it would hide the configuration bug that caused it.
+ */
+export const getCreditRegistrationErrorsByCode = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationErrorsByCodeData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationErrorsByCodeResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationErrorsByCodeResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationErrorsByCodeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/errors/by-code",
+    ...options,
+  })
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
  * completions and recomputes preconditions, now.
  *
@@ -4828,6 +5025,26 @@ export const getCreditRegistrationOverview = <ThrowOnError extends boolean = tru
       await zGetCreditRegistrationOverviewResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/overview",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
+ * and the queue it is responsible for.
+ */
+export const listCreditRegistrationPhases = <ThrowOnError extends boolean = true>(
+  options?: Options<ListCreditRegistrationPhasesData, ThrowOnError>,
+): RequestResult<ListCreditRegistrationPhasesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListCreditRegistrationPhasesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zListCreditRegistrationPhasesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases",
     ...options,
   })
 
@@ -4905,6 +5122,48 @@ export const adminRunPhaseNow = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
+ * ledger state, with what entered and left each state that day.
+ */
+export const getCreditRegistrationPipelineHistory = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationPipelineHistoryData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationPipelineHistoryResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationPipelineHistoryResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationPipelineHistoryResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/pipeline-history",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/reconciliation` - The drift detectors: work the
+ * ledger should be doing and is not, and outcomes the study registry and the ledger disagree about.
+ */
+export const getCreditRegistrationReconciliation = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationReconciliationData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationReconciliationResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationReconciliationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationReconciliationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/reconciliation",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
  * and sorted.
  */
@@ -4922,6 +5181,75 @@ export const listCreditRegistrationsForAdmin = <ThrowOnError extends boolean = t
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/registrations",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a
+ * selection of rows by hand, one transaction for the lot.
+ *
+ * Resubmitting refuses every row in `submission_uncertain`, whatever the selection said. Taking one of
+ * those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
+ * looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
+ * attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
+ * time.
+ */
+export const adminBulkTransitionCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<AdminBulkTransitionCreditRegistrationsData, ThrowOnError>,
+): RequestResult<
+  AdminBulkTransitionCreditRegistrationsResponses,
+  AdminBulkTransitionCreditRegistrationsErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminBulkTransitionCreditRegistrationsResponses,
+    AdminBulkTransitionCreditRegistrationsErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminBulkTransitionCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/requeue-retryable` - Makes every
+ * `failed_retryable` row waiting out a backoff due now.
+ *
+ * The button pressed once the study registry says an outage is over. Touches nothing but
+ * `next_attempt_at`: the rows are already where the pipeline wants them, they are merely waiting.
+ */
+export const adminRequeueRetryableCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<AdminRequeueRetryableCreditRegistrationsData, ThrowOnError>,
+): RequestResult<
+  AdminRequeueRetryableCreditRegistrationsResponses,
+  AdminRequeueRetryableCreditRegistrationsErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminRequeueRetryableCreditRegistrationsResponses,
+    AdminRequeueRetryableCreditRegistrationsErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminRequeueRetryableCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/requeue-retryable",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -5039,6 +5367,44 @@ export const adminUnlinkStudentNumber = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study
+ * registry call log, newest first.
+ *
+ * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
+ * the bodies are scrubbed, so there is no student number in them to search.
+ */
+export const listSuotarApiCalls = <ThrowOnError extends boolean = true>(
+  options?: Options<ListSuotarApiCallsData, ThrowOnError>,
+): RequestResult<ListSuotarApiCallsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<ListSuotarApiCallsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zListSuotarApiCallsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/suotar-api-calls",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls/{suotar_api_call_id}` - One
+ * call with its stored bodies, the ledger rows it covered and the timeline entries it produced.
+ */
+export const getSuotarApiCall = <ThrowOnError extends boolean = true>(
+  options: Options<GetSuotarApiCallData, ThrowOnError>,
+): RequestResult<GetSuotarApiCallResponses, GetSuotarApiCallErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetSuotarApiCallResponses,
+    GetSuotarApiCallErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetSuotarApiCallResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/suotar-api-calls/{suotar_api_call_id}",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/credit-registration-admin/suotar-health` - Per-endpoint call counts,
  * success rates and latency percentiles over an hour, a day and a week.
  */
@@ -5049,6 +5415,30 @@ export const getSuotarHealth = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetSuotarHealthResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/suotar-health",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/thresholds` - Every number the alert rules and
+ * the stuck detectors use.
+ *
+ * The same values `/overview` embeds in its health block. Separate so a tab explaining "stuck after
+ * 2 hours" can say so without reading the whole overview aggregate.
+ */
+export const getCreditRegistrationThresholds = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationThresholdsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationThresholdsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationThresholdsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationThresholdsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/thresholds",
     ...options,
   })
 

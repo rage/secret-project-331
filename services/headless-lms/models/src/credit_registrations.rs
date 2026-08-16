@@ -1592,6 +1592,8 @@ pub struct AdminCreditRegistrationFilters<'a> {
     pub search: Option<&'a str>,
     /// A uuid typed into the search box: a registration, a user or a completion id.
     pub search_id: Option<Uuid>,
+    /// An exact set of rows, for a caller that already knows which ones it wants.
+    pub credit_registration_ids: Option<&'a [Uuid]>,
     /// Off by default, or a course that regrades shows two rows per student.
     pub include_superseded: bool,
 }
@@ -1829,16 +1831,20 @@ WHERE cr.deleted_at IS NULL
     OR cr.user_id = $12
     OR cr.course_module_completion_id = $12
   )
+  AND (
+    $13::uuid [] IS NULL
+    OR cr.id = ANY($13)
+  )
 ORDER BY CASE
-    WHEN $13::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count
+    WHEN $14::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count
   END DESC NULLS LAST,
-  CASE $13::text
+  CASE $14::text
     WHEN 'created' THEN cr.created_at
     WHEN 'time_in_state' THEN cr.state_entered_at
     ELSE COALESCE(cr.last_attempt_at, cr.state_entered_at)
   END DESC,
   cr.id
-LIMIT $14 OFFSET $15
+LIMIT $15 OFFSET $16
         "#,
         filters.include_superseded,
         filters.states as Option<&[CreditRegistrationState]>,
@@ -1852,6 +1858,7 @@ LIMIT $14 OFFSET $15
         filters.submitted_before,
         search_pattern.as_deref(),
         filters.search_id,
+        filters.credit_registration_ids as Option<&[Uuid]>,
         sort.as_str(),
         limit,
         offset,
@@ -2016,6 +2023,8 @@ ORDER BY 1
 pub struct TerminalOutcomeTotals {
     /// `registered`, `duplicate` and `not_improved`.
     pub success_count: i64,
+    /// The subset we put in the registry ourselves.
+    pub registered_count: i64,
     pub failed_permanent_count: i64,
     pub cancelled_count: i64,
     pub abandoned_count: i64,
@@ -2033,6 +2042,7 @@ pub async fn count_terminal_outcomes_since(
 SELECT COUNT(*) FILTER (
     WHERE state IN ('registered', 'duplicate', 'not_improved')
   ) AS "success_count!",
+  COUNT(*) FILTER (WHERE state = 'registered') AS "registered_count!",
   COUNT(*) FILTER (WHERE state = 'failed_permanent') AS "failed_permanent_count!",
   COUNT(*) FILTER (WHERE state = 'cancelled') AS "cancelled_count!",
   COUNT(*) FILTER (

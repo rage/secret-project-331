@@ -320,6 +320,28 @@ ORDER BY created_at DESC
     Ok(res)
 }
 
+/// The per-item timeline entries one study registry call produced, oldest first: what the answer
+/// did to each row it covered.
+pub async fn get_by_suotar_api_call_id(
+    conn: &mut PgConnection,
+    suotar_api_call_id: Uuid,
+) -> ModelResult<Vec<CreditRegistrationEvent>> {
+    let res = sqlx::query_as!(
+        CreditRegistrationEvent,
+        r#"
+SELECT *
+FROM credit_registration_events
+WHERE suotar_api_call_id = $1
+  AND deleted_at IS NULL
+ORDER BY created_at
+        "#,
+        suotar_api_call_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// The attainment the study registry pointed at when it turned a submission down as no improvement.
 ///
 /// Read back off the event the answer was recorded on rather than stored on the ledger row: the row

@@ -7,9 +7,16 @@ registry's own error text is returned to nobody.
 */
 
 mod account_linking;
+mod api_log;
+mod audit;
+mod courses;
 mod dashboard;
+mod errors;
+mod history;
 mod ledger;
 mod materialize;
+mod phases;
+mod reconciliation;
 mod student_numbers;
 
 use headless_lms_models::credit_registration_account_linking_emails::{
@@ -32,6 +39,20 @@ use crate::prelude::*;
     ledger::list_credit_registrations_for_admin,
     ledger::get_credit_registration_for_admin,
     ledger::admin_transition_credit_registration,
+    ledger::admin_bulk_transition_credit_registrations,
+    ledger::admin_requeue_retryable_credit_registrations,
+    errors::get_credit_registration_thresholds,
+    errors::get_credit_registration_attention_items,
+    errors::get_credit_registration_errors_by_code,
+    phases::list_credit_registration_phases,
+    api_log::list_suotar_api_calls,
+    api_log::get_suotar_api_call,
+    courses::get_credit_registration_stats_by_course,
+    courses::admin_pause_course_module_credit_registration,
+    courses::admin_resume_course_module_credit_registration,
+    reconciliation::get_credit_registration_reconciliation,
+    audit::list_credit_registration_admin_actions,
+    history::get_credit_registration_pipeline_history,
     account_linking::get_account_linking_stats,
     account_linking::admin_resend_account_linking_email,
     account_linking::admin_resolve_student_number_for_linking,
@@ -124,6 +145,13 @@ async fn build_linking_emails(
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     dashboard::_add_routes(cfg);
     ledger::_add_routes(cfg);
+    errors::_add_routes(cfg);
+    phases::_add_routes(cfg);
+    api_log::_add_routes(cfg);
+    courses::_add_routes(cfg);
+    reconciliation::_add_routes(cfg);
+    audit::_add_routes(cfg);
+    history::_add_routes(cfg);
     account_linking::_add_routes(cfg);
     student_numbers::_add_routes(cfg);
     materialize::_add_routes(cfg);

@@ -127,6 +127,41 @@ export const adminRegistrationDetails = (
 export const accountLinkingStats = (request: APIRequestContext): Promise<AccountLinkingStats> =>
   getJson<AccountLinkingStats>(request, `${CREDIT_REGISTRATION_ADMIN_API}/account-linking`)
 
+export interface AdminAuditRow {
+  action: string
+  target_kind: string
+  target_id: string | null
+  target_phase: string | null
+  actor_role: string
+  reason: string | null
+}
+
+export interface AdminAuditPage {
+  data: AdminAuditRow[]
+  total_count: number
+}
+
+export interface AdminAuditFilter {
+  action?: string
+  actor_role?: string
+  target_kind?: string
+  target_id?: string
+  target_phase?: string
+  course_id?: string
+  limit?: number
+}
+
+/** The global action log, covering both actor kinds and every target kind. */
+export const adminAuditLog = (
+  request: APIRequestContext,
+  filter: AdminAuditFilter = {},
+): Promise<AdminAuditPage> =>
+  // Spread: an interface has no index signature, so it does not satisfy `queryString`'s parameter.
+  getJson<AdminAuditPage>(
+    request,
+    `${CREDIT_REGISTRATION_ADMIN_API}/audit${queryString({ ...filter })}`,
+  )
+
 export const ADMIN_RESOLVE_PERSON_URL = `${CREDIT_REGISTRATION_ADMIN_API}/account-linking/resolve-person`
 
 /** The subset of `adminResolveStudentNumberForLinking` the linking specs read. */

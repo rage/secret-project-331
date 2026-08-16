@@ -17,11 +17,15 @@ import {
   addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
+  adminBulkTransitionCreditRegistrations,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
+  adminPauseCourseModuleCreditRegistration,
   adminPausePhase,
+  adminRequeueRetryableCreditRegistrations,
   adminResendAccountLinkingEmail,
   adminResolveStudentNumberForLinking,
+  adminResumeCourseModuleCreditRegistration,
   adminResumePhase,
   adminRunPhaseNow,
   adminTransitionCreditRegistration,
@@ -186,9 +190,15 @@ import {
   getCourseUsersCountsByExercise,
   getCourseUserSettingsForUser,
   getCourseWeekdayHourSubmissionCounts,
+  getCreditRegistrationAttentionItems,
   getCreditRegistrationDetails,
+  getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
   getCreditRegistrationOverview,
+  getCreditRegistrationPipelineHistory,
+  getCreditRegistrationReconciliation,
+  getCreditRegistrationStatsByCourse,
+  getCreditRegistrationThresholds,
   getCurrentTime,
   getEditProposalCount,
   getEditProposals,
@@ -269,6 +279,7 @@ import {
   getStudentCompletionsByCountry,
   getStudentEnrollmentsByCountry,
   getStudentsByCountryTotals,
+  getSuotarApiCall,
   getSuotarHealth,
   getTotalUsersCompletedCourse,
   getTotalUsersCompletedCourseByInstance,
@@ -302,7 +313,10 @@ import {
   hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
+  listCreditRegistrationAdminActions,
+  listCreditRegistrationPhases,
   listCreditRegistrationsForAdmin,
+  listSuotarApiCalls,
   listVerifiedStudentNumbersForAdmin,
   markFeedbackAsRead,
   type Options,
@@ -378,16 +392,22 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdminBulkTransitionCreditRegistrationsData,
+  AdminBulkTransitionCreditRegistrationsResponse,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberResponse,
   AdminMaterializeCreditRegistrationsData,
   AdminMaterializeCreditRegistrationsResponse,
+  AdminPauseCourseModuleCreditRegistrationData,
   AdminPausePhaseData,
   AdminPausePhaseResponse,
+  AdminRequeueRetryableCreditRegistrationsData,
+  AdminRequeueRetryableCreditRegistrationsResponse,
   AdminResendAccountLinkingEmailData,
   AdminResendAccountLinkingEmailResponse,
   AdminResolveStudentNumberForLinkingData,
   AdminResolveStudentNumberForLinkingResponse,
+  AdminResumeCourseModuleCreditRegistrationData,
   AdminResumePhaseData,
   AdminResumePhaseResponse,
   AdminRunPhaseNowData,
@@ -685,12 +705,24 @@ import type {
   GetCourseUserSettingsForUserResponse,
   GetCourseWeekdayHourSubmissionCountsData,
   GetCourseWeekdayHourSubmissionCountsResponse,
+  GetCreditRegistrationAttentionItemsData,
+  GetCreditRegistrationAttentionItemsResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
+  GetCreditRegistrationErrorsByCodeData,
+  GetCreditRegistrationErrorsByCodeResponse,
   GetCreditRegistrationForAdminData,
   GetCreditRegistrationForAdminResponse,
   GetCreditRegistrationOverviewData,
   GetCreditRegistrationOverviewResponse,
+  GetCreditRegistrationPipelineHistoryData,
+  GetCreditRegistrationPipelineHistoryResponse,
+  GetCreditRegistrationReconciliationData,
+  GetCreditRegistrationReconciliationResponse,
+  GetCreditRegistrationStatsByCourseData,
+  GetCreditRegistrationStatsByCourseResponse,
+  GetCreditRegistrationThresholdsData,
+  GetCreditRegistrationThresholdsResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
   GetEditProposalCountData,
@@ -847,6 +879,8 @@ import type {
   GetStudentEnrollmentsByCountryResponse,
   GetStudentsByCountryTotalsData,
   GetStudentsByCountryTotalsResponse,
+  GetSuotarApiCallData,
+  GetSuotarApiCallResponse,
   GetSuotarHealthData,
   GetSuotarHealthResponse,
   GetTotalUsersCompletedCourseByInstanceData,
@@ -911,8 +945,14 @@ import type {
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
+  ListCreditRegistrationAdminActionsData,
+  ListCreditRegistrationAdminActionsResponse,
+  ListCreditRegistrationPhasesData,
+  ListCreditRegistrationPhasesResponse,
   ListCreditRegistrationsForAdminData,
   ListCreditRegistrationsForAdminResponse,
+  ListSuotarApiCallsData,
+  ListSuotarApiCallsResponse,
   ListVerifiedStudentNumbersForAdminData,
   ListVerifiedStudentNumbersForAdminResponse,
   MarkFeedbackAsReadData,
@@ -6085,6 +6125,240 @@ export const adminResolveStudentNumberForLinkingMutation = (
   return mutationOptions
 }
 
+export const getCreditRegistrationAttentionItemsQueryKey = (
+  options?: Options<GetCreditRegistrationAttentionItemsData>,
+) => createQueryKey("getCreditRegistrationAttentionItems", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
+ * wants a human to look at, with the detectors that picked each.
+ *
+ * Superseded attempts and rows abandoned by a consent withdrawal are outside every detector: neither
+ * is something a person can act on.
+ */
+export const getCreditRegistrationAttentionItemsOptions = (
+  options?: Options<GetCreditRegistrationAttentionItemsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationAttentionItemsResponse,
+    DefaultError,
+    GetCreditRegistrationAttentionItemsResponse,
+    ReturnType<typeof getCreditRegistrationAttentionItemsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationAttentionItems({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationAttentionItemsQueryKey(options),
+  })
+
+export const listCreditRegistrationAdminActionsQueryKey = (
+  options?: Options<ListCreditRegistrationAdminActionsData>,
+) => createQueryKey("listCreditRegistrationAdminActions", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit` - A page of the global action log,
+ * newest first.
+ *
+ * Covers admin and course-teacher actors alike, and every target kind: a registration, a course
+ * module, a course, a phase, a student-number link or its token.
+ */
+export const listCreditRegistrationAdminActionsOptions = (
+  options?: Options<ListCreditRegistrationAdminActionsData>,
+) =>
+  queryOptions<
+    ListCreditRegistrationAdminActionsResponse,
+    DefaultError,
+    ListCreditRegistrationAdminActionsResponse,
+    ReturnType<typeof listCreditRegistrationAdminActionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listCreditRegistrationAdminActions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listCreditRegistrationAdminActionsQueryKey(options),
+  })
+
+export const listCreditRegistrationAdminActionsInfiniteQueryKey = (
+  options?: Options<ListCreditRegistrationAdminActionsData>,
+): QueryKey<Options<ListCreditRegistrationAdminActionsData>> =>
+  createQueryKey("listCreditRegistrationAdminActions", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit` - A page of the global action log,
+ * newest first.
+ *
+ * Covers admin and course-teacher actors alike, and every target kind: a registration, a course
+ * module, a course, a phase, a student-number link or its token.
+ */
+export const listCreditRegistrationAdminActionsInfiniteOptions = (
+  options?: Options<ListCreditRegistrationAdminActionsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    ListCreditRegistrationAdminActionsResponse,
+    DefaultError,
+    InfiniteData<ListCreditRegistrationAdminActionsResponse>,
+    QueryKey<Options<ListCreditRegistrationAdminActionsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListCreditRegistrationAdminActionsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListCreditRegistrationAdminActionsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listCreditRegistrationAdminActions({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listCreditRegistrationAdminActionsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+export const getCreditRegistrationStatsByCourseQueryKey = (
+  options?: Options<GetCreditRegistrationStatsByCourseData>,
+) => createQueryKey("getCreditRegistrationStatsByCourse", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * its validated configuration and its volumes.
+ */
+export const getCreditRegistrationStatsByCourseOptions = (
+  options?: Options<GetCreditRegistrationStatsByCourseData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationStatsByCourseResponse,
+    DefaultError,
+    GetCreditRegistrationStatsByCourseResponse,
+    ReturnType<typeof getCreditRegistrationStatsByCourseQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationStatsByCourse({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationStatsByCourseQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause` - Stops every
+ * phase from claiming this module's rows.
+ *
+ * Freezes the rows where they stand rather than cancelling them, so resuming picks up what was already
+ * in flight.
+ */
+export const adminPauseCourseModuleCreditRegistrationMutation = (
+  options?: Partial<Options<AdminPauseCourseModuleCreditRegistrationData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<AdminPauseCourseModuleCreditRegistrationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminPauseCourseModuleCreditRegistrationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminPauseCourseModuleCreditRegistration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/resume` - Lets the
+ * phases claim this module's rows again.
+ */
+export const adminResumeCourseModuleCreditRegistrationMutation = (
+  options?: Partial<Options<AdminResumeCourseModuleCreditRegistrationData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<AdminResumeCourseModuleCreditRegistrationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminResumeCourseModuleCreditRegistrationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminResumeCourseModuleCreditRegistration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCreditRegistrationErrorsByCodeQueryKey = (
+  options?: Options<GetCreditRegistrationErrorsByCodeData>,
+) => createQueryKey("getCreditRegistrationErrorsByCode", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/errors/by-code` - Error events per code over a
+ * window and the window before it, with the terminal verdicts of the same window beside them.
+ *
+ * Counts events, not rows: an error that happened really happened, whether or not a later attempt
+ * succeeded, and hiding it would hide the configuration bug that caused it.
+ */
+export const getCreditRegistrationErrorsByCodeOptions = (
+  options?: Options<GetCreditRegistrationErrorsByCodeData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationErrorsByCodeResponse,
+    DefaultError,
+    GetCreditRegistrationErrorsByCodeResponse,
+    ReturnType<typeof getCreditRegistrationErrorsByCodeQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationErrorsByCode({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationErrorsByCodeQueryKey(options),
+  })
+
 /**
  *
  * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
@@ -6142,6 +6416,34 @@ export const getCreditRegistrationOverviewOptions = (
         throwOnError: true,
       }),
     queryKey: getCreditRegistrationOverviewQueryKey(options),
+  })
+
+export const listCreditRegistrationPhasesQueryKey = (
+  options?: Options<ListCreditRegistrationPhasesData>,
+) => createQueryKey("listCreditRegistrationPhases", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
+ * and the queue it is responsible for.
+ */
+export const listCreditRegistrationPhasesOptions = (
+  options?: Options<ListCreditRegistrationPhasesData>,
+) =>
+  queryOptions<
+    ListCreditRegistrationPhasesResponse,
+    DefaultError,
+    ListCreditRegistrationPhasesResponse,
+    ReturnType<typeof listCreditRegistrationPhasesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listCreditRegistrationPhases({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listCreditRegistrationPhasesQueryKey(options),
   })
 
 /**
@@ -6212,6 +6514,62 @@ export const adminRunPhaseNowMutation = (
   }
   return mutationOptions
 }
+
+export const getCreditRegistrationPipelineHistoryQueryKey = (
+  options?: Options<GetCreditRegistrationPipelineHistoryData>,
+) => createQueryKey("getCreditRegistrationPipelineHistory", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
+ * ledger state, with what entered and left each state that day.
+ */
+export const getCreditRegistrationPipelineHistoryOptions = (
+  options?: Options<GetCreditRegistrationPipelineHistoryData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationPipelineHistoryResponse,
+    DefaultError,
+    GetCreditRegistrationPipelineHistoryResponse,
+    ReturnType<typeof getCreditRegistrationPipelineHistoryQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationPipelineHistory({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationPipelineHistoryQueryKey(options),
+  })
+
+export const getCreditRegistrationReconciliationQueryKey = (
+  options?: Options<GetCreditRegistrationReconciliationData>,
+) => createQueryKey("getCreditRegistrationReconciliation", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/reconciliation` - The drift detectors: work the
+ * ledger should be doing and is not, and outcomes the study registry and the ledger disagree about.
+ */
+export const getCreditRegistrationReconciliationOptions = (
+  options?: Options<GetCreditRegistrationReconciliationData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationReconciliationResponse,
+    DefaultError,
+    GetCreditRegistrationReconciliationResponse,
+    ReturnType<typeof getCreditRegistrationReconciliationQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationReconciliation({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationReconciliationQueryKey(options),
+  })
 
 export const listCreditRegistrationsForAdminQueryKey = (
   options?: Options<ListCreditRegistrationsForAdminData>,
@@ -6292,6 +6650,69 @@ export const listCreditRegistrationsForAdminInfiniteOptions = (
     },
   )
   return opts as Omit<typeof opts, "initialData">
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a
+ * selection of rows by hand, one transaction for the lot.
+ *
+ * Resubmitting refuses every row in `submission_uncertain`, whatever the selection said. Taking one of
+ * those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
+ * looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
+ * attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
+ * time.
+ */
+export const adminBulkTransitionCreditRegistrationsMutation = (
+  options?: Partial<Options<AdminBulkTransitionCreditRegistrationsData>>,
+): UseMutationOptions<
+  AdminBulkTransitionCreditRegistrationsResponse,
+  DefaultError,
+  Options<AdminBulkTransitionCreditRegistrationsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminBulkTransitionCreditRegistrationsResponse,
+    DefaultError,
+    Options<AdminBulkTransitionCreditRegistrationsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminBulkTransitionCreditRegistrations({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/requeue-retryable` - Makes every
+ * `failed_retryable` row waiting out a backoff due now.
+ *
+ * The button pressed once the study registry says an outage is over. Touches nothing but
+ * `next_attempt_at`: the rows are already where the pipeline wants them, they are merely waiting.
+ */
+export const adminRequeueRetryableCreditRegistrationsMutation = (
+  options?: Partial<Options<AdminRequeueRetryableCreditRegistrationsData>>,
+): UseMutationOptions<
+  AdminRequeueRetryableCreditRegistrationsResponse,
+  DefaultError,
+  Options<AdminRequeueRetryableCreditRegistrationsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminRequeueRetryableCreditRegistrationsResponse,
+    DefaultError,
+    Options<AdminRequeueRetryableCreditRegistrationsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminRequeueRetryableCreditRegistrations({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
 }
 
 export const getCreditRegistrationForAdminQueryKey = (
@@ -6464,6 +6885,109 @@ export const adminUnlinkStudentNumberMutation = (
   return mutationOptions
 }
 
+export const listSuotarApiCallsQueryKey = (options?: Options<ListSuotarApiCallsData>) =>
+  createQueryKey("listSuotarApiCalls", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study
+ * registry call log, newest first.
+ *
+ * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
+ * the bodies are scrubbed, so there is no student number in them to search.
+ */
+export const listSuotarApiCallsOptions = (options?: Options<ListSuotarApiCallsData>) =>
+  queryOptions<
+    ListSuotarApiCallsResponse,
+    DefaultError,
+    ListSuotarApiCallsResponse,
+    ReturnType<typeof listSuotarApiCallsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listSuotarApiCalls({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listSuotarApiCallsQueryKey(options),
+  })
+
+export const listSuotarApiCallsInfiniteQueryKey = (
+  options?: Options<ListSuotarApiCallsData>,
+): QueryKey<Options<ListSuotarApiCallsData>> => createQueryKey("listSuotarApiCalls", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study
+ * registry call log, newest first.
+ *
+ * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
+ * the bodies are scrubbed, so there is no student number in them to search.
+ */
+export const listSuotarApiCallsInfiniteOptions = (options?: Options<ListSuotarApiCallsData>) => {
+  const opts = infiniteQueryOptions<
+    ListSuotarApiCallsResponse,
+    DefaultError,
+    InfiniteData<ListSuotarApiCallsResponse>,
+    QueryKey<Options<ListSuotarApiCallsData>>,
+    | number
+    | Pick<QueryKey<Options<ListSuotarApiCallsData>>[0], "body" | "headers" | "path" | "query">
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListSuotarApiCallsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listSuotarApiCalls({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listSuotarApiCallsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+export const getSuotarApiCallQueryKey = (options: Options<GetSuotarApiCallData>) =>
+  createQueryKey("getSuotarApiCall", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls/{suotar_api_call_id}` - One
+ * call with its stored bodies, the ledger rows it covered and the timeline entries it produced.
+ */
+export const getSuotarApiCallOptions = (options: Options<GetSuotarApiCallData>) =>
+  queryOptions<
+    GetSuotarApiCallResponse,
+    DefaultError,
+    GetSuotarApiCallResponse,
+    ReturnType<typeof getSuotarApiCallQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getSuotarApiCall({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getSuotarApiCallQueryKey(options),
+  })
+
 export const getSuotarHealthQueryKey = (options?: Options<GetSuotarHealthData>) =>
   createQueryKey("getSuotarHealth", options)
 
@@ -6487,6 +7011,37 @@ export const getSuotarHealthOptions = (options?: Options<GetSuotarHealthData>) =
         throwOnError: true,
       }),
     queryKey: getSuotarHealthQueryKey(options),
+  })
+
+export const getCreditRegistrationThresholdsQueryKey = (
+  options?: Options<GetCreditRegistrationThresholdsData>,
+) => createQueryKey("getCreditRegistrationThresholds", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/thresholds` - Every number the alert rules and
+ * the stuck detectors use.
+ *
+ * The same values `/overview` embeds in its health block. Separate so a tab explaining "stuck after
+ * 2 hours" can say so without reading the whole overview aggregate.
+ */
+export const getCreditRegistrationThresholdsOptions = (
+  options?: Options<GetCreditRegistrationThresholdsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationThresholdsResponse,
+    DefaultError,
+    GetCreditRegistrationThresholdsResponse,
+    ReturnType<typeof getCreditRegistrationThresholdsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationThresholds({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationThresholdsQueryKey(options),
   })
 
 export const getMyCourseCreditRegistrationConsentQueryKey = (

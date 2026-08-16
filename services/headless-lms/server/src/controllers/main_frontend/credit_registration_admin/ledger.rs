@@ -19,6 +19,7 @@ use headless_lms_models::library::credit_registration::student_notifications::{
 };
 use headless_lms_models::suotar_api_calls;
 use headless_lms_models::verified_student_numbers::{self, StudentNumberVerificationMethod};
+use std::collections::{HashMap, HashSet};
 use utoipa::ToSchema;
 
 use crate::prelude::*;
@@ -185,6 +186,57 @@ pub struct AdminTransitionCreditRegistrationResult {
     pub needs_admin_attention: bool,
 }
 
+/// A fat-finger bound on one selection; a bigger one is taken in several passes.
+const MAX_ROWS_PER_BULK_TRANSITION: i64 = 500;
+const MAX_ROWS_PER_REQUEUE: i64 = 5_000;
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct AdminBulkTransitionPayload {
+    pub to_state: AdminCreditRegistrationTransitionTarget,
+    pub credit_registration_ids: Vec<Uuid>,
+    pub reason: String,
+}
+
+/// Why a selected row was left alone.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AdminBulkTransitionSkip {
+    /// A later attempt replaced it; act on that one.
+    Superseded,
+    /// The submission may have landed. Resubmitting one of these is a single-row decision, made
+    /// after a human has looked the attainment up.
+    SubmissionUncertain,
+    WithoutConsent,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminBulkTransitionSkipCount {
+    pub reason: AdminBulkTransitionSkip,
+    pub count: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminBulkTransitionResult {
+    pub applied_count: i64,
+    pub skipped: Vec<AdminBulkTransitionSkipCount>,
+    /// Selected ids naming no live row.
+    pub not_found_count: i64,
+    pub max_rows_per_call: i64,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct AdminRequeueRetryablePayload {
+    pub course_id: Option<Uuid>,
+    pub course_module_id: Option<Uuid>,
+    pub reason: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminRequeueRetryableResult {
+    pub requeued_count: i64,
+    pub max_rows_per_call: i64,
+}
+
 /// `serde_urlencoded` reads a single occurrence of a key as a scalar, not a one-element sequence, so
 /// a `Vec` field otherwise refuses a query string that repeats the parameter zero or one times.
 fn one_or_many<'de, D, T>(deserializer: D) -> Result<Option<Vec<T>>, D::Error>
@@ -288,6 +340,7 @@ pub async fn list_credit_registrations_for_admin(
         submitted_before: query.submitted_before,
         search,
         search_id: search.and_then(|search| Uuid::parse_str(search).ok()),
+        credit_registration_ids: None,
         include_superseded: query.include_superseded.unwrap_or(false),
     };
     let sort = match query.sort.as_deref() {
@@ -512,59 +565,8 @@ pub async fn admin_transition_credit_registration(
     }
 
     let mut tx = conn.begin().await?;
-    let (outcome, after_state, needs_admin_attention) = match payload.to_state {
-        AdminCreditRegistrationTransitionTarget::ClearNeedsAdminAttention => {
-            if !row.needs_admin_attention {
-                (AdminTransitionOutcome::NoChange, row.state, false)
-            } else {
-                credit_registrations::set_needs_admin_attention(&mut tx, id, false).await?;
-                insert_admin_action_event(&mut tx, id, user.id, reason).await?;
-                (AdminTransitionOutcome::Applied, row.state, false)
-            }
-        }
-        AdminCreditRegistrationTransitionTarget::CheckNow => {
-            credit_registrations::make_due_now(&mut tx, id).await?;
-            insert_admin_action_event(&mut tx, id, user.id, reason).await?;
-            (
-                AdminTransitionOutcome::Applied,
-                row.state,
-                row.needs_admin_attention,
-            )
-        }
-        target => {
-            let to_state = match target {
-                AdminCreditRegistrationTransitionTarget::ReadyToSubmit => {
-                    CreditRegistrationState::ReadyToSubmit
-                }
-                _ => CreditRegistrationState::Cancelled,
-            };
-            let after = credit_registrations::transition(
-                &mut tx,
-                id,
-                &Transition {
-                    needs_admin_attention: Some(false),
-                    event_kind: CreditRegistrationEventKind::AdminAction,
-                    event_message: Some(reason.to_string()),
-                    actor_user_id: Some(user.id),
-                    // `row` was read before this transaction started; refuse to overwrite if the
-                    // pipeline (or another admin) has since moved the row on.
-                    expected_from_state: Some(row.state),
-                    ..Transition::to(to_state)
-                },
-            )
-            .await?;
-            // Nothing else brings the row forward, so without this the resubmit sits out the backoff
-            // whatever failed last set.
-            if !after.state.is_terminal() {
-                credit_registrations::make_due_now(&mut tx, id).await?;
-            }
-            (
-                AdminTransitionOutcome::Applied,
-                after.state,
-                after.needs_admin_attention,
-            )
-        }
-    };
+    let (outcome, after_state, needs_admin_attention) =
+        apply_transition(&mut tx, &row, payload.to_state, user.id, reason).await?;
     models::credit_registration_admin_actions::record(
         &mut tx,
         &NewCreditRegistrationAdminAction {
@@ -590,6 +592,253 @@ pub async fn admin_transition_credit_registration(
         state: after_state,
         needs_admin_attention,
     }))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a
+selection of rows by hand, one transaction for the lot.
+
+Resubmitting refuses every row in `submission_uncertain`, whatever the selection said. Taking one of
+those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
+looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
+attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
+time.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    post,
+    path = "/registrations/bulk-transition",
+    operation_id = "adminBulkTransitionCreditRegistrations",
+    tag = "credit-registration-admin",
+    request_body = AdminBulkTransitionPayload,
+    responses(
+        (status = 200, description = "What each selected row did", body = AdminBulkTransitionResult),
+        (status = 422, description = "No reason given, or more ids than one call may take")
+    )
+)]
+pub async fn admin_bulk_transition_credit_registrations(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<AdminBulkTransitionPayload>,
+) -> ControllerResult<web::Json<AdminBulkTransitionResult>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let reason = required_reason(&payload.reason)?;
+    if payload.credit_registration_ids.len() as i64 > MAX_ROWS_PER_BULK_TRANSITION {
+        return Err(controller_err!(
+            BadRequest,
+            format!("At most {MAX_ROWS_PER_BULK_TRANSITION} registrations per call.")
+        ));
+    }
+
+    let rows =
+        credit_registrations::get_by_ids(&mut conn, &payload.credit_registration_ids).await?;
+    let consenting: HashSet<(Uuid, Uuid)> =
+        if payload.to_state == AdminCreditRegistrationTransitionTarget::ReadyToSubmit {
+            course_credit_registration_consents::get_consenting_user_and_course_ids(
+                &mut conn,
+                &rows.iter().map(|row| row.user_id).collect::<Vec<_>>(),
+            )
+            .await?
+            .into_iter()
+            .collect()
+        } else {
+            HashSet::new()
+        };
+
+    let mut applied_count = 0;
+    let mut skipped: HashMap<AdminBulkTransitionSkip, i64> = HashMap::new();
+    let mut tx = conn.begin().await?;
+    for row in &rows {
+        let refusal = if row.superseded_by_id.is_some() {
+            Some(AdminBulkTransitionSkip::Superseded)
+        } else if payload.to_state != AdminCreditRegistrationTransitionTarget::ReadyToSubmit {
+            None
+        } else if row.state == CreditRegistrationState::SubmissionUncertain {
+            Some(AdminBulkTransitionSkip::SubmissionUncertain)
+        } else if !consenting.contains(&(row.user_id, row.course_id)) {
+            Some(AdminBulkTransitionSkip::WithoutConsent)
+        } else {
+            None
+        };
+        match refusal {
+            Some(skip) => *skipped.entry(skip).or_insert(0) += 1,
+            None => {
+                apply_transition(&mut tx, row, payload.to_state, user.id, reason).await?;
+                applied_count += 1;
+            }
+        }
+    }
+    let mut skipped: Vec<AdminBulkTransitionSkipCount> = skipped
+        .into_iter()
+        .map(|(reason, count)| AdminBulkTransitionSkipCount { reason, count })
+        .collect();
+    skipped.sort_by_key(|skip| std::cmp::Reverse(skip.count));
+
+    models::credit_registration_admin_actions::record(
+        &mut tx,
+        &NewCreditRegistrationAdminAction {
+            reason: Some(reason.to_string()),
+            details: Some(serde_json::json!({
+                "to_state": payload.to_state,
+                "credit_registration_ids": payload.credit_registration_ids,
+                "skipped": skipped,
+            })),
+            affected_row_count: Some(applied_count),
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::TransitionItem,
+                CreditRegistrationAdminActionTarget::CreditRegistration,
+                user.id,
+                GLOBAL_ADMIN_ROLE,
+            )
+        },
+    )
+    .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(AdminBulkTransitionResult {
+        applied_count: i64::from(applied_count),
+        skipped,
+        not_found_count: payload.credit_registration_ids.len() as i64 - rows.len() as i64,
+        max_rows_per_call: MAX_ROWS_PER_BULK_TRANSITION,
+    }))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/registrations/requeue-retryable` - Makes every
+`failed_retryable` row waiting out a backoff due now.
+
+The button pressed once the study registry says an outage is over. Touches nothing but
+`next_attempt_at`: the rows are already where the pipeline wants them, they are merely waiting.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    post,
+    path = "/registrations/requeue-retryable",
+    operation_id = "adminRequeueRetryableCreditRegistrations",
+    tag = "credit-registration-admin",
+    request_body = AdminRequeueRetryablePayload,
+    responses(
+        (status = 200, description = "How many were made due", body = AdminRequeueRetryableResult),
+        (status = 422, description = "No reason given")
+    )
+)]
+pub async fn admin_requeue_retryable_credit_registrations(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<AdminRequeueRetryablePayload>,
+) -> ControllerResult<web::Json<AdminRequeueRetryableResult>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let reason = required_reason(&payload.reason)?;
+
+    let mut tx = conn.begin().await?;
+    let requeued_count = credit_registrations::requeue_retryable_now(
+        &mut tx,
+        payload.course_id,
+        payload.course_module_id,
+        MAX_ROWS_PER_REQUEUE,
+    )
+    .await?;
+    models::credit_registration_admin_actions::record(
+        &mut tx,
+        &NewCreditRegistrationAdminAction {
+            target_id: payload.course_id,
+            reason: Some(reason.to_string()),
+            details: Some(serde_json::json!({
+                "course_id": payload.course_id,
+                "course_module_id": payload.course_module_id,
+            })),
+            affected_row_count: Some(i32::try_from(requeued_count).unwrap_or(i32::MAX)),
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::RequeueBatch,
+                match payload.course_id {
+                    Some(_) => CreditRegistrationAdminActionTarget::Course,
+                    None => CreditRegistrationAdminActionTarget::CreditRegistration,
+                },
+                user.id,
+                GLOBAL_ADMIN_ROLE,
+            )
+        },
+    )
+    .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(AdminRequeueRetryableResult {
+        requeued_count,
+        max_rows_per_call: MAX_ROWS_PER_REQUEUE,
+    }))
+}
+
+/// Applies one hand transition in the caller's transaction, returning what it did, where the row
+/// ended up and whether it still asks for a human.
+///
+/// The caller has already decided the transition is allowed: consent and the
+/// `submission_uncertain` guard are checked before this, because the answer to a refusal differs
+/// per caller.
+async fn apply_transition(
+    tx: &mut PgConnection,
+    row: &credit_registrations::CreditRegistration,
+    target: AdminCreditRegistrationTransitionTarget,
+    actor_user_id: Uuid,
+    reason: &str,
+) -> Result<(AdminTransitionOutcome, CreditRegistrationState, bool), ControllerError> {
+    let id = row.id;
+    Ok(match target {
+        AdminCreditRegistrationTransitionTarget::ClearNeedsAdminAttention => {
+            if !row.needs_admin_attention {
+                (AdminTransitionOutcome::NoChange, row.state, false)
+            } else {
+                credit_registrations::set_needs_admin_attention(tx, id, false).await?;
+                insert_admin_action_event(tx, id, actor_user_id, reason).await?;
+                (AdminTransitionOutcome::Applied, row.state, false)
+            }
+        }
+        AdminCreditRegistrationTransitionTarget::CheckNow => {
+            credit_registrations::make_due_now(tx, id).await?;
+            insert_admin_action_event(tx, id, actor_user_id, reason).await?;
+            (
+                AdminTransitionOutcome::Applied,
+                row.state,
+                row.needs_admin_attention,
+            )
+        }
+        target => {
+            let to_state = match target {
+                AdminCreditRegistrationTransitionTarget::ReadyToSubmit => {
+                    CreditRegistrationState::ReadyToSubmit
+                }
+                _ => CreditRegistrationState::Cancelled,
+            };
+            let after = credit_registrations::transition(
+                tx,
+                id,
+                &Transition {
+                    needs_admin_attention: Some(false),
+                    event_kind: CreditRegistrationEventKind::AdminAction,
+                    event_message: Some(reason.to_string()),
+                    actor_user_id: Some(actor_user_id),
+                    // `row` was read before this transaction started; refuse to overwrite if the
+                    // pipeline (or another admin) has since moved the row on.
+                    expected_from_state: Some(row.state),
+                    ..Transition::to(to_state)
+                },
+            )
+            .await?;
+            // Nothing else brings the row forward, so without this the resubmit sits out the backoff
+            // whatever failed last set.
+            if !after.state.is_terminal() {
+                credit_registrations::make_due_now(tx, id).await?;
+            }
+            (
+                AdminTransitionOutcome::Applied,
+                after.state,
+                after.needs_admin_attention,
+            )
+        }
+    })
 }
 
 /// Records an admin action against the row's timeline without moving its state, for the two
@@ -706,6 +955,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/registrations/{credit_registration_id}",
         web::get().to(get_credit_registration_for_admin),
+    )
+    .route(
+        "/registrations/bulk-transition",
+        web::post().to(admin_bulk_transition_credit_registrations),
+    )
+    .route(
+        "/registrations/requeue-retryable",
+        web::post().to(admin_requeue_retryable_credit_registrations),
     )
     .route(
         "/registrations/{credit_registration_id}/transition",

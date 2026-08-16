@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT c.name AS course_name,\n  EXTRACT('year' FROM cms.completion_date)::int as \"year!\",\n  CASE WHEN $1 = 'Month' THEN EXTRACT('month' FROM cms.completion_date)::int ELSE NULL END as \"month\",\n  COUNT(DISTINCT cmcrtsr.user_id) as \"value!\",\n  c.id as \"course_id!\",\n  o.id as \"organization_id\",\n  o.name as \"organization_name\"\nFROM course_module_completion_registered_to_study_registries cmcrtsr\nJOIN course_module_completions cms ON cmcrtsr.course_module_completion_id = cms.id\nJOIN courses c ON cmcrtsr.course_id = c.id\nJOIN organizations o ON c.organization_id = o.id\nWHERE cmcrtsr.deleted_at IS NULL\n  AND c.is_draft = FALSE\n  AND c.deleted_at IS NULL\n  AND c.is_test_mode = FALSE\nGROUP BY c.name, c.id, o.id, o.name, \"year!\", \"month\"\nORDER BY c.id, \"year!\", \"month\"\n",
+  "query": "\nWITH registered_completions AS (\n  SELECT course_module_completion_id,\n    user_id,\n    course_id\n  FROM course_module_completion_registered_to_study_registries\n  WHERE deleted_at IS NULL\n  UNION\n  SELECT course_module_completion_id,\n    user_id,\n    course_id\n  FROM credit_registrations\n  WHERE deleted_at IS NULL\n    AND state IN ('registered', 'duplicate', 'not_improved')\n)\nSELECT c.name AS course_name,\n  EXTRACT('year' FROM cms.completion_date)::int as \"year!\",\n  CASE WHEN $1 = 'Month' THEN EXTRACT('month' FROM cms.completion_date)::int ELSE NULL END as \"month\",\n  COUNT(DISTINCT rc.user_id) as \"value!\",\n  c.id as \"course_id!\",\n  o.id as \"organization_id\",\n  o.name as \"organization_name\"\nFROM registered_completions rc\nJOIN course_module_completions cms ON rc.course_module_completion_id = cms.id\nJOIN courses c ON rc.course_id = c.id\nJOIN organizations o ON c.organization_id = o.id\nWHERE c.is_draft = FALSE\n  AND c.deleted_at IS NULL\n  AND c.is_test_mode = FALSE\nGROUP BY c.name, c.id, o.id, o.name, \"year!\", \"month\"\nORDER BY c.id, \"year!\", \"month\"\n",
   "describe": {
     "columns": [
       {
@@ -81,5 +81,5 @@
       false
     ]
   },
-  "hash": "58d36ab8cfe6b7cec3a68dc2eb6a400bfa396856a83b6a8e349034efec598006"
+  "hash": "341ea5e21f1875c266851b12792d66b1afb5102135dab07071b287956f1a6143"
 }

@@ -216,8 +216,8 @@ WHERE actor_user_id = $1
 pub struct CreditRegistrationAdminActionFilters<'a> {
     pub actions: Option<&'a [CreditRegistrationAdminAction]>,
     pub actor_user_id: Option<Uuid>,
-    /// `global_admin` or `course_teacher`. The filter decision 19 exists for: an admin and a
-    /// teacher acting on the same course are otherwise indistinguishable.
+    /// `global_admin` or `course_teacher`. An admin and a teacher acting on the same course are
+    /// otherwise indistinguishable.
     pub actor_role: Option<&'a str>,
     pub target_kind: Option<CreditRegistrationAdminActionTarget>,
     pub target_id: Option<Uuid>,

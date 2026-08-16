@@ -125,8 +125,8 @@ pub const SUOTAR_AUTH_SCHEME: &str = "Basic";
 /// The only token the mock Suotar accepts. Public on purpose: never a real credential.
 pub const MOCK_SUOTAR_TOKEN: &str = "mock-suotar-token";
 
-/// Auto-links a student number when Sisu's address matches a verified account email. Off unless
-/// deliberately turned on, and the switch that turns it off again during an incident.
+/// Auto-links a student number when Sisu's address matches a verified account email. The same flag
+/// is the kill switch that stops it during an incident.
 const FAST_TRACK_EMAIL_MATCH_ENABLED_DEFAULT: bool = false;
 
 /// Days an `email_verified_at` may be old and still count as fast-track proof. Bounded because a

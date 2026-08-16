@@ -277,6 +277,39 @@ LIMIT $2
     Ok(res)
 }
 
+/// Everything a course's own action history should show: actions a teacher of the course took, and
+/// actions aimed at the course itself whoever took them.
+///
+/// Wider than [`get_by_actor_course`], which answers only "what have this course's teachers done".
+pub async fn get_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistrationAdminActionRecord>> {
+    let res = sqlx::query_as!(
+        CreditRegistrationAdminActionRecord,
+        r#"
+SELECT *
+FROM credit_registration_admin_actions
+WHERE (
+    actor_course_id = $1
+    OR (
+      target_kind = 'course'
+      AND target_id = $1
+    )
+  )
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT $2
+        "#,
+        course_id,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Actions authorised by a course's teacher permission, not actions targeting the course.
 pub async fn get_by_actor_course(
     conn: &mut PgConnection,

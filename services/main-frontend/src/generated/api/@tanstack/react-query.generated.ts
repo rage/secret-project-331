@@ -86,6 +86,7 @@ import {
   editCourseInstance,
   editExam,
   exchangeOauthToken,
+  exportCourseCreditRegistrations,
   exportCourseExerciseTasksCsv,
   exportCourseInstanceCompletionsCsv,
   exportCourseInstancePointsCsv,
@@ -127,6 +128,7 @@ import {
   getCourseCompletionsHistoryByInstance,
   getCourseCompletionsHistoryCustomTimePeriod,
   getCourseCompletionStatsForEmailDomain,
+  getCourseCreditRegistrationActions,
   getCourseCreditRegistrationModuleConfigs,
   getCourseCreditRegistrations,
   getCourseCreditRegistrationsForUsers,
@@ -318,6 +320,8 @@ import {
   resetExercisesForSelectedUsers,
   resetUserPassword,
   restorePageHistory,
+  retryCreditRegistration,
+  retryFailedCreditRegistrationsForCourse,
   revokeOauthToken,
   saveCourseDesignerSchedule,
   searchUserDetailsByEmail,
@@ -485,6 +489,8 @@ import type {
   EditCourseInstanceData,
   EditExamData,
   ExchangeOauthTokenData,
+  ExportCourseCreditRegistrationsData,
+  ExportCourseCreditRegistrationsResponse,
   ExportCourseExerciseTasksCsvData,
   ExportCourseExerciseTasksCsvResponse,
   ExportCourseInstanceCompletionsCsvData,
@@ -564,6 +570,8 @@ import type {
   GetCourseCompletionsHistoryResponse,
   GetCourseCompletionStatsForEmailDomainData,
   GetCourseCompletionStatsForEmailDomainResponse,
+  GetCourseCreditRegistrationActionsData,
+  GetCourseCreditRegistrationActionsResponse,
   GetCourseCreditRegistrationModuleConfigsData,
   GetCourseCreditRegistrationModuleConfigsResponse,
   GetCourseCreditRegistrationsData,
@@ -929,6 +937,10 @@ import type {
   ResetUserPasswordResponse,
   RestorePageHistoryData,
   RestorePageHistoryResponse,
+  RetryCreditRegistrationData,
+  RetryCreditRegistrationResponse,
+  RetryFailedCreditRegistrationsForCourseData,
+  RetryFailedCreditRegistrationsForCourseResponse,
   RevokeOauthTokenData,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponse,
@@ -1731,6 +1743,34 @@ export const deleteCodeGiveawayCodeMutation = (
   return mutationOptions
 }
 
+export const getCourseCreditRegistrationActionsQueryKey = (
+  options: Options<GetCourseCreditRegistrationActionsData>,
+) => createQueryKey("getCourseCreditRegistrationActions", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions` - The manual
+ * actions taken on this course's credit registrations, newest first.
+ */
+export const getCourseCreditRegistrationActionsOptions = (
+  options: Options<GetCourseCreditRegistrationActionsData>,
+) =>
+  queryOptions<
+    GetCourseCreditRegistrationActionsResponse,
+    DefaultError,
+    GetCourseCreditRegistrationActionsResponse,
+    ReturnType<typeof getCourseCreditRegistrationActionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCreditRegistrationActions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCreditRegistrationActionsQueryKey(options),
+  })
+
 /**
  *
  * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The
@@ -1757,6 +1797,34 @@ export const getCourseCreditRegistrationsForUsersMutation = (
   }
   return mutationOptions
 }
+
+export const exportCourseCreditRegistrationsQueryKey = (
+  options: Options<ExportCourseCreditRegistrationsData>,
+) => createQueryKey("exportCourseCreditRegistrations", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/export` - Every credit
+ * registration of the course as csv.
+ */
+export const exportCourseCreditRegistrationsOptions = (
+  options: Options<ExportCourseCreditRegistrationsData>,
+) =>
+  queryOptions<
+    ExportCourseCreditRegistrationsResponse,
+    DefaultError,
+    ExportCourseCreditRegistrationsResponse,
+    ReturnType<typeof exportCourseCreditRegistrationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await exportCourseCreditRegistrations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: exportCourseCreditRegistrationsQueryKey(options),
+  })
 
 export const getCourseCreditRegistrationsQueryKey = (
   options: Options<GetCourseCreditRegistrationsData>,
@@ -1932,6 +2000,36 @@ export const resendCourseCreditRegistrationLinkingEmailMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this
+ * course's failed registrations back on the pipeline.
+ *
+ * Refuses the same rows the single-row retry refuses, one by one, and reports how many of each it left
+ * alone rather than failing the whole call over them.
+ */
+export const retryFailedCreditRegistrationsForCourseMutation = (
+  options?: Partial<Options<RetryFailedCreditRegistrationsForCourseData>>,
+): UseMutationOptions<
+  RetryFailedCreditRegistrationsForCourseResponse,
+  DefaultError,
+  Options<RetryFailedCreditRegistrationsForCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RetryFailedCreditRegistrationsForCourseResponse,
+    DefaultError,
+    Options<RetryFailedCreditRegistrationsForCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await retryFailedCreditRegistrationsForCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getCourseCreditRegistrationSummaryQueryKey = (
   options: Options<GetCourseCreditRegistrationSummaryData>,
 ) => createQueryKey("getCourseCreditRegistrationSummary", options)
@@ -1990,6 +2088,36 @@ export const getCreditRegistrationDetailsOptions = (
       }),
     queryKey: getCreditRegistrationDetailsQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry`
+ * - Puts one failed registration back on the pipeline.
+ *
+ * Authorized on the row's own course, which is why no course id appears in the path: a teacher of one
+ * course must not be able to pair it with a foreign registration id.
+ */
+export const retryCreditRegistrationMutation = (
+  options?: Partial<Options<RetryCreditRegistrationData>>,
+): UseMutationOptions<
+  RetryCreditRegistrationResponse,
+  DefaultError,
+  Options<RetryCreditRegistrationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RetryCreditRegistrationResponse,
+    DefaultError,
+    Options<RetryCreditRegistrationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await retryCreditRegistration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getCourseInstanceQueryKey = (options: Options<GetCourseInstanceData>) =>
   createQueryKey("getCourseInstance", options)

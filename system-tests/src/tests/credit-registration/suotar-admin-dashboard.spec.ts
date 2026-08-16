@@ -324,9 +324,9 @@ test("A global-admin action recorded against a registration shows up on its deta
   })
 })
 
-test.fixme("A course-teacher's action, or one targeting something other than a registration, is visible somewhere", () => {
-  // Course-, Phase- and student-number-verification-targeted actions — this file's own resend
-  // override included — are written but have no reader anywhere: no route, no page.
+test.fixme("An action targeting a phase or a student number verification is visible somewhere", () => {
+  // Those two are written but have no reader anywhere: no route, no page. Course-targeted ones now
+  // have both, on the teacher's own per-course history.
 })
 
 test("A discovery run writes the per-realisation counters", async ({ page }) => {

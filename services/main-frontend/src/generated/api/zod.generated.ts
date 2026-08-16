@@ -1652,6 +1652,30 @@ export const zAdminTransitionCreditRegistrationResult = z.object({
 })
 
 /**
+ * One audited manual action on this course, named rather than keyed: a teacher reads this to find
+ * out whether a colleague has already acted.
+ */
+export const zCourseCreditRegistrationAction = z.object({
+  action: zCreditRegistrationAdminAction,
+  actor_first_name: z.string().nullish(),
+  actor_last_name: z.string().nullish(),
+  actor_role: z.string(),
+  actor_user_id: z.uuid(),
+  affected_row_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  after_state: zCreditRegistrationState.nullish(),
+  before_state: zCreditRegistrationState.nullish(),
+  created_at: z.iso.datetime(),
+  id: z.uuid(),
+  reason: z.string().nullish(),
+  target_id: z.uuid().nullish(),
+  target_kind: zCreditRegistrationAdminActionTarget,
+})
+
+/**
  * One event of the item timeline, without the stored request and response bodies: those are the
  * admin dashboard's, and the study registry's own wording is never rendered.
  */
@@ -3679,6 +3703,69 @@ export const zResetPasswordTokenPayload = z.object({
 })
 
 /**
+ * What a retry did to one row. Every refusal is its own value, because the answer a teacher needs
+ * ("wait for an admin" vs "the student withdrew consent") differs in each case.
+ */
+export const zRetryCreditRegistrationOutcome = z.enum([
+  "retried",
+  "refused_submission_uncertain",
+  "refused_consent_withdrawn",
+  "refused_without_consent",
+  "refused_not_failed",
+  "refused_superseded",
+])
+
+export const zRetryCreditRegistrationPayload = z.object({
+  reason: z.string().nullish(),
+})
+
+export const zRetryCreditRegistrationResult = z.object({
+  outcome: zRetryCreditRegistrationOutcome,
+  state: zCreditRegistrationState,
+})
+
+export const zRetryCreditRegistrationSkip = z.object({
+  count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  outcome: zRetryCreditRegistrationOutcome,
+})
+
+export const zRetryFailedCreditRegistrationsResult = z.object({
+  considered_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  max_rows_per_call: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  more_rows_remaining: z.boolean(),
+  retried_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  skipped: z.array(zRetryCreditRegistrationSkip),
+})
+
+/**
  *
  * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
  */
@@ -5146,6 +5233,15 @@ export const zDeleteCodeGiveawayCodePath = z.object({
   code_id: z.uuid(),
 })
 
+export const zGetCourseCreditRegistrationActionsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The course's manual actions
+ */
+export const zGetCourseCreditRegistrationActionsResponse = z.array(zCourseCreditRegistrationAction)
+
 export const zGetCourseCreditRegistrationsForUsersBody = zCourseCreditRegistrationUserIdsPayload
 
 export const zGetCourseCreditRegistrationsForUsersPath = z.object({
@@ -5156,6 +5252,15 @@ export const zGetCourseCreditRegistrationsForUsersPath = z.object({
  * The named students' registrations
  */
 export const zGetCourseCreditRegistrationsForUsersResponse = z.array(zCourseCreditRegistration)
+
+export const zExportCourseCreditRegistrationsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The course's credit registrations
+ */
+export const zExportCourseCreditRegistrationsResponse = z.string()
 
 export const zGetCourseCreditRegistrationsPath = z.object({
   course_id: z.uuid(),
@@ -5203,6 +5308,18 @@ export const zResendCourseCreditRegistrationLinkingEmailPath = z.object({
  */
 export const zResendCourseCreditRegistrationLinkingEmailResponse = zResendLinkingEmailResult
 
+export const zRetryFailedCreditRegistrationsForCourseBody = zRetryCreditRegistrationPayload
+
+export const zRetryFailedCreditRegistrationsForCoursePath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * How many were retried and why the rest were not
+ */
+export const zRetryFailedCreditRegistrationsForCourseResponse =
+  zRetryFailedCreditRegistrationsResult
+
 export const zGetCourseCreditRegistrationSummaryPath = z.object({
   course_id: z.uuid(),
 })
@@ -5220,6 +5337,17 @@ export const zGetCreditRegistrationDetailsPath = z.object({
  * The registration with its timeline
  */
 export const zGetCreditRegistrationDetailsResponse = zCreditRegistrationDetails
+
+export const zRetryCreditRegistrationBody = zRetryCreditRegistrationPayload
+
+export const zRetryCreditRegistrationPath = z.object({
+  credit_registration_id: z.uuid(),
+})
+
+/**
+ * What the retry did
+ */
+export const zRetryCreditRegistrationResponse = zRetryCreditRegistrationResult
 
 export const zGetCourseInstancePath = z.object({
   course_instance_id: z.uuid(),

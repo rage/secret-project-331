@@ -1090,6 +1090,37 @@ WHERE id = $1
     Ok(())
 }
 
+/// The course's live rows a bulk retry has to look at: the ones that failed for good, and the ones
+/// whose submission outcome is unknown.
+///
+/// `submission_uncertain` is included so the caller can report how many rows it may not touch;
+/// re-importing one could put a second attainment on a real transcript, so only an admin transition
+/// may move it. Oldest first, capped by `limit`.
+pub async fn get_failed_or_uncertain_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistration>> {
+    let res = sqlx::query_as!(
+        CreditRegistration,
+        r#"
+SELECT *
+FROM credit_registrations
+WHERE course_id = $1
+  AND state IN ('failed_permanent', 'submission_uncertain')
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+ORDER BY state_entered_at
+LIMIT $2
+        "#,
+        course_id,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Live rows per state, for the dashboard funnel. Superseded attempts are excluded, as in the
 /// per-course sibling, or a course that regrades counts every student twice.
 pub async fn count_by_state(

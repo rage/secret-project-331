@@ -3,7 +3,14 @@ Handlers for HTTP requests to `/api/v0/main-frontend/course-credit-registrations
 
 Teachers see the unmasked student number, but recipient addresses are masked to their domain, the
 study registry's own error text is never returned, and nothing here can override a rate cap.
+
+Every mutating handler writes exactly one `credit_registration_admin_actions` row with
+`actor_role = 'course_teacher'`, in the transaction that has the effect.
 */
+
+mod actions;
+mod export;
+mod retry;
 
 use headless_lms_models::course_module_suotar_realisations::CourseModuleSuotarRealisation;
 use headless_lms_models::course_modules::CourseModuleCreditRegistrationConfig;
@@ -61,7 +68,11 @@ const MAX_REGISTRATION_ROWS_PER_USER: i64 = 50;
     get_course_credit_registrations_for_users,
     get_course_credit_registrations,
     get_credit_registration_details,
-    resend_course_credit_registration_linking_email
+    resend_course_credit_registration_linking_email,
+    retry::retry_credit_registration,
+    retry::retry_failed_credit_registrations_for_course,
+    actions::get_course_credit_registration_actions,
+    export::export_course_credit_registrations
 ))]
 pub(crate) struct MainFrontendCourseCreditRegistrationsApiDoc;
 
@@ -894,7 +905,10 @@ async fn linking_email_statuses(
 
 /// Enriches the ledger rows with the linking-mail status. A row only gets one when the account holds —
 /// or once held — a link, because the mail is addressed to a Sisu person.
-async fn build_teacher_registrations(
+///
+/// Shared with the csv export so the file and the table cannot disagree about a row's status or
+/// about how much of an address is shown.
+pub(crate) async fn build_teacher_registrations(
     conn: &mut PgConnection,
     course_id: Uuid,
     rows: Vec<TeacherCreditRegistration>,
@@ -991,4 +1005,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/registrations/{credit_registration_id}",
         web::get().to(get_credit_registration_details),
     );
+    retry::_add_routes(cfg);
+    actions::_add_routes(cfg);
+    export::_add_routes(cfg);
 }

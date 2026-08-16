@@ -1088,6 +1088,30 @@ export type CourseCreditRegistration = {
 }
 
 /**
+ * One audited manual action on this course, named rather than keyed: a teacher reads this to find
+ * out whether a colleague has already acted.
+ */
+export type CourseCreditRegistrationAction = {
+  action: CreditRegistrationAdminAction
+  actor_first_name?: string | null
+  actor_last_name?: string | null
+  /**
+   * `global_admin` or `course_teacher`; support acting on the course looks different from a
+   * colleague acting on it.
+   */
+  actor_role: string
+  actor_user_id: string
+  affected_row_count?: number | null
+  after_state?: null | CreditRegistrationState
+  before_state?: null | CreditRegistrationState
+  created_at: string
+  id: string
+  reason?: string | null
+  target_id?: string | null
+  target_kind: CreditRegistrationAdminActionTarget
+}
+
+/**
  * Why the course's enrolled students are not going to get credits. Neither count includes a student
  * who has both consented and linked a number.
  */
@@ -3441,6 +3465,49 @@ export type ResetPasswordTokenPayload = {
 }
 
 /**
+ * What a retry did to one row. Every refusal is its own value, because the answer a teacher needs
+ * ("wait for an admin" vs "the student withdrew consent") differs in each case.
+ */
+export type RetryCreditRegistrationOutcome =
+  | "retried"
+  | "refused_submission_uncertain"
+  | "refused_consent_withdrawn"
+  | "refused_without_consent"
+  | "refused_not_failed"
+  | "refused_superseded"
+
+export type RetryCreditRegistrationPayload = {
+  reason?: string | null
+}
+
+export type RetryCreditRegistrationResult = {
+  outcome: RetryCreditRegistrationOutcome
+  /**
+   * Where the row stands after the attempt, whatever the outcome.
+   */
+  state: CreditRegistrationState
+}
+
+export type RetryCreditRegistrationSkip = {
+  count: number
+  outcome: RetryCreditRegistrationOutcome
+}
+
+export type RetryFailedCreditRegistrationsResult = {
+  considered_count: number
+  max_rows_per_call: number
+  /**
+   * The cap stopped short of the course's failures; running it again takes the next batch.
+   */
+  more_rows_remaining: boolean
+  retried_count: number
+  /**
+   * Why the rest were left alone, so a teacher can see the admin-only pile rather than wonder.
+   */
+  skipped: Array<RetryCreditRegistrationSkip>
+}
+
+/**
  *
  * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
  */
@@ -4513,6 +4580,28 @@ export type DeleteCodeGiveawayCodeResponses = {
   200: unknown
 }
 
+export type GetCourseCreditRegistrationActionsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions"
+}
+
+export type GetCourseCreditRegistrationActionsResponses = {
+  /**
+   * The course's manual actions
+   */
+  200: Array<CourseCreditRegistrationAction>
+}
+
+export type GetCourseCreditRegistrationActionsResponse =
+  GetCourseCreditRegistrationActionsResponses[keyof GetCourseCreditRegistrationActionsResponses]
+
 export type GetCourseCreditRegistrationsForUsersData = {
   body: CourseCreditRegistrationUserIdsPayload
   path: {
@@ -4534,6 +4623,28 @@ export type GetCourseCreditRegistrationsForUsersResponses = {
 
 export type GetCourseCreditRegistrationsForUsersResponse =
   GetCourseCreditRegistrationsForUsersResponses[keyof GetCourseCreditRegistrationsForUsersResponses]
+
+export type ExportCourseCreditRegistrationsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/export"
+}
+
+export type ExportCourseCreditRegistrationsResponses = {
+  /**
+   * The course's credit registrations
+   */
+  200: string
+}
+
+export type ExportCourseCreditRegistrationsResponse =
+  ExportCourseCreditRegistrationsResponses[keyof ExportCourseCreditRegistrationsResponses]
 
 export type GetCourseCreditRegistrationsData = {
   body?: never
@@ -4629,6 +4740,28 @@ export type ResendCourseCreditRegistrationLinkingEmailResponses = {
 export type ResendCourseCreditRegistrationLinkingEmailResponse =
   ResendCourseCreditRegistrationLinkingEmailResponses[keyof ResendCourseCreditRegistrationLinkingEmailResponses]
 
+export type RetryFailedCreditRegistrationsForCourseData = {
+  body: RetryCreditRegistrationPayload
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed"
+}
+
+export type RetryFailedCreditRegistrationsForCourseResponses = {
+  /**
+   * How many were retried and why the rest were not
+   */
+  200: RetryFailedCreditRegistrationsResult
+}
+
+export type RetryFailedCreditRegistrationsForCourseResponse =
+  RetryFailedCreditRegistrationsForCourseResponses[keyof RetryFailedCreditRegistrationsForCourseResponses]
+
 export type GetCourseCreditRegistrationSummaryData = {
   body?: never
   path: {
@@ -4679,6 +4812,35 @@ export type GetCreditRegistrationDetailsResponses = {
 
 export type GetCreditRegistrationDetailsResponse =
   GetCreditRegistrationDetailsResponses[keyof GetCreditRegistrationDetailsResponses]
+
+export type RetryCreditRegistrationData = {
+  body: RetryCreditRegistrationPayload
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry"
+}
+
+export type RetryCreditRegistrationErrors = {
+  /**
+   * No such registration
+   */
+  404: unknown
+}
+
+export type RetryCreditRegistrationResponses = {
+  /**
+   * What the retry did
+   */
+  200: RetryCreditRegistrationResult
+}
+
+export type RetryCreditRegistrationResponse =
+  RetryCreditRegistrationResponses[keyof RetryCreditRegistrationResponses]
 
 export type GetCourseInstanceData = {
   body?: never

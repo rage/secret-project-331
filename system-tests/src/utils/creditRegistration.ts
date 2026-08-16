@@ -18,7 +18,7 @@
  * | `9000005xx`     | suotar-verify-outcomes           | via-suotar                  |
  * | `9000006xx`     | suotar-sisu-outage               | not written yet             |
  * | `9000007xx`     | suotar-consent                   | via-suotar                  |
- * | `9000008xx`     | suotar-teacher-views             | none (states course, paused)|
+ * | `9000008xx`     | suotar-teacher-views             | retry (paused), states (read)|
  * | `9000009xx`     | suotar-admin-dashboard           | admin                       |
  * | `9000010xx`     | suotar-old-flow-coexistence      | old-flow                    |
  * | `9000011xx`     | suotar-backfill-and-late-consent | backfill                    |
@@ -52,6 +52,7 @@ export const GRADE_IMPROVEMENT_COURSE_SLUG = "credit-registration-grade-improvem
 export const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
 export const BACKFILL_COURSE_ID = "c5ed17ea-0003-4a5e-9e6e-c0de00000003"
 export const STATES_COURSE_ID = "c5ed17ea-0007-4a5e-9e6e-c0de00000007"
+export const RETRY_COURSE_ID = "c5ed17ea-0009-4a5e-9e6e-c0de00000009"
 export const OLD_FLOW_COURSE_ID = "c5ed17ea-0002-4a5e-9e6e-c0de00000002"
 
 /** University course codes: what the mock Suotar keys its world on. */

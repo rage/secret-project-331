@@ -5,13 +5,20 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getCourseCreditRegistrationSummaryOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCourseCreditRegistrationModuleConfigsOptions,
+  getCourseCreditRegistrationSummaryOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistrationModuleSummary } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Badge, Meter, QueryResult, StatTile } from "@/shared-module/components"
 
 import BlockedStudentsDialog from "./BlockedStudentsDialog"
 import { TONE } from "./constants"
+import CourseCreditRegistrationActionsPanel from "./CourseCreditRegistrationActionsPanel"
+import CreditRegistrationConfigCallout from "./CreditRegistrationConfigCallout"
+import CreditRegistrationExportLink from "./CreditRegistrationExportLink"
+import RetryFailedCreditRegistrationsBlock from "./RetryFailedCreditRegistrationsBlock"
 import { tilesCss } from "./styles"
 
 interface Props {
@@ -48,6 +55,13 @@ const moduleHeaderCss = css`
 // oxlint-disable-next-line i18next/no-literal-string
 const WAITING_FOR_STUDENT_NUMBER = "pending_student_number" as const
 
+const actionsRowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+`
+
 const tileButtonCss = css`
   background: none;
   border: none;
@@ -64,6 +78,9 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
   const [showBlocked, setShowBlocked] = useState(false)
   const summaryQuery = useQuery(
     getCourseCreditRegistrationSummaryOptions({ path: { course_id: courseId } }),
+  )
+  const configsQuery = useQuery(
+    getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: courseId } }),
   )
 
   return (
@@ -87,6 +104,12 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
                         <Badge tone={TONE.WARNING}>{t("credit-registration-module-paused")}</Badge>
                       )}
                     </div>
+                    <CreditRegistrationConfigCallout
+                      config={configsQuery.data?.modules.find(
+                        (config) => config.course_module_id === module.course_module_id,
+                      )}
+                      fixHref={`/manage/courses/${courseId}/pages`}
+                    />
                     <Meter
                       value={module.success_count}
                       maxValue={Math.max(total, 1)}
@@ -138,6 +161,11 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
                 })}
               />
             </div>
+            <div className={actionsRowCss}>
+              <RetryFailedCreditRegistrationsBlock courseId={courseId} />
+              <CreditRegistrationExportLink courseId={courseId} />
+            </div>
+            <CourseCreditRegistrationActionsPanel courseId={courseId} />
             {showBlocked && (
               <BlockedStudentsDialog
                 courseId={courseId}

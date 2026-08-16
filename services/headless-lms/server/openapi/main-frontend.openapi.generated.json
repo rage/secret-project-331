@@ -933,6 +933,40 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions": {
+      "get": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions` - The manual\nactions taken on this course's credit registrations, newest first.",
+        "operationId": "getCourseCreditRegistrationActions",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The course's manual actions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseCreditRegistrationAction"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids": {
       "post": {
         "tags": ["course-credit-registrations"],
@@ -970,6 +1004,37 @@
                   "items": {
                     "$ref": "#/components/schemas/CourseCreditRegistration"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/export": {
+      "get": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/export` - Every credit\nregistration of the course as csv.",
+        "operationId": "exportCourseCreditRegistrations",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The course's credit registrations",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1133,6 +1198,47 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed": {
+      "post": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this\ncourse's failed registrations back on the pipeline.\n\nRefuses the same rows the single-row retry refuses, one by one, and reports how many of each it left\nalone rather than failing the whole call over them.",
+        "operationId": "retryFailedCreditRegistrationsForCourse",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetryCreditRegistrationPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "How many were retried and why the rest were not",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetryFailedCreditRegistrationsResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary": {
       "get": {
         "tags": ["course-credit-registrations"],
@@ -1188,6 +1294,50 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CreditRegistrationDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such registration"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry": {
+      "post": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry`\n- Puts one failed registration back on the pipeline.\n\nAuthorized on the row's own course, which is why no course id appears in the path: a teacher of one\ncourse must not be able to pair it with a foreign registration id.",
+        "operationId": "retryCreditRegistration",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetryCreditRegistrationPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the retry did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetryCreditRegistrationResult"
                 }
               }
             }
@@ -15807,6 +15957,72 @@
           }
         }
       },
+      "CourseCreditRegistrationAction": {
+        "type": "object",
+        "description": "One audited manual action on this course, named rather than keyed: a teacher reads this to find\nout whether a colleague has already acted.",
+        "required": ["id", "created_at", "action", "target_kind", "actor_user_id", "actor_role"],
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/CreditRegistrationAdminAction"
+          },
+          "actor_first_name": {
+            "type": ["string", "null"]
+          },
+          "actor_last_name": {
+            "type": ["string", "null"]
+          },
+          "actor_role": {
+            "type": "string",
+            "description": "`global_admin` or `course_teacher`; support acting on the course looks different from a\ncolleague acting on it."
+          },
+          "actor_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "affected_row_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "after_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationState"
+              }
+            ]
+          },
+          "before_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationState"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": ["string", "null"]
+          },
+          "target_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "target_kind": {
+            "$ref": "#/components/schemas/CreditRegistrationAdminActionTarget"
+          }
+        }
+      },
       "CourseCreditRegistrationBlockedStudentCounts": {
         "type": "object",
         "description": "Why the course's enrolled students are not going to get credits. Neither count includes a student\nwho has both consented and linked a number.",
@@ -22488,6 +22704,87 @@
         "properties": {
           "token": {
             "type": "string"
+          }
+        }
+      },
+      "RetryCreditRegistrationOutcome": {
+        "type": "string",
+        "description": "What a retry did to one row. Every refusal is its own value, because the answer a teacher needs\n(\"wait for an admin\" vs \"the student withdrew consent\") differs in each case.",
+        "enum": [
+          "retried",
+          "refused_submission_uncertain",
+          "refused_consent_withdrawn",
+          "refused_without_consent",
+          "refused_not_failed",
+          "refused_superseded"
+        ]
+      },
+      "RetryCreditRegistrationPayload": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "RetryCreditRegistrationResult": {
+        "type": "object",
+        "required": ["outcome", "state"],
+        "properties": {
+          "outcome": {
+            "$ref": "#/components/schemas/RetryCreditRegistrationOutcome"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CreditRegistrationState",
+            "description": "Where the row stands after the attempt, whatever the outcome."
+          }
+        }
+      },
+      "RetryCreditRegistrationSkip": {
+        "type": "object",
+        "required": ["outcome", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/RetryCreditRegistrationOutcome"
+          }
+        }
+      },
+      "RetryFailedCreditRegistrationsResult": {
+        "type": "object",
+        "required": [
+          "retried_count",
+          "skipped",
+          "considered_count",
+          "max_rows_per_call",
+          "more_rows_remaining"
+        ],
+        "properties": {
+          "considered_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "max_rows_per_call": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "more_rows_remaining": {
+            "type": "boolean",
+            "description": "The cap stopped short of the course's failures; running it again takes the next batch."
+          },
+          "retried_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "skipped": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RetryCreditRegistrationSkip"
+            },
+            "description": "Why the rest were left alone, so a teacher can see the admin-only pile rather than wonder."
           }
         }
       },

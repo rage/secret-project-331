@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import BottomPanel from "@/components/BottomPanel"
+import CreditRegistrationConfigCallout from "@/components/credit-registration/CreditRegistrationConfigCallout"
 import {
   getCourseCreditRegistrationModuleConfigsOptions,
   getCourseStructureOptions,
@@ -591,6 +592,11 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                   `}
                   key={module.id}
                 >
+                  <CreditRegistrationConfigCallout
+                    config={creditRegistrationConfigs?.modules.find(
+                      (config) => config.course_module_id === module.id,
+                    )}
+                  />
                   <EditCourseModuleForm
                     module={module}
                     chapters={data.chapterNumbers}

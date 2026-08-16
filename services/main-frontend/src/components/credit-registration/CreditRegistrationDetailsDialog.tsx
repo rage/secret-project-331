@@ -18,6 +18,7 @@ import {
   registrationGradeLabel,
   registrationStatusLabel,
 } from "./creditRegistrationCopy"
+import RetryCreditRegistrationBlock from "./RetryCreditRegistrationBlock"
 import {
   isAdminEstablishedLink,
   linkingEmailSentence,
@@ -174,6 +175,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
       {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
         <ResendLinkingEmailBlock registration={registration} />
       )}
+      <RetryCreditRegistrationBlock registration={registration} />
       <QueryResult query={detailsQuery}>
         {(details) => (
           <>

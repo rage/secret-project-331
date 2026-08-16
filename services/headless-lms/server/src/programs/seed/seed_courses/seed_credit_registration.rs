@@ -91,6 +91,8 @@ pub const ADMIN_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0006_4a5e_9e6e_c0de
 /// One frozen ledger row per registration state and per error code, on a paused module. Read by
 /// `suotar-teacher-views.spec.ts` and the admin explorer, written by neither.
 pub const STATES_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0007_4a5e_9e6e_c0de00000007);
+/// Owned by `suotar-teacher-views.spec.ts`'s retry half, and swept by its bulk retry.
+pub const RETRY_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0009_4a5e_9e6e_c0de00000009);
 
 /// A study registry registrar whose key a spec can present, so the legacy pull stream is readable
 /// from a test. Every other registrar's key is random by design.
@@ -141,6 +143,7 @@ pub const CRS_OLD_102: &str = "CRS-OLD-102";
 pub const CRS_BACKFILL_101: &str = "CRS-BACKFILL-101";
 pub const CRS_ADMIN_101: &str = "CRS-ADMIN-101";
 pub const CRS_STATES_101: &str = "CRS-STATES-101";
+pub const CRS_RETRY_101: &str = "CRS-RETRY-101";
 
 pub const CRS_GRADED_101: &str = "CRS-GRADED-101";
 /// One module per import failure, each breaking exactly one thing.
@@ -162,6 +165,7 @@ pub const IMPORT_OUTCOMES_COURSE_SLUG: &str = "credit-registration-import-outcom
 pub const GRADE_IMPROVEMENT_COURSE_SLUG: &str = "credit-registration-grade-improvement";
 pub const ADMIN_COURSE_SLUG: &str = "credit-registration-admin";
 pub const STATES_COURSE_SLUG: &str = "credit-registration-states";
+pub const RETRY_COURSE_SLUG: &str = "credit-registration-retry";
 
 /// A seeded student and the Sisu person the mock must answer with for them. The database rows and
 /// the pushed persons must carry the same identifiers, so both are built from here.
@@ -543,6 +547,7 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     seed_grade_improvement_course(&mut conn, org, teacher_user_id).await?;
     seed_admin_course(&mut conn, org, teacher_user_id).await?;
     seed_states_course(&mut conn, org, teacher_user_id).await?;
+    seed_retry_course(&mut conn, org, teacher_user_id).await?;
 
     info!("inserting credit registration students");
 
@@ -1205,6 +1210,68 @@ async fn seed_states_course(
             &format!("Error{:02}", index + 1),
             CreditRegistrationState::FailedPermanent,
             Some(*error_code),
+        )
+        .await?;
+    }
+    Ok(())
+}
+
+/// Rows a teacher may put back on the queue and rows they may not.
+///
+/// Its own course rather than more rows on the states course, because a bulk retry sweeps a whole
+/// course and would leave the states fixture with no `failed_permanent` row and no error codes.
+/// Paused for the same reason the states course is: a retried row has to hold still in
+/// `ready_to_submit` long enough for the spec to read it.
+async fn seed_retry_course(
+    conn: &mut PgConnection,
+    org: Uuid,
+    teacher_user_id: Uuid,
+) -> Result<()> {
+    let cx = SeedContext {
+        teacher: teacher_user_id,
+        org,
+        base_course_ns: RETRY_COURSE_ID,
+    };
+    let (course, instance, _) = CourseBuilder::new("Credit registration retry", RETRY_COURSE_SLUG)
+        .desc("Fixture course holding the registrations a teacher retries, and the ones they cannot.")
+        .course_id(RETRY_COURSE_ID)
+        .role(teacher_user_id, UserRole::Teacher)
+        .instance(instance_config(cx.v5(b"instance:retry")))
+        .module(
+            ModuleBuilder::new()
+                .order(0)
+                .ects(5.0)
+                .uh_course_code(CRS_RETRY_101.to_string())
+                .credit_registration(CreditRegistrationSeed {
+                    paused_reason: Some(
+                        "Seeded fixture: the retry specs read these rows and the workers must not move them."
+                            .to_string(),
+                    ),
+                    ..credit_registration_config(CRS_RETRY_101, false)
+                }),
+        )
+        .seed(conn, &cx)
+        .await?;
+
+    for (person, last_name, state) in [
+        (80, "Retry01", CreditRegistrationState::FailedPermanent),
+        (81, "Retry02", CreditRegistrationState::FailedPermanent),
+        (82, "Retry03", CreditRegistrationState::SubmissionUncertain),
+        (
+            83,
+            "Retry04",
+            CreditRegistrationState::AbandonedByConsentWithdrawal,
+        ),
+    ] {
+        seed_frozen_registration(
+            conn,
+            &cx,
+            course.id,
+            instance.id,
+            person,
+            last_name,
+            state,
+            None,
         )
         .await?;
     }
@@ -1953,6 +2020,7 @@ pub fn mock_suotar_world() -> WorldPush {
         }
         .build(&wide),
         CourseUnitShape::new(CRS_STATES_101, STATES_COURSE_SLUG, 5.0).build(&wide),
+        CourseUnitShape::new(CRS_RETRY_101, RETRY_COURSE_SLUG, 5.0).build(&wide),
         // Every other module is pass/fail, so grade improvement needs a graded one.
         CourseUnitShape {
             grade_scale_id: "sis-0-5",

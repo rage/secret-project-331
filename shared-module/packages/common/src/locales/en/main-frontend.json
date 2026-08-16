@@ -942,6 +942,7 @@
   "credit-registration-retry-refused-without-consent": "The student has not consented to credit registration on this course.",
   "credit-registration-retry-retried": "The registration is back in the queue and will be submitted again.",
   "credit-registration-see-all-my-registrations": "All my credit registrations",
+  "credit-registration-see-registration-status": "See the registration status",
   "credit-registration-stage-consent": "Permission",
   "credit-registration-stage-enrolment": "Enrolment",
   "credit-registration-stage-registered": "Registered in Sisu",

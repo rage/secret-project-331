@@ -14,7 +14,7 @@ use headless_lms_models::{
     credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent},
     credit_registrations::{
         CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope,
-        StudentCreditRegistration,
+        StudentCreditRegistration, StudentRegistrationFilter,
     },
     email_deliveries::{EmailSendStatus, EmailSendStatusReport},
     library::credit_registration::StudentFacingCreditRegistrationStatus,
@@ -45,7 +45,9 @@ const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
 #[openapi(paths(
     get_my_credit_registrations,
     get_my_credit_registration_for_course_module,
+    get_my_credit_registration_enrolment_banners,
     request_credit_registration_enrolment_recheck,
+    dismiss_credit_registration_enrolment_banner,
     get_my_verified_student_number,
     dismiss_my_auto_link_notice,
     unlink_my_student_number,
@@ -305,7 +307,9 @@ pub async fn get_my_credit_registrations(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let res = build_my_credit_registrations(&mut conn, user.id, None).await?;
+    let res =
+        build_my_credit_registrations(&mut conn, user.id, StudentRegistrationFilter::default())
+            .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -334,8 +338,15 @@ pub async fn get_my_credit_registration_for_course_module(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let mut all =
-        build_my_credit_registrations(&mut conn, user.id, Some(*course_module_id)).await?;
+    let mut all = build_my_credit_registrations(
+        &mut conn,
+        user.id,
+        StudentRegistrationFilter {
+            course_module_id: Some(*course_module_id),
+            ..StudentRegistrationFilter::default()
+        },
+    )
+    .await?;
     let live_position = all.iter().position(|row| !row.superseded);
     let res = live_position.map(|position| {
         let registration = all.remove(position);
@@ -346,6 +357,85 @@ pub async fn get_my_credit_registration_for_course_module(
     });
 
     token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}` - The
+caller's registrations on one course that owe them the in-course re-enrol banner.
+
+Scoped to the course rather than filtered from `/my` on the client, because every course-material page
+view calls this. Empty is the normal answer.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/my/enrolment-banners/by-course/{course_id}",
+    operation_id = "getMyCreditRegistrationEnrolmentBanners",
+    tag = "credit-registrations",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses(
+        (status = 200, description = "The caller's undismissed enrolment banners on the course", body = Vec<MyCreditRegistration>)
+    )
+)]
+pub async fn get_my_credit_registration_enrolment_banners(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<MyCreditRegistration>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let res = build_my_credit_registrations(
+        &mut conn,
+        user.id,
+        StudentRegistrationFilter {
+            course_id: Some(*course_id),
+            enrolment_banner_due: true,
+            ..StudentRegistrationFilter::default()
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
+in-course re-enrol banner for one registration.
+
+Idempotent. Not a permanent opt-out: a later entry into the same state clears the dismissal.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my/{id}/dismiss-enrolment-banner",
+    operation_id = "dismissCreditRegistrationEnrolmentBanner",
+    tag = "credit-registrations",
+    params(("id" = Uuid, Path, description = "Credit registration id")),
+    responses(
+        (status = 200, description = "The banner is dismissed"),
+        (status = 403, description = "Not the caller's registration")
+    )
+)]
+pub async fn dismiss_credit_registration_enrolment_banner(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let registration = models::credit_registrations::get_by_id(&mut conn, *id).await?;
+    if registration.user_id != user.id {
+        return Err(controller_err!(
+            Forbidden,
+            "Not your registration.".to_string()
+        ));
+    }
+    models::credit_registrations::dismiss_enrolment_banner(&mut conn, registration.id, user.id)
+        .await?;
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -815,9 +905,12 @@ pub async fn get_my_credit_registration_consents(
     .await?;
     let courses = models::courses::get_by_ids(&mut conn, &course_ids).await?;
     let consents = course_credit_registration_consents::get_by_user_id(&mut conn, user.id).await?;
-    let registrations =
-        models::credit_registrations::get_student_facing_by_user_id(&mut conn, user.id, None)
-            .await?;
+    let registrations = models::credit_registrations::get_student_facing_by_user_id(
+        &mut conn,
+        user.id,
+        StudentRegistrationFilter::default(),
+    )
+    .await?;
 
     let mut res: Vec<MyCreditRegistrationConsent> = courses
         .into_iter()
@@ -851,14 +944,10 @@ pub async fn get_my_credit_registration_consents(
 async fn build_my_credit_registrations(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Option<Uuid>,
+    filter: StudentRegistrationFilter,
 ) -> Result<Vec<MyCreditRegistration>, ControllerError> {
-    let rows = models::credit_registrations::get_student_facing_by_user_id(
-        conn,
-        user_id,
-        course_module_id,
-    )
-    .await?;
+    let rows =
+        models::credit_registrations::get_student_facing_by_user_id(conn, user_id, filter).await?;
 
     let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
     let notification_mails = student_notifications::get_for_registrations(conn, &ids).await?;
@@ -1175,6 +1264,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/my/by-course-module/{course_module_id}",
             web::get().to(get_my_credit_registration_for_course_module),
         )
+        .route(
+            "/my/enrolment-banners/by-course/{course_id}",
+            web::get().to(get_my_credit_registration_enrolment_banners),
+        )
         // `.route(web::post())`, never `.to()`: a resource's default route answers every method, so
         // these mutations would run on a GET a link can trigger with the visitor's session cookie.
         .service(
@@ -1185,6 +1278,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                     ..Default::default()
                 }))
                 .route(web::post().to(request_credit_registration_enrolment_recheck)),
+        )
+        .service(
+            web::resource("/my/{id}/dismiss-enrolment-banner")
+                .route(web::post().to(dismiss_credit_registration_enrolment_banner)),
         )
         .route(
             "/student-number-verifications/{token}",

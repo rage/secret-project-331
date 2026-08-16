@@ -854,6 +854,7 @@
   "credit-registration-retry-refused-without-consent": "Opiskelija ei ole antanut suostumustaan suoritusten rekisteröintiin tällä kurssilla.",
   "credit-registration-retry-retried": "Rekisteröinti on takaisin jonossa ja lähetetään uudelleen.",
   "credit-registration-see-all-my-registrations": "Kaikki opintopisteiden kirjaukset",
+  "credit-registration-see-registration-status": "Katso kirjauksen tila",
   "credit-registration-stage-consent": "Lupa",
   "credit-registration-stage-enrolment": "Ilmoittautuminen",
   "credit-registration-stage-registered": "Kirjattu Sisuun",

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -14,16 +14,12 @@ import {
   registrationStatusState,
   registrationStepperSteps,
 } from "@/components/credit-registration/creditRegistrationCopy"
+import { useRequestEnrolmentRecheck } from "@/components/credit-registration/enrolmentActions"
 import LinkingEmailLine from "@/components/credit-registration/LinkingEmailLine"
 import NotificationEmailLine from "@/components/credit-registration/NotificationEmailLine"
-import {
-  getMyCreditRegistrationForCourseModuleOptions,
-  getMyCreditRegistrationForCourseModuleQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
-import { requestCreditRegistrationEnrolmentRecheck } from "@/generated/api/sdk.generated"
+import { getMyCreditRegistrationForCourseModuleOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import { useSetCreditRegistrationConsent } from "@/hooks/course-material/useCourseCreditRegistrationConsent"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import {
   userSettingsStudentNumberRoute,
   profileCreditRegistrationRoute,
@@ -135,7 +131,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
         {(data) =>
           data ? (
             <>
-              <LiveRegistration registration={data.registration} courseModuleId={courseModuleId} />
+              <LiveRegistration registration={data.registration} />
               {data.earlier_attempts.length > 0 ? (
                 <div className={attemptsCss}>
                   <h3>{t("heading-earlier-attempts")}</h3>
@@ -157,33 +153,14 @@ const NotInThePipelineYet: React.FC = () => {
   return <Infobox>{t("credit-registration-not-in-the-pipeline-yet")}</Infobox>
 }
 
-const LiveRegistration: React.FC<{
-  registration: MyCreditRegistration
-  courseModuleId: string
-}> = ({ registration, courseModuleId }) => {
+const LiveRegistration: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
   const { t, i18n } = useTranslation()
-  const queryClient = useQueryClient()
   const status = registration.student_facing_status
   const state = registrationStatusState(status)
   const errorHelp = registrationErrorHelp(t, registration.error_code)
 
-  const invalidate = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: getMyCreditRegistrationForCourseModuleQueryKey({
-        path: { course_module_id: courseModuleId },
-      }),
-    })
-  }
-
   const giveConsent = useSetCreditRegistrationConsent()
-
-  const recheckEnrolment = useToastMutation<void, unknown, void>(
-    async () => {
-      await requestCreditRegistrationEnrolmentRecheck({ path: { id: registration.id } })
-    },
-    { notify: true, method: "POST" },
-    { onSuccess: invalidate },
-  )
+  const recheckEnrolment = useRequestEnrolmentRecheck()
 
   const details = [
     ...(registration.registered_at
@@ -270,7 +247,7 @@ const LiveRegistration: React.FC<{
               size="medium"
               disabled={!registration.can_request_enrolment_recheck}
               isLoading={recheckEnrolment.isPending}
-              onClick={() => recheckEnrolment.mutate()}
+              onClick={() => recheckEnrolment.mutate(registration)}
             >
               {t("credit-registration-action-recheck-enrolment")}
             </Button>

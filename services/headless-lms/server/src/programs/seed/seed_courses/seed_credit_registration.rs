@@ -406,6 +406,25 @@ pub const FAST_TRACK_NO_MATCH: MockPersonFixture = MockPersonFixture {
     account_email: Some("credit-registration-fast-track-no-match@example.com"),
 };
 
+/// Absent from the mock's enrolments, like `NO_ENROLMENT`, so its row parks where the in-course
+/// re-enrol banner shows. Its spec only reads and dismisses, so the row stays parked.
+pub const BANNER_STUCK: MockPersonFixture = MockPersonFixture {
+    student_number: "900001501",
+    first_names: "Zzyzx",
+    last_name: "Bannerstuck",
+    sisu_email: "zzyzx.bannerstuck@helsinki.example",
+    account_email: Some("credit-registration-banner-stuck@example.com"),
+};
+/// Its own person, because its spec creates the enrolment that makes the banner go away and that
+/// must not clear another spec's banner.
+pub const BANNER_REENROLS: MockPersonFixture = MockPersonFixture {
+    student_number: "900001502",
+    first_names: "Zzyzx",
+    last_name: "Bannerreenrols",
+    sisu_email: "zzyzx.bannerreenrols@helsinki.example",
+    account_email: Some("credit-registration-banner-reenrols@example.com"),
+};
+
 /// Driven all the way to `registered`, which is what earns the "your credits are in Sisu" mail.
 pub const EMAILS_REGISTERED: MockPersonFixture = MockPersonFixture {
     student_number: "900001301",
@@ -646,6 +665,8 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
         &CONSENT_WITHDRAWN,
         &EMAILS_REGISTERED,
         &EMAILS_NO_ENROLMENT,
+        &BANNER_STUCK,
+        &BANNER_REENROLS,
     ] {
         let student = seed_spec_student(
             &mut conn,
@@ -1920,6 +1941,8 @@ pub fn mock_suotar_world() -> WorldPush {
     }
     persons.push(person(&NO_ENROLMENT));
     persons.push(person(&EMAILS_NO_ENROLMENT));
+    persons.push(person(&BANNER_STUCK));
+    persons.push(person(&BANNER_REENROLS));
     persons.push(person(&IMPORT_OUTCOMES));
     persons.push(person(&GRADE_IMPROVEMENT));
     persons.extend(BACKFILL_STUDENTS.iter().map(person));

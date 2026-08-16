@@ -80,6 +80,7 @@ import {
   deletePlaygroundExample,
   denyOauthConsent,
   dismissCourseSuspectedCheater,
+  dismissCreditRegistrationEnrolmentBanner,
   dismissMyAutoLinkNotice,
   downloadCodeGiveawayCodesCsv,
   duplicateExam,
@@ -215,6 +216,7 @@ import {
   getMyCourseCreditRegistrationConsent,
   getMyCourses,
   getMyCreditRegistrationConsents,
+  getMyCreditRegistrationEnrolmentBanners,
   getMyCreditRegistrationForCourseModule,
   getMyCreditRegistrations,
   getMyEmailVerificationStatus,
@@ -481,6 +483,7 @@ import type {
   DenyOauthConsentData,
   DenyOauthConsentResponse,
   DismissCourseSuspectedCheaterData,
+  DismissCreditRegistrationEnrolmentBannerData,
   DismissMyAutoLinkNoticeData,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponse,
@@ -741,6 +744,8 @@ import type {
   GetMyCoursesResponse,
   GetMyCreditRegistrationConsentsData,
   GetMyCreditRegistrationConsentsResponse,
+  GetMyCreditRegistrationEnrolmentBannersData,
+  GetMyCreditRegistrationEnrolmentBannersResponse,
   GetMyCreditRegistrationForCourseModuleData,
   GetMyCreditRegistrationForCourseModuleResponse,
   GetMyCreditRegistrationsData,
@@ -6618,6 +6623,37 @@ export const getMyCreditRegistrationConsentsOptions = (
     queryKey: getMyCreditRegistrationConsentsQueryKey(options),
   })
 
+export const getMyCreditRegistrationEnrolmentBannersQueryKey = (
+  options: Options<GetMyCreditRegistrationEnrolmentBannersData>,
+) => createQueryKey("getMyCreditRegistrationEnrolmentBanners", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}` - The
+ * caller's registrations on one course that owe them the in-course re-enrol banner.
+ *
+ * Scoped to the course rather than filtered from `/my` on the client, because every course-material page
+ * view calls this. Empty is the normal answer.
+ */
+export const getMyCreditRegistrationEnrolmentBannersOptions = (
+  options: Options<GetMyCreditRegistrationEnrolmentBannersData>,
+) =>
+  queryOptions<
+    GetMyCreditRegistrationEnrolmentBannersResponse,
+    DefaultError,
+    GetMyCreditRegistrationEnrolmentBannersResponse,
+    ReturnType<typeof getMyCreditRegistrationEnrolmentBannersQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCreditRegistrationEnrolmentBanners({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCreditRegistrationEnrolmentBannersQueryKey(options),
+  })
+
 /**
  *
  * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
@@ -6692,6 +6728,35 @@ export const dismissMyAutoLinkNoticeMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await dismissMyAutoLinkNotice({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
+ * in-course re-enrol banner for one registration.
+ *
+ * Idempotent. Not a permanent opt-out: a later entry into the same state clears the dismissal.
+ */
+export const dismissCreditRegistrationEnrolmentBannerMutation = (
+  options?: Partial<Options<DismissCreditRegistrationEnrolmentBannerData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<DismissCreditRegistrationEnrolmentBannerData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<DismissCreditRegistrationEnrolmentBannerData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await dismissCreditRegistrationEnrolmentBanner({
         ...options,
         ...fnOptions,
         throwOnError: true,

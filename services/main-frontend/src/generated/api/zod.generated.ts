@@ -7003,6 +7003,15 @@ export const zGetMyCreditRegistrationForCourseModuleResponse =
  */
 export const zGetMyCreditRegistrationConsentsResponse = z.array(zMyCreditRegistrationConsent)
 
+export const zGetMyCreditRegistrationEnrolmentBannersPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The caller's undismissed enrolment banners on the course
+ */
+export const zGetMyCreditRegistrationEnrolmentBannersResponse = z.array(zMyCreditRegistration)
+
 /**
  * How many registrations went back to waiting
  */
@@ -7012,6 +7021,10 @@ export const zUnlinkMyStudentNumberResponse = zUnlinkMyStudentNumberResult
  * The caller's linked student number
  */
 export const zGetMyVerifiedStudentNumberResponse = zMyVerifiedStudentNumber.nullable()
+
+export const zDismissCreditRegistrationEnrolmentBannerPath = z.object({
+  id: z.uuid(),
+})
 
 export const zRequestCreditRegistrationEnrolmentRecheckPath = z.object({
   id: z.uuid(),

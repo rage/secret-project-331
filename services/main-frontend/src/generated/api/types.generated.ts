@@ -8793,6 +8793,28 @@ export type GetMyCreditRegistrationConsentsResponses = {
 export type GetMyCreditRegistrationConsentsResponse =
   GetMyCreditRegistrationConsentsResponses[keyof GetMyCreditRegistrationConsentsResponses]
 
+export type GetMyCreditRegistrationEnrolmentBannersData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}"
+}
+
+export type GetMyCreditRegistrationEnrolmentBannersResponses = {
+  /**
+   * The caller's undismissed enrolment banners on the course
+   */
+  200: Array<MyCreditRegistration>
+}
+
+export type GetMyCreditRegistrationEnrolmentBannersResponse =
+  GetMyCreditRegistrationEnrolmentBannersResponses[keyof GetMyCreditRegistrationEnrolmentBannersResponses]
+
 export type UnlinkMyStudentNumberData = {
   body?: never
   path?: never
@@ -8837,6 +8859,32 @@ export type DismissMyAutoLinkNoticeData = {
 export type DismissMyAutoLinkNoticeResponses = {
   /**
    * The notice is dismissed
+   */
+  200: unknown
+}
+
+export type DismissCreditRegistrationEnrolmentBannerData = {
+  body?: never
+  path: {
+    /**
+     * Credit registration id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner"
+}
+
+export type DismissCreditRegistrationEnrolmentBannerErrors = {
+  /**
+   * Not the caller's registration
+   */
+  403: unknown
+}
+
+export type DismissCreditRegistrationEnrolmentBannerResponses = {
+  /**
+   * The banner is dismissed
    */
   200: unknown
 }

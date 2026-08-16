@@ -157,6 +157,9 @@ import type {
   DenyOauthConsentResponses,
   DismissCourseSuspectedCheaterData,
   DismissCourseSuspectedCheaterResponses,
+  DismissCreditRegistrationEnrolmentBannerData,
+  DismissCreditRegistrationEnrolmentBannerErrors,
+  DismissCreditRegistrationEnrolmentBannerResponses,
   DismissMyAutoLinkNoticeData,
   DismissMyAutoLinkNoticeResponses,
   DownloadCodeGiveawayCodesCsvData,
@@ -432,6 +435,8 @@ import type {
   GetMyCoursesResponses,
   GetMyCreditRegistrationConsentsData,
   GetMyCreditRegistrationConsentsResponses,
+  GetMyCreditRegistrationEnrolmentBannersData,
+  GetMyCreditRegistrationEnrolmentBannersResponses,
   GetMyCreditRegistrationForCourseModuleData,
   GetMyCreditRegistrationForCourseModuleResponses,
   GetMyCreditRegistrationsData,
@@ -914,6 +919,7 @@ import {
   zGetMyCourseCreditRegistrationConsentResponse,
   zGetMyCoursesResponse,
   zGetMyCreditRegistrationConsentsResponse,
+  zGetMyCreditRegistrationEnrolmentBannersResponse,
   zGetMyCreditRegistrationForCourseModuleResponse,
   zGetMyCreditRegistrationsResponse,
   zGetMyEmailVerificationStatusResponse,
@@ -5151,6 +5157,30 @@ export const getMyCreditRegistrationConsents = <ThrowOnError extends boolean = t
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}` - The
+ * caller's registrations on one course that owe them the in-course re-enrol banner.
+ *
+ * Scoped to the course rather than filtered from `/my` on the client, because every course-material page
+ * view calls this. Empty is the normal answer.
+ */
+export const getMyCreditRegistrationEnrolmentBanners = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyCreditRegistrationEnrolmentBannersData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationEnrolmentBannersResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyCreditRegistrationEnrolmentBannersResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCreditRegistrationEnrolmentBannersResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}",
+    ...options,
+  })
+
+/**
+ *
  * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
  * from the signed-in account.
  *
@@ -5205,6 +5235,32 @@ export const dismissMyAutoLinkNotice = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
+ * in-course re-enrol banner for one registration.
+ *
+ * Idempotent. Not a permanent opt-out: a later entry into the same state clears the dismissal.
+ */
+export const dismissCreditRegistrationEnrolmentBanner = <ThrowOnError extends boolean = true>(
+  options: Options<DismissCreditRegistrationEnrolmentBannerData, ThrowOnError>,
+): RequestResult<
+  DismissCreditRegistrationEnrolmentBannerResponses,
+  DismissCreditRegistrationEnrolmentBannerErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    DismissCreditRegistrationEnrolmentBannerResponses,
+    DismissCreditRegistrationEnrolmentBannerErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner",
+    ...options,
+  })
 
 /**
  *

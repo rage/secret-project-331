@@ -7751,6 +7751,40 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}` - The\ncaller's registrations on one course that owe them the in-course re-enrol banner.\n\nScoped to the course rather than filtered from `/my` on the client, because every course-material page\nview calls this. Empty is the normal answer.",
+        "operationId": "getMyCreditRegistrationEnrolmentBanners",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's undismissed enrolment banners on the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyCreditRegistration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registrations/my/student-number": {
       "get": {
         "tags": ["credit-registrations"],
@@ -7802,6 +7836,33 @@
         "responses": {
           "200": {
             "description": "The notice is dismissed"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the\nin-course re-enrol banner for one registration.\n\nIdempotent. Not a permanent opt-out: a later entry into the same state clears the dismissal.",
+        "operationId": "dismissCreditRegistrationEnrolmentBanner",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The banner is dismissed"
+          },
+          "403": {
+            "description": "Not the caller's registration"
           }
         }
       }

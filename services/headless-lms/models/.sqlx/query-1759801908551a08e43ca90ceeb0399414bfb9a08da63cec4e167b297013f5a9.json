@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  r.label AS \"enrolment_realisation_name?\",\n  conf.open_university_product_id AS \"open_university_product_id?\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\n  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id\n  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id\n  AND r.deleted_at IS NULL\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
+  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  r.label AS \"enrolment_realisation_name?\",\n  conf.open_university_product_id AS \"open_university_product_id?\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\n  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id\n  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id\n  AND r.deleted_at IS NULL\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -328,7 +328,9 @@
     "parameters": {
       "Left": [
         "Uuid",
-        "Uuid"
+        "Uuid",
+        "Uuid",
+        "Bool"
       ]
     },
     "nullable": [
@@ -358,5 +360,5 @@
       true
     ]
   },
-  "hash": "6114f501ac41b9018a81b6eff1c1dc93bdfe2dab12f9e173584d552771ff65a6"
+  "hash": "1759801908551a08e43ca90ceeb0399414bfb9a08da63cec4e167b297013f5a9"
 }

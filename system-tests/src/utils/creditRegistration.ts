@@ -25,7 +25,7 @@
  * | `9000012xx`     | suotar-grade-improvement         | grade-improvement           |
  * | `9000013xx`     | suotar-student-emails            | via-suotar                  |
  * | `9000014xx`     | suotar-fast-track-linking        | via-suotar                  |
- * | `9000015xx`     | suotar-in-course-banner          | not written yet             |
+ * | `9000015xx`     | suotar-in-course-banner          | via-suotar                  |
  * | `9000016xx`     | suotar-student-profile           | none (reads seeded rows)    |
  */
 
@@ -84,6 +84,8 @@ export const linkStudentNumberUrl = (token: string): string =>
  */
 export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-backfill-2@example.com",
+  "credit-registration-banner-reenrols@example.com",
+  "credit-registration-banner-stuck@example.com",
   "credit-registration-consent-withdrawn@example.com",
   "credit-registration-consent-withheld@example.com",
   "credit-registration-consented-linked@example.com",

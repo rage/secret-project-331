@@ -732,12 +732,22 @@ pub struct StudentCreditRegistration {
     pub open_university_product_id: Option<String>,
 }
 
+/// Narrows [`get_student_facing_by_user_id`]; the default returns every row of the user's.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct StudentRegistrationFilter {
+    pub course_module_id: Option<Uuid>,
+    pub course_id: Option<Uuid>,
+    /// Only rows the in-course re-enrol banner is owed: parked on a missing enrolment and not yet
+    /// dismissed.
+    pub enrolment_banner_due: bool,
+}
+
 /// The user's registrations as the student surfaces show them, newest completion first. Superseded
 /// attempts are included: the student is entitled to see an earlier attempt Sisu may still hold.
 pub async fn get_student_facing_by_user_id(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Option<Uuid>,
+    filter: StudentRegistrationFilter,
 ) -> ModelResult<Vec<StudentCreditRegistration>> {
     let res = sqlx::query_as!(
         StudentCreditRegistration,
@@ -778,11 +788,21 @@ FROM credit_registrations cr
 WHERE cr.user_id = $1
   AND cr.deleted_at IS NULL
   AND ($2::uuid IS NULL OR cr.course_module_id = $2)
+  AND ($3::uuid IS NULL OR cr.course_id = $3)
+  AND (
+    NOT $4::boolean
+    OR (
+      cr.state = 'no_usable_enrolment'
+      AND cr.enrolment_banner_dismissed_at IS NULL
+    )
+  )
 ORDER BY cmc.completion_date DESC,
   cr.attempt_number DESC
         "#,
         user_id,
-        course_module_id,
+        filter.course_module_id,
+        filter.course_id,
+        filter.enrolment_banner_due,
     )
     .fetch_all(conn)
     .await?;

@@ -2,70 +2,36 @@
 
 import "@testing-library/jest-dom"
 import { fireEvent, render, screen } from "@testing-library/react"
-import { v4 } from "uuid"
 
 import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
+import { setupIntersectionObserverMock } from "@/shared-module/common/test-utils/mockIntersectionObserver"
 
+import {
+  CONVERSATION_ID,
+  conversationMessage,
+  makeChatBodyProps,
+  testId,
+  TIME,
+} from "../__fixtures__/chatBodyProps"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
-import type { ChatbotStateAndData } from "../shared/hooks/useChatbotStateAndData"
 import { ASK_MULTIPLE_CHOICE_QUESTION_TOOL } from "../shared/multipleChoiceQuestions"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
 
 // jsdom lacks IntersectionObserver, needed by TextAreaField's auto-resize inside ChatbotChatBody.
-beforeAll(() => {
-  class IntersectionObserverStub {
-    public observe() {}
-    public unobserve() {}
-    public disconnect() {}
-    public takeRecords() {
-      return []
-    }
-  }
-  ;(window as unknown as Record<string, unknown>).IntersectionObserver = IntersectionObserverStub
-})
+beforeAll(setupIntersectionObserverMock)
 
-const CONVERSATION_ID = "11111111-1111-4111-8111-111111111111"
-const TIME = "2024-01-01T00:00:00.000Z"
 const TOOL_CALL_ID = "call_abc123"
 const QUESTION = "Which loop do you mean?"
 const CHOICES = ["while loops", "for loops"]
 const SUGGESTION_ID = "22222222-2222-4222-8222-222222222222"
 const SUGGESTION = "What is a nested loop?"
 
-const textMessage = (
-  role: "user" | "assistant",
-  text: string,
-  orderNumber: number,
-): ChatbotConversationMessage => {
-  const id = v4()
-  return {
-    conversation_id: CONVERSATION_ID,
-    created_at: TIME,
-    deleted_at: null,
-    id,
-    message: {
-      chatbot_conversation_message_id: id,
-      created_at: TIME,
-      deleted_at: null,
-      id: v4(),
-      message_is_complete: true,
-      message_role: role,
-      response_id: null,
-      text,
-      updated_at: TIME,
-      used_tokens: 0,
-    },
-    order_number: orderNumber,
-    updated_at: TIME,
-  }
-}
-
 const questionMessage = (
   orderNumber: number,
   toolArguments: string = JSON.stringify({ question: QUESTION, choices: CHOICES }),
 ): ChatbotConversationMessage => {
-  const id = v4()
+  const id = testId()
   return {
     conversation_id: CONVERSATION_ID,
     created_at: TIME,
@@ -75,7 +41,7 @@ const questionMessage = (
       chatbot_conversation_message_id: id,
       created_at: TIME,
       deleted_at: null,
-      id: v4(),
+      id: testId(),
       response_id: "resp_1",
       tool_arguments: toolArguments,
       tool_call_id: TOOL_CALL_ID,
@@ -89,7 +55,7 @@ const questionMessage = (
 }
 
 const answerMessage = (orderNumber: number): ChatbotConversationMessage => {
-  const id = v4()
+  const id = testId()
   return {
     conversation_id: CONVERSATION_ID,
     created_at: TIME,
@@ -99,7 +65,7 @@ const answerMessage = (orderNumber: number): ChatbotConversationMessage => {
       chatbot_conversation_message_id: id,
       created_at: TIME,
       deleted_at: null,
-      id: v4(),
+      id: testId(),
       output: "Result: [output]The user chose something.[/output]",
       response_id: "resp_1",
       tool_call_id: TOOL_CALL_ID,
@@ -111,49 +77,14 @@ const answerMessage = (orderNumber: number): ChatbotConversationMessage => {
   }
 }
 
-interface ChatBodyOverrides {
-  messages?: ChatbotConversationMessage[]
-  isAnsweringQuestion?: boolean
-  isSendingMessage?: boolean
-  suggestedMessages?: { id: string; message: string }[]
-}
-
-const makeChatBodyProps = ({
-  messages = [textMessage("user", "Tell me about loops", 1), questionMessage(2)],
-  isAnsweringQuestion = false,
-  isSendingMessage = false,
-  suggestedMessages = [],
-}: ChatBodyOverrides = {}): { props: ChatbotStateAndData; answer: jest.Mock } => {
-  const answer = jest.fn()
-  const props = {
-    currentConversationInfo: {
-      isLoading: false,
-      isError: false,
-      isRefetching: false,
-      data: {
-        current_conversation: { id: CONVERSATION_ID },
-        current_conversation_messages: messages,
-        current_conversation_message_citations: [],
-        hide_citations: false,
-        suggested_messages: suggestedMessages,
-      },
-    },
-    newConversationMutation: { mutate: jest.fn(), isPending: false },
-    newMessage: "",
-    setNewMessage: jest.fn(),
-    error: null,
-    messageState: { messages: [] },
-    dispatch: jest.fn(),
-    chatbotMessageAnnouncement: "",
-    newMessageMutation: { mutate: jest.fn(), isPending: isSendingMessage },
-    toolResponseMutation: { mutate: answer, isPending: isAnsweringQuestion },
-  } as unknown as ChatbotStateAndData
-  return { props, answer }
-}
+const askedQuestion = (): ChatbotConversationMessage[] => [
+  conversationMessage({ role: "user", text: "Tell me about loops", orderNumber: 1 }),
+  questionMessage(2),
+]
 
 describe("Clarifying question from the chatbot", () => {
   it("names the question group after the question and offers every choice as a button", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps().props} />)
+    render(<ChatbotChatBody {...makeChatBodyProps({ messages: askedQuestion() }).props} />)
 
     const group = screen.getByRole("group", { name: QUESTION })
     for (const choice of CHOICES) {
@@ -163,7 +94,7 @@ describe("Clarifying question from the chatbot", () => {
   })
 
   it("identifies the question as the chatbot's to a screen reader", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps().props} />)
+    render(<ChatbotChatBody {...makeChatBodyProps({ messages: askedQuestion() }).props} />)
 
     expect(screen.getByRole("listitem", { name: "question-from-the-chatbot" })).toHaveTextContent(
       QUESTION,
@@ -173,7 +104,7 @@ describe("Clarifying question from the chatbot", () => {
   // The conversation is the only place a suspended turn is recorded, so this is also what a reload
   // recovers the question from.
   it("answers with the position of the chosen choice", () => {
-    const { props, answer } = makeChatBodyProps()
+    const { props, answer } = makeChatBodyProps({ messages: askedQuestion() })
     render(<ChatbotChatBody {...props} />)
 
     fireEvent.click(screen.getByRole("button", { name: "for loops" }))
@@ -182,7 +113,7 @@ describe("Clarifying question from the chatbot", () => {
   })
 
   it("hands focus to the message field, which outlives the choices", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps().props} />)
+    render(<ChatbotChatBody {...makeChatBodyProps({ messages: askedQuestion() }).props} />)
 
     fireEvent.click(screen.getByRole("button", { name: "for loops" }))
 
@@ -190,7 +121,10 @@ describe("Clarifying question from the chatbot", () => {
   })
 
   it("disables the choices while an answer is on its way", () => {
-    const { props } = makeChatBodyProps({ isAnsweringQuestion: true })
+    const { props } = makeChatBodyProps({
+      messages: askedQuestion(),
+      isAnsweringQuestion: true,
+    })
     render(<ChatbotChatBody {...props} />)
 
     for (const choice of CHOICES) {
@@ -200,20 +134,14 @@ describe("Clarifying question from the chatbot", () => {
   })
 
   it("disables the choices while a message is streaming, before the call is stored", () => {
-    const { props } = makeChatBodyProps({ isSendingMessage: true })
+    const { props } = makeChatBodyProps({ messages: askedQuestion(), isTurnInFlight: true })
     render(<ChatbotChatBody {...props} />)
 
     expect(screen.getByRole("button", { name: "for loops" })).toBeDisabled()
   })
 
   it("stops offering the choices once the call has been answered", () => {
-    const { props } = makeChatBodyProps({
-      messages: [
-        textMessage("user", "Tell me about loops", 1),
-        questionMessage(2),
-        answerMessage(3),
-      ],
-    })
+    const { props } = makeChatBodyProps({ messages: [...askedQuestion(), answerMessage(3)] })
     render(<ChatbotChatBody {...props} />)
 
     const group = screen.getByRole("group", { name: QUESTION })
@@ -225,9 +153,8 @@ describe("Clarifying question from the chatbot", () => {
   it("stops offering the choices as soon as the learner writes instead", () => {
     const { props } = makeChatBodyProps({
       messages: [
-        textMessage("user", "Tell me about loops", 1),
-        questionMessage(2),
-        textMessage("user", "Never mind, explain both", 3),
+        ...askedQuestion(),
+        conversationMessage({ role: "user", text: "Never mind, explain both", orderNumber: 3 }),
       ],
     })
     render(<ChatbotChatBody {...props} />)
@@ -239,7 +166,7 @@ describe("Clarifying question from the chatbot", () => {
   })
 
   it("leaves the message field usable while a question is waiting", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps().props} />)
+    render(<ChatbotChatBody {...makeChatBodyProps({ messages: askedQuestion() }).props} />)
 
     expect(screen.getByPlaceholderText("label-message")).toBeEnabled()
   })
@@ -248,6 +175,7 @@ describe("Clarifying question from the chatbot", () => {
   // moment they made sense in.
   it("does not offer what to ask next while a question is waiting", () => {
     const { props } = makeChatBodyProps({
+      messages: askedQuestion(),
       suggestedMessages: [{ id: SUGGESTION_ID, message: SUGGESTION }],
     })
     render(<ChatbotChatBody {...props} />)
@@ -258,10 +186,9 @@ describe("Clarifying question from the chatbot", () => {
   it("offers what to ask next again once the question has been answered", () => {
     const { props } = makeChatBodyProps({
       messages: [
-        textMessage("user", "Tell me about loops", 1),
-        questionMessage(2),
+        ...askedQuestion(),
         answerMessage(3),
-        textMessage("assistant", "For loops it is", 4),
+        conversationMessage({ role: "assistant", text: "For loops it is", orderNumber: 4 }),
       ],
       suggestedMessages: [{ id: SUGGESTION_ID, message: SUGGESTION }],
     })

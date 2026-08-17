@@ -7,9 +7,7 @@ use std::{env, sync::Arc};
 use actix_http::{Request, body::BoxBody};
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
 use actix_web::{App, cookie::Key, dev::ServiceResponse, test};
-use headless_lms_base::config::{
-    ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
-};
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy,
     organizations::{self, Organization},
@@ -96,30 +94,8 @@ pub async fn test_config() -> ServerConfig {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
                 .expect("Failed to initialize test file store")
         })),
-        app_conf: ApplicationConfiguration {
-            test_mode: true,
-            base_url: "http://project-331.local".to_string(),
-            development_uuid_login: false,
-            enable_admin_email_verification: false,
-            enable_email_ownership_verification: false,
-            azure_configuration: None,
-            test_chatbot: false,
-            test_sisu: false,
-            test_suotar: false,
-            disable_embedding_vector_creation_when_seeding: false,
-            suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
-                .expect("Failed to build the mock Suotar configuration"),
-            tmc_account_creation_origin: None,
-            tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
-            oauth_server_configuration: OAuthServerConfiguration {
-                rsa_public_key: "temp-change-when-needed".into(),
-                rsa_private_key: SecretString::new("test-change".into()),
-                oauth_token_hmac_key: SecretString::new("pippuri".into()),
-                dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
-                    "test-key".into(),
-                ))),
-            },
-        },
+        app_conf: ApplicationConfiguration::mock_conf()
+            .expect("Failed to build the mock application configuration"),
         redis_url: SecretString::new("redis://example.com".into()),
         mock_suotar_redis_db_index: 2,
         jwt_password: SecretString::new(

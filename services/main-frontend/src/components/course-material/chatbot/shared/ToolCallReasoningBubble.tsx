@@ -12,8 +12,8 @@ import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
+import ChatbotStatusRow from "./ChatbotStatusRow"
 import { ASK_MULTIPLE_CHOICE_QUESTION_TOOL } from "./multipleChoiceQuestions"
-import ThinkingIndicator from "./ThinkingIndicator"
 
 const textStyle = css`
   padding: 0 0.5rem;
@@ -50,17 +50,23 @@ const iconStyle = (open: boolean) => css`
 
 interface ToolCallReasoningBubbleProps {
   messages: ChatbotConversationMessageWithStatus[]
+  /**
+   * Whether a turn is still streaming. Required for the in-progress rendering, because an `Error`
+   * event or a stream that closes early leaves an item unfinished for good.
+   */
+  isTurnInFlight: boolean
 }
 
-const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messages }) => {
+const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({
+  messages,
+  isTurnInFlight,
+}) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
   let summaryText: string
-  let inProgressItems = messages.filter((m) => {
-    return !m.finished
-  })
-  let finished = inProgressItems.length === 0
+  const inProgressItems = messages.filter((m) => !m.finished)
+  const finished = !isTurnInFlight || inProgressItems.length === 0
   let collapsible = messages.length > 2
 
   if (!finished) {
@@ -88,11 +94,7 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
         }
       }
     })
-    return (
-      <span className={detailsStyle}>
-        {summaryText} {<ThinkingIndicator />}
-      </span>
-    )
+    return <ChatbotStatusRow text={summaryText} />
   }
   summaryText = ""
   let expandableText: string[] = []

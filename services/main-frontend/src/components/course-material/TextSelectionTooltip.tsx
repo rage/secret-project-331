@@ -13,7 +13,10 @@ import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { baseTheme } from "@/shared-module/common/styles"
 import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
+import {
+  defaultChatbotCommunicationChannel,
+  defaultChatbotIsTurnInFlightAtom,
+} from "@/stores/course-material/chatbotDialogStore"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -48,6 +51,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
   const [showTooltip, setShowTooltip] = useState(false)
 
   const chatbotCommunicationChannel = useAtomValue(defaultChatbotCommunicationChannel)
+  const chatbotIsTurnInFlight = useAtomValue(defaultChatbotIsTurnInFlightAtom)
 
   // Show tooltip after a delay so that it's less annoying
   useEffect(() => {
@@ -147,6 +151,14 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
     return null
   }
 
+  const chatbotIsBusy = chatbotCommunicationChannel === null || chatbotIsTurnInFlight
+
+  // Both mutations behind the channel report their own failures, and a turn refused because one is
+  // already running is meant to be silent, so the rejection only needs to stop floating.
+  const sendToChatbot = (message: string) => {
+    chatbotCommunicationChannel?.sendNewMessage(message).catch(() => {})
+  }
+
   const giveFeedbackHandleClick = () => {
     // oxlint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type" as const)
@@ -212,9 +224,9 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
           {courseName && pageTitle && courseHasChatbot && (
             <>
               <Button
-                isDisabled={chatbotCommunicationChannel === null}
+                isDisabled={chatbotIsBusy}
                 onClick={() => {
-                  chatbotCommunicationChannel?.sendNewMessage(
+                  sendToChatbot(
                     t("text-selection-summarize-with-ai", {
                       pageTitle,
                       courseName,
@@ -227,9 +239,9 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
                 <AIChat className={svgCss} />
               </Button>
               <Button
-                isDisabled={chatbotCommunicationChannel === null}
+                isDisabled={chatbotIsBusy}
                 onClick={() => {
-                  chatbotCommunicationChannel?.sendNewMessage(
+                  sendToChatbot(
                     t("text-selection-explain-with-ai", {
                       pageTitle,
                       courseName,

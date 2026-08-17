@@ -1,3 +1,4 @@
+use crate::controllers::mock_document_storage::{MOCK_DOCUMENTS, MockDocument};
 use crate::prelude::*;
 use headless_lms_chatbot::{
     azure_chatbot::InputItem,
@@ -6,10 +7,10 @@ use headless_lms_chatbot::{
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
         custom_tools::course_structure::CourseStructureTool,
     },
-    cms_ai_suggestion::USER_PROMPT_PREFIX,
-    course_description_summary::USER_PROMPT as DESCRIPTION_USER_PROMPT,
+    cms_ai_suggestion::RESPONSE_FORMAT_NAME as CMS_SUGGESTION_FORMAT,
+    course_description_summary::RESPONSE_FORMAT_NAME as COURSE_DESCRIPTION_FORMAT,
     llm_utils::AzureCompletionRequest,
-    message_suggestion::USER_PROMPT,
+    message_suggestion::RESPONSE_FORMAT_NAME as MESSAGE_SUGGESTION_FORMAT,
 };
 use headless_lms_utils::azure_embedding::{
     Embedding, EmbeddingRequest, EmbeddingResponse, EmbeddingResponseUsage,
@@ -27,18 +28,151 @@ const TOOL_CALL_TRIGGER: &str = "!MOCK_TOOL_CALL!";
 /// endpoint, whose request ends in the tool output and so gets the same text round.
 const CLIENT_TOOL_CALL_TRIGGER: &str = "!MOCK_CLIENT_TOOL_CALL!";
 
+/// The parts of a request the mock picks its answer from.
+struct MockRequest {
+    /// The text of the last input message, or `None` when the request ends in a tool output
+    /// instead. The other two endings never reach here.
+    message: Option<String>,
+    /// The structured output schema the answer has to parse as, `None` for a chat request.
+    format_name: Option<String>,
+    /// Whether the caller reads the answer as a Server-Sent Events stream or as one JSON object.
+    stream: bool,
+}
+
+impl MockRequest {
+    /// A streamed chat request carrying `message`.
+    fn chat(message: &str) -> Self {
+        MockRequest {
+            message: Some(message.to_string()),
+            format_name: None,
+            stream: true,
+        }
+    }
+
+    /// A streamed request resuming a tool loop, which ends in the tool's output rather than in a
+    /// message.
+    fn after_tool_run() -> Self {
+        MockRequest {
+            message: None,
+            format_name: None,
+            stream: true,
+        }
+    }
+
+    /// A request for structured output in `format_name`. Its message is one that would drive a
+    /// function call round if the message decided anything here, which it must not.
+    fn structured_output(format_name: &str) -> Self {
+        MockRequest {
+            message: Some(TOOL_CALL_TRIGGER.to_string()),
+            format_name: Some(format_name.to_string()),
+            stream: false,
+        }
+    }
+
+    /// Whether this asks for the structured output named `format_name`. False for a streamed
+    /// request even when it names the schema, since the answer to one is a whole JSON object that
+    /// a streaming caller cannot read.
+    fn wants_format(&self, format_name: &str) -> bool {
+        !self.stream && self.format_name.as_deref() == Some(format_name)
+    }
+
+    /// Whether this is a streamed chat message containing `trigger`.
+    fn message_contains(&self, trigger: &str) -> bool {
+        self.stream
+            && self
+                .message
+                .as_deref()
+                .is_some_and(|message| message.contains(trigger))
+    }
+}
+
+/// One shape of request the mock answers, and the answer it gives.
+///
+/// The tests drive every registered scenario through its own [`example`](Scenario::example), so
+/// registering a round here is what gets it verified at all.
+struct Scenario {
+    /// Names the scenario in the handler's log line and in test failures.
+    name: &'static str,
+    matches: fn(&MockRequest) -> bool,
+    /// Builds the answer against the base url its document urls have to point at.
+    respond: fn(&str) -> String,
+    /// A request this scenario answers.
+    #[cfg_attr(not(test), allow(dead_code))]
+    example: fn() -> MockRequest,
+}
+
+/// The first scenario that matches answers, so the default chat answer, which takes any streamed
+/// message at all, comes last.
+///
+/// A blocking caller parses the whole body as one JSON object and a streaming one reads it event by
+/// event, so no answer suits both, and every scenario says which kind it is. Among the blocking
+/// ones the schema alone decides: a learner is free to type anything into the chat, so no part of a
+/// message may reach a feature's answer.
+const SCENARIOS: &[Scenario] = &[
+    Scenario {
+        name: "the next message suggestion",
+        matches: |request| request.wants_format(MESSAGE_SUGGESTION_FORMAT),
+        respond: |_| blocking_response(MESSAGE_SUGGESTION_PAYLOAD),
+        example: || MockRequest::structured_output(MESSAGE_SUGGESTION_FORMAT),
+    },
+    Scenario {
+        name: "the CMS paragraph suggestion",
+        matches: |request| request.wants_format(CMS_SUGGESTION_FORMAT),
+        respond: |_| blocking_response(CMS_SUGGESTION_PAYLOAD),
+        example: || MockRequest::structured_output(CMS_SUGGESTION_FORMAT),
+    },
+    Scenario {
+        name: "the course description summary",
+        matches: |request| request.wants_format(COURSE_DESCRIPTION_FORMAT),
+        respond: |_| blocking_response(COURSE_DESCRIPTION_PAYLOAD),
+        example: || MockRequest::structured_output(COURSE_DESCRIPTION_FORMAT),
+    },
+    Scenario {
+        name: "the client tool call round",
+        matches: |request| request.message_contains(CLIENT_TOOL_CALL_TRIGGER),
+        respond: |_| {
+            function_call_round(
+                <AskMultipleChoiceQuestionTool as ChatbotToolDeclaration>::NAME,
+                MOCK_MULTIPLE_CHOICE_ARGUMENTS,
+            )
+        },
+        example: || MockRequest::chat(CLIENT_TOOL_CALL_TRIGGER),
+    },
+    Scenario {
+        name: "the function call round",
+        matches: |request| request.message_contains(TOOL_CALL_TRIGGER),
+        respond: |_| {
+            function_call_round(<CourseStructureTool as ChatbotToolDeclaration>::NAME, "{}")
+        },
+        example: || MockRequest::chat(TOOL_CALL_TRIGGER),
+    },
+    Scenario {
+        name: "the answer after a tool ran",
+        matches: |request| request.stream && request.message.is_none(),
+        respond: |_| tool_answer_round(),
+        example: MockRequest::after_tool_run,
+    },
+    Scenario {
+        name: "the default chat answer",
+        matches: |request| request.stream && request.message.is_some(),
+        respond: search_and_text_round,
+        example: || MockRequest::chat("Tell me more"),
+    },
+];
+
+/// The scenario that answers `request`, or `None` when the mock answers nothing like it.
+fn pick_scenario(request: &MockRequest) -> Option<&'static Scenario> {
+    SCENARIOS
+        .iter()
+        .find(|scenario| (scenario.matches)(request))
+}
+
 /// GET /api/v0/mock-azure/api/projects/test/openai/v1/responses
 /// POST /api/v0/mock-azure/api/projects/test/openai/v1/responses
 ///
-/// Stands in for the Azure Responses API while the chatbot runs in test mode. Dispatches on the
-/// shape of the request:
-///
-/// - last input item is a function call output: the text answer that follows a tool run,
-/// - message containing the message suggestion, CMS suggestion or course description prompt:
-///   that feature's canned structured output,
-/// - message containing [`TOOL_CALL_TRIGGER`] or [`CLIENT_TOOL_CALL_TRIGGER`]: a function call
-///   round, for a server-run tool or for a client-answered one,
-/// - any other message: the default Azure AI Search and text answer.
+/// Stands in for the Azure Responses API while the chatbot runs in test mode. Answers with the
+/// first scenario in [`SCENARIOS`] whose request shape matches, and 400s on a request no scenario
+/// answers.
 async fn mock_azure_chat_responses(
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<AzureCompletionRequest>,
@@ -57,11 +191,9 @@ async fn mock_azure_chat_responses(
         })?
         .message_type;
 
-    let res = match last_input_item {
-        InputItem::Message { content, .. } => {
-            chat_message_response(&content.clone().get_content_text(), &app_conf.base_url)
-        }
-        InputItem::FunctionCallOutput { .. } => tool_answer_round(),
+    let message = match last_input_item {
+        InputItem::Message { content, .. } => Some(content.clone().get_content_text()),
+        InputItem::FunctionCallOutput { .. } => None,
         InputItem::FunctionCall { .. } | InputItem::Reasoning { .. } => {
             return Err(controller_err!(
                 BadRequest,
@@ -70,59 +202,89 @@ async fn mock_azure_chat_responses(
         }
     };
 
+    let request = MockRequest {
+        message,
+        format_name: payload
+            .base
+            .text
+            .as_ref()
+            .and_then(|text| text.format.as_ref())
+            .map(|format| format.name.clone()),
+        stream: payload.stream,
+    };
+    let scenario = pick_scenario(&request).ok_or_else(|| {
+        controller_err!(
+            BadRequest,
+            "The mock has no response for this shape of request."
+        )
+    })?;
+    debug!(scenario = scenario.name, "Answering as the mock Azure API");
+    let res = (scenario.respond)(&app_conf.base_url);
+
     let token = skip_authorize();
     token.authorized_ok(res)
 }
 
-/// Picks the response for a chat message. The structured output prompts are matched first so
-/// that the features using them keep working regardless of what the message contains.
-fn chat_message_response(message: &str, base_url: &str) -> String {
-    if message.contains(USER_PROMPT) {
-        SUGGESTION.to_string()
-    } else if message.contains(USER_PROMPT_PREFIX) {
-        CMS_SUGGESTION.to_string()
-    } else if message.contains(DESCRIPTION_USER_PROMPT) {
-        DESCRIPTION_SUGGESTION.to_string()
-    } else if message.contains(CLIENT_TOOL_CALL_TRIGGER) {
-        function_call_round(
-            <AskMultipleChoiceQuestionTool as ChatbotToolDeclaration>::NAME,
-            MOCK_MULTIPLE_CHOICE_ARGUMENTS,
-        )
-    } else if message.contains(TOOL_CALL_TRIGGER) {
-        function_call_round(<CourseStructureTool as ChatbotToolDeclaration>::NAME, "{}")
-    } else {
-        search_and_text_response(base_url)
-    }
-}
-
-/// The default chat answer: an Azure AI Search call, its results, and a cited text answer.
-fn search_and_text_response(base_url: &str) -> String {
-    let urls = [1, 2, 3]
-        .map(|n| {
-            format!("\\\"{base_url}/api/v0/mock-document-storage/test/documents/document{n}\\\"")
-        })
-        .join(",");
-    RESPONSE.replace("!URLS!", &urls)
-}
-
-/// Renders `events` as a Server-Sent Events body in the order given. The chatbot reads the
-/// `event:` line to decide what the `data:` line after it means, so the pairing and the order
-/// are what make a round parse as a tool call or as text.
+/// Renders `events` as a Server-Sent Events body in the order given, stamping every `data:` object
+/// with its own event name as `type`, the way Azure repeats it. The chatbot reads the `event:` line
+/// to decide what the `data:` line after it means, so the pairing and the order are what make a
+/// round parse as a tool call or as text.
 fn sse_body(events: Vec<(&str, Value)>) -> String {
     events
         .into_iter()
-        .map(|(event, data)| format!("event: {event}\ndata: {data}\n\n"))
+        .map(|(event, mut data)| {
+            if let Some(object) = data.as_object_mut() {
+                object.insert("type".to_string(), json!(event));
+            }
+            format!("event: {event}\ndata: {data}\n\n")
+        })
         .collect()
+}
+
+/// Wraps a round's own `events` in the lifecycle events every round shares: `response.created`,
+/// which is where the chatbot picks up the response id it needs before the first delta, and the
+/// terminal `response.completed`.
+fn round(response_id: &str, events: Vec<(&'static str, Value)>, usage: Value) -> String {
+    let mut all = vec![(
+        "response.created",
+        json!({"response": response_object(response_id)}),
+    )];
+    all.extend(events);
+    all.push((
+        "response.completed",
+        json!({"response": completed_response_object(response_id, usage)}),
+    ));
+    sse_body(all)
+}
+
+/// What one round was billed for. `cached_tokens` is the part of the input Azure served from the
+/// prompt cache, and the rest of it is what the round wrote there.
+fn usage(
+    input_tokens: u32,
+    cached_tokens: u32,
+    output_tokens: u32,
+    reasoning_tokens: u32,
+) -> Value {
+    json!({
+        "input_tokens": input_tokens,
+        "input_tokens_details": {
+            "cached_tokens": cached_tokens,
+            "cache_write_tokens": input_tokens.saturating_sub(cached_tokens),
+        },
+        "output_tokens": output_tokens,
+        "output_tokens_details": {"reasoning_tokens": reasoning_tokens},
+        "total_tokens": input_tokens + output_tokens,
+    })
 }
 
 /// The response object of a lifecycle event before the last one. Only `id` and a possible `error`
 /// are read by the chatbot; Azure sends the full request parameters here as well. See
 /// [`completed_response_object`] for the terminal event.
-fn response_object(response_id: &str, status: &str) -> Value {
+fn response_object(response_id: &str) -> Value {
     json!({
         "id": response_id,
         "object": "response",
-        "status": status,
+        "status": "in_progress",
         "usage": null,
     })
 }
@@ -136,6 +298,124 @@ fn completed_response_object(response_id: &str, usage: Value) -> Value {
         "status": "completed",
         "reasoning": {"effort": "medium", "summary": null, "context": "current_turn"},
         "usage": usage,
+    })
+}
+
+/// One assistant message as an output item, in the two shapes a round streams it in: `content` is
+/// empty while the item is in progress and carries the whole text once it is done.
+fn message_item(item_id: &str, response_id: &str, content: Value, status: &str) -> Value {
+    json!({
+        "type": "message",
+        "id": item_id,
+        "response_id": response_id,
+        "phase": "final_answer",
+        "role": "assistant",
+        "content": content,
+        "status": status,
+    })
+}
+
+/// The events that stream one assistant message: the item, its content part, one event per delta,
+/// and the finished item. `output_index` is the message's place among the round's output items, so
+/// it depends on how many items the round emitted before this one.
+fn message_item_events(
+    item_id: &str,
+    response_id: &str,
+    output_index: u32,
+    deltas: &[&str],
+) -> Vec<(&'static str, Value)> {
+    let text = deltas.concat();
+
+    let mut events = vec![
+        (
+            "response.output_item.added",
+            json!({
+                "output_index": output_index,
+                "item": message_item(item_id, response_id, json!([]), "in_progress"),
+            }),
+        ),
+        (
+            "response.content_part.added",
+            json!({
+                "content_index": 0,
+                "item_id": item_id,
+                "output_index": output_index,
+                "part": { "type": "output_text", "text": "" },
+            }),
+        ),
+    ];
+    events.extend(deltas.iter().map(|delta| {
+        (
+            "response.output_text.delta",
+            json!({
+                "content_index": 0,
+                "item_id": item_id,
+                "output_index": output_index,
+                "delta": delta,
+            }),
+        )
+    }));
+    events.extend([
+        (
+            "response.output_text.done",
+            json!({
+                "content_index": 0,
+                "item_id": item_id,
+                "output_index": output_index,
+                "text": text,
+            }),
+        ),
+        (
+            "response.content_part.done",
+            json!({
+                "content_index": 0,
+                "item_id": item_id,
+                "output_index": output_index,
+                "part": { "type": "output_text", "text": text },
+            }),
+        ),
+        (
+            "response.output_item.done",
+            json!({
+                "output_index": output_index,
+                "item": message_item(
+                    item_id,
+                    response_id,
+                    json!([{ "type": "output_text", "text": text }]),
+                    "completed",
+                ),
+            }),
+        ),
+    ]);
+    events
+}
+
+/// The events that stream the reasoning item a round emits before it calls anything or answers,
+/// which is what makes it the round's first output item.
+fn reasoning_item_events(response_id: &str) -> Vec<(&'static str, Value)> {
+    let item = reasoning_item(response_id);
+    vec![
+        (
+            "response.output_item.added",
+            json!({"output_index": 0, "item": item}),
+        ),
+        (
+            "response.output_item.done",
+            json!({"output_index": 0, "item": item}),
+        ),
+    ]
+}
+
+/// The item [`reasoning_item_events`] streams, unchanged in both of its events.
+fn reasoning_item(response_id: &str) -> Value {
+    json!({
+        "type": "reasoning",
+        "id": format!("rs_{}", Uuid::new_v4()),
+        "response_id": response_id,
+        "summary": [],
+        // Azure returns this whenever `store` is false, and the chatbot only replays a reasoning
+        // item that has it, so without it the mock never exercises the replay path.
+        "encrypted_content": "mock-encrypted-reasoning",
     })
 }
 
@@ -168,91 +448,27 @@ fn function_call_round(tool_name: &str, arguments: &str) -> String {
             "status": status,
         })
     };
-    let reasoning = json!({
-        "type": "reasoning",
-        "id": format!("rs_{}", Uuid::new_v4()),
-        "response_id": response_id,
-        "summary": [],
-        // Azure returns this whenever `store` is false, and the chatbot only replays a reasoning
-        // item that has it, so without it the mock never exercises the replay path.
-        "encrypted_content": "mock-encrypted-reasoning",
-    });
-
-    sse_body(vec![
-        (
-            "response.created",
-            json!({
-                "type": "response.created",
-                "response": response_object(&response_id, "in_progress"),
-            }),
-        ),
+    let mut events = reasoning_item_events(&response_id);
+    events.extend([
         (
             "response.output_item.added",
-            json!({
-                "type": "response.output_item.added",
-                "output_index": 0,
-                "item": reasoning,
-            }),
-        ),
-        (
-            "response.output_item.done",
-            json!({
-                "type": "response.output_item.done",
-                "output_index": 0,
-                "item": reasoning,
-            }),
-        ),
-        (
-            "response.output_item.added",
-            json!({
-                "type": "response.output_item.added",
-                "output_index": 1,
-                "item": function_call("", "in_progress"),
-            }),
+            json!({"output_index": 1, "item": function_call("", "in_progress")}),
         ),
         (
             "response.function_call_arguments.delta",
-            json!({
-                "type": "response.function_call_arguments.delta",
-                "item_id": item_id,
-                "output_index": 1,
-                "delta": arguments,
-            }),
+            json!({"item_id": item_id, "output_index": 1, "delta": arguments}),
         ),
         (
             "response.function_call_arguments.done",
-            json!({
-                "type": "response.function_call_arguments.done",
-                "item_id": item_id,
-                "output_index": 1,
-                "arguments": arguments,
-            }),
+            json!({"item_id": item_id, "output_index": 1, "arguments": arguments}),
         ),
         (
             "response.output_item.done",
-            json!({
-                "type": "response.output_item.done",
-                "output_index": 1,
-                "item": function_call(arguments, "completed"),
-            }),
+            json!({"output_index": 1, "item": function_call(arguments, "completed")}),
         ),
-        (
-            "response.completed",
-            json!({
-                "type": "response.completed",
-                "response": completed_response_object(
-                    &response_id,
-                    json!({
-                        "input_tokens": 42,
-                        "input_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 42},
-                        "output_tokens": 88,
-                        "output_tokens_details": {"reasoning_tokens": 64},
-                        "total_tokens": 130,
-                    }),
-                ),
-            }),
-        ),
-    ])
+    ]);
+
+    round(&response_id, events, usage(42, 0, 88, 64))
 }
 
 /// The text answer the model gives once a tool has run.
@@ -262,187 +478,174 @@ fn tool_answer_round() -> String {
     let deltas = [
         "Here", " is", " the", " mock", " answer", " after", " a", " tool", " ran.",
     ];
-    let text = deltas.concat();
 
-    let message = |content: Value, status: &str| {
+    round(
+        &response_id,
+        message_item_events(&item_id, &response_id, 0, &deltas),
+        // Second round of the same turn, so what the first round wrote to the cache comes back as
+        // a cache read here.
+        usage(96, 42, 24, 8),
+    )
+}
+
+/// The default chat answer: a search of the course material, the results it returns, and a text
+/// answer citing them.
+fn search_and_text_round(base_url: &str) -> String {
+    let response_id = format!("resp_{}", Uuid::new_v4());
+    let call_id = format!("call_{}", Uuid::new_v4());
+    let search_item_id = format!("fc_{}", Uuid::new_v4());
+    let output_item_id = format!("fco_{}", Uuid::new_v4());
+    let message_item_id = format!("msg_{}", Uuid::new_v4());
+
+    let search_call = |arguments: &str, status: &str| {
         json!({
-            "type": "message",
-            "id": item_id,
+            "type": "azure_ai_search_call",
+            "id": search_item_id,
             "response_id": response_id,
-            "phase": "final_answer",
-            "role": "assistant",
-            "content": content,
+            "call_id": call_id,
+            "arguments": arguments,
+            "status": status,
+        })
+    };
+    let search_call_output = |output: &str, status: &str| {
+        json!({
+            "type": "azure_ai_search_call_output",
+            "id": output_item_id,
+            "response_id": response_id,
+            "call_id": call_id,
+            "output": output,
             "status": status,
         })
     };
 
-    let mut events = vec![
-        (
-            "response.created",
-            json!({
-                "type": "response.created",
-                "response": response_object(&response_id, "in_progress"),
-            }),
-        ),
-        (
-            "response.output_item.added",
-            json!({
-                "type": "response.output_item.added",
-                "output_index": 0,
-                "item": message(json!([]), "in_progress"),
-            }),
-        ),
-        (
-            "response.content_part.added",
-            json!({
-                "type": "response.content_part.added",
-                "content_index": 0,
-                "item_id": item_id,
-                "output_index": 0,
-                "part": { "type": "output_text", "text": "" },
-            }),
-        ),
-    ];
-    events.extend(deltas.iter().map(|delta| {
-        (
-            "response.output_text.delta",
-            json!({
-                "type": "response.output_text.delta",
-                "content_index": 0,
-                "item_id": item_id,
-                "output_index": 0,
-                "delta": delta,
-            }),
-        )
-    }));
+    let mut events = vec![(
+        "response.in_progress",
+        json!({"response": response_object(&response_id)}),
+    )];
+    events.extend(reasoning_item_events(&response_id));
     events.extend([
         (
-            "response.output_text.done",
-            json!({
-                "type": "response.output_text.done",
-                "content_index": 0,
-                "item_id": item_id,
-                "output_index": 0,
-                "text": text,
-            }),
+            "response.output_item.added",
+            json!({"output_index": 1, "item": search_call("", "in_progress")}),
         ),
         (
             "response.output_item.done",
             json!({
-                "type": "response.output_item.done",
-                "output_index": 0,
-                "item": message(json!([{ "type": "output_text", "text": text }]), "completed"),
+                "output_index": 1,
+                "item": search_call(r#"{"query":"tell me more"}"#, "completed"),
             }),
         ),
         (
-            "response.completed",
+            "response.output_item.added",
+            json!({"output_index": 2, "item": search_call_output("[]", "in_progress")}),
+        ),
+        (
+            "response.output_item.done",
             json!({
-                "type": "response.completed",
-                "response": completed_response_object(
-                    &response_id,
-                    // Second round of the same turn, so what the first round wrote to the cache
-                    // comes back as a cache read here.
-                    json!({
-                        "input_tokens": 96,
-                        "input_tokens_details": {"cached_tokens": 42, "cache_write_tokens": 54},
-                        "output_tokens": 24,
-                        "output_tokens_details": {"reasoning_tokens": 8},
-                        "total_tokens": 120,
-                    }),
-                ),
+                "output_index": 2,
+                "item": search_call_output(&search_results(base_url), "completed"),
             }),
         ),
     ]);
+    events.extend(message_item_events(
+        &message_item_id,
+        &response_id,
+        3,
+        &SEARCH_ANSWER_DELTAS,
+    ));
 
-    sse_body(events)
+    round(&response_id, events, usage(38, 0, 79, 64))
 }
 
-const RESPONSE: &str = r#"
-event: response.created
-data: {"type": "response.created","response": {"id": "resp_0","object": "response","created_at": 1774260901,"status": "in_progress","background": false,"completed_at": null,"content_filters": null,"error": null,"frequency_penalty": 0.0,"incomplete_details": null,"instructions": null,"max_output_tokens": null,"max_tool_calls": null,"model": "mock-gpt","output": [],"parallel_tool_calls": true,"presence_penalty": 0.0,"previous_response_id": null,"prompt_cache_key": null,"prompt_cache_retention": null,"reasoning": {"effort": "medium","summary": null,"context": "current_turn"},"safety_identifier": null,"service_tier": "auto","store": true,"temperature": 1.0,"text": {"format": {"type": "text"},"verbosity": "medium"},"tool_choice": null,"tools": [{"type": "azure_ai_search","azure_ai_search": {"indexes": [{"project_connection_id": "connection-id","index_name": "mock-index","query_type": "semantic","top_k": 5}]}}],"top_logprobs": 0,"top_logprobs": 0,"top_p": 0.85,"truncation": "disabled","usage": null,"user": null,"metadata": {}},"sequence_number": 0}
+/// The default round's answer, one delta per element. Each `【x:y†source】` is a citation marker the
+/// frontend replaces with a link to the document it points at.
+const SEARCH_ANSWER_DELTAS: [&str; 12] = [
+    "Hello",
+    "!",
+    " How",
+    " can",
+    " I",
+    " assist",
+    " 【0:2†source】",
+    " you",
+    " 【0:1†source】",
+    " today",
+    "?",
+    "【0:2†source】",
+];
 
-event: response.in_progress
-data: {"type": "response.in_progress","response": {"id": "resp_0","object": "response","created_at": 1774260901,"status": "in_progress","background": false,"completed_at": null,"content_filters": null,"error": null,"frequency_penalty": 0.0,"incomplete_details": null,"instructions": null,"max_output_tokens": null,"max_tool_calls": null,"model": "mock-gpt","output": [],"parallel_tool_calls": true,"presence_penalty": 0.0,"previous_response_id": null,"prompt_cache_key": null,"prompt_cache_retention": null,"reasoning": {"effort": "medium","summary": null,"context": "current_turn"},"safety_identifier": null,"service_tier": "auto","store": true,"temperature": 1.0,"text": {"format": {"type": "text"},"verbosity": "medium"},"tool_choice": null,"tools": [{"type": "azure_ai_search","azure_ai_search": {"indexes": [{"project_connection_id": "connection-id","index_name": "mock-index","query_type": "semantic","top_k": 5}]}}],"top_logprobs": 0,"top_logprobs": 0,"top_p": 0.85,"truncation": "disabled","usage": null,"user": null,"metadata": {}},"sequence_number": 1}
+/// What the search returns, as the JSON string Azure nests it in. Only `get_urls` is read: the
+/// chatbot fetches each of those to build the answer's citations, so both they and the hits come
+/// from [`MOCK_DOCUMENTS`], the documents the mock document storage serves.
+fn search_results(base_url: &str) -> String {
+    let [document1, document2, document3] = &MOCK_DOCUMENTS;
+    let hit = |id: &str, document: &MockDocument, content: &str| {
+        json!({
+            "id": id,
+            "content": content,
+            "filepath": document.filepath,
+            "title": document.title,
+            "url": "",
+            "score": 0.016666668,
+            "knowledgeSourceIndex": 0,
+        })
+    };
+    let get_urls: Vec<String> = MOCK_DOCUMENTS
+        .iter()
+        .map(|document| {
+            format!(
+                "{base_url}/api/v0/mock-document-storage/test/documents/{}",
+                document.id
+            )
+        })
+        .collect();
 
-event: response.output_item.added
-data: {"type": "response.output_item.added","item": {"type": "reasoning","id": "rs_0","response_id": "resp_0","summary": [],"encrypted_content": "mock-encrypted-reasoning"},"output_index": 0,"sequence_number": 2}
+    json!({
+        "documents": [
+            hit(
+                "doc1",
+                document1,
+                "This chunk is a snippet from page {} of the course {}. Mock test page content This is test content blah",
+            ),
+            hit(
+                "doc2",
+                document2,
+                "Mock test page content 2 This is another test page.",
+            ),
+            // A second hit on doc1's page, so it repeats that page's title and filepath and only
+            // the chunk is document3's.
+            hit("doc3", document1, document3.chunk),
+        ],
+        "get_urls": get_urls,
+    })
+    .to_string()
+}
 
-event: response.output_item.done
-data: {"type": "response.output_item.done","item": {"type": "reasoning","id": "rs_0","response_id": "resp_0","summary": [],"encrypted_content": "mock-encrypted-reasoning"},"output_index": 0,"sequence_number": 3}
+/// A response to a request that asked for structured output instead of a stream: one whole JSON
+/// object, whose text content is `payload`, the JSON the caller's own schema describes.
+fn blocking_response(payload: &str) -> String {
+    let response_id = format!("resp_{}", Uuid::new_v4());
+    let item_id = format!("msg_{}", Uuid::new_v4());
 
-event: response.output_item.added
-data: {"type": "response.output_item.added","item": {"type": "azure_ai_search_call","id": "fc_0","response_id": "resp_0","call_id": "call_0","arguments": "","status": "in_progress"},"output_index": 1,"sequence_number": 4}
+    let mut response = completed_response_object(&response_id, usage(30, 0, 15, 0));
+    response["output"] = json!([message_item(
+        &item_id,
+        &response_id,
+        json!([{ "type": "output_text", "text": payload }]),
+        "completed",
+    )]);
+    response.to_string()
+}
 
-event: response.output_item.done
-data: {"type": "response.output_item.done","item": {"type": "azure_ai_search_call","id": "fc_0","response_id": "resp_0","call_id": "call_0","arguments": "{\"query\":\"tell me more\"}","status": "completed"},"output_index": 1,"sequence_number": 5}
+/// The suggestions the chatbot offers as the learner's next message.
+const MESSAGE_SUGGESTION_PAYLOAD: &str =
+    r#"{"suggestions":["Can you pls help me?","Nice weather we're having.","Hello?"]}"#;
 
-event: response.output_item.added
-data: {"type": "response.output_item.added","item": {"type": "azure_ai_search_call_output","id": "fco_0","response_id": "resp_0","call_id": "call_0","output": "[]","status": "in_progress"},"output_index": 2,"sequence_number": 6}
+/// The rewrites the CMS offers for a paragraph.
+const CMS_SUGGESTION_PAYLOAD: &str = r#"{"suggestions":["Mock suggestion 1: The paragraph has been improved.","Mock suggestion 2: Here is an alternative version of the paragraph.","Mock suggestion 3: A third distinct rewrite of the paragraph."]}"#;
 
-event: response.output_item.done
-data: {"type": "response.output_item.done","item": {"type": "azure_ai_search_call_output","id": "fco_0","response_id": "resp_0","call_id": "call_0","output": "{\"documents\": [{\"id\": \"doc1\", \"content\": \"This chunk is a snippet from page {} of the course {}. Mock test page content This is test content blah\", \"filepath\": \"document1\", \"title\": \"Cited course page\", \"url\": \"\",\"score\": 0.016666668, \"knowledgeSourceIndex\": 0},{\"id\": \"doc2\",\"content\": \"Mock test page content 2 This is another test page.\",\"filepath\": \"document2\",\"title\": \"Cited course page 2\",\"url\": \"\",\"score\": 0.016666668,\"knowledgeSourceIndex\": 0},{\"id\": \"doc3\",\"content\": \"More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.\",\"filepath\": \"document1\",\"title\": \"Cited course page\",\"url\": \"\",\"score\": 0.016666668,\"knowledgeSourceIndex\": 0}],\"get_urls\": [!URLS!]}","status": "completed"},"output_index": 2,"sequence_number": 7}
-
-event: response.output_item.added
-data: {"type": "response.output_item.added","item": {"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [],"status": "in_progress"},"output_index": 3,"sequence_number": 8}
-
-event: response.content_part.added
-data: {"type": "response.content_part.added","content_index": 0,"item_id": "msg_0","output_index": 3,"part": {"type": "output_text","annotations": [],"logprobs": [],"text": ""},"sequence_number": 9}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": "Hello","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 10}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": "!","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 11}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": " How","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 12}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": " can","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 13}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": " I","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 14}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": " assist","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 15}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": " 【0:2†source】","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 16}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": " you","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 17}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": " 【0:1†source】","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 18}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": " today","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 19}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": "?","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 20}
-
-event: response.output_text.delta
-data: {"type": "response.output_text.delta","content_index": 0,"delta": "【0:2†source】","item_id": "msg_0","logprobs": [],"obfuscation": "","output_index": 3,"sequence_number": 21}
-
-event: response.output_text.done
-data: {"type": "response.output_text.done","content_index": 0,"item_id": "msg_0","logprobs": [],"output_index": 3,"sequence_number": 22,"text": "Hello! How can I assist 【0:2†source】 you 【0:1†source】 today? 【0:2†source】"}
-
-event: response.content_part.done
-data: {"type": "response.content_part.done","content_index": 0,"item_id": "msg_0","output_index": 3,"part": {"type": "output_text","annotations": [],"logprobs": [],"text": "Hello! How can I assist 【0:2†source】 you 【0:1†source】 today? 【0:2†source】"},"sequence_number": 23}
-
-event: response.output_item.done
-data: {"type": "response.output_item.done","item": {"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [{"type": "output_text","text": "Hello! How can I assist 【0:2†source】 you 【0:1†source】 today? 【0:2†source】","annotations": [],"logprobs": []}],"status": "completed"},"output_index": 3,"sequence_number": 24}
-
-event: response.completed
-data: {"type": "response.completed","response": {"id": "resp_0","object": "response","created_at": 1774422684,"status": "completed","background": false,"completed_at": 1774422685,"content_filters": [{"blocked": false,"source_type": "prompt","content_filter_raw": [],"content_filter_results": {"jailbreak": {"filtered": false,"detected": false},"self_harm": {"filtered": false,"severity": "safe"},"hate": {"filtered": false,"severity": "safe"},"violence": {"filtered": false,"severity": "safe"},"sexual": {"filtered": false,"severity": "safe"}},"content_filter_offsets": {"start_offset": 918,"end_offset": 930,"check_offset": 0}}],"error": null,"frequency_penalty": 0.0,"incomplete_details": null,"instructions": null,"max_output_tokens": null,"max_tool_calls": null,"model": "gpt-5.4-nano","output": [{"type": "reasoning","id": "rs_0","response_id": "resp_0","summary": [],"encrypted_content": "mock-encrypted-reasoning"},{"type": "azure_ai_search_call","id": "fc_0","response_id": "resp_0","call_id": "call_0","arguments": "{\"query\":\"tell me more\"}","status": "completed"},{"type": "azure_ai_search_call_output","id": "fco_0","response_id": "resp_0","call_id": "call_0","output": "{\"documents\":[{\"id\": \"doc1\",\"content\": \"This chunk is a snippet from page {} of the course {}. ,|||,Mock test page content\n This is test content blah\",\"filepath\": \"document1\",\"title\": \"Cited course page\",\"url\": \"\",\"score\": 0.016666668,\"knowledgeSourceIndex\": 0},{\"id\": \"doc2\",\"content\": \"Mock test page content 2\n This is another test page.\",\"filepath\": \"document2\",\"title\": \"Cited course page 2\",\"url\": \"\",\"score\": 0.016666668,\"knowledgeSourceIndex\": 0},{\"id\": \"doc3\",\"content\": \"More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.\",\"filepath\": \"document1\",\"title\": \"Cited course page\",\"url\": \"\",\"score\": 0.016666668,\"knowledgeSourceIndex\": 0},],\"get_urls\":[!URLS!]}","status": "completed"},{"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [{"type": "output_text","text": "Hello! How can I assist 【0:2†source】 you 【0:1†source】 today? 【0:2†source】","annotations": [],"logprobs": []}],"status": "completed"}],"parallel_tool_calls": true,"presence_penalty": 0.0,"previous_response_id": null,"prompt_cache_key": null,"prompt_cache_retention": null,"reasoning": {"effort": "high","summary": null,"context": "current_turn"},"safety_identifier": null,"service_tier": "auto","store": true,"temperature": 1.0,"text": {"format": {"type": "text"},"verbosity": "medium"},"tool_choice": "required","tools": [{"type": "azure_ai_search","azure_ai_search": {"indexes": [{"project_connection_id": "connection-id","index_name": "mock-index","query_type": "semantic","top_k": 5}]}}],"top_logprobs": 0,"top_logprobs": 0,"top_p": 0.85,"truncation": "disabled","usage": {"input_tokens": 38,"input_tokens_details": {"cached_tokens": 0,"cache_write_tokens": 38},"output_tokens": 79,"output_tokens_details": {"reasoning_tokens": 64},"total_tokens": 117},"user": null,"metadata": {}},"sequence_number": 25}
-"#;
-
-const SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature": 1,"top_p": 0.98,"service_tier": "default","model": "mock-gpt","reasoning": {"effort": "medium","summary": "detailed","context": "current_turn"},"background": false,"text": {"format": {"type": "text"},"verbosity": "medium"},"tools": [],"tool_choice": "auto","truncation": "disabled","id": "resp_0","object": "response","status": "completed","created_at": 1776144780,"completed_at": 1776144781,"error": null,"incomplete_details": null,"output": [{"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [{"type": "output_text","text": "{\"suggestions\":[\"Can you pls help me?\",\"Nice weather we're having.\",\"Hello?\"]}","annotations": [],"logprobs": []}],"status": "completed"}],"instructions": null,"usage": {"input_tokens": 30,"input_tokens_details": {"cached_tokens": 0,"cache_write_tokens": 30},"output_tokens": 15,"output_tokens_details": {"reasoning_tokens": 0},"total_tokens": 45},"parallel_tool_calls": true,"agent_reference": null}
-"#;
-
-const CMS_SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature": 1,"top_p": 0.98,"service_tier": "default","model": "mock-gpt","reasoning": {"effort": "medium","summary": "detailed","context": "current_turn"},"background": false,"text": {"format": {"type": "text"},"verbosity": "medium"},"tools": [],"tool_choice": "auto","truncation": "disabled","id": "resp_0","object": "response","status": "completed","created_at": 1776144780,"completed_at": 1776144781,"error": null,"incomplete_details": null,"output": [{"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [{"type": "output_text","text": "{\"suggestions\":[\"Mock suggestion 1: The paragraph has been improved.\",\"Mock suggestion 2: Here is an alternative version of the paragraph.\",\"Mock suggestion 3: A third distinct rewrite of the paragraph.\"]}","annotations": [],"logprobs": []}],"status": "completed"}],"instructions": null,"usage": {"input_tokens": 30,"input_tokens_details": {"cached_tokens": 0,"cache_write_tokens": 30},"output_tokens": 15,"output_tokens_details": {"reasoning_tokens": 0},"total_tokens": 45},"parallel_tool_calls": true,"agent_reference": null}"#;
-
-const DESCRIPTION_SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature": 1,"top_p": 0.98,"service_tier": "default","model": "mock-gpt","reasoning": {"effort": "medium","summary": "detailed","context": "current_turn"},"background": false,"text": {"format": {"type": "text"},"verbosity": "medium"},"tools": [],"tool_choice": "auto","truncation": "disabled","id": "resp_0","object": "response","status": "completed","created_at": 1776144780,"completed_at": 1776144781,"error": null,"incomplete_details": null,"output": [{"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [{ "text": "{\"modules\":[{\"description\":\"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly. No hard prerequisites; Linux operating systems and web development experience are useful.\",\"prerequisites\":[\"No hard prerequisites\",\"Linux operating systems and web development experience are useful\"],\"course_code\":\"TKT21036\"}],\"audience\":[\"everyone\"],\"course_description\":\"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly.\"}"}],"annotations": [],"logprobs": []}],"instructions": null,"usage": {"input_tokens": 30,"input_tokens_details": {"cached_tokens": 0,"cache_write_tokens": 30},"output_tokens": 15,"output_tokens_details": {"reasoning_tokens": 0},"total_tokens": 45},"parallel_tool_calls": true,"agent_reference": null}"#;
+/// The course description summary, in the shape Sisu expects it in.
+const COURSE_DESCRIPTION_PAYLOAD: &str = r#"{"modules":[{"description":"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly. No hard prerequisites; Linux operating systems and web development experience are useful.","prerequisites":["No hard prerequisites","Linux operating systems and web development experience are useful"],"course_code":"TKT21036"}],"audience":["everyone"],"course_description":"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly."}"#;
 
 // GET /api/v0/mock_azure/openai/v1/embeddings
 // POST /api/v0/mock_azure/openai/v1/embeddings
@@ -501,6 +704,7 @@ mod tests {
         },
         llm_utils::{LLMResponse, parse_text_completion},
     };
+    use regex::Regex;
 
     use super::*;
 
@@ -522,23 +726,19 @@ mod tests {
         events
     }
 
-    /// Every streamed body the mock can return, named for failure messages.
-    fn streamed_bodies() -> Vec<(&'static str, String)> {
-        vec![
-            (
-                "the default chat answer",
-                chat_message_response("Tell me more", BASE_URL),
-            ),
-            (
-                "the function call round",
-                chat_message_response(TOOL_CALL_TRIGGER, BASE_URL),
-            ),
-            (
-                "the client tool call round",
-                chat_message_response(CLIENT_TOOL_CALL_TRIGGER, BASE_URL),
-            ),
-            ("the answer after a tool ran", tool_answer_round()),
-        ]
+    /// The body the mock answers `request` with, through the dispatch the handler runs.
+    fn respond(request: &MockRequest) -> String {
+        let scenario = pick_scenario(request).expect("the mock answers this request");
+        (scenario.respond)(BASE_URL)
+    }
+
+    /// Every registered scenario's example body of the given kind, named for failure messages.
+    fn example_bodies(stream: bool) -> Vec<(&'static str, String)> {
+        SCENARIOS
+            .iter()
+            .filter(|scenario| (scenario.example)().stream == stream)
+            .map(|scenario| (scenario.name, (scenario.respond)(BASE_URL)))
+            .collect()
     }
 
     /// The tools called by the function call items among `events`.
@@ -552,6 +752,26 @@ mod tests {
                 }
             })
             .collect()
+    }
+
+    /// Where the round's first delta is, having checked the lifecycle events every round needs
+    /// around it: the response id before the first delta, and the terminal event last.
+    fn first_delta(events: &[(&str, &str)]) -> usize {
+        let index = events
+            .iter()
+            .position(|(event, _)| event.ends_with(".delta"))
+            .expect("The round streams a delta event");
+        assert!(
+            events[..index]
+                .iter()
+                .any(|(event, _)| *event == "response.created"),
+            "The response id has to be known before the first delta"
+        );
+        assert_eq!(
+            events.last().map(|(event, _)| *event),
+            Some("response.completed")
+        );
+        index
     }
 
     /// The names of the tools the chatbot runs itself.
@@ -570,7 +790,9 @@ mod tests {
     /// running the whole stack.
     #[test]
     fn every_streamed_data_line_parses_into_chatbot_types() {
-        for (name, body) in streamed_bodies() {
+        let bodies = example_bodies(true);
+        assert!(!bodies.is_empty(), "no streamed scenario is registered");
+        for (name, body) in bodies {
             let events = sse_events(&body);
             assert!(!events.is_empty(), "{name} streams no events");
             for (event, data) in events {
@@ -593,16 +815,30 @@ mod tests {
         }
     }
 
-    /// The structured output features parse the text content again as their own response shape,
-    /// so both layers have to hold.
+    /// A scenario answering an example its own `matches` rejects would leave the round it stands
+    /// for untested while every test built from the registry passed.
     #[test]
-    fn structured_output_constants_parse_into_chatbot_types() {
-        for (name, body) in [
-            ("The message suggestion response", SUGGESTION),
-            ("The CMS suggestion response", CMS_SUGGESTION),
-            ("The course description response", DESCRIPTION_SUGGESTION),
-        ] {
-            let completion: LLMResponse = serde_json::from_str(body)
+    fn every_scenario_answers_its_own_example() {
+        for scenario in SCENARIOS {
+            let request = (scenario.example)();
+            let picked = pick_scenario(&request).map(|picked| picked.name);
+            assert_eq!(
+                picked,
+                Some(scenario.name),
+                "{} is not the scenario its own example is answered by",
+                scenario.name
+            );
+        }
+    }
+
+    /// The structured output features parse the text content again as their own response shape, so
+    /// both layers have to hold.
+    #[test]
+    fn structured_output_responses_parse_into_chatbot_types() {
+        let bodies = example_bodies(false);
+        assert!(!bodies.is_empty(), "no blocking scenario is registered");
+        for (name, body) in bodies {
+            let completion: LLMResponse = serde_json::from_str(&body)
                 .unwrap_or_else(|e| panic!("{name} does not parse as an LLM response: {e}"));
             let content = parse_text_completion(completion)
                 .unwrap_or_else(|e| panic!("{name} has no text content: {e}"));
@@ -612,37 +848,40 @@ mod tests {
         }
     }
 
+    /// Each feature parses the text content as its own response shape, so a payload nested inside
+    /// another object would satisfy the test above and still break all three.
+    #[test]
+    fn a_blocking_response_carries_its_payload_as_the_whole_text_content() {
+        for payload in [
+            MESSAGE_SUGGESTION_PAYLOAD,
+            CMS_SUGGESTION_PAYLOAD,
+            COURSE_DESCRIPTION_PAYLOAD,
+        ] {
+            let completion: LLMResponse = serde_json::from_str(&blocking_response(payload))
+                .expect("the blocking response parses as an LLM response");
+            let content = parse_text_completion(completion).expect("the response has text content");
+            assert_eq!(content, payload);
+        }
+    }
+
     /// The chatbot decides how to parse the rest of the stream from the first delta event and
     /// hands the tool parser only what comes after it. The tool parser needs a completed function
     /// call and a `response.completed`, and errors on a text delta.
     #[test]
     fn the_function_call_round_drives_the_tool_call_parser() {
-        let body = chat_message_response(TOOL_CALL_TRIGGER, BASE_URL);
+        let body = respond(&MockRequest::chat(TOOL_CALL_TRIGGER));
         let events = sse_events(&body);
 
-        let first_delta = events
-            .iter()
-            .position(|(event, _)| event.ends_with(".delta"))
-            .expect("The round streams a delta event");
+        let first_delta = first_delta(&events);
         assert_eq!(
             events[first_delta].0,
             "response.function_call_arguments.delta"
-        );
-        assert!(
-            events[..first_delta]
-                .iter()
-                .any(|(event, _)| *event == "response.created"),
-            "The response id has to be known before the first delta"
         );
         assert!(
             !events
                 .iter()
                 .any(|(event, _)| *event == "response.output_text.delta"),
             "A text delta makes the tool parser error out"
-        );
-        assert_eq!(
-            events.last().map(|(event, _)| *event),
-            Some("response.completed")
         );
 
         let called = called_tool_names(&events[first_delta + 1..]);
@@ -664,7 +903,7 @@ mod tests {
     /// must not be one the chatbot would run itself instead of suspending.
     #[test]
     fn the_client_tool_call_round_calls_a_tool_only_the_client_answers() {
-        let body = chat_message_response(CLIENT_TOOL_CALL_TRIGGER, BASE_URL);
+        let body = respond(&MockRequest::chat(CLIENT_TOOL_CALL_TRIGGER));
 
         let called = called_tool_names(&sse_events(&body));
         assert!(!called.is_empty(), "The round calls no tool");
@@ -691,24 +930,10 @@ mod tests {
 
     #[test]
     fn the_answer_after_a_tool_ran_drives_the_text_parser() {
-        let body = tool_answer_round();
+        let body = respond(&MockRequest::after_tool_run());
         let events = sse_events(&body);
 
-        let first_delta = events
-            .iter()
-            .position(|(event, _)| event.ends_with(".delta"))
-            .expect("The round streams a delta event");
-        assert_eq!(events[first_delta].0, "response.output_text.delta");
-        assert!(
-            events[..first_delta]
-                .iter()
-                .any(|(event, _)| *event == "response.created"),
-            "The response id has to be known before the first delta"
-        );
-        assert_eq!(
-            events.last().map(|(event, _)| *event),
-            Some("response.completed")
-        );
+        assert_eq!(events[first_delta(&events)].0, "response.output_text.delta");
 
         let streamed: String = events
             .iter()
@@ -718,12 +943,30 @@ mod tests {
         assert!(!streamed.is_empty(), "The round streams no text");
     }
 
-    /// `!URLS!` is substituted into a JSON string nested in a JSON string, so a missed escape
-    /// only surfaces when the chatbot parses the search output to save citations.
+    /// The system tests wait for this answer with the citation markers stripped out by the
+    /// frontend, and the committed screenshots show it with them rendered as citation pills, so
+    /// rewording either form here, or shifting a space around a marker, fails the chatbot specs.
     #[test]
-    fn the_search_response_substitutes_document_urls() {
-        let body = search_and_text_response(BASE_URL);
-        assert!(!body.contains("!URLS!"));
+    fn the_search_round_answers_the_text_the_system_tests_wait_for() {
+        let answer = SEARCH_ANSWER_DELTAS.concat();
+        assert_eq!(
+            answer,
+            "Hello! How can I assist 【0:2†source】 you 【0:1†source】 today?【0:2†source】"
+        );
+
+        // The frontend's REMOVE_CITATIONS_REGEX, which produces the text the specs wait for.
+        let stripped = Regex::new(r"\s*?【\d+:\d+†source】")
+            .expect("the citation regex compiles")
+            .replace_all(&answer, "");
+        assert_eq!(stripped, "Hello! How can I assist you today?");
+    }
+
+    /// The urls are the only part of the search output the chatbot reads, and it reads them out of
+    /// a JSON string nested in a JSON string, so the nesting only fails where it is parsed: when
+    /// the answer's citations are saved.
+    #[test]
+    fn the_search_round_streams_document_urls() {
+        let body = search_and_text_round(BASE_URL);
 
         let search_outputs: Vec<String> = sse_events(&body)
             .into_iter()
@@ -740,7 +983,7 @@ mod tests {
             .collect();
         assert!(
             !search_outputs.is_empty(),
-            "The search response streams no search output with urls"
+            "The search round streams no search output with urls"
         );
         for output in search_outputs {
             let parsed: AISearchOutput = serde_json::from_str(&output)

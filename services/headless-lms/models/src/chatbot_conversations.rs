@@ -79,6 +79,26 @@ WHERE id = $1
     Ok(res)
 }
 
+/// Soft deletes a conversation, after which it accepts no further messages.
+///
+/// Deleting one that is already deleted is not an error, so a caller does not have to check first.
+/// See [crate::chatbot_configurations::delete] for removing the configuration a conversation
+/// belongs to.
+pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE chatbot_conversations
+SET deleted_at = now()
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn create_for_user_and_configuration(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,

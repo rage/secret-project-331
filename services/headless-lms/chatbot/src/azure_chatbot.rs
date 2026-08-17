@@ -903,7 +903,7 @@ impl Drop for RequestCancelledGuard {
         if self.done.load(atomic::Ordering::Relaxed) {
             return;
         }
-        warn!("Request was not cancelled. Cleaning up.");
+        info!("Request ended before the turn completed. Cleaning up.");
         let response_message_id = self.response_message_id.clone();
         let received_string = self.received_string.clone();
         let pool = self.pool.clone();

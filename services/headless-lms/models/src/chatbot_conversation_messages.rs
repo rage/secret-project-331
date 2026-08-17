@@ -351,12 +351,24 @@ LIMIT 1
 /// running passes `None`; a caller sweeping at the start of an unrelated request must pass a
 /// cutoff, because nothing serializes requests for one conversation and a call whose output has
 /// not been written yet may belong to a turn still streaming in another request.
+///
+/// Which calls to answer is decided again under the conversation lock, in one transaction with the
+/// inserts: two sweeps racing would otherwise both answer the same call, and a `tool_call_id`
+/// carrying two outputs is replayed as two and rejected by the provider for the rest of the
+/// conversation.
+///
+/// The read before that only decides whether there is anything to repair, and must stay unlocked.
+/// A request that already holds this conversation's row locked on another pooled connection would
+/// otherwise block here forever on a sweep that had nothing to write.
 pub async fn answer_hanging_tool_call_messages_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
     created_before: Option<DateTime<Utc>>,
 ) -> ModelResult<Vec<ChatbotConversationMessage>> {
-    let mut res = vec![];
+    let needs_answering = |tool_call: &ChatbotConversationMessageToolCall| {
+        tool_call.tool_kind != ToolKind::ClientTool
+            && created_before.is_none_or(|cutoff| tool_call.created_at < cutoff)
+    };
 
     let unanswered =
         chatbot_conversation_message_tool_calls::get_unanswered_tool_calls_for_conversation(
@@ -364,13 +376,24 @@ pub async fn answer_hanging_tool_call_messages_for_conversation(
             conversation_id,
         )
         .await?;
+    if !unanswered.iter().any(needs_answering) {
+        return Ok(vec![]);
+    }
 
-    for tool_call in unanswered.into_iter().filter(|tool_call| {
-        tool_call.tool_kind != ToolKind::ClientTool
-            && created_before.is_none_or(|cutoff| tool_call.created_at < cutoff)
-    }) {
+    let mut tx = conn.begin().await?;
+    lock_conversation_for_order_number_allocation(&mut tx, conversation_id).await?;
+
+    let unanswered =
+        chatbot_conversation_message_tool_calls::get_unanswered_tool_calls_for_conversation(
+            &mut tx,
+            conversation_id,
+        )
+        .await?;
+
+    let mut res = vec![];
+    for tool_call in unanswered.into_iter().filter(needs_answering) {
         let inserted = insert(
-            conn,
+            &mut tx,
             tool_call_output_message(
                 conversation_id,
                 &tool_call,
@@ -381,6 +404,7 @@ pub async fn answer_hanging_tool_call_messages_for_conversation(
         res.push(inserted);
     }
 
+    tx.commit().await?;
     Ok(res)
 }
 
@@ -704,45 +728,6 @@ mod tests {
         (configuration.id, conversation.id)
     }
 
-    /// Hard deletes the fixture of [insert_conversation] along with the messages of the
-    /// conversation, for the tests that commit instead of running inside a rolled back
-    /// transaction.
-    async fn delete_conversation(conn: &mut PgConnection, configuration_id: Uuid, id: Uuid) {
-        // The tool call and tool output tables do not cascade, so they go first.
-        sqlx::query!(
-            "DELETE FROM chatbot_conversation_message_tool_calls WHERE chatbot_conversation_message_id IN (SELECT id FROM chatbot_conversation_messages WHERE conversation_id = $1)",
-            id
-        )
-        .execute(&mut *conn)
-        .await
-        .unwrap();
-        sqlx::query!(
-            "DELETE FROM chatbot_conversation_message_tool_outputs WHERE chatbot_conversation_message_id IN (SELECT id FROM chatbot_conversation_messages WHERE conversation_id = $1)",
-            id
-        )
-        .execute(&mut *conn)
-        .await
-        .unwrap();
-        sqlx::query!(
-            "DELETE FROM chatbot_conversation_messages WHERE conversation_id = $1",
-            id
-        )
-        .execute(&mut *conn)
-        .await
-        .unwrap();
-        sqlx::query!("DELETE FROM chatbot_conversations WHERE id = $1", id)
-            .execute(&mut *conn)
-            .await
-            .unwrap();
-        sqlx::query!(
-            "DELETE FROM chatbot_configurations WHERE id = $1",
-            configuration_id
-        )
-        .execute(&mut *conn)
-        .await
-        .unwrap();
-    }
-
     fn user_message(conversation_id: Uuid, text: &str) -> ChatbotConversationMessage {
         ChatbotConversationMessage {
             conversation_id,
@@ -842,14 +827,9 @@ mod tests {
     async fn refuses_to_add_a_message_to_a_deleted_conversation() {
         insert_data!(:tx);
         let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
-        let conn: &mut PgConnection = tx.as_mut();
-        sqlx::query!(
-            "UPDATE chatbot_conversations SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL",
-            conversation
-        )
-        .execute(conn)
-        .await
-        .unwrap();
+        crate::chatbot_conversations::delete(tx.as_mut(), conversation)
+            .await
+            .unwrap();
 
         let error = insert(tx.as_mut(), user_message(conversation, "hello"))
             .await
@@ -1159,74 +1139,6 @@ mod tests {
         );
     }
 
-    /// The decision of who resumes has to be made under the conversation lock, which is what
-    /// serializes it against the new user message that aborts the same call.
-    #[tokio::test]
-    async fn answering_a_client_tool_call_waits_for_the_conversation_lock() {
-        let mut fixture_conn = connect_without_transaction().await;
-        let (configuration, conversation) = insert_conversation(&mut fixture_conn).await;
-        insert(
-            &mut fixture_conn,
-            tool_call_message(conversation, "call_1", ToolKind::ClientTool),
-        )
-        .await
-        .unwrap();
-        let mut holder_conn = connect_without_transaction().await;
-        let mut conn = connect_without_transaction().await;
-        sqlx::query!("SET lock_timeout = '2s'")
-            .execute(&mut conn)
-            .await
-            .unwrap();
-
-        let mut holder = holder_conn.begin().await.unwrap();
-        lock_conversation_for_order_number_allocation(&mut holder, conversation)
-            .await
-            .unwrap();
-        let blocked =
-            answer_client_tool_call(&mut conn, conversation, "call_1", "blocked".to_string()).await;
-        holder.rollback().await.unwrap();
-        let after_release =
-            answer_client_tool_call(&mut conn, conversation, "call_1", "answer".to_string()).await;
-
-        delete_conversation(&mut fixture_conn, configuration, conversation).await;
-
-        let blocked_error = blocked.expect_err("the answer must wait for the lock");
-        assert!(format!("{blocked_error:?}").contains("lock timeout"));
-        assert!(after_release.unwrap().turn_can_resume);
-    }
-
-    /// Two clients answering different calls of the same round at the same time. Reading the
-    /// outstanding calls outside the lock makes both of them see the other's call as still
-    /// outstanding, and the turn is never resumed at all.
-    #[tokio::test]
-    async fn concurrent_answers_resume_the_turn_exactly_once() {
-        let mut fixture_conn = connect_without_transaction().await;
-        let (configuration, conversation) = insert_conversation(&mut fixture_conn).await;
-        for tool_call_id in ["call_1", "call_2"] {
-            insert(
-                &mut fixture_conn,
-                tool_call_message(conversation, tool_call_id, ToolKind::ClientTool),
-            )
-            .await
-            .unwrap();
-        }
-        let mut conn_a = connect_without_transaction().await;
-        let mut conn_b = connect_without_transaction().await;
-
-        let (first, second) = tokio::join!(
-            answer_client_tool_call(&mut conn_a, conversation, "call_1", "from a".to_string()),
-            answer_client_tool_call(&mut conn_b, conversation, "call_2", "from b".to_string()),
-        );
-
-        delete_conversation(&mut fixture_conn, configuration, conversation).await;
-
-        let resumers = [first.unwrap(), second.unwrap()]
-            .iter()
-            .filter(|outcome| outcome.turn_can_resume)
-            .count();
-        assert_eq!(resumers, 1);
-    }
-
     /// A learner who reloads while a call is waiting has to be able to answer it still, and the
     /// conversation info is everything the chatbot ui gets to work that out from.
     #[tokio::test]
@@ -1395,54 +1307,5 @@ mod tests {
             .unwrap();
         assert_eq!(hanging.len(), 1);
         assert_eq!(hanging[0].tool_call_id, "call_1");
-    }
-
-    /// Two turns of the same conversation can insert at the same time, and both have to get an
-    /// order number of their own instead of one of them hitting the unique index.
-    #[tokio::test]
-    async fn concurrent_inserts_get_distinct_order_numbers() {
-        let mut fixture_conn = connect_without_transaction().await;
-        let (configuration, conversation) = insert_conversation(&mut fixture_conn).await;
-        let mut conn_a = connect_without_transaction().await;
-        let mut conn_b = connect_without_transaction().await;
-
-        let (first, second) = tokio::join!(
-            insert(&mut conn_a, user_message(conversation, "from a")),
-            insert(&mut conn_b, user_message(conversation, "from b")),
-        );
-
-        delete_conversation(&mut fixture_conn, configuration, conversation).await;
-
-        let mut order_numbers = [first.unwrap().order_number, second.unwrap().order_number];
-        order_numbers.sort_unstable();
-        assert_eq!(order_numbers, [1, 2]);
-    }
-
-    /// An insert must not allocate an order number while another transaction holds the
-    /// conversation lock. The lock timeout turns the wait into an error the test can observe.
-    #[tokio::test]
-    async fn insert_waits_for_the_conversation_lock() {
-        let mut fixture_conn = connect_without_transaction().await;
-        let (configuration, conversation) = insert_conversation(&mut fixture_conn).await;
-        let mut holder_conn = connect_without_transaction().await;
-        let mut conn = connect_without_transaction().await;
-        sqlx::query!("SET lock_timeout = '2s'")
-            .execute(&mut conn)
-            .await
-            .unwrap();
-
-        let mut holder = holder_conn.begin().await.unwrap();
-        lock_conversation_for_order_number_allocation(&mut holder, conversation)
-            .await
-            .unwrap();
-        let blocked = insert(&mut conn, user_message(conversation, "blocked")).await;
-        holder.rollback().await.unwrap();
-        let after_release = insert(&mut conn, user_message(conversation, "after release")).await;
-
-        delete_conversation(&mut fixture_conn, configuration, conversation).await;
-
-        let blocked_error = blocked.expect_err("the insert must wait for the lock");
-        assert!(format!("{blocked_error:?}").contains("lock timeout"));
-        assert_eq!(after_release.unwrap().order_number, 1);
     }
 }

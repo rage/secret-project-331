@@ -48,16 +48,6 @@ impl Conn {
     }
 }
 
-/// Opens a raw connection to the test database with no surrounding transaction, for tests that
-/// need two connections to see each other's committed writes. Everything such a test writes stays
-/// in the database, so it has to delete its own rows again.
-pub async fn connect_without_transaction() -> PgConnection {
-    let db = get_or_init_db().await;
-    PgConnection::connect(&db)
-        .await
-        .expect("failed to connect to db")
-}
-
 /// Wrapper to ensure the transaction isn't committed
 pub struct Tx<'a>(Transaction<'a, Postgres>);
 

@@ -33,6 +33,7 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
     chatbotStateAndData.newMessageMutation.mutateAsync,
     chatbotStateAndData.newConversationMutation.mutateAsync,
     chatbotStateAndData.dispatch,
+    chatbotStateAndData.isTurnInFlight,
   )
 
   return (

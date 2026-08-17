@@ -8,6 +8,10 @@ use crate::stable_digest::stable_digest;
 /// `hashing_key_for_the_day` is what keeps the identifier from being reproducible from an IP
 /// address alone, so it must be the current day's secret and never a constant. The same visitor
 /// gets a different identifier on the next day and on another course.
+///
+/// Touching how the parts are combined re-keys every identifier the moment it deploys, so
+/// `COUNT(DISTINCT anonymous_identifier)` counts every visitor already seen that day a second time.
+/// The key rotation caps that to the day of the deploy; nothing else does.
 pub fn hash_anonymous_identifier(
     course_id: Uuid,
     hashing_key_for_the_day: Vec<u8>,

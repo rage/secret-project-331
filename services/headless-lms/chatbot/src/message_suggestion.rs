@@ -31,12 +31,16 @@ struct ChatbotNextMessageSuggestionResponse {
     suggestions: Vec<String>,
 }
 
+/// Names this feature's structured output to Azure. The test-mode mock Azure API picks its canned
+/// answer for this feature by this name.
+pub const RESPONSE_FORMAT_NAME: &str = "ChatbotNextMessageSuggestionResponse";
+
 /// The structured output format the suggestion LLM is asked to answer in. Must stay in
 /// sync with [ChatbotNextMessageSuggestionResponse].
 fn response_format() -> LLMRequestResponseFormatParam {
     LLMRequestResponseFormatParam {
         format_type: JSONType::JsonSchema,
-        name: "ChatbotNextMessageSuggestionResponse".to_string(),
+        name: RESPONSE_FORMAT_NAME.to_string(),
         schema: Schema {
             type_field: JSONType::Object,
             description: None,

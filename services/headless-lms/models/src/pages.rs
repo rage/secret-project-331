@@ -4260,6 +4260,22 @@ WHERE course_id = $1
     Ok(())
 }
 
+/// Writes a page's url path as given, without normalizing it or adding a redirection.
+///
+/// [reorder_chapters] rewrites paths in two passes and creates the redirections itself, so neither
+/// belongs here. Use [insert_page] or [update_page] for a path that comes from a user, since those
+/// canonicalize it.
+async fn set_url_path(conn: &mut PgConnection, page_id: Uuid, url_path: &str) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
+        page_id,
+        url_path
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn reorder_chapters(
     conn: &mut PgConnection,
     chapters: &[Chapter],
@@ -4304,13 +4320,7 @@ pub async fn reorder_chapters(
                 );
 
                 // update each page path associated with a random chapter number
-                sqlx::query!(
-                    "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                    page.id,
-                    new_path
-                )
-                .execute(&mut *tx)
-                .await?;
+                set_url_path(&mut tx, page.id, &new_path).await?;
             }
         }
     }
@@ -4349,13 +4359,7 @@ pub async fn reorder_chapters(
                         1,
                     );
                     // update each page path associated with the modified chapter
-                    sqlx::query!(
-                        "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                        page.id,
-                        new_path
-                    )
-                    .execute(&mut *tx)
-                    .await?;
+                    set_url_path(&mut tx, page.id, &new_path).await?;
 
                     crate::url_redirections::upsert(
                         &mut tx,
@@ -4657,17 +4661,13 @@ mod test {
         )
         .await
         .unwrap();
-        {
-            let conn: &mut sqlx::PgConnection = tx.as_mut();
-            sqlx::query!(
-                "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                legacy_page.id,
-                "/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82"
-            )
-            .execute(conn)
-            .await
-            .unwrap();
-        }
+        set_url_path(
+            tx.as_mut(),
+            legacy_page.id,
+            "/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82",
+        )
+        .await
+        .unwrap();
 
         // Looks the page up through the same helper the production lookup uses, so a
         // regression in the candidate matching is caught here.

@@ -39,12 +39,16 @@ pub struct Module {
     pub prerequisites: Vec<String>,
 }
 
+/// Names this feature's structured output to Azure. The test-mode mock Azure API picks its canned
+/// answer for this feature by this name.
+pub const RESPONSE_FORMAT_NAME: &str = "LLMDescriptionResponse";
+
 /// The structured output format the description LLM is asked to answer in. Must stay in
 /// sync with [SisuDescriptionResponse].
 fn response_format() -> LLMRequestResponseFormatParam {
     LLMRequestResponseFormatParam {
         format_type: JSONType::JsonSchema,
-        name: "LLMDescriptionResponse".to_string(),
+        name: RESPONSE_FORMAT_NAME.to_string(),
         schema: Schema {
             type_field: JSONType::Object,
             description: None,

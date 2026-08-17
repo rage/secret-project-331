@@ -11,4 +11,5 @@ ALTER TABLE course_module_suotar_realisations DROP COLUMN last_fast_tracked_coun
 DROP INDEX IF EXISTS idx_credit_registrations_unnotified;
 
 ALTER TABLE credit_registrations DROP COLUMN action_needed_email_delivery_id,
-  DROP COLUMN registered_email_delivery_id;
+  DROP COLUMN registered_email_delivery_id,
+  DROP COLUMN improvement_checked_completion_updated_at;

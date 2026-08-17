@@ -232,6 +232,9 @@ pub struct CreditRegistration {
     /// idempotency guard for the `student-notifications` phase.
     pub action_needed_email_delivery_id: Option<Uuid>,
     pub registered_email_delivery_id: Option<Uuid>,
+    /// The completion revision the grade-improvement scan last found no improvement against. See
+    /// [`mark_improvement_checked`].
+    pub improvement_checked_completion_updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -596,7 +599,12 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_by_ids(
+/// The named rows, locked until the caller's transaction ends. Must be called inside one.
+///
+/// For a caller that judges each row and then transitions it: holding the lock is what keeps the
+/// judgement true, so [`transition`]'s `expected_from_state` cannot fail halfway and roll the whole
+/// batch back. Locks in id order, which every batch caller shares, so two of them cannot deadlock.
+pub async fn get_by_ids_for_update(
     conn: &mut PgConnection,
     ids: &[Uuid],
 ) -> ModelResult<Vec<CreditRegistration>> {
@@ -607,6 +615,7 @@ SELECT *
 FROM credit_registrations
 WHERE id = ANY($1::uuid [])
   AND deleted_at IS NULL
+ORDER BY id FOR UPDATE
         "#,
         ids
     )
@@ -1110,27 +1119,86 @@ WHERE id = $1
     Ok(())
 }
 
-/// The course's live rows a bulk retry has to look at: the ones that failed for good, and the ones
-/// whose submission outcome is unknown.
+/// Whether this account has any attempt, live or replaced, on this course.
 ///
-/// `submission_uncertain` is included so the caller can report how many rows it may not touch;
-/// re-importing one could put a second attainment on a real transcript, so only an admin transition
-/// may move it. Oldest first, capped by `limit`.
-pub async fn get_failed_or_uncertain_by_course_id(
+/// For course-scoped handlers that take a user id from a request body: without it, holding one
+/// course lets a teacher ask questions about accounts that have nothing to do with it.
+pub async fn exists_for_user_and_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<bool> {
+    let exists = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM credit_registrations
+    WHERE user_id = $1
+      AND course_id = $2
+      AND deleted_at IS NULL
+  ) AS "exists!"
+        "#,
+        user_id,
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exists)
+}
+
+/// Records that the grade-improvement scan looked at this accepted attempt against a completion in
+/// the given revision and found nothing better.
+///
+/// `completion_updated_at` must be the `updated_at` the scan actually read, not `now()`: the point is
+/// that the row stops being a candidate until the completion changes again.
+pub async fn mark_improvement_checked(
+    conn: &mut PgConnection,
+    id: Uuid,
+    completion_updated_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET improvement_checked_completion_updated_at = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+        completion_updated_at,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// The course's live rows a bulk retry can actually move: failed for good, and with a standing
+/// consent. Oldest first, capped by `limit`.
+///
+/// Deliberately only these. A row a retry always refuses keeps matching for as long as it exists, so
+/// letting one into the batch would spend a slot of the cap on it forever: a course holding `limit`
+/// of them could never retry anything again. [`count_unretryable_by_course_id`] is what reports them.
+pub async fn get_retryable_ids_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
     limit: i64,
-) -> ModelResult<Vec<CreditRegistration>> {
-    let res = sqlx::query_as!(
-        CreditRegistration,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
         r#"
-SELECT *
-FROM credit_registrations
-WHERE course_id = $1
-  AND state IN ('failed_permanent', 'submission_uncertain')
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
-ORDER BY state_entered_at
+SELECT id
+FROM credit_registrations cr
+WHERE cr.course_id = $1
+  AND cr.state = 'failed_permanent'
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM course_credit_registration_consents consent
+    WHERE consent.user_id = cr.user_id
+      AND consent.course_id = cr.course_id
+      AND consent.consent_given
+      AND consent.deleted_at IS NULL
+  )
+ORDER BY cr.state_entered_at
 LIMIT $2
         "#,
         course_id,
@@ -1139,6 +1207,58 @@ LIMIT $2
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// How many of a course's live rows a bulk retry has to refuse, by reason.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct UnretryableCounts {
+    /// Re-importing one could put a second attainment on a real transcript, so only an admin
+    /// transition may move it.
+    pub submission_uncertain: i64,
+    /// Failed for good, but nothing may be submitted for the student any more.
+    pub without_consent: i64,
+}
+
+/// Counts the whole course, not a capped window: these are the rows
+/// [`get_retryable_ids_by_course_id`] leaves out, and a teacher clicking again will never work
+/// through them.
+pub async fn count_unretryable_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<UnretryableCounts> {
+    let row = sqlx::query!(
+        r#"
+SELECT COUNT(*) FILTER (
+    WHERE cr.state = 'submission_uncertain'
+  ) AS "submission_uncertain!",
+  COUNT(*) FILTER (
+    WHERE cr.state = 'failed_permanent'
+  ) AS "without_consent!"
+FROM credit_registrations cr
+WHERE cr.course_id = $1
+  AND cr.state IN ('failed_permanent', 'submission_uncertain')
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND (
+    cr.state = 'submission_uncertain'
+    OR NOT EXISTS (
+      SELECT 1
+      FROM course_credit_registration_consents consent
+      WHERE consent.user_id = cr.user_id
+        AND consent.course_id = cr.course_id
+        AND consent.consent_given
+        AND consent.deleted_at IS NULL
+    )
+  )
+        "#,
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(UnretryableCounts {
+        submission_uncertain: row.submission_uncertain,
+        without_consent: row.without_consent,
+    })
 }
 
 /// Live rows per state, for the dashboard funnel. Superseded attempts are excluded, as in the
@@ -2303,7 +2423,10 @@ FROM credit_registrations cr
       AND now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs) AS stuck_in_state,
       cr.state = 'failed_permanent'
       AND cr.needs_admin_attention AS permanent_error,
-      cr.error_code = 'retry_window_expired' AS retry_window_expired,
+      -- Coalesced because error_code is nullable and this is selected into a plain `bool`: a row
+      -- another detector picked while holding no error code would otherwise fail to decode and take
+      -- the whole table down with it.
+      COALESCE(cr.error_code = 'retry_window_expired', FALSE) AS retry_window_expired,
       cr.state = 'misregistered' AS misregistered,
       cr.submit_retry_count + cr.verify_attempt_count >= $5 AS too_many_attempts,
       cr.state = 'submission_uncertain' AS outcome_uncertain,

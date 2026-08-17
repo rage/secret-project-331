@@ -1201,7 +1201,7 @@
     "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed": {
       "post": {
         "tags": ["course-credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this\ncourse's failed registrations back on the pipeline.\n\nRefuses the same rows the single-row retry refuses, one by one, and reports how many of each it left\nalone rather than failing the whole call over them.",
+        "summary": "\nPOST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this\ncourse's failed registrations back on the pipeline.\n\nRefuses the same rows the single-row retry refuses and reports how many of each it left alone rather\nthan failing the whole call over them. The cap applies to the rows a retry can actually move: the\nrefused ones are counted across the whole course, because they would otherwise sit in the batch\nforever and a course that accumulated a capful of them could never retry anything again.",
         "operationId": "retryFailedCreditRegistrationsForCourse",
         "parameters": [
           {
@@ -13721,7 +13721,7 @@
           "not_found_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Selected ids naming no live row."
+            "description": "Distinct selected ids naming no live row."
           },
           "skipped": {
             "type": "array",
@@ -14221,8 +14221,13 @@
       "AdminNotificationEmail": {
         "type": "object",
         "description": "One of the two student terminal-state mails, in full: `send_status.failure_code` is what drives\nthe decision to look at the relay.",
-        "required": ["kind", "send_status"],
+        "required": ["kind", "email_delivery_id", "send_status"],
         "properties": {
+          "email_delivery_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The delivery this registration is pinned to, so support can find the message in the queue and\ntell \"still the first mail\" from \"a second one went out\"."
+          },
           "kind": {
             "$ref": "#/components/schemas/CreditRegistrationNotificationKind"
           },
@@ -24622,7 +24627,8 @@
         "properties": {
           "considered_count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "How many retriable rows this call took, which is what `max_rows_per_call` bounds."
           },
           "max_rows_per_call": {
             "type": "integer",
@@ -24630,7 +24636,7 @@
           },
           "more_rows_remaining": {
             "type": "boolean",
-            "description": "The cap stopped short of the course's failures; running it again takes the next batch."
+            "description": "The cap stopped short of the course's retriable failures; running it again takes the next batch."
           },
           "retried_count": {
             "type": "integer",
@@ -24641,7 +24647,7 @@
             "items": {
               "$ref": "#/components/schemas/RetryCreditRegistrationSkip"
             },
-            "description": "Why the rest were left alone, so a teacher can see the admin-only pile rather than wonder."
+            "description": "Why the rest were left alone, so a teacher can see the admin-only pile rather than wonder.\nCourse-wide, not capped: clicking again will not work through these."
           }
         }
       },

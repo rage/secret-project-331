@@ -4,6 +4,11 @@ Handlers for HTTP requests to `/api/v0/main-frontend/course-credit-registrations
 Teachers see the unmasked student number, but recipient addresses are masked to their domain, the
 study registry's own error text is never returned, and nothing here can override a rate cap.
 
+Every handler with a student in it authorizes on `ViewAndManageCreditRegistrations`, which an
+assistant does not hold: `ViewUserProgressOrDetails` and `Edit` would both let a course's assistants —
+often students on the same programme — list and export every classmate's national study registry
+identity. The one exception is the module configuration, which names no student.
+
 Every mutating handler writes exactly one `credit_registration_admin_actions` row with
 `actor_role = 'course_teacher'`, in the transaction that has the effect.
 */
@@ -310,7 +315,7 @@ pub async fn get_course_credit_registration_summary(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::ViewUserProgressOrDetails,
+        Act::ViewAndManageCreditRegistrations,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -410,7 +415,7 @@ pub async fn get_course_credit_registrations_for_users(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::ViewUserProgressOrDetails,
+        Act::ViewAndManageCreditRegistrations,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -473,7 +478,7 @@ pub async fn get_course_credit_registrations(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::ViewUserProgressOrDetails,
+        Act::ViewAndManageCreditRegistrations,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -543,7 +548,7 @@ pub async fn get_credit_registration_details(
             .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
     let token = authorize(
         &mut conn,
-        Act::ViewUserProgressOrDetails,
+        Act::ViewAndManageCreditRegistrations,
         Some(user.id),
         Res::Course(row.course_id),
     )
@@ -626,7 +631,13 @@ pub async fn resend_course_credit_registration_linking_email(
     suotar_client: web::Data<SuotarClient>,
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewAndManageCreditRegistrations,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let enabled_module_ids =
         models::course_modules::get_credit_registration_enabled_ids_for_course(
@@ -654,7 +665,7 @@ pub async fn resend_course_credit_registration_linking_email(
         ));
     }
 
-    let student_number = resolve_resend_target(&mut conn, &payload).await?;
+    let student_number = resolve_resend_target(&mut conn, *course_id, &payload).await?;
     let Some(student_number) = student_number else {
         return finish_resend(
             &mut conn,
@@ -722,8 +733,14 @@ pub async fn resend_course_credit_registration_linking_email(
 }
 
 /// The person the body names, as a student number. `None` when the account has never held one.
+///
+/// A `user_id` is only answered for an account with a registration on `course_id`. The caller is
+/// authorized on the course and the study registry roster is only consulted later, so without this one
+/// course's teacher could hand in any account's uuid and read off, from which outcome came back,
+/// whether that account holds a verified student number.
 async fn resolve_resend_target(
     conn: &mut PgConnection,
+    course_id: Uuid,
     payload: &ResendLinkingEmailPayload,
 ) -> Result<Option<String>, ControllerError> {
     if let Some(student_number) = payload
@@ -740,6 +757,14 @@ async fn resolve_resend_target(
             "Name either a user or a student number.".to_string()
         ));
     };
+    if !models::credit_registrations::exists_for_user_and_course(conn, user_id, course_id).await? {
+        // Deliberately the same answer for an account that does not exist: the two must not be
+        // distinguishable.
+        return Err(controller_err!(
+            BadRequest,
+            "That account has no credit registration on this course.".to_string()
+        ));
+    }
     Ok(
         verified_student_numbers::get_latest_including_deleted_by_user_id(conn, user_id)
             .await?

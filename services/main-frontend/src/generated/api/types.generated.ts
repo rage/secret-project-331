@@ -146,7 +146,7 @@ export type AdminBulkTransitionResult = {
   applied_count: number
   max_rows_per_call: number
   /**
-   * Selected ids naming no live row.
+   * Distinct selected ids naming no live row.
    */
   not_found_count: number
   skipped: Array<AdminBulkTransitionSkipCount>
@@ -336,6 +336,11 @@ export type AdminMaterializeResult = {
  * the decision to look at the relay.
  */
 export type AdminNotificationEmail = {
+  /**
+   * The delivery this registration is pinned to, so support can find the message in the queue and
+   * tell "still the first mail" from "a second one went out".
+   */
+  email_delivery_id: string
   kind: CreditRegistrationNotificationKind
   send_status: EmailSendStatusReport
 }
@@ -4002,15 +4007,19 @@ export type RetryCreditRegistrationSkip = {
 }
 
 export type RetryFailedCreditRegistrationsResult = {
+  /**
+   * How many retriable rows this call took, which is what `max_rows_per_call` bounds.
+   */
   considered_count: number
   max_rows_per_call: number
   /**
-   * The cap stopped short of the course's failures; running it again takes the next batch.
+   * The cap stopped short of the course's retriable failures; running it again takes the next batch.
    */
   more_rows_remaining: boolean
   retried_count: number
   /**
    * Why the rest were left alone, so a teacher can see the admin-only pile rather than wonder.
+   * Course-wide, not capped: clicking again will not work through these.
    */
   skipped: Array<RetryCreditRegistrationSkip>
 }

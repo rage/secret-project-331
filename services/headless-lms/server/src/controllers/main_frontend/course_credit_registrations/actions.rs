@@ -58,7 +58,7 @@ pub async fn get_course_credit_registration_actions(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::ViewUserProgressOrDetails,
+        Act::ViewAndManageCreditRegistrations,
         Some(user.id),
         Res::Course(*course_id),
     )

@@ -554,6 +554,17 @@
             "name": "registered_email_delivery_id"
           }
         }
+      },
+      {
+        "ordinal": 45,
+        "name": "improvement_checked_completion_updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "improvement_checked_completion_updated_at"
+          }
+        }
       }
     ],
     "parameters": {
@@ -604,6 +615,7 @@
       true,
       false,
       false,
+      true,
       true,
       true,
       true

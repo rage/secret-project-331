@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.attempt_number,\n  cr.course_module_completion_id,\n  cr.user_id,\n  cr.course_id,\n  cr.course_module_id,\n  cr.course_instance_id,\n  cr.grade_scale_id AS \"registered_grade_scale_id!\",\n  cr.grade_id AS \"registered_grade_id!\",\n  cmc.passed,\n  cmc.grade,\n  conf.grade_scale_id AS \"configured_grade_scale_id?\"\nFROM credit_registrations cr\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  -- The success set only. A row whose outcome we do not know must not gain a successor, and one\n  -- abandoned by a consent withdrawal is in neither set.\n  AND cr.state IN ('registered', 'duplicate', 'not_improved')\n  AND cr.grade_scale_id IS NOT NULL\n  AND cr.grade_id IS NOT NULL\n  AND cmc.deleted_at IS NULL\n  AND cmc.passed\n  AND cmc.eligible_for_ects\n  AND cmc.prerequisite_modules_completed\n  AND NOT cmc.needs_to_be_reviewed\n  AND cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\n  -- The successor is born claimable, so consent is checked here rather than left to the next\n  -- precondition pass: withdrawal stops future submissions, and a registered attempt is the one\n  -- case where the student may have withdrawn long after the row went terminal.\n  AND EXISTS (\n    SELECT 1\n    FROM course_credit_registration_consents consent\n    WHERE consent.user_id = cr.user_id\n      AND consent.course_id = cr.course_id\n      AND consent.consent_given\n      AND consent.deleted_at IS NULL\n  )\n  -- A completion untouched since the attempt was created cannot have been regraded after that\n  -- attempt froze its grade. Without it every accepted row is re-read on every iteration, and the\n  -- limit below would then keep re-reading the same two hundred forever.\n  AND cmc.updated_at > cr.created_at\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\nORDER BY cmc.updated_at FOR\nUPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
+  "query": "\nSELECT cr.id,\n  cr.attempt_number,\n  cr.course_module_completion_id,\n  cr.user_id,\n  cr.course_id,\n  cr.course_module_id,\n  cr.course_instance_id,\n  cr.grade_scale_id AS \"registered_grade_scale_id!\",\n  cr.grade_id AS \"registered_grade_id!\",\n  cmc.passed,\n  cmc.grade,\n  cmc.updated_at AS completion_updated_at,\n  conf.grade_scale_id AS \"configured_grade_scale_id?\"\nFROM credit_registrations cr\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  -- The success set only. A row whose outcome we do not know must not gain a successor, and one\n  -- abandoned by a consent withdrawal is in neither set.\n  AND cr.state IN ('registered', 'duplicate', 'not_improved')\n  AND cr.grade_scale_id IS NOT NULL\n  AND cr.grade_id IS NOT NULL\n  AND cmc.deleted_at IS NULL\n  AND cmc.passed\n  AND cmc.eligible_for_ects\n  AND cmc.prerequisite_modules_completed\n  AND NOT cmc.needs_to_be_reviewed\n  AND cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\n  -- The successor is born claimable, so consent is checked here rather than left to the next\n  -- precondition pass: withdrawal stops future submissions, and a registered attempt is the one\n  -- case where the student may have withdrawn long after the row went terminal.\n  AND EXISTS (\n    SELECT 1\n    FROM course_credit_registration_consents consent\n    WHERE consent.user_id = cr.user_id\n      AND consent.course_id = cr.course_id\n      AND consent.consent_given\n      AND consent.deleted_at IS NULL\n  )\n  -- Two halves of one cheap pre-filter. A completion untouched since the attempt was created cannot\n  -- have been regraded after that attempt froze its grade; but one touched for any other reason\n  -- passes that test forever, and only the grade comparison below can tell the two apart, which is\n  -- why the loop stamps the watermark on every candidate it declines. Without the second half the\n  -- limit keeps spending itself on the same rows while a real regrade waits behind them.\n  AND cmc.updated_at > cr.created_at\n  AND (\n    cr.improvement_checked_completion_updated_at IS NULL\n    OR cmc.updated_at > cr.improvement_checked_completion_updated_at\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\nORDER BY cmc.updated_at FOR\nUPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -126,6 +126,17 @@
       },
       {
         "ordinal": 11,
+        "name": "completion_updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
         "name": "configured_grade_scale_id?",
         "type_info": "Varchar",
         "origin": {
@@ -155,8 +166,9 @@
       true,
       false,
       true,
+      false,
       true
     ]
   },
-  "hash": "1daa56ff9383f7fdb02b82ce209e7c9023440c68e50f2c78a0b2d4490bbcf0b3"
+  "hash": "8db7d0bfc5456eaa2f01e3178f23bfbc61abf6d6553c0c973217a62f6c899bba"
 }

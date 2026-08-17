@@ -165,6 +165,9 @@ WHERE id = $1
 pub struct RegistrationNotificationEmail {
     pub credit_registration_id: Uuid,
     pub kind: CreditRegistrationNotificationKind,
+    /// The delivery the registration is pinned to. Stable for the life of the row: it is what stops a
+    /// second mail of this kind, so a changed id here means the guard was bypassed.
+    pub email_delivery_id: Uuid,
     pub send_status: EmailSendStatusReport,
 }
 
@@ -217,12 +220,15 @@ WHERE id = ANY($1::uuid [])
                 row.registered_email_delivery_id,
             ),
         ] {
-            let Some(report) = delivery_id.and_then(|id| reports.get(&id)) else {
+            let Some((delivery_id, report)) =
+                delivery_id.and_then(|id| reports.get(&id).map(|report| (id, report)))
+            else {
                 continue;
             };
             res.push(RegistrationNotificationEmail {
                 credit_registration_id: row.id,
                 kind,
+                email_delivery_id: delivery_id,
                 send_status: report.clone(),
             });
         }

@@ -2053,8 +2053,10 @@ export const resendCourseCreditRegistrationLinkingEmailMutation = (
  * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this
  * course's failed registrations back on the pipeline.
  *
- * Refuses the same rows the single-row retry refuses, one by one, and reports how many of each it left
- * alone rather than failing the whole call over them.
+ * Refuses the same rows the single-row retry refuses and reports how many of each it left alone rather
+ * than failing the whole call over them. The cap applies to the rows a retry can actually move: the
+ * refused ones are counted across the whole course, because they would otherwise sit in the batch
+ * forever and a course that accumulated a capful of them could never retry anything again.
  */
 export const retryFailedCreditRegistrationsForCourseMutation = (
   options?: Partial<Options<RetryFailedCreditRegistrationsForCourseData>>,

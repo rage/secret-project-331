@@ -3,8 +3,8 @@
 //! stop at `pending_consent`, because historical completions belong to students nobody ever asked.
 
 use crate::credit_registrations::{
-    CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition, mark_superseded,
-    transition,
+    CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
+    mark_improvement_checked, mark_superseded, transition,
 };
 use crate::prelude::*;
 
@@ -227,6 +227,7 @@ SELECT cr.id,
   cr.grade_id AS "registered_grade_id!",
   cmc.passed,
   cmc.grade,
+  cmc.updated_at AS completion_updated_at,
   conf.grade_scale_id AS "configured_grade_scale_id?"
 FROM credit_registrations cr
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
@@ -258,10 +259,16 @@ WHERE cr.deleted_at IS NULL
       AND consent.consent_given
       AND consent.deleted_at IS NULL
   )
-  -- A completion untouched since the attempt was created cannot have been regraded after that
-  -- attempt froze its grade. Without it every accepted row is re-read on every iteration, and the
-  -- limit below would then keep re-reading the same two hundred forever.
+  -- Two halves of one cheap pre-filter. A completion untouched since the attempt was created cannot
+  -- have been regraded after that attempt froze its grade; but one touched for any other reason
+  -- passes that test forever, and only the grade comparison below can tell the two apart, which is
+  -- why the loop stamps the watermark on every candidate it declines. Without the second half the
+  -- limit keeps spending itself on the same rows while a real regrade waits behind them.
   AND cmc.updated_at > cr.created_at
+  AND (
+    cr.improvement_checked_completion_updated_at IS NULL
+    OR cmc.updated_at > cr.improvement_checked_completion_updated_at
+  )
   AND ($2::uuid IS NULL OR cr.course_id = $2)
   AND ($3::uuid IS NULL OR cr.user_id = $3)
 ORDER BY cmc.updated_at FOR
@@ -277,6 +284,10 @@ LIMIT $1
 
     let mut started = 0;
     for candidate in candidates {
+        // Stamped rather than merely skipped, in both refusals below: the query's pre-filter cannot
+        // tell a regrade from any other touch of the completion, so a candidate left unstamped comes
+        // back on every iteration and eventually fills the batch.
+        let looked_at = candidate.completion_updated_at;
         let Ok(mapped) = map_grade(GradeSource {
             passed: candidate.passed,
             grade: candidate.grade,
@@ -285,6 +296,7 @@ LIMIT $1
             // override or the one the completion itself implies.
             enrolment_grade_scale_id: None,
         }) else {
+            mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;
             continue;
         };
         if compare_grades(
@@ -293,6 +305,7 @@ LIMIT $1
             &mapped,
         ) != GradeComparison::Better
         {
+            mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;
             continue;
         }
         // `uq_credit_registrations_completion` allows one live attempt per completion and the

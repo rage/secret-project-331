@@ -464,6 +464,9 @@ GROUP BY verified_via
 
 /// Puts away the "we linked this for you" notice for one account's live link. Idempotent; a link the
 /// account does not own is left alone, so the caller's ownership check is the only one needed.
+///
+/// Restricted to `email_match_fast_track`, the only method whose links show the notice at all, so the
+/// timestamp cannot end up on a link the student made themselves.
 pub async fn dismiss_auto_link_notice(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -472,6 +475,7 @@ SET auto_link_notice_dismissed_at = now()
 WHERE user_id = $1
   AND deleted_at IS NULL
   AND auto_link_notice_dismissed_at IS NULL
+  AND verified_via = 'email_match_fast_track'
         "#,
         user_id
     )

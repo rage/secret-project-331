@@ -319,6 +319,9 @@ pub struct SuotarConfigCheck {
 
 /// Stamps the check result on the module, creating the configuration row for a module that has
 /// none: an enabled module with no configuration is itself one of the problems being reported.
+///
+/// Resurrects a soft-deleted row for the same reason [`upsert`] does: `ON CONFLICT` can only infer
+/// against `uq_course_module_suotar_configurations`, so an insert beside one is impossible.
 pub async fn record_config_check(
     conn: &mut PgConnection,
     course_module_id: Uuid,
@@ -338,7 +341,8 @@ UPDATE
 SET config_checked_at = now(),
   course_code_resolves = $2,
   product_token_found = $3,
-  config_check_message = $4
+  config_check_message = $4,
+  deleted_at = NULL
         "#,
         course_module_id,
         check.course_code_resolves,

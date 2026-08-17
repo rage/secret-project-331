@@ -71,10 +71,12 @@ pub struct RetryCreditRegistrationSkip {
 pub struct RetryFailedCreditRegistrationsResult {
     pub retried_count: i64,
     /// Why the rest were left alone, so a teacher can see the admin-only pile rather than wonder.
+    /// Course-wide, not capped: clicking again will not work through these.
     pub skipped: Vec<RetryCreditRegistrationSkip>,
+    /// How many retriable rows this call took, which is what `max_rows_per_call` bounds.
     pub considered_count: i64,
     pub max_rows_per_call: i64,
-    /// The cap stopped short of the course's failures; running it again takes the next batch.
+    /// The cap stopped short of the course's retriable failures; running it again takes the next batch.
     pub more_rows_remaining: bool,
 }
 
@@ -111,7 +113,7 @@ pub async fn retry_credit_registration(
         .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
     let token = authorize(
         &mut conn,
-        Act::Edit,
+        Act::ViewAndManageCreditRegistrations,
         Some(user.id),
         Res::Course(row.course_id),
     )
@@ -175,8 +177,10 @@ pub async fn retry_credit_registration(
 POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this
 course's failed registrations back on the pipeline.
 
-Refuses the same rows the single-row retry refuses, one by one, and reports how many of each it left
-alone rather than failing the whole call over them.
+Refuses the same rows the single-row retry refuses and reports how many of each it left alone rather
+than failing the whole call over them. The cap applies to the rows a retry can actually move: the
+refused ones are counted across the whole course, because they would otherwise sit in the batch
+forever and a course that accumulated a capful of them could never retry anything again.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -197,7 +201,13 @@ pub async fn retry_failed_credit_registrations_for_course(
     payload: web::Json<RetryCreditRegistrationPayload>,
 ) -> ControllerResult<web::Json<RetryFailedCreditRegistrationsResult>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewAndManageCreditRegistrations,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let reason = payload
         .reason
@@ -205,30 +215,59 @@ pub async fn retry_failed_credit_registrations_for_course(
         .map(str::trim)
         .filter(|reason| !reason.is_empty());
     // One over the cap, so "there is more" is answered without a second count query.
-    let mut candidates = models::credit_registrations::get_failed_or_uncertain_by_course_id(
+    let mut candidate_ids = models::credit_registrations::get_retryable_ids_by_course_id(
         &mut conn,
         *course_id,
         MAX_ROWS_PER_BULK_RETRY + 1,
     )
     .await?;
-    let more_rows_remaining = candidates.len() as i64 > MAX_ROWS_PER_BULK_RETRY;
-    candidates.truncate(MAX_ROWS_PER_BULK_RETRY as usize);
+    let more_rows_remaining = candidate_ids.len() as i64 > MAX_ROWS_PER_BULK_RETRY;
+    candidate_ids.truncate(MAX_ROWS_PER_BULK_RETRY as usize);
+    // The permanent refusals are counted over the whole course rather than walked: they are the rows
+    // the query above leaves out, so clicking again will never reach them either.
+    let unretryable =
+        models::credit_registrations::count_unretryable_by_course_id(&mut conn, *course_id).await?;
+
+    let mut retried_count = 0;
+    let mut skipped: HashMap<RetryCreditRegistrationOutcome, i64> = HashMap::new();
+    if unretryable.submission_uncertain > 0 {
+        skipped.insert(
+            RetryCreditRegistrationOutcome::RefusedSubmissionUncertain,
+            unretryable.submission_uncertain,
+        );
+    }
+    if unretryable.without_consent > 0 {
+        skipped.insert(
+            RetryCreditRegistrationOutcome::RefusedWithoutConsent,
+            unretryable.without_consent,
+        );
+    }
+
+    let mut tx = conn.begin().await?;
+    // Locked, and read inside the transaction: each row's refusal is judged here and acted on below,
+    // so a row the pipeline moves in between would make `requeue` refuse it and roll back every row
+    // already retried, which is what two teachers clicking at once would otherwise do to each other.
+    let candidates =
+        models::credit_registrations::get_by_ids_for_update(&mut tx, &candidate_ids).await?;
     let consenting: HashSet<Uuid> =
         course_credit_registration_consents::get_consenting_user_ids_for_course(
-            &mut conn, *course_id,
+            &mut tx, *course_id,
         )
         .await?
         .into_iter()
         .collect();
-
-    let mut retried_count = 0;
-    let mut skipped: HashMap<RetryCreditRegistrationOutcome, i64> = HashMap::new();
-    let mut tx = conn.begin().await?;
     for row in &candidates {
-        let refusal = RetryCreditRegistrationOutcome::refusal_for_state(row.state).or_else(|| {
-            (!consenting.contains(&row.user_id))
-                .then_some(RetryCreditRegistrationOutcome::RefusedWithoutConsent)
-        });
+        // Re-judged rather than trusted from the query above, which ran before the lock: consent can
+        // be withdrawn and the row moved on in between, and both are ordinary refusals. Same
+        // precedence as the single-row endpoint, so one row gets one answer whichever way it is asked.
+        let refusal = row
+            .superseded_by_id
+            .map(|_| RetryCreditRegistrationOutcome::RefusedSuperseded)
+            .or_else(|| RetryCreditRegistrationOutcome::refusal_for_state(row.state))
+            .or_else(|| {
+                (!consenting.contains(&row.user_id))
+                    .then_some(RetryCreditRegistrationOutcome::RefusedWithoutConsent)
+            });
         match refusal {
             Some(outcome) => *skipped.entry(outcome).or_insert(0) += 1,
             None => {

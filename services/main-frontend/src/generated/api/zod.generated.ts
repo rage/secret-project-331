@@ -2702,6 +2702,7 @@ export const zAdminLinkingEmail = z.object({
  * the decision to look at the relay.
  */
 export const zAdminNotificationEmail = z.object({
+  email_delivery_id: z.uuid(),
   kind: zCreditRegistrationNotificationKind,
   send_status: zEmailSendStatusReport,
 })

@@ -124,6 +124,9 @@ pub struct AdminSuotarApiCall {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminNotificationEmail {
     pub kind: CreditRegistrationNotificationKind,
+    /// The delivery this registration is pinned to, so support can find the message in the queue and
+    /// tell "still the first mail" from "a second one went out".
+    pub email_delivery_id: Uuid,
     pub send_status: EmailSendStatusReport,
 }
 
@@ -219,7 +222,7 @@ pub struct AdminBulkTransitionSkipCount {
 pub struct AdminBulkTransitionResult {
     pub applied_count: i64,
     pub skipped: Vec<AdminBulkTransitionSkipCount>,
-    /// Selected ids naming no live row.
+    /// Distinct selected ids naming no live row.
     pub not_found_count: i64,
     pub max_rows_per_call: i64,
 }
@@ -482,6 +485,7 @@ pub async fn get_credit_registration_for_admin(
         .map(
             |mail: RegistrationNotificationEmail| AdminNotificationEmail {
                 kind: mail.kind,
+                email_delivery_id: mail.email_delivery_id,
                 send_status: mail.send_status,
             },
         )
@@ -632,12 +636,25 @@ pub async fn admin_bulk_transition_credit_registrations(
         ));
     }
 
-    let rows =
-        credit_registrations::get_by_ids(&mut conn, &payload.credit_registration_ids).await?;
+    // A selection built by clicking can name the same row twice, and reporting the duplicate as a
+    // registration that does not exist would send an admin looking for a deleted row.
+    let ids: Vec<Uuid> = payload
+        .credit_registration_ids
+        .iter()
+        .copied()
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect();
+
+    let mut tx = conn.begin().await?;
+    // Locked, and read inside the transaction: each row's refusal is judged here and acted on below,
+    // so a row the pipeline moves in between would make `apply_transition` refuse it and take every
+    // row already applied down with it.
+    let rows = credit_registrations::get_by_ids_for_update(&mut tx, &ids).await?;
     let consenting: HashSet<(Uuid, Uuid)> =
         if payload.to_state == AdminCreditRegistrationTransitionTarget::ReadyToSubmit {
             course_credit_registration_consents::get_consenting_user_and_course_ids(
-                &mut conn,
+                &mut tx,
                 &rows.iter().map(|row| row.user_id).collect::<Vec<_>>(),
             )
             .await?
@@ -649,7 +666,6 @@ pub async fn admin_bulk_transition_credit_registrations(
 
     let mut applied_count = 0;
     let mut skipped: HashMap<AdminBulkTransitionSkip, i64> = HashMap::new();
-    let mut tx = conn.begin().await?;
     for row in &rows {
         let refusal = if row.superseded_by_id.is_some() {
             Some(AdminBulkTransitionSkip::Superseded)
@@ -700,7 +716,7 @@ pub async fn admin_bulk_transition_credit_registrations(
     token.authorized_ok(web::Json(AdminBulkTransitionResult {
         applied_count: i64::from(applied_count),
         skipped,
-        not_found_count: payload.credit_registration_ids.len() as i64 - rows.len() as i64,
+        not_found_count: ids.len() as i64 - rows.len() as i64,
         max_rows_per_call: MAX_ROWS_PER_BULK_TRANSITION,
     }))
 }
@@ -820,8 +836,9 @@ async fn apply_transition(
                     event_kind: CreditRegistrationEventKind::AdminAction,
                     event_message: Some(reason.to_string()),
                     actor_user_id: Some(actor_user_id),
-                    // `row` was read before this transaction started; refuse to overwrite if the
-                    // pipeline (or another admin) has since moved the row on.
+                    // Refuses to overwrite a row the pipeline (or another admin) has moved on since
+                    // `row` was read. The bulk caller reads its rows locked, so only the single-row
+                    // path can actually trip this.
                     expected_from_state: Some(row.state),
                     ..Transition::to(to_state)
                 },

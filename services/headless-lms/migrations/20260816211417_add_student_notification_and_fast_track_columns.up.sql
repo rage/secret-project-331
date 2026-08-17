@@ -1,6 +1,9 @@
 ALTER TABLE credit_registrations
 ADD COLUMN action_needed_email_delivery_id UUID REFERENCES email_deliveries(id),
-  ADD COLUMN registered_email_delivery_id UUID REFERENCES email_deliveries(id);
+  ADD COLUMN registered_email_delivery_id UUID REFERENCES email_deliveries(id),
+  ADD COLUMN improvement_checked_completion_updated_at TIMESTAMP WITH TIME ZONE;
+
+COMMENT ON COLUMN credit_registrations.improvement_checked_completion_updated_at IS 'The completion''s updated_at as of the last time the grade-improvement scan judged this accepted attempt and found no improvement. A completion touched for any other reason keeps matching the scan''s cheap "changed since the attempt" pre-filter, so without this watermark those rows fill every capped batch and a real regrade further down the queue is never reached.';
 
 COMMENT ON COLUMN credit_registrations.action_needed_email_delivery_id IS 'The delivery carrying the "we could not register your credits, you have no enrolment" mail. Set once and never cleared: it is what stops the mail being sent again when the row re-enters no_usable_enrolment.';
 COMMENT ON COLUMN credit_registrations.registered_email_delivery_id IS 'The delivery carrying the "your credits are in the study registry" mail. Set once and never cleared. A grade-improvement attempt is a separate row and gets its own mail, which is intended: the grade in the registry changed.';

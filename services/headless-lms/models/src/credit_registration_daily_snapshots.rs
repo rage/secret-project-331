@@ -50,6 +50,10 @@ WITH depth AS (
     COUNT(*)::int AS count
   FROM credit_registrations
   WHERE deleted_at IS NULL
+    -- As in `credit_registrations::count_by_state`, which feeds the funnel and the alerts off the
+    -- same states: counting replaced attempts here would make the two disagree on every course
+    -- that regrades.
+    AND superseded_by_id IS NULL
   GROUP BY state
 ),
 -- A transition writes one event carrying both ends, so entering and leaving are the same rows read

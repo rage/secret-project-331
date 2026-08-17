@@ -77,6 +77,35 @@ const gray500WithHover = css`
   }
 `
 
+const assignmentBox = css`
+  padding: 1rem;
+  border: 1px solid ${baseTheme.colors.gray[200]};
+  border-radius: 2px;
+  margin-bottom: 2rem;
+  /* Gutenberg pins the inner block appender to the bottom right of the nearest positioned
+   * ancestor. Without this it anchors to the whole exercise task block instead of this box. */
+  position: relative;
+
+  /* The label is editor chrome, but it renders inside the canvas, so it otherwise picks up the
+   * course material heading metrics and opens a 1.5rem gap above itself. Direct child only, or it
+   * would restyle core/heading blocks the teacher adds to the assignment. */
+  > h3 {
+    margin: 0 0 0.75rem;
+    font-size: ${typography.h6};
+  }
+
+  .block-editor-block-list__layout > *:first-child {
+    margin-top: 0;
+  }
+
+  /* An appender flush against bottom: 0 sits on the border. Not applied to the empty state, where
+   * upstream puts the appender back in flow next to its placeholder. */
+  .block-list-appender:not(:only-child) {
+    bottom: 0.5rem;
+    right: 0.5rem;
+  }
+`
+
 export interface ExerciseTaskAttributes {
   id: string
   exercise_type: string
@@ -206,37 +235,10 @@ const ExerciseTaskEditor: React.FC<
               <Centered variant="narrow">
                 <ExerciseTaskEditorCard>
                   <div
-                    // Compose with cx: interpolating an @emotion/css class name into a template
-                    // inlines that class's raw registered string, label marker included, which can
-                    // corrupt the surrounding CSS and silently drop these rules. Losing them lets
-                    // block selection grow an 88px inner-block appender, which shifts the
-                    // exercise-type buttons out from under the cursor between mousedown and mouseup
-                    // so the first click never reaches them.
-                    className={cx(
-                      css`
-                        padding: 1rem;
-                        border: 1px solid black;
-                        margin-bottom: 2rem;
-
-                        .block-list-appender:not(:first-child) {
-                          position: relative;
-                          top: -40px;
-                          margin: 0;
-
-                          .block-editor-inserter {
-                            line-height: 0;
-                            position: absolute;
-                            top: 0;
-                            right: 0;
-                          }
-
-                          .block-editor-default-block-appender__content {
-                            height: 0px;
-                          }
-                        }
-                      `,
-                      gutenbergControlsVisible,
-                    )}
+                    // Compose with cx, never by interpolating these class names into a css
+                    // template: emotion inlines the class's raw registered string, label marker
+                    // included, which can corrupt the surrounding CSS and silently drop the rules.
+                    className={cx(assignmentBox, gutenbergControlsVisible)}
                   >
                     <h3>{t("title-assignment")}</h3>
                     <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />

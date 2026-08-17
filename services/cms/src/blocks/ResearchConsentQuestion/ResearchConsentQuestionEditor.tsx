@@ -36,7 +36,9 @@ const ResearchConsentCheckBoxEditor: React.FC<
             margin-left: 0.25rem;
           `}
           tagName="span"
-          label={t("title-research-form-question")}
+          // RichText spreads unknown props onto the editable element, so `label` would land as a
+          // bare attribute and leave the field without an accessible name.
+          aria-label={t("title-research-form-question")}
           value={content}
           onChange={(value: string) => setAttributes({ content: value })}
         />

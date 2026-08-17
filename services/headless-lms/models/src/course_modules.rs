@@ -1136,16 +1136,28 @@ pub struct NewModule {
 #[derive(Debug, Deserialize, ToSchema)]
 
 pub struct ModifiedModule {
+    id: Uuid,
+    name: Option<String>,
+    order_number: i32,
+    uh_course_code: Option<String>,
+    ects_credits: Option<f32>,
+    completion_policy: CompletionPolicy,
+    completion_registration_link_override: Option<String>,
+    enable_registering_completion_to_uh_open_university: bool,
+    enable_credit_registration_via_suotar: bool,
+    credit_registration: CourseModuleCreditRegistrationEdit,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+
+pub struct CourseAuditingModuleUpdate {
     pub id: Uuid,
     pub name: Option<String>,
     pub order_number: i32,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    pub completion_policy: CompletionPolicy,
     pub completion_registration_link_override: Option<String>,
     pub enable_registering_completion_to_uh_open_university: bool,
-    pub enable_credit_registration_via_suotar: bool,
-    pub credit_registration: CourseModuleCreditRegistrationEdit,
 }
 
 /// The module editor's writable half of the Suotar configuration. The pause and the

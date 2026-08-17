@@ -1011,8 +1011,18 @@ export type CourseAuditingDataUpdate = {
   closed_at?: string | null
   closed_course_successor_id?: string | null
   description?: string | null
-  modules: Array<ModifiedModule>
+  modules: Array<CourseAuditingModuleUpdate>
   prerequisites: Array<EditCoursePrerequisite>
+}
+
+export type CourseAuditingModuleUpdate = {
+  completion_registration_link_override?: string | null
+  ects_credits?: number | null
+  enable_registering_completion_to_uh_open_university: boolean
+  id: string
+  name?: string | null
+  order_number: number
+  uh_course_code?: string | null
 }
 
 export type CourseBreadcrumbInfo = {

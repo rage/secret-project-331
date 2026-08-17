@@ -5,7 +5,6 @@ import React from "react"
 import { useWatch, type Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "@/shared-module/common/styles"
 import { Checkbox, nullIfEmpty, stringToNumberOrNull, TextField } from "@/shared-module/components"
 
 import type { EditCourseAuditingData, EditModuleData } from "./CourseAuditingCard"

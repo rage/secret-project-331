@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
 import { FloppyDiskSave, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
@@ -17,7 +16,7 @@ import {
 import type {
   CourseAuditingData,
   CourseAuditingDataUpdate,
-  ModifiedModule,
+  CourseAuditingModuleUpdate,
 } from "@/generated/api/types.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -25,6 +24,7 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
@@ -46,7 +46,7 @@ interface CourseAuditingCardProps {
   courseAuditingData: CourseAuditingData
 }
 
-export interface EditModuleData extends ModifiedModule {
+export interface EditModuleData extends CourseAuditingModuleUpdate {
   override_completion_link: boolean
 }
 
@@ -57,9 +57,13 @@ export interface EditCourseAuditingData extends CourseAuditingDataUpdate {
 
 export const buildFormValues = (data: CourseAuditingData): EditCourseAuditingData => {
   return {
-    ...data,
-    closed_at: data.closed_at ? (formatDateForDateTimeLocalInputs(data.closed_at) ?? null) : null,
+    ...omitUndefined({ description: data.description }),
     set_course_closed_at: Boolean(data.closed_at),
+    closed_at: data.closed_at ? (formatDateForDateTimeLocalInputs(data.closed_at) ?? null) : null,
+    ...omitUndefined({ closed_additional_message: data.closed_additional_message }),
+    ...omitUndefined({ closed_course_successor_id: data.closed_course_successor_id }),
+    prerequisites: data.prerequisites,
+    audiences: data.audiences,
     modules: data.modules.map((module) => ({
       ...module,
       override_completion_link: Boolean(module.completion_registration_link_override),
@@ -128,7 +132,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
   const onSubmit = handleSubmit((data: EditCourseAuditingData) => {
     updateMutation.mutateAsync({
       body: {
-        ...data,
         description: nullIfEmptyString(data.description),
         closed_at: data.set_course_closed_at
           ? data.closed_at
@@ -137,6 +140,8 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
           : null,
         closed_additional_message: nullIfEmptyString(data.closed_additional_message),
         closed_course_successor_id: nullIfEmptyString(data.closed_course_successor_id),
+        prerequisites: data.prerequisites,
+        audiences: data.audiences,
         modules: data.modules.map((module) => ({
           ...module,
           uh_course_code: nullIfEmptyString(module.uh_course_code),
@@ -172,15 +177,6 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
 
         setEditing(false)
       },
-      // onError: () => {
-      //   showErrorNotification({
-      //     message: t("course-auditing-update-error"),
-      //   })
-      //   setStatus(UpdateStatus.failed)
-      //   window.setTimeout(() => {
-      //     setStatus(UpdateStatus.none)
-      //   }, 4000)
-      // },
     },
   )
 

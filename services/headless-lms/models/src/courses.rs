@@ -4,7 +4,7 @@ use crate::{
     chapters::{Chapter, get_course_chapters},
     course_audiences::{CourseAudience, EditCourseAudience},
     course_instances::CourseInstance,
-    course_modules::{CourseModule, ModifiedModule},
+    course_modules::{CourseAuditingModuleUpdate, CourseModule},
     course_prerequisites::{CoursePrerequisite, EditCoursePrerequisite},
     organizations::DatabaseOrganization,
     pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
@@ -229,9 +229,9 @@ pub struct CourseAuditingData {
     pub organization_id: Uuid,
     pub organization_name: String,
     pub organization_slug: String,
-    pub modules: Vec<CourseModule>,
     pub prerequisites: Vec<EditCoursePrerequisite>,
     pub audiences: Vec<EditCourseAudience>,
+    pub modules: Vec<CourseModule>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -241,19 +241,9 @@ pub struct CourseAuditingDataUpdate {
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
-    pub modules: Vec<ModifiedModule>,
     pub prerequisites: Vec<EditCoursePrerequisite>,
     pub audiences: Vec<EditCourseAudience>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
-pub struct CourseAuditingModuleUpdate {
-    pub uh_course_code: Option<String>,
-    /// If set, use this link rather than the default one when registering course completions.
-    pub completion_registration_link_override: Option<String>,
-    pub ects_credits: Option<f32>,
-    pub enable_registering_completion_to_uh_open_university: bool,
+    pub modules: Vec<CourseAuditingModuleUpdate>,
 }
 
 pub async fn insert(

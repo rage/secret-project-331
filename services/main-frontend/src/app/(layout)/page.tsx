@@ -11,6 +11,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import {
   allOrganizationsRoute,
   chatbotCommandCenterRoute,
+  courseAuditingRoute,
   creditRegistrationOverviewRoute,
   domainStatsRoute,
   globalPermissionsRoute,
@@ -193,7 +194,7 @@ const FrontPage = () => {
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>
           <Link
-            href={"manage/course-auditing"}
+            href={courseAuditingRoute()}
             className={css`
               cursor: pointer;
               color: blue;

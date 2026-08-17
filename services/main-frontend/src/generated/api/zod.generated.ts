@@ -687,6 +687,19 @@ export const zCourseAudience = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCourseAuditingModuleUpdate = z.object({
+  completion_registration_link_override: z.string().nullish(),
+  ects_credits: z.number().nullish(),
+  enable_registering_completion_to_uh_open_university: z.boolean(),
+  id: z.uuid(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  uh_course_code: z.string().nullish(),
+})
+
 export const zCourseBreadcrumbInfo = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
@@ -1923,6 +1936,16 @@ export const zCourseAuditingData = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCourseAuditingDataUpdate = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  description: z.string().nullish(),
+  modules: z.array(zCourseAuditingModuleUpdate),
+  prerequisites: z.array(zEditCoursePrerequisite),
+})
+
 export const zCourseMetadataUpdate = z.object({
   course_audiences: z.array(zEditCourseAudience),
   course_description: z.string().nullish(),
@@ -2678,16 +2701,6 @@ export const zModifiedModule = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   uh_course_code: z.string().nullish(),
-})
-
-export const zCourseAuditingDataUpdate = z.object({
-  audiences: z.array(zEditCourseAudience),
-  closed_additional_message: z.string().nullish(),
-  closed_at: z.iso.datetime().nullish(),
-  closed_course_successor_id: z.uuid().nullish(),
-  description: z.string().nullish(),
-  modules: z.array(zModifiedModule),
-  prerequisites: z.array(zEditCoursePrerequisite),
 })
 
 export const zModule = z.object({

@@ -15543,9 +15543,9 @@
           "organization_id",
           "organization_name",
           "organization_slug",
-          "modules",
           "prerequisites",
-          "audiences"
+          "audiences",
+          "modules"
         ],
         "properties": {
           "audiences": {
@@ -15612,7 +15612,7 @@
       },
       "CourseAuditingDataUpdate": {
         "type": "object",
-        "required": ["modules", "prerequisites", "audiences"],
+        "required": ["prerequisites", "audiences", "modules"],
         "properties": {
           "audiences": {
             "type": "array",
@@ -15637,7 +15637,7 @@
           "modules": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ModifiedModule"
+              "$ref": "#/components/schemas/CourseAuditingModuleUpdate"
             }
           },
           "prerequisites": {
@@ -15645,6 +15645,36 @@
             "items": {
               "$ref": "#/components/schemas/EditCoursePrerequisite"
             }
+          }
+        }
+      },
+      "CourseAuditingModuleUpdate": {
+        "type": "object",
+        "required": ["id", "order_number", "enable_registering_completion_to_uh_open_university"],
+        "properties": {
+          "completion_registration_link_override": {
+            "type": ["string", "null"]
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "enable_registering_completion_to_uh_open_university": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
           }
         }
       },

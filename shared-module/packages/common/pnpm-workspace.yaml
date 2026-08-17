@@ -78,4 +78,4 @@ minimumReleaseAgeExclude:
   - "@tanstack/react-table@9.0.0"
   - "@tanstack/table-core@9.0.0"
   - image-size@2.0.3
-  - nanoid@3.3.17
+  - nanoid@3.3.17 || 3.3.18

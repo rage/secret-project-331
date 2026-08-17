@@ -68,4 +68,4 @@ minimumReleaseAgeExclude:
   - dompurify@3.4.9 || 3.4.11 || 3.4.12 || 3.4.13
   - fast-uri@3.1.5
   - image-size@2.0.3
-  - nanoid@3.3.17
+  - nanoid@3.3.17 || 3.3.18

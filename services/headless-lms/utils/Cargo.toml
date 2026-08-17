@@ -20,7 +20,7 @@ tokio-stream.workspace = true
 # An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.34"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.24.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.24.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # Date and time library for Rust
@@ -79,7 +79,7 @@ flate2 = "1.1.9"
 # higher level HTTP client library
 reqwest = { version = "0.13.4", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
 # Redis driver for Rust.
-redis = { version = "1.5.0", features = ["aio", "tokio-comp", "connection-manager"] }
+redis = { version = "1.6.0", features = ["aio", "tokio-comp", "connection-manager"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.

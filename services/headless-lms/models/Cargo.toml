@@ -22,7 +22,7 @@ dotenvy = "0.15"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.24.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.24.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # Pure Rust implementation of the SHA-2 hash function family.
@@ -40,7 +40,7 @@ derive_more = { version = "2.1.1", features = ["full"] }
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.15.0"
 # Type erasure for async trait methods
-async-trait = "0.1.89"
+async-trait = "0.1.92"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.5.8"
 # An implementation of regular expressions for Rust.

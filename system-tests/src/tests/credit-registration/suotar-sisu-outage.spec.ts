@@ -48,6 +48,13 @@ const outageRow = async (adminApi: Parameters<typeof listAdminRegistrations>[0])
   return page.data[0] ?? null
 }
 
+// The fault lives in the shared mock, not in this test's scope, so a failure before the last step
+// would leave `import_attainments` refusing this student number for every later spec and every
+// re-run. Disarming is idempotent, and the last step disarms on its own as part of what it asserts.
+test.afterEach(async ({ page }) => {
+  await disarmMockSuotarFault(page.request, OUTAGE_FAULT_ID)
+})
+
 test("An outage backs off, surfaces on the errors tab, and recovers", async ({
   page,
   adminApi,

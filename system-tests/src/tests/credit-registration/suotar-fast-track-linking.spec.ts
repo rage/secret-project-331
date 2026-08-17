@@ -22,6 +22,8 @@ import {
  *
  * Serial and order-dependent: the last test unlinks `900001401`, and an automatic link the student
  * has removed is never made again, so nothing after it may expect that number linked.
+ * `retries: 0` follows: a retry replays the group from its first test, which by then would run against
+ * the unlinked number and an already-claimed mail, so retrying only turns one failure into three.
  */
 const VERIFIED_EMAIL = "credit-registration-verified-email@example.com"
 const VERIFIED = "900001401"
@@ -36,7 +38,7 @@ const FAST_TRACK = "email_match_fast_track"
 const LINKED_MAIL = "credit_registration_student_number_linked"
 const STUDENT_NUMBER_SETTINGS_URL = `${ORIGIN}/user-settings/student-number`
 
-test.describe.configure({ mode: "serial" })
+test.describe.configure({ mode: "serial", retries: 0 })
 
 test.use({ storageState: seededStudentStorageState(VERIFIED_EMAIL) })
 

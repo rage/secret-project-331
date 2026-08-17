@@ -61,6 +61,8 @@ export interface AdminRegistrationAction {
 /** One of the two student terminal-state mails, as the admin detail view reports it. */
 export interface AdminNotificationEmail {
   kind: "action_needed" | "registered"
+  /** Stable for the life of the row: a change here means a second mail of this kind went out. */
+  email_delivery_id: string
   send_status: { email_send_status: string; sent_at: string | null }
 }
 

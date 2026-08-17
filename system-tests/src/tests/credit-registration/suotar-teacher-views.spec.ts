@@ -26,7 +26,12 @@ import {
  *
  * `teacher@example.com` teaches the fixture courses and nothing else here, which is what makes the
  * authorization cases meaningful.
+ * Serial and order-dependent: the single-row retry test spends `Retry01`'s `failed_permanent` state,
+ * and the bulk retry after it sweeps the whole retry course. `retries: 0` because neither state comes
+ * back, so retrying only turns one failure into three.
  */
+test.describe.configure({ mode: "serial", retries: 0 })
+
 test.use({ storageState: "src/states/teacher@example.com.json" })
 
 const STATES_COMPLETIONS_URL = `${ORIGIN}/manage/courses/${STATES_COURSE_ID}/students/completions`

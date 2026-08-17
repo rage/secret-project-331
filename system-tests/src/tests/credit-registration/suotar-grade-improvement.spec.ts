@@ -28,6 +28,8 @@ import {
  * Owns student numbers `9000012xx` and the grade-improvement course outright: it is the only seeded
  * module on a graded scale, and both tests below regrade the one completion on it, so they run in
  * order and nothing else may write to that course.
+ * `retries: 0` follows: a retry replays the group from its first test, which by then would run against
+ * the grade the last one left behind, so retrying only turns one failure into three.
  */
 const STUDENT_EMAIL = "credit-registration-grade-improvement@example.com"
 const STUDENT_NUMBER = "900001201"
@@ -35,7 +37,7 @@ const NUMERIC_SCALE = "sis-0-5"
 const scope = { userEmail: STUDENT_EMAIL }
 
 test.use({ storageState: seededStudentStorageState(STUDENT_EMAIL) })
-test.describe.configure({ mode: "serial" })
+test.describe.configure({ mode: "serial", retries: 0 })
 
 test("Raising a registered grade starts a new attempt and supersedes the old one", async ({
   page,

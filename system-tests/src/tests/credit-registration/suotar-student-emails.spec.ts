@@ -47,6 +47,16 @@ const mailsOfKind = (
   kind: AdminNotificationEmail["kind"],
 ): AdminNotificationEmail[] => mails.filter((mail) => mail.kind === kind)
 
+/**
+ * Which mails a row is pinned to, for comparing two reads of it. Deliberately not the whole objects:
+ * `send_status` is derived live from the delivery, and the sender runs in this deployment, so it flips
+ * `queued` → `sent` between two reads of a mail nobody sent twice. A re-send would replace the
+ * delivery id, which is the thing being asserted. Sorted because the endpoint's query has no
+ * `ORDER BY`.
+ */
+const mailIdentities = (mails: AdminNotificationEmail[]): string[] =>
+  mails.map((mail) => `${mail.kind}:${mail.email_delivery_id}`).sort()
+
 test.describe("A student whose credits reach the study registry", () => {
   test.use({ storageState: seededStudentStorageState(REGISTERED_EMAIL) })
 
@@ -90,7 +100,7 @@ test.describe("A student whose credits reach the study registry", () => {
       // The regression this file exists for: the column, not the tick, is what stops a second send.
       await runStudentNotificationsTick(page.request, scope)
       const details = await adminRegistrationDetails(adminApi, registration.id)
-      expect(details.notification_emails).toStrictEqual(queued)
+      expect(mailIdentities(details.notification_emails)).toStrictEqual(mailIdentities(queued))
     })
 
     await test.step("Send status uses our-side vocabulary, never a delivery", async () => {
@@ -135,7 +145,9 @@ test.describe("A student the study registry has no enrolment for", () => {
 
     await runStudentNotificationsTick(page.request, scope)
     const afterSecond = await adminRegistrationDetails(adminApi, parked.id)
-    expect(afterSecond.notification_emails).toStrictEqual(queued.notification_emails)
+    expect(mailIdentities(afterSecond.notification_emails)).toStrictEqual(
+      mailIdentities(queued.notification_emails),
+    )
   })
 })
 

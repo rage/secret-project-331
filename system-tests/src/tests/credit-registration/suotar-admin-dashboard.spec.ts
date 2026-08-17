@@ -33,6 +33,7 @@ import {
   runEnrolmentDiscoveryTick,
   runLinkEmailsTick,
   runPhasesUpToSubmission,
+  runTick,
   runTickUnchecked,
   runVerifyPollTick,
 } from "@/utils/suotarControl"
@@ -119,10 +120,12 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
   await expect(page.getByRole("heading", { name: "Per course realisation" })).toBeVisible()
 })
 
-// No other spec file ticks `enrolment-discovery`, so pausing it here cannot stall a concurrent tick
-// of the globally-shared `credit_registration_phase_state` row.
+// A pause is on the globally-shared `credit_registration_phase_state` row, not on this course, so the
+// phase paused here has to be one no *other* spec file ticks — otherwise a spec in another worker gets
+// `skipped: paused` back from a tick it needed. `config-validation` is that phase, and the pipeline
+// test below is the only other tick of it; same file, so the two cannot overlap.
 test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ page }) => {
-  const phase = "enrolment-discovery"
+  const phase = "config-validation"
   const pauseReason = "System test: proving the pause control works."
 
   await test.step("An unknown phase name is refused by all three actions", async () => {
@@ -408,18 +411,27 @@ test("Phase- and student-number-targeted actions are readable from the audit log
 })
 
 test("The pipeline tab reads the daily snapshots", async ({ page }) => {
+  // Unscoped, because only an unscoped run writes the snapshot: a run narrowed to one course would
+  // record that course's depth as everyone's. Without this a fresh database has no snapshot at all
+  // and the tab's empty state is the only thing there is to assert.
+  await runTick(page.request, "config-validation")
+
   await page.goto(`${DASHBOARD_URL}/pipeline`)
   await expect(page.getByRole("heading", { name: "Queue depth over time" })).toBeVisible()
   await expect(
     page.getByRole("heading", { name: "What moved on the last snapshot day" }),
   ).toBeVisible()
-  // The snapshots are written once a day, so a fresh database has none. Saying so is the point:
-  // an empty chart area is ambiguous between "nothing queued" and "nothing rendered".
-  await expect(
-    page
-      .getByText("Snapshots are written once a day", { exact: false })
-      .or(page.getByText("No snapshot has been written")),
-  ).toBeVisible()
+
+  await test.step("The snapshot the tick just wrote is what the flow table reports", async () => {
+    await expect(page.getByText("No snapshot has been written")).toHaveCount(0)
+    // Only rendered off a snapshot that exists, unlike the queue-depth note above it, which is there
+    // whether or not anything was read.
+    await expect(page.getByText("As of the snapshot taken on", { exact: false })).toBeVisible()
+    const flow = page.getByRole("table", { name: "What moved on the last snapshot day" })
+    // The seed leaves rows in most states, so a table of nothing but its header row would mean the
+    // tab rendered the snapshot's shape without reading its counts.
+    expect(await flow.getByRole("row").count()).toBeGreaterThan(1)
+  })
 })
 
 test("The errors tab shows the window's verdicts and what needs a human", async ({ page }) => {

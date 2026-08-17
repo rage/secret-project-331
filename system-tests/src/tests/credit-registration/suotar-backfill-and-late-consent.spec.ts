@@ -15,8 +15,10 @@ import { pollUntil } from "@/utils/waitingUtils"
  * Owns the `credit-registration-backfill` course outright and student numbers `9000011xx`. Turning the
  * flag on is a one-way, run-wide change that materialises a row for every student on the course, so
  * this file is serial and no other spec may touch that course or assert on the resulting wave.
+ * `retries: 0` follows: a retry replays the group from the test that flips the flag, which by then is
+ * already on, so retrying only turns one failure into three.
  */
-test.describe.configure({ mode: "serial" })
+test.describe.configure({ mode: "serial", retries: 0 })
 
 const MODULES_URL = `${ORIGIN}/manage/courses/${BACKFILL_COURSE_ID}/modules`
 const REALISATION_ID = "hy-opt-cur-crs-backfill-101-degree"

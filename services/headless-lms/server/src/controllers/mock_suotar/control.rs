@@ -264,7 +264,7 @@ mod tests {
             test_chatbot: false,
             test_sisu: false,
             test_suotar,
-            seed_embedding: false,
+            disable_embedding_vector_creation_when_seeding: false,
             development_uuid_login: false,
             enable_admin_email_verification: false,
             enable_email_ownership_verification: false,

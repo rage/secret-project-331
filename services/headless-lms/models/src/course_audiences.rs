@@ -117,8 +117,7 @@ SELECT DISTINCT a.course_id
 FROM course_audiences a
 CROSS JOIN unnest($2::text[]) AS k(keyword)
 WHERE deleted_at IS NULL
-AND to_tsvector('english', a.audience)
-    @@ websearch_to_tsquery('english', k.keyword)
+AND a.audience % k.keyword
         "#,
         &vectors as _,
         &audience_keywords

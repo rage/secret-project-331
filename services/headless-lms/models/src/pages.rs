@@ -998,8 +998,8 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
         PageInfo,
         r#"
     SELECT
-        p.id as page_id,
-        p.title as page_title,
+        p.id as "page_id!",
+        p.title as "page_title!",
         c.id as "course_id?",
         c.name as "course_name?",
         c.slug as "course_slug?",

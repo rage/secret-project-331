@@ -32,9 +32,10 @@ pub struct EmbeddingResponseUsage {
     pub total_tokens: i32,
 }
 
+/// Creates an embedding vector for each string passed as an argument.
 pub async fn create_embeddings(
     app_config: &ApplicationConfiguration,
-    input: Vec<String>,
+    inputs: Vec<String>,
 ) -> UtilResult<Vec<Vec<f32>>> {
     let app_config = app_config.to_owned();
     let azure_config = app_config.azure_configuration.ok_or_else(|| {
@@ -59,14 +60,14 @@ pub async fn create_embeddings(
     })?;
 
     let api_endpoint = chatbot_config.embeddings_endpoint()?;
-    let input_len = input.len();
+    let input_len = inputs.len();
     let response = REQWEST_CLIENT
         .post(api_endpoint)
         .header("Content-Type", "application/json")
         .header("api-key", chatbot_config.api_key.expose_secret())
         .json(&EmbeddingRequest {
             model: search_config.vectorizer_model_name.to_owned(),
-            input,
+            input: inputs,
         })
         .send()
         .await?;

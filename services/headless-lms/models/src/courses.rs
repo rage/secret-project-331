@@ -298,7 +298,7 @@ RETURNING id
     )
     .fetch_one(&mut *tx)
     .await?;
-    if !app_config.seed_embedding {
+    if !app_config.disable_embedding_vector_creation_when_seeding {
         update_course_embeddings(
             &mut tx,
             app_config,
@@ -1235,8 +1235,8 @@ SELECT DISTINCT c.id
 FROM courses c
 CROSS JOIN unnest($2::text[]) AS k(keyword)
 WHERE deleted_at IS NULL
-AND to_tsvector('english', c.description)
-@@ websearch_to_tsquery('english', k.keyword)
+AND to_tsvector(c.content_search_language::regconfig, c.description)
+@@ websearch_to_tsquery(c.content_search_language::regconfig, k.keyword)
         "#,
         &vectors as _,
         &description_keywords

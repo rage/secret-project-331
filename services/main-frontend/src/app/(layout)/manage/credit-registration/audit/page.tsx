@@ -120,6 +120,9 @@ const dayStart = (day: string): string | undefined =>
 const dayEnd = (day: string): string | undefined =>
   day === "" ? undefined : new Date(`${day}T23:59:59Z`).toISOString()
 
+/** The inverse of the two above, so a pasted link's window reaches the date inputs it came from. */
+const dayOf = (instant: string | undefined): string => instant?.slice(0, 10) ?? ""
+
 const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
   const { t } = useTranslation()
   const isTeacher = row.actor_role === COURSE_TEACHER
@@ -175,8 +178,8 @@ const AuditPage: React.FC = () => {
       action: param(PARAM_ACTION) ?? ANY,
       target_kind: param(PARAM_TARGET_KIND) ?? ANY,
       course_id: param(PARAM_COURSE_ID) ?? ANY,
-      from: "",
-      to: "",
+      from: dayOf(param(PARAM_FROM)),
+      to: dayOf(param(PARAM_TO)),
     },
   })
   const watchedActorRole = watch("actor_role")

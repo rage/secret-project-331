@@ -21,32 +21,33 @@ export const useQueryParamFilters = (): QueryParamFilters => {
     [searchParams],
   )
 
-  const applyParams = useCallback(
-    (changes: Record<string, string | undefined>) => {
-      const next = new URLSearchParams(searchParams?.toString() ?? "")
-      for (const [name, value] of Object.entries(changes)) {
-        if (value === undefined || value === "") {
-          next.delete(name)
-        } else {
-          next.set(name, value)
-        }
+  const applyParams = useCallback((changes: Record<string, string | undefined>) => {
+    // Read back from the address bar, not from this render's `searchParams`: a view with one effect
+    // per filter fires several of these in a single commit, and each would otherwise start from the
+    // same pre-first-call snapshot and overwrite its predecessors, leaving the URL describing only
+    // whichever effect happened to run last.
+    const next = new URLSearchParams(window.location.search)
+    for (const [name, value] of Object.entries(changes)) {
+      if (value === undefined || value === "") {
+        next.delete(name)
+      } else {
+        next.set(name, value)
       }
-      // A narrowed result set has different pages.
-      next.delete(PAGE_PARAM)
-      const query = next.toString()
-      // Not router.replace: Next 16 keys this route's client cache by the search string the server
-      // rendered with — empty, since nothing here is read on the server — but stores the canonical
-      // URL of whichever URL was first loaded. A query-only navigation therefore hits that entry
-      // and snaps the address bar back to the URL the tab was opened on. replaceState hands the
-      // router the URL itself, and useSearchParams() still follows it.
-      window.history.replaceState(
-        null,
-        "",
-        `${window.location.pathname}${query === "" ? "" : `?${query}`}`,
-      )
-    },
-    [searchParams],
-  )
+    }
+    // A narrowed result set has different pages.
+    next.delete(PAGE_PARAM)
+    const query = next.toString()
+    // Not router.replace: Next 16 keys this route's client cache by the search string the server
+    // rendered with — empty, since nothing here is read on the server — but stores the canonical
+    // URL of whichever URL was first loaded. A query-only navigation therefore hits that entry
+    // and snaps the address bar back to the URL the tab was opened on. replaceState hands the
+    // router the URL itself, and useSearchParams() still follows it.
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${query === "" ? "" : `?${query}`}`,
+    )
+  }, [])
 
   return { param, applyParams }
 }

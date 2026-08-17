@@ -5,6 +5,10 @@ import { useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  getCourseCreditRegistrationActionsQueryKey,
+  getCourseCreditRegistrationSummaryQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { retryFailedCreditRegistrationsForCourse } from "@/generated/api/sdk.generated"
 import type { RetryFailedCreditRegistrationsResult } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -12,6 +16,7 @@ import { Button, Infobox } from "@/shared-module/components"
 
 import { TONE } from "./constants"
 import { retryOutcomeSentence } from "./creditRegistrationRetry"
+import { invalidateTeacherCreditRegistrations } from "./teacherCreditRegistrations"
 
 interface Props {
   courseId: string
@@ -32,9 +37,21 @@ const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({ courseId }) => {
     () => retryFailedCreditRegistrationsForCourse({ path: { course_id: courseId }, body: {} }),
     { notify: false },
     {
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
         setResult(data)
-        queryClient.invalidateQueries()
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: getCourseCreditRegistrationSummaryQueryKey({
+              path: { course_id: courseId },
+            }),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getCourseCreditRegistrationActionsQueryKey({
+              path: { course_id: courseId },
+            }),
+          }),
+          invalidateTeacherCreditRegistrations(queryClient),
+        ])
       },
     },
   )

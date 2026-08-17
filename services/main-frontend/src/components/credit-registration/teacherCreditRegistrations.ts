@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { type QueryClient, queryOptions, useQuery } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
 
 import { getCourseCreditRegistrationsForUsers } from "@/generated/api/sdk.generated"
@@ -49,6 +49,13 @@ export const useTeacherCreditRegistrations = (courseId: string | null, userIds: 
         }),
     }),
   )
+
+/**
+ * Marks every page's worth of these stale after an action that moved a row. Keyed by the user ids the
+ * caller happened to be showing, so the family is invalidated by prefix rather than by one key.
+ */
+export const invalidateTeacherCreditRegistrations = (queryClient: QueryClient): Promise<void> =>
+  queryClient.invalidateQueries({ queryKey: [QUERY_KEY_PREFIX] })
 
 export type CreditRegistrationIndex = Map<string, CourseCreditRegistration>
 

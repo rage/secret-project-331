@@ -1,4 +1,4 @@
-CREATE EXTENSION vector;
+CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 ALTER TABLE course_prerequisites
 ADD COLUMN embedding vector(1536);

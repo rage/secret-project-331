@@ -98,12 +98,13 @@ fn sanitize_refs(value: &mut serde_json::Value) {
     match value {
         serde_json::Value::Object(map) => {
             for (key, entry) in map.iter_mut() {
-                if key == "$ref" {
-                    if let serde_json::Value::String(reference) = entry {
+                match entry {
+                    serde_json::Value::String(reference) if key == "$ref" => {
                         *reference = percent_encode_ref(reference);
                     }
-                } else {
-                    sanitize_refs(entry);
+                    // A `$ref` key whose value isn't a string is an ordinary schema node (e.g. a
+                    // property literally named `$ref`), so keep descending into it.
+                    _ => sanitize_refs(entry),
                 }
             }
         }
@@ -289,10 +290,10 @@ pub async fn generate_chart_spec(
         match parse_and_validate_spec(&completion_content, validator) {
             Ok(spec) => {
                 return serde_json::to_string_pretty(&spec).map_err(|e| {
-                    ChatbotError::new(
-                        ChatbotErrorType::SerdeJson,
+                    chatbot_err!(
+                        SerdeJson,
                         "Failed to serialize the generated chart specification.".to_string(),
-                        Some(e.into()),
+                        e
                     )
                 });
             }

@@ -19,6 +19,34 @@ const MIN_HEIGHT = 200
 // Debounce redraws to once the resize settles, not per tick (avoids a stale canvas width).
 const RESIZE_DEBOUNCE_MS = 150
 
+// Vega measures text on a canvas to lay out the chart's axes, so it must not draw before the site
+// font has loaded: measured against a fallback, the labels end up placed for the wrong metrics and
+// the real glyphs then arrive under them.
+const SITE_FONT_PROBE = `1rem ${primaryFont}`
+
+const useSiteFontLoaded = (): boolean => {
+  const [loaded, setLoaded] = useState(false)
+  useEffect(() => {
+    let cancelled = false
+    const markLoaded = () => {
+      if (!cancelled) {
+        setLoaded(true)
+      }
+    }
+    // A failed load, or a browser without the font API, draws with the fallback rather than nothing.
+    const fonts: FontFaceSet | undefined = document.fonts
+    if (fonts) {
+      fonts.load(SITE_FONT_PROBE).then(markLoaded, markLoaded)
+    } else {
+      markLoaded()
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  return loaded
+}
+
 const messageStyle = (background: string, border: string, color: string) => css`
   padding: 1rem;
   background: ${background};
@@ -65,6 +93,7 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
   warnOnMobileOverflow,
 }) => {
   const { t } = useTranslation()
+  const siteFontLoaded = useSiteFontLoaded()
   const containerRef = useRef<HTMLElement>(null)
   const [width, setWidth] = useState<number | null>(null)
   const [naturalHeight, setNaturalHeight] = useState<number | null>(null)
@@ -172,6 +201,9 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
           ...parsedSpec,
           ...(accessibleDescription ? { description: accessibleDescription } : {}),
           width,
+          // The chart's text in the site font instead of Vega's default sans-serif, so it reads as
+          // part of the page. A spec that sets its own config keeps it.
+          config: { font: primaryFont, ...parsedSpec.config },
           // Single/layered views size themselves to the box via autosize "fit"; multi-view specs
           // ignore both, so we leave them at natural size and scale with CSS below instead.
           ...(multiView
@@ -242,7 +274,7 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
             `}
           >
             {/* eslint-disable-next-line i18next/no-literal-string */}
-            <VegaLite spec={responsiveSpec} actions={false} renderer="svg" />
+            {siteFontLoaded && <VegaLite spec={responsiveSpec} actions={false} renderer="svg" />}
           </div>
         </div>
       )}

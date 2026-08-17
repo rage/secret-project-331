@@ -74,6 +74,13 @@ describe("extractInlineData", () => {
   it("returns null for unparseable JSON", () => {
     expect(extractInlineData("{ not json")).toBeNull()
   })
+
+  it("returns null for JSON that isn't a spec object", () => {
+    expect(extractInlineData("null")).toBeNull()
+    expect(extractInlineData("[1, 2, 3]")).toBeNull()
+    expect(extractInlineData("42")).toBeNull()
+    expect(extractInlineData('"a string"')).toBeNull()
+  })
 })
 
 describe("dataFormatForUrl", () => {

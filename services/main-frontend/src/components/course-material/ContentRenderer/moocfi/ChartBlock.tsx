@@ -24,6 +24,34 @@ const MIN_HEIGHT = 200
 // Debounce redraws to once the resize settles, not per tick (avoids a stale canvas width).
 const RESIZE_DEBOUNCE_MS = 150
 
+// Vega measures text on a canvas to lay out the chart's axes, so it must not draw before the site
+// font has loaded: measured against a fallback, the labels end up placed for the wrong metrics and
+// the real glyphs then arrive under them.
+const SITE_FONT_PROBE = `1rem ${primaryFont}`
+
+const useSiteFontLoaded = (): boolean => {
+  const [loaded, setLoaded] = useState(false)
+  useEffect(() => {
+    let cancelled = false
+    const markLoaded = () => {
+      if (!cancelled) {
+        setLoaded(true)
+      }
+    }
+    // A failed load, or a browser without the font API, draws with the fallback rather than nothing.
+    const fonts: FontFaceSet | undefined = document.fonts
+    if (fonts) {
+      fonts.load(SITE_FONT_PROBE).then(markLoaded, markLoaded)
+    } else {
+      markLoaded()
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  return loaded
+}
+
 // Mirrors the cms block's chartSpec.ts so the published chart matches the editor's sizing.
 const DEFAULT_CHART_HEIGHT = 300
 const MULTI_VIEW_KEYS = ["vconcat", "hconcat", "concat", "facet", "repeat"] as const
@@ -77,6 +105,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
 ) => {
   const { t } = useTranslation()
   const { spec, caption, height, heightIsAuto } = props.data.attributes
+  const siteFontLoaded = useSiteFontLoaded()
   const containerRef = useRef<HTMLElement>(null)
   const [width, setWidth] = useState<number | null>(null)
   const [naturalHeight, setNaturalHeight] = useState<number | null>(null)
@@ -163,6 +192,9 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
           ...parsedSpec,
           ...(accessibleDescription ? { description: accessibleDescription } : {}),
           width,
+          // The chart's text in the site font instead of Vega's default sans-serif, so it reads as
+          // part of the page. A spec that sets its own config keeps it.
+          config: { font: primaryFont, ...parsedSpec.config },
           // Single/layered views fit the box via autosize; multi-view specs ignore it and are
           // scaled with CSS below.
           ...(multiView
@@ -226,7 +258,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
           >
             {/* SVG so Vega emits per-axis/mark ARIA. */}
             {/* eslint-disable-next-line i18next/no-literal-string */}
-            <VegaLite spec={responsiveSpec} actions={false} renderer="svg" />
+            {siteFontLoaded && <VegaLite spec={responsiveSpec} actions={false} renderer="svg" />}
           </div>
         </div>
       )}

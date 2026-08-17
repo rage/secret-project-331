@@ -13,6 +13,7 @@ import { requestChartSpecGeneration } from "@/generated/api/sdk.generated"
 import { uploadFileFromPage } from "@/services/mediaUpload"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import MonacoEditor from "@/shared-module/common/components/monaco/MonacoEditor"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components/components/Button"
 import { TextArea } from "@/shared-module/components/components/TextArea"
@@ -91,6 +92,18 @@ const VEGA_JSON_RESIZE_STEP = 40
 
 const clampVegaJsonHeight = (height: number) =>
   Math.min(VEGA_JSON_MAX_HEIGHT, Math.max(VEGA_JSON_MIN_HEIGHT, height))
+
+// The attached data file's name as shown to the teacher. decodeURIComponent throws on a malformed
+// percent sequence, so an odd URL falls back to the raw name rather than taking down the dialog.
+const dataFileNameFromUrl = (url: string): string => {
+  const name = url.split("/").pop() ?? url
+  try {
+    return decodeURIComponent(name)
+  } catch {
+    return name
+  }
+}
+
 // Enough of the data file for the model to see field names and value shapes.
 const DATA_SAMPLE_MAX_CHARS = 4000
 
@@ -218,8 +231,6 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   const [isExtractingData, setIsExtractingData] = useState(false)
   const [showVegaJson, setShowVegaJson] = useState(false)
   const [vegaJsonHeight, setVegaJsonHeight] = useState(VEGA_JSON_DEFAULT_HEIGHT)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [aiError, setAiError] = useState<unknown>(undefined)
 
   // Data-first flow: a new block starts on the data-file step, then picks a creation method, then
   // lands in the editor.
@@ -405,32 +416,25 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   // Generate a spec and apply it. If the result won't render, retry once with the error as context;
   // whatever comes back is applied, and if it's still broken the manual "Fix with AI" button takes
   // over.
-  const generateSpec = async (options: {
-    prompt: string
-    currentSpec: string | null
-  }): Promise<boolean> => {
-    if (isGenerating) {
-      return false
-    }
-    setIsGenerating(true)
-    setAiError(undefined)
-    try {
-      let result = await requestSpec(options.prompt, options.currentSpec)
+  const generateSpecMutation = useToastMutation<
+    string,
+    unknown,
+    { prompt: string; currentSpec: string | null }
+  >(
+    async ({ prompt, currentSpec }) => {
+      const result = await requestSpec(prompt, currentSpec)
       const error = renderErrorFor(result)
-      if (error) {
-        result = await requestSpec(fixPromptFor(error), result)
-      }
+      return error ? await requestSpec(fixPromptFor(error), result) : result
+    },
+    { notify: false },
+    {
       // Result flows through handleSpecChange so caption sync + inline-data extraction match a
       // hand-written spec.
-      handleSpecChange(result)
-      return true
-    } catch (error) {
-      setAiError(error)
-      return false
-    } finally {
-      setIsGenerating(false)
-    }
-  }
+      onSuccess: (result) => handleSpecChange(result),
+    },
+  )
+  const isGenerating = generateSpecMutation.isPending
+  const aiError = generateSpecMutation.error
 
   const handleAiGenerate = async () => {
     const prompt = getValues("aiPrompt").trim()
@@ -439,25 +443,27 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }
     // A fresh (empty) block has no spec to edit, so the model writes one from scratch.
     const currentSpec = latestSpecRef.current
-    const requestSucceeded = await generateSpec({
-      prompt,
-      currentSpec: currentSpec.trim() ? currentSpec : null,
-    })
+    try {
+      await generateSpecMutation.mutateAsync({
+        prompt,
+        currentSpec: currentSpec.trim() ? currentSpec : null,
+      })
+    } catch {
+      // A failed request keeps the prompt open with the mutation's error shown.
+      return
+    }
     // A spec came back, so move to the editor: the preview, the render error and "Fix with AI"
-    // live there, which is what a spec that doesn't render needs. A failed request keeps the prompt
-    // open with its error instead.
-    if (requestSucceeded) {
+    // live there, which is what a spec that doesn't render needs.
+    if (aiReturnStep === STEP_METHOD) {
       // A generated chart is meant to be judged from the preview, so the JSON starts collapsed.
       // Re-generating from the editor leaves the teacher's own toggle alone.
-      if (aiReturnStep === STEP_METHOD) {
-        setShowVegaJson(false)
-      }
-      setStep(STEP_EDITOR)
+      setShowVegaJson(false)
     }
+    setStep(STEP_EDITOR)
   }
 
   const openAiPrompt = (returnStep: AiReturnStep) => {
-    setAiError(undefined)
+    generateSpecMutation.reset()
     setAiReturnStep(returnStep)
     setStep(STEP_AI)
   }
@@ -468,7 +474,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     if (!renderError || !brokenSpec.trim()) {
       return
     }
-    void generateSpec({ prompt: fixPromptFor(renderError), currentSpec: brokenSpec })
+    generateSpecMutation.mutate({ prompt: fixPromptFor(renderError), currentSpec: brokenSpec })
   }
 
   const handleCaptionChange = (value: string) => {
@@ -642,7 +648,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
         <Placeholder
           icon={<BlockIcon icon={icon} />}
           label={t("chart-data-file")}
-          instructions={decodeURIComponent(attachedDataUrl.split("/").pop() ?? attachedDataUrl)}
+          instructions={dataFileNameFromUrl(attachedDataUrl)}
         >
           <Button variant="tertiary" size="medium" onPress={handleDataFileRemove}>
             {t("remove")}
@@ -788,7 +794,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               </span>
             )}
           </div>
-          {aiError !== undefined && <ErrorBanner error={aiError} />}
+          {aiError !== null && <ErrorBanner error={aiError} />}
           <div
             className={css`
               display: flex;
@@ -1101,7 +1107,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
                 >
                   {t("fix-with-ai")}
                 </Button>
-                {aiError !== undefined && (
+                {aiError !== null && (
                   <div
                     className={css`
                       margin-top: 0.5rem;

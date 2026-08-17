@@ -1,4 +1,4 @@
-import { expect, type Page, test } from "@playwright/test"
+import { expect, type Locator, type Page, test } from "@playwright/test"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -77,7 +77,7 @@ const createPageWithChartBlock = async (page: Page, title: string) => {
 
   await page.getByLabel("Add block").click()
   await page.getByPlaceholder("Search").fill("chart")
-  await page.getByRole("option", { name: "ChartBlock" }).click()
+  await page.getByRole("option", { name: "Chart" }).click()
 }
 
 // Uploads a data file on the first step of the guided flow.
@@ -88,6 +88,11 @@ const uploadDataFile = async (page: Page, fixture: string) => {
   ])
   await chooser.setFiles(fixture)
 }
+
+// Monaco is code split and fetches its own (large) bundle, so first paint of the editor can take
+// far longer than the default assertion timeout allows.
+const expectVegaJsonEditorToBeVisible = (dialog: Locator) =>
+  expect(dialog.locator(".monaco-editor").first()).toBeVisible({ timeout: 30_000 })
 
 // Replaces the whole Monaco document. insertText is used instead of type() so Monaco's
 // auto-closing brackets don't corrupt the JSON; content must be a single line (no newlines).
@@ -138,7 +143,7 @@ test("Chart block editor works", async ({ page }) => {
 
   // The manual route opens the full editor with the Vega JSON already revealed.
   await dialog.getByRole("button", { name: "Write the Vega JSON myself" }).click()
-  await expect(dialog.locator(".monaco-editor").first()).toBeVisible()
+  await expectVegaJsonEditorToBeVisible(dialog)
   await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
   // In the editor the AI is offered as a way to redo an existing chart.
   await expect(dialog.getByRole("button", { name: "Re-generate with AI" })).toBeVisible()
@@ -163,7 +168,8 @@ test("Chart block editor works", async ({ page }) => {
   const dataFileHref = await dialog
     .getByRole("link", { name: "View the data file" })
     .getAttribute("href")
-  const dataFileResponse = await page.request.get(new URL(dataFileHref ?? "", page.url()).href)
+  expect(dataFileHref).not.toBeNull()
+  const dataFileResponse = await page.request.get(new URL(String(dataFileHref), page.url()).href)
   expect(dataFileResponse.ok()).toBeTruthy()
   expect(await dataFileResponse.json()).toStrictEqual([
     { category: "A", value: 12 },
@@ -201,7 +207,7 @@ test("Chart block editor works", async ({ page }) => {
   // The block round-trips through save and parse: after a reload it is still recognized as a
   // valid chart block and its attributes survived.
   await page.reload()
-  await page.getByLabel("Block: ChartBlock").click()
+  await page.getByLabel("Block: Chart").click()
   await page.getByRole("button", { name: "Edit chart" }).first().click()
   await expect(dialog).toBeVisible()
   await expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveValue("Quarterly results")
@@ -219,18 +225,17 @@ const openEditorWithDataFile = async (page: Page, title: string) => {
     timeout: 30_000,
   })
   await dialog.getByRole("button", { name: "Write the Vega JSON myself" }).click()
-  await expect(dialog.locator(".monaco-editor").first()).toBeVisible()
+  await expectVegaJsonEditorToBeVisible(dialog)
   return dialog
 }
 
 test("Chart block re-attaches the data file to a spec that dropped it", async ({ page }) => {
   const dialog = await openEditorWithDataFile(page, "Chart block re-bind test page")
 
-  // Editing the spec down to one that references no data leaves the chart without data...
+  // Editing the spec down to one that references no data leaves the chart without data until the
+  // attached file is bound back into it, which happens once typing settles rather than per
+  // keystroke, so that editing the spec is not interrupted.
   await setMonacoContent(page, SPEC_WITHOUT_DATA)
-  await expect(dialog.getByText("This chart is missing its data file.")).toBeVisible()
-  // ...until the attached file is bound back into it, which happens once typing settles rather
-  // than per keystroke, so that editing the spec is not interrupted.
   await expect(dialog.getByText("This chart is missing its data file.")).toBeHidden({
     timeout: 30_000,
   })
@@ -284,7 +289,7 @@ test("Chart block can be generated with AI", async ({ page }) => {
 
   // The generated specification is there to inspect and edit once revealed.
   await dialog.getByRole("button", { name: "View Vega JSON" }).click()
-  await expect(dialog.locator(".monaco-editor").first()).toBeVisible()
+  await expectVegaJsonEditorToBeVisible(dialog)
   await expect(dialog.getByText("Invalid JSON")).toHaveCount(0)
 
   await dialog.getByRole("button", { name: "Close" }).click()

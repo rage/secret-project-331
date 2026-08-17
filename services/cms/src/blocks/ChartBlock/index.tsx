@@ -23,7 +23,7 @@ export interface ChartBlockAttributes {
 export { DEFAULT_CHART_HEIGHT }
 
 const ChartBlockConfiguration: BlockConfiguration<ChartBlockAttributes> = {
-  title: "ChartBlock",
+  title: "Chart",
   description: "Renders a Vega-Lite chart from a JSON specification",
   category: "text",
   attributes: {

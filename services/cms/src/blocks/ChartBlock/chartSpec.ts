@@ -140,13 +140,17 @@ export interface ExtractedData {
 
 /** Extracts top-level inline `data.values`; null if none, unparseable, or data is already a URL. */
 export const extractInlineData = (specString: string): ExtractedData | null => {
-  let parsed: Record<string, unknown>
+  let parsed: unknown
   try {
     parsed = JSON.parse(specString)
   } catch {
     return null
   }
-  const data = parsed.data as { values?: unknown; format?: { type?: string } } | undefined
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    return null
+  }
+  const record = parsed as Record<string, unknown>
+  const data = record.data as { values?: unknown; format?: { type?: string } } | undefined
   const values = data?.values
   if (values === undefined || values === null) {
     return null
@@ -154,7 +158,7 @@ export const extractInlineData = (specString: string): ExtractedData | null => {
   if (Array.isArray(values) ? values.length === 0 : values === "") {
     return null
   }
-  const { data: _omitted, ...specWithoutData } = parsed
+  const { data: _omitted, ...specWithoutData } = record
   if (typeof values === "string") {
     const formatType = data?.format?.type
     const extension = formatType === CSV ? CSV : formatType === TSV ? TSV : JSON_EXT

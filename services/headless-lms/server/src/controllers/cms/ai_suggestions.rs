@@ -141,7 +141,9 @@ This endpoint is intended for the CMS chart block editor. It requires the user t
 edit access to the referenced page when `page_id` is provided, otherwise it falls back
 to requiring a teaching role for some course via `Res::AnyCourse`.
 */
-#[instrument(skip(pool, app_conf))]
+// The payload carries the teacher's prompt, specification and a sample of their data; none of that
+// belongs in tracing spans.
+#[instrument(skip(pool, app_conf, payload, user))]
 #[utoipa::path(
     post,
     path = "/chart-spec",
@@ -158,15 +160,14 @@ async fn generate_chart_spec(
     user: AuthUser,
     payload: web::Json<ChartSpecGenerationRequest>,
 ) -> ControllerResult<web::Json<ChartSpecGenerationResponse>> {
-    let mut conn = pool.acquire().await?;
-
     if payload.prompt.trim().is_empty() {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "The chart generation prompt must not be empty.".to_string(),
-            None,
+        return Err(controller_err!(
+            BadRequest,
+            "The chart generation prompt must not be empty.".to_string()
         ));
     }
+
+    let mut conn = pool.acquire().await?;
 
     let token = if let Some(page_id) = payload.page_id {
         authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(page_id)).await?

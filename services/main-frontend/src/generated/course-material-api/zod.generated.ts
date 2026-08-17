@@ -1418,6 +1418,11 @@ export const zGetCourseMaterialChapterPagesExcludingFrontPagePath = z.object({
  */
 export const zGetCourseMaterialChapterPagesExcludingFrontPageResponse = z.array(zPage)
 
+/**
+ * All chatbot conversations for user
+ */
+export const zAllUserChatbotConversationsResponse = z.array(zChatbotConversation)
+
 export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
   course_id: z.uuid(),
 })

@@ -202,6 +202,26 @@ ORDER BY created_at DESC
     Ok(res)
 }
 
+pub async fn get_all_chatbot_conversations_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<ChatbotConversation>> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE user_id = $1
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+        "#,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Gets the current conversation for the user, if any. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
 pub async fn get_current_conversation_info(
     tx: &mut PgConnection,

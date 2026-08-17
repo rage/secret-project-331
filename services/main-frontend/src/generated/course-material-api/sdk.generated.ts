@@ -15,6 +15,8 @@ import { client } from "./client.generated"
 import type {
   AcknowledgeAiUsageNoticeData,
   AcknowledgeAiUsageNoticeResponses,
+  AllUserChatbotConversationsData,
+  AllUserChatbotConversationsResponses,
   AllUserConversationsData,
   AllUserConversationsResponses,
   ClaimCodeFromCodeGiveawayData,
@@ -185,6 +187,7 @@ import type {
 } from "./types.generated"
 import {
   zAcknowledgeAiUsageNoticeResponse,
+  zAllUserChatbotConversationsResponse,
   zAllUserConversationsResponse,
   zClaimCodeFromCodeGiveawayResponse,
   zFetchExamEnrollmentResponse,
@@ -439,6 +442,27 @@ export const getCourseMaterialChapterPagesExcludingFrontPage = <
 
 /**
  *
+ * GET `/api/v0/course-material/chatbot/conversations/all`
+ *
+ * Returns all conversations for the user.
+ */
+export const allUserChatbotConversations = <ThrowOnError extends boolean = true>(
+  options?: Options<AllUserChatbotConversationsData, ThrowOnError>,
+): RequestResult<AllUserChatbotConversationsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    AllUserChatbotConversationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAllUserChatbotConversationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/conversations/all",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`
  *
  * Returns the default chatbot configuration id for a course if the default chatbot is enabled to students.
@@ -475,12 +499,6 @@ export const getConversationInfo = <ThrowOnError extends boolean = true>(
     ...options,
   })
 
-/**
- *
- * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current`
- *
- * Returns all conversations for the user.
- */
 export const allUserConversations = <ThrowOnError extends boolean = true>(
   options: Options<AllUserConversationsData, ThrowOnError>,
 ): RequestResult<AllUserConversationsResponses, unknown, ThrowOnError, "data"> =>

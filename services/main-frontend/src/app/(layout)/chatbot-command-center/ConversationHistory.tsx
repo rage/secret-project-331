@@ -7,6 +7,7 @@ interface ConversationHistory {
   setConversationId: React.Dispatch<string>
   conversations: ChatbotConversation[]
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
+  setValue
 }
 
 import { css } from "@emotion/css"
@@ -21,6 +22,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
   setConversationId,
   conversations,
   newConversationMutation,
+  setValue,
 }) => {
   const { t } = useTranslation()
 
@@ -53,6 +55,10 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
             variant="icon"
             onClick={() => {
               setConversationId(conversation.id)
+              setValue("id", conversation.chatbot_configuration_id, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
             }}
           >
             {conversation.created_at}

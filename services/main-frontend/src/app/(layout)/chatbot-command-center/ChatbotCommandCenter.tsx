@@ -11,7 +11,7 @@ import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/
 import ConversationIdContext from "@/contexts/course-material/ConversationIdContext"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import {
-  allUserConversationsOptions,
+  allUserChatbotConversationsOptions,
   getCurrentConversationIdOptions,
 } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -26,10 +26,9 @@ interface ChatbotCommandCenterProps {
 
 const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) => {
   const { t } = useTranslation()
-  const { control, watch } = useForm<ChatbotConfiguration>({})
+  const { control, watch, setValue } = useForm<ChatbotConfiguration>({})
   const configuration_id = watch("id")
   const [conversationId, setConversationId] = useState<null | string>(null)
-
   const currentConversationIdQuery = useQuery(
     getCurrentConversationIdOptions({
       path: {
@@ -38,22 +37,17 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     }),
   )
 
-  const conversationsQuery = useQuery(
-    allUserConversationsOptions({
-      path: {
-        chatbot_configuration_id: configuration_id,
-      },
-    }),
-  )
+  const allConversationsQuery = useQuery(allUserChatbotConversationsOptions())
 
   const sideBarContainer = css`
     border-radius: 10px;
     box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
     margin: 0;
     padding: 0;
-    height: calc(100% - 1rem);
     margin-top: 1rem;
     padding-top: 1rem;
+    max-height: 87vh;
+    overflow-y: auto;
   `
 
   const chatbotOptions = useMemo(() => {
@@ -129,12 +123,13 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     >
       <div className={sideBarContainer}>
         {configuration_id && (
-          <QueryResult query={conversationsQuery}>
+          <QueryResult query={allConversationsQuery}>
             {(conversations) => (
               <ConversationHistory
                 conversations={conversations}
                 setConversationId={setConversationId}
                 newConversationMutation={chatbotStateAndData.newConversationMutation}
+                setValue={setValue}
               />
             )}
           </QueryResult>

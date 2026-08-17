@@ -8,6 +8,7 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from "@tanst
 import { client } from "../client.generated"
 import {
   acknowledgeAiUsageNotice,
+  allUserChatbotConversations,
   allUserConversations,
   claimCodeFromCodeGiveaway,
   deleteCourseMaterialGlossaryTerm,
@@ -95,6 +96,8 @@ import {
 import type {
   AcknowledgeAiUsageNoticeData,
   AcknowledgeAiUsageNoticeResponse,
+  AllUserChatbotConversationsData,
+  AllUserChatbotConversationsResponse,
   AllUserConversationsData,
   AllUserConversationsResponse,
   ClaimCodeFromCodeGiveawayData,
@@ -476,6 +479,35 @@ export const getCourseMaterialChapterPagesExcludingFrontPageOptions = (
     queryKey: getCourseMaterialChapterPagesExcludingFrontPageQueryKey(options),
   })
 
+export const allUserChatbotConversationsQueryKey = (
+  options?: Options<AllUserChatbotConversationsData>,
+) => createQueryKey("allUserChatbotConversations", options)
+
+/**
+ *
+ * GET `/api/v0/course-material/chatbot/conversations/all`
+ *
+ * Returns all conversations for the user.
+ */
+export const allUserChatbotConversationsOptions = (
+  options?: Options<AllUserChatbotConversationsData>,
+) =>
+  queryOptions<
+    AllUserChatbotConversationsResponse,
+    DefaultError,
+    AllUserChatbotConversationsResponse,
+    ReturnType<typeof allUserChatbotConversationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await allUserChatbotConversations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: allUserChatbotConversationsQueryKey(options),
+  })
+
 export const getDefaultChatbotConfigurationForCourseQueryKey = (
   options: Options<GetDefaultChatbotConfigurationForCourseData>,
 ) => createQueryKey("getDefaultChatbotConfigurationForCourse", options)
@@ -534,12 +566,6 @@ export const getConversationInfoOptions = (options: Options<GetConversationInfoD
 export const allUserConversationsQueryKey = (options: Options<AllUserConversationsData>) =>
   createQueryKey("allUserConversations", options)
 
-/**
- *
- * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current`
- *
- * Returns all conversations for the user.
- */
 export const allUserConversationsOptions = (options: Options<AllUserConversationsData>) =>
   queryOptions<
     AllUserConversationsResponse,

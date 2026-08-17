@@ -1338,6 +1338,23 @@ export type GetCourseMaterialChapterPagesExcludingFrontPageResponses = {
 export type GetCourseMaterialChapterPagesExcludingFrontPageResponse =
   GetCourseMaterialChapterPagesExcludingFrontPageResponses[keyof GetCourseMaterialChapterPagesExcludingFrontPageResponses]
 
+export type AllUserChatbotConversationsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/course-material/chatbot/conversations/all"
+}
+
+export type AllUserChatbotConversationsResponses = {
+  /**
+   * All chatbot conversations for user
+   */
+  200: Array<ChatbotConversation>
+}
+
+export type AllUserChatbotConversationsResponse =
+  AllUserChatbotConversationsResponses[keyof AllUserChatbotConversationsResponses]
+
 export type GetDefaultChatbotConfigurationForCourseData = {
   body?: never
   path: {

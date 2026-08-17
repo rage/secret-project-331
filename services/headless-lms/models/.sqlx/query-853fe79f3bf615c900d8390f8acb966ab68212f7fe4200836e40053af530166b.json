@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy,\n  course_material_ai_instructions\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -83,8 +83,13 @@
       {
         "ordinal": 7,
         "name": "content_search_language",
-        "type_info": "Text",
-        "origin": "Expression"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "content_search_language"
+          }
+        }
       },
       {
         "ordinal": 8,
@@ -154,12 +159,12 @@
       },
       {
         "ordinal": 14,
-        "name": "can_add_chatbot",
-        "type_info": "Bool",
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4",
         "origin": {
           "Table": {
             "table": "courses",
-            "name": "can_add_chatbot"
+            "name": "base_module_completion_requires_n_submodule_completions"
           }
         }
       },
@@ -176,34 +181,34 @@
       },
       {
         "ordinal": 16,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4",
+        "name": "can_add_chatbot",
+        "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "courses",
-            "name": "base_module_completion_requires_n_submodule_completions"
+            "name": "can_add_chatbot"
           }
         }
       },
       {
         "ordinal": 17,
-        "name": "is_joinable_by_code_only",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "is_joinable_by_code_only"
-          }
-        }
-      },
-      {
-        "ordinal": 18,
         "name": "join_code",
         "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "join_code"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "is_joinable_by_code_only",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_joinable_by_code_only"
           }
         }
       },
@@ -231,17 +236,6 @@
       },
       {
         "ordinal": 21,
-        "name": "flagged_answers_skip_manual_review_and_allow_retry",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "flagged_answers_skip_manual_review_and_allow_retry"
-          }
-        }
-      },
-      {
-        "ordinal": 22,
         "name": "closed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -252,7 +246,7 @@
         }
       },
       {
-        "ordinal": 23,
+        "ordinal": 22,
         "name": "closed_additional_message",
         "type_info": "Text",
         "origin": {
@@ -263,7 +257,7 @@
         }
       },
       {
-        "ordinal": 24,
+        "ordinal": 23,
         "name": "closed_course_successor_id",
         "type_info": "Uuid",
         "origin": {
@@ -274,13 +268,24 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 24,
         "name": "chapter_locking_enabled",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "chapter_locking_enabled"
+          }
+        }
+      },
+      {
+        "ordinal": 25,
+        "name": "flagged_answers_skip_manual_review_and_allow_retry",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "flagged_answers_skip_manual_review_and_allow_retry"
           }
         }
       },
@@ -345,29 +350,29 @@
       false,
       true,
       false,
-      null,
+      false,
       false,
       true,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
       false,
       true,
       false,
       false,
       false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
       true,
       true,
       true,
+      false,
       false,
       false,
       false,
       true
     ]
   },
-  "hash": "9abd615f318cf42dd31b59fe3b08e8e52b2a57d41e823b9aae346939f7c5df75"
+  "hash": "853fe79f3bf615c900d8390f8acb966ab68212f7fe4200836e40053af530166b"
 }

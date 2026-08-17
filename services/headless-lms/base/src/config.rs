@@ -40,6 +40,7 @@ pub struct ApplicationConfiguration {
     pub test_chatbot: bool,
     pub test_sisu: bool,
     pub test_suotar: bool,
+    pub disable_embedding_vector_creation_when_seeding: bool,
     pub development_uuid_login: bool,
     pub enable_admin_email_verification: bool,
     pub enable_email_ownership_verification: bool,
@@ -68,6 +69,8 @@ impl ApplicationConfiguration {
 
         // No mock fallback unlike Azure: credit registration writes to the real student registry.
         let test_suotar = test_mode && bool_env_false_by_default("USE_MOCK_SUOTAR_ENDPOINT");
+
+        let disable_embedding_vector_creation_when_seeding = false;
 
         let azure_configuration = if test_chatbot {
             AzureConfiguration::mock_conf()?
@@ -106,6 +109,48 @@ impl ApplicationConfiguration {
             test_chatbot,
             test_sisu,
             test_suotar,
+            disable_embedding_vector_creation_when_seeding,
+            development_uuid_login,
+            enable_admin_email_verification,
+            enable_email_ownership_verification,
+            azure_configuration,
+            suotar_configuration,
+            tmc_account_creation_origin,
+            tmc_admin_access_token,
+            oauth_server_configuration,
+        })
+    }
+
+    pub fn mock_conf() -> anyhow::Result<Self> {
+        let test_mode = true;
+        let base_url = "http://project-331.local/".to_string();
+        let development_uuid_login = false;
+        let enable_admin_email_verification = false;
+        let enable_email_ownership_verification = false;
+        let azure_configuration = AzureConfiguration::mock_conf()?;
+        let test_chatbot = true;
+        let test_sisu = true;
+        let test_suotar = false;
+        let disable_embedding_vector_creation_when_seeding = true;
+        let suotar_configuration = SuotarConfiguration::mock_conf("http://project-331.local")
+            .expect("Failed to build the mock Suotar configuration");
+        let tmc_account_creation_origin = None;
+        let tmc_admin_access_token = SecretString::new("mock-access-token".to_string().into());
+        let oauth_server_configuration = OAuthServerConfiguration {
+            rsa_public_key: "temp-change-when-needed".into(),
+            rsa_private_key: SecretString::new("test-change".into()),
+            oauth_token_hmac_key: SecretString::new("pippuri".into()),
+            dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
+                "test-key".into(),
+            ))),
+        };
+        Ok(Self {
+            base_url,
+            test_mode,
+            test_chatbot,
+            test_sisu,
+            test_suotar,
+            disable_embedding_vector_creation_when_seeding,
             development_uuid_login,
             enable_admin_email_verification,
             enable_email_ownership_verification,
@@ -212,7 +257,8 @@ impl SuotarConfiguration {
 #[derive(Clone)]
 pub struct AzureChatbotConfiguration {
     pub api_key: SecretString,
-    pub api_endpoint: Url,
+    pub api_base: Url,
+    pub project_name: String,
 }
 
 impl AzureChatbotConfiguration {
@@ -223,17 +269,32 @@ impl AzureChatbotConfiguration {
     pub fn try_from_env() -> anyhow::Result<Option<Self>> {
         let api_key = env::var("AZURE_CHATBOT_API_KEY").ok();
         let api_endpoint_str = env::var("AZURE_CHATBOT_API_ENDPOINT").ok();
+        let project_name = env::var("AZURE_PROJECT_NAME").ok();
 
-        if let (Some(api_key), Some(api_endpoint_str)) = (api_key, api_endpoint_str) {
-            let api_endpoint = Url::parse(&api_endpoint_str)
+        if let (Some(api_key), Some(api_endpoint_str), Some(project_name)) =
+            (api_key, api_endpoint_str, project_name)
+        {
+            let api_base = Url::parse(&api_endpoint_str)
                 .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?;
             Ok(Some(AzureChatbotConfiguration {
                 api_key: SecretString::new(api_key.into()),
-                api_endpoint,
+                api_base,
+                project_name,
             }))
         } else {
             Ok(None)
         }
+    }
+
+    pub fn responses_endpoint(&self) -> anyhow::Result<Url> {
+        Ok(self.api_base.join(&format!(
+            "api/projects/{}/openai/v1/responses",
+            self.project_name
+        ))?)
+    }
+
+    pub fn embeddings_endpoint(&self) -> anyhow::Result<Url> {
+        Ok(self.api_base.join("openai/v1/embeddings")?)
     }
 }
 
@@ -352,7 +413,6 @@ impl AzureConfiguration {
         let chatbot = AzureChatbotConfiguration::try_from_env()?;
         let search_config = AzureSearchConfiguration::try_from_env()?;
         let blob_storage_config = AzureBlobStorageConfiguration::try_from_env()?;
-
         if chatbot.is_some() || search_config.is_some() || blob_storage_config.is_some() {
             Ok(Some(AzureConfiguration {
                 chatbot_config: chatbot,
@@ -369,11 +429,14 @@ impl AzureConfiguration {
     /// mocked with the api_endpoint from our application.
     /// Returns `Ok(Some(AzureConfiguration))`
     pub fn mock_conf() -> anyhow::Result<Option<Self>> {
-        let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
+        let base_url =
+            env::var("BASE_URL").unwrap_or_else(|_| "http://project-331.local/".to_string());
         let chatbot_config = Some(AzureChatbotConfiguration {
             api_key: SecretString::new(String::new().into()),
-            api_endpoint: Url::parse(&base_url)?.join("/api/v0/mock-azure/test/v1/responses")?,
+            api_base: Url::parse(&base_url)?.join("/api/v0/mock-azure/")?,
+            project_name: String::from("test"),
         });
+
         let search_config = Some(AzureSearchConfiguration {
             vectorizer_resource_uri: "".to_string(),
             vectorizer_deployment_id: "".to_string(),

@@ -42,6 +42,7 @@ pub enum ChatbotErrorType {
     AzureRequestBuildError,
     FailedAzureResponse,
     SisuDescriptionError,
+    ChatbotUtilError,
 }
 
 /**
@@ -243,6 +244,16 @@ impl From<ModelError> for ChatbotError {
     fn from(err: ModelError) -> ChatbotError {
         Self::new(
             ChatbotErrorType::ChatbotModelError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<UtilError> for ChatbotError {
+    fn from(err: UtilError) -> ChatbotError {
+        Self::new(
+            ChatbotErrorType::ChatbotUtilError,
             err.to_string(),
             Some(err.into()),
         )

@@ -7,6 +7,7 @@ use crate::programs::seed::builder::module::ModuleBuilder;
 use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
 use anyhow::Result;
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::roles::UserRole;
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::json;
@@ -14,6 +15,7 @@ use tracing::info;
 use uuid::Uuid;
 
 pub async fn seed_lock_chapter_course(
+    app_config: &ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -391,7 +393,7 @@ df = df[(df['purchase_amount'] >= Q1 - 1.5*IQR) &
                 ),
         );
 
-    let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
+    let (course, _default_instance, _last_module) = course.seed(&mut conn, app_config, &cx).await?;
 
     Ok(course.id)
 }

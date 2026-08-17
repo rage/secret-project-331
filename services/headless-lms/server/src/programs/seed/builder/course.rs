@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use headless_lms_base::config::ApplicationConfiguration;
 use sqlx::{Connection, PgConnection};
 use tracing::log::warn;
 use uuid::Uuid;
@@ -218,6 +219,7 @@ impl CourseBuilder {
     pub async fn seed(
         self,
         conn: &mut PgConnection,
+        app_config: &ApplicationConfiguration,
         cx: &SeedContext,
     ) -> Result<(Course, CourseInstance, CourseModule)> {
         let course_id = self.course_id.unwrap_or(cx.base_course_ns);
@@ -253,6 +255,7 @@ impl CourseBuilder {
 
         let course_id = courses::insert(
             &mut tx,
+            app_config,
             headless_lms_models::PKeyPolicy::Fixed(course_id),
             course_language_group_id,
             &new_course,
@@ -494,7 +497,7 @@ impl CourseBuilder {
                 ai_policy: course.ai_policy,
                 course_material_ai_instructions: course.course_material_ai_instructions,
             };
-            let updated_course = courses::update_course(conn, course.id, course_update)
+            let updated_course = courses::update_course(conn, app_config, course.id, course_update)
                 .await
                 .context("updating course")?;
             return Ok((

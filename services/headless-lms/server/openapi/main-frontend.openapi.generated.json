@@ -15459,6 +15459,13 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
+          "embedding": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -17045,6 +17052,13 @@
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "embedding": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
           },
           "id": {
             "type": "string",

@@ -1,3 +1,4 @@
+use headless_lms_base::config::ApplicationConfiguration;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
 use tokio::sync::Mutex;
@@ -21,6 +22,11 @@ async fn get_or_init_db() -> String {
     // store initialized pool and return connection
     guard.replace(db.clone());
     db
+}
+
+pub fn init_app_conf() -> ModelResult<ApplicationConfiguration> {
+    let app_config = ApplicationConfiguration::mock_conf()?;
+    Ok(app_config)
 }
 
 /// Wrapper to ensure the test database isn't used without a transaction
@@ -145,8 +151,10 @@ macro_rules! insert_data {
             &mut ::rand::rng(),
             8,
         );
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let $course = $crate::library::content_management::create_new_course(
             $tx.as_mut(),
+            &app_config,
             $crate::PKeyPolicy::Generate,
             $crate::courses::NewCourse {
                 name: rs.clone(),
@@ -281,6 +289,7 @@ macro_rules! insert_data {
         insert_data!(@inner $($prev_name: $prev_var, )* $next_name: $next_var; $($tt)*);
     };
 }
+use crate::ModelResult;
 pub use crate::insert_data;
 
 // checks that correct usage of the macro compiles

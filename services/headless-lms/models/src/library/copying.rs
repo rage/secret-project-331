@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use serde_json::Value;
 
+use crate::ModelResult;
 use crate::course_instances;
 use crate::course_instances::NewCourseInstance;
 use crate::course_language_groups;
@@ -14,8 +15,6 @@ use crate::exams::Exam;
 use crate::exams::NewExam;
 use crate::pages;
 use crate::prelude::*;
-
-use crate::ModelResult;
 
 pub async fn copy_course(
     conn: &mut PgConnection,

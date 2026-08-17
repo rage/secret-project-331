@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    c.id AS \"course_id\",\n    c.slug AS \"course_slug\",\n    c.name AS \"course_name\",\n    c.description AS course_description,\n    ci.id AS course_instance_id,\n    ci.name AS course_instance_name,\n    ci.description AS course_instance_description,\n    o.name AS \"organization_name\"\nFROM course_instances AS ci\n  JOIN courses AS c ON ci.course_id = c.id\n  JOIN organizations AS o ON o.id = c.organization_id\nWHERE ci.id = $1\n  AND ci.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n  AND o.deleted_at IS NULL\n    ",
+  "query": "\nSELECT\n    c.id AS \"course_id\",\n    c.slug AS \"course_slug\",\n    c.name AS \"course_name\",\n    c.description AS course_description,\n    ci.id AS \"course_instance_id!\",\n    ci.name AS course_instance_name,\n    ci.description AS course_instance_description,\n    o.name AS \"organization_name\"\nFROM course_instances AS ci\n  JOIN courses AS c ON ci.course_id = c.id\n  JOIN organizations AS o ON o.id = c.organization_id\nWHERE ci.id = $1\n  AND ci.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n  AND o.deleted_at IS NULL\n    ",
   "describe": {
     "columns": [
       {
@@ -49,7 +49,7 @@
       },
       {
         "ordinal": 4,
-        "name": "course_instance_id",
+        "name": "course_instance_id!",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -108,5 +108,5 @@
       false
     ]
   },
-  "hash": "b838716a1a2c941aad10ca3310494c567bc6b818a0c1113120f5c254885105f1"
+  "hash": "d4d75d6f2a88bf0f7521fc53d8af16d7cbb26b6ca966717721f8f965ac21dcb9"
 }

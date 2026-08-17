@@ -3,6 +3,7 @@
 
 use std::sync::Arc;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{PKeyPolicy, organizations};
 use sqlx::{Pool, Postgres};
 use tracing::info;
@@ -22,6 +23,7 @@ pub const CREDIT_REGISTRATION_ORGANIZATION_ID: Uuid =
 
 pub async fn seed_organization_credit_registration(
     db_pool: Pool<Postgres>,
+    app_config: &ApplicationConfiguration,
     seed_users_result: SeedUsersResult,
     base_url: String,
     jwt_key: Arc<JwtKey>,
@@ -41,16 +43,19 @@ pub async fn seed_organization_credit_registration(
     .await?;
     drop(conn);
 
-    seed_credit_registration(CommonCourseData {
-        db_pool,
-        organization_id,
-        teacher_user_id: seed_users_result.teacher_user_id,
-        student_user_id: seed_users_result.student_1_user_id,
-        langs_user_id: seed_users_result.langs_user_id,
-        example_normal_user_ids: Arc::new(seed_users_result.example_normal_user_ids.to_vec()),
-        jwt_key,
-        base_url,
-    })
+    seed_credit_registration(
+        app_config,
+        CommonCourseData {
+            db_pool,
+            organization_id,
+            teacher_user_id: seed_users_result.teacher_user_id,
+            student_user_id: seed_users_result.student_1_user_id,
+            langs_user_id: seed_users_result.langs_user_id,
+            example_normal_user_ids: Arc::new(seed_users_result.example_normal_user_ids.to_vec()),
+            jwt_key,
+            base_url,
+        },
+    )
     .await?;
     Ok(organization_id)
 }

@@ -4,7 +4,6 @@ use utoipa::ToSchema;
 
 use crate::{courses::Course, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
-
 #[derive(Debug, Serialize, ToSchema)]
 
 pub struct Exam {

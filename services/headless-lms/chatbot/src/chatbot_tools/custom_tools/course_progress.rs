@@ -9,7 +9,9 @@ use crate::{
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
-use headless_lms_base::prelude_base_and_re_exports::BackendError;
+use headless_lms_base::{
+    config::ApplicationConfiguration, prelude_base_and_re_exports::BackendError,
+};
 use headless_lms_models::{
     course_modules::{CompletionPolicy, CourseModule},
     user_exercise_states::UserCourseProgress,
@@ -29,6 +31,7 @@ impl ChatbotTool for CourseProgressTool {
     /// Create a CourseProgressTool instance
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
+        _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {

@@ -683,6 +683,7 @@ export const zCourseAudience = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
+  embedding: z.array(z.number()).nullish(),
   id: z.uuid(),
   updated_at: z.iso.datetime(),
 })
@@ -1082,6 +1083,7 @@ export const zCoursePrerequisite = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
+  embedding: z.array(z.number()).nullish(),
   id: z.uuid(),
   prerequisite: z.string(),
   updated_at: z.iso.datetime(),

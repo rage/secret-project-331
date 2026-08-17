@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::{
     Arc,
@@ -18,6 +17,7 @@ use headless_lms_models::chatbot_conversation_message_messages::{
 use headless_lms_models::chatbot_conversation_messages::{
     self, ChatbotConversationMessage, Message,
 };
+use headless_lms_utils::json_schema_types::{JSONType, Schema};
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -417,57 +417,6 @@ pub enum LLMRequestParams {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum JSONType {
-    JsonSchema,
-    Object,
-    Array,
-    String,
-}
-
-/// Defines LLM structured output shape and types
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct Schema {
-    #[serde(rename = "type")]
-    /// Type of the schema, should be Object
-    pub type_field: JSONType,
-    pub properties: HashMap<String, SchemaPropertyType>,
-    /// All 'properties' keys must be included in this 'required' list
-    pub required: Vec<String>,
-    /// additionalProperties should always be 'false'
-    pub additional_properties: bool,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(untagged)]
-pub enum SchemaPropertyType {
-    ArrayProperty(ArrayProperty),
-    Object(Schema),
-    Item(JsonItem),
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct ArrayProperty {
-    #[serde(rename = "type")]
-    pub type_field: JSONType,
-    pub items: ArrayItem,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(untagged)]
-pub enum ArrayItem {
-    Schema(Schema),
-    JsonItem(JsonItem),
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct JsonItem {
-    #[serde(rename = "type")]
-    pub type_field: JSONType,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct LLMRequestResponseFormatParam {
     #[serde(rename = "type")]
     pub format_type: JSONType, //should be JsonSchema
@@ -845,6 +794,7 @@ pub async fn process_output_item(
 /// Returns a stream to be consumed in the caller.
 async fn parse_tool<'a>(
     conn: &'a mut PgConnection,
+    app_config: &'a headless_lms_base::config::ApplicationConfiguration,
     mut lines: PeekableLinesStream<'a>,
     conversation_id: Uuid,
     user_context: &'a ChatbotUserContext,
@@ -932,7 +882,7 @@ async fn parse_tool<'a>(
 
             for (name, id, args) in function_name_id_args.into_iter() {
                 let mut tx = conn.begin().await.map_err(ChatbotError::from)?;
-                let tool_result = call_chatbot_tool(&mut tx, &name, args, user_context).await?;
+                let tool_result = call_chatbot_tool(&mut tx, app_config, &name, args, user_context).await?;
 
                 let tool_call_message = APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
@@ -1527,7 +1477,7 @@ pub async fn send_chat_request_and_parse_stream(
 
             let mut final_stream = match typed_response_stream {
                 ResponseStreamType::Toolcall(stream) => {
-                    parse_tool(&mut conn, stream, conversation_id, &user_context).await
+                    parse_tool(&mut conn, &app_config, stream, conversation_id, &user_context).await
                 }
                 ResponseStreamType::TextResponse(stream) => {
                     let response_id = response_id.lock().await;

@@ -1,3 +1,4 @@
+use crate::prelude::*;
 use headless_lms_chatbot::{
     azure_chatbot::InputItem,
     chart_spec_generation::USER_PROMPT_PREFIX as CHART_SPEC_PROMPT_PREFIX,
@@ -5,9 +6,10 @@ use headless_lms_chatbot::{
     course_description_summary::USER_PROMPT as DESCRIPTION_USER_PROMPT,
     llm_utils::AzureCompletionRequest, message_suggestion::USER_PROMPT,
 };
+use headless_lms_utils::azure_embedding::{
+    Embedding, EmbeddingRequest, EmbeddingResponse, EmbeddingResponseUsage,
+};
 use regex::Regex;
-
-use crate::prelude::*;
 
 fn get_response(base_url: String) -> Result<String, ControllerError> {
     let url1 = format!("{base_url}/api/v0/mock-document-storage/test/documents/document1");
@@ -157,8 +159,8 @@ fn chart_spec_response() -> String {
     .to_string()
 }
 
-// GET /api/v0/mock_azure/test/v1/responses
-// POST /api/v0/mock_azure/test/v1/responses
+// GET /api/v0/mock_azure/api/projects/test/openai/v1/responses
+// POST /api/v0/mock_azure/api/projects/test/openai/v1/responses
 async fn mock_azure_chat_responses(
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<AzureCompletionRequest>,
@@ -194,7 +196,7 @@ async fn mock_azure_chat_responses(
     let cms_suggest_match = message.contains(USER_PROMPT_PREFIX);
     let chart_spec_match = message.contains(CHART_SPEC_PROMPT_PREFIX);
     let description_suggestion_match = message.contains(DESCRIPTION_USER_PROMPT);
-    let res = if !suggest_prompt_match.is_empty() {
+    let res: String = if !suggest_prompt_match.is_empty() {
         SUGGESTION.to_string()
     } else if cms_suggest_match {
         CMS_SUGGESTION.to_string()
@@ -209,13 +211,49 @@ async fn mock_azure_chat_responses(
     token.authorized_ok(res)
 }
 
+// GET /api/v0/mock_azure/openai/v1/embeddings
+// POST /api/v0/mock_azure/openai/v1/embeddings
+async fn mock_azure_embeddings(
+    app_conf: web::Data<ApplicationConfiguration>,
+    payload: web::Json<EmbeddingRequest>,
+) -> ControllerResult<String> {
+    assert!(app_conf.test_chatbot && app_conf.test_mode);
+
+    let mock_response = EmbeddingResponse {
+        object: "list".to_string(),
+        model: "mock-embedder-3-small".to_string(),
+        usage: EmbeddingResponseUsage {
+            prompt_tokens: payload.input.len() as i32,
+            total_tokens: payload.input.len() as i32,
+        },
+        data: payload
+            .input
+            .iter()
+            .enumerate()
+            .map(|(index, _)| Embedding {
+                index: index as i32,
+                embedding: vec![0.0; 1536],
+                object: "embedding".to_string(),
+            })
+            .collect(),
+    };
+    let res = serde_json::to_string(&mock_response)?;
+    let token = skip_authorize();
+    token.authorized_ok(res)
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
-        "/test/v1/responses",
+        "/api/projects/test/openai/v1/responses",
         web::get().to(mock_azure_chat_responses),
     )
     .route(
-        "/test/v1/responses",
+        "/api/projects/test/openai/v1/responses",
         web::post().to(mock_azure_chat_responses),
+    )
+    .route("openai/v1/embeddings", web::get().to(mock_azure_embeddings))
+    .route(
+        "openai/v1/embeddings",
+        web::post().to(mock_azure_embeddings),
     );
 }

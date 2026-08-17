@@ -26,7 +26,9 @@
 
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
-use headless_lms_base::config::{SuotarConfiguration, bool_env_false_by_default};
+use headless_lms_base::config::{
+    ApplicationConfiguration, SuotarConfiguration, bool_env_false_by_default,
+};
 use headless_lms_models::{
     PKeyPolicy, course_credit_registration_consents, course_instance_enrollments,
     course_module_completions::{self, NewCourseModuleCompletionSeed},
@@ -407,7 +409,10 @@ struct SeededStudent {
     email: String,
 }
 
-pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> Result<Uuid> {
+pub async fn seed_credit_registration(
+    app_config: &ApplicationConfiguration,
+    common_course_data: CommonCourseData,
+) -> Result<Uuid> {
     let CommonCourseData {
         db_pool,
         organization_id: org,
@@ -460,15 +465,15 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
                     .uh_course_code(CRS_102.to_string())
                     .credit_registration(credit_registration_config(CRS_102, false)),
             )
-            .seed(&mut conn, &cx)
+            .seed(&mut conn, app_config, &cx)
             .await?;
 
-    seed_old_flow_course(&mut conn, org, teacher_user_id).await?;
-    seed_backfill_course(&mut conn, org, teacher_user_id).await?;
-    seed_import_outcomes_course(&mut conn, org, teacher_user_id).await?;
-    seed_grade_improvement_course(&mut conn, org, teacher_user_id).await?;
-    seed_admin_course(&mut conn, org, teacher_user_id).await?;
-    seed_states_course(&mut conn, org, teacher_user_id).await?;
+    seed_old_flow_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_backfill_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_import_outcomes_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_grade_improvement_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_admin_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_states_course(&mut conn, app_config, org, teacher_user_id).await?;
 
     info!("inserting credit registration students");
 
@@ -777,6 +782,7 @@ fn instance_config(instance_id: Uuid) -> CourseInstanceConfig {
 /// second, Suotar-side registration.
 async fn seed_old_flow_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -842,7 +848,7 @@ async fn seed_old_flow_course(
                             ),
                     ),
             )
-            .seed(conn, &cx)
+            .seed(conn, app_config, &cx)
             .await?;
 
     for student in [&still_legacy, &already_cut_over] {
@@ -855,6 +861,7 @@ async fn seed_old_flow_course(
 /// assert it is skipped rather than re-pushed.
 async fn seed_backfill_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -923,7 +930,7 @@ async fn seed_backfill_course(
     .course_id(BACKFILL_COURSE_ID)
     .instance(instance_config(cx.v5(b"instance:backfill")))
     .module(module)
-    .seed(conn, &cx)
+    .seed(conn, app_config, &cx)
     .await?;
 
     // Nobody here is asked for consent: the point of the backfill is that its rows wait until one of
@@ -943,6 +950,7 @@ async fn seed_backfill_course(
 /// takes three mails at three addresses because the dedup key is the address.
 async fn seed_admin_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -963,7 +971,7 @@ async fn seed_admin_course(
                 .uh_course_code(CRS_ADMIN_101.to_string())
                 .credit_registration(credit_registration_config(CRS_ADMIN_101, true)),
         )
-        .seed(conn, &cx)
+        .seed(conn, app_config, &cx)
         .await?;
 
     let unlinked =
@@ -1002,6 +1010,7 @@ async fn seed_admin_course(
 /// workers in the test deployment would walk these onwards seconds after the seed finished.
 async fn seed_states_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -1031,7 +1040,7 @@ async fn seed_states_course(
                 ..credit_registration_config(CRS_STATES_101, false)
             }),
     )
-    .seed(conn, &cx)
+    .seed(conn, app_config, &cx)
     .await?;
 
     for (index, state) in CreditRegistrationState::ALL.iter().enumerate() {
@@ -1163,6 +1172,7 @@ async fn seed_frozen_registration(
 /// by flipping something every other spec on the course can see.
 async fn seed_import_outcomes_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -1189,7 +1199,7 @@ async fn seed_import_outcomes_course(
         }
         course = course.module(module);
     }
-    let (course, instance, _) = course.seed(conn, &cx).await?;
+    let (course, instance, _) = course.seed(conn, app_config, &cx).await?;
     let student =
         seed_spec_student(conn, &cx, &IMPORT_OUTCOMES, course.id, instance.id, true).await?;
     for module in headless_lms_models::course_modules::get_by_course_id(conn, course.id).await? {
@@ -1216,6 +1226,7 @@ async fn seed_import_outcomes_course(
 
 async fn seed_grade_improvement_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -1237,7 +1248,7 @@ async fn seed_grade_improvement_course(
             .ects(5.0)
             .uh_course_code(CRS_GRADED_101.to_string()),
     )
-    .seed(conn, &cx)
+    .seed(conn, app_config, &cx)
     .await?;
     seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id, true).await?;
     Ok(())

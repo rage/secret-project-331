@@ -3,8 +3,8 @@ use std::sync::OnceLock;
 
 use crate::{
     azure_chatbot::{
-        InputItem, JSONType, JsonItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam,
-        NonThinkingParams, RequestTextOptions, Schema, SchemaPropertyType, ThinkingParams,
+        InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        RequestTextOptions, ThinkingParams,
     },
     chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
@@ -20,6 +20,7 @@ use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole,
 };
+use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
 
 /// Structured LLM response for chart spec generation.
 #[derive(serde::Deserialize)]
@@ -270,10 +271,12 @@ pub async fn generate_chart_spec(
                     name: "ChartSpecGenerationResponse".to_string(),
                     schema: Schema {
                         type_field: JSONType::Object,
+                        description: None,
                         properties: HashMap::from([(
                             "spec".to_string(),
                             SchemaPropertyType::Item(JsonItem {
                                 type_field: JSONType::String,
+                                description: None,
                             }),
                         )]),
                         required: vec!["spec".to_string()],

@@ -6,7 +6,8 @@ import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
+import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
+import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import ConversationIdContext from "@/contexts/course-material/ConversationIdContext"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import {
@@ -50,7 +51,9 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
     margin: 0;
     padding: 0;
-    height: 100%;
+    height: calc(100% - 1rem);
+    margin-top: 1rem;
+    padding-top: 1rem;
   `
 
   const chatbotOptions = useMemo(() => {
@@ -108,6 +111,13 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     setConversationId(null)
   }, [configuration_id])
 
+  const chatbotStateAndData = useChatbotStateAndData(
+    configuration_id,
+    undefined,
+    conversationId ?? currentConversationIdQuery.data,
+    setConversationId,
+  )
+
   return (
     <div
       className={css`
@@ -124,6 +134,7 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
               <ConversationHistory
                 conversations={conversations}
                 setConversationId={setConversationId}
+                newConversationMutation={chatbotStateAndData.newConversationMutation}
               />
             )}
           </QueryResult>
@@ -161,19 +172,9 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
               `}
             ></div>
           ) : (
-            <QueryResult query={currentConversationIdQuery}>
-              {(currentConversationId) => (
-                <ConversationIdContext.Provider value={setConversationId}>
-                  <ChatbotChat
-                    // If a specific conversation is selected use its id
-                    // otherwise use the current conversation id
-                    conversationId={conversationId ?? currentConversationId}
-                    chatbotConfigurationId={configuration_id}
-                    isCourseMaterialBlock={true}
-                  />
-                </ConversationIdContext.Provider>
-              )}
-            </QueryResult>
+            <ConversationIdContext.Provider value={setConversationId}>
+              <ChatbotChatBox {...chatbotStateAndData} />
+            </ConversationIdContext.Provider>
           )}
         </div>
       </div>

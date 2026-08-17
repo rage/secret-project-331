@@ -1,9 +1,7 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
-import { useContext } from "react"
 
-import ConversationIdContext from "@/contexts/course-material/ConversationIdContext"
 import {
   getCurrentConversationIdQueryKey,
   allUserConversationsQueryKey,
@@ -16,9 +14,8 @@ const useNewConversationMutation = (
   chatbotConfigurationId: string,
   setNewMessage: React.Dispatch<React.SetStateAction<string>>,
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
+  setConversationId?,
 ) => {
-  const setConversationId = useContext(ConversationIdContext)
-
   const queryClient = useQueryClient()
   return useToastMutation(
     () =>

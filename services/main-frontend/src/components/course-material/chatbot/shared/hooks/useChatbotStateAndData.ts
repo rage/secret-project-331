@@ -42,6 +42,7 @@ const useChatbotStateAndData = (
   chatbotConfigurationId: string,
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>> | undefined,
   conversationId: string | null,
+  setConversationId?,
 ) => {
   const { t } = useTranslation()
   const [newMessage, setNewMessage] = useState("")
@@ -63,6 +64,7 @@ const useChatbotStateAndData = (
     chatbotConfigurationId,
     setNewMessage,
     setError,
+    setConversationId,
   )
 
   const newMessageMutation = useToastMutation(

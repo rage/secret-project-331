@@ -2,11 +2,12 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { createContext, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
+import ConversationIdContext from "@/contexts/course-material/ConversationIdContext"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import {
   allUserConversationsOptions,
@@ -15,7 +16,7 @@ import {
 import { baseTheme } from "@/shared-module/common/styles"
 import { QueryResult, Select } from "@/shared-module/components"
 
-import SideBar from "./SideBar"
+import ConversationHistory from "./ConversationHistory"
 
 interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
@@ -26,7 +27,7 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
   const { t } = useTranslation()
   const { control, watch } = useForm<ChatbotConfiguration>({})
   const configuration_id = watch("id")
-  const [selectedConversationId, setSelectedConversationId] = useState<null | string>(null)
+  const [conversationId, setConversationId] = useState<null | string>(null)
 
   const currentConversationIdQuery = useQuery(
     getCurrentConversationIdOptions({
@@ -43,6 +44,14 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
       },
     }),
   )
+
+  const sideBarContainer = css`
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  `
 
   const chatbotOptions = useMemo(() => {
     const grouped = Object.values(
@@ -93,6 +102,12 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     return groupedSorted
   }, [chatbots, courses, t])
 
+  // Prevents chatbot disclaimer from showing up
+  // when chatbot is changed
+  useEffect(() => {
+    setConversationId(null)
+  }, [configuration_id])
+
   return (
     <div
       className={css`
@@ -102,40 +117,18 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
         gap: 0.5rem;
       `}
     >
-      {configuration_id === undefined ? (
-        <div
-          className={css`
-            border-radius: 10px;
-            box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
-            height: 75vh;
-            margin: 0;
-            padding: 0;
-            height: 100%;
-          `}
-        ></div>
-      ) : (
-        <div
-          className={css`
-            border-radius: 10px;
-            box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
-            height: 75vh;
-            margin: 0;
-            padding: 0;
-            padding: 0.5rem;
-            margin-top: 4rem;
-            overflow-y: auto;
-          `}
-        >
+      <div className={sideBarContainer}>
+        {configuration_id && (
           <QueryResult query={conversationsQuery}>
             {(conversations) => (
-              <SideBar
+              <ConversationHistory
                 conversations={conversations}
-                setSelectedConversationId={setSelectedConversationId}
+                setConversationId={setConversationId}
               />
             )}
           </QueryResult>
-        </div>
-      )}
+        )}
+      </div>
 
       <div>
         <h1>{t("link-text-chatbot-command-center")}</h1>
@@ -169,12 +162,16 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
             ></div>
           ) : (
             <QueryResult query={currentConversationIdQuery}>
-              {(conversationId) => (
-                <ChatbotChat
-                  conversationId={conversationId ?? selectedConversationId}
-                  chatbotConfigurationId={configuration_id}
-                  isCourseMaterialBlock={true}
-                />
+              {(currentConversationId) => (
+                <ConversationIdContext.Provider value={setConversationId}>
+                  <ChatbotChat
+                    // If a specific conversation is selected use its id
+                    // otherwise use the current conversation id
+                    conversationId={conversationId ?? currentConversationId}
+                    chatbotConfigurationId={configuration_id}
+                    isCourseMaterialBlock={true}
+                  />
+                </ConversationIdContext.Provider>
               )}
             </QueryResult>
           )}

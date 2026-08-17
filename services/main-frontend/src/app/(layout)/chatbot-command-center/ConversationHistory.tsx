@@ -3,13 +3,17 @@
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { Button } from "@/shared-module/components"
 
-interface SideBarProps {
-  setSelectedConversationId: React.Dispatch<string>
+interface ConversationHistory {
+  setConversationId: React.Dispatch<string>
   conversations: ChatbotConversation[]
 }
+
 import AIChat from "@/img/course-material/ai-chat.svg"
 
-const SideBar: React.FC<SideBarProps> = ({ setSelectedConversationId, conversations }) => {
+const ConversationHistory: React.FC<ConversationHistory> = ({
+  setConversationId,
+  conversations,
+}) => {
   return (
     <div>
       {conversations.map((conversation) => (
@@ -20,7 +24,7 @@ const SideBar: React.FC<SideBarProps> = ({ setSelectedConversationId, conversati
             size="medium"
             variant="icon"
             onClick={() => {
-              setSelectedConversationId(conversation.id)
+              setConversationId(conversation.id)
             }}
           >
             {conversation.created_at}
@@ -31,4 +35,4 @@ const SideBar: React.FC<SideBarProps> = ({ setSelectedConversationId, conversati
   )
 }
 
-export default SideBar
+export default ConversationHistory

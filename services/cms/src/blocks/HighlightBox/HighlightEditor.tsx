@@ -12,7 +12,6 @@ import type { HighlightAttributes } from "."
 import BlockWrapper from "../BlockWrapper"
 
 const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<HighlightAttributes>>> = ({
-  clientId,
   attributes,
   setAttributes,
 }) => {
@@ -22,7 +21,7 @@ const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<Highlight
   const highlightContentLabelId = useId()
 
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <div
         className={css`
           background: #fafbfb;

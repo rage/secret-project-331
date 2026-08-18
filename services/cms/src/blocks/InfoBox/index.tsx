@@ -14,6 +14,7 @@ export interface InfoBoxComponentProps {
 }
 
 const InfoBoxConfiguration: BlockConfiguration<InfoBoxComponentProps> = {
+  apiVersion: 3,
   title: "Infobox",
   description: "Infobox with body text and possible heading",
   category: "design",

@@ -3,10 +3,11 @@
 import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
 import {
+  columnVisibilityFeature,
   createColumnHelper,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table"
 import { differenceBy } from "lodash"
 import Link from "next/link"
@@ -27,6 +28,8 @@ export interface SearchUsersResultsProps {
 }
 
 const SEARCH_QUERY_COUNT = 3
+
+const tableFeaturesConfig = tableFeatures({ columnVisibilityFeature })
 
 const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsProps>> = ({
   searchByEmailQuery,
@@ -62,9 +65,9 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
     return [res, new Set(fuzzyMatchUserIds)]
   }, [searchByEmailQuery.data, searchByOtherDetailsQuery.data, searchFuzzyMatchQuery.data])
 
-  const columnHelper = createColumnHelper<UserDetail>()
+  const columnHelper = createColumnHelper<typeof tableFeaturesConfig, UserDetail>()
 
-  const columns = [
+  const columns = columnHelper.columns([
     columnHelper.accessor("user_id", { header: t("label-user-id") }),
     columnHelper.accessor("email", {
       header: t("label-email"),
@@ -87,12 +90,12 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
         </Link>
       ),
     }),
-  ]
+  ])
 
-  const table = useReactTable({
+  const table = useTable({
+    features: tableFeaturesConfig,
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
   })
 
   const progressIndicator = isAnyFetching ? (

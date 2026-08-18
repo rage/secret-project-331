@@ -68,6 +68,22 @@
             "name": "prerequisite"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "embedding",
+        "type_info": {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_prerequisites",
+            "name": "embedding"
+          }
+        }
       }
     ],
     "parameters": {
@@ -81,7 +97,8 @@
       false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "497d28ea6e629b4a9bc70830140b0dfd20dbec5c6d90a8ddce5f817af084fd93"

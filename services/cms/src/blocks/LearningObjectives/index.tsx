@@ -10,6 +10,7 @@ import LearningObjectiveSectionEditor from "./LearningObjectiveSectionEditor"
 import LearningObjectiveSectionSave from "./LearningObjectiveSectionSave"
 
 const LearningObjectiveSectionConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Learning Objective Section",
   description:
     "Learning Objective section where you describe what you will learn in this chapter/page.",

@@ -1,20 +1,21 @@
 use std::collections::HashMap;
 
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-
 use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_error::chatbot_err,
     chatbot_tools::{
         custom_tools::{
-            course_progress::CourseProgressTool, course_structure::CourseStructureTool,
-            document_lookup::DocumentLookupTool,
+            course_finder::CourseFinderTool, course_progress::CourseProgressTool,
+            course_structure::CourseStructureTool, document_lookup::DocumentLookupTool,
         },
         provider_tools::azure_ai_search::AzureAISearchToolDefinition,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
 };
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::json_schema_types::SchemaPropertyType;
+use serde::{Deserialize, Serialize};
+use sqlx::PgConnection;
 
 pub mod custom_tools;
 pub mod provider_tools;
@@ -29,6 +30,7 @@ pub trait ChatbotTool {
     /// Create a new instance after parsing arguments
     fn from_db_and_arguments(
         conn: &mut PgConnection,
+        app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
@@ -63,9 +65,10 @@ pub trait ChatbotTool {
     /// The definition is sent to the LLM as part of a chat request.
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition;
 
-    /// Create a new instance from connection, args and context
+    /// Create a new instance from connection, application configuration, args and context
     fn new(
         conn: &mut PgConnection,
+        app_config: &ApplicationConfiguration,
         args_string: String,
         user_context: &ChatbotUserContext,
     ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
@@ -74,7 +77,7 @@ pub trait ChatbotTool {
     {
         async {
             let parsed = Self::parse_arguments(args_string)?;
-            Self::from_db_and_arguments(conn, parsed, user_context).await
+            Self::from_db_and_arguments(conn, app_config, parsed, user_context).await
         }
     }
 }
@@ -110,17 +113,10 @@ pub struct AzureLLMFunctionToolDefinition {
 pub struct LLMToolParams {
     #[serde(rename = "type")]
     pub tool_type: LLMToolParamType,
-    pub properties: HashMap<String, LLMToolParamProperties>,
+    pub properties: HashMap<String, SchemaPropertyType>,
     pub required: Vec<String>,
     /// required to be false
     pub additional_properties: bool,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMToolParamProperties {
-    #[serde(rename = "type")]
-    pub param_type: String,
-    pub description: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -141,6 +137,7 @@ pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
         AzureLLMToolDefinition::Function(CourseProgressTool::get_tool_definition()),
         AzureLLMToolDefinition::Function(DocumentLookupTool::get_tool_definition()),
         AzureLLMToolDefinition::Function(CourseStructureTool::get_tool_definition()),
+        AzureLLMToolDefinition::Function(CourseFinderTool::get_tool_definition()),
     ]
 }
 
@@ -153,23 +150,30 @@ pub struct ChatbotToolCallResult {
 /// made by the LLM. User context and db connection are needed for some tools.
 pub async fn call_chatbot_tool(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     fn_name: &str,
     fn_args: String,
     user_context: &ChatbotUserContext,
 ) -> ChatbotResult<ChatbotToolCallResult> {
     let (arguments, output) = match fn_name {
         "course_progress" => {
-            let tool = CourseProgressTool::new(conn, "".to_string(), user_context).await?;
+            let tool =
+                CourseProgressTool::new(conn, app_config, "".to_string(), user_context).await?;
             let args = tool.get_arguments();
             (serde_json::to_string(args)?, tool.output())
         }
         "document_lookup" => {
-            let tool = DocumentLookupTool::new(conn, fn_args, user_context).await?;
+            let tool = DocumentLookupTool::new(conn, app_config, fn_args, user_context).await?;
             let args = tool.get_arguments();
             (serde_json::to_string(args)?, tool.output())
         }
         "course_structure" => {
-            let tool = CourseStructureTool::new(conn, fn_args, user_context).await?;
+            let tool = CourseStructureTool::new(conn, app_config, fn_args, user_context).await?;
+            let args = tool.get_arguments();
+            (serde_json::to_string(args)?, tool.output())
+        }
+        "course_finder" => {
+            let tool = CourseFinderTool::new(conn, app_config, fn_args, user_context).await?;
             let args = tool.get_arguments();
             (serde_json::to_string(args)?, tool.output())
         }

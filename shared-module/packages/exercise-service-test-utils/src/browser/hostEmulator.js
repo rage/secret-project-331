@@ -131,6 +131,9 @@
   const completedFileUploads = () => {
     const snapshots = []
     for (const record of fileUploadRecords) {
+      if (record.error) {
+        throw record.error
+      }
       if (record.snapshot === null) {
         break
       }
@@ -139,8 +142,21 @@
     return snapshots
   }
 
+  const rejectFileUploadWaiters = (error) => {
+    for (const waiter of fileUploadWaiters.splice(0, fileUploadWaiters.length)) {
+      clearTimeout(waiter.timer)
+      waiter.reject(error)
+    }
+  }
+
   const resolveFileUploadWaiters = () => {
-    const completed = completedFileUploads()
+    let completed
+    try {
+      completed = completedFileUploads()
+    } catch (error) {
+      rejectFileUploadWaiters(error)
+      return
+    }
     for (let i = fileUploadWaiters.length - 1; i >= 0; i--) {
       const match = completed.find(fileUploadWaiters[i].match)
       if (match) {
@@ -160,24 +176,24 @@
     resolveFileUploadWaiters()
   }
 
+  // Keep the failed record so fileUploads()/waitForFileUpload() report why hashing failed instead of
+  // timing out on an upload that silently vanished.
+  const failFileUpload = (generation, record, error) => {
+    console.error("Failed to snapshot file upload", error)
+    if (generation !== fileUploadGeneration) {
+      return
+    }
+    record.error = error instanceof Error ? error : new Error(String(error))
+    resolveFileUploadWaiters()
+  }
+
   const recordFileUpload = (msg) => {
     const generation = fileUploadGeneration
-    const record = { snapshot: null }
+    const record = { snapshot: null, error: null }
     fileUploadRecords.push(record)
     snapshotFileUpload(msg)
       .then((snapshot) => completeFileUpload(generation, record, snapshot))
-      .catch((error) => {
-        console.error("Failed to snapshot file upload", error)
-        if (generation !== fileUploadGeneration) {
-          return
-        }
-        const index = fileUploadRecords.indexOf(record)
-        if (index >= 0) {
-          fileUploadRecords.splice(index, 1)
-          resolveFileUploadWaiters()
-        }
-      }
-      )
+      .catch((error) => failFileUpload(generation, record, error))
   }
 
   const createUploadId = () => {
@@ -319,14 +335,22 @@
     },
     waitForFileUpload(predicate, timeoutMs) {
       const match = (upload) => !predicate || predicate(upload)
-      const existing = completedFileUploads().find(match)
-      if (existing) {
-        return Promise.resolve(existing)
-      }
       return new Promise((resolve, reject) => {
+        let existing
+        try {
+          existing = completedFileUploads().find(match)
+        } catch (error) {
+          reject(error)
+          return
+        }
+        if (existing) {
+          resolve(existing)
+          return
+        }
         const waiter = {
           match,
           resolve,
+          reject,
           timer: setTimeout(() => {
             const idx = fileUploadWaiters.indexOf(waiter)
             if (idx >= 0) {

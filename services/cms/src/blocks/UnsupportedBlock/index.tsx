@@ -8,6 +8,7 @@ import UnsupportedEditor from "./UnsupportedEditor"
 import UnsupportedSave from "./UnsupportedSave"
 
 const UnsupportedBlock: BlockConfiguration = {
+  apiVersion: 3,
   title: "Unsupported block",
   description: "Unsupported component block.",
   category: "design",

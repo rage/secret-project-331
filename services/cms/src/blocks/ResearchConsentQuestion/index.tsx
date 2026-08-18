@@ -14,6 +14,7 @@ export interface ResearchConsentQuestionAttributes {
 
 const ResearchConsentQuestionConfiguration: BlockConfiguration<ResearchConsentQuestionAttributes> =
   {
+    apiVersion: 3,
     title: "Research Form Question",
     description: "Used to add a new question to the research consent form",
     category: "text",

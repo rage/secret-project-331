@@ -20,7 +20,21 @@ export default defineConfig({
     // still run at runtime. The build prerenders only the app shell (dist/client/_shell.html).
     // maskPath needs a trailing slash: the router redirects "/{base}" -> "/{base}/" (307) and the
     // shell prerender treats a redirect as failure.
-    tanstackStart({ spa: { enabled: true, maskPath: BASE_PATH ? `${BASE_PATH}/` : "/" } }),
+    tanstackStart({
+      spa: { enabled: true, maskPath: BASE_PATH ? `${BASE_PATH}/` : "/" },
+      // The route tree is generated on every dev server start and committed. Without these the
+      // generator's own style loses to oxfmt and to the repo-wide oxlint migration, so the file is
+      // rewritten on one side and reformatted on the other, dirtying the tree on every run.
+      router: {
+        quoteStyle: "double",
+        semicolons: false,
+        routeTreeFileHeader: [
+          "/* oxlint-disable */",
+          "// @ts-nocheck",
+          "// noinspection JSUnusedGlobalSymbols",
+        ],
+      },
+    }),
     pluginReact(),
     pluginSvgr({
       svgrOptions: {

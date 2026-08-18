@@ -15,7 +15,7 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
   // oxlint-disable-next-line typescript/no-explicit-any, unicorn/consistent-function-scoping -- untyped WP BlockEdit props; captures BlockEdit from HOC scope
   const MentiMeterEmbed = (props: any) => {
     const { t } = useTranslation()
-    if (props.attributes.providerNameSlug !== "mentimeter") {
+    if (props.attributes?.providerNameSlug !== "mentimeter") {
       return <BlockEdit {...props} />
     }
 
@@ -73,7 +73,6 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
     )
   }
 
-  MentiMeterEmbed.displayName = "MentimeterComponent"
   return MentiMeterEmbed
   // oxlint-disable-next-line i18next/no-literal-string
 }, "withMentimeterInspector")

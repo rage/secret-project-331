@@ -18,7 +18,6 @@ import BlockWrapper from "../BlockWrapper"
 import IFramePlaceHolder from "./IframePlaceholder"
 
 const IframeEditor: React.FC<React.PropsWithChildren<BlockEditProps<IframeAttributes>>> = ({
-  clientId,
   attributes,
   setAttributes,
 }) => {
@@ -28,22 +27,22 @@ const IframeEditor: React.FC<React.PropsWithChildren<BlockEditProps<IframeAttrib
 
   if (!url) {
     return (
-      <VisibleBlockWrapper blockName="Iframe">
-        <BlockWrapper id={clientId}>
+      <BlockWrapper>
+        <VisibleBlockWrapper blockName="Iframe">
           <IFramePlaceHolder
             defaultValue={previousUrl}
             setUrl={(newUrl) => {
               setAttributes({ url: newUrl })
             }}
           />
-        </BlockWrapper>
-      </VisibleBlockWrapper>
+        </VisibleBlockWrapper>
+      </BlockWrapper>
     )
   }
 
   return (
-    <VisibleBlockWrapper blockName="Iframe">
-      <BlockWrapper id={clientId}>
+    <BlockWrapper>
+      <VisibleBlockWrapper blockName="Iframe">
         <InspectorControls key="settings">
           <PanelBody title={"Dimensions"} initialOpen>
             <TextField
@@ -81,8 +80,8 @@ const IframeEditor: React.FC<React.PropsWithChildren<BlockEditProps<IframeAttrib
         >
           {t("edit")}
         </Button>
-      </BlockWrapper>
-    </VisibleBlockWrapper>
+      </VisibleBlockWrapper>
+    </BlockWrapper>
   )
 }
 

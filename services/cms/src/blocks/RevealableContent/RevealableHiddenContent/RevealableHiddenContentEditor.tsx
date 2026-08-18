@@ -13,10 +13,9 @@ const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph", "core/image", "
 
 const RevealableHiddenContentEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
-> = ({ clientId }) => {
+> = () => {
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title="Hidden content"
       explanation="The content in this block is hidden until student clicks a button"
     >

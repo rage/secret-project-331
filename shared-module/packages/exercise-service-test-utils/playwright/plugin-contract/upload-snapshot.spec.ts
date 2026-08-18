@@ -1,4 +1,6 @@
 import { Buffer } from "node:buffer"
+import { createServer, type Server } from "node:http"
+import type { AddressInfo } from "node:net"
 
 import { expect, test as base } from "@playwright/test"
 
@@ -7,25 +9,47 @@ import { withBrowserDiagnostics } from "../fixtures/diagnostics"
 
 const test = withBrowserDiagnostics(base)
 
-test("captures exact File bytes before Playwright serialization", async ({ page }) => {
-  await page.setContent('<input id="upload" type="file">')
-  await page.evaluate(() => {
-    let port: MessagePort | null = null
-    window.addEventListener("message", (event) => {
-      if (event.data !== "communication-port" || !event.ports[0]) {
-        return
-      }
-      port = event.ports[0]
-      port.start()
-    })
-    document.querySelector<HTMLInputElement>("#upload")?.addEventListener("change", (event) => {
-      const files = new Map<string, File>()
-      for (const file of (event.currentTarget as HTMLInputElement).files ?? []) {
-        files.set(file.name, file)
-      }
-      port?.postMessage({ message: "file-upload", requestId: "contract-upload", files })
-    })
+let pluginServer: Server
+let pluginUrl: string
+
+// Served over loopback because the emulator hashes with Web Crypto, which needs a secure context;
+// `page.setContent` alone would leave the page on the opaque about:blank origin.
+test.beforeAll(async () => {
+  pluginServer = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" })
+    response.end(`<!doctype html>
+      <title>Plugin</title>
+      <input id="upload" type="file">
+      <script>
+        window.addEventListener("message", (event) => {
+          if (event.data !== "communication-port" || !event.ports[0]) return
+          const port = event.ports[0]
+          port.start()
+          document.querySelector("#upload").addEventListener("change", (changeEvent) => {
+            port.postMessage({
+              message: "file-upload",
+              requestId: "contract-upload",
+              files: [...changeEvent.currentTarget.files],
+            })
+          })
+        })
+      </script>`)
   })
+  await new Promise<void>((resolve, reject) => {
+    pluginServer.once("error", reject)
+    pluginServer.listen(0, "127.0.0.1", resolve)
+  })
+  pluginUrl = `http://127.0.0.1:${(pluginServer.address() as AddressInfo).port}`
+})
+
+test.afterAll(async () => {
+  await new Promise<void>((resolve, reject) => {
+    pluginServer.close((error) => (error ? reject(error) : resolve()))
+  })
+})
+
+test("captures exact File bytes before Playwright serialization", async ({ page }) => {
+  await page.goto(pluginUrl)
 
   const host = await createHostEmulator(page, { autoUpload: false })
   await page.evaluate(() => window.postMessage("ready", "*"))
@@ -43,10 +67,10 @@ test("captures exact File bytes before Playwright serialization", async ({ page 
   )
   expect(upload).toMatchObject({
     requestId: "contract-upload",
-    filesKind: "map",
+    filesKind: "array",
     entries: [
       {
-        key: "answer.txt",
+        key: "0",
         kind: "file",
         name: "answer.txt",
         type: "text/plain",

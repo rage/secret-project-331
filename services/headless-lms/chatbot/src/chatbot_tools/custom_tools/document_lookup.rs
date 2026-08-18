@@ -1,7 +1,11 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use headless_lms_utils::strings::truncate_utf8_at_boundary;
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::{
+    json_schema_types::{JSONType, JsonItem, SchemaPropertyType},
+    strings::truncate_utf8_at_boundary,
+};
 use serde::{Deserialize, Deserializer};
 use sqlx::PgConnection;
 use uuid::Uuid;
@@ -9,8 +13,8 @@ use uuid::Uuid;
 use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamProperties, LLMToolParamType,
-        LLMToolParams, LLMToolType, ToolProperties,
+        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
+        ToolProperties,
     },
     citations::parse_document_filepath,
     llm_utils::estimate_tokens,
@@ -78,6 +82,7 @@ impl ChatbotTool for DocumentLookupTool {
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
+        _app_config: &ApplicationConfiguration,
         mut arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
@@ -170,31 +175,31 @@ impl ChatbotTool for DocumentLookupTool {
                 properties: HashMap::from([
                     (
                         "filepath".to_string(),
-                        LLMToolParamProperties {
-                            param_type: "string".to_string(),
-                            description: "The filepath of the document to look up, as returned from Azure search. Either the filepath or page_id is required.".to_string(),
-                        },
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The filepath of the document to look up, as returned from Azure search. Either the filepath or page_id is required.".to_string()),
+                        }),
                     ),
                     (
                         "title".to_string(),
-                        LLMToolParamProperties {
-                            param_type: "string".to_string(),
-                            description: "The title of the document to look up, as returned from Azure search. Optional.".to_string(),
-                        },
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The title of the document to look up, as returned from Azure search. Optional.".to_string()),
+                        }),
                     ),
                     (
                         "page_id".to_string(),
-                        LLMToolParamProperties {
-                            param_type: "string".to_string(),
-                            description: "The page_id of the document to look up. Either page_id or the filepath is required.".to_string(),
-                        },
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The page_id of the document to look up. Either page_id or the filepath is required.".to_string()),
+                        }),
                     ),
                     (
                         "format".to_string(),
-                        LLMToolParamProperties {
-                            param_type: "string".to_string(),
-                            description: "The format of the document. Optional. Valid values are 'json' and 'markdown'. Markdown content is human readable, but might have errors. ".to_string(),
-                        },
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some("The format of the document. Optional. Valid values are 'json' and 'markdown'. Markdown content is human readable, but might have errors. ".to_string()),
+                        }),
                     )
                 ]),
                 required: vec!["title".to_string(), "page_id".to_string(), "filepath".to_string(), "format".to_string()],

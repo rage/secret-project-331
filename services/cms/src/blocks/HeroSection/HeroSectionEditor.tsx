@@ -21,7 +21,7 @@ import BlockWrapper from "../BlockWrapper"
 
 const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>
-> = ({ clientId, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { title, subtitle, alignCenter, useDefaultTextForLabel, label } = attributes
   const direction = alignCenter || alignCenter === undefined ? "center" : "left"
   const defaultLabel = useDefaultTextForLabel === undefined || useDefaultTextForLabel
@@ -46,7 +46,7 @@ const HeroSectionEditor: React.FC<
   }, [DEFAULT_BACKGROUND_COLOR, attributes.backgroundColor, attributes.fontColor, setAttributes])
 
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <InspectorControls key="settings">
         <BackgroundAndColorCustomizer attributes={attributes} setAttributes={setAttributes} />
       </InspectorControls>

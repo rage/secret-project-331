@@ -121,7 +121,7 @@ SELECT
     c.slug AS "course_slug",
     c.name AS "course_name",
     c.description AS course_description,
-    ci.id AS course_instance_id,
+    ci.id AS "course_instance_id!",
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,
     o.name AS "organization_name"

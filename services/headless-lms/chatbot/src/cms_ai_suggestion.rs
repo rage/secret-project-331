@@ -2,9 +2,8 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, InputItem, JSONType, JsonItem, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
-        SchemaPropertyType, ThinkingParams,
+        InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        RequestTextOptions, ThinkingParams,
     },
     chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
@@ -19,6 +18,9 @@ use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole, cms_ai::ParagraphSuggestionAction,
+};
+use headless_lms_utils::json_schema_types::{
+    ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType,
 };
 
 /// Structured LLM response for CMS paragraph suggestions.
@@ -265,12 +267,15 @@ pub async fn generate_paragraph_suggestions(
                 name: "CmsParagraphSuggestionResponse".to_string(),
                 schema: Schema {
                     type_field: JSONType::Object,
+                    description: None,
                     properties: HashMap::from([(
                         "suggestions".to_string(),
                         SchemaPropertyType::ArrayProperty(ArrayProperty {
                             type_field: JSONType::Array,
+                            description: None,
                             items: ArrayItem::JsonItem(JsonItem {
                                 type_field: JSONType::String,
+                                description: None,
                             }),
                         }),
                     )]),

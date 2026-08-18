@@ -699,7 +699,7 @@ pub async fn make_streaming_llm_request(
     };
 
     let headers = build_llm_headers(&chatbot_config.api_key)?;
-    let api_endpoint = chatbot_config.api_endpoint.to_owned();
+    let api_endpoint = chatbot_config.responses_endpoint()?;
     debug!(
         "Sending streaming request to LLM endpoint: {}",
         api_endpoint
@@ -790,7 +790,7 @@ pub async fn make_blocking_llm_request(
         )
     })?;
 
-    let api_endpoint = chatbot_config.api_endpoint.to_owned();
+    let api_endpoint = chatbot_config.responses_endpoint()?;
 
     trace!("Making LLM request to endpoint: {}", api_endpoint);
     make_llm_request(chat_request, &api_endpoint, &chatbot_config.api_key).await

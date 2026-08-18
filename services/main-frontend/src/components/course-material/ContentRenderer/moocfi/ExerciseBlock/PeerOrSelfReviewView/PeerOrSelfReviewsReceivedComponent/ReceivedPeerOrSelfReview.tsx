@@ -42,7 +42,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
 
   const sortedReviews = useMemo(
     () =>
-      reviews.sort((o1, o2) => {
+      reviews.toSorted((o1, o2) => {
         const o1Question = questions.find((q) => q.id === o1.peer_or_self_review_question_id)
         const o2Question = questions.find((q) => q.id === o2.peer_or_self_review_question_id)
         if (!o1Question) {

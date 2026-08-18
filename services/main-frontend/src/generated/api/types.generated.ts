@@ -1069,6 +1069,7 @@ export type CourseAudience = {
   course_id: string
   created_at: string
   deleted_at?: string | null
+  embedding?: Array<number> | null
   id: string
   updated_at: string
 }
@@ -1676,6 +1677,7 @@ export type CoursePrerequisite = {
   course_id: string
   created_at: string
   deleted_at?: string | null
+  embedding?: Array<number> | null
   id: string
   prerequisite: string
   updated_at: string

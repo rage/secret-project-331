@@ -529,7 +529,9 @@ test("Reconciliation keeps the consent-withdrawal bucket out of its findings", a
 test("The audit tab tells the two actor kinds apart", async ({ page }) => {
   await page.goto(`${DASHBOARD_URL}/audit`)
   await expect(page.getByRole("table", { name: "Who acted on this, and why" })).toBeVisible()
-  await expect(page.getByText("Actor kind")).toBeVisible()
+  // Exact: the descriptive note and the Select's own trigger button both also contain "actor
+  // kind", so a loose match is ambiguous between three elements.
+  await expect(page.getByText("Actor kind", { exact: true })).toBeVisible()
 
   await test.step("Narrowing to teachers leaves only teacher actions", async () => {
     await page.goto(`${DASHBOARD_URL}/audit?actor_role=course_teacher`)

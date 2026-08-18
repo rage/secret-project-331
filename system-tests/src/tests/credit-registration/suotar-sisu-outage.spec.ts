@@ -72,7 +72,7 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
       { studentNumber: OUTAGE_STUDENT_NUMBER },
     ],
     // oxlint-disable-next-line unicorn/no-thenable -- `when`/`then` is the mock's own fault shape
-    then: { kind: "itemLevel", code: UNAVAILABLE_WIRE_CODE },
+    then: { kind: "requestLevel", status: 503, code: UNAVAILABLE_WIRE_CODE },
   })
   await applyMockSuotarScenario(page.request, "happy-path", {
     studentNumber: OUTAGE_STUDENT_NUMBER,

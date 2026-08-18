@@ -389,6 +389,34 @@ const ExerciseBlock: React.FC<
     getCourseMaterialExercise.data?.exercise.deadline,
   )
 
+  // submissionBlockers below is only recomputed on render, so without this the submit button
+  // would stay clickable past the deadline until something else happens to re-render the page.
+  const [, forceRerenderAtDeadline] = useState(0)
+  useEffect(() => {
+    if (!exerciseDeadline) {
+      return
+    }
+    const msUntilDeadline = exerciseDeadline.getTime() - Date.now()
+    if (msUntilDeadline <= 0) {
+      return
+    }
+    // setTimeout's delay is a 32-bit int, so deadlines more than ~24.8 days out are scheduled
+    // in MAX_TIMEOUT_MS hops, recomputing the remaining time from Date.now() each hop, until
+    // the real deadline is within range.
+    const MAX_TIMEOUT_MS = 2 ** 31 - 1
+    let timeoutId: ReturnType<typeof setTimeout>
+    const scheduleCheck = () => {
+      const remainingMs = exerciseDeadline.getTime() - Date.now()
+      if (remainingMs <= 0) {
+        forceRerenderAtDeadline((c) => c + 1)
+        return
+      }
+      timeoutId = setTimeout(scheduleCheck, Math.min(remainingMs, MAX_TIMEOUT_MS))
+    }
+    timeoutId = setTimeout(scheduleCheck, Math.min(msUntilDeadline, MAX_TIMEOUT_MS))
+    return () => clearTimeout(timeoutId)
+  }, [exerciseDeadline])
+
   const startPeerOrSelfReviewMutation = useToastMutation(
     () =>
       postStartPeerOrSelfReview({

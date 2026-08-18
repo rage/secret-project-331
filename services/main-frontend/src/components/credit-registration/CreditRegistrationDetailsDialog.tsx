@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { monospaceFont } from "@/shared-module/common/styles"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import { Badge, DescriptionList, Dialog, QueryResult } from "@/shared-module/components"
 
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
@@ -200,7 +201,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
               {details.events.map((event) => (
                 <li className={timelineRowCss} key={event.id}>
                   <span className={timestampCss}>
-                    {new Date(event.created_at).toLocaleString()}
+                    {humanReadableDateTime(event.created_at, i18n.language)}
                   </span>
                   {/* Deliberately untranslated: this is what a teacher quotes to support. */}
                   <span className={ledgerStateCss}>{event.to_state ?? event.kind}</span>

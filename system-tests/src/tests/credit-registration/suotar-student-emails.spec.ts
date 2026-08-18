@@ -55,7 +55,7 @@ const mailsOfKind = (
  * `ORDER BY`.
  */
 const mailIdentities = (mails: AdminNotificationEmail[]): string[] =>
-  mails.map((mail) => `${mail.kind}:${mail.email_delivery_id}`).sort()
+  mails.map((mail) => `${mail.kind}:${mail.email_delivery_id}`).toSorted()
 
 test.describe("A student whose credits reach the study registry", () => {
   test.use({ storageState: seededStudentStorageState(REGISTERED_EMAIL) })

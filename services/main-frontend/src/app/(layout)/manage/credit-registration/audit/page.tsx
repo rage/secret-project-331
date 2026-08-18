@@ -190,6 +190,15 @@ const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }
 const AuditPage: React.FC = () => {
   const { t } = useTranslation()
   const courseStatsQuery = useCreditRegistrationCourseStats()
+  // The stats are one row per module, and a course can have several Suotar-enabled modules: dedupe
+  // by course_id or the Select gets two options with the same value and refuses to render at all.
+  const courseOptions = React.useMemo(() => {
+    const byCourseId = new Map<string, string>()
+    for (const courseModule of courseStatsQuery.data?.modules ?? []) {
+      byCourseId.set(courseModule.course_id, courseModule.course_name)
+    }
+    return Array.from(byCourseId, ([value, label]) => ({ value, label }))
+  }, [courseStatsQuery.data?.modules])
 
   const { control, paginationInfo, query } = useFilteredAdminQuery(
     FILTER_FIELDS,
@@ -277,10 +286,7 @@ const AuditPage: React.FC = () => {
               label={t("label-course")}
               options={[
                 { value: ANY, label: t("credit-registration-admin-any-course") },
-                ...(courseStatsQuery.data?.modules ?? []).map((module) => ({
-                  value: module.course_id,
-                  label: module.course_name,
-                })),
+                ...courseOptions,
               ]}
             />
           </div>

@@ -582,7 +582,7 @@ pub async fn seed_credit_registration(
     seed_grade_improvement_course(&mut conn, app_config, org, teacher_user_id).await?;
     seed_admin_course(&mut conn, app_config, org, teacher_user_id).await?;
     seed_states_course(&mut conn, app_config, org, teacher_user_id).await?;
-    seed_retry_course(&mut conn, org, teacher_user_id).await?;
+    seed_retry_course(&mut conn, app_config, org, teacher_user_id).await?;
 
     info!("inserting credit registration students");
 
@@ -1266,6 +1266,7 @@ async fn seed_states_course(
 /// `ready_to_submit` long enough for the spec to read it.
 async fn seed_retry_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -1292,7 +1293,7 @@ async fn seed_retry_course(
                     ..credit_registration_config(CRS_RETRY_101, false)
                 }),
         )
-        .seed(conn, &cx)
+        .seed(conn, app_config, &cx)
         .await?;
 
     for (person, last_name, state) in [

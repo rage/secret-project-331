@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT course_module_id,\n  COUNT(*) AS \"total_count!\",\n  COUNT(*) FILTER (\n    WHERE state IN ('registered', 'duplicate', 'not_improved')\n  ) AS \"success_count!\",\n  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE state IN ('failed_permanent', 'misregistered')\n  ) AS \"failed_count!\",\n  COUNT(*) FILTER (\n    WHERE state = 'abandoned_by_consent_withdrawal'\n  ) AS \"abandoned_count!\",\n  COUNT(*) FILTER (WHERE needs_admin_attention) AS \"needs_admin_attention_count!\",\n  COUNT(*) FILTER (WHERE state = 'pending_consent') AS \"awaiting_consent_count!\",\n  MAX(registered_at) AS \"last_registered_at\",\n  (\n    SELECT inner_cr.error_code\n    FROM credit_registrations inner_cr\n    WHERE inner_cr.course_module_id = cr.course_module_id\n      AND inner_cr.error_code IS NOT NULL\n      AND inner_cr.state <> 'abandoned_by_consent_withdrawal'\n      AND inner_cr.superseded_by_id IS NULL\n      AND inner_cr.deleted_at IS NULL\n    GROUP BY inner_cr.error_code\n    ORDER BY COUNT(*) DESC,\n      inner_cr.error_code\n    LIMIT 1\n  ) AS \"top_error_code?: CreditRegistrationErrorCode\"\nFROM credit_registrations cr\nWHERE superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY course_module_id\n        ",
+  "query": "\nSELECT course_module_id,\n  COUNT(*) AS \"total_count!\",\n  COUNT(*) FILTER (\n    WHERE state = ANY($1::credit_registration_state [])\n  ) AS \"success_count!\",\n  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE state IN ('failed_permanent', 'misregistered')\n  ) AS \"failed_count!\",\n  COUNT(*) FILTER (\n    WHERE state = 'abandoned_by_consent_withdrawal'\n  ) AS \"abandoned_count!\",\n  COUNT(*) FILTER (WHERE needs_admin_attention) AS \"needs_admin_attention_count!\",\n  COUNT(*) FILTER (WHERE state = 'pending_consent') AS \"awaiting_consent_count!\",\n  MAX(registered_at) AS \"last_registered_at\",\n  (\n    SELECT inner_cr.error_code\n    FROM credit_registrations inner_cr\n    WHERE inner_cr.course_module_id = cr.course_module_id\n      AND inner_cr.error_code IS NOT NULL\n      AND inner_cr.state <> 'abandoned_by_consent_withdrawal'\n      AND inner_cr.superseded_by_id IS NULL\n      AND inner_cr.deleted_at IS NULL\n    GROUP BY inner_cr.error_code\n    ORDER BY COUNT(*) DESC,\n      inner_cr.error_code\n    LIMIT 1\n  ) AS \"top_error_code?: CreditRegistrationErrorCode\"\nFROM credit_registrations cr\nWHERE superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY course_module_id\n        ",
   "describe": {
     "columns": [
       {
@@ -100,7 +100,43 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "nullable": [
       false,
@@ -115,5 +151,5 @@
       null
     ]
   },
-  "hash": "0d3bc7948134262916cc7a07e67fc765e8a30e3699b0a940d0908816723fd89b"
+  "hash": "a6c5f785099b75eca730e09a5190d0014115c5319fcea822c5293e17b9a73b4c"
 }

@@ -27,7 +27,7 @@ WITH unmirrored AS (
     cr.student_number
   FROM credit_registrations cr
   WHERE cr.deleted_at IS NULL
-    AND cr.state IN ('registered', 'duplicate', 'not_improved')
+    AND cr.state = ANY($5::credit_registration_state [])
     AND cr.student_number IS NOT NULL
     -- A regrade keeps the superseded attempt's success state; only the live attempt may still mirror,
     -- or a completion with both gets two ledger rows and the teacher's completions list shows it twice.
@@ -74,6 +74,7 @@ FROM inserted
         scope.course_id,
         scope.user_id,
         &scope.credit_registration_ids,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_one(conn)
     .await?;
@@ -131,7 +132,7 @@ FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   CROSS JOIN LATERAL (
-    SELECT cr.state IN ('registered', 'duplicate', 'not_improved')
+    SELECT cr.state = ANY($2::credit_registration_state [])
       AND cr.student_number IS NOT NULL
       AND NOT EXISTS (
         SELECT 1
@@ -140,7 +141,7 @@ FROM credit_registrations cr
           AND r.study_registry_registrar_id IS NULL
           AND r.deleted_at IS NULL
       ) AS mirror_missing,
-      cr.state NOT IN ('registered', 'duplicate', 'not_improved')
+      NOT (cr.state = ANY($2::credit_registration_state []))
       AND EXISTS (
         SELECT 1
         FROM course_module_completion_registered_to_study_registries r
@@ -159,6 +160,7 @@ ORDER BY cr.state_entered_at DESC
 LIMIT $1
         "#,
         limit,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;

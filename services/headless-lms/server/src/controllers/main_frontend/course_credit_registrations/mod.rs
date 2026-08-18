@@ -782,30 +782,20 @@ async fn finish_resend(
     outcome: ResendLinkingEmailOutcome,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
-    models::credit_registration_admin_actions::record(
+    let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
         conn,
-        &NewCreditRegistrationAdminAction {
-            target_id: Some(course_id),
-            actor_course_id: Some(course_id),
-            reason: payload.reason.clone(),
-            details: Some(serde_json::json!({
-                "outcome": outcome,
-                "student_number": student_number,
-            })),
-            ..NewCreditRegistrationAdminAction::new(
-                CreditRegistrationAdminAction::ResendLinkEmail,
-                CreditRegistrationAdminActionTarget::Course,
-                user.id,
-                COURSE_TEACHER_ROLE,
-            )
-        },
+        course_id,
+        student_number,
+        user.id,
+        COURSE_TEACHER_ROLE,
+        Some(course_id),
+        payload.reason.clone(),
+        serde_json::json!({
+            "outcome": outcome,
+            "student_number": student_number,
+        }),
     )
     .await?;
-
-    let mails = match student_number {
-        Some(number) => linking_mails_for_student_number(conn, course_id, number).await?,
-        None => Vec::new(),
-    };
     let linking_email = match mails.first() {
         Some(mail) => latest_linking_email_status(conn, mail).await?,
         None => None,
@@ -814,25 +804,53 @@ async fn finish_resend(
     token.authorized_ok(web::Json(ResendLinkingEmailResult {
         outcome,
         linking_email,
-        mails_sent_for_this_course: mails.len() as i64,
+        mails_sent_for_this_course,
         max_mails_per_person_and_course: MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
     }))
 }
 
-/// This course's linking mails for one student number, newest first.
-async fn linking_mails_for_student_number(
+/// Records a `ResendLinkEmail` action against the course and fetches this student's linking mails
+/// for it. Shared by the teacher and admin resend endpoints, which differ only in who they blame it
+/// on, whether they widen the action to the whole course (`actor_course_id`), and what extra detail
+/// goes into `details`.
+pub(crate) async fn record_resend_and_fetch_mails(
     conn: &mut PgConnection,
     course_id: Uuid,
-    student_number: &str,
-) -> Result<Vec<CreditRegistrationAccountLinkingEmail>, ControllerError> {
-    Ok(
-        credit_registration_account_linking_emails::get_by_course_id_and_student_number(
-            conn,
-            course_id,
-            student_number,
-        )
-        .await?,
+    student_number: Option<&str>,
+    actor_user_id: Uuid,
+    actor_role: &str,
+    actor_course_id: Option<Uuid>,
+    reason: Option<String>,
+    details: serde_json::Value,
+) -> Result<(Vec<CreditRegistrationAccountLinkingEmail>, i64), ControllerError> {
+    models::credit_registration_admin_actions::record(
+        conn,
+        &NewCreditRegistrationAdminAction {
+            target_id: Some(course_id),
+            actor_course_id,
+            reason,
+            details: Some(details),
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::ResendLinkEmail,
+                CreditRegistrationAdminActionTarget::Course,
+                actor_user_id,
+                actor_role,
+            )
+        },
     )
+    .await?;
+
+    let mails = match student_number {
+        Some(number) => {
+            credit_registration_account_linking_emails::get_by_course_id_and_student_number(
+                conn, course_id, number,
+            )
+            .await?
+        }
+        None => Vec::new(),
+    };
+    let mails_sent_for_this_course = mails.len() as i64;
+    Ok((mails, mails_sent_for_this_course))
 }
 
 async fn latest_linking_email_status(
@@ -950,44 +968,55 @@ pub(crate) async fn build_teacher_registrations(
         .into_iter()
         .map(|row| {
             let linking_email = statuses.remove(&row.id);
-            let status = StudentFacingCreditRegistrationStatus::of(row.state);
+            let base = CourseCreditRegistration::from(row);
+            let notification_email = NotificationEmailStatus::for_status(
+                base.student_facing_status,
+                base.id,
+                &notification_mails,
+            );
             CourseCreditRegistration {
-                notification_email: NotificationEmailStatus::for_status(
-                    status,
-                    row.id,
-                    &notification_mails,
-                ),
-                student_facing_status: status,
-                superseded: row.superseded_by_id.is_some(),
-                id: row.id,
-                user_id: row.user_id,
-                first_name: row.first_name,
-                last_name: row.last_name,
-                email: row.email,
-                course_id: row.course_id,
-                course_module_id: row.course_module_id,
-                course_module_name: row.course_module_name,
-                course_instance_id: row.course_instance_id,
-                course_module_completion_id: row.course_module_completion_id,
-                completion_date: row.completion_date,
-                state: row.state,
-                state_entered_at: row.state_entered_at,
-                error_code: row.error_code,
-                needs_admin_attention: row.needs_admin_attention,
-                next_attempt_at: row.next_attempt_at,
-                registered_at: row.registered_at,
-                sisu_attainment_id: row.sisu_attainment_id,
-                grade_id: row.grade_id,
-                credits: row.credits,
-                attempt_number: row.attempt_number,
-                student_number: row.student_number,
-                student_number_verified_at: row.student_number_verified_at,
-                student_number_verified_via: row.student_number_verified_via,
-                enrolment_realisation_name: row.enrolment_realisation_name,
                 linking_email,
+                notification_email,
+                ..base
             }
         })
         .collect())
+}
+
+impl From<TeacherCreditRegistration> for CourseCreditRegistration {
+    fn from(row: TeacherCreditRegistration) -> Self {
+        Self {
+            student_facing_status: StudentFacingCreditRegistrationStatus::of(row.state),
+            superseded: row.superseded_by_id.is_some(),
+            linking_email: None,
+            notification_email: None,
+            id: row.id,
+            user_id: row.user_id,
+            first_name: row.first_name,
+            last_name: row.last_name,
+            email: row.email,
+            course_id: row.course_id,
+            course_module_id: row.course_module_id,
+            course_module_name: row.course_module_name,
+            course_instance_id: row.course_instance_id,
+            course_module_completion_id: row.course_module_completion_id,
+            completion_date: row.completion_date,
+            state: row.state,
+            state_entered_at: row.state_entered_at,
+            error_code: row.error_code,
+            needs_admin_attention: row.needs_admin_attention,
+            next_attempt_at: row.next_attempt_at,
+            registered_at: row.registered_at,
+            sisu_attainment_id: row.sisu_attainment_id,
+            grade_id: row.grade_id,
+            credits: row.credits,
+            attempt_number: row.attempt_number,
+            student_number: row.student_number,
+            student_number_verified_at: row.student_number_verified_at,
+            student_number_verified_via: row.student_number_verified_via,
+            enrolment_realisation_name: row.enrolment_realisation_name,
+        }
+    }
 }
 
 /// Linking mails of this course we could not hand over at all.

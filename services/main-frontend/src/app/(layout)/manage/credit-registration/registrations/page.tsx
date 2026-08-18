@@ -2,14 +2,14 @@
 
 import { css } from "@emotion/css"
 import Link from "next/link"
-import React, { useEffect, useMemo } from "react"
-import { useForm } from "react-hook-form"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { useAdminCreditRegistrations } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import RelativeTime from "@/components/credit-registration/admin/RelativeTime"
-import { useQueryParamFilters } from "@/components/credit-registration/admin/useQueryParamFilters"
+import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
+import { useFilteredAdminQuery } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
 import { noteCss } from "@/components/credit-registration/styles"
 import type {
@@ -17,7 +17,6 @@ import type {
   CreditRegistrationState,
 } from "@/generated/api/types.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
-import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import { Button, Checkbox, QueryResult, Table, TextField } from "@/shared-module/components"
@@ -73,6 +72,21 @@ interface FilterFields {
   superseded: boolean
 }
 
+const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
+  {
+    param: PARAM_ATTENTION,
+    field: "attention",
+    fromParam: (raw) => raw === TRUE,
+    toParam: (value) => (value ? TRUE : undefined),
+  },
+  {
+    param: PARAM_SUPERSEDED,
+    field: "superseded",
+    fromParam: (raw) => raw === TRUE,
+    toParam: (value) => (value ? TRUE : undefined),
+  },
+]
+
 const controlsCss = css`
   display: flex;
   flex-wrap: wrap;
@@ -110,70 +124,41 @@ const stackedCellCss = css`
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
 const RegistrationsPage: React.FC = () => {
   const { t } = useTranslation()
-  const paginationInfo = usePaginationInfo(ROWS_PER_PAGE)
 
-  const { param, applyParams } = useQueryParamFilters()
+  const { control, watch, reset, handleSubmit, param, applyParams, paginationInfo, query } =
+    useFilteredAdminQuery(
+      FILTER_FIELDS,
+      (filterParam, pagination) => {
+        const state = filterParam(PARAM_STATE)
+        const errorCode = filterParam(PARAM_ERROR_CODE)
+        const courseId = filterParam(PARAM_COURSE_ID)
+        const courseModuleId = filterParam(PARAM_COURSE_MODULE_ID)
+        const userId = filterParam(PARAM_USER_ID)
+        const studentNumber = filterParam(PARAM_STUDENT_NUMBER)
+        const search = filterParam(PARAM_SEARCH)
+        return {
+          page: pagination.page,
+          limit: pagination.limit,
+          ...includeIf(state, { state: [state as CreditRegistrationState] }),
+          ...includeIf(errorCode, { error_code: [errorCode as CreditRegistrationErrorCode] }),
+          ...includeIf(courseId, { course_id: courseId }),
+          ...includeIf(courseModuleId, { course_module_id: courseModuleId }),
+          ...includeIf(userId, { user_id: userId }),
+          ...includeIf(studentNumber, { student_number: studentNumber }),
+          ...includeIf(filterParam(PARAM_ATTENTION) === TRUE, { needs_admin_attention: true }),
+          ...includeIf(search, { search }),
+          ...includeIf(filterParam(PARAM_SUPERSEDED) === TRUE, { include_superseded: true }),
+        }
+      },
+      {
+        rowsPerPage: ROWS_PER_PAGE,
+        manualDefaults: (filterParam) => ({ search: filterParam(PARAM_SEARCH) ?? "" }),
+      },
+    )
 
-  const attention = param(PARAM_ATTENTION) === TRUE
-  const superseded = param(PARAM_SUPERSEDED) === TRUE
-  const { control, watch, reset, setValue, handleSubmit } = useForm<FilterFields>({
-    defaultValues: {
-      search: param(PARAM_SEARCH) ?? "",
-      attention,
-      superseded,
-    },
-  })
   const typedSearch = watch("search")
   // Refetching mid-word would reshuffle the table under the operator's cursor.
   const searchPending = typedSearch.trim() !== (param(PARAM_SEARCH) ?? "")
-  const watchedAttention = watch("attention")
-  const watchedSuperseded = watch("superseded")
-
-  // The params are the source of truth for what is filtered, so the boxes follow the URL: Back, or
-  // a shared link, has to move them.
-  useEffect(() => {
-    setValue("attention", attention)
-    setValue("superseded", superseded)
-  }, [attention, superseded, setValue])
-
-  // And a checked box pushes back into the URL. Comparing against the URL-derived value (rather
-  // than reacting unconditionally) is what stops this from bouncing right back against the sync
-  // effect above: once the two agree, this has nothing left to apply.
-  useEffect(() => {
-    if (watchedAttention !== attention) {
-      applyParams({ [PARAM_ATTENTION]: watchedAttention ? TRUE : undefined })
-    }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedAttention])
-  useEffect(() => {
-    if (watchedSuperseded !== superseded) {
-      applyParams({ [PARAM_SUPERSEDED]: watchedSuperseded ? TRUE : undefined })
-    }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedSuperseded])
-
-  const query = useMemo(() => {
-    const state = param(PARAM_STATE)
-    const errorCode = param(PARAM_ERROR_CODE)
-    const courseId = param(PARAM_COURSE_ID)
-    const courseModuleId = param(PARAM_COURSE_MODULE_ID)
-    const userId = param(PARAM_USER_ID)
-    const studentNumber = param(PARAM_STUDENT_NUMBER)
-    const search = param(PARAM_SEARCH)
-    return {
-      page: paginationInfo.page,
-      limit: paginationInfo.limit,
-      ...includeIf(state, { state: [state as CreditRegistrationState] }),
-      ...includeIf(errorCode, { error_code: [errorCode as CreditRegistrationErrorCode] }),
-      ...includeIf(courseId, { course_id: courseId }),
-      ...includeIf(courseModuleId, { course_module_id: courseModuleId }),
-      ...includeIf(userId, { user_id: userId }),
-      ...includeIf(studentNumber, { student_number: studentNumber }),
-      ...includeIf(param(PARAM_ATTENTION) === TRUE, { needs_admin_attention: true }),
-      ...includeIf(search, { search }),
-      ...includeIf(param(PARAM_SUPERSEDED) === TRUE, { include_superseded: true }),
-    }
-  }, [param, paginationInfo.page, paginationInfo.limit])
 
   const registrationsQuery = useAdminCreditRegistrations(query, { paused: searchPending })
   const activeNarrowings = NARROWING_PARAMS.filter((name) => param(name) !== undefined)

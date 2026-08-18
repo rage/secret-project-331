@@ -14,6 +14,7 @@ import {
   retryabilityLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
+  HOUR_SECS,
   useCreditRegistrationAttentionItems,
   useCreditRegistrationErrorsByCode,
   useCreditRegistrationThresholds,
@@ -46,7 +47,6 @@ import {
   Table,
 } from "@/shared-module/components"
 
-const HOUR_SECS = 3600
 const DAY_SECS = 86_400
 const WEEK_SECS = 604_800
 const MONTH_SECS = 2_592_000

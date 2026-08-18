@@ -6,7 +6,9 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
-use headless_lms_models::credit_registrations::{self, CreditRegistrationState, Transition};
+use headless_lms_models::credit_registrations::{
+    self, CreditRegistrationState, ResubmissionRefusal, ResubmissionStrictness, Transition,
+};
 use std::collections::{HashMap, HashSet};
 use utoipa::ToSchema;
 
@@ -36,15 +38,14 @@ pub enum RetryCreditRegistrationOutcome {
     RefusedSuperseded,
 }
 
-impl RetryCreditRegistrationOutcome {
-    fn refusal_for_state(state: CreditRegistrationState) -> Option<Self> {
-        match state {
-            CreditRegistrationState::FailedPermanent => None,
-            CreditRegistrationState::SubmissionUncertain => Some(Self::RefusedSubmissionUncertain),
-            CreditRegistrationState::AbandonedByConsentWithdrawal => {
-                Some(Self::RefusedConsentWithdrawn)
-            }
-            _ => Some(Self::RefusedNotFailed),
+impl From<ResubmissionRefusal> for RetryCreditRegistrationOutcome {
+    fn from(refusal: ResubmissionRefusal) -> Self {
+        match refusal {
+            ResubmissionRefusal::Superseded => Self::RefusedSuperseded,
+            ResubmissionRefusal::SubmissionUncertain => Self::RefusedSubmissionUncertain,
+            ResubmissionRefusal::ConsentWithdrawn => Self::RefusedConsentWithdrawn,
+            ResubmissionRefusal::NotFailedPermanent => Self::RefusedNotFailed,
+            ResubmissionRefusal::WithoutConsent => Self::RefusedWithoutConsent,
         }
     }
 }
@@ -131,15 +132,14 @@ pub async fn retry_credit_registration(
     )
     .await?
     .is_some_and(|consent| consent.consent_given);
-    let outcome = if row.superseded_by_id.is_some() {
-        RetryCreditRegistrationOutcome::RefusedSuperseded
-    } else {
-        match RetryCreditRegistrationOutcome::refusal_for_state(row.state) {
-            Some(refusal) => refusal,
-            None if !consented => RetryCreditRegistrationOutcome::RefusedWithoutConsent,
-            None => RetryCreditRegistrationOutcome::Retried,
-        }
-    };
+    let outcome = row
+        .state
+        .resubmission_refusal(
+            row.superseded_by_id.is_some(),
+            consented,
+            ResubmissionStrictness::OnlyFailedPermanent,
+        )
+        .map_or(RetryCreditRegistrationOutcome::Retried, Into::into);
 
     let mut tx = conn.begin().await?;
     let state = if outcome == RetryCreditRegistrationOutcome::Retried {
@@ -256,26 +256,28 @@ pub async fn retry_failed_credit_registrations_for_course(
         .await?
         .into_iter()
         .collect();
+    let mut retried_ids = Vec::new();
     for row in &candidates {
         // Re-judged rather than trusted from the query above, which ran before the lock: consent can
         // be withdrawn and the row moved on in between, and both are ordinary refusals. Same
         // precedence as the single-row endpoint, so one row gets one answer whichever way it is asked.
-        let refusal = row
-            .superseded_by_id
-            .map(|_| RetryCreditRegistrationOutcome::RefusedSuperseded)
-            .or_else(|| RetryCreditRegistrationOutcome::refusal_for_state(row.state))
-            .or_else(|| {
-                (!consenting.contains(&row.user_id))
-                    .then_some(RetryCreditRegistrationOutcome::RefusedWithoutConsent)
-            });
+        let refusal = row.state.resubmission_refusal(
+            row.superseded_by_id.is_some(),
+            consenting.contains(&row.user_id),
+            ResubmissionStrictness::OnlyFailedPermanent,
+        );
         match refusal {
-            Some(outcome) => *skipped.entry(outcome).or_insert(0) += 1,
+            Some(refusal) => *skipped.entry(refusal.into()).or_insert(0) += 1,
             None => {
-                requeue(&mut tx, row.id, row.state, user.id, reason).await?;
+                transition_to_ready_to_submit(&mut tx, row.id, row.state, user.id, reason).await?;
+                retried_ids.push(row.id);
                 retried_count += 1;
             }
         }
     }
+    // Batched rather than one `UPDATE` per row inside the loop above: the row transition needs its
+    // own audit event per row, but making it due now does not.
+    credit_registrations::make_due_now_batch(&mut tx, &retried_ids).await?;
     let mut skipped: Vec<RetryCreditRegistrationSkip> = skipped
         .into_iter()
         .map(|(outcome, count)| RetryCreditRegistrationSkip { outcome, count })
@@ -310,11 +312,13 @@ pub async fn retry_failed_credit_registrations_for_course(
     }))
 }
 
-/// Moves one row back to `ready_to_submit` and makes it due, in the caller's transaction.
+/// Moves one row back to `ready_to_submit`, in the caller's transaction.
 ///
 /// `from_state` is the state the refusals above were judged against; the transition refuses to
-/// overwrite the row if the pipeline has since moved it on.
-async fn requeue(
+/// overwrite the row if the pipeline has since moved it on. Does not make the row due: the
+/// single-row caller does that itself right after, and the bulk caller batches it over every row it
+/// retried instead of one `UPDATE` per row.
+async fn transition_to_ready_to_submit(
     tx: &mut PgConnection,
     id: Uuid,
     from_state: CreditRegistrationState,
@@ -338,10 +342,22 @@ async fn requeue(
         },
     )
     .await?;
+    Ok(after.state)
+}
+
+/// [`transition_to_ready_to_submit`] plus making the row due now, for the single-row endpoint.
+async fn requeue(
+    tx: &mut PgConnection,
+    id: Uuid,
+    from_state: CreditRegistrationState,
+    actor_user_id: Uuid,
+    reason: Option<&str>,
+) -> Result<CreditRegistrationState, ControllerError> {
+    let state = transition_to_ready_to_submit(tx, id, from_state, actor_user_id, reason).await?;
     // Nothing else brings the row forward, so without this the retry sits out whatever backoff the
     // last failure set.
     credit_registrations::make_due_now(tx, id).await?;
-    Ok(after.state)
+    Ok(state)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

@@ -1,4 +1,4 @@
-//! The twelve credit-registration pipeline phases and the one-iteration dispatcher.
+//! The thirteen credit-registration pipeline phases and the one-iteration dispatcher.
 //!
 //! Both the worker loops and the test tick endpoint go through [`run_phase_once`], so a phase cannot
 //! behave differently depending on who ran it.
@@ -7,6 +7,7 @@ pub mod breaker;
 mod config_validation;
 mod enrolment_discovery;
 mod import;
+mod ledger_snapshot;
 mod link_emails;
 pub mod linking_mail_resend;
 mod product_token_refresh;
@@ -51,8 +52,8 @@ use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ListedPerson, SuotarBatchResponse, SuotarClient, SuotarItemStatus,
 };
-use sqlx::{PgConnection, PgPool};
-use std::collections::HashMap;
+use sqlx::{Connection, PgConnection, PgPool};
+use std::collections::{BTreeSet, HashMap};
 use std::future::Future;
 use std::pin::Pin;
 use uuid::Uuid;
@@ -77,11 +78,12 @@ pub enum CreditRegistrationPhase {
     ProductTokenRefresh,
     ConfigValidation,
     RetentionSweep,
+    LedgerSnapshot,
 }
 
 impl CreditRegistrationPhase {
     /// Every phase, in pipeline order.
-    pub const ALL: [Self; 12] = [
+    pub const ALL: [Self; 13] = [
         Self::Materialize,
         Self::Preconditions,
         Self::ResolveEnrolments,
@@ -94,6 +96,7 @@ impl CreditRegistrationPhase {
         Self::ProductTokenRefresh,
         Self::ConfigValidation,
         Self::RetentionSweep,
+        Self::LedgerSnapshot,
     ];
 
     /// The phases `run-registrar-tick` runs, in pipeline order. Not every `credit-registrar` phase:
@@ -120,6 +123,7 @@ impl CreditRegistrationPhase {
             Self::ProductTokenRefresh => "product-token-refresh",
             Self::ConfigValidation => "config-validation",
             Self::RetentionSweep => "retention-sweep",
+            Self::LedgerSnapshot => "ledger-snapshot",
         }
     }
 
@@ -141,34 +145,8 @@ impl CreditRegistrationPhase {
             | Self::LinkEmails
             | Self::ProductTokenRefresh
             | Self::ConfigValidation
-            | Self::RetentionSweep => "suotar-syncer",
-        }
-    }
-
-    /// Whether [`run_phase_once`] has an implementation registered for the phase, derived from
-    /// [`implementation`](Self::implementation) so it cannot list a different set of phases than
-    /// the dispatch actually runs.
-    pub fn is_implemented(self) -> bool {
-        self.implementation().is_some()
-    }
-
-    /// Which [`ImplementedPhase`] runs this phase, or `None` for one with no dispatch arm yet.
-    /// [`run_phase_once`]'s dispatch match is over the returned type, so adding a phase there
-    /// without adding it here fails to compile instead of silently never running.
-    fn implementation(self) -> Option<ImplementedPhase> {
-        match self {
-            Self::Materialize => Some(ImplementedPhase::Materialize),
-            Self::Preconditions => Some(ImplementedPhase::Preconditions),
-            Self::ResolveEnrolments => Some(ImplementedPhase::ResolveEnrolments),
-            Self::Import => Some(ImplementedPhase::Import),
-            Self::Verify => Some(ImplementedPhase::Verify),
-            Self::LegacyMirror => Some(ImplementedPhase::LegacyMirror),
-            Self::StudentNotifications => Some(ImplementedPhase::StudentNotifications),
-            Self::EnrolmentDiscovery => Some(ImplementedPhase::EnrolmentDiscovery),
-            Self::LinkEmails => Some(ImplementedPhase::LinkEmails),
-            Self::ProductTokenRefresh => Some(ImplementedPhase::ProductTokenRefresh),
-            Self::ConfigValidation => Some(ImplementedPhase::ConfigValidation),
-            Self::RetentionSweep => Some(ImplementedPhase::RetentionSweep),
+            | Self::RetentionSweep
+            | Self::LedgerSnapshot => "suotar-syncer",
         }
     }
 
@@ -246,27 +224,11 @@ impl CreditRegistrationPhase {
             },
             // Sweeps whole tables by age; there is nothing in them to narrow on.
             Self::RetentionSweep => ScopeSupport::NONE,
+            // Counts every row in the ledger for the day; a scoped run would write that as if it
+            // were everyone's snapshot.
+            Self::LedgerSnapshot => ScopeSupport::NONE,
         }
     }
-}
-
-/// The phases [`run_phase_once`]'s dispatch match actually runs. A one-to-one mirror of the
-/// [`CreditRegistrationPhase`] variants [`CreditRegistrationPhase::implementation`] maps to `Some`;
-/// adding a variant here without a matching dispatch arm fails to compile.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ImplementedPhase {
-    Materialize,
-    Preconditions,
-    ResolveEnrolments,
-    Import,
-    Verify,
-    LegacyMirror,
-    StudentNotifications,
-    EnrolmentDiscovery,
-    LinkEmails,
-    ProductTokenRefresh,
-    ConfigValidation,
-    RetentionSweep,
 }
 
 /// Which of the scope's dimensions a phase's claim query can apply. Declared rather than assumed,
@@ -377,8 +339,8 @@ async fn run_legacy_mirror(
 }
 
 /// Runs exactly one iteration of one phase. The match below is the only place a phase
-/// implementation is registered; it is exhaustive over [`ImplementedPhase`], so a variant added
-/// there without a dispatch arm here fails to compile rather than running as `NotImplemented`.
+/// implementation is registered; it is exhaustive over [`CreditRegistrationPhase`], so a variant
+/// added there without a dispatch arm here fails to compile.
 pub async fn run_phase_once(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
@@ -388,9 +350,6 @@ pub async fn run_phase_once(
     if !phase.scope_support().covers(scope) {
         return Ok(PhaseTick::ScopeNotSupported);
     }
-    let Some(implementation) = phase.implementation() else {
-        return Ok(PhaseTick::NotImplemented);
-    };
     let mut conn = ctx.pool.acquire().await?;
     if credit_registration_phase_state::is_paused(&mut conn, phase.as_str()).await? {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::Paused));
@@ -411,25 +370,27 @@ pub async fn run_phase_once(
     }
     drop(conn);
 
-    let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> =
-        match implementation {
-            ImplementedPhase::Materialize => Box::pin(run_materialize(ctx, scope)),
-            ImplementedPhase::Preconditions => Box::pin(run_preconditions(ctx, scope)),
-            ImplementedPhase::ResolveEnrolments => Box::pin(resolve_enrolments::run(ctx, scope)),
-            ImplementedPhase::Import => Box::pin(import::run(ctx, scope)),
-            ImplementedPhase::Verify => Box::pin(verify::run(ctx, scope)),
-            ImplementedPhase::LegacyMirror => Box::pin(run_legacy_mirror(ctx, scope)),
-            ImplementedPhase::StudentNotifications => {
-                Box::pin(student_notifications::run(ctx, scope))
-            }
-            ImplementedPhase::EnrolmentDiscovery => Box::pin(enrolment_discovery::run(ctx, scope)),
-            ImplementedPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
-            ImplementedPhase::ProductTokenRefresh => {
-                Box::pin(product_token_refresh::run(ctx, scope))
-            }
-            ImplementedPhase::ConfigValidation => Box::pin(config_validation::run(ctx, scope)),
-            ImplementedPhase::RetentionSweep => Box::pin(retention_sweep::run(ctx, scope)),
-        };
+    let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> = match phase {
+        CreditRegistrationPhase::Materialize => Box::pin(run_materialize(ctx, scope)),
+        CreditRegistrationPhase::Preconditions => Box::pin(run_preconditions(ctx, scope)),
+        CreditRegistrationPhase::ResolveEnrolments => Box::pin(resolve_enrolments::run(ctx, scope)),
+        CreditRegistrationPhase::Import => Box::pin(import::run(ctx, scope)),
+        CreditRegistrationPhase::Verify => Box::pin(verify::run(ctx, scope)),
+        CreditRegistrationPhase::LegacyMirror => Box::pin(run_legacy_mirror(ctx, scope)),
+        CreditRegistrationPhase::StudentNotifications => {
+            Box::pin(student_notifications::run(ctx, scope))
+        }
+        CreditRegistrationPhase::EnrolmentDiscovery => {
+            Box::pin(enrolment_discovery::run(ctx, scope))
+        }
+        CreditRegistrationPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
+        CreditRegistrationPhase::ProductTokenRefresh => {
+            Box::pin(product_token_refresh::run(ctx, scope))
+        }
+        CreditRegistrationPhase::ConfigValidation => Box::pin(config_validation::run(ctx, scope)),
+        CreditRegistrationPhase::RetentionSweep => Box::pin(retention_sweep::run(ctx, scope)),
+        CreditRegistrationPhase::LedgerSnapshot => Box::pin(ledger_snapshot::run(ctx, scope)),
+    };
 
     let exchanges_before = ctx.suotar_client.exchange_count();
     let outcome = match body.await {
@@ -505,6 +466,72 @@ impl TemplateCache {
         self.0.insert(key, found);
         Ok(found)
     }
+}
+
+/// A phase whose whole body is "claim rows, look up each one's template, skip it if the template is
+/// missing, otherwise queue a mail". `link-emails` and `student-notifications` are its only two
+/// shapes; [`run_mail_queue_phase`] is the loop they share.
+pub(crate) trait MailQueuePhase {
+    type Item;
+
+    async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>>;
+
+    fn template_type(item: &Self::Item) -> EmailTemplateType;
+    fn language(item: &Self::Item) -> String;
+
+    /// Inserts the delivery and records it on the claimed item, given the template the caller
+    /// already resolved.
+    async fn queue(
+        ctx: &PhaseContext<'_>,
+        conn: &mut PgConnection,
+        item: &Self::Item,
+        template_id: Uuid,
+    ) -> anyhow::Result<()>;
+
+    /// One entry of the missing-templates report, e.g. the language alone or a type-and-language
+    /// pair, depending on whether the phase has more than one template type.
+    fn missing_template_label(template_type: EmailTemplateType, language: &str) -> String;
+
+    /// The fixed lead-in of the missing-templates error message.
+    fn missing_templates_error_prefix() -> &'static str;
+}
+
+/// Claims, resolves templates for, and queues mail for one iteration of a [`MailQueuePhase`]. A mail
+/// with no template is skipped rather than failing the iteration: the batch is one transaction, so an
+/// error would roll back every mail that could be queued, and the claimed rows stay claimable.
+pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
+    let mut conn = ctx.pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+    let claimed = P::claim(&mut tx, scope).await?;
+    let mut templates = TemplateCache::default();
+    let mut missing_templates: BTreeSet<String> = BTreeSet::new();
+    let mut skipped = 0;
+    for item in &claimed {
+        let template_type = P::template_type(item);
+        let language = P::language(item);
+        let Some(template_id) = templates.id_for(&mut tx, template_type, &language).await? else {
+            missing_templates.insert(P::missing_template_label(template_type, &language));
+            skipped += 1;
+            continue;
+        };
+        P::queue(ctx, &mut tx, item, template_id).await?;
+    }
+    tx.commit().await?;
+
+    Ok(PhaseRunOutcome {
+        items_processed: i32::try_from(claimed.len()).unwrap_or(i32::MAX),
+        items_failed: skipped,
+        error: (!missing_templates.is_empty()).then(|| {
+            format!(
+                "{} {}.",
+                P::missing_templates_error_prefix(),
+                missing_templates.into_iter().collect::<Vec<_>>().join(", ")
+            )
+        }),
+    })
 }
 
 /// Templates are stored per language and courses carry a locale. The course's language, not the
@@ -733,7 +760,7 @@ mod tests {
             .map(|phase| phase.as_str())
             .collect();
         assert_eq!(from_enum, PHASES);
-        assert_eq!(from_enum.len(), 12);
+        assert_eq!(from_enum.len(), 13);
     }
 
     /// A phase that cannot honour the narrowing it was handed has to say so, or a caller that

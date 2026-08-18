@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import type { TFunction } from "i18next"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import React from "react"
@@ -32,7 +33,7 @@ import type {
   CreditRegistrationAdminActionRecord,
 } from "@/generated/api/types.generated"
 import { creditRegistrationItemRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
-import type { DescriptionListItem } from "@/shared-module/components"
+import type { DescriptionListItem, TableColumn } from "@/shared-module/components"
 import {
   Badge,
   DescriptionList,
@@ -329,8 +330,26 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
   )
 }
 
+/** Every mail table shares a send-status and retries column; only the surrounding columns differ. */
+const sendStatusColumns = <T extends { send_status: AdminLinkingEmail["send_status"] }>(
+  t: TFunction,
+): [TableColumn<T>, TableColumn<T>] => [
+  {
+    header: t("credit-registration-admin-send-status-header"),
+    cell: (mail) =>
+      [sendStatusLabel(t, mail.send_status.email_send_status), mail.send_status.failure_code]
+        .filter(Boolean)
+        .join(MIDDLE_DOT),
+  },
+  {
+    header: t("label-credit-registration-retries"),
+    cell: (mail) => mail.send_status.retry_count,
+  },
+]
+
 const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => {
   const { t } = useTranslation()
+  const [sendStatusColumn, retriesColumn] = sendStatusColumns<AdminLinkingEmail>(t)
   if (mails.length === 0) {
     return null
   }
@@ -343,16 +362,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
         rows={mails}
         columns={[
           { header: t("label-email"), cell: (mail) => mail.emailed_to },
-          {
-            header: t("credit-registration-admin-send-status-header"),
-            cell: (mail) =>
-              [
-                sendStatusLabel(t, mail.send_status.email_send_status),
-                mail.send_status.failure_code,
-              ]
-                .filter(Boolean)
-                .join(MIDDLE_DOT),
-          },
+          sendStatusColumn,
           {
             header: t("label-credit-registration-claimed-slot"),
             cell: (mail) => <RelativeTime at={mail.claimed_at} />,
@@ -361,10 +371,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
             header: t("label-credit-registration-handed-over"),
             cell: (mail) => <RelativeTime at={mail.send_status.sent_at} />,
           },
-          {
-            header: t("label-credit-registration-retries"),
-            cell: (mail) => mail.send_status.retry_count,
-          },
+          retriesColumn,
           {
             header: t("label-credit-registration-token-claimed"),
             cell: (mail) =>
@@ -382,6 +389,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
 
 const NotificationSection: React.FC<{ mails: AdminNotificationEmail[] }> = ({ mails }) => {
   const { t } = useTranslation()
+  const [sendStatusColumn, retriesColumn] = sendStatusColumns<AdminNotificationEmail>(t)
   if (mails.length === 0) {
     return null
   }
@@ -394,24 +402,12 @@ const NotificationSection: React.FC<{ mails: AdminNotificationEmail[] }> = ({ ma
         rows={mails}
         columns={[
           { header: t("label-kind"), cell: (mail) => notificationKindLabel(t, mail.kind) },
-          {
-            header: t("credit-registration-admin-send-status-header"),
-            cell: (mail) =>
-              [
-                sendStatusLabel(t, mail.send_status.email_send_status),
-                mail.send_status.failure_code,
-              ]
-                .filter(Boolean)
-                .join(MIDDLE_DOT),
-          },
+          sendStatusColumn,
           {
             header: t("label-credit-registration-handed-over"),
             cell: (mail) => <RelativeTime at={mail.send_status.sent_at} />,
           },
-          {
-            header: t("label-credit-registration-retries"),
-            cell: (mail) => mail.send_status.retry_count,
-          },
+          retriesColumn,
         ]}
       />
     </section>

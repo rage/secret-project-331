@@ -1,8 +1,7 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -14,7 +13,7 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button } from "@/shared-module/components"
 
-import { ReasonConfirmDialog } from "./ReasonConfirmDialog"
+import { pauseResumeRootCss, usePauseResumeAction } from "./usePauseResumeAction"
 
 interface Props {
   phase: string
@@ -22,17 +21,11 @@ interface Props {
   implemented: boolean
 }
 
-const rootCss = css`
-  display: flex;
-  gap: 0.4rem;
-`
-
 /** Pause, resume and run-now for one pipeline phase; the Overview strip and the Workers tab share it. */
 const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { confirm } = useDialog()
-  const [pauseOpen, setPauseOpen] = useState(false)
 
   const invalidatePhases = () =>
     Promise.all([
@@ -40,22 +33,17 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
       queryClient.invalidateQueries({ queryKey: listCreditRegistrationPhasesQueryKey() }),
     ])
 
-  const pauseMutation = useToastMutation(
-    (fields: { reason: string }) =>
-      adminPausePhase({ path: { phase }, body: { reason: fields.reason } }),
-    { notify: true, method: "POST" },
-    {
-      onSuccess: () => {
-        setPauseOpen(false)
-        void invalidatePhases()
-      },
-    },
-  )
-  const resumeMutation = useToastMutation(
-    () => adminResumePhase({ path: { phase }, body: { reason: null } }),
-    { notify: true, method: "POST" },
-    { onSuccess: () => void invalidatePhases() },
-  )
+  const { pauseButton, resumeButton, dialog } = usePauseResumeAction({
+    pause: (fields) => adminPausePhase({ path: { phase }, body: { reason: fields.reason } }),
+    resume: () => adminResumePhase({ path: { phase }, body: { reason: null } }),
+    invalidate: () => void invalidatePhases(),
+    resumeConfirmMessage: t("credit-registration-admin-phase-resume-confirm", { phase }),
+    pauseButtonLabel: t("button-text-credit-registration-phase-pause"),
+    resumeButtonLabel: t("button-text-credit-registration-phase-resume"),
+    pauseDialogTitle: t("credit-registration-admin-phase-pause-title", { phase }),
+    pauseReasonDescription: t("credit-registration-admin-phase-pause-reason-description"),
+  })
+
   const runNowMutation = useToastMutation(
     () => adminRunPhaseNow({ path: { phase }, body: { reason: null } }),
     { notify: true, method: "POST" },
@@ -67,28 +55,12 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
   }
 
   return (
-    <div className={rootCss}>
+    <div className={pauseResumeRootCss}>
       {paused ? (
-        <Button
-          variant="tertiary"
-          size="small"
-          isLoading={resumeMutation.isPending}
-          onClick={async () => {
-            const confirmed = await confirm(
-              t("credit-registration-admin-phase-resume-confirm", { phase }),
-            )
-            if (confirmed) {
-              resumeMutation.mutate()
-            }
-          }}
-        >
-          {t("button-text-credit-registration-phase-resume")}
-        </Button>
+        resumeButton
       ) : (
         <>
-          <Button variant="tertiary" size="small" onClick={() => setPauseOpen(true)}>
-            {t("button-text-credit-registration-phase-pause")}
-          </Button>
+          {pauseButton}
           <Button
             variant="tertiary"
             size="small"
@@ -106,14 +78,7 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
           </Button>
         </>
       )}
-      <ReasonConfirmDialog
-        open={pauseOpen}
-        onClose={() => setPauseOpen(false)}
-        title={t("credit-registration-admin-phase-pause-title", { phase })}
-        reasonDescription={t("credit-registration-admin-phase-pause-reason-description")}
-        isPending={pauseMutation.isPending}
-        onConfirm={(reason) => pauseMutation.mutate({ reason })}
-      />
+      {dialog}
     </div>
   )
 }

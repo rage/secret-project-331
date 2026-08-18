@@ -476,8 +476,7 @@ fn to_phase_status(
                 * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
         });
     CreditRegistrationPhaseStatus {
-        implemented: CreditRegistrationPhase::from_phase_name(&row.phase)
-            .is_some_and(CreditRegistrationPhase::is_implemented),
+        implemented: CreditRegistrationPhase::from_phase_name(&row.phase).is_some(),
         phase: row.phase,
         process_name: row.process_name,
         expected_interval_secs: row.expected_interval_secs,

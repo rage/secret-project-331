@@ -5,7 +5,7 @@ import type {
   RetryCreditRegistrationOutcome,
 } from "@/generated/api/types.generated"
 
-import { labelFrom } from "./labelFrom"
+import { labelFrom, widenedLookup } from "./labelFrom"
 
 const RETRY_OUTCOME_KEYS = {
   retried: "credit-registration-retry-retried",
@@ -30,9 +30,8 @@ const ACTION_KEYS = {
 } as const satisfies Partial<Record<CreditRegistrationAdminAction, string>>
 
 export const actionLabel = (t: TFunction, action: CreditRegistrationAdminAction): string => {
-  const key = (ACTION_KEYS as Record<string, string | undefined>)[action]
-  const translate = t as unknown as (key: string) => string
-  return key ? translate(key) : action
+  const key = widenedLookup(ACTION_KEYS, action)
+  return key ? t(key) : action
 }
 
 export const TEACHER_ACTOR_ROLE = "course_teacher"

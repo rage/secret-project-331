@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT verified_via,\n  COUNT(*) AS \"count!\"\nFROM verified_student_numbers\nWHERE deleted_at IS NULL\n  AND ($1::timestamptz IS NULL OR verified_at >= $1)\nGROUP BY verified_via\n        ",
+  "query": "\nSELECT verified_via,\n  COUNT(*) AS \"total!\",\n  COUNT(*) FILTER (WHERE verified_at >= $1) AS \"since_count!\"\nFROM verified_student_numbers\nWHERE deleted_at IS NULL\nGROUP BY verified_via\n        ",
   "describe": {
     "columns": [
       {
@@ -27,7 +27,13 @@
       },
       {
         "ordinal": 1,
-        "name": "count!",
+        "name": "total!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "since_count!",
         "type_info": "Int8",
         "origin": "Expression"
       }
@@ -39,8 +45,9 @@
     },
     "nullable": [
       false,
+      null,
       null
     ]
   },
-  "hash": "9a5ebea961fd7b7f436a9a3628faf4f381a13dccfe764feb3c655b0bfa0cf381"
+  "hash": "312bc19271060330db75a92cdceaf29edd2406ae5609478b0fcba3dbbb1b19dd"
 }

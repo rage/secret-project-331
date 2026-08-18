@@ -1,22 +1,16 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQueryClient } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  getCourseCreditRegistrationActionsQueryKey,
-  getCourseCreditRegistrationSummaryQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
 import { retryFailedCreditRegistrationsForCourse } from "@/generated/api/sdk.generated"
-import type { RetryFailedCreditRegistrationsResult } from "@/generated/api/types.generated"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Infobox } from "@/shared-module/components"
 
 import { TONE } from "./constants"
 import { retryOutcomeSentence } from "./creditRegistrationRetry"
-import { invalidateTeacherCreditRegistrations } from "./teacherCreditRegistrations"
+import { useInvalidateAfterRetry } from "./teacherCreditRegistrations"
+import { useActionResult } from "./useActionResult"
 
 interface Props {
   courseId: string
@@ -30,29 +24,12 @@ const resultCss = css`
 
 const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
-  const [result, setResult] = useState<RetryFailedCreditRegistrationsResult | null>(null)
-  const queryClient = useQueryClient()
+  const invalidateAfterRetry = useInvalidateAfterRetry(courseId)
 
-  const mutation = useToastMutation(
+  const { result, mutation } = useActionResult(
     () => retryFailedCreditRegistrationsForCourse({ path: { course_id: courseId }, body: {} }),
-    { notify: false },
-    {
-      onSuccess: async (data) => {
-        setResult(data)
-        await Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: getCourseCreditRegistrationSummaryQueryKey({
-              path: { course_id: courseId },
-            }),
-          }),
-          queryClient.invalidateQueries({
-            queryKey: getCourseCreditRegistrationActionsQueryKey({
-              path: { course_id: courseId },
-            }),
-          }),
-          invalidateTeacherCreditRegistrations(queryClient),
-        ])
-      },
+    async () => {
+      await invalidateAfterRetry()
     },
   )
 

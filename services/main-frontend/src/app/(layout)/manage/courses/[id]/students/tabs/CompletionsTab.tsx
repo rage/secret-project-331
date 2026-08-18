@@ -17,7 +17,6 @@ import {
 import type { CompletionGridRow, CourseCreditRegistration } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import {
@@ -206,20 +205,8 @@ export const CompletionsTabContent: React.FC = () => {
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
-  // Not implied by the permission that opens this tab: an assistant may read it, and a registration
-  // carries the student's national study registry identity. Asked before the query so their browser
-  // does not fire a request the server will refuse.
-  const canSeeCreditRegistrations =
-    useAuthorizeMultiple([
-      {
-        action: { type: "view_and_manage_credit_registrations" },
-        resource: { type: "course", id: courseId },
-      },
-    ]).data?.[0] === true
-  const creditRegistrationsQuery = useTeacherCreditRegistrations(
-    canSeeCreditRegistrations ? courseId : null,
-    userIds,
-  )
+  const { data: creditRegistrationsData, isAuthorized: canSeeCreditRegistrations } =
+    useTeacherCreditRegistrations(courseId, userIds)
 
   // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
   // detail request promptly -- only the expensive pivot below is deprioritized.
@@ -231,7 +218,7 @@ export const CompletionsTabContent: React.FC = () => {
     () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], t),
     [deferredIdentityRows, deferredDetailData, t],
   )
-  const creditRegistrations = creditRegistrationsQuery.data ?? EMPTY_CREDIT_REGISTRATIONS
+  const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
   const columns = useMemo(
     () => buildColumns(modulesInOrder, t, creditRegistrations),
     [modulesInOrder, t, creditRegistrations],

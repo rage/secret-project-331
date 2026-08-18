@@ -238,7 +238,7 @@ WHERE cr.deleted_at IS NULL
   AND cr.superseded_by_id IS NULL
   -- The success set only. A row whose outcome we do not know must not gain a successor, and one
   -- abandoned by a consent withdrawal is in neither set.
-  AND cr.state IN ('registered', 'duplicate', 'not_improved')
+  AND cr.state = ANY($4::credit_registration_state [])
   AND cr.grade_scale_id IS NOT NULL
   AND cr.grade_id IS NOT NULL
   AND cmc.deleted_at IS NULL
@@ -278,6 +278,7 @@ LIMIT $1
         limit,
         scope.course_id,
         scope.user_id,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(&mut *tx)
     .await?;

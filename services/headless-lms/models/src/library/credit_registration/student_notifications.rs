@@ -85,7 +85,7 @@ WHERE cr.deleted_at IS NULL
       AND cr.action_needed_email_delivery_id IS NULL
     )
     OR (
-      cr.state IN ('registered', 'duplicate', 'not_improved')
+      cr.state = ANY($5::credit_registration_state [])
       AND cr.registered_email_delivery_id IS NULL
     )
   )
@@ -103,6 +103,7 @@ LIMIT $1
         scope.course_id,
         scope.user_id,
         &scope.credit_registration_ids,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;

@@ -14,6 +14,7 @@
 //! successor attempt is still in flight keeps the credit its first attempt already earned.
 
 use super::TimeGranularity;
+use crate::credit_registrations::CreditRegistrationState;
 use crate::prelude::*;
 use utoipa::ToSchema;
 
@@ -124,7 +125,7 @@ WITH registered_completions AS (
     course_id
   FROM credit_registrations
   WHERE deleted_at IS NULL
-    AND state IN ('registered', 'duplicate', 'not_improved')
+    AND state = ANY($2::credit_registration_state [])
 )
 SELECT c.name AS course_name,
   EXTRACT('year' FROM cms.completion_date)::int as "year!",
@@ -143,7 +144,8 @@ WHERE c.is_draft = FALSE
 GROUP BY c.name, c.id, o.id, o.name, "year!", "month"
 ORDER BY c.id, "year!", "month"
 "#,
-        granularity.to_string()
+        granularity.to_string(),
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -243,7 +245,7 @@ FROM (
         course_module_id
       FROM credit_registrations
       WHERE deleted_at IS NULL
-        AND state IN ('registered', 'duplicate', 'not_improved')
+        AND state = ANY($2::credit_registration_state [])
     )
     SELECT rc.course_module_id,
       CASE WHEN $1 = 'Month' THEN
@@ -266,7 +268,8 @@ WHERE c.is_draft = FALSE
   AND c.deleted_at IS NULL
   AND c.is_test_mode = FALSE
 "#,
-        granularity.to_string()
+        granularity.to_string(),
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -309,7 +312,7 @@ UNION
 SELECT course_module_completion_id
 FROM credit_registrations
 WHERE deleted_at IS NULL
-  AND state IN ('registered', 'duplicate', 'not_improved')
+  AND state = ANY($2::credit_registration_state [])
 ),
 deduped_completions AS (
 SELECT *
@@ -413,7 +416,8 @@ GROUP BY u.email_domain
 ORDER BY "total_completions!" DESC,
 email_domain
       "#,
-        year
+        year,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -445,7 +449,7 @@ WITH unique_registrations AS (
   SELECT course_module_completion_id
   FROM credit_registrations
   WHERE deleted_at IS NULL
-    AND state IN ('registered', 'duplicate', 'not_improved')
+    AND state = ANY($3::credit_registration_state [])
 ),
 deduped_completions AS (
   SELECT *
@@ -553,7 +557,8 @@ ORDER BY "total_completions!" DESC,
   c.id
         "#,
         email_domain,
-        year
+        year,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;

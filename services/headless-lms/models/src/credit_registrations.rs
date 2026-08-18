@@ -84,6 +84,77 @@ impl CreditRegistrationState {
     pub fn is_success(self) -> bool {
         matches!(self, Self::Registered | Self::Duplicate | Self::NotImproved)
     }
+
+    /// [`Self::is_success`]'s states, for binding as `= ANY($n::credit_registration_state[])` in
+    /// queries that would otherwise hand-retype the same set as a SQL literal. Order-independent;
+    /// kept in `is_success`'s own order for readability.
+    pub const SUCCESS_STATES: [Self; 3] = [Self::Registered, Self::Duplicate, Self::NotImproved];
+
+    /// Whether a row in `self` may move back to `ready_to_submit`, and why not if it may not.
+    ///
+    /// One precedence shared by the teacher-facing retry and the admin ledger's hand transitions,
+    /// which otherwise refuse the same rows for the same reasons in three independently maintained
+    /// copies. `strictness` is the one real difference between the callers: how far outside a
+    /// failure a row may still be moved from. Superseded is checked first regardless, since acting
+    /// on a replaced attempt is never right; consent is checked last, since it is cheapest to be
+    /// wrong about first (every other check is a fact about `self`, not a lookup).
+    pub fn resubmission_refusal(
+        self,
+        superseded: bool,
+        consented: bool,
+        strictness: ResubmissionStrictness,
+    ) -> Option<ResubmissionRefusal> {
+        if superseded {
+            return Some(ResubmissionRefusal::Superseded);
+        }
+        if strictness != ResubmissionStrictness::Any && self == Self::SubmissionUncertain {
+            return Some(ResubmissionRefusal::SubmissionUncertain);
+        }
+        if strictness == ResubmissionStrictness::OnlyFailedPermanent {
+            match self {
+                Self::FailedPermanent => {}
+                Self::AbandonedByConsentWithdrawal => {
+                    return Some(ResubmissionRefusal::ConsentWithdrawn);
+                }
+                _ => return Some(ResubmissionRefusal::NotFailedPermanent),
+            }
+        }
+        if !consented {
+            return Some(ResubmissionRefusal::WithoutConsent);
+        }
+        None
+    }
+}
+
+/// How far outside a failure [`CreditRegistrationState::resubmission_refusal`] will still allow a
+/// row to move back to `ready_to_submit`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResubmissionStrictness {
+    /// The automatic teacher retry: only a row that failed for good may go back on the pipeline,
+    /// because a row this always refuses would otherwise occupy a slot of the bulk cap forever.
+    OnlyFailedPermanent,
+    /// An admin's bulk hand transition: any state may move, except `submission_uncertain`, which
+    /// re-importing could put a second attainment on a real transcript over, so it needs a human
+    /// looking at that one row rather than a checkbox in a list.
+    AnyExceptSubmissionUncertain,
+    /// An admin's single-row hand transition: a human is already looking at this one row, so even
+    /// `submission_uncertain` may be resubmitted.
+    Any,
+}
+
+/// Why [`CreditRegistrationState::resubmission_refusal`] would not move a row.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResubmissionRefusal {
+    /// A later attempt replaced this one; act on that.
+    Superseded,
+    /// The submission may have landed, so only a human looking at this one row may move it.
+    SubmissionUncertain,
+    /// The student withdrew consent while the registration was in flight.
+    ConsentWithdrawn,
+    /// Not a failure at all: [`ResubmissionStrictness::OnlyFailedPermanent`] only.
+    NotFailedPermanent,
+    /// The student has no standing consent for this course.
+    WithoutConsent,
 }
 
 /// Why a ledger row is where it is; `state` says what happens to it next.
@@ -993,6 +1064,25 @@ WHERE id = $1
     Ok(())
 }
 
+/// The batch form of [`make_due_now`], for a bulk retry/transition applying it to many rows in one
+/// round trip instead of one `UPDATE` per row.
+pub async fn make_due_now_batch(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET next_attempt_at = now()
+WHERE id = ANY($1)
+  AND next_attempt_at > now()
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+        ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Brings forward the recheck of rows parked for want of an enrolment, for students the study
 /// registry now lists as enrolled.
 ///
@@ -1671,6 +1761,8 @@ pub struct AdminCreditRegistration {
     pub verified_student_number: Option<String>,
     pub verified_student_number_at: Option<DateTime<Utc>>,
     pub verified_student_number_via: Option<StudentNumberVerificationMethod>,
+    /// The page's total row count, so a caller can read it off the first row instead of a second query.
+    pub total_count: i64,
 }
 
 /// How the explorer orders a page. Descending only: an ops table is read newest-worst first.
@@ -1807,7 +1899,7 @@ impl From<AdminFacingRow> for AdminCreditRegistration {
             verified_student_number,
             verified_student_number_at,
             verified_student_number_via,
-            total_count: _,
+            total_count,
         } = row;
         Self {
             id,
@@ -1849,6 +1941,7 @@ impl From<AdminFacingRow> for AdminCreditRegistration {
             verified_student_number,
             verified_student_number_at,
             verified_student_number_via,
+            total_count,
         }
     }
 }
@@ -2160,7 +2253,7 @@ pub async fn count_terminal_outcomes_since(
         TerminalOutcomeTotals,
         r#"
 SELECT COUNT(*) FILTER (
-    WHERE state IN ('registered', 'duplicate', 'not_improved')
+    WHERE state = ANY($2::credit_registration_state [])
   ) AS "success_count!",
   COUNT(*) FILTER (WHERE state = 'registered') AS "registered_count!",
   COUNT(*) FILTER (WHERE state = 'failed_permanent') AS "failed_permanent_count!",
@@ -2177,6 +2270,7 @@ WHERE terminal_at >= $1
   AND deleted_at IS NULL
         "#,
         since,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_one(conn)
     .await?;
@@ -2303,7 +2397,7 @@ pub async fn count_by_module(
 SELECT course_module_id,
   COUNT(*) AS "total_count!",
   COUNT(*) FILTER (
-    WHERE state IN ('registered', 'duplicate', 'not_improved')
+    WHERE state = ANY($1::credit_registration_state [])
   ) AS "success_count!",
   COUNT(*) FILTER (WHERE terminal_at IS NULL) AS "in_flight_count!",
   COUNT(*) FILTER (
@@ -2333,6 +2427,7 @@ WHERE superseded_by_id IS NULL
   AND deleted_at IS NULL
 GROUP BY course_module_id
         "#,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -2459,25 +2554,35 @@ LIMIT $6
     Ok(res)
 }
 
-/// Live rows in one state, newest activity first, for the Reconciliation lists.
-pub async fn get_live_by_state(
+/// Live rows in each of the given states, newest activity first within each state, for the
+/// Reconciliation lists. `limit_per_state` caps every state independently, via `ROW_NUMBER`, so one
+/// state with many rows cannot crowd another out of a shared `LIMIT`.
+pub async fn get_live_by_states(
     conn: &mut PgConnection,
-    state: CreditRegistrationState,
-    limit: i64,
+    states: &[CreditRegistrationState],
+    limit_per_state: i64,
 ) -> ModelResult<Vec<CreditRegistration>> {
     let res = sqlx::query_as!(
         CreditRegistration,
         r#"
-SELECT *
-FROM credit_registrations
-WHERE state = $1
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
-ORDER BY state_entered_at DESC
-LIMIT $2
+SELECT cr.*
+FROM credit_registrations cr
+  JOIN (
+    SELECT id,
+      ROW_NUMBER() OVER (
+        PARTITION BY state
+        ORDER BY state_entered_at DESC
+      ) AS rn
+    FROM credit_registrations
+    WHERE state = ANY($1)
+      AND superseded_by_id IS NULL
+      AND deleted_at IS NULL
+  ) ranked ON ranked.id = cr.id
+WHERE ranked.rn <= $2
+ORDER BY cr.state_entered_at DESC
         "#,
-        state as CreditRegistrationState,
-        limit,
+        states as &[CreditRegistrationState],
+        limit_per_state,
     )
     .fetch_all(conn)
     .await?;
@@ -2595,6 +2700,17 @@ mod tests {
     };
     use crate::credit_registration_events::CreditRegistrationEventKind;
     use crate::test_helper::*;
+
+    #[test]
+    fn success_states_const_matches_is_success() {
+        let from_const: Vec<CreditRegistrationState> =
+            CreditRegistrationState::SUCCESS_STATES.to_vec();
+        let from_predicate: Vec<CreditRegistrationState> = CreditRegistrationState::ALL
+            .into_iter()
+            .filter(|state| state.is_success())
+            .collect();
+        assert_eq!(from_const, from_predicate);
+    }
 
     async fn insert_registration(
         conn: &mut PgConnection,

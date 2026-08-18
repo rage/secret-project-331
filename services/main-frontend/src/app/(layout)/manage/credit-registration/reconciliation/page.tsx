@@ -51,6 +51,15 @@ const badgesCss = css`
 const studentName = (row: { first_name?: string | null; last_name?: string | null }): string =>
   [row.first_name, row.last_name].filter(Boolean).join(" ")
 
+const StudentCell: React.FC<{
+  row: { first_name?: string | null; last_name?: string | null; email?: string | null }
+}> = ({ row }) => (
+  <span className={stackedCellCss}>
+    <span>{studentName(row)}</span>
+    <span className={noteCss}>{row.email}</span>
+  </span>
+)
+
 /** Every registration detector shares these columns; only the copy around them differs. */
 const registrationColumns = (t: TFunction): TableColumn<ReconciliationRegistration>[] => [
   {
@@ -63,12 +72,7 @@ const registrationColumns = (t: TFunction): TableColumn<ReconciliationRegistrati
   },
   {
     header: t("label-student"),
-    cell: (row) => (
-      <span className={stackedCellCss}>
-        <span>{studentName(row)}</span>
-        <span className={noteCss}>{row.email}</span>
-      </span>
-    ),
+    cell: (row) => <StudentCell row={row} />,
   },
   { header: t("label-student-number"), cell: (row) => row.student_number ?? ABSENT },
   {
@@ -177,12 +181,7 @@ const NeverEnteredSection: React.FC<{ reconciliation: CreditRegistrationReconcil
           columns={[
             {
               header: t("label-student"),
-              cell: (row) => (
-                <span className={stackedCellCss}>
-                  <span>{studentName(row)}</span>
-                  <span className={noteCss}>{row.email}</span>
-                </span>
-              ),
+              cell: (row) => <StudentCell row={row} />,
             },
             {
               header: t("label-course"),
@@ -246,12 +245,7 @@ const LegacySection: React.FC<{ reconciliation: CreditRegistrationReconciliation
             },
             {
               header: t("label-student"),
-              cell: (row) => (
-                <span className={stackedCellCss}>
-                  <span>{studentName(row)}</span>
-                  <span className={noteCss}>{row.email}</span>
-                </span>
-              ),
+              cell: (row) => <StudentCell row={row} />,
             },
             { header: t("label-course"), cell: (row) => row.course_name },
             {

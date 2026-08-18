@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id AS credit_registration_id,\n  cr.course_module_completion_id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cr.state,\n  cr.state_entered_at,\n  d.mirror_missing AS \"mirror_missing!\",\n  d.registered_by_a_registrar AS \"registered_by_a_registrar!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  CROSS JOIN LATERAL (\n    SELECT cr.state IN ('registered', 'duplicate', 'not_improved')\n      AND cr.student_number IS NOT NULL\n      AND NOT EXISTS (\n        SELECT 1\n        FROM course_module_completion_registered_to_study_registries r\n        WHERE r.course_module_completion_id = cr.course_module_completion_id\n          AND r.study_registry_registrar_id IS NULL\n          AND r.deleted_at IS NULL\n      ) AS mirror_missing,\n      cr.state NOT IN ('registered', 'duplicate', 'not_improved')\n      AND EXISTS (\n        SELECT 1\n        FROM course_module_completion_registered_to_study_registries r\n        WHERE r.course_module_completion_id = cr.course_module_completion_id\n          AND r.study_registry_registrar_id IS NOT NULL\n          AND r.deleted_at IS NULL\n      ) AS registered_by_a_registrar\n  ) d\nWHERE cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND (\n    d.mirror_missing\n    OR d.registered_by_a_registrar\n  )\nORDER BY cr.state_entered_at DESC\nLIMIT $1\n        ",
+  "query": "\nSELECT cr.id AS credit_registration_id,\n  cr.course_module_completion_id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cr.state,\n  cr.state_entered_at,\n  d.mirror_missing AS \"mirror_missing!\",\n  d.registered_by_a_registrar AS \"registered_by_a_registrar!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  CROSS JOIN LATERAL (\n    SELECT cr.state = ANY($2::credit_registration_state [])\n      AND cr.student_number IS NOT NULL\n      AND NOT EXISTS (\n        SELECT 1\n        FROM course_module_completion_registered_to_study_registries r\n        WHERE r.course_module_completion_id = cr.course_module_completion_id\n          AND r.study_registry_registrar_id IS NULL\n          AND r.deleted_at IS NULL\n      ) AS mirror_missing,\n      NOT (cr.state = ANY($2::credit_registration_state []))\n      AND EXISTS (\n        SELECT 1\n        FROM course_module_completion_registered_to_study_registries r\n        WHERE r.course_module_completion_id = cr.course_module_completion_id\n          AND r.study_registry_registrar_id IS NOT NULL\n          AND r.deleted_at IS NULL\n      ) AS registered_by_a_registrar\n  ) d\nWHERE cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND (\n    d.mirror_missing\n    OR d.registered_by_a_registrar\n  )\nORDER BY cr.state_entered_at DESC\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -166,7 +166,42 @@
     ],
     "parameters": {
       "Left": [
-        "Int8"
+        "Int8",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "nullable": [
@@ -185,5 +220,5 @@
       null
     ]
   },
-  "hash": "44f45f459d539754956d1e8476deaf71d70e341624e7c128e41efa17be06e498"
+  "hash": "57fae36783fc6cb6592b07fc6315dcf2c47572f50f8fc22e6becb3c5fc5f2ee1"
 }

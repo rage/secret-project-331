@@ -13,7 +13,7 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-use super::authorize_credit_registration_admin;
+use super::{authorize_credit_registration_admin, one_or_many};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationAdminActionRow {
@@ -46,27 +46,6 @@ pub struct CreditRegistrationAdminActionsPage {
     pub data: Vec<CreditRegistrationAdminActionRow>,
     pub total_count: i64,
     pub total_pages: u32,
-}
-
-/// `serde_urlencoded` reads a single occurrence of a key as a scalar, not a one-element sequence,
-/// so a `Vec` field otherwise refuses a query string that repeats the parameter zero or one times.
-fn one_or_many<'de, D, T>(deserializer: D) -> Result<Option<Vec<T>>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-    T: Deserialize<'de>,
-{
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    enum OneOrMany<T> {
-        One(T),
-        Many(Vec<T>),
-    }
-    Ok(
-        Option::<OneOrMany<T>>::deserialize(deserializer)?.map(|repr| match repr {
-            OneOrMany::One(value) => vec![value],
-            OneOrMany::Many(values) => values,
-        }),
-    )
 }
 
 #[derive(Debug, Deserialize)]

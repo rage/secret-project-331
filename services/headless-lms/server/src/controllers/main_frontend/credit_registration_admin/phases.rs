@@ -141,7 +141,7 @@ fn to_phase_row(
                 * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
         });
     CreditRegistrationPhaseRow {
-        implemented: known.is_some_and(CreditRegistrationPhase::is_implemented),
+        implemented: known.is_some(),
         queue_depth: (!owned_states.is_empty()).then(|| {
             owned_states
                 .iter()

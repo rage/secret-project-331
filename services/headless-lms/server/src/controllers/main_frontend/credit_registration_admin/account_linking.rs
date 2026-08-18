@@ -22,6 +22,7 @@ use headless_lms_models::verified_student_numbers::{
 };
 use utoipa::ToSchema;
 
+use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
 use crate::domain::credit_registration_phases::PhaseContext;
 use crate::domain::credit_registration_phases::linking_mail_resend::{
     LinkingMailResendOutcome, ResendDecision, ResolvedPerson, resend_linking_mail_for_target,
@@ -357,23 +358,25 @@ pub async fn get_account_linking_stats(
         })
         .collect();
 
-    let links_total_by_method = verified_student_numbers::count_by_method_since(&mut conn, None)
-        .await?
-        .into_iter()
-        .map(|(verified_via, count)| VerifiedStudentNumberMethodTotal {
-            verified_via,
-            count,
-        })
-        .collect::<Vec<_>>();
-    let links_in_window_by_method =
-        verified_student_numbers::count_by_method_since(&mut conn, Some(since))
-            .await?
-            .into_iter()
-            .map(|(verified_via, count)| VerifiedStudentNumberMethodTotal {
+    let method_counts = verified_student_numbers::count_by_method_since(&mut conn, since).await?;
+    let links_total_by_method = method_counts
+        .iter()
+        .map(
+            |&(verified_via, total, _)| VerifiedStudentNumberMethodTotal {
                 verified_via,
-                count,
-            })
-            .collect::<Vec<_>>();
+                count: total,
+            },
+        )
+        .collect::<Vec<_>>();
+    let links_in_window_by_method = method_counts
+        .iter()
+        .map(
+            |&(verified_via, _, in_window)| VerifiedStudentNumberMethodTotal {
+                verified_via,
+                count: in_window,
+            },
+        )
+        .collect::<Vec<_>>();
     let in_window = |method: StudentNumberVerificationMethod| -> i64 {
         links_in_window_by_method
             .iter()
@@ -625,45 +628,32 @@ pub async fn admin_resolve_student_number_for_linking(
     };
     let linking_emails = build_linking_emails(&mut conn, mails).await?;
 
+    let shared = AdminResolveStudentNumberResult {
+        found: false,
+        student_number: student_number.to_string(),
+        sisu_person_id: None,
+        first_names: None,
+        last_name: None,
+        code: None,
+        study_registry_unavailable: false,
+        already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
+        already_linked_to_user_email,
+        already_linked_via: existing.as_ref().map(|link| link.verified_via),
+        linking_emails,
+    };
     let result = match resolved {
         Ok(Some(person)) => AdminResolveStudentNumberResult {
             found: true,
-            student_number: student_number.to_string(),
             sisu_person_id: Some(person.sisu_person_id),
             first_names: Some(person.first_names),
             last_name: Some(person.last_name),
             code: Some(person.code),
-            study_registry_unavailable: false,
-            already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
-            already_linked_to_user_email,
-            already_linked_via: existing.as_ref().map(|link| link.verified_via),
-            linking_emails,
+            ..shared
         },
-        Ok(None) => AdminResolveStudentNumberResult {
-            found: false,
-            student_number: student_number.to_string(),
-            sisu_person_id: None,
-            first_names: None,
-            last_name: None,
-            code: None,
-            study_registry_unavailable: false,
-            already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
-            already_linked_to_user_email,
-            already_linked_via: existing.as_ref().map(|link| link.verified_via),
-            linking_emails,
-        },
+        Ok(None) => AdminResolveStudentNumberResult { ..shared },
         Err(()) => AdminResolveStudentNumberResult {
-            found: false,
-            student_number: student_number.to_string(),
-            sisu_person_id: None,
-            first_names: None,
-            last_name: None,
-            code: None,
             study_registry_unavailable: true,
-            already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
-            already_linked_to_user_email,
-            already_linked_via: existing.as_ref().map(|link| link.verified_via),
-            linking_emails,
+            ..shared
         },
     };
 
@@ -852,34 +842,22 @@ async fn finish_resend(
     retired_mail_count: i64,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {
-    models::credit_registration_admin_actions::record(
-        conn,
-        &NewCreditRegistrationAdminAction {
-            target_id: Some(payload.course_id),
-            reason: payload.reason.clone(),
-            details: Some(serde_json::json!({
-                "outcome": outcome,
-                "student_number": student_number,
-                "override_rate_caps": payload.override_rate_caps,
-                "retired_mail_count": retired_mail_count,
-            })),
-            ..NewCreditRegistrationAdminAction::new(
-                CreditRegistrationAdminAction::ResendLinkEmail,
-                CreditRegistrationAdminActionTarget::Course,
-                user.id,
-                GLOBAL_ADMIN_ROLE,
-            )
-        },
-    )
-    .await?;
-
-    let mails = credit_registration_account_linking_emails::get_by_course_id_and_student_number(
+    let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
         conn,
         payload.course_id,
-        student_number,
+        Some(student_number),
+        user.id,
+        GLOBAL_ADMIN_ROLE,
+        None,
+        payload.reason.clone(),
+        serde_json::json!({
+            "outcome": outcome,
+            "student_number": student_number,
+            "override_rate_caps": payload.override_rate_caps,
+            "retired_mail_count": retired_mail_count,
+        }),
     )
     .await?;
-    let mails_sent_for_this_course = mails.len() as i64;
     let linking_emails = build_linking_emails(conn, mails).await?;
 
     token.authorized_ok(web::Json(AdminResendAccountLinkingEmailResult {

@@ -36,11 +36,9 @@ pub async fn run(
         &app_configuration.suotar_configuration,
         Arc::new(PgSuotarCallAudit::new(db_pool.clone())),
     );
-    // An unimplemented phase would otherwise be stamped with a next run and then return
-    // `NotImplemented`, writing to a row nobody reads.
     let phases: Vec<CreditRegistrationPhase> = CreditRegistrationPhase::ALL
         .into_iter()
-        .filter(|phase| phase.process_name() == process_name && phase.is_implemented())
+        .filter(|phase| phase.process_name() == process_name)
         .collect();
 
     let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));

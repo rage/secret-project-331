@@ -103,6 +103,32 @@ export const humanReadableDateTime = (
 }
 
 /**
+ * Converts a date to a locale-formatted date-only string (no time-of-day), in the user's local timezone.
+ *
+ * @param date - The date to format. Can be a Date object, date string, null, or undefined.
+ *               If null or undefined, the function returns undefined.
+ * @param locale - The locale string to use for formatting (e.g., 'en-US', 'sv-SE').
+ *
+ * @returns A human-readable date string in the format "Month Day, Year" (e.g., "December 25, 2023"),
+ *          or undefined if the input date is null/undefined.
+ */
+export const humanReadableDate = (
+  date: Date | string | null | undefined,
+  locale: string,
+): string | undefined => {
+  const localDate = dateToUsersLocalTimeZone(date)
+  if (!localDate) {
+    return undefined
+  }
+
+  return localDate.toLocaleDateString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+}
+
+/**
  * Helper get time zone offset string in the format "UTC+3", "UTC-5:30", etc.
  * Minutes are only included if they are non-zero.
  * @param date - The date to compute the time zone offset for.

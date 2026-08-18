@@ -7,6 +7,7 @@ import {
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
 import { adminResolveStudentNumber } from "@/utils/creditRegistrationAdmin"
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { expect, test } from "@/utils/fixtures"
 import {
   queuedEmailsFor,
@@ -59,16 +60,16 @@ test("A verified email match auto-links, queues no linking mail, and unblocks th
 }) => {
   await runDiscoveryAndMailing(page.request)
 
-  await test.step("The link exists and says how it was proved", async () => {
-    const resolved = await adminResolveStudentNumber(adminApi, VERIFIED)
+  const resolved = await adminResolveStudentNumber(adminApi, VERIFIED)
+
+  await test.step("The link exists and says how it was proved", () => {
     expect(resolved.already_linked_to_user_id).not.toBeNull()
     // Never indistinguishable from a link the student made by opening a mailed link.
     expect(resolved.already_linked_via).toBe(FAST_TRACK)
   })
 
-  await test.step("No linking mail was ever claimed for this person", async () => {
+  await test.step("No linking mail was ever claimed for this person", () => {
     // The saving is the feature: a claimed slot here would mean the student still has to click.
-    const resolved = await adminResolveStudentNumber(adminApi, VERIFIED)
     expect(resolved.linking_emails).toHaveLength(0)
   })
 
@@ -101,24 +102,28 @@ test("A stale, secondary-only, name-mismatched or already-numbered match does no
 }) => {
   await runDiscoveryAndMailing(page.request)
 
-  for (const studentNumber of [STALE_PROOF, SECONDARY_ONLY, NAME_MISMATCH]) {
-    const resolved = await adminResolveStudentNumber(adminApi, studentNumber)
+  const studentNumbers = [STALE_PROOF, SECONDARY_ONLY, NAME_MISMATCH]
+  const resolved = await Promise.all(
+    studentNumbers.map((studentNumber) => adminResolveStudentNumber(adminApi, studentNumber)),
+  )
+  resolved.forEach((resolution, index) => {
+    const studentNumber = studentNumbers[index]
     expect(
-      resolved.already_linked_to_user_id,
+      resolution.already_linked_to_user_id,
       `${studentNumber} must not be auto-linked`,
     ).toBeNull()
     expect(
-      resolved.linking_emails.length,
+      resolution.linking_emails.length,
       `${studentNumber} must be mailed a link`,
     ).toBeGreaterThan(0)
-  }
+  })
 
   await test.step("An account that already holds a number keeps it", async () => {
     // Swapping a linked number belongs behind the mailed link's confirmation screen, which names
     // both numbers, not in a background worker.
-    const resolved = await adminResolveStudentNumber(adminApi, HAS_OTHER_NUMBER)
-    expect(resolved.already_linked_to_user_id).toBeNull()
-    expect(resolved.linking_emails.length).toBeGreaterThan(0)
+    const otherNumberResolved = await adminResolveStudentNumber(adminApi, HAS_OTHER_NUMBER)
+    expect(otherNumberResolved.already_linked_to_user_id).toBeNull()
+    expect(otherNumberResolved.linking_emails.length).toBeGreaterThan(0)
   })
 })
 
@@ -159,7 +164,7 @@ test("Every auto-link notifies the verified address and can be unlinked in one c
     await expect(notice.getByText(VERIFIED)).toBeVisible()
 
     await notice.getByRole("button", { name: "Not mine, remove it" }).click()
-    await page.getByRole("button", { name: "Yes" }).click()
+    await respondToConfirmDialog(page, true)
     await expect(page.getByText("No student number is linked to this account yet.")).toBeVisible()
   })
 

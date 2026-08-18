@@ -2,7 +2,8 @@
 //! click retry.
 
 use headless_lms_models::credit_registration_admin_actions::{
-    CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
+    CreditRegistrationAdminAction, CreditRegistrationAdminActionFilters,
+    CreditRegistrationAdminActionTarget,
 };
 use headless_lms_models::credit_registrations::CreditRegistrationState;
 use std::collections::HashMap;
@@ -64,12 +65,19 @@ pub async fn get_course_credit_registration_actions(
     )
     .await?;
 
-    let records = models::credit_registration_admin_actions::get_for_course(
+    let records = models::credit_registration_admin_actions::get_page(
         &mut conn,
-        *course_id,
+        &CreditRegistrationAdminActionFilters {
+            course_id: Some(*course_id),
+            ..Default::default()
+        },
         MAX_ACTIONS,
+        0,
     )
-    .await?;
+    .await?
+    .into_iter()
+    .map(|row| row.action)
+    .collect::<Vec<_>>();
     let actor_ids: Vec<Uuid> = records.iter().map(|record| record.actor_user_id).collect();
     let actors: HashMap<Uuid, (Option<String>, Option<String>)> =
         models::user_details::get_user_details_by_user_ids(&mut conn, &actor_ids)

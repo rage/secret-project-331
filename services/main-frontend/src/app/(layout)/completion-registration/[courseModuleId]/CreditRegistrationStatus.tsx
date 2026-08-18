@@ -14,9 +14,11 @@ import {
   registrationStatusState,
   registrationStepperSteps,
 } from "@/components/credit-registration/creditRegistrationCopy"
+import {
+  LinkingEmailLine,
+  NotificationEmailLine,
+} from "@/components/credit-registration/EmailStatusLine"
 import { useRequestEnrolmentRecheck } from "@/components/credit-registration/enrolmentActions"
-import LinkingEmailLine from "@/components/credit-registration/LinkingEmailLine"
-import NotificationEmailLine from "@/components/credit-registration/NotificationEmailLine"
 import { getMyCreditRegistrationForCourseModuleOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import { useSetCreditRegistrationConsent } from "@/hooks/course-material/useCourseCreditRegistrationConsent"
@@ -24,6 +26,7 @@ import {
   userSettingsStudentNumberRoute,
   profileCreditRegistrationRoute,
 } from "@/shared-module/common/utils/routes"
+import { humanReadableDate } from "@/shared-module/common/utils/time"
 import {
   Button,
   DescriptionList,
@@ -167,7 +170,7 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration }> = ({ re
       ? [
           {
             label: t("label-registered-at"),
-            value: new Date(registration.registered_at).toLocaleDateString(i18n.language),
+            value: humanReadableDate(registration.registered_at, i18n.language) ?? "",
           },
         ]
       : []),

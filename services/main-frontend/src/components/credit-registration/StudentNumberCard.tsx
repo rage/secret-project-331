@@ -19,11 +19,12 @@ import type {
 } from "@/generated/api/types.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { humanReadableDate } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Badge, Button, DescriptionList, Infobox, QueryResult } from "@/shared-module/components"
 
 import { TONE } from "./constants"
-import LinkingEmailLine from "./LinkingEmailLine"
+import { LinkingEmailLine } from "./EmailStatusLine"
 import SectionCard from "./SectionCard"
 
 /** A student disputing a wrong number needs to know how the link was proved. */
@@ -101,7 +102,7 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
     ...(sisuName ? [{ label: t("label-name-in-university-records"), value: sisuName }] : []),
     {
       label: t("label-confirmed-at"),
-      value: new Date(link.verified_at).toLocaleDateString(i18n.language),
+      value: humanReadableDate(link.verified_at, i18n.language) ?? "",
     },
     {
       label: t("label-how-it-was-confirmed"),

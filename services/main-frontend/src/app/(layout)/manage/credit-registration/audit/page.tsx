@@ -2,8 +2,7 @@
 
 import { css } from "@emotion/css"
 import Link from "next/link"
-import React, { useEffect, useMemo } from "react"
-import { useForm } from "react-hook-form"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -16,7 +15,11 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
-import { useQueryParamFilters } from "@/components/credit-registration/admin/useQueryParamFilters"
+import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
+import {
+  selectFilterField,
+  useFilteredAdminQuery,
+} from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
 import {
   headingCss,
@@ -30,7 +33,6 @@ import type {
   CreditRegistrationAdminActionTarget,
 } from "@/generated/api/types.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
-import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import { Badge, DateField, QueryResult, Select, Table } from "@/shared-module/components"
@@ -123,6 +125,25 @@ const dayEnd = (day: string): string | undefined =>
 /** The inverse of the two above, so a pasted link's window reaches the date inputs it came from. */
 const dayOf = (instant: string | undefined): string => instant?.slice(0, 10) ?? ""
 
+const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
+  selectFilterField(PARAM_ACTOR_ROLE, "actor_role"),
+  selectFilterField(PARAM_ACTION, "action"),
+  selectFilterField(PARAM_TARGET_KIND, "target_kind"),
+  selectFilterField(PARAM_COURSE_ID, "course_id"),
+  {
+    param: PARAM_FROM,
+    field: "from",
+    fromParam: (raw) => dayOf(raw),
+    toParam: (value) => dayStart(value as string),
+  },
+  {
+    param: PARAM_TO,
+    field: "to",
+    fromParam: (raw) => dayOf(raw),
+    toParam: (value) => dayEnd(value as string),
+  },
+]
+
 const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
   const { t } = useTranslation()
   const isTeacher = row.actor_role === COURSE_TEACHER
@@ -168,72 +189,32 @@ const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }
  */
 const AuditPage: React.FC = () => {
   const { t } = useTranslation()
-  const { param, applyParams } = useQueryParamFilters()
-  const paginationInfo = usePaginationInfo(ROWS_PER_PAGE)
   const courseStatsQuery = useCreditRegistrationCourseStats()
 
-  const { control, watch } = useForm<FilterFields>({
-    defaultValues: {
-      actor_role: param(PARAM_ACTOR_ROLE) ?? ANY,
-      action: param(PARAM_ACTION) ?? ANY,
-      target_kind: param(PARAM_TARGET_KIND) ?? ANY,
-      course_id: param(PARAM_COURSE_ID) ?? ANY,
-      from: dayOf(param(PARAM_FROM)),
-      to: dayOf(param(PARAM_TO)),
+  const { control, paginationInfo, query } = useFilteredAdminQuery(
+    FILTER_FIELDS,
+    (filterParam, pagination) => {
+      const actorRole = filterParam(PARAM_ACTOR_ROLE)
+      const action = filterParam(PARAM_ACTION)
+      const targetKind = filterParam(PARAM_TARGET_KIND)
+      const courseId = filterParam(PARAM_COURSE_ID)
+      const from = filterParam(PARAM_FROM)
+      const to = filterParam(PARAM_TO)
+      return {
+        page: pagination.page,
+        limit: pagination.limit,
+        ...includeIf(actorRole, { actor_role: actorRole }),
+        ...includeIf(action, { action: [action as CreditRegistrationAdminAction] }),
+        ...includeIf(targetKind, {
+          target_kind: targetKind as CreditRegistrationAdminActionTarget,
+        }),
+        ...includeIf(courseId, { course_id: courseId }),
+        ...includeIf(from, { from }),
+        ...includeIf(to, { to }),
+      }
     },
-  })
-  const watchedActorRole = watch("actor_role")
-  const watchedAction = watch("action")
-  const watchedTargetKind = watch("target_kind")
-  const watchedCourseId = watch("course_id")
-  const watchedFrom = watch("from")
-  const watchedTo = watch("to")
-
-  useEffect(() => {
-    applyParams({ [PARAM_ACTOR_ROLE]: watchedActorRole })
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedActorRole])
-  useEffect(() => {
-    applyParams({ [PARAM_ACTION]: watchedAction })
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedAction])
-  useEffect(() => {
-    applyParams({ [PARAM_TARGET_KIND]: watchedTargetKind })
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedTargetKind])
-  useEffect(() => {
-    applyParams({ [PARAM_COURSE_ID]: watchedCourseId })
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedCourseId])
-  useEffect(() => {
-    applyParams({ [PARAM_FROM]: dayStart(watchedFrom) })
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedFrom])
-  useEffect(() => {
-    applyParams({ [PARAM_TO]: dayEnd(watchedTo) })
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedTo])
-
-  const query = useMemo(() => {
-    const actorRole = param(PARAM_ACTOR_ROLE)
-    const action = param(PARAM_ACTION)
-    const targetKind = param(PARAM_TARGET_KIND)
-    const courseId = param(PARAM_COURSE_ID)
-    const from = param(PARAM_FROM)
-    const to = param(PARAM_TO)
-    return {
-      page: paginationInfo.page,
-      limit: paginationInfo.limit,
-      ...includeIf(actorRole, { actor_role: actorRole }),
-      ...includeIf(action, { action: [action as CreditRegistrationAdminAction] }),
-      ...includeIf(targetKind, {
-        target_kind: targetKind as CreditRegistrationAdminActionTarget,
-      }),
-      ...includeIf(courseId, { course_id: courseId }),
-      ...includeIf(from, { from }),
-      ...includeIf(to, { to }),
-    }
-  }, [param, paginationInfo.page, paginationInfo.limit])
+    { rowsPerPage: ROWS_PER_PAGE },
+  )
 
   const actionsQuery = useCreditRegistrationAdminActions(query)
 

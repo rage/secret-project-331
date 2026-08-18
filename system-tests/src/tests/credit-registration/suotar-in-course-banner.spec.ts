@@ -12,7 +12,7 @@ import {
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
 import { expect, test } from "@/utils/fixtures"
-import { upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
+import { activeStudyRightPeriod, upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   runMaterializeTick,
@@ -38,10 +38,6 @@ const REENROLS_STUDENT_NUMBER = "900001502"
 const CHAPTER_PAGE_URL = `${courseFrontPageUrl(SUOTAR_COURSE_SLUG)}/chapter-1/page-1`
 const CHAPTER_FRONT_PAGE_URL = `${courseFrontPageUrl(SUOTAR_COURSE_SLUG)}/chapter-1`
 const MATERIAL_TEXT = "Completing this module registers credits into Sisu."
-
-const YEAR = 365 * 24 * 60 * 60 * 1000
-const isoDate = (offsetMs: number) =>
-  new Date(Date.now() + offsetMs).toISOString().slice(0, "2026-01-01".length)
 
 const banner = (page: Page) => page.getByTestId("credit-registration-enrolment-banner")
 
@@ -161,7 +157,7 @@ test.describe("A student who enrols after being told to", () => {
           courseCode: CRS_101,
           kind: "degree",
           state: "ENROLLED",
-          studyRightValidityPeriod: { startDate: isoDate(-YEAR), endDate: isoDate(YEAR) },
+          studyRightValidityPeriod: activeStudyRightPeriod(),
         },
       ])
       await waitForSuccessNotification(

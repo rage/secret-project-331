@@ -154,13 +154,18 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
       state: "not_improved",
     })
     expect(bucket.data.map((row) => row.id)).toContain(second.id)
-    for (const failure of ["failed_permanent", "failed_retryable"]) {
-      const failed = await listAdminRegistrations(adminApi, {
-        student_number: STUDENT_NUMBER,
-        state: failure,
-      })
-      expect(failed.data, `the declined attempt was counted as ${failure}`).toHaveLength(0)
-    }
+    const failureStates = ["failed_permanent", "failed_retryable"]
+    const failedBuckets = await Promise.all(
+      failureStates.map((state) =>
+        listAdminRegistrations(adminApi, { student_number: STUDENT_NUMBER, state }),
+      ),
+    )
+    failedBuckets.forEach((failed, index) => {
+      expect(
+        failed.data,
+        `the declined attempt was counted as ${failureStates[index]}`,
+      ).toHaveLength(0)
+    })
   })
 
   await test.step("The student is told the registry already has a better grade", async () => {

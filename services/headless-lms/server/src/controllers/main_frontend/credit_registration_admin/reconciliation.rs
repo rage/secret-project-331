@@ -149,21 +149,16 @@ pub async fn get_credit_registration_reconciliation(
     .map(to_never_entered)
     .collect();
 
-    let outcome_uncertain =
-        rows_in_state(&mut conn, CreditRegistrationState::SubmissionUncertain).await?;
-    let misregistered = rows_in_state(&mut conn, CreditRegistrationState::Misregistered).await?;
-    let outcome_unknown_consent_withdrawn = rows_in_state(
-        &mut conn,
-        CreditRegistrationState::AbandonedByConsentWithdrawal,
-    )
-    .await?;
+    let (outcome_uncertain, misregistered, outcome_unknown_consent_withdrawn) =
+        rows_in_states(&mut conn).await?;
 
     let several_ids = credit_registration_events::get_ids_with_several_submitted_attainments(
         &mut conn,
         DETECTOR_LIMIT,
     )
     .await?;
-    let several_submitted_attainments = rows_by_ids(&mut conn, &several_ids).await?;
+    let several_submitted_attainments =
+        rows_by_ids(&mut conn, &several_ids, DETECTOR_LIMIT).await?;
 
     let legacy_divergences: Vec<LegacyLedgerDivergenceRow> =
         legacy_mirror::get_legacy_ledger_divergences(&mut conn, DETECTOR_LIMIT)
@@ -200,16 +195,49 @@ pub async fn get_credit_registration_reconciliation(
     }))
 }
 
-async fn rows_in_state(
+/// The three detectors that each just read one live state, in one `IN`-list query and one
+/// admin-projection lookup shared across all three.
+async fn rows_in_states(
     conn: &mut PgConnection,
-    state: CreditRegistrationState,
-) -> Result<Vec<ReconciliationRegistration>, ControllerError> {
-    let ids: Vec<Uuid> = credit_registrations::get_live_by_state(conn, state, DETECTOR_LIMIT)
+) -> Result<
+    (
+        Vec<ReconciliationRegistration>,
+        Vec<ReconciliationRegistration>,
+        Vec<ReconciliationRegistration>,
+    ),
+    ControllerError,
+> {
+    let states = [
+        CreditRegistrationState::SubmissionUncertain,
+        CreditRegistrationState::Misregistered,
+        CreditRegistrationState::AbandonedByConsentWithdrawal,
+    ];
+    let ids: Vec<Uuid> = credit_registrations::get_live_by_states(conn, &states, DETECTOR_LIMIT)
         .await?
         .into_iter()
         .map(|row| row.id)
         .collect();
-    rows_by_ids(conn, &ids).await
+    let limit = ids.len() as i64;
+    let rows = rows_by_ids(conn, &ids, limit).await?;
+    let outcome_uncertain = rows
+        .iter()
+        .filter(|row| row.state == CreditRegistrationState::SubmissionUncertain)
+        .cloned()
+        .collect();
+    let misregistered = rows
+        .iter()
+        .filter(|row| row.state == CreditRegistrationState::Misregistered)
+        .cloned()
+        .collect();
+    let outcome_unknown_consent_withdrawn = rows
+        .into_iter()
+        .filter(|row| row.state == CreditRegistrationState::AbandonedByConsentWithdrawal)
+        .collect();
+    Ok((
+        outcome_uncertain,
+        misregistered,
+        outcome_unknown_consent_withdrawn,
+    ))
 }
 
 /// Reads the same admin projection the explorer uses, so a name, a course and a student number are
@@ -217,6 +245,7 @@ async fn rows_in_state(
 async fn rows_by_ids(
     conn: &mut PgConnection,
     ids: &[Uuid],
+    limit: i64,
 ) -> Result<Vec<ReconciliationRegistration>, ControllerError> {
     if ids.is_empty() {
         return Ok(Vec::new());
@@ -229,7 +258,7 @@ async fn rows_by_ids(
             ..AdminCreditRegistrationFilters::default()
         },
         AdminCreditRegistrationSort::TimeInState,
-        DETECTOR_LIMIT,
+        limit,
         0,
     )
     .await?

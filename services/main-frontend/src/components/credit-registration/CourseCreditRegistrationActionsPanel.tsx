@@ -6,6 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseCreditRegistrationActionsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import { Badge, QueryResult } from "@/shared-module/components"
 
 import { TONE } from "./constants"
@@ -60,7 +61,7 @@ const CourseCreditRegistrationActionsPanel: React.FC<Props> = ({ courseId }) => 
               {actions.slice(0, SHOWN_ACTIONS).map((action) => (
                 <li className={rowCss} key={action.id}>
                   <span className={timestampCss}>
-                    {new Date(action.created_at).toLocaleString(i18n.language)}
+                    {humanReadableDateTime(action.created_at, i18n.language)}
                   </span>
                   <span>
                     {t("credit-registration-action-by", {

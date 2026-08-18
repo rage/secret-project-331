@@ -438,18 +438,19 @@ LIMIT $3 OFFSET $4
     Ok((data, total_count))
 }
 
-/// Live links per method, so an admin-established one is never hidden inside a total.
+/// Live links per method, both all-time and since a cutoff, in one pass over the table, so an
+/// admin-established one is never hidden inside a total.
 pub async fn count_by_method_since(
     conn: &mut PgConnection,
-    since: Option<DateTime<Utc>>,
-) -> ModelResult<Vec<(StudentNumberVerificationMethod, i64)>> {
+    since: DateTime<Utc>,
+) -> ModelResult<Vec<(StudentNumberVerificationMethod, i64, i64)>> {
     let rows = sqlx::query!(
         r#"
 SELECT verified_via,
-  COUNT(*) AS "count!"
+  COUNT(*) AS "total!",
+  COUNT(*) FILTER (WHERE verified_at >= $1) AS "since_count!"
 FROM verified_student_numbers
 WHERE deleted_at IS NULL
-  AND ($1::timestamptz IS NULL OR verified_at >= $1)
 GROUP BY verified_via
         "#,
         since,
@@ -458,7 +459,7 @@ GROUP BY verified_via
     .await?;
     Ok(rows
         .into_iter()
-        .map(|row| (row.verified_via, row.count))
+        .map(|row| (row.verified_via, row.total, row.since_count))
         .collect())
 }
 

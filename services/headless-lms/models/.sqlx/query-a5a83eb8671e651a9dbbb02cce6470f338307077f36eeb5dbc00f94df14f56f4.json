@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM credit_registrations\nWHERE state = $1\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nORDER BY state_entered_at DESC\nLIMIT $2\n        ",
+  "query": "\nSELECT cr.*\nFROM credit_registrations cr\n  JOIN (\n    SELECT id,\n      ROW_NUMBER() OVER (\n        PARTITION BY state\n        ORDER BY state_entered_at DESC\n      ) AS rn\n    FROM credit_registrations\n    WHERE state = ANY($1)\n      AND superseded_by_id IS NULL\n      AND deleted_at IS NULL\n  ) ranked ON ranked.id = cr.id\nWHERE ranked.rn <= $2\nORDER BY cr.state_entered_at DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -571,29 +571,36 @@
       "Left": [
         {
           "Custom": {
-            "name": "credit_registration_state",
+            "name": "credit_registration_state[]",
             "kind": {
-              "Enum": [
-                "pending_prerequisites",
-                "pending_consent",
-                "pending_student_number",
-                "ready_to_submit",
-                "resolving_enrolment",
-                "checking_enrolment",
-                "no_usable_enrolment",
-                "submitting",
-                "submission_uncertain",
-                "awaiting_verification",
-                "registered",
-                "duplicate",
-                "not_improved",
-                "misregistered",
-                "failed_retryable",
-                "failed_permanent",
-                "blocked",
-                "cancelled",
-                "abandoned_by_consent_withdrawal"
-              ]
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
             }
           }
         },
@@ -649,5 +656,5 @@
       true
     ]
   },
-  "hash": "beb3c67743754ff517e2baeda7ebfa813edbbe47b859457298d15954974d6012"
+  "hash": "a5a83eb8671e651a9dbbb02cce6470f338307077f36eeb5dbc00f94df14f56f4"
 }

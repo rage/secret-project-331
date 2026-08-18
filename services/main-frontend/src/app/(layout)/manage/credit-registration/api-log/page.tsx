@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useEffect, useMemo } from "react"
+import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -12,7 +12,11 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import SuotarApiCallDetail from "@/components/credit-registration/admin/SuotarApiCallDetail"
-import { useQueryParamFilters } from "@/components/credit-registration/admin/useQueryParamFilters"
+import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
+import {
+  selectFilterField,
+  useFilteredAdminQuery,
+} from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import { TONE } from "@/components/credit-registration/constants"
 import {
   headingCss,
@@ -22,7 +26,6 @@ import {
 } from "@/components/credit-registration/styles"
 import type { SuotarEndpoint } from "@/generated/api/types.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
-import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Badge, QueryResult, Select, Table, TextField } from "@/shared-module/components"
 
@@ -61,6 +64,12 @@ interface FilterFields {
   worker_name: string
   credit_registration_id: string
 }
+
+const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
+  selectFilterField(PARAM_ENDPOINT, "endpoint"),
+  selectFilterField(PARAM_SUCCEEDED, "succeeded"),
+  selectFilterField(PARAM_WORKER, "worker_name"),
+]
 
 interface WindowFields {
   window_secs: string
@@ -166,49 +175,30 @@ const EndpointSummarySection: React.FC = () => {
 /** The transport boundary's own log: one row per HTTP call, with the ledger rows it carried. */
 const ApiLogPage: React.FC = () => {
   const { t } = useTranslation()
-  const { param, applyParams } = useQueryParamFilters()
-  const paginationInfo = usePaginationInfo(ROWS_PER_PAGE)
 
-  const { control, watch, handleSubmit } = useForm<FilterFields>({
-    defaultValues: {
-      endpoint: param(PARAM_ENDPOINT) ?? ANY,
-      succeeded: param(PARAM_SUCCEEDED) ?? ANY,
-      worker_name: param(PARAM_WORKER) ?? ANY,
-      credit_registration_id: param(PARAM_REGISTRATION) ?? "",
+  const { control, handleSubmit, applyParams, paginationInfo, query } = useFilteredAdminQuery(
+    FILTER_FIELDS,
+    (filterParam, pagination) => {
+      const endpoint = filterParam(PARAM_ENDPOINT)
+      const succeeded = filterParam(PARAM_SUCCEEDED)
+      const worker = filterParam(PARAM_WORKER)
+      const registrationId = filterParam(PARAM_REGISTRATION)
+      return {
+        page: pagination.page,
+        limit: pagination.limit,
+        ...includeIf(endpoint, { endpoint: endpoint as SuotarEndpoint }),
+        ...includeIf(succeeded, { succeeded: succeeded === SUCCEEDED }),
+        ...includeIf(worker, { worker_name: worker }),
+        ...includeIf(registrationId, { credit_registration_id: registrationId }),
+      }
     },
-  })
-  const watchedEndpoint = watch("endpoint")
-  const watchedSucceeded = watch("succeeded")
-  const watchedWorker = watch("worker_name")
-
-  // The selects apply themselves; only the free-text field waits for a submit.
-  useEffect(() => {
-    applyParams({ [PARAM_ENDPOINT]: watchedEndpoint })
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedEndpoint])
-  useEffect(() => {
-    applyParams({ [PARAM_SUCCEEDED]: watchedSucceeded })
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedSucceeded])
-  useEffect(() => {
-    applyParams({ [PARAM_WORKER]: watchedWorker })
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedWorker])
-
-  const query = useMemo(() => {
-    const endpoint = param(PARAM_ENDPOINT)
-    const succeeded = param(PARAM_SUCCEEDED)
-    const worker = param(PARAM_WORKER)
-    const registrationId = param(PARAM_REGISTRATION)
-    return {
-      page: paginationInfo.page,
-      limit: paginationInfo.limit,
-      ...includeIf(endpoint, { endpoint: endpoint as SuotarEndpoint }),
-      ...includeIf(succeeded, { succeeded: succeeded === SUCCEEDED }),
-      ...includeIf(worker, { worker_name: worker }),
-      ...includeIf(registrationId, { credit_registration_id: registrationId }),
-    }
-  }, [param, paginationInfo.page, paginationInfo.limit])
+    {
+      rowsPerPage: ROWS_PER_PAGE,
+      manualDefaults: (filterParam) => ({
+        credit_registration_id: filterParam(PARAM_REGISTRATION) ?? "",
+      }),
+    },
+  )
 
   const callsQuery = useSuotarApiCalls(query)
 

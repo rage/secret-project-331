@@ -5,67 +5,62 @@
 //! `failed_permanent` row is a configuration problem the student cannot act on, a withdrawn one was
 //! the student's own decision, and the linking mail already covers a missing student number.
 
-use std::collections::BTreeSet;
-
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
+use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::library::credit_registration::student_notifications::{
     CreditRegistrationNotificationKind, STUDENT_NOTIFICATION_LIMIT, StudentNotificationToQueue,
     claim_unnotified, set_email_delivery_id,
 };
 use headless_lms_models::open_university_product_access_tokens::enrolment_url_for_product;
 use serde_json::json;
-use sqlx::{Connection, PgConnection};
+use sqlx::PgConnection;
 use uuid::Uuid;
 
-use super::{PhaseContext, PhaseScope, TemplateCache, template_language};
+use super::{MailQueuePhase, PhaseContext, PhaseScope, run_mail_queue_phase, template_language};
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
-    let mut tx = conn.begin().await?;
-    let claimed = claim_unnotified(&mut tx, scope, STUDENT_NOTIFICATION_LIMIT).await?;
-    let mut templates = TemplateCache::default();
-    let mut missing_templates: BTreeSet<String> = BTreeSet::new();
-    let mut skipped = 0;
-    for notification in &claimed {
-        let template_type = notification.kind.email_template_type();
-        let language = template_language(&notification.course_language_code);
-        let Some(template_id) = templates.id_for(&mut tx, template_type, &language).await? else {
-            missing_templates.insert(format!("{template_type:?} in {language}"));
-            skipped += 1;
-            continue;
-        };
-        let placeholders = placeholders(ctx.base_url, &mut tx, notification).await?;
-        let delivery = insert_email_delivery_with_placeholders(
-            &mut tx,
-            notification.user_id,
-            template_id,
-            &placeholders,
-        )
-        .await?;
-        set_email_delivery_id(
-            &mut tx,
-            notification.credit_registration_id,
-            notification.kind,
-            delivery,
-        )
-        .await?;
-    }
-    tx.commit().await?;
+    run_mail_queue_phase::<StudentNotificationsPhase>(ctx, scope).await
+}
 
-    // A missing template skips its mail rather than failing the iteration: the batch is one
-    // transaction, so an error would roll back every mail that could be queued, and the row stays
-    // claimable.
-    Ok(PhaseRunOutcome {
-        items_processed: i32::try_from(claimed.len()).unwrap_or(i32::MAX),
-        items_failed: skipped,
-        error: (!missing_templates.is_empty()).then(|| {
-            format!(
-                "No student notification email template for: {}.",
-                missing_templates.into_iter().collect::<Vec<_>>().join(", ")
-            )
-        }),
-    })
+struct StudentNotificationsPhase;
+
+impl MailQueuePhase for StudentNotificationsPhase {
+    type Item = StudentNotificationToQueue;
+
+    async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>> {
+        Ok(claim_unnotified(conn, scope, STUDENT_NOTIFICATION_LIMIT).await?)
+    }
+
+    fn template_type(item: &Self::Item) -> EmailTemplateType {
+        item.kind.email_template_type()
+    }
+
+    fn language(item: &Self::Item) -> String {
+        template_language(&item.course_language_code)
+    }
+
+    async fn queue(
+        ctx: &PhaseContext<'_>,
+        conn: &mut PgConnection,
+        item: &Self::Item,
+        template_id: Uuid,
+    ) -> anyhow::Result<()> {
+        let placeholders = placeholders(ctx.base_url, conn, item).await?;
+        let delivery =
+            insert_email_delivery_with_placeholders(conn, item.user_id, template_id, &placeholders)
+                .await?;
+        set_email_delivery_id(conn, item.credit_registration_id, item.kind, delivery).await?;
+        Ok(())
+    }
+
+    fn missing_template_label(template_type: EmailTemplateType, language: &str) -> String {
+        format!("{template_type:?} in {language}")
+    }
+
+    fn missing_templates_error_prefix() -> &'static str {
+        "No student notification email template for:"
+    }
 }
 
 /// Stored on the delivery row, so the sender needs no lookup of its own.

@@ -42,6 +42,14 @@ export interface MockSuotarDatePeriod {
   endDate: string
 }
 
+const YEAR_MS = 365 * 24 * 60 * 60 * 1000
+
+/** A study-right period comfortably spanning "now", for specs that just need enrolment to be active. */
+export const activeStudyRightPeriod = (): MockSuotarDatePeriod => ({
+  startDate: new Date(Date.now() - YEAR_MS).toISOString().slice(0, "2026-01-01".length),
+  endDate: new Date(Date.now() + YEAR_MS).toISOString().slice(0, "2026-01-01".length),
+})
+
 export interface MockSuotarEnrolmentUpsert {
   id?: string
   studentNumber: string

@@ -2,25 +2,18 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  getCourseCreditRegistrationActionsQueryKey,
-  getCourseCreditRegistrationSummaryQueryKey,
-  getCreditRegistrationDetailsQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
+import { getCreditRegistrationDetailsQueryKey } from "@/generated/api/@tanstack/react-query.generated"
 import { retryCreditRegistration } from "@/generated/api/sdk.generated"
-import type {
-  CourseCreditRegistration,
-  RetryCreditRegistrationResult,
-} from "@/generated/api/types.generated"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { Button, Infobox } from "@/shared-module/components"
 
 import { TONE } from "./constants"
 import { RETRIED, retryOutcomeSentence } from "./creditRegistrationRetry"
-import { invalidateTeacherCreditRegistrations } from "./teacherCreditRegistrations"
+import { useInvalidateAfterRetry } from "./teacherCreditRegistrations"
+import { useActionResult } from "./useActionResult"
 
 interface Props {
   registration: CourseCreditRegistration
@@ -45,34 +38,20 @@ const REFUSED_SUBMISSION_UNCERTAIN = "refused_submission_uncertain" as const
 
 const RetryCreditRegistrationBlock: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation()
-  const [result, setResult] = useState<RetryCreditRegistrationResult | null>(null)
   const queryClient = useQueryClient()
+  const invalidateAfterRetry = useInvalidateAfterRetry(registration.course_id)
 
-  const mutation = useToastMutation(
+  const { result, mutation } = useActionResult(
     () => retryCreditRegistration({ path: { credit_registration_id: registration.id }, body: {} }),
-    { notify: false },
-    {
-      onSuccess: async (data) => {
-        setResult(data)
-        await Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: getCreditRegistrationDetailsQueryKey({
-              path: { credit_registration_id: registration.id },
-            }),
+    async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: getCreditRegistrationDetailsQueryKey({
+            path: { credit_registration_id: registration.id },
           }),
-          queryClient.invalidateQueries({
-            queryKey: getCourseCreditRegistrationSummaryQueryKey({
-              path: { course_id: registration.course_id },
-            }),
-          }),
-          queryClient.invalidateQueries({
-            queryKey: getCourseCreditRegistrationActionsQueryKey({
-              path: { course_id: registration.course_id },
-            }),
-          }),
-          invalidateTeacherCreditRegistrations(queryClient),
-        ])
-      },
+        }),
+        invalidateAfterRetry(),
+      ])
     },
   )
 

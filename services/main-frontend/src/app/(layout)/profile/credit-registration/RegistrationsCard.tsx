@@ -11,7 +11,7 @@ import {
   registrationStatusLabel,
   registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
-import NotificationEmailLine from "@/components/credit-registration/NotificationEmailLine"
+import { NotificationEmailLine } from "@/components/credit-registration/EmailStatusLine"
 import SectionCard from "@/components/credit-registration/SectionCard"
 import { getMyCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"

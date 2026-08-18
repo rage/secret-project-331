@@ -30,10 +30,10 @@ import { ADMIN_STORAGE_STATE } from "@/utils/fixtures"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import {
   CREDIT_REGISTRATION_PHASES,
+  runConfigValidationTick,
   runEnrolmentDiscoveryTick,
   runLinkEmailsTick,
   runPhasesUpToSubmission,
-  runTick,
   runTickUnchecked,
   runVerifyPollTick,
 } from "@/utils/suotarControl"
@@ -414,7 +414,7 @@ test("The pipeline tab reads the daily snapshots", async ({ page }) => {
   // Unscoped, because only an unscoped run writes the snapshot: a run narrowed to one course would
   // record that course's depth as everyone's. Without this a fresh database has no snapshot at all
   // and the tab's empty state is the only thing there is to assert.
-  await runTick(page.request, "config-validation")
+  await runConfigValidationTick(page.request)
 
   await page.goto(`${DASHBOARD_URL}/pipeline`)
   await expect(page.getByRole("heading", { name: "Queue depth over time" })).toBeVisible()

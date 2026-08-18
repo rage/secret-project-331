@@ -4,8 +4,6 @@
 //! and an unreachable Sisu are different problems. The caps and the dedup guard applied when the
 //! slot was claimed, so this phase retries until the message is queued rather than deciding again.
 
-use std::collections::BTreeSet;
-
 use headless_lms_models::credit_registration_account_linking_emails::{
     LinkingMailToQueue, claim_unqueued, set_email_delivery_id,
 };
@@ -15,62 +13,60 @@ use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::library::credit_registration::account_linking::link_student_number_url;
 use secrecy::ExposeSecret;
 use serde_json::json;
-use sqlx::Connection;
+use sqlx::PgConnection;
+use uuid::Uuid;
 
-use super::{PhaseContext, PhaseScope, TemplateCache, template_language};
+use super::{MailQueuePhase, PhaseContext, PhaseScope, run_mail_queue_phase, template_language};
 
 /// How many mails one iteration queues; the sender has its own rate, so this only bounds how much
 /// one transaction holds open.
 const QUEUE_LIMIT: i64 = 200;
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
-    let mut tx = conn.begin().await?;
-    let claimed = claim_unqueued(&mut tx, QUEUE_LIMIT, scope.course_id).await?;
-    let mut templates = TemplateCache::default();
-    let mut languages_without_a_template: BTreeSet<String> = BTreeSet::new();
-    let mut skipped = 0;
-    for mail in &claimed {
-        let language = template_language(&mail.course_language_code);
-        let Some(template_id) = templates
-            .id_for(
-                &mut tx,
-                EmailTemplateType::CreditRegistrationAccountLinking,
-                &language,
-            )
-            .await?
-        else {
-            languages_without_a_template.insert(language);
-            skipped += 1;
-            continue;
-        };
+    run_mail_queue_phase::<LinkEmailsPhase>(ctx, scope).await
+}
+
+struct LinkEmailsPhase;
+
+impl MailQueuePhase for LinkEmailsPhase {
+    type Item = LinkingMailToQueue;
+
+    async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>> {
+        Ok(claim_unqueued(conn, QUEUE_LIMIT, scope.course_id).await?)
+    }
+
+    fn template_type(_item: &Self::Item) -> EmailTemplateType {
+        EmailTemplateType::CreditRegistrationAccountLinking
+    }
+
+    fn language(item: &Self::Item) -> String {
+        template_language(&item.course_language_code)
+    }
+
+    async fn queue(
+        ctx: &PhaseContext<'_>,
+        conn: &mut PgConnection,
+        item: &Self::Item,
+        template_id: Uuid,
+    ) -> anyhow::Result<()> {
         let delivery = insert_email_delivery_to_address(
-            &mut tx,
-            &mail.emailed_to,
+            conn,
+            &item.emailed_to,
             template_id,
-            &placeholders(ctx.base_url, mail),
+            &placeholders(ctx.base_url, item),
         )
         .await?;
-        set_email_delivery_id(&mut tx, mail.id, delivery).await?;
+        set_email_delivery_id(conn, item.id, delivery).await?;
+        Ok(())
     }
-    tx.commit().await?;
 
-    // A mail with no template is skipped rather than failing the iteration: the batch is one
-    // transaction, so an error would roll back every mail that could be queued. The slot stays
-    // claimable.
-    Ok(PhaseRunOutcome {
-        items_processed: i32::try_from(claimed.len()).unwrap_or(i32::MAX),
-        items_failed: skipped,
-        error: (!languages_without_a_template.is_empty()).then(|| {
-            format!(
-                "No credit_registration_account_linking email template for: {}.",
-                languages_without_a_template
-                    .into_iter()
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            )
-        }),
-    })
+    fn missing_template_label(_template_type: EmailTemplateType, language: &str) -> String {
+        language.to_string()
+    }
+
+    fn missing_templates_error_prefix() -> &'static str {
+        "No credit_registration_account_linking email template for:"
+    }
 }
 
 /// Stored on the delivery row because the recipient may have no account here for the sender to read

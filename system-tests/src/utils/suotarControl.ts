@@ -182,6 +182,11 @@ export const runProductTokenRefreshTick = (
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "product-token-refresh", scope)
 
+export const runConfigValidationTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "config-validation", scope)
+
 /** One mail sitting in our send queue for an account. */
 export interface QueuedEmail {
   templateType: string

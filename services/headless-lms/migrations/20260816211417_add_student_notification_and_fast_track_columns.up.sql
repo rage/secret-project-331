@@ -48,3 +48,6 @@ ALTER TABLE verified_student_numbers
 ADD COLUMN auto_link_notice_dismissed_at TIMESTAMP WITH TIME ZONE;
 
 COMMENT ON COLUMN verified_student_numbers.auto_link_notice_dismissed_at IS 'When the student dismissed the notice telling them this link was made automatically. Only ever set for verified_via = email_match_fast_track; the notice and its one-click unlink are the compensating control for linking without asking.';
+
+INSERT INTO credit_registration_phase_state (phase, process_name, expected_interval_secs)
+VALUES ('ledger-snapshot', 'suotar-syncer', 86400);

@@ -1,6 +1,6 @@
 //! The Pipeline tab's history: queue depth per state per day, and the flow through each.
 //!
-//! Reads the daily snapshots the `config-validation` phase writes. The ledger holds current state
+//! Reads the daily snapshots the `ledger-snapshot` phase writes. The ledger holds current state
 //! only, so a row that passed through a state in an hour leaves no depth trace there — history
 //! cannot be reconstructed from it, which is why the snapshots exist.
 

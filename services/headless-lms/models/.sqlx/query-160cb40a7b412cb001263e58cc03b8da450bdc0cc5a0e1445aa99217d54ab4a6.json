@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id AS \"credit_registration_id!\",\n  cr.state AS \"state!: CreditRegistrationState\",\n  cr.user_id AS \"user_id!\",\n  cr.course_module_id AS \"course_module_id!\",\n  c.name AS \"course_name!\",\n  c.language_code AS \"course_language_code!\",\n  cm.name AS \"course_module_name?\",\n  ud.first_name AS \"first_name?\",\n  cm.ects_credits AS \"ects_credits?\",\n  conf.open_university_product_id AS \"open_university_product_id?\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND (\n    (\n      cr.state = 'no_usable_enrolment'\n      AND cr.action_needed_email_delivery_id IS NULL\n    )\n    OR (\n      cr.state IN ('registered', 'duplicate', 'not_improved')\n      AND cr.registered_email_delivery_id IS NULL\n    )\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\n  AND (\n    cardinality($4::uuid []) = 0\n    OR cr.id = ANY($4::uuid [])\n  )\nORDER BY cr.state_entered_at\nFOR UPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
+  "query": "\nSELECT cr.id AS \"credit_registration_id!\",\n  cr.state AS \"state!: CreditRegistrationState\",\n  cr.user_id AS \"user_id!\",\n  cr.course_module_id AS \"course_module_id!\",\n  c.name AS \"course_name!\",\n  c.language_code AS \"course_language_code!\",\n  cm.name AS \"course_module_name?\",\n  ud.first_name AS \"first_name?\",\n  cm.ects_credits AS \"ects_credits?\",\n  conf.open_university_product_id AS \"open_university_product_id?\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND (\n    (\n      cr.state = 'no_usable_enrolment'\n      AND cr.action_needed_email_delivery_id IS NULL\n    )\n    OR (\n      cr.state = ANY($5::credit_registration_state [])\n      AND cr.registered_email_delivery_id IS NULL\n    )\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\n  AND (\n    cardinality($4::uuid []) = 0\n    OR cr.id = ANY($4::uuid [])\n  )\nORDER BY cr.state_entered_at\nFOR UPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -146,7 +146,42 @@
         "Int8",
         "Uuid",
         "Uuid",
-        "UuidArray"
+        "UuidArray",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "nullable": [
@@ -162,5 +197,5 @@
       true
     ]
   },
-  "hash": "c566e6948c50f39b313145d030245e966051e9a73047f771491e7036da09dea8"
+  "hash": "160cb40a7b412cb001263e58cc03b8da450bdc0cc5a0e1445aa99217d54ab4a6"
 }

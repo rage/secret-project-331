@@ -1,3 +1,5 @@
+DELETE FROM credit_registration_phase_state WHERE phase = 'ledger-snapshot';
+
 ALTER TABLE verified_student_numbers DROP COLUMN auto_link_notice_dismissed_at;
 
 ALTER TABLE course_module_suotar_realisations DROP COLUMN last_fast_tracked_count,

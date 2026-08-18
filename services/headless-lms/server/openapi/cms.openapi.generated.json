@@ -965,6 +965,55 @@
         }
       }
     },
+    "/api/v0/cms/pages/{page_id}/exercises-with-submissions": {
+      "post": {
+        "tags": ["cms_pages"],
+        "summary": "\nPOST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns\nthe subset that has at least one existing submission. Used by the editor to warn the teacher before\nsaving a page edit that would remove one of these exercises, since that soft-deletes it and orphans\nits submissions.",
+        "operationId": "getExercisesWithSubmissions",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Exercise ids, among the given ones, that have submissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/pages/{page_id}/info": {
       "get": {
         "tags": ["cms_pages"],

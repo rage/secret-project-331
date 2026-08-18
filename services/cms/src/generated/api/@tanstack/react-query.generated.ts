@@ -28,6 +28,7 @@ import {
   getCmsPageInfo,
   getCmsPageNavigation,
   getCmsRepositoryExercisesForCourse,
+  getExercisesWithSubmissions,
   type Options,
   requestParagraphSuggestions,
   updateCmsCourseDefaultPeerReview,
@@ -83,6 +84,8 @@ import type {
   GetCmsPageResponse,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponse,
+  GetExercisesWithSubmissionsData,
+  GetExercisesWithSubmissionsResponse,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponse,
   UpdateCmsCourseDefaultPeerReviewData,
@@ -887,6 +890,35 @@ export const updateCmsPageMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await updateCmsPage({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns
+ * the subset that has at least one existing submission. Used by the editor to warn the teacher before
+ * saving a page edit that would remove one of these exercises, since that soft-deletes it and orphans
+ * its submissions.
+ */
+export const getExercisesWithSubmissionsMutation = (
+  options?: Partial<Options<GetExercisesWithSubmissionsData>>,
+): UseMutationOptions<
+  GetExercisesWithSubmissionsResponse,
+  DefaultError,
+  Options<GetExercisesWithSubmissionsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    GetExercisesWithSubmissionsResponse,
+    DefaultError,
+    Options<GetExercisesWithSubmissionsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await getExercisesWithSubmissions({
         ...options,
         ...fnOptions,
         throwOnError: true,

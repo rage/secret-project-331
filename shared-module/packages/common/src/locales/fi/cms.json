@@ -90,6 +90,8 @@
   "conditional-block-explanation": "Tämä lohko näytetään opiskelijalle, jos opiskelija täyttää kaikki annetut ehdot.",
   "conditionally-shown-content": "Ehdollisesti näytettävä sisältö",
   "configure-review-answers-option": "Määritä arvosteluvastausten asetus",
+  "confirm-remove-exercise-with-submissions_one": "{{count}} poistamastasi tehtävästä on jo opiskelijoiden vastauksia. Tallentaminen poistaa tehtävän ja piilottaa sen vastaukset kaikkialta. Haluatko jatkaa?",
+  "confirm-remove-exercise-with-submissions_other": "{{count}} poistamistasi tehtävistä on jo opiskelijoiden vastauksia. Tallentaminen poistaa kyseiset tehtävät ja piilottaa niiden vastaukset kaikkialta. Haluatko jatkaa?",
   "congratulations-explanation": "Tämä lohko sijoitetaan kurssimateriaaliin, missä halutaan näyttää opiskelijalle onnittelut kurssin suorittamisesta. Jos kurssilta voi saada opiskelupisteitä, tämä lohko tarjoaa myös linkin sivulle, mistä opiskelija pääsee kirjaamaan suorituksensa Avoimeen yliopistoon.",
   "congratulations-placeholder": "Onnittelulohko",
   "content-saved-successfully": "Sisältö tallennettu onnistuneesti!",

@@ -823,6 +823,17 @@ export const zUpdateCmsPagePath = z.object({
  */
 export const zUpdateCmsPageResponse = zContentManagementPage
 
+export const zGetExercisesWithSubmissionsBody = z.array(z.uuid())
+
+export const zGetExercisesWithSubmissionsPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * Exercise ids, among the given ones, that have submissions
+ */
+export const zGetExercisesWithSubmissionsResponse = z.array(z.uuid())
+
 export const zGetCmsPageInfoPath = z.object({
   page_id: z.uuid(),
 })

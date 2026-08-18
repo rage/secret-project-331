@@ -12,12 +12,14 @@ import {
   getCmsCourseOptions,
   getCmsPageNavigationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
+import { getExercisesWithSubmissions } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 /* oxlint-disable i18next/no-literal-string */
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -100,7 +102,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   needToRunMigrationsAndValidations,
   setNeedToRunMigrationsAndValidations,
 }) => {
-  const { confirm } = useDialog()
+  const { alert, confirm } = useDialog()
   const { t } = useTranslation()
   const router = useRouter()
   const prefix = router.asPath ? (router.asPath.split("/")[1] ?? "") : ""
@@ -120,8 +122,15 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   )
   const currentContentStateSaved = isEqual(savedContent, content) && savedTitle === title
   const [currentlySaving, setCurrentlySaving] = useState(false)
-  const handleOnSave = () => {
-    setCurrentlySaving(true)
+  const checkExercisesWithSubmissions = useToastMutation(
+    (exerciseIds: string[]) =>
+      getExercisesWithSubmissions({
+        path: { page_id: data.id },
+        body: exerciseIds,
+      }),
+    { notify: false },
+  )
+  const handleOnSave = async () => {
     const dataToSave = normalizeDocument({
       chapterId: data.chapter_id ?? null,
       content: removeUncommonSpacesFromBlocks(removeUnsupportedBlockType(content)),
@@ -138,6 +147,38 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
           )
       }
     }
+
+    const savedExerciseIds = new Set(dataToSave.exercises.map((exercise) => exercise.id))
+    const removedExerciseIds = savedContent
+      .filter((block) => block.name === "moocfi/exercise")
+      .map((block) => (block as BlockInstance<{ id: string }>).attributes.id)
+      .filter((id) => !savedExerciseIds.has(id))
+
+    if (removedExerciseIds.length > 0) {
+      let exerciseIdsWithSubmissions: string[] = []
+      try {
+        exerciseIdsWithSubmissions =
+          await checkExercisesWithSubmissions.mutateAsync(removedExerciseIds)
+      } catch (_error) {
+        // Fail closed: this check is the only safeguard against silently deleting submissions
+        // (the backend deletes unconditionally either way), so a failed check must block the
+        // save rather than let it through unconfirmed.
+        await alert(t("error-could-not-check-exercise-submissions"))
+        return
+      }
+      if (exerciseIdsWithSubmissions.length > 0) {
+        const confirmed = await confirm(
+          t("confirm-remove-exercise-with-submissions", {
+            count: exerciseIdsWithSubmissions.length,
+          }),
+        )
+        if (!confirmed) {
+          return
+        }
+      }
+    }
+
+    setCurrentlySaving(true)
     saveMutation.mutate(dataToSave, {
       onSuccess: (saveResult) => {
         if (!isGutenbergBlockArray(saveResult.page.content)) {

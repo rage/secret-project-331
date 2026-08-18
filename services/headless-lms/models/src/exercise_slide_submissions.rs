@@ -441,6 +441,36 @@ pub async fn get_exercise_ids_with_submissions_for_user(
     Ok(exercise_ids)
 }
 
+/// Of the given exercises, the ones with at least one existing submission from any user.
+///
+/// Used to warn a teacher before saving a page edit that would drop one of these exercises: the
+/// exercise gets soft-deleted by `exercises::delete_exercises_by_page_id`, which orphans the
+/// submissions behind the `deleted_at` filter instead of removing them (course-improvements-issues#146).
+pub async fn get_exercise_ids_with_any_submissions(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<Uuid>> {
+    // Joins back to exercises.page_id so a caller can't probe submission existence for
+    // exercise ids outside the page they were authorized to edit.
+    let exercise_ids = sqlx::query_scalar!(
+        r#"
+        SELECT DISTINCT ess.exercise_id
+        FROM exercise_slide_submissions ess
+        JOIN exercises e ON e.id = ess.exercise_id
+        WHERE ess.exercise_id = ANY($1)
+          AND e.page_id = $2
+          AND ess.deleted_at IS NULL
+        "#,
+        exercise_ids,
+        page_id,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(exercise_ids)
+}
+
 pub async fn get_users_submissions_for_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,

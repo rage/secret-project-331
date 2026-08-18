@@ -90,6 +90,8 @@
   "conditional-block-explanation": "Detta block kommer att visas för studenten om studenten uppfyller alla givna villkor.",
   "conditionally-shown-content": "Villkorligt visat innehåll",
   "configure-review-answers-option": "Konfigurera alternativ för bedömningssvar",
+  "confirm-remove-exercise-with-submissions_one": "{{count}} av övningarna du tog bort har redan studentinlämningar. Om du sparar tas övningen bort och dess inlämningar döljs överallt. Vill du fortsätta?",
+  "confirm-remove-exercise-with-submissions_other": "{{count}} av övningarna du tog bort har redan studentinlämningar. Om du sparar tas dessa övningar bort och deras inlämningar döljs överallt. Vill du fortsätta?",
   "congratulations-explanation": "Detta block placeras i kursmaterialet där du vill visa studenten gratulationer när de har avslutat kursen. För kurser som har konfigurerats för att få ECTS, kommer det också att ge en länk till en sida där de kan registrera sin avslutning till Öppna universitetet.",
   "congratulations-placeholder": "Gratulationsplatshållare",
   "content-saved-successfully": "Innehåll sparat framgångsrikt!",

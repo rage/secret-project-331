@@ -90,6 +90,8 @@
   "conditional-block-explanation": "Vises til studenten dersom alle betingelsene er oppfylt.",
   "conditionally-shown-content": "Innhold med betinget visning",
   "configure-review-answers-option": "Konfigurer innstillinger for gjennomgang av svar",
+  "confirm-remove-exercise-with-submissions_one": "{{count}} av oppgavene du fjernet har allerede studentbesvarelser. Hvis du lagrer, blir oppgaven slettet og besvarelsen skjult overalt. Vil du fortsette?",
+  "confirm-remove-exercise-with-submissions_other": "{{count}} av oppgavene du fjernet har allerede studentbesvarelser. Hvis du lagrer, blir disse oppgavene slettet og besvarelsene skjult overalt. Vil du fortsette?",
   "congratulations-explanation": " Viser en gratulasjon til studenten når kurset er fullført. For kurs som gir studiepoeng (ECTS), vises det også en lenke til en side der studenten kan registrere gjennomføringen hos The Open University",
   "congratulations-placeholder": "Gratulasjoner",
   "content-saved-successfully": "Innhold lagret!",

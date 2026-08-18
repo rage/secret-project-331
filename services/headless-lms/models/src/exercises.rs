@@ -105,6 +105,8 @@ pub struct CourseMaterialExercise {
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
     pub user_course_instance_exercise_service_variables: Vec<UserCourseExerciseServiceVariable>,
     pub should_show_reset_message: Option<String>,
+    /// Teacher's feedback text from the latest non-FullPoints grading decision, unless the teacher marked it hidden.
+    pub teacher_feedback: Option<String>,
 }
 
 impl CourseMaterialExercise {
@@ -501,6 +503,22 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
+    let teacher_feedback = if let Some(state) = &user_exercise_state {
+        let decision = crate::teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id(
+            &mut *conn, state.id,
+        )
+        .await?;
+        decision.and_then(|d| {
+            if d.teacher_decision != TeacherDecisionType::FullPoints && d.hidden != Some(true) {
+                d.justification
+            } else {
+                None
+            }
+        })
+    } else {
+        None
+    };
+
     let can_post_submission =
         determine_can_post_submission(&mut *conn, user_id, &exercise, &user_exercise_state).await?;
 
@@ -588,6 +606,7 @@ pub async fn get_course_material_exercise(
         user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
         should_show_reset_message,
+        teacher_feedback,
     })
 }
 

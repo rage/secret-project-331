@@ -340,6 +340,10 @@ export type CourseMaterialExercise = {
   peer_or_self_review_config?: null | CourseMaterialPeerOrSelfReviewConfig
   previous_exercise_slide_submission?: null | ExerciseSlideSubmission
   should_show_reset_message?: string | null
+  /**
+   * Teacher's feedback text from the latest non-FullPoints grading decision, unless the teacher marked it hidden.
+   */
+  teacher_feedback?: string | null
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
 }
 

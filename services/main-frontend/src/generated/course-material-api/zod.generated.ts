@@ -1361,6 +1361,7 @@ export const zCourseMaterialExercise = z.object({
   peer_or_self_review_config: zCourseMaterialPeerOrSelfReviewConfig.nullish(),
   previous_exercise_slide_submission: zExerciseSlideSubmission.nullish(),
   should_show_reset_message: z.string().nullish(),
+  teacher_feedback: z.string().nullish(),
   user_course_instance_exercise_service_variables: z.array(zUserCourseExerciseServiceVariable),
 })
 

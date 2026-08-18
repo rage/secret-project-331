@@ -4013,6 +4013,10 @@
           "should_show_reset_message": {
             "type": ["string", "null"]
           },
+          "teacher_feedback": {
+            "type": ["string", "null"],
+            "description": "Teacher's feedback text from the latest non-FullPoints grading decision, unless the teacher marked it hidden."
+          },
           "user_course_instance_exercise_service_variables": {
             "type": "array",
             "items": {

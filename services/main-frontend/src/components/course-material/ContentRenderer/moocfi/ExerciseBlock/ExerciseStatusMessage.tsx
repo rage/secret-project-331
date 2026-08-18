@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,6 +12,7 @@ import type {
   GradingProgress,
   ReviewingStage,
 } from "@/generated/course-material-api/types.generated"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 interface ExerciseStatusMessageProps {
   gradingProgress: GradingProgress | undefined
@@ -18,6 +20,8 @@ interface ExerciseStatusMessageProps {
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null | undefined
   exercise: Exercise
   shouldSeeResetMessage: string | null | undefined
+  /** Justification text from the latest non-FullPoints teacher grading decision, if the teacher chose to share it. */
+  teacherFeedback: string | null | undefined
 }
 
 const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMessageProps>> = ({
@@ -26,6 +30,7 @@ const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMess
   peerOrSelfReviewConfig,
   exercise,
   shouldSeeResetMessage,
+  teacherFeedback,
 }) => {
   const { t } = useTranslation()
 
@@ -46,7 +51,7 @@ const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMess
     [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, t],
   )
 
-  if (resetMessageText === null && statusMessageText === null) {
+  if (resetMessageText === null && statusMessageText === null && !teacherFeedback) {
     return null
   }
 
@@ -60,6 +65,21 @@ const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMess
       {statusMessageText && (
         <YellowBox>
           <p>{statusMessageText}</p>
+        </YellowBox>
+      )}
+      {teacherFeedback && (
+        <YellowBox>
+          <p
+            className={css`
+              font-family: ${primaryFont};
+              font-weight: 600;
+              color: ${baseTheme.colors.gray[700]};
+              margin-bottom: 0.25rem;
+            `}
+          >
+            {t("label-feedback")}
+          </p>
+          <p>{teacherFeedback}</p>
         </YellowBox>
       )}
     </>

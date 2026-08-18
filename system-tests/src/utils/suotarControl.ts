@@ -34,6 +34,7 @@ export const CREDIT_REGISTRATION_PHASES = [
   "product-token-refresh",
   "config-validation",
   "retention-sweep",
+  "ledger-snapshot",
 ] as const
 
 export type CreditRegistrationPhase = (typeof CREDIT_REGISTRATION_PHASES)[number]
@@ -61,7 +62,6 @@ export interface RanPhaseTick {
 
 export type PhaseTickResult =
   | RanPhaseTick
-  | { status: "phaseNotImplemented"; phase: CreditRegistrationPhase }
   /** The phase is paused, or its circuit breaker is open. Nothing ran this tick. */
   | { status: "skipped"; phase: CreditRegistrationPhase; reason: "paused" | "circuitBreakerOpen" }
   /** The scope named something this phase's claim query cannot narrow on. */
@@ -186,6 +186,12 @@ export const runConfigValidationTick = (
   request: APIRequestContext,
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "config-validation", scope)
+
+export const runRetentionSweepTick = (request: APIRequestContext): Promise<RanPhaseTick> =>
+  runTick(request, "retention-sweep")
+
+export const runLedgerSnapshotTick = (request: APIRequestContext): Promise<RanPhaseTick> =>
+  runTick(request, "ledger-snapshot")
 
 /** One mail sitting in our send queue for an account. */
 export interface QueuedEmail {

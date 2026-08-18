@@ -155,8 +155,12 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
 
   // Both mutations behind the channel report their own failures, and a turn refused because one is
   // already running is meant to be silent, so the rejection only needs to stop floating.
-  const sendToChatbot = (message: string) => {
-    chatbotCommunicationChannel?.sendNewMessage(message).catch(() => {})
+  const sendToChatbot = async (message: string) => {
+    try {
+      await chatbotCommunicationChannel?.sendNewMessage(message)
+    } catch {
+      // Intentionally ignored, see comment above.
+    }
   }
 
   const giveFeedbackHandleClick = () => {

@@ -29,16 +29,18 @@ const bubbleStyle = (isOpen: boolean) => css`
   border-radius: 10px;
   max-width: stretch;
   overflow-wrap: break-word;
-  ${isOpen
-    ? `
+  ${
+    isOpen
+      ? `
       background-color: ${LIGHT_GREEN};
       border: 2px solid ${baseTheme.colors.green[300]};
     `
-    : `
+      : `
       background-color: ${baseTheme.colors.gray[100]};
       border: 2px solid ${baseTheme.colors.gray[200]};
       color: ${baseTheme.colors.gray[600]};
-    `}
+    `
+  }
 `
 
 const questionStyle = css`

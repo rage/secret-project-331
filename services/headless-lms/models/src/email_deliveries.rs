@@ -339,7 +339,7 @@ pub async fn get_recent_template_types_for_user_for_testing(
 ) -> ModelResult<Vec<(EmailTemplateType, serde_json::Value)>> {
     let rows = sqlx::query!(
         r#"
-SELECT t.email_template_type AS "template_type: EmailTemplateType",
+SELECT t.email_template_type AS "template_type",
   COALESCE(d.placeholders, '{}'::jsonb) AS "placeholders!"
 FROM email_deliveries d
   JOIN email_templates t ON t.id = d.email_template_id

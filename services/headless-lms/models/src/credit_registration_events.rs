@@ -468,6 +468,7 @@ SELECT e.error_code AS "error_code!: CreditRegistrationErrorCode",
 FROM credit_registration_events e
   JOIN credit_registrations cr ON cr.id = e.credit_registration_id
   LEFT JOIN suotar_api_calls call ON call.id = e.suotar_api_call_id
+  AND call.deleted_at IS NULL
 WHERE e.error_code IS NOT NULL
   AND e.created_at > now() - MAKE_INTERVAL(secs => $1::double precision * 2)
   AND e.deleted_at IS NULL

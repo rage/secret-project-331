@@ -813,6 +813,7 @@ async fn finish_resend(
 /// for it. Shared by the teacher and admin resend endpoints, which differ only in who they blame it
 /// on, whether they widen the action to the whole course (`actor_course_id`), and what extra detail
 /// goes into `details`.
+#[allow(clippy::too_many_arguments)]
 pub(crate) async fn record_resend_and_fetch_mails(
     conn: &mut PgConnection,
     course_id: Uuid,

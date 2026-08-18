@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT e.error_code AS \"error_code!: CreditRegistrationErrorCode\",\n  COUNT(*) FILTER (\n    WHERE e.created_at > now() - MAKE_INTERVAL(secs => $1::double precision)\n  ) AS \"current_count!\",\n  COUNT(*) FILTER (\n    WHERE e.created_at <= now() - MAKE_INTERVAL(secs => $1::double precision)\n  ) AS \"previous_count!\",\n  COUNT(DISTINCT cr.user_id) AS \"user_count!\",\n  COUNT(DISTINCT cr.course_id) AS \"course_count!\",\n  MIN(e.created_at) AS \"first_seen_at\",\n  MAX(e.created_at) AS \"last_seen_at\",\n  COALESCE(\n    ARRAY_AGG(DISTINCT call.endpoint) FILTER (\n      WHERE call.endpoint IS NOT NULL\n    ),\n    '{}'\n  ) AS \"endpoints!: Vec<SuotarEndpoint>\"\nFROM credit_registration_events e\n  JOIN credit_registrations cr ON cr.id = e.credit_registration_id\n  LEFT JOIN suotar_api_calls call ON call.id = e.suotar_api_call_id\nWHERE e.error_code IS NOT NULL\n  AND e.created_at > now() - MAKE_INTERVAL(secs => $1::double precision * 2)\n  AND e.deleted_at IS NULL\n  AND cr.deleted_at IS NULL\nGROUP BY e.error_code\nORDER BY 2 DESC\n        ",
+  "query": "\nSELECT e.error_code AS \"error_code!: CreditRegistrationErrorCode\",\n  COUNT(*) FILTER (\n    WHERE e.created_at > now() - MAKE_INTERVAL(secs => $1::double precision)\n  ) AS \"current_count!\",\n  COUNT(*) FILTER (\n    WHERE e.created_at <= now() - MAKE_INTERVAL(secs => $1::double precision)\n  ) AS \"previous_count!\",\n  COUNT(DISTINCT cr.user_id) AS \"user_count!\",\n  COUNT(DISTINCT cr.course_id) AS \"course_count!\",\n  MIN(e.created_at) AS \"first_seen_at\",\n  MAX(e.created_at) AS \"last_seen_at\",\n  COALESCE(\n    ARRAY_AGG(DISTINCT call.endpoint) FILTER (\n      WHERE call.endpoint IS NOT NULL\n    ),\n    '{}'\n  ) AS \"endpoints!: Vec<SuotarEndpoint>\"\nFROM credit_registration_events e\n  JOIN credit_registrations cr ON cr.id = e.credit_registration_id\n  LEFT JOIN suotar_api_calls call ON call.id = e.suotar_api_call_id\n  AND call.deleted_at IS NULL\nWHERE e.error_code IS NOT NULL\n  AND e.created_at > now() - MAKE_INTERVAL(secs => $1::double precision * 2)\n  AND e.deleted_at IS NULL\n  AND cr.deleted_at IS NULL\nGROUP BY e.error_code\nORDER BY 2 DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -124,5 +124,5 @@
       null
     ]
   },
-  "hash": "142074d05fae37662521504fa88a2cb295890b9e75fd34a1fc76fd8c0da450c9"
+  "hash": "bb24b9561c9d926118af5f6e10f7ec9d522eed7ea353391f6894c20e04578f11"
 }

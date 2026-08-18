@@ -155,7 +155,7 @@ pub async fn find_fast_track_candidate(
 SELECT ud.user_id,
   ud.email,
   ud.email_verified_at,
-  ud.email_verified_method AS "email_verified_method: EmailVerificationMethod",
+  ud.email_verified_method,
   ud.first_name,
   ud.last_name,
   EXISTS(

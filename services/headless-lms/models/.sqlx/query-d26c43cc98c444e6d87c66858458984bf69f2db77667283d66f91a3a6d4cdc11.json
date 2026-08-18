@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ud.user_id,\n  ud.email,\n  ud.email_verified_at,\n  ud.email_verified_method AS \"email_verified_method: EmailVerificationMethod\",\n  ud.first_name,\n  ud.last_name,\n  EXISTS(\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.user_id = ud.user_id\n      AND vsn.deleted_at IS NULL\n  ) AS \"has_live_student_number!\",\n  EXISTS(\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.user_id = ud.user_id\n      AND vsn.sisu_person_id = $2\n      AND vsn.verified_via = 'email_match_fast_track'::student_number_verification_method\n      AND vsn.deleted_at IS NOT NULL\n  ) AS \"unlinked_a_fast_track_link_before!\"\nFROM user_details ud\n  JOIN users u ON u.id = ud.user_id\nWHERE LOWER(ud.email) = LOWER($1)\n  AND u.deleted_at IS NULL\nLIMIT 2 FOR SHARE OF ud\n        ",
+  "query": "\nSELECT ud.user_id,\n  ud.email,\n  ud.email_verified_at,\n  ud.email_verified_method,\n  ud.first_name,\n  ud.last_name,\n  EXISTS(\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.user_id = ud.user_id\n      AND vsn.deleted_at IS NULL\n  ) AS \"has_live_student_number!\",\n  EXISTS(\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.user_id = ud.user_id\n      AND vsn.sisu_person_id = $2\n      AND vsn.verified_via = 'email_match_fast_track'::student_number_verification_method\n      AND vsn.deleted_at IS NOT NULL\n  ) AS \"unlinked_a_fast_track_link_before!\"\nFROM user_details ud\n  JOIN users u ON u.id = ud.user_id\nWHERE LOWER(ud.email) = LOWER($1)\n  AND u.deleted_at IS NULL\nLIMIT 2 FOR SHARE OF ud\n        ",
   "describe": {
     "columns": [
       {
@@ -38,7 +38,7 @@
       },
       {
         "ordinal": 3,
-        "name": "email_verified_method: EmailVerificationMethod",
+        "name": "email_verified_method",
         "type_info": {
           "Custom": {
             "name": "email_verification_method",
@@ -111,5 +111,5 @@
       null
     ]
   },
-  "hash": "26254630a297cb77c32520bbd40416efc71be34897e96ae11bb9cf4968fa4b08"
+  "hash": "d26c43cc98c444e6d87c66858458984bf69f2db77667283d66f91a3a6d4cdc11"
 }

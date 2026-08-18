@@ -38,11 +38,12 @@ test.beforeAll(async () => {
       channel.port1.addEventListener("message", ({ data }) => {
         void (async () => {
           if (data?.message !== "file-upload") return
-          const value = data.files instanceof Map ? data.files.get("hook.bin") : null
+          const value = Array.isArray(data.files) ? data.files[0] : null
           globalThis.uploadSnapshot = {
             message: data.message,
             requestId: data.requestId ?? null,
-            filesAreMap: data.files instanceof Map,
+            filesAreArray: Array.isArray(data.files),
+            fileCount: Array.isArray(data.files) ? data.files.length : null,
             valueIsFile: value instanceof File,
             name: value instanceof File ? value.name : null,
             type: value instanceof Blob ? value.type : null,
@@ -56,7 +57,9 @@ test.beforeAll(async () => {
             message: "upload-result",
             requestId: data.requestId,
             success: true,
-            urls: new Map([["hook.bin", "https://files.example/hook.bin"]]),
+            files: [
+              { id: "8e1c2a44-4d6d-4a2b-8f2c-6f8f6b7a1d20", url: "https://files.example/hook.bin" },
+            ],
           })
         })()
       })
@@ -74,10 +77,13 @@ test.beforeAll(async () => {
             "hook.bin",
             { type: "application/octet-stream", lastModified: 1725000000000 },
           )
-          const urls = await uploadFiles(new Map([["hook.bin", file]]))
+          const uploaded = await uploadFiles([file])
           document.querySelector("#result").textContent = JSON.stringify({
-            urlsAreMap: urls instanceof Map,
-            resultUrl: urls.get("hook.bin") ?? null,
+            uploadedCount: uploaded.length,
+            resultRequestId: uploaded[0]?.requestId ?? null,
+            resultId: uploaded[0]?.id ?? null,
+            resultUrl: uploaded[0]?.url ?? null,
+            resultFileIsInput: uploaded[0]?.file === file,
           })
         }
         return React.createElement(
@@ -119,9 +125,7 @@ test.afterAll(async () => {
   }
 })
 
-test("useFileUpload round-trips a genuine File and Map from a mounted React hook", async ({
-  page,
-}) => {
+test("useFileUpload round-trips a genuine File from a mounted React hook", async ({ page }) => {
   await page.setContent('<!doctype html><html><body><div id="root"></div></body></html>')
   await page.addScriptTag({ content: browserBundle })
   const upload = page.getByRole("button", { name: "Upload" })
@@ -135,13 +139,17 @@ test("useFileUpload round-trips a genuine File and Map from a mounted React hook
     return (globalThis as typeof globalThis & { uploadSnapshot?: unknown }).uploadSnapshot
   })
   expect(result).toEqual({
-    urlsAreMap: true,
+    uploadedCount: 1,
+    resultRequestId: "file-upload-1",
+    resultId: "8e1c2a44-4d6d-4a2b-8f2c-6f8f6b7a1d20",
     resultUrl: "https://files.example/hook.bin",
+    resultFileIsInput: true,
   })
   expect(snapshot).toEqual({
     message: "file-upload",
     requestId: "file-upload-1",
-    filesAreMap: true,
+    filesAreArray: true,
+    fileCount: 1,
     valueIsFile: true,
     name: "hook.bin",
     type: "application/octet-stream",

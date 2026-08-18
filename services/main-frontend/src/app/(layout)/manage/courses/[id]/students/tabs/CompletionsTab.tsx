@@ -26,6 +26,7 @@ import {
   useCourseStudentsIdentity,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
 import { StaleTableWrapper } from "./StaleTableWrapper"
 import { StudentPillCell } from "./StudentPillCell"
@@ -139,8 +140,8 @@ const buildColumns = (
   modulesInOrder: ModuleColumn[],
   t: TFunction,
   creditRegistrations: CreditRegistrationIndex,
-): ColumnDef<CompletionRow, unknown>[] => {
-  const columns: ColumnDef<CompletionRow, unknown>[] = [
+): ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] => {
+  const columns: ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] = [
     {
       // oxlint-disable-next-line i18next/no-literal-string
       id: "last_name",

@@ -12,6 +12,7 @@ export interface FlipCardAttributes {
   size: string
 }
 const FlipCardConfiguration: BlockConfiguration<FlipCardAttributes> = {
+  apiVersion: 3,
   title: "Flip Card",
   description: "A two sided flip card that can be flipped by clicking the card",
   category: MOOCFI_CATEGORY_SLUG,

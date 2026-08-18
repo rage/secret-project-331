@@ -13,6 +13,7 @@ export interface TableBoxAttributes {
 }
 
 const TableBoxConfiguration: BlockConfiguration<TableBoxAttributes> = {
+  apiVersion: 3,
   title: "TableBox",
   description: "Block for adding custom TableBox",
   category: MOOCFI_CATEGORY_SLUG,

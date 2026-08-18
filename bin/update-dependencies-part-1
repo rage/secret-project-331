@@ -2,8 +2,7 @@
 """
 Update Node and Rust dependencies with resumable package-level reporting.
 
-Requires: git, pnpm, cargo, cargo-edit (for `cargo upgrade`).
-Optionally requires: nix (only when `--update-flake` is passed).
+Requires: git, pnpm, cargo, cargo-edit (for `cargo upgrade`), nix.
 """
 
 from __future__ import annotations
@@ -453,7 +452,6 @@ class Step:
     target_name: str
     substeps: list[str]
     setup_workspace: bool = False
-    opt_in: bool = False
     cargo_upgrade_excludes: list[str] = field(default_factory=list)
     cargo_version_pins: list[CargoVersionPin] = field(default_factory=list)
     manual_review_reasons_on_change: list[str] = field(default_factory=list)
@@ -1866,7 +1864,18 @@ def build_steps(repo_root: Path) -> list[Step]:
         ),
     ]
 
-    steps: list[Step] = []
+    steps: list[Step] = [
+        Step(
+            id="nix:flake",
+            display_name="flake.nix",
+            cwd=repo_root,
+            ecosystem="nix",
+            manager="nix",
+            kind="nix",
+            target_name="flake.nix",
+            substeps=["nix-flake-update"],
+        )
+    ]
     for step_id, cwd, display_name, target_name, setup_workspace in node_targets:
         substeps = []
         if setup_workspace:
@@ -1923,21 +1932,6 @@ def build_steps(repo_root: Path) -> list[Step]:
         )
     )
 
-    steps.append(
-        Step(
-            id="nix:flake",
-            display_name="flake.nix",
-            cwd=repo_root,
-            ecosystem="nix",
-            manager="nix",
-            kind="nix",
-            target_name="flake.nix",
-            substeps=["nix-flake-update"],
-            # Opt-in: only runs when --update-flake is passed or the step is
-            # selected explicitly via --only-step/--from-step/--to-step.
-            opt_in=True,
-        )
-    )
     validate_step_substeps(steps)
     return steps
 
@@ -1950,14 +1944,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--list-steps",
         action="store_true",
         help="Print ordered step ids and exit.",
-    )
-    parser.add_argument(
-        "--update-flake",
-        action="store_true",
-        help=(
-            "Also run `nix flake update` and commit flake.lock (the nix:flake "
-            "step). This step is opt-in and otherwise skipped."
-        ),
     )
     parser.add_argument("--from-step", help="Start at a specific step id.")
     parser.add_argument("--to-step", help="Stop after a specific step id.")
@@ -2061,15 +2047,6 @@ def select_steps(
     if args.from_step and args.to_step and valid_ids.index(args.from_step) > valid_ids.index(args.to_step):
         parser.error("--from-step must come before or equal --to-step")
 
-    # Opt-in steps (e.g. nix:flake) only run when explicitly enabled or named.
-    explicit_ids = {
-        step_id for step_id in (args.from_step, args.to_step) if step_id
-    }
-    selected = [
-        step
-        for step in selected
-        if not step.opt_in or args.update_flake or step.id in explicit_ids
-    ]
     return selected
 
 

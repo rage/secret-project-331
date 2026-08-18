@@ -33,11 +33,12 @@ test.beforeAll(async () => {
         channel.port1.addEventListener("message", ({ data }) => {
           void (async () => {
             if (data?.message !== "file-upload") return
-            const value = data.files instanceof Map ? data.files.get("sample.bin") : null
+            const value = Array.isArray(data.files) ? data.files[0] : null
             uploadSnapshot = {
               message: data.message,
               requestId: data.requestId ?? null,
-              filesAreMap: data.files instanceof Map,
+              filesAreArray: Array.isArray(data.files),
+              fileCount: Array.isArray(data.files) ? data.files.length : null,
               valueIsFile: value instanceof File,
               name: value instanceof File ? value.name : null,
               type: value instanceof Blob ? value.type : null,
@@ -51,7 +52,12 @@ test.beforeAll(async () => {
               message: "upload-result",
               requestId: data.requestId,
               success: true,
-              urls: new Map([["sample.bin", "https://files.example/sample.bin"]]),
+              files: [
+                {
+                  id: "0f1d7b2e-1f4a-4c53-9a9e-4d3d3f1b0c11",
+                  url: "https://files.example/sample.bin",
+                },
+              ],
             })
           })()
         })
@@ -63,12 +69,16 @@ test.beforeAll(async () => {
           "sample.bin",
           { type: "application/octet-stream", lastModified: 1725000000000 },
         )
-        const urls = await client.uploadFiles(new Map([["sample.bin", file]]))
+        const uploaded = await client.uploadFiles([file])
         client.dispose()
         return {
           uploadSnapshot,
-          urlsAreMap: urls instanceof Map,
-          resultUrl: urls.get("sample.bin") ?? null,
+          uploadedCount: uploaded.length,
+          resultRequestId: uploaded[0]?.requestId ?? null,
+          resultId: uploaded[0]?.id ?? null,
+          resultUrl: uploaded[0]?.url ?? null,
+          // The client must pair the URL back to the very File the caller passed in, not a copy.
+          resultFileIsInput: uploaded[0]?.file === file,
         }
       }
     `,
@@ -101,9 +111,7 @@ test.afterAll(async () => {
   }
 })
 
-test("ParentUploadClient round-trips a genuine File and Map through MessageChannel", async ({
-  page,
-}) => {
+test("ParentUploadClient round-trips a genuine File through MessageChannel", async ({ page }) => {
   await page.setContent("<!doctype html><html><body></body></html>")
   await page.addScriptTag({ content: browserBundle })
 
@@ -119,7 +127,8 @@ test("ParentUploadClient round-trips a genuine File and Map through MessageChann
     uploadSnapshot: {
       message: "file-upload",
       requestId: "file-upload-1",
-      filesAreMap: true,
+      filesAreArray: true,
+      fileCount: 1,
       valueIsFile: true,
       name: "sample.bin",
       type: "application/octet-stream",
@@ -127,8 +136,11 @@ test("ParentUploadClient round-trips a genuine File and Map through MessageChann
       lastModified: 1_725_000_000_000,
       bytes: [...bytes],
     },
-    urlsAreMap: true,
+    uploadedCount: 1,
+    resultRequestId: "file-upload-1",
+    resultId: "0f1d7b2e-1f4a-4c53-9a9e-4d3d3f1b0c11",
     resultUrl: "https://files.example/sample.bin",
+    resultFileIsInput: true,
   })
   expect(
     createHash("sha256")

@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
+import { Route as IndexRouteImport } from "./routes/index"
+import { Route as IframeRouteImport } from "./routes/iframe"
 import { Route as ApiExportAnswersRouteImport } from "./routes/api/export-answers"
 import { Route as ApiExportDefinitionsRouteImport } from "./routes/api/export-definitions"
 import { Route as ApiGradeRouteImport } from "./routes/api/grade"
@@ -16,37 +18,20 @@ import { Route as ApiModelSolutionRouteImport } from "./routes/api/model-solutio
 import { Route as ApiPublicSpecRouteImport } from "./routes/api/public-spec"
 import { Route as ApiServiceInfoRouteImport } from "./routes/api/service-info"
 import { Route as ApiStatusUpRouteImport } from "./routes/api/status/up"
-import { Route as IframeRouteImport } from "./routes/iframe"
-import { Route as IndexRouteImport } from "./routes/index"
 
-const IframeRoute = IframeRouteImport.update({
-  id: "/iframe",
-  path: "/iframe",
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiServiceInfoRoute = ApiServiceInfoRouteImport.update({
-  id: "/api/service-info",
-  path: "/api/service-info",
+const IframeRoute = IframeRouteImport.update({
+  id: "/iframe",
+  path: "/iframe",
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicSpecRoute = ApiPublicSpecRouteImport.update({
-  id: "/api/public-spec",
-  path: "/api/public-spec",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiModelSolutionRoute = ApiModelSolutionRouteImport.update({
-  id: "/api/model-solution",
-  path: "/api/model-solution",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiGradeRoute = ApiGradeRouteImport.update({
-  id: "/api/grade",
-  path: "/api/grade",
+const ApiExportAnswersRoute = ApiExportAnswersRouteImport.update({
+  id: "/api/export-answers",
+  path: "/api/export-answers",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiExportDefinitionsRoute = ApiExportDefinitionsRouteImport.update({
@@ -54,9 +39,24 @@ const ApiExportDefinitionsRoute = ApiExportDefinitionsRouteImport.update({
   path: "/api/export-definitions",
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiExportAnswersRoute = ApiExportAnswersRouteImport.update({
-  id: "/api/export-answers",
-  path: "/api/export-answers",
+const ApiGradeRoute = ApiGradeRouteImport.update({
+  id: "/api/grade",
+  path: "/api/grade",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiModelSolutionRoute = ApiModelSolutionRouteImport.update({
+  id: "/api/model-solution",
+  path: "/api/model-solution",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSpecRoute = ApiPublicSpecRouteImport.update({
+  id: "/api/public-spec",
+  path: "/api/public-spec",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiServiceInfoRoute = ApiServiceInfoRouteImport.update({
+  id: "/api/service-info",
+  path: "/api/service-info",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStatusUpRoute = ApiStatusUpRouteImport.update({
@@ -149,13 +149,6 @@ export interface RootRouteChildren {
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    "/iframe": {
-      id: "/iframe"
-      path: "/iframe"
-      fullPath: "/iframe"
-      preLoaderRoute: typeof IframeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     "/": {
       id: "/"
       path: "/"
@@ -163,32 +156,18 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/service-info": {
-      id: "/api/service-info"
-      path: "/api/service-info"
-      fullPath: "/api/service-info"
-      preLoaderRoute: typeof ApiServiceInfoRouteImport
+    "/iframe": {
+      id: "/iframe"
+      path: "/iframe"
+      fullPath: "/iframe"
+      preLoaderRoute: typeof IframeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/public-spec": {
-      id: "/api/public-spec"
-      path: "/api/public-spec"
-      fullPath: "/api/public-spec"
-      preLoaderRoute: typeof ApiPublicSpecRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/model-solution": {
-      id: "/api/model-solution"
-      path: "/api/model-solution"
-      fullPath: "/api/model-solution"
-      preLoaderRoute: typeof ApiModelSolutionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/grade": {
-      id: "/api/grade"
-      path: "/api/grade"
-      fullPath: "/api/grade"
-      preLoaderRoute: typeof ApiGradeRouteImport
+    "/api/export-answers": {
+      id: "/api/export-answers"
+      path: "/api/export-answers"
+      fullPath: "/api/export-answers"
+      preLoaderRoute: typeof ApiExportAnswersRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/api/export-definitions": {
@@ -198,11 +177,32 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ApiExportDefinitionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/export-answers": {
-      id: "/api/export-answers"
-      path: "/api/export-answers"
-      fullPath: "/api/export-answers"
-      preLoaderRoute: typeof ApiExportAnswersRouteImport
+    "/api/grade": {
+      id: "/api/grade"
+      path: "/api/grade"
+      fullPath: "/api/grade"
+      preLoaderRoute: typeof ApiGradeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/api/model-solution": {
+      id: "/api/model-solution"
+      path: "/api/model-solution"
+      fullPath: "/api/model-solution"
+      preLoaderRoute: typeof ApiModelSolutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/api/public-spec": {
+      id: "/api/public-spec"
+      path: "/api/public-spec"
+      fullPath: "/api/public-spec"
+      preLoaderRoute: typeof ApiPublicSpecRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/api/service-info": {
+      id: "/api/service-info"
+      path: "/api/service-info"
+      fullPath: "/api/service-info"
+      preLoaderRoute: typeof ApiServiceInfoRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/api/status/up": {
@@ -230,9 +230,8 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { createStart } from "@tanstack/react-start"
-
 import type { getRouter } from "./router.tsx"
+import type { createStart } from "@tanstack/react-start"
 declare module "@tanstack/react-start" {
   interface Register {
     ssr: true

@@ -17,6 +17,7 @@ export interface IframeAttributes {
 export const IFRAME_BLOCK_DEFAULT_HEIGHT_PX = 630
 
 const IframeBoxConfiguration: BlockConfiguration<IframeAttributes> = {
+  apiVersion: 3,
   title: "Iframe",
   description: "Can be used to embed some sites that the Embed block doesn't support.",
   category: "text",

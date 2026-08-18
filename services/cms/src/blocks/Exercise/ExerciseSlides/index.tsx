@@ -9,6 +9,7 @@ import ExerciseSlidesEditor from "./ExerciseSlidesEditor"
 import ExerciseSlidesSave from "./ExerciseSlidesSave"
 
 const ExerciseSlidesConfiguration: BlockConfiguration<Record<string, never>> = {
+  apiVersion: 3,
   title: "ExerciseSlides",
   description:
     "Wrapper block for exercise slides, enables to use InnerBlock in multiple places within the exercise block.",

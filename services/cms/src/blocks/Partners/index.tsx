@@ -9,6 +9,7 @@ import PartnerEditor from "./PartnersEditor"
 import PartnerSave from "./PartnersSave"
 
 const PartnerConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Partner Section",
   description: "Partner Section",
   category: MOOCFI_CATEGORY_SLUG,

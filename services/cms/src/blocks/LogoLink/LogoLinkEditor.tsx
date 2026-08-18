@@ -22,11 +22,11 @@ const LOGO_LINK_TEMPLATE: Template[] = [
   ],
 ]
 
-const LogoLinkEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
-  clientId,
-}) => {
+const LogoLinkEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<Record<string, never>>>
+> = () => {
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <div
         className={css`
           background: #fafbfb;

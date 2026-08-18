@@ -45,11 +45,11 @@ const AUTHOR_BLOCK_TEMPLATE: Template[] = [
   ],
 ]
 
-const AuthorEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
-  clientId,
-}) => {
+const AuthorEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<Record<string, never>>>
+> = () => {
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <div>
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} template={AUTHOR_BLOCK_TEMPLATE} />
       </div>

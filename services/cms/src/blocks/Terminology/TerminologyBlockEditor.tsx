@@ -19,12 +19,12 @@ const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
 
 const TerminologyBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<TerminologyBlockAttributes>>
-> = ({ clientId, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { title, blockName } = attributes
   const { t } = useTranslation()
 
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <InspectorControls key="settings">
         <BackgroundColorCustomizer
           attributes={attributes}

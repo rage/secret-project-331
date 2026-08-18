@@ -14,7 +14,7 @@ import {
   waitForCreditRegistrationConsentDialog,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
-import { makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
+import { makeRegistrationDueNow, pausePhase, resumePhase } from "@/utils/creditRegistrationAdmin"
 import { expect, test } from "@/utils/fixtures"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import {
@@ -115,10 +115,21 @@ test("Student consents, links student number, gets automatically registered end 
   })
 
   await test.step("The success is mirrored into the legacy ledger exactly once", async () => {
-    const first = await runLegacyMirrorTick(page.request, scope)
-    expect(first.itemsProcessed).toBe(1)
-    const second = await runLegacyMirrorTick(page.request, scope)
-    expect(second.itemsProcessed).toBe(0)
+    // Otherwise the always-on credit-registrar worker can mirror this student's row itself
+    // (unscoped, on its own ~60s interval) between the two explicit ticks below.
+    await pausePhase(
+      page.request,
+      "legacy-mirror",
+      "suotar-happy-path: isolating the explicit mirror ticks",
+    )
+    try {
+      const first = await runLegacyMirrorTick(page.request, scope)
+      expect(first.itemsProcessed).toBe(1)
+      const second = await runLegacyMirrorTick(page.request, scope)
+      expect(second.itemsProcessed).toBe(0)
+    } finally {
+      await resumePhase(page.request, "legacy-mirror")
+    }
   })
 
   await test.step("A Suotar-enabled module has left the legacy pull stream", async () => {

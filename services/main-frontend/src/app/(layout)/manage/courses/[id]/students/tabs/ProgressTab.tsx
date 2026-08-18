@@ -14,8 +14,8 @@ import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import {
-  DETAIL_SORT_COLUMNS,
   formatStudentName,
+  PROGRESS_SORT_COLUMNS,
   useCourseStudentsIdentity,
   useCourseStudentsProgressDetail,
   useCourseStudentsProgressStructure,
@@ -43,7 +43,7 @@ export const ProgressTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
   const params = useStudentsListParams()
-  const { sorting, onSortingChange } = useStudentsSorting(DETAIL_SORT_COLUMNS)
+  const { sorting, onSortingChange } = useStudentsSorting(PROGRESS_SORT_COLUMNS)
 
   const identityQuery = useCourseStudentsIdentity(courseId, params)
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
@@ -115,7 +115,7 @@ export const ProgressTabContent: React.FC = () => {
         header: t("total"),
         columns: [
           // oxlint-disable-next-line i18next/no-literal-string
-          { header: t("points"), accessorKey: "total_points", enableSorting: false },
+          { header: t("points"), accessorKey: "total_points" },
           {
             header: t("attempts"),
             // oxlint-disable-next-line i18next/no-literal-string

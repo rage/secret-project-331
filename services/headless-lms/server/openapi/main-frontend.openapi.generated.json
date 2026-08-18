@@ -6059,7 +6059,7 @@
           {
             "name": "sort_column",
             "in": "query",
-            "description": "last_name | first_name | email",
+            "description": "last_name | first_name | email | total_points",
             "required": false,
             "schema": {
               "type": "string"
@@ -6082,6 +6082,25 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "module_id",
+            "in": "query",
+            "description": "Scopes `grade` to this module's completions",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "description": "A sis-0-5 grade (\"0\"..\"5\"), \"passed\"/\"failed\", or \"not_completed\"; requires module_id",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],

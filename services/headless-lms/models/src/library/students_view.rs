@@ -38,12 +38,26 @@ pub fn escape_like_pattern(input: &str) -> String {
         .replace('_', "\\_")
 }
 
+/// Grade filter values accepted by [`get_course_students_page`], beyond a literal numeric grade
+/// string (the sis-0-5 scale, `"0"`..`"5"`).
+pub const GRADE_FILTER_NOT_COMPLETED: &str = "not_completed";
+pub const GRADE_FILTER_PASSED: &str = "passed";
+pub const GRADE_FILTER_FAILED: &str = "failed";
+
 /// Returns a filtered, sorted, paginated page of the course's enrolled users (identity only).
 ///
-/// `sort_column` (`last_name` | `first_name` | `email`) and `sort_direction` map to fixed SQL
-/// fragments, never interpolated from raw input. `search` matches name/email substrings via the
-/// trigram `name_search_helper` / `email_search_helper` columns, plus an exact user-id match when it
-/// parses as a UUID. `course_instance_id` narrows to a single instance.
+/// `sort_column` (`last_name` | `first_name` | `email` | `total_points`) and `sort_direction` map to
+/// fixed SQL fragments, never interpolated from raw input. `search` matches name/email substrings via
+/// the trigram `name_search_helper` / `email_search_helper` columns, plus an exact user-id match when
+/// it parses as a UUID. `course_instance_id` narrows to a single instance.
+///
+/// `module_id` + `grade` together narrow to students whose *latest* completion of that module matches:
+/// a numeric grade string (sis-0-5 scale), [`GRADE_FILTER_PASSED`]/[`GRADE_FILTER_FAILED`] (the
+/// sis-hyv-hyl scale, i.e. `grade IS NULL`), or [`GRADE_FILTER_NOT_COMPLETED`] (no completion row at
+/// all). A numerically graded module's completions never match `passed`/`failed` -- those only ever
+/// apply to modules that use the pass/fail scale, mirroring how `CompletionsTab` renders the grade
+/// column (a numeric grade takes precedence over passed/failed). `grade` is ignored unless `module_id`
+/// is also set.
 pub async fn get_course_students_page(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -52,6 +66,8 @@ pub async fn get_course_students_page(
     sort_column: Option<&str>,
     sort_direction: Option<&str>,
     course_instance_id: Option<Uuid>,
+    module_id: Option<Uuid>,
+    grade: Option<&str>,
 ) -> ModelResult<StudentsListPage> {
     // Empty/blank search behaves like no search.
     let search = search.map(str::trim).filter(|s| !s.is_empty());
@@ -59,15 +75,32 @@ pub async fn get_course_students_page(
     // The helper columns are lowercased generated columns, so lowercase the term and escape the LIKE
     // metacharacters (matched literally via `ESCAPE '\'`). The GiST trigram indexes serve LIKE.
     let search_pattern = search.map(|s| escape_like_pattern(&s.to_lowercase()));
+    // A `grade` without a `module_id` has nothing to scope it to, so it is dropped rather than
+    // matched against every module.
+    let grade_filter = module_id.and(grade);
 
-    let total_count = sqlx::query!(
-        r#"
-SELECT COUNT(*) AS "count!"
+    // Not a `sqlx::query!` macro: the grade filter is data-dependent (a numeric grade compares against
+    // a column, `passed`/`failed`/`not_completed` compare against different columns/existence), which
+    // cannot be expressed as one fixed, offline-checked query shape. Kept dynamic (like `page_sql`
+    // below, which already needs this for `ORDER BY`) rather than adding a second query shape per
+    // grade-filter variant.
+    let count_sql = r#"
+SELECT COUNT(*) AS count
 FROM (
   SELECT u.id
   FROM course_instance_enrollments cie
     JOIN users u ON u.id = cie.user_id
     LEFT JOIN user_details ud ON ud.user_id = u.id
+    LEFT JOIN LATERAL (
+      SELECT cmc.grade, cmc.passed
+      FROM course_module_completions cmc
+      WHERE cmc.user_id = u.id
+        AND cmc.course_id = $1
+        AND cmc.course_module_id = $5
+        AND cmc.deleted_at IS NULL
+      ORDER BY cmc.completion_date DESC
+      LIMIT 1
+    ) gm ON $5::uuid IS NOT NULL
   WHERE cie.course_id = $1
     AND cie.deleted_at IS NULL
     AND u.deleted_at IS NULL
@@ -78,17 +111,26 @@ FROM (
       OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
       OR ($4::uuid IS NOT NULL AND u.id = $4)
     )
+    AND (
+      $6::text IS NULL
+      OR ($6 = 'not_completed' AND gm.grade IS NULL AND gm.passed IS NULL)
+      OR ($6 = 'passed' AND gm.grade IS NULL AND gm.passed = true)
+      OR ($6 = 'failed' AND gm.grade IS NULL AND gm.passed = false)
+      OR ($6 ~ '^[0-9]+$' AND gm.grade = $6::int)
+    )
   GROUP BY u.id
 ) t
-        "#,
-        course_id,
-        course_instance_id,
-        search_pattern.as_deref(),
-        user_id_exact
-    )
-    .fetch_one(&mut *conn)
-    .await?
-    .count;
+        "#;
+
+    let total_count: i64 = sqlx::query_scalar::<_, i64>(AssertSqlSafe(count_sql))
+        .bind(course_id)
+        .bind(course_instance_id)
+        .bind(search_pattern.as_deref())
+        .bind(user_id_exact)
+        .bind(module_id)
+        .bind(grade_filter)
+        .fetch_one(&mut *conn)
+        .await?;
 
     // Sort column and direction are matched to fixed literals; only bound params carry user data.
     let dir = match sort_direction {
@@ -104,6 +146,9 @@ FROM (
             )
         }
         Some("email") => format!("LOWER(ud.email) {dir} NULLS LAST, u.id ASC"),
+        // Aggregated below from `user_exercise_states`, the same source `fetch_user_chapter_progress`
+        // sums per chapter for the Progress tab -- this is that sum across the whole course.
+        Some("total_points") => format!("total_points {dir} NULLS LAST, u.id ASC"),
         _ => {
             format!(
                 "LOWER(TRIM(ud.last_name)) {dir} NULLS LAST, LOWER(TRIM(ud.first_name)) ASC NULLS LAST, u.id ASC"
@@ -122,13 +167,33 @@ SELECT
     array_agg(DISTINCT ci.name) FILTER (WHERE ci.name IS NOT NULL),
     ARRAY[]::text[]
   ) AS course_instances,
-  COALESCE(bool_or(ci.id IS NOT NULL), false) AS has_active_instance
+  COALESCE(bool_or(ci.id IS NOT NULL), false) AS has_active_instance,
+  COALESCE(MAX(points.total_points), 0) AS total_points
 FROM course_instance_enrollments cie
   JOIN users u ON u.id = cie.user_id
   LEFT JOIN user_details ud ON ud.user_id = u.id
   LEFT JOIN course_instances ci
     ON ci.id = cie.course_instance_id
    AND ci.deleted_at IS NULL
+  LEFT JOIN LATERAL (
+    SELECT cmc.grade, cmc.passed
+    FROM course_module_completions cmc
+    WHERE cmc.user_id = u.id
+      AND cmc.course_id = $1
+      AND cmc.course_module_id = $7
+      AND cmc.deleted_at IS NULL
+    ORDER BY cmc.completion_date DESC
+    LIMIT 1
+  ) gm ON $7::uuid IS NOT NULL
+  LEFT JOIN (
+    SELECT ues.user_id, COALESCE(SUM(ues.score_given), 0)::double precision AS total_points
+    FROM user_exercise_states ues
+      JOIN exercises ex ON ex.id = ues.exercise_id
+    WHERE ues.course_id = $1
+      AND ues.deleted_at IS NULL
+      AND ex.deleted_at IS NULL
+    GROUP BY ues.user_id
+  ) points ON points.user_id = u.id
 WHERE cie.course_id = $1
   AND cie.deleted_at IS NULL
   AND u.deleted_at IS NULL
@@ -138,6 +203,13 @@ WHERE cie.course_id = $1
     OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
     OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
     OR ($3::uuid IS NOT NULL AND u.id = $3)
+  )
+  AND (
+    $8::text IS NULL
+    OR ($8 = 'not_completed' AND gm.grade IS NULL AND gm.passed IS NULL)
+    OR ($8 = 'passed' AND gm.grade IS NULL AND gm.passed = true)
+    OR ($8 = 'failed' AND gm.grade IS NULL AND gm.passed = false)
+    OR ($8 ~ '^[0-9]+$' AND gm.grade = $8::int)
   )
 GROUP BY u.id, ud.first_name, ud.last_name, ud.email
 ORDER BY {order_by}
@@ -152,6 +224,8 @@ LIMIT $5 OFFSET $6
         .bind(course_instance_id)
         .bind(pagination.limit())
         .bind(pagination.offset())
+        .bind(module_id)
+        .bind(grade_filter)
         .fetch_all(&mut *conn)
         .await?;
 

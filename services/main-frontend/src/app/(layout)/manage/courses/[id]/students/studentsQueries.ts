@@ -17,13 +17,28 @@ import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOpt
 export type SortDirection = "asc" | "desc"
 
 /** Server sort keys accepted by the identity endpoint. */
-export type StudentsSortColumn = "last_name" | "first_name" | "email"
+export type StudentsSortColumn = "last_name" | "first_name" | "email" | "total_points"
 
-/** Detail subtabs (Completions/Progress/Certificates) only render the Student column as sortable. */
+/** Detail subtabs (Completions/Certificates) only render the Student column as sortable. */
 export const DETAIL_SORT_COLUMNS: StudentsSortColumn[] = ["last_name"]
+
+/** Progress tab: Student column sorts by last_name, Total points column by the course-wide sum. */
+export const PROGRESS_SORT_COLUMNS: StudentsSortColumn[] = ["last_name", "total_points"]
 
 /** Users tab: Student column sorts by last_name, Email column by email. */
 export const USERS_SORT_COLUMNS: StudentsSortColumn[] = ["last_name", "email"]
+
+/** One of the sis-0-5 numeric grades, or a pass/fail/no-completion status. */
+export type GradeFilterValue =
+  | "not_completed"
+  | "passed"
+  | "failed"
+  | "0"
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
 
 export interface StudentsListParams {
   page: number
@@ -33,6 +48,9 @@ export interface StudentsListParams {
   sortColumn: StudentsSortColumn
   sortDirection: SortDirection
   courseInstanceId: string | null
+  /** Module the `grade` filter is scoped to; `grade` is ignored server-side without it. */
+  moduleId: string | null
+  grade: GradeFilterValue | null
 }
 
 // Explicit caching opt-in: the global QueryClient sets gcTime ~0, so without these the shared
@@ -51,6 +69,10 @@ const buildIdentityOptions = (courseId: string, params: StudentsListParams) =>
       sort_direction: params.sortDirection,
       ...(params.search ? { search: params.search } : {}),
       ...(params.courseInstanceId ? { course_instance_id: params.courseInstanceId } : {}),
+      ...(params.moduleId ? { module_id: params.moduleId } : {}),
+      // `grade` is only meaningful alongside a module (enforced server-side too), so it never gets
+      // sent on its own.
+      ...(params.moduleId && params.grade ? { grade: params.grade } : {}),
     },
   })
 
@@ -88,6 +110,8 @@ export const useCourseStudentsPrefetchNextPage = (
         sortColumn: params.sortColumn,
         sortDirection: params.sortDirection,
         courseInstanceId: params.courseInstanceId,
+        moduleId: params.moduleId,
+        grade: params.grade,
       }),
       staleTime: STALE_TIME,
       gcTime: GC_TIME,
@@ -101,6 +125,8 @@ export const useCourseStudentsPrefetchNextPage = (
     params.sortColumn,
     params.sortDirection,
     params.courseInstanceId,
+    params.moduleId,
+    params.grade,
   ])
 }
 

@@ -7576,7 +7576,7 @@ export type GetCourseStudentsUsersData = {
      */
     search?: string
     /**
-     * last_name | first_name | email
+     * last_name | first_name | email | total_points
      */
     sort_column?: string
     /**
@@ -7587,6 +7587,14 @@ export type GetCourseStudentsUsersData = {
      * Filter to a single course instance
      */
     course_instance_id?: string
+    /**
+     * Scopes `grade` to this module's completions
+     */
+    module_id?: string
+    /**
+     * A sis-0-5 grade ("0".."5"), "passed"/"failed", or "not_completed"; requires module_id
+     */
+    grade?: string
   }
   url: "/api/v0/main-frontend/courses/{course_id}/students/users"
 }

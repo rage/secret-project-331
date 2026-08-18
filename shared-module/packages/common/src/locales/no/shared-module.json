@@ -140,6 +140,8 @@
   "next-page": "Neste side",
   "no": "Nei",
   "not-found": "Ikke funnet",
+  "numberField.decrement": "Reduser verdien",
+  "numberField.increment": "Øk verdien",
   "on-date-at-time": "{{date}} kl {{time}}",
   "open-heading-menu": "Åpne overskriftsnavigasjon",
   "open-menu": "Åpne meny",

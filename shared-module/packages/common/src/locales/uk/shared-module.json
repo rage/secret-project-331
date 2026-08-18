@@ -137,6 +137,8 @@
   "next-page": "Наступна сторінка",
   "no": "Немає",
   "not-found": "Не знайдено",
+  "numberField.decrement": "Зменшити значення",
+  "numberField.increment": "Збільшити значення",
   "on-date-at-time": "{{date}} о {{time}}",
   "open-heading-menu": "Відкрити навігацію за заголовком",
   "open-menu": "Відкрити меню",

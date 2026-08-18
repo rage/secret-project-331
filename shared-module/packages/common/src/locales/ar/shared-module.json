@@ -141,6 +141,8 @@
   "next-page": "الصفحة التالية",
   "no": "لا",
   "not-found": "غير موجود",
+  "numberField.decrement": "تقليل القيمة",
+  "numberField.increment": "زيادة القيمة",
   "on-date-at-time": "{{date}} في {{time}}",
   "open-heading-menu": "فتح قائمة العناوين",
   "open-menu": "فتح القائمة",

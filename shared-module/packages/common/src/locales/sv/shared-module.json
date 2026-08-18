@@ -140,6 +140,8 @@
   "next-page": "Nästa sida",
   "no": "Nej",
   "not-found": "Inte hittad",
+  "numberField.decrement": "Minska värdet",
+  "numberField.increment": "Öka värdet",
   "on-date-at-time": "{{date}} kl {{time}}",
   "open-heading-menu": "Öppna rubriknavigering",
   "open-menu": "Öppna meny",

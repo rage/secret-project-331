@@ -153,6 +153,8 @@
   "next-page": "Seuraava sivu",
   "no": "Ei",
   "not-found": "Ei löydetty",
+  "numberField.decrement": "Pienennä arvoa",
+  "numberField.increment": "Kasvata arvoa",
   "on-date-at-time": "{{date}} {{time}}",
   "only-continue-if-you-recognize-the-address": "Jatka vain, jos tunnistat osoitteen.",
   "open-heading-menu": "Avaa sisällysluettelo",

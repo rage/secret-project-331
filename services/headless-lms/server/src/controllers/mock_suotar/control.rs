@@ -47,8 +47,6 @@ pub enum PhaseTickResult {
         /// Set when the iteration ran but failed; already scrubbed by the phase.
         error: Option<String>,
     },
-    /// No implementation is registered for this phase in `run_phase_once` yet.
-    PhaseNotImplemented { phase: String },
     /// The phase is paused, or the circuit breaker for this scope is open. Not a failure.
     Skipped { phase: String, reason: String },
     /// The scope names something this phase's claim query cannot narrow on.
@@ -79,9 +77,6 @@ impl PhaseTickResult {
             PhaseTick::ScopeNotSupported => Self::ScopeNotSupported {
                 phase: phase.as_str().to_string(),
             },
-            PhaseTick::NotImplemented => Self::PhaseNotImplemented {
-                phase: phase.as_str().to_string(),
-            },
         }
     }
 }
@@ -93,9 +88,9 @@ pub struct RegistrarTickResult {
     pub phases: Vec<PhaseTickResult>,
 }
 
-/// Runs one iteration of one pipeline phase: 200 when it ran, 501 `phaseNotImplemented`, 400
-/// `unknownPhase`. An optional scope narrows the rows the iteration may claim; absent is unscoped,
-/// which is what production does.
+/// Runs one iteration of one pipeline phase: 200 when it ran, 400 for `unknownPhase` or a scope the
+/// phase cannot narrow on. An optional scope narrows the rows the iteration may claim; absent is
+/// unscoped, which is what production does.
 async fn run_tick(
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
@@ -132,8 +127,9 @@ async fn run_tick(
         PhaseTickResult::Ran { .. } | PhaseTickResult::Skipped { .. } => {
             HttpResponse::Ok().json(&result)
         }
-        PhaseTickResult::ScopeNotSupported { .. } => HttpResponse::BadRequest().json(&result),
-        _ => HttpResponse::NotImplemented().json(&result),
+        PhaseTickResult::ScopeNotSupported { .. } | PhaseTickResult::UnknownPhase { .. } => {
+            HttpResponse::BadRequest().json(&result)
+        }
     })
 }
 
@@ -363,7 +359,6 @@ mod tests {
 
     use super::*;
     use crate::controllers::configure_controllers;
-    use crate::domain::credit_registration_phases::ScopeSupport;
 
     /// The mock config is present either way; `test_suotar` alone decides whether the routes exist.
     fn app_conf(test_suotar: bool) -> ApplicationConfiguration {
@@ -419,42 +414,11 @@ mod tests {
         test::call_service(&service, req).await
     }
 
-    #[actix_web::test]
-    async fn run_tick_reports_phase_not_implemented_when_the_mock_is_enabled() {
-        let res = call_run_tick(true, "?phase=retention-sweep").await;
-        assert_eq!(res.status(), StatusCode::NOT_IMPLEMENTED);
-        let body: PhaseTickResult = test::read_body_json(res).await;
-        assert_eq!(
-            body,
-            PhaseTickResult::PhaseNotImplemented {
-                phase: "retention-sweep".to_string()
-            }
-        );
-    }
-
     /// Without the flag the routes must be absent, not merely refuse.
     #[actix_web::test]
     async fn run_tick_is_absent_when_the_mock_is_disabled() {
         let res = call_run_tick(false, "?phase=verify").await;
         assert_eq!(res.status(), StatusCode::NOT_FOUND);
-    }
-
-    /// A typed refusal rather than a 404 or a 500, so a spec written against an unbuilt phase fails
-    /// legibly.
-    #[actix_web::test]
-    async fn a_phase_that_is_not_built_yet_dispatches_to_a_typed_refusal() {
-        for phase in CreditRegistrationPhase::ALL
-            .into_iter()
-            .filter(|phase| phase.scope_support() == ScopeSupport::NONE)
-        {
-            let res = call_run_tick(true, &format!("?phase={}", phase.as_str())).await;
-            assert_eq!(
-                res.status(),
-                StatusCode::NOT_IMPLEMENTED,
-                "phase {} did not dispatch",
-                phase.as_str()
-            );
-        }
     }
 
     /// A caller that asked to be narrowed and cannot be must be told, not quietly run wide over a

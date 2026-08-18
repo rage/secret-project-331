@@ -269,7 +269,6 @@ pub enum PhaseTick {
     Skipped(PhaseSkipReason),
     /// The scope names something this phase cannot narrow on; refused rather than run wide.
     ScopeNotSupported,
-    NotImplemented,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

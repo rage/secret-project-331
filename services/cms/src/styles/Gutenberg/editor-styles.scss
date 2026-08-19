@@ -165,6 +165,19 @@
   outline-offset: 5px;
 }
 
+// content.css makes ::selection transparent, guarded to Safari only via a selector list with an
+// invalid compound (`_::-webkit-full-page-media, _:future, ...`), which per spec voids the whole
+// rule everywhere else. Our build strips the invalid compound instead of voiding the rule, so the
+// transparent background applies in every browser; Chromium (unlike Firefox) then propagates it to
+// descendant text, leaving selected text with no visible highlight. Restores the highlight without
+// touching upstream's own, more specific rule that intentionally suppresses it during multi-block
+// selection (`.is-multi-selected:not(.is-partially-selected) ::selection`).
+.block-editor-block-list__layout::selection,
+.block-editor-block-list__layout ::selection {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
 // Fix up and down arrows in the current blocks list
 .block-editor-list-view-tree {
   .block-editor-block-mover-button {

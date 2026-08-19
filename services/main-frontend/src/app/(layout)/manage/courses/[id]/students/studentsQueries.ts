@@ -12,6 +12,7 @@ import {
   getCourseStudentsProgress,
 } from "@/generated/api/sdk.generated"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export type SortDirection = "asc" | "desc"
@@ -69,10 +70,10 @@ const buildIdentityOptions = (courseId: string, params: StudentsListParams) =>
       sort_direction: params.sortDirection,
       ...(params.search ? { search: params.search } : {}),
       ...(params.courseInstanceId ? { course_instance_id: params.courseInstanceId } : {}),
-      ...(params.moduleId ? { module_id: params.moduleId } : {}),
+      ...omitUndefined({ module_id: params.moduleId ?? undefined }),
       // `grade` is only meaningful alongside a module (enforced server-side too), so it never gets
       // sent on its own.
-      ...(params.moduleId && params.grade ? { grade: params.grade } : {}),
+      ...includeIf(params.moduleId, omitUndefined({ grade: params.grade ?? undefined })),
     },
   })
 

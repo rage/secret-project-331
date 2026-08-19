@@ -140,11 +140,28 @@ export function StudentsContextProvider({
   return <StudentsContext.Provider value={value}>{children}</StudentsContext.Provider>
 }
 
-/** Collects the shared query params that key the identity query. */
-export function useStudentsListParams(): StudentsListParams {
+/**
+ * Collects the shared query params that key the identity query.
+ *
+ * `allowedColumns`, when given, scopes the sort sent to the server to columns this caller's table
+ * actually renders as sortable: the shared sort state can point at a column from another subtab
+ * (e.g. Progress's `total_points`), which would otherwise silently sort this caller's page without
+ * a matching header indicator. Falls back to the default sort in that case.
+ */
+export function useStudentsListParams(allowedColumns?: StudentsSortColumn[]): StudentsListParams {
   const { page, limit, search, sortColumn, sortDirection, courseInstanceId, moduleId, grade } =
     useStudentsContext()
-  return { page, limit, search, sortColumn, sortDirection, courseInstanceId, moduleId, grade }
+  const columnAllowed = !allowedColumns || allowedColumns.includes(sortColumn)
+  return {
+    page,
+    limit,
+    search,
+    sortColumn: columnAllowed ? sortColumn : DEFAULT_SORT_COLUMN,
+    sortDirection: columnAllowed ? sortDirection : DEFAULT_SORT_DIRECTION,
+    courseInstanceId,
+    moduleId,
+    grade,
+  }
 }
 
 /**

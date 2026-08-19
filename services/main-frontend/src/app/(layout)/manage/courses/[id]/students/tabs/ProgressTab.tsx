@@ -42,7 +42,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100
 export const ProgressTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
-  const params = useStudentsListParams()
+  const params = useStudentsListParams(PROGRESS_SORT_COLUMNS)
   const { sorting, onSortingChange } = useStudentsSorting(PROGRESS_SORT_COLUMNS)
 
   const identityQuery = useCourseStudentsIdentity(courseId, params)

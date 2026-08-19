@@ -22,12 +22,14 @@ interface SideBarProps {
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   setConversationId: React.Dispatch<string>
   setValue: UseFormSetValue<ChatbotConfiguration>
+  chatbots
 }
 
 const SideBar: React.FC<SideBarProps> = ({
   newConversationMutation,
   setConversationId,
   setValue,
+  chatbots,
 }) => {
   const { t } = useTranslation()
 
@@ -62,6 +64,7 @@ const SideBar: React.FC<SideBarProps> = ({
             messages={messages}
             setConversationId={setConversationId}
             setValue={setValue}
+            chatbots={chatbots}
           />
         )}
       />

@@ -105,7 +105,6 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     conversationId ?? currentConversationIdQuery.data,
     setConversationId,
   )
-
   return (
     <div
       className={css`
@@ -121,6 +120,7 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
             newConversationMutation={chatbotStateAndData.newConversationMutation}
             setConversationId={setConversationId}
             setValue={setValue}
+            chatbots={chatbots}
           />
         )}
       </div>

@@ -11,8 +11,10 @@ interface ConversationHistory {
   conversations: ChatbotConversation[]
   setValue: UseFormSetValue<ChatbotConfiguration>
   messages: ChatbotConversationFirstMessage[]
+  chatbots: ChatbotConfiguration[]
 }
 
+import { css } from "@emotion/css"
 import type { UseFormSetValue } from "react-hook-form"
 
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
@@ -22,16 +24,25 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
   conversations,
   messages,
   setValue,
+  chatbots,
 }) => {
   const conversationsAndFirstMessages = conversations.map((conversation) => {
     const firstMessage = messages.find(
       (message) => message.conversation_id === conversation.id,
     )?.text
-    return { ...conversation, firstMessage }
+    const chatbotName = chatbots.find(
+      (chatbot) => chatbot.id === conversation.chatbot_configuration_id,
+    )?.chatbot_name
+    return { ...conversation, firstMessage, chatbotName }
   })
-
   return (
-    <div>
+    <div
+      className={css`
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      `}
+    >
       {conversationsAndFirstMessages.map((conversation) => (
         <div key={conversation.id}>
           <Button
@@ -45,10 +56,26 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
               })
             }}
           >
-            {conversation.firstMessage !== undefined
-              ? conversation.firstMessage
-              : // oxlint-disable-next-line i18next/no-literal-string
-                "untitled conversation"}
+            <div
+              className={css`
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+              `}
+            >
+              {conversation.firstMessage !== undefined
+                ? conversation.firstMessage
+                : // oxlint-disable-next-line i18next/no-literal-string
+                  "untitled conversation"}
+              <span
+                className={css`
+                  padding-top: 0.25rem;
+                  font-size: 14px;
+                `}
+              >
+                {conversation.chatbotName}
+              </span>
+            </div>
           </Button>
         </div>
       ))}

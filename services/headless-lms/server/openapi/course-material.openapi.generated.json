@@ -3163,10 +3163,18 @@
       "ChatbotConversationInfo": {
         "type": "object",
         "description": "Should contain all information required to display the chatbot to the user.",
-        "required": ["chatbot_name", "hide_citations"],
+        "required": ["chatbot_name", "hide_citations", "chatbot_configuration_id"],
         "properties": {
+          "chatbot_configuration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "chatbot_name": {
             "type": "string"
+          },
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
           },
           "course_name": {
             "type": ["string", "null"]

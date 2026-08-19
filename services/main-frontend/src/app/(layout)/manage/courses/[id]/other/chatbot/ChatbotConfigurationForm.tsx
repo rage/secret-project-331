@@ -125,11 +125,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const getChatbotModelsList = useQuery({
     ...getChatbotModelsOptions({
-      query: {
-        course_id: assertNotNullOrUndefined(oldChatbotConf.course_id),
-      },
+      query: oldChatbotConf.course_id
+        ? {
+            course_id: oldChatbotConf.course_id,
+          }
+        : {},
     }),
-    enabled: !!oldChatbotConf.course_id,
   })
 
   const modelFieldValue = watch("model_id")
@@ -156,7 +157,11 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     },
     {
       onSuccess: () => {
-        router.push(courseChatbotSettingsRoute(assertNotNullOrUndefined(oldChatbotConf.course_id)))
+        if (oldChatbotConf.course_id) {
+          router.push(courseChatbotSettingsRoute(oldChatbotConf.course_id))
+        } else {
+          router.back()
+        }
       },
     },
   )

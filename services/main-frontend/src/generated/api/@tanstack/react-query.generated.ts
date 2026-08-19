@@ -35,9 +35,9 @@ import {
   configureChatbot,
   confirmCourseSuspectedCheater,
   createChapter,
+  createChatbot,
   createCodeGiveaway,
   createCourse,
-  createCourseChatbot,
   createCourseCopy,
   createCourseDesignerPlan,
   createCourseDesignerScheduleSuggestion,
@@ -403,10 +403,10 @@ import type {
   ConfirmCourseSuspectedCheaterData,
   CreateChapterData,
   CreateChapterResponse,
+  CreateChatbotData,
+  CreateChatbotResponse,
   CreateCodeGiveawayData,
   CreateCodeGiveawayResponse,
-  CreateCourseChatbotData,
-  CreateCourseChatbotResponse,
   CreateCourseCopyData,
   CreateCourseCopyResponse,
   CreateCourseData,
@@ -1422,13 +1422,13 @@ export const getCourseChaptersOptions = (options: Options<GetCourseChaptersData>
     queryKey: getCourseChaptersQueryKey(options),
   })
 
-export const getChatbotModelsQueryKey = (options: Options<GetChatbotModelsData>) =>
+export const getChatbotModelsQueryKey = (options?: Options<GetChatbotModelsData>) =>
   createQueryKey("getChatbotModels", options)
 
 /**
  * GET `/api/v0/main-frontend/chatbot-models?course_id={course_id}`
  */
-export const getChatbotModelsOptions = (options: Options<GetChatbotModelsData>) =>
+export const getChatbotModelsOptions = (options?: Options<GetChatbotModelsData>) =>
   queryOptions<
     GetChatbotModelsResponse,
     DefaultError,
@@ -1490,6 +1490,27 @@ export const getAllChatbotsOptions = (options?: Options<GetAllChatbotsData>) =>
       }),
     queryKey: getAllChatbotsQueryKey(options),
   })
+
+/**
+ * POST `/api/v0/main-frontend/chatbots/create`
+ */
+export const createChatbotMutation = (
+  options?: Partial<Options<CreateChatbotData>>,
+): UseMutationOptions<CreateChatbotResponse, DefaultError, Options<CreateChatbotData>> => {
+  const mutationOptions: UseMutationOptions<
+    CreateChatbotResponse,
+    DefaultError,
+    Options<CreateChatbotData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createChatbot({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  * DELETE `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
@@ -3106,31 +3127,6 @@ export const getCourseChatbotsOptions = (options: Options<GetCourseChatbotsData>
       }),
     queryKey: getCourseChatbotsQueryKey(options),
   })
-
-/**
- * POST `/api/v0/main-frontend/courses/{course_id}/chatbots`
- */
-export const createCourseChatbotMutation = (
-  options?: Partial<Options<CreateCourseChatbotData>>,
-): UseMutationOptions<
-  CreateCourseChatbotResponse,
-  DefaultError,
-  Options<CreateCourseChatbotData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateCourseChatbotResponse,
-    DefaultError,
-    Options<CreateCourseChatbotData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await createCourseChatbot({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
 
 /**
  * POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default`

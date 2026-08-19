@@ -1,11 +1,18 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chatbots/`.
 use crate::prelude::*;
+use headless_lms_models::chatbot_configurations::CreateChatbotRequest;
 use utoipa::OpenApi;
 
 use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
 
 #[derive(OpenApi)]
-#[openapi(paths(get_chatbot, edit_chatbot, delete_chatbot, get_all_chatbots))]
+#[openapi(paths(
+    get_chatbot,
+    edit_chatbot,
+    delete_chatbot,
+    get_all_chatbots,
+    create_chatbot
+))]
 pub(crate) struct MainFrontendChatbotsApiDoc;
 
 /// GET `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
@@ -132,8 +139,75 @@ async fn get_all_chatbots(
     token.authorized_ok(web::Json(all_chatbots))
 }
 
+/// POST `/api/v0/main-frontend/chatbots/create`
+#[utoipa::path(
+    post,
+    path = "/create",
+    operation_id = "createChatbot",
+    tag = "chatbots",
+    request_body(
+        content = CreateChatbotRequest,
+        description = "JSON object with chatbot name and optional course id, e.g. \"name: Chatbot 1, course_id: null\".",
+        content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "Created chatbot", body = ChatbotConfiguration)
+    )
+)]
+#[instrument(skip(pool, payload))]
+async fn create_chatbot(
+    payload: web::Json<CreateChatbotRequest>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ChatbotConfiguration>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = payload.course_id;
+    let token = if let Some(course_id) = course_id {
+        let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+        let course = models::courses::get_course(&mut conn, course_id).await?;
+
+        if !course.can_add_chatbot {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Course doesn't allow creating chatbots.".to_string(),
+                None,
+            ));
+        }
+        token
+    } else {
+        authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?
+    };
+    let mut tx = conn.begin().await?;
+
+    let model = models::chatbot_configurations_models::get_default(&mut tx)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "No default chatbot model configured. Ask an admin to set one.".to_string(),
+                Some(e.into()),
+            )
+        })?;
+
+    let configuration = models::chatbot_configurations::insert(
+        &mut tx,
+        PKeyPolicy::Generate,
+        NewChatbotConf {
+            chatbot_name: payload.name.clone(),
+            course_id: course_id,
+            model_id: model.id,
+            publicly_accessible: course_id.is_none(),
+            ..Default::default()
+        },
+    )
+    .await?;
+    tx.commit().await?;
+    token.authorized_ok(web::Json(configuration))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/{chatbot_configuration_id}", web::get().to(get_chatbot))
+        .route("/create", web::post().to(create_chatbot))
         .route("/{chatbot_configuration_id}", web::post().to(edit_chatbot))
         .route(
             "/{chatbot_configuration_id}",

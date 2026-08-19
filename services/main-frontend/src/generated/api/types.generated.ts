@@ -1628,6 +1628,11 @@ export type CourseUpdate = {
   name: string
 }
 
+export type CreateChatbotRequest = {
+  course_id?: string | null
+  name: string
+}
+
 export type CreateCourseDesignerPlanRequest = {
   name?: string | null
 }
@@ -4158,11 +4163,11 @@ export type GetCourseChaptersResponse = GetCourseChaptersResponses[keyof GetCour
 export type GetChatbotModelsData = {
   body?: never
   path?: never
-  query: {
+  query?: {
     /**
      * Course id
      */
-    course_id: string
+    course_id?: string
   }
   url: "/api/v0/main-frontend/chatbot-models/"
 }
@@ -4212,6 +4217,25 @@ export type GetAllChatbotsResponses = {
 }
 
 export type GetAllChatbotsResponse = GetAllChatbotsResponses[keyof GetAllChatbotsResponses]
+
+export type CreateChatbotData = {
+  /**
+   * JSON object with chatbot name and optional course id, e.g. "name: Chatbot 1, course_id: null".
+   */
+  body: CreateChatbotRequest
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/chatbots/create"
+}
+
+export type CreateChatbotResponses = {
+  /**
+   * Created chatbot
+   */
+  200: ChatbotConfiguration
+}
+
+export type CreateChatbotResponse = CreateChatbotResponses[keyof CreateChatbotResponses]
 
 export type DeleteChatbotConfigurationData = {
   body?: never
@@ -5576,31 +5600,6 @@ export type GetCourseChatbotsResponses = {
 }
 
 export type GetCourseChatbotsResponse = GetCourseChatbotsResponses[keyof GetCourseChatbotsResponses]
-
-export type CreateCourseChatbotData = {
-  /**
-   * JSON string literal chatbot name, e.g. "Chatbot 1".
-   */
-  body: string
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/chatbots"
-}
-
-export type CreateCourseChatbotResponses = {
-  /**
-   * Created course chatbot
-   */
-  200: ChatbotConfiguration
-}
-
-export type CreateCourseChatbotResponse =
-  CreateCourseChatbotResponses[keyof CreateCourseChatbotResponses]
 
 export type SetCourseChatbotAsDefaultData = {
   body?: never

@@ -100,7 +100,9 @@ export type ChatbotConversation = {
  * Should contain all information required to display the chatbot to the user.
  */
 export type ChatbotConversationInfo = {
+  chatbot_configuration_id: string
   chatbot_name: string
+  course_id?: string | null
   course_name?: string | null
   current_conversation?: null | ChatbotConversation
   current_conversation_message_citations?: Array<ChatbotConversationMessageCitation> | null

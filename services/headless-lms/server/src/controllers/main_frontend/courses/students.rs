@@ -63,7 +63,7 @@ const VALID_GRADE_FILTERS: [&str; 3] = [
 ];
 
 fn validate_grade_filter(grade: &str) -> Result<(), ControllerError> {
-    if VALID_GRADE_FILTERS.contains(&grade) || grade.parse::<u8>().is_ok() {
+    if VALID_GRADE_FILTERS.contains(&grade) || matches!(grade, "0" | "1" | "2" | "3" | "4" | "5") {
         return Ok(());
     }
     Err(controller_err!(
@@ -241,6 +241,9 @@ async fn get_course_users(
         }
     }
     if let Some(grade) = query.grade.as_deref() {
+        if query.module_id.is_none() {
+            return Err(controller_err!(BadRequest, "`grade` requires `module_id`."));
+        }
         validate_grade_filter(grade)?;
     }
 

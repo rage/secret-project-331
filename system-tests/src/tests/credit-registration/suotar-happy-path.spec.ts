@@ -118,7 +118,7 @@ test("Student consents, links student number, gets automatically registered end 
     // Otherwise the always-on credit-registrar worker can mirror this student's row itself
     // (unscoped, on its own ~60s interval) between the two explicit ticks below.
     await pausePhase(
-      page.request,
+      adminApi,
       "legacy-mirror",
       "suotar-happy-path: isolating the explicit mirror ticks",
     )
@@ -128,7 +128,7 @@ test("Student consents, links student number, gets automatically registered end 
       const second = await runLegacyMirrorTick(page.request, scope)
       expect(second.itemsProcessed).toBe(0)
     } finally {
-      await resumePhase(page.request, "legacy-mirror")
+      await resumePhase(adminApi, "legacy-mirror")
     }
   })
 

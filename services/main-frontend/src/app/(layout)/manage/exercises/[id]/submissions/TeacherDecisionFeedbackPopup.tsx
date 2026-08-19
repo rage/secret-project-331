@@ -164,7 +164,7 @@ const TeacherDecisionFeedbackPopup: React.FC<TeacherDecisionFeedbackPopupProps> 
                   step={0.1}
                   value={points}
                   onChange={handleSliderChange}
-                  aria-labelledby="input-slider"
+                  aria-label={t("points")}
                 />
                 <input
                   className={css`
@@ -181,7 +181,7 @@ const TeacherDecisionFeedbackPopup: React.FC<TeacherDecisionFeedbackPopupProps> 
                   step={0.1}
                   max={pointsSlider.exerciseMaxPoints}
                   type="number"
-                  aria-labelledby="input-slider"
+                  aria-label={t("points")}
                 />
               </div>
             )}

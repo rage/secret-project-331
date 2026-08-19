@@ -158,11 +158,6 @@ export const runStudentNotificationsTick = (
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "student-notifications", scope)
 
-export const runLegacyMirrorTick = (
-  request: APIRequestContext,
-  scope?: TickScope,
-): Promise<RanPhaseTick> => runTick(request, "legacy-mirror", scope)
-
 export const runEnrolmentDiscoveryTick = (
   request: APIRequestContext,
   scope?: TickScope,

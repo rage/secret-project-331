@@ -80,12 +80,10 @@ const MultipleChoiceClickableFeedback: React.FC<
       if (!message) {
         return []
       }
-      // Mirrors MultipleChoice.tsx: prefer the model solution's correctness, falling back to
-      // the feedback's this_option_was_correct only when the model solution doesn't say correct.
-      let correct = modelSolutionForOption?.correct ?? false
-      if (feedbackForOption?.this_option_was_correct !== null && !correct) {
-        correct = feedbackForOption?.this_option_was_correct ?? correct
-      }
+      // Prefer the model solution's correctness (including an explicit `false`), falling back to
+      // the feedback's this_option_was_correct only when the model solution has no verdict at all.
+      const correct =
+        modelSolutionForOption?.correct ?? feedbackForOption?.this_option_was_correct ?? false
       return [
         { optionId: option.id, optionText: option.title || option.body || "", message, correct },
       ]
@@ -275,12 +273,17 @@ const MultipleChoiceClickableFeedback: React.FC<
                 gap: 0.5rem;
               `}
             >
-              {optionFeedbacksToDisplay.map(({ optionId, optionText, message }) => (
+              {optionFeedbacksToDisplay.map(({ optionId, optionText, message, correct }) => (
                 <div
                   key={optionId}
                   className={css`
                     color: ${quizTheme.quizBodyColor};
-                    border-left: 0.375rem solid ${quizTheme.gradingCorrectItemBorderColor};
+                    border-left: 0.375rem solid
+                      ${
+                        correct
+                          ? quizTheme.gradingCorrectItemBorderColor
+                          : quizTheme.gradingWrongItemBorderColor
+                      };
                     background: ${quizTheme.feedbackBackground};
                     padding: 0.5rem 0.5rem 0.5rem 0.75rem;
                     box-sizing: border-box;

@@ -35,6 +35,7 @@
     "@react-stately/combobox": "^3.14.1",
     "@react-stately/datepicker": "^3.17.1",
     "@react-stately/list": "^3.14.1",
+    "@react-stately/numberfield": "^3.12.1",
     "@react-stately/overlays": "^3.7.1",
     "@react-stately/radio": "^3.12.1",
     "@react-stately/searchfield": "^3.6.1",

@@ -85,6 +85,9 @@ importers:
       '@react-stately/datepicker':
         specifier: ^3.17.1
         version: 3.17.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@react-stately/numberfield':
+        specifier: ^3.12.1
+        version: 3.12.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@react-stately/overlays':
         specifier: ^3.7.1
         version: 3.7.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1066,6 +1069,12 @@ packages:
 
   '@react-stately/datepicker@3.17.1':
     resolution: {integrity: sha512-Rle7CPU49jHNmdIJe5D4qXeFj6D+G5XT/W32fQSXnJszw/Xp+A3j7/XnscusQUyjjbHqZE2UP4A5/dFH0KPvvA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-stately/numberfield@3.12.1':
+    resolution: {integrity: sha512-VsLPtXIvRx7YgF8bs7VWl3tYkktuGniF5Sj/caDo+LI/csrRat8cCdA4S/QBRrxMoO5fQv8QwUPEZJvtgNfR8g==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -5081,6 +5090,13 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
       react-stately: 3.49.0(react@19.2.8)
 
+  '@react-stately/numberfield@3.12.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      react: 19.2.8
+      react-dom: 19.2.8(react@19.2.8)
+      react-stately: 3.49.0(react@19.2.8)
+
   '@react-stately/overlays@3.7.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@swc/helpers': 0.5.23
@@ -8139,6 +8155,7 @@ time:
   '@react-stately/collections@3.13.1': '2026-05-28T17:28:34.530Z'
   '@react-stately/combobox@3.14.1': '2026-05-28T17:28:34.384Z'
   '@react-stately/datepicker@3.17.1': '2026-05-28T17:28:34.628Z'
+  '@react-stately/numberfield@3.12.1': '2026-05-28T17:28:35.658Z'
   '@react-stately/overlays@3.7.1': '2026-05-28T17:28:35.658Z'
   '@react-stately/radio@3.12.1': '2026-05-28T17:28:35.669Z'
   '@react-stately/select@3.10.1': '2026-05-28T17:28:35.917Z'

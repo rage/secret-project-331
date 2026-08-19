@@ -112,6 +112,7 @@ pub struct CourseMaterialExercise {
 impl CourseMaterialExercise {
     pub fn clear_grading_information(&mut self) {
         self.exercise_status = None;
+        self.teacher_feedback = None;
         self.current_exercise_slide
             .exercise_tasks
             .iter_mut()

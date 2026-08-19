@@ -58,6 +58,7 @@ pub const GRADE_FILTER_FAILED: &str = "failed";
 /// apply to modules that use the pass/fail scale, mirroring how `CompletionsTab` renders the grade
 /// column (a numeric grade takes precedence over passed/failed). `grade` is ignored unless `module_id`
 /// is also set.
+#[allow(clippy::too_many_arguments)]
 pub async fn get_course_students_page(
     conn: &mut PgConnection,
     course_id: Uuid,

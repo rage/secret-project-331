@@ -189,6 +189,11 @@ export const transitionMockSuotarSubmissionsFor = (
     to,
   })
 
+/**
+ * See the isolation rules in `creditRegistration.ts`'s file doc comment before arming a
+ * `requestLevel` fault with an owner: the unscoped background worker can batch a foreign student
+ * into the same request and silently suppress it.
+ */
 export const armMockSuotarFault = (request: APIRequestContext, fault: MockSuotarFaultSpec) =>
   sendCommand(request, { command: "armFault", ...fault })
 

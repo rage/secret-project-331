@@ -9,6 +9,21 @@
  * assert a global count. Reading another file's rows is fine; writing to a range you do not own
  * breaks its owner's assertions, so claim a free range here first.
  *
+ * Three corollaries that have each cost a broken spec:
+ * - Never assert an exact `itemsProcessed`/`itemsFailed` from `runXTick`, except `0` for "nothing
+ *   was ever eligible" (actor-independent). A live worker can run the same tick first and leave a
+ *   correct count of 0 where the spec expected 1. Assert per-student call counts
+ *   (`countMockCallsForStudent`) or reached state instead.
+ * - `pausePhase` blocks the pausing spec's own explicit ticks against that phase too, not just the
+ *   worker's — there is no way to pause the worker alone. Never pause a phase you still intend to
+ *   tick yourself.
+ * - A `requestLevel` fault with an owner (`armMockSuotarFault`) fires only when *every* item in the
+ *   request matches; the unscoped worker can batch a foreign student into the same call and
+ *   silently suppress it. Prefer an `itemLevel` fault for a single-student fault, and where the
+ *   contract forces `requestLevel` (see `armMockSuotarFault`'s validation), arm it before the row
+ *   is eligible and keep the window between making it eligible and your own tick short — the worker
+ *   can still claim the row itself once it is due.
+ *
  * | Student numbers | File                             | Courses it writes to        |
  * | --------------- | -------------------------------- | --------------------------- |
  * | `9000001xx`     | suotar-happy-path                | via-suotar                  |

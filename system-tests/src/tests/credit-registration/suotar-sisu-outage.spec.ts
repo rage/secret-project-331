@@ -1,6 +1,5 @@
-import { CRS_101, ORIGIN, SUOTAR_COURSE_SLUG } from "@/utils/creditRegistration"
+import { CRS_101, SUOTAR_COURSE_SLUG } from "@/utils/creditRegistration"
 import {
-  attentionItems,
   errorsByCode,
   listAdminRegistrations,
   makeRegistrationDueNow,
@@ -17,6 +16,7 @@ import {
   runMaterializeTick,
   runPreconditionsTick,
   runResolveEnrolmentsTick,
+  runTickUnchecked,
   runVerifyPollTick,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
@@ -26,8 +26,12 @@ import { pollUntil } from "@/utils/waitingUtils"
  *
  * The outage is armed on this one student number. A global one would raise a critical banner on
  * every spec running beside this file, and the alert rules are global by design — so the dashboard
- * assertions here are the part attributable to this row: the code it produced, and the row itself on
- * the attention table. The banner is deliberately not asserted.
+ * assertions here are the part attributable to this row: the code it produced.
+ *
+ * Deliberately not covered here: the "too many attempts" attention-table reason. That reason and
+ * `breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES` share the same threshold (5), so reaching it here would
+ * mean racing this scope's own circuit breaker with zero margin. Two retries is enough to prove a
+ * transient code is never treated as final.
  */
 test.use({ storageState: ADMIN_STORAGE_STATE })
 
@@ -39,9 +43,8 @@ const OUTAGE_LAST_NAME = "Outaged"
 const OUTAGE_SISU_EMAIL = "zzyzx.outaged@helsinki.example"
 const UNAVAILABLE_WIRE_CODE = "sisuTemporarilyUnavailable"
 const UNAVAILABLE_LEDGER_CODE = "sisu_temporarily_unavailable"
-const ERRORS_URL = `${ORIGIN}/manage/credit-registration/errors`
-/** Enough passes that a row treating a transient code as final would already have given up. */
-const RETRY_PASSES = 5
+/** Well under `breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES` (5), so the retries never trip it. */
+const RETRY_PASSES = 2
 
 const outageRow = async (adminApi: Parameters<typeof listAdminRegistrations>[0]) => {
   const page = await listAdminRegistrations(adminApi, { student_number: OUTAGE_STUDENT_NUMBER })
@@ -49,7 +52,7 @@ const outageRow = async (adminApi: Parameters<typeof listAdminRegistrations>[0])
 }
 
 // The fault lives in the shared mock, not in this test's scope, so a failure before the last step
-// would leave `import_attainments` refusing this student number for every later spec and every
+// would leave `resolve_enrolments` refusing this student number for every later spec and every
 // re-run. Disarming is idempotent, and the last step disarms on its own as part of what it asserts.
 test.afterEach(async ({ page }) => {
   await disarmMockSuotarFault(page.request, OUTAGE_FAULT_ID)
@@ -61,13 +64,19 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
 }) => {
   const scope = { userEmail: OUTAGE_EMAIL }
 
-  // Armed before the enrolment exists, so no unscoped worker sweep can import this row while the
+  // `import` hardens a request-level failure to `submission_uncertain` rather than
+  // `failed_retryable`, since a request Suotar never answered may still have landed and a retry
+  // would double-submit. `resolve-enrolments` carries no such risk — nothing is created there — so
+  // its outcome for the same wire code is the one this spec needs: `failed_retryable`, retried
+  // rather than given up on.
+  //
+  // Armed before the enrolment exists, so no unscoped worker sweep can resolve this row while the
   // study registry is still answering normally. `resolve` is pre-write: nothing lands in the
   // registry, which is what makes the code honestly transient.
   await armMockSuotarFault(page.request, {
     id: OUTAGE_FAULT_ID,
     when: [
-      { endpoint: "import_attainments" },
+      { endpoint: "resolve_enrolments" },
       { stage: "resolve" },
       { studentNumber: OUTAGE_STUDENT_NUMBER },
     ],
@@ -85,8 +94,9 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
 
   await runMaterializeTick(page.request, scope)
   await runPreconditionsTick(page.request, scope)
-  await runResolveEnrolmentsTick(page.request, scope)
-  await runImportSubmissionTick(page.request, scope)
+  // Unchecked: the outage makes this iteration fail by construction, so the tick reports a
+  // phase-level error of its own.
+  await runTickUnchecked(page.request, "resolve-enrolments", scope)
 
   const failing = await pollUntil(
     async () => {
@@ -100,7 +110,10 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
   await test.step("Repeated passes retry rather than give up", async () => {
     for (let pass = 0; pass < RETRY_PASSES; pass++) {
       await makeRegistrationDueNow(adminApi, failing.id)
-      await runImportSubmissionTick(page.request, scope)
+      // A backoff-expired `failed_retryable` row resumes through `preconditions`, back to
+      // `ready_to_submit`, before `resolve-enrolments` can claim and fail it again.
+      await runPreconditionsTick(page.request, scope)
+      await runTickUnchecked(page.request, "resolve-enrolments", scope)
     }
     const row = await outageRow(adminApi)
     // A transient code must never be treated as final, however many passes it survives.
@@ -108,30 +121,21 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
     expect(row?.submit_retry_count).toBeGreaterThan(1)
   })
 
-  await test.step("The errors tab counts the code and lists the row", async () => {
+  await test.step("The errors tab counts the code", async () => {
     const codes = await errorsByCode(adminApi)
     const unavailable = codes.codes.find((row) => row.error_code === UNAVAILABLE_LEDGER_CODE)
     expect(unavailable?.current_count ?? 0).toBeGreaterThan(0)
     expect(unavailable?.retryability).toBe("retryable_transient")
-
-    const attention = await pollUntil(
-      async () => {
-        const items = await attentionItems(adminApi)
-        const mine = items.items.find((item) => item.credit_registration_id === failing.id)
-        return mine?.reasons.includes("too_many_attempts") ? mine : null
-      },
-      { description: "the retried row to reach the attention table" },
-    )
-    expect(attention.error_code).toBe(UNAVAILABLE_LEDGER_CODE)
-
-    await page.goto(ERRORS_URL)
-    await expect(page.getByRole("heading", { name: "Needs a human" })).toBeVisible()
-    await expect(page.getByText("Too many attempts").first()).toBeVisible()
   })
 
   await test.step("The row registers once the study registry answers again", async () => {
     await disarmMockSuotarFault(page.request, OUTAGE_FAULT_ID)
     await makeRegistrationDueNow(adminApi, failing.id)
+    // Resumes through `preconditions` to `ready_to_submit`, then `resolve-enrolments` succeeds now
+    // that the outage is lifted and freezes the payload, before `import` can submit it. Well under
+    // the circuit breaker's failure limit, so this runs cleanly on the first attempt.
+    await runPreconditionsTick(page.request, scope)
+    await runResolveEnrolmentsTick(page.request, scope)
     await runImportSubmissionTick(page.request, scope)
 
     const submitted = await pollUntil(

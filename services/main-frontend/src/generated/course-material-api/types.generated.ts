@@ -96,6 +96,11 @@ export type ChatbotConversation = {
   user_id?: string | null
 }
 
+export type ChatbotConversationFirstMessage = {
+  conversation_id: string
+  text: string
+}
+
 /**
  * Should contain all information required to display the chatbot to the user.
  */
@@ -1354,6 +1359,22 @@ export type AllUserConversationsResponses = {
 
 export type AllUserConversationsResponse =
   AllUserConversationsResponses[keyof AllUserConversationsResponses]
+
+export type AllFirstMessagesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/course-material/chatbot/conversations/messages/first"
+}
+
+export type AllFirstMessagesResponses = {
+  /**
+   * All first messages
+   */
+  200: Array<ChatbotConversationFirstMessage>
+}
+
+export type AllFirstMessagesResponse = AllFirstMessagesResponses[keyof AllFirstMessagesResponses]
 
 export type GetDefaultChatbotConfigurationForCourseData = {
   body?: never

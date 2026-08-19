@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT chatbot_conversation_messages.conversation_id,\n  chatbot_conversation_message_messages.text\nFROM chatbot_conversation_messages\n  JOIN chatbot_conversation_message_messages ON chatbot_conversation_messages.id = chatbot_conversation_message_messages.chatbot_conversation_message_id\nWHERE chatbot_conversation_messages.order_number = 2;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "conversation_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_messages",
+            "name": "conversation_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "text",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_messages",
+            "name": "text"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "e92b2ddbc52908888c188d74aeb480d905dca4b1513667ef60feb6e95ba69430"
+}

@@ -15,6 +15,8 @@ import { client } from "./client.generated"
 import type {
   AcknowledgeAiUsageNoticeData,
   AcknowledgeAiUsageNoticeResponses,
+  AllFirstMessagesData,
+  AllFirstMessagesResponses,
   AllUserConversationsData,
   AllUserConversationsResponses,
   ClaimCodeFromCodeGiveawayData,
@@ -185,6 +187,7 @@ import type {
 } from "./types.generated"
 import {
   zAcknowledgeAiUsageNoticeResponse,
+  zAllFirstMessagesResponse,
   zAllUserConversationsResponse,
   zClaimCodeFromCodeGiveawayResponse,
   zFetchExamEnrollmentResponse,
@@ -450,6 +453,22 @@ export const allUserConversations = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zAllUserConversationsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/conversations/all",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/course-material/chatbot/conversations/messages/first`
+ *
+ * Returns all first messages the user has sent.
+ */
+export const allFirstMessages = <ThrowOnError extends boolean = true>(
+  options?: Options<AllFirstMessagesData, ThrowOnError>,
+): RequestResult<AllFirstMessagesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<AllFirstMessagesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zAllFirstMessagesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/conversations/messages/first",
     ...options,
   })
 

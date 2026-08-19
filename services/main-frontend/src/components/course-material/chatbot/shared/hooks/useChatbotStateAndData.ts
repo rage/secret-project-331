@@ -1,7 +1,9 @@
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import { current } from "immer"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { allFirstMessagesQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
   ChatbotChatStreamEvent,
@@ -12,6 +14,7 @@ import type {
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import { getSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
@@ -158,6 +161,13 @@ const useChatbotStateAndData = (
         await currentConversationInfo.refetch()
         dispatch({ type: "RESPONSE_COMPLETED" })
         setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
+        // Updates chatbot command center sidebar untitled conversation
+        // after the first message is sent.
+        if (currentConversationInfo.data?.current_conversation_messages?.length === 1) {
+          queryClient.refetchQueries({
+            queryKey: allFirstMessagesQueryKey(),
+          })
+        }
       },
       onError: async (err) => {
         setError(err)

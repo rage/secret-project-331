@@ -115,6 +115,7 @@
   "error": "خطأ",
   "error-cannot-render-editor-for-exercise-service-x": "لا يمكن عرض المحرر لخدمة التمرين {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "لا يمكن عرض مهمة التمرين، عنوان URL مفقود.",
+  "error-could-not-check-exercise-submissions": "تعذّر التحقق مما إذا كانت التمارين المحذوفة تحتوي على إجابات، لذلك لم يتم حفظ الصفحة. يرجى المحاولة مرة أخرى.",
   "error-question-too-short": "السؤال قصير جدًا.",
   "error-spec-not-parseable": "المواصفات غير قابلة للتحليل.",
   "exercise-custom-view-block": "كتلة عرض مخصصة للتمرين",

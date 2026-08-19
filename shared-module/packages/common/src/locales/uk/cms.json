@@ -115,6 +115,7 @@
   "error": "Помилка",
   "error-cannot-render-editor-for-exercise-service-x": "Неможливо відобразити редактор для сервісу вправ {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Неможливо відобразити завдання вправи, відсутня URL.",
+  "error-could-not-check-exercise-submissions": "Не вдалося перевірити, чи є відповіді на видалені завдання, тому сторінку не збережено. Спробуйте ще раз.",
   "error-question-too-short": "Питання занадто коротке.",
   "error-spec-not-parseable": "Специфікація не розбирається.",
   "exercise-custom-view-block": "Блок користувацького перегляду вправ",

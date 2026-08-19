@@ -131,6 +131,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
     { notify: false },
   )
   const handleOnSave = async () => {
+    setCurrentlySaving(true)
     const dataToSave = normalizeDocument({
       chapterId: data.chapter_id ?? null,
       content: removeUncommonSpacesFromBlocks(removeUnsupportedBlockType(content)),
@@ -163,6 +164,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         // Fail closed: this check is the only safeguard against silently deleting submissions
         // (the backend deletes unconditionally either way), so a failed check must block the
         // save rather than let it through unconfirmed.
+        setCurrentlySaving(false)
         await alert(t("error-could-not-check-exercise-submissions"))
         return
       }
@@ -173,12 +175,12 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
           }),
         )
         if (!confirmed) {
+          setCurrentlySaving(false)
           return
         }
       }
     }
 
-    setCurrentlySaving(true)
     saveMutation.mutate(dataToSave, {
       onSuccess: (saveResult) => {
         if (!isGutenbergBlockArray(saveResult.page.content)) {

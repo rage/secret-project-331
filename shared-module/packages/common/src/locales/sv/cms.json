@@ -115,6 +115,7 @@
   "error": "Fel",
   "error-cannot-render-editor-for-exercise-service-x": "Kan inte rendera redigerare för övningstjänst {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Kan inte rendera övningsuppgift, saknar URL.",
+  "error-could-not-check-exercise-submissions": "Det gick inte att kontrollera om de borttagna övningarna har inlämningar, så sidan sparades inte. Försök igen.",
   "error-question-too-short": "Frågan är för kort.",
   "error-spec-not-parseable": "Specifikationen kan inte tolkas.",
   "exercise-custom-view-block": "Övningens anpassade vyblock",

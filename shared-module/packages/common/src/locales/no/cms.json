@@ -115,6 +115,7 @@
   "error": "Feil",
   "error-cannot-render-editor-for-exercise-service-x": "Kan ikke vise redigeringsverktøy {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Kan ikke vise øvingsoppgaven fordi URL mangler..",
+  "error-could-not-check-exercise-submissions": "Kunne ikke kontrollere om de fjernede oppgavene har besvarelser, så siden ble ikke lagret. Vennligst prøv igjen.",
   "error-question-too-short": "Spørsmålet er for kort.",
   "error-spec-not-parseable": "Kunne ikke tolke spesifikasjonen.",
   "exercise-custom-view-block": "Tilpasset oppgavevisning",

@@ -190,8 +190,10 @@ test("Reject and reset submission", async () => {
     await teacherPage.getByRole("button", { name: "Reject and reset" }).waitFor()
     // oxlint-disable-next-line playwright/no-wait-for-timeout
     await teacherPage.waitForTimeout(100)
+    // Opens the feedback popup; its own confirm button is a second, identically-labeled element.
+    await teacherPage.getByRole("button", { name: "Reject and reset" }).first().click()
     await waitForSuccessNotification(teacherPage, async () => {
-      await teacherPage.getByRole("button", { name: "Reject and reset" }).first().click()
+      await teacherPage.getByRole("button", { name: "Reject and reset" }).nth(1).click()
     })
   })
 

@@ -208,7 +208,8 @@ const TeacherDecisionFeedbackPopup: React.FC<TeacherDecisionFeedbackPopupProps> 
                 disabled={isSubmitDisabled}
                 onClick={handleSubmitAndClose}
               >
-                {triggerLabel}
+                {/* Distinct from triggerLabel, matching CustomPointsPopup's trigger/submit split. */}
+                {pointsSlider ? t("button-text-give-custom-points") : triggerLabel}
               </Button>
             </div>
           </div>

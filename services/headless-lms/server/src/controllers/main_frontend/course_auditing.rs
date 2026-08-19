@@ -52,13 +52,20 @@ PUT `/api/v0/main-frontend/course-auditing/:id`
 #[instrument(skip(pool))]
 async fn update_course_auditing_data(
     payload: web::Json<CourseAuditingDataUpdate>,
+    app_conf: web::Data<ApplicationConfiguration>,
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseAuditingData>> {
     let mut conn = pool.acquire().await?;
 
-    models::courses::update_course_auditing_data(&mut conn, *course_id, payload.0).await?;
+    models::courses::update_course_auditing_data(
+        &mut conn,
+        app_conf.as_ref(),
+        *course_id,
+        payload.0,
+    )
+    .await?;
 
     let updated_course = models::courses::course_auditing_data_by_id(&mut conn, *course_id).await?;
 

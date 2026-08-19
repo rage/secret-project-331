@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { InnerBlocks } from "@wordpress/block-editor"
+import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import { useContext } from "react"
 
 import Button from "@/shared-module/common/components/Button"
@@ -40,6 +40,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
   const dispatch = useContext(EditorContentDispatch)
 
   const { t } = useTranslation()
+  const blockProps = useBlockProps()
 
   const handleAddNewSlide = () => {
     dispatch({ type: "addExerciseSlide", payload: { clientId } })
@@ -47,46 +48,48 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
 
   return (
     <ExerciseBlockContext.Provider value={{ attributes, setAttributes }}>
-      <BreakFromCentered {...breakFromCenteredProps}>
-        <div
-          className={css`
-            background-color: ${baseTheme.colors.clear[100]};
-          `}
-        >
-          <Centered variant="narrow">
-            <ExerciseEditorCard id={attributes.id}>
-              <div
-                className={css`
-                  font-family: ${primaryFont};
-                  font-size: ${typography.h4};
-                  color: ${baseTheme.colors.gray[500]};
-                  font-weight: bold;
-                  margin-bottom: 1.5rem;
-                `}
-              >
-                {t("exercise-title")}
-              </div>
+      <div {...blockProps}>
+        <BreakFromCentered {...breakFromCenteredProps}>
+          <div
+            className={css`
+              background-color: ${baseTheme.colors.clear[100]};
+            `}
+          >
+            <Centered variant="narrow">
+              <ExerciseEditorCard id={attributes.id}>
+                <div
+                  className={css`
+                    font-family: ${primaryFont};
+                    font-size: ${typography.h4};
+                    color: ${baseTheme.colors.gray[500]};
+                    font-weight: bold;
+                    margin-bottom: 1.5rem;
+                  `}
+                >
+                  {t("exercise-title")}
+                </div>
 
-              <InnerBlocks
-                allowedBlocks={ALLOWED_NESTED_BLOCKS}
-                template={INNER_BLOCKS_TEMPLATE}
-                templateLock="all"
-              />
+                <InnerBlocks
+                  allowedBlocks={ALLOWED_NESTED_BLOCKS}
+                  template={INNER_BLOCKS_TEMPLATE}
+                  templateLock="all"
+                />
 
-              <div>
-                <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
-                  {t("add-slide")}
-                </Button>
-              </div>
-              <div
-                className={css`
-                  margin-top: 1rem;
-                `}
-              ></div>
-            </ExerciseEditorCard>
-          </Centered>
-        </div>
-      </BreakFromCentered>
+                <div>
+                  <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
+                    {t("add-slide")}
+                  </Button>
+                </div>
+                <div
+                  className={css`
+                    margin-top: 1rem;
+                  `}
+                ></div>
+              </ExerciseEditorCard>
+            </Centered>
+          </div>
+        </BreakFromCentered>
+      </div>
     </ExerciseBlockContext.Provider>
   )
 }

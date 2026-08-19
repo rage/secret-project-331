@@ -12,7 +12,11 @@ interface UseCommonKeyboardShortcutsProps {
   onRedo?: (() => void) | undefined
 }
 
-const shouldHandleBlockEditorHistoryShortcut = (event: Event): boolean => {
+/**
+ * Whether an undo/redo shortcut should run our document-level history instead of being left to the
+ * element under the caret. Text fields keep their own native undo.
+ */
+export const shouldHandleBlockEditorHistoryShortcut = (event: Event): boolean => {
   const target = event.target
 
   return !(

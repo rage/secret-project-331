@@ -13,6 +13,7 @@ import ExerciseSlideEditor from "./ExerciseSlideEditor"
 import ExerciseSlideSave from "./ExerciseSlideSave"
 
 const ExerciseSlideConfiguration: BlockConfiguration<ExerciseSlideAttributes> = {
+  apiVersion: 3,
   title: "ExerciseSlide",
   description: "An exercise slide",
   category: MOOCFI_CATEGORY_SLUG,

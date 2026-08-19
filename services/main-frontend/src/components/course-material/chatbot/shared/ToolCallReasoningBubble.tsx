@@ -145,6 +145,14 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
         if (idx === 1) {
           summaryText += `, ${t("chatbot-status-document-lookup-finished")}`
         }
+      } else if (res2.data.tool_name === "course_finder") {
+        if (idx === 0) {
+          summaryText += t("chatbot-status-course-finder-finished")
+        }
+        if (idx === 1) {
+          summaryText += `, ${t("chatbot-status-course-finder-finished")}`
+        }
+        expandableText.push(`${t("chatbot-status-course-finder-finished")}`)
       } else {
         expandableText.push(
           `${t("chatbot-status-using-tool-finished")} "${res2.data.tool_name.replaceAll("_", " ")}" ${toolArguments}`,

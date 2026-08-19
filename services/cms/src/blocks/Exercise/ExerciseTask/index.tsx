@@ -13,6 +13,7 @@ import ExerciseTaskEditor from "./ExerciseTaskEditor"
 import ExerciseTaskSave from "./ExerciseTaskSave"
 
 const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
+  apiVersion: 3,
   title: "ExerciseTask",
   description: "An exercise task",
   category: MOOCFI_CATEGORY_SLUG,

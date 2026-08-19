@@ -25,6 +25,20 @@ export const supportedCoreBlocks: string[] = [
   "core/verse",
 ]
 
+/**
+ * Core blocks handed to `registerCoreBlocks`. Wider than the allow lists here, because a block type
+ * must be registered for stored content to parse into it even when no inserter offers it.
+ */
+export const coreBlocksToRegister: string[] = [
+  ...supportedCoreBlocks,
+  // registerCoreBlocks names these as the unregistered-type and grouping handlers no matter which
+  // blocks it is asked to register, so they have to exist.
+  "core/missing",
+  "core/group",
+  // moocfi/lock-chapter allows this as a nested block, so stored content can contain it.
+  "core/video",
+]
+
 export const allowedBlockVariants: Record<string, string[]> = {
   "core/embed": [
     "twitter",

@@ -10,6 +10,7 @@ import ExpandableContentSave from "./ExpandableContentSave"
 const ExpandableContent = "ExpandableContent"
 
 const ExpandableContentConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: ExpandableContent,
   description: ExpandableContent,
   category: MOOCFI_CATEGORY_SLUG,

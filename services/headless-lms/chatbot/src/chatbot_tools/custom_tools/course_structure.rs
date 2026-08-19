@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::pages;
 use headless_lms_utils::document_schema_processor::get_learning_objectives;
 use sqlx::PgConnection;
@@ -75,6 +76,7 @@ impl ChatbotTool for CourseStructureTool {
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
+        _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self>

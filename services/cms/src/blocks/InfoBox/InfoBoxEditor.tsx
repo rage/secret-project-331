@@ -16,13 +16,12 @@ import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
 const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComponentProps>>> = ({
-  clientId,
   attributes,
   setAttributes,
 }) => {
   const { t } = useTranslation()
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <InspectorControls key="settings">
         <BackgroundColorCustomizer
           attributes={attributes}

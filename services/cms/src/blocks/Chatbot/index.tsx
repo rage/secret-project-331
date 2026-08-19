@@ -13,6 +13,7 @@ export interface ChatbotBlockAttributes {
 }
 
 const ChatbotBlockConfiguration: BlockConfiguration<ChatbotBlockAttributes> = {
+  apiVersion: 3,
   title: "Chatbot",
   description: "Used to embed a chatbot chatbox in course material.",
   category: "other",

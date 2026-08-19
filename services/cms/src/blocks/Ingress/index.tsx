@@ -14,6 +14,7 @@ export interface InstructionBoxAttributes {
 }
 
 const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> = {
+  apiVersion: 3,
   title: "Ingress",
   description: "Ingress",
   category: "text",

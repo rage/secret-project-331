@@ -58,7 +58,7 @@ function runCommandWithVisibleOutput(program: string, args: string[]): Promise<v
     const handle = spawn(program, args, { cwd: process.cwd(), detached: false, stdio: "inherit" })
     handle.on("close", (code) => {
       if (code !== 0) {
-        reject()
+        reject(new Error(`${program} ${args.join(" ")} exited with code ${code}`))
         return
       }
       resolve()

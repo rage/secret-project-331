@@ -9,6 +9,7 @@ import BackFlipCardEditor from "./BackFlipCardEditor"
 import InnerCardSave from "./BackFlipCardSave"
 
 const BackFlipCardConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Back Flip Card",
   description: "Back side for the flip card block",
   category: MOOCFI_CATEGORY_SLUG,

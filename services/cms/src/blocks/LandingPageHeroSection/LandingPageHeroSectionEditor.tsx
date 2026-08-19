@@ -27,11 +27,11 @@ const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
 
 const LandingPageHeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<LandingPageHeroSectionAttributes>>
-> = ({ clientId, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { title } = attributes
   const { t } = useTranslation()
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <InspectorControls key="settings">
         <BackgroundAndColorCustomizer
           attributes={attributes}
@@ -48,10 +48,12 @@ const LandingPageHeroSectionEditor: React.FC<
         <div
           className={css`
             background-color: ${attributes.backgroundColor};
-            ${attributes.backgroundImage &&
-            `background-image: url("${attributes.backgroundImage}");
+            ${
+              attributes.backgroundImage &&
+              `background-image: url("${attributes.backgroundImage}");
             background-repeat: ${attributes.backgroundRepeatX ? "repeat-x" : "no-repeat"};
-            background-position: center center;`}
+            background-position: center center;`
+            }
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

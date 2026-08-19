@@ -14,6 +14,7 @@ export interface ConditionAttributes {
 }
 
 const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
+  apiVersion: 3,
   title: "ConditionalBlock",
   description: "Conditionally shown block",
   category: MOOCFI_CATEGORY_SLUG,

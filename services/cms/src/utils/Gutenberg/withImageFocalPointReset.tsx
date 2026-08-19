@@ -3,6 +3,8 @@
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { useEffect, useState } from "@wordpress/element"
 
+import { useIsBlockPreviewMode } from "./blockPreviewMode"
+
 const IMAGE_BLOCK_NAME = "core/image"
 
 interface ImageEditProps {
@@ -38,13 +40,14 @@ const toPx = (value: string | number | undefined): number | undefined => {
  */
 const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
   const ImageFocalPointReset = (props: ImageEditProps) => {
-    const { name, attributes, setAttributes } = props
+    const { attributes, setAttributes } = props
     const url = attributes?.url
+    const isPreviewMode = useIsBlockPreviewMode()
     const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null)
 
     // Measure the image's natural size so we can tell whether the chosen dimensions crop it.
     useEffect(() => {
-      if (name !== IMAGE_BLOCK_NAME || !url || !attributes.scale) {
+      if (isPreviewMode || !url || !attributes.scale) {
         return
       }
       let cancelled = false
@@ -59,10 +62,10 @@ const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
       return () => {
         cancelled = true
       }
-    }, [name, url, attributes.scale])
+    }, [isPreviewMode, url, attributes.scale])
 
     useEffect(() => {
-      if (name !== IMAGE_BLOCK_NAME || !attributes.scale) {
+      if (isPreviewMode || !attributes.scale) {
         return
       }
       // An aspect ratio is its own crop independent of width/height, so the focal point stays relevant.
@@ -87,7 +90,7 @@ const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
         setAttributes({ scale: undefined, focalPoint: undefined })
       }
     }, [
-      name,
+      isPreviewMode,
       attributes.scale,
       attributes.aspectRatio,
       attributes.width,
@@ -99,8 +102,10 @@ const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
     return <BlockEdit {...props} />
   }
 
-  ImageFocalPointReset.displayName = "ImageFocalPointReset"
-  return ImageFocalPointReset
+  const BlockEditWithImageFocalPointReset = (props: ImageEditProps) =>
+    props.name === IMAGE_BLOCK_NAME ? <ImageFocalPointReset {...props} /> : <BlockEdit {...props} />
+
+  return BlockEditWithImageFocalPointReset
   // oxlint-disable-next-line i18next/no-literal-string
 }, "withImageFocalPointReset")
 

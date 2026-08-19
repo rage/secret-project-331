@@ -12,11 +12,10 @@ const ALLOWED_NESTED_BLOCKS = [""]
 
 const CongratulationsEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
-> = ({ clientId }) => {
+> = () => {
   const { t } = useTranslation()
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("congratulations-placeholder")}
       explanation={t("congratulations-explanation")}
     >

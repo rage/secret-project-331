@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { InnerBlocks } from "@wordpress/block-editor"
+import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import { useContext } from "react"
 
 import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -38,21 +38,23 @@ const ExerciseSettingsEditor = () => {
     }),
   )
   const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
+  const blockProps = useBlockProps({
+    className: css`
+      background-color: white;
+      border: 1px solid ${baseTheme.colors.clear[100]};
+      border-radius: 2px;
+      padding: 1rem 2rem;
+      margin-bottom: 1rem;
+    `,
+  })
 
   if (!attributes) {
-    return null
+    // Still renders the wrapper: a block without one cannot be selected or removed in the editor.
+    return <div {...blockProps} />
   }
 
   return (
-    <div
-      className={css`
-        background-color: white;
-        border: 1px solid ${baseTheme.colors.clear[100]};
-        border-radius: 2px;
-        padding: 1rem 2rem;
-        margin-bottom: 1rem;
-      `}
-    >
+    <div {...blockProps}>
       <TextField
         label={t("exercise-name")}
         placeholder={t("exercise-name")}

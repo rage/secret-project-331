@@ -12,11 +12,11 @@ import BlockWrapper from "../BlockWrapper"
 
 const InstructionBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<InstructionBoxAttributes>>
-> = ({ clientId, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { content } = attributes
 
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <div
         className={css`
           background: #fafbfb;

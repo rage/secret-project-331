@@ -1,12 +1,15 @@
 ALTER TABLE credit_registrations
 ADD COLUMN action_needed_email_delivery_id UUID REFERENCES email_deliveries(id),
   ADD COLUMN registered_email_delivery_id UUID REFERENCES email_deliveries(id),
-  ADD COLUMN improvement_checked_completion_updated_at TIMESTAMP WITH TIME ZONE;
+  ADD COLUMN improvement_checked_completion_updated_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN test_exclusive_hold_until TIMESTAMP WITH TIME ZONE;
 
 COMMENT ON COLUMN credit_registrations.improvement_checked_completion_updated_at IS 'The completion''s updated_at as of the last time the grade-improvement scan judged this accepted attempt and found no improvement. A completion touched for any other reason keeps matching the scan''s cheap "changed since the attempt" pre-filter, so without this watermark those rows fill every capped batch and a real regrade further down the queue is never reached.';
 
 COMMENT ON COLUMN credit_registrations.action_needed_email_delivery_id IS 'The delivery carrying the "we could not register your credits, you have no enrolment" mail. Set once and never cleared: it is what stops the mail being sent again when the row re-enters no_usable_enrolment.';
 COMMENT ON COLUMN credit_registrations.registered_email_delivery_id IS 'The delivery carrying the "your credits are in the study registry" mail. Set once and never cleared. A grade-improvement attempt is a separate row and gets its own mail, which is intended: the grade in the registry changed.';
+
+COMMENT ON COLUMN credit_registrations.test_exclusive_hold_until IS 'System-test-only. While in the future, an unscoped claim_due call (the live background worker) skips this row; a scoped call (a Playwright spec ticking its own row) ignores the hold entirely. Set only through the mock-Suotar control API, gated the same as the rest of it on test_mode && test_suotar, and never by production code. Exists so an owner-narrowed request-level fault (mock_suotar::faults::matches_request requires every item in a batch to match) cannot be silently defeated by the worker batching the held row together with an unrelated one.';
 
 -- Serves the student-notification claim query and stays near-empty, because a row leaves the
 -- predicate as soon as its mail is queued.

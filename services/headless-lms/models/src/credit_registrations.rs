@@ -306,6 +306,9 @@ pub struct CreditRegistration {
     /// The completion revision the grade-improvement scan last found no improvement against. See
     /// [`mark_improvement_checked`].
     pub improvement_checked_completion_updated_at: Option<DateTime<Utc>>,
+    /// System-test-only. See [`set_test_exclusive_hold_for_testing`] and the column's migration
+    /// comment.
+    pub test_exclusive_hold_until: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -574,6 +577,33 @@ WHERE id = $1
     Ok(())
 }
 
+/// Excuses one row from every unscoped `claim_due` call until `held_until`; a scoped call ignores the
+/// hold regardless (see `claim_due`). Lets a spec drive one row through its own explicit ticks
+/// without the live background worker racing in and batching it with an unrelated row, which would
+/// silently defeat an owner-narrowed request-level mock-Suotar fault (`matches_request` requires
+/// every item in a batch to match).
+///
+/// Exists only for test setup: nothing in the product ever needs to hide a row from the worker that
+/// owns it.
+pub async fn set_test_exclusive_hold_for_testing(
+    conn: &mut PgConnection,
+    id: Uuid,
+    held_until: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE credit_registrations
+SET test_exclusive_hold_until = $2
+WHERE id = $1
+        ",
+        id,
+        held_until,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Which rows a phase iteration may touch. Empty means every row, which is what production runs; a
 /// narrowed scope lets a test drive the pipeline for its own course on a shared database.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -605,12 +635,17 @@ impl RegistrationScope {
 /// on a paused course module, or on one whose credit registration has been switched off, are never
 /// claimed: enforced here so no phase can forget it. Both freeze a row where it stands rather than
 /// cancelling it, so switching the module back on resumes the rows that were already in flight.
+///
+/// An unscoped call (the live background worker) also skips a row under
+/// `test_exclusive_hold_until` — see that column's migration comment. A scoped call always ignores
+/// the hold, so a spec driving its own row through explicit ticks is unaffected either way.
 pub async fn claim_due(
     conn: &mut PgConnection,
     states: &[CreditRegistrationState],
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<Vec<CreditRegistration>> {
+    let is_scoped_call = !scope.is_unscoped();
     let res = sqlx::query_as!(
         CreditRegistration,
         r#"
@@ -633,6 +668,11 @@ WITH due AS (
       cardinality($5::uuid []) = 0
       OR cr.id = ANY($5::uuid [])
     )
+    AND (
+      $6::boolean
+      OR cr.test_exclusive_hold_until IS NULL
+      OR cr.test_exclusive_hold_until <= now()
+    )
   ORDER BY cr.next_attempt_at
   FOR UPDATE OF cr SKIP LOCKED
   LIMIT $2
@@ -648,6 +688,7 @@ RETURNING cr.*
         scope.course_id,
         scope.user_id,
         &scope.credit_registration_ids,
+        is_scoped_call,
     )
     .fetch_all(conn)
     .await?;

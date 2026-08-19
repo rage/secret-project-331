@@ -20,9 +20,9 @@
  * - A `requestLevel` fault with an owner (`armMockSuotarFault`) fires only when *every* item in the
  *   request matches; the unscoped worker can batch a foreign student into the same call and
  *   silently suppress it. Prefer an `itemLevel` fault for a single-student fault, and where the
- *   contract forces `requestLevel` (see `armMockSuotarFault`'s validation), arm it before the row
- *   is eligible and keep the window between making it eligible and your own tick short — the worker
- *   can still claim the row itself once it is due.
+ *   contract forces `requestLevel` (see `armMockSuotarFault`'s validation), hold the row with
+ *   `setTestExclusiveHold` before it becomes eligible — a held row is invisible to every unscoped
+ *   claim, so the worker cannot batch it with anything, while your own scoped ticks are unaffected.
  *
  * | Student numbers | File                             | Courses it writes to        |
  * | --------------- | -------------------------------- | --------------------------- |

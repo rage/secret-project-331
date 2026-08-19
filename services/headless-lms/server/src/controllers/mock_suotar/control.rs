@@ -5,6 +5,8 @@
 //! `test_mode && test_suotar`, so no token; the client is hand-written in
 //! `system-tests/src/utils/suotarControl.ts`.
 
+use chrono::Duration;
+
 use crate::domain::credit_registration_phases::{
     CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, run_phase_once,
 };
@@ -204,6 +206,52 @@ async fn regrade_completion(
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct SetTestExclusiveHoldPayload {
+    pub credit_registration_id: Uuid,
+    pub hold_secs: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct SetTestExclusiveHoldResult {
+    pub held_until: DateTime<Utc>,
+}
+
+/// Comfortably above Playwright's own 100 s per-test timeout (`playwright.config.ts`'s `timeout`),
+/// so no legitimate hold is ever rejected; a value anywhere near this is a spec that mistyped a
+/// unit, not one that needs the row held that long.
+const MAX_TEST_EXCLUSIVE_HOLD_SECS: i64 = 120;
+
+/// Excuses one ledger row from the live background worker's unscoped sweeps — see
+/// `credit_registrations::set_test_exclusive_hold_for_testing`.
+async fn set_test_exclusive_hold(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    payload: web::Json<SetTestExclusiveHoldPayload>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    if !(0..=MAX_TEST_EXCLUSIVE_HOLD_SECS).contains(&payload.hold_secs) {
+        return token.authorized_ok(HttpResponse::BadRequest().json(format!(
+            "holdSecs must be between 0 and {MAX_TEST_EXCLUSIVE_HOLD_SECS}"
+        )));
+    }
+
+    let mut conn = pool.acquire().await?;
+    let held_until = Utc::now() + Duration::seconds(payload.hold_secs);
+    models::credit_registrations::set_test_exclusive_hold_for_testing(
+        &mut conn,
+        payload.credit_registration_id,
+        held_until,
+    )
+    .await?;
+
+    token.authorized_ok(HttpResponse::Ok().json(SetTestExclusiveHoldResult { held_until }))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueuedEmailsQuery {
     pub user_email: String,
 }
@@ -346,6 +394,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/run-tick", web::post().to(run_tick))
         .route("/run-registrar-tick", web::post().to(run_registrar_tick))
         .route("/regrade-completion", web::post().to(regrade_completion))
+        .route(
+            "/test-exclusive-hold",
+            web::post().to(set_test_exclusive_hold),
+        )
         .route("/queued-emails", web::get().to(queued_emails))
         .configure(commands::_add_routes);
 }

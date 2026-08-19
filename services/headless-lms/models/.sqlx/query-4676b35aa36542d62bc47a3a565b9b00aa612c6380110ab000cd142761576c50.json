@@ -565,6 +565,17 @@
             "name": "improvement_checked_completion_updated_at"
           }
         }
+      },
+      {
+        "ordinal": 46,
+        "name": "test_exclusive_hold_until",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "test_exclusive_hold_until"
+          }
+        }
       }
     ],
     "parameters": {
@@ -678,6 +689,7 @@
       true,
       false,
       false,
+      true,
       true,
       true,
       true,

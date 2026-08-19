@@ -233,6 +233,28 @@ export const regradeCompletion = async (
 }
 
 /**
+ * Excuses one ledger row from the live background worker's unscoped sweeps for `holdSecs`: a scoped
+ * tick (this spec's own) ignores the hold regardless, only an unscoped one skips the row. Use this
+ * before driving a row through an owner-narrowed `requestLevel` fault (see `armMockSuotarFault`'s
+ * doc comment) — otherwise the worker can batch the row with an unrelated one and silently suppress
+ * the fault.
+ */
+export const setTestExclusiveHold = async (
+  request: APIRequestContext,
+  creditRegistrationId: string,
+  holdSecs: number,
+): Promise<void> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/test-exclusive-hold`, {
+    data: { creditRegistrationId, holdSecs },
+  })
+  if (!response.ok()) {
+    throw new Error(
+      `Holding ${creditRegistrationId} for ${holdSecs}s answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+}
+
+/**
  * Drives a consented completion as far as a submission, one phase per tick. Each phase claims what
  * the one before it left, so ticking them out of order waits for a state that cannot arrive.
  */

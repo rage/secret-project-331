@@ -31,7 +31,6 @@ pub struct FastTrackCandidate {
     /// Any live link, whatever its number: replacing one silently is worse than mailing the link,
     /// whose confirmation screen names both numbers.
     pub has_live_student_number: bool,
-    /// Whether this account already unlinked an automatic link for this same person.
     pub unlinked_a_fast_track_link_before: bool,
 }
 
@@ -276,8 +275,6 @@ mod tests {
         assert_eq!(decide(None), FastTrackDecision::NoAccountMatch);
     }
 
-    /// The address is self-service editable, so equality without a proof is an impersonation
-    /// primitive rather than weak evidence.
     #[test]
     fn an_unproven_address_never_links() {
         let unverified = FastTrackCandidate {
@@ -344,7 +341,6 @@ mod tests {
         assert_eq!(decide(Some(&stranger)), FastTrackDecision::NameMismatch);
     }
 
-    /// A registry full name against an account nickname is the ordinary case, not a signal.
     #[test]
     fn one_matching_given_name_is_enough() {
         let nickname = FastTrackCandidate {

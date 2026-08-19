@@ -112,7 +112,7 @@ pub struct CreditRegistrationReconciliation {
     pub misregistered_count: i64,
     pub legacy_divergence_count: i64,
     pub outcome_unknown_consent_withdrawn_count: i64,
-    /// The four detector counts, which is the tab badge. The consent-withdrawal bucket is
+    /// The five detector counts, which is the tab badge. The consent-withdrawal bucket is
     /// deliberately outside it.
     pub finding_count: i64,
     pub max_rows_per_detector: i64,

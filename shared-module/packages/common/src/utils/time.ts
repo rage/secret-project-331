@@ -105,8 +105,6 @@ export const humanReadableDateTime = (
 /**
  * Converts a date to a locale-formatted date-only string (no time-of-day), in the user's local timezone.
  *
- * @param date - The date to format. Can be a Date object, date string, null, or undefined.
- *               If null or undefined, the function returns undefined.
  * @param locale - The locale string to use for formatting (e.g., 'en-US', 'sv-SE').
  *
  * @returns A human-readable date string in the format "Month Day, Year" (e.g., "December 25, 2023"),

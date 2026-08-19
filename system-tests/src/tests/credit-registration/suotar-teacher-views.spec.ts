@@ -357,7 +357,7 @@ test("The export carries verified student numbers in full", async ({ page }) => 
   await expect(response).toBeOK()
   const csv = await response.text()
   expect(csv.split("\n")[0]).toContain("student_number")
-  // In full, because the use is holding it against a student card.
+  // In full, because the teacher is holding it against a student card.
   expect(csv).toContain(EMAIL_LINK_STUDENT_NUMBER)
   // Every seeded Sisu address begins `zzyzx.`, so an unmasked one would show up here.
   expect(csv).not.toContain("zzyzx.")

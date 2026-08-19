@@ -460,6 +460,7 @@ pub async fn get_exercise_ids_with_any_submissions(
         JOIN exercises e ON e.id = ess.exercise_id
         WHERE ess.exercise_id = ANY($1)
           AND e.page_id = $2
+          AND e.deleted_at IS NULL
           AND ess.deleted_at IS NULL
         "#,
         exercise_ids,

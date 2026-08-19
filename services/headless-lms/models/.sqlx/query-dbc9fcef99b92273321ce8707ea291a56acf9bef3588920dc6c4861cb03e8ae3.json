@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT DISTINCT ess.exercise_id\n        FROM exercise_slide_submissions ess\n        JOIN exercises e ON e.id = ess.exercise_id\n        WHERE ess.exercise_id = ANY($1)\n          AND e.page_id = $2\n          AND ess.deleted_at IS NULL\n        ",
+  "query": "\n        SELECT DISTINCT ess.exercise_id\n        FROM exercise_slide_submissions ess\n        JOIN exercises e ON e.id = ess.exercise_id\n        WHERE ess.exercise_id = ANY($1)\n          AND e.page_id = $2\n          AND e.deleted_at IS NULL\n          AND ess.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -25,5 +25,5 @@
       false
     ]
   },
-  "hash": "993cedbc581271fdf58abde75fa8a95b4a18edfa25fc4f66f6bcc25c06b8cdfb"
+  "hash": "dbc9fcef99b92273321ce8707ea291a56acf9bef3588920dc6c4861cb03e8ae3"
 }

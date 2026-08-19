@@ -182,29 +182,6 @@ ORDER BY created_at DESC
 pub async fn get_all_conversations_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
-    chatbot_configuration_id: Uuid,
-) -> ModelResult<Vec<ChatbotConversation>> {
-    let res = sqlx::query_as!(
-        ChatbotConversation,
-        r#"
-SELECT *
-FROM chatbot_conversations
-WHERE user_id = $1
-  AND chatbot_configuration_id = $2
-  AND deleted_at IS NULL
-ORDER BY created_at DESC
-        "#,
-        user_id,
-        chatbot_configuration_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_all_chatbot_conversations_for_user(
-    conn: &mut PgConnection,
-    user_id: Uuid,
 ) -> ModelResult<Vec<ChatbotConversation>> {
     let res = sqlx::query_as!(
         ChatbotConversation,

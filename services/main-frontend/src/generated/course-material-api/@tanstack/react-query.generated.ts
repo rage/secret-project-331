@@ -8,7 +8,6 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from "@tanst
 import { client } from "../client.generated"
 import {
   acknowledgeAiUsageNotice,
-  allUserChatbotConversations,
   allUserConversations,
   claimCodeFromCodeGiveaway,
   deleteCourseMaterialGlossaryTerm,
@@ -96,8 +95,6 @@ import {
 import type {
   AcknowledgeAiUsageNoticeData,
   AcknowledgeAiUsageNoticeResponse,
-  AllUserChatbotConversationsData,
-  AllUserChatbotConversationsResponse,
   AllUserConversationsData,
   AllUserConversationsResponse,
   ClaimCodeFromCodeGiveawayData,
@@ -479,33 +476,30 @@ export const getCourseMaterialChapterPagesExcludingFrontPageOptions = (
     queryKey: getCourseMaterialChapterPagesExcludingFrontPageQueryKey(options),
   })
 
-export const allUserChatbotConversationsQueryKey = (
-  options?: Options<AllUserChatbotConversationsData>,
-) => createQueryKey("allUserChatbotConversations", options)
+export const allUserConversationsQueryKey = (options?: Options<AllUserConversationsData>) =>
+  createQueryKey("allUserConversations", options)
 
 /**
  *
  * GET `/api/v0/course-material/chatbot/conversations/all`
  *
- * Returns all conversations for the user.
+ * Returns all conversations that a user has.
  */
-export const allUserChatbotConversationsOptions = (
-  options?: Options<AllUserChatbotConversationsData>,
-) =>
+export const allUserConversationsOptions = (options?: Options<AllUserConversationsData>) =>
   queryOptions<
-    AllUserChatbotConversationsResponse,
+    AllUserConversationsResponse,
     DefaultError,
-    AllUserChatbotConversationsResponse,
-    ReturnType<typeof allUserChatbotConversationsQueryKey>
+    AllUserConversationsResponse,
+    ReturnType<typeof allUserConversationsQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) =>
-      await allUserChatbotConversations({
+      await allUserConversations({
         ...options,
         ...queryKey[0],
         signal,
         throwOnError: true,
       }),
-    queryKey: allUserChatbotConversationsQueryKey(options),
+    queryKey: allUserConversationsQueryKey(options),
   })
 
 export const getDefaultChatbotConfigurationForCourseQueryKey = (
@@ -561,26 +555,6 @@ export const getConversationInfoOptions = (options: Options<GetConversationInfoD
         throwOnError: true,
       }),
     queryKey: getConversationInfoQueryKey(options),
-  })
-
-export const allUserConversationsQueryKey = (options: Options<AllUserConversationsData>) =>
-  createQueryKey("allUserConversations", options)
-
-export const allUserConversationsOptions = (options: Options<AllUserConversationsData>) =>
-  queryOptions<
-    AllUserConversationsResponse,
-    DefaultError,
-    AllUserConversationsResponse,
-    ReturnType<typeof allUserConversationsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await allUserConversations({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: allUserConversationsQueryKey(options),
   })
 
 export const getChatbotCurrentConversationInfoQueryKey = (

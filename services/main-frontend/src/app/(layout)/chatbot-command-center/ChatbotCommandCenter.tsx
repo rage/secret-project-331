@@ -10,14 +10,11 @@ import useChatbotStateAndData from "@/components/course-material/chatbot/shared/
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import ConversationIdContext from "@/contexts/course-material/ConversationIdContext"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
-import {
-  allUserChatbotConversationsOptions,
-  getCurrentConversationIdOptions,
-} from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { QueryResult, Select } from "@/shared-module/components"
+import { Select } from "@/shared-module/components"
 
-import ConversationHistory from "./ConversationHistory"
+import SideBar from "./SideBar"
 
 interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
@@ -36,8 +33,6 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
       },
     }),
   )
-
-  const allConversationsQuery = useQuery(allUserChatbotConversationsOptions())
 
   const sideBarContainer = css`
     border-radius: 10px;
@@ -98,7 +93,6 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
 
     return groupedSorted
   }, [chatbots, courses, t])
-
   // Prevents chatbot disclaimer from showing up
   // when chatbot is changed
   useEffect(() => {
@@ -123,19 +117,13 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     >
       <div className={sideBarContainer}>
         {configuration_id && (
-          <QueryResult query={allConversationsQuery}>
-            {(conversations) => (
-              <ConversationHistory
-                conversations={conversations}
-                setConversationId={setConversationId}
-                newConversationMutation={chatbotStateAndData.newConversationMutation}
-                setValue={setValue}
-              />
-            )}
-          </QueryResult>
+          <SideBar
+            newConversationMutation={chatbotStateAndData.newConversationMutation}
+            setConversationId={setConversationId}
+            setValue={setValue}
+          />
         )}
       </div>
-
       <div>
         <h1>{t("link-text-chatbot-command-center")}</h1>
         <form>

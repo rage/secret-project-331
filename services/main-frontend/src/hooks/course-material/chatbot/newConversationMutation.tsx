@@ -3,8 +3,8 @@
 import { useQueryClient } from "@tanstack/react-query"
 
 import {
-  getCurrentConversationIdQueryKey,
   allUserConversationsQueryKey,
+  getCurrentConversationIdQueryKey,
 } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { newChatbotConversation } from "@/generated/course-material-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -37,11 +37,7 @@ const useNewConversationMutation = (
           }),
         })
         queryClient.refetchQueries({
-          queryKey: allUserConversationsQueryKey({
-            path: {
-              chatbot_configuration_id: chatbotConfigurationId,
-            },
-          }),
+          queryKey: allUserConversationsQueryKey(),
         })
         setNewMessage("")
         setConversationId && setConversationId(null)

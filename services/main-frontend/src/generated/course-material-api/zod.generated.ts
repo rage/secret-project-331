@@ -1421,7 +1421,7 @@ export const zGetCourseMaterialChapterPagesExcludingFrontPageResponse = z.array(
 /**
  * All chatbot conversations for user
  */
-export const zAllUserChatbotConversationsResponse = z.array(zChatbotConversation)
+export const zAllUserConversationsResponse = z.array(zChatbotConversation)
 
 export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
   course_id: z.uuid(),
@@ -1444,15 +1444,6 @@ export const zGetConversationInfoQuery = z.object({
  * Selected chatbot conversation info
  */
 export const zGetConversationInfoResponse = zChatbotConversationInfo
-
-export const zAllUserConversationsPath = z.object({
-  chatbot_configuration_id: z.uuid(),
-})
-
-/**
- * All conversations for user
- */
-export const zAllUserConversationsResponse = z.array(zChatbotConversation)
 
 export const zGetChatbotCurrentConversationInfoPath = z.object({
   chatbot_configuration_id: z.uuid(),

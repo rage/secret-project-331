@@ -15,8 +15,6 @@ import { client } from "./client.generated"
 import type {
   AcknowledgeAiUsageNoticeData,
   AcknowledgeAiUsageNoticeResponses,
-  AllUserChatbotConversationsData,
-  AllUserChatbotConversationsResponses,
   AllUserConversationsData,
   AllUserConversationsResponses,
   ClaimCodeFromCodeGiveawayData,
@@ -187,7 +185,6 @@ import type {
 } from "./types.generated"
 import {
   zAcknowledgeAiUsageNoticeResponse,
-  zAllUserChatbotConversationsResponse,
   zAllUserConversationsResponse,
   zClaimCodeFromCodeGiveawayResponse,
   zFetchExamEnrollmentResponse,
@@ -444,18 +441,13 @@ export const getCourseMaterialChapterPagesExcludingFrontPage = <
  *
  * GET `/api/v0/course-material/chatbot/conversations/all`
  *
- * Returns all conversations for the user.
+ * Returns all conversations that a user has.
  */
-export const allUserChatbotConversations = <ThrowOnError extends boolean = true>(
-  options?: Options<AllUserChatbotConversationsData, ThrowOnError>,
-): RequestResult<AllUserChatbotConversationsResponses, unknown, ThrowOnError, "data"> =>
-  (options?.client ?? client).get<
-    AllUserChatbotConversationsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) => await zAllUserChatbotConversationsResponse.parseAsync(data),
+export const allUserConversations = <ThrowOnError extends boolean = true>(
+  options?: Options<AllUserConversationsData, ThrowOnError>,
+): RequestResult<AllUserConversationsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<AllUserConversationsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zAllUserConversationsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/conversations/all",
     ...options,
@@ -496,16 +488,6 @@ export const getConversationInfo = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetConversationInfoResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations",
-    ...options,
-  })
-
-export const allUserConversations = <ThrowOnError extends boolean = true>(
-  options: Options<AllUserConversationsData, ThrowOnError>,
-): RequestResult<AllUserConversationsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<AllUserConversationsResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zAllUserConversationsResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/all",
     ...options,
   })
 

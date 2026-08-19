@@ -29,10 +29,9 @@ use rand::distr::{Alphanumeric, SampleString};
     send_message,
     new_conversation,
     current_conversation_info,
-    all_user_conversations,
     conversation_info,
     current_conversation_id,
-    all_user_chatbot_conversations
+    all_user_conversations
 ))]
 pub(crate) struct CourseMaterialChatbotApiDoc;
 
@@ -363,69 +362,26 @@ async fn current_conversation_info(
 /**
 GET `/api/v0/course-material/chatbot/conversations/all`
 
-Returns all conversations for the user.
+Returns all conversations that a user has.
 */
 #[utoipa::path(
     get,
     path = "/conversations/all",
-    operation_id = "AllUserChatbotConversations",
+    operation_id = "AllUserConversations",
     tag = "course-material-chatbot",
     responses(
         (status = 200, description = "All chatbot conversations for user", body = Vec<ChatbotConversation>)
     )
 )]
 #[instrument(skip(pool))]
-async fn all_user_chatbot_conversations(
-    pool: web::Data<PgPool>,
-    user: Option<AuthUser>,
-) -> ControllerResult<web::Json<Vec<ChatbotConversation>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        user.map(|u| u.id),
-        Res::GlobalPermissions,
-    )
-    .await?;
-
-    let res =
-        chatbot_conversations::get_all_chatbot_conversations_for_user(&mut conn, user.unwrap().id)
-            .await?;
-    token.authorized_ok(web::Json(res))
-}
-
-#[utoipa::path(
-    get,
-    path = "/{chatbot_configuration_id}/conversations/all",
-    operation_id = "AllUserConversations",
-    tag = "course-material-chatbot",
-    params(
-        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
-    ),
-    responses(
-        (status = 200, description = "All conversations for user", body = Vec<ChatbotConversation>)
-    )
-)]
-#[instrument(skip(pool))]
 async fn all_user_conversations(
     pool: web::Data<PgPool>,
-    user: Option<AuthUser>,
-    params: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ChatbotConversation>>> {
     let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
 
-    let chatbot_configuration =
-        models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
-
-    let token =
-        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
-
-    let res = chatbot_conversations::get_all_conversations_for_user(
-        &mut conn,
-        user.unwrap().id,
-        chatbot_configuration.id,
-    )
-    .await?;
+    let res = chatbot_conversations::get_all_conversations_for_user(&mut conn, user.id).await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -644,10 +600,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_default_chatbot_configuration_for_course),
     )
     .route(
-        "/{chatbot_configuration_id}/conversations/all",
-        web::get().to(all_user_conversations),
-    )
-    .route(
         "/{chatbot_configuration_id}/conversations",
         web::get().to(conversation_info),
     )
@@ -655,8 +607,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/{chatbot_configuration_id}/conversations/current/id",
         web::get().to(current_conversation_id),
     )
-    .route(
-        "/conversations/all",
-        web::get().to(all_user_chatbot_conversations),
-    );
+    .route("/conversations/all", web::get().to(all_user_conversations));
 }

@@ -1338,22 +1338,22 @@ export type GetCourseMaterialChapterPagesExcludingFrontPageResponses = {
 export type GetCourseMaterialChapterPagesExcludingFrontPageResponse =
   GetCourseMaterialChapterPagesExcludingFrontPageResponses[keyof GetCourseMaterialChapterPagesExcludingFrontPageResponses]
 
-export type AllUserChatbotConversationsData = {
+export type AllUserConversationsData = {
   body?: never
   path?: never
   query?: never
   url: "/api/v0/course-material/chatbot/conversations/all"
 }
 
-export type AllUserChatbotConversationsResponses = {
+export type AllUserConversationsResponses = {
   /**
    * All chatbot conversations for user
    */
   200: Array<ChatbotConversation>
 }
 
-export type AllUserChatbotConversationsResponse =
-  AllUserChatbotConversationsResponses[keyof AllUserChatbotConversationsResponses]
+export type AllUserConversationsResponse =
+  AllUserConversationsResponses[keyof AllUserConversationsResponses]
 
 export type GetDefaultChatbotConfigurationForCourseData = {
   body?: never
@@ -1403,28 +1403,6 @@ export type GetConversationInfoResponses = {
 
 export type GetConversationInfoResponse =
   GetConversationInfoResponses[keyof GetConversationInfoResponses]
-
-export type AllUserConversationsData = {
-  body?: never
-  path: {
-    /**
-     * Chatbot configuration id
-     */
-    chatbot_configuration_id: string
-  }
-  query?: never
-  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/all"
-}
-
-export type AllUserConversationsResponses = {
-  /**
-   * All conversations for user
-   */
-  200: Array<ChatbotConversation>
-}
-
-export type AllUserConversationsResponse =
-  AllUserConversationsResponses[keyof AllUserConversationsResponses]
 
 export type GetChatbotCurrentConversationInfoData = {
   body?: never

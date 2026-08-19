@@ -351,6 +351,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _introduction_to_course_auditing = seed_introduction_to_course_auditing(
+        &app_config,
         Uuid::parse_str("1f696688-5d8a-494f-9abc-a3b5d9e5f04a")?,
         "Introduction to course auditing",
         "introduction-to-course-auditing",

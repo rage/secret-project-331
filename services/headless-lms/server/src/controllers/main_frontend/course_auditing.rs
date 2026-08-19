@@ -49,7 +49,7 @@ PUT `/api/v0/main-frontend/course-auditing/:id`
         (status = 200, description = "Updated course", body = CourseAuditingData)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn update_course_auditing_data(
     payload: web::Json<CourseAuditingDataUpdate>,
     app_conf: web::Data<ApplicationConfiguration>,

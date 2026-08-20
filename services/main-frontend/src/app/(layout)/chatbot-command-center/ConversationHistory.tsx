@@ -40,7 +40,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
       className={css`
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 1rem;
       `}
     >
       {conversationsAndFirstMessages.map((conversation) => (
@@ -55,6 +55,10 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
                 shouldDirty: true,
               })
             }}
+            className={css`
+              font-size: 14px;
+              font-weight: 500;
+            `}
           >
             <div
               className={css`
@@ -63,14 +67,35 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
                 align-items: flex-start;
               `}
             >
-              {conversation.firstMessage !== undefined
-                ? conversation.firstMessage
-                : // oxlint-disable-next-line i18next/no-literal-string
-                  "untitled conversation"}
+              <div
+                className={css`
+                  white-space: nowrap;
+                  max-width: 250px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                `}
+              >
+                {conversation.firstMessage !== undefined
+                  ? conversation.firstMessage
+                  : // oxlint-disable-next-line i18next/no-literal-string
+                    "untitled conversation"}
+              </div>
               <span
                 className={css`
                   padding-top: 0.25rem;
-                  font-size: 14px;
+                  font-size: 10px;
+                  white-space: nowrap;
+                  width: 200px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  text-align: left;
+                  border: 1px solid #8fb4b2;
+                  border-radius: 999px;
+                  color: gray;
+                  max-width: 100px;
+                  padding-left: 10px;
+                  margin-top: 5px;
+                  padding-bottom: 5px;
                 `}
               >
                 {conversation.chatbotName}

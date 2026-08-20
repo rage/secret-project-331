@@ -16,4 +16,4 @@ echo "docker MemoryMax=$(systemctl show docker -p MemoryMax --value 2>/dev/null)
 sudo systemctl start docker
 
 sudo systemctl status docker --no-pager
-docker info | grep "Docker Root Dir"
+docker info | grep "Docker Root Dir" || true

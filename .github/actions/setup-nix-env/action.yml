@@ -1,5 +1,5 @@
 name: Setup Nix environment
-description: Install Nix, restore the Nix store cache, and export this repo's flake devShell (kubectl, kustomize, skaffold, minikube, node, pnpm, the pinned Rust toolchain, actionlint, zizmor, etc.) to subsequent steps
+description: Install Nix, restore the Nix store and pnpm caches, and export this repo's flake devShell (kubectl, kustomize, skaffold, minikube, node, pnpm, the pinned Rust toolchain, actionlint, zizmor, etc.) to subsequent steps
 runs:
   using: composite
   steps:
@@ -7,12 +7,30 @@ runs:
     - uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
     - name: Export flake devShell environment
       shell: bash
-      run: |
+      run: | # zizmor: ignore[github-env] every value written here comes from the pinned Nix flake or local repo files, never PR/issue-controlled input
         set -euo pipefail
+        cd "$GITHUB_WORKSPACE"
+
         # Each `run:` step is a fresh shell, so the devShell env only reaches later steps
-        # by being written to $GITHUB_ENV/$GITHUB_PATH here instead of just sourced in-process.
-        source <(nix print-dev-env)
+        # by being written to $GITHUB_ENV here instead of just sourced in-process. Writing
+        # to a file first (rather than `source <(nix print-dev-env)`) means a `nix` failure
+        # is caught by `set -e` instead of being masked by the process substitution.
+        nix print-dev-env > /tmp/nix-dev-env.sh
+        source /tmp/nix-dev-env.sh
         eval "$shellHook"
+
+        # Keeps CI on the exact Node version package.json declares instead of silently
+        # floating with whatever flake.lock's nixpkgs revision currently pins.
+        EXPECTED_NODE_VERSION="v$(node -p "const v = require('./package.json').devEngines?.runtime?.version; if (!v) throw new Error('Expected devEngines.runtime.version in package.json'); v")"
+        ACTUAL_NODE_VERSION="$(node -v)"
+        if [ "$EXPECTED_NODE_VERSION" != "$ACTUAL_NODE_VERSION" ]; then
+          echo "::error::package.json declares Node $EXPECTED_NODE_VERSION but flake.nix's devShell provides $ACTUAL_NODE_VERSION. Update package.json's devEngines.runtime.version (and flake.nix's nodeVersion, used for the macOS override) to match." >&2
+          exit 1
+        fi
+
+        # Keep this list in sync with flake.nix's devShells.default mkShell attrs and
+        # shellHook exports — a new export added there needs a matching line here, or it
+        # reaches `nix develop` locally but never reaches CI steps after this one.
         {
           echo "PATH=$PATH"
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
@@ -23,3 +41,13 @@ runs:
           if [ -n "${RUSTFLAGS:-}" ]; then echo "RUSTFLAGS=$RUSTFLAGS"; fi
           if [ -n "${SKAFFOLD_PLATFORM:-}" ]; then echo "SKAFFOLD_PLATFORM=$SKAFFOLD_PLATFORM"; fi
         } >> "$GITHUB_ENV"
+
+        echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
+
+    - name: Cache pnpm dependencies
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ env.PNPM_STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-

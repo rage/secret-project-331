@@ -25,15 +25,15 @@
         # binaries there instead (keeps node and pnpm's embedded nodejs-slim stable).
         # Bump version+hash together:
         # nix-prefetch-url https://nodejs.org/dist/v<VER>/node-v<VER>-darwin-arm64.tar.xz
-        nodeVersion = "24.18.0";
+        nodeVersion = "24.19.0";
         officialNodeSrcs = {
           aarch64-darwin = {
             url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-arm64.tar.xz";
-            sha256 = "19lml03vjp7km4zykd1qdd36dfjdb7ls0mzbym678xzvivvvjxs4";
+            sha256 = "153v346r9pxn8rviazlfx7nhil7rz89mw44340sq054w8xbz271z";
           };
           x86_64-darwin = {
             url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-x64.tar.xz";
-            sha256 = "0vxbs6gmgxvfa1759085v7l69cz8g6idja2ih8q485a22p46nfsa";
+            sha256 = "1r4g6afmn03ak4q1dyz1sl2mwwy649kcb5zl3msz1xj61wirapnk";
           };
         };
         officialNodeOverlay = final: prev:
@@ -284,6 +284,9 @@
               "fortify3"
             ];
 
+            # If you add or rename an attr or shellHook export here, also update the
+            # matching env-var list in .github/actions/setup-nix-env/action.yml — it
+            # forwards a fixed set of names into CI steps, not the whole environment.
             OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
             OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
             LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];

@@ -96,9 +96,6 @@ jobs:
       - name: Configure Docker to use tmpfs for better performance
         run: bin/ci/docker-tmpfs-configure
         shell: bash
-      - name: Cleanup docker tmpfs
-        if: always()
-        run: bin/ci/docker-tmpfs-cleanup
 
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
@@ -124,9 +121,9 @@ jobs:
           sudo sysctl net/netfilter/nf_conntrack_max=131072
 
       - name: Start minikube
-        run: minikube start --addons ingress --memory 60g --driver docker --kubernetes-version v1.36.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Target the same Kubernetes version as the Nix-pinned kubectl, so a flake.lock
+        # bump can't silently drift the two apart.
+        run: minikube start --addons ingress --memory 60g --driver docker --kubernetes-version "$(kubectl version --client -o json | jq -r '.clientVersion.gitVersion')"
 
       - name: Build
         id: build
@@ -330,6 +327,10 @@ jobs:
       - name: Push images tagged with sha if master
         run: bin/ci/push-skaffold-images
         if: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Cleanup docker tmpfs
+        if: always()
+        run: bin/ci/docker-tmpfs-cleanup
 
   deploy:
     needs: build-and-system-tests

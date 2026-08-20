@@ -31,13 +31,7 @@ jobs:
       - name: Install pnpm dependencies
         run: pnpm install --frozen-lockfile
       - name: Run actionlint
-        uses: docker://rhysd/actionlint:latest # zizmor: ignore[unpinned-images] intentionally tracks the latest actionlint release
-        with:
-          args: -color
-      - name: Zizmor
-        run: zizmor --gh-token "$GH_TOKEN" .github/workflows/ .github/actions/
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: actionlint -color
       - name: Oxlint
         run: pnpm run lint:ci
       - name: Oxfmt
@@ -46,3 +40,7 @@ jobs:
         run: pnpm run lint:css
       - name: Cargo fmt
         run: cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff --check
+      - name: Zizmor
+        run: zizmor --gh-token "$GH_TOKEN" .github/workflows/ .github/actions/
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

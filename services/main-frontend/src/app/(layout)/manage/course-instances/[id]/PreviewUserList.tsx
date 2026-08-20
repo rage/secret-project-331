@@ -110,9 +110,9 @@ const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
                 className={css`
                   margin-left: auto;
                   padding: 0.25rem 0.75rem;
-                  background-color: ${user.passed
-                    ? baseTheme.colors.green[100]
-                    : baseTheme.colors.red[100]};
+                  background-color: ${
+                    user.passed ? baseTheme.colors.green[100] : baseTheme.colors.red[100]
+                  };
                   color: ${user.passed ? baseTheme.colors.green[600] : baseTheme.colors.red[600]};
                   border-radius: 4px;
                   font-weight: 500;

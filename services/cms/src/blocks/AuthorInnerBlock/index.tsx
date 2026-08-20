@@ -9,6 +9,7 @@ import AuthorInnerBlockEditor from "./AuthorInnerBlockEditor"
 import AuthorInnerBlockSave from "./AuthorInnerBlockSave"
 
 const AuthorInnerBlockConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "AuthorInnerBlock",
   description: "Author InnerBlock",
   category: MOOCFI_CATEGORY_SLUG,

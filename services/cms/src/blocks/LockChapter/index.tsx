@@ -8,6 +8,7 @@ import LockChapterEditor from "./LockChapterEditor"
 import LockChapterSave from "./LockChapterSave"
 
 const LockChapterConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Lock Chapter",
   description: "Button for students to lock chapter (mark as done).",
   category: MOOCFI_CATEGORY_SLUG,

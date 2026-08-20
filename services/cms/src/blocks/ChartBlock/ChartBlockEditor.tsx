@@ -1,12 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import {
-  BlockControls,
-  store as blockEditorStore,
-  BlockIcon,
-  InspectorControls,
-} from "@wordpress/block-editor"
+import { BlockControls, BlockIcon, InspectorControls } from "@wordpress/block-editor"
 import { Placeholder, ResizableBox, ToolbarButton, ToolbarGroup } from "@wordpress/components"
 import { useDispatch, useSelect } from "@wordpress/data"
 import { image as icon } from "@wordpress/icons"
@@ -26,6 +21,8 @@ import { isAutoHeight, isMultiViewSpec, resolveChartLayout } from "./chartSpec"
 
 const MIN_CHART_HEIGHT = 120
 
+const BLOCK_EDITOR_STORE = "core/block-editor"
+
 // The canvas shows a placeholder until the block has a spec, then renders the chart. A freshly
 // inserted block opens the editor modal automatically; the toolbar/inspector "Edit" button also
 // opens it. Only height is resizable (bottom edge + inspector field); width stays responsive.
@@ -36,7 +33,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
   isSelected,
 }) => {
   const { t } = useTranslation()
-  const { toggleSelection } = useDispatch(blockEditorStore)
+  const { toggleSelection } = useDispatch(BLOCK_EDITOR_STORE)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { spec, caption, height, heightIsAuto } = attributes
 
@@ -46,7 +43,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
     (select) =>
       // `wasBlockJustInserted` exists at runtime but is missing from the store's type defs.
       (
-        select(blockEditorStore) as unknown as {
+        select(BLOCK_EDITOR_STORE) as unknown as {
           wasBlockJustInserted: (clientId: string) => boolean
         }
       ).wasBlockJustInserted(clientId),
@@ -131,7 +128,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
   // the modal's editor must not remount the modal (a remount would drop its state, including the
   // debounced data extraction).
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       {!spec?.trim() ? (
         <Placeholder
           icon={<BlockIcon icon={icon} />}

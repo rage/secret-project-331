@@ -31,7 +31,7 @@ const execute = async (
     const timeout = setTimeout(
       () => {
         kill(cprocess.pid as number)
-        reject("Process didn't seem to finish or was taking a really long time.")
+        reject(new Error("Process didn't seem to finish or was taking a really long time."))
       },
       20 * 60 * 1000,
     )

@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useBlockProps } from "@wordpress/block-editor"
 import { renderToString } from "katex"
 import React from "react"
 
@@ -25,6 +26,7 @@ const Component = styled.div`
 
 const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttributes>>> = (props) => {
   const { attributes, setAttributes } = props
+  const blockProps = useBlockProps()
 
   const update = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setAttributes({
@@ -42,7 +44,7 @@ const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttribute
   }
 
   return (
-    <Container>
+    <Container {...blockProps}>
       <Component>
         <textarea
           className={css`

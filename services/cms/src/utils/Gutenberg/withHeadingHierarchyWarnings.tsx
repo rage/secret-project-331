@@ -4,23 +4,36 @@ import { css } from "@emotion/css"
 import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { useSelect } from "@wordpress/data"
-import { Fragment } from "@wordpress/element"
+import { Fragment, useMemo } from "@wordpress/element"
 
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
+import { useIsBlockPreviewMode } from "./blockPreviewMode"
 import type { HeadingHierarchyIssue } from "./headingHierarchy"
-import { getHeadingHierarchyIssuesForBlock } from "./headingHierarchy"
+import {
+  analyzeHeadingHierarchyForFlatBlocks,
+  getHeadingHierarchyIssuesForBlock,
+  HEADING_SOURCE_BLOCK_NAMES,
+} from "./headingHierarchy"
 
 interface BlockEditWithClientIdProps {
+  name: string
   clientId: string
   [key: string]: unknown
+}
+
+interface HeadingHierarchySelectors {
+  getBlocksByName: (blockName: string[]) => string[]
+  getBlock: (clientId: string) => BlockInstance | null
 }
 
 // oxlint-disable-next-line i18next/no-literal-string
 const W3C_HEADINGS_GUIDANCE_URL = "https://www.w3.org/WAI/test-evaluate/easy-checks/headings/"
 const BLOCK_EDITOR_STORE = "core/block-editor"
 const WARNING_NOTICE_STATUS = "warning"
+const HEADING_SOURCE_BLOCK_NAME_SET = new Set(HEADING_SOURCE_BLOCK_NAMES)
+const NO_ISSUES: HeadingHierarchyIssue[] = []
 const noticeParagraphClass = css`
   margin: 0 0 0.75rem 0;
 
@@ -56,13 +69,29 @@ const renderGuidanceText = (
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withHeadingHierarchyWarnings = createHigherOrderComponent((BlockEdit) => {
-  const BlockEditWithHeadingWarnings = (props: BlockEditWithClientIdProps) => {
+  const HeadingHierarchyWarnings = (props: BlockEditWithClientIdProps) => {
     const { t } = useTranslation()
-    const blocks = useSelect((select) => {
-      return (select(BLOCK_EDITOR_STORE) as { getBlocks: () => BlockInstance[] }).getBlocks()
+    const isPreviewMode = useIsBlockPreviewMode()
+    // getBlocksByName is memoized and getBlock hands out stable tree nodes; getBlocks() returns a
+    // fresh array instead and would re-render every heading on each keystroke anywhere.
+    const headingBlocks = useSelect((select) => {
+      const store = select(BLOCK_EDITOR_STORE) as HeadingHierarchySelectors
+      return store
+        .getBlocksByName(HEADING_SOURCE_BLOCK_NAMES)
+        .map((clientId) => store.getBlock(clientId))
+        .filter((block): block is BlockInstance => block !== null)
     }, [])
 
-    const issues = getHeadingHierarchyIssuesForBlock(blocks, props.clientId)
+    const issues = useMemo(
+      () =>
+        isPreviewMode
+          ? NO_ISSUES
+          : getHeadingHierarchyIssuesForBlock(
+              analyzeHeadingHierarchyForFlatBlocks(headingBlocks),
+              props.clientId,
+            ),
+      [isPreviewMode, headingBlocks, props.clientId],
+    )
 
     return (
       <Fragment>
@@ -96,7 +125,15 @@ const withHeadingHierarchyWarnings = createHigherOrderComponent((BlockEdit) => {
     )
   }
 
-  BlockEditWithHeadingWarnings.displayName = "HeadingHierarchyWarnings"
+  // This dispatcher runs for every block in the document; the hooks stay in the inner component so
+  // that only heading blocks subscribe to the store.
+  const BlockEditWithHeadingWarnings = (props: BlockEditWithClientIdProps) =>
+    HEADING_SOURCE_BLOCK_NAME_SET.has(props.name) ? (
+      <HeadingHierarchyWarnings {...props} />
+    ) : (
+      <BlockEdit {...props} />
+    )
+
   return BlockEditWithHeadingWarnings
   // oxlint-disable-next-line i18next/no-literal-string
 }, "withHeadingHierarchyWarnings")

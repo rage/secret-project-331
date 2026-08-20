@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
-import React, { useContext } from "react"
+import React, { useContext, useEffect } from "react"
 
 import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -19,7 +19,6 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 const ALLOWED_NESTED_BLOCKS = [""]
 
 const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBlockAttributes>>> = ({
-  clientId,
   attributes,
   setAttributes,
 }) => {
@@ -44,23 +43,36 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
 
   const { chatbotConfigurationId } = attributes
 
-  // set the initial selected value as the previously selected chatbotConfiguration,
-  // but if this chatbotConfiguration has been set as default, then it won't be found in
-  // the options. in this case, select the first in the list.
+  // A chatbotConfiguration that has since been made the course default is no longer among the
+  // options, so fall back to the first one.
   const initialSelected =
     chatbotConfigurationSelectOptions
       .map((o) => o.value)
       .find((v) => v === chatbotConfigurationId) ?? chatbotConfigurationSelectOptions.at(0)?.value
-  // set it as the attribute, since if the dropdown contains only one item, then
-  // the onChangeByValue event will never fire and they won't be updated.
-  setAttributes({
-    chatbotConfigurationId: initialSelected,
-    courseId: courseId ?? undefined,
-  })
+  const resolvedCourseId = courseId ?? undefined
+
+  // The dropdown never fires onChangeByValue when it holds a single option, so the attributes have
+  // to be seeded here. Writing only on a real change keeps this out of the undo history and off the
+  // unsaved-changes flag; waiting for the query keeps it from clearing a stored id while loading.
+  useEffect(() => {
+    if (chatbotConfigurations.data === undefined) {
+      return
+    }
+    if (initialSelected === chatbotConfigurationId && resolvedCourseId === attributes.courseId) {
+      return
+    }
+    setAttributes({ chatbotConfigurationId: initialSelected, courseId: resolvedCourseId })
+  }, [
+    attributes.courseId,
+    chatbotConfigurationId,
+    chatbotConfigurations.data,
+    initialSelected,
+    resolvedCourseId,
+    setAttributes,
+  ])
 
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("chatbot-block-placeholder")}
       explanation={t("chatbot-block-placeholder-explanation")}
     >

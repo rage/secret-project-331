@@ -20,6 +20,7 @@ export interface LandingPageHeroSectionAttributes {
 }
 
 const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSectionAttributes> = {
+  apiVersion: 3,
   title: "Landing Page Hero Section",
   description:
     "Landing page hero section is a full screen section typically consisting of a background image, or animations, with text and sometimes a call to action.",

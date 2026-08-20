@@ -11,13 +11,12 @@ import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCu
 import BlockWrapper from "../BlockWrapper"
 
 const AsideEditor = ({
-  clientId,
   attributes,
   setAttributes,
 }: BlockEditProps<AsideComponentProps>): JSX.Element => {
   const { t } = useTranslation()
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <InspectorControls key="settings">
         <BackgroundColorCustomizer
           attributes={attributes}

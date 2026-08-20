@@ -146,16 +146,21 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         }
         contentDispatch({
           type: "setContent",
-          payload: denormalizeDocument({
-            content: saveResult.page.content,
-            exercises: saveResult.exercises,
-            exercise_slides: saveResult.exercise_slides,
-            exercise_tasks: saveResult.exercise_tasks,
-            url_path: saveResult.page.url_path,
-            title: saveResult.page.title,
-            ...omitUndefined({ chapter_id: saveResult.page.chapter_id }),
-            hidden: saveResult.page.hidden,
-          }).content,
+          // The save unwraps unsupported blocks, so they have to be wrapped again to match
+          // savedContent, and because the editor has no type registered for their real names.
+          payload: modifyBlocks(
+            denormalizeDocument({
+              content: saveResult.page.content,
+              exercises: saveResult.exercises,
+              exercise_slides: saveResult.exercise_slides,
+              exercise_tasks: saveResult.exercise_tasks,
+              url_path: saveResult.page.url_path,
+              title: saveResult.page.title,
+              ...omitUndefined({ chapter_id: saveResult.page.chapter_id }),
+              hidden: saveResult.page.hidden,
+            }).content,
+            supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
+          ),
         })
         setNeedToRunMigrationsAndValidations(true)
       },

@@ -12,11 +12,10 @@ const ALLOWED_NESTED_BLOCKS = [""]
 
 const ChapterProgressEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
-> = ({ clientId }) => {
+> = () => {
   const { t } = useTranslation()
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("chapter-progress-placeholder")}
       explanation={t("chapter-progress-placeholder-explanation")}
     >

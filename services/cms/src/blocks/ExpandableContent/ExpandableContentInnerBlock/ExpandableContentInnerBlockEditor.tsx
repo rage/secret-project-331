@@ -20,13 +20,13 @@ const ALLOWED_NESTED_BLOCKS = [
 ]
 const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
-> = ({ clientId, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
   // oxlint-disable-next-line i18next/no-literal-string
   const blockProps = useBlockProps({ className: "moocfi-expandable-content-inner-block" })
 
   return (
-    <div {...blockProps} id={`placeholder-block-${clientId}`}>
+    <div {...blockProps}>
       <div
         className={css`
           display: flex;

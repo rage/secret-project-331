@@ -38,7 +38,7 @@ debug = 1
 
 [workspace.dependencies]
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.52.3", features = [
+tokio = { version = "1.53.1", features = [
   "fs",
   "io-util",
   "sync",
@@ -47,7 +47,7 @@ tokio = { version = "1.52.3", features = [
 ] }
 
 # Rustls is a modern TLS library written in Rust.
-rustls = { version = "0.23.41", default-features = false, features = ["ring"] }
+rustls = { version = "0.23.43", default-features = false, features = ["ring"] }
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
 hmac = "0.13.0"
 # Pure Rust implementation of the SHA-2 hash function family.
@@ -68,7 +68,7 @@ sqlx = { version = "0.9.0", default-features = false, features = [
 ] }
 
 # Utilities to work with `Stream` and `tokio`.
-tokio-stream = { version = "0.1.18", features = ["io-util"] }
+tokio-stream = { version = "0.1.19", features = ["io-util"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory.
 secrecy = { version = "0.10.3", features = ["serde"] }
 

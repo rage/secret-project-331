@@ -1,4 +1,4 @@
-import { parse } from "vega"
+import { logger, None, parse } from "vega"
 import { compile, type TopLevelSpec } from "vega-lite"
 
 export interface ChartSpecValidity {
@@ -8,23 +8,7 @@ export interface ChartSpecValidity {
 }
 
 // Vega-Lite logs compile warnings to the console by default; swallow them during validation.
-const silentLogger = {
-  level() {
-    return this
-  },
-  error() {
-    return this
-  },
-  warn() {
-    return this
-  },
-  info() {
-    return this
-  },
-  debug() {
-    return this
-  },
-}
+const silentLogger = logger(None)
 
 /**
  * Whether a Vega-Lite spec will actually render. A spec can pass Vega-Lite JSON-schema validation

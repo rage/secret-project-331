@@ -296,6 +296,36 @@ function wait_for_postgres_pod() {
   done
 }
 
+# kubectl exec uses a different transport (an HTTP upgrade to a raw stream) than plain API calls
+# like kubectl wait/get, so it can hit a transient "server gave HTTP response to HTTPS client" race
+# against the API server's exec proxy right after a fresh minikube start/deploy, even once the pod
+# itself reports Ready. Poll with a no-op exec until that path is actually usable.
+function wait_for_kubectl_exec_ready() {
+  local pod_name="$1"
+  local start_time
+  local timeout
+  start_time=$(date +%s)
+  timeout=60
+
+  echo "Waiting for kubectl exec to be ready on $pod_name..."
+
+  while true; do
+    if kubectl exec "$pod_name" -- true &> /dev/null; then
+      echo -e "${GREEN}kubectl exec is ready!${RESET_EVERYTHING}"
+      return 0
+    fi
+
+    local current_time
+    current_time=$(date +%s)
+    local elapsed=$((current_time - start_time))
+    if [ $elapsed -gt $timeout ]; then
+      echo -e "${RED}Timed out waiting for kubectl exec to become ready after ${timeout} seconds${RESET_EVERYTHING}"
+      return 1
+    fi
+    sleep 2
+  done
+}
+
 function make_sure_skaffold_local_env_patch_files_exists() {
   file_contents=$(cat <<EOF
 # 🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟

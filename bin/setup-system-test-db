@@ -10,6 +10,8 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)
 [ -z "$POD_NAME" ] && { echo "Failed to find pod name"; exit 1; }
 
+wait_for_kubectl_exec_ready "$POD_NAME" || { echo "kubectl exec never became ready."; exit 1; }
+
 NUMBER_OF_CARGO_FILES=$(kubectl exec -it "$POD_NAME" -- ls | grep -c Cargo.toml || true)
 
 if [ "$NUMBER_OF_CARGO_FILES" -ne "0" ]; then

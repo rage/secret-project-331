@@ -71,8 +71,8 @@ utoipa.workspace = true
 [dev-dependencies]
 # `#[tokio::test]`, for the tool permission tests, which need a database connection.
 tokio = { workspace = true, features = ["macros"] }
-# Reads DATABASE_URL out of .env for those tests, the way the models crate's tests do.
-dotenvy = "0.15"
+# Repeats the dependency above only to switch on `test_helper` and its `insert_data!` macro.
+headless-lms-models = { path = "../models", features = ["test-helpers"] }
 
 [lints.clippy]
 unwrap_used = "deny"

@@ -1,8 +1,7 @@
 use secrecy::ExposeSecret;
 
-use crate::prelude::*;
+use crate::{llm_utils::azure_search_request, prelude::*};
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_utils::http::REQWEST_CLIENT;
 
 const API_VERSION: &str = "2024-07-01";
 
@@ -257,11 +256,7 @@ pub async fn does_search_index_exist(
     url.set_path(&format!("indexes('{}')", index_name));
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    let response = REQWEST_CLIENT
-        .get(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
-        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
+    let response = azure_search_request(reqwest::Method::GET, url, search_config)
         .send()
         .await?;
 
@@ -558,12 +553,8 @@ pub async fn create_search_index(
     url.set_path("/indexes");
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    let response = REQWEST_CLIENT
-        .post(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
+    let response = azure_search_request(reqwest::Method::POST, url, search_config)
         .body(index_json)
-        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
@@ -641,12 +632,8 @@ where
 
     let batch_json = serde_json::to_string(&batch)?;
 
-    let response = REQWEST_CLIENT
-        .post(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
+    let response = azure_search_request(reqwest::Method::POST, url, search_config)
         .body(batch_json)
-        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 

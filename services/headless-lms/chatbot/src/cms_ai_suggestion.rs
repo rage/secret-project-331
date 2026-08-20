@@ -1,5 +1,3 @@
-use indexmap::IndexMap;
-
 use crate::{
     azure_chatbot::{
         InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
@@ -9,7 +7,7 @@ use crate::{
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
         APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
-        model_is_thinking, parse_text_completion,
+        model_is_thinking, parse_text_completion, string_list_response_format,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
@@ -18,9 +16,6 @@ use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole, cms_ai::ParagraphSuggestionAction,
-};
-use headless_lms_utils::json_schema_types::{
-    ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType,
 };
 
 /// Structured LLM response for CMS paragraph suggestions.
@@ -36,28 +31,7 @@ pub const RESPONSE_FORMAT_NAME: &str = "CmsParagraphSuggestionResponse";
 /// The structured output format the suggestion LLM is asked to answer in. Must stay in
 /// sync with [CmsParagraphSuggestionResponse].
 fn response_format() -> LLMRequestResponseFormatParam {
-    LLMRequestResponseFormatParam {
-        format_type: JSONType::JsonSchema,
-        name: RESPONSE_FORMAT_NAME.to_string(),
-        schema: Schema {
-            type_field: JSONType::Object,
-            description: None,
-            properties: IndexMap::from([(
-                "suggestions".to_string(),
-                SchemaPropertyType::ArrayProperty(ArrayProperty {
-                    type_field: JSONType::Array,
-                    description: None,
-                    items: ArrayItem::JsonItem(JsonItem {
-                        type_field: JSONType::String,
-                        description: None,
-                    }),
-                }),
-            )]),
-            required: vec!["suggestions".to_string()],
-            additional_properties: false,
-        },
-        strict: true,
-    }
+    string_list_response_format(RESPONSE_FORMAT_NAME, "suggestions")
 }
 
 /// Returns a short human-readable instruction for the given action id. Used so the model
@@ -324,30 +298,15 @@ pub async fn generate_paragraph_suggestions(
 mod tests {
     use super::*;
 
-    /// Pins the JSON sent to Azure, not the Rust value, so that adding fields to the
-    /// shared schema types cannot change what this feature asks the LLM for.
+    /// The test-mode mock Azure API picks this feature's canned answer by the format name, so the
+    /// name is pinned even though the shape it wraps is shared.
     #[test]
-    fn response_format_json_is_unchanged() {
+    fn the_response_format_is_named_after_this_feature() {
         let serialized =
             serde_json::to_value(response_format()).expect("The response format serializes");
         assert_eq!(
-            serialized,
-            serde_json::json!({
-                "type": "json_schema",
-                "name": "CmsParagraphSuggestionResponse",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "suggestions": {
-                            "type": "array",
-                            "items": { "type": "string" }
-                        }
-                    },
-                    "required": ["suggestions"],
-                    "additionalProperties": false
-                },
-                "strict": true
-            })
+            serialized["name"],
+            serde_json::json!("CmsParagraphSuggestionResponse")
         );
     }
 }

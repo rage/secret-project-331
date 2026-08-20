@@ -77,12 +77,15 @@ describe("Streamed tool call and reasoning items", () => {
     expect(screen.getByText("chatbot-status-thinking")).toBeInTheDocument()
   })
 
-  // An `Error` event, or a stream closing without its finished event, strands an item unfinished,
-  // and the item stays on screen until the refetch replaces it.
-  it("stops reporting an unfinished item as in progress once its turn has ended", () => {
+  // An `Error` event, or a stream closing without its finished event, strands an item unfinished;
+  // the TURN_ENDED reducer action (covered in chatbotReducer.test.ts) is what flips it to finished
+  // once the turn ends, so this only has to check the bubble renders that state correctly.
+  it("reports an item as finished once the reducer has marked it so", () => {
     render(
       <ChatbotChatBody
-        {...makeChatBodyProps({ streamedMessages: [unfinishedReasoningItem()] }).props}
+        {...makeChatBodyProps({
+          streamedMessages: [{ ...unfinishedReasoningItem(), finished: true }],
+        }).props}
       />,
     )
 

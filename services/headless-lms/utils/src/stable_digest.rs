@@ -6,6 +6,9 @@
 ///
 /// Unkeyed, so the digest of a guessable input is guessable. Anything that has to resist that must
 /// include a secret part of its own, the way [`crate::page_visit_hasher`] mixes in the day's key.
+///
+/// New callers use this; [`crate::error_identifier`]'s own scheme stays only because its stored
+/// identifiers may not change.
 pub fn stable_digest(parts: &[&[u8]]) -> String {
     let mut hasher = blake3::Hasher::new();
     for part in parts {

@@ -93,18 +93,16 @@ impl FromRequest for AuthUser {
             let pool: Option<&web::Data<PgPool>> = req.app_data();
             match session.get::<AuthUser>(SESSION_KEY) {
                 Ok(Some(user)) => Ok(verify_auth_user_exists(user, pool, &session).await?),
-                Ok(None) => Err(ControllerError::new(
-                    ControllerErrorType::Unauthorized,
-                    "You are not currently logged in. Please sign in to continue.".to_string(),
-                    None,
+                Ok(None) => Err(controller_err!(
+                    Unauthorized,
+                    "You are not currently logged in. Please sign in to continue.".to_string()
                 )),
                 Err(_) => {
                     // session had an invalid value
                     session.remove(SESSION_KEY);
-                    Err(ControllerError::new(
-                        ControllerErrorType::Unauthorized,
-                        "Your session is invalid or has expired. Please sign in again.".to_string(),
-                        None,
+                    Err(controller_err!(
+                        Unauthorized,
+                        "Your session is invalid or has expired. Please sign in again.".to_string()
                     ))
                 }
             }
@@ -135,24 +133,22 @@ async fn verify_auth_user_exists(
         remember(session, user)?;
         match session.get::<AuthUser>(SESSION_KEY) {
             Ok(Some(session_user)) => Ok(session_user),
-            Ok(None) => Err(ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "User did not persist in the session".to_string(),
-                None,
+            Ok(None) => Err(controller_err!(
+                InternalServerError,
+                "User did not persist in the session".to_string()
             )),
-            Err(e) => Err(ControllerError::new(
-                ControllerErrorType::InternalServerError,
+            Err(e) => Err(controller_err!(
+                InternalServerError,
                 "User did not persist in the session".to_string(),
-                Some(e.into()),
+                e
             )),
         }
     } else {
         warn!("No database pool provided to verify_auth_user_exists");
-        Err(ControllerError::new(
-            ControllerErrorType::InternalServerError,
+        Err(controller_err!(
+            InternalServerError,
             "Unable to verify your user account. The database connection is unavailable."
-                .to_string(),
-            None,
+                .to_string()
         ))
     }
 }
@@ -191,7 +187,7 @@ pub fn forget(session: &Session) {
 
 /// Returns the bearer token only when there is no authenticated user, for the anonymous
 /// chatbot-embed path; a logged-in request's token is never surfaced here.
-pub fn handle_anonymous_token(req: HttpRequest, user: Option<AuthUser>) -> Option<String> {
+pub fn handle_anonymous_token(req: &HttpRequest, user: Option<AuthUser>) -> Option<String> {
     let anonymous_token_value = req
         .headers()
         .get("authorization")
@@ -206,7 +202,7 @@ pub fn handle_anonymous_token(req: HttpRequest, user: Option<AuthUser>) -> Optio
 
 /** Checks the Authorization header against a secret from environment variables to verify if the request originates from the TMC server. Returns an authorization token if the secret matches, otherwise an unauthorized error.
  */
-pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
+pub async fn authenticate_tmc_server(
     request: &HttpRequest,
 ) -> Result<AuthorizationToken, ControllerError> {
     let tmc_server_secret_for_communicating_to_secret_project =
@@ -215,18 +211,16 @@ pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
         .headers()
         .get("Authorization")
         .ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "TMC server authorization failed: Missing Authorization header.".to_string(),
-                None,
+            controller_err!(
+                Unauthorized,
+                "TMC server authorization failed: Missing Authorization header.".to_string()
             )
         })?
         .to_str()
         .map_err(|_| {
-            ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "TMC server authorization failed: Invalid Authorization header format.".to_string(),
-                None,
+            controller_err!(
+                Unauthorized,
+                "TMC server authorization failed: Invalid Authorization header format.".to_string()
             )
         })?;
     if constant_time_eq_str(
@@ -235,10 +229,9 @@ pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
     ) {
         return Ok(skip_authorize());
     }
-    Err(ControllerError::new(
-        ControllerErrorType::Unauthorized,
-        "TMC server authorization failed: Invalid authorization token.".to_string(),
-        None,
+    Err(controller_err!(
+        Unauthorized,
+        "TMC server authorization failed: Invalid authorization token.".to_string()
     ))
 }
 
@@ -249,18 +242,16 @@ pub fn parse_secret_key_from_header(header: &HttpRequest) -> Result<&str, Contro
         .map_or(Ok(""), |x| x.to_str())
         .map_err(|_| anyhow::anyhow!("Authorization header contains invalid characters."))?;
     if !raw_token.starts_with("Basic") {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Access denied: Authorization header must use Basic authentication format.".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "Access denied: Authorization header must use Basic authentication format.".to_string()
         ));
     }
     let secret_key = raw_token.split(' ').nth(1).ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::Forbidden,
+        controller_err!(
+            Forbidden,
             "Access denied: Malformed authorization token, expected 'Basic <token>' format."
-                .to_string(),
-            None,
+                .to_string()
         )
     })?;
     Ok(secret_key)

@@ -2,16 +2,19 @@ use secrecy::{ExposeSecret, SecretString};
 
 use crate::{
     azure_chatbot::{
-        InputItem, LLMRequest, LLMRequestParams, MistralParams, NonThinkingParams, OutputItem,
-        Reasoning, ReasoningContext, ReasoningOutput, Response as AzureResponse, ResponseError,
-        ResponseReasoning, SummaryType, ThinkingParams, Usage, stored_tool_call_arguments,
+        InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, MistralParams,
+        NonThinkingParams, OutputItem, Reasoning, ReasoningContext, ReasoningOutput,
+        Response as AzureResponse, ResponseError, ResponseReasoning, SummaryType, ThinkingParams,
+        Usage,
     },
     chatbot_error::ChatbotResult,
-    chatbot_tools::tool_is_answered_by_client,
+    chatbot_tools::{
+        provider_tools::azure_ai_search::AZURE_AI_SEARCH_TOOL_NAME, tool_is_answered_by_client,
+    },
     prelude::*,
 };
 use core::default::Default;
-use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::config::{ApplicationConfiguration, AzureSearchConfiguration};
 use headless_lms_models::{
     chatbot_configurations::{ChatbotConfiguration, ReasoningEffortLevel},
     chatbot_configurations_models::ModelType,
@@ -21,6 +24,8 @@ use headless_lms_models::{
     chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
     chatbot_conversation_messages::{ChatbotConversationMessage, Message},
 };
+use headless_lms_utils::json_schema_types::{JSONType, Schema, string_array_property};
+use indexmap::IndexMap;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
@@ -40,24 +45,39 @@ pub struct APIInputMessage {
     pub message_type: InputItem,
 }
 
-/// Summary parts as the database round-trip spells them: joined into the single item that
-/// [`ChatbotConversationMessageReasoning::summary`] can hold, or nothing at all.
-///
-/// A reasoning item goes back to Azure twice, once from memory during the turn that produced it
-/// and again from storage on every later turn, and Azure caches on an exact prefix. Both spellings
-/// have to agree or the second one misses the cache for everything from that item onwards.
-fn summary_as_stored(parts: &[ReasoningOutput]) -> Vec<ReasoningOutput> {
+/// The single summary text that [`ChatbotConversationMessageReasoning::summary`] can hold, or
+/// `None` for an item with no summary. Azure streams a summary in parts; a row keeps one.
+fn summary_text(parts: &[ReasoningOutput]) -> Option<String> {
     if parts.is_empty() {
-        return Vec::new();
+        return None;
     }
-    vec![ReasoningOutput {
-        output_type: "summary_text".to_string(),
-        text: parts
+    Some(
+        parts
             .iter()
             .map(|part| part.text.as_str())
             .collect::<Vec<_>>()
             .join(" "),
-    }]
+    )
+}
+
+/// A stored summary text as the summary parts that go back to Azure.
+fn stored_summary(text: Option<String>) -> Vec<ReasoningOutput> {
+    text.into_iter()
+        .map(|text| ReasoningOutput {
+            output_type: "summary_text".to_string(),
+            text,
+        })
+        .collect()
+}
+
+/// Summary parts as the database round trip spells them.
+///
+/// A reasoning item goes back to Azure twice, once from memory during the turn that produced it
+/// and again from storage on every later turn, and Azure caches on an exact prefix. Both spellings
+/// have to agree or the second one misses the cache for everything from that item onwards, so the
+/// round trip is spelled here rather than at each site that performs one of its halves.
+fn summary_as_stored(parts: &[ReasoningOutput]) -> Vec<ReasoningOutput> {
+    stored_summary(summary_text(parts))
 }
 
 impl From<APIOutputMessage> for APIInputMessage {
@@ -93,7 +113,7 @@ impl From<APIOutputMessage> for APIInputMessage {
             } => APIInputMessage {
                 message_type: InputItem::FunctionCall {
                     call_id,
-                    tool_name: "azure_ai_search".to_string(),
+                    tool_name: AZURE_AI_SEARCH_TOOL_NAME.to_string(),
                     arguments,
                 },
             },
@@ -139,25 +159,17 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                     ));
                 }
             },
-            Message::ToolCall(tool_call) => {
-                let arguments = stored_tool_call_arguments(&tool_call.tool_arguments);
-                match tool_call.tool_kind {
-                    ToolKind::Function | ToolKind::ClientTool => APIInputMessage {
-                        message_type: InputItem::FunctionCall {
-                            call_id: tool_call.tool_call_id,
-                            tool_name: tool_call.tool_name,
-                            arguments,
-                        },
+            Message::ToolCall(tool_call) => APIInputMessage {
+                message_type: InputItem::FunctionCall {
+                    arguments: tool_call.arguments_json(),
+                    call_id: tool_call.tool_call_id,
+                    tool_name: if tool_call.tool_kind.is_provider_tool() {
+                        AZURE_AI_SEARCH_TOOL_NAME.to_string()
+                    } else {
+                        tool_call.tool_name
                     },
-                    ToolKind::AzureAiSearch => APIInputMessage {
-                        message_type: InputItem::FunctionCall {
-                            call_id: tool_call.tool_call_id,
-                            tool_name: "azure_ai_search".to_string(),
-                            arguments,
-                        },
-                    },
-                }
-            }
+                },
+            },
             Message::ToolOutput(tool_output) => APIInputMessage {
                 message_type: InputItem::FunctionCallOutput {
                     call_id: tool_output.tool_call_id,
@@ -169,23 +181,13 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                 summary,
                 encrypted_content,
                 ..
-            }) => {
-                let summ = if let Some(text) = summary {
-                    vec![ReasoningOutput {
-                        output_type: "summary_text".to_string(),
-                        text,
-                    }]
-                } else {
-                    vec![]
-                };
-                APIInputMessage {
-                    message_type: InputItem::Reasoning {
-                        id: reasoning_id,
-                        summary: summ,
-                        encrypted_content,
-                    },
-                }
-            }
+            }) => APIInputMessage {
+                message_type: InputItem::Reasoning {
+                    id: reasoning_id,
+                    summary: stored_summary(summary),
+                    encrypted_content,
+                },
+            },
         };
         Result::Ok(res)
     }
@@ -268,24 +270,26 @@ impl APIOutputMessage {
                 tool_name,
                 arguments,
                 response_id,
-            } => ChatbotConversationMessage {
-                conversation_id,
-                message: Message::ToolCall(ChatbotConversationMessageToolCall {
-                    // The only place a call's kind is decided, so the stored row and the engine
-                    // agree on which calls suspend the turn.
-                    tool_kind: if tool_is_answered_by_client(&tool_name) {
-                        ToolKind::ClientTool
-                    } else {
-                        ToolKind::Function
-                    },
-                    tool_name,
-                    tool_arguments: serde_json::to_value(arguments)?,
-                    tool_call_id: call_id,
-                    response_id,
+            } => {
+                // The only place a call's kind is decided, so the stored row and the engine agree
+                // on which calls suspend the turn.
+                let tool_kind = if tool_is_answered_by_client(&tool_name) {
+                    ToolKind::ClientTool
+                } else {
+                    ToolKind::Function
+                };
+                ChatbotConversationMessage {
+                    conversation_id,
+                    message: Message::ToolCall(ChatbotConversationMessageToolCall::new(
+                        call_id,
+                        tool_name,
+                        arguments,
+                        tool_kind,
+                        response_id,
+                    )),
                     ..Default::default()
-                }),
-                ..Default::default()
-            },
+                }
+            }
             OutputItem::FunctionCallOutput {
                 call_id,
                 output,
@@ -307,14 +311,13 @@ impl APIOutputMessage {
                 response_id,
             } => ChatbotConversationMessage {
                 conversation_id,
-                message: Message::ToolCall(ChatbotConversationMessageToolCall {
-                    tool_arguments: serde_json::to_value(arguments)?,
-                    tool_call_id: call_id,
-                    tool_kind: ToolKind::AzureAiSearch,
-                    tool_name: "azure_ai_search".to_string(),
+                message: Message::ToolCall(ChatbotConversationMessageToolCall::new(
+                    call_id,
+                    AZURE_AI_SEARCH_TOOL_NAME.to_string(),
+                    arguments,
+                    ToolKind::AzureAiSearch,
                     response_id,
-                    ..Default::default()
-                }),
+                )),
                 ..Default::default()
             },
             OutputItem::AzureAiSearchCallOutput {
@@ -337,30 +340,17 @@ impl APIOutputMessage {
                 response_id,
                 id,
                 encrypted_content,
-            } => {
-                let text = if !summary.is_empty() {
-                    Some(
-                        summary
-                            .iter()
-                            .map(|i| i.text.to_owned())
-                            .collect::<Vec<String>>()
-                            .join(" "),
-                    )
-                } else {
-                    None
-                };
-                ChatbotConversationMessage {
-                    conversation_id,
-                    message: Message::Reasoning(ChatbotConversationMessageReasoning {
-                        summary: text,
-                        response_id,
-                        reasoning_id: id,
-                        encrypted_content,
-                        ..Default::default()
-                    }),
+            } => ChatbotConversationMessage {
+                conversation_id,
+                message: Message::Reasoning(ChatbotConversationMessageReasoning {
+                    summary: summary_text(&summary),
+                    response_id,
+                    reasoning_id: id,
+                    encrypted_content,
                     ..Default::default()
-                }
-            }
+                }),
+                ..Default::default()
+            },
         };
         Result::Ok(res)
     }
@@ -385,7 +375,6 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                                     "Can't convert ChatbotConversationMessage into APIOutputMessage: only a role='user' message may lack a response_id"
                                 ))?
                             },
-                            phase: None,
                         },
                     }
                 }
@@ -397,52 +386,30 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                 }
             },
             Message::ToolCall(tool_call) => {
-                let arguments = stored_tool_call_arguments(&tool_call.tool_arguments);
-                match tool_call.tool_kind {
-                    ToolKind::Function | ToolKind::ClientTool => APIOutputMessage {
+                let arguments = tool_call.arguments_json();
+                if tool_call.tool_kind.is_provider_tool() {
+                    APIOutputMessage {
+                        message_type: OutputItem::AzureAiSearchCall {
+                            call_id: tool_call.tool_call_id,
+                            arguments,
+                            response_id: tool_call.response_id,
+                        },
+                    }
+                } else {
+                    APIOutputMessage {
                         message_type: OutputItem::FunctionCall {
                             call_id: tool_call.tool_call_id,
                             tool_name: tool_call.tool_name,
                             arguments,
                             response_id: tool_call.response_id,
                         },
-                    },
-                    ToolKind::AzureAiSearch => APIOutputMessage {
-                        message_type: OutputItem::AzureAiSearchCall {
-                            call_id: tool_call.tool_call_id,
-                            arguments,
-                            response_id: tool_call.response_id,
-                        },
-                    },
+                    }
                 }
             }
-            Message::ToolOutput(tool_output) => match tool_output.tool_kind {
-                ToolKind::Function | ToolKind::ClientTool => APIOutputMessage {
-                    message_type: OutputItem::FunctionCallOutput {
-                        call_id: tool_output.tool_call_id,
-                        output: tool_output.output,
-                        response_id: tool_output.response_id,
-                    },
-                },
-                ToolKind::AzureAiSearch => APIOutputMessage {
-                    message_type: OutputItem::AzureAiSearchCallOutput {
-                        call_id: tool_output.tool_call_id,
-                        output: tool_output.output,
-                        response_id: tool_output.response_id,
-                    },
-                },
-            },
+            Message::ToolOutput(tool_output) => APIOutputMessage::from(tool_output),
             Message::Reasoning(reasoning) => APIOutputMessage {
                 message_type: OutputItem::Reasoning {
-                    summary: reasoning
-                        .summary
-                        .map(|text| {
-                            vec![ReasoningOutput {
-                                output_type: "summary_text".to_string(),
-                                text,
-                            }]
-                        })
-                        .unwrap_or_default(),
+                    summary: stored_summary(reasoning.summary),
                     response_id: reasoning.response_id,
                     id: reasoning.reasoning_id,
                     encrypted_content: reasoning.encrypted_content,
@@ -455,21 +422,22 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
 
 impl From<ChatbotConversationMessageToolOutput> for APIOutputMessage {
     fn from(value: ChatbotConversationMessageToolOutput) -> Self {
-        match value.tool_kind {
-            ToolKind::Function | ToolKind::ClientTool => APIOutputMessage {
-                message_type: OutputItem::FunctionCallOutput {
-                    call_id: value.tool_call_id,
-                    output: value.output,
-                    response_id: value.response_id,
-                },
-            },
-            ToolKind::AzureAiSearch => APIOutputMessage {
+        if value.tool_kind.is_provider_tool() {
+            APIOutputMessage {
                 message_type: OutputItem::AzureAiSearchCallOutput {
                     response_id: value.response_id,
                     call_id: value.tool_call_id,
                     output: value.output,
                 },
-            },
+            }
+        } else {
+            APIOutputMessage {
+                message_type: OutputItem::FunctionCallOutput {
+                    call_id: value.tool_call_id,
+                    output: value.output,
+                    response_id: value.response_id,
+                },
+            }
         }
     }
 }
@@ -574,6 +542,25 @@ pub struct LLMResponse {
     pub reasoning: Option<ResponseReasoning>,
 }
 
+/// The structured output format for a feature whose whole answer is a list of strings.
+///
+/// `name` is what Azure, and the test-mode mock Azure API, identify the format by, so it has to
+/// name the feature rather than the shape. `property` is the single key the list arrives under.
+pub fn string_list_response_format(name: &str, property: &str) -> LLMRequestResponseFormatParam {
+    LLMRequestResponseFormatParam {
+        format_type: JSONType::JsonSchema,
+        name: name.to_string(),
+        schema: Schema {
+            type_field: JSONType::Object,
+            description: None,
+            properties: IndexMap::from([(property.to_string(), string_array_property(None))]),
+            required: vec![property.to_string()],
+            additional_properties: false,
+        },
+        strict: true,
+    }
+}
+
 /// Builds common headers for LLM requests
 #[instrument(skip(api_key), fields(api_key_length = api_key.expose_secret().len()))]
 pub fn build_llm_headers(api_key: &SecretString) -> ChatbotResult<HeaderMap> {
@@ -596,6 +583,54 @@ pub fn build_llm_headers(api_key: &SecretString) -> ChatbotResult<HeaderMap> {
     );
     trace!("Successfully built headers");
     Ok(headers)
+}
+
+/// A request to the Azure AI Search management API, carrying the headers every one of its
+/// endpoints wants. The search API key is exposed only here.
+pub fn azure_search_request(
+    method: reqwest::Method,
+    url: url::Url,
+    search_config: &AzureSearchConfiguration,
+) -> reqwest::RequestBuilder {
+    REQWEST_CLIENT
+        .request(method, url)
+        .header("Content-Type", "application/json")
+        .header("api-key", search_config.search_api_key.expose_secret())
+}
+
+/// Logs the shape and order of a request's `input` items when Azure rejects it.
+///
+/// Azure's item-shape errors (e.g. an out-of-place reasoning item whose `encrypted_content` "could
+/// not be verified") name an item by id but not by position, so diagnosing one from the error alone
+/// means guessing at what the request actually looked like. This spells out every item's type, id,
+/// and `response_id` in order, which is what identifies a reasoning item sitting next to the wrong
+/// call.
+pub(crate) fn summarize_input_for_log(input: &[APIInputMessage]) -> String {
+    input
+        .iter()
+        .map(|message| match &message.message_type {
+            InputItem::Message { role, .. } => format!("Message({role:?})"),
+            InputItem::FunctionCall {
+                call_id, tool_name, ..
+            } => format!("FunctionCall({tool_name}, {call_id})"),
+            InputItem::FunctionCallOutput { call_id, .. } => {
+                format!("FunctionCallOutput({call_id})")
+            }
+            InputItem::Reasoning {
+                id,
+                encrypted_content,
+                ..
+            } => format!(
+                "Reasoning({id}, encrypted_content={})",
+                if encrypted_content.is_some() {
+                    "present"
+                } else {
+                    "absent"
+                }
+            ),
+        })
+        .collect::<Vec<_>>()
+        .join(" -> ")
 }
 
 /// Estimate the number of tokens in a given text.
@@ -653,23 +688,26 @@ async fn make_llm_request(
         .post(endpoint.clone())
         .headers(headers)
         .json(&request)
-        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
     trace!("Received response from LLM");
-    process_llm_response(response).await
+    process_llm_response(response, &request.base.input).await
 }
 
 /// Process a non-streaming LLM response
 #[instrument(skip(response), fields(status = %response.status()))]
-async fn process_llm_response(response: Response) -> ChatbotResult<LLMResponse> {
+async fn process_llm_response(
+    response: Response,
+    input: &[APIInputMessage],
+) -> ChatbotResult<LLMResponse> {
     if !response.status().is_success() {
         let status = response.status();
         let error_text = response.text().await?;
         error!(
             status = %status,
             error = %error_text,
+            input = %summarize_input_for_log(input),
             "Error calling LLM API"
         );
         // Azure can return a JSON Response, so parse it and take the error from it.
@@ -788,6 +826,7 @@ pub async fn make_streaming_llm_request(
         error!(
             status = %status,
             error = %error_text,
+            input = %summarize_input_for_log(&request.base.input),
             "Error calling streaming LLM API"
         );
         // Azure can return a JSON Response, so parse it and take the error from it.
@@ -980,7 +1019,6 @@ pub fn model_is_thinking(model_type: ModelType) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::azure_chatbot::MessagePhase;
     use crate::chatbot_tools::{
         ChatbotToolDeclaration,
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
@@ -1113,28 +1151,29 @@ mod tests {
         );
     }
 
-    /// The `type` tag of every [`OutputItem`] variant, read out of the error serde raises for an
-    /// unknown one so that the list cannot go stale when a variant is added.
-    fn every_output_item_tag() -> Vec<String> {
-        let rejection = serde_json::from_value::<OutputItem>(
-            serde_json::json!({ "type": "no_such_output_item" }),
-        )
-        .expect_err("an unknown item type is rejected")
-        .to_string();
+    /// The `type` tag of every [`OutputItem`] variant, which is what
+    /// [`every_output_item_serializes_the_same_from_memory_as_from_storage`] measures its cases
+    /// against. Kept honest by [`output_item_tag`].
+    const EVERY_OUTPUT_ITEM_TAG: &[&str] = &[
+        "azure_ai_search_call",
+        "azure_ai_search_call_output",
+        "function_call",
+        "function_call_output",
+        "message",
+        "reasoning",
+    ];
 
-        // "unknown variant `x`, expected one of `a`, `b`, ...": past the offending name, every
-        // other backtick-delimited field is a variant.
-        let tags: Vec<String> = rejection
-            .split('`')
-            .skip(3)
-            .step_by(2)
-            .map(str::to_string)
-            .collect();
-        assert!(
-            !tags.is_empty(),
-            "serde no longer names the variants it expected: {rejection}"
-        );
-        tags
+    /// The tag one item serializes as. Matched exhaustively, so an added [`OutputItem`] variant
+    /// fails to compile here instead of quietly going missing from [`EVERY_OUTPUT_ITEM_TAG`].
+    fn output_item_tag(item: &OutputItem) -> &'static str {
+        match item {
+            OutputItem::Message { .. } => "message",
+            OutputItem::Reasoning { .. } => "reasoning",
+            OutputItem::AzureAiSearchCall { .. } => "azure_ai_search_call",
+            OutputItem::AzureAiSearchCallOutput { .. } => "azure_ai_search_call_output",
+            OutputItem::FunctionCall { .. } => "function_call",
+            OutputItem::FunctionCallOutput { .. } => "function_call_output",
+        }
     }
 
     fn output_text(text: &str) -> MessageContentItem {
@@ -1159,7 +1198,6 @@ mod tests {
                 response_id: "resp_1".to_string(),
                 role: MessageRole::Assistant,
                 content: MessageContent::Text("Here you go.".to_string()),
-                phase: Some(MessagePhase::FinalAnswer),
             },
             OutputItem::Message {
                 response_id: "resp_1".to_string(),
@@ -1168,7 +1206,6 @@ mod tests {
                     output_text("First part. "),
                     output_text("Second part."),
                 ]),
-                phase: None,
             },
             OutputItem::Message {
                 response_id: "resp_1".to_string(),
@@ -1176,7 +1213,6 @@ mod tests {
                 content: MessageContent::Refusal(vec![RefusalContentItem {
                     refusal: "I cannot help with that.".to_string(),
                 }]),
-                phase: None,
             },
             OutputItem::Reasoning {
                 response_id: "resp_1".to_string(),
@@ -1225,23 +1261,23 @@ mod tests {
     fn every_output_item_serializes_the_same_from_memory_as_from_storage() {
         let cases = round_trip_cases();
 
-        let mut covered: Vec<String> = cases
+        let mut covered: Vec<&str> = cases
             .iter()
-            .map(|case| {
-                let tagged = serde_json::to_value(&case.message_type).expect("the item serializes");
-                tagged["type"]
-                    .as_str()
-                    .expect("the tag is a string")
-                    .to_string()
-            })
+            .map(|case| output_item_tag(&case.message_type))
             .collect();
-        covered.sort();
+        covered.sort_unstable();
         covered.dedup();
-        let mut expected = every_output_item_tag();
-        expected.sort();
-        assert_eq!(covered, expected, "every OutputItem variant needs a case");
+        assert_eq!(
+            covered, EVERY_OUTPUT_ITEM_TAG,
+            "every OutputItem variant needs a case"
+        );
 
         for from_azure in cases {
+            assert_eq!(
+                serde_json::to_value(&from_azure.message_type).expect("the item serializes")["type"],
+                serde_json::json!(output_item_tag(&from_azure.message_type)),
+            );
+
             let during_the_turn = APIInputMessage::from(from_azure.clone());
             let stored = from_azure
                 .to_chatbot_conversation_message(Uuid::new_v4())
@@ -1255,6 +1291,36 @@ mod tests {
                 from_azure.message_type,
             );
         }
+    }
+
+    /// Pins the JSON sent to Azure, not the Rust value, so that adding fields to the shared schema
+    /// types cannot change what the features built on this ask the LLM for.
+    #[test]
+    fn a_string_list_response_format_is_the_schema_azure_expects() {
+        let serialized = serde_json::to_value(string_list_response_format(
+            "AFeatureResponse",
+            "suggestions",
+        ))
+        .expect("the response format serializes");
+        assert_eq!(
+            serialized,
+            serde_json::json!({
+                "type": "json_schema",
+                "name": "AFeatureResponse",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "suggestions": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        }
+                    },
+                    "required": ["suggestions"],
+                    "additionalProperties": false
+                },
+                "strict": true
+            })
+        );
     }
 
     /// Untagged unit variants serialize as `null`, which Azure reads as a request for no summary,

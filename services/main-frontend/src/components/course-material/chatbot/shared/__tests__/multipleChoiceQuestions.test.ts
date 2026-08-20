@@ -2,9 +2,10 @@ import { v4 } from "uuid"
 
 import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 
+import { openClientToolCalls } from "../messageClassification"
 import {
   ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
-  openQuestions,
+  chosenChoiceIndex,
   questionOf,
 } from "../multipleChoiceQuestions"
 
@@ -54,7 +55,7 @@ const toolOutput = (toolCallId: string, orderNumber: number): ChatbotConversatio
       created_at: TIME,
       deleted_at: null,
       id: v4(),
-      output: "Result: [output]The user chose something.[/output]",
+      output: "Result: [output]The question was answered.[/output]",
       response_id: "resp_1",
       tool_call_id: toolCallId,
       tool_kind: "client_tool",
@@ -119,21 +120,21 @@ describe("questionOf", () => {
   })
 })
 
-describe("openQuestions", () => {
+describe("openClientToolCalls", () => {
   it("keeps a question that has no output yet", () => {
-    const open = openQuestions([text("user", 1), question("call_1", undefined, 2)])
+    const open = openClientToolCalls([text("user", 1), question("call_1", undefined, 2)])
 
     expect(open.map((q) => q.toolCallId)).toEqual(["call_1"])
   })
 
   it("closes a question its output has arrived for", () => {
-    const open = openQuestions([question("call_1", undefined, 1), toolOutput("call_1", 2)])
+    const open = openClientToolCalls([question("call_1", undefined, 1), toolOutput("call_1", 2)])
 
     expect(open).toEqual([])
   })
 
   it("closes every waiting question when the learner writes instead", () => {
-    const open = openQuestions([
+    const open = openClientToolCalls([
       question("call_1", undefined, 1),
       question("call_2", undefined, 2),
       text("user", 3),
@@ -143,12 +144,37 @@ describe("openQuestions", () => {
   })
 
   it("keeps a question the chatbot asked after the learner's message", () => {
-    const open = openQuestions([
+    const open = openClientToolCalls([
       question("call_1", undefined, 1),
       text("user", 2),
       question("call_2", undefined, 3),
     ])
 
     expect(open.map((q) => q.toolCallId)).toEqual(["call_2"])
+  })
+})
+
+describe("chosenChoiceIndex", () => {
+  const asked = { toolCallId: "call_1", question: "Which loop?", choices: CHOICES }
+
+  it("reads the position out of the stored answer", () => {
+    expect(chosenChoiceIndex(asked, { choice_index: 1 })).toBe(1)
+  })
+
+  // An aborted call, and an answer from before the backend stored answers, both arrive as null;
+  // an answer naming a choice the question does not offer cannot be shown either.
+  it("is null for anything that does not name one of the question's choices", () => {
+    const unusable = [
+      null,
+      undefined,
+      {},
+      { choice_index: "1" },
+      { choice_index: -1 },
+      { choice_index: 1.5 },
+      { choice_index: CHOICES.length },
+    ]
+    for (const clientAnswer of unusable) {
+      expect(chosenChoiceIndex(asked, clientAnswer)).toBeNull()
+    }
   })
 })

@@ -16,9 +16,8 @@ pub mod course_description_summary;
 pub mod llm_utils;
 pub mod message_suggestion;
 pub mod search_filter;
+pub mod user_context;
 
 pub mod prelude;
-#[cfg(test)]
-pub mod test_helper;
 
 extern crate tracing;

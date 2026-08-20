@@ -1,23 +1,23 @@
 "use client"
 
+import { useAtomValue } from "jotai"
 import React from "react"
 
-import type { ChatbotSurface } from "@/generated/course-material-api/types.generated"
+import { currentPageIdAtom } from "@/state/course-material/selectors"
 
 import ChatbotChat from "../shared/ChatbotChat"
-
-const SURFACE: ChatbotSurface = "course_material_dialog"
 
 export interface ChatbotProps {
   chatbotConfigurationId: string
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
+  const pageId = useAtomValue(currentPageIdAtom)
   return (
     <ChatbotChat
       chatbotConfigurationId={chatbotConfigurationId}
       isCourseMaterialBlock={false}
-      surface={SURFACE}
+      pageId={pageId}
     />
   )
 }

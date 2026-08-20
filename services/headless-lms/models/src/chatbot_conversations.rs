@@ -84,6 +84,8 @@ WHERE id = $1
 /// Deleting one that is already deleted is not an error, so a caller does not have to check first.
 /// See [crate::chatbot_configurations::delete] for removing the configuration a conversation
 /// belongs to.
+///
+/// Nothing in production deletes a conversation; this exists for tests.
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -190,18 +192,17 @@ pub async fn get_current_conversation_info(
         get_latest_conversation_for_user(tx, user_id, anonymous_token, chatbot_configuration_id)
             .await
             .optional()?;
+    let current_conversation_id = current_conversation.as_ref().map(|c| c.id);
     // the messages are sorted by response_order_number
-    let current_conversation_messages = OptionFuture::from(
-        current_conversation
-            .clone()
-            .map(|c| crate::chatbot_conversation_messages::get_by_conversation_id(tx, c.id)),
-    )
+    let current_conversation_messages = OptionFuture::from(current_conversation_id.map(|id| {
+        crate::chatbot_conversation_messages::get_by_conversation_id_for_display(tx, id)
+    }))
     .await
     .transpose()?;
 
     let current_conversation_message_citations =
-        OptionFuture::from(current_conversation.clone().map(|c| {
-            crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, c.id)
+        OptionFuture::from(current_conversation_id.map(|id| {
+            crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, id)
         }))
         .await
         .transpose()?;

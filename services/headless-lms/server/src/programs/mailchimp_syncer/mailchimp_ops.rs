@@ -6,6 +6,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::time::Duration;
 
+use super::BATCH_RESULT_DOWNLOAD_TIMEOUT_SECS;
 use super::batch_client::{
     BatchOperation, parse_batch_results_from_tar_gz, parse_operation_response_value,
     poll_batch_until_finished_with_response_url, submit_batch,
@@ -177,11 +178,9 @@ async fn execute_batch(
                 ));
             }
         };
-        // Bulk archive of every operation's result, so it can be far larger and slower than the
-        // JSON calls the shared client's default timeout is sized for.
         let response = REQWEST_CLIENT
             .get(&response_url)
-            .timeout(Duration::from_secs(600))
+            .timeout(Duration::from_secs(BATCH_RESULT_DOWNLOAD_TIMEOUT_SECS))
             .send()
             .await?;
         if !response.status().is_success() {

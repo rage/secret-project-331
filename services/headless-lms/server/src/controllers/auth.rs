@@ -7,10 +7,7 @@ use crate::{
     OAuthClient,
     domain::{
         authentication,
-        authorization::{
-            ActionOnResource, authorize_with_fetched_list_of_roles, is_user_global_admin,
-            skip_authorize,
-        },
+        authorization::{ActionOnResource, is_permitted, is_user_global_admin, skip_authorize},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
     },
     prelude::*,
@@ -437,15 +434,14 @@ pub async fn authorize_multiple_actions_on_resources(
         let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
 
         for action_on_resource in input {
-            if (authorize_with_fetched_list_of_roles(
+            if is_permitted(
                 &mut conn,
                 action_on_resource.action,
-                Some(user.id),
                 action_on_resource.resource,
                 &user_roles,
             )
-            .await)
-                .is_ok()
+            .await
+            .unwrap_or(false)
             {
                 results.push(true);
             } else {

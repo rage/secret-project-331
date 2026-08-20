@@ -16,19 +16,29 @@ pub const STREAM_RESPONSE_HEADERS_TIMEOUT: Duration = Duration::from_secs(120);
 /// Applied per chunk by the caller, unlike `ClientBuilder::read_timeout`; see `REQWEST_STREAMING_CLIENT`.
 pub const STREAM_IDLE_TIMEOUT: Duration = Duration::from_secs(120);
 
+/// How long establishing the connection may take, before anything is sent.
+pub const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
+
+// Reads env vars directly instead of caching in ApplicationConfiguration, which isn't static.
+fn in_http_test_mode() -> bool {
+    bool_env_false_by_default("USE_MOCK_AZURE_CONFIGURATION")
+        || bool_env_false_by_default("TEST_MODE")
+}
+
+/// The settings both clients share, timeouts other than the connect one left to the caller.
+fn base_client_builder() -> reqwest::ClientBuilder {
+    reqwest::Client::builder()
+        .use_rustls_tls()
+        .https_only(!in_http_test_mode())
+        .connect_timeout(CONNECT_TIMEOUT)
+}
+
 pub static REQWEST_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
-    // if ApplicationConfiguration was static these env var fetches wouldn't
-    // need to be made...
-    let http_test_mode: bool = bool_env_false_by_default("USE_MOCK_AZURE_CONFIGURATION")
-        || bool_env_false_by_default("TEST_MODE");
-    if http_test_mode {
+    if in_http_test_mode() {
         warn!("Test environment. REQWEST_CLIENT is allowed to make http requests");
     }
 
-    reqwest::Client::builder()
-        .use_rustls_tls()
-        .https_only(!http_test_mode)
-        .connect_timeout(Duration::from_secs(10))
+    base_client_builder()
         // Default deadline only: a per-request `.timeout()` takes precedence over it. Deliberately
         // not `read_timeout`, whose sleep is armed once when the request is created and polled
         // before the response future, making it a flat ceiling on the wait for headers that no
@@ -42,13 +52,7 @@ pub static REQWEST_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
 /// would cut off a healthy but slow stream; callers must instead bound the header wait with
 /// [`STREAM_RESPONSE_HEADERS_TIMEOUT`] and each chunk with [`STREAM_IDLE_TIMEOUT`].
 pub static REQWEST_STREAMING_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
-    let http_test_mode: bool = bool_env_false_by_default("USE_MOCK_AZURE_CONFIGURATION")
-        || bool_env_false_by_default("TEST_MODE");
-
-    reqwest::Client::builder()
-        .use_rustls_tls()
-        .https_only(!http_test_mode)
-        .connect_timeout(Duration::from_secs(10))
+    base_client_builder()
         .build()
         .expect("Failed to build streaming Client")
 });

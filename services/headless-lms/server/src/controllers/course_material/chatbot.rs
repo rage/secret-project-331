@@ -1,17 +1,13 @@
 use actix_web::http::header::ContentType;
-use chrono::Utc;
-
 use headless_lms_chatbot::azure_chatbot::{
-    ChatbotChatStreamEvent, ChatbotUserContext, ClientToolAnswer,
-    answer_tool_call_and_resume_stream, send_chat_request_and_parse_stream,
+    ChatbotChatStreamEvent, answer_tool_call_and_resume_stream, send_chat_request_and_parse_stream,
 };
-use headless_lms_chatbot::conversation_context::{ChatbotPageContext, ChatbotSurface};
+use headless_lms_chatbot::chatbot_tools::ClientToolAnswer;
+use headless_lms_chatbot::conversation_context::ChatbotPageContext;
 use headless_lms_chatbot::llm_utils::estimate_tokens;
+use headless_lms_chatbot::user_context::ChatbotUserContext;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
-use headless_lms_models::chatbot_conversation_message_messages::{
-    ChatbotConversationMessageMessage, MessageRole,
-};
-use headless_lms_models::chatbot_conversation_messages::Message;
+use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
@@ -79,7 +75,6 @@ async fn get_default_chatbot_configuration_for_course(
 pub struct SendChatbotMessage {
     /// What the learner wrote.
     pub message: String,
-    pub surface: ChatbotSurface,
     /// The course material page the learner has open, when they are on one.
     pub page_context: Option<ChatbotPageContext>,
 }
@@ -109,11 +104,10 @@ Sends a new chat message to the chatbot.
     )
 )]
 // Neither the payload nor the request is recorded: the payload carries the learner's message, and
-// `HttpRequest`'s Debug is a multi-line dump of every header. The surface is recorded instead, so
-// that traffic can still be attributed to the UI it came from.
+// `HttpRequest`'s Debug is a multi-line dump of every header.
 #[instrument(
     skip(pool, app_conf, payload, req),
-    fields(surface = ?payload.surface, has_page_context = payload.page_context.is_some())
+    fields(has_page_context = payload.page_context.is_some())
 )]
 async fn send_message(
     pool: web::Data<PgPool>,
@@ -125,7 +119,6 @@ async fn send_message(
 ) -> ControllerResult<HttpResponse> {
     let SendChatbotMessage {
         message,
-        surface,
         page_context,
     } = payload.into_inner();
     let chatbot_configuration_id = params.0;
@@ -137,7 +130,6 @@ async fn send_message(
         chatbot_configuration_id,
         conversation_id,
         user,
-        surface,
         req,
     )
     .await?;
@@ -172,7 +164,6 @@ async fn authorize_access_to_conversation(
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
     user: Option<AuthUser>,
-    surface: ChatbotSurface,
     req: HttpRequest,
 ) -> Result<(AuthorizationToken, ChatbotUserContext), ControllerError> {
     let chatbot_configuration =
@@ -183,7 +174,7 @@ async fn authorize_access_to_conversation(
 
     let conversation = chatbot_conversations::get_by_id(conn, conversation_id).await?;
 
-    let anonymous_token = handle_anonymous_token(req, user);
+    let anonymous_token = handle_anonymous_token(&req, user);
 
     if conversation.user_id != user.map(|u| u.id)
         || conversation.chatbot_configuration_id != chatbot_configuration_id
@@ -203,14 +194,11 @@ async fn authorize_access_to_conversation(
         None
     };
 
-    let chatbot_user = ChatbotUserContext::build(
-        conn,
+    let chatbot_user = ChatbotUserContext::new(
         user.map(|u| u.id),
         chatbot_configuration.course_id,
         course_name,
-        surface,
-    )
-    .await?;
+    );
 
     Ok((token, chatbot_user))
 }
@@ -219,9 +207,6 @@ async fn authorize_access_to_conversation(
 pub struct ChatbotToolResponse {
     /// The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event.
     pub tool_call_id: String,
-    /// Where the answer is coming from, which the resumed turn needs for the same reason
-    /// `send-message` does: it decides which client tools the next round may offer.
-    pub surface: ChatbotSurface,
     pub answer: ClientToolAnswer,
 }
 
@@ -265,7 +250,6 @@ async fn tool_response(
 ) -> ControllerResult<HttpResponse> {
     let ChatbotToolResponse {
         tool_call_id,
-        surface,
         answer,
     } = payload.into_inner();
     let chatbot_configuration_id = params.0;
@@ -277,7 +261,6 @@ async fn tool_response(
         chatbot_configuration_id,
         conversation_id,
         user,
-        surface,
         req,
     )
     .await?;
@@ -348,22 +331,13 @@ async fn new_conversation(
     let _first_message =
         models::chatbot_conversation_messages::insert_for_conversation_user_and_configuration(
             &mut conn,
-            models::chatbot_conversation_messages::ChatbotConversationMessage {
-                id: Uuid::new_v4(),
-                created_at: Utc::now(),
-                updated_at: Utc::now(),
-                deleted_at: None,
-                conversation_id: conversation.id,
-                order_number: 0,
-                message: Message::Text(ChatbotConversationMessageMessage {
-                    text: configuration.initial_message.clone(),
-                    message_role: MessageRole::Assistant,
-                    message_is_complete: true,
-                    used_tokens: estimate_tokens(&configuration.initial_message),
-                    response_id: Some("initial-message".to_string()),
-                    ..Default::default()
-                }),
-            },
+            models::chatbot_conversation_messages::ChatbotConversationMessage::text(
+                conversation.id,
+                MessageRole::Assistant,
+                configuration.initial_message.clone(),
+                estimate_tokens(&configuration.initial_message),
+                Some("initial-message".to_string()),
+            ),
             user.map(|u| u.id),
             anonymous_token,
             configuration.id,
@@ -409,7 +383,7 @@ async fn current_conversation_info(
     let token =
         authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
 
-    let anonymous_token = handle_anonymous_token(req, user);
+    let anonymous_token = handle_anonymous_token(&req, user);
 
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,

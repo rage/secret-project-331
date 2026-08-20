@@ -38,6 +38,7 @@ export type ChatbotAction =
   | { type: "REASONING_IN_PROGRESS"; payload: { reasoning_id: string } }
   | { type: "REASONING_FINISHED"; payload: { reasoning_id: string } }
   | { type: "RESPONSE_COMPLETED" }
+  | { type: "TURN_ENDED" }
 
 const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotState => {
   return produce(state, (draftState) => {
@@ -232,6 +233,14 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
     }
     if (action.type === "RESPONSE_COMPLETED") {
       draftState.messages = []
+    }
+    if (action.type === "TURN_ENDED") {
+      // An `Error` event or a stream that closes early never sends the matching
+      // TOOL_CALL_FINISHED/REASONING_FINISHED, so without this those items would stay
+      // finished: false after the turn that was writing them is over.
+      draftState.messages.forEach((m) => {
+        m.finished = true
+      })
     }
   })
 }

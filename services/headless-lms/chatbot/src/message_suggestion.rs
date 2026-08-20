@@ -1,15 +1,13 @@
-use indexmap::IndexMap;
-
 use crate::{
     azure_chatbot::{
         InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
-        RequestTextOptions, ThinkingParams, stored_tool_call_arguments,
+        RequestTextOptions, ThinkingParams,
     },
     chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
         APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
-        model_is_thinking, parse_text_completion,
+        model_is_thinking, parse_text_completion, string_list_response_format,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
@@ -19,9 +17,6 @@ use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole,
     chatbot_conversation_messages::{ChatbotConversationMessage, Message},
-};
-use headless_lms_utils::json_schema_types::{
-    ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType,
 };
 
 /// Shape of the structured LLM output response, defined by the JSONSchema in
@@ -38,28 +33,7 @@ pub const RESPONSE_FORMAT_NAME: &str = "ChatbotNextMessageSuggestionResponse";
 /// The structured output format the suggestion LLM is asked to answer in. Must stay in
 /// sync with [ChatbotNextMessageSuggestionResponse].
 fn response_format() -> LLMRequestResponseFormatParam {
-    LLMRequestResponseFormatParam {
-        format_type: JSONType::JsonSchema,
-        name: RESPONSE_FORMAT_NAME.to_string(),
-        schema: Schema {
-            type_field: JSONType::Object,
-            description: None,
-            properties: IndexMap::from([(
-                "suggestions".to_string(),
-                SchemaPropertyType::ArrayProperty(ArrayProperty {
-                    type_field: JSONType::Array,
-                    description: None,
-                    items: ArrayItem::JsonItem(JsonItem {
-                        type_field: JSONType::String,
-                        description: None,
-                    }),
-                }),
-            )]),
-            required: vec!["suggestions".to_string()],
-            additional_properties: false,
-        },
-        strict: true,
-    }
+    string_list_response_format(RESPONSE_FORMAT_NAME, "suggestions")
 }
 
 /// System prompt instructions for generating suggested next messages
@@ -294,7 +268,7 @@ fn create_msg_string(m: &ChatbotConversationMessage) -> String {
             format!(
                 "Tool call: Name: {} Arguments: {}\n\n",
                 tool_call.tool_name,
-                stored_tool_call_arguments(&tool_call.tool_arguments)
+                tool_call.arguments_json()
             )
         }
         Message::ToolOutput(tool_output) => {
@@ -308,6 +282,8 @@ fn create_msg_string(m: &ChatbotConversationMessage) -> String {
 mod tests {
     use headless_lms_models::chatbot_conversation_message_messages::ChatbotConversationMessageMessage;
     use headless_lms_models::chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall;
+    use headless_lms_models::test_helper::chatbot_text_message;
+    use uuid::Uuid;
 
     use super::*;
 
@@ -625,16 +601,12 @@ Want to try a challenge problem next time with completing the square?
         text: &str,
         used_tokens: i32,
     ) -> ChatbotConversationMessage {
-        ChatbotConversationMessage {
-            order_number,
-            message: Message::Text(ChatbotConversationMessageMessage {
-                message_role,
-                text: text.to_string(),
-                used_tokens,
-                ..Default::default()
-            }),
-            ..Default::default()
+        let mut message = chatbot_text_message(Uuid::nil(), message_role, text, None);
+        message.order_number = order_number;
+        if let Message::Text(text) = &mut message.message {
+            text.used_tokens = used_tokens;
         }
+        message
     }
 
     fn msgs_with_one_long_answer() -> Vec<ChatbotConversationMessage> {
@@ -694,30 +666,15 @@ The counter never decrements.
         );
     }
 
-    /// Pins the JSON sent to Azure, not the Rust value, so that adding fields to the
-    /// shared schema types cannot change what this feature asks the LLM for.
+    /// The test-mode mock Azure API picks this feature's canned answer by the format name, so the
+    /// name is pinned even though the shape it wraps is shared.
     #[test]
-    fn response_format_json_is_unchanged() {
+    fn the_response_format_is_named_after_this_feature() {
         let serialized =
             serde_json::to_value(response_format()).expect("The response format serializes");
         assert_eq!(
-            serialized,
-            serde_json::json!({
-                "type": "json_schema",
-                "name": "ChatbotNextMessageSuggestionResponse",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "suggestions": {
-                            "type": "array",
-                            "items": { "type": "string" }
-                        }
-                    },
-                    "required": ["suggestions"],
-                    "additionalProperties": false
-                },
-                "strict": true
-            })
+            serialized["name"],
+            serde_json::json!("ChatbotNextMessageSuggestionResponse")
         );
     }
 }

@@ -1,5 +1,4 @@
 use crate::{
-    azure_chatbot::CONTENT_FIELD_SEPARATOR,
     chatbot_error::chatbot_err,
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
     search_filter::SearchFilter,
@@ -9,6 +8,14 @@ use headless_lms_base::prelude_base_and_re_exports::BackendError;
 use serde::{Deserialize, Serialize};
 use url::Url;
 use uuid::Uuid;
+
+/// The name Azure gives its own search tool. Unlike every other tool it has no
+/// `ChatbotToolDeclaration` to carry its name.
+pub const AZURE_AI_SEARCH_TOOL_NAME: &str = "azure_ai_search";
+
+/// Separates the content fields Azure concatenates into one chunk. Baked into the format the
+/// search index was written with, so changing it silently breaks every indexed document.
+pub const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AzureAISearchToolDefinition {

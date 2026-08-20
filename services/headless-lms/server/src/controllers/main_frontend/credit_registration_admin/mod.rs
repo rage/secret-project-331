@@ -68,13 +68,14 @@ async fn authorize_credit_registration_admin(
     conn: &mut PgConnection,
     user_id: Uuid,
 ) -> Result<AuthorizationToken, ControllerError> {
-    Ok(authorize(
+    authorize(
         conn,
         Act::Administrate,
         Some(user_id),
         Res::GlobalPermissions,
     )
-    .await?)
+    .await
+    .map_err(Into::into)
 }
 
 /// Refuses an empty or whitespace reason. Every audited action names one.

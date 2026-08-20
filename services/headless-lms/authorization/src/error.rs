@@ -29,7 +29,7 @@ pub enum AuthorizationErrorType {
     InternalServerError,
 
     /// The models layer failed while the check was loading the data it needs. The original
-    /// [ModelError] is the source; recover it with [AuthorizationError::take_model_source]
+    /// [ModelError] is the source; recover it with [AuthorizationError::into_model_error]
     /// and map it the same way a directly returned `ModelError` is mapped, so that e.g. a
     /// check against a nonexistent page still answers "not found" rather than "server error".
     Model,
@@ -41,52 +41,11 @@ Error type used by the authorization checks.
 The message is meant to be seen by the user; the source carries the role and action detail
 that is only useful to whoever is diagnosing the denial.
 
-## Examples
+Build one with [`authorization_err!`]:
 
-### Usage without source error
-
-```no_run
-# use headless_lms_authorization::error::{AuthorizationError, AuthorizationErrorType, AuthorizationResult};
-# use headless_lms_base::error::backend_error::BackendError;
-# fn random_function() -> AuthorizationResult<()> {
-#    let erroneous_condition = 1 == 1;
-if erroneous_condition {
-    return Err(AuthorizationError::new(
-        AuthorizationErrorType::Unauthorized,
-        "This course requires authentication to access".to_string(),
-        None,
-    ));
-}
-# Ok(())
-# }
-```
-
-### Usage with a source error
-
-Used when calling a function that returns an error that cannot be automatically converted to
-an AuthorizationError. (See `impl From<X>` implementations on this struct.)
-
-```no_run
-# use headless_lms_authorization::error::{AuthorizationError, AuthorizationErrorType, AuthorizationResult};
-# use headless_lms_base::error::backend_error::BackendError;
-# fn some_function_returning_an_error() -> AuthorizationResult<()> {
-#    return Err(AuthorizationError::new(
-#        AuthorizationErrorType::Forbidden,
-#        "Denied".to_string(),
-#        None,
-#    ));
-# }
-#
-# fn random_function() -> AuthorizationResult<()> {
-some_function_returning_an_error().map_err(|original_error| {
-    AuthorizationError::new(
-        AuthorizationErrorType::InternalServerError,
-        "Failed to fetch user roles".to_string(),
-        Some(original_error.into()),
-    )
-})?;
-# Ok(())
-# }
+```ignore
+authorization_err!(Unauthorized, "This course requires authentication to access".to_string());
+authorization_err!(InternalServerError, "Failed to fetch user roles".to_string(), original_error);
 ```
 */
 pub struct AuthorizationError {
@@ -173,20 +132,31 @@ impl BackendError for AuthorizationError {
 }
 
 impl AuthorizationError {
-    /// Takes the [ModelError] out of an [AuthorizationErrorType::Model] error so that the
-    /// caller can apply its own `ModelError` mapping instead of collapsing every
-    /// data-loading failure into a single status code. Returns `None` for every other error
-    /// type, leaving the error untouched.
-    pub fn take_model_source(&mut self) -> Option<ModelError> {
+    /// Whether the check ran and refused, rather than failing to run at all. Consumers that
+    /// answer a permission question with a boolean read a denial as "no" and everything else
+    /// as a failure.
+    pub fn is_denial(&self) -> bool {
+        matches!(
+            self.error_type,
+            AuthorizationErrorType::Unauthorized | AuthorizationErrorType::Forbidden
+        )
+    }
+
+    /// Unwraps an [AuthorizationErrorType::Model] error into the [ModelError] the check failed
+    /// on, so that the caller can apply its own `ModelError` mapping instead of collapsing
+    /// every data-loading failure into a single status code. Any other error is handed back
+    /// unchanged.
+    pub fn into_model_error(mut self) -> Result<ModelError, Self> {
         if !matches!(self.error_type, AuthorizationErrorType::Model) {
-            return None;
+            return Err(self);
         }
-        match self.source.take()?.downcast::<ModelError>() {
-            Ok(model_error) => Some(model_error),
-            Err(source) => {
+        match self.source.take().map(|source| source.downcast()) {
+            Some(Ok(model_error)) => Ok(model_error),
+            Some(Err(source)) => {
                 self.source = Some(source);
-                None
+                Err(self)
             }
+            None => Err(self),
         }
     }
 }
@@ -212,27 +182,33 @@ mod tests {
     use headless_lms_models::ModelErrorType;
 
     #[test]
-    fn take_model_source_recovers_the_wrapped_model_error() {
-        let mut err = AuthorizationError::from(ModelError::new(
+    fn into_model_error_recovers_the_wrapped_model_error() {
+        let err = AuthorizationError::from(ModelError::new(
             ModelErrorType::RecordNotFound,
             "row missing".to_string(),
             None,
         ));
 
-        let model_error = err.take_model_source().expect("model source");
+        let model_error = err.into_model_error().expect("model source");
         assert!(matches!(
             model_error.error_type(),
             ModelErrorType::RecordNotFound
         ));
-        assert!(err.take_model_source().is_none());
     }
 
     #[test]
-    fn take_model_source_leaves_other_error_types_alone() {
+    fn into_model_error_hands_other_error_types_back() {
         let source = ModelError::new(ModelErrorType::Generic, "boom".to_string(), None);
-        let mut err = authorization_err!(InternalServerError, "Denied".to_string(), source);
+        let err = authorization_err!(InternalServerError, "Denied".to_string(), source);
 
-        assert!(err.take_model_source().is_none());
+        let err = err.into_model_error().expect_err("not a model error");
         assert!(std::error::Error::source(&err).is_some());
+    }
+
+    #[test]
+    fn only_refusals_are_denials() {
+        assert!(authorization_err!(Forbidden, "no".to_string()).is_denial());
+        assert!(authorization_err!(Unauthorized, "no".to_string()).is_denial());
+        assert!(!authorization_err!(InternalServerError, "no".to_string()).is_denial());
     }
 }

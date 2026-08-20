@@ -112,6 +112,17 @@
             "name": "response_id"
           }
         }
+      },
+      {
+        "ordinal": 9,
+        "name": "client_answer",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "client_answer"
+          }
+        }
       }
     ],
     "parameters": {
@@ -128,7 +139,8 @@
       false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "23d25d2139de03145c2a4ccbad64584df68bf991bac9240e9e125ddd802a4f18"

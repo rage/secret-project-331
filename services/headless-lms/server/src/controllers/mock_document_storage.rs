@@ -10,7 +10,6 @@ pub(crate) struct MockDocument {
     pub(crate) id: &'static str,
     pub(crate) chunk_id: &'static str,
     pub(crate) title: &'static str,
-    pub(crate) filepath: &'static str,
     pub(crate) chunk: &'static str,
 }
 
@@ -21,21 +20,18 @@ pub(crate) static MOCK_DOCUMENTS: [MockDocument; 3] = [
         id: "document1",
         chunk_id: "1",
         title: "Cited course page",
-        filepath: "document1",
         chunk: "Mock test page content\n This is test content blah",
     },
     MockDocument {
         id: "document2",
         chunk_id: "2",
         title: "Cited course page 2",
-        filepath: "document2",
         chunk: "Mock test page content 2\n This is another test page.",
     },
     MockDocument {
         id: "document3",
         chunk_id: "3",
         title: "Cited course page",
-        filepath: "document3",
         chunk: DOCUMENT_3_CHUNK,
     },
 ];
@@ -58,7 +54,7 @@ async fn mock_document_storage(
             chunk_id: document.chunk_id.to_string(),
             title: document.title.to_string(),
             url: format!("{base_url}/{}", document.chunk_id),
-            filepath: document.filepath.to_string(),
+            filepath: document.id.to_string(),
             chunk: document.chunk.to_string(),
         })?,
         None => "{}".to_string(),

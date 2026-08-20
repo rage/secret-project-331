@@ -17,6 +17,24 @@ pub enum ToolKind {
     ClientTool,
 }
 
+impl ToolKind {
+    /// Whether a call of this kind without an output is a turn waiting for the client rather than
+    /// one that died.
+    pub fn is_answered_by_client(self) -> bool {
+        matches!(self, Self::ClientTool)
+    }
+
+    /// Whether the provider answers the call itself. That is the only distinction the wire shape of
+    /// a call depends on: every other kind is an ordinary function call to the provider, whoever
+    /// produces its output on this end.
+    pub fn is_provider_tool(self) -> bool {
+        match self {
+            ToolKind::AzureAiSearch => true,
+            ToolKind::Function | ToolKind::ClientTool => false,
+        }
+    }
+}
+
 #[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
 pub struct ChatbotConversationMessageToolCall {
     pub id: Uuid,
@@ -34,6 +52,42 @@ pub struct ChatbotConversationMessageToolCall {
     pub tool_call_id: String,
     pub tool_kind: ToolKind,
     pub response_id: String,
+}
+
+impl ChatbotConversationMessageToolCall {
+    /// A call ready to be inserted, recording `arguments` as the JSON text the model wrote for it.
+    ///
+    /// Storing the text rather than the object it parses into is what lets [`Self::arguments_json`]
+    /// hand it back to the model unchanged; go through here rather than filling
+    /// [`Self::tool_arguments`] yourself.
+    pub fn new(
+        tool_call_id: String,
+        tool_name: String,
+        arguments: String,
+        tool_kind: ToolKind,
+        response_id: String,
+    ) -> Self {
+        Self {
+            tool_call_id,
+            tool_name,
+            tool_arguments: Value::String(arguments),
+            tool_kind,
+            response_id,
+            ..Default::default()
+        }
+    }
+
+    /// The argument JSON of the call. A call is recorded with the JSON text the model produced
+    /// rather than with its parsed shape, so [`Self::tool_arguments`] is normally a JSON string.
+    ///
+    /// Use this rather than serializing the stored value, which would escape that text a second
+    /// time and both feed the model garbage and break the prefix its prompt cache matches on.
+    pub fn arguments_json(&self) -> String {
+        match &self.tool_arguments {
+            Value::String(json) => json.clone(),
+            parsed => parsed.to_string(),
+        }
+    }
 }
 
 impl Default for ChatbotConversationMessageToolCall {
@@ -210,4 +264,26 @@ WHERE ccmtc.chatbot_conversation_message_id IN (
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Validating a tool answer means parsing the arguments the call was recorded with, and a call
+    /// is recorded with the argument text rather than with the object it parses into.
+    #[test]
+    fn stored_arguments_come_back_as_the_json_text_the_model_wrote() {
+        let recorded = ChatbotConversationMessageToolCall {
+            tool_arguments: Value::String(r#"{"choices":["a","b"]}"#.to_string()),
+            ..Default::default()
+        };
+        assert_eq!(recorded.arguments_json(), r#"{"choices":["a","b"]}"#);
+
+        let as_an_object = ChatbotConversationMessageToolCall {
+            tool_arguments: serde_json::json!({ "choices": ["a", "b"] }),
+            ..Default::default()
+        };
+        assert_eq!(as_an_object.arguments_json(), r#"{"choices":["a","b"]}"#);
+    }
 }

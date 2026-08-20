@@ -5,9 +5,10 @@ import { useTranslation } from "react-i18next"
 
 import { newChatbotConversation } from "@/generated/course-material-api/sdk.generated"
 import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
-import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
-import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
-import { resolveErrorDisplayCopy } from "@/shared-module/common/errors/resolveErrorDisplayCopy"
+import {
+  errorNotificationMessage,
+  showErrorNotification,
+} from "@/shared-module/common/components/Notifications/notificationHelpers"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { saveChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
@@ -37,8 +38,7 @@ const useNewConversationMutation = (
       // A toast, not the chat's own error area: a conversation started from the text selection
       // tooltip fails before the chatbot is opened, leaving nothing mounted to show the error in.
       onError: (error) => {
-        const copy = resolveErrorDisplayCopy(normalizeErrorForDisplay(error, t), t)
-        showErrorNotification({ message: copy.message ?? copy.title })
+        showErrorNotification({ message: errorNotificationMessage(error, t) })
       },
     },
   )

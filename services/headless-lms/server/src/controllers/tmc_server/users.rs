@@ -13,8 +13,7 @@ shared-secret authorization header:
 */
 
 use crate::domain::authentication::{
-    authorize_access_from_tmc_server_to_course_mooc_fi,
-    get_or_create_user_from_tmc_mooc_fi_response,
+    authenticate_tmc_server, get_or_create_user_from_tmc_mooc_fi_response,
 };
 use crate::prelude::*;
 use headless_lms_utils::services::tmc::TmcClient;
@@ -58,7 +57,7 @@ pub async fn create_user(
     payload: web::Json<CreateUserRequest>,
     tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<CreateUserResponse>> {
-    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
+    let token = authenticate_tmc_server(&request).await?;
 
     let CreateUserRequest {
         upstream_id,
@@ -126,7 +125,7 @@ pub async fn courses_moocfi_password_login(
     pool: web::Data<PgPool>,
     payload: web::Json<LoginRequest>,
 ) -> ControllerResult<web::Json<bool>> {
-    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
+    let token = authenticate_tmc_server(&request).await?;
 
     let mut conn = pool.acquire().await?;
 
@@ -163,7 +162,7 @@ pub async fn courses_moocfi_password_change(
     pool: web::Data<PgPool>,
     payload: web::Json<PasswordChangeRequest>,
 ) -> ControllerResult<web::Json<bool>> {
-    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
+    let token = authenticate_tmc_server(&request).await?;
 
     let mut conn = pool.acquire().await?;
 

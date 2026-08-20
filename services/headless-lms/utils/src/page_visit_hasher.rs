@@ -14,16 +14,16 @@ use crate::stable_digest::stable_digest;
 /// The key rotation caps that to the day of the deploy; nothing else does.
 pub fn hash_anonymous_identifier(
     course_id: Uuid,
-    hashing_key_for_the_day: Vec<u8>,
-    user_agent: String,
-    ip_address: String,
-) -> anyhow::Result<String> {
-    Ok(stable_digest(&[
+    hashing_key_for_the_day: &[u8],
+    user_agent: &str,
+    ip_address: &str,
+) -> String {
+    stable_digest(&[
         course_id.as_bytes(),
-        &hashing_key_for_the_day,
+        hashing_key_for_the_day,
         ip_address.as_bytes(),
         user_agent.as_bytes(),
-    ]))
+    ])
 }
 
 #[cfg(test)]
@@ -39,20 +39,8 @@ mod tests {
         let key = vec![1, 2, 3];
 
         assert_ne!(
-            hash_anonymous_identifier(
-                course_id,
-                key.clone(),
-                "Firefox".to_string(),
-                "10.0.0.1".to_string()
-            )
-            .expect("the identifier is computed"),
-            hash_anonymous_identifier(
-                course_id,
-                key,
-                "efox".to_string(),
-                "10.0.0.1Fir".to_string()
-            )
-            .expect("the identifier is computed"),
+            hash_anonymous_identifier(course_id, &key, "Firefox", "10.0.0.1"),
+            hash_anonymous_identifier(course_id, &key, "efox", "10.0.0.1Fir"),
         );
     }
 }

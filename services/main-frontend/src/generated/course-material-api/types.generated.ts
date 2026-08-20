@@ -187,6 +187,13 @@ export type ChatbotConversationMessageToolCall = {
 
 export type ChatbotConversationMessageToolOutput = {
   chatbot_conversation_message_id: string
+  /**
+   * The answer payload the client sent, in the shape the answered tool defines. None for
+   * outputs no client answered.
+   */
+  client_answer?: {
+    [key: string]: unknown
+  } | null
   created_at: string
   deleted_at?: string | null
   id: string
@@ -217,26 +224,8 @@ export type ChatbotPageContext = {
   page_id: string
 }
 
-/**
- * The part of the application a chatbot message was sent from.
- *
- * Every surface posts to the same endpoint and several of them share a chatbot configuration,
- * so a request has to name its surface for the backend to tell them apart.
- */
-export type ChatbotSurface =
-  | "course_material_dialog"
-  | "course_material_block"
-  | "embed"
-  | "configuration_preview"
-  | "command_center"
-
 export type ChatbotToolResponse = {
   answer: ClientToolAnswer
-  /**
-   * Where the answer is coming from, which the resumed turn needs for the same reason
-   * `send-message` does: it decides which client tools the next round may offer.
-   */
-  surface: ChatbotSurface
   /**
    * The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event.
    */
@@ -244,40 +233,24 @@ export type ChatbotToolResponse = {
 }
 
 /**
- * What a client answered a tool call with.
- *
- * A client tool either runs and produces data, or puts a choice to the learner. Both are shapes
- * of the same answer so that the confirmation gates of a later phase, which answer with
- * [ClientToolAnswer::Decision], need no change to the wire format. The tool the call belongs to
- * decides which shapes it accepts and what the model is told they mean.
+ * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
  */
-export type ClientToolAnswer =
-  | {
-      /**
-       * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
-       */
-      data: {
-        /**
-         * An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not
-         * known here. Unlike the tool call arguments we hand back to clients, this one is built
-         * by the client, so declaring it a string would make the generated binding unusable.
-         */
-        result: {
-          [key: string]: unknown
-        }
-      }
-      type: "Data"
+export type ClientToolAnswer = {
+  /**
+   * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+   */
+  data: {
+    /**
+     * An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not
+     * known here. Unlike the tool call arguments we hand back to clients, this one is built
+     * by the client, so declaring it a string would make the generated binding unusable.
+     */
+    result: {
+      [key: string]: unknown
     }
-  | {
-      /**
-       * The learner allowed or refused the call, optionally in their own words.
-       */
-      data: {
-        approved: boolean
-        note?: string | null
-      }
-      type: "Decision"
-    }
+  }
+  type: "Data"
+}
 
 export type CodeGiveawayStatus =
   | {
@@ -1077,7 +1050,6 @@ export type SendChatbotMessage = {
    */
   message: string
   page_context?: null | ChatbotPageContext
-  surface: ChatbotSurface
 }
 
 export type ShowExerciseAnswers = {

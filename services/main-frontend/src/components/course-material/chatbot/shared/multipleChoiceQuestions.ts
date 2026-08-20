@@ -1,11 +1,10 @@
 import { z } from "zod"
 
-import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
-import {
-  zChatbotConversationMessageMessage,
-  zChatbotConversationMessageToolCall,
-  zChatbotConversationMessageToolOutput,
-} from "@/generated/course-material-api/zod.generated"
+import type {
+  ChatbotConversationMessage,
+  ClientToolAnswer,
+} from "@/generated/course-material-api/types.generated"
+import { zChatbotConversationMessageToolCall } from "@/generated/course-material-api/zod.generated"
 
 /**
  * The client tool this UI answers.
@@ -42,20 +41,20 @@ export interface MultipleChoiceQuestion {
 }
 
 /**
- * The clarifying question a conversation message asks, or null if it asks none.
+ * The clarifying question named by a call's raw arguments, or null if they cannot be answered.
  *
  * Arguments are only validated when an answer for them arrives, so a question the learner could
  * not answer can reach us. Returning null for those keeps them out of the conversation flow as an
- * open question; the learner can still write instead, which aborts the call.
+ * open question; the learner can still write instead, which aborts the call. This is the client
+ * tool registry's `parseCall` for this tool.
  */
-export const questionOf = (message: ChatbotConversationMessage): MultipleChoiceQuestion | null => {
-  const toolCall = zChatbotConversationMessageToolCall.safeParse(message.message)
-  if (!toolCall.success || toolCall.data.tool_name !== ASK_MULTIPLE_CHOICE_QUESTION_TOOL) {
-    return null
-  }
+export const parseMultipleChoiceQuestion = (
+  toolCallId: string,
+  toolArguments: string,
+): MultipleChoiceQuestion | null => {
   let parsedArguments: unknown
   try {
-    parsedArguments = JSON.parse(toolCall.data.tool_arguments)
+    parsedArguments = JSON.parse(toolArguments)
   } catch {
     return null
   }
@@ -77,41 +76,52 @@ export const questionOf = (message: ChatbotConversationMessage): MultipleChoiceQ
   ) {
     return null
   }
-  return { toolCallId: toolCall.data.tool_call_id, question, choices }
+  return { toolCallId, question, choices }
+}
+
+/** The clarifying question a conversation message asks, or null if it asks none. */
+export const questionOf = (message: ChatbotConversationMessage): MultipleChoiceQuestion | null => {
+  const toolCall = zChatbotConversationMessageToolCall.safeParse(message.message)
+  if (!toolCall.success || toolCall.data.tool_name !== ASK_MULTIPLE_CHOICE_QUESTION_TOOL) {
+    return null
+  }
+  return parseMultipleChoiceQuestion(toolCall.data.tool_call_id, toolCall.data.tool_arguments)
 }
 
 /**
- * The questions of a conversation that are still waiting for the learner, in conversation order.
+ * The answer body for a multiple choice question: the position of the choice the learner picked in
+ * the list they were offered.
  *
- * A client tool call is closed by a `ToolOutput` message carrying its `tool_call_id`, which is
- * also how the backend records aborting one. An abort is only visible once the conversation is
- * fetched again, so a message the learner sent afterwards closes the questions before it too:
- * sending one aborts every call the turn was waiting on.
- *
- * `messages` must be in conversation order, and may mix fetched messages with ones a running
- * stream has added.
+ * The wire shape `AskMultipleChoiceQuestionTool` deserializes, in
+ * `services/headless-lms/chatbot/src/chatbot_tools/client_tools/ask_multiple_choice_question.rs`.
+ * `ClientToolAnswer["data"]["result"]` is generated as an open record, so this schema is the only
+ * thing keeping the key from drifting away from the backend.
  */
-export const openQuestions = (messages: ChatbotConversationMessage[]): MultipleChoiceQuestion[] => {
-  const closed = new Set(
-    messages.flatMap((message) => {
-      const output = zChatbotConversationMessageToolOutput.safeParse(message.message)
-      return output.success ? [output.data.tool_call_id] : []
-    }),
-  )
+const multipleChoiceAnswerResult = z.object({ choice_index: z.number().int().nonnegative() })
 
-  let open: MultipleChoiceQuestion[] = []
-  for (const message of messages) {
-    const question = questionOf(message)
-    if (question !== null) {
-      if (!closed.has(question.toolCallId)) {
-        open.push(question)
-      }
-      continue
-    }
-    const text = zChatbotConversationMessageMessage.safeParse(message.message)
-    if (text.success && text.data.message_role === "user") {
-      open = []
-    }
+type MultipleChoiceAnswerResult = z.infer<typeof multipleChoiceAnswerResult>
+
+/**
+ * Which of a question's own choices the answer stored with its tool output names, or null if the
+ * call was aborted instead of answered, was answered before answers were stored, or names a choice
+ * this question does not offer.
+ */
+export const chosenChoiceIndex = (
+  question: MultipleChoiceQuestion,
+  clientAnswer: unknown,
+): number | null => {
+  const answer = multipleChoiceAnswerResult.safeParse(clientAnswer)
+  if (!answer.success || answer.data.choice_index >= question.choices.length) {
+    return null
   }
-  return open
+  return answer.data.choice_index
 }
+
+/**
+ * The answer to send for a question, naming the picked choice by its position. The server resolves
+ * the position against the choices the model offered, so the answer carries no text of its own.
+ */
+export const multipleChoiceAnswer = (choiceIndex: number): ClientToolAnswer => ({
+  type: "Data",
+  data: { result: { choice_index: choiceIndex } satisfies MultipleChoiceAnswerResult },
+})

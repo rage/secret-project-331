@@ -2,15 +2,16 @@ use indexmap::IndexMap;
 
 use serde::Deserialize;
 
+use headless_lms_utils::json_schema_types::{
+    JSONType, JsonItem, Schema, SchemaPropertyType, string_array_property,
+};
+
 use crate::{
-    azure_chatbot::{
-        ArrayItem, ArrayProperty, ClientToolAnswer, JSONType, JsonItem, Schema, SchemaPropertyType,
-    },
+    chatbot_tools::ClientToolAnswer,
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotToolDeclaration, ClientChatbotTool, LLMToolType,
         client_answer_data, tool_permission::ToolPermission,
     },
-    conversation_context::ChatbotSurface,
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
 };
 
@@ -45,15 +46,11 @@ struct MultipleChoiceAnswer {
     choice_index: u32,
 }
 
-/// A picked choice, resolved against the offered list.
-pub struct MultipleChoiceSelection {
-    /// The choice text as the LLM wrote it, rather than as the client echoed it back, so that the
-    /// model only ever reads an answer it could have offered.
-    choice: String,
-}
-
 impl ChatbotToolDeclaration for AskMultipleChoiceQuestionTool {
     const NAME: &'static str = "ask_multiple_choice_question";
+
+    /// A clarifying question reveals nothing the user did not write themselves.
+    const PERMISSION: ToolPermission = ToolPermission::Anyone;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -75,16 +72,9 @@ impl ChatbotToolDeclaration for AskMultipleChoiceQuestionTool {
                     ),
                     (
                         "choices".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                            type_field: JSONType::Array,
-                            description: Some(format!(
-                                "The answers to offer, between {MIN_CHOICES} and {MAX_CHOICES} of them. Each is a short label the user picks by clicking, distinct from the others, in the language of the question. Do not number them and do not add an 'other' choice: the user can always reply in their own words instead."
-                            )),
-                            items: ArrayItem::JsonItem(JsonItem {
-                                type_field: JSONType::String,
-                                description: None,
-                            }),
-                        }),
+                        string_array_property(Some(&format!(
+                            "The answers to offer, between {MIN_CHOICES} and {MAX_CHOICES} of them. Each is a short label the user picks by clicking, distinct from the others, in the language of the question. Do not number them and do not add an 'other' choice: the user can always reply in their own words instead."
+                        ))),
                     ),
                 ]),
                 required: vec!["question".to_string(), "choices".to_string()],
@@ -97,19 +87,7 @@ impl ChatbotToolDeclaration for AskMultipleChoiceQuestionTool {
 
 impl ClientChatbotTool for AskMultipleChoiceQuestionTool {
     type Arguments = AskMultipleChoiceQuestionArguments;
-    type Response = MultipleChoiceSelection;
-
-    /// Every surface has a person reading it who can answer.
-    const SURFACES: &'static [ChatbotSurface] = &[
-        ChatbotSurface::CourseMaterialDialog,
-        ChatbotSurface::CourseMaterialBlock,
-        ChatbotSurface::Embed,
-        ChatbotSurface::ConfigurationPreview,
-        ChatbotSurface::CommandCenter,
-    ];
-
-    /// A clarifying question reveals nothing the user did not write themselves.
-    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+    type Response = String;
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let parsed: RawArguments = serde_json::from_str(arguments).map_err(|e| {
@@ -160,6 +138,8 @@ impl ClientChatbotTool for AskMultipleChoiceQuestionTool {
         Ok(AskMultipleChoiceQuestionArguments { question, choices })
     }
 
+    /// The choice comes back as the LLM's own wording rather than as the client echoed it, so
+    /// that the model only ever reads an answer it could have offered.
     fn parse_response(
         arguments: &Self::Arguments,
         answer: &ClientToolAnswer,
@@ -179,15 +159,13 @@ impl ClientChatbotTool for AskMultipleChoiceQuestionTool {
                 )
             })?;
 
-        Ok(MultipleChoiceSelection {
-            choice: choice.clone(),
-        })
+        Ok(choice.clone())
     }
 
     fn output(arguments: &Self::Arguments, response: &Self::Response) -> String {
         format!(
             "Asked: {:?}. The user chose: {:?}.",
-            arguments.question, response.choice
+            arguments.question, response
         )
     }
 
@@ -268,7 +246,7 @@ mod tests {
         )
         .expect("the answer is one of the choices");
 
-        assert_eq!(response.choice, "for");
+        assert_eq!(response, "for");
         let output = AskMultipleChoiceQuestionTool::get_tool_output(&arguments, &response);
         assert!(output.contains("[output]"), "{output}");
         assert!(output.contains("\"for\""), "{output}");
@@ -315,14 +293,5 @@ mod tests {
                 "{refused}"
             );
         }
-
-        let decision = ClientToolAnswer::Decision {
-            approved: true,
-            note: None,
-        };
-        let error = AskMultipleChoiceQuestionTool::parse_response(&arguments, &decision)
-            .err()
-            .expect("a decision answers no question");
-        assert_eq!(error.error_type(), &ChatbotErrorType::InvalidToolAnswer);
     }
 }

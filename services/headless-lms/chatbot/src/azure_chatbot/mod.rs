@@ -8,7 +8,6 @@ use std::task::{Context, Poll};
 use bytes::Bytes;
 use futures::stream::{BoxStream, Peekable};
 use futures::{Stream, StreamExt};
-use headless_lms_authorization::fetch_user_roles;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::{
     ChatbotConfiguration, ReasoningEffortLevel, VerbosityLevel,
@@ -22,7 +21,6 @@ use headless_lms_models::chatbot_conversation_message_tool_calls::ChatbotConvers
 use headless_lms_models::chatbot_conversation_messages::{
     self, ChatbotConversationMessage, Message,
 };
-use headless_lms_models::roles::Role;
 use headless_lms_utils::json_schema_types::{JSONType, Schema};
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
@@ -35,32 +33,38 @@ use url::Url;
 use utoipa::ToSchema;
 
 use crate::chatbot_error::ChatbotResult;
-use crate::chatbot_tools::provider_tools::azure_ai_search::get_azure_ai_search_tool_definition;
+use crate::chatbot_tools::provider_tools::azure_ai_search::{
+    AZURE_AI_SEARCH_TOOL_NAME, get_azure_ai_search_tool_definition,
+};
 use crate::chatbot_tools::{
-    AzureLLMToolDefinition, ChatbotToolCallResult, call_chatbot_tool, check_client_tool_arguments,
-    client_tool_answer_output, client_tool_permission, get_chatbot_tool_definitions,
-    get_client_chatbot_tool_definitions, tool_is_answered_by_client,
-    tool_permission::ToolPermission,
+    AzureLLMToolDefinition, ChatbotToolCallResult, ClientToolAnswer, call_chatbot_tool,
+    check_client_tool_arguments, client_tool_answer_output, client_tool_permission,
+    get_client_chatbot_tool_definitions, get_permitted_chatbot_tool_definitions,
+    tool_is_answered_by_client, tool_permission::ToolPermission,
 };
 use crate::citations::chatbot_cited_documents_to_citations;
 use crate::conversation_context::{
-    ChatbotPageContext, ChatbotSurface, insert_page_context_message_if_changed,
+    ChatbotPageContext, insert_page_context_message_if_changed, resolve_page_context,
 };
 use crate::llm_utils::{
     APIInputMessage, APIOutputMessage, MessageContent, estimate_tokens, get_params_for_model,
-    make_streaming_llm_request,
+    make_streaming_llm_request, summarize_input_for_log,
 };
 
 use crate::prelude::*;
+use crate::user_context::ChatbotUserContext;
 
-pub const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
+/// How many LLM requests one turn may make, bounding a model that keeps calling tools instead of
+/// answering.
+const MAX_TOOL_CALL_ROUNDS_PER_TURN: u32 = 15;
 
-/// These are the events we expect to receive from Azure API but will not handle.
-/// This list doesn't include the events we explicitly handle.
+/// Azure events that no parser needs to react to, or that some parser handles while another
+/// legitimately sees them. An event outside this list is logged as unexpected, so a name Azure
+/// starts sending has to be added here even when nothing acts on it.
 const ALL_EXPECTED_EVENTS: &[&str] = &[
     "response.in_progress",
     "response.queued",
-    "response.created",
+    "response.completed",
     "response.output_item.added",
     "response.output_item.done",
     "response.content_part.added",
@@ -77,7 +81,6 @@ const ALL_EXPECTED_EVENTS: &[&str] = &[
     "response.custom_tool_call_input.delta",
     "response.custom_tool_call_input.done",
     "response.output_text.done",
-    "response.refusal.delta",
     "response.refusal.done",
 ];
 
@@ -91,13 +94,11 @@ enum ParsedResponseLine {
 }
 
 impl ParsedResponseLine {
-    pub fn parse(input: &str) -> ChatbotResult<Option<Self>> {
-        if input.starts_with("event: ") {
-            let event_type = input.trim_start_matches("event: ").to_string();
-            Ok(Some(ParsedResponseLine::Event(event_type)))
-        } else if input.starts_with("data: ") {
-            let data = input.trim_start_matches("data: ").to_string();
-            let response_output = match serde_json::from_str::<ResponseOutput>(&data) {
+    fn parse(input: &str) -> ChatbotResult<Option<Self>> {
+        if let Some(event_type) = input.strip_prefix("event: ") {
+            Ok(Some(ParsedResponseLine::Event(event_type.to_string())))
+        } else if let Some(data) = input.strip_prefix("data: ") {
+            let response_output = match serde_json::from_str::<ResponseOutput>(data) {
                 Ok(response_output) => response_output,
                 Err(e) => {
                     // Log the raw line so deserialization failures against the Azure response
@@ -115,69 +116,6 @@ impl ParsedResponseLine {
             Ok(None)
         }
     }
-}
-
-/// Context about the user and course for a chatbot interaction.
-/// Passed to tool implementations so they can access user-specific data.
-pub struct ChatbotUserContext {
-    pub user_id: Option<Uuid>,
-    pub course_id: Option<Uuid>,
-    pub course_name: Option<String>,
-    /// Where the request came from, which decides which client tools it may be offered.
-    pub surface: ChatbotSurface,
-    /// The caller's roles as they were when the request arrived, so that the permission of every
-    /// tool of the request is decided from one snapshot and one roles query.
-    pub roles: Vec<Role>,
-}
-
-impl ChatbotUserContext {
-    /// Collects what a chatbot request needs to know about its caller.
-    ///
-    /// Fetches the caller's roles, which is the request's only roles query however many tool
-    /// permissions it goes on to check. An anonymous caller costs no query.
-    pub async fn build(
-        conn: &mut PgConnection,
-        user_id: Option<Uuid>,
-        course_id: Option<Uuid>,
-        course_name: Option<String>,
-        surface: ChatbotSurface,
-    ) -> ChatbotResult<Self> {
-        Ok(Self {
-            user_id,
-            course_id,
-            course_name,
-            surface,
-            roles: fetch_user_roles(conn, user_id).await?,
-        })
-    }
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct ContentFilterResults {
-    pub hate: Option<ContentFilter>,
-    pub self_harm: Option<ContentFilter>,
-    pub sexual: Option<ContentFilter>,
-    pub violence: Option<ContentFilter>,
-    //pub jailbreak: Option<ContentFilter>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct ContentFilter {
-    pub blocked: bool,
-    pub source_type: ContentFilterSource,
-    pub content_filter_results: Vec<ContentFilterResults>,
-}
-#[derive(Deserialize, Serialize, Debug)]
-pub struct ContentFilterResult {
-    pub filtered: bool,
-    pub severity: String,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-#[serde(rename_all = "snake_case")]
-pub enum ContentFilterSource {
-    Prompt,
-    Completion,
 }
 
 /// Response received from LLM API
@@ -229,15 +167,22 @@ impl Usage {
     /// Emits the token counts, including how much of the prompt the cache served and, from
     /// `reasoning`, which turns' reasoning the model drew on.
     pub fn log(&self, context: &str, reasoning: Option<&ResponseReasoning>) {
-        let details = self.input_tokens_details.clone().unwrap_or_default();
-        let output_details = self.output_tokens_details.clone().unwrap_or_default();
         info!(
             context,
             input_tokens = self.input_tokens,
             output_tokens = self.output_tokens,
-            reasoning_tokens = output_details.reasoning_tokens,
-            cached_tokens = details.cached_tokens,
-            cache_write_tokens = details.cache_write_tokens,
+            reasoning_tokens = self
+                .output_tokens_details
+                .as_ref()
+                .and_then(|details| details.reasoning_tokens),
+            cached_tokens = self
+                .input_tokens_details
+                .as_ref()
+                .and_then(|details| details.cached_tokens),
+            cache_write_tokens = self
+                .input_tokens_details
+                .as_ref()
+                .and_then(|details| details.cache_write_tokens),
             reasoning_context = reasoning.and_then(|reasoning| reasoning.context.as_deref()),
             "LLM token usage"
         );
@@ -273,7 +218,6 @@ impl std::fmt::Display for ResponseError {
 pub struct IncompleteResponse {
     pub id: String,
     pub incomplete_details: IncompleteReason,
-    pub content_filters: Vec<ContentFilter>,
 }
 
 /// Response received from LLM API
@@ -305,9 +249,6 @@ pub enum OutputItem {
         response_id: String,
         role: MessageRole,
         content: MessageContent,
-        // todo phase for reasoning preamble
-        #[serde(skip_serializing_if = "Option::is_none")]
-        phase: Option<MessagePhase>,
     },
     Reasoning {
         response_id: String,
@@ -345,21 +286,13 @@ pub enum OutputItem {
     },
 }
 
-/// Phase determines how to react to the message. Commentary-phase can have e.g.
-/// a reasoning preamble, and final answer is self-explanatory.
-#[derive(Deserialize, Serialize, Debug, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum MessagePhase {
-    Commentary,
-    FinalAnswer,
-}
-
 impl From<StreamItem> for ChatbotChatStreamEvent {
     fn from(value: StreamItem) -> Self {
         match value {
             StreamItem {
                 item: OutputItem::Reasoning { id, .. },
                 finished,
+                ..
             } => ChatbotChatStreamEvent::Reasoning {
                 finished,
                 reasoning_id: id,
@@ -370,8 +303,9 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                         arguments, call_id, ..
                     },
                 finished,
+                ..
             } => ChatbotChatStreamEvent::ToolCall {
-                tool_name: Some("azure_ai_search".to_string()),
+                tool_name: Some(AZURE_AI_SEARCH_TOOL_NAME.to_string()),
                 arguments: Some(arguments),
                 tool_call_id: call_id,
                 finished,
@@ -395,7 +329,7 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                 item: OutputItem::AzureAiSearchCallOutput { call_id, .. },
                 ..
             } => ChatbotChatStreamEvent::ToolCall {
-                tool_name: Some("azure_ai_search".to_string()),
+                tool_name: Some(AZURE_AI_SEARCH_TOOL_NAME.to_string()),
                 arguments: None,
                 tool_call_id: call_id,
                 finished: true,
@@ -625,11 +559,9 @@ fn may_follow_reasoning(
 /// The transcript is append-only, so a turn's prefix contains the previous turn's, and the entry
 /// worth routing to is the one that turn wrote.
 fn conversation_prompt_cache_key(model_type: &ModelType, conversation_id: Uuid) -> Option<String> {
-    match model_type {
-        // Not an Azure OpenAI model, so the parameter does not apply.
-        ModelType::Mistral => None,
-        _ => Some(conversation_id.to_string()),
-    }
+    model_type
+        .is_azure_openai()
+        .then(|| conversation_id.to_string())
 }
 
 impl LLMRequest {
@@ -640,7 +572,7 @@ impl LLMRequest {
     /// answering a suspended tool call at the same moment either gets its answer in before the
     /// learner moved on, or finds the call already aborted. `page_context` is recorded ahead of
     /// the message it gives context for.
-    pub async fn build_and_insert_incoming_user_message_to_db(
+    async fn build_and_insert_incoming_user_message_to_db(
         conn: &mut PgConnection,
         chatbot_configuration_id: Uuid,
         conversation_id: Uuid,
@@ -652,22 +584,29 @@ impl LLMRequest {
         let configuration =
             models::chatbot_configurations::get_by_id(conn, chatbot_configuration_id).await?;
 
+        let page = match page_context {
+            Some(page_context) => {
+                resolve_page_context(conn, page_context, configuration.course_id).await
+            }
+            None => None,
+        };
+
         let mut tx = conn.begin().await.map_err(ChatbotError::from)?;
 
         models::chatbot_conversation_messages::abort_pending_client_tool_calls(
             &mut tx,
             conversation_id,
+            NEW_MESSAGE_ABORT_OUTPUT,
         )
         .await?;
 
-        if let Some(page_context) = page_context {
+        if let Some(page) = &page {
             // Runs under the lock the abort above took, which is what keeps two requests from both
             // deciding the context changed and both writing it.
             insert_page_context_message_if_changed(
                 &mut tx,
                 conversation_id,
-                page_context,
-                configuration.course_id,
+                page,
                 user_context.course_name.as_deref(),
             )
             .await?;
@@ -706,9 +645,9 @@ impl LLMRequest {
     ///
     /// Both the turn that follows a new user message and a resumed turn go through here, a
     /// resumed one adding nothing of its own beyond the tool output that woke it. The tools the
-    /// request offers depend on `user_context`, so a caller who has lost a role, or is on a
-    /// surface that cannot answer a tool, is not offered it again.
-    pub async fn build_from_conversation(
+    /// request offers depend on `user_context`, so a caller who has lost a role is not offered a
+    /// tool that needs it again.
+    async fn build_from_conversation(
         conn: &mut PgConnection,
         configuration: &ChatbotConfiguration,
         conversation_id: Uuid,
@@ -731,7 +670,7 @@ impl LLMRequest {
         }
 
         let mut tools = if configuration.use_tools {
-            let mut tools = get_chatbot_tool_definitions();
+            let mut tools = get_permitted_chatbot_tool_definitions(conn, user_context).await?;
             tools.extend(get_client_chatbot_tool_definitions(conn, user_context).await?);
             tools
         } else {
@@ -819,30 +758,6 @@ pub enum ChatbotChatStreamEvent {
     Invalid,
 }
 
-/// What a client answered a tool call with.
-///
-/// A client tool either runs and produces data, or puts a choice to the learner. Both are shapes
-/// of the same answer so that the confirmation gates of a later phase, which answer with
-/// [ClientToolAnswer::Decision], need no change to the wire format. The tool the call belongs to
-/// decides which shapes it accepts and what the model is told they mean.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[serde(tag = "type", content = "data")]
-pub enum ClientToolAnswer {
-    /// The tool ran on the client. `result` is JSON of whatever shape the tool defines.
-    Data {
-        /// An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not
-        /// known here. Unlike the tool call arguments we hand back to clients, this one is built
-        /// by the client, so declaring it a string would make the generated binding unusable.
-        #[schema(value_type = Object)]
-        result: serde_json::Value,
-    },
-    /// The learner allowed or refused the call, optionally in their own words.
-    Decision {
-        approved: bool,
-        note: Option<String>,
-    },
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct StreamEventError {
     message: String,
@@ -886,14 +801,14 @@ where
 type PeekableLinesStream<'a> = Pin<
     Box<Peekable<LinesStream<StreamReader<BoxStream<'a, Result<Bytes, std::io::Error>>, Bytes>>>>,
 >;
-pub enum ResponseStreamType<'a> {
-    Toolcall(PeekableLinesStream<'a>),
+enum ResponseStreamType<'a> {
+    ToolCall(PeekableLinesStream<'a>),
     TextResponse(PeekableLinesStream<'a>),
 }
 
 struct RequestCancelledGuard {
     response_message_id: Arc<Mutex<Uuid>>,
-    received_string: Arc<Mutex<Vec<String>>>,
+    full_response_text: Arc<Mutex<Vec<String>>>,
     pool: PgPool,
     done: Arc<AtomicBool>,
 }
@@ -905,7 +820,7 @@ impl Drop for RequestCancelledGuard {
         }
         info!("Request ended before the turn completed. Cleaning up.");
         let response_message_id = self.response_message_id.clone();
-        let received_string = self.received_string.clone();
+        let full_response_text = self.full_response_text.clone();
         let pool = self.pool.clone();
         // Nothing awaits this task, so failures are logged instead of panicked on: a panic here
         // would be invisible apart from a stray tracing event.
@@ -927,7 +842,7 @@ impl Drop for RequestCancelledGuard {
                     return;
                 }
             };
-            let full_response_text = received_string.lock().await;
+            let full_response_text = full_response_text.lock().await;
             if full_response_text.is_empty() {
                 info!("No response received. Deleting the response message");
                 if let Err(err) = models::chatbot_conversation_messages::delete(&mut conn, id).await
@@ -944,7 +859,7 @@ impl Drop for RequestCancelledGuard {
                 estimated_cost, full_response_as_string
             );
 
-            if let Err(err) = models::chatbot_conversation_message_messages::update(
+            if let Err(err) = models::chatbot_conversation_messages::update(
                 &mut conn,
                 id,
                 &full_response_as_string,
@@ -962,7 +877,7 @@ impl Drop for RequestCancelledGuard {
 /// For saving output items that are not text messages or function calls, i.e. that
 /// don't need further processing and are not streamed to the user.
 /// Saves reasoning and Azure AI Search items.
-pub async fn process_output_item(
+async fn process_output_item(
     conn: &mut PgConnection,
     item: OutputItem,
     conversation_id: Uuid,
@@ -1057,10 +972,45 @@ pub async fn process_output_item(
     }
 }
 
-/// Streams and parses a LLM response from Azure that contains function calls.
-/// Calls the functions and yields a Vec of function results to be sent to Azure.
-/// Consumes the lines (stream), because it ends when a custom function call is made.
-/// Returns a stream to be consumed in the caller.
+/// One item of a tool-call round, held until the round is known complete so it can be stored in
+/// its original stream order.
+///
+/// A round's function calls are only run, and inserted, once every item has streamed in; a
+/// `Passthrough` item stored as soon as it streams would then land ahead of all of them instead of
+/// next to the call it belongs beside. See [`StreamItem::defer_storage`].
+enum PendingRoundItem {
+    FunctionCall {
+        tool_name: String,
+        call_id: String,
+        arguments: String,
+    },
+    Passthrough(OutputItem),
+}
+
+/// The item with a reasoning payload left out, for an event that only names the item.
+///
+/// A reasoning `encrypted_content` is multi-KB base64, and a deferred item is stored by the round
+/// that produced it rather than from the event, which nothing downstream reads more than the id of.
+fn item_without_reasoning_payload(item: &OutputItem) -> OutputItem {
+    match item {
+        OutputItem::Reasoning {
+            response_id, id, ..
+        } => OutputItem::Reasoning {
+            response_id: response_id.clone(),
+            id: id.clone(),
+            summary: Vec::new(),
+            encrypted_content: None,
+        },
+        other => other.clone(),
+    }
+}
+
+/// Streams and parses one tool-call round of a response from Azure, consuming `lines`.
+///
+/// Runs the calls the server answers, stores each call beside its output, and ends the round by
+/// yielding [`StreamEvent::Messages`] with the items the next round is sent. A call only the client
+/// can answer is stored without an output and ends the turn with [`StreamEvent::Suspended`]
+/// instead: the answer arrives in a later request, which rebuilds its input from the conversation.
 async fn parse_tool<'a>(
     conn: &'a mut PgConnection,
     app_config: &'a ApplicationConfiguration,
@@ -1068,7 +1018,7 @@ async fn parse_tool<'a>(
     conversation_id: Uuid,
     user_context: &'a ChatbotUserContext,
 ) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
-    let mut function_name_id_args: Vec<(String, String, String)> = vec![];
+    let mut pending_round_items: Vec<PendingRoundItem> = vec![];
     let mut messages = vec![];
     let mut common_response_id: Option<String> = None;
     let mut response_received = false;
@@ -1145,7 +1095,10 @@ async fn parse_tool<'a>(
                     format!("The LLM response is incomplete. Reason: {}", response.incomplete_details.reason)
                 ))?
             };
-            if function_name_id_args.is_empty() {
+            if !pending_round_items
+                .iter()
+                .any(|item| matches!(item, PendingRoundItem::FunctionCall { .. }))
+            {
                 Err(chatbot_err!(StreamingError,
                     "The LLM response was supposed to contain function calls, but no function calls were found"
                 ))?
@@ -1156,7 +1109,20 @@ async fn parse_tool<'a>(
                 ))?
             };
 
-            for (name, id, args) in function_name_id_args.into_iter() {
+            for pending_item in pending_round_items.into_iter() {
+                let (name, id, args) = match pending_item {
+                    PendingRoundItem::FunctionCall { tool_name, call_id, arguments } => {
+                        (tool_name, call_id, arguments)
+                    }
+                    // Stored here, in the round's original stream order alongside the function
+                    // calls, rather than as soon as it streamed in: see
+                    // [`StreamItem::defer_storage`].
+                    PendingRoundItem::Passthrough(item) => {
+                        process_output_item(conn, item.clone(), conversation_id, app_config).await?;
+                        messages.push(APIOutputMessage { message_type: item });
+                        continue;
+                    }
+                };
                 // A client tool's arguments are checked before the turn suspends, not when an
                 // answer arrives: nothing can answer a call the tool would reject, so it has to
                 // fail while the turn can still hand the LLM a failure output.
@@ -1258,6 +1224,7 @@ async fn parse_tool<'a>(
                 yield StreamEvent::Item(StreamItem {
                     item: function_call_output,
                     finished: true,
+                    defer_storage: false,
                 });
             }
 
@@ -1271,47 +1238,53 @@ async fn parse_tool<'a>(
             }
             break;
         } else if let Some(item) = response_output.item {
-            match item.to_owned() {
+            let finished = response_output.response_type.as_deref() == Some("response.output_item.done");
+            match &item {
                 OutputItem::FunctionCall {
                     call_id,
                     tool_name,
                     arguments,
                     response_id,
                 } => {
-                    common_response_id = Some(response_id);
+                    common_response_id = Some(response_id.clone());
                     // Azure sends the item twice, `added` with empty arguments and `done` with
                     // them whole. The first call of a round loses its `added` to the stream type
                     // detection, so without this every later call is recorded twice, once with no
                     // arguments at all.
-                    if response_output.response_type.as_deref() == Some("response.output_item.done") {
-                        function_name_id_args.push((
-                            tool_name,
-                            call_id,
-                            arguments,
-                        ));
+                    if finished {
+                        pending_round_items.push(PendingRoundItem::FunctionCall {
+                            tool_name: tool_name.clone(),
+                            call_id: call_id.clone(),
+                            arguments: arguments.clone(),
+                        });
                     }
-                    yield StreamEvent::Item(StreamItem { item, finished: false });
+                    yield StreamEvent::Item(StreamItem { item, finished: false, defer_storage: false });
                 }
                 OutputItem::Message { content, .. } => {
                     if let MessageContent::Refusal(..) = content {
-                        yield StreamEvent::Refusal(content.get_content_text());
+                        yield StreamEvent::Refusal(content.clone().get_content_text());
                         messages.push(APIOutputMessage { message_type: item });
 
                     } else {
                     Err(chatbot_err!(
                         StreamingError,
-                        "Error: unexpected message item !!!".to_string()
+                        "Received a message item while parsing tool calls.".to_string()
                     ))?}
                 },
                 _ => {
-                    let finished = response_output.response_type.as_deref() == Some("response.output_item.done");
-                    yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished});
-
-                    // Only the `done` copy is whole and only it is stored; taking the `added` one
+                    // Storage is deferred to the round's finalize pass (see
+                    // `PendingRoundItem::Passthrough` above), which is what keeps this item at its
+                    // stream position relative to the round's function calls instead of landing
+                    // ahead of all of them.
+                    //
+                    // Only the `done` copy is whole and only it is queued; taking the `added` one
                     // too would duplicate the item in the next request and, for reasoning, send it
                     // stripped of the payload Azure demands.
                     if finished {
-                        messages.push(APIOutputMessage { message_type: item });
+                        yield StreamEvent::Item(StreamItem { item: item_without_reasoning_payload(&item), finished, defer_storage: true });
+                        pending_round_items.push(PendingRoundItem::Passthrough(item));
+                    } else {
+                        yield StreamEvent::Item(StreamItem { item, finished, defer_storage: false });
                     }
                 }
             }
@@ -1319,10 +1292,12 @@ async fn parse_tool<'a>(
     }})
 }
 
-/// Stream from Azure and return the stream when a text response or tool call response is detected.
-/// Tool calls and text responses are processed later with differing logic.
-/// Returns a stream to be consumed in the caller.
-/// Yields the lines (stream) argument, which is the Azure stream.
+/// Reads the head of an Azure response until it is clear whether the round is a tool call or a
+/// text answer.
+///
+/// Yields [`StreamEvent::Item`] for every output item seen while classifying, then a single
+/// [`StreamEvent::ResponseIdStream`] handing the rest of the Azure stream on to the parser that
+/// suits it. Errors if the response fails, arrives incomplete, or ends without classifying.
 fn stream_and_detect_response_stream_type<'a>(
     mut lines: PeekableLinesStream<'a>,
 ) -> impl Stream<Item = ChatbotResult<StreamEvent<'a>>> {
@@ -1356,10 +1331,10 @@ fn stream_and_detect_response_stream_type<'a>(
                             }
                             "response.function_call_arguments.delta" | "response.custom_tool_call_input.delta" => {
                                 if let Some(id) = &response_id {
-                                    yield StreamEvent::ResponseIdStream((
+                                    yield StreamEvent::ResponseIdStream(
                                         id.to_string(),
-                                        ResponseStreamType::Toolcall(lines),
-                                    ));
+                                        ResponseStreamType::ToolCall(lines),
+                                    );
                                     break;
                                 } else {
                                     Err(chatbot_err!(StreamingError,
@@ -1369,10 +1344,10 @@ fn stream_and_detect_response_stream_type<'a>(
                             }
                             "response.output_text.delta" | "response.refusal.delta" => {
                                 if let Some(id) = &response_id {
-                                    yield StreamEvent::ResponseIdStream((
+                                    yield StreamEvent::ResponseIdStream(
                                         id.to_string(),
                                         ResponseStreamType::TextResponse(lines),
-                                    ));
+                                    );
                                     break;
                                 } else {
                                     Err(chatbot_err!(StreamingError,
@@ -1434,7 +1409,7 @@ fn stream_and_detect_response_stream_type<'a>(
                         DeserializationError,
                         "Expected response output item"
                     ))?;
-                    yield StreamEvent::Item(StreamItem {item, finished: false});
+                    yield StreamEvent::Item(StreamItem {item, finished: false, defer_storage: false});
                     output_item_added = false;
                 }
                 else if output_item_done {
@@ -1442,7 +1417,7 @@ fn stream_and_detect_response_stream_type<'a>(
                         DeserializationError,
                         "Expected response output item"
                     ))?;
-                    yield StreamEvent::Item(StreamItem {item, finished: true});
+                    yield StreamEvent::Item(StreamItem {item, finished: true, defer_storage: false});
                     output_item_done = false;
                 }
             }
@@ -1455,10 +1430,14 @@ fn stream_and_detect_response_stream_type<'a>(
     })
 }
 
-/// Streams and parses an LLM response from Azure that contains a text response.
-/// Consumes the lines (stream) from Azure, because the stream ends when a text response
-/// is finished.
-/// Returns a stream to be consumed in the caller.
+/// Parses the rest of a round already classified as a text answer, to the end of the Azure stream.
+///
+/// Yields [`StreamEvent::Delta`] per streamed token, [`StreamEvent::Item`] for the non-message
+/// items that accompany it, and [`StreamEvent::Done`] once the whole answer has been stored on
+/// `response_message`. Every delta is also appended to `full_response_text`, and `done` is set
+/// before [`StreamEvent::Done`], so that the cancellation guard knows what it may still save.
+/// Errors if Azure reports a failure, if a tool call arrives mid-answer, or if the stream ends
+/// unfinished.
 async fn parse_text_response<'a>(
     conn: &'a mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
@@ -1570,7 +1549,7 @@ async fn parse_text_response<'a>(
                     OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
                     _ => {
                         let finished = response_output.response_type.as_deref() == Some("response.output_item.done");
-                        yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished });
+                        yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished, defer_storage: false });
                         continue;
                     },
                 };
@@ -1588,41 +1567,39 @@ enum StreamEvent<'a> {
     Refusal(String),
     Item(StreamItem),
     Messages(Vec<APIInputMessage>),
-    ResponseIdStream((String, ResponseStreamType<'a>)),
+    ResponseIdStream(String, ResponseStreamType<'a>),
     Done,
     /// The round ended in a tool call only the client can answer, so the turn ends here and is
     /// continued by the request that brings the answer.
     Suspended,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 struct StreamItem {
     /// Item received from Azure.
     item: OutputItem,
     /// Has the item, like tool call or reasoning, been completed or is it in progress. When OutputItem is FunctionCallOutput, this field is ignored.
     finished: bool,
+    /// Whether the item is stored later, at its correct position among the round's tool calls,
+    /// rather than by the outer consumer as soon as this event is yielded.
+    ///
+    /// A tool-call round's function calls are only inserted once the round is known complete, so
+    /// they land in `order_number` after every other item the round streamed in the meantime. A
+    /// reasoning item stored immediately, the moment it streams, would then end up ahead of the
+    /// call it actually reasoned about whenever a round makes more than one call — Azure rejects
+    /// that item's `encrypted_content` on the next turn because it no longer sits where it was
+    /// generated. Deferring it into the same ordered pass as the calls keeps the two aligned.
+    defer_storage: bool,
 }
 
 /// Makes a request to Azure and returns the resulting stream.
-pub async fn make_request_and_create_stream<'a>(
+async fn make_request_and_create_stream<'a>(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<PeekableLinesStream<'a>> {
     let response = make_streaming_llm_request(chat_request, app_config).await?;
 
     trace!("Receiving chat response with {:?}", response.version());
-
-    if !response.status().is_success() {
-        let status = response.status();
-        let error_message = response.text().await?;
-        return Err(chatbot_err!(
-            StreamingError,
-            format!(
-                "Failed to send chat request. Status: {}. Error: {}",
-                status, error_message
-            )
-        ));
-    }
 
     // Replaces the client-wide read timeout, which reqwest arms once per request rather than per
     // chunk, so it cannot tell a stalled stream from a slow but healthy one.
@@ -1716,7 +1693,8 @@ async fn answer_unfinished_tool_calls(
     conn: &mut PgConnection,
     conversation_id: Uuid,
 ) -> ChatbotResult<()> {
-    answer_unfinished_tool_calls_created_before(conn, conversation_id, None).await
+    answer_unfinished_tool_calls_created_before(conn, conversation_id, None).await?;
+    Ok(())
 }
 
 /// How long a tool call must have gone unanswered before a request that did not make it may abort
@@ -1725,11 +1703,12 @@ async fn answer_unfinished_tool_calls(
 const HANGING_TOOL_CALL_REAP_AFTER_MINUTES: i64 = 10;
 
 /// Repairs tool calls left behind by turns that are long dead, without touching one that a turn
-/// streaming in a concurrent request may still be about to answer.
+/// streaming in a concurrent request may still be about to answer. Returns the calls it left
+/// unanswered.
 async fn answer_stale_unfinished_tool_calls(
     conn: &mut PgConnection,
     conversation_id: Uuid,
-) -> ChatbotResult<()> {
+) -> ChatbotResult<Vec<ChatbotConversationMessageToolCall>> {
     let cutoff = Utc::now() - chrono::Duration::minutes(HANGING_TOOL_CALL_REAP_AFTER_MINUTES);
     answer_unfinished_tool_calls_created_before(conn, conversation_id, Some(cutoff)).await
 }
@@ -1738,20 +1717,19 @@ async fn answer_unfinished_tool_calls_created_before(
     conn: &mut PgConnection,
     conversation_id: Uuid,
     created_before: Option<DateTime<Utc>>,
-) -> ChatbotResult<()> {
+) -> ChatbotResult<Vec<ChatbotConversationMessageToolCall>> {
     trace!(
         "Dealing with unfinished tool calls for conversation {}",
         conversation_id
     );
-    let res = headless_lms_models::chatbot_conversation_messages::answer_hanging_tool_call_messages_for_conversation(
+    headless_lms_models::chatbot_conversation_messages::answer_hanging_tool_call_messages_for_conversation(
         conn,
         conversation_id,
         created_before,
+        HANGING_TOOL_CALL_ABORT_OUTPUT,
     )
     .await
-    .map_err(ChatbotError::from)?;
-    trace!("Answered {} hanging tool calls", res.len());
-    Ok(())
+    .map_err(ChatbotError::from)
 }
 
 /// Send and parse a Chatbot message and response and stream it to the user.
@@ -1817,11 +1795,12 @@ pub async fn answer_tool_call_and_resume_stream(
     // outstanding when deciding whether the turn may continue, and the request the resume builds
     // would carry a call the LLM rejects for having no answer.
     // Only long-dead calls: another request may be streaming a turn of this same conversation.
-    answer_stale_unfinished_tool_calls(&mut conn, conversation_id).await?;
+    let unanswered = answer_stale_unfinished_tool_calls(&mut conn, conversation_id).await?;
 
-    let output = client_tool_output_for_answer(
+    let answered = client_tool_output_for_answer(
         &mut conn,
         conversation_id,
+        &unanswered,
         tool_call_id,
         answer,
         &user_context,
@@ -1832,7 +1811,8 @@ pub async fn answer_tool_call_and_resume_stream(
         &mut conn,
         conversation_id,
         tool_call_id,
-        output,
+        answered.output,
+        answered.client_answer,
     )
     .await
     .map_err(rejected_tool_answer_error)?;
@@ -1863,13 +1843,34 @@ pub async fn answer_tool_call_and_resume_stream(
     ))
 }
 
+/// What the model reads as the output of a call whose turn died before answering it.
+const HANGING_TOOL_CALL_ABORT_OUTPUT: &str = "Unexpected error encountered, tool call aborted.";
+
+/// What the model reads as the output of a client tool call the learner replaced with a new
+/// message instead of answering.
+const NEW_MESSAGE_ABORT_OUTPUT: &str = "The user sent a new message instead of answering this tool call, so it was never carried out and returned no data. Answer their new message; ask again only if you still need this.";
+
 /// What the model reads as the output of a suspended tool call the caller may no longer use.
 ///
 /// Written for the model rather than for the learner: it is the output of the model's own call,
 /// and has to leave it able to carry on without the data it asked for.
 const REVOKED_PERMISSION_TOOL_OUTPUT: &str = "The tool call was aborted and returned no data, because the user is no longer allowed to use this tool: their permissions changed while the call was waiting for them. Do not call this tool again in this conversation. Answer without it, or tell the user that you cannot do that step for them.";
 
+/// What a client's answer to a suspended call amounts to once it is applied.
+struct AnsweredClientToolCall {
+    /// The tool output the resumed turn reads.
+    output: String,
+    /// The payload the client sent, or None when the call was aborted instead of answered.
+    client_answer: Option<serde_json::Value>,
+}
+
 /// Turns a client's answer to a suspended call into the tool output that resumes the turn.
+///
+/// `unanswered` are the conversation's calls that have no output, which is where the answered call
+/// has to be found: an answered call carries a failure output written at stream time, and building
+/// an output for it re-parses arguments that were already refused, failing the request as a server
+/// fault instead of telling the client the call is closed. `answer_client_tool_call` decides the
+/// same thing again under the conversation lock; this only decides which error the client sees.
 ///
 /// Fails with [ChatbotErrorType::InvalidToolAnswer] when `conversation_id` has no such call, the
 /// call has already been answered, or the call is not one a client answers, all of which the
@@ -1877,44 +1878,17 @@ const REVOKED_PERMISSION_TOOL_OUTPUT: &str = "The tool call was aborted and retu
 async fn client_tool_output_for_answer(
     conn: &mut PgConnection,
     conversation_id: Uuid,
+    unanswered: &[ChatbotConversationMessageToolCall],
     tool_call_id: &str,
     answer: &ClientToolAnswer,
     user_context: &ChatbotUserContext,
-) -> ChatbotResult<String> {
-    let tool_call =
-        models::chatbot_conversation_message_tool_calls::get_by_conversation_and_tool_call_id(
-            conn,
-            conversation_id,
-            tool_call_id,
-        )
-        .await?
-        .ok_or_else(|| {
-            chatbot_err!(
-                InvalidToolAnswer,
-                format!("Chatbot conversation {conversation_id} has no tool call {tool_call_id}")
-            )
-        })?;
-
-    // Before building the output, because building it re-parses the arguments the call was
-    // recorded with. A call whose arguments were refused at stream time already carries a failure
-    // output, and re-parsing them would fail the request as a server fault instead of telling the
-    // client the call is closed. `answer_client_tool_call` re-checks this under the conversation
-    // lock; this only decides which error the client sees.
-    let unanswered =
-        models::chatbot_conversation_message_tool_calls::get_unanswered_tool_calls_for_conversation(
-            conn,
-            conversation_id,
-        )
-        .await?;
-    if !unanswered
+) -> ChatbotResult<AnsweredClientToolCall> {
+    let Some(tool_call) = unanswered
         .iter()
-        .any(|call| call.tool_call_id == tool_call_id)
-    {
-        return Err(chatbot_err!(
-            InvalidToolAnswer,
-            format!("Tool call {tool_call_id} has already been answered")
-        ));
-    }
+        .find(|call| call.tool_call_id == tool_call_id)
+    else {
+        return Err(missing_tool_call_error(conn, conversation_id, tool_call_id).await?);
+    };
 
     let Some(permission) = client_tool_permission(&tool_call.tool_name) else {
         return Err(chatbot_err!(
@@ -1923,7 +1897,35 @@ async fn client_tool_output_for_answer(
         ));
     };
 
-    apply_client_tool_answer(conn, &tool_call, permission, answer, user_context).await
+    apply_client_tool_answer(conn, tool_call, permission, answer, user_context).await
+}
+
+/// Why a call the client wants to answer is not among the conversation's unanswered ones: it
+/// already has an output, or the conversation never had it.
+async fn missing_tool_call_error(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    tool_call_id: &str,
+) -> ChatbotResult<ChatbotError> {
+    let exists =
+        models::chatbot_conversation_message_tool_calls::get_by_conversation_and_tool_call_id(
+            conn,
+            conversation_id,
+            tool_call_id,
+        )
+        .await?
+        .is_some();
+    Ok(if exists {
+        chatbot_err!(
+            InvalidToolAnswer,
+            format!("Tool call {tool_call_id} has already been answered")
+        )
+    } else {
+        chatbot_err!(
+            InvalidToolAnswer,
+            format!("Chatbot conversation {conversation_id} has no tool call {tool_call_id}")
+        )
+    })
 }
 
 /// The tool output a client's answer to `tool_call` amounts to, given `permission`, the permission
@@ -1933,42 +1935,31 @@ async fn client_tool_output_for_answer(
 /// nothing bounds how long a call waits, so a role can be revoked while it does. One that no
 /// longer holds aborts the call with an explanation for the model instead of applying the answer,
 /// because the turn stays stuck until its call has some output.
-///
-/// The surface is not re-checked. It says which UI can render a call, not what its caller is
-/// allowed to see, and it reaches the server as the client's own claim on both endpoints, so
-/// checking a resume against it would only compare one claim with another.
 async fn apply_client_tool_answer(
     conn: &mut PgConnection,
     tool_call: &ChatbotConversationMessageToolCall,
     permission: ToolPermission,
     answer: &ClientToolAnswer,
     user_context: &ChatbotUserContext,
-) -> ChatbotResult<String> {
+) -> ChatbotResult<AnsweredClientToolCall> {
     if !permission.is_satisfied_by(conn, user_context).await? {
         warn!(
             tool_name = %tool_call.tool_name,
             "Aborting a suspended chatbot tool call: its caller no longer holds the permission it requires"
         );
-        return Ok(REVOKED_PERMISSION_TOOL_OUTPUT.to_string());
+        return Ok(AnsweredClientToolCall {
+            output: REVOKED_PERMISSION_TOOL_OUTPUT.to_string(),
+            client_answer: None,
+        });
     }
 
-    client_tool_answer_output(
-        &tool_call.tool_name,
-        &stored_tool_call_arguments(&tool_call.tool_arguments),
-        answer,
-    )
-}
-
-/// The argument JSON of a stored tool call. A call is recorded with the JSON text the model
-/// produced rather than with its parsed shape, so the stored value is normally a JSON string.
-///
-/// Use this rather than serializing the stored value, which would escape that text a second time
-/// and both feed the model garbage and break the prefix the cache matches on.
-pub(crate) fn stored_tool_call_arguments(tool_arguments: &serde_json::Value) -> String {
-    match tool_arguments {
-        serde_json::Value::String(json) => json.clone(),
-        parsed => parsed.to_string(),
-    }
+    let output =
+        client_tool_answer_output(&tool_call.tool_name, &tool_call.arguments_json(), answer)?;
+    let ClientToolAnswer::Data { result } = answer;
+    Ok(AnsweredClientToolCall {
+        output,
+        client_answer: Some(result.clone()),
+    })
 }
 
 /// An answer the conversation has no room for is the client's mistake and has to reach it as a
@@ -2003,21 +1994,20 @@ fn stream_turn(
     mut chat_request: LLMRequest,
     user_context: ChatbotUserContext,
 ) -> Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>> {
-    let mut max_iterations_left = 15;
+    let mut rounds_left = MAX_TOOL_CALL_ROUNDS_PER_TURN;
 
-    // response id created by Azure, can be used in figuring out what went wrong if
-    // request or streaming fails. also stored in the db.
-    let response_id = Arc::new(Mutex::new(String::new()));
+    // The id Azure assigns the round, for tying a failure to the request it came from. None
+    // until the round has been classified.
+    let mut response_id: Option<String> = None;
 
     let done = Arc::new(AtomicBool::new(false));
     let mut should_clean_tool_calls = false;
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     let response_message_id = Arc::new(Mutex::new(Uuid::nil()));
 
-    // Instantiate the guard before creating the stream.
     let guard = RequestCancelledGuard {
         response_message_id: response_message_id.clone(),
-        received_string: full_response_text.clone(),
+        full_response_text: full_response_text.clone(),
         pool: pool.clone(),
         done: done.clone(),
     };
@@ -2026,8 +2016,7 @@ fn stream_turn(
         'outer: loop {
             let mut conn = pool.acquire().await?;
 
-            max_iterations_left -= 1;
-            if max_iterations_left == 0 {
+            if rounds_left == 0 {
                 error!("Maximum tool call iterations exceeded");
                 let event_string = error_event_string_from_message(Some("Maximum tool call iterations exceeded. The LLM may be stuck in a loop."), None)?;
                 yield Bytes::from(event_string);
@@ -2035,6 +2024,7 @@ fn stream_turn(
                 done.store(true, atomic::Ordering::Relaxed);
                 break 'outer;
             }
+            rounds_left -= 1;
 
             let lines = match make_request_and_create_stream(chat_request.clone(), &app_config).await {
                 Ok(val) => val,
@@ -2052,10 +2042,12 @@ fn stream_turn(
             let mut response_stream = stream_and_detect_response_stream_type(lines);
             let (received_response_id, typed_response_stream);
             loop {
-                if let Some(val) = response_stream.next().await {
+                let Some(val) = response_stream.next().await else {
+                    Err(chatbot_err!(StreamingError, "The response stream ended before its type could be determined"))?
+                };
                 match val {
-                    Ok(StreamEvent::ResponseIdStream(stuff)) => {
-                        (received_response_id, typed_response_stream) = stuff;
+                    Ok(StreamEvent::ResponseIdStream(id, stream)) => {
+                        (received_response_id, typed_response_stream) = (id, stream);
                         break;
                     },
                     Ok(StreamEvent::Item(item)) => {
@@ -2076,7 +2068,7 @@ fn stream_turn(
                         };
                     },
                     Ok(StreamEvent::Refusal(text)) => {
-                        // in practice this event shoudln't happen because when a refusal
+                        // in practice this event shouldn't happen because when a refusal
                         // is being streamed, its streaming is done by parse_text_response.
                         error!("Chatbot refusal event encountered before response id was received.");
                         let message_id = *response_message_id.lock().await;
@@ -2088,18 +2080,21 @@ fn stream_turn(
                     },
                     Ok(StreamEvent::Done) => {
                         done.store(true, atomic::Ordering::Relaxed);
-                        Err(chatbot_err!(StreamingError, "Stream ended unxpectedly."))?
+                        Err(chatbot_err!(StreamingError, "Stream ended unexpectedly."))?
                     },
                     Ok(StreamEvent::Messages(_)) | Ok(StreamEvent::Delta(_)) | Ok(StreamEvent::Suspended) => {
                         done.store(true, atomic::Ordering::Relaxed);
                         Err(chatbot_err!(StreamingError, "This shouldn't happen, only response items are expected before the response type is known."))?
                     },
                     Err(e) => {
-                        error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.lock().await, e);
+                        error!(
+                            input = %summarize_input_for_log(&chat_request.input),
+                            "Stream ended unexpectedly. Response id: {} Error: {}", response_id.as_deref().unwrap_or("not received"), e
+                        );
                         should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
                             if let Err(e2) = answer_unfinished_tool_calls(&mut conn, conversation_id).await {
-                                error!("Error in chatbot streaming and couldn't answer unfinished tool calls: {e2}. Response id: {}", response_id.lock().await);
+                                error!("Error in chatbot streaming and couldn't answer unfinished tool calls: {e2}. Response id: {}", response_id.as_deref().unwrap_or("not received"));
                             };
                             return Err(e)?;
                         };
@@ -2109,24 +2104,18 @@ fn stream_turn(
                         done.store(true, atomic::Ordering::Relaxed);
                         break 'outer;
                     },
-                }}
+                }
             }
 
-            {
-                // update response_id once it's found.
-                let mut response_id = response_id.lock().await;
-                *response_id = received_response_id;
-            }
+            response_id = Some(received_response_id.clone());
 
-            // create unitialized response message in this scope
             let response_message: ChatbotConversationMessage;
 
             let mut final_stream = match typed_response_stream {
-                ResponseStreamType::Toolcall(stream) => {
+                ResponseStreamType::ToolCall(stream) => {
                     parse_tool(&mut conn, &app_config, stream, conversation_id, &user_context).await
                 }
                 ResponseStreamType::TextResponse(stream) => {
-                    let response_id = response_id.lock().await;
                     // create response_message once we need to start streaming to user.
                     response_message = models::chatbot_conversation_messages::insert(
                         &mut conn,
@@ -2136,7 +2125,7 @@ fn stream_turn(
                                 text: "".to_string(),
                                 message_role: MessageRole::Assistant,
                                 message_is_complete: false,
-                                response_id: Some(response_id.to_owned()),
+                                response_id: Some(received_response_id.clone()),
                                 ..Default::default()
                             }),
                             ..Default::default()
@@ -2155,17 +2144,19 @@ fn stream_turn(
                         response_message.id,
                     ).await?;
 
-                    parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message, response_id.to_string()).await
+                    parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message, received_response_id).await
                 }
             };
 
             let message_id = *response_message_id.lock().await;
-            let response_id = response_id.lock().await;
             while let Some(line) = final_stream.next().await {
                 let val = match line {
                     Ok(val) => val,
                     Err(e) => {
-                        error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.to_string(), e);
+                        error!(
+                            input = %summarize_input_for_log(&chat_request.input),
+                            "Stream ended unexpectedly. Response id: {} Error: {}", response_id.as_deref().unwrap_or("not received"), e
+                        );
                         let full_response_as_string = full_response_text.lock().await.join("");
                         let mut conn = pool.acquire().await?;
                         if !full_response_as_string.is_empty() {
@@ -2182,7 +2173,7 @@ fn stream_turn(
                         should_clean_tool_calls = true;
                         if check_error_should_terminate_stream(e.error_type()) {
                             if let Err(e2) = answer_unfinished_tool_calls(&mut conn, conversation_id).await {
-                                error!("Error in chatbot streaming and couldn't answer unfinished tool calls: {e2}. Response id: {}", response_id.to_string());
+                                error!("Error in chatbot streaming and couldn't answer unfinished tool calls: {e2}. Response id: {}", response_id.as_deref().unwrap_or("not received"));
                             };
                             return Err(e)?;
                         };
@@ -2206,8 +2197,10 @@ fn stream_turn(
                                 // item already processed
                             },
                             _ => {
-                                // save this item in the db if it's finished
-                                if stream_item.finished {
+                                // Storage of a `defer_storage` item is handled by the round that
+                                // produced it, at its correct position among that round's tool
+                                // calls: see `StreamItem::defer_storage`.
+                                if stream_item.finished && !stream_item.defer_storage {
                                     let mut conn = pool.acquire().await?;
                                     process_output_item(&mut conn, stream_item.item.to_owned(), conversation_id, &app_config).await?;
                                 }
@@ -2254,7 +2247,7 @@ fn stream_turn(
         }
 
         if !done.load(atomic::Ordering::Relaxed) {
-            let id = response_id.lock().await;
+            let id = response_id.as_deref().unwrap_or("not received");
             let event_string = error_event_string_from_message(Some(format!("Stream ended unexpectedly. Response id: {id}").as_str()), None)?;
             yield Bytes::from(event_string);
             yield Bytes::from("\n");
@@ -2265,27 +2258,26 @@ fn stream_turn(
     // This way we do cleanup only when the stream is dropped and not when this function returns.
     let guarded_stream = GuardedStream::new(guard, response_stream);
 
-    // Box and pin the GuardedStream to satisfy the Unpin requirement
     Box::pin(guarded_stream)
 }
 
 #[cfg(test)]
 mod tests {
     use headless_lms_models::{
-        chatbot_conversation_message_reasoning::ChatbotConversationMessageReasoning,
         chatbot_conversation_message_tool_calls::ToolKind,
-        chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
+        insert_data,
         roles::UserRole,
+        test_helper::{
+            Conn, chatbot_reasoning_message, chatbot_text_message, chatbot_tool_call_message,
+            chatbot_tool_output_message, init_app_conf, insert_chatbot_conversation,
+        },
     };
 
     use super::*;
-    use crate::{
-        chatbot_tools::{
-            ChatbotToolDeclaration,
-            client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
-            tool_permission::test_helpers::{context, global_role},
-        },
-        test_helper::{Conn, CourseFixture, insert_conversation, insert_course},
+    use crate::chatbot_tools::{
+        ChatbotToolDeclaration,
+        client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
+        tool_permission::test_helpers::{context, course_role},
     };
 
     /// A recorded call to the multiple choice tool, as the suspending turn wrote it: with the
@@ -2299,78 +2291,6 @@ mod tests {
             tool_call_id: "call_1".to_string(),
             tool_kind: ToolKind::ClientTool,
             response_id: "resp_1".to_string(),
-            ..Default::default()
-        }
-    }
-
-    fn stored_reasoning(
-        conversation_id: Uuid,
-        reasoning_id: &str,
-        encrypted_content: Option<&str>,
-    ) -> ChatbotConversationMessage {
-        stored_reasoning_of_response(conversation_id, "resp_1", reasoning_id, encrypted_content)
-    }
-
-    fn stored_reasoning_of_response(
-        conversation_id: Uuid,
-        response_id: &str,
-        reasoning_id: &str,
-        encrypted_content: Option<&str>,
-    ) -> ChatbotConversationMessage {
-        ChatbotConversationMessage {
-            conversation_id,
-            message: Message::Reasoning(ChatbotConversationMessageReasoning {
-                reasoning_id: reasoning_id.to_string(),
-                response_id: response_id.to_string(),
-                encrypted_content: encrypted_content.map(str::to_string),
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
-    }
-
-    fn stored_tool_call(conversation_id: Uuid, call_id: &str) -> ChatbotConversationMessage {
-        ChatbotConversationMessage {
-            conversation_id,
-            message: Message::ToolCall(ChatbotConversationMessageToolCall {
-                tool_call_id: call_id.to_string(),
-                tool_name: "course_progress".to_string(),
-                tool_arguments: serde_json::Value::String("{}".to_string()),
-                tool_kind: ToolKind::Function,
-                response_id: "resp_1".to_string(),
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
-    }
-
-    fn stored_tool_output(conversation_id: Uuid, call_id: &str) -> ChatbotConversationMessage {
-        ChatbotConversationMessage {
-            conversation_id,
-            message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
-                tool_call_id: call_id.to_string(),
-                output: "done".to_string(),
-                response_id: "resp_1".to_string(),
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
-    }
-
-    fn stored_text(
-        conversation_id: Uuid,
-        role: MessageRole,
-        text: &str,
-    ) -> ChatbotConversationMessage {
-        ChatbotConversationMessage {
-            conversation_id,
-            message: Message::Text(ChatbotConversationMessageMessage {
-                text: text.to_string(),
-                message_role: role,
-                message_is_complete: true,
-                response_id: (role != MessageRole::User).then(|| "resp_1".to_string()),
-                ..Default::default()
-            }),
             ..Default::default()
         }
     }
@@ -2394,7 +2314,7 @@ mod tests {
         conn: &mut PgConnection,
         build: impl Fn(Uuid) -> Vec<ChatbotConversationMessage>,
     ) -> Vec<APIInputMessage> {
-        let conversation_id = insert_conversation(conn).await;
+        let (_configuration, conversation_id) = insert_chatbot_conversation(conn).await;
         for message in build(conversation_id) {
             models::chatbot_conversation_messages::insert(conn, message)
                 .await
@@ -2421,17 +2341,16 @@ mod tests {
     /// reasoning, because Azure rejects a reasoning item that its call does not follow.
     #[tokio::test]
     async fn only_reasoning_that_carries_its_payload_is_replayed() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx);
 
         assert_eq!(
-            replayed_shape(tx.conn(), |id| vec![
-                stored_reasoning(id, "rs_replayable", Some("payload")),
-                stored_tool_call(id, "call_1"),
-                stored_tool_output(id, "call_1"),
-                stored_reasoning(id, "rs_legacy", None),
-                stored_tool_call(id, "call_2"),
-                stored_tool_output(id, "call_2"),
+            replayed_shape(tx.as_mut(), |id| vec![
+                chatbot_reasoning_message(id, "rs_replayable", "resp_1", Some("payload")),
+                chatbot_tool_call_message(id, "call_1", ToolKind::Function, "resp_1"),
+                chatbot_tool_output_message(id, "call_1", ToolKind::Function, "resp_1"),
+                chatbot_reasoning_message(id, "rs_legacy", "resp_1", None),
+                chatbot_tool_call_message(id, "call_2", ToolKind::Function, "resp_1"),
+                chatbot_tool_output_message(id, "call_2", ToolKind::Function, "resp_1"),
             ])
             .await,
             vec![
@@ -2448,13 +2367,12 @@ mod tests {
     /// survives both the write and the read.
     #[tokio::test]
     async fn a_replayed_reasoning_item_still_carries_its_payload() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx);
 
-        let replayed = replayed_items(tx.conn(), |id| {
+        let replayed = replayed_items(tx.as_mut(), |id| {
             vec![
-                stored_reasoning(id, "rs_1", Some("opaque-payload")),
-                stored_tool_call(id, "call_1"),
+                chatbot_reasoning_message(id, "rs_1", "resp_1", Some("opaque-payload")),
+                chatbot_tool_call_message(id, "call_1", ToolKind::Function, "resp_1"),
             ]
         })
         .await;
@@ -2478,49 +2396,48 @@ mod tests {
     /// only cache hits, so a mispaired item never survives.
     #[tokio::test]
     async fn reasoning_is_replayed_only_when_what_it_reasoned_about_follows_it() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx);
 
         assert_eq!(
-            replayed_shape(tx.conn(), |id| vec![
-                stored_reasoning(id, "rs_1", Some("payload")),
-                stored_tool_call(id, "call_1"),
+            replayed_shape(tx.as_mut(), |id| vec![
+                chatbot_reasoning_message(id, "rs_1", "resp_1", Some("payload")),
+                chatbot_tool_call_message(id, "call_1", ToolKind::Function, "resp_1"),
             ])
             .await,
             vec!["reasoning:rs_1", "call:call_1"],
         );
 
         assert_eq!(
-            replayed_shape(tx.conn(), |id| vec![
-                stored_reasoning(id, "rs_1", Some("payload")),
-                stored_text(id, MessageRole::Assistant, "Here you go."),
+            replayed_shape(tx.as_mut(), |id| vec![
+                chatbot_reasoning_message(id, "rs_1", "resp_1", Some("payload")),
+                chatbot_text_message(id, MessageRole::Assistant, "Here you go.", Some("resp_1")),
             ])
             .await,
             vec!["reasoning:rs_1", "message:Assistant"],
         );
 
         assert_eq!(
-            replayed_shape(tx.conn(), |id| vec![
-                stored_text(id, MessageRole::User, "How do loops work?"),
-                stored_reasoning(id, "rs_1", Some("payload")),
+            replayed_shape(tx.as_mut(), |id| vec![
+                chatbot_text_message(id, MessageRole::User, "How do loops work?", None),
+                chatbot_reasoning_message(id, "rs_1", "resp_1", Some("payload")),
             ])
             .await,
             vec!["message:User"],
         );
 
         assert_eq!(
-            replayed_shape(tx.conn(), |id| vec![
-                stored_reasoning(id, "rs_1", Some("payload")),
-                stored_text(id, MessageRole::User, "How do loops work?"),
+            replayed_shape(tx.as_mut(), |id| vec![
+                chatbot_reasoning_message(id, "rs_1", "resp_1", Some("payload")),
+                chatbot_text_message(id, MessageRole::User, "How do loops work?", None),
             ])
             .await,
             vec!["message:User"],
         );
 
         assert_eq!(
-            replayed_shape(tx.conn(), |id| vec![
-                stored_reasoning(id, "rs_1", Some("payload")),
-                stored_tool_output(id, "call_1"),
+            replayed_shape(tx.as_mut(), |id| vec![
+                chatbot_reasoning_message(id, "rs_1", "resp_1", Some("payload")),
+                chatbot_tool_output_message(id, "call_1", ToolKind::Function, "resp_1"),
             ])
             .await,
             vec!["output:call_1"],
@@ -2528,10 +2445,10 @@ mod tests {
 
         // A payload-less item does not count as the follower that keeps the one before it.
         assert_eq!(
-            replayed_shape(tx.conn(), |id| vec![
-                stored_reasoning(id, "rs_1", Some("payload")),
-                stored_reasoning(id, "rs_legacy", None),
-                stored_tool_call(id, "call_1"),
+            replayed_shape(tx.as_mut(), |id| vec![
+                chatbot_reasoning_message(id, "rs_1", "resp_1", Some("payload")),
+                chatbot_reasoning_message(id, "rs_legacy", "resp_1", None),
+                chatbot_tool_call_message(id, "call_1", ToolKind::Function, "resp_1"),
             ])
             .await,
             vec!["reasoning:rs_1", "call:call_1"],
@@ -2539,10 +2456,10 @@ mod tests {
 
         // Two responses' reasoning ends up adjacent only if what the first reasoned about is gone.
         assert_eq!(
-            replayed_shape(tx.conn(), |id| vec![
-                stored_reasoning_of_response(id, "resp_1", "rs_1", Some("payload")),
-                stored_reasoning_of_response(id, "resp_2", "rs_2", Some("payload")),
-                stored_tool_call(id, "call_1"),
+            replayed_shape(tx.as_mut(), |id| vec![
+                chatbot_reasoning_message(id, "rs_1", "resp_1", Some("payload")),
+                chatbot_reasoning_message(id, "rs_2", "resp_2", Some("payload")),
+                chatbot_tool_call_message(id, "call_1", ToolKind::Function, "resp_1"),
             ])
             .await,
             vec!["reasoning:rs_2", "call:call_1"],
@@ -2554,17 +2471,16 @@ mod tests {
     /// turn's prefix diverge from that, throwing away the cache hit the replay is there to buy.
     #[tokio::test]
     async fn a_run_of_reasoning_from_one_response_is_replayed_whole() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx);
 
         assert_eq!(
-            replayed_shape(tx.conn(), |id| vec![
-                stored_reasoning(id, "rs_1", Some("payload")),
-                stored_reasoning(id, "rs_2", Some("payload")),
-                stored_tool_call(id, "call_1"),
-                stored_tool_output(id, "call_1"),
-                stored_tool_call(id, "call_2"),
-                stored_tool_output(id, "call_2"),
+            replayed_shape(tx.as_mut(), |id| vec![
+                chatbot_reasoning_message(id, "rs_1", "resp_1", Some("payload")),
+                chatbot_reasoning_message(id, "rs_2", "resp_1", Some("payload")),
+                chatbot_tool_call_message(id, "call_1", ToolKind::Function, "resp_1"),
+                chatbot_tool_output_message(id, "call_1", ToolKind::Function, "resp_1"),
+                chatbot_tool_call_message(id, "call_2", ToolKind::Function, "resp_1"),
+                chatbot_tool_output_message(id, "call_2", ToolKind::Function, "resp_1"),
             ])
             .await,
             vec![
@@ -2589,46 +2505,47 @@ mod tests {
     /// is aborted with an explanation instead of the request failing.
     #[tokio::test]
     async fn an_answer_is_aborted_when_the_permission_it_needed_is_gone() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let CourseFixture { user_id, course_id } = insert_course(tx.conn()).await;
-        let revoked = context(Some(user_id), Some(course_id), Vec::new());
+        insert_data!(:tx, :user, :org, :course);
+        let revoked = context(Some(user), Some(course), Vec::new());
 
-        let output = apply_client_tool_answer(
-            tx.conn(),
+        let aborted = apply_client_tool_answer(
+            tx.as_mut(),
             &recorded_question(),
-            ToolPermission::GlobalAdmin,
+            ToolPermission::TeachesCourse,
             &picked_the_second_choice(),
             &revoked,
         )
         .await
         .expect("the call is aborted rather than failed");
 
-        assert_eq!(output, REVOKED_PERMISSION_TOOL_OUTPUT);
+        assert_eq!(aborted.output, REVOKED_PERMISSION_TOOL_OUTPUT);
+        assert_eq!(aborted.client_answer, None);
     }
 
     #[tokio::test]
     async fn an_answer_from_a_caller_who_still_holds_the_permission_is_applied() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let CourseFixture { user_id, course_id } = insert_course(tx.conn()).await;
-        let admin = context(
-            Some(user_id),
-            Some(course_id),
-            vec![global_role(user_id, UserRole::Admin)],
+        insert_data!(:tx, :user, :org, :course);
+        let teacher = context(
+            Some(user),
+            Some(course),
+            vec![course_role(user, course, UserRole::Teacher)],
         );
 
-        let output = apply_client_tool_answer(
-            tx.conn(),
+        let applied = apply_client_tool_answer(
+            tx.as_mut(),
             &recorded_question(),
-            ToolPermission::GlobalAdmin,
+            ToolPermission::TeachesCourse,
             &picked_the_second_choice(),
-            &admin,
+            &teacher,
         )
         .await
         .expect("the answer is applied");
 
-        assert!(output.contains("\"for\""), "{output}");
+        assert!(applied.output.contains("\"for\""), "{}", applied.output);
+        assert_eq!(
+            applied.client_answer,
+            Some(serde_json::json!({ "choice_index": 1 }))
+        );
     }
 
     /// Mistral is not served through Azure OpenAI, so a prompt cache key means nothing to it. The
@@ -2663,24 +2580,6 @@ mod tests {
         assert!(error.message.unwrap().contains("vectorization"));
     }
 
-    /// Validating an answer means parsing the arguments the call was recorded with, and a call is
-    /// recorded with the argument text rather than with the object it parses into.
-    #[test]
-    fn stored_arguments_come_back_as_the_json_text_the_model_wrote() {
-        let recorded = serde_json::to_value("{\"choices\":[\"a\",\"b\"]}".to_string())
-            .expect("a string is JSON");
-        assert_eq!(
-            stored_tool_call_arguments(&recorded),
-            "{\"choices\":[\"a\",\"b\"]}"
-        );
-
-        let as_an_object = serde_json::json!({ "choices": ["a", "b"] });
-        assert_eq!(
-            stored_tool_call_arguments(&as_an_object),
-            "{\"choices\":[\"a\",\"b\"]}"
-        );
-    }
-
     /// `Suspended` is terminal for the frontend reader, which tells the variants apart by `type`
     /// alone, and like `Done` it carries no `data` key at all.
     #[test]
@@ -2705,15 +2604,14 @@ mod tests {
     /// rejects outright.
     #[tokio::test]
     async fn only_the_finished_copy_of_a_streamed_item_reaches_the_next_round() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let conversation_id = insert_conversation(tx.conn()).await;
+        insert_data!(:tx);
+        let (_configuration, conversation_id) = insert_chatbot_conversation(tx.as_mut()).await;
         let user_context = context(None, None, Vec::new());
         let app_config =
             ApplicationConfiguration::mock_conf().expect("the mock configuration builds");
 
         let mut events = parse_tool(
-            tx.conn(),
+            tx.as_mut(),
             &app_config,
             azure_response_stream(&[
                 "event: response.output_item.added",
@@ -2757,12 +2655,11 @@ mod tests {
     /// prefix once per request it takes to finish, and charging it per request would multiply it.
     #[tokio::test]
     async fn a_streamed_answer_counts_its_own_tokens_and_not_the_prefix_it_answers() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let conversation = insert_conversation(tx.conn()).await;
+        insert_data!(:tx);
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         let prefix = "Which loop should I use here, and why is the other one worse?".repeat(20);
         chatbot_conversation_messages::insert(
-            tx.conn(),
+            tx.as_mut(),
             ChatbotConversationMessage {
                 conversation_id: conversation,
                 message: Message::Text(ChatbotConversationMessageMessage {
@@ -2778,7 +2675,7 @@ mod tests {
         .await
         .expect("the question is inserted");
         let response_message = chatbot_conversation_messages::insert(
-            tx.conn(),
+            tx.as_mut(),
             ChatbotConversationMessage {
                 conversation_id: conversation,
                 message: Message::Text(ChatbotConversationMessageMessage {
@@ -2794,7 +2691,7 @@ mod tests {
         let answer = "A for loop.";
 
         let mut events = parse_text_response(
-            tx.conn(),
+            tx.as_mut(),
             azure_response_stream(&[
                 "event: response.output_text.delta",
                 &format!(r#"data: {{"type":"response.output_text.delta","delta":"{answer}"}}"#),
@@ -2813,7 +2710,7 @@ mod tests {
         drop(events);
 
         let stored = models::chatbot_conversation_messages::get_message_fields(
-            tx.conn(),
+            tx.as_mut(),
             response_message.id,
         )
         .await

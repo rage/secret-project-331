@@ -255,12 +255,13 @@ impl From<ModelError> for ChatbotError {
 }
 
 impl From<AuthorizationError> for ChatbotError {
-    fn from(mut err: AuthorizationError) -> ChatbotError {
+    fn from(err: AuthorizationError) -> ChatbotError {
         // A check that failed because the models layer did is mapped like any other ModelError,
         // so that a missing course does not read as a permission problem.
-        if let Some(model_error) = err.take_model_source() {
-            return model_error.into();
-        }
+        let err = match err.into_model_error() {
+            Ok(model_error) => return model_error.into(),
+            Err(err) => err,
+        };
         Self::new(ChatbotErrorType::Other, err.to_string(), Some(err.into()))
     }
 }

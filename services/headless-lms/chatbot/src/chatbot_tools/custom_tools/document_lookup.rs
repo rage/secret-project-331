@@ -11,14 +11,14 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::{
-    azure_chatbot::ChatbotUserContext,
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotToolDeclaration, LLMToolType,
-        ToolProperties,
+        ToolProperties, tool_permission::ToolPermission,
     },
     citations::parse_document_filepath,
     llm_utils::estimate_tokens,
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    user_context::ChatbotUserContext,
 };
 
 pub type DocumentLookupTool = ToolProperties<DocumentLookupState, DocumentLookupArguments>;
@@ -71,6 +71,8 @@ fn shorten_page_content(mut content: String) -> String {
 impl ChatbotToolDeclaration for DocumentLookupTool {
     const NAME: &'static str = "document_lookup";
 
+    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
@@ -119,18 +121,7 @@ impl ChatbotToolDeclaration for DocumentLookupTool {
 
 /// Look up a document (page) from the course the chatbot is on.
 impl ChatbotTool for DocumentLookupTool {
-    type State = DocumentLookupState;
     type Arguments = DocumentLookupArguments;
-
-    fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments> {
-        serde_json::from_str::<Self::Arguments>(&args_string).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("Couldn't parse tool arguments. Arguments: {args_string}"),
-                e
-            )
-        })
-    }
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,

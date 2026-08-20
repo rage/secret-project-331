@@ -415,6 +415,111 @@ impl Transition {
     }
 }
 
+/// [`transition`]'s `RETURNING`, which carries the pre-update state alongside the updated row so
+/// the caller doesn't need a separate locked `SELECT` to learn it.
+struct TransitionResult {
+    from_state: CreditRegistrationState,
+    id: Uuid,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
+    deleted_at: Option<DateTime<Utc>>,
+    course_module_completion_id: Uuid,
+    user_id: Uuid,
+    course_id: Uuid,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+    state: CreditRegistrationState,
+    state_entered_at: DateTime<Utc>,
+    error_code: Option<CreditRegistrationErrorCode>,
+    error_message: Option<String>,
+    needs_admin_attention: bool,
+    enrolment_banner_dismissed_at: Option<DateTime<Utc>>,
+    student_number: Option<String>,
+    sisu_person_id: Option<String>,
+    uh_course_code: Option<String>,
+    selected_enrolment_id: Option<String>,
+    selected_enrolment_kind: Option<String>,
+    selected_enrolment_realisation_id: Option<String>,
+    attainment_date: Option<NaiveDate>,
+    attainment_language: Option<String>,
+    grade_scale_id: Option<String>,
+    grade_id: Option<String>,
+    credits: Option<f32>,
+    request_item_id: String,
+    submitted_attainment_id: Option<String>,
+    submitted_attainment_type: Option<String>,
+    sisu_attainment_id: Option<String>,
+    sisu_attainment_type: Option<String>,
+    submit_retry_count: i32,
+    verify_attempt_count: i32,
+    next_attempt_at: DateTime<Utc>,
+    first_failed_at: Option<DateTime<Utc>>,
+    last_attempt_at: Option<DateTime<Utc>>,
+    attempt_number: i32,
+    superseded_by_id: Option<Uuid>,
+    superseded_at: Option<DateTime<Utc>>,
+    enrolment_checked_at: Option<DateTime<Utc>>,
+    submitted_at: Option<DateTime<Utc>>,
+    registered_at: Option<DateTime<Utc>>,
+    terminal_at: Option<DateTime<Utc>>,
+    action_needed_email_delivery_id: Option<Uuid>,
+    registered_email_delivery_id: Option<Uuid>,
+    improvement_checked_completion_updated_at: Option<DateTime<Utc>>,
+}
+
+impl From<TransitionResult> for CreditRegistration {
+    fn from(r: TransitionResult) -> Self {
+        Self {
+            id: r.id,
+            created_at: r.created_at,
+            updated_at: r.updated_at,
+            deleted_at: r.deleted_at,
+            course_module_completion_id: r.course_module_completion_id,
+            user_id: r.user_id,
+            course_id: r.course_id,
+            course_module_id: r.course_module_id,
+            course_instance_id: r.course_instance_id,
+            state: r.state,
+            state_entered_at: r.state_entered_at,
+            error_code: r.error_code,
+            error_message: r.error_message,
+            needs_admin_attention: r.needs_admin_attention,
+            enrolment_banner_dismissed_at: r.enrolment_banner_dismissed_at,
+            student_number: r.student_number,
+            sisu_person_id: r.sisu_person_id,
+            uh_course_code: r.uh_course_code,
+            selected_enrolment_id: r.selected_enrolment_id,
+            selected_enrolment_kind: r.selected_enrolment_kind,
+            selected_enrolment_realisation_id: r.selected_enrolment_realisation_id,
+            attainment_date: r.attainment_date,
+            attainment_language: r.attainment_language,
+            grade_scale_id: r.grade_scale_id,
+            grade_id: r.grade_id,
+            credits: r.credits,
+            request_item_id: r.request_item_id,
+            submitted_attainment_id: r.submitted_attainment_id,
+            submitted_attainment_type: r.submitted_attainment_type,
+            sisu_attainment_id: r.sisu_attainment_id,
+            sisu_attainment_type: r.sisu_attainment_type,
+            submit_retry_count: r.submit_retry_count,
+            verify_attempt_count: r.verify_attempt_count,
+            next_attempt_at: r.next_attempt_at,
+            first_failed_at: r.first_failed_at,
+            last_attempt_at: r.last_attempt_at,
+            attempt_number: r.attempt_number,
+            superseded_by_id: r.superseded_by_id,
+            superseded_at: r.superseded_at,
+            enrolment_checked_at: r.enrolment_checked_at,
+            submitted_at: r.submitted_at,
+            registered_at: r.registered_at,
+            terminal_at: r.terminal_at,
+            action_needed_email_delivery_id: r.action_needed_email_delivery_id,
+            registered_email_delivery_id: r.registered_email_delivery_id,
+            improvement_checked_completion_updated_at: r.improvement_checked_completion_updated_at,
+        }
+    }
+}
+
 /// Moves a ledger row to a new state and appends the matching audit event, atomically.
 ///
 /// Owns the lifecycle stamps, so callers must not touch them: `state_entered_at`, `terminal_at`,
@@ -427,35 +532,9 @@ pub async fn transition(
 ) -> ModelResult<CreditRegistration> {
     let mut tx = conn.begin().await?;
 
-    let before = sqlx::query_as!(
-        CreditRegistration,
-        r#"
-SELECT *
-FROM credit_registrations
-WHERE id = $1
-  AND deleted_at IS NULL
-FOR UPDATE
-        "#,
-        id
-    )
-    .fetch_one(&mut *tx)
-    .await?;
-
-    if let Some(expected) = transition.expected_from_state
-        && before.state != expected
-    {
-        return Err(model_err!(
-            PreconditionFailed,
-            format!(
-                "Credit registration {id} is in {:?}, not the expected {expected:?}: refusing to overwrite it.",
-                before.state
-            )
-        ));
-    }
-
     let to_state = transition.to_state;
-    let after = sqlx::query_as!(
-        CreditRegistration,
+    let result = sqlx::query_as!(
+        TransitionResult,
         r#"
 UPDATE credit_registrations
 SET state = $2::credit_registration_state,
@@ -493,7 +572,8 @@ SET state = $2::credit_registration_state,
   END
 WHERE id = $1
   AND deleted_at IS NULL
-RETURNING *
+  AND ($8::credit_registration_state IS NULL OR state = $8)
+RETURNING OLD.state AS "from_state: CreditRegistrationState", *
         "#,
         id,
         to_state as CreditRegistrationState,
@@ -502,16 +582,42 @@ RETURNING *
         transition.needs_admin_attention,
         to_state.is_terminal(),
         to_state.is_failure(),
+        transition.expected_from_state as Option<CreditRegistrationState>,
     )
-    .fetch_one(&mut *tx)
+    .fetch_optional(&mut *tx)
     .await?;
+
+    let result = match result {
+        Some(result) => result,
+        None => {
+            let actual_state = sqlx::query_scalar!(
+                r#"SELECT state AS "state: CreditRegistrationState" FROM credit_registrations WHERE id = $1 AND deleted_at IS NULL"#,
+                id
+            )
+            .fetch_optional(&mut *tx)
+            .await?;
+            return Err(match actual_state {
+                Some(actual_state) => model_err!(
+                    PreconditionFailed,
+                    format!(
+                        "Credit registration {id} is in {actual_state:?}, not the expected {:?}: refusing to overwrite it.",
+                        transition.expected_from_state
+                    )
+                ),
+                None => model_err!(
+                    RecordNotFound,
+                    "no rows returned by a query that expected one".to_string()
+                ),
+            });
+        }
+    };
 
     crate::credit_registration_events::insert(
         &mut tx,
         &NewCreditRegistrationEvent {
             credit_registration_id: id,
             kind: transition.event_kind,
-            from_state: Some(before.state),
+            from_state: Some(result.from_state),
             to_state: Some(to_state),
             error_code: transition.error_code,
             message: transition.event_message.clone(),
@@ -523,7 +629,7 @@ RETURNING *
     .await?;
 
     tx.commit().await?;
-    Ok(after)
+    Ok(result.into())
 }
 
 /// Backdates `state_entered_at` for a registration, so a test can simulate a row that has been

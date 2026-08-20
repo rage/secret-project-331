@@ -1,10 +1,48 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM credit_registrations\nWHERE id = $1\n  AND deleted_at IS NULL\nFOR UPDATE\n        ",
+  "query": "\nUPDATE credit_registrations\nSET state = $2::credit_registration_state,\n  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in\n  -- one transaction would share an instant and the timeline would lose their order.\n  state_entered_at = clock_timestamp(),\n  error_code = $3,\n  error_message = $4,\n  needs_admin_attention = COALESCE($5, needs_admin_attention),\n  -- ELSE NULL: without it an admin retry stays invisible to every terminal_at IS NULL query.\n  terminal_at = CASE\n    WHEN $6 THEN COALESCE(terminal_at, now())\n    ELSE NULL\n  END,\n  first_failed_at = CASE\n    WHEN $7 THEN COALESCE(first_failed_at, now())\n    ELSE first_failed_at\n  END,\n  registered_at = CASE\n    WHEN $2::credit_registration_state = 'registered' THEN COALESCE(registered_at, now())\n    ELSE registered_at\n  END,\n  submitted_at = CASE\n    WHEN $2::credit_registration_state = 'submitting' THEN now()\n    ELSE submitted_at\n  END,\n  enrolment_checked_at = CASE\n    WHEN state = 'checking_enrolment'\n    AND $2::credit_registration_state <> 'checking_enrolment' THEN now()\n    ELSE enrolment_checked_at\n  END,\n  enrolment_banner_dismissed_at = CASE\n    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL\n    ELSE enrolment_banner_dismissed_at\n  END\nWHERE id = $1\n  AND deleted_at IS NULL\n  AND ($8::credit_registration_state IS NULL OR state = $8)\nRETURNING OLD.state AS \"from_state: CreditRegistrationState\", *\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
+        "name": "from_state: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
         "name": "id",
         "type_info": "Uuid",
         "origin": {
@@ -15,7 +53,7 @@
         }
       },
       {
-        "ordinal": 1,
+        "ordinal": 2,
         "name": "course_module_completion_id",
         "type_info": "Uuid",
         "origin": {
@@ -26,7 +64,7 @@
         }
       },
       {
-        "ordinal": 2,
+        "ordinal": 3,
         "name": "user_id",
         "type_info": "Uuid",
         "origin": {
@@ -37,7 +75,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "course_id",
         "type_info": "Uuid",
         "origin": {
@@ -48,7 +86,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "course_module_id",
         "type_info": "Uuid",
         "origin": {
@@ -59,7 +97,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "course_instance_id",
         "type_info": "Uuid",
         "origin": {
@@ -70,7 +108,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "state",
         "type_info": {
           "Custom": {
@@ -108,7 +146,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "state_entered_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -119,7 +157,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 9,
         "name": "error_code",
         "type_info": {
           "Custom": {
@@ -160,7 +198,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 10,
         "name": "error_message",
         "type_info": "Text",
         "origin": {
@@ -171,7 +209,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 11,
         "name": "needs_admin_attention",
         "type_info": "Bool",
         "origin": {
@@ -182,7 +220,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 12,
         "name": "enrolment_banner_dismissed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -193,7 +231,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 13,
         "name": "student_number",
         "type_info": "Varchar",
         "origin": {
@@ -204,7 +242,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 14,
         "name": "sisu_person_id",
         "type_info": "Varchar",
         "origin": {
@@ -215,7 +253,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 15,
         "name": "uh_course_code",
         "type_info": "Varchar",
         "origin": {
@@ -226,7 +264,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "selected_enrolment_id",
         "type_info": "Varchar",
         "origin": {
@@ -237,7 +275,7 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 17,
         "name": "selected_enrolment_kind",
         "type_info": "Varchar",
         "origin": {
@@ -248,7 +286,7 @@
         }
       },
       {
-        "ordinal": 17,
+        "ordinal": 18,
         "name": "selected_enrolment_realisation_id",
         "type_info": "Varchar",
         "origin": {
@@ -259,7 +297,7 @@
         }
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "attainment_date",
         "type_info": "Date",
         "origin": {
@@ -270,7 +308,7 @@
         }
       },
       {
-        "ordinal": 19,
+        "ordinal": 20,
         "name": "attainment_language",
         "type_info": "Varchar",
         "origin": {
@@ -281,7 +319,7 @@
         }
       },
       {
-        "ordinal": 20,
+        "ordinal": 21,
         "name": "grade_scale_id",
         "type_info": "Varchar",
         "origin": {
@@ -292,7 +330,7 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 22,
         "name": "grade_id",
         "type_info": "Varchar",
         "origin": {
@@ -303,7 +341,7 @@
         }
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "credits",
         "type_info": "Float4",
         "origin": {
@@ -314,7 +352,7 @@
         }
       },
       {
-        "ordinal": 23,
+        "ordinal": 24,
         "name": "request_item_id",
         "type_info": "Varchar",
         "origin": {
@@ -325,7 +363,7 @@
         }
       },
       {
-        "ordinal": 24,
+        "ordinal": 25,
         "name": "submitted_attainment_id",
         "type_info": "Varchar",
         "origin": {
@@ -336,7 +374,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 26,
         "name": "submitted_attainment_type",
         "type_info": "Varchar",
         "origin": {
@@ -347,7 +385,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 27,
         "name": "sisu_attainment_id",
         "type_info": "Varchar",
         "origin": {
@@ -358,7 +396,7 @@
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 28,
         "name": "sisu_attainment_type",
         "type_info": "Varchar",
         "origin": {
@@ -369,7 +407,7 @@
         }
       },
       {
-        "ordinal": 28,
+        "ordinal": 29,
         "name": "submit_retry_count",
         "type_info": "Int4",
         "origin": {
@@ -380,7 +418,7 @@
         }
       },
       {
-        "ordinal": 29,
+        "ordinal": 30,
         "name": "verify_attempt_count",
         "type_info": "Int4",
         "origin": {
@@ -391,7 +429,7 @@
         }
       },
       {
-        "ordinal": 30,
+        "ordinal": 31,
         "name": "next_attempt_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -402,7 +440,7 @@
         }
       },
       {
-        "ordinal": 31,
+        "ordinal": 32,
         "name": "first_failed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -413,7 +451,7 @@
         }
       },
       {
-        "ordinal": 32,
+        "ordinal": 33,
         "name": "last_attempt_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -424,7 +462,7 @@
         }
       },
       {
-        "ordinal": 33,
+        "ordinal": 34,
         "name": "attempt_number",
         "type_info": "Int4",
         "origin": {
@@ -435,7 +473,7 @@
         }
       },
       {
-        "ordinal": 34,
+        "ordinal": 35,
         "name": "superseded_by_id",
         "type_info": "Uuid",
         "origin": {
@@ -446,7 +484,7 @@
         }
       },
       {
-        "ordinal": 35,
+        "ordinal": 36,
         "name": "superseded_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -457,7 +495,7 @@
         }
       },
       {
-        "ordinal": 36,
+        "ordinal": 37,
         "name": "enrolment_checked_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -468,7 +506,7 @@
         }
       },
       {
-        "ordinal": 37,
+        "ordinal": 38,
         "name": "submitted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -479,7 +517,7 @@
         }
       },
       {
-        "ordinal": 38,
+        "ordinal": 39,
         "name": "registered_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -490,7 +528,7 @@
         }
       },
       {
-        "ordinal": 39,
+        "ordinal": 40,
         "name": "terminal_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -501,7 +539,7 @@
         }
       },
       {
-        "ordinal": 40,
+        "ordinal": 41,
         "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -512,7 +550,7 @@
         }
       },
       {
-        "ordinal": 41,
+        "ordinal": 42,
         "name": "updated_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -523,7 +561,7 @@
         }
       },
       {
-        "ordinal": 42,
+        "ordinal": 43,
         "name": "deleted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -534,7 +572,7 @@
         }
       },
       {
-        "ordinal": 43,
+        "ordinal": 44,
         "name": "action_needed_email_delivery_id",
         "type_info": "Uuid",
         "origin": {
@@ -545,7 +583,7 @@
         }
       },
       {
-        "ordinal": 44,
+        "ordinal": 45,
         "name": "registered_email_delivery_id",
         "type_info": "Uuid",
         "origin": {
@@ -556,7 +594,7 @@
         }
       },
       {
-        "ordinal": 45,
+        "ordinal": 46,
         "name": "improvement_checked_completion_updated_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -569,10 +607,102 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "acceptor_not_found",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "sisu_temporarily_unavailable",
+                "misregistered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Bool",
+        "Bool",
+        "Bool",
+        {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        }
       ]
     },
     "nullable": [
+      false,
       false,
       false,
       false,
@@ -621,5 +751,5 @@
       true
     ]
   },
-  "hash": "9be9a16a5eb0ea6713765e77451ef849810deca9a462cc2029d5df342ea239a2"
+  "hash": "b2a981f9f2d4584af79953b87b754e7240e961e0db1dd0367a2b24dcb61e8fd6"
 }

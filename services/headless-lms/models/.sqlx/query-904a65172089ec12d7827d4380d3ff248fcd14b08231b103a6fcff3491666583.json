@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH updated AS (\n  UPDATE course_module_completions\n  SET passed = false, grade = 0\n  WHERE user_id = $1\n    AND course_id = $2\n    AND deleted_at IS NULL\n  RETURNING id, OLD.passed AS passed, OLD.grade AS grade\n)\nINSERT INTO cheating_confirmation_grade_snapshots (course_module_completion_id, passed, grade)\nSELECT u.id, u.passed, u.grade\nFROM updated u\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM cheating_confirmation_grade_snapshots s\n  WHERE s.course_module_completion_id = u.id\n    AND s.deleted_at IS NULL\n)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "904a65172089ec12d7827d4380d3ff248fcd14b08231b103a6fcff3491666583"
+}

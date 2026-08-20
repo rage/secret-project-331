@@ -1,0 +1,6 @@
+DROP FUNCTION extract_public_searchable_text_from_document_schema(jsonb);
+ALTER TABLE course_designer_plan_stages
+DROP CONSTRAINT course_designer_plan_stages_no_overlap;
+
+ALTER TABLE course_designer_plan_stages
+DROP COLUMN planned_period;

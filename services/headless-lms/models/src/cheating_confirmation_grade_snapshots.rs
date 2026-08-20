@@ -24,31 +24,23 @@ pub async fn snapshot_and_fail_completions(
     let mut tx = conn.begin().await?;
     sqlx::query!(
         "
+WITH updated AS (
+  UPDATE course_module_completions
+  SET passed = false, grade = 0
+  WHERE user_id = $1
+    AND course_id = $2
+    AND deleted_at IS NULL
+  RETURNING id, OLD.passed AS passed, OLD.grade AS grade
+)
 INSERT INTO cheating_confirmation_grade_snapshots (course_module_completion_id, passed, grade)
-SELECT cmc.id, cmc.passed, cmc.grade
-FROM course_module_completions cmc
-WHERE cmc.user_id = $1
-  AND cmc.course_id = $2
-  AND cmc.deleted_at IS NULL
-  AND NOT EXISTS (
-    SELECT 1
-    FROM cheating_confirmation_grade_snapshots s
-    WHERE s.course_module_completion_id = cmc.id
-      AND s.deleted_at IS NULL
-  )
-        ",
-        user_id,
-        course_id
-    )
-    .execute(&mut *tx)
-    .await?;
-    sqlx::query!(
-        "
-UPDATE course_module_completions
-SET passed = false, grade = 0
-WHERE user_id = $1
-  AND course_id = $2
-  AND deleted_at IS NULL
+SELECT u.id, u.passed, u.grade
+FROM updated u
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM cheating_confirmation_grade_snapshots s
+  WHERE s.course_module_completion_id = u.id
+    AND s.deleted_at IS NULL
+)
         ",
         user_id,
         course_id

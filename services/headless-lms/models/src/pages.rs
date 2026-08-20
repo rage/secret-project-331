@@ -3633,7 +3633,7 @@ struct RawPageSearchResult {
     rank: Option<f32>,
     url_path: String,
     chapter_name: Option<String>,
-    content: Value,
+    sanitized_content_text: Option<String>,
 }
 
 #[derive(Debug, sqlx::FromRow)]
@@ -3645,56 +3645,6 @@ struct SearchContentHeadlineRow {
 enum PageSearchQueryType {
     Phrase,
     Words,
-}
-
-fn extract_searchable_text_from_content_value(content: &Value) -> String {
-    let mut searchable_parts = Vec::new();
-    collect_searchable_text_from_content_value(content, None, &mut searchable_parts);
-    searchable_parts.join(" ")
-}
-
-fn collect_searchable_text_from_content_value(
-    value: &Value,
-    current_key: Option<&str>,
-    searchable_parts: &mut Vec<String>,
-) {
-    match value {
-        Value::Object(map) => {
-            for (key, value) in map {
-                collect_searchable_text_from_content_value(value, Some(key), searchable_parts);
-            }
-        }
-        Value::Array(values) => {
-            for value in values {
-                collect_searchable_text_from_content_value(value, None, searchable_parts);
-            }
-        }
-        Value::String(value) if matches!(current_key, Some("content" | "title" | "subtitle")) => {
-            searchable_parts.push(value.clone());
-        }
-        _ => {}
-    }
-}
-
-fn sanitized_searchable_text_for_public_page(content: &Value) -> String {
-    let Ok(blocks) = serde_json::from_value::<Vec<GutenbergBlock>>(content.clone()) else {
-        tracing::warn!(
-            "Failed to deserialize page content for search snippet sanitization. Falling back to raw searchable text."
-        );
-        return extract_searchable_text_from_content_value(content);
-    };
-
-    let filtered_blocks = filter_lock_chapter_blocks(blocks, false);
-    match serde_json::to_value(filtered_blocks) {
-        Ok(filtered_content) => extract_searchable_text_from_content_value(&filtered_content),
-        Err(error) => {
-            tracing::warn!(
-                "Failed to serialize filtered page content for search snippet sanitization: {}. Falling back to raw searchable text.",
-                error
-            );
-            extract_searchable_text_from_content_value(content)
-        }
-    }
 }
 
 async fn get_page_search_results(
@@ -3767,7 +3717,10 @@ SELECT p.id,
     ) as title_headline,
     COALESCE(p.url_path, '') as url_path,
     c.name as chapter_name,
-    p.content
+    (
+        SELECT string_agg(t, ' ')
+        FROM extract_public_searchable_text_from_document_schema(p.content) AS t
+    ) as sanitized_content_text
 FROM pages p
 LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.course_id = $1
@@ -3795,7 +3748,7 @@ LIMIT 50;
 
     let sanitized_search_texts = raw_results
         .iter()
-        .map(|result| sanitized_searchable_text_for_public_page(&result.content))
+        .map(|result| result.sanitized_content_text.clone().unwrap_or_default())
         .collect::<Vec<_>>();
     let content_headlines = build_public_search_content_headlines(
         conn,
@@ -4887,20 +4840,6 @@ mod test {
         )
         .await
         .unwrap();
-    }
-
-    #[test]
-    fn sanitized_searchable_text_for_public_page_hides_lock_chapter_inner_blocks() {
-        let content = serde_json::to_value(vec![
-            GutenbergBlock::paragraph("Visible introduction"),
-            lock_chapter_test_block("Model solution"),
-        ])
-        .unwrap();
-
-        let searchable_text = sanitized_searchable_text_for_public_page(&content);
-
-        assert!(searchable_text.contains("Visible introduction"));
-        assert!(!searchable_text.contains("Model solution"));
     }
 
     #[tokio::test]

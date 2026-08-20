@@ -289,6 +289,14 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             err
                         ),
+                        "course_designer_plan_stages_no_overlap" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "This stage's planned dates overlap with another stage in the same plan.",
+                            },
+                            err.to_string(),
+                            err
+                        ),
                         _ => ModelError::new(
                             ModelErrorType::Database,
                             err.to_string(),

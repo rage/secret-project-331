@@ -124,8 +124,11 @@ jobs:
 
       - name: Start minikube
         # Target the same Kubernetes version as the Nix-pinned kubectl, so a flake.lock
-        # bump can't silently drift the two apart.
-        run: minikube start --addons ingress --memory 60g --driver docker --kubernetes-version "$(kubectl version --client -o json | jq -r '.clientVersion.gitVersion')"
+        # bump can't silently drift the two apart. containerd is explicit (rather than
+        # the docker driver's current default, the cri-dockerd shim) because cri-dockerd's
+        # exec streaming server can serve plain HTTP while the kubelet's redirect expects
+        # HTTPS, breaking `kubectl exec` with "server gave HTTP response to HTTPS client".
+        run: minikube start --addons ingress --memory 60g --driver docker --container-runtime containerd --kubernetes-version "$(kubectl version --client -o json | jq -r '.clientVersion.gitVersion')"
         timeout-minutes: 10
 
       - name: Build

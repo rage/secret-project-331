@@ -36,10 +36,10 @@ jobs:
 
     steps:
       - name: Check out this repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Check out docs repo (with an SSH deploy key)
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: rage/secret-project-331-db-docs
           path: db-docs
@@ -82,14 +82,7 @@ jobs:
           done
         working-directory: ./db-docs
 
-      - name: Commit files
-        run: |
-          git config --local user.email "bot@example.com"
-          git config --local user.name "github-actions[bot]"
-          git add .
-          git commit -m "Update: $GITHUB_SHA" --allow-empty
-        working-directory: ./db-docs
-
-      - name: Push changes
-        run: git push
-        working-directory: ./db-docs
+      - name: Commit and push docs
+        uses: ./.github/actions/commit-and-push-generated-content
+        with:
+          working-directory: ./db-docs

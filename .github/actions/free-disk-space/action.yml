@@ -1,0 +1,17 @@
+name: Free disk space
+description: Remove preinstalled tooling not needed by this pipeline to reclaim runner disk space
+runs:
+  using: composite
+  steps:
+    - name: Free up disk space
+      shell: bash
+      run: |
+        echo "Space before:"
+        df -h
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        echo "Space after:"
+        df -h

@@ -30,7 +30,7 @@ jobs:
     runs-on: ubicloud-standard-30-ubuntu-2404
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           lfs: true
 
@@ -184,79 +184,24 @@ jobs:
           (dmesg -T 2>/dev/null | grep -iE 'mce|hardware error|memory error|ecc|segfault|general protection|oom' || true)
 
       - name: Make sure we have no focused system-tests
-        run: |
-          test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
+        run: bin/check-no-test-only-in-system-tests
 
       - name: Free up disk space
-        run: |
-          echo "Space before:"
-          df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          echo "Space after:"
-          df -h
+        uses: ./.github/actions/free-disk-space
 
       - name: Configure Docker to use tmpfs for better performance
-        run: |
-          set -euo pipefail
-          echo "Configuring Docker to use tmpfs (RAM) for data storage..."
-
-          sudo systemctl stop docker
-
-          sudo mkdir -p /mnt/docker-tmpfs
-          sudo mount -t tmpfs -o size=50g tmpfs /mnt/docker-tmpfs
-          sudo mkdir -p /etc/docker
-
-          echo '{
-            "data-root": "/mnt/docker-tmpfs",
-            "storage-driver": "overlay2"
-          }' | sudo tee /etc/docker/daemon.json
-
-          # Check Docker service memory limits
-          echo "Checking Docker service memory limits..."
-          echo "Current Docker service memory limit:"
-          MEMORY_LIMIT=$(systemctl show docker -p MemoryMax --value 2>/dev/null)
-          if [ -z "$MEMORY_LIMIT" ] || [ "$MEMORY_LIMIT" = "infinity" ] || [ "$MEMORY_LIMIT" = "0" ]; then
-            echo "  No memory limit set (unlimited)"
-          else
-            echo "  MemoryMax=$MEMORY_LIMIT"
-          fi
-          sudo systemctl start docker
-
-          sudo systemctl status docker --no-pager
-          docker info | grep "Docker Root Dir"
-
-          echo "Docker configured to use tmpfs. All container operations will use RAM."
-
-          # Create cleanup script
-          cat <<'EOS' | sudo tee /usr/local/bin/_cleanup_docker_tmpfs
-          #!/usr/bin/env bash
-          set -e
-          sudo systemctl stop docker || true
-          sudo rm -f /etc/docker/daemon.json || true
-          sudo systemctl start docker || true
-          sudo umount /mnt/docker-tmpfs || true
-          sudo rmdir /mnt/docker-tmpfs || true
-          EOS
-          sudo chmod +x /usr/local/bin/_cleanup_docker_tmpfs
+        run: bin/ci/docker-tmpfs-configure
         shell: bash
       - name: Cleanup docker tmpfs
         if: always()
-        run: sudo /usr/local/bin/_cleanup_docker_tmpfs
+        run: bin/ci/docker-tmpfs-cleanup
 
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
 
       - name: Install kustomize, kubectl & skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.11.1
-        with:
-          kubectl: "1.30.3"
-          kustomize: "5.4.1"
-          skaffold: "2.13.1"
+        uses: ./.github/actions/setup-kube-tools
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: Run pnpm install --frozen-lockfile so that shared module gets copied
@@ -276,10 +221,10 @@ jobs:
           sudo sysctl net/netfilter/nf_conntrack_max=131072
 
       - name: Install, start & configure minikube
-        uses: manusa/actions-setup-minikube@v2.13.0
+        uses: manusa/actions-setup-minikube@b65276017fdec6f1e6498129fb740e34e260dc55 # v2.18.0
         with:
-          minikube version: "v1.33.1"
-          kubernetes version: "v1.30.0"
+          minikube version: "v1.38.1"
+          kubernetes version: "v1.36.4"
           start args: "--addons ingress --memory 60g"
           driver: "docker"
           github token: ${{ secrets.GITHUB_TOKEN }}
@@ -289,7 +234,7 @@ jobs:
         run: bin/skaffold-build-test-env-and-serialize-output
 
       - name: Store skaffold output json
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: skaffold-build-output
           path: ./skaffold-build-output.json
@@ -375,13 +320,12 @@ jobs:
         working-directory: ./system-tests/
       - name: System Test Summary
         if: always()
-        run: |
-          {
-            echo "## 🧪 System Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Environment**: Minikube with Docker tmpfs"
-            echo "- **Memory**: 60GB allocated"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "🧪 System Tests"
+          details: |
+            - **Environment**: Minikube with Docker tmpfs
+            - **Memory**: 60GB allocated
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
@@ -435,7 +379,7 @@ jobs:
             | tee -a ./_failure_debug/docker-info.txt
 
       - name: Upload failure diagnostics
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() }}
         with:
           name: worker-failure-diagnostics
@@ -455,7 +399,7 @@ jobs:
           kubectl logs 'deployment/main-frontend' > ./logs/main-frontend.log
           kubectl logs 'deployment/quizzes' > ./logs/quizzes.log
       - name: Upload logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
           name: service-logs
@@ -478,7 +422,7 @@ jobs:
           done
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
           name: test-results
@@ -487,7 +431,7 @@ jobs:
           retention-days: 7
 
       - name: Upload playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
           name: playwright-html-report
@@ -503,72 +447,7 @@ jobs:
         run: skaffold build -p push-images,latest-tag --filename ./skaffold.production.yaml
         if: ${{ github.ref == 'refs/heads/master' }}
       - name: Push images tagged with sha if master
-        run: |
-          echo "=== Starting image push process ==="
-
-          # Point Docker CLI to minikube's Docker daemon since images are built there
-          echo "> Setting up Docker environment for minikube..."
-          eval "$(minikube -p minikube docker-env --shell bash)"
-          echo "> Docker environment configured"
-
-          echo "> Authenticating with Google Cloud Docker registry..."
-          gcloud auth configure-docker -q
-          echo "> Authentication completed"
-
-          # Check if the skaffold output file exists and show its contents
-          echo "> Checking skaffold-build-output.json file..."
-          if [ ! -f "skaffold-build-output.json" ]; then
-            echo "ERROR: skaffold-build-output.json file not found!"
-            exit 1
-          fi
-
-          echo "> File size: $(wc -c < skaffold-build-output.json) bytes"
-          echo "> File contents (formatted):"
-          python -m json.tool skaffold-build-output.json
-          echo ""
-
-          # Extract and display all image tags
-          echo "> Extracting image tags from skaffold output..."
-          TAGS=$(jq --raw-output '.builds[].tag' < skaffold-build-output.json)
-          echo "> Found tags:"
-          echo "$TAGS"
-          echo ""
-
-          # Count the number of tags
-          TAG_COUNT=$(echo "$TAGS" | wc -l)
-          echo "> Total number of tags to push: $TAG_COUNT"
-
-          if [ "$TAG_COUNT" -eq 0 ]; then
-            echo "ERROR: No image tags found in skaffold output!"
-            exit 1
-          fi
-
-          # Push each image with detailed logging
-          echo "> Starting to push images..."
-          echo "$TAGS" | while IFS= read -r tag; do
-            if [ -n "$tag" ]; then
-              echo ""
-              echo "=== Pushing image: $tag ==="
-              echo "> Checking if image exists locally..."
-              if docker image inspect "$tag" >/dev/null 2>&1; then
-                echo "> Image found locally, pushing..."
-                if docker push "$tag"; then
-                  echo "> SUCCESS: Pushed $tag"
-                else
-                  echo "> ERROR: Failed to push $tag"
-                  exit 1
-                fi
-              else
-                echo "> ERROR: Image $tag not found locally!"
-                echo "> Available images:"
-                docker images
-                exit 1
-              fi
-            fi
-          done
-
-          echo ""
-          echo "=== Image push process completed successfully ==="
+        run: bin/ci/push-skaffold-images
         if: ${{ github.ref == 'refs/heads/master' }}
 
   deploy:
@@ -582,32 +461,28 @@ jobs:
       url: https://courses.mooc.fi
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Download skaffold build output artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: skaffold-build-output
           path: skaffold-build-output
 
       - name: Install kustomize, kubectl & skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.7.1
-        with:
-          kubectl: "1.30.3"
-          kustomize: "5.4.1"
-          skaffold: "2.13.1"
+        uses: ./.github/actions/setup-kube-tools
 
       - id: "auth"
-        uses: "google-github-actions/auth@v2"
+        uses: "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093" # v3.0.0
         with:
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}"
 
       - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v3"
+        uses: "google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db" # v3.0.1
         with:
           project_id: ${{ secrets.GKE_PROJECT }}
 
-      - uses: google-github-actions/get-gke-credentials@v2
+      - uses: google-github-actions/get-gke-credentials@3da1e46a907576cefaa90c484278bb5b259dd395 # v3.0.0
         with:
           cluster_name: ${{ secrets.GKE_CLUSTER }}
           location: ${{ secrets.GKE_ZONE }}
@@ -631,7 +506,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: Run pnpm install --frozen-lockfile in repo root

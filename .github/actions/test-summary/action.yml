@@ -1,0 +1,22 @@
+name: Test summary
+description: Append a status block for this job to the workflow run summary
+inputs:
+  title:
+    description: Heading for the summary block, including any emoji
+    required: true
+  details:
+    description: Extra markdown bullet lines to append below the status line
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        {
+          echo "## ${{ inputs.title }}"
+          echo "- **Status**: ${{ job.status }}"
+          if [ -n "${{ inputs.details }}" ]; then
+            echo "${{ inputs.details }}"
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"

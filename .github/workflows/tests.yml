@@ -44,23 +44,14 @@ jobs:
 
     steps:
       - name: Free up disk space
-        run: |
-          echo "Space before:"
-          df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          echo "Space after:"
-          df -h
+        uses: ./.github/actions/free-disk-space
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # The compile-time font guard rejects unhydrated git-lfs pointers.
           lfs: true
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/bin/
@@ -153,20 +144,19 @@ jobs:
             cargo test --verbose
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## 🧪 Headless LMS Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Database**: PostgreSQL 16.4"
-            echo "- **Cache**: Redis 7.2"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "🧪 Headless LMS Tests"
+          details: |
+            - **Database**: PostgreSQL 16.4
+            - **Cache**: Redis 7.2
 
   cms:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
@@ -181,19 +171,18 @@ jobs:
         working-directory: ./services/cms
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## 📝 CMS Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: CMS"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "📝 CMS Tests"
+          details: |
+            - **Service**: CMS
 
   shared-module-common:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: Install dependencies at repository root
@@ -212,19 +201,18 @@ jobs:
         working-directory: ./shared-module/packages/common
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## 🔧 Shared Module Common Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Shared Module Common"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "🔧 Shared Module Common Tests"
+          details: |
+            - **Service**: Shared Module Common
 
   shared-module-components:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: Install dependencies at repository root
@@ -239,19 +227,18 @@ jobs:
         working-directory: ./shared-module/packages/components
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## 🧱 Shared Module Components Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Shared Module Components"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "🧱 Shared Module Components Tests"
+          details: |
+            - **Service**: Shared Module Components
 
   quizzes:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
@@ -266,19 +253,18 @@ jobs:
         working-directory: ./services/quizzes
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## ❓ Quizzes Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Quizzes"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "❓ Quizzes Tests"
+          details: |
+            - **Service**: Quizzes
 
   main-frontend:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
@@ -293,19 +279,18 @@ jobs:
         working-directory: ./services/main-frontend
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## 🎨 Main Frontend Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Main Frontend"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "🎨 Main Frontend Tests"
+          details: |
+            - **Service**: Main Frontend
 
   example-exercise-typecheck:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
@@ -326,19 +311,18 @@ jobs:
         working-directory: ./services/example-exercise
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## 🧩 Example Exercise Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Example Exercise"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "🧩 Example Exercise Tests"
+          details: |
+            - **Service**: Example Exercise
 
   tmc-typecheck:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
@@ -353,19 +337,18 @@ jobs:
         working-directory: ./services/tmc
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## 🧪 TMC Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: TMC"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "🧪 TMC Tests"
+          details: |
+            - **Service**: TMC
 
   shared-module-exercise-packages:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: Install dependencies at repository root
@@ -418,19 +401,18 @@ jobs:
         working-directory: ./shared-module/packages/exercise-service-test-utils
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## 🧩 Exercise Package Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Packages**: exercise-protocol, exercise-client, exercise-react, exercise-iframe-host, exercise-service-test-utils"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "🧩 Exercise Package Tests"
+          details: |
+            - **Packages**: exercise-protocol, exercise-client, exercise-react, exercise-iframe-host, exercise-service-test-utils
 
   create-exercise-service:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-node-pnpm
       - name: Install dependencies at repository root
@@ -452,9 +434,8 @@ jobs:
         working-directory: ${{ runner.temp }}/smoke-exercise
       - name: Test Summary
         if: always()
-        run: |
-          {
-            echo "## 🏗️ Create Exercise Service Checks"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Create Exercise Service"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/test-summary
+        with:
+          title: "🏗️ Create Exercise Service Checks"
+          details: |
+            - **Service**: Create Exercise Service

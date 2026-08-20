@@ -208,6 +208,25 @@ jobs:
       - name: Configure ingress
         run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
 
+      - name: Wait for ingress to route requests
+        # ingress-nginx syncs its routing rules asynchronously after the Deployments it fronts
+        # report ready, so a request made right away can still hit nginx's default backend (a
+        # 404 with an html body, not the app's own 404) before the real route is wired up — this
+        # broke the system-test seed step's call to the mock Suotar endpoint.
+        run: |
+          for i in $(seq 1 30); do
+            status=$(curl -s -o /dev/null -w '%{http_code}' http://project-331.local/api/v0/health/up || true)
+            if [ "$status" = "200" ]; then
+              echo "Ingress is routing requests."
+              exit 0
+            fi
+            echo "Waiting for ingress to route requests (got status ${status:-none}, attempt $i/30)..."
+            sleep 2
+          done
+          echo "::error::Ingress never started routing requests to project-331.local" >&2
+          exit 1
+        timeout-minutes: 3
+
       - name: Setup system test environment
         run: pnpm install --frozen-lockfile
         working-directory: ./system-tests/

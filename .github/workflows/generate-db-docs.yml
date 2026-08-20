@@ -21,7 +21,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
-    container: eu.gcr.io/moocfi-public/db-docs # zizmor: ignore[unpinned-images] intentionally tracks the latest internally-published image
+    container: eu.gcr.io/moocfi-public/db-docs # zizmor: ignore[unpinned-images] intentionally tracks the latest internally-published image; no secrets are available in this container, see the publish-db-docs job
 
     services:
       postgres:
@@ -40,15 +40,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check out docs repo (with an SSH deploy key)
-        # zizmor: ignore[artipacked] the persisted ssh-key config is required for the later commit-and-push step
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: rage/secret-project-331-db-docs
-          path: db-docs
-          fetch-depth: 0
-          ssh-key: ${{ secrets.DB_DOCS_DEPLOY_KEY }}
-
       - name: Setup database
         run: sqlx database setup
         working-directory: ./services/headless-lms
@@ -56,7 +47,7 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_dev
 
       - name: Generate tbls docs
-        run: tbls doc 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' db-docs --force --sort
+        run: tbls doc 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' generated-db-docs --force --sort
 
       # Column comments can be quite long and they are a bit too much text for the whole
       # entity relationship diagram so we'll remove them from the diagram.
@@ -65,14 +56,14 @@ jobs:
         run: psql 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' -c 'DELETE FROM pg_description WHERE objsubid > 0;'
 
       - name: Generate UML with planter
-        run: planter 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' -o db-docs/schema.uml
+        run: planter 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' -o generated-db-docs/schema.uml
 
       - name: Patch UML for wide comments
-        run: sed -i 's/skinparam linetype ortho/skinparam linetype ortho\nskinparam wrapWidth 300/' db-docs/schema.uml
+        run: sed -i 's/skinparam linetype ortho/skinparam linetype ortho\nskinparam wrapWidth 300/' generated-db-docs/schema.uml
 
       - name: Generate PlantUML SVG
         run: plantuml -tsvg schema.uml
-        working-directory: ./db-docs
+        working-directory: ./generated-db-docs
 
       - name: Generate HTML with Pandoc
         run: |
@@ -83,7 +74,43 @@ jobs:
               --template ../misc/db-docs/template.html
             cp README.html index.html
           done
-        working-directory: ./db-docs
+        working-directory: ./generated-db-docs
+
+      - name: Upload generated docs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: generated-db-docs
+          path: generated-db-docs
+          retention-days: 1
+
+  publish-db-docs:
+    needs: generate-db-docs
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check out docs repo (with an SSH deploy key)
+        # zizmor: ignore[artipacked] the persisted ssh-key config is required for the later commit-and-push step
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: rage/secret-project-331-db-docs
+          path: db-docs
+          fetch-depth: 0
+          ssh-key: ${{ secrets.DB_DOCS_DEPLOY_KEY }}
+
+      - name: Download generated docs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: generated-db-docs
+          path: generated-db-docs
+
+      - name: Copy generated docs into the docs repo checkout
+        run: cp -a generated-db-docs/. db-docs/
 
       - name: Commit and push docs
         uses: ./.github/actions/commit-and-push-generated-content

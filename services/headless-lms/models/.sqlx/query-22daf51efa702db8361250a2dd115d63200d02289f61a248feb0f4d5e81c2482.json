@@ -25,7 +25,8 @@
                 "content-cleaning",
                 "message-suggestion",
                 "cms-paragraph-suggestion",
-                "sisu-description-summary"
+                "sisu-description-summary",
+                "chart-spec-generation"
               ]
             }
           }
@@ -104,7 +105,8 @@
                 "content-cleaning",
                 "message-suggestion",
                 "cms-paragraph-suggestion",
-                "sisu-description-summary"
+                "sisu-description-summary",
+                "chart-spec-generation"
               ]
             }
           }

@@ -14,6 +14,35 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v0/cms/ai-suggestions/chart-spec": {
+      "post": {
+        "tags": ["cms_ai_suggestions"],
+        "summary": "\nPOST `/api/v0/cms/ai-suggestions/chart-spec` - Generate a Vega-Lite chart specification from a prompt.\n\nThis endpoint is intended for the CMS chart block editor. It requires the user to have\nedit access to the referenced page when `page_id` is provided, otherwise it falls back\nto requiring a teaching role for some course via `Res::AnyCourse`.",
+        "operationId": "requestChartSpecGeneration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChartSpecGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Generated Vega-Lite chart specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChartSpecGenerationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/ai-suggestions/paragraph": {
       "post": {
         "tags": ["cms_ai_suggestions"],
@@ -1082,6 +1111,40 @@
           },
           "requires_exam": {
             "type": "boolean"
+          }
+        }
+      },
+      "ChartSpecGenerationRequest": {
+        "type": "object",
+        "required": ["prompt"],
+        "properties": {
+          "current_spec": {
+            "type": ["string", "null"]
+          },
+          "data_format": {
+            "type": ["string", "null"]
+          },
+          "data_sample": {
+            "type": ["string", "null"]
+          },
+          "data_url": {
+            "type": ["string", "null"]
+          },
+          "page_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "prompt": {
+            "type": "string"
+          }
+        }
+      },
+      "ChartSpecGenerationResponse": {
+        "type": "object",
+        "required": ["spec"],
+        "properties": {
+          "spec": {
+            "type": "string"
           }
         }
       },

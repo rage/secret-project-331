@@ -3,7 +3,7 @@
 import { cx } from "@emotion/css"
 import React from "react"
 import { mergeProps, useButton, useObjectRef, VisuallyHidden } from "react-aria"
-import type { AriaButtonOptions } from "react-aria"
+import type { AriaButtonOptions, PressEvent } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
@@ -62,7 +62,15 @@ export type ButtonProps = PressHandlers & {
   name?: string
   value?: string | number | readonly string[]
   formAction?: string
-  onClick?: React.MouseEventHandler<HTMLButtonElement>
+  /**
+   * Alias of `onPress`, fired for pointer, keyboard and touch alike.
+   *
+   * Activation runs through react-aria's press handling, which handles Enter/Space itself rather
+   * than letting the browser synthesize a click, so this is invoked from there instead of being
+   * bound as a DOM click handler. It therefore receives a `PressEvent`, which has no
+   * `preventDefault`; use `type="submit"` for native form submission.
+   */
+  onClick?: (e: PressEvent) => void
   onPointerDown?: React.PointerEventHandler<HTMLButtonElement>
   onPointerUp?: React.PointerEventHandler<HTMLButtonElement>
   onPointerCancel?: React.PointerEventHandler<HTMLButtonElement>
@@ -130,10 +138,19 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const ref = useObjectRef(forwardedRef)
 
+    // onClick is an alias of onPress rather than a DOM handler, so it reaches keyboard users too.
+    const handlePress =
+      onPress || onClick
+        ? (e: PressEvent) => {
+            onPress?.(e)
+            onClick?.(e)
+          }
+        : undefined
+
     const ariaOptions: AriaButtonOptions<"button"> = {
       isDisabled,
       ...omitUndefined({
-        onPress,
+        onPress: handlePress,
         onPressStart,
         onPressEnd,
         onPressChange,
@@ -149,7 +166,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const rootClassName = cx(resolveButtonRootCss({ size, variant }), className)
 
     const mergedButtonProps = mergeProps(buttonProps, domProps ?? {}, {
-      onClick,
       onPointerDown,
       onPointerUp,
       onPointerCancel,

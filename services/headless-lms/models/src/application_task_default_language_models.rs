@@ -7,6 +7,7 @@ pub enum ApplicationTask {
     MessageSuggestion,
     CmsParagraphSuggestion,
     SisuDescriptionSummary,
+    ChartSpecGeneration,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

@@ -29,6 +29,7 @@ import {
   getCmsPageNavigation,
   getCmsRepositoryExercisesForCourse,
   type Options,
+  requestChartSpecGeneration,
   requestParagraphSuggestions,
   updateCmsCourseDefaultPeerReview,
   updateCmsEmailTemplate,
@@ -83,6 +84,8 @@ import type {
   GetCmsPageResponse,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponse,
+  RequestChartSpecGenerationData,
+  RequestChartSpecGenerationResponse,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponse,
   UpdateCmsCourseDefaultPeerReviewData,
@@ -103,6 +106,36 @@ import type {
   UpsertCmsCourseResearchFormQuestionsResponse,
   UpsertCmsCourseResearchFormResponse,
 } from "../types.generated"
+
+/**
+ *
+ * POST `/api/v0/cms/ai-suggestions/chart-spec` - Generate a Vega-Lite chart specification from a prompt.
+ *
+ * This endpoint is intended for the CMS chart block editor. It requires the user to have
+ * edit access to the referenced page when `page_id` is provided, otherwise it falls back
+ * to requiring a teaching role for some course via `Res::AnyCourse`.
+ */
+export const requestChartSpecGenerationMutation = (
+  options?: Partial<Options<RequestChartSpecGenerationData>>,
+): UseMutationOptions<
+  RequestChartSpecGenerationResponse,
+  DefaultError,
+  Options<RequestChartSpecGenerationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RequestChartSpecGenerationResponse,
+    DefaultError,
+    Options<RequestChartSpecGenerationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await requestChartSpecGeneration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

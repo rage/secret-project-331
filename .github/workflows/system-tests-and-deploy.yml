@@ -214,18 +214,26 @@ jobs:
         # 404 with an html body, not the app's own 404) before the real route is wired up — this
         # broke the system-test seed step's call to the mock Suotar endpoint.
         run: |
-          for i in $(seq 1 30); do
+          for i in $(seq 1 60); do
             status=$(curl -s -o /dev/null -w '%{http_code}' http://project-331.local/api/v0/health/up || true)
             if [ "$status" = "200" ]; then
               echo "Ingress is routing requests."
               exit 0
             fi
-            echo "Waiting for ingress to route requests (got status ${status:-none}, attempt $i/30)..."
+            echo "Waiting for ingress to route requests (got status ${status:-none}, attempt $i/60)..."
             sleep 2
           done
           echo "::error::Ingress never started routing requests to project-331.local" >&2
+          echo "=== ingress-nginx pods ==="
+          kubectl get pods -n ingress-nginx -o wide
+          echo "=== ingress-nginx controller logs (last 200 lines) ==="
+          kubectl logs -n ingress-nginx deployment/ingress-nginx-controller --tail=200
+          echo "=== Ingress resources ==="
+          kubectl get ingress -A -o yaml
+          echo "=== Final curl -v ==="
+          curl -v http://project-331.local/api/v0/health/up || true
           exit 1
-        timeout-minutes: 3
+        timeout-minutes: 5
 
       - name: Setup system test environment
         run: pnpm install --frozen-lockfile

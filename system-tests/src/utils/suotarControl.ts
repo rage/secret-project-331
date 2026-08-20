@@ -233,23 +233,27 @@ export const regradeCompletion = async (
 }
 
 /**
- * Excuses one ledger row from the live background worker's unscoped sweeps for `holdSecs`: a scoped
- * tick (this spec's own) ignores the hold regardless, only an unscoped one skips the row. Use this
- * before driving a row through an owner-narrowed `requestLevel` fault (see `armMockSuotarFault`'s
- * doc comment) — otherwise the worker can batch the row with an unrelated one and silently suppress
- * the fault.
+ * Excuses every one of a user's rows (or, with `courseId`, just that course's) from the live
+ * background worker's unscoped sweeps for `holdSecs`: a scoped tick (this spec's own) ignores the
+ * hold regardless, only an unscoped one skips the rows. Keyed on identity rather than a row id, so
+ * call this **before** `runMaterializeTick` — the worker ticks `preconditions`/`resolve-enrolments`
+ * every 10s regardless of any one test, so a hold set only after the row exists still races the
+ * worker's own next tick. Use this before driving a row through an owner-narrowed `requestLevel`
+ * fault (see `armMockSuotarFault`'s doc comment) — otherwise the worker can batch the row with an
+ * unrelated one and silently suppress the fault.
  */
 export const setTestExclusiveHold = async (
   request: APIRequestContext,
-  creditRegistrationId: string,
+  userEmail: string,
   holdSecs: number,
+  courseId?: string,
 ): Promise<void> => {
   const response = await request.post(`${CONTROL_BASE_URL}/test-exclusive-hold`, {
-    data: { creditRegistrationId, holdSecs },
+    data: { userEmail, courseId, holdSecs },
   })
   if (!response.ok()) {
     throw new Error(
-      `Holding ${creditRegistrationId} for ${holdSecs}s answered ${response.status()}: ${await response.text()}`,
+      `Holding ${userEmail} for ${holdSecs}s answered ${response.status()}: ${await response.text()}`,
     )
   }
 }

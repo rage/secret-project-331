@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH due AS (\n  SELECT cr.id\n  FROM credit_registrations cr\n    JOIN course_modules cm ON cm.id = cr.course_module_id\n    AND cm.deleted_at IS NULL\n    LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cr.course_module_id\n    AND c.deleted_at IS NULL\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.state = ANY($1::credit_registration_state [])\n    AND cr.next_attempt_at <= now()\n    AND cm.enable_credit_registration_via_suotar\n    AND c.paused_at IS NULL\n    AND ($3::uuid IS NULL OR cr.course_id = $3)\n    AND ($4::uuid IS NULL OR cr.user_id = $4)\n    AND (\n      cardinality($5::uuid []) = 0\n      OR cr.id = ANY($5::uuid [])\n    )\n    AND (\n      $6::boolean\n      OR cr.test_exclusive_hold_until IS NULL\n      OR cr.test_exclusive_hold_until <= now()\n    )\n  ORDER BY cr.next_attempt_at\n  FOR UPDATE OF cr SKIP LOCKED\n  LIMIT $2\n)\nUPDATE credit_registrations cr\nSET last_attempt_at = now()\nFROM due\nWHERE cr.id = due.id\nRETURNING cr.*\n        ",
+  "query": "\nWITH due AS (\n  SELECT cr.id\n  FROM credit_registrations cr\n    JOIN course_modules cm ON cm.id = cr.course_module_id\n    AND cm.deleted_at IS NULL\n    LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cr.course_module_id\n    AND c.deleted_at IS NULL\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.state = ANY($1::credit_registration_state [])\n    AND cr.next_attempt_at <= now()\n    AND cm.enable_credit_registration_via_suotar\n    AND c.paused_at IS NULL\n    AND ($3::uuid IS NULL OR cr.course_id = $3)\n    AND ($4::uuid IS NULL OR cr.user_id = $4)\n    AND (\n      cardinality($5::uuid []) = 0\n      OR cr.id = ANY($5::uuid [])\n    )\n    AND (\n      $6::boolean\n      OR NOT EXISTS (\n        SELECT 1\n        FROM credit_registration_test_exclusive_holds h\n        WHERE h.user_id = cr.user_id\n          AND (\n            h.course_id IS NULL\n            OR h.course_id = cr.course_id\n          )\n          AND h.held_until > now()\n      )\n    )\n  ORDER BY cr.next_attempt_at\n  FOR UPDATE OF cr SKIP LOCKED\n  LIMIT $2\n)\nUPDATE credit_registrations cr\nSET last_attempt_at = now()\nFROM due\nWHERE cr.id = due.id\nRETURNING cr.*\n        ",
   "describe": {
     "columns": [
       {
@@ -565,17 +565,6 @@
             "name": "improvement_checked_completion_updated_at"
           }
         }
-      },
-      {
-        "ordinal": 46,
-        "name": "test_exclusive_hold_until",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "credit_registrations",
-            "name": "test_exclusive_hold_until"
-          }
-        }
       }
     ],
     "parameters": {
@@ -668,9 +657,8 @@
       true,
       true,
       true,
-      true,
       true
     ]
   },
-  "hash": "645bc9b81202088b3d97f7271a4279b0cbbd91e66c41fd87d7b314c98e5aa7d9"
+  "hash": "2c0f38293d6657c9bfc23370d467d1809c8f78f9041afb676dfa337226fba1f8"
 }

@@ -207,7 +207,9 @@ async fn regrade_completion(
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SetTestExclusiveHoldPayload {
-    pub credit_registration_id: Uuid,
+    pub user_email: String,
+    /// Absent holds every course of the user; set to narrow to one.
+    pub course_id: Option<Uuid>,
     pub hold_secs: i64,
 }
 
@@ -219,11 +221,12 @@ pub struct SetTestExclusiveHoldResult {
 
 /// Comfortably above Playwright's own 100 s per-test timeout (`playwright.config.ts`'s `timeout`),
 /// so no legitimate hold is ever rejected; a value anywhere near this is a spec that mistyped a
-/// unit, not one that needs the row held that long.
+/// unit, not one that needs the identity held that long.
 const MAX_TEST_EXCLUSIVE_HOLD_SECS: i64 = 120;
 
-/// Excuses one ledger row from the live background worker's unscoped sweeps — see
-/// `credit_registrations::set_test_exclusive_hold_for_testing`.
+/// Excuses a user's rows from the live background worker's unscoped sweeps — see
+/// `credit_registrations::set_test_exclusive_hold_for_testing`. Keyed on identity rather than a row
+/// id, so a spec can hold before materialize creates the row it means to protect.
 async fn set_test_exclusive_hold(
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
@@ -239,10 +242,24 @@ async fn set_test_exclusive_hold(
     }
 
     let mut conn = pool.acquire().await?;
+    let Some(user_id) = models::user_details::get_active_user_id_by_email_case_insensitive(
+        &mut conn,
+        &payload.user_email,
+    )
+    .await?
+    else {
+        return token.authorized_ok(HttpResponse::BadRequest().json(UnresolvedScope {
+            status: "unresolvedScope".to_string(),
+            half: "userEmail".to_string(),
+            value: payload.user_email.clone(),
+        }));
+    };
+
     let held_until = Utc::now() + Duration::seconds(payload.hold_secs);
     models::credit_registrations::set_test_exclusive_hold_for_testing(
         &mut conn,
-        payload.credit_registration_id,
+        user_id,
+        payload.course_id,
         held_until,
     )
     .await?;

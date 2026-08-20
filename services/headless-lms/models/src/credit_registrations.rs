@@ -306,9 +306,6 @@ pub struct CreditRegistration {
     /// The completion revision the grade-improvement scan last found no improvement against. See
     /// [`mark_improvement_checked`].
     pub improvement_checked_completion_updated_at: Option<DateTime<Utc>>,
-    /// System-test-only. See [`set_test_exclusive_hold_for_testing`] and the column's migration
-    /// comment.
-    pub test_exclusive_hold_until: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -577,26 +574,28 @@ WHERE id = $1
     Ok(())
 }
 
-/// Excuses one row from every unscoped `claim_due` call until `held_until`; a scoped call ignores the
-/// hold regardless (see `claim_due`). Lets a spec drive one row through its own explicit ticks
-/// without the live background worker racing in and batching it with an unrelated row, which would
-/// silently defeat an owner-narrowed request-level mock-Suotar fault (`matches_request` requires
-/// every item in a batch to match).
+/// Excuses every one of a user's rows (or, with `course_id`, just that course's) from unscoped
+/// `claim_due` calls until `held_until`; a scoped call ignores every hold regardless (see
+/// `claim_due`). Keyed on identity rather than a row id so a spec can hold before materialize
+/// creates the row it means to protect, closing the window a row-id hold could only ever narrow:
+/// the live background worker ticks every 10s regardless of any single test, so a hold applied
+/// after the row exists still races the worker's own next tick.
 ///
-/// Exists only for test setup: nothing in the product ever needs to hide a row from the worker that
-/// owns it.
+/// Exists only for test setup: nothing in the product ever needs to hide a user's rows from the
+/// worker that owns them.
 pub async fn set_test_exclusive_hold_for_testing(
     conn: &mut PgConnection,
-    id: Uuid,
+    user_id: Uuid,
+    course_id: Option<Uuid>,
     held_until: DateTime<Utc>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
-UPDATE credit_registrations
-SET test_exclusive_hold_until = $2
-WHERE id = $1
+INSERT INTO credit_registration_test_exclusive_holds (user_id, course_id, held_until)
+VALUES ($1, $2, $3)
         ",
-        id,
+        user_id,
+        course_id,
         held_until,
     )
     .execute(conn)
@@ -636,9 +635,10 @@ impl RegistrationScope {
 /// claimed: enforced here so no phase can forget it. Both freeze a row where it stands rather than
 /// cancelling it, so switching the module back on resumes the rows that were already in flight.
 ///
-/// An unscoped call (the live background worker) also skips a row under
-/// `test_exclusive_hold_until` — see that column's migration comment. A scoped call always ignores
-/// the hold, so a spec driving its own row through explicit ticks is unaffected either way.
+/// An unscoped call (the live background worker) also skips a row whose user (and, if the hold
+/// names one, course) has a live row in `credit_registration_test_exclusive_holds`. A scoped call
+/// always ignores holds, so a spec driving its own rows through explicit ticks is unaffected
+/// either way.
 pub async fn claim_due(
     conn: &mut PgConnection,
     states: &[CreditRegistrationState],
@@ -670,8 +670,16 @@ WITH due AS (
     )
     AND (
       $6::boolean
-      OR cr.test_exclusive_hold_until IS NULL
-      OR cr.test_exclusive_hold_until <= now()
+      OR NOT EXISTS (
+        SELECT 1
+        FROM credit_registration_test_exclusive_holds h
+        WHERE h.user_id = cr.user_id
+          AND (
+            h.course_id IS NULL
+            OR h.course_id = cr.course_id
+          )
+          AND h.held_until > now()
+      )
     )
   ORDER BY cr.next_attempt_at
   FOR UPDATE OF cr SKIP LOCKED

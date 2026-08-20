@@ -1,15 +1,25 @@
 ALTER TABLE credit_registrations
 ADD COLUMN action_needed_email_delivery_id UUID REFERENCES email_deliveries(id),
   ADD COLUMN registered_email_delivery_id UUID REFERENCES email_deliveries(id),
-  ADD COLUMN improvement_checked_completion_updated_at TIMESTAMP WITH TIME ZONE,
-  ADD COLUMN test_exclusive_hold_until TIMESTAMP WITH TIME ZONE;
+  ADD COLUMN improvement_checked_completion_updated_at TIMESTAMP WITH TIME ZONE;
 
 COMMENT ON COLUMN credit_registrations.improvement_checked_completion_updated_at IS 'The completion''s updated_at as of the last time the grade-improvement scan judged this accepted attempt and found no improvement. A completion touched for any other reason keeps matching the scan''s cheap "changed since the attempt" pre-filter, so without this watermark those rows fill every capped batch and a real regrade further down the queue is never reached.';
 
 COMMENT ON COLUMN credit_registrations.action_needed_email_delivery_id IS 'The delivery carrying the "we could not register your credits, you have no enrolment" mail. Set once and never cleared: it is what stops the mail being sent again when the row re-enters no_usable_enrolment.';
 COMMENT ON COLUMN credit_registrations.registered_email_delivery_id IS 'The delivery carrying the "your credits are in the study registry" mail. Set once and never cleared. A grade-improvement attempt is a separate row and gets its own mail, which is intended: the grade in the registry changed.';
 
-COMMENT ON COLUMN credit_registrations.test_exclusive_hold_until IS 'System-test-only. While in the future, an unscoped claim_due call (the live background worker) skips this row; a scoped call (a Playwright spec ticking its own row) ignores the hold entirely. Set only through the mock-Suotar control API, gated the same as the rest of it on test_mode && test_suotar, and never by production code. Exists so an owner-narrowed request-level fault (mock_suotar::faults::matches_request requires every item in a batch to match) cannot be silently defeated by the worker batching the held row together with an unrelated one.';
+CREATE TABLE credit_registration_test_exclusive_holds (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id),
+  course_id UUID REFERENCES courses(id),
+  held_until TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_credit_registration_test_exclusive_holds_user_id ON credit_registration_test_exclusive_holds (user_id);
+
+COMMENT ON TABLE credit_registration_test_exclusive_holds IS 'System-test-only. While a row here has `held_until` in the future, an unscoped claim_due call (the live background worker) skips every credit_registrations row of that user (and course, if given); a scoped call (a Playwright spec ticking its own rows) ignores every hold regardless. Keyed on the identity a spec drives its scenario under, not on a ledger row id, so a hold can be set before materialize creates the row it is meant to protect: an owner-narrowed request-level mock-Suotar fault (mock_suotar::faults::matches_request requires every item in a batch to match) would otherwise be silently defeated by the worker materializing and batching a fresh row before the spec gets to hold it. Written only through the mock-Suotar control API, gated the same as the rest of it on test_mode && test_suotar, and never by production code.';
+COMMENT ON COLUMN credit_registration_test_exclusive_holds.course_id IS 'NULL holds every course for the user; set to narrow the hold to one, for a student whose other courses must keep moving.';
 
 -- Serves the student-notification claim query and stays near-empty, because a row leaves the
 -- predicate as soon as its mail is queued.

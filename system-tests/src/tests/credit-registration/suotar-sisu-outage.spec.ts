@@ -95,14 +95,13 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
     primaryEmail: OUTAGE_SISU_EMAIL,
   })
 
+  // Before materialize, not after: the live background worker ticks preconditions/resolve-enrolments
+  // every 10s regardless of this test, so a hold set only once the row exists would still race the
+  // worker's own next tick. Held by identity instead, so the row is born already excused.
+  await setTestExclusiveHold(page.request, OUTAGE_EMAIL, HOLD_SECS)
   await runMaterializeTick(page.request, scope)
   const materialized = await outageRow(adminApi)
   expect(materialized).not.toBeNull()
-  // Otherwise the live background worker could reach `ready_to_submit` on its own (via its own
-  // materialize/preconditions sweeps) and batch this row's resolve-enrolments call together with an
-  // unrelated student's — the fault only fires when every item in the batch matches
-  // `OUTAGE_STUDENT_NUMBER`, so a mixed batch would silently let it through unfaulted.
-  await setTestExclusiveHold(page.request, materialized!.id, HOLD_SECS)
   await runPreconditionsTick(page.request, scope)
   // Unchecked: the outage makes this iteration fail by construction, so the tick reports a
   // phase-level error of its own.
@@ -121,7 +120,7 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
     for (let pass = 0; pass < RETRY_PASSES; pass++) {
       await makeRegistrationDueNow(adminApi, failing.id)
       // Renewed every pass so a slow run can never let the hold lapse before the row is disarmed.
-      await setTestExclusiveHold(page.request, failing.id, HOLD_SECS)
+      await setTestExclusiveHold(page.request, OUTAGE_EMAIL, HOLD_SECS)
       // A backoff-expired `failed_retryable` row resumes through `preconditions`, back to
       // `ready_to_submit`, before `resolve-enrolments` can claim and fail it again.
       await runPreconditionsTick(page.request, scope)

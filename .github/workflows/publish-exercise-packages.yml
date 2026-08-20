@@ -24,6 +24,7 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     # Gated environment: mirror this name in each package's npm trusted-publisher config so npm only
     # accepts tokens minted from this context. Add required reviewers on the environment for a manual
     # approval gate before anything is published.

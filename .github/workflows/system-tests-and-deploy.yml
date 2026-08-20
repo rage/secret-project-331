@@ -28,6 +28,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubicloud-standard-30-ubuntu-2404
+    timeout-minutes: 45
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -103,6 +104,7 @@ jobs:
 
       - name: Setup Nix environment
         uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
 
       - name: Run pnpm install --frozen-lockfile so that shared module gets copied
         run: pnpm install --frozen-lockfile
@@ -124,10 +126,12 @@ jobs:
         # Target the same Kubernetes version as the Nix-pinned kubectl, so a flake.lock
         # bump can't silently drift the two apart.
         run: minikube start --addons ingress --memory 60g --driver docker --kubernetes-version "$(kubectl version --client -o json | jq -r '.clientVersion.gitVersion')"
+        timeout-minutes: 10
 
       - name: Build
         id: build
         run: bin/skaffold-build-test-env-and-serialize-output
+        timeout-minutes: 25
 
       - name: Store skaffold output json
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -179,6 +183,7 @@ jobs:
       - name: Deploy to local minikube
         id: deploy_local
         run: skaffold deploy --force --filename ./skaffold.production.yaml --build-artifacts=./skaffold-build-output.json
+        timeout-minutes: 10
 
       - name: Dump migration logs on failure
         if: failure()
@@ -204,16 +209,19 @@ jobs:
 
       - name: Install Playwright browsers
         run: bin/playwright-install --with-deps
+        timeout-minutes: 10
 
       - name: Run system tests
         run: pnpm run test
         working-directory: ./system-tests/
+        timeout-minutes: 20
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
         run: pnpm run test
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
+        timeout-minutes: 20
 
       # upload logs for all the services on failure
       - name: Dump kernel and system diagnostics (failure only)
@@ -338,6 +346,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     environment:
       name: production
       url: https://courses.mooc.fi
@@ -355,6 +364,7 @@ jobs:
 
       - name: Setup Nix environment
         uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
 
       - id: "auth"
         uses: "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093" # v3.0.0
@@ -388,6 +398,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -395,6 +406,7 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: Run pnpm install --frozen-lockfile in repo root
         run: pnpm install --frozen-lockfile
 

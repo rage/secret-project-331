@@ -27,7 +27,6 @@ describe("extractInlineData", () => {
     expect(result?.extension).toBe("json")
     expect(result?.mime).toBe("application/json")
     expect(JSON.parse(result?.contents ?? "")).toEqual(values)
-    // The original `data` key is dropped from the spec.
     expect(result?.specWithoutData).toEqual({ mark: "bar" })
   })
 

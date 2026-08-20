@@ -1,12 +1,13 @@
 name: Setup Nix environment
-description: Install Nix, restore the Nix store and pnpm caches, and export this repo's flake devShell (kubectl, kustomize, skaffold, minikube, node, pnpm, the pinned Rust toolchain, actionlint, zizmor, etc.) to subsequent steps
+description: Install Nix, restore the pnpm cache, and export this repo's flake devShell (kubectl, kustomize, skaffold, minikube, node, pnpm, the pinned Rust toolchain, actionlint, zizmor, etc.) to subsequent steps
 runs:
   using: composite
   steps:
     - uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
-    - uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
+      timeout-minutes: 5
     - name: Export flake devShell environment
       shell: bash
+      timeout-minutes: 5
       run: | # zizmor: ignore[github-env] every value written here comes from the pinned Nix flake or local repo files, never PR/issue-controlled input
         set -euo pipefail
         cd "$GITHUB_WORKSPACE"

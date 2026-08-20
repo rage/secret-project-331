@@ -19,7 +19,11 @@ runs:
         git config --local user.email "bot@example.com"
         git config --local user.name "github-actions[bot]"
         git add .
-        git commit -m "Update: $GITHUB_SHA" --allow-empty
+        if git diff --cached --quiet; then
+          echo "No generated-content changes to commit."
+          exit 0
+        fi
+        git commit -m "Update: $GITHUB_SHA"
         if [ -n "$GIT_SSH_COMMAND_OVERRIDE" ]; then
           GIT_SSH_COMMAND="$GIT_SSH_COMMAND_OVERRIDE" git push
         else

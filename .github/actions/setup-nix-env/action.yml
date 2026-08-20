@@ -15,9 +15,10 @@ runs:
         # by being written to $GITHUB_ENV here instead of just sourced in-process. Writing
         # to a file first (rather than `source <(nix print-dev-env)`) means a `nix` failure
         # is caught by `set -e` instead of being masked by the process substitution.
+        # The dumped script already ends with `eval "$shellHook"`, so sourcing it runs the
+        # hook once; evaluating it again here would duplicate its PATH/PKG_CONFIG_PATH exports.
         nix print-dev-env > /tmp/nix-dev-env.sh
         source /tmp/nix-dev-env.sh
-        eval "$shellHook"
 
         # Keeps CI on the exact Node version package.json declares instead of silently
         # floating with whatever flake.lock's nixpkgs revision currently pins.

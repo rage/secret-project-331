@@ -10,6 +10,7 @@ import type {
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import Echarts from "@/components/charts/Echarts"
 import type { CohortActivity } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
@@ -17,7 +18,6 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
-import Echarts from "./Echarts"
 import type { Period } from "./LineChart"
 import { DAILY_PERIOD, MONTHLY_PERIOD } from "./LineChart"
 import StatsHeader from "./StatsHeader"

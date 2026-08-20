@@ -372,6 +372,23 @@ pub fn not_handed_over_yet() -> EmailSendStatusReport {
     }
 }
 
+/// Mails claimed in the window, whatever course they belong to. One row is one address, which is
+/// what the send-rate caps govern.
+pub async fn count_sent_since(conn: &mut PgConnection, since: DateTime<Utc>) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM credit_registration_account_linking_emails
+WHERE sent_at >= $1
+  AND deleted_at IS NULL
+        "#,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 /// Mails claimed in the window, newest first, whatever course they belong to.
 pub async fn get_sent_since(
     conn: &mut PgConnection,

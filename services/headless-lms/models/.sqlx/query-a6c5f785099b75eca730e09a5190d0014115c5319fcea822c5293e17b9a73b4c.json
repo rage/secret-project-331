@@ -1,0 +1,155 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_module_id,\n  COUNT(*) AS \"total_count!\",\n  COUNT(*) FILTER (\n    WHERE state = ANY($1::credit_registration_state [])\n  ) AS \"success_count!\",\n  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE state IN ('failed_permanent', 'misregistered')\n  ) AS \"failed_count!\",\n  COUNT(*) FILTER (\n    WHERE state = 'abandoned_by_consent_withdrawal'\n  ) AS \"abandoned_count!\",\n  COUNT(*) FILTER (WHERE needs_admin_attention) AS \"needs_admin_attention_count!\",\n  COUNT(*) FILTER (WHERE state = 'pending_consent') AS \"awaiting_consent_count!\",\n  MAX(registered_at) AS \"last_registered_at\",\n  (\n    SELECT inner_cr.error_code\n    FROM credit_registrations inner_cr\n    WHERE inner_cr.course_module_id = cr.course_module_id\n      AND inner_cr.error_code IS NOT NULL\n      AND inner_cr.state <> 'abandoned_by_consent_withdrawal'\n      AND inner_cr.superseded_by_id IS NULL\n      AND inner_cr.deleted_at IS NULL\n    GROUP BY inner_cr.error_code\n    ORDER BY COUNT(*) DESC,\n      inner_cr.error_code\n    LIMIT 1\n  ) AS \"top_error_code?: CreditRegistrationErrorCode\"\nFROM credit_registrations cr\nWHERE superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY course_module_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "total_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "success_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "in_flight_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "failed_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "abandoned_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "needs_admin_attention_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "awaiting_consent_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "last_registered_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "top_error_code?: CreditRegistrationErrorCode",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "acceptor_not_found",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "sisu_temporarily_unavailable",
+                "misregistered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "a6c5f785099b75eca730e09a5190d0014115c5319fcea822c5293e17b9a73b4c"
+}

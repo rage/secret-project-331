@@ -10,11 +10,10 @@ import {
   listCreditRegistrationsForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
-import type { AdminResendAccountLinkingEmailResult } from "@/generated/api/types.generated"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
 import { MIDDLE_DOT, TONE } from "../constants"
+import { useActionResult } from "../useActionResult"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
 import { ReasonField, isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
@@ -71,7 +70,6 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [manualLinkOpen, setManualLinkOpen] = useState(false)
-  const [result, setResult] = useState<AdminResendAccountLinkingEmailResult | null>(null)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
     override_rate_caps: false,
     reason: "",
@@ -79,22 +77,15 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   const override = watch("override_rate_caps")
   const reason = watch("reason")
 
-  const mutation = useToastMutation(
-    (fields: Fields) =>
-      adminResendAccountLinkingEmail({
-        body: {
-          student_number: studentNumber,
-          course_id: courseId,
-          override_rate_caps: fields.override_rate_caps,
-          reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
-        },
-      }),
-    { notify: false },
-    {
-      onSuccess: (data) => {
-        setResult(data)
+  const { result, setResult, mutation } = useActionResult((fields: Fields) =>
+    adminResendAccountLinkingEmail({
+      body: {
+        student_number: studentNumber,
+        course_id: courseId,
+        override_rate_caps: fields.override_rate_caps,
+        reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
       },
-    },
+    }),
   )
 
   const closeDialog = () => {
@@ -166,6 +157,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
             })}
           </p>
           <p>{t("credit-registration-admin-resend-dialog-addresses-note")}</p>
+          <p>{t("credit-registration-resend-address-they-can-read-hint")}</p>
           <Checkbox
             name="override_rate_caps"
             control={control}

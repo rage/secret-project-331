@@ -211,47 +211,142 @@ WHERE actor_user_id = $1
     Ok(count)
 }
 
-pub async fn get_recent(
-    conn: &mut PgConnection,
-    limit: i64,
-) -> ModelResult<Vec<CreditRegistrationAdminActionRecord>> {
-    let res = sqlx::query_as!(
-        CreditRegistrationAdminActionRecord,
-        r#"
-SELECT *
-FROM credit_registration_admin_actions
-WHERE deleted_at IS NULL
-ORDER BY created_at DESC
-LIMIT $1
-        "#,
-        limit
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
+/// The narrowings the Audit tab applies, all of them in SQL.
+#[derive(Debug, Clone, Default)]
+pub struct CreditRegistrationAdminActionFilters<'a> {
+    pub actions: Option<&'a [CreditRegistrationAdminAction]>,
+    pub actor_user_id: Option<Uuid>,
+    /// `global_admin` or `course_teacher`. An admin and a teacher acting on the same course are
+    /// otherwise indistinguishable.
+    pub actor_role: Option<&'a str>,
+    pub target_kind: Option<CreditRegistrationAdminActionTarget>,
+    pub target_id: Option<Uuid>,
+    pub target_phase: Option<&'a str>,
+    /// Matches the course a teacher's permission authorised and a course-targeted action alike.
+    pub course_id: Option<Uuid>,
+    pub from: Option<DateTime<Utc>>,
+    pub to: Option<DateTime<Utc>>,
 }
 
-pub async fn get_by_target(
+/// One action with its actor named and the page's total attached.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CreditRegistrationAdminActionListRow {
+    pub action: CreditRegistrationAdminActionRecord,
+    pub actor_first_name: Option<String>,
+    pub actor_last_name: Option<String>,
+    pub actor_email: Option<String>,
+    /// Named for the course-targeted and teacher-authorised rows; `None` where neither applies.
+    pub course_name: Option<String>,
+    pub total_count: i64,
+}
+
+/// A page of the global action log, newest first, covering both actor kinds.
+pub async fn get_page(
     conn: &mut PgConnection,
-    target_kind: CreditRegistrationAdminActionTarget,
-    target_id: Uuid,
-) -> ModelResult<Vec<CreditRegistrationAdminActionRecord>> {
-    let res = sqlx::query_as!(
-        CreditRegistrationAdminActionRecord,
+    filters: &CreditRegistrationAdminActionFilters<'_>,
+    limit: i64,
+    offset: i64,
+) -> ModelResult<Vec<CreditRegistrationAdminActionListRow>> {
+    let rows = sqlx::query!(
         r#"
-SELECT *
-FROM credit_registration_admin_actions
-WHERE target_kind = $1
-  AND target_id = $2
-  AND deleted_at IS NULL
-ORDER BY created_at DESC
+SELECT a.id,
+  a.created_at,
+  a.updated_at,
+  a.deleted_at,
+  a.action AS "action!: CreditRegistrationAdminAction",
+  a.target_kind AS "target_kind!: CreditRegistrationAdminActionTarget",
+  a.target_id,
+  a.target_phase,
+  a.actor_user_id,
+  a.actor_role,
+  a.actor_course_id,
+  a.reason,
+  a.before_state AS "before_state?: CreditRegistrationState",
+  a.after_state AS "after_state?: CreditRegistrationState",
+  a.details,
+  a.affected_row_count,
+  ud.first_name AS "actor_first_name?",
+  ud.last_name AS "actor_last_name?",
+  ud.email AS "actor_email?",
+  c.name AS "course_name?",
+  COUNT(*) OVER () AS "total_count!"
+FROM credit_registration_admin_actions a
+  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id
+  LEFT JOIN courses c ON c.id = COALESCE(
+    a.actor_course_id,
+    CASE
+      WHEN a.target_kind = 'course' THEN a.target_id
+    END
+  )
+WHERE a.deleted_at IS NULL
+  AND (
+    $1::credit_registration_admin_action [] IS NULL
+    OR a.action = ANY($1)
+  )
+  AND ($2::uuid IS NULL OR a.actor_user_id = $2)
+  AND ($3::text IS NULL OR a.actor_role = $3)
+  AND (
+    $4::credit_registration_admin_action_target IS NULL
+    OR a.target_kind = $4
+  )
+  AND ($5::uuid IS NULL OR a.target_id = $5)
+  AND ($6::text IS NULL OR a.target_phase = $6)
+  AND (
+    $7::uuid IS NULL
+    OR a.actor_course_id = $7
+    OR (
+      a.target_kind = 'course'
+      AND a.target_id = $7
+    )
+  )
+  AND ($8::timestamptz IS NULL OR a.created_at >= $8)
+  AND ($9::timestamptz IS NULL OR a.created_at <= $9)
+ORDER BY a.created_at DESC,
+  a.id
+LIMIT $10 OFFSET $11
         "#,
-        target_kind as CreditRegistrationAdminActionTarget,
-        target_id,
+        filters.actions as Option<&[CreditRegistrationAdminAction]>,
+        filters.actor_user_id,
+        filters.actor_role,
+        filters.target_kind as Option<CreditRegistrationAdminActionTarget>,
+        filters.target_id,
+        filters.target_phase,
+        filters.course_id,
+        filters.from,
+        filters.to,
+        limit,
+        offset,
     )
     .fetch_all(conn)
     .await?;
-    Ok(res)
+    Ok(rows
+        .into_iter()
+        .map(|row| CreditRegistrationAdminActionListRow {
+            actor_first_name: row.actor_first_name,
+            actor_last_name: row.actor_last_name,
+            actor_email: row.actor_email,
+            course_name: row.course_name,
+            total_count: row.total_count,
+            action: CreditRegistrationAdminActionRecord {
+                id: row.id,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                deleted_at: row.deleted_at,
+                action: row.action,
+                target_kind: row.target_kind,
+                target_id: row.target_id,
+                target_phase: row.target_phase,
+                actor_user_id: row.actor_user_id,
+                actor_role: row.actor_role,
+                actor_course_id: row.actor_course_id,
+                reason: row.reason,
+                before_state: row.before_state,
+                after_state: row.after_state,
+                details: row.details,
+                affected_row_count: row.affected_row_count,
+            },
+        })
+        .collect())
 }
 
 pub async fn get_by_actor(
@@ -270,53 +365,6 @@ ORDER BY created_at DESC
 LIMIT $2
         "#,
         actor_user_id,
-        limit,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Actions authorised by a course's teacher permission, not actions targeting the course.
-pub async fn get_by_actor_course(
-    conn: &mut PgConnection,
-    actor_course_id: Uuid,
-    limit: i64,
-) -> ModelResult<Vec<CreditRegistrationAdminActionRecord>> {
-    let res = sqlx::query_as!(
-        CreditRegistrationAdminActionRecord,
-        r#"
-SELECT *
-FROM credit_registration_admin_actions
-WHERE actor_course_id = $1
-  AND deleted_at IS NULL
-ORDER BY created_at DESC
-LIMIT $2
-        "#,
-        actor_course_id,
-        limit,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_by_phase(
-    conn: &mut PgConnection,
-    target_phase: &str,
-    limit: i64,
-) -> ModelResult<Vec<CreditRegistrationAdminActionRecord>> {
-    let res = sqlx::query_as!(
-        CreditRegistrationAdminActionRecord,
-        r#"
-SELECT *
-FROM credit_registration_admin_actions
-WHERE target_phase = $1
-  AND deleted_at IS NULL
-ORDER BY created_at DESC
-LIMIT $2
-        "#,
-        target_phase,
         limit,
     )
     .fetch_all(conn)

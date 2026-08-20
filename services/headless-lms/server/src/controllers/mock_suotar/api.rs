@@ -1,9 +1,9 @@
 //! The six contract endpoints, one stage boundary at a time.
 //!
 //! Order per request: credential, parse, item-keyed load, the `auth`/`requestGate`/`parse` faults,
-//! `resolve` per item, then `afterWrite` and `respond`. The write-back commits before the response —
-//! or its deliberate absence — leaves the process, which is what makes a timeout that landed
-//! distinguishable from one that did not.
+//! `resolve` request-level then per item, then `afterWrite` and `respond`. The write-back commits
+//! before the response — or its deliberate absence — leaves the process, which is what makes a
+//! timeout that landed distinguishable from one that did not.
 
 use std::collections::BTreeSet;
 
@@ -323,6 +323,26 @@ async fn run(
             )
             .await;
         }
+    }
+
+    if let Some(effect) = runner
+        .request_stage(endpoint, Stage::Resolve, &addresses)
+        .await?
+        && let Some(terminal) = terminal(endpoint, &effect)
+    {
+        call.authorized = true;
+        return finish(
+            store,
+            &generation,
+            &working,
+            call,
+            runner.log,
+            terminal.delivery,
+            terminal.status,
+            terminal.request_level_code,
+            Some(terminal.effect),
+        )
+        .await;
     }
 
     let mut items = Vec::with_capacity(addresses.len());

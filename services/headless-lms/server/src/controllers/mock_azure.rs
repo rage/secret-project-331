@@ -3,9 +3,10 @@ use crate::prelude::*;
 use headless_lms_chatbot::{
     azure_chatbot::InputItem,
     chatbot_tools::{
-        ChatbotToolDeclaration,
+        AzureLLMToolDefinition, ChatbotToolDeclaration,
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
-        custom_tools::course_structure::CourseStructureTool,
+        custom_tools::course_structure::CourseStructureTool, get_chatbot_tool_definitions,
+        tool_is_answered_by_client,
     },
     cms_ai_suggestion::RESPONSE_FORMAT_NAME as CMS_SUGGESTION_FORMAT,
     course_description_summary::RESPONSE_FORMAT_NAME as COURSE_DESCRIPTION_FORMAT,
@@ -27,6 +28,47 @@ const TOOL_CALL_TRIGGER: &str = "!MOCK_TOOL_CALL!";
 /// suspends the turn instead of running anything. The turn is finished by the tool-response
 /// endpoint, whose request ends in the tool output and so gets the same text round.
 const CLIENT_TOOL_CALL_TRIGGER: &str = "!MOCK_CLIENT_TOOL_CALL!";
+
+/// Opens the trigger `!MOCK_TOOL_CALL:<tool_name>:<arguments>!`, which makes the mock call any
+/// registered tool, so exercising a new one end to end needs no scenario of its own here.
+const TOOL_CALL_BY_NAME_PREFIX: &str = "!MOCK_TOOL_CALL:";
+
+/// The trigger text that makes the mock call `tool_name` with `arguments`.
+fn tool_call_by_name_trigger(tool_name: &str, arguments: &str) -> String {
+    format!("{TOOL_CALL_BY_NAME_PREFIX}{tool_name}:{arguments}!")
+}
+
+/// A tool call a message asked the mock to make.
+struct TriggeredToolCall {
+    tool_name: String,
+    arguments: String,
+}
+
+/// Reads a [TOOL_CALL_BY_NAME_PREFIX] trigger out of `message`.
+///
+/// A learner can type the trigger into the chat, so a name no registry claims has to read as an
+/// ordinary message rather than reach the chatbot as a hallucinated call. `!` closes the trigger
+/// and so cannot appear in `arguments`.
+fn parse_tool_call_by_name(message: &str) -> Option<TriggeredToolCall> {
+    let (_, rest) = message.split_once(TOOL_CALL_BY_NAME_PREFIX)?;
+    let (call, _) = rest.split_once('!')?;
+    let (tool_name, arguments) = call.split_once(':')?;
+    is_registered_tool(tool_name).then(|| TriggeredToolCall {
+        tool_name: tool_name.to_string(),
+        arguments: arguments.to_string(),
+    })
+}
+
+/// Whether either registry claims `tool_name`.
+fn is_registered_tool(tool_name: &str) -> bool {
+    tool_is_answered_by_client(tool_name)
+        || get_chatbot_tool_definitions()
+            .iter()
+            .any(|definition| match definition {
+                AzureLLMToolDefinition::Function(function) => function.name == tool_name,
+                AzureLLMToolDefinition::Search(_) => false,
+            })
+}
 
 /// The parts of a request the mock picks its answer from.
 struct MockRequest {
@@ -76,6 +118,14 @@ impl MockRequest {
         !self.stream && self.format_name.as_deref() == Some(format_name)
     }
 
+    /// The tool call a streamed chat message asks the mock to make, if any.
+    fn triggered_tool_call(&self) -> Option<TriggeredToolCall> {
+        if !self.stream {
+            return None;
+        }
+        parse_tool_call_by_name(self.message.as_deref()?)
+    }
+
     /// Whether this is a streamed chat message containing `trigger`.
     fn message_contains(&self, trigger: &str) -> bool {
         self.stream
@@ -94,8 +144,8 @@ struct Scenario {
     /// Names the scenario in the handler's log line and in test failures.
     name: &'static str,
     matches: fn(&MockRequest) -> bool,
-    /// Builds the answer against the base url its document urls have to point at.
-    respond: fn(&str) -> String,
+    /// Builds the answer to `request` against the base url its document urls have to point at.
+    respond: fn(&MockRequest, &str) -> String,
     /// A request this scenario answers.
     #[cfg_attr(not(test), allow(dead_code))]
     example: fn() -> MockRequest,
@@ -112,25 +162,25 @@ const SCENARIOS: &[Scenario] = &[
     Scenario {
         name: "the next message suggestion",
         matches: |request| request.wants_format(MESSAGE_SUGGESTION_FORMAT),
-        respond: |_| blocking_response(MESSAGE_SUGGESTION_PAYLOAD),
+        respond: |_, _| blocking_response(MESSAGE_SUGGESTION_PAYLOAD),
         example: || MockRequest::structured_output(MESSAGE_SUGGESTION_FORMAT),
     },
     Scenario {
         name: "the CMS paragraph suggestion",
         matches: |request| request.wants_format(CMS_SUGGESTION_FORMAT),
-        respond: |_| blocking_response(CMS_SUGGESTION_PAYLOAD),
+        respond: |_, _| blocking_response(CMS_SUGGESTION_PAYLOAD),
         example: || MockRequest::structured_output(CMS_SUGGESTION_FORMAT),
     },
     Scenario {
         name: "the course description summary",
         matches: |request| request.wants_format(COURSE_DESCRIPTION_FORMAT),
-        respond: |_| blocking_response(COURSE_DESCRIPTION_PAYLOAD),
+        respond: |_, _| blocking_response(COURSE_DESCRIPTION_PAYLOAD),
         example: || MockRequest::structured_output(COURSE_DESCRIPTION_FORMAT),
     },
     Scenario {
         name: "the client tool call round",
         matches: |request| request.message_contains(CLIENT_TOOL_CALL_TRIGGER),
-        respond: |_| {
+        respond: |_, _| {
             function_call_round(
                 <AskMultipleChoiceQuestionTool as ChatbotToolDeclaration>::NAME,
                 MOCK_MULTIPLE_CHOICE_ARGUMENTS,
@@ -139,9 +189,25 @@ const SCENARIOS: &[Scenario] = &[
         example: || MockRequest::chat(CLIENT_TOOL_CALL_TRIGGER),
     },
     Scenario {
+        name: "the tool call round for a named tool",
+        matches: |request| request.triggered_tool_call().is_some(),
+        respond: |request, _| {
+            let call = request
+                .triggered_tool_call()
+                .expect("the scenario only answers a request carrying a tool call trigger");
+            function_call_round(&call.tool_name, &call.arguments)
+        },
+        example: || {
+            MockRequest::chat(&tool_call_by_name_trigger(
+                <CourseStructureTool as ChatbotToolDeclaration>::NAME,
+                "{}",
+            ))
+        },
+    },
+    Scenario {
         name: "the function call round",
         matches: |request| request.message_contains(TOOL_CALL_TRIGGER),
-        respond: |_| {
+        respond: |_, _| {
             function_call_round(<CourseStructureTool as ChatbotToolDeclaration>::NAME, "{}")
         },
         example: || MockRequest::chat(TOOL_CALL_TRIGGER),
@@ -149,13 +215,13 @@ const SCENARIOS: &[Scenario] = &[
     Scenario {
         name: "the answer after a tool ran",
         matches: |request| request.stream && request.message.is_none(),
-        respond: |_| tool_answer_round(),
+        respond: |_, _| tool_answer_round(),
         example: MockRequest::after_tool_run,
     },
     Scenario {
         name: "the default chat answer",
         matches: |request| request.stream && request.message.is_some(),
-        respond: search_and_text_round,
+        respond: |_, base_url| search_and_text_round(base_url),
         example: || MockRequest::chat("Tell me more"),
     },
 ];
@@ -219,7 +285,7 @@ async fn mock_azure_chat_responses(
         )
     })?;
     debug!(scenario = scenario.name, "Answering as the mock Azure API");
-    let res = (scenario.respond)(&app_conf.base_url);
+    let res = (scenario.respond)(&request, &app_conf.base_url);
 
     let token = skip_authorize();
     token.authorized_ok(res)
@@ -518,11 +584,7 @@ fn search_and_text_round(base_url: &str) -> String {
         })
     };
 
-    let mut events = vec![(
-        "response.in_progress",
-        json!({"response": response_object(&response_id)}),
-    )];
-    events.extend(reasoning_item_events(&response_id));
+    let mut events = reasoning_item_events(&response_id);
     events.extend([
         (
             "response.output_item.added",
@@ -583,7 +645,7 @@ fn search_results(base_url: &str) -> String {
         json!({
             "id": id,
             "content": content,
-            "filepath": document.filepath,
+            "filepath": document.id,
             "title": document.title,
             "url": "",
             "score": 0.016666668,
@@ -698,10 +760,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
 mod tests {
     use headless_lms_chatbot::{
         azure_chatbot::{AISearchOutput, OutputItem, ResponseOutput},
-        chatbot_tools::{
-            AzureLLMToolDefinition, ClientChatbotTool, get_chatbot_tool_definitions,
-            tool_is_answered_by_client,
-        },
+        chatbot_tools::ClientChatbotTool,
         llm_utils::{LLMResponse, parse_text_completion},
     };
     use regex::Regex;
@@ -729,7 +788,7 @@ mod tests {
     /// The body the mock answers `request` with, through the dispatch the handler runs.
     fn respond(request: &MockRequest) -> String {
         let scenario = pick_scenario(request).expect("the mock answers this request");
-        (scenario.respond)(BASE_URL)
+        (scenario.respond)(request, BASE_URL)
     }
 
     /// Every registered scenario's example body of the given kind, named for failure messages.
@@ -737,7 +796,10 @@ mod tests {
         SCENARIOS
             .iter()
             .filter(|scenario| (scenario.example)().stream == stream)
-            .map(|scenario| (scenario.name, (scenario.respond)(BASE_URL)))
+            .map(|scenario| {
+                let example = (scenario.example)();
+                (scenario.name, (scenario.respond)(&example, BASE_URL))
+            })
             .collect()
     }
 

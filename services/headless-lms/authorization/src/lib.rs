@@ -8,6 +8,8 @@ answer requests are expected to require one before responding.
 
 pub mod error;
 
+use std::borrow::Cow;
+
 use error::{AuthorizationError, AuthorizationErrorType, AuthorizationResult, authorization_err};
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::chatbot_configurations::ChatbotConfiguration;
@@ -45,6 +47,11 @@ pub enum Action {
     ViewUserProgressOrDetails,
     ViewInternalCourseStructure,
     ViewStats,
+    /// Seeing a course's credit registrations and acting on them. Separate from
+    /// `ViewUserProgressOrDetails` and `Edit` because these surfaces carry every student's unmasked
+    /// student number, which is their key in the national study registry, and an assistant on a
+    /// course is often another student on it.
+    ViewAndManageCreditRegistrations,
     Administrate,
 }
 
@@ -105,29 +112,73 @@ pub fn skip_authorize() -> AuthorizationToken {
     AuthorizationToken(())
 }
 
+/// Where a check gets the user's roles: a snapshot the caller already holds, or a query this
+/// crate runs only if the check gets far enough to need one.
+enum RoleSource<'roles> {
+    Fetched(&'roles [Role]),
+    OfUser(Option<Uuid>),
+}
+
+impl<'roles> RoleSource<'roles> {
+    async fn resolve(&self, conn: &mut PgConnection) -> AuthorizationResult<Cow<'roles, [Role]>> {
+        match *self {
+            Self::Fetched(roles) => Ok(Cow::Borrowed(roles)),
+            Self::OfUser(user_id) => Ok(Cow::Owned(fetch_user_roles(conn, user_id).await?)),
+        }
+    }
+}
+
 /** Handles authorization for global chatbots and course chatbots */
 pub async fn authorize_access_to_chatbot(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     chatbot_configuration: &ChatbotConfiguration,
 ) -> AuthorizationResult<AuthorizationToken> {
-    let token = if chatbot_configuration.publicly_accessible {
-        skip_authorize()
-    } else {
-        match (user_id, chatbot_configuration.course_id) {
-            (Some(_), Some(course_id)) => {
-                authorize_access_to_course_material(conn, user_id, course_id).await?
-            }
-            _ => {
-                return Err(authorization_err!(
-                    Unauthorized,
-                    "You are not authorized to access the chatbot.".to_string()
-                ));
-            }
-        }
-    };
+    access_to_chatbot(
+        conn,
+        user_id,
+        chatbot_configuration,
+        RoleSource::OfUser(user_id),
+    )
+    .await
+}
 
-    Ok(token)
+/// Same as [authorize_access_to_chatbot], but takes already-fetched roles instead of querying
+/// for them.
+pub async fn authorize_access_to_chatbot_with_fetched_list_of_roles(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    chatbot_configuration: &ChatbotConfiguration,
+    user_roles: &[Role],
+) -> AuthorizationResult<AuthorizationToken> {
+    access_to_chatbot(
+        conn,
+        user_id,
+        chatbot_configuration,
+        RoleSource::Fetched(user_roles),
+    )
+    .await
+}
+
+async fn access_to_chatbot(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    chatbot_configuration: &ChatbotConfiguration,
+    roles: RoleSource<'_>,
+) -> AuthorizationResult<AuthorizationToken> {
+    if chatbot_configuration.publicly_accessible {
+        return Ok(skip_authorize());
+    }
+
+    match (user_id, chatbot_configuration.course_id) {
+        (Some(_), Some(course_id)) => {
+            access_to_course_material(conn, user_id, course_id, roles).await
+        }
+        _ => Err(authorization_err!(
+            Unauthorized,
+            "You are not authorized to access the chatbot.".to_string()
+        )),
+    }
 }
 
 /**  Can be used to check whether user is allowed to view some course material */
@@ -136,7 +187,27 @@ pub async fn authorize_access_to_course_material(
     user_id: Option<Uuid>,
     course_id: Uuid,
 ) -> AuthorizationResult<AuthorizationToken> {
-    let token = if models::courses::is_draft(conn, course_id).await? {
+    access_to_course_material(conn, user_id, course_id, RoleSource::OfUser(user_id)).await
+}
+
+/// Same as [authorize_access_to_course_material], but takes already-fetched roles instead of
+/// querying for them.
+pub async fn authorize_access_to_course_material_with_fetched_list_of_roles(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Uuid,
+    user_roles: &[Role],
+) -> AuthorizationResult<AuthorizationToken> {
+    access_to_course_material(conn, user_id, course_id, RoleSource::Fetched(user_roles)).await
+}
+
+async fn access_to_course_material(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Uuid,
+    roles: RoleSource<'_>,
+) -> AuthorizationResult<AuthorizationToken> {
+    if models::courses::is_draft(conn, course_id).await? {
         info!("Course is in draft mode");
         if user_id.is_none() {
             return Err(authorization_err!(
@@ -144,45 +215,42 @@ pub async fn authorize_access_to_course_material(
                 "This course is currently in draft mode and not publicly available. Please log in if you have access permissions.".to_string()
             ));
         }
-        authorize(
+        let user_roles = roles.resolve(conn).await?;
+        return authorize_with_fetched_list_of_roles(
             conn,
             Action::ViewMaterial,
-            user_id,
             Resource::Course(course_id),
+            &user_roles,
         )
-        .await?
-    } else if models::courses::is_joinable_by_code_only(conn, course_id).await? {
+        .await;
+    }
+
+    if models::courses::is_joinable_by_code_only(conn, course_id).await? {
         info!("Course is joinable by code only");
-        if let Some(user_id_value) = user_id {
-            if models::join_code_uses::check_if_user_has_access_to_course(
-                conn,
-                user_id_value,
-                course_id,
-            )
-            .await
-            .is_err()
-            {
-                authorize(
-                    conn,
-                    Action::ViewMaterial,
-                    user_id,
-                    Resource::Course(course_id),
-                )
-                .await?;
-            }
-        } else {
+        let Some(user_id) = user_id else {
             return Err(authorization_err!(
                 Unauthorized,
                 "This course requires authentication to access".to_string()
             ));
+        };
+        if models::join_code_uses::check_if_user_has_access_to_course(conn, user_id, course_id)
+            .await
+            .is_err()
+        {
+            let user_roles = roles.resolve(conn).await?;
+            authorize_with_fetched_list_of_roles(
+                conn,
+                Action::ViewMaterial,
+                Resource::Course(course_id),
+                &user_roles,
+            )
+            .await?;
         }
-        skip_authorize()
-    } else {
-        // The course is publicly available, no need to authorize
-        skip_authorize()
-    };
+        return Ok(skip_authorize());
+    }
 
-    Ok(token)
+    // The course is publicly available, no need to authorize
+    Ok(skip_authorize())
 }
 
 /** Can be used to check whether a user is allowed to view some course material. Chapters can be closed and limited to certain people only. */
@@ -191,6 +259,41 @@ pub async fn can_user_view_chapter(
     user_id: Option<Uuid>,
     course_id: Option<Uuid>,
     chapter_id: Option<Uuid>,
+) -> AuthorizationResult<bool> {
+    user_can_view_chapter(
+        conn,
+        user_id,
+        course_id,
+        chapter_id,
+        RoleSource::OfUser(user_id),
+    )
+    .await
+}
+
+/// Same as [can_user_view_chapter], but takes already-fetched roles instead of querying for them.
+pub async fn can_user_view_chapter_with_fetched_list_of_roles(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Option<Uuid>,
+    chapter_id: Option<Uuid>,
+    user_roles: &[Role],
+) -> AuthorizationResult<bool> {
+    user_can_view_chapter(
+        conn,
+        user_id,
+        course_id,
+        chapter_id,
+        RoleSource::Fetched(user_roles),
+    )
+    .await
+}
+
+async fn user_can_view_chapter(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Option<Uuid>,
+    chapter_id: Option<Uuid>,
+    roles: RoleSource<'_>,
 ) -> AuthorizationResult<bool> {
     if let Some(course_id) = course_id
         && let Some(chapter_id) = chapter_id
@@ -201,15 +304,16 @@ pub async fn can_user_view_chapter(
         }
         // If the user has been granted access to view the material, then they can see the unopened chapters too
         // This is important because sometimes teachers wish to test unopened chapters with real students
-        let permission = authorize(
+        let user_roles = roles.resolve(conn).await?;
+        // A check that cannot be completed is no reason to reveal an unopened chapter.
+        return Ok(is_permitted(
             conn,
             Action::ViewMaterial,
-            user_id,
             Resource::Course(course_id),
+            &user_roles,
         )
-        .await;
-
-        return Ok(permission.is_ok());
+        .await
+        .unwrap_or(false));
     }
     Ok(true)
 }
@@ -231,7 +335,7 @@ pub async fn authorize(
 ) -> AuthorizationResult<AuthorizationToken> {
     let user_roles = fetch_user_roles(conn, user_id).await?;
 
-    authorize_with_fetched_list_of_roles(conn, action, user_id, resource, &user_roles).await
+    authorize_with_fetched_list_of_roles(conn, action, resource, &user_roles).await
 }
 
 /// Whether the user holds a global admin role.
@@ -245,15 +349,13 @@ pub async fn is_user_global_admin(
 ) -> AuthorizationResult<bool> {
     let user_roles = fetch_user_roles(conn, Some(user_id)).await?;
 
-    Ok(authorize_with_fetched_list_of_roles(
+    is_permitted(
         conn,
         Action::Administrate,
-        Some(user_id),
         Resource::GlobalPermissions,
         &user_roles,
     )
     .await
-    .is_ok())
 }
 
 /// The roles a user holds, for callers that check several permissions and want to pay for the
@@ -280,7 +382,7 @@ pub async fn fetch_user_roles(
 
 /// Builds the generic Forbidden error shown to the user, nesting the actual roles and attempted
 /// action in the source error so they only surface in logs.
-fn create_authorization_error(user_roles: &[Role], action: Option<Action>) -> AuthorizationError {
+fn create_authorization_error(user_roles: &[Role], action: Action) -> AuthorizationError {
     let mut detail_message = String::new();
 
     if user_roles.is_empty() {
@@ -295,9 +397,7 @@ fn create_authorization_error(user_roles: &[Role], action: Option<Action>) -> Au
         detail_message.push_str(&roles_str);
     }
 
-    if let Some(act) = action {
-        detail_message.push_str(&format!("\nAction attempted: {:?}", act));
-    }
+    detail_message.push_str(&format!("\nAction attempted: {:?}", action));
 
     authorization_err!(
         Forbidden,
@@ -312,23 +412,38 @@ fn create_authorization_error(user_roles: &[Role], action: Option<Action>) -> Au
 pub async fn authorize_with_fetched_list_of_roles(
     conn: &mut PgConnection,
     action: Action,
-    _user_id: Option<Uuid>,
     resource: Resource,
     user_roles: &[Role],
 ) -> AuthorizationResult<AuthorizationToken> {
+    if is_permitted(conn, action, resource, user_roles).await? {
+        Ok(AuthorizationToken(()))
+    } else {
+        Err(create_authorization_error(user_roles, action))
+    }
+}
+
+/// Whether `user_roles` allow `action` on `resource`.
+///
+/// The boolean answer for callers that ask a permission question instead of gating on it: a
+/// denial costs no error, and therefore no backtrace, span trace or roles dump. Errors only
+/// when the check itself cannot be completed.
+pub async fn is_permitted(
+    conn: &mut PgConnection,
+    action: Action,
+    resource: Resource,
+    user_roles: &[Role],
+) -> AuthorizationResult<bool> {
     for role in user_roles {
         if role.is_global() && has_permission(role.role, action) {
-            return Ok(AuthorizationToken(()));
+            return Ok(true);
         }
     }
 
     // for this resource, the domain of the role does not matter (e.g. organization role, course role, etc.)
     if resource == Resource::AnyCourse {
-        for role in user_roles {
-            if has_permission(role.role, action) {
-                return Ok(AuthorizationToken(()));
-            }
-        }
+        return Ok(user_roles
+            .iter()
+            .any(|role| has_permission(role.role, action)));
     }
 
     match resource {
@@ -376,7 +491,7 @@ pub async fn authorize_with_fetched_list_of_roles(
                 models::exercise_task_gradings::get_course_or_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
-        Resource::Organization(id) => check_organization_permission(user_roles, action, id).await,
+        Resource::Organization(id) => Ok(check_organization_permission(user_roles, action, id)),
         Resource::Page(id) => {
             // a page can be part of a course or an exam
             let course_or_exam_id = models::pages::get_course_and_exam_id(conn, id).await?;
@@ -393,27 +508,20 @@ pub async fn authorize_with_fetched_list_of_roles(
         | Resource::ExerciseService
         | Resource::GlobalPermissions => {
             // permissions for these resources have already been checked
-            Err(create_authorization_error(user_roles, Some(action)))
+            Ok(false)
         }
     }
 }
 
-async fn check_organization_permission(
-    roles: &[Role],
-    action: Action,
-    organization_id: Uuid,
-) -> AuthorizationResult<AuthorizationToken> {
+fn check_organization_permission(roles: &[Role], action: Action, organization_id: Uuid) -> bool {
     if action == Action::View {
         // anyone can view an organization regardless of roles
-        return Ok(AuthorizationToken(()));
+        return true;
     };
 
-    for role in roles {
-        if role.is_role_for_organization(organization_id) && has_permission(role.role, action) {
-            return Ok(AuthorizationToken(()));
-        }
-    }
-    Err(create_authorization_error(roles, Some(action)))
+    roles.iter().any(|role| {
+        role.is_role_for_organization(organization_id) && has_permission(role.role, action)
+    })
 }
 
 /// Also checks organization role which is valid for courses.
@@ -422,14 +530,19 @@ async fn check_course_permission(
     roles: &[Role],
     action: Action,
     course_id: Uuid,
-) -> AuthorizationResult<AuthorizationToken> {
-    for role in roles {
-        if role.is_role_for_course(course_id) && has_permission(role.role, action) {
-            return Ok(AuthorizationToken(()));
-        }
+) -> AuthorizationResult<bool> {
+    if roles
+        .iter()
+        .any(|role| role.is_role_for_course(course_id) && has_permission(role.role, action))
+    {
+        return Ok(true);
     }
     let organization_id = models::courses::get_organization_id(conn, course_id).await?;
-    check_organization_permission(roles, action, organization_id).await
+    Ok(check_organization_permission(
+        roles,
+        action,
+        organization_id,
+    ))
 }
 
 /// Also checks organization and course roles which are valid for course instances.
@@ -438,7 +551,7 @@ async fn check_course_instance_permission(
     roles: &[Role],
     mut action: Action,
     course_instance_id: Uuid,
-) -> AuthorizationResult<AuthorizationToken> {
+) -> AuthorizationResult<bool> {
     // if trying to View a course instance that is not open, we check for permission to Teach
     if action == Action::View
         && !models::course_instances::is_open(conn, course_instance_id).await?
@@ -446,11 +559,10 @@ async fn check_course_instance_permission(
         action = Action::Teach;
     }
 
-    for role in roles {
-        if role.is_role_for_course_instance(course_instance_id) && has_permission(role.role, action)
-        {
-            return Ok(AuthorizationToken(()));
-        }
+    if roles.iter().any(|role| {
+        role.is_role_for_course_instance(course_instance_id) && has_permission(role.role, action)
+    }) {
+        return Ok(true);
     }
     let course_id = models::course_instances::get_course_id(conn, course_instance_id).await?;
     check_course_permission(conn, roles, action, course_id).await
@@ -462,14 +574,19 @@ async fn check_exam_permission(
     roles: &[Role],
     action: Action,
     exam_id: Uuid,
-) -> AuthorizationResult<AuthorizationToken> {
-    for role in roles {
-        if role.is_role_for_exam(exam_id) && has_permission(role.role, action) {
-            return Ok(AuthorizationToken(()));
-        }
+) -> AuthorizationResult<bool> {
+    if roles
+        .iter()
+        .any(|role| role.is_role_for_exam(exam_id) && has_permission(role.role, action))
+    {
+        return Ok(true);
     }
     let organization_id = models::exams::get_organization_id(conn, exam_id).await?;
-    check_organization_permission(roles, action, organization_id).await
+    Ok(check_organization_permission(
+        roles,
+        action,
+        organization_id,
+    ))
 }
 
 async fn check_course_or_exam_permission(
@@ -477,7 +594,7 @@ async fn check_course_or_exam_permission(
     roles: &[Role],
     action: Action,
     course_or_exam_id: CourseOrExamId,
-) -> AuthorizationResult<AuthorizationToken> {
+) -> AuthorizationResult<bool> {
     match course_or_exam_id {
         CourseOrExamId::Course(course_id) => {
             check_course_permission(conn, roles, action, course_id).await
@@ -490,7 +607,7 @@ async fn check_study_registry_permission(
     conn: &mut PgConnection,
     secret_key: String,
     action: Action,
-) -> AuthorizationResult<AuthorizationToken> {
+) -> AuthorizationResult<bool> {
     let _registrar = models::study_registry_registrars::get_by_secret_key(conn, &secret_key)
         .await
         .map_err(|original_error| {
@@ -500,7 +617,7 @@ async fn check_study_registry_permission(
                 original_error
             )
         })?;
-    Ok(AuthorizationToken(()))
+    Ok(true)
 }
 
 fn has_permission(user_role: UserRole, action: Action) -> bool {
@@ -523,6 +640,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | ViewUserProgressOrDetails
                 | ViewInternalCourseStructure
                 | ViewStats
+                | ViewAndManageCreditRegistrations
         ),
         Assistant => matches!(
             action,

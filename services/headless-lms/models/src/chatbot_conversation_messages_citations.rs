@@ -176,9 +176,8 @@ pub async fn attach_turn_citations_to_message(
     conn: &mut PgConnection,
     conversation_id: Uuid,
     conversation_message_id: Uuid,
-) -> ModelResult<Vec<ChatbotConversationMessageCitation>> {
-    let res = sqlx::query_as!(
-        ChatbotConversationMessageCitation,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
         r#"
 UPDATE chatbot_conversation_messages_citations
 SET conversation_message_id = $1
@@ -204,7 +203,7 @@ WHERE conversation_id = $2
         0
       )
   )
-RETURNING *
+RETURNING id
         "#,
         conversation_message_id,
         conversation_id
@@ -218,42 +217,11 @@ RETURNING *
 mod tests {
     use super::*;
     use crate::{
-        chatbot_configurations::{self, NewChatbotConf},
-        chatbot_conversation_message_messages::{ChatbotConversationMessageMessage, MessageRole},
-        chatbot_conversation_message_tool_calls::{ChatbotConversationMessageToolCall, ToolKind},
-        chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
-        chatbot_conversation_messages::{self, ChatbotConversationMessage, Message},
-        chatbot_conversations,
+        chatbot_conversation_message_messages::MessageRole,
+        chatbot_conversation_message_tool_calls::ToolKind,
+        chatbot_conversation_messages::{self, ChatbotConversationMessage},
         test_helper::*,
     };
-
-    /// A publicly accessible chatbot configuration and a conversation for it. Needs no course:
-    /// nothing here reads the configuration's course.
-    async fn insert_conversation(conn: &mut PgConnection) -> Uuid {
-        let unique = Uuid::new_v4().to_string();
-        let configuration = chatbot_configurations::insert(
-            conn,
-            PKeyPolicy::Generate,
-            NewChatbotConf {
-                chatbot_name: unique.clone(),
-                model_id: Uuid::new_v4(),
-                publicly_accessible: true,
-                ..Default::default()
-            },
-        )
-        .await
-        .unwrap();
-        chatbot_conversations::create_for_user_and_configuration(
-            conn,
-            PKeyPolicy::Generate,
-            None,
-            Some(unique),
-            configuration.id,
-        )
-        .await
-        .unwrap()
-        .id
-    }
 
     async fn insert_text_message(
         conn: &mut PgConnection,
@@ -263,17 +231,7 @@ mod tests {
     ) -> ChatbotConversationMessage {
         chatbot_conversation_messages::insert(
             conn,
-            ChatbotConversationMessage {
-                conversation_id,
-                message: Message::Text(ChatbotConversationMessageMessage {
-                    text: "text".to_string(),
-                    message_role: role,
-                    message_is_complete: true,
-                    response_id: response_id.map(|id| id.to_string()),
-                    ..Default::default()
-                }),
-                ..Default::default()
-            },
+            chatbot_text_message(conversation_id, role, "text", response_id),
         )
         .await
         .unwrap()
@@ -287,17 +245,12 @@ mod tests {
     ) -> ChatbotConversationMessage {
         chatbot_conversation_messages::insert(
             conn,
-            ChatbotConversationMessage {
+            chatbot_tool_call_message(
                 conversation_id,
-                message: Message::ToolCall(ChatbotConversationMessageToolCall {
-                    tool_name: "ask_multiple_choice_question".to_string(),
-                    tool_call_id: tool_call_id.to_string(),
-                    tool_kind: ToolKind::ClientTool,
-                    response_id: response_id.to_string(),
-                    ..Default::default()
-                }),
-                ..Default::default()
-            },
+                tool_call_id,
+                ToolKind::ClientTool,
+                response_id,
+            ),
         )
         .await
         .unwrap()
@@ -311,20 +264,19 @@ mod tests {
     ) -> ChatbotConversationMessage {
         chatbot_conversation_messages::insert(
             conn,
-            ChatbotConversationMessage {
+            chatbot_tool_output_message(
                 conversation_id,
-                message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
-                    output: "output".to_string(),
-                    tool_call_id: tool_call_id.to_string(),
-                    tool_kind: ToolKind::ClientTool,
-                    response_id: response_id.to_string(),
-                    ..Default::default()
-                }),
-                ..Default::default()
-            },
+                tool_call_id,
+                ToolKind::ClientTool,
+                response_id,
+            ),
         )
         .await
         .unwrap()
+    }
+
+    fn citation_ids(citations: &[ChatbotConversationMessageCitation]) -> Vec<Uuid> {
+        citations.iter().map(|citation| citation.id).collect()
     }
 
     async fn insert_citation(
@@ -354,7 +306,7 @@ mod tests {
     #[tokio::test]
     async fn citations_of_a_suspended_turn_reach_the_message_that_cites_them() {
         insert_data!(:tx);
-        let conversation = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         insert_text_message(tx.as_mut(), conversation, MessageRole::User, None).await;
         let search_output =
             insert_tool_output(tx.as_mut(), conversation, "call_search", "resp_search").await;
@@ -374,10 +326,7 @@ mod tests {
             .unwrap();
 
         let reachable = get_by_message_id(tx.as_mut(), answer.id).await.unwrap();
-        assert_eq!(
-            reachable.iter().map(|c| c.id).collect::<Vec<Uuid>>(),
-            vec![citation.id]
-        );
+        assert_eq!(citation_ids(&reachable), vec![citation.id]);
     }
 
     /// Citations of a turn that never answered belong to no message the learner reads, and moving
@@ -385,7 +334,7 @@ mod tests {
     #[tokio::test]
     async fn citations_of_an_earlier_turn_are_left_where_they_are() {
         insert_data!(:tx);
-        let conversation = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         insert_text_message(tx.as_mut(), conversation, MessageRole::User, None).await;
         let abandoned_search =
             insert_tool_output(tx.as_mut(), conversation, "call_search", "resp_search").await;
@@ -412,10 +361,7 @@ mod tests {
         let left = get_by_message_id(tx.as_mut(), abandoned_search.id)
             .await
             .unwrap();
-        assert_eq!(
-            left.iter().map(|c| c.id).collect::<Vec<Uuid>>(),
-            vec![orphan.id]
-        );
+        assert_eq!(citation_ids(&left), vec![orphan.id]);
     }
 
     /// A citation belongs to one conversation, and nothing outside that conversation may claim it,
@@ -423,8 +369,9 @@ mod tests {
     #[tokio::test]
     async fn citations_of_another_conversation_are_not_touched() {
         insert_data!(:tx);
-        let conversation = insert_conversation(tx.as_mut()).await;
-        let other_conversation = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
+        let (_other_configuration, other_conversation) =
+            insert_chatbot_conversation(tx.as_mut()).await;
         insert_text_message(tx.as_mut(), other_conversation, MessageRole::User, None).await;
         let other_search = insert_tool_output(
             tx.as_mut(),
@@ -449,14 +396,9 @@ mod tests {
             .unwrap();
 
         assert!(moved.is_empty());
-        assert_eq!(
-            get_by_message_id(tx.as_mut(), other_search.id)
-                .await
-                .unwrap()
-                .iter()
-                .map(|c| c.id)
-                .collect::<Vec<Uuid>>(),
-            vec![other_citation.id]
-        );
+        let untouched = get_by_message_id(tx.as_mut(), other_search.id)
+            .await
+            .unwrap();
+        assert_eq!(citation_ids(&untouched), vec![other_citation.id]);
     }
 }

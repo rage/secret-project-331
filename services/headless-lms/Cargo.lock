@@ -2790,7 +2790,6 @@ dependencies = [
  "backtrace",
  "bytes",
  "chrono",
- "dotenvy",
  "futures",
  "futures-util",
  "headless-lms-authorization",

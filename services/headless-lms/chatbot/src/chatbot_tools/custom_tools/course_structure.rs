@@ -1,18 +1,16 @@
-use indexmap::IndexMap;
-
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::pages;
 use headless_lms_utils::document_schema_processor::get_learning_objectives;
 use sqlx::PgConnection;
 
 use crate::{
-    azure_chatbot::{ChatbotUserContext, JSONType, Schema},
     chatbot_error::chatbot_err,
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotToolDeclaration, LLMToolType,
-        ToolProperties,
+        ToolProperties, no_parameters, tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
+    user_context::ChatbotUserContext,
 };
 
 pub type CourseStructureTool = ToolProperties<CourseStructureState, CourseStructureArguments>;
@@ -69,27 +67,24 @@ pub struct CourseStructureArguments {}
 impl ChatbotToolDeclaration for CourseStructureTool {
     const NAME: &'static str = "course_structure";
 
+    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: Self::NAME.to_string(),
             description: "Get the course structure as an ordered list of all course pages. The structure lists all pages, chapters and modules that are part of the course. Each page is listed with its title, its place in the course structure (which chapter it is inside of, if any), and its learning objectives, if any. Information about the course pages' content can be found with the document_lookup tool.".to_string(),
-            parameters: Schema {
-                type_field: JSONType::Object,
-                description: None,
-                properties: IndexMap::new(),
-                required: vec![],
-                additional_properties: false,
-            },
+            parameters: no_parameters(),
             strict: true,
         }
     }
 }
 
 impl ChatbotTool for CourseStructureTool {
-    type State = CourseStructureState;
     type Arguments = CourseStructureArguments;
 
+    /// The LLM calls this tool without arguments, so whatever it emitted is ignored rather than
+    /// deserialized: an empty argument string is not valid JSON.
     fn parse_arguments(_args_string: String) -> ChatbotResult<Self::Arguments> {
         Ok(CourseStructureArguments {})
     }

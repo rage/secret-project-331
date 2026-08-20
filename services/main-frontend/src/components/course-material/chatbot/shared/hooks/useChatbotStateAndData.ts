@@ -1,6 +1,5 @@
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { useAtomValue } from "jotai"
-import { useEffect, useReducer, useRef, useState } from "react"
+import { useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
@@ -8,7 +7,6 @@ import type {
   ChatbotConversation,
   ChatbotConversationInfo,
   ChatbotPageContext,
-  ChatbotSurface,
   ClientToolAnswer,
   SendChatbotMessageData,
   SendChatbotToolResponseData,
@@ -18,12 +16,11 @@ import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurre
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
-import { currentPageIdAtom } from "@/state/course-material/selectors"
 import { getSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"
-import { openQuestions } from "../multipleChoiceQuestions"
+import { hasOpenClientToolCall } from "../messageClassification"
 import readChatbotResponseStream from "../readChatbotResponseStream"
 
 const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
@@ -32,31 +29,19 @@ const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
 const SEND_CHATBOT_TOOL_RESPONSE_PATH: SendChatbotToolResponseData["url"] =
   "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response"
 
-/** Which choice of which waiting question the learner picked. */
-export interface MultipleChoiceAnswer {
+/**
+ * One turn's request, paired with the endpoint it belongs to so a message body can never be sent
+ * to the tool-response endpoint or vice versa.
+ */
+type ChatbotTurnRequest =
+  | { url: typeof SEND_CHATBOT_MESSAGE_PATH; body: SendChatbotMessageData["body"] }
+  | { url: typeof SEND_CHATBOT_TOOL_RESPONSE_PATH; body: SendChatbotToolResponseData["body"] }
+
+/** Which client tool call the learner answered, and with what. */
+export interface ClientToolResponse {
   toolCallId: string
-  /** Position in the list of choices the question offered. */
-  choiceIndex: number
+  answer: ClientToolAnswer
 }
-
-/**
- * The wire shape `AskMultipleChoiceQuestionTool::parse_response` deserializes, in
- * `services/headless-lms/chatbot/src/chatbot_tools/client_tools/ask_multiple_choice_question.rs`.
- * `ClientToolAnswer["data"]["result"]` is generated as an open record, so this declaration and the
- * test that pins it are the only things keeping the key from drifting away from the backend.
- */
-interface MultipleChoiceAnswerResult {
-  choice_index: number
-}
-
-/**
- * The answer body for a multiple choice question. The index is resolved against the choices the
- * model offered on the server, so the answer never carries text the model then reads back.
- */
-export const multipleChoiceAnswer = (choiceIndex: number): ClientToolAnswer => ({
-  type: "Data",
-  data: { result: { choice_index: choiceIndex } satisfies MultipleChoiceAnswerResult },
-})
 
 /** A turn `runTurn` refused because another is still streaming. Never surfaced to the learner. */
 class TurnAlreadyRunningError extends Error {}
@@ -71,13 +56,8 @@ export interface ChatbotStateAndData {
   dispatch: (action: ChatbotAction) => void
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   chatbotMessageAnnouncement: string
-  newMessageMutation: UseMutationResult<
-    ReadableStream<Uint8Array<ArrayBufferLike>>,
-    unknown,
-    string,
-    unknown
-  >
-  toolResponseMutation: UseMutationResult<void, unknown, MultipleChoiceAnswer, unknown>
+  newMessageMutation: UseMutationResult<void, unknown, string, unknown>
+  toolResponseMutation: UseMutationResult<void, unknown, ClientToolResponse, unknown>
   /** Whether either endpoint is streaming a turn right now. */
   isTurnInFlight: boolean
   /** Ends the turn that is streaming now, without surfacing an error. Does nothing otherwise. */
@@ -87,18 +67,18 @@ export interface ChatbotStateAndData {
 /**
  * Queries, state and data for one mounted chatbot.
  *
- * `surface` names the UI this chatbot is mounted in and is sent with every message; the
- * backend cannot tell the surfaces apart otherwise, because they share this endpoint and often
- * a chatbot configuration too. `setIsOpen` is only for surfaces that live in a dialog.
+ * `setIsOpen` is only for the chatbots that live in a dialog. `pageId` is the course material page
+ * context to send with a message, or null for the callers that have no page (the chatbot command
+ * center, the embed, chatbot management, and the course-settings preview) — those callers must not
+ * read `currentPageIdAtom` themselves, since it is only backed by course material's own state and
+ * is otherwise null there anyway.
  */
 const useChatbotStateAndData = (
   chatbotConfigurationId: string,
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>> | undefined,
-  surface: ChatbotSurface,
+  pageId: string | null,
 ) => {
   const { t } = useTranslation()
-  // Null outside course material, where there is no page to give context about.
-  const currentPageId = useAtomValue(currentPageIdAtom)
   const [newMessage, setNewMessage] = useState("")
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
@@ -149,11 +129,12 @@ const useChatbotStateAndData = (
     if (!isMountedRef.current) {
       return
     }
+    dispatch({ type: "TURN_ENDED" })
     const refetched = await currentConversationInfo.refetch()
     dispatch({ type: "RESPONSE_COMPLETED" })
-    const waiting = openQuestions(refetched.data?.current_conversation_messages ?? [])
+    const waiting = hasOpenClientToolCall(refetched.data?.current_conversation_messages ?? [])
     setChatbotMessageAnnouncement(
-      waiting.length > 0 ? t("chatbot-asked-a-question") : t("chatbot-finished-responding"),
+      waiting ? t("chatbot-asked-a-question") : t("chatbot-finished-responding"),
     )
   }
 
@@ -171,18 +152,17 @@ const useChatbotStateAndData = (
    * conversation has, cannot end up sent by one endpoint and not the other.
    */
   const postChatbotStream = async (
-    url: typeof SEND_CHATBOT_MESSAGE_PATH | typeof SEND_CHATBOT_TOOL_RESPONSE_PATH,
+    request: ChatbotTurnRequest,
     conversationId: string,
-    body: unknown,
     signal: AbortSignal,
-  ) => {
+  ): Promise<void> => {
     const stream = await courseMaterialClient.post<
       ReadableStream<Uint8Array>,
       unknown,
       true,
       "data"
     >({
-      body,
+      body: request.body,
       parseAs: "stream",
       path: {
         chatbot_configuration_id: chatbotConfigurationId,
@@ -195,10 +175,9 @@ const useChatbotStateAndData = (
       }),
       responseStyle: "data",
       signal,
-      url,
+      url: request.url,
     })
     await readChatbotResponseStream(stream, whileMounted(dispatch), whileMounted(setError))
-    return stream
   }
 
   /**
@@ -231,9 +210,10 @@ const useChatbotStateAndData = (
     }
   }
 
-  const stopTurn = () => {
+  // Stable so React.memo on the body it is passed to can actually compare.
+  const stopTurn = useCallback(() => {
     turnAbortControllerRef.current?.abort()
-  }
+  }, [])
 
   /**
    * A turn can fail after the server has already changed the conversation, and for an answer the
@@ -247,6 +227,7 @@ const useChatbotStateAndData = (
     if (!isMountedRef.current) {
       return
     }
+    dispatch({ type: "TURN_ENDED" })
     const stopped = isAbortError(err)
     if (!stopped) {
       setError(err)
@@ -269,11 +250,13 @@ const useChatbotStateAndData = (
         dispatch({ type: "USER_SENDS_MESSAGE", payload: message })
         setNewMessage("")
         const pageContext: ChatbotPageContext | undefined =
-          currentPageId !== null ? { page_id: currentPageId } : undefined
-        return await postChatbotStream(
-          SEND_CHATBOT_MESSAGE_PATH,
+          pageId !== null ? { page_id: pageId } : undefined
+        await postChatbotStream(
+          {
+            url: SEND_CHATBOT_MESSAGE_PATH,
+            body: omitUndefined({ message, page_context: pageContext }),
+          },
           conversationId,
-          omitUndefined({ message, surface, page_context: pageContext }),
           signal,
         )
       }),
@@ -285,17 +268,15 @@ const useChatbotStateAndData = (
   )
 
   const toolResponseMutation = useToastMutation(
-    async ({ toolCallId, choiceIndex }: MultipleChoiceAnswer) => {
+    async ({ toolCallId, answer }: ClientToolResponse) => {
       await runTurn(async (signal) => {
         const conversationId = requireConversationId()
         await postChatbotStream(
-          SEND_CHATBOT_TOOL_RESPONSE_PATH,
-          conversationId,
           {
-            tool_call_id: toolCallId,
-            surface,
-            answer: multipleChoiceAnswer(choiceIndex),
+            url: SEND_CHATBOT_TOOL_RESPONSE_PATH,
+            body: { tool_call_id: toolCallId, answer },
           },
+          conversationId,
           signal,
         )
       })

@@ -95,7 +95,11 @@ const readChatbotResponseStream = async (
   } finally {
     // A terminal event leaves the rest of the body unread, and an undrained body holds its
     // connection open for as long as the reader keeps the lock.
-    await reader.cancel().catch(() => {})
+    try {
+      await reader.cancel()
+    } catch (_e) {
+      // The body is already gone; nothing left to release.
+    }
   }
 }
 

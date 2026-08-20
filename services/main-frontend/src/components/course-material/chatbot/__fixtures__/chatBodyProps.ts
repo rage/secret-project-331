@@ -1,16 +1,20 @@
-import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import { v4 } from "uuid"
+
+import type {
+  ChatbotConversation,
+  ChatbotConversationInfo,
+  ChatbotConversationMessage,
+} from "@/generated/course-material-api/types.generated"
 
 import type { ChatbotConversationMessageWithStatus } from "../shared/ChatbotChatBody"
-import type { ChatbotStateAndData } from "../shared/hooks/useChatbotStateAndData"
+import type {
+  ChatbotStateAndData,
+  ClientToolResponse,
+} from "../shared/hooks/useChatbotStateAndData"
 
 export const CONVERSATION_ID = "11111111-1111-4111-8111-111111111111"
 export const TIME = "2024-01-01T00:00:00.000Z"
-
-let idCounter = 0
-
-/// A unique, UUID-shaped id. Avoids the uuid package, which needs jest's ESM support to import.
-export const testId = (): string =>
-  `${(idCounter++).toString(16).padStart(8, "0")}-1111-4111-8111-111111111111`
 
 interface ConversationMessageOverrides {
   role?: "user" | "assistant"
@@ -24,7 +28,7 @@ export const conversationMessage = ({
   text = "Answer",
   orderNumber = 0,
 }: ConversationMessageOverrides = {}): ChatbotConversationMessage => {
-  const id = testId()
+  const id = v4()
   return {
     conversation_id: CONVERSATION_ID,
     created_at: TIME,
@@ -34,7 +38,7 @@ export const conversationMessage = ({
       chatbot_conversation_message_id: id,
       created_at: TIME,
       deleted_at: null,
-      id: testId(),
+      id: v4(),
       message_is_complete: true,
       message_role: role,
       response_id: null,
@@ -58,7 +62,6 @@ interface ChatBodyOverrides {
   newMessage?: string
   isLoading?: boolean
   isTurnInFlight?: boolean
-  isAnsweringQuestion?: boolean
 }
 
 interface ChatBodyFixture {
@@ -77,39 +80,59 @@ export const makeChatBodyProps = ({
   newMessage = "",
   isLoading = false,
   isTurnInFlight = false,
-  isAnsweringQuestion = false,
 }: ChatBodyOverrides = {}): ChatBodyFixture => {
   const sendMessage = jest.fn()
   const answer = jest.fn()
   const stopTurn = jest.fn()
-  const props = {
-    currentConversationInfo: {
-      isLoading,
-      isError: false,
-      isRefetching: false,
-      data: {
-        current_conversation: { id: CONVERSATION_ID },
-        current_conversation_messages:
-          messages ??
-          Array.from({ length: historyLength }, (_unused, index) =>
-            conversationMessage({ text: `Answer ${index}`, orderNumber: index }),
-          ),
-        current_conversation_message_citations: [],
-        hide_citations: false,
-        suggested_messages: suggestedMessages,
-      },
+
+  const currentConversationInfo = {
+    isLoading,
+    isError: false,
+    isRefetching: false,
+    error: null,
+    data: {
+      current_conversation: { id: CONVERSATION_ID },
+      current_conversation_messages:
+        messages ??
+        Array.from({ length: historyLength }, (_unused, index) =>
+          conversationMessage({ text: `Answer ${index}`, orderNumber: index }),
+        ),
+      current_conversation_message_citations: [],
+      hide_citations: false,
+      suggested_messages: suggestedMessages,
     },
-    newConversationMutation: { mutate: jest.fn(), isPending: false },
+    refetch: jest.fn(),
+  } as unknown as UseQueryResult<ChatbotConversationInfo, Error>
+
+  const newConversationMutation = {
+    mutate: jest.fn(),
+    isPending: false,
+  } as unknown as UseMutationResult<ChatbotConversation, unknown, void, unknown>
+
+  const newMessageMutation = {
+    mutate: sendMessage,
+    isPending: false,
+  } as unknown as UseMutationResult<void, unknown, string, unknown>
+
+  const toolResponseMutation = {
+    mutate: answer,
+    isPending: false,
+  } as unknown as UseMutationResult<void, unknown, ClientToolResponse, unknown>
+
+  const props: ChatbotStateAndData = {
+    currentConversationInfo,
+    newConversationMutation,
     newMessage,
     setNewMessage: jest.fn(),
     error: null,
     messageState: { messages: streamedMessages },
     dispatch: jest.fn(),
     chatbotMessageAnnouncement: "",
-    newMessageMutation: { mutate: sendMessage, isPending: isTurnInFlight },
-    toolResponseMutation: { mutate: answer, isPending: isAnsweringQuestion },
-    isTurnInFlight: isTurnInFlight || isAnsweringQuestion,
+    newMessageMutation,
+    toolResponseMutation,
+    isTurnInFlight,
     stopTurn,
-  } as unknown as ChatbotStateAndData
+  }
+
   return { props, sendMessage, answer, stopTurn }
 }

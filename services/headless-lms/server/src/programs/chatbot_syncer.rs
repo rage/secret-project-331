@@ -199,7 +199,7 @@ async fn sync_pages(
     }
 
     let mut any_changes = false;
-    let mut permanently_failing_page_ids: Vec<Uuid> = Vec::new();
+    let mut permanently_failing_page_ids: HashSet<Uuid> = HashSet::new();
 
     for (course_id, statuses) in sync_statuses.iter() {
         let page_ids: Vec<Uuid> = statuses.iter().map(|s| s.page_id).collect();
@@ -232,7 +232,7 @@ async fn sync_pages(
                 }
 
                 if status.consecutive_failures >= MAX_CONSECUTIVE_FAILURES {
-                    permanently_failing_page_ids.push(status.page_id);
+                    permanently_failing_page_ids.insert(status.page_id);
                     return false;
                 }
 
@@ -323,17 +323,16 @@ async fn sync_pages(
 
     // Only on change: a page stays permanently failing until someone intervenes, and this runs
     // every SYNC_INTERVAL_SECS, so warning unconditionally would repeat the same line all day.
-    let permanently_failing: HashSet<Uuid> = permanently_failing_page_ids.into_iter().collect();
-    if permanently_failing != *reported_permanently_failing_page_ids {
-        if !permanently_failing.is_empty() {
+    if permanently_failing_page_ids != *reported_permanently_failing_page_ids {
+        if !permanently_failing_page_ids.is_empty() {
             warn!(
                 "Skipping {} pages that have failed to sync at least {} times in a row. Manual intervention required: {:?}",
-                permanently_failing.len(),
+                permanently_failing_page_ids.len(),
                 MAX_CONSECUTIVE_FAILURES,
-                permanently_failing
+                permanently_failing_page_ids
             );
         }
-        *reported_permanently_failing_page_ids = permanently_failing;
+        *reported_permanently_failing_page_ids = permanently_failing_page_ids;
     }
 
     if any_changes {

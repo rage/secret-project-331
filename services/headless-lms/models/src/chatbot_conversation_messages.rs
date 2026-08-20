@@ -1,11 +1,11 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use utoipa::ToSchema;
 
 use crate::{
-    chatbot_conversation_message_messages::{self, ChatbotConversationMessageMessage},
+    chatbot_conversation_message_messages::{self, ChatbotConversationMessageMessage, MessageRole},
     chatbot_conversation_message_reasoning::{self, ChatbotConversationMessageReasoning},
-    chatbot_conversation_message_tool_calls::{self, ChatbotConversationMessageToolCall, ToolKind},
+    chatbot_conversation_message_tool_calls::{self, ChatbotConversationMessageToolCall},
     chatbot_conversation_message_tool_outputs::{self, ChatbotConversationMessageToolOutput},
     error::missing_model_error,
     prelude::*,
@@ -56,6 +56,33 @@ impl Default for ChatbotConversationMessage {
 }
 
 impl ChatbotConversationMessage {
+    /// A complete text message ready to be inserted by [insert]; `id` and `order_number` are the
+    /// database's to assign.
+    ///
+    /// `used_tokens` is the caller's estimate of what the text costs the LLM's context, and is
+    /// explicit because nothing recomputes it later. `response_id` has to be set for every role
+    /// but the user's: the not_null_for_llm_generated_messages constraint demands one.
+    pub fn text(
+        conversation_id: Uuid,
+        message_role: MessageRole,
+        text: String,
+        used_tokens: i32,
+        response_id: Option<String>,
+    ) -> Self {
+        Self {
+            conversation_id,
+            message: Message::Text(ChatbotConversationMessageMessage {
+                text,
+                message_role,
+                message_is_complete: true,
+                used_tokens,
+                response_id,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+
     pub fn from_row(r: ChatbotConversationMessageRow, m: Message) -> Self {
         ChatbotConversationMessage {
             id: r.id,
@@ -112,6 +139,17 @@ pub async fn insert(
 ) -> ModelResult<ChatbotConversationMessage> {
     let mut tx = conn.begin().await?;
     lock_conversation_for_order_number_allocation(&mut tx, input.conversation_id).await?;
+    let res = insert_locked(&mut tx, input).await?;
+    tx.commit().await?;
+    Ok(res)
+}
+
+/// [insert] for a caller whose own transaction already holds the conversation lock, which is what
+/// makes the `order_number` allocation safe. Taking it again would only cost round trips.
+async fn insert_locked(
+    conn: &mut PgConnection,
+    input: ChatbotConversationMessage,
+) -> ModelResult<ChatbotConversationMessage> {
     let msg = sqlx::query_as!(
         ChatbotConversationMessageRow,
         r#"
@@ -131,36 +169,32 @@ RETURNING *
         "#,
         input.conversation_id,
     )
-    .fetch_one(&mut *tx)
+    .fetch_one(&mut *conn)
     .await?;
 
     let inner = match input.message {
         Message::Text(message) => {
-            let res =
-                chatbot_conversation_message_messages::insert(&mut tx, message, msg.id).await?;
+            let res = chatbot_conversation_message_messages::insert(conn, message, msg.id).await?;
             Message::Text(res)
         }
         Message::ToolCall(tool_call) => {
             let res =
-                chatbot_conversation_message_tool_calls::insert(&mut tx, tool_call, msg.id).await?;
+                chatbot_conversation_message_tool_calls::insert(conn, tool_call, msg.id).await?;
             Message::ToolCall(res)
         }
         Message::ToolOutput(tool_output) => {
-            let res =
-                chatbot_conversation_message_tool_outputs::insert(&mut tx, tool_output, msg.id)
-                    .await?;
+            let res = chatbot_conversation_message_tool_outputs::insert(conn, tool_output, msg.id)
+                .await?;
             Message::ToolOutput(res)
         }
         Message::Reasoning(reasoning) => {
             let res =
-                chatbot_conversation_message_reasoning::insert(&mut tx, reasoning, msg.id).await?;
+                chatbot_conversation_message_reasoning::insert(conn, reasoning, msg.id).await?;
             Message::Reasoning(res)
         }
     };
 
-    let res = ChatbotConversationMessage::from_row(msg, inner);
-    tx.commit().await?;
-    Ok(res)
+    Ok(ChatbotConversationMessage::from_row(msg, inner))
 }
 
 // todo
@@ -256,32 +290,62 @@ RETURNING *
     Ok(res)
 }
 
+/// Whether a reasoning message is read with its `encrypted_content`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReasoningPayload {
+    /// For replaying the conversation to the LLM, which is the only reader of the payload.
+    Include,
+    /// For display: the payload is never serialized to the browser, so reading it only pays
+    /// Postgres to hand back an opaque blob.
+    Omit,
+}
+
 pub async fn get_by_conversation_id(
     conn: &mut PgConnection,
     conversation_id: Uuid,
 ) -> ModelResult<Vec<ChatbotConversationMessage>> {
+    get_conversation_messages(conn, conversation_id, ReasoningPayload::Include).await
+}
+
+/// [get_by_conversation_id] for callers that only display the conversation.
+pub async fn get_by_conversation_id_for_display(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+) -> ModelResult<Vec<ChatbotConversationMessage>> {
+    get_conversation_messages(conn, conversation_id, ReasoningPayload::Omit).await
+}
+
+async fn get_conversation_messages(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    reasoning_payload: ReasoningPayload,
+) -> ModelResult<Vec<ChatbotConversationMessage>> {
     let mut tx = conn.begin().await?;
-    let mut msgs: Vec<ChatbotConversationMessageRow> = sqlx::query_as!(
+    let rows: Vec<ChatbotConversationMessageRow> = sqlx::query_as!(
         ChatbotConversationMessageRow,
         r#"
 SELECT *
 FROM chatbot_conversation_messages
 WHERE conversation_id = $1
 AND deleted_at IS NULL
+ORDER BY order_number
         "#,
         conversation_id
     )
     .fetch_all(&mut *tx)
     .await?;
-    // Should have the same order as in the conversation.
-    msgs.sort_by_key(|a| a.order_number);
-    let mut res = vec![];
-    for m in msgs {
-        let msg = message_row_to_message(&mut tx, m).await?;
-        res.push(msg);
-    }
+    let message_ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
+    let mut inner_messages = get_inner_messages(&mut tx, &message_ids, reasoning_payload).await?;
     tx.commit().await?;
-    Ok(res)
+
+    rows.into_iter()
+        .map(|row| {
+            let inner_message = inner_messages
+                .remove(&row.id)
+                .ok_or_else(missing_inner_message_error())?;
+            Ok(ChatbotConversationMessage::from_row(row, inner_message))
+        })
+        .collect()
 }
 
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConversationMessage> {
@@ -344,8 +408,9 @@ LIMIT 1
 /// so we need to answer the un-answered tool calls to inform of the failure and continue
 /// the conversation.
 ///
-/// A [ToolKind::ClientTool] call with no output is not a failure but a suspended turn waiting
-/// for the client, and is left alone. [abort_pending_client_tool_calls] is what ends the wait.
+/// A [`ClientTool`](chatbot_conversation_message_tool_calls::ToolKind::ClientTool) call with no
+/// output is not a failure but a suspended turn waiting for the client, and is left alone.
+/// [abort_pending_client_tool_calls] is what ends the wait.
 ///
 /// `created_before` bounds which calls may be aborted. A caller repairing the turn it is itself
 /// running passes `None`; a caller sweeping at the start of an unrelated request must pass a
@@ -360,13 +425,17 @@ LIMIT 1
 /// The read before that only decides whether there is anything to repair, and must stay unlocked.
 /// A request that already holds this conversation's row locked on another pooled connection would
 /// otherwise block here forever on a sweep that had nothing to write.
+///
+/// `output_text` is what an answered call reports to the LLM. Returns the calls left unanswered,
+/// which a caller that goes on to work on one of them can use instead of reading them again.
 pub async fn answer_hanging_tool_call_messages_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
     created_before: Option<DateTime<Utc>>,
-) -> ModelResult<Vec<ChatbotConversationMessage>> {
+    output_text: &str,
+) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
     let needs_answering = |tool_call: &ChatbotConversationMessageToolCall| {
-        tool_call.tool_kind != ToolKind::ClientTool
+        !tool_call.tool_kind.is_answered_by_client()
             && created_before.is_none_or(|cutoff| tool_call.created_at < cutoff)
     };
 
@@ -376,41 +445,53 @@ pub async fn answer_hanging_tool_call_messages_for_conversation(
             conversation_id,
         )
         .await?;
-    if !unanswered.iter().any(needs_answering) {
-        return Ok(vec![]);
+    if !unanswered.iter().any(&needs_answering) {
+        return Ok(unanswered);
     }
 
     let mut tx = conn.begin().await?;
     lock_conversation_for_order_number_allocation(&mut tx, conversation_id).await?;
-
-    let unanswered =
-        chatbot_conversation_message_tool_calls::get_unanswered_tool_calls_for_conversation(
-            &mut tx,
-            conversation_id,
-        )
+    let res = answer_unanswered_tool_calls(&mut tx, conversation_id, output_text, needs_answering)
         .await?;
-
-    let mut res = vec![];
-    for tool_call in unanswered.into_iter().filter(needs_answering) {
-        let inserted = insert(
-            &mut tx,
-            tool_call_output_message(
-                conversation_id,
-                &tool_call,
-                "Unexpected error encountered, tool call aborted.".to_string(),
-            ),
-        )
-        .await?;
-        res.push(inserted);
-    }
-
     tx.commit().await?;
     Ok(res)
 }
 
-/// Answers every [ToolKind::ClientTool] call of the conversation that is still waiting, recording
-/// that the learner moved on instead, so a suspended turn cannot outlive the message that
-/// replaced it.
+/// Answers with `output_text` every unanswered tool call of the conversation that `needs_answering`
+/// accepts, and returns the ones it left alone.
+///
+/// Must be called with the conversation lock held: which calls are unanswered is read here and the
+/// outputs are written against that read, and a call that ends up with two outputs is replayed as
+/// two and rejected by the provider for the rest of the conversation.
+async fn answer_unanswered_tool_calls(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    output_text: &str,
+    needs_answering: impl Fn(&ChatbotConversationMessageToolCall) -> bool,
+) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
+    let unanswered =
+        chatbot_conversation_message_tool_calls::get_unanswered_tool_calls_for_conversation(
+            conn,
+            conversation_id,
+        )
+        .await?;
+
+    let (to_answer, left_alone): (Vec<_>, Vec<_>) =
+        unanswered.into_iter().partition(&needs_answering);
+    for tool_call in to_answer {
+        insert_locked(
+            conn,
+            tool_call_output_message(conversation_id, tool_call, output_text.to_string(), None),
+        )
+        .await?;
+    }
+    Ok(left_alone)
+}
+
+/// Ends the wait of every still unanswered
+/// [`ClientTool`](chatbot_conversation_message_tool_calls::ToolKind::ClientTool) call of the
+/// conversation by answering it with `output_text`, so a suspended turn cannot outlive the message
+/// that replaced it.
 ///
 /// Must be called inside the transaction that inserts the new user message: it takes the
 /// conversation lock and the caller's transaction holds it to the end, which is what makes the
@@ -419,44 +500,32 @@ pub async fn answer_hanging_tool_call_messages_for_conversation(
 pub async fn abort_pending_client_tool_calls(
     conn: &mut PgConnection,
     conversation_id: Uuid,
-) -> ModelResult<Vec<ChatbotConversationMessage>> {
+    output_text: &str,
+) -> ModelResult<()> {
     lock_conversation_for_order_number_allocation(conn, conversation_id).await?;
-
-    let unanswered =
-        chatbot_conversation_message_tool_calls::get_unanswered_tool_calls_for_conversation(
-            conn,
-            conversation_id,
-        )
-        .await?;
-
-    let mut res = vec![];
-    for tool_call in unanswered
-        .into_iter()
-        .filter(|tool_call| tool_call.tool_kind == ToolKind::ClientTool)
-    {
-        let inserted = insert(
-            conn,
-            tool_call_output_message(
-                conversation_id,
-                &tool_call,
-                "The user sent a new message instead of answering this tool call, so it was never carried out and returned no data. Answer their new message; ask again only if you still need this.".to_string(),
-            ),
-        )
-        .await?;
-        res.push(inserted);
-    }
-
-    Ok(res)
+    answer_unanswered_tool_calls(conn, conversation_id, output_text, |tool_call| {
+        tool_call.tool_kind.is_answered_by_client()
+    })
+    .await?;
+    Ok(())
 }
 
 /// Whether the conversation's newest turn is suspended: waiting for the client to answer a
-/// [ToolKind::ClientTool] call it made.
+/// [`ClientTool`](chatbot_conversation_message_tool_calls::ToolKind::ClientTool) call it made.
 ///
 /// Such a turn has not ended, it continues in the request that brings the answer, without the
-/// learner writing anything. `messages` are a conversation's messages in order, as
-/// [get_by_conversation_id] returns them; a call is answered by a tool output carrying its
-/// `tool_call_id`, which is also how aborting one is recorded.
+/// learner writing anything. See [waiting_client_tool_call_ids] for which calls those are.
 pub fn turn_is_suspended(messages: &[ChatbotConversationMessage]) -> bool {
+    !waiting_client_tool_call_ids(messages).is_empty()
+}
+
+/// The `tool_call_id`s of the conversation's client tool calls that no output answers, in message
+/// order: what a suspended turn is waiting for the client to answer.
+///
+/// `messages` are a conversation's messages in order, as [get_by_conversation_id] returns them; a
+/// call is answered by a tool output carrying its `tool_call_id`, which is also how aborting one is
+/// recorded.
+pub fn waiting_client_tool_call_ids(messages: &[ChatbotConversationMessage]) -> Vec<&str> {
     let answered: HashSet<&str> = messages
         .iter()
         .filter_map(|message| match &message.message {
@@ -465,12 +534,18 @@ pub fn turn_is_suspended(messages: &[ChatbotConversationMessage]) -> bool {
         })
         .collect();
 
-    messages.iter().any(|message| match &message.message {
-        Message::ToolCall(call) => {
-            call.tool_kind == ToolKind::ClientTool && !answered.contains(call.tool_call_id.as_str())
-        }
-        _ => false,
-    })
+    messages
+        .iter()
+        .filter_map(|message| match &message.message {
+            Message::ToolCall(call)
+                if call.tool_kind.is_answered_by_client()
+                    && !answered.contains(call.tool_call_id.as_str()) =>
+            {
+                Some(call.tool_call_id.as_str())
+            }
+            _ => None,
+        })
+        .collect()
 }
 
 /// What answering a client tool call left the suspended turn in.
@@ -483,7 +558,9 @@ pub struct ClientToolAnswerOutcome {
 }
 
 /// Records the client's answer to a tool call of a suspended turn and reports whether the turn
-/// may now resume. `output` is the answer in the form the LLM reads.
+/// may now resume. `output` is the answer in the form the LLM reads; `client_answer` is the
+/// payload the client sent, kept for callers that need the answer as data, and None when no client
+/// answer was applied.
 ///
 /// Writing the answer and deciding who resumes happen in one transaction that holds the
 /// conversation lock, so of two clients answering different calls of the same round at the same
@@ -498,38 +575,55 @@ pub async fn answer_client_tool_call(
     conversation_id: Uuid,
     tool_call_id: &str,
     output: String,
+    client_answer: Option<serde_json::Value>,
 ) -> ModelResult<ClientToolAnswerOutcome> {
     let mut tx = conn.begin().await?;
     lock_conversation_for_order_number_allocation(&mut tx, conversation_id).await?;
 
-    let tool_call = chatbot_conversation_message_tool_calls::get_by_conversation_and_tool_call_id(
-        &mut tx,
-        conversation_id,
-        tool_call_id,
-    )
-    .await?
-    .ok_or_else(missing_model_error(
-        ModelErrorType::RecordNotFound,
-        format!("Chatbot conversation {conversation_id} has no tool call {tool_call_id}"),
-    ))?;
-    if tool_call.tool_kind != ToolKind::ClientTool {
+    let mut unanswered =
+        chatbot_conversation_message_tool_calls::get_unanswered_tool_calls_for_conversation(
+            &mut tx,
+            conversation_id,
+        )
+        .await?;
+
+    // The unanswered calls already carry the row; the single-row query is only needed on a miss, to
+    // tell a call the conversation does not have from one that already has an answer.
+    let (tool_call, is_unanswered) = match unanswered
+        .iter()
+        .position(|call| call.tool_call_id == tool_call_id)
+    {
+        Some(index) => (unanswered.swap_remove(index), true),
+        None => {
+            match chatbot_conversation_message_tool_calls::get_by_conversation_and_tool_call_id(
+                &mut tx,
+                conversation_id,
+                tool_call_id,
+            )
+            .await?
+            {
+                Some(call) => (call, false),
+                None => {
+                    tx.rollback().await?;
+                    return Err(model_err!(
+                        RecordNotFound,
+                        format!(
+                            "Chatbot conversation {conversation_id} has no tool call {tool_call_id}"
+                        )
+                    ));
+                }
+            }
+        }
+    };
+
+    if !tool_call.tool_kind.is_answered_by_client() {
         tx.rollback().await?;
         return Err(model_err!(
             InvalidRequest,
             format!("Tool call {tool_call_id} is not answered by the client")
         ));
     }
-
-    let unanswered =
-        chatbot_conversation_message_tool_calls::get_unanswered_tool_calls_for_conversation(
-            &mut tx,
-            conversation_id,
-        )
-        .await?;
-    if !unanswered
-        .iter()
-        .any(|unanswered| unanswered.tool_call_id == tool_call_id)
-    {
+    if !is_unanswered {
         tx.rollback().await?;
         return Err(model_err!(
             InvalidRequest,
@@ -537,14 +631,18 @@ pub async fn answer_client_tool_call(
         ));
     }
 
-    let answer = insert(
+    // A round's parallel calls share the id of the response that made them, and only those hold
+    // this turn: an unanswered call of some other turn, alive or dead, must not suppress the
+    // resume.
+    let turn_can_resume = !unanswered.iter().any(|call| {
+        call.tool_kind.is_answered_by_client() && call.response_id == tool_call.response_id
+    });
+
+    let answer = insert_locked(
         &mut tx,
-        tool_call_output_message(conversation_id, &tool_call, output),
+        tool_call_output_message(conversation_id, tool_call, output, client_answer),
     )
     .await?;
-    let turn_can_resume = unanswered
-        .iter()
-        .all(|unanswered| unanswered.tool_call_id == tool_call_id);
 
     tx.commit().await?;
     Ok(ClientToolAnswerOutcome {
@@ -558,16 +656,18 @@ pub async fn answer_client_tool_call(
 /// with the citation re-pointing that matches on `response_id`.
 fn tool_call_output_message(
     conversation_id: Uuid,
-    tool_call: &ChatbotConversationMessageToolCall,
+    tool_call: ChatbotConversationMessageToolCall,
     output: String,
+    client_answer: Option<serde_json::Value>,
 ) -> ChatbotConversationMessage {
     ChatbotConversationMessage {
         conversation_id,
         message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
             output,
-            tool_call_id: tool_call.tool_call_id.clone(),
+            client_answer,
+            tool_call_id: tool_call.tool_call_id,
             tool_kind: tool_call.tool_kind,
-            response_id: tool_call.response_id.clone(),
+            response_id: tool_call.response_id,
             ..Default::default()
         }),
         ..Default::default()
@@ -613,39 +713,166 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn message_row_to_message(
+/// The inner message of the given [ChatbotConversationMessage].
+pub async fn get_message_fields(conn: &mut PgConnection, message_id: Uuid) -> ModelResult<Message> {
+    get_inner_messages(conn, &[message_id], ReasoningPayload::Include)
+        .await?
+        .remove(&message_id)
+        .ok_or_else(missing_inner_message_error())
+}
+
+/// The inner message of each of `message_ids`, keyed by the id of the message carrying it.
+///
+/// One query per message kind instead of per message, so reading a conversation costs the same
+/// four round trips however many messages it has. A message with no inner message is absent from
+/// the map.
+async fn get_inner_messages(
     conn: &mut PgConnection,
-    row: ChatbotConversationMessageRow,
-) -> ModelResult<ChatbotConversationMessage> {
-    let inner_message = get_message_fields(conn, row.id).await?;
-    let res = ChatbotConversationMessage::from_row(row, inner_message);
+    message_ids: &[Uuid],
+    reasoning_payload: ReasoningPayload,
+) -> ModelResult<HashMap<Uuid, Message>> {
+    let mut res = HashMap::with_capacity(message_ids.len());
+    if message_ids.is_empty() {
+        return Ok(res);
+    }
+
+    for text in get_text_messages(&mut *conn, message_ids).await? {
+        res.entry(text.chatbot_conversation_message_id)
+            .or_insert(Message::Text(text));
+    }
+    for tool_call in get_tool_calls(&mut *conn, message_ids).await? {
+        res.entry(tool_call.chatbot_conversation_message_id)
+            .or_insert(Message::ToolCall(tool_call));
+    }
+    for tool_output in get_tool_outputs(&mut *conn, message_ids).await? {
+        res.entry(tool_output.chatbot_conversation_message_id)
+            .or_insert(Message::ToolOutput(tool_output));
+    }
+    for reasoning in get_reasonings(&mut *conn, message_ids, reasoning_payload).await? {
+        res.entry(reasoning.chatbot_conversation_message_id)
+            .or_insert(Message::Reasoning(reasoning));
+    }
     Ok(res)
 }
 
-pub async fn get_message_fields(conn: &mut PgConnection, message_id: Uuid) -> ModelResult<Message> {
-    if let Some(message) =
-        chatbot_conversation_message_messages::get_by_message_id(conn, message_id).await?
-    {
-        Ok(Message::Text(message))
-    } else if let Some(tool_call) =
-        chatbot_conversation_message_tool_calls::get_by_message_id(conn, message_id).await?
-    {
-        Ok(Message::ToolCall(tool_call))
-    } else if let Some(tool_output) =
-        chatbot_conversation_message_tool_outputs::get_by_message_id(conn, message_id).await?
-    {
-        Ok(Message::ToolOutput(tool_output))
-    } else if let Some(reasoning) =
-        chatbot_conversation_message_reasoning::get_by_message_id(conn, message_id).await?
-    {
-        Ok(Message::Reasoning(reasoning))
-    } else {
-        Err(ModelError::new(
-            ModelErrorType::RecordNotFound,
-            "No inner message found for this ChatbotConversationMessage",
-            None,
-        ))
-    }
+fn missing_inner_message_error() -> impl FnOnce() -> ModelError {
+    missing_model_error(
+        ModelErrorType::RecordNotFound,
+        "No inner message found for this ChatbotConversationMessage",
+    )
+}
+
+async fn get_text_messages(
+    conn: &mut PgConnection,
+    message_ids: &[Uuid],
+) -> ModelResult<Vec<ChatbotConversationMessageMessage>> {
+    let res = sqlx::query_as!(
+        ChatbotConversationMessageMessage,
+        r#"
+SELECT
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    chatbot_conversation_message_id,
+    text,
+    message_role as "message_role: MessageRole",
+    message_is_complete,
+    used_tokens,
+    response_id
+FROM chatbot_conversation_message_messages
+WHERE chatbot_conversation_message_id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        message_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+async fn get_tool_calls(
+    conn: &mut PgConnection,
+    message_ids: &[Uuid],
+) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
+    let res = sqlx::query_as!(
+        ChatbotConversationMessageToolCall,
+        r#"
+SELECT *
+FROM chatbot_conversation_message_tool_calls
+WHERE chatbot_conversation_message_id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        message_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+async fn get_tool_outputs(
+    conn: &mut PgConnection,
+    message_ids: &[Uuid],
+) -> ModelResult<Vec<ChatbotConversationMessageToolOutput>> {
+    let res = sqlx::query_as!(
+        ChatbotConversationMessageToolOutput,
+        r#"
+SELECT *
+FROM chatbot_conversation_message_tool_outputs
+WHERE chatbot_conversation_message_id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        message_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+async fn get_reasonings(
+    conn: &mut PgConnection,
+    message_ids: &[Uuid],
+    reasoning_payload: ReasoningPayload,
+) -> ModelResult<Vec<ChatbotConversationMessageReasoning>> {
+    let res = match reasoning_payload {
+        ReasoningPayload::Include => {
+            sqlx::query_as!(
+                ChatbotConversationMessageReasoning,
+                r#"
+SELECT *
+FROM chatbot_conversation_message_reasoning
+WHERE chatbot_conversation_message_id = ANY($1)
+  AND deleted_at IS NULL
+                "#,
+                message_ids
+            )
+            .fetch_all(conn)
+            .await?
+        }
+        ReasoningPayload::Omit => {
+            sqlx::query_as!(
+                ChatbotConversationMessageReasoning,
+                r#"
+SELECT id,
+  chatbot_conversation_message_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  summary,
+  reasoning_id,
+  response_id,
+  NULL::TEXT AS encrypted_content
+FROM chatbot_conversation_message_reasoning
+WHERE chatbot_conversation_message_id = ANY($1)
+  AND deleted_at IS NULL
+                "#,
+                message_ids
+            )
+            .fetch_all(conn)
+            .await?
+        }
+    };
+    Ok(res)
 }
 
 pub async fn delete_message_fields(
@@ -685,75 +912,25 @@ pub async fn delete_message_fields(
 mod tests {
     use super::*;
     use crate::{
-        chatbot_configurations::{self, NewChatbotConf},
         chatbot_conversation_message_messages::MessageRole,
-        chatbot_conversations,
-        test_helper::*,
+        chatbot_conversation_message_tool_calls::ToolKind, chatbot_conversations, test_helper::*,
     };
 
-    /// Inserts a publicly accessible chatbot configuration and a conversation for it, returning
-    /// their ids. Needs no course, which keeps a committed fixture small enough to delete again.
-    async fn insert_conversation(conn: &mut PgConnection) -> (Uuid, Uuid) {
-        insert_conversation_suggesting_messages(conn, false).await
-    }
-
-    /// [insert_conversation] with the configuration's next-message suggestions turned on or off.
-    async fn insert_conversation_suggesting_messages(
-        conn: &mut PgConnection,
-        suggest_next_messages: bool,
-    ) -> (Uuid, Uuid) {
-        let unique = Uuid::new_v4().to_string();
-        let configuration = chatbot_configurations::insert(
-            conn,
-            PKeyPolicy::Generate,
-            NewChatbotConf {
-                chatbot_name: unique.clone(),
-                model_id: Uuid::new_v4(),
-                publicly_accessible: true,
-                suggest_next_messages,
-                ..Default::default()
-            },
-        )
-        .await
-        .unwrap();
-        let conversation = chatbot_conversations::create_for_user_and_configuration(
-            conn,
-            PKeyPolicy::Generate,
-            None,
-            Some(unique),
-            configuration.id,
-        )
-        .await
-        .unwrap();
-        (configuration.id, conversation.id)
-    }
+    /// The response id every message of these tests is generated under, so that a message and the
+    /// output answering it agree on one.
+    const RESPONSE_ID: &str = "resp_test";
 
     fn user_message(conversation_id: Uuid, text: &str) -> ChatbotConversationMessage {
-        ChatbotConversationMessage {
-            conversation_id,
-            message: Message::Text(ChatbotConversationMessageMessage {
-                text: text.to_string(),
-                message_role: MessageRole::User,
-                message_is_complete: true,
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
+        chatbot_text_message(conversation_id, MessageRole::User, text, None)
     }
 
     fn developer_message(conversation_id: Uuid, text: &str) -> ChatbotConversationMessage {
-        ChatbotConversationMessage {
+        chatbot_text_message(
             conversation_id,
-            message: Message::Text(ChatbotConversationMessageMessage {
-                text: text.to_string(),
-                message_role: MessageRole::Developer,
-                message_is_complete: true,
-                // not_null_for_llm_generated_messages demands one for every non-user message.
-                response_id: Some("page-context".to_string()),
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
+            MessageRole::Developer,
+            text,
+            Some("page-context"),
+        )
     }
 
     fn tool_call_message(
@@ -761,17 +938,7 @@ mod tests {
         tool_call_id: &str,
         tool_kind: ToolKind,
     ) -> ChatbotConversationMessage {
-        ChatbotConversationMessage {
-            conversation_id,
-            message: Message::ToolCall(ChatbotConversationMessageToolCall {
-                tool_name: "course_structure".to_string(),
-                tool_call_id: tool_call_id.to_string(),
-                response_id: "resp_test".to_string(),
-                tool_kind,
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
+        chatbot_tool_call_message(conversation_id, tool_call_id, tool_kind, RESPONSE_ID)
     }
 
     /// The conversation as one line per message, for asserting on both content and order.
@@ -787,31 +954,10 @@ mod tests {
             .collect()
     }
 
-    /// The `tool_call_id`s of the calls of the conversation that no output answers, as a client
-    /// reading the conversation has to work them out.
-    fn waiting_tool_call_ids(messages: &[ChatbotConversationMessage]) -> Vec<String> {
-        let answered: Vec<&str> = messages
-            .iter()
-            .filter_map(|message| match &message.message {
-                Message::ToolOutput(output) => Some(output.tool_call_id.as_str()),
-                _ => None,
-            })
-            .collect();
-        messages
-            .iter()
-            .filter_map(|message| match &message.message {
-                Message::ToolCall(call) if !answered.contains(&call.tool_call_id.as_str()) => {
-                    Some(call.tool_call_id.clone())
-                }
-                _ => None,
-            })
-            .collect()
-    }
-
     #[tokio::test]
     async fn numbers_messages_in_insertion_order() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
 
         let first = insert(tx.as_mut(), user_message(conversation, "first"))
             .await
@@ -826,7 +972,7 @@ mod tests {
     #[tokio::test]
     async fn refuses_to_add_a_message_to_a_deleted_conversation() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         crate::chatbot_conversations::delete(tx.as_mut(), conversation)
             .await
             .unwrap();
@@ -843,7 +989,7 @@ mod tests {
     #[tokio::test]
     async fn answers_a_hanging_tool_call_before_the_next_message() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         insert(
             tx.as_mut(),
             tool_call_message(conversation, "call_1", ToolKind::Function),
@@ -851,9 +997,14 @@ mod tests {
         .await
         .unwrap();
 
-        answer_hanging_tool_call_messages_for_conversation(tx.as_mut(), conversation, None)
-            .await
-            .unwrap();
+        answer_hanging_tool_call_messages_for_conversation(
+            tx.as_mut(),
+            conversation,
+            None,
+            "aborted",
+        )
+        .await
+        .unwrap();
         insert(tx.as_mut(), user_message(conversation, "hello again"))
             .await
             .unwrap();
@@ -883,7 +1034,7 @@ mod tests {
     #[tokio::test]
     async fn the_latest_developer_message_is_the_newest_one_of_that_conversation() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
 
         assert_eq!(
             get_latest_developer_message_text(tx.as_mut(), conversation)
@@ -909,7 +1060,8 @@ mod tests {
             Some("reading page two")
         );
 
-        let (_other_configuration, other_conversation) = insert_conversation(tx.as_mut()).await;
+        let (_other_configuration, other_conversation) =
+            insert_chatbot_conversation(tx.as_mut()).await;
         insert(
             tx.as_mut(),
             developer_message(other_conversation, "reading somewhere else"),
@@ -931,7 +1083,7 @@ mod tests {
     #[tokio::test]
     async fn the_sweep_leaves_a_call_newer_than_the_cutoff_to_the_turn_that_made_it() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         insert(
             tx.as_mut(),
             tool_call_message(conversation, "call_in_flight", ToolKind::Function),
@@ -940,9 +1092,14 @@ mod tests {
         .unwrap();
 
         let cutoff = Utc::now() - chrono::Duration::minutes(10);
-        answer_hanging_tool_call_messages_for_conversation(tx.as_mut(), conversation, Some(cutoff))
-            .await
-            .unwrap();
+        answer_hanging_tool_call_messages_for_conversation(
+            tx.as_mut(),
+            conversation,
+            Some(cutoff),
+            "aborted",
+        )
+        .await
+        .unwrap();
 
         let messages = get_by_conversation_id(tx.as_mut(), conversation)
             .await
@@ -955,6 +1112,7 @@ mod tests {
             tx.as_mut(),
             conversation,
             Some(Utc::now() + chrono::Duration::minutes(10)),
+            "aborted",
         )
         .await
         .unwrap();
@@ -973,7 +1131,7 @@ mod tests {
     #[tokio::test]
     async fn the_sweep_repairs_an_abandoned_call_and_leaves_a_waiting_one_alone() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         insert(
             tx.as_mut(),
             tool_call_message(conversation, "call_abandoned", ToolKind::Function),
@@ -987,14 +1145,22 @@ mod tests {
         .await
         .unwrap();
 
-        answer_hanging_tool_call_messages_for_conversation(tx.as_mut(), conversation, None)
-            .await
-            .unwrap();
+        answer_hanging_tool_call_messages_for_conversation(
+            tx.as_mut(),
+            conversation,
+            None,
+            "aborted",
+        )
+        .await
+        .unwrap();
 
         let messages = get_by_conversation_id(tx.as_mut(), conversation)
             .await
             .unwrap();
-        assert_eq!(waiting_tool_call_ids(&messages), vec!["call_waiting"]);
+        assert_eq!(
+            waiting_client_tool_call_ids(&messages),
+            vec!["call_waiting"]
+        );
         assert_eq!(
             message_summary(&messages),
             vec![
@@ -1010,7 +1176,7 @@ mod tests {
     #[tokio::test]
     async fn a_new_message_aborts_a_pending_client_tool_call() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         insert(
             tx.as_mut(),
             tool_call_message(conversation, "call_1", ToolKind::ClientTool),
@@ -1018,7 +1184,7 @@ mod tests {
         .await
         .unwrap();
 
-        abort_pending_client_tool_calls(tx.as_mut(), conversation)
+        abort_pending_client_tool_calls(tx.as_mut(), conversation, "the user moved on")
             .await
             .unwrap();
         insert(tx.as_mut(), user_message(conversation, "never mind"))
@@ -1028,7 +1194,7 @@ mod tests {
         let messages = get_by_conversation_id(tx.as_mut(), conversation)
             .await
             .unwrap();
-        assert!(waiting_tool_call_ids(&messages).is_empty());
+        assert!(waiting_client_tool_call_ids(&messages).is_empty());
         assert_eq!(
             message_summary(&messages),
             vec!["call call_1", "output call_1", "text never mind"]
@@ -1039,8 +1205,8 @@ mod tests {
             panic!("the aborted call is answered by a tool output");
         };
         assert_eq!(output.tool_kind, ToolKind::ClientTool);
-        assert_eq!(output.response_id, "resp_test");
-        assert!(output.output.contains("new message"), "{}", output.output);
+        assert_eq!(output.response_id, RESPONSE_ID);
+        assert_eq!(output.output, "the user moved on");
     }
 
     /// Only one answerer of a round of parallel calls may resume the turn, and it has to be the one
@@ -1048,7 +1214,7 @@ mod tests {
     #[tokio::test]
     async fn only_the_last_answer_of_a_round_resumes_the_turn() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         for tool_call_id in ["call_1", "call_2"] {
             insert(
                 tx.as_mut(),
@@ -1058,22 +1224,43 @@ mod tests {
             .unwrap();
         }
 
-        let first =
-            answer_client_tool_call(tx.as_mut(), conversation, "call_1", "first".to_string())
-                .await
-                .unwrap();
-        let second =
-            answer_client_tool_call(tx.as_mut(), conversation, "call_2", "second".to_string())
-                .await
-                .unwrap();
+        let client_answer = serde_json::json!({ "choice_index": 1 });
+        let first = answer_client_tool_call(
+            tx.as_mut(),
+            conversation,
+            "call_1",
+            "first".to_string(),
+            Some(client_answer.clone()),
+        )
+        .await
+        .unwrap();
+        let second = answer_client_tool_call(
+            tx.as_mut(),
+            conversation,
+            "call_2",
+            "second".to_string(),
+            None,
+        )
+        .await
+        .unwrap();
 
         assert!(!first.turn_can_resume);
         assert!(second.turn_can_resume);
         let Message::ToolOutput(output) = first.answer.message else {
             panic!("an answer is a tool output");
         };
-        assert_eq!(output.response_id, "resp_test");
+        assert_eq!(output.response_id, RESPONSE_ID);
         assert_eq!(output.tool_kind, ToolKind::ClientTool);
+
+        let messages = get_by_conversation_id(tx.as_mut(), conversation)
+            .await
+            .unwrap();
+        let Some(Message::ToolOutput(stored)) =
+            messages.get(2).map(|message| &message.message).cloned()
+        else {
+            panic!("the first answer is a tool output");
+        };
+        assert_eq!(stored.client_answer, Some(client_answer));
     }
 
     /// An answer the conversation has no room for must be refused cleanly, and must not leave a
@@ -1081,8 +1268,9 @@ mod tests {
     #[tokio::test]
     async fn refuses_answers_the_conversation_has_no_room_for() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
-        let (_other_configuration, other_conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
+        let (_other_configuration, other_conversation) =
+            insert_chatbot_conversation(tx.as_mut()).await;
         insert(
             tx.as_mut(),
             tool_call_message(conversation, "call_client", ToolKind::ClientTool),
@@ -1101,9 +1289,15 @@ mod tests {
         )
         .await
         .unwrap();
-        answer_client_tool_call(tx.as_mut(), conversation, "call_client", "done".to_string())
-            .await
-            .unwrap();
+        answer_client_tool_call(
+            tx.as_mut(),
+            conversation,
+            "call_client",
+            "done".to_string(),
+            None,
+        )
+        .await
+        .unwrap();
 
         for (tool_call_id, expected) in [
             ("call_unknown", ModelErrorType::RecordNotFound),
@@ -1116,6 +1310,7 @@ mod tests {
                 conversation,
                 tool_call_id,
                 "again".to_string(),
+                None,
             )
             .await
             .expect_err("the answer must be refused");
@@ -1144,7 +1339,7 @@ mod tests {
     #[tokio::test]
     async fn a_waiting_client_tool_call_is_discoverable_from_the_conversation_info() {
         insert_data!(:tx);
-        let (configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         insert(
             tx.as_mut(),
             tool_call_message(conversation, "call_1", ToolKind::ClientTool),
@@ -1168,7 +1363,7 @@ mod tests {
         let messages = info
             .current_conversation_messages
             .expect("the conversation has messages");
-        assert_eq!(waiting_tool_call_ids(&messages), vec!["call_1"]);
+        assert_eq!(waiting_client_tool_call_ids(&messages), vec!["call_1"]);
         let Some(Message::ToolCall(call)) = messages.first().map(|message| &message.message) else {
             panic!("the waiting call is in the conversation");
         };
@@ -1182,7 +1377,7 @@ mod tests {
     async fn no_suggestions_are_offered_while_a_turn_is_suspended() {
         insert_data!(:tx);
         let (configuration, conversation) =
-            insert_conversation_suggesting_messages(tx.as_mut(), true).await;
+            insert_chatbot_conversation_suggesting_messages(tx.as_mut(), true).await;
         let anonymous_token = chatbot_conversations::get_by_id(tx.as_mut(), conversation)
             .await
             .unwrap()
@@ -1208,9 +1403,15 @@ mod tests {
 
         assert!(while_suspended.suggested_messages.is_none());
 
-        answer_client_tool_call(tx.as_mut(), conversation, "call_1", "for loops".to_string())
-            .await
-            .unwrap();
+        answer_client_tool_call(
+            tx.as_mut(),
+            conversation,
+            "call_1",
+            "for loops".to_string(),
+            None,
+        )
+        .await
+        .unwrap();
         let after_the_answer = chatbot_conversations::get_current_conversation_info(
             tx.as_mut(),
             None,
@@ -1233,7 +1434,7 @@ mod tests {
     #[tokio::test]
     async fn turn_is_suspended_only_while_a_client_tool_call_waits() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
         insert(tx.as_mut(), user_message(conversation, "which loop"))
             .await
             .unwrap();
@@ -1265,6 +1466,7 @@ mod tests {
             conversation,
             "call_client",
             "for loops".to_string(),
+            None,
         )
         .await
         .unwrap();
@@ -1279,8 +1481,9 @@ mod tests {
     #[tokio::test]
     async fn a_tool_output_of_another_conversation_does_not_answer_a_tool_call() {
         insert_data!(:tx);
-        let (_configuration, conversation) = insert_conversation(tx.as_mut()).await;
-        let (_other_configuration, other_conversation) = insert_conversation(tx.as_mut()).await;
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
+        let (_other_configuration, other_conversation) =
+            insert_chatbot_conversation(tx.as_mut()).await;
         insert(
             tx.as_mut(),
             tool_call_message(conversation, "call_1", ToolKind::Function),
@@ -1294,9 +1497,14 @@ mod tests {
         .await
         .unwrap();
 
-        answer_hanging_tool_call_messages_for_conversation(tx.as_mut(), other_conversation, None)
-            .await
-            .unwrap();
+        answer_hanging_tool_call_messages_for_conversation(
+            tx.as_mut(),
+            other_conversation,
+            None,
+            "aborted",
+        )
+        .await
+        .unwrap();
 
         let hanging =
             chatbot_conversation_message_tool_calls::get_unanswered_tool_calls_for_conversation(

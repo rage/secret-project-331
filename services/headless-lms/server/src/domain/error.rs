@@ -793,12 +793,13 @@ impl From<ModelError> for ControllerError {
 }
 
 impl From<AuthorizationError> for ControllerError {
-    fn from(mut err: AuthorizationError) -> Self {
+    fn from(err: AuthorizationError) -> Self {
         // A check that failed because the models layer did is mapped like any other
         // ModelError, so that e.g. authorizing against a nonexistent page still answers 404.
-        if let Some(model_error) = err.take_model_source() {
-            return model_error.into();
-        }
+        let err = match err.into_model_error() {
+            Ok(model_error) => return model_error.into(),
+            Err(err) => err,
+        };
 
         let backtrace: Backtrace = match BackendError::backtrace(&err) {
             Some(backtrace) => backtrace.clone(),

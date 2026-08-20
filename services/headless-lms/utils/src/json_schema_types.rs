@@ -57,3 +57,17 @@ pub struct JsonItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }
+
+/// An array of plain strings, the one composite property that tool parameter and structured output
+/// schemas keep asking for. `description` explains the array to the LLM; the items carry none of
+/// their own.
+pub fn string_array_property(description: Option<&str>) -> SchemaPropertyType {
+    SchemaPropertyType::ArrayProperty(ArrayProperty {
+        type_field: JSONType::Array,
+        items: ArrayItem::JsonItem(JsonItem {
+            type_field: JSONType::String,
+            description: None,
+        }),
+        description: description.map(str::to_string),
+    })
+}

@@ -6,10 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
-import type { ChatbotSurface } from "@/generated/course-material-api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-
-const SURFACE: ChatbotSurface = "configuration_preview"
 
 interface ChatbotPreviewModalProps {
   open: boolean
@@ -24,7 +21,7 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, undefined, SURFACE)
+  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, undefined, null)
   const { currentConversationInfo, newConversationMutation } = chatbotStateAndData
   const hasStartedFreshConversation = useRef(false)
 

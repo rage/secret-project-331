@@ -7,14 +7,14 @@ pub use headless_lms_authorization::error::{AuthorizationError, AuthorizationErr
 pub use headless_lms_authorization::{
     Action, ActionOnResource, AuthorizationToken, Resource, authorize, authorize_access_to_chatbot,
     authorize_access_to_course_material, authorize_with_fetched_list_of_roles,
-    can_user_view_chapter, is_user_global_admin, skip_authorize,
+    can_user_view_chapter, is_permitted, is_user_global_admin, skip_authorize,
 };
 
-/// Responder for AuthorizationToken
+/// A controller's response payload. Only [AuthorizedOk::authorized_ok] can build one, so
+/// answering a request requires having passed an authorization check.
 #[derive(Copy, Clone)]
 pub struct AuthorizedResponse<T> {
     pub data: T,
-    pub token: AuthorizationToken,
 }
 
 impl<T: Responder> Responder for AuthorizedResponse<T> {
@@ -34,16 +34,16 @@ pub trait AuthorizedOk {
 
 impl AuthorizedOk for AuthorizationToken {
     fn authorized_ok<T>(self, t: T) -> ControllerResult<T> {
-        Ok(AuthorizedResponse {
-            data: t,
-            token: self,
-        })
+        Ok(AuthorizedResponse { data: t })
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    // Explicit: a workspace-wide test build enables the models crate's test-helpers feature, whose
+    // own insert_data! then clashes with ours in the globs below.
+    use crate::insert_data;
     use crate::test_helper::*;
     use headless_lms_models::*;
     use models::roles::{RoleDomain, UserRole};

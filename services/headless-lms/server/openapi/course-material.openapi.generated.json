@@ -3526,6 +3526,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "client_answer": {
+            "type": ["object", "null"],
+            "description": "The answer payload the client sent, in the shape the answered tool defines. None for\noutputs no client answered."
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -3596,27 +3600,12 @@
           }
         }
       },
-      "ChatbotSurface": {
-        "type": "string",
-        "description": "The part of the application a chatbot message was sent from.\n\nEvery surface posts to the same endpoint and several of them share a chatbot configuration,\nso a request has to name its surface for the backend to tell them apart.",
-        "enum": [
-          "course_material_dialog",
-          "course_material_block",
-          "embed",
-          "configuration_preview",
-          "command_center"
-        ]
-      },
       "ChatbotToolResponse": {
         "type": "object",
-        "required": ["tool_call_id", "surface", "answer"],
+        "required": ["tool_call_id", "answer"],
         "properties": {
           "answer": {
             "$ref": "#/components/schemas/ClientToolAnswer"
-          },
-          "surface": {
-            "$ref": "#/components/schemas/ChatbotSurface",
-            "description": "Where the answer is coming from, which the resumed turn needs for the same reason\n`send-message` does: it decides which client tools the next round may offer."
           },
           "tool_call_id": {
             "type": "string",
@@ -3647,33 +3636,9 @@
                 "enum": ["Data"]
               }
             }
-          },
-          {
-            "type": "object",
-            "description": "The learner allowed or refused the call, optionally in their own words.",
-            "required": ["data", "type"],
-            "properties": {
-              "data": {
-                "type": "object",
-                "description": "The learner allowed or refused the call, optionally in their own words.",
-                "required": ["approved"],
-                "properties": {
-                  "approved": {
-                    "type": "boolean"
-                  },
-                  "note": {
-                    "type": ["string", "null"]
-                  }
-                }
-              },
-              "type": {
-                "type": "string",
-                "enum": ["Decision"]
-              }
-            }
           }
         ],
-        "description": "What a client answered a tool call with.\n\nA client tool either runs and produces data, or puts a choice to the learner. Both are shapes\nof the same answer so that the confirmation gates of a later phase, which answer with\n[ClientToolAnswer::Decision], need no change to the wire format. The tool the call belongs to\ndecides which shapes it accepts and what the model is told they mean."
+        "description": "What a client answered a tool call with.\n\nThe tool the call belongs to decides what shape the answer has to be in and what the model is\ntold it means."
       },
       "CodeGiveawayStatus": {
         "oneOf": [
@@ -6316,7 +6281,7 @@
       },
       "SendChatbotMessage": {
         "type": "object",
-        "required": ["message", "surface"],
+        "required": ["message"],
         "properties": {
           "message": {
             "type": "string",
@@ -6332,9 +6297,6 @@
                 "description": "The course material page the learner has open, when they are on one."
               }
             ]
-          },
-          "surface": {
-            "$ref": "#/components/schemas/ChatbotSurface"
           }
         }
       },

@@ -7,11 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
-import type { ChatbotSurface } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Select } from "@/shared-module/components"
-
-const SURFACE: ChatbotSurface = "command_center"
 
 interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
@@ -106,7 +103,7 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
           <ChatbotChat
             chatbotConfigurationId={configuration_id}
             isCourseMaterialBlock={true}
-            surface={SURFACE}
+            pageId={null}
           />
         )}
       </div>

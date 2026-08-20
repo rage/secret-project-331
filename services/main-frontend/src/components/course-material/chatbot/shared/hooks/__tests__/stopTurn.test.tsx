@@ -9,6 +9,7 @@ import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurre
 import { includeIf } from "@/shared-module/common/utils/nullability"
 
 import { streamOf } from "../../../__fixtures__/chatbotResponseStream"
+import { multipleChoiceAnswer } from "../../multipleChoiceQuestions"
 import useChatbotStateAndData from "../useChatbotStateAndData"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
@@ -72,9 +73,7 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const renderChatbot = () =>
-  renderHook(() => useChatbotStateAndData(CONFIGURATION_ID, undefined, "course_material_dialog"), {
-    wrapper,
-  })
+  renderHook(() => useChatbotStateAndData(CONFIGURATION_ID, undefined, null), { wrapper })
 
 /** The signal the pending turn was sent with, once the request has gone out. */
 const sentSignal = async (): Promise<AbortSignal> => {
@@ -147,7 +146,10 @@ describe("Starting a chatbot turn", () => {
     const { result } = renderChatbot()
 
     act(() =>
-      result.current.toolResponseMutation.mutate({ toolCallId: TOOL_CALL_ID, choiceIndex: 0 }),
+      result.current.toolResponseMutation.mutate({
+        toolCallId: TOOL_CALL_ID,
+        answer: multipleChoiceAnswer(0),
+      }),
     )
 
     const signal = await sentSignal()

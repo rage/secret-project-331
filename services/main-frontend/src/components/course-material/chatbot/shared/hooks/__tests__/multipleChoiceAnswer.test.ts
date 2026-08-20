@@ -1,4 +1,4 @@
-import { multipleChoiceAnswer } from "../useChatbotStateAndData"
+import { multipleChoiceAnswer } from "../../multipleChoiceQuestions"
 
 /**
  * `ClientToolAnswer["data"]["result"]` is generated as an open record, so tsc accepts any key here.

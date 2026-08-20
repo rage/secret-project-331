@@ -13,7 +13,7 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import { waitForNextTick } from "@/shared-module/common/utils/async"
 import {
   defaultChatbotCommunicationChannel,
-  defaultChatbotIsTurnInFlightAtom,
+  defaultChatbotIsTurnInFlight,
 } from "@/stores/course-material/chatbotDialogStore"
 
 import ChatbotDisclaimer from "../ChatbotDisclaimer"
@@ -31,7 +31,7 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
 ): void => {
   const { t } = useTranslation()
   const setDefaultChatbotCommunicationChannel = useSetAtom(defaultChatbotCommunicationChannel)
-  const setDefaultChatbotIsTurnInFlight = useSetAtom(defaultChatbotIsTurnInFlightAtom)
+  const setDefaultChatbotIsTurnInFlight = useSetAtom(defaultChatbotIsTurnInFlight)
   const { confirm } = useDialog()
 
   // Fields, not the result object: React Query returns a fresh one per render, which would rebuild
@@ -45,25 +45,30 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
     }
     setDefaultChatbotCommunicationChannel({
       sendNewMessage: async (message) => {
-        if (!currentConversation) {
-          const confirmed = await confirm(
-            <ChatbotDisclaimer hideHeader={true} />,
-            t("about-the-chatbot"),
-            {
-              yesButtonLabel: t("button-text-agree"),
-              noButtonLabel: t("button-text-cancel"),
-            },
-          )
-          if (!confirmed) {
-            return
+        try {
+          if (!currentConversation) {
+            const confirmed = await confirm(
+              <ChatbotDisclaimer hideHeader={true} />,
+              t("about-the-chatbot"),
+              {
+                yesButtonLabel: t("button-text-agree"),
+                noButtonLabel: t("button-text-cancel"),
+              },
+            )
+            if (!confirmed) {
+              return
+            }
+            await mutateNewConversationAsync()
+            dispatch({ type: "RESPONSE_COMPLETED" })
+            await refetchConversationInfo()
           }
-          await mutateNewConversationAsync()
-          dispatch({ type: "RESPONSE_COMPLETED" })
-          await refetchConversationInfo()
+          // waiting for refetch
+          await waitForNextTick()
+          await mutateNewMessageAsync(message)
+        } catch {
+          // The mutation's own onError surfaces the failure, and a send started while a turn is
+          // already running is refused there too.
         }
-        // waiting for refetch
-        await waitForNextTick()
-        await mutateNewMessageAsync(message)
       },
     })
     return () => setDefaultChatbotCommunicationChannel(null)
@@ -79,12 +84,21 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
     t,
   ])
 
+  // Own effect so unmounting resets the value once, instead of every value-setting run also
+  // tearing it down and letting the next run's set-up re-emit it: that turned every turn start
+  // into two announcements (false, then true) to every subscriber.
   useEffect(() => {
     if (isCourseMaterialBlock) {
       return undefined
     }
-    setDefaultChatbotIsTurnInFlight(isTurnInFlight)
     return () => setDefaultChatbotIsTurnInFlight(false)
+  }, [isCourseMaterialBlock, setDefaultChatbotIsTurnInFlight])
+
+  useEffect(() => {
+    if (isCourseMaterialBlock) {
+      return
+    }
+    setDefaultChatbotIsTurnInFlight(isTurnInFlight)
   }, [isCourseMaterialBlock, isTurnInFlight, setDefaultChatbotIsTurnInFlight])
 }
 

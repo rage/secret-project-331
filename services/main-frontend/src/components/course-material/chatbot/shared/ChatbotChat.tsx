@@ -2,8 +2,6 @@
 
 import React, { useState } from "react"
 
-import type { ChatbotSurface } from "@/generated/course-material-api/types.generated"
-
 import ChatbotChatBox from "../../ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import ChatbotDialog from "../Chatbot/ChatbotDialog"
 import useChatbotStateAndData from "./hooks/useChatbotStateAndData"
@@ -12,19 +10,20 @@ import useSynchronizeDefaultChatbotCommunicationChannel from "./hooks/useSynchro
 interface ChatbotChatProps {
   chatbotConfigurationId: string
   isCourseMaterialBlock: boolean
-  surface: ChatbotSurface
+  /** The course material page to send as context with a message, or null where there is none. */
+  pageId: string | null
 }
 
 const ChatbotChat: React.FC<ChatbotChatProps> = ({
   chatbotConfigurationId,
   isCourseMaterialBlock,
-  surface,
+  pageId,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const chatbotStateAndData = useChatbotStateAndData(
     chatbotConfigurationId,
     isCourseMaterialBlock ? undefined : setIsOpen,
-    surface,
+    pageId,
   )
 
   useSynchronizeDefaultChatbotCommunicationChannel(

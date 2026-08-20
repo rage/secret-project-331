@@ -8,7 +8,7 @@ import type { ReactNode } from "react"
 import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
 import {
   defaultChatbotCommunicationChannel,
-  defaultChatbotIsTurnInFlightAtom,
+  defaultChatbotIsTurnInFlight,
 } from "@/stores/course-material/chatbotDialogStore"
 
 import useSynchronizeDefaultChatbotCommunicationChannel from "../useSynchronizeDefaultChatbotCommunicationChannel"
@@ -80,10 +80,10 @@ describe("Publishing the course default chatbot channel", () => {
     const { rerender, store, channels } = renderChannel()
 
     rerender({ isTurnInFlight: true })
-    expect(store.get(defaultChatbotIsTurnInFlightAtom)).toBe(true)
+    expect(store.get(defaultChatbotIsTurnInFlight)).toBe(true)
 
     rerender({ isTurnInFlight: false })
-    expect(store.get(defaultChatbotIsTurnInFlightAtom)).toBe(false)
+    expect(store.get(defaultChatbotIsTurnInFlight)).toBe(false)
     expect(channels).toHaveLength(1)
   })
 
@@ -93,6 +93,29 @@ describe("Publishing the course default chatbot channel", () => {
     unmount()
 
     expect(store.get(defaultChatbotCommunicationChannel)).toBeNull()
-    expect(store.get(defaultChatbotIsTurnInFlightAtom)).toBe(false)
+    expect(store.get(defaultChatbotIsTurnInFlight)).toBe(false)
+  })
+})
+
+describe("Sending through the course default chatbot channel", () => {
+  it("sends the message through the mutation", async () => {
+    const { store } = renderChannel()
+    mutateNewMessageAsync.mockClear()
+
+    await store.get(defaultChatbotCommunicationChannel)?.sendNewMessage("hi")
+
+    expect(mutateNewMessageAsync).toHaveBeenCalledWith("hi")
+  })
+
+  // Callers fire this from a click handler without awaiting it, so a rejection would surface as an
+  // unhandled one; the chatbot shows the failure itself.
+  it("does not reject when the mutation fails", async () => {
+    const { store } = renderChannel()
+    mutateNewMessageAsync.mockClear()
+    mutateNewMessageAsync.mockRejectedValueOnce(new Error("boom"))
+
+    await expect(
+      store.get(defaultChatbotCommunicationChannel)?.sendNewMessage("hi"),
+    ).resolves.toBeUndefined()
   })
 })

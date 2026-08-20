@@ -128,46 +128,17 @@ export const zChatbotPageContext = z.object({
 })
 
 /**
- * The part of the application a chatbot message was sent from.
- *
- * Every surface posts to the same endpoint and several of them share a chatbot configuration,
- * so a request has to name its surface for the backend to tell them apart.
+ * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
  */
-export const zChatbotSurface = z.enum([
-  "course_material_dialog",
-  "course_material_block",
-  "embed",
-  "configuration_preview",
-  "command_center",
-])
-
-/**
- * What a client answered a tool call with.
- *
- * A client tool either runs and produces data, or puts a choice to the learner. Both are shapes
- * of the same answer so that the confirmation gates of a later phase, which answer with
- * [ClientToolAnswer::Decision], need no change to the wire format. The tool the call belongs to
- * decides which shapes it accepts and what the model is told they mean.
- */
-export const zClientToolAnswer = z.union([
-  z.object({
-    data: z.object({
-      result: z.record(z.string(), z.unknown()),
-    }),
-    type: z.enum(["Data"]),
+export const zClientToolAnswer = z.object({
+  data: z.object({
+    result: z.record(z.string(), z.unknown()),
   }),
-  z.object({
-    data: z.object({
-      approved: z.boolean(),
-      note: z.string().nullish(),
-    }),
-    type: z.enum(["Decision"]),
-  }),
-])
+  type: z.enum(["Data"]),
+})
 
 export const zChatbotToolResponse = z.object({
   answer: zClientToolAnswer,
-  surface: zChatbotSurface,
   tool_call_id: z.string(),
 })
 
@@ -939,7 +910,6 @@ export const zSearchRequest = z.object({
 export const zSendChatbotMessage = z.object({
   message: z.string(),
   page_context: zChatbotPageContext.nullish(),
-  surface: zChatbotSurface,
 })
 
 export const zShowExerciseAnswers = z.object({
@@ -1149,6 +1119,7 @@ export const zChatbotConversationMessageToolCall = z.object({
 
 export const zChatbotConversationMessageToolOutput = z.object({
   chatbot_conversation_message_id: z.uuid(),
+  client_answer: z.record(z.string(), z.unknown()).nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),

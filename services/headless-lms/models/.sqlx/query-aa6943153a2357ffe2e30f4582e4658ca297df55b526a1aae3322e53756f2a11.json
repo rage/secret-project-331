@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM chatbot_conversation_messages\nWHERE conversation_id = $1\nAND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM chatbot_conversation_messages\nWHERE conversation_id = $1\nAND deleted_at IS NULL\nORDER BY order_number\n        ",
   "describe": {
     "columns": [
       {
@@ -84,5 +84,5 @@
       false
     ]
   },
-  "hash": "e62a0932d5c3744e8b25d5b8360be439a573722c10b041cfb865415cd5ed9fdd"
+  "hash": "aa6943153a2357ffe2e30f4582e4658ca297df55b526a1aae3322e53756f2a11"
 }

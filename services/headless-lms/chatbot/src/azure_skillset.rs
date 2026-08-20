@@ -1,7 +1,7 @@
 use secrecy::ExposeSecret;
 use serde_json::json;
 
-use crate::prelude::*;
+use crate::{llm_utils::azure_search_request, prelude::*};
 
 const API_VERSION: &str = "2024-07-01";
 
@@ -28,11 +28,7 @@ pub async fn does_skillset_exist(
     url.set_path(&format!("skillsets('{}')", skillset_name));
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    let response = REQWEST_CLIENT
-        .get(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
-        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
+    let response = azure_search_request(reqwest::Method::GET, url, search_config)
         .send()
         .await?;
 
@@ -201,12 +197,8 @@ pub async fn create_skillset(
         "encryptionKey": null
     });
 
-    let response = REQWEST_CLIENT
-        .put(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
+    let response = azure_search_request(reqwest::Method::PUT, url, search_config)
         .json(&skillset_definition)
-        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 

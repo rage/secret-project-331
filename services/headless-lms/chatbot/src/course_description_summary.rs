@@ -1,5 +1,8 @@
 use headless_lms_utils::{
-    json_schema_types::{ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType},
+    json_schema_types::{
+        ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType,
+        string_array_property,
+    },
     services::sisu::SisuDescriptions,
 };
 use indexmap::IndexMap;
@@ -60,17 +63,7 @@ fn response_format() -> LLMRequestResponseFormatParam {
                         description: None,
                     }),
                 ),
-                (
-                    "audience".to_string(),
-                    SchemaPropertyType::ArrayProperty(ArrayProperty {
-                        type_field: JSONType::Array,
-                        description: None,
-                        items: ArrayItem::JsonItem(JsonItem {
-                            type_field: JSONType::String,
-                            description: None,
-                        }),
-                    }),
-                ),
+                ("audience".to_string(), string_array_property(None)),
                 (
                     "modules".to_string(),
                     SchemaPropertyType::ArrayProperty(ArrayProperty {
@@ -94,17 +87,7 @@ fn response_format() -> LLMRequestResponseFormatParam {
                                         description: None,
                                     }),
                                 ),
-                                (
-                                    "prerequisites".to_string(),
-                                    SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                        type_field: JSONType::Array,
-                                        description: None,
-                                        items: ArrayItem::JsonItem(JsonItem {
-                                            type_field: JSONType::String,
-                                            description: None,
-                                        }),
-                                    }),
-                                ),
+                                ("prerequisites".to_string(), string_array_property(None)),
                             ]),
                             required: Vec::from([
                                 "course_code".to_string(),

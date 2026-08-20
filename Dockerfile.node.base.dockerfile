@@ -46,4 +46,10 @@ RUN mkdir -p /tmp/dummy-project && \
 ENV PNPM_HOME="/pnpm"
 RUN mkdir -p $PNPM_HOME && chown -R node:node $PNPM_HOME
 
+# Downstream images inherit this and must not silently fetch a pnpm version
+# that doesn't match what's baked in above: a version bump in package.json
+# without rebuilding this base image should fail the build, not quietly
+# redownload pnpm on every install.
+ENV COREPACK_ENABLE_NETWORK=0
+
 USER root

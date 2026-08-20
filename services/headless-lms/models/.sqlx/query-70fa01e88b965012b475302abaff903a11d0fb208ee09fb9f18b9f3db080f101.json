@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COALESCE(\n    SUM(last_fast_track_skipped_name_mismatch_count),\n    0\n  ) AS \"count!\"\nFROM course_module_suotar_realisations\nWHERE active\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "70fa01e88b965012b475302abaff903a11d0fb208ee09fb9f18b9f3db080f101"
+}

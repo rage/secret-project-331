@@ -42,6 +42,14 @@ export interface MockSuotarDatePeriod {
   endDate: string
 }
 
+const YEAR_MS = 365 * 24 * 60 * 60 * 1000
+
+/** A study-right period comfortably spanning "now", for specs that just need enrolment to be active. */
+export const activeStudyRightPeriod = (): MockSuotarDatePeriod => ({
+  startDate: new Date(Date.now() - YEAR_MS).toISOString().slice(0, "2026-01-01".length),
+  endDate: new Date(Date.now() + YEAR_MS).toISOString().slice(0, "2026-01-01".length),
+})
+
 export interface MockSuotarEnrolmentUpsert {
   id?: string
   studentNumber: string
@@ -149,6 +157,24 @@ export const upsertMockSuotarEnrolments = (
   enrolments: MockSuotarEnrolmentUpsert[],
 ) => sendCommand(request, { command: "upsertEnrolments", enrolments })
 
+export interface MockSuotarAttainmentUpsert {
+  id?: string
+  studentNumber: string
+  courseCode: string
+  kind?: MockSuotarRealisationKind
+  /** Ties into the ordering the registry answers in: the oldest attainment is listed first. */
+  attainmentDate: string
+  gradeScaleId: string
+  gradeId: string
+  passed?: boolean
+}
+
+/** An attainment the registry holds without our having submitted it. */
+export const upsertMockSuotarAttainments = (
+  request: APIRequestContext,
+  attainments: MockSuotarAttainmentUpsert[],
+) => sendCommand(request, { command: "upsertAttainments", attainments })
+
 /** A spec owns a student number, not the mock-side `hy-kur-…` id the client holds in the database. */
 export const transitionMockSuotarSubmissionsFor = (
   request: APIRequestContext,
@@ -163,6 +189,11 @@ export const transitionMockSuotarSubmissionsFor = (
     to,
   })
 
+/**
+ * See the isolation rules in `creditRegistration.ts`'s file doc comment before arming a
+ * `requestLevel` fault with an owner: the unscoped background worker can batch a foreign student
+ * into the same request and silently suppress it.
+ */
 export const armMockSuotarFault = (request: APIRequestContext, fault: MockSuotarFaultSpec) =>
   sendCommand(request, { command: "armFault", ...fault })
 

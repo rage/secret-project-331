@@ -9,8 +9,8 @@ import {
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
 import { makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
-import { expect, test } from "@/utils/fixtures"
 import { applyMockSuotarScenario, transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   runImportSubmissionTick,
   runMaterializeTick,

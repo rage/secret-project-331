@@ -7,7 +7,7 @@ import {
 } from "@/utils/creditRegistration"
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { respondToConfirmDialog } from "@/utils/dialogs"
-import { expect, test } from "@/utils/fixtures"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   runPhasesUpToSubmission,

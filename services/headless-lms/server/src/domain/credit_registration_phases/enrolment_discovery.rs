@@ -1,8 +1,10 @@
 //! The `enrolment-discovery` phase: who the study registry says is on the course.
 //!
-//! One listing unparks the registrations of people we already have a link for, and claims an
-//! account-linking mail for the rest. Deliberately no matching of Sisu addresses against accounts:
-//! the population the linking mail exists to reach is the people whose two addresses differ.
+//! One listing unparks the registrations of people we already have a link for, links the few whose
+//! registry address is an address one of our accounts has proved it controls, and claims an
+//! account-linking mail for everybody else. That middle branch is terminal, never a filter: the
+//! population the linking mail exists to reach is the people whose two addresses differ, and every
+//! fast-track outcome other than a link falls through to the mail.
 
 use headless_lms_models::course_module_suotar_realisations::{
     RealisationListingOutcome, RealisationToList, claim_stalest_for_listing,
@@ -13,21 +15,29 @@ use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistrationErrorCode, map_wire_code, recheck_no_usable_enrolment_now,
 };
+use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
+use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::library::credit_registration::account_linking::{
     DiscoveredPerson, claim_linking_mails_batch,
+};
+use headless_lms_models::library::credit_registration::fast_track::{
+    FastTrackCandidate, FastTrackDecision, FastTrackLink, RegistryName, decide_fast_track,
+    find_fast_track_candidate, link_by_email_match,
 };
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::BackendError;
+use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ListByCourseRequestItem, ListedPerson, SuotarCallContext, SuotarEndpoint, SuotarItemStatus,
 };
+use serde_json::json;
 use sqlx::{Connection, PgConnection};
 use std::collections::HashSet;
 
 use super::{
-    CreditRegistrationPhase, PhaseContext, PhaseScope, every_item_failed_transiently,
-    listed_person_addresses,
+    CreditRegistrationPhase, PhaseContext, PhaseScope, TemplateCache,
+    every_item_failed_transiently, listed_person_addresses, template_language,
 };
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -123,7 +133,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 continue;
             }
         };
-        let outcome = reconcile(&mut conn, realisation, people).await?;
+        let outcome = reconcile(ctx, &mut conn, realisation, people).await?;
         record_listing_outcome(&mut conn, realisation.id, &outcome).await?;
     }
 
@@ -138,6 +148,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
 
 /// Applies one realisation's roster and returns the counters the realisation row carries.
 async fn reconcile(
+    ctx: &PhaseContext<'_>,
     conn: &mut PgConnection,
     realisation: &RealisationToList,
     people: &[ListedPerson],
@@ -156,6 +167,7 @@ async fn reconcile(
         .map(|row| row.sisu_person_id.as_str())
         .collect();
 
+    let mut fast_track = FastTrackRun::new(ctx, realisation);
     let mut discovered = Vec::new();
     for person in people {
         if linked_person_ids.contains(person.person_id.as_str()) {
@@ -166,6 +178,9 @@ async fn reconcile(
         if addresses.is_empty() {
             // The only genuinely unreachable population, and the reason it has a counter of its own.
             outcome.no_address_count += 1;
+            continue;
+        }
+        if fast_track.try_link(conn, person, &mut outcome).await? {
             continue;
         }
         discovered.push(DiscoveredPerson {
@@ -192,6 +207,143 @@ async fn reconcile(
         recheck_no_usable_enrolment_now(conn, realisation.course_id, &linked_user_ids).await?;
     }
     Ok(outcome)
+}
+
+/// The fast track over one realisation's roster: the config it reads and the template lookup it
+/// caches, so neither is repeated per person.
+struct FastTrackRun<'a> {
+    ctx: &'a PhaseContext<'a>,
+    realisation: &'a RealisationToList,
+    enabled: bool,
+    max_verification_age: chrono::Duration,
+    templates: TemplateCache,
+}
+
+impl<'a> FastTrackRun<'a> {
+    fn new(ctx: &'a PhaseContext<'a>, realisation: &'a RealisationToList) -> Self {
+        let conf = ctx.suotar_conf;
+        Self {
+            ctx,
+            realisation,
+            enabled: conf.fast_track_email_match_enabled,
+            max_verification_age: chrono::Duration::days(
+                conf.fast_track_max_email_verification_age_days.max(0),
+            ),
+            templates: TemplateCache::default(),
+        }
+    }
+
+    /// Whether the person was linked here, in which case no linking mail is owed. `false` for every
+    /// other outcome, including the flag being off, and the caller carries on to the mail.
+    async fn try_link(
+        &mut self,
+        conn: &mut PgConnection,
+        person: &ListedPerson,
+        outcome: &mut RealisationListingOutcome,
+    ) -> anyhow::Result<bool> {
+        if !self.enabled {
+            return Ok(false);
+        }
+        // One transaction, and the candidate query locks the account row: a profile edit landing
+        // between reading the proof and writing the link would leave a link resting on an address
+        // the account no longer holds.
+        let mut tx = conn.begin().await?;
+        // The registry's secondary address is self-entered, so anyone could name someone else's
+        // account address there and be handed their student number.
+        let candidate =
+            find_fast_track_candidate(&mut tx, &person.primary_email, &person.person_id).await?;
+        let decision = decide_fast_track(
+            candidate.as_ref(),
+            RegistryName {
+                first_names: Some(&person.first_names),
+                last_name: Some(&person.last_name),
+            },
+            Utc::now(),
+            self.max_verification_age,
+        );
+        match decision {
+            FastTrackDecision::NoAccountMatch => outcome.fast_track_skipped_no_account_count += 1,
+            FastTrackDecision::UnverifiedAccount => {
+                outcome.fast_track_skipped_unverified_count += 1
+            }
+            FastTrackDecision::StaleVerification => {
+                outcome.fast_track_skipped_stale_verification_count += 1
+            }
+            FastTrackDecision::NameMismatch => outcome.fast_track_skipped_name_mismatch_count += 1,
+            FastTrackDecision::AccountHasStudentNumber => {
+                outcome.fast_track_skipped_account_has_number_count += 1
+            }
+            FastTrackDecision::UnlinkedBefore => {
+                outcome.fast_track_skipped_unlinked_before_count += 1
+            }
+            FastTrackDecision::Link => outcome.fast_tracked_count += 1,
+        }
+        let (FastTrackDecision::Link, Some(candidate)) = (decision, candidate) else {
+            return Ok(false);
+        };
+
+        link_by_email_match(
+            &mut tx,
+            &FastTrackLink {
+                student_number: &person.student_number,
+                sisu_person_id: &person.person_id,
+                first_names: Some(&person.first_names),
+                last_name: Some(&person.last_name),
+                course_id: self.realisation.course_id,
+            },
+            &candidate,
+        )
+        .await?;
+        self.notify(&mut tx, person, &candidate).await?;
+        tx.commit().await?;
+        Ok(true)
+    }
+
+    /// The security notice that makes a wrong link detectable by the one party the link was proved
+    /// against. Off the critical path on purpose: the link is already made and registration proceeds,
+    /// so a missing template is logged and skipped rather than failing the listing.
+    async fn notify(
+        &mut self,
+        conn: &mut PgConnection,
+        person: &ListedPerson,
+        candidate: &FastTrackCandidate,
+    ) -> anyhow::Result<()> {
+        let language = template_language(&self.realisation.course_language_code);
+        let Some(template_id) = self
+            .templates
+            .id_for(
+                conn,
+                EmailTemplateType::CreditRegistrationStudentNumberLinked,
+                &language,
+            )
+            .await?
+        else {
+            warn!(
+                "No credit_registration_student_number_linked email template in {language}, so an automatic link went unannounced."
+            );
+            return Ok(());
+        };
+        insert_email_delivery_with_placeholders(
+            conn,
+            candidate.user_id,
+            template_id,
+            &json!({
+                "NAME": candidate.first_name.clone().unwrap_or_default(),
+                "STUDENT_NUMBER": person.student_number,
+                "LINK": student_number_settings_url(self.ctx.base_url),
+            }),
+        )
+        .await?;
+        Ok(())
+    }
+}
+
+/// Where the notice's "not you? unlink" link goes.
+fn student_number_settings_url(base_url: &str) -> String {
+    format!(
+        "{}/user-settings/student-number",
+        base_url.trim_end_matches('/')
+    )
 }
 
 fn listable_course_code(realisation: &RealisationToList) -> Option<String> {

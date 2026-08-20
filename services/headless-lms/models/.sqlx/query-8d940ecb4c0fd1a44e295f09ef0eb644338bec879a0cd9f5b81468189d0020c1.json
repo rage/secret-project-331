@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"item_count!\",\n  COUNT(*) FILTER (\n    WHERE error_code IN ('sisu_temporarily_unavailable', 'sisu_timeout')\n  ) AS \"sisu_unavailable_count!\",\n  MAX(created_at) FILTER (\n    WHERE error_code IN ('sisu_temporarily_unavailable', 'sisu_timeout')\n  ) AS \"last_sisu_unavailable_at\"\nFROM credit_registration_events\nWHERE kind = 'suotar_response'\n  AND created_at >= $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "item_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "sisu_unavailable_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "last_sisu_unavailable_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "8d940ecb4c0fd1a44e295f09ef0eb644338bec879a0cd9f5b81468189d0020c1"
+}

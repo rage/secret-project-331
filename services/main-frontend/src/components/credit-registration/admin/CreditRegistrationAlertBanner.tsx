@@ -17,6 +17,7 @@ const MAX_SHOWN = 3
 const SEVERITY_KEYS = {
   critical: "credit-registration-alert-severity-critical",
   warning: "credit-registration-alert-severity-warning",
+  info: "credit-registration-alert-severity-info",
 } as const satisfies Record<CreditRegistrationAlertSeverity, string>
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -51,7 +52,7 @@ const CreditRegistrationAlertBanner: React.FC = () => {
           tone={alert.severity === CRITICAL_SEVERITY ? TONE.WARNING : TONE.INFO}
           heading={t(widenedLookup(SEVERITY_KEYS, alert.severity) ?? SEVERITY_KEYS.warning)}
         >
-          {alertSentence(t, alert.id, alert.count, alert.subject)}
+          {alertSentence(t, alert.id, alert.count, alert.subject, alert.total)}
         </Infobox>
       ))}
       {hidden > 0 && (

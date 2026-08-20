@@ -1,0 +1,166 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  cm.uh_course_code,\n  cm.ects_credits,\n  c.open_university_product_id AS \"open_university_product_id?\",\n  c.grade_scale_id AS \"grade_scale_id?\",\n  cm.enable_registering_completion_to_uh_open_university AS \"old_flow_also_enabled!\",\n  EXISTS (\n    SELECT 1\n    FROM open_university_product_access_tokens t\n    WHERE t.open_university_product_id = c.open_university_product_id\n      AND t.access_token IS NOT NULL\n      AND t.deleted_at IS NULL\n  ) AS \"product_token_found!\",\n  COALESCE(r.active_realisation_count, 0) AS \"active_realisation_count!\",\n  COALESCE(r.listed_successfully, FALSE) AS \"listed_successfully!\",\n  COALESCE(r.course_code_not_found, FALSE) AS \"course_code_not_found!\",\n  EXISTS (\n    SELECT 1\n    FROM course_module_completions cmc\n    WHERE cmc.course_module_id = cm.id\n      AND cmc.passed\n      AND cmc.grade IS NULL\n      AND cmc.deleted_at IS NULL\n  ) AS \"has_passed_completions_without_a_grade!\"\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT COUNT(*) AS active_realisation_count,\n      BOOL_OR(cmsr.last_listed_at IS NOT NULL) AS listed_successfully,\n      BOOL_OR(cmsr.last_listing_error = $2) AS course_code_not_found\n    FROM course_module_suotar_realisations cmsr\n    WHERE cmsr.course_module_id = cm.id\n      AND cmsr.active\n      AND cmsr.deleted_at IS NULL\n  ) r ON TRUE\nWHERE cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\n  AND ($1::uuid IS NULL OR cm.course_id = $1)\nORDER BY cm.course_id,\n  cm.order_number\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "uh_course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "uh_course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "ects_credits",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "ects_credits"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "open_university_product_id?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "open_university_product_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "grade_scale_id?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "grade_scale_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "old_flow_also_enabled!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "enable_registering_completion_to_uh_open_university"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "product_token_found!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "active_realisation_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "listed_successfully!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 10,
+        "name": "course_code_not_found!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 11,
+        "name": "has_passed_completions_without_a_grade!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "acceptor_not_found",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "sisu_temporarily_unavailable",
+                "misregistered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "71b3beb5c591ba9f00bb9efd4c95992e89a43284d1da31a9cbe2bdd12aa4fa9f"
+}

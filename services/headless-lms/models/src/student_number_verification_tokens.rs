@@ -196,6 +196,32 @@ RETURNING id
     Ok(claimed.is_some())
 }
 
+/// Retires tokens whose link has expired unused, oldest first.
+///
+/// Soft delete, not a delete: `credit_registration_account_linking_emails` references these rows,
+/// and the dedup ledger has to keep saying which token a mail carried.
+pub async fn soft_delete_expired(conn: &mut PgConnection, limit: i64) -> ModelResult<u64> {
+    let res = sqlx::query!(
+        r#"
+UPDATE student_number_verification_tokens
+SET deleted_at = now()
+WHERE id IN (
+    SELECT id
+    FROM student_number_verification_tokens
+    WHERE used_at IS NULL
+      AND deleted_at IS NULL
+      AND expires_at < now()
+    ORDER BY expires_at
+    LIMIT $1
+  )
+        "#,
+        limit
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected())
+}
+
 /// Retires outstanding tokens for a student number, once the link was established some other way.
 pub async fn soft_delete_unused_for_student_number(
     conn: &mut PgConnection,

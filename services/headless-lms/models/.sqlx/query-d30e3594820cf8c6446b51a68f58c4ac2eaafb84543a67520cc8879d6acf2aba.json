@@ -1,0 +1,107 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH depth AS (\n  SELECT state,\n    COUNT(*)::int AS count\n  FROM credit_registrations\n  WHERE deleted_at IS NULL\n    -- As in `credit_registrations::count_by_state`, which feeds the funnel and the alerts off the\n    -- same states: counting replaced attempts here would make the two disagree on every course\n    -- that regrades.\n    AND superseded_by_id IS NULL\n  GROUP BY state\n),\n-- A transition writes one event carrying both ends, so entering and leaving are the same rows read\n-- from either side. A self-transition is neither.\nflow AS (\n  SELECT from_state,\n    to_state\n  FROM credit_registration_events\n  WHERE deleted_at IS NULL\n    AND created_at >= $2\n    AND created_at < $3\n    AND from_state IS DISTINCT FROM to_state\n)\nSELECT s.state AS \"state!: CreditRegistrationState\",\n  COALESCE(depth.count, 0) AS \"count!\",\n  (\n    SELECT COUNT(*)::int\n    FROM flow\n    WHERE flow.to_state = s.state\n  ) AS \"entered_count!\",\n  (\n    SELECT COUNT(*)::int\n    FROM flow\n    WHERE flow.from_state = s.state\n  ) AS \"left_count!\"\nFROM UNNEST($1::credit_registration_state []) AS s(state)\n  LEFT JOIN depth ON depth.state = s.state\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "state!: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "entered_count!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "left_count!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "d30e3594820cf8c6446b51a68f58c4ac2eaafb84543a67520cc8879d6acf2aba"
+}

@@ -10,9 +10,10 @@ import type {
   TeacherDecisionType,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import { primaryFont } from "@/shared-module/common/styles"
 
-import CustomPointsPopup from "./CustomPointsPopup"
+import TeacherDecisionFeedbackPopup, {
+  type TeacherDecisionFeedbackResult,
+} from "./TeacherDecisionFeedbackPopup"
 
 interface TeacherGradingDecisionControlsProps {
   userExerciseStateId: string
@@ -35,6 +36,7 @@ const DECISIONS = {
   FullPoints: "FullPoints",
   CustomPoints: "CustomPoints",
   RejectAndReset: "RejectAndReset",
+  SuspectedPlagiarism: "SuspectedPlagiarism",
 } as const satisfies Record<string, TeacherDecisionType>
 
 const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsProps> = ({
@@ -46,38 +48,29 @@ const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsPro
   const { t } = useTranslation()
 
   const handleDecision = useCallback(
-    (action: TeacherDecisionType, value?: number | undefined) => {
-      const manual_points = value !== undefined ? value : null
+    (action: TeacherDecisionType, value: number | null, justification: string | null) => {
       onGradingDecisionSubmit({
         user_exercise_state_id: userExerciseStateId,
         exercise_id: exerciseId,
         action: action,
-        manual_points: manual_points,
-        justification: null,
+        manual_points: value,
+        justification: justification,
         hidden: false,
       })
     },
     [onGradingDecisionSubmit, userExerciseStateId, exerciseId],
   )
 
-  const handleZeroPoints = useCallback(() => {
-    handleDecision(DECISIONS.ZeroPoints)
-  }, [handleDecision])
-
   const handleFullPoints = useCallback(() => {
-    handleDecision(DECISIONS.FullPoints)
+    handleDecision(DECISIONS.FullPoints, null, null)
   }, [handleDecision])
 
-  const handleCustomPoints = useCallback(
-    (points: number) => {
-      handleDecision(DECISIONS.CustomPoints, points)
-    },
+  // FullPoints has no feedback input: giving full points is not a decision that needs explaining to the student.
+  const makeFeedbackHandler = useCallback(
+    (action: TeacherDecisionType) => (result: TeacherDecisionFeedbackResult) =>
+      handleDecision(action, result.points, result.justification),
     [handleDecision],
   )
-
-  const handleRejectAndReset = useCallback(() => {
-    handleDecision(DECISIONS.RejectAndReset)
-  }, [handleDecision])
 
   return (
     <ControlPanel>
@@ -103,25 +96,30 @@ const TeacherGradingDecisionControls: React.FC<TeacherGradingDecisionControlsPro
           gap: 0.5rem;
         `}
       >
-        <Button
-          className={css`
-            font-family: ${primaryFont};
-            font-weight: 600;
-            font-size: 16px;
-          `}
-          size="medium"
+        <TeacherDecisionFeedbackPopup
+          triggerLabel={t("button-text-zero-points")}
           variant="reject"
-          onClick={handleZeroPoints}
-        >
-          {t("button-text-zero-points")}
-        </Button>
+          onSubmit={makeFeedbackHandler(DECISIONS.ZeroPoints)}
+        />
         <Button size="medium" variant="primary" onClick={handleFullPoints}>
           {t("button-text-full-points")}
         </Button>
-        <CustomPointsPopup exerciseMaxPoints={exerciseMaxPoints} onSubmit={handleCustomPoints} />
-        <Button size="medium" variant="reject" onClick={handleRejectAndReset}>
-          {t("button-text-reject-and-reset")}
-        </Button>
+        <TeacherDecisionFeedbackPopup
+          triggerLabel={t("button-text-custom-points")}
+          variant="white"
+          pointsSlider={{ exerciseMaxPoints }}
+          onSubmit={makeFeedbackHandler(DECISIONS.CustomPoints)}
+        />
+        <TeacherDecisionFeedbackPopup
+          triggerLabel={t("button-text-reject-and-reset")}
+          variant="reject"
+          onSubmit={makeFeedbackHandler(DECISIONS.RejectAndReset)}
+        />
+        <TeacherDecisionFeedbackPopup
+          triggerLabel={t("button-text-suspected-plagiarism")}
+          variant="reject"
+          onSubmit={makeFeedbackHandler(DECISIONS.SuspectedPlagiarism)}
+        />
       </div>
     </ControlPanel>
   )

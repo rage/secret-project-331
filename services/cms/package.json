@@ -29,6 +29,7 @@
     "@react-aria/live-announcer": "^3.5.1",
     "@react-aria/overlays": "^3.32.1",
     "@react-aria/utils": "^3.34.1",
+    "@react-stately/numberfield": "^3.12.1",
     "@react-stately/overlays": "^3.7.1",
     "@react-types/dialog": "^3.6.0",
     "@tanstack/react-query": "^5.101.4",

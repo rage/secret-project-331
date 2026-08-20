@@ -27,6 +27,29 @@ const TERM_REGEX_CACHE_MAX_SIZE = 100
 /** Escapes regex metacharacters in a string so it can be used literally in a RegExp. */
 const escapeRegex = (value: string): string => value.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
 
+const ANCHOR_TAG_NAME = "A"
+
+const isDescendantOfAnchor = (node: Node): boolean => {
+  let current = node.parentElement
+  while (current) {
+    if (current.tagName === ANCHOR_TAG_NAME) {
+      return true
+    }
+    current = current.parentElement
+  }
+  return false
+}
+
+/**
+ * Rejects text nodes inside `<a>` elements so the glossary tooltip's trigger `<button>` never
+ * gets portaled inside a link's visible text, which would nest an interactive element inside
+ * another one and break click/focus/screen-reader behavior.
+ */
+const glossaryTextNodeFilter: NodeFilter = {
+  acceptNode: (node) =>
+    isDescendantOfAnchor(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+}
+
 const getTermRegex = (term: string): RegExp => {
   let regex = TERM_REGEX_CACHE.get(term)
   if (!regex) {
@@ -163,7 +186,7 @@ const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; te
   const doc = getDomParser().parseFromString(data, HTML_MIME_TYPE)
 
   for (const item of glossary) {
-    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT)
+    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, glossaryTextNodeFilter)
     const textNodes: Text[] = []
     while (walker.nextNode()) {
       textNodes.push(walker.currentNode as Text)

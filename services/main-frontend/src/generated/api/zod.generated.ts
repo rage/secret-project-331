@@ -7545,6 +7545,8 @@ export const zGetCourseStudentsUsersQuery = z.object({
   sort_column: z.string().optional(),
   sort_direction: z.string().optional(),
   course_instance_id: z.uuid().optional(),
+  module_id: z.uuid().optional(),
+  grade: z.string().optional(),
 })
 
 /**

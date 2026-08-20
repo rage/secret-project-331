@@ -19,7 +19,7 @@ const EM_DASH = "—"
 export const UserTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
-  const params = useStudentsListParams()
+  const params = useStudentsListParams(USERS_SORT_COLUMNS)
   const { sorting, onSortingChange } = useStudentsSorting(USERS_SORT_COLUMNS)
 
   const query = useCourseStudentsIdentity(courseId, params)

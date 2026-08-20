@@ -199,7 +199,7 @@ const buildColumns = (
 export const CompletionsTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
-  const params = useStudentsListParams()
+  const params = useStudentsListParams(DETAIL_SORT_COLUMNS)
   const { sorting, onSortingChange } = useStudentsSorting(DETAIL_SORT_COLUMNS)
 
   const identityQuery = useCourseStudentsIdentity(courseId, params)

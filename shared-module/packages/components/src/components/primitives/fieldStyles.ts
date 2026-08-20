@@ -278,6 +278,12 @@ const labelBaseCss = css`
     color ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
     opacity ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
 
+  /* The flat 1rem margin eats a much bigger share of the label box on narrow
+     phones, where long labels already truncate hard; claw some of it back. */
+  @media (max-width: 480px) {
+    max-width: calc(100% - 0.25rem);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
@@ -360,6 +366,16 @@ const selectLabelChevronRoomCss = css`
 
   [data-field-control][data-floated="true"] & {
     max-width: calc(100% - 2.5rem);
+  }
+
+  @media (max-width: 480px) {
+    [data-field-control][data-floated="false"] & {
+      max-width: calc(100% - 2.25rem);
+    }
+
+    [data-field-control][data-floated="true"] & {
+      max-width: calc(100% - 2rem);
+    }
   }
 `
 

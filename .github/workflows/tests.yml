@@ -155,14 +155,6 @@ jobs:
             -e REDIS_URL=redis://redis:6379/1 \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo test --verbose
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "🧪 Headless LMS Tests"
-          details: |
-            - **Database**: PostgreSQL 16.4
-            - **Cache**: Redis 7.2
 
   cms:
     permissions:
@@ -184,13 +176,6 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/cms
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "📝 CMS Tests"
-          details: |
-            - **Service**: CMS
 
   shared-module-common:
     permissions:
@@ -216,13 +201,6 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./shared-module/packages/common
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "🔧 Shared Module Common Tests"
-          details: |
-            - **Service**: Shared Module Common
 
   shared-module-components:
     permissions:
@@ -244,13 +222,6 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./shared-module/packages/components
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "🧱 Shared Module Components Tests"
-          details: |
-            - **Service**: Shared Module Components
 
   quizzes:
     permissions:
@@ -272,13 +243,6 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/quizzes
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "❓ Quizzes Tests"
-          details: |
-            - **Service**: Quizzes
 
   main-frontend:
     permissions:
@@ -300,13 +264,6 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/main-frontend
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "🎨 Main Frontend Tests"
-          details: |
-            - **Service**: Main Frontend
 
   example-exercise-typecheck:
     permissions:
@@ -334,13 +291,6 @@ jobs:
       - name: Run Playwright browser tests
         run: pnpm run test:playwright
         working-directory: ./services/example-exercise
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "🧩 Example Exercise Tests"
-          details: |
-            - **Service**: Example Exercise
 
   tmc-typecheck:
     permissions:
@@ -362,13 +312,6 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/tmc
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "🧪 TMC Tests"
-          details: |
-            - **Service**: TMC
 
   shared-module-exercise-packages:
     permissions:
@@ -428,13 +371,6 @@ jobs:
       - name: Browser tests for exercise-service-test-utils
         run: pnpm run test:playwright
         working-directory: ./shared-module/packages/exercise-service-test-utils
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "🧩 Exercise Package Tests"
-          details: |
-            - **Packages**: exercise-protocol, exercise-client, exercise-react, exercise-iframe-host, exercise-service-test-utils
 
   create-exercise-service:
     permissions:
@@ -463,10 +399,3 @@ jobs:
       - name: Typecheck the generated project
         run: pnpm exec tsc --noEmit
         working-directory: ${{ runner.temp }}/smoke-exercise
-      - name: Test Summary
-        if: always()
-        uses: ./.github/actions/test-summary
-        with:
-          title: "🏗️ Create Exercise Service Checks"
-          details: |
-            - **Service**: Create Exercise Service

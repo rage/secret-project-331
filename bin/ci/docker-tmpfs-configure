@@ -1,8 +1,6 @@
 #!/bin/bash
 source "$(dirname "$0")/../.common"
 
-echo "Configuring Docker to use tmpfs (RAM) for data storage..."
-
 sudo systemctl stop docker
 
 sudo mkdir -p /mnt/docker-tmpfs
@@ -14,17 +12,8 @@ echo '{
   "storage-driver": "overlay2"
 }' | sudo tee /etc/docker/daemon.json
 
-echo "Checking Docker service memory limits..."
-echo "Current Docker service memory limit:"
-MEMORY_LIMIT=$(systemctl show docker -p MemoryMax --value 2>/dev/null)
-if [ -z "$MEMORY_LIMIT" ] || [ "$MEMORY_LIMIT" = "infinity" ] || [ "$MEMORY_LIMIT" = "0" ]; then
-  echo "  No memory limit set (unlimited)"
-else
-  echo "  MemoryMax=$MEMORY_LIMIT"
-fi
+echo "docker MemoryMax=$(systemctl show docker -p MemoryMax --value 2>/dev/null)"
 sudo systemctl start docker
 
 sudo systemctl status docker --no-pager
 docker info | grep "Docker Root Dir"
-
-echo "Docker configured to use tmpfs. All container operations will use RAM."

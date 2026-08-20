@@ -102,6 +102,12 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
   await runMaterializeTick(page.request, scope)
   const materialized = await outageRow(adminApi)
   expect(materialized).not.toBeNull()
+  // The completion behind this row is seeded eligible, so the live credit-registrar worker has
+  // been ticking it since long before this spec started. If it reached resolve-enrolments before
+  // the scenario above created the mock enrolment, the row is now parked in `no_usable_enrolment`
+  // under a long backoff (see suotar-import-outcomes.spec.ts for the same hazard). Forcing it due
+  // now is a no-op for a fresh row and the only way to unstick a backfilled one.
+  await makeRegistrationDueNow(adminApi, materialized!.id)
   await runPreconditionsTick(page.request, scope)
   // Unchecked: the outage makes this iteration fail by construction, so the tick reports a
   // phase-level error of its own.

@@ -160,8 +160,13 @@ jobs:
         if: ${{ github.ref == 'refs/heads/master' }}
 
       - name: Enable snippet directives
+        # allow-snippet-annotations alone stopped being enough once ingress-nginx started
+        # classifying ConfigurationSnippet/ServerSnippet as "Critical" risk while defaulting
+        # the risk-level gate to "High" — without raising it here, our Ingress (which needs
+        # the l5d-dst-override header and the oembed/wp redirects) gets silently dropped and
+        # every request 404s against nginx's own default backend instead of the app.
         run: |
-          kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
+          kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}' -n ingress-nginx --type merge
 
       - name: Remove ingress nginx admission webhook
         run: |

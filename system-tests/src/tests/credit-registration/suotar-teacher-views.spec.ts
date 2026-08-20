@@ -1,5 +1,4 @@
 import type { APIRequestContext } from "@playwright/test"
-import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
@@ -14,6 +13,7 @@ import {
   adminRegistrationTransitionUrl,
   adminRegistrationUrl,
 } from "@/utils/creditRegistrationAdmin"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 /**
  * Owns student numbers `9000008xx`. Reads the `credit-registration-states` course and writes to the

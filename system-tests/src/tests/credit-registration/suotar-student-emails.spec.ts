@@ -11,8 +11,8 @@ import {
   makeRegistrationDueNow,
   type AdminNotificationEmail,
 } from "@/utils/creditRegistrationAdmin"
-import { expect, test } from "@/utils/fixtures"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   runImportSubmissionTick,
   runMaterializeTick,

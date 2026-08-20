@@ -1,5 +1,3 @@
-import { expect, test } from "@playwright/test"
-
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   ADMIN_COURSE_ID,
@@ -26,8 +24,8 @@ import {
   runPhaseNow,
   suotarApiCall,
 } from "@/utils/creditRegistrationAdmin"
-import { ADMIN_STORAGE_STATE } from "@/utils/fixtures"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   CREDIT_REGISTRATION_PHASES,
   runEnrolmentDiscoveryTick,

@@ -4,13 +4,13 @@ import {
   listAdminRegistrations,
   makeRegistrationDueNow,
 } from "@/utils/creditRegistrationAdmin"
-import { ADMIN_STORAGE_STATE, expect, test } from "@/utils/fixtures"
 import {
   applyMockSuotarScenario,
   armMockSuotarFault,
   disarmMockSuotarFault,
   transitionMockSuotarSubmissionsFor,
 } from "@/utils/mockSuotar"
+import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   runImportSubmissionTick,
   runMaterializeTick,

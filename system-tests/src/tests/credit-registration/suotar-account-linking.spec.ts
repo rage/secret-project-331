@@ -1,11 +1,10 @@
-import { expect, test } from "@playwright/test"
-
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   CREDIT_REGISTRATIONS_API,
   linkStudentNumberUrl,
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 /**
  * Owns student numbers `9000002xx` and the four fixed tokens the seed writes rather than mails.

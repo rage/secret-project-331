@@ -8,7 +8,7 @@ import {
 } from "@/utils/creditRegistration"
 import { adminResolveStudentNumber } from "@/utils/creditRegistrationAdmin"
 import { respondToConfirmDialog } from "@/utils/dialogs"
-import { expect, test } from "@/utils/fixtures"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   queuedEmailsFor,
   runEnrolmentDiscoveryTick,

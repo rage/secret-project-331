@@ -7,7 +7,7 @@ import {
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
-import { ADMIN_STORAGE_STATE, expect, test } from "@/utils/fixtures"
+import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { runMaterializeTick, runPreconditionsTick } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 

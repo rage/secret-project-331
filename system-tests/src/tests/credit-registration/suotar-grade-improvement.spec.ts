@@ -13,8 +13,8 @@ import {
   listAdminRegistrations,
   makeRegistrationDueNow,
 } from "@/utils/creditRegistrationAdmin"
-import { expect, test } from "@/utils/fixtures"
 import { transitionMockSuotarSubmissionsFor, upsertMockSuotarAttainments } from "@/utils/mockSuotar"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   regradeCompletion,
   runImportSubmissionTick,

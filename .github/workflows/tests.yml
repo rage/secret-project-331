@@ -67,7 +67,7 @@ jobs:
       - name: Get service container network
         id: get_network
         run: |
-          POSTGRES_CONTAINER=$(docker ps -q -f ancestor=postgres:16.4 | head -1)
+          POSTGRES_CONTAINER=$(docker ps -q -f ancestor=pgvector/pgvector:pg18-trixie | head -1)
           if [ -z "$POSTGRES_CONTAINER" ]; then
             echo "Postgres container not found, trying redis..."
             REDIS_CONTAINER=$(docker ps -q -f ancestor=redis:7.2 | head -1)

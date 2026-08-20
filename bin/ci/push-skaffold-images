@@ -19,7 +19,7 @@ fi
 echo "Pushing $(echo "$TAGS" | wc -l) images:"
 echo "$TAGS"
 
-echo "$TAGS" | while IFS= read -r tag; do
+while IFS= read -r tag; do
   [ -n "$tag" ] || continue
   echo
   echo "Pushing $tag"
@@ -32,4 +32,4 @@ echo "$TAGS" | while IFS= read -r tag; do
     echo "ERROR: pushing $tag failed"
     exit 1
   fi
-done
+done <<< "$TAGS"

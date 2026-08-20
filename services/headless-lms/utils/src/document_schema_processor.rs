@@ -284,6 +284,10 @@ pub fn remove_sensitive_attributes(input: Vec<GutenbergBlock>) -> Vec<GutenbergB
 /// Filters lock-chapter blocks' inner blocks based on whether the chapter is locked.
 /// If the chapter is not locked, inner blocks are removed to prevent unauthorized access.
 /// This function recursively processes all blocks to handle nested structures.
+///
+/// `extract_public_searchable_text_from_document_schema` in the
+/// `20260820141224_adopt_postgres_18_features` migration re-implements this same
+/// moocfi/lock-chapter rule in SQL for public search snippets; keep both in sync.
 pub fn filter_lock_chapter_blocks(
     input: Vec<GutenbergBlock>,
     is_locked: bool,

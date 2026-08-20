@@ -597,13 +597,18 @@ RETURNING OLD.state AS "from_state: CreditRegistrationState", *
             .fetch_optional(&mut *tx)
             .await?;
             return Err(match actual_state {
-                Some(actual_state) => model_err!(
-                    PreconditionFailed,
-                    format!(
-                        "Credit registration {id} is in {actual_state:?}, not the expected {:?}: refusing to overwrite it.",
-                        transition.expected_from_state
+                Some(actual_state) => {
+                    let expected = transition
+                        .expected_from_state
+                        .map(|s| format!("{s:?}"))
+                        .unwrap_or_else(|| "any state".to_string());
+                    model_err!(
+                        PreconditionFailed,
+                        format!(
+                            "Credit registration {id} is in {actual_state:?}, not the expected {expected}: refusing to overwrite it."
+                        )
                     )
-                ),
+                }
                 None => model_err!(
                     RecordNotFound,
                     "no rows returned by a query that expected one".to_string()

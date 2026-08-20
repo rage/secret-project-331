@@ -25,13 +25,19 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: ./.github/actions/setup-node-pnpm
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-nix-env
       - name: Install pnpm dependencies
         run: pnpm install --frozen-lockfile
       - name: Run actionlint
-        uses: docker://rhysd/actionlint:latest
+        uses: docker://rhysd/actionlint:latest # zizmor: ignore[unpinned-images] intentionally tracks the latest actionlint release
         with:
           args: -color
+      - name: Zizmor
+        run: zizmor --gh-token "$GH_TOKEN" .github/workflows/ .github/actions/
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Oxlint
         run: pnpm run lint:ci
       - name: Oxfmt

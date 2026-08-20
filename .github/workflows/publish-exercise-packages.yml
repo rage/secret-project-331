@@ -30,6 +30,8 @@ jobs:
     environment: npm-publish
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -37,6 +39,9 @@ jobs:
           # Keep in sync with package.json devEngines.runtime.
           node-version: "24.18.0"
           registry-url: "https://registry.npmjs.org"
+          # This tag-triggered publish job must never restore a cache that an earlier,
+          # less-trusted job could have poisoned.
+          package-manager-cache: false
 
       - name: Setup pnpm
         run: |
@@ -82,7 +87,9 @@ jobs:
         run: pnpm -C shared-module install --frozen-lockfile
 
       - name: Stamp version and inject inter-package dependencies
-        run: pnpm -C shared-module exec tsx scripts/prepare-npm-release.ts "${{ steps.version.outputs.version }}"
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: pnpm -C shared-module exec tsx scripts/prepare-npm-release.ts "$RELEASE_VERSION"
 
       # Publish in dependency order so a consumer never sees a package whose @moocfi/* dependency
       # version is not on the registry yet. OIDC provides auth; provenance is emitted automatically

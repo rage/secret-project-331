@@ -6,7 +6,9 @@ on:
   push:
     branches: [master]
     paths:
-      - ".github/actions/setup-node-pnpm/**"
+      - ".github/actions/setup-nix-env/**"
+      - "flake.nix"
+      - "flake.lock"
       - ".github/workflows/headless-lms-doc.yml"
       - "bin/.common"
       - "bin/generate-doc-files"
@@ -18,7 +20,9 @@ on:
   pull_request:
     branches: [master]
     paths:
-      - ".github/actions/setup-node-pnpm/**"
+      - ".github/actions/setup-nix-env/**"
+      - "flake.nix"
+      - "flake.lock"
       - ".github/workflows/headless-lms-doc.yml"
       - "bin/.common"
       - "bin/generate-doc-files"
@@ -58,7 +62,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-headless-lms-docs-cargo-
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: Run pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile --ignore-scripts
 
@@ -70,6 +74,7 @@ jobs:
         working-directory: services/headless-lms
 
       - name: Check out docs repo
+        # zizmor: ignore[artipacked] the persisted ssh-key config is required for the later commit-and-push step
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: rage/secret-project-331-headless-lms-docs

@@ -215,6 +215,7 @@
           pkgs.skaffold
           pkgs.sqlx-cli
           pkgs.stern
+          pkgs.zizmor
         ];
         localClusterPackages = [
           pkgs.ctlptl

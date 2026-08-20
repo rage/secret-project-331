@@ -12,11 +12,15 @@ runs:
   using: composite
   steps:
     - shell: bash
+      env:
+        TITLE: ${{ inputs.title }}
+        DETAILS: ${{ inputs.details }}
+        STATUS: ${{ job.status }}
       run: |
         {
-          echo "## ${{ inputs.title }}"
-          echo "- **Status**: ${{ job.status }}"
-          if [ -n "${{ inputs.details }}" ]; then
-            echo "${{ inputs.details }}"
+          echo "## $TITLE"
+          echo "- **Status**: $STATUS"
+          if [ -n "$DETAILS" ]; then
+            echo "$DETAILS"
           fi
         } >> "$GITHUB_STEP_SUMMARY"

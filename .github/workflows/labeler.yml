@@ -3,11 +3,12 @@ name: "Pull Request Labeler"
 permissions: read-all
 
 on:
+  # zizmor: ignore[dangerous-triggers] guarded below by the fork/dependabot check; job only labels, no privileged action
   - pull_request_target
 
 jobs:
   label_pull_requests:
-    if: ${{ github.event.pull_request.head.repo.fork == false || github.actor == 'dependabot[bot]' }}
+    if: ${{ github.event.pull_request.head.repo.fork == false || github.actor == 'dependabot[bot]' }} # zizmor: ignore[bot-conditions] actor check only gates labeling (no privileged action) and is combined with the fork check above
     permissions:
       contents: read
       pull-requests: write

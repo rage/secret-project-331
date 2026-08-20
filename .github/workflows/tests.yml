@@ -50,6 +50,7 @@ jobs:
         with:
           # The compile-time font guard rejects unhydrated git-lfs pointers.
           lfs: true
+          persist-credentials: false
 
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -82,9 +83,11 @@ jobs:
           echo "Using network: $NETWORK"
 
       - name: Cargo clippy
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace \
             -e CARGO_TERM_COLOR=always \
@@ -92,9 +95,11 @@ jobs:
             cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings
 
       - name: Build
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e CARGO_TERM_COLOR=always \
@@ -102,9 +107,11 @@ jobs:
             cargo build --verbose
 
       - name: Set up unit test database
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_test \
@@ -112,9 +119,11 @@ jobs:
             sqlx database setup
 
       - name: Set up integration test database
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_integration \
@@ -122,18 +131,22 @@ jobs:
             sqlx database setup
 
       - name: Wait for Redis
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             bash -c "timeout 20s bash -c 'until redis-cli -h redis ping; do echo \"Waiting for Redis...\"; sleep 1; done'"
 
       - name: Run tests
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e CARGO_TERM_COLOR=always \
@@ -157,8 +170,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -183,8 +198,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
       - name: Install dependencies for shared-module/packages/common
@@ -213,8 +230,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
       - name: Install dependencies for shared-module/packages/components
@@ -239,8 +258,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -265,8 +286,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -291,8 +314,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -323,8 +348,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -349,8 +376,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
       - name: Install dependencies for the exercise packages
@@ -413,8 +442,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
       - name: Install dependencies for shared-module/packages/create-exercise-service

@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up deploy key
         run: |
@@ -46,7 +48,7 @@ jobs:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
       - name: pnpm install --frozen-lockfile for the repo root
         run: pnpm install --frozen-lockfile
 

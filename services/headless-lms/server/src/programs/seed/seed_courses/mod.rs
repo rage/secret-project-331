@@ -103,6 +103,11 @@ pub async fn seed_sample_course(
         base_url: _base_url,
     } = common_course_data;
     let spec_fetcher = get_seed_spec_fetcher();
+    let file_store = crate::setup_file_store(
+        &crate::config::FileStoreRuntimeConfig::try_from_env()?,
+        &app_config.base_url,
+    )
+    .await;
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -1752,6 +1757,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_1_id.to_string(),
             100.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         // this submission is for the same exercise, but no points are removed due to the update strategy
@@ -1766,6 +1773,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_2_id.to_string(),
             1.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1779,6 +1788,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_3_id.to_string(),
             0.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1792,6 +1803,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_1_id.to_string(),
             60.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1805,6 +1818,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_2_slide_1_task_1_spec_1_id.to_string(),
             70.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1818,6 +1833,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_5_slide_1_task_1_spec_1_id.to_string(),
             80.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1831,6 +1848,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_1_id.to_string(),
             90.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
     }
@@ -1989,6 +2008,7 @@ pub async fn seed_sample_course(
         &format!("background-{}.svg", module.id),
         &background_svg_path,
         "image/svg+xml",
+        None,
         None,
     )
     .await?;

@@ -1,5 +1,8 @@
 use crate::{
-    library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission},
+    exercise_task_submissions::AnswerKind,
+    library::grading::{
+        StudentExerciseSlideSubmission, StudentExerciseTaskSubmission, SubmittedAnswer,
+    },
     prelude::*,
 };
 
@@ -60,14 +63,23 @@ async fn insert_rejected_exercise_task_submission(
     rejected_submission: &StudentExerciseTaskSubmission,
     exercise_slide_submission_id: Uuid,
 ) -> ModelResult<Uuid> {
+    let (answer_kind, answer_json) = match &rejected_submission.answer {
+        SubmittedAnswer::Json { data } => (AnswerKind::Json, Some(data)),
+        SubmittedAnswer::File { metadata, .. } => (AnswerKind::File, metadata.as_ref()),
+    };
     let res = sqlx::query!(
         "
-INSERT INTO rejected_exercise_task_submissions (rejected_exercise_slide_submission_id, data_json)
-VALUES ($1, $2)
+INSERT INTO rejected_exercise_task_submissions (
+    rejected_exercise_slide_submission_id,
+    data_json,
+    answer_kind
+  )
+VALUES ($1, $2, $3)
 RETURNING id
         ",
         exercise_slide_submission_id,
-        rejected_submission.data_json,
+        answer_json,
+        answer_kind as AnswerKind,
     )
     .fetch_one(&mut *conn)
     .await?;

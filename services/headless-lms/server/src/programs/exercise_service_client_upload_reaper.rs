@@ -196,6 +196,7 @@ mod tests {
             path,
             "application/octet-stream",
             Some(user),
+            None,
         )
         .await
         .expect("file upload");
@@ -249,6 +250,7 @@ mod tests {
             "exercise-services-client/fresh",
             "application/octet-stream",
             Some(user),
+            None,
         )
         .await
         .expect("file upload");
@@ -353,6 +355,7 @@ mod tests {
             path,
             "application/octet-stream",
             Some(user),
+            None,
         )
         .await
         .expect("file upload");
@@ -424,6 +427,7 @@ mod tests {
             "exercise-services-client/raced",
             "application/octet-stream",
             Some(user),
+            None,
         )
         .await
         .expect("file upload");
@@ -489,7 +493,9 @@ mod tests {
                 slide_submission.id,
                 slide,
                 task,
-                &serde_json::json!({ "opaque": "plugin owned" }),
+                &models::library::grading::SubmittedAnswer::Json {
+                    data: serde_json::json!({ "opaque": "plugin owned" }),
+                },
             )
             .await
             .expect("task submission");

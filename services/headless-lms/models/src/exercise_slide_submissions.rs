@@ -12,6 +12,7 @@ use crate::{
     exams::{self, ExamEnrollment},
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::UserPointsUpdateStrategy,
+    exercise_task_submissions::{AnswerData, AnswerKind, StoredAnswer, attach_answer_data},
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::{self, Exercise, GradingProgress},
     prelude::*,
@@ -27,7 +28,7 @@ pub struct AnswerRequiringAttention {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub data_json: Option<serde_json::Value>,
+    pub answer: Option<AnswerData>,
     pub grading_progress: GradingProgress,
     pub score_given: Option<f32>,
     pub submission_id: Uuid,
@@ -909,17 +910,20 @@ pub async fn get_all_answers_requiring_attention(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     pagination: Pagination,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<Vec<AnswerRequiringAttention>> {
-    let submissions = sqlx::query_as!(
-        AnswerRequiringAttention,
+    let rows = sqlx::query!(
         r#"
         SELECT DISTINCT ON (us_state.user_id)
         us_state.id,
         us_state.user_id,
         us_state.exercise_id,
         us_state.score_given,
-        us_state.grading_progress,
+        us_state.grading_progress AS "grading_progress: GradingProgress",
+        t_submission.id AS task_submission_id,
         t_submission.data_json,
+        t_submission.answer_kind AS "answer_kind: AnswerKind",
         s_submission.created_at,
         s_submission.updated_at,
         s_submission.deleted_at,
@@ -945,9 +949,32 @@ pub async fn get_all_answers_requiring_attention(
         pagination.limit(),
         pagination.offset(),
     )
-    .fetch_all(conn)
+    .fetch_all(&mut *conn)
     .await?;
-    Ok(submissions)
+    let stored: Vec<StoredAnswer> = rows
+        .iter()
+        .map(|row| StoredAnswer {
+            submission_id: row.task_submission_id,
+            answer_kind: row.answer_kind,
+            data_json: row.data_json.clone(),
+        })
+        .collect();
+    let mut answers = attach_answer_data(conn, &stored, file_store, app_conf).await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| AnswerRequiringAttention {
+            id: row.id,
+            user_id: row.user_id,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            deleted_at: row.deleted_at,
+            answer: answers.remove(&row.task_submission_id),
+            grading_progress: row.grading_progress,
+            score_given: row.score_given,
+            submission_id: row.submission_id,
+            exercise_id: row.exercise_id,
+        })
+        .collect())
 }
 
 pub async fn get_course_exercise_slide_submission_counts_by_weekday_and_hour(
@@ -1039,11 +1066,13 @@ pub async fn get_exercise_slide_submission_info(
     user_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     include_deleted_tasks: bool,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<ExerciseSlideSubmissionInfo> {
     let exercise_slide_submission = get_by_id(&mut *conn, exercise_slide_submission_id).await?;
     let exercise =
         crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
-    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, user_id, fetch_service_info, include_deleted_tasks).await?;
+    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, user_id, fetch_service_info, include_deleted_tasks, file_store, app_conf).await?;
     let user_exercise_state = crate::user_exercise_states::get_user_exercise_state_if_exists(
         &mut *conn,
         user_id,

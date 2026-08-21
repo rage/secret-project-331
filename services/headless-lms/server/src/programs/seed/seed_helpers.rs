@@ -1,5 +1,6 @@
 use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy, SpecFetcher, course_exams,
     exams::{self, NewExam},
@@ -7,6 +8,7 @@ use headless_lms_models::{
     exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
     exercise_task_submissions,
     exercises::{self, GradingProgress},
+    library::grading::SubmittedAnswer,
     page_history::HistoryChangeReason,
     pages::{
         self, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
@@ -19,6 +21,7 @@ use headless_lms_models::{
 use headless_lms_utils::{
     attributes,
     document_schema_processor::{GutenbergBlock, validate_unique_client_ids},
+    file_store::FileStore,
 };
 use once_cell::sync::OnceCell;
 use serde_json::Value;
@@ -473,6 +476,8 @@ pub async fn submit_and_grade(
     course_instance_id: Uuid,
     spec: String,
     out_of_100: f32,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<()> {
     // combine the id with the user id to ensure it's unique
     let id: Vec<u8> = [id, &user_id.as_bytes()[..]].concat();
@@ -524,12 +529,16 @@ pub async fn submit_and_grade(
             exercise_slide_id,
             user_id,
             course_instance_id,
-            data_json: Value::String(spec),
+            answer: SubmittedAnswer::Json {
+                data: Value::String(spec),
+            },
         },
     )
     .await?;
 
-    let task_submission = exercise_task_submissions::get_by_id(conn, task_submission_id).await?;
+    let task_submission =
+        exercise_task_submissions::get_by_id(conn, task_submission_id, file_store, app_conf)
+            .await?;
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
     let grading = exercise_task_gradings::new_grading(conn, &exercise, &task_submission).await?;
     let grading_result = ExerciseTaskGradingResult {

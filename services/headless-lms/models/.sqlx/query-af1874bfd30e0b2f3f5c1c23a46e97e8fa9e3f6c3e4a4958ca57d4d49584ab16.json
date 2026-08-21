@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exercise_task_submissions (\n    id,\n    exercise_slide_submission_id,\n    exercise_slide_id,\n    exercise_task_id,\n    data_json\n  )\n  VALUES ($1, $2, $3, $4, $5)\n  RETURNING *\n        ",
+  "query": "\n        SELECT DISTINCT ON (g.exercise_task_id)\n        g.id,\n        g.created_at,\n        g.exercise_slide_submission_id,\n        g.exercise_slide_id,\n        g.exercise_task_id,\n        g.exercise_task_grading_id,\n        g.data_json,\n        g.answer_kind AS \"answer_kind: AnswerKind\"\n      FROM exercise_task_submissions g\n        JOIN exercise_tasks et ON et.id = g.exercise_task_id\n        JOIN exercise_slide_submissions ess ON ess.id = g.exercise_slide_submission_id\n        JOIN exercises e ON e.id = ess.exercise_id\n        JOIN chapters c ON c.id = e.chapter_id\n      WHERE ess.user_id = $1\n      AND ess.course_id = $2\n      AND et.exercise_type = $3\n      AND c.course_module_id = $4\n      AND g.deleted_at IS NULL\n      AND et.deleted_at IS NULL\n      AND ess.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n      ORDER BY g.exercise_task_id, g.created_at DESC\n      ",
   "describe": {
     "columns": [
       {
@@ -27,23 +27,23 @@
       },
       {
         "ordinal": 2,
-        "name": "updated_at",
-        "type_info": "Timestamptz",
+        "name": "exercise_slide_submission_id",
+        "type_info": "Uuid",
         "origin": {
           "Table": {
             "table": "exercise_task_submissions",
-            "name": "updated_at"
+            "name": "exercise_slide_submission_id"
           }
         }
       },
       {
         "ordinal": 3,
-        "name": "deleted_at",
-        "type_info": "Timestamptz",
+        "name": "exercise_slide_id",
+        "type_info": "Uuid",
         "origin": {
           "Table": {
             "table": "exercise_task_submissions",
-            "name": "deleted_at"
+            "name": "exercise_slide_id"
           }
         }
       },
@@ -60,17 +60,6 @@
       },
       {
         "ordinal": 5,
-        "name": "data_json",
-        "type_info": "Jsonb",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "data_json"
-          }
-        }
-      },
-      {
-        "ordinal": 6,
         "name": "exercise_task_grading_id",
         "type_info": "Uuid",
         "origin": {
@@ -81,35 +70,34 @@
         }
       },
       {
-        "ordinal": 7,
-        "name": "metadata",
+        "ordinal": 6,
+        "name": "data_json",
         "type_info": "Jsonb",
         "origin": {
           "Table": {
             "table": "exercise_task_submissions",
-            "name": "metadata"
+            "name": "data_json"
           }
         }
       },
       {
-        "ordinal": 8,
-        "name": "exercise_slide_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "exercise_slide_id"
+        "ordinal": 7,
+        "name": "answer_kind: AnswerKind",
+        "type_info": {
+          "Custom": {
+            "name": "answer_kind",
+            "kind": {
+              "Enum": [
+                "json",
+                "file"
+              ]
+            }
           }
-        }
-      },
-      {
-        "ordinal": 9,
-        "name": "exercise_slide_submission_id",
-        "type_info": "Uuid",
+        },
         "origin": {
           "Table": {
             "table": "exercise_task_submissions",
-            "name": "exercise_slide_submission_id"
+            "name": "answer_kind"
           }
         }
       }
@@ -118,23 +106,20 @@
       "Left": [
         "Uuid",
         "Uuid",
-        "Uuid",
-        "Uuid",
-        "Jsonb"
+        "Text",
+        "Uuid"
       ]
     },
     "nullable": [
       false,
       false,
       false,
-      true,
+      false,
       false,
       true,
       true,
-      true,
-      false,
       false
     ]
   },
-  "hash": "d2e560f629c7d61dfcaec0ae21c32ccecc87e44bbbb072a5c9ff6f26401877f8"
+  "hash": "af1874bfd30e0b2f3f5c1c23a46e97e8fa9e3f6c3e4a4958ca57d4d49584ab16"
 }

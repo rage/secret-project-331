@@ -13,6 +13,9 @@ pub struct SubmissionFile {
     pub file_upload_id: Uuid,
     pub name: String,
     pub path: String,
+    pub mime: String,
+    /// `None` for a file stored before the size was recorded.
+    pub size_bytes: Option<i64>,
     pub order_number: i32,
 }
 
@@ -60,6 +63,8 @@ SELECT etsf.exercise_task_submission_id,
   etsf.file_upload_id,
   fu.name,
   fu.path,
+  fu.mime,
+  fu.size_bytes,
   etsf.order_number
 FROM exercise_task_submission_files AS etsf
   JOIN file_uploads AS fu ON fu.id = etsf.file_upload_id
@@ -83,6 +88,7 @@ mod test {
         NewExerciseSlideSubmission, insert_exercise_slide_submission,
     };
     use crate::exercise_task_gradings::UserPointsUpdateStrategy;
+    use crate::library::grading::SubmittedAnswer;
     use crate::test_helper::*;
 
     async fn insert_task_submission(
@@ -113,7 +119,9 @@ mod test {
             slide_submission.id,
             exercise_slide_id,
             exercise_task_id,
-            &serde_json::json!({ "opaque": "plugin owned" }),
+            &SubmittedAnswer::Json {
+                data: serde_json::json!({ "opaque": "plugin owned" }),
+            },
         )
         .await
         .unwrap()
@@ -125,6 +133,7 @@ mod test {
             name,
             &format!("tmc/{name}"),
             "application/octet-stream",
+            None,
             None,
         )
         .await

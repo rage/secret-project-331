@@ -36,6 +36,7 @@ pub async fn submit_recording_answer_files(
     submission: &models::library::grading::StudentExerciseSlideSubmission,
     jwt_key: std::sync::Arc<crate::domain::models_requests::JwtKey>,
     file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<models::library::grading::StudentExerciseSlideSubmissionResult, ControllerError> {
     // Ahead of the transaction because it makes an HTTP hop per task, and the exercise service is
     // free to take its time.
@@ -48,7 +49,7 @@ pub async fn submit_recording_answer_files(
         let files = match materialize_answer_files(
             conn,
             &exercise_task,
-            &task_submission.data_json,
+            &task_submission.answer,
             file_store,
         )
         .await
@@ -75,6 +76,8 @@ pub async fn submit_recording_answer_files(
         submission,
         jwt_key,
         &materialized,
+        file_store,
+        app_conf,
     )
     .await;
     let result = match result {
@@ -93,6 +96,7 @@ pub async fn submit_recording_answer_files(
     Ok(result)
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn create_and_record(
     tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     user_id: Uuid,
@@ -100,9 +104,11 @@ async fn create_and_record(
     submission: &models::library::grading::StudentExerciseSlideSubmission,
     jwt_key: std::sync::Arc<crate::domain::models_requests::JwtKey>,
     materialized: &[MaterializedAnswerFiles],
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<models::library::grading::StudentExerciseSlideSubmissionResult, ControllerError> {
     let result = crate::domain::exercises::process_submission(
-        &mut *tx, user_id, exercise, submission, jwt_key,
+        &mut *tx, user_id, exercise, submission, jwt_key, file_store, app_conf,
     )
     .await?;
     for entry in materialized {
@@ -141,6 +147,7 @@ pub struct WrittenAnswerFile {
     pub path: String,
     pub name: String,
     pub mime: String,
+    pub size_bytes: i64,
 }
 
 /// The files of one task's answer, ready to be recorded once the submission row exists.
@@ -159,9 +166,13 @@ pub struct MaterializedAnswerFiles {
 pub async fn materialize_answer_files(
     conn: &mut PgConnection,
     exercise_task: &models::exercise_tasks::ExerciseTask,
-    answer: &serde_json::Value,
+    answer: &models::library::grading::SubmittedAnswer,
     file_store: &dyn FileStore,
 ) -> Result<Vec<WrittenAnswerFile>, ControllerError> {
+    let models::library::grading::SubmittedAnswer::Json { data: answer } = answer else {
+        // A file answer already names host-stored uploads, so there is nothing to extract.
+        return Ok(Vec::new());
+    };
     let exercise_service = models::exercise_services::get_exercise_service_by_exercise_type(
         conn,
         &exercise_task.exercise_type,
@@ -219,11 +230,13 @@ pub async fn materialize_answer_files(
             .filter(|mime| !mime.is_empty())
             .unwrap_or_else(|| "application/octet-stream".to_string());
         let path = format!("{ANSWER_FILE_PATH_PREFIX}/{}", generate_random_string(32));
+        let size_bytes = contents.len() as i64;
         file_store.upload(Path::new(&path), contents, &mime).await?;
         written.push(WrittenAnswerFile {
             path,
             name: file.name,
             mime,
+            size_bytes,
         });
     }
     Ok(written)
@@ -240,8 +253,15 @@ pub async fn record_answer_files(
     let mut file_upload_ids = Vec::with_capacity(files.len());
     for file in files {
         file_upload_ids.push(
-            models::file_uploads::insert(tx, &file.name, &file.path, &file.mime, Some(uploader))
-                .await?,
+            models::file_uploads::insert(
+                tx,
+                &file.name,
+                &file.path,
+                &file.mime,
+                Some(uploader),
+                Some(file.size_bytes),
+            )
+            .await?,
         );
     }
     models::exercise_task_submission_files::insert_many(

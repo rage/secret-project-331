@@ -20,6 +20,8 @@ pub async fn process_submission(
     exercise: Exercise,
     submission: &StudentExerciseSlideSubmission,
     jwt_key: Arc<JwtKey>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<StudentExerciseSlideSubmissionResult, ControllerError> {
     enforce_deadline(conn, &exercise).await?;
 
@@ -55,6 +57,8 @@ pub async fn process_submission(
         GradingPolicy::Default,
         models_requests::fetch_service_info,
         models_requests::make_grading_request_sender(jwt_key),
+        file_store,
+        app_conf,
     )
     .await?;
 

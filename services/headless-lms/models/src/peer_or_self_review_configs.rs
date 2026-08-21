@@ -255,6 +255,8 @@ pub async fn get_course_material_peer_or_self_review_data(
     user_id: Uuid,
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
     let (_current_exercise_slide, instance_or_exam_id) = exercises::get_or_select_exercise_slide(
@@ -262,6 +264,8 @@ pub async fn get_course_material_peer_or_self_review_data(
         Some(user_id),
         &exercise,
         &fetch_service_info,
+        file_store,
+        app_conf,
     )
     .await?;
 
@@ -290,7 +294,9 @@ pub async fn get_course_material_peer_or_self_review_data(
                     conn,
                     &exercise,
                     user_exercise_state,
-                    &fetch_service_info
+                    &fetch_service_info,
+                    file_store,
+                    app_conf,
                 )
                 .await?;
                 Ok(res)
@@ -300,6 +306,8 @@ pub async fn get_course_material_peer_or_self_review_data(
                     &exercise,
                     user_exercise_state,
                     &fetch_service_info,
+                    file_store,
+                    app_conf,
                 )
                 .await?;
                 Ok(res)

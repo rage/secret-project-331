@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE exercise_task_submissions\nSET exercise_task_grading_id = $1\nWHERE id = $2\nRETURNING *\n",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_submission_id,\n  exercise_task_id,\n  exercise_slide_id,\n  data_json,\n  answer_kind AS \"answer_kind: AnswerKind\",\n  exercise_task_grading_id,\n  metadata\nFROM exercise_task_submissions\nWHERE id = $1\n",
   "describe": {
     "columns": [
       {
@@ -49,6 +49,17 @@
       },
       {
         "ordinal": 4,
+        "name": "exercise_slide_submission_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "exercise_slide_submission_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
         "name": "exercise_task_id",
         "type_info": "Uuid",
         "origin": {
@@ -59,40 +70,7 @@
         }
       },
       {
-        "ordinal": 5,
-        "name": "data_json",
-        "type_info": "Jsonb",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "data_json"
-          }
-        }
-      },
-      {
         "ordinal": 6,
-        "name": "exercise_task_grading_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "exercise_task_grading_id"
-          }
-        }
-      },
-      {
-        "ordinal": 7,
-        "name": "metadata",
-        "type_info": "Jsonb",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "metadata"
-          }
-        }
-      },
-      {
-        "ordinal": 8,
         "name": "exercise_slide_id",
         "type_info": "Uuid",
         "origin": {
@@ -103,20 +81,62 @@
         }
       },
       {
+        "ordinal": 7,
+        "name": "data_json",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "data_json"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "answer_kind: AnswerKind",
+        "type_info": {
+          "Custom": {
+            "name": "answer_kind",
+            "kind": {
+              "Enum": [
+                "json",
+                "file"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "answer_kind"
+          }
+        }
+      },
+      {
         "ordinal": 9,
-        "name": "exercise_slide_submission_id",
+        "name": "exercise_task_grading_id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
             "table": "exercise_task_submissions",
-            "name": "exercise_slide_submission_id"
+            "name": "exercise_task_grading_id"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "metadata",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "metadata"
           }
         }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid"
       ]
     },
@@ -126,12 +146,13 @@
       false,
       true,
       false,
-      true,
-      true,
+      false,
+      false,
       true,
       false,
-      false
+      true,
+      true
     ]
   },
-  "hash": "f3ac0ff191c33364eb12bef118fed4c6afa634fab2a65a85b19752d5e995b516"
+  "hash": "aeb53e17a433ce3eda695146699b207220b15bfc44acb31798a96fc20dcfa709"
 }

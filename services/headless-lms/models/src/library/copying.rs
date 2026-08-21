@@ -1599,6 +1599,7 @@ mod tests {
             "certificates/background.svg",
             "image/svg+xml",
             None,
+            None,
         )
         .await
         .unwrap();

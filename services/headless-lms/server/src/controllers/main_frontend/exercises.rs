@@ -10,8 +10,8 @@ use headless_lms_models::exercises::Exercise;
 use models::{
     exercise_service_info::ExerciseServiceInfoApi, exercise_services::ExerciseService,
     exercise_slide_submissions::ExerciseSlideSubmission,
-    exercise_task_gradings::ExerciseTaskGrading, exercise_tasks::ExerciseTask,
-    library::grading::AnswersRequiringAttention,
+    exercise_task_gradings::ExerciseTaskGrading, exercise_task_submissions::AnswerData,
+    exercise_tasks::ExerciseTask, library::grading::AnswersRequiringAttention,
 };
 use utoipa::{OpenApi, ToSchema};
 
@@ -80,7 +80,7 @@ struct ExerciseDefinitionsCsvExportRequestItem<'a> {
 #[derive(Debug, Serialize)]
 struct ExerciseAnswersCsvExportRequestItem<'a> {
     private_spec: &'a Option<Value>,
-    answer: &'a Option<Value>,
+    answer: Option<&'a Value>,
     grading: Option<&'a ExerciseTaskGrading>,
     model_solution_spec: &'a Option<Value>,
 }
@@ -672,7 +672,7 @@ async fn export_exercise_task_definitions_csv(
 /**
 GET `/api/v0/main-frontend/exercises/:exercise_id/export-answers-csv` - Exports all answers for one exercise task as CSV using the task's exercise service.
  */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 #[utoipa::path(
     get,
     path = "/{exercise_id}/export-answers-csv",
@@ -692,6 +692,8 @@ async fn export_exercise_task_answers_csv(
     exercise_id: web::Path<Uuid>,
     query: web::Query<ExerciseCsvExportQuery>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
@@ -718,6 +720,8 @@ async fn export_exercise_task_answers_csv(
             &mut conn,
             *exercise_id,
             selected_task.id,
+            file_store.as_ref(),
+            app_conf.as_ref(),
         )
         .await?
     } else {
@@ -725,6 +729,8 @@ async fn export_exercise_task_answers_csv(
             &mut conn,
             *exercise_id,
             selected_task.id,
+            file_store.as_ref(),
+            app_conf.as_ref(),
         )
         .await?
     };
@@ -765,7 +771,7 @@ async fn export_exercise_task_answers_csv(
             let grading = gradings_by_submission_id.get(&submission.exercise_task_submission_id);
             request_items.push(ExerciseAnswersCsvExportRequestItem {
                 private_spec: &selected_task.private_spec,
-                answer: &submission.answer,
+                answer: submission.answer.as_ref().and_then(AnswerData::plugin_json),
                 grading,
                 model_solution_spec: &selected_task.model_solution_spec,
             });
@@ -899,7 +905,7 @@ async fn export_exercise_task_answers_csv(
 /**
 GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 #[utoipa::path(
     get,
     path = "/{exercise_id}/answers-requiring-attention",
@@ -919,6 +925,8 @@ async fn get_exercise_answers_requiring_attention(
     exercise_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<AnswersRequiringAttention>> {
     let mut conn = pool.acquire().await?;
     let token = match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
@@ -935,6 +943,8 @@ async fn get_exercise_answers_requiring_attention(
         *pagination,
         user.id,
         models_requests::fetch_service_info,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await?;
     token.authorized_ok(web::Json(res))

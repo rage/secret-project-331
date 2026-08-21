@@ -1,5 +1,5 @@
 use crate::{
-    exercises::Exercise, prelude::*,
+    exercise_task_submissions::AnswerData, exercises::Exercise, prelude::*,
     user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
 };
 use utoipa::ToSchema;
@@ -23,7 +23,7 @@ pub struct CustomViewExerciseTaskSpec {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct CustomViewExerciseTaskSubmission {
     pub id: Uuid,
@@ -32,7 +32,7 @@ pub struct CustomViewExerciseTaskSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_id: Uuid,
     pub exercise_task_grading_id: Option<Uuid>,
-    pub data_json: Option<serde_json::Value>,
+    pub answer: Option<AnswerData>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

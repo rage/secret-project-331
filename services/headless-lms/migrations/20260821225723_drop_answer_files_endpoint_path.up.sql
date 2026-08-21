@@ -1,0 +1,1 @@
+ALTER TABLE exercise_service_info DROP COLUMN answer_files_endpoint_path;

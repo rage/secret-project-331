@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    build_user_answer_endpoint_path,\n    answer_files_endpoint_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING *\n",
+  "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    csv_export_definitions_endpoint_path,\n    csv_export_answers_endpoint_path,\n    supports_native_client\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET user_interface_iframe_path = $2,\n  grade_endpoint_path = $3,\n  public_spec_endpoint_path = $4,\n  model_solution_spec_endpoint_path = $5,\n  has_custom_view = $6,\n  csv_export_definitions_endpoint_path = $7,\n  csv_export_answers_endpoint_path = $8,\n  supports_native_client = $9\nRETURNING *\n    ",
   "describe": {
     "columns": [
       {
@@ -115,23 +115,12 @@
       },
       {
         "ordinal": 10,
-        "name": "build_user_answer_endpoint_path",
-        "type_info": "Text",
+        "name": "supports_native_client",
+        "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "exercise_service_info",
-            "name": "build_user_answer_endpoint_path"
-          }
-        }
-      },
-      {
-        "ordinal": 11,
-        "name": "answer_files_endpoint_path",
-        "type_info": "Text",
-        "origin": {
-          "Table": {
-            "table": "exercise_service_info",
-            "name": "answer_files_endpoint_path"
+            "name": "supports_native_client"
           }
         }
       }
@@ -145,7 +134,8 @@
         "Varchar",
         "Bool",
         "Text",
-        "Text"
+        "Text",
+        "Bool"
       ]
     },
     "nullable": [
@@ -159,9 +149,8 @@
       false,
       true,
       true,
-      true,
-      true
+      false
     ]
   },
-  "hash": "11a24ecee73ee73666ba7f61cc2c455945561074b2f2592229f3a3d9710587cb"
+  "hash": "8affe2d379fac1409ec5efa6cb6e8002e60db6eccb06a84b2809c87553ec47f6"
 }

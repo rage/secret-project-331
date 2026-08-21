@@ -59,19 +59,6 @@ export const specRequestSchema = z.looseObject({
 })
 export type ParsedSpecRequest = z.infer<typeof specRequestSchema>
 
-// The host's build-user-answer request. `public_spec` is accepted but unused: the answer is
-// determined entirely by the uploaded archive.
-export const buildUserAnswerRequestSchema = z.looseObject({
-  request_id: z.string(),
-  public_spec: z.unknown(),
-  uploaded_files: z.array(z.object({ id: z.string(), name: z.string(), url: z.string() })),
-})
-
-export const answerFilesRequestSchema = z.looseObject({
-  request_id: z.string(),
-  answer: z.unknown(),
-})
-
 export const testRequestSchema = z.discriminatedUnion("type", [
   z.looseObject({
     type: z.literal("browser"),

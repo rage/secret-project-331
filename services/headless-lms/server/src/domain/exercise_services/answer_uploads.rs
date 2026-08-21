@@ -1,7 +1,7 @@
 //! Deciding whether a submit may name the host-stored uploads it names.
 //!
-//! Two submit paths reach here: the native client names its uploads in the request body, and a
-//! course-material IFrame answer names them inside `SubmittedAnswer::File`. Both are equally
+//! Two submit paths reach here: a native client names its uploads in the request body, and a
+//! course-material IFrame answer names them inside its `current-state`. Both are equally
 //! student-controlled, so the checks live here rather than in either caller — a second copy would
 //! be a second thing to keep in step.
 
@@ -12,9 +12,8 @@ use std::collections::HashSet;
 
 /// Rejects a file-typed answer that names no files at all.
 ///
-/// Only the course-material path applies this: a native client's answer is built from its uploads
-/// by the exercise service, which may legitimately want none, whereas a file answer with no files
-/// is a claim with no content.
+/// The named files are the answer, so an empty list is a claim with no content rather than an
+/// answer that happens to need no files.
 pub fn verify_answer_names_uploads(requested: &[Uuid]) -> Result<(), ControllerError> {
     if requested.is_empty() {
         return Err(controller_err!(

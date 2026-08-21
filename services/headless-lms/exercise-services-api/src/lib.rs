@@ -77,16 +77,16 @@ pub struct UploadedFiles {
     pub files: Vec<UploadedFile>,
 }
 
-/// Body of `POST exercises/{id}/submit`. Plain JSON — no file parts, no archive. The host hands
-/// `uploaded_file_ids` to the exercise service, which builds the answer.
+/// Body of `POST exercises/{id}/submit`. Plain JSON — no file parts, no archive: the previously
+/// uploaded files named here are the answer.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_id: Uuid,
-    /// Ids from this exercise's `files` endpoint, in the order the exercise service should see
-    /// them. May be empty for a service whose answer needs no files. Every id must have been
-    /// uploaded by this user for this exercise.
+    /// Ids from this exercise's `files` endpoint, in the order they are to be graded and
+    /// displayed. Must name at least one file, and every id must have been uploaded by this user
+    /// for this exercise.
     pub uploaded_file_ids: Vec<Uuid>,
 }
 
@@ -253,8 +253,8 @@ mod test {
         );
     }
 
-    /// The submit body names ids only. No answer blob and no archive may appear in it: the
-    /// exercise service owns the answer's shape, and the host has no archive concept left.
+    /// The submit body names ids only. No answer blob and no archive may appear in it: the named
+    /// files are the answer, and the host has no archive concept left.
     #[test]
     fn exercise_slide_submission_carries_only_ids() {
         let file_id = Uuid::max();

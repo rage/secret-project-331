@@ -622,7 +622,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/submit": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/submit\n *\n * Accepts an exercise submission from the user. The body names files previously stored through\n * this exercise's `files` endpoint; the exercise service turns them into its own answer.",
+        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/submit\n *\n * Accepts an exercise submission from the user. The body names files previously stored through\n * this exercise's `files` endpoint, in the order they are to be graded; those files are the\n * answer.",
         "operationId": "submitClientExercise",
         "parameters": [
           {
@@ -646,7 +646,7 @@
           }
         ],
         "requestBody": {
-          "description": "The slide and task being answered, and the ids of the files the answer is built from",
+          "description": "The slide and task being answered, and the ids of the files the answer consists of",
           "content": {
             "application/json": {
               "schema": {
@@ -698,7 +698,7 @@
             }
           },
           "422": {
-            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, the answer names no files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1137,7 +1137,7 @@
       },
       "ExerciseSlideSubmission": {
         "type": "object",
-        "description": "Body of `POST exercises/{id}/submit`. Plain JSON — no file parts, no archive. The host hands\n`uploaded_file_ids` to the exercise service, which builds the answer.",
+        "description": "Body of `POST exercises/{id}/submit`. Plain JSON — no file parts, no archive: the previously\nuploaded files named here are the answer.",
         "required": ["exercise_slide_id", "exercise_task_id", "uploaded_file_ids"],
         "properties": {
           "exercise_slide_id": {
@@ -1154,7 +1154,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "Ids from this exercise's `files` endpoint, in the order the exercise service should see\nthem. May be empty for a service whose answer needs no files. Every id must have been\nuploaded by this user for this exercise."
+            "description": "Ids from this exercise's `files` endpoint, in the order they are to be graded and\ndisplayed. Must name at least one file, and every id must have been uploaded by this user\nfor this exercise."
           }
         }
       },

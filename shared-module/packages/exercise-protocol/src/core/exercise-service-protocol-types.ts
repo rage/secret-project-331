@@ -89,9 +89,9 @@ export interface DownloadFileMessage {
 /**
  * Asks the parent to upload files on the exercise's behalf (plugins never store data themselves —
  * the host owns storage). The parent answers with an `UploadResultMessage` carrying the same
- * `requestId`; the exercise then records the host-assigned ids and returned URLs in its `answer`. This mirrors the
- * `OpenDialogMessage`/`DialogResponseMessage` request/response pattern, so several uploads can be in
- * flight at once. Prefer the `ParentUploadClient` engine (`exercise-client`) or the `useFileUpload`
+ * `requestId`; the exercise then names the returned ids in `CurrentStateMessage.files`. This mirrors
+ * the `OpenDialogMessage`/`DialogResponseMessage` request/response pattern, so several uploads can
+ * be in flight at once. Prefer the `ParentUploadClient` engine (`exercise-client`) or the `useFileUpload`
  * hook (`exercise-react`) over hand-rolling it.
  *
  * Note: unrelated to `SpecRequest.upload_url`, which is a server-side upload URL used by the

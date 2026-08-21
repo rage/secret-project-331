@@ -80,13 +80,13 @@ echo -e "$RESET_EVERYTHING"
 
 if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
   echo "🪟  Detected Windows with $CORES available cores and ${TOTAL_MEM_GB}GB of total memory."
-  ARGUMENTS=(start --vm-driver=virtualbox --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
+  ARGUMENTS=(start --vm-driver=virtualbox --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "🍎 Detected macOS with $CORES available cores and ${TOTAL_MEM_GB}GB of total memory."
-  ARGUMENTS=(start --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
+  ARGUMENTS=(start --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
 else
   echo "🐧 Detected Linux with $CORES available cores and ${TOTAL_MEM_GB}GB of total memory."
-  ARGUMENTS=(start --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
+  ARGUMENTS=(start --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
 fi
 
 run_command "$COMMAND" "${ARGUMENTS[@]}"
@@ -95,6 +95,8 @@ run_command "$COMMAND" "${ARGUMENTS[@]}"
 # minikube.k8s.io/primary=true node label that the ingress addon's pods
 # require via nodeSelector, leaving them permanently Pending.
 run_command kubectl label node minikube minikube.k8s.io/primary=true --overwrite
+
+run_command minikube addons enable ingress
 
 # Have to update the config for the ingress to that the ingress controller does not reject our ingresses
 run_command kubectl patch configmap ingress-nginx-controller -n ingress-nginx --type merge -p '{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}'

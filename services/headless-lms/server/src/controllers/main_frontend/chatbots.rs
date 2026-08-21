@@ -194,7 +194,7 @@ async fn create_chatbot(
         PKeyPolicy::Generate,
         NewChatbotConf {
             chatbot_name: payload.name.clone(),
-            course_id: course_id,
+            course_id,
             model_id: model.id,
             publicly_accessible: course_id.is_none(),
             ..Default::default()

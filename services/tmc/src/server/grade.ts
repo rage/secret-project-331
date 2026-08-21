@@ -6,16 +6,17 @@ import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { extractProject, fastAvailablePoints, prepareSubmission } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import { compressBrowserAnswer } from "@/util/browserAnswerArchive"
 import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
-import type { UserAnswer } from "@/util/stateInterfaces"
 
 import type { GradeRequest } from "./requestSchemas"
-import { gradeRequestSchema, userAnswerSchema, wrappedUserAnswerSchema } from "./requestSchemas"
+import { gradeRequestSchema } from "./requestSchemas"
 
 const { log, debug } = createLogger("grade")
+
+/** tmc-langs' naive submission extraction, which a project archive never needs. */
+const EXTRACT_SUBMISSION_NAIVELY = false
 
 const RUN_STATUSES = new Set([
   "PASSED",
@@ -74,56 +75,34 @@ async function postImpl(request: Request): Promise<Response> {
   }
   const parsed = gradeRequestSchema.safeParse(body)
   if (!parsed.success) {
-    return badRequest("Invalid grading request")
+    const issues = parsed.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join("; ")
+    return badRequest(`Invalid grading request (${issues})`)
   }
   return await processGrading(parsed.data)
 }
 
 export const handleGrade = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /grade" })
 
-/** Unwrap submission_data if the frontend sent { private_spec: UserAnswer } (current-state payload). */
-function normalizeSubmissionData(raw: unknown): UserAnswer | null {
-  const direct = userAnswerSchema.safeParse(raw)
-  if (direct.success) {
-    return direct.data
-  }
-  const wrapped = wrappedUserAnswerSchema.safeParse(raw)
-  if (wrapped.success) {
-    return wrapped.data.private_spec
-  }
-  return null
-}
-
 const processGrading = async (req: GradeRequest): Promise<Response> => {
   const tempPaths: string[] = []
   try {
-    const { exercise_spec } = req
-    const submission_data = normalizeSubmissionData(req.submission_data)
-    if (!submission_data) {
+    const { exercise_spec, submission_files } = req
+    const [answerArchive, ...extraFiles] = submission_files
+    if (!answerArchive) {
+      return badRequest("A submission to grade needs an archive in submission_files")
+    }
+    if (extraFiles.length > 0) {
       return badRequest(
-        `unexpected submission type '${exercise_spec.type}' (missing or invalid submission_data)`,
+        `A tmc answer is exactly one archive, got ${submission_files.length.toString()} files`,
       )
     }
 
-    debug("prepare submission for the grading pod")
+    debug("downloading the submitted archive")
     const submissionArchivePath = temporaryFile()
     tempPaths.push(submissionArchivePath)
-    let extractSubmissionNaively: boolean
-    if (exercise_spec.type === "editor" && submission_data.type === "editor") {
-      debug("grading editor submission")
-      const archiveDownloadUrl = submission_data.archive_download_url
-      await downloadStream(archiveDownloadUrl, submissionArchivePath)
-      extractSubmissionNaively = false
-    } else if (exercise_spec.type === "browser" && submission_data.type === "browser") {
-      debug("grading browser submission")
-      const submissionDir = temporaryDirectory()
-      tempPaths.push(submissionDir)
-      debug("compressing project")
-      await compressBrowserAnswer(submissionDir, submissionArchivePath, submission_data.files, log)
-      extractSubmissionNaively = false
-    } else {
-      return badRequest(`unexpected submission type '${exercise_spec.type}'`)
-    }
+    await downloadStream(answerArchive.download_url, submissionArchivePath)
 
     debug("downloading exercise template")
     const templateArchivePath = temporaryFile()
@@ -142,7 +121,7 @@ const processGrading = async (req: GradeRequest): Promise<Response> => {
       preparedSubmissionArchivePath,
       submissionArchivePath,
       "zstd",
-      extractSubmissionNaively,
+      EXTRACT_SUBMISSION_NAIVELY,
       log,
     )
 

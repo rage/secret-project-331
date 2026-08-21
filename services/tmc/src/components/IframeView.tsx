@@ -18,6 +18,7 @@ const IframeView: React.FC<IframeViewProps> = ({ maxWidth }) => {
     testRequestResponse,
     fileUploadResponse,
     setStateAndSend,
+    setAnswerFiles,
     sendFileUploadMessage,
     requestRepositoryExercises,
   } = useIframeProtocol()
@@ -34,6 +35,7 @@ const IframeView: React.FC<IframeViewProps> = ({ maxWidth }) => {
       >
         <StateRenderer
           setState={setStateAndSend}
+          setAnswerFiles={setAnswerFiles}
           state={state}
           testRequestResponse={testRequestResponse}
           sendFileUploadMessage={sendFileUploadMessage}

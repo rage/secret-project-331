@@ -7,7 +7,7 @@
 import { z } from "zod"
 
 import type { RepositoryExercise } from "@/util/exerciseServiceApi"
-import type { ExerciseFile, PrivateSpec, UserAnswer } from "@/util/stateInterfaces"
+import type { ExerciseFile, PrivateSpec } from "@/util/stateInterfaces"
 
 // Loose objects: tolerate extra fields the backend may add, like the old casts did.
 export const repositoryExerciseSchema = z.looseObject({
@@ -30,22 +30,25 @@ export const exerciseFileSchema = z.object({
   contents: z.string(),
 }) satisfies z.ZodType<ExerciseFile>
 
-export const userAnswerSchema = z.discriminatedUnion("type", [
-  z.looseObject({ type: z.literal("browser"), files: z.array(exerciseFileSchema) }),
-  z.looseObject({ type: z.literal("editor"), archive_download_url: z.string() }),
-]) satisfies z.ZodType<UserAnswer>
+/** The browser editor's files, as the iframe posts them to be packed into an archive. */
+export const packBrowserAnswerRequestSchema = z.array(exerciseFileSchema).min(1)
 
-// submission_data stays unknown: the grade handler normalizes it separately (the frontend may wrap
-// it in { private_spec: ... }) so it can produce a precise error message.
+/** One file of the graded answer. `size_bytes` is null when the host never recorded a size. */
+export const gradingRequestFileSchema = z.looseObject({
+  id: z.string(),
+  name: z.string(),
+  mime: z.string(),
+  size_bytes: z.number().nullish(),
+  download_url: z.string(),
+})
+
+// submission_data is not read: a tmc answer is its archive, so the request's files are the answer.
 export const gradeRequestSchema = z.looseObject({
   grading_update_url: z.string(),
   exercise_spec: privateSpecSchema,
-  submission_data: z.unknown(),
+  submission_files: z.array(gradingRequestFileSchema).min(1),
 })
 export type GradeRequest = z.infer<typeof gradeRequestSchema>
-
-/** The frontend's current-state payload wraps the user answer in { private_spec: ... }. */
-export const wrappedUserAnswerSchema = z.looseObject({ private_spec: userAnswerSchema })
 
 // SpecRequest envelope for public-spec / model-solution. private_spec is validated separately so
 // handlers keep their distinct "missing private spec" error messages.
@@ -56,7 +59,7 @@ export const specRequestSchema = z.looseObject({
 })
 export type ParsedSpecRequest = z.infer<typeof specRequestSchema>
 
-// The host's build-user-answer request. `public_spec` is accepted but unused: an editor answer is
+// The host's build-user-answer request. `public_spec` is accepted but unused: the answer is
 // determined entirely by the uploaded archive.
 export const buildUserAnswerRequestSchema = z.looseObject({
   request_id: z.string(),
@@ -64,12 +67,9 @@ export const buildUserAnswerRequestSchema = z.looseObject({
   uploaded_files: z.array(z.object({ id: z.string(), name: z.string(), url: z.string() })),
 })
 
-// The host's answer-files request. `public_spec` names the archive the answer is reported as; it is
-// absent only for a task whose spec was never generated.
 export const answerFilesRequestSchema = z.looseObject({
   request_id: z.string(),
-  public_spec: z.looseObject({ archive_name: z.string().min(1) }).nullish(),
-  answer: userAnswerSchema,
+  answer: z.unknown(),
 })
 
 export const testRequestSchema = z.discriminatedUnion("type", [

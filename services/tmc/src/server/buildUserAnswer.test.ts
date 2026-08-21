@@ -17,21 +17,15 @@ const file = {
 }
 
 describe("POST /api/build-user-answer", () => {
-  it("builds the same editor answer the iframe path builds from an upload result", async () => {
+  it("accepts the uploaded archive as an answer with no metadata", async () => {
     const res = await handleBuildUserAnswer(
       post({ request_id: "req", public_spec: null, uploaded_files: [file] }),
     )
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({
-      answer: {
-        type: "editor",
-        archive_file_id: file.id,
-        archive_download_url: file.url,
-      },
-    })
+    expect(await res.json()).toEqual({ answer: null })
   })
 
-  it("ignores the public spec, since an editor answer is determined by the archive alone", async () => {
+  it("ignores the public spec, since the answer is determined by the archive alone", async () => {
     const res = await handleBuildUserAnswer(
       post({
         request_id: "req",
@@ -40,8 +34,7 @@ describe("POST /api/build-user-answer", () => {
       }),
     )
     expect(res.status).toBe(200)
-    const body = await res.json()
-    expect(body.answer.archive_download_url).toBe(file.url)
+    expect(await res.json()).toEqual({ answer: null })
   })
 
   it("rejects a request with no uploaded archive", async () => {

@@ -6,15 +6,16 @@ import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core
 import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
 import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
 import type { RunResult } from "@/tmc/cli"
-import type { ExerciseIframeState } from "@/util/stateInterfaces"
+import type { ExerciseFile, ExerciseIframeState } from "@/util/stateInterfaces"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
-import ViewSubmission, { normalizeSubmission } from "./ViewSubmission"
+import ViewSubmission from "./ViewSubmission"
 
 interface Props {
   state: ExerciseIframeState | null
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
+  setAnswerFiles: (files: ExerciseFile[]) => void
   testRequestResponse: RunResult | null
   sendFileUploadMessage: (file: File) => void
   requestRepositoryExercises: () => void
@@ -24,6 +25,7 @@ interface Props {
 export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
   state,
   setState,
+  setAnswerFiles,
   testRequestResponse,
   requestRepositoryExercises,
   sendFileUploadMessage,
@@ -50,8 +52,8 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <AnswerExercise
           publicSpec={state.public_spec}
-          userAnswer={state.user_answer}
-          setState={setState}
+          files={state.editor_files}
+          onFilesChange={setAnswerFiles}
           testRequestResponse={testRequestResponse}
           sendFileUploadMessage={sendFileUploadMessage}
           fileUploadResponse={fileUploadResponse}
@@ -59,33 +61,12 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
       </div>
     )
   } else if (state.view_type === "view-submission") {
-    const submission = normalizeSubmission(state.submission)
-    if (submission.type === "browser" && state.public_spec) {
-      const setStateForViewSubmission: typeof setState = (updater) => {
-        setState((prev) => {
-          if (prev?.view_type !== "view-submission") {
-            return updater(prev)
-          }
-          const fakePrev: ExerciseIframeState = {
-            // oxlint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
-            view_type: "answer-exercise",
-            public_spec: prev.public_spec,
-            user_answer: prev.submission,
-            previous_submission: null,
-          }
-          const result = updater(fakePrev)
-          if (result?.view_type === "answer-exercise") {
-            return { ...prev, submission: result.user_answer }
-          }
-          return result ?? prev
-        })
-      }
+    if (state.public_spec.type === "browser" && state.submitted_files.length > 0) {
       return (
         <div id={EXERCISE_SERVICE_CONTENT_ID}>
           <AnswerExercise
             publicSpec={state.public_spec}
-            userAnswer={submission}
-            setState={setStateForViewSubmission}
+            files={state.submitted_files}
             testRequestResponse={null}
             sendFileUploadMessage={sendFileUploadMessage}
             fileUploadResponse={fileUploadResponse}
@@ -94,6 +75,7 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
         </div>
       )
     }
+    // An editor-mode answer, or one whose archive could not be read.
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <ViewSubmission state={state} />

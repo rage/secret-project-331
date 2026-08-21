@@ -1,13 +1,13 @@
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import type { EditorUserAnswer } from "@/util/stateInterfaces"
 
 import { buildUserAnswerRequestSchema } from "./requestSchemas"
 
 /**
- * Turns files the host stored for a native client into this service's editor answer — the same
- * shape the in-browser iframe builds from an `upload-result` message, so the two paths produce
- * identical answers.
+ * Accepts the archive a native client uploaded as this service's answer. The answer itself is null:
+ * a tmc answer is its archive and carries no metadata, so the uploaded file is the whole answer.
+ *
+ * Still rejects anything but exactly one archive, which is what a tmc answer consists of.
  */
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -22,18 +22,12 @@ async function postImpl(request: Request): Promise<Response> {
   }
 
   const files = parsed.data.uploaded_files
-  const file = files[0]
-  if (files.length !== 1 || !file) {
+  if (files.length !== 1) {
     return badRequest(
-      `An editor answer needs exactly one uploaded archive, got ${files.length.toString()}`,
+      `A tmc answer needs exactly one uploaded archive, got ${files.length.toString()}`,
     )
   }
-  const answer: EditorUserAnswer = {
-    type: "editor",
-    archive_file_id: file.id,
-    archive_download_url: file.url,
-  }
-  return jsonOk({ answer })
+  return jsonOk({ answer: null })
 }
 
 export const handleBuildUserAnswer = wrapRouteHandler(postImpl, {

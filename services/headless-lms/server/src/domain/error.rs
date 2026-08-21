@@ -46,9 +46,14 @@ pub enum ControllerErrorType {
     #[display("Bad request")]
     BadRequestWithData(ErrorMetadata),
 
-    /// HTTP status code 422 with a specific domain reason.
+    /// HTTP status code 422 with a specific domain reason, so clients can branch
+    /// on a stable `message_key` instead of parsing the human-readable message.
     #[display("Bad request")]
     BadRequestWithReason(BadRequestReason),
+
+    /// HTTP status code 426. The client is too old and must be upgraded.
+    #[display("Upgrade required")]
+    UpgradeRequired,
 
     /// HTTP status code 404.
     #[display("Not found")]
@@ -96,12 +101,25 @@ impl UnauthorizedReason {
     }
 }
 
-/// Bad request reasons that the frontend has a translated message for.
+/// Bad request reasons a client can branch on. Only `CourseSlugAlreadyTaken` has a web-frontend
+/// translation; the rest are consumed by the VSCode client, which renders its own message.
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum BadRequestReason {
     #[display("Course slug already taken")]
     CourseSlugAlreadyTaken,
+    /// The user is not enrolled on the course the requested exercise belongs to.
+    #[display("Not enrolled")]
+    NotEnrolled,
+    /// A submission named a file that was uploaded but has since been reaped.
+    #[display("Upload expired")]
+    UploadExpired,
+    /// A submission named a file the host has no upload record of for this exercise and user.
+    #[display("Unknown upload")]
+    UnknownUpload,
+    /// A submission named the same uploaded file more than once.
+    #[display("Duplicate upload")]
+    DuplicateUpload,
 }
 
 impl BadRequestReason {
@@ -109,6 +127,10 @@ impl BadRequestReason {
     fn message_key(self) -> &'static str {
         match self {
             Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
+            Self::NotEnrolled => "not_enrolled",
+            Self::UploadExpired => "upload_expired",
+            Self::UnknownUpload => "unknown_upload",
+            Self::DuplicateUpload => "duplicate_upload",
         }
     }
 
@@ -298,7 +320,7 @@ pub enum ErrorMetadata {
     BlockId(Uuid),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct ApiErrorIssue {
     pub path: Option<String>,
     pub code: Option<String>,
@@ -322,7 +344,7 @@ impl ValidationIssueCode {
 }
 
 /// Canonical API error envelope returned for controlled application errors.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct ApiErrorResponse {
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -506,6 +528,7 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::BadRequest => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::BadRequestWithData(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::BadRequestWithReason(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            ControllerErrorType::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
@@ -535,6 +558,7 @@ impl ControllerError {
             ControllerErrorType::BadRequestWithReason(reason) => {
                 ("validation_error", reason.message_key())
             }
+            ControllerErrorType::UpgradeRequired => ("obsolete_client", "obsolete_client"),
             ControllerErrorType::NotFound => ("not_found", "not_found"),
             ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
             ControllerErrorType::UnauthorizedWithReason(reason) => {
@@ -579,11 +603,19 @@ pub enum OAuthErrorCode {
     InvalidClient,
     InvalidToken,
     InsufficientScope,
+    InvalidScope,
+    UnauthorizedClient,
     UnsupportedGrantType,
     UnsupportedResponseType,
     ServerError,
     InvalidDpopProof,
     UseDpopNonce,
+    // RFC 8628 Device Authorization Grant token-endpoint errors. All map to
+    // HTTP 400 (the default in `error_response`), which is RFC-compliant.
+    AuthorizationPending,
+    SlowDown,
+    ExpiredToken,
+    AccessDenied,
 }
 
 impl OAuthErrorCode {
@@ -594,11 +626,17 @@ impl OAuthErrorCode {
             Self::InvalidClient => "invalid_client",
             Self::InvalidToken => "invalid_token",
             Self::InsufficientScope => "insufficient_scope",
+            Self::InvalidScope => "invalid_scope",
+            Self::UnauthorizedClient => "unauthorized_client",
             Self::UnsupportedGrantType => "unsupported_grant_type",
             Self::UnsupportedResponseType => "unsupported_response_type",
             Self::ServerError => "server_error",
             Self::InvalidDpopProof => "invalid_dpop_proof",
             Self::UseDpopNonce => "use_dpop_nonce",
+            Self::AuthorizationPending => "authorization_pending",
+            Self::SlowDown => "slow_down",
+            Self::ExpiredToken => "expired_token",
+            Self::AccessDenied => "access_denied",
         }
     }
 }
@@ -1194,6 +1232,44 @@ mod tests {
             value["message"],
             "User must be authenticated to view exam exercises"
         );
+    }
+
+    #[test]
+    fn test_not_enrolled_uses_dedicated_message_key_and_422() {
+        let err = ControllerError::new(
+            ControllerErrorType::BadRequestWithReason(BadRequestReason::NotEnrolled),
+            "User is not enrolled to this exercise's course".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "validation_error");
+        assert_eq!(value["message_key"], "not_enrolled");
+    }
+
+    #[test]
+    fn test_upgrade_required_uses_obsolete_client_key_and_426() {
+        let err = ControllerError::new(
+            ControllerErrorType::UpgradeRequired,
+            "Client is too old".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::UPGRADE_REQUIRED);
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "obsolete_client");
+        assert_eq!(value["message_key"], "obsolete_client");
     }
 
     #[test]

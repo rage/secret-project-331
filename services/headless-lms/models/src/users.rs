@@ -1,3 +1,4 @@
+use crate::library::oauth::Digest;
 use crate::prelude::*;
 use utoipa::ToSchema;
 
@@ -130,6 +131,27 @@ WHERE id = $1
     Ok(user)
 }
 
+/// Like [`get_by_id`], but only returns a user that is not soft-deleted.
+///
+/// A soft-deleted (banned/removed) user yields `RecordNotFound`, the same as a nonexistent id,
+/// so callers that must reject deleted accounts can treat both cases identically. [`get_by_id`]
+/// deliberately does not filter, since some callers fetch a user's own deleted row.
+pub async fn get_active_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<User> {
+    let user = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(user)
+}
+
 pub async fn find_by_upstream_id(
     conn: &mut PgConnection,
     upstream_id: i32,
@@ -250,7 +272,12 @@ pub async fn update_email_for_user(
     Ok(user.id)
 }
 
-pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+/// Soft-deletes the user and takes their OAuth credentials down with the account.
+///
+/// Returns the digests of the deleted access tokens so a caller holding the exercise-services
+/// token cache can evict them; otherwise a deleted account keeps authenticating that API from a
+/// cache hit until the entry ages out (see `domain::exercise_services::token`).
+pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<Vec<Digest>> {
     info!("Deleting user {id}");
     let mut tx = conn.begin().await?;
     crate::email_deliveries::soft_delete_unsent_retryable_deliveries_for_user(&mut tx, id).await?;
@@ -272,7 +299,12 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     )
     .execute(&mut *tx)
     .await?;
+    let revoked_access_digests =
+        crate::oauth_refresh_tokens::OAuthRefreshTokens::revoke_all_grants_of_user_in_transaction(
+            &mut tx, id,
+        )
+        .await?;
     tx.commit().await?;
     info!("Deletion succeeded");
-    Ok(())
+    Ok(revoked_access_digests)
 }

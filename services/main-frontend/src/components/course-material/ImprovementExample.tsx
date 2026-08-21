@@ -2,9 +2,9 @@
 
 /* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
+import { animated, useSpring } from "@react-spring/web"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { animated, useSpring } from "react-spring"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"

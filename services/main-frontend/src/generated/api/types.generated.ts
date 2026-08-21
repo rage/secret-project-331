@@ -2312,7 +2312,7 @@ export type CreditRegistrationPhaseStatus = {
 
 export type CreditRegistrationReconciliation = {
   /**
-   * The four detector counts, which is the tab badge. The consent-withdrawal bucket is
+   * The five detector counts, which is the tab badge. The consent-withdrawal bucket is
    * deliberately outside it.
    */
   finding_count: number
@@ -2479,6 +2479,70 @@ export type DeploymentInfo = {
   selector_labels: {
     [key: string]: string
   }
+}
+
+/**
+ * Form body for `POST /device_authorization` (RFC 8628 §3.1).
+ */
+export type DeviceAuthorizationForm = {
+  client_id: string
+  /**
+   * Space-delimited requested scopes. Optional; when absent the client's
+   * registered scopes are used.
+   */
+  scope?: string | null
+}
+
+/**
+ * Success body for `POST /device_authorization` (RFC 8628 §3.2).
+ */
+export type DeviceAuthorizationResponse = {
+  device_code: string
+  expires_in: number
+  interval: number
+  user_code: string
+  verification_uri: string
+  verification_uri_complete: string
+}
+
+/**
+ * Body for the approve/deny verification actions.
+ */
+export type DeviceDecisionBody = {
+  user_code: string
+}
+
+/**
+ * Result of an approve/deny action.
+ */
+export type DeviceDecisionResponse = {
+  /**
+   * `"approved"` or `"denied"`.
+   */
+  status: string
+}
+
+/**
+ * Render data returned to the verification page so it can show the user what
+ * they are about to authorize.
+ */
+export type DeviceVerificationInfo = {
+  /**
+   * Public client identifier (the `client_id` string, not the internal UUID).
+   */
+  client_id: string
+  /**
+   * Human-readable client name for display.
+   */
+  client_name: string
+  /**
+   * Scopes the client is requesting.
+   */
+  scopes: Array<string>
+  /**
+   * The normalized `user_code` (`XXXX-XXXX`), echoed back for display.
+   */
+  user_code: string
 }
 
 export type DomainCompletionStats = {
@@ -2805,6 +2869,20 @@ export type ExerciseSlideSubmissionInfo = {
   exercise_slide_submission: ExerciseSlideSubmission
   tasks: Array<CourseMaterialExerciseTask>
   user_exercise_state?: null | UserExerciseState
+}
+
+/**
+ * A shareable link to an existing exercise-slide submission. The `id` is the
+ * unguessable token used in the shareable URL; a viewer resolves the token back
+ * to the submission it points at.
+ */
+export type ExerciseSlideSubmissionShare = {
+  created_at: string
+  created_by: string
+  deleted_at?: string | null
+  exercise_slide_submission_id: string
+  id: string
+  updated_at: string
 }
 
 export type ExerciseStatusSummaryForUser = {
@@ -11245,11 +11323,123 @@ export type DenyOauthConsentResponses = {
 
 export type DenyOauthConsentResponse = DenyOauthConsentResponses[keyof DenyOauthConsentResponses]
 
+export type DeviceAuthorizationOauthData = {
+  body: DeviceAuthorizationForm
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/oauth/device_authorization"
+}
+
+export type DeviceAuthorizationOauthErrors = {
+  /**
+   * OAuth error (invalid_scope, unauthorized_client)
+   */
+  400: unknown
+  /**
+   * OAuth error (invalid_client)
+   */
+  401: unknown
+}
+
+export type DeviceAuthorizationOauthResponses = {
+  /**
+   * Device authorization response
+   */
+  200: DeviceAuthorizationResponse
+}
+
+export type DeviceAuthorizationOauthResponse =
+  DeviceAuthorizationOauthResponses[keyof DeviceAuthorizationOauthResponses]
+
+export type GetOauthDeviceVerificationData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+     * The user_code shown to the user by the device
+     */
+    user_code: string
+  }
+  url: "/api/v0/main-frontend/oauth/device_verification"
+}
+
+export type GetOauthDeviceVerificationErrors = {
+  /**
+   * No pending device authorization for this user_code
+   */
+  404: unknown
+}
+
+export type GetOauthDeviceVerificationResponses = {
+  /**
+   * Pending device authorization render data
+   */
+  200: DeviceVerificationInfo
+}
+
+export type GetOauthDeviceVerificationResponse =
+  GetOauthDeviceVerificationResponses[keyof GetOauthDeviceVerificationResponses]
+
+export type ApproveOauthDeviceVerificationData = {
+  body: DeviceDecisionBody
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/oauth/device_verification/approve"
+}
+
+export type ApproveOauthDeviceVerificationErrors = {
+  /**
+   * No pending device authorization for this user_code
+   */
+  404: unknown
+}
+
+export type ApproveOauthDeviceVerificationResponses = {
+  /**
+   * Device authorization approved
+   */
+  200: DeviceDecisionResponse
+}
+
+export type ApproveOauthDeviceVerificationResponse =
+  ApproveOauthDeviceVerificationResponses[keyof ApproveOauthDeviceVerificationResponses]
+
+export type DenyOauthDeviceVerificationData = {
+  body: DeviceDecisionBody
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/oauth/device_verification/deny"
+}
+
+export type DenyOauthDeviceVerificationErrors = {
+  /**
+   * No pending device authorization for this user_code
+   */
+  404: unknown
+}
+
+export type DenyOauthDeviceVerificationResponses = {
+  /**
+   * Device authorization denied
+   */
+  200: DeviceDecisionResponse
+}
+
+export type DenyOauthDeviceVerificationResponse =
+  DenyOauthDeviceVerificationResponses[keyof DenyOauthDeviceVerificationResponses]
+
 export type IntrospectOauthTokenData = {
   body: unknown
   path?: never
   query?: never
   url: "/api/v0/main-frontend/oauth/introspect"
+}
+
+export type IntrospectOauthTokenErrors = {
+  /**
+   * Client authentication failed (invalid_client)
+   */
+  401: unknown
 }
 
 export type IntrospectOauthTokenResponses = {
@@ -12301,6 +12491,89 @@ export type RemoveRoleResponses = {
    */
   200: unknown
 }
+
+export type ListOwnSubmissionSharesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/shared-submissions"
+}
+
+export type ListOwnSubmissionSharesResponses = {
+  /**
+   * The caller's live shares, newest first
+   */
+  200: Array<ExerciseSlideSubmissionShare>
+}
+
+export type ListOwnSubmissionSharesResponse =
+  ListOwnSubmissionSharesResponses[keyof ListOwnSubmissionSharesResponses]
+
+export type RevokeSubmissionSharesOfSubmissionData = {
+  body?: never
+  path: {
+    /**
+     * Exercise slide submission id
+     */
+    submission_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}"
+}
+
+export type RevokeSubmissionSharesOfSubmissionResponses = {
+  /**
+   * How many shares were withdrawn
+   */
+  200: number
+}
+
+export type RevokeSubmissionSharesOfSubmissionResponse =
+  RevokeSubmissionSharesOfSubmissionResponses[keyof RevokeSubmissionSharesOfSubmissionResponses]
+
+export type RevokeSubmissionShareData = {
+  body?: never
+  path: {
+    /**
+     * Submission share token
+     */
+    token: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/shared-submissions/{token}"
+}
+
+export type RevokeSubmissionShareResponses = {
+  /**
+   * Whether a live share was withdrawn
+   */
+  200: boolean
+}
+
+export type RevokeSubmissionShareResponse =
+  RevokeSubmissionShareResponses[keyof RevokeSubmissionShareResponses]
+
+export type GetSharedSubmissionInfoData = {
+  body?: never
+  path: {
+    /**
+     * Submission share token
+     */
+    token: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/shared-submissions/{token}"
+}
+
+export type GetSharedSubmissionInfoResponses = {
+  /**
+   * Data needed to render the shared submission
+   */
+  200: ExerciseSlideSubmissionInfo
+}
+
+export type GetSharedSubmissionInfoResponse =
+  GetSharedSubmissionInfoResponses[keyof GetSharedSubmissionInfoResponses]
 
 export type GetStatusCronjobsData = {
   body?: never

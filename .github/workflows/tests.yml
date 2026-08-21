@@ -93,7 +93,7 @@ jobs:
             -w /workspace \
             -e CARGO_TERM_COLOR=always \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
-            cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings
+            cargo clippy --manifest-path services/headless-lms/Cargo.toml --all-targets -- -D warnings
 
       - name: Build
         env:
@@ -106,6 +106,35 @@ jobs:
             -e CARGO_TERM_COLOR=always \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo build --verbose
+
+      # OpenAPI drift gate: re-export the specs under server/openapi and fail if they
+      # differ from what is committed.
+      - name: Export OpenAPI specs
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
+        run: |
+          docker run --rm \
+            --network "$NETWORK" \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace/services/headless-lms \
+            -e CARGO_TERM_COLOR=always \
+            -e SQLX_OFFLINE=1 \
+            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
+            cargo run -p headless-lms-entrypoint -- export-openapi
+
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
+
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The committed specs are oxfmt-formatted; the raw export is not, so format it
+      # before diffing.
+      - name: Format exported OpenAPI specs
+        run: pnpm exec oxfmt services/headless-lms/server/openapi/*.json
+
+      - name: Assert committed OpenAPI specs are up to date
+        run: git diff --exit-code services/headless-lms/server/openapi/
 
       - name: Set up unit test database
         env:

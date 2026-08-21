@@ -1,6 +1,10 @@
+use crate::domain::oauth::helpers::{
+    ClientAuthError, authenticate_oauth_client, oauth_invalid_client,
+};
 use crate::domain::oauth::introspect_query::IntrospectQuery;
 use crate::domain::oauth::introspect_response::IntrospectResponse;
 use crate::domain::oauth::oauth_validated::OAuthValidated;
+use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use headless_lms_base::config::ApplicationConfiguration;
@@ -24,16 +28,16 @@ pub(crate) struct MainFrontendOauthIntrospectApiDoc;
 /// the active state and metadata of an access token.
 ///
 /// ### Security Features
-/// - Client authentication is required (client_id and client_secret for confidential clients)
-/// - Returns `active: false` for invalid/expired tokens or authentication failures
-///   to prevent token enumeration attacks
-/// - Always returns 200 OK, even for invalid tokens (per RFC 7662)
+/// - Only a confidential client may introspect; an unknown client, a public client or a bad
+///   secret is 401 `invalid_client` (RFC 7662 §2.1, §2.3)
+/// - Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token
+///   existence is never disclosed to an authenticated caller
 ///
 /// ### Request Parameters
 /// - `token` (required): The token to be introspected
 /// - `token_type_hint` (optional): Hint about token type ("access_token" or "refresh_token")
-/// - `client_id` (required): Client identifier
-/// - `client_secret` (required for confidential clients): Client secret
+/// - `client_id` (required): Client identifier of a confidential client
+/// - `client_secret` (required): Client secret
 ///
 /// ### Response
 /// Returns a JSON object with:
@@ -48,6 +52,11 @@ pub(crate) struct MainFrontendOauthIntrospectApiDoc;
 ///   - `iss`: Issuer
 ///   - `jti`: JWT ID
 ///   - `token_type`: "Bearer" or "DPoP"
+/// - Non-standard members, returned only to callers that authenticated as a
+///   confidential client and omitted (never falsified) otherwise:
+///   - `upstream_id`: the token owner's legacy TMC user id
+///   - `client_bearer_allowed`: whether the client the token was issued to may use it
+///     as a plain Bearer credential. Consumers must fail closed if it is absent.
 ///
 /// Follows [RFC 7662 — OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662).
 ///
@@ -100,7 +109,8 @@ pub(crate) struct MainFrontendOauthIntrospectApiDoc;
         content_type = "application/x-www-form-urlencoded"
     ),
     responses(
-        (status = 200, description = "OAuth token introspection response", body = serde_json::Value)
+        (status = 200, description = "OAuth token introspection response", body = serde_json::Value),
+        (status = 401, description = "Client authentication failed (invalid_client)")
     )
 )]
 pub async fn introspect(
@@ -111,81 +121,11 @@ pub async fn introspect(
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    // Authenticate client
-    // RFC 7662 §2.1: "The authorization server responds with HTTP status code 200
-    // and the introspection result, even if the client authentication failed or
-    // the token is invalid."
-    let client_result = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await;
-
     // Add non-secret fields to the span for observability
     tracing::Span::current().record("client_id", &form.client_id);
 
-    // If client not found or secret invalid, return active: false per RFC 7662
-    let client = match client_result {
-        Ok(c) => c,
-        Err(e) => {
-            tracing::debug!(err = %e, "OAuth introspect: client lookup failed (inactive client_id)");
-            // Invalid client_id - return active: false per RFC 7662
-            return server_token.authorized_ok(
-                HttpResponse::Ok()
-                    .insert_header(("Cache-Control", "no-store"))
-                    .json(IntrospectResponse {
-                        active: false,
-                        scope: None,
-                        client_id: None,
-                        username: None,
-                        exp: None,
-                        iat: None,
-                        sub: None,
-                        aud: None,
-                        iss: None,
-                        jti: None,
-                        token_type: None,
-                    }),
-            );
-        }
-    };
-
-    // Validate client secret for confidential clients
     let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
-    let client_valid = if client.is_confidential() {
-        match &client.client_secret {
-            Some(secret) => {
-                let provided_secret_digest = token_digest_sha256(
-                    form.client_secret
-                        .as_ref()
-                        .map(|s| s.expose_secret())
-                        .unwrap_or_default(),
-                    token_hmac_key,
-                );
-                secret.constant_eq(&provided_secret_digest)
-            }
-            None => false,
-        }
-    } else {
-        true // Public clients don't need secret validation
-    };
-
-    // If client secret is invalid, return active: false per RFC 7662
-    if !client_valid {
-        return server_token.authorized_ok(
-            HttpResponse::Ok()
-                .insert_header(("Cache-Control", "no-store"))
-                .json(IntrospectResponse {
-                    active: false,
-                    scope: None,
-                    client_id: None,
-                    username: None,
-                    exp: None,
-                    iat: None,
-                    sub: None,
-                    aud: None,
-                    iss: None,
-                    jti: None,
-                    token_type: None,
-                }),
-        );
-    }
+    let client = authenticate_introspecting_client(&mut conn, &form, token_hmac_key).await?;
 
     // Hash the provided token to get digest
     let token_digest = token_digest_sha256(form.token.expose_secret(), token_hmac_key);
@@ -201,19 +141,7 @@ pub async fn introspect(
             return server_token.authorized_ok(
                 HttpResponse::Ok()
                     .insert_header(("Cache-Control", "no-store"))
-                    .json(IntrospectResponse {
-                        active: false,
-                        scope: None,
-                        client_id: None,
-                        username: None,
-                        exp: None,
-                        iat: None,
-                        sub: None,
-                        aud: None,
-                        iss: None,
-                        jti: None,
-                        token_type: None,
-                    }),
+                    .json(IntrospectResponse::inactive()),
             );
         }
     };
@@ -224,6 +152,9 @@ pub async fn introspect(
 
     // Fetch the client that originally issued the token (not the introspecting client)
     let token_client = OAuthClient::find_by_id(&mut conn, access_token.client_id).await?;
+
+    let upstream_id = resolve_gated_upstream_id(&mut conn, &client, access_token.user_id).await;
+    let client_bearer_allowed = resolve_gated_bearer_allowed(&client, &token_client);
 
     // Build response with token metadata
     let base_url = app_conf.base_url.trim_end_matches('/');
@@ -244,6 +175,8 @@ pub async fn introspect(
             TokenType::Bearer => "Bearer".to_string(),
             TokenType::DPoP => "DPoP".to_string(),
         }),
+        upstream_id,
+        client_bearer_allowed,
     };
 
     server_token.authorized_ok(
@@ -253,6 +186,376 @@ pub async fn introspect(
     )
 }
 
+/// Authenticate the caller of the introspection endpoint.
+///
+/// Only a **confidential** client may introspect (RFC 7662 §2.1: the endpoint MUST be protected).
+/// A public client id is not a credential — `tmc-vscode`'s is hardcoded in the extension — so
+/// accepting one turned the endpoint into a validity-and-owner oracle for any leaked token,
+/// callable with no secret at all.
+///
+/// An unknown `client_id`, a public client, or a bad secret is 401 `invalid_client` (§2.3). Only
+/// the *token's* validity is reported as `200 {"active": false}`: folding failed **client**
+/// authentication into that answer makes a caller's credential typo indistinguishable from every
+/// one of its users holding an inactive token.
+async fn authenticate_introspecting_client(
+    conn: &mut sqlx::PgConnection,
+    form: &crate::domain::oauth::introspect_query::IntrospectParams,
+    token_hmac_key: &secrecy::SecretString,
+) -> Result<OAuthClient, ControllerError> {
+    let client = authenticate_oauth_client(
+        conn,
+        &form.client_id,
+        form.client_secret.as_ref(),
+        token_hmac_key,
+    )
+    .await
+    .map_err(|e| match e {
+        ClientAuthError::UnknownClient => oauth_invalid_client("invalid client_id"),
+        ClientAuthError::ClientSecretMissing => {
+            tracing::warn!("OAuth introspect: confidential client has no stored secret");
+            oauth_invalid_client("invalid client secret")
+        }
+        ClientAuthError::ClientSecretMismatch => {
+            tracing::warn!("OAuth introspect: invalid client secret");
+            oauth_invalid_client("invalid client secret")
+        }
+    })?;
+
+    if !client.is_confidential() {
+        tracing::warn!("OAuth introspect: public client may not introspect");
+        return Err(oauth_invalid_client("invalid client_id"));
+    }
+
+    Ok(client)
+}
+
+/// Resolve the token owner's legacy TMC `upstream_id` for the introspection
+/// response — a privileged, non-standard claim consumed by tmc-server.
+///
+/// Only a caller that authenticated as a **confidential** client (its secret was
+/// verified before this point) receives it; for public clients the user lookup is
+/// skipped entirely. A lookup failure omits the claim rather than failing
+/// introspection.
+async fn resolve_gated_upstream_id(
+    conn: &mut sqlx::PgConnection,
+    introspecting_client: &OAuthClient,
+    token_user_id: Option<uuid::Uuid>,
+) -> Option<i32> {
+    if !introspecting_client.is_confidential() {
+        return None;
+    }
+    match token_user_id {
+        Some(user_id) => match models::users::get_by_id(conn, user_id).await {
+            Ok(user) => user.upstream_id,
+            Err(e) => {
+                tracing::warn!(err = %e, "OAuth introspect: token user lookup failed; omitting upstream_id");
+                None
+            }
+        },
+        None => None,
+    }
+}
+
+/// Resolve the `client_bearer_allowed` member of the introspection response — a privileged,
+/// non-standard member letting resource servers apply the same `bearer_allowed = false`
+/// rejection `domain::exercise_services::token` applies here.
+///
+/// Reports the **issuing** client (`token_client`), never the introspecting caller. Gated like
+/// `upstream_id`: disclosed only to a confidential caller, and omitted rather than serialized
+/// as `false` otherwise, so a `false` is never ambiguous between "not permitted" and "not
+/// disclosed". See `IntrospectResponse::client_bearer_allowed` for the fail-closed contract.
+fn resolve_gated_bearer_allowed(
+    introspecting_client: &OAuthClient,
+    token_client: &OAuthClient,
+) -> Option<bool> {
+    if !introspecting_client.is_confidential() {
+        return None;
+    }
+    Some(token_client.allows_bearer())
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/introspect", web::post().to(introspect));
+    // Matches `/token`, `/authorize` and the device endpoints: without it an unmetered caller can
+    // drive a token lookup per request.
+    cfg.service(
+        web::resource("/introspect")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(100),
+                per_hour: Some(500),
+                per_day: Some(2000),
+                per_month: None,
+                ..Default::default()
+            }))
+            .route(web::post().to(introspect)),
+    );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::oauth::introspect_query::IntrospectParams;
+    use crate::test_helper::*;
+    use headless_lms_models::{
+        library::oauth::{GrantTypeName, generate_access_token, token_digest_sha256},
+        oauth_client::{ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod},
+    };
+    use secrecy::SecretString;
+    use sqlx::PgConnection;
+    use uuid::Uuid;
+
+    fn hmac_key() -> SecretString {
+        SecretString::new("test-introspect-hmac-key".to_string().into())
+    }
+
+    async fn insert_client(
+        conn: &mut PgConnection,
+        auth_method: TokenEndpointAuthMethod,
+        bearer_allowed: bool,
+    ) -> OAuthClient {
+        let client_id = format!("cli-{}", &generate_access_token()[..12]);
+        let secret = token_digest_sha256("introspect-test-secret", &hmac_key());
+        let (client_secret, require_pkce) = match auth_method {
+            TokenEndpointAuthMethod::ClientSecretPost => (Some(&secret), false),
+            TokenEndpointAuthMethod::None => (None, true),
+        };
+        OAuthClient::insert(
+            conn,
+            NewClientParams {
+                client_id: &client_id,
+                client_name: "Introspect test client",
+                application_type: ApplicationType::Service,
+                token_endpoint_auth_method: auth_method,
+                client_secret,
+                client_secret_expires_at: None,
+                redirect_uris: &["https://example.com/callback".to_string()],
+                post_logout_redirect_uris: None,
+                allowed_grant_types: &[GrantTypeName::RefreshToken],
+                scopes: &["exercise-services".to_string()],
+                require_pkce,
+                pkce_methods_allowed: &[],
+                allowed_origins: None,
+                bearer_allowed,
+            },
+        )
+        .await
+        .unwrap()
+    }
+
+    /// A confidential caller (secret verified) receives the privileged
+    /// `upstream_id` claim.
+    #[actix_web::test]
+    async fn upstream_id_exposed_to_confidential_client() {
+        insert_data!(:tx);
+        let user = headless_lms_models::users::insert_with_upstream_id_and_moocfi_id(
+            tx.as_mut(),
+            "introspect-confidential@example.com",
+            None,
+            None,
+            424242,
+            Uuid::new_v4(),
+        )
+        .await
+        .unwrap();
+        let client =
+            insert_client(tx.as_mut(), TokenEndpointAuthMethod::ClientSecretPost, true).await;
+
+        let upstream_id = resolve_gated_upstream_id(tx.as_mut(), &client, Some(user.id)).await;
+        assert_eq!(upstream_id, Some(424242));
+    }
+
+    /// A public caller (no secret) never receives `upstream_id`, even for a token
+    /// whose owner has one.
+    #[actix_web::test]
+    async fn upstream_id_hidden_from_public_client() {
+        insert_data!(:tx);
+        let user = headless_lms_models::users::insert_with_upstream_id_and_moocfi_id(
+            tx.as_mut(),
+            "introspect-public@example.com",
+            None,
+            None,
+            515151,
+            Uuid::new_v4(),
+        )
+        .await
+        .unwrap();
+        let client = insert_client(tx.as_mut(), TokenEndpointAuthMethod::None, true).await;
+
+        let upstream_id = resolve_gated_upstream_id(tx.as_mut(), &client, Some(user.id)).await;
+        assert_eq!(upstream_id, None);
+    }
+
+    /// A confidential caller learns that the token's issuing client may use Bearer
+    /// tokens, so tmc-server can accept a token this backend would also accept.
+    #[actix_web::test]
+    async fn client_bearer_allowed_reported_true_to_confidential_client() {
+        insert_data!(:tx);
+        let caller =
+            insert_client(tx.as_mut(), TokenEndpointAuthMethod::ClientSecretPost, true).await;
+        let token_client = insert_client(tx.as_mut(), TokenEndpointAuthMethod::None, true).await;
+
+        assert_eq!(
+            resolve_gated_bearer_allowed(&caller, &token_client),
+            Some(true)
+        );
+    }
+
+    /// The case the member exists for: a token issued to a client barred from Bearer
+    /// use. `Some(false)` is what lets tmc-server refuse the token, matching
+    /// `domain::exercise_services::token`'s own `allows_bearer` rejection.
+    #[actix_web::test]
+    async fn client_bearer_allowed_reported_false_to_confidential_client() {
+        insert_data!(:tx);
+        let caller =
+            insert_client(tx.as_mut(), TokenEndpointAuthMethod::ClientSecretPost, true).await;
+        let token_client = insert_client(tx.as_mut(), TokenEndpointAuthMethod::None, false).await;
+
+        assert_eq!(
+            resolve_gated_bearer_allowed(&caller, &token_client),
+            Some(false)
+        );
+    }
+
+    /// A public caller is told nothing — the member is omitted, not reported as
+    /// `false`, so a `false` in the wire response is always authoritative.
+    #[actix_web::test]
+    async fn client_bearer_allowed_hidden_from_public_client() {
+        insert_data!(:tx);
+        let caller = insert_client(tx.as_mut(), TokenEndpointAuthMethod::None, true).await;
+        let token_client = insert_client(tx.as_mut(), TokenEndpointAuthMethod::None, true).await;
+
+        assert_eq!(resolve_gated_bearer_allowed(&caller, &token_client), None);
+    }
+
+    /// The member describes the *issuing* client, not the introspecting caller:
+    /// a caller with `bearer_allowed = true` introspecting a token from a
+    /// `bearer_allowed = false` client must see `false`, and vice versa.
+    #[actix_web::test]
+    async fn client_bearer_allowed_reflects_issuing_client_not_caller() {
+        insert_data!(:tx);
+        let permissive_caller =
+            insert_client(tx.as_mut(), TokenEndpointAuthMethod::ClientSecretPost, true).await;
+        let restricted_caller = insert_client(
+            tx.as_mut(),
+            TokenEndpointAuthMethod::ClientSecretPost,
+            false,
+        )
+        .await;
+        let permissive_token_client =
+            insert_client(tx.as_mut(), TokenEndpointAuthMethod::None, true).await;
+        let restricted_token_client =
+            insert_client(tx.as_mut(), TokenEndpointAuthMethod::None, false).await;
+
+        assert_eq!(
+            resolve_gated_bearer_allowed(&permissive_caller, &restricted_token_client),
+            Some(false),
+            "a permissive caller must not mask the issuing client's restriction"
+        );
+        assert_eq!(
+            resolve_gated_bearer_allowed(&restricted_caller, &permissive_token_client),
+            Some(true),
+            "the caller's own bearer_allowed must not leak into the response"
+        );
+    }
+
+    fn params(client_id: &str, client_secret: Option<&str>) -> IntrospectParams {
+        IntrospectParams {
+            client_id: client_id.to_string(),
+            client_secret: client_secret.map(|s| SecretString::new(s.to_string().into())),
+            token: SecretString::new("some-token".to_string().into()),
+            token_type_hint: None,
+        }
+    }
+
+    fn assert_invalid_client(err: ControllerError) {
+        match err.error_type() {
+            ControllerErrorType::OAuthError(data) => assert_eq!(data.error, "invalid_client"),
+            other => panic!("expected OAuthError invalid_client, got {:?}", other),
+        }
+    }
+
+    #[actix_web::test]
+    async fn confidential_client_with_the_right_secret_authenticates() {
+        insert_data!(:tx);
+        let client =
+            insert_client(tx.as_mut(), TokenEndpointAuthMethod::ClientSecretPost, true).await;
+
+        let authenticated = authenticate_introspecting_client(
+            tx.as_mut(),
+            &params(&client.client_id, Some("introspect-test-secret")),
+            &hmac_key(),
+        )
+        .await
+        .expect("correct credentials must authenticate");
+        assert_eq!(authenticated.id, client.id);
+    }
+
+    /// A wrong-but-non-blank `client_id` must be a distinguishable 401 `invalid_client`, not
+    /// `200 {"active": false}` — otherwise a caller's credential typo looks exactly like every
+    /// one of its users' tokens expiring at once.
+    #[actix_web::test]
+    async fn unknown_client_id_is_invalid_client() {
+        insert_data!(:tx);
+
+        let err = authenticate_introspecting_client(
+            tx.as_mut(),
+            &params("no-such-client", Some("introspect-test-secret")),
+            &hmac_key(),
+        )
+        .await
+        .expect_err("an unknown client_id must be rejected");
+        assert_invalid_client(err);
+    }
+
+    /// Same reasoning as an unknown `client_id`: a rotated-but-not-redeployed secret is
+    /// misconfiguration on the caller's side, not a statement about the token.
+    #[actix_web::test]
+    async fn wrong_client_secret_is_invalid_client() {
+        insert_data!(:tx);
+        let client =
+            insert_client(tx.as_mut(), TokenEndpointAuthMethod::ClientSecretPost, true).await;
+
+        let err = authenticate_introspecting_client(
+            tx.as_mut(),
+            &params(&client.client_id, Some("wrong-secret")),
+            &hmac_key(),
+        )
+        .await
+        .expect_err("a wrong client secret must be rejected");
+        assert_invalid_client(err);
+
+        let missing = authenticate_introspecting_client(
+            tx.as_mut(),
+            &params(&client.client_id, None),
+            &hmac_key(),
+        )
+        .await
+        .expect_err("a confidential client must not authenticate without a secret");
+        assert_invalid_client(missing);
+    }
+
+    /// A public client id is not a credential — `tmc-vscode`'s ships inside the extension — so it
+    /// must not buy an introspection answer, with or without a secret.
+    #[actix_web::test]
+    async fn public_client_cannot_introspect() {
+        insert_data!(:tx);
+        let client = insert_client(tx.as_mut(), TokenEndpointAuthMethod::None, true).await;
+
+        let err = authenticate_introspecting_client(
+            tx.as_mut(),
+            &params(&client.client_id, None),
+            &hmac_key(),
+        )
+        .await
+        .expect_err("a public client must not be able to introspect");
+        assert_invalid_client(err);
+
+        let err = authenticate_introspecting_client(
+            tx.as_mut(),
+            &params(&client.client_id, Some("anything")),
+            &hmac_key(),
+        )
+        .await
+        .expect_err("offering a secret must not make a public client confidential");
+        assert_invalid_client(err);
+    }
 }

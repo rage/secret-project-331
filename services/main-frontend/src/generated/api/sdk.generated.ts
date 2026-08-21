@@ -64,6 +64,9 @@ import type {
   AdvanceCourseDesignerStageResponses,
   ApproveOauthConsentData,
   ApproveOauthConsentResponses,
+  ApproveOauthDeviceVerificationData,
+  ApproveOauthDeviceVerificationErrors,
+  ApproveOauthDeviceVerificationResponses,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
@@ -167,6 +170,12 @@ import type {
   DeletePlaygroundExampleResponses,
   DenyOauthConsentData,
   DenyOauthConsentResponses,
+  DenyOauthDeviceVerificationData,
+  DenyOauthDeviceVerificationErrors,
+  DenyOauthDeviceVerificationResponses,
+  DeviceAuthorizationOauthData,
+  DeviceAuthorizationOauthErrors,
+  DeviceAuthorizationOauthResponses,
   DismissCourseSuspectedCheaterData,
   DismissCourseSuspectedCheaterResponses,
   DismissCreditRegistrationEnrolmentBannerData,
@@ -483,6 +492,9 @@ import type {
   GetNumberOfPeopleStartedCourseResponses,
   GetOauthAuthorizedClientsData,
   GetOauthAuthorizedClientsResponses,
+  GetOauthDeviceVerificationData,
+  GetOauthDeviceVerificationErrors,
+  GetOauthDeviceVerificationResponses,
   GetOauthJwksData,
   GetOauthJwksResponses,
   GetOauthOpenidConfigurationData,
@@ -535,6 +547,8 @@ import type {
   GetResetPasswordTokenStatusResponses,
   GetRolesData,
   GetRolesResponses,
+  GetSharedSubmissionInfoData,
+  GetSharedSubmissionInfoResponses,
   GetSisuCourseLlmDescriptionsData,
   GetSisuCourseLlmDescriptionsResponses,
   GetStatusCronjobsData,
@@ -632,6 +646,7 @@ import type {
   HideCourseFromMyCoursesData,
   HideCourseFromMyCoursesResponses,
   IntrospectOauthTokenData,
+  IntrospectOauthTokenErrors,
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
@@ -641,6 +656,8 @@ import type {
   ListCreditRegistrationPhasesResponses,
   ListCreditRegistrationsForAdminData,
   ListCreditRegistrationsForAdminResponses,
+  ListOwnSubmissionSharesData,
+  ListOwnSubmissionSharesResponses,
   ListSuotarApiCallsData,
   ListSuotarApiCallsResponses,
   ListVerifiedStudentNumbersForAdminData,
@@ -693,6 +710,10 @@ import type {
   RetryFailedCreditRegistrationsForCourseResponses,
   RevokeOauthTokenData,
   RevokeOauthTokenResponses,
+  RevokeSubmissionShareData,
+  RevokeSubmissionShareResponses,
+  RevokeSubmissionSharesOfSubmissionData,
+  RevokeSubmissionSharesOfSubmissionResponses,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponses,
   SearchUserDetailsByEmailData,
@@ -799,6 +820,7 @@ import {
   zAdminUnlinkStudentNumberResponse,
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
+  zApproveOauthDeviceVerificationResponse,
   zChangeUserPasswordResponse,
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
@@ -831,6 +853,8 @@ import {
   zDeletePageResponse,
   zDeletePlaygroundExampleResponse,
   zDenyOauthConsentResponse,
+  zDenyOauthDeviceVerificationResponse,
+  zDeviceAuthorizationOauthResponse,
   zDownloadCodeGiveawayCodesCsvResponse,
   zDuplicateExamResponse,
   zExportCourseCreditRegistrationsResponse,
@@ -974,6 +998,7 @@ import {
   zGetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
   zGetNumberOfPeopleStartedCourseResponse,
   zGetOauthAuthorizedClientsResponse,
+  zGetOauthDeviceVerificationResponse,
   zGetOrganizationActiveCourseCountResponse,
   zGetOrganizationActiveCoursesResponse,
   zGetOrganizationBySlugResponse,
@@ -996,6 +1021,7 @@ import {
   zGetRegradingsResponse,
   zGetResetPasswordTokenStatusResponse,
   zGetRolesResponse,
+  zGetSharedSubmissionInfoResponse,
   zGetSisuCourseLlmDescriptionsResponse,
   zGetStatusCronjobsResponse,
   zGetStatusDeploymentsResponse,
@@ -1046,6 +1072,7 @@ import {
   zListCreditRegistrationAdminActionsResponse,
   zListCreditRegistrationPhasesResponse,
   zListCreditRegistrationsForAdminResponse,
+  zListOwnSubmissionSharesResponse,
   zListSuotarApiCallsResponse,
   zListVerifiedStudentNumbersForAdminResponse,
   zPreviewCourseInstanceCompletionsResponse,
@@ -1062,6 +1089,8 @@ import {
   zRestorePageHistoryResponse,
   zRetryCreditRegistrationResponse,
   zRetryFailedCreditRegistrationsForCourseResponse,
+  zRevokeSubmissionShareResponse,
+  zRevokeSubmissionSharesOfSubmissionResponse,
   zSaveCourseDesignerScheduleResponse,
   zSearchUserDetailsByEmailResponse,
   zSearchUserDetailsByOtherDetailsResponse,
@@ -6844,22 +6873,174 @@ export const denyOauthConsent = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ * Handles `POST /device_authorization` — the RFC 8628 device authorization
+ * endpoint.
+ *
+ * Public, form-encoded, no session required (rate-limited like `/token`).
+ * Validates the client, checks it is allowed the device-code grant, validates
+ * requested scopes against the client's registered scopes, then issues an
+ * opaque `device_code` (stored only as an HMAC digest) plus a human-typable
+ * `user_code`.
+ *
+ * Follows [RFC 8628 §3.1–§3.2](https://datatracker.ietf.org/doc/html/rfc8628#section-3.1).
+ *
+ * # Example
+ * ```http
+ * POST /api/v0/main-frontend/oauth/device_authorization HTTP/1.1
+ * Content-Type: application/x-www-form-urlencoded
+ *
+ * client_id=tmc-vscode&scope=exercise-services
+ * ```
+ *
+ * Successful response:
+ * ```http
+ * HTTP/1.1 200 OK
+ * Content-Type: application/json
+ *
+ * {
+ * "device_code": "GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS",
+ * "user_code": "WDJB-MJHT",
+ * "verification_uri": "https://courses.mooc.fi/oauth_device",
+ * "verification_uri_complete": "https://courses.mooc.fi/oauth_device?user_code=WDJB-MJHT",
+ * "expires_in": 900,
+ * "interval": 5
+ * }
+ * ```
+ */
+export const deviceAuthorizationOauth = <ThrowOnError extends boolean = true>(
+  options: Options<DeviceAuthorizationOauthData, ThrowOnError>,
+): RequestResult<
+  DeviceAuthorizationOauthResponses,
+  DeviceAuthorizationOauthErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    DeviceAuthorizationOauthResponses,
+    DeviceAuthorizationOauthErrors,
+    ThrowOnError,
+    "data"
+  >({
+    ...urlSearchParamsBodySerializer,
+    responseValidator: async (data) => await zDeviceAuthorizationOauthResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_authorization",
+    ...options,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Handles `GET /device_verification` — render data for the browser consent page.
+ *
+ * Session-authed. Looks up the still-pending, unexpired grant for the given
+ * `user_code` (normalizing the input first) and returns the client name and
+ * requested scopes so the page can ask the user to approve. A code that is
+ * unknown, expired, or no longer pending yields `404 Not Found` so the page can
+ * show a distinguishable "invalid or expired code" message.
+ */
+export const getOauthDeviceVerification = <ThrowOnError extends boolean = true>(
+  options: Options<GetOauthDeviceVerificationData, ThrowOnError>,
+): RequestResult<
+  GetOauthDeviceVerificationResponses,
+  GetOauthDeviceVerificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetOauthDeviceVerificationResponses,
+    GetOauthDeviceVerificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetOauthDeviceVerificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_verification",
+    ...options,
+  })
+
+/**
+ * Handles `POST /device_verification/approve`.
+ *
+ * Session-authed. Persists the user's consent via the same
+ * `OAuthUserClientScopes::insert` the web consent flow uses (consent is always
+ * recorded — never short-circuited on a pre-existing grant), then marks the
+ * device code approved and bound to the signed-in user.
+ */
+export const approveOauthDeviceVerification = <ThrowOnError extends boolean = true>(
+  options: Options<ApproveOauthDeviceVerificationData, ThrowOnError>,
+): RequestResult<
+  ApproveOauthDeviceVerificationResponses,
+  ApproveOauthDeviceVerificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ApproveOauthDeviceVerificationResponses,
+    ApproveOauthDeviceVerificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zApproveOauthDeviceVerificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_verification/approve",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Handles `POST /device_verification/deny`.
+ *
+ * Session-authed. Marks the pending device code denied; the polling client then
+ * receives `access_denied` at the token endpoint.
+ */
+export const denyOauthDeviceVerification = <ThrowOnError extends boolean = true>(
+  options: Options<DenyOauthDeviceVerificationData, ThrowOnError>,
+): RequestResult<
+  DenyOauthDeviceVerificationResponses,
+  DenyOauthDeviceVerificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    DenyOauthDeviceVerificationResponses,
+    DenyOauthDeviceVerificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zDenyOauthDeviceVerificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_verification/deny",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * Handles the `/introspect` endpoint for OAuth 2.0 token introspection (RFC 7662).
  *
  * This endpoint allows resource servers to query the authorization server about
  * the active state and metadata of an access token.
  *
  * ### Security Features
- * - Client authentication is required (client_id and client_secret for confidential clients)
- * - Returns `active: false` for invalid/expired tokens or authentication failures
- * to prevent token enumeration attacks
- * - Always returns 200 OK, even for invalid tokens (per RFC 7662)
+ * - Only a confidential client may introspect; an unknown client, a public client or a bad
+ * secret is 401 `invalid_client` (RFC 7662 §2.1, §2.3)
+ * - Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token
+ * existence is never disclosed to an authenticated caller
  *
  * ### Request Parameters
  * - `token` (required): The token to be introspected
  * - `token_type_hint` (optional): Hint about token type ("access_token" or "refresh_token")
- * - `client_id` (required): Client identifier
- * - `client_secret` (required for confidential clients): Client secret
+ * - `client_id` (required): Client identifier of a confidential client
+ * - `client_secret` (required): Client secret
  *
  * ### Response
  * Returns a JSON object with:
@@ -6874,6 +7055,11 @@ export const denyOauthConsent = <ThrowOnError extends boolean = true>(
  * - `iss`: Issuer
  * - `jti`: JWT ID
  * - `token_type`: "Bearer" or "DPoP"
+ * - Non-standard members, returned only to callers that authenticated as a
+ * confidential client and omitted (never falsified) otherwise:
+ * - `upstream_id`: the token owner's legacy TMC user id
+ * - `client_bearer_allowed`: whether the client the token was issued to may use it
+ * as a plain Bearer credential. Consumers must fail closed if it is absent.
  *
  * Follows [RFC 7662 — OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662).
  *
@@ -6918,8 +7104,13 @@ export const denyOauthConsent = <ThrowOnError extends boolean = true>(
  */
 export const introspectOauthToken = <ThrowOnError extends boolean = true>(
   options: Options<IntrospectOauthTokenData, ThrowOnError>,
-): RequestResult<IntrospectOauthTokenResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<IntrospectOauthTokenResponses, unknown, ThrowOnError, "data">({
+): RequestResult<IntrospectOauthTokenResponses, IntrospectOauthTokenErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    IntrospectOauthTokenResponses,
+    IntrospectOauthTokenErrors,
+    ThrowOnError,
+    "data"
+  >({
     ...urlSearchParamsBodySerializer,
     responseStyle: "data",
     url: "/api/v0/main-frontend/oauth/introspect",
@@ -7915,6 +8106,79 @@ export const removeRole = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions` - Lists the shares the current user has minted,
+ * newest first, so they can be reviewed and withdrawn.
+ */
+export const listOwnSubmissionShares = <ThrowOnError extends boolean = true>(
+  options?: Options<ListOwnSubmissionSharesData, ThrowOnError>,
+): RequestResult<ListOwnSubmissionSharesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<ListOwnSubmissionSharesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zListOwnSubmissionSharesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
+ * share the current user has minted for one submission.
+ */
+export const revokeSubmissionSharesOfSubmission = <ThrowOnError extends boolean = true>(
+  options: Options<RevokeSubmissionSharesOfSubmissionData, ThrowOnError>,
+): RequestResult<RevokeSubmissionSharesOfSubmissionResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<
+    RevokeSubmissionSharesOfSubmissionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRevokeSubmissionSharesOfSubmissionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/{token}` - Withdraws one share, after which the
+ * link stops resolving.
+ *
+ * Only the share's creator may revoke it: holding the token is authority to view, not to withdraw.
+ * Revoking an unknown or already-revoked share is a no-op, reported as `false`.
+ */
+export const revokeSubmissionShare = <ThrowOnError extends boolean = true>(
+  options: Options<RevokeSubmissionShareData, ThrowOnError>,
+): RequestResult<RevokeSubmissionShareResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<RevokeSubmissionShareResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zRevokeSubmissionShareResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions/{token}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
+ * render a shared submission.
+ *
+ * The `token` is the unguessable share id minted by the client share endpoint. Login is
+ * required, but holding the token is the only capability needed to view the submission —
+ * no teacher or course role.
+ */
+export const getSharedSubmissionInfo = <ThrowOnError extends boolean = true>(
+  options: Options<GetSharedSubmissionInfoData, ThrowOnError>,
+): RequestResult<GetSharedSubmissionInfoResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetSharedSubmissionInfoResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetSharedSubmissionInfoResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions/{token}",
+    ...options,
   })
 
 /**

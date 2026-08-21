@@ -10505,11 +10505,147 @@
         }
       }
     },
+    "/api/v0/main-frontend/oauth/device_authorization": {
+      "post": {
+        "tags": ["oauth"],
+        "summary": "Handles `POST /device_authorization` — the RFC 8628 device authorization\nendpoint.",
+        "description": "Public, form-encoded, no session required (rate-limited like `/token`).\nValidates the client, checks it is allowed the device-code grant, validates\nrequested scopes against the client's registered scopes, then issues an\nopaque `device_code` (stored only as an HMAC digest) plus a human-typable\n`user_code`.\n\nFollows [RFC 8628 §3.1–§3.2](https://datatracker.ietf.org/doc/html/rfc8628#section-3.1).\n\n# Example\n```http\nPOST /api/v0/main-frontend/oauth/device_authorization HTTP/1.1\nContent-Type: application/x-www-form-urlencoded\n\nclient_id=tmc-vscode&scope=exercise-services\n```\n\nSuccessful response:\n```http\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  \"device_code\": \"GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS\",\n  \"user_code\": \"WDJB-MJHT\",\n  \"verification_uri\": \"https://courses.mooc.fi/oauth_device\",\n  \"verification_uri_complete\": \"https://courses.mooc.fi/oauth_device?user_code=WDJB-MJHT\",\n  \"expires_in\": 900,\n  \"interval\": 5\n}\n```",
+        "operationId": "deviceAuthorizationOauth",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceAuthorizationForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Device authorization response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceAuthorizationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "OAuth error (invalid_scope, unauthorized_client)"
+          },
+          "401": {
+            "description": "OAuth error (invalid_client)"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/oauth/device_verification": {
+      "get": {
+        "tags": ["oauth"],
+        "summary": "Handles `GET /device_verification` — render data for the browser consent page.",
+        "description": "Session-authed. Looks up the still-pending, unexpired grant for the given\n`user_code` (normalizing the input first) and returns the client name and\nrequested scopes so the page can ask the user to approve. A code that is\nunknown, expired, or no longer pending yields `404 Not Found` so the page can\nshow a distinguishable \"invalid or expired code\" message.",
+        "operationId": "getOauthDeviceVerification",
+        "parameters": [
+          {
+            "name": "user_code",
+            "in": "query",
+            "description": "The user_code shown to the user by the device",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending device authorization render data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceVerificationInfo"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No pending device authorization for this user_code"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/oauth/device_verification/approve": {
+      "post": {
+        "tags": ["oauth"],
+        "summary": "Handles `POST /device_verification/approve`.",
+        "description": "Session-authed. Persists the user's consent via the same\n`OAuthUserClientScopes::insert` the web consent flow uses (consent is always\nrecorded — never short-circuited on a pre-existing grant), then marks the\ndevice code approved and bound to the signed-in user.",
+        "operationId": "approveOauthDeviceVerification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceDecisionBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Device authorization approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceDecisionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No pending device authorization for this user_code"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/oauth/device_verification/deny": {
+      "post": {
+        "tags": ["oauth"],
+        "summary": "Handles `POST /device_verification/deny`.",
+        "description": "Session-authed. Marks the pending device code denied; the polling client then\nreceives `access_denied` at the token endpoint.",
+        "operationId": "denyOauthDeviceVerification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceDecisionBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Device authorization denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceDecisionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No pending device authorization for this user_code"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/oauth/introspect": {
       "post": {
         "tags": ["oauth"],
         "summary": "Handles the `/introspect` endpoint for OAuth 2.0 token introspection (RFC 7662).",
-        "description": "This endpoint allows resource servers to query the authorization server about\nthe active state and metadata of an access token.\n\n### Security Features\n- Client authentication is required (client_id and client_secret for confidential clients)\n- Returns `active: false` for invalid/expired tokens or authentication failures\n  to prevent token enumeration attacks\n- Always returns 200 OK, even for invalid tokens (per RFC 7662)\n\n### Request Parameters\n- `token` (required): The token to be introspected\n- `token_type_hint` (optional): Hint about token type (\"access_token\" or \"refresh_token\")\n- `client_id` (required): Client identifier\n- `client_secret` (required for confidential clients): Client secret\n\n### Response\nReturns a JSON object with:\n- `active` (bool, required): Whether the token is active\n- Additional fields only present if `active: true`:\n  - `scope`: Space-separated list of scopes\n  - `client_id`: Client identifier\n  - `username`/`sub`: User identifier (if token has user)\n  - `exp`: Expiration timestamp (Unix time)\n  - `iat`: Issued at timestamp (Unix time)\n  - `aud`: Audience\n  - `iss`: Issuer\n  - `jti`: JWT ID\n  - `token_type`: \"Bearer\" or \"DPoP\"\n\nFollows [RFC 7662 — OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662).\n\n# Example\n```http\nPOST /api/v0/main-frontend/oauth/introspect HTTP/1.1\nContent-Type: application/x-www-form-urlencoded\n\ntoken=ACCESS_TOKEN&client_id=test-client-id&client_secret=test-secret\n```\n\nSuccessful response:\n```http\nHTTP/1.1 200 OK\nContent-Type: application/json\nCache-Control: no-store\n\n{\n  \"active\": true,\n  \"scope\": \"openid profile email\",\n  \"client_id\": \"test-client-id\",\n  \"sub\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"username\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"exp\": 1735689600,\n  \"iat\": 1735686000,\n  \"iss\": \"https://example.com/api/v0/main-frontend/oauth\",\n  \"jti\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"token_type\": \"Bearer\"\n}\n```\n\nInactive token response:\n```http\nHTTP/1.1 200 OK\nContent-Type: application/json\nCache-Control: no-store\n\n{\n  \"active\": false\n}\n```",
+        "description": "This endpoint allows resource servers to query the authorization server about\nthe active state and metadata of an access token.\n\n### Security Features\n- Only a confidential client may introspect; an unknown client, a public client or a bad\n  secret is 401 `invalid_client` (RFC 7662 §2.1, §2.3)\n- Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token\n  existence is never disclosed to an authenticated caller\n\n### Request Parameters\n- `token` (required): The token to be introspected\n- `token_type_hint` (optional): Hint about token type (\"access_token\" or \"refresh_token\")\n- `client_id` (required): Client identifier of a confidential client\n- `client_secret` (required): Client secret\n\n### Response\nReturns a JSON object with:\n- `active` (bool, required): Whether the token is active\n- Additional fields only present if `active: true`:\n  - `scope`: Space-separated list of scopes\n  - `client_id`: Client identifier\n  - `username`/`sub`: User identifier (if token has user)\n  - `exp`: Expiration timestamp (Unix time)\n  - `iat`: Issued at timestamp (Unix time)\n  - `aud`: Audience\n  - `iss`: Issuer\n  - `jti`: JWT ID\n  - `token_type`: \"Bearer\" or \"DPoP\"\n- Non-standard members, returned only to callers that authenticated as a\n  confidential client and omitted (never falsified) otherwise:\n  - `upstream_id`: the token owner's legacy TMC user id\n  - `client_bearer_allowed`: whether the client the token was issued to may use it\n    as a plain Bearer credential. Consumers must fail closed if it is absent.\n\nFollows [RFC 7662 — OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662).\n\n# Example\n```http\nPOST /api/v0/main-frontend/oauth/introspect HTTP/1.1\nContent-Type: application/x-www-form-urlencoded\n\ntoken=ACCESS_TOKEN&client_id=test-client-id&client_secret=test-secret\n```\n\nSuccessful response:\n```http\nHTTP/1.1 200 OK\nContent-Type: application/json\nCache-Control: no-store\n\n{\n  \"active\": true,\n  \"scope\": \"openid profile email\",\n  \"client_id\": \"test-client-id\",\n  \"sub\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"username\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"exp\": 1735689600,\n  \"iat\": 1735686000,\n  \"iss\": \"https://example.com/api/v0/main-frontend/oauth\",\n  \"jti\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"token_type\": \"Bearer\"\n}\n```\n\nInactive token response:\n```http\nHTTP/1.1 200 OK\nContent-Type: application/json\nCache-Control: no-store\n\n{\n  \"active\": false\n}\n```",
         "operationId": "introspectOauthToken",
         "requestBody": {
           "content": {
@@ -10527,6 +10663,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Client authentication failed (invalid_client)"
           }
         }
       }
@@ -12182,6 +12321,120 @@
         "responses": {
           "200": {
             "description": "Role removed"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/shared-submissions": {
+      "get": {
+        "tags": ["shared_submissions"],
+        "summary": "\nGET `/api/v0/main-frontend/shared-submissions` - Lists the shares the current user has minted,\nnewest first, so they can be reviewed and withdrawn.",
+        "operationId": "listOwnSubmissionShares",
+        "responses": {
+          "200": {
+            "description": "The caller's live shares, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlideSubmissionShare"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}": {
+      "delete": {
+        "tags": ["shared_submissions"],
+        "summary": "\nDELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every\nshare the current user has minted for one submission.",
+        "operationId": "revokeSubmissionSharesOfSubmission",
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "description": "Exercise slide submission id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "How many shares were withdrawn",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/shared-submissions/{token}": {
+      "get": {
+        "tags": ["shared_submissions"],
+        "summary": "\nGET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Login is\nrequired, but holding the token is the only capability needed to view the submission —\nno teacher or course role.",
+        "operationId": "getSharedSubmissionInfo",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Submission share token",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data needed to render the shared submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseSlideSubmissionInfo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["shared_submissions"],
+        "summary": "\nDELETE `/api/v0/main-frontend/shared-submissions/{token}` - Withdraws one share, after which the\nlink stops resolving.\n\nOnly the share's creator may revoke it: holding the token is authority to view, not to withdraw.\nRevoking an unknown or already-revoked share is a no-op, reported as `false`.",
+        "operationId": "revokeSubmissionShare",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Submission share token",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether a live share was withdrawn",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
           }
         }
       }
@@ -19671,7 +19924,7 @@
           "finding_count": {
             "type": "integer",
             "format": "int64",
-            "description": "The four detector counts, which is the tab badge. The consent-withdrawal bucket is\ndeliberately outside it."
+            "description": "The five detector counts, which is the tab badge. The consent-withdrawal bucket is\ndeliberately outside it."
           },
           "legacy_divergence_count": {
             "type": "integer",
@@ -20053,6 +20306,101 @@
             "propertyNames": {
               "type": "string"
             }
+          }
+        }
+      },
+      "DeviceAuthorizationForm": {
+        "type": "object",
+        "description": "Form body for `POST /device_authorization` (RFC 8628 §3.1).",
+        "required": ["client_id"],
+        "properties": {
+          "client_id": {
+            "type": "string"
+          },
+          "scope": {
+            "type": ["string", "null"],
+            "description": "Space-delimited requested scopes. Optional; when absent the client's\nregistered scopes are used."
+          }
+        }
+      },
+      "DeviceAuthorizationResponse": {
+        "type": "object",
+        "description": "Success body for `POST /device_authorization` (RFC 8628 §3.2).",
+        "required": [
+          "device_code",
+          "user_code",
+          "verification_uri",
+          "verification_uri_complete",
+          "expires_in",
+          "interval"
+        ],
+        "properties": {
+          "device_code": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "interval": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "user_code": {
+            "type": "string"
+          },
+          "verification_uri": {
+            "type": "string"
+          },
+          "verification_uri_complete": {
+            "type": "string"
+          }
+        }
+      },
+      "DeviceDecisionBody": {
+        "type": "object",
+        "description": "Body for the approve/deny verification actions.",
+        "required": ["user_code"],
+        "properties": {
+          "user_code": {
+            "type": "string"
+          }
+        }
+      },
+      "DeviceDecisionResponse": {
+        "type": "object",
+        "description": "Result of an approve/deny action.",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "`\"approved\"` or `\"denied\"`."
+          }
+        }
+      },
+      "DeviceVerificationInfo": {
+        "type": "object",
+        "description": "Render data returned to the verification page so it can show the user what\nthey are about to authorize.",
+        "required": ["client_id", "client_name", "scopes", "user_code"],
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "description": "Public client identifier (the `client_id` string, not the internal UUID)."
+          },
+          "client_name": {
+            "type": "string",
+            "description": "Human-readable client name for display."
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Scopes the client is requesting."
+          },
+          "user_code": {
+            "type": "string",
+            "description": "The normalized `user_code` (`XXXX-XXXX`), echoed back for display."
           }
         }
       },
@@ -21040,6 +21388,43 @@
                 "$ref": "#/components/schemas/UserExerciseState"
               }
             ]
+          }
+        }
+      },
+      "ExerciseSlideSubmissionShare": {
+        "type": "object",
+        "description": "A shareable link to an existing exercise-slide submission. The `id` is the\nunguessable token used in the shareable URL; a viewer resolves the token back\nto the submission it points at.",
+        "required": [
+          "id",
+          "exercise_slide_submission_id",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

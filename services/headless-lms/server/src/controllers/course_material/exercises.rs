@@ -3,7 +3,7 @@
 use crate::{
     domain::{
         authorization::skip_authorize,
-        exercise_services::submission_files,
+        exercises::process_submission,
         models_requests::{self, GivePeerReviewClaim, JwtKey},
     },
     prelude::*,
@@ -339,7 +339,7 @@ async fn post_submission(
         Res::Exercise(exercise.id),
     )
     .await?;
-    let result = submission_files::submit_recording_answer_files(
+    let result = process_submission(
         &mut conn,
         user.id,
         exercise,

@@ -6,14 +6,12 @@ exercise service's in-browser IFrame plays on the web (download a stub, edit loc
 submit, poll grading, review old submissions). Specs and answers stay opaque plugin-owned
 blobs the host only forwards.
 
-Which services this API serves is not hardcoded: an exercise service is served exactly when
-it declares a `build_user_answer_endpoint_path` in its service info, since that endpoint is
-what turns the client's uploaded files into the service's own answer. The course/exercise
-queries filter on that capability, and submit rejects a task whose service lacks it.
+Which services this API serves is not hardcoded: an exercise service is served exactly when it
+declares `supports_native_client` in its service info. The course/exercise queries filter on that
+capability, and submit rejects a task whose service lacks it.
 */
 use crate::controllers::helpers::file_uploading;
 use crate::domain::error::{BadRequestReason, bad_request_with_reason};
-use crate::domain::exercise_services::answer_uploads;
 use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
@@ -104,8 +102,8 @@ fn check_client_version(
     ))
 }
 
-/// Slugs of the exercise services this API can serve: exactly those declaring a
-/// `build_user_answer_endpoint_path`.
+/// Slugs of the exercise services this API can serve: exactly those declaring
+/// `supports_native_client`.
 ///
 /// Reads the `exercise_service_info` cache, which `service-info-fetcher` refreshes about once a
 /// minute; fetching live would fan every request out to every exercise service. An empty set
@@ -115,7 +113,7 @@ async fn native_client_capable_slugs(conn: &mut PgConnection) -> ModelResult<Vec
     let slugs = models::exercise_services::get_native_client_capable_slugs(conn).await?;
     if slugs.is_empty() {
         warn!(
-            "No exercise service declares a build_user_answer_endpoint_path, so the client API can serve nothing. Check that service-info-fetcher is running."
+            "No exercise service declares supports_native_client, so the client API can serve nothing. Check that service-info-fetcher is running."
         );
     }
     Ok(slugs)
@@ -662,76 +660,6 @@ fn verify_task_is_client_capable(
     ))
 }
 
-/// Asks the task's exercise service to turn host-stored files into its own answer.
-///
-/// The host must never build the answer itself: its shape is the service's business, and
-/// hardcoding one shape is what tied this API to a single plugin. There is deliberately no
-/// fallback — a fallback would reinstate exactly that coupling.
-async fn build_user_answer(
-    conn: &mut PgConnection,
-    exercise_task: &models::exercise_tasks::ExerciseTask,
-    uploaded_files: Vec<models_requests::UploadedFileRef>,
-) -> Result<serde_json::Value, ControllerError> {
-    let exercise_service = models::exercise_services::get_exercise_service_by_exercise_type(
-        conn,
-        &exercise_task.exercise_type,
-    )
-    .await?;
-    let service_info =
-        models::exercise_service_info::get_service_info(conn, exercise_service.id).await?;
-    // The capability check already passed, so reaching this only means the service stopped
-    // declaring the endpoint between the two reads.
-    let url = models::exercise_services::get_internal_build_user_answer_url(
-        &exercise_service,
-        &service_info,
-    )?
-    .ok_or_else(|| {
-        controller_err!(
-            BadRequest,
-            format!(
-                "The exercise service '{}' no longer declares a build-user-answer endpoint",
-                exercise_task.exercise_type
-            )
-        )
-    })?;
-    let answer = models_requests::post_build_user_answer_request(
-        url,
-        exercise_task.public_spec.as_ref(),
-        uploaded_files,
-    )
-    .await?;
-    Ok(answer)
-}
-
-/// Resolves the client's upload ids to the references the exercise service is given, preserving
-/// the order the client asked for: that order is part of the client's answer, not ours to sort.
-///
-/// A missing `file_uploads` row despite a live binding is the same reaped condition, since the
-/// reaper deletes the file before the binding.
-fn uploaded_file_refs(
-    requested: &[Uuid],
-    files: &[models::file_uploads::FileUploadRef],
-    file_store: &dyn FileStore,
-    app_conf: &ApplicationConfiguration,
-) -> Result<Vec<models_requests::UploadedFileRef>, ControllerError> {
-    requested
-        .iter()
-        .map(|id| {
-            let file = files.iter().find(|file| &file.id == id).ok_or_else(|| {
-                bad_request_with_reason(
-                    BadRequestReason::UploadExpired,
-                    format!("Uploaded file {id} is no longer available; upload it again"),
-                )
-            })?;
-            Ok(models_requests::UploadedFileRef {
-                id: file.id,
-                name: file.name.clone(),
-                url: file_store.get_download_url(Path::new(&file.path), app_conf),
-            })
-        })
-        .collect()
-}
-
 /**
  * POST /api/v0/exercise-services/client/exercises/:id/files
  *
@@ -874,7 +802,8 @@ async fn store_client_uploads(
  * POST /api/v0/exercise-services/client/exercises/:id/submit
  *
  * Accepts an exercise submission from the user. The body names files previously stored through
- * this exercise's `files` endpoint; the exercise service turns them into its own answer.
+ * this exercise's `files` endpoint, in the order they are to be graded; those files are the
+ * answer.
  */
 #[utoipa::path(
     post,
@@ -886,13 +815,13 @@ async fn store_client_uploads(
         ("id" = Uuid, Path, description = "Exercise id"),
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
-    request_body(content = api::ExerciseSlideSubmission, description = "The slide and task being answered, and the ids of the files the answer is built from"),
+    request_body(content = api::ExerciseSlideSubmission, description = "The slide and task being answered, and the ids of the files the answer consists of"),
     responses(
         (status = 200, description = "The created submission, identified by both its task and slide submission ids", body = api::ExerciseTaskSubmissionResult),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
-        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, the answer names no files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -943,64 +872,25 @@ async fn submit_exercise(
         &capable_slugs,
     )?;
 
-    answer_uploads::verify_uploads_belong_to_exercise(
-        &mut conn,
-        exercise.id,
-        user.id,
-        &submission.uploaded_file_ids,
-    )
-    .await?;
-    let files = models::file_uploads::get_many(&mut conn, &submission.uploaded_file_ids).await?;
-    let uploaded_files = uploaded_file_refs(
-        &submission.uploaded_file_ids,
-        &files,
-        file_store.as_ref(),
-        app_conf.as_ref(),
-    )?;
-
-    let answer_json = build_user_answer(&mut conn, &exercise_task, uploaded_files).await?;
-
-    // The submission and the record of which files it was made from must land together: a
-    // submission without that record is one `download_submission` can never serve.
-    let mut tx = conn.begin().await?;
-
-    // The build-user-answer hop took real time, so the reaper may have retired an upload since
-    // the unlocked check above.
-    answer_uploads::lock_and_verify_uploads_are_usable(
-        &mut tx,
-        exercise.id,
-        user.id,
-        &submission.uploaded_file_ids,
-    )
-    .await?;
-
     let result = domain::exercises::process_submission(
-        &mut tx,
+        &mut conn,
         user.id,
         exercise,
         &StudentExerciseSlideSubmission {
             exercise_slide_id: submission.exercise_slide_id,
             exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                 exercise_task_id: submission.exercise_task_id,
-                answer: SubmittedAnswer::Json { data: answer_json },
+                answer: SubmittedAnswer::File {
+                    file_upload_ids: submission.uploaded_file_ids,
+                    metadata: None,
+                },
             }],
         },
         jwt_key.into_inner(),
         file_store.as_ref(),
         app_conf.as_ref(),
     )
-    .await;
-    let result = match result {
-        Ok(result) => result,
-        Err(error) => {
-            // A failed grading hop discards its own writes and records a rejected submission
-            // instead; committing is what keeps that audit row rather than rolling it back too.
-            if let Err(commit_error) = tx.commit().await {
-                error!("Failed to commit after a failed submission: {commit_error}");
-            }
-            return Err(error);
-        }
-    };
+    .await?;
 
     // one task submission in, so exactly one result out
     let task_submission = result
@@ -1013,14 +903,6 @@ async fn submit_exercise(
                 "Failed to find exercise task submission id".to_string()
             )
         })?;
-
-    models::exercise_task_submission_files::insert_many(
-        &mut tx,
-        task_submission.submission.id,
-        &submission.uploaded_file_ids,
-    )
-    .await?;
-    tx.commit().await?;
 
     token.authorized_ok(web::Json(api::ExerciseTaskSubmissionResult {
         task_submission_id: task_submission.submission.id,
@@ -1221,8 +1103,8 @@ async fn download_submission(
     .await?;
     // Resolved from the host's own file records, never from the exercise service's answer: the
     // answer is an opaque plugin-owned blob and reading it would tie this endpoint to one plugin's
-    // shape. An IFrame-made submission is recorded at submit time by asking its service to
-    // enumerate the answer's files, so both origins are served by this one read.
+    // shape. Both native-client and IFrame-made file answers are recorded here at submit time, so
+    // both origins are served by this one read.
     let task_submission_ids: Vec<Uuid> = task_submissions.iter().map(|ts| ts.id).collect();
     let files = models::exercise_task_submission_files::get_by_task_submission_ids(
         &mut conn,
@@ -1605,7 +1487,7 @@ mod tests {
         assert!(verify_task_is_client_capable(Uuid::new_v4(), "tmc", &[]).is_err());
     }
 
-    fn task_with(slug: &str) -> models::exercise_tasks::CourseMaterialExerciseTask {
+    pub(super) fn task_with(slug: &str) -> models::exercise_tasks::CourseMaterialExerciseTask {
         models::exercise_tasks::CourseMaterialExerciseTask {
             id: Uuid::new_v4(),
             exercise_service_slug: slug.to_string(),
@@ -1696,6 +1578,7 @@ mod tests {
 #[cfg(test)]
 mod upload_tests {
     use super::*;
+    use crate::domain::exercise_services::answer_uploads;
     use crate::test_helper::*;
     use actix_web::http::header::{CONTENT_TYPE, HeaderMap};
     use headless_lms_base::config::{
@@ -1920,6 +1803,62 @@ mod upload_tests {
         tx.rollback().await;
     }
 
+    /// The capability gate end to end, from the service-info column to the task filter the routes
+    /// apply: only a service that declares native-client support is offered to a client.
+    #[actix_web::test]
+    async fn only_a_service_declaring_native_client_support_is_visible_to_the_client() {
+        insert_data!(:tx);
+        let mut slugs_of = Vec::new();
+        for declares in [true, false] {
+            let slug = format!("gate-test-{}", Uuid::new_v4());
+            let service = models::exercise_services::insert_exercise_service(
+                tx.as_mut(),
+                &models::exercise_services::ExerciseServiceNewOrUpdate {
+                    name: slug.clone(),
+                    slug: slug.clone(),
+                    public_url: "http://example.com/api/service".to_string(),
+                    internal_url: None,
+                    max_reprocessing_submissions_at_once: 1,
+                },
+            )
+            .await
+            .expect("exercise service");
+            models::exercise_service_info::insert(
+                tx.as_mut(),
+                &models::exercise_service_info::PathInfo {
+                    exercise_service_id: service.id,
+                    user_interface_iframe_path: "/iframe".to_string(),
+                    grade_endpoint_path: "/grade".to_string(),
+                    public_spec_endpoint_path: "/public-spec".to_string(),
+                    model_solution_spec_endpoint_path: "/model-solution".to_string(),
+                    has_custom_view: false,
+                    supports_native_client: declares,
+                },
+            )
+            .await
+            .expect("service info");
+            slugs_of.push(slug);
+        }
+
+        let capable = native_client_capable_slugs(tx.as_mut())
+            .await
+            .expect("capable slugs");
+        let visible = client_tasks_from_slide(
+            slugs_of.iter().map(|slug| tests::task_with(slug)).collect(),
+            &capable,
+            false,
+        );
+        assert_eq!(
+            visible
+                .iter()
+                .map(|task| task.exercise_service_slug.as_str())
+                .collect::<Vec<_>>(),
+            vec![slugs_of[0].as_str()],
+            "only the declaring service may be offered to a client"
+        );
+        tx.rollback().await;
+    }
+
     /// An upload bound to one exercise must not be usable by another, or a client could replay
     /// any of the user's uploads into any exercise's submission.
     #[actix_web::test]
@@ -2108,8 +2047,8 @@ mod upload_tests {
         assert!(response.files.is_empty());
     }
 
-    /// `submit_exercise` runs `process_submission` and the file association in one transaction.
-    /// This is the property that buys: if the association fails, no submission is left behind for
+    /// A submission and the record of which files it was made from land in one transaction. This is
+    /// the property that buys: if the association fails, no submission is left behind for
     /// `download_submission` to be unable to serve. (`process_submission` itself needs a live
     /// exercise service, so the transaction shape is exercised here rather than the handler.)
     #[actix_web::test]
@@ -2160,7 +2099,6 @@ mod route_tests {
     use crate::test_helper::*;
     use actix_web::http::StatusCode;
     use actix_web::{App, test};
-    use base64::Engine;
     use chrono::Duration as ChronoDuration;
     use chrono::Utc;
     use headless_lms_models::library::oauth::pkce::PkceMethod;
@@ -2189,8 +2127,8 @@ mod route_tests {
         exercise: Uuid,
         slide: Uuid,
         task: Uuid,
-        /// A task of the fixture exercise whose exercise service declares no
-        /// `build_user_answer_endpoint_path`, so this API cannot serve it.
+        /// A task of the fixture exercise whose exercise service does not declare
+        /// `supports_native_client`, so this API cannot serve it.
         unservable_task: Uuid,
         token: String,
     }
@@ -2273,8 +2211,7 @@ mod route_tests {
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "/model-solution".to_string(),
                 has_custom_view: false,
-                build_user_answer_endpoint_path: Some("/build-user-answer".to_string()),
-                answer_files_endpoint_path: Some("/answer-files".to_string()),
+                supports_native_client: true,
             },
         )
         .await
@@ -2765,7 +2702,7 @@ mod route_tests {
         assert_eq!(message_key(&body), "validation_error");
     }
 
-    /// The exercise service behind the fixture task declares no `build_user_answer` endpoint, so
+    /// The exercise service behind the fixture task does not declare `supports_native_client`, so
     /// the task is not client-servable and submit must refuse it at the edge rather than let
     /// grading fail deep inside a service that will never understand the answer.
     #[actix_web::test]
@@ -2789,12 +2726,6 @@ mod route_tests {
         assert_eq!(message_key(&body), "validation_error");
     }
 
-    /// The answer the stub exercise service claims to have built. Asserting the persisted answer is
-    /// exactly this is what proves the host forwards the service's answer rather than shaping one.
-    fn stub_answer() -> serde_json::Value {
-        serde_json::json!({ "built_by": "the exercise service" })
-    }
-
     fn stub_grading() -> ExerciseTaskGradingResult {
         ExerciseTaskGradingResult {
             grading_progress: GradingProgress::FullyGraded,
@@ -2813,105 +2744,36 @@ mod route_tests {
     }
 
     struct StubState {
-        build_requests: Mutex<Vec<serde_json::Value>>,
-        answer_files_requests: Mutex<Vec<serde_json::Value>>,
         grade_requests: Mutex<Vec<serde_json::Value>>,
         /// Paths a submit asked the stub for that it is not supposed to need. Asserted empty, so a
         /// hop added to the submit path cannot pass unnoticed — notably a live service-info fetch,
         /// which the committed `exercise_service_info` row is there to make unnecessary.
         unexpected: Mutex<Vec<String>>,
-        /// Uploads to retire while the build-user-answer hop is in flight, landing a reap inside
-        /// the window between submit's unlocked validation and its locked re-check. Set after the
-        /// server is running, since the ids only exist once the uploads do.
-        reap_during_build: Mutex<Vec<Uuid>>,
         grading: StubGrading,
     }
 
     impl StubState {
         fn new(grading: StubGrading) -> Self {
             Self {
-                build_requests: Mutex::new(Vec::new()),
-                answer_files_requests: Mutex::new(Vec::new()),
                 grade_requests: Mutex::new(Vec::new()),
                 unexpected: Mutex::new(Vec::new()),
-                reap_during_build: Mutex::new(Vec::new()),
                 grading,
             }
-        }
-
-        fn reap_on_next_build(&self, ids: Vec<Uuid>) {
-            *self.reap_during_build.lock().expect("stub lock") = ids;
         }
 
         fn calls(&self, requests: &Mutex<Vec<serde_json::Value>>) -> Vec<serde_json::Value> {
             requests.lock().expect("stub lock").clone()
         }
 
-        /// Asserts the stub was asked for exactly the build and grade hops, once each.
+        /// Asserts grading was the only thing a submit asked the exercise service for.
         fn assert_hops(&self, grade_calls: usize) {
             assert!(
                 self.unexpected.lock().expect("stub lock").is_empty(),
-                "submit called endpoints beyond build-user-answer and grade: {:?}",
+                "submit called endpoints beyond grade: {:?}",
                 self.unexpected.lock().expect("stub lock")
             );
-            assert_eq!(self.calls(&self.build_requests).len(), 1);
             assert_eq!(self.calls(&self.grade_requests).len(), grade_calls);
         }
-    }
-
-    async fn stub_build_user_answer(
-        state: web::Data<StubState>,
-        body: web::Json<serde_json::Value>,
-    ) -> actix_web::HttpResponse {
-        state
-            .build_requests
-            .lock()
-            .expect("stub lock")
-            .push(body.into_inner());
-        let reap = state.reap_during_build.lock().expect("stub lock").clone();
-        if !reap.is_empty() {
-            // A connection of its own, because the reaper is a separate process and must not be
-            // able to see or be blocked by the request's own transaction.
-            let mut conn = PgConnection::connect(&test_database_url())
-                .await
-                .expect("reaper connection");
-            sqlx::query(
-                "UPDATE exercise_answer_uploads SET deleted_at = now() WHERE file_upload_id = ANY($1)",
-            )
-            .bind(&reap)
-            .execute(&mut conn)
-            .await
-            .expect("reap");
-        }
-        actix_web::HttpResponse::Ok().json(serde_json::json!({ "answer": stub_answer() }))
-    }
-
-    /// Enumerates the files of an answer the way a real exercise service does: it reads its own
-    /// answer shape, which for the stub is `{"files": [{"name", "contents"}]}`.
-    async fn stub_answer_files(
-        state: web::Data<StubState>,
-        body: web::Json<serde_json::Value>,
-    ) -> actix_web::HttpResponse {
-        let answer = body["answer"].clone();
-        state
-            .answer_files_requests
-            .lock()
-            .expect("stub lock")
-            .push(body.into_inner());
-        let files: Vec<serde_json::Value> = answer["files"]
-            .as_array()
-            .cloned()
-            .unwrap_or_default()
-            .iter()
-            .map(|file| {
-                let contents = file["contents"].as_str().unwrap_or_default();
-                serde_json::json!({
-                    "name": file["name"].as_str().unwrap_or_default(),
-                    "data": base64::engine::general_purpose::STANDARD.encode(contents),
-                })
-            })
-            .collect();
-        actix_web::HttpResponse::Ok().json(serde_json::json!({ "files": files }))
     }
 
     async fn stub_grade(
@@ -2943,19 +2805,15 @@ mod route_tests {
         actix_web::HttpResponse::NotFound().finish()
     }
 
-    /// Serves the two endpoints a submit drives, on a real socket, and returns its base URL for the
-    /// exercise service's `internal_url`.
-    ///
-    /// Both hops are HTTP in production, and the build hop is the window the reap race opens in, so
-    /// short-circuiting them in-process would remove the thing under test.
+    /// Serves the grading endpoint a submit drives, on a real socket, and returns its base URL for
+    /// the exercise service's `internal_url`. Anything else a submit asks for lands in
+    /// `unexpected`.
     fn start_exercise_service_stub(state: Arc<StubState>) -> String {
         let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("bind");
         let port = listener.local_addr().expect("local addr").port();
         let server = actix_web::HttpServer::new(move || {
             App::new()
                 .app_data(web::Data::from(state.clone()))
-                .route("/build-user-answer", web::post().to(stub_build_user_answer))
-                .route("/answer-files", web::post().to(stub_answer_files))
                 .route("/grade", web::post().to(stub_grade))
                 .default_service(web::to(stub_unexpected))
         })
@@ -2997,10 +2855,11 @@ mod route_tests {
         (fixture, ids)
     }
 
-    fn uploaded_names(request: &serde_json::Value) -> Vec<String> {
-        request["uploaded_files"]
+    /// The names of the files a grading request carries, in the order the service sees them.
+    fn graded_names(request: &serde_json::Value) -> Vec<String> {
+        request["submission_files"]
             .as_array()
-            .expect("uploaded_files")
+            .expect("submission_files")
             .iter()
             .map(|file| file["name"].as_str().expect("name").to_string())
             .collect()
@@ -3036,11 +2895,11 @@ mod route_tests {
         count
     }
 
-    /// The happy path, end to end: the host hands the uploads to the exercise service, persists the
-    /// answer the service built, grades it through the service, and records which files the
-    /// submission was made from — in the order the client named them, not the order it uploaded in.
+    /// The happy path, end to end: the files the client named are the answer, they are graded
+    /// through the service in the order the client named them rather than the order it uploaded in,
+    /// and no answer of the host's own invention is persisted alongside them.
     #[actix_web::test]
-    async fn submitting_grades_the_answer_the_exercise_service_built() {
+    async fn submitting_records_the_named_uploads_as_the_answer() {
         let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
         let (fixture, ids) = fixture_with_stub(state.clone()).await;
         let named = vec![ids[1], ids[0]];
@@ -3062,15 +2921,8 @@ mod route_tests {
         let body: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
 
         state.assert_hops(1);
-        let build_request = state.calls(&state.build_requests).remove(0);
-        assert_eq!(uploaded_names(&build_request), vec!["b.txt", "a.tar.zst"]);
         let grade_request = state.calls(&state.grade_requests).remove(0);
-        assert_eq!(grade_request["submission_data"], stub_answer());
-        assert_eq!(
-            grade_request["submission_files"],
-            serde_json::json!([]),
-            "a json answer's grading request must carry no files"
-        );
+        assert_eq!(graded_names(&grade_request), vec!["b.txt", "a.tar.zst"]);
 
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
@@ -3082,11 +2934,19 @@ mod route_tests {
         )
         .await
         .expect("task submission");
+        let Some(models::exercise_task_submissions::AnswerData::File { files, metadata }) =
+            submission.answer
+        else {
+            panic!("a client submission must be recorded as a file answer");
+        };
         assert_eq!(
-            submission.answer,
-            Some(models::exercise_task_submissions::AnswerData::Json {
-                data: stub_answer()
-            })
+            files.iter().map(|file| file.id).collect::<Vec<_>>(),
+            named,
+            "the client's order is the answer, not ours to sort"
+        );
+        assert_eq!(
+            metadata, None,
+            "a client names files only, so there is no metadata for the host to invent"
         );
         assert_eq!(
             submission.exercise_slide_submission_id,
@@ -3122,9 +2982,38 @@ mod route_tests {
         tx.rollback().await;
     }
 
+    /// A submit naming no files is refused: the named files are the answer, so an empty list is a
+    /// claim with no content rather than an answer that happens to need no files.
+    #[actix_web::test]
+    async fn submitting_no_files_is_refused() {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let (fixture, _ids) = fixture_with_stub(state.clone()).await;
+
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::ExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                uploaded_file_ids: vec![],
+            },
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        state.assert_hops(0);
+        assert_eq!(
+            slide_submission_count(fixture.exercise, fixture.user).await,
+            0
+        );
+    }
+
     /// A grading hop that fails must still leave the rejected-submission audit row behind, which is
     /// what submit's commit-then-return-the-error branch exists for. No accepted submission may
-    /// survive it.
+    /// survive it. A client's answer carries no metadata, so this is also what keeps the rejected
+    /// copy of a file answer storable at all.
     #[actix_web::test]
     async fn a_failed_grading_keeps_only_the_rejected_submission() {
         let state = Arc::new(StubState::new(StubGrading::Unavailable));
@@ -3156,60 +3045,58 @@ mod route_tests {
         );
     }
 
-    /// The reap-safety re-check: an upload retired while the build-user-answer hop is in flight has
-    /// already passed submit's unlocked validation, so only the locked re-check inside the
-    /// association transaction can catch it. The submission must not survive.
-    #[actix_web::test]
-    async fn an_upload_reaped_during_the_service_hop_is_caught_by_the_locked_recheck() {
-        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
-        let (fixture, ids) = fixture_with_stub(state.clone()).await;
-        state.reap_on_next_build(vec![ids[0]]);
-
-        let app = client_api_app!();
-        let request = submit_request(
-            fixture.exercise,
-            &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: vec![ids[0]],
-            },
-        )
-        .to_request();
-
-        let response = test::call_service(&app, request).await;
-        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
-        let body: serde_json::Value = test::read_body_json(response).await;
-        assert_eq!(message_key(&body), "upload_expired");
-
-        // The build hop ran — so the reap really landed after validation — and grading never did.
-        state.assert_hops(0);
-        assert_eq!(
-            slide_submission_count(fixture.exercise, fixture.user).await,
-            0
-        );
-    }
     /// The two files a student's work consists of, used for both origins so that the download
     /// responses can be compared for equality rather than merely for similarity.
     const STUDENT_FILES: [(&str, &str); 2] = [("a.tar.zst", "first"), ("b.txt", "second")];
 
-    /// A browser-origin answer in the stub service's own shape. Opaque to the host, which is the
-    /// point: only the service's answer-files endpoint reads it.
-    fn browser_answer() -> serde_json::Value {
-        serde_json::json!({
-            "type": "browser",
-            "files": STUDENT_FILES
-                .iter()
-                .map(|(name, contents)| serde_json::json!({ "name": name, "contents": contents }))
-                .collect::<Vec<_>>(),
-        })
+    /// Stores `STUDENT_FILES` the way the course-material upload route does — objects in the file
+    /// store, `file_uploads` rows, and an IFrame-origin binding to this exercise and user — and
+    /// returns their ids in order.
+    async fn upload_from_the_iframe(fixture: &Fixture, store: &dyn FileStore) -> Vec<Uuid> {
+        let mut conn = PgConnection::connect(&test_database_url())
+            .await
+            .expect("connection");
+        let mut ids = Vec::new();
+        for (name, contents) in STUDENT_FILES {
+            let path = format!("exercise-answer-uploads/{}", Uuid::new_v4());
+            store
+                .upload(
+                    std::path::Path::new(&path),
+                    contents.as_bytes().to_vec(),
+                    "application/octet-stream",
+                )
+                .await
+                .expect("stored object");
+            ids.push(
+                models::file_uploads::insert(
+                    &mut conn,
+                    name,
+                    &path,
+                    "application/octet-stream",
+                    Some(fixture.user),
+                    Some(contents.len() as i64),
+                )
+                .await
+                .expect("file upload"),
+            );
+        }
+        models::exercise_answer_uploads::insert_many(
+            &mut conn,
+            fixture.exercise,
+            fixture.user,
+            &ids,
+            models::exercise_answer_uploads::AnswerUploadOrigin::Iframe,
+        )
+        .await
+        .expect("binding");
+        ids
     }
 
-    /// Submits an answer the way the course-material IFrame does — no named uploads, the files
-    /// inside the service's answer — through the same function that route's handler calls.
+    /// Submits the way the course-material IFrame does — through the same function that route's
+    /// handler calls — and returns the slide submission's id.
     async fn submit_from_the_iframe(
         fixture: &Fixture,
-        answer: serde_json::Value,
+        answer: SubmittedAnswer,
         store: &dyn FileStore,
     ) -> Uuid {
         let mut conn = PgConnection::connect(&test_database_url())
@@ -3218,7 +3105,7 @@ mod route_tests {
         let exercise = models::exercises::get_by_id(&mut conn, fixture.exercise)
             .await
             .expect("exercise");
-        let result = domain::exercise_services::submission_files::submit_recording_answer_files(
+        let result = domain::exercises::process_submission(
             &mut conn,
             fixture.user,
             exercise,
@@ -3226,7 +3113,7 @@ mod route_tests {
                 exercise_slide_id: fixture.slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: fixture.task,
-                    answer: SubmittedAnswer::Json { data: answer },
+                    answer,
                 }],
             },
             std::sync::Arc::new(JwtKey::test_key()),
@@ -3320,7 +3207,7 @@ mod route_tests {
     /// exercise service's IFrame, downloads identically. Not "both are non-empty" — byte-equal
     /// after only the per-file stored-object identity is canonicalised away.
     #[actix_web::test]
-    async fn a_browser_submission_downloads_exactly_like_an_editor_one() {
+    async fn an_iframe_submission_downloads_exactly_like_a_native_client_one() {
         let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
         let url = start_exercise_service_stub(state.clone());
         let fixture = committed_fixture_with_service(true, Some(url)).await;
@@ -3356,67 +3243,55 @@ mod route_tests {
         .to_request();
         let response = test::call_service(&app, submit).await;
         assert_eq!(response.status(), StatusCode::OK);
-        let editor: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
+        let native: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
 
-        let from_iframe = submit_from_the_iframe(&fixture, browser_answer(), store.as_ref()).await;
+        let from_iframe_ids = upload_from_the_iframe(&fixture, store.as_ref()).await;
+        let from_iframe = submit_from_the_iframe(
+            &fixture,
+            SubmittedAnswer::File {
+                file_upload_ids: from_iframe_ids,
+                metadata: Some(serde_json::json!({ "plugin": "said so" })),
+            },
+            store.as_ref(),
+        )
+        .await;
 
-        let editor_body = download(&app, &fixture.token, editor.slide_submission_id).await;
-        let browser_body = download(&app, &fixture.token, from_iframe).await;
+        let native_body = download(&app, &fixture.token, native.slide_submission_id).await;
+        let iframe_body = download(&app, &fixture.token, from_iframe).await;
 
         assert_eq!(
-            serde_json::to_vec(&canonicalize_download(&browser_body)).expect("json"),
-            serde_json::to_vec(&canonicalize_download(&editor_body)).expect("json"),
-            "browser {browser_body} differs in shape from editor {editor_body}"
+            serde_json::to_vec(&canonicalize_download(&iframe_body)).expect("json"),
+            serde_json::to_vec(&canonicalize_download(&native_body)).expect("json"),
+            "iframe {iframe_body} differs in shape from native client {native_body}"
         );
         // Following the URLs must yield the same work, not merely the same field names.
         let expected: Vec<(String, String)> = STUDENT_FILES
             .iter()
             .map(|(name, contents)| (name.to_string(), contents.to_string()))
             .collect();
-        assert_eq!(served_files(store.as_ref(), &browser_body).await, expected);
-        assert_eq!(served_files(store.as_ref(), &editor_body).await, expected);
-        assert_eq!(state.calls(&state.answer_files_requests).len(), 1);
+        assert_eq!(served_files(store.as_ref(), &iframe_body).await, expected);
+        assert_eq!(served_files(store.as_ref(), &native_body).await, expected);
     }
 
-    /// The host must not have to understand the answer to record its files: it forwards the blob
-    /// verbatim and stores whatever the service names.
+    /// A JSON-typed answer names no files, so its download is empty rather than an error.
     #[actix_web::test]
-    async fn the_answer_is_forwarded_to_the_service_unchanged() {
+    async fn a_json_typed_submission_downloads_empty() {
         let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
         let url = start_exercise_service_stub(state.clone());
         let fixture = committed_fixture_with_service(true, Some(url)).await;
         open_exercise(&fixture).await;
 
-        submit_from_the_iframe(&fixture, browser_answer(), &temp_file_store()).await;
-
-        let request = state.calls(&state.answer_files_requests);
-        assert_eq!(request[0]["answer"], browser_answer());
-    }
-
-    /// A service that declares no answer-files endpoint is the one remaining case in which an
-    /// IFrame-made submission has nothing to download, so the empty response must stay reachable.
-    #[actix_web::test]
-    async fn a_service_that_cannot_enumerate_its_answers_downloads_empty() {
-        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
-        let url = start_exercise_service_stub(state.clone());
-        let fixture = committed_fixture_with_service(true, Some(url)).await;
-        open_exercise(&fixture).await;
-        let mut conn = PgConnection::connect(&test_database_url())
-            .await
-            .expect("connection");
-        sqlx::query(
-            "UPDATE exercise_service_info SET answer_files_endpoint_path = NULL WHERE exercise_service_id = (SELECT id FROM exercise_services WHERE slug = (SELECT exercise_type FROM exercise_tasks WHERE id = $1))",
+        let from_iframe = submit_from_the_iframe(
+            &fixture,
+            SubmittedAnswer::Json {
+                data: serde_json::json!({ "opaque": "plugin owned" }),
+            },
+            &temp_file_store(),
         )
-        .bind(fixture.task)
-        .execute(&mut conn)
-        .await
-        .expect("clear endpoint");
+        .await;
 
-        let from_iframe =
-            submit_from_the_iframe(&fixture, browser_answer(), &temp_file_store()).await;
         let app = client_api_app!();
         let body = download(&app, &fixture.token, from_iframe).await;
         assert_eq!(body, serde_json::json!({ "files": [] }));
-        assert!(state.calls(&state.answer_files_requests).is_empty());
     }
 }

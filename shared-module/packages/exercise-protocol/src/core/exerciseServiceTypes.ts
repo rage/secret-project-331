@@ -14,17 +14,11 @@ export interface ExerciseServiceInfoApi {
   csv_export_definitions_endpoint_path?: string
   csv_export_answers_endpoint_path?: string
   /**
-   * Turns host-stored uploaded files into this service's `UserAnswer`. Declaring it is what
-   * makes the service visible to the exercise-services client API, so a service that omits it
-   * is never offered to a native (non-browser) client.
+   * Whether this service can be answered from a native (non-browser) client. Declaring it is what
+   * makes the service visible to the exercise-services client API, so a service that omits it is
+   * never offered to such a client.
    */
-  build_user_answer_endpoint_path?: string
-  /**
-   * Enumerates the files one of this service's answers consists of. Declaring it is what makes an
-   * answer made in this service's IFrame downloadable through the exercise-services client API:
-   * such an answer names no host-stored uploads, so the host has no other way to know its files.
-   */
-  answer_files_endpoint_path?: string
+  supports_native_client?: boolean
 }
 
 export type GradingProgress = "Pending" | "Failed" | "FullyGraded" | "PendingManual" | "NotReady"

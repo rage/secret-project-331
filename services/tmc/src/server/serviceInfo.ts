@@ -12,8 +12,7 @@ function getImpl() {
     grade_endpoint_path: `${prefix}/api/grade`,
     public_spec_endpoint_path: `${prefix}/api/public-spec`,
     model_solution_spec_endpoint_path: `${prefix}/api/model-solution`,
-    build_user_answer_endpoint_path: `${prefix}/api/build-user-answer`,
-    answer_files_endpoint_path: `${prefix}/api/answer-files`,
+    supports_native_client: true,
   })
 }
 

@@ -24,8 +24,7 @@ pub struct ExerciseServiceInfo {
     pub has_custom_view: bool,
     pub csv_export_definitions_endpoint_path: Option<String>,
     pub csv_export_answers_endpoint_path: Option<String>,
-    pub build_user_answer_endpoint_path: Option<String>,
-    pub answer_files_endpoint_path: Option<String>,
+    pub supports_native_client: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -37,8 +36,7 @@ pub struct PathInfo {
     pub model_solution_spec_endpoint_path: String,
     // #[serde(skip_serializing_if = "Option::is_none")]
     pub has_custom_view: bool,
-    pub build_user_answer_endpoint_path: Option<String>,
-    pub answer_files_endpoint_path: Option<String>,
+    pub supports_native_client: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -61,15 +59,10 @@ pub struct ExerciseServiceInfoApi {
     pub csv_export_definitions_endpoint_path: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub csv_export_answers_endpoint_path: Option<String>,
-    /// Turns host-stored uploaded files into this service's `UserAnswer`. Declaring it is
+    /// Whether the service can be answered from a native (non-browser) client. Declaring it is
     /// what makes the service visible to the exercise-services client API.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub build_user_answer_endpoint_path: Option<String>,
-    /// Enumerates the files one of this service's answers consists of. Declaring it is what makes
-    /// an answer made in this service's IFrame downloadable, since such an answer names no
-    /// host-stored uploads.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub answer_files_endpoint_path: Option<String>,
+    #[serde(default)]
+    pub supports_native_client: bool,
 }
 
 pub async fn insert(
@@ -86,10 +79,9 @@ INSERT INTO exercise_service_info (
     public_spec_endpoint_path,
     model_solution_spec_endpoint_path,
     has_custom_view,
-    build_user_answer_endpoint_path,
-    answer_files_endpoint_path
+    supports_native_client
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
 ",
         exercise_service_info.exercise_service_id,
@@ -98,10 +90,7 @@ RETURNING *
         exercise_service_info.public_spec_endpoint_path,
         exercise_service_info.model_solution_spec_endpoint_path,
         exercise_service_info.has_custom_view,
-        exercise_service_info
-            .build_user_answer_endpoint_path
-            .as_deref(),
-        exercise_service_info.answer_files_endpoint_path.as_deref()
+        exercise_service_info.supports_native_client
     )
     .fetch_one(conn)
     .await?;
@@ -152,10 +141,9 @@ INSERT INTO exercise_service_info(
     has_custom_view,
     csv_export_definitions_endpoint_path,
     csv_export_answers_endpoint_path,
-    build_user_answer_endpoint_path,
-    answer_files_endpoint_path
+    supports_native_client
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
@@ -164,8 +152,7 @@ SET user_interface_iframe_path = $2,
   has_custom_view = $6,
   csv_export_definitions_endpoint_path = $7,
   csv_export_answers_endpoint_path = $8,
-  build_user_answer_endpoint_path = $9,
-  answer_files_endpoint_path = $10
+  supports_native_client = $9
 RETURNING *
     "#,
         exercise_service_id,
@@ -176,8 +163,7 @@ RETURNING *
         update.has_custom_view.unwrap_or_else(|| false),
         update.csv_export_definitions_endpoint_path.as_deref(),
         update.csv_export_answers_endpoint_path.as_deref(),
-        update.build_user_answer_endpoint_path.as_deref(),
-        update.answer_files_endpoint_path.as_deref()
+        update.supports_native_client
     )
     .fetch_one(conn)
     .await?;

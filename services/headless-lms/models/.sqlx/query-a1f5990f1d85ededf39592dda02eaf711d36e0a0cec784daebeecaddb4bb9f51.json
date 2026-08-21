@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT es.slug\nFROM exercise_services AS es\n  JOIN exercise_service_info AS esi ON esi.exercise_service_id = es.id\nWHERE es.deleted_at IS NULL\n  AND esi.build_user_answer_endpoint_path IS NOT NULL\n",
+  "query": "\nSELECT es.slug\nFROM exercise_services AS es\n  JOIN exercise_service_info AS esi ON esi.exercise_service_id = es.id\nWHERE es.deleted_at IS NULL\n  AND esi.supports_native_client\n",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "67238e31e4d34cf9f234d76fea3b16bb500ba7db91f58399cbc72f0f68deb149"
+  "hash": "a1f5990f1d85ededf39592dda02eaf711d36e0a0cec784daebeecaddb4bb9f51"
 }

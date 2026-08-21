@@ -13,7 +13,7 @@ import ThrottledChildRenderer, {
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import {
-  answerDataToPluginAnswer,
+  answerDataToViewSubmissionFields,
   exerciseTaskGradingToExerciseTaskGradingResult,
 } from "@/shared-module/common/utils/typeMappter"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
@@ -32,7 +32,7 @@ interface SubmissionIFrameProps {
 
 interface SubmissionState {
   submission_result: StudentExerciseTaskSubmissionResult
-  user_answer: unknown
+  answer_fields: ReturnType<typeof answerDataToViewSubmissionFields>
   public_spec: unknown
 }
 
@@ -71,7 +71,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
         model_solution_spec: coursematerialExerciseTask.model_solution_spec,
         exercise_task_exercise_service_slug: coursematerialExerciseTask.exercise_service_slug,
       },
-      user_answer: answerDataToPluginAnswer(previousSubmission.answer),
+      answer_fields: answerDataToViewSubmissionFields(previousSubmission.answer),
     }
   }, [readyForIframe, previousSubmission, coursematerialExerciseTask])
 
@@ -89,7 +89,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
       },
       data: {
         public_spec: state.public_spec,
-        user_answer: state.user_answer,
+        ...state.answer_fields,
         model_solution_spec: state.submission_result.model_solution_spec,
         grading: exerciseTaskGradingToExerciseTaskGradingResult(state.submission_result.grading),
       },

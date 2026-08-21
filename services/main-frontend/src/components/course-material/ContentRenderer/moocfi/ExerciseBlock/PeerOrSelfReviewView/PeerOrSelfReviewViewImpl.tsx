@@ -28,7 +28,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import {
-  answerDataToPluginAnswer,
+  answerDataToViewSubmissionFields,
   exerciseTaskGradingToExerciseTaskGradingResult,
 } from "@/shared-module/common/utils/typeMappter"
 import { courseMaterialAtom } from "@/state/course-material"
@@ -326,7 +326,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                       grading: exerciseTaskGradingToExerciseTaskGradingResult(
                         course_material_exercise_task.previous_submission_grading,
                       ),
-                      user_answer: answerDataToPluginAnswer(
+                      ...answerDataToViewSubmissionFields(
                         course_material_exercise_task.previous_submission?.answer,
                       ),
                       public_spec: course_material_exercise_task.public_spec,

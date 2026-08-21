@@ -16,6 +16,7 @@ use headless_lms_utils::{
     azure_embedding::create_embeddings, file_store::FileStore,
     language_tag_to_name::LANGUAGE_TAG_TO_NAME,
 };
+use itertools::multiunzip;
 use pgvector::Vector;
 use utoipa::ToSchema;
 pub struct CourseInfo {
@@ -523,64 +524,83 @@ pub async fn update_course_auditing_data(
     course_id: Uuid,
     data_update: CourseAuditingDataUpdate,
 ) -> ModelResult<()> {
+    let (
+        module_ids,
+        uh_course_codes,
+        completion_registration_link_overrides,
+        ects_credits,
+        enable_registering_completion_to_uh_open_university,
+    ): (Vec<_>, Vec<_>, Vec<_>, Vec<_>, Vec<_>) =
+        multiunzip(data_update.modules.into_iter().map(|m| {
+            (
+                m.id,
+                m.uh_course_code,
+                m.completion_registration_link_override,
+                m.ects_credits,
+                m.enable_registering_completion_to_uh_open_university,
+            )
+        }));
+
+    let new_prerequisite_ids: Vec<Uuid> = data_update.prerequisites.iter().map(|p| p.id).collect();
+
     let old_course = get_course(conn, course_id).await?;
-
-    let module_ids: Vec<Uuid> = data_update.modules.iter().map(|m| m.id).collect();
-
-    let uh_course_codes: Vec<Option<String>> = data_update
-        .modules
-        .iter()
-        .map(|m| m.uh_course_code.to_owned())
-        .collect();
-
-    let completion_registration_link_overrides: Vec<Option<String>> = data_update
-        .modules
-        .iter()
-        .map(|m| m.completion_registration_link_override.to_owned())
-        .collect();
-
-    let ects_credits: Vec<Option<f32>> =
-        data_update.modules.iter().map(|m| m.ects_credits).collect();
-
-    let enable_registering_completion_to_uh_open_university: Vec<bool> = data_update
-        .modules
-        .iter()
-        .map(|m| m.enable_registering_completion_to_uh_open_university)
-        .collect();
-
-    let prerequisite_ids: Vec<Uuid> = data_update.prerequisites.iter().map(|p| p.id).collect();
 
     let old_prerequisites: Vec<CoursePrerequisite> =
         crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
 
-    let updated_prerequisites: Vec<String> = data_update
-        .prerequisites
-        .iter()
-        .map(|x| x.prerequisite.to_owned())
-        .collect();
-
     let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
         .iter()
-        .filter(|p| !prerequisite_ids.contains(&p.id))
+        .filter(|p| !new_prerequisite_ids.contains(&p.id))
         .map(|p| p.id.to_owned())
         .collect();
 
-    let audience_ids: Vec<Uuid> = data_update.audiences.iter().map(|a| a.id).collect();
+    let old_prerequisites_hash: HashMap<Uuid, &String> = old_prerequisites
+        .iter()
+        .map(|p| (p.id, &p.prerequisite))
+        .collect();
+
+    let changed_prerequisites: Vec<EditCoursePrerequisite> = data_update
+        .prerequisites
+        .into_iter()
+        .filter(|p| match old_prerequisites_hash.get(&p.id) {
+            Some(old_prerequisite) => **old_prerequisite != p.prerequisite,
+            None => true,
+        })
+        .collect();
+
+    let (updated_prerequisite_ids, updated_prerequisites): (Vec<Uuid>, Vec<String>) =
+        changed_prerequisites
+            .iter()
+            .map(|p| (p.id, p.prerequisite.to_owned()))
+            .unzip();
+
+    let new_audience_ids: Vec<Uuid> = data_update.audiences.iter().map(|a| a.id).collect();
 
     let old_audiences: Vec<CourseAudience> =
         crate::course_audiences::get_by_course_id(conn, course_id).await?;
 
-    let updated_audiences: Vec<String> = data_update
-        .audiences
-        .iter()
-        .map(|x| x.audience.to_owned())
-        .collect();
-
     let audiences_to_delete: Vec<Uuid> = old_audiences
         .iter()
-        .filter(|a| !audience_ids.contains(&a.id))
+        .filter(|a| !new_audience_ids.contains(&a.id))
         .map(|a| a.id.to_owned())
         .collect();
+
+    let old_audiences_hash: HashMap<Uuid, &String> =
+        old_audiences.iter().map(|a| (a.id, &a.audience)).collect();
+
+    let changed_audiences: Vec<EditCourseAudience> = data_update
+        .audiences
+        .into_iter()
+        .filter(|a| match old_audiences_hash.get(&a.id) {
+            Some(old_audience) => **old_audience != a.audience,
+            None => true,
+        })
+        .collect();
+
+    let (updated_audience_ids, updated_audiences): (Vec<Uuid>, Vec<String>) = changed_audiences
+        .iter()
+        .map(|a| (a.id, a.audience.to_owned()))
+        .unzip();
 
     let prerequisite_embeddings = if updated_prerequisites.is_empty() {
         None
@@ -616,20 +636,16 @@ WHERE id = $1
     .execute(&mut *tx)
     .await?;
 
-    let description = if old_course.description != data_update.description {
-        data_update.description.as_deref()
-    } else {
-        None
+    if old_course.description != data_update.description {
+        update_course_embeddings(
+            &mut tx,
+            app_config,
+            course_id,
+            Some(old_course.name.as_str()),
+            data_update.description.as_deref(),
+        )
+        .await?;
     };
-
-    update_course_embeddings(
-        &mut tx,
-        app_config,
-        course_id,
-        Some(old_course.name.as_str()),
-        description,
-    )
-    .await?;
 
     sqlx::query!(
         r#"
@@ -669,7 +685,7 @@ WHERE cm.id = v.id
         upsert_course_prerequisites(
             &mut tx,
             course_id,
-            prerequisite_ids,
+            updated_prerequisite_ids,
             updated_prerequisites,
             embeddings,
         )
@@ -682,7 +698,7 @@ WHERE cm.id = v.id
         upsert_course_audiences(
             &mut tx,
             course_id,
-            audience_ids,
+            updated_audience_ids,
             updated_audiences,
             embeddings,
         )
@@ -1368,7 +1384,7 @@ pub async fn set_metadata(
     course_id: Uuid,
     course_metadata: CourseMetadataUpdate,
 ) -> ModelResult<CourseMetadata> {
-    let prerequisite_ids: Vec<Uuid> = course_metadata
+    let new_prerequisite_ids: Vec<Uuid> = course_metadata
         .course_prerequisites
         .iter()
         .map(|p| p.id)
@@ -1377,17 +1393,31 @@ pub async fn set_metadata(
     let old_prerequisites: Vec<CoursePrerequisite> =
         crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
 
-    let updated_prerequisites: Vec<String> = course_metadata
-        .course_prerequisites
-        .iter()
-        .map(|x| x.prerequisite.to_owned())
-        .collect();
-
     let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
         .iter()
-        .filter(|p| !prerequisite_ids.contains(&p.id))
+        .filter(|p| !new_prerequisite_ids.contains(&p.id))
         .map(|p| p.id.to_owned())
         .collect();
+
+    let old_prerequisites_hash: HashMap<Uuid, &String> = old_prerequisites
+        .iter()
+        .map(|p| (p.id, &p.prerequisite))
+        .collect();
+
+    let changed_prerequisites: Vec<EditCoursePrerequisite> = course_metadata
+        .course_prerequisites
+        .into_iter()
+        .filter(|p| match old_prerequisites_hash.get(&p.id) {
+            Some(old_prerequisite) => **old_prerequisite != p.prerequisite,
+            None => true,
+        })
+        .collect();
+
+    let (updated_prerequisite_ids, updated_prerequisites): (Vec<Uuid>, Vec<String>) =
+        changed_prerequisites
+            .iter()
+            .map(|p| (p.id, p.prerequisite.to_owned()))
+            .unzip();
 
     let audience_ids: Vec<Uuid> = course_metadata
         .course_audiences
@@ -1398,17 +1428,28 @@ pub async fn set_metadata(
     let old_audiences: Vec<CourseAudience> =
         crate::course_audiences::get_by_course_id(conn, course_id).await?;
 
-    let updated_audiences: Vec<String> = course_metadata
-        .course_audiences
-        .iter()
-        .map(|x| x.audience.to_owned())
-        .collect();
-
     let audiences_to_delete: Vec<Uuid> = old_audiences
         .iter()
         .filter(|a| !audience_ids.contains(&a.id))
         .map(|a| a.id.to_owned())
         .collect();
+
+    let old_audiences_hash: HashMap<Uuid, &String> =
+        old_audiences.iter().map(|a| (a.id, &a.audience)).collect();
+
+    let changed_audiences: Vec<EditCourseAudience> = course_metadata
+        .course_audiences
+        .into_iter()
+        .filter(|a| match old_audiences_hash.get(&a.id) {
+            Some(old_audience) => **old_audience != a.audience,
+            None => true,
+        })
+        .collect();
+
+    let (updated_audience_ids, updated_audiences): (Vec<Uuid>, Vec<String>) = changed_audiences
+        .iter()
+        .map(|a| (a.id, a.audience.to_owned()))
+        .unzip();
 
     let prerequisite_embeddings = if updated_prerequisites.is_empty() {
         None
@@ -1428,7 +1469,7 @@ pub async fn set_metadata(
         upsert_course_prerequisites(
             &mut tx,
             course_id,
-            prerequisite_ids,
+            updated_prerequisite_ids,
             updated_prerequisites,
             embeddings,
         )
@@ -1441,7 +1482,7 @@ pub async fn set_metadata(
         upsert_course_audiences(
             &mut tx,
             course_id,
-            audience_ids,
+            updated_audience_ids,
             updated_audiences,
             embeddings,
         )

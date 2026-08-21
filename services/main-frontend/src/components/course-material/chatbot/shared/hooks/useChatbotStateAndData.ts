@@ -8,6 +8,7 @@ import type {
   ChatbotConversationInfo,
   ChatbotPageContext,
   ClientToolAnswer,
+  ClientToolName,
   SendChatbotMessageData,
   SendChatbotToolResponseData,
 } from "@/generated/course-material-api/types.generated"
@@ -40,6 +41,7 @@ type ChatbotTurnRequest =
 /** Which client tool call the learner answered, and with what. */
 export interface ClientToolResponse {
   toolCallId: string
+  toolName: ClientToolName
   answer: ClientToolAnswer
 }
 
@@ -216,8 +218,8 @@ const useChatbotStateAndData = (
   }, [])
 
   /**
-   * A turn can fail after the server has already changed the conversation, and for an answer the
-   * backend refuses only the refetched conversation says whether the question is still waiting.
+   * A turn can fail after the server already changed the conversation — e.g. it refused an
+   * answer — so only a refetch can say whether the question is still waiting.
    */
   const onTurnError = async (err: unknown) => {
     // A refused start never touched the running turn's state, so there is nothing to settle.
@@ -268,13 +270,13 @@ const useChatbotStateAndData = (
   )
 
   const toolResponseMutation = useToastMutation(
-    async ({ toolCallId, answer }: ClientToolResponse) => {
+    async ({ toolCallId, toolName, answer }: ClientToolResponse) => {
       await runTurn(async (signal) => {
         const conversationId = requireConversationId()
         await postChatbotStream(
           {
             url: SEND_CHATBOT_TOOL_RESPONSE_PATH,
-            body: { tool_call_id: toolCallId, answer },
+            body: { tool_call_id: toolCallId, tool_name: toolName, answer },
           },
           conversationId,
           signal,

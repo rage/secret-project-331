@@ -84,9 +84,6 @@ export type ChatbotChatStreamEvent =
       data: StreamEventError
       type: "Error"
     }
-  | {
-      type: "Invalid"
-    }
 
 export type ChatbotConversation = {
   anonymous_token?: string | null
@@ -230,6 +227,12 @@ export type ChatbotToolResponse = {
    * The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event.
    */
   tool_call_id: string
+  /**
+   * The tool the caller believes `tool_call_id` belongs to, checked against the call's
+   * recorded name so a client answering the wrong bubble fails clearly instead of being
+   * silently accepted as whatever tool the call actually was.
+   */
+  tool_name: ClientToolName
 }
 
 /**
@@ -251,6 +254,17 @@ export type ClientToolAnswer = {
   }
   type: "Data"
 }
+
+/**
+ * The name of a client tool, generated into the frontend as a string union so it names one of
+ * [ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.
+ *
+ * The bounds a tool enforces on its arguments and the shape of its answer stay hand-written on
+ * the frontend: routing those through the OpenAPI schema would need either a schema per tool or
+ * widening the argument and answer types this crate uses to serialize them, for a part of the
+ * contract that only fails loudly, unlike the name.
+ */
+export type ClientToolName = "ask_multiple_choice_question"
 
 export type CodeGiveawayStatus =
   | {

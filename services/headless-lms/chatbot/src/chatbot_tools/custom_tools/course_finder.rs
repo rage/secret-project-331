@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use indexmap::IndexMap;
 
 use crate::{
+    azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotToolDeclaration, LLMToolType,
-        ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
     prelude::ChatbotResult,
     user_context::ChatbotUserContext,
@@ -18,7 +18,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings,
-    json_schema_types::{JSONType, Schema, string_array_property},
+    json_schema_types::{Schema, string_array_property},
 };
 use serde::{Deserialize, Deserializer, Serialize};
 use sqlx::PgConnection;
@@ -29,7 +29,7 @@ pub struct CourseFinderState {
     courses: Vec<CourseOccurrences>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct CourseFinderArguments {
     #[serde(deserialize_with = "empty_vec_as_none")]
     description: Option<Vec<String>>,
@@ -44,14 +44,10 @@ pub struct CourseOccurrences {
     occurrences: usize,
 }
 
-pub type CourseFinderTool = ToolProperties<CourseFinderState, CourseFinderArguments>;
+pub type CourseFinderTool = ToolProperties<CourseFinderState>;
 
 impl ChatbotTool for CourseFinderTool {
     type Arguments = CourseFinderArguments;
-
-    fn get_arguments(&self) -> &Self::Arguments {
-        &self.arguments
-    }
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
@@ -118,7 +114,6 @@ impl ChatbotTool for CourseFinderTool {
             state: CourseFinderState {
                 courses: course_occurrences,
             },
-            arguments,
         })
     }
 
@@ -142,10 +137,8 @@ impl ChatbotToolDeclaration for CourseFinderTool {
             tool_type: LLMToolType::Function,
             name: Self::NAME.to_string(),
             description: "Find suitable courses for the user if they want to find available courses for their conditions. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message. The arguments are arrays of keywords for the parameters the user is using to search the courses. At least one of the three arguments is required. Match on any single argument will find a course so it is safe to provide all types of arguments when suitable. This tool is useful to find any courses if the user wants recommendations for courses they can take.".to_string(),
-            parameters: Schema {
-                type_field: JSONType::Object,
-                description: None,
-                properties: IndexMap::from([
+            parameters: Schema::strict_object(
+                IndexMap::from([
                     (
                         "description".to_string(),
                         string_array_property(Some("List of keywords used to search course descriptions based on if the user tries to find courses based on what they contain or teach.")),
@@ -159,9 +152,8 @@ impl ChatbotToolDeclaration for CourseFinderTool {
                         string_array_property(Some("List of keywords of audience types that a course is suitable for.")),
                     ),
                 ]),
-                required: vec!["description".to_string(), "prerequisites".to_string(), "audiences".to_string()],
-                additional_properties: false,
-            },
+                None,
+            ),
             strict: true,
         }
     }

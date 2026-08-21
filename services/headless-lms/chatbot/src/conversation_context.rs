@@ -139,7 +139,7 @@ mod tests {
     use headless_lms_models::chatbot_conversation_messages::Message;
 
     use crate::{
-        azure_chatbot::InputItem,
+        azure_chatbot::azure::protocol::InputItem,
         llm_utils::{APIInputMessage, APIOutputMessage},
     };
 

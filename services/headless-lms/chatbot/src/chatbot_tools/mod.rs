@@ -1,4 +1,5 @@
 use crate::{
+    azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, AzureLLMToolDefinition},
     chatbot_error::chatbot_err,
     chatbot_tools::{
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
@@ -6,14 +7,13 @@ use crate::{
             course_finder::CourseFinderTool, course_progress::CourseProgressTool,
             course_structure::CourseStructureTool, document_lookup::DocumentLookupTool,
         },
-        provider_tools::azure_ai_search::AzureAISearchToolDefinition,
         tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
     user_context::ChatbotUserContext,
 };
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_utils::json_schema_types::{JSONType, Schema};
+use headless_lms_utils::json_schema_types::Schema;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use sqlx::PgConnection;
@@ -45,7 +45,7 @@ pub trait ChatbotToolDeclaration {
 }
 
 pub trait ChatbotTool: ChatbotToolDeclaration {
-    type Arguments: Serialize + DeserializeOwned;
+    type Arguments: DeserializeOwned;
 
     /// Parses and validates the arguments the LLM called the tool with.
     ///
@@ -90,9 +90,6 @@ pub trait ChatbotTool: ChatbotToolDeclaration {
         }
     }
 
-    /// Get parsed arguments
-    fn get_arguments(&self) -> &Self::Arguments;
-
     /// Create a new instance from connection, application configuration, args and context
     fn new(
         conn: &mut PgConnection,
@@ -125,6 +122,28 @@ pub enum ClientToolAnswer {
         #[schema(value_type = Object)]
         result: serde_json::Value,
     },
+}
+
+/// The name of a client tool, generated into the frontend as a string union so it names one of
+/// [ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.
+///
+/// The bounds a tool enforces on its arguments and the shape of its answer stay hand-written on
+/// the frontend: routing those through the OpenAPI schema would need either a schema per tool or
+/// widening the argument and answer types this crate uses to serialize them, for a part of the
+/// contract that only fails loudly, unlike the name.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ClientToolName {
+    AskMultipleChoiceQuestion,
+}
+
+impl ClientToolName {
+    /// The wire name [ChatbotToolDeclaration::NAME] must equal for the tool this variant names.
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::AskMultipleChoiceQuestion => "ask_multiple_choice_question",
+        }
+    }
 }
 
 /// A tool whose output the client produces instead of server code.
@@ -200,13 +219,7 @@ fn delimited_tool_output(output: &str, instructions: Option<&str>) -> String {
 /// The parameter schema of a tool the LLM calls without arguments. Azure still requires a strict
 /// object schema that forbids additional properties.
 pub fn no_parameters() -> Schema {
-    Schema {
-        type_field: JSONType::Object,
-        description: None,
-        properties: IndexMap::new(),
-        required: Vec::new(),
-        additional_properties: false,
-    }
+    Schema::strict_object(IndexMap::new(), None)
 }
 
 /// The function definitions of a tool list, dropping the provider's own tools, which have no name
@@ -224,36 +237,8 @@ fn function_definitions(
         .collect()
 }
 
-pub struct ToolProperties<S, A: Serialize> {
+pub struct ToolProperties<S> {
     state: S,
-    arguments: A,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(untagged)]
-pub enum AzureLLMToolDefinition {
-    Function(AzureLLMFunctionToolDefinition),
-    Search(AzureAISearchToolDefinition),
-}
-
-/// A tool definition that is formatted for Azure.
-/// Defines a tool (function) that the LLM can call.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct AzureLLMFunctionToolDefinition {
-    #[serde(rename = "type")]
-    pub tool_type: LLMToolType,
-    pub name: String,
-    pub description: String,
-    /// Azure requires `additional_properties: false` here.
-    pub parameters: Schema,
-    /// Ensures that the LLM calls the tool with the correct params. Should be `true`
-    pub strict: bool,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum LLMToolType {
-    Function,
 }
 
 pub struct ChatbotToolCallResult {
@@ -307,7 +292,7 @@ macro_rules! chatbot_tool_registry {
         }
 
         /// Run the chatbot tool the LLM asked for and return its arguments and its
-        /// LLM-readable output. User context and db connection are needed for some tools.
+        /// LLM-readable output.
         ///
         /// `fn_args` is the raw argument JSON from the LLM; each tool parses it itself and
         /// tools that take no arguments ignore it. The permission is checked again here, since a
@@ -317,7 +302,7 @@ macro_rules! chatbot_tool_registry {
             conn: &mut PgConnection,
             app_config: &ApplicationConfiguration,
             fn_name: &str,
-            fn_args: String,
+            fn_args: &str,
             user_context: &ChatbotUserContext,
         ) -> ChatbotResult<ChatbotToolCallResult> {
             $(
@@ -331,9 +316,9 @@ macro_rules! chatbot_tool_registry {
                             format!("The caller is not allowed to use the tool {fn_name}")
                         ));
                     }
-                    let tool = <$server_tool as ChatbotTool>::new(&mut *conn, app_config, fn_args, user_context).await?;
+                    let tool = <$server_tool as ChatbotTool>::new(&mut *conn, app_config, fn_args.to_owned(), user_context).await?;
                     return Ok(ChatbotToolCallResult {
-                        arguments: serde_json::to_string(tool.get_arguments())?,
+                        arguments: fn_args.to_owned(),
                         output: tool.get_tool_output(),
                     });
                 }
@@ -449,6 +434,7 @@ chatbot_tool_registry!(
 // The empty server list generates a server half that nothing here calls.
 #[allow(dead_code, unused_variables, unused_mut)]
 mod generated_filter_tests {
+    use crate::azure_chatbot::azure::tools::LLMToolType;
     use headless_lms_models::{
         insert_data,
         roles::UserRole,

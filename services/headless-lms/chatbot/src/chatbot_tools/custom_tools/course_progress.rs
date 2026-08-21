@@ -1,8 +1,9 @@
 use crate::{
+    azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_error::chatbot_err,
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotToolDeclaration, LLMToolType,
-        ToolProperties, no_parameters, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, no_parameters,
+        tool_permission::ToolPermission,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
     user_context::ChatbotUserContext,
@@ -16,7 +17,7 @@ use headless_lms_models::{
 };
 use sqlx::PgConnection;
 
-pub type CourseProgressTool = ToolProperties<CourseProgressState, CourseProgressArguments>;
+pub type CourseProgressTool = ToolProperties<CourseProgressState>;
 
 impl ChatbotToolDeclaration for CourseProgressTool {
     const NAME: &'static str = "course_progress";
@@ -47,7 +48,7 @@ impl ChatbotTool for CourseProgressTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
-        arguments: Self::Arguments,
+        _arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
         let Some(user_id) = user_context.user_id else {
@@ -80,7 +81,6 @@ impl ChatbotTool for CourseProgressTool {
                 course_name: course_name.clone(),
                 progress,
             },
-            arguments,
         })
     }
 
@@ -157,13 +157,9 @@ impl ChatbotTool for CourseProgressTool {
         )
         }
     }
-
-    fn get_arguments(&self) -> &Self::Arguments {
-        &self.arguments
-    }
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Deserialize)]
 pub struct CourseProgressArguments {}
 
 pub struct CourseProgressState {
@@ -344,7 +340,6 @@ mod tests {
                     course_name,
                     progress,
                 },
-                arguments: CourseProgressArguments {},
             }
         }
     }

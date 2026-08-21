@@ -92,15 +92,13 @@ impl Resource {
 #[derive(Copy, Clone, Debug)]
 pub struct AuthorizationToken(());
 
-/**  Skips the authorize() and returns AuthorizationToken, needed in functions with anonymous and test users
+/** Skips authorize(), for anonymous and test-user code paths where there is no user to check.
 
 # Example
 
 ```ignore
 async fn example_function(
 ) -> ControllerResult<....> {
-    // We need to return ControllerResult -> AuthorizedResponse
-
     let token = skip_authorize();
 
     token.authorized_ok(web::Json(organizations))
@@ -181,7 +179,7 @@ async fn access_to_chatbot(
     }
 }
 
-/**  Can be used to check whether user is allowed to view some course material */
+/// Checks whether the user may view course material.
 pub async fn authorize_access_to_course_material(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
@@ -253,7 +251,7 @@ async fn access_to_course_material(
     Ok(skip_authorize())
 }
 
-/** Can be used to check whether a user is allowed to view some course material. Chapters can be closed and limited to certain people only. */
+/// Checks whether the user may view a chapter, which may be closed to everyone but certain roles.
 pub async fn can_user_view_chapter(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
@@ -302,8 +300,7 @@ async fn user_can_view_chapter(
         if user_id.is_none() {
             return Ok(false);
         }
-        // If the user has been granted access to view the material, then they can see the unopened chapters too
-        // This is important because sometimes teachers wish to test unopened chapters with real students
+        // Access to view the material also unlocks unopened chapters, so teachers can test them with real students.
         let user_roles = roles.resolve(conn).await?;
         // A check that cannot be completed is no reason to reveal an unopened chapter.
         return Ok(is_permitted(
@@ -464,36 +461,30 @@ pub async fn is_permitted(
             check_course_instance_permission(conn, user_roles, action, id).await
         }
         Resource::Exercise(id) => {
-            // an exercise can be part of a course or an exam
             let course_or_exam_id = models::exercises::get_course_or_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::ExerciseSlideSubmission(id) => {
-            //an exercise slide submissions can be part of a course or an exam
             let course_or_exam_id =
                 models::exercise_slide_submissions::get_course_and_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::ExerciseTask(id) => {
-            // an exercise task can be part of a course or an exam
             let course_or_exam_id = models::exercise_tasks::get_course_or_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::ExerciseTaskSubmission(id) => {
-            // an exercise task submission can be part of a course or an exam
             let course_or_exam_id =
                 models::exercise_task_submissions::get_course_and_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::ExerciseTaskGrading(id) => {
-            // a grading can be part of a course or an exam
             let course_or_exam_id =
                 models::exercise_task_gradings::get_course_or_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::Organization(id) => Ok(check_organization_permission(user_roles, action, id)),
         Resource::Page(id) => {
-            // a page can be part of a course or an exam
             let course_or_exam_id = models::pages::get_course_and_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
@@ -515,7 +506,6 @@ pub async fn is_permitted(
 
 fn check_organization_permission(roles: &[Role], action: Action, organization_id: Uuid) -> bool {
     if action == Action::View {
-        // anyone can view an organization regardless of roles
         return true;
     };
 

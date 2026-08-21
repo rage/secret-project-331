@@ -11,9 +11,9 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::{
+    azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotToolDeclaration, LLMToolType,
-        ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
     citations::parse_document_filepath,
     llm_utils::estimate_tokens,
@@ -21,14 +21,17 @@ use crate::{
     user_context::ChatbotUserContext,
 };
 
-pub type DocumentLookupTool = ToolProperties<DocumentLookupState, DocumentLookupArguments>;
+pub type DocumentLookupTool = ToolProperties<DocumentLookupState>;
 
 pub struct DocumentLookupState {
     document: Option<String>,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Deserialize)]
 pub struct DocumentLookupArguments {
+    /// Required by the tool's schema, but the lookup resolves the document by id or filepath and
+    /// never reads this back; kept only so a call missing it fails to deserialize.
+    #[allow(dead_code)]
     title: String,
     filepath: Option<String>,
     #[serde(deserialize_with = "deserialize_to_optional_uuid_and_errors_to_none")]
@@ -78,10 +81,8 @@ impl ChatbotToolDeclaration for DocumentLookupTool {
             tool_type: LLMToolType::Function,
             name: Self::NAME.to_string(),
             description: "Look up the full content of a specific document by the title and filepath or id (page_id). The needed arguments can be found from Azure search results or by using the course_structure tool. Either a filepath or a page_id is required to find the correct document, in addition to the document title. The document can be returned in Markdown or JSON format. The Markdown format is cleaner and preferred, but might have errors: if you suspect it's erroneous, you can request the JSON version.".to_string(),
-            parameters: Schema {
-                type_field: JSONType::Object,
-                description: None,
-                properties: IndexMap::from([
+            parameters: Schema::strict_object(
+                IndexMap::from([
                     (
                         "filepath".to_string(),
                         SchemaPropertyType::Item(JsonItem {
@@ -111,9 +112,8 @@ impl ChatbotToolDeclaration for DocumentLookupTool {
                         }),
                     )
                 ]),
-                required: vec!["title".to_string(), "page_id".to_string(), "filepath".to_string(), "format".to_string()],
-                additional_properties: false,
-            },
+                None,
+            ),
             strict: true,
         }
     }
@@ -126,7 +126,7 @@ impl ChatbotTool for DocumentLookupTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
-        mut arguments: Self::Arguments,
+        arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
         let Some(course_id) = user_context.course_id else {
@@ -163,10 +163,8 @@ impl ChatbotTool for DocumentLookupTool {
             .await?;
 
         let document =
-            // Check if the titles match and the page is part of the same course as
-            // the one the user is on.
+            // A page of another course is not the learner's to read, so it reads as not found.
             if page_content.course_id == course_id {
-                arguments.title = page_content.title;
                 if arguments.format == "json" {
                     let s = shorten_page_content(serde_json::to_string(&page_content.json_content)?);
                     Some(s)
@@ -188,7 +186,6 @@ impl ChatbotTool for DocumentLookupTool {
 
         Ok(DocumentLookupTool {
             state: DocumentLookupState { document },
-            arguments,
         })
     }
 
@@ -202,10 +199,6 @@ impl ChatbotTool for DocumentLookupTool {
 
     fn output_description_instructions(&self) -> Option<String> {
         Some("Do not return the whole document to the user. Use the document as a source of more information for answering the user etc. If you need to cite the content of this document, cite the Azure search result of the document.".to_string())
-    }
-
-    fn get_arguments(&self) -> &Self::Arguments {
-        &self.arguments
     }
 }
 

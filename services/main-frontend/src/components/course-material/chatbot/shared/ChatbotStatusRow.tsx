@@ -22,11 +22,11 @@ const statusRowStyle = css`
 `
 
 interface ChatbotStatusRowProps {
-  /// What the chatbot is doing, already translated.
+  /** What the chatbot is doing, already translated. */
   text: string
 }
 
-/// What the chatbot is doing right now, shown from the moment a turn starts until it settles.
+/** What the chatbot is doing right now, shown from the moment a turn starts until it settles. */
 const ChatbotStatusRow: React.FC<ChatbotStatusRowProps> = ({ text }) => (
   <div className={statusRowStyle}>
     {text}

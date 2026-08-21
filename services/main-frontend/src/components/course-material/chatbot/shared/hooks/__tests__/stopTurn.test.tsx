@@ -9,7 +9,10 @@ import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurre
 import { includeIf } from "@/shared-module/common/utils/nullability"
 
 import { streamOf } from "../../../__fixtures__/chatbotResponseStream"
-import { multipleChoiceAnswer } from "../../multipleChoiceQuestions"
+import {
+  ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
+  multipleChoiceAnswer,
+} from "../../multipleChoiceQuestions"
 import useChatbotStateAndData from "../useChatbotStateAndData"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
@@ -148,6 +151,7 @@ describe("Starting a chatbot turn", () => {
     act(() =>
       result.current.toolResponseMutation.mutate({
         toolCallId: TOOL_CALL_ID,
+        toolName: ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
         answer: multipleChoiceAnswer(0),
       }),
     )

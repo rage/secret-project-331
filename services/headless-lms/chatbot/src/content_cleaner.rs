@@ -1,4 +1,6 @@
-use crate::azure_chatbot::{InputItem, LLMRequest, LLMRequestParams, NonThinkingParams};
+use crate::azure_chatbot::azure::protocol::{
+    InputItem, LLMRequest, LLMRequestParams, NonThinkingParams,
+};
 
 use crate::llm_utils::{
     APIInputMessage, MessageContent, estimate_tokens, get_params_for_model,
@@ -352,17 +354,7 @@ async fn process_block_chunk(
     } else {
         default_params
     };
-    let llm_base_request = LLMRequest {
-        input,
-        max_output_tokens: None,
-        model: task_lm.model.to_owned(),
-        tools: vec![],
-        tool_choice: None,
-        parallel_tool_calls: None,
-        prompt_cache_key: None,
-        params,
-        text: None,
-    };
+    let llm_base_request = LLMRequest::new(task_lm.model.to_owned(), input, params);
     info!(
         "Processing chunk of approximately {} tokens",
         estimate_tokens(chunk)

@@ -1,13 +1,13 @@
 use crate::{
-    azure_chatbot::{
-        InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
-        RequestTextOptions, ThinkingParams,
+    azure_chatbot::azure::protocol::{
+        InputItem, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        ThinkingParams,
     },
     chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
-        model_is_thinking, parse_text_completion, string_list_response_format,
+        APIInputMessage, MessageContent, estimate_tokens, model_is_thinking,
+        request_structured_json, string_list_response_format,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
@@ -257,32 +257,22 @@ pub async fn generate_paragraph_suggestions(
         )
     };
 
-    let chat_request = LLMRequest {
-        input: vec![system_message, user_message],
-        model: task_lm.model.to_owned(),
-        max_output_tokens,
-        tools: vec![],
-        tool_choice: None,
-        parallel_tool_calls: None,
-        prompt_cache_key: None,
+    let response: CmsParagraphSuggestionResponse = request_structured_json(
+        vec![system_message, user_message],
+        task_lm.model.to_owned(),
         params,
-        text: Some(RequestTextOptions {
-            verbosity: None,
-            format: Some(response_format()),
-        }),
-    };
-
-    let completion = make_blocking_llm_request(chat_request, app_config).await?;
-
-    let completion_content: &String = &parse_text_completion(completion)?;
-    let response: CmsParagraphSuggestionResponse = serde_json::from_str(completion_content)
-        .map_err(|_| {
+        max_output_tokens,
+        response_format(),
+        app_config,
+        || {
             chatbot_err!(
                 ChatbotMessageSuggestError,
                 "The CMS paragraph suggestion LLM returned an incorrectly formatted response."
                     .to_string()
             )
-        })?;
+        },
+    )
+    .await?;
 
     if response.suggestions.is_empty() {
         return Err(chatbot_err!(

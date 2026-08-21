@@ -1,7 +1,10 @@
 use secrecy::ExposeSecret;
 use serde_json::json;
 
-use crate::{llm_utils::azure_search_request, prelude::*};
+use crate::{
+    llm_utils::{azure_search_configuration, azure_search_request},
+    prelude::*,
+};
 
 const API_VERSION: &str = "2024-07-01";
 
@@ -9,20 +12,7 @@ pub async fn does_skillset_exist(
     skillset_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<bool> {
-    // Retrieve Azure configurations from the application configuration
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure search configuration is missing from the Azure configuration"
-        )
-    })?;
+    let search_config = azure_search_configuration(app_config)?;
 
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("skillsets('{}')", skillset_name));
@@ -54,19 +44,7 @@ pub async fn create_skillset(
     target_index_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<()> {
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure search configuration is missing from the Azure configuration"
-        )
-    })?;
+    let search_config = azure_search_configuration(app_config)?;
 
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("skillsets/{}", skillset_name));

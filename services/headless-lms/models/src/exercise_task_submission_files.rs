@@ -81,6 +81,60 @@ ORDER BY etsf.exercise_task_submission_id,
     Ok(res)
 }
 
+/// One file of one file-typed answer to an exercise, for the teacher bulk download.
+///
+/// Deliberately carries no `file_uploads.name`: archive entries are named positionally from
+/// `order_number` and `mime` so that a plugin which anonymizes filenames cannot leak real ones
+/// through the export.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExerciseAnswerFile {
+    pub user_id: Uuid,
+    pub exercise_task_submission_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub path: String,
+    pub mime: String,
+    pub order_number: i32,
+}
+
+/// Every file of every file-typed answer to the exercise, ordered by user, then submission time,
+/// then the order the client sent the files in.
+///
+/// JSON-typed answers contribute nothing, and a soft delete at any layer -- slide submission, task
+/// submission, link row or file upload -- removes the file from the result.
+pub async fn get_answer_files_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<ExerciseAnswerFile>> {
+    let res = sqlx::query_as!(
+        ExerciseAnswerFile,
+        "
+SELECT ess.user_id,
+  ets.id AS exercise_task_submission_id,
+  ets.created_at,
+  fu.path,
+  fu.mime,
+  etsf.order_number
+FROM exercise_task_submissions AS ets
+  JOIN exercise_slide_submissions AS ess ON ets.exercise_slide_submission_id = ess.id
+  JOIN exercise_task_submission_files AS etsf ON etsf.exercise_task_submission_id = ets.id
+  JOIN file_uploads AS fu ON fu.id = etsf.file_upload_id
+WHERE ess.exercise_id = $1
+  AND ets.answer_kind = 'file'
+  AND ets.deleted_at IS NULL
+  AND ess.deleted_at IS NULL
+  AND etsf.deleted_at IS NULL
+  AND fu.deleted_at IS NULL
+ORDER BY ess.user_id,
+  ets.created_at,
+  etsf.order_number
+",
+        exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -138,6 +192,326 @@ mod test {
         )
         .await
         .unwrap()
+    }
+
+    async fn insert_file_answer(
+        tx: &mut PgConnection,
+        course_id: Uuid,
+        user_id: Uuid,
+        exercise_id: Uuid,
+        exercise_slide_id: Uuid,
+        exercise_task_id: Uuid,
+        file_upload_ids: &[Uuid],
+    ) -> (Uuid, Uuid) {
+        let slide_submission = insert_exercise_slide_submission(
+            tx,
+            NewExerciseSlideSubmission {
+                exercise_slide_id,
+                course_id: Some(course_id),
+                exam_id: None,
+                user_id,
+                exercise_id,
+                user_points_update_strategy:
+                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+            },
+        )
+        .await
+        .unwrap();
+        let submission_id = crate::exercise_task_submissions::insert(
+            tx,
+            PKeyPolicy::Generate,
+            slide_submission.id,
+            exercise_slide_id,
+            exercise_task_id,
+            &SubmittedAnswer::File {
+                file_upload_ids: file_upload_ids.to_vec(),
+                metadata: None,
+            },
+        )
+        .await
+        .unwrap();
+        (slide_submission.id, submission_id)
+    }
+
+    /// Every submission in one test transaction shares `now()`, so submission time has to be set
+    /// explicitly for the ordering to be observable at all.
+    async fn set_submitted_at(tx: &mut PgConnection, submission_id: Uuid, seconds: i64) {
+        sqlx::query("UPDATE exercise_task_submissions SET created_at = now() + make_interval(secs => $2) WHERE id = $1")
+            .bind(submission_id)
+            .bind(seconds as f64)
+            .execute(tx)
+            .await
+            .unwrap();
+    }
+
+    async fn soft_delete_task_submission(tx: &mut PgConnection, id: Uuid) {
+        sqlx::query("UPDATE exercise_task_submissions SET deleted_at = now() WHERE id = $1")
+            .bind(id)
+            .execute(tx)
+            .await
+            .unwrap();
+    }
+
+    async fn soft_delete_slide_submission(tx: &mut PgConnection, id: Uuid) {
+        sqlx::query("UPDATE exercise_slide_submissions SET deleted_at = now() WHERE id = $1")
+            .bind(id)
+            .execute(tx)
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    async fn returns_file_answers_ordered_by_user_then_submission_then_position() {
+        insert_data!(:tx, user:first_user, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        let second_user = crate::users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "ordering@example.org",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let (lesser_user, greater_user) = if first_user < second_user {
+            (first_user, second_user)
+        } else {
+            (second_user, first_user)
+        };
+
+        let later_first = insert_file(tx.as_mut(), "later-first.png").await;
+        let later_second = insert_file(tx.as_mut(), "later-second.png").await;
+        let earlier = insert_file(tx.as_mut(), "earlier.png").await;
+        let other_user_file = insert_file(tx.as_mut(), "other-user.png").await;
+
+        let (_, later) = insert_file_answer(
+            tx.as_mut(),
+            course_id,
+            lesser_user,
+            exercise_id,
+            slide_id,
+            task_id,
+            &[later_first, later_second],
+        )
+        .await;
+        set_submitted_at(tx.as_mut(), later, 60).await;
+        let (_, earlier_submission) = insert_file_answer(
+            tx.as_mut(),
+            course_id,
+            lesser_user,
+            exercise_id,
+            slide_id,
+            task_id,
+            &[earlier],
+        )
+        .await;
+        set_submitted_at(tx.as_mut(), earlier_submission, 0).await;
+        let (_, other_user_submission) = insert_file_answer(
+            tx.as_mut(),
+            course_id,
+            greater_user,
+            exercise_id,
+            slide_id,
+            task_id,
+            &[other_user_file],
+        )
+        .await;
+
+        let files = get_answer_files_by_exercise_id(tx.as_mut(), exercise_id)
+            .await
+            .unwrap();
+        assert_eq!(
+            files
+                .iter()
+                .map(|file| (
+                    file.user_id,
+                    file.exercise_task_submission_id,
+                    file.order_number
+                ))
+                .collect::<Vec<_>>(),
+            vec![
+                (lesser_user, earlier_submission, 0),
+                (lesser_user, later, 0),
+                (lesser_user, later, 1),
+                (greater_user, other_user_submission, 0),
+            ]
+        );
+        tx.rollback().await;
+    }
+
+    #[tokio::test]
+    async fn omits_json_answers() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        let json_submission = insert_task_submission(
+            tx.as_mut(),
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+        )
+        .await;
+        // A JSON answer can still have files recorded against it; only the kind decides.
+        let file_id = insert_file(tx.as_mut(), "smuggled.png").await;
+        insert_many(tx.as_mut(), json_submission, &[file_id])
+            .await
+            .unwrap();
+
+        assert!(
+            get_answer_files_by_exercise_id(tx.as_mut(), exercise_id)
+                .await
+                .unwrap()
+                .is_empty()
+        );
+        tx.rollback().await;
+    }
+
+    /// A file answer plus a second, untouched one, so a test that deletes a layer proves the
+    /// deletion is what removed the row rather than the query returning nothing at all.
+    async fn insert_two_file_answers(
+        tx: &mut PgConnection,
+        course_id: Uuid,
+        user_id: Uuid,
+        exercise_id: Uuid,
+        slide_id: Uuid,
+        task_id: Uuid,
+    ) -> (Uuid, Uuid, Uuid, Uuid) {
+        let doomed_file = insert_file(tx, "doomed.png").await;
+        let surviving_file = insert_file(tx, "surviving.png").await;
+        let (doomed_slide_submission, doomed_submission) = insert_file_answer(
+            tx,
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+            &[doomed_file],
+        )
+        .await;
+        let (_, surviving_submission) = insert_file_answer(
+            tx,
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+            &[surviving_file],
+        )
+        .await;
+        (
+            doomed_slide_submission,
+            doomed_submission,
+            doomed_file,
+            surviving_submission,
+        )
+    }
+
+    async fn returned_submission_ids(tx: &mut PgConnection, exercise_id: Uuid) -> Vec<Uuid> {
+        get_answer_files_by_exercise_id(tx, exercise_id)
+            .await
+            .unwrap()
+            .into_iter()
+            .map(|file| file.exercise_task_submission_id)
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn omits_a_deleted_task_submission() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        let (_, doomed, _, surviving) = insert_two_file_answers(
+            tx.as_mut(),
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+        )
+        .await;
+        soft_delete_task_submission(tx.as_mut(), doomed).await;
+
+        assert_eq!(
+            returned_submission_ids(tx.as_mut(), exercise_id).await,
+            vec![surviving]
+        );
+        tx.rollback().await;
+    }
+
+    #[tokio::test]
+    async fn omits_a_deleted_slide_submission() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        let (doomed_slide_submission, doomed, _, surviving) = insert_two_file_answers(
+            tx.as_mut(),
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+        )
+        .await;
+        soft_delete_slide_submission(tx.as_mut(), doomed_slide_submission).await;
+
+        let returned = returned_submission_ids(tx.as_mut(), exercise_id).await;
+        assert_eq!(returned, vec![surviving]);
+        assert!(!returned.contains(&doomed));
+        tx.rollback().await;
+    }
+
+    async fn soft_delete_link_row(
+        tx: &mut PgConnection,
+        submission_id: Uuid,
+        file_upload_id: Uuid,
+    ) {
+        sqlx::query(
+            "UPDATE exercise_task_submission_files SET deleted_at = now() WHERE exercise_task_submission_id = $1 AND file_upload_id = $2",
+        )
+        .bind(submission_id)
+        .bind(file_upload_id)
+        .execute(tx)
+        .await
+        .unwrap();
+    }
+
+    #[tokio::test]
+    async fn omits_a_deleted_link_row() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        let (_, doomed, doomed_file, surviving) = insert_two_file_answers(
+            tx.as_mut(),
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+        )
+        .await;
+        soft_delete_link_row(tx.as_mut(), doomed, doomed_file).await;
+
+        assert_eq!(
+            returned_submission_ids(tx.as_mut(), exercise_id).await,
+            vec![surviving]
+        );
+        tx.rollback().await;
+    }
+
+    #[tokio::test]
+    async fn omits_a_reaped_upload() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        let (_, _, doomed_file, surviving) = insert_two_file_answers(
+            tx.as_mut(),
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+        )
+        .await;
+        crate::file_uploads::delete_and_fetch_path(tx.as_mut(), doomed_file)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            returned_submission_ids(tx.as_mut(), exercise_id).await,
+            vec![surviving]
+        );
+        tx.rollback().await;
     }
 
     #[tokio::test]

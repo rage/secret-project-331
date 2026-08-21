@@ -185,6 +185,8 @@ import type {
   DismissMyAutoLinkNoticeResponses,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponses,
+  DownloadExerciseAnswerFilesData,
+  DownloadExerciseAnswerFilesResponses,
   DuplicateExamData,
   DuplicateExamResponses,
   EditCourseInstanceData,
@@ -858,6 +860,7 @@ import {
   zDenyOauthDeviceVerificationResponse,
   zDeviceAuthorizationOauthResponse,
   zDownloadCodeGiveawayCodesCsvResponse,
+  zDownloadExerciseAnswerFilesResponse,
   zDuplicateExamResponse,
   zExportCourseCreditRegistrationsResponse,
   zExportCourseExerciseTasksCsvResponse,
@@ -6440,6 +6443,25 @@ export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = t
       await zGetExerciseCsvExportTaskOptionsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
+ */
+export const downloadExerciseAnswerFiles = <ThrowOnError extends boolean = true>(
+  options: Options<DownloadExerciseAnswerFilesData, ThrowOnError>,
+): RequestResult<DownloadExerciseAnswerFilesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    DownloadExerciseAnswerFilesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zDownloadExerciseAnswerFilesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files",
     ...options,
   })
 

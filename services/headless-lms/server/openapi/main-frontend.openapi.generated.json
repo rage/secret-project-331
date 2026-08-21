@@ -9778,6 +9778,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files": {
+      "get": {
+        "tags": ["exercises"],
+        "summary": "\nGET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.",
+        "operationId": "downloadExerciseAnswerFiles",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zip archive of the exercise's answer files",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/exercises/{exercise_id}/export-answers-csv": {
       "get": {
         "tags": ["exercises"],

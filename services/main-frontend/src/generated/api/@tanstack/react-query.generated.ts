@@ -90,6 +90,7 @@ import {
   dismissCreditRegistrationEnrolmentBanner,
   dismissMyAutoLinkNotice,
   downloadCodeGiveawayCodesCsv,
+  downloadExerciseAnswerFiles,
   duplicateExam,
   editCourseInstance,
   editExam,
@@ -523,6 +524,8 @@ import type {
   DismissMyAutoLinkNoticeData,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponse,
+  DownloadExerciseAnswerFilesData,
+  DownloadExerciseAnswerFilesResponse,
   DuplicateExamData,
   DuplicateExamResponse,
   EditCourseInstanceData,
@@ -8496,6 +8499,33 @@ export const getExerciseCsvExportTaskOptionsOptions = (
         throwOnError: true,
       }),
     queryKey: getExerciseCsvExportTaskOptionsQueryKey(options),
+  })
+
+export const downloadExerciseAnswerFilesQueryKey = (
+  options: Options<DownloadExerciseAnswerFilesData>,
+) => createQueryKey("downloadExerciseAnswerFiles", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
+ */
+export const downloadExerciseAnswerFilesOptions = (
+  options: Options<DownloadExerciseAnswerFilesData>,
+) =>
+  queryOptions<
+    DownloadExerciseAnswerFilesResponse,
+    DefaultError,
+    DownloadExerciseAnswerFilesResponse,
+    ReturnType<typeof downloadExerciseAnswerFilesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await downloadExerciseAnswerFiles({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: downloadExerciseAnswerFilesQueryKey(options),
   })
 
 export const exportExerciseAnswersCsvQueryKey = (options: Options<ExportExerciseAnswersCsvData>) =>

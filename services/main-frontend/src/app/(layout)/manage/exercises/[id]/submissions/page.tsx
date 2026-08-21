@@ -32,6 +32,8 @@ import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
 type ExportMode = "definitions" | "answers"
 
+const ANSWER_FILES_DOWNLOAD_PATH = "download-answer-files"
+
 const SubmissionsPage: React.FC = () => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
@@ -125,6 +127,8 @@ const SubmissionsPage: React.FC = () => {
       : // oxlint-disable-next-line i18next/no-literal-string
         `/api/v0/main-frontend/exercises/${id}/export-answers-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}${onlyLatestPerUser ? "&only_latest_per_user=true" : ""}`
 
+  const answerFilesHref = `/api/v0/main-frontend/exercises/${id}/${ANSWER_FILES_DOWNLOAD_PATH}`
+
   return (
     <div>
       <div
@@ -188,6 +192,11 @@ const SubmissionsPage: React.FC = () => {
         >
           {t("button-text-export-answers-csv")}
         </Button>
+        <a href={answerFilesHref} download>
+          <Button variant="secondary" size="small" type="button">
+            {t("button-text-download-answer-files")}
+          </Button>
+        </a>
       </div>
       {csvExportTaskOptionsQuery.isSuccess &&
         definitionTaskOptions.length === 0 &&

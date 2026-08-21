@@ -10894,6 +10894,28 @@ export type GetExerciseCsvExportTaskOptionsResponses = {
 export type GetExerciseCsvExportTaskOptionsResponse =
   GetExerciseCsvExportTaskOptionsResponses[keyof GetExerciseCsvExportTaskOptionsResponses]
 
+export type DownloadExerciseAnswerFilesData = {
+  body?: never
+  path: {
+    /**
+     * Exercise id
+     */
+    exercise_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files"
+}
+
+export type DownloadExerciseAnswerFilesResponses = {
+  /**
+   * Zip archive of the exercise's answer files
+   */
+  200: Blob | File
+}
+
+export type DownloadExerciseAnswerFilesResponse =
+  DownloadExerciseAnswerFilesResponses[keyof DownloadExerciseAnswerFilesResponses]
+
 export type ExportExerciseAnswersCsvData = {
   body?: never
   path: {

@@ -121,6 +121,8 @@ zstd = "0.13.3" # matches the version from actix-http
 tar = "0.4.46"
 # DEFLATE compression and gzip decompression.
 flate2 = "1.1.9"
+# Streaming zip writer. The `zip` crate needs `Seek`, which the channel-backed export sink cannot offer.
+async_zip = { version = "0.0.18", features = ["tokio", "deflate"] }
 # Utilities for random number generation
 rand = "0.10.2"
 # A pure Rust implementation of the RSA public key cryptosystem.

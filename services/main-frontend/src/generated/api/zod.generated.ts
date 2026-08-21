@@ -8596,6 +8596,15 @@ export const zGetExerciseCsvExportTaskOptionsPath = z.object({
  */
 export const zGetExerciseCsvExportTaskOptionsResponse = z.array(zExerciseCsvExportTaskOption)
 
+export const zDownloadExerciseAnswerFilesPath = z.object({
+  exercise_id: z.uuid(),
+})
+
+/**
+ * Zip archive of the exercise's answer files
+ */
+export const zDownloadExerciseAnswerFilesResponse = z.string()
+
 export const zExportExerciseAnswersCsvPath = z.object({
   exercise_id: z.uuid(),
 })

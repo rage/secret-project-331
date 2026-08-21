@@ -2,6 +2,7 @@
 Helpful structs and functions that are not related to database tables.
 */
 
+pub mod answer_files_archive;
 pub mod authorization;
 pub mod credit_registration;
 pub mod credit_registration_phases;

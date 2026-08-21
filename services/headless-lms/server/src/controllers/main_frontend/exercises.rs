@@ -15,7 +15,10 @@ use models::{
 };
 use utoipa::{OpenApi, ToSchema};
 
-use crate::{domain::models_requests, prelude::*};
+use crate::{
+    domain::{answer_files_archive, models_requests},
+    prelude::*,
+};
 
 const EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE: usize = 1000;
 
@@ -27,6 +30,7 @@ const EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE: usize = 1000;
     get_exercise_csv_export_task_options,
     export_exercise_task_definitions_csv,
     export_exercise_task_answers_csv,
+    download_exercise_answer_files,
     get_exercise_answers_requiring_attention,
     get_exercises_by_course_id,
     reset_exercises_for_selected_users
@@ -903,6 +907,57 @@ async fn export_exercise_task_answers_csv(
 }
 
 /**
+GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
+ */
+#[instrument(skip(pool, file_store))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/download-answer-files",
+    operation_id = "downloadExerciseAnswerFiles",
+    tag = "exercises",
+    params(("exercise_id" = Uuid, Path, description = "Exercise id")),
+    responses(
+        (status = 200, description = "Zip archive of the exercise's answer files", body = String, content_type = "application/zip")
+    )
+)]
+async fn download_exercise_answer_files(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let course_or_exam_id =
+        models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await?;
+    let token = match course_or_exam_id {
+        CourseOrExamId::Course(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(id)).await?
+        }
+        CourseOrExamId::Exam(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
+        }
+    };
+
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let container_name = match course_or_exam_id {
+        CourseOrExamId::Course(id) => models::courses::get_course(&mut conn, id).await?.slug,
+        CourseOrExamId::Exam(id) => models::exams::get(&mut conn, id).await?.name,
+    };
+    let content_disposition =
+        answer_files_archive::content_disposition(&container_name, &exercise.name);
+    drop(conn);
+
+    answer_files_archive::stream_exercise_answer_files(
+        pool,
+        file_store,
+        *exercise_id,
+        content_disposition,
+        token,
+    )
+    .await
+}
+
+/**
 GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
 #[instrument(skip(pool, file_store, app_conf))]
@@ -1094,6 +1149,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(export_exercise_task_answers_csv),
     )
     .route(
+        "/{exercise_id}/download-answer-files",
+        web::get().to(download_exercise_answer_files),
+    )
+    .route(
         "/{exercise_id}/answers-requiring-attention",
         web::get().to(get_exercise_answers_requiring_attention),
     )
@@ -1110,4 +1169,330 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/{exercise_id}/submissions/user/{user_id}",
         web::get().to(get_exercise_submissions_for_user),
     );
+}
+
+#[cfg(test)]
+mod answer_file_download_tests {
+    use super::*;
+    use crate::test_helper::*;
+    use actix_session::{SessionMiddleware, storage::CookieSessionStore};
+    use actix_web::cookie::{Key, SameSite};
+    use actix_web::http::StatusCode;
+    use actix_web::{App, test};
+    use async_zip::base::read::mem::ZipFileReader;
+    use models::library::grading::SubmittedAnswer;
+    use models::roles::{RoleDomain, UserRole};
+    use std::sync::Arc;
+
+    const SESSION_KEY_BYTES: &[u8] =
+        b"answer-file-download-tests-cookie-signing-key-long-enough-abcdef";
+
+    /// Puts a user into the session without going through a login flow, so `AuthUser` resolves.
+    async fn test_login(user_id: web::Path<Uuid>, session: actix_session::Session) -> HttpResponse {
+        let now = Utc::now();
+        crate::domain::authorization::remember(
+            &session,
+            models::users::User {
+                id: *user_id,
+                created_at: now,
+                updated_at: now,
+                deleted_at: None,
+                upstream_id: None,
+                email_domain: None,
+            },
+        )
+        .expect("remember the user");
+        HttpResponse::Ok().finish()
+    }
+
+    macro_rules! exercises_app {
+        ($file_store:expr) => {{
+            let pool = PgPool::connect(&test_database_url()).await.expect("pool");
+            let file_store: Arc<dyn FileStore> = $file_store;
+            test::init_service(
+                App::new()
+                    .app_data(web::Data::new(pool))
+                    .app_data(web::Data::from(file_store))
+                    .app_data(web::Data::new(init_app_conf().expect("app conf")))
+                    .service(
+                        web::resource("/test-login/{user_id}").route(web::post().to(test_login)),
+                    )
+                    .service(web::scope("/api/v0/main-frontend/exercises").configure(_add_routes))
+                    .wrap(
+                        SessionMiddleware::builder(
+                            CookieSessionStore::default(),
+                            Key::from(SESSION_KEY_BYTES),
+                        )
+                        .cookie_secure(false)
+                        .cookie_same_site(SameSite::Lax)
+                        .cookie_path("/".to_string())
+                        .build(),
+                    ),
+            )
+            .await
+        }};
+    }
+
+    macro_rules! login {
+        ($app:expr, $user:expr) => {{
+            let request = test::TestRequest::post()
+                .uri(&format!("/test-login/{}", $user))
+                .to_request();
+            let response = test::call_service(&$app, request).await;
+            assert_eq!(response.status(), StatusCode::OK);
+            response
+                .response()
+                .cookies()
+                .next()
+                .expect("session cookie")
+                .into_owned()
+        }};
+    }
+
+    fn download_uri(exercise_id: Uuid) -> String {
+        format!("/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files")
+    }
+
+    /// Stores the bytes in the file store under a fresh path and records the `file_uploads` row
+    /// that names them. The stored name is deliberately identifying, so a test can prove the
+    /// archive does not use it.
+    async fn upload_answer_file(
+        conn: &mut PgConnection,
+        file_store: &TempFileStore,
+        contents: &str,
+    ) -> Uuid {
+        let path = format!("answer-uploads/{}", Uuid::new_v4());
+        FileStore::upload(
+            file_store,
+            std::path::Path::new(&path),
+            contents.as_bytes().to_vec(),
+            "text/plain",
+        )
+        .await
+        .expect("upload");
+        models::file_uploads::insert(
+            conn,
+            "student-real-name.txt",
+            &path,
+            "text/plain",
+            None,
+            Some(contents.len() as i64),
+        )
+        .await
+        .expect("file upload row")
+    }
+
+    async fn submit_file_answer(
+        conn: &mut PgConnection,
+        course_id: Uuid,
+        user_id: Uuid,
+        exercise_id: Uuid,
+        exercise_slide_id: Uuid,
+        exercise_task_id: Uuid,
+        file_upload_ids: Vec<Uuid>,
+    ) -> Uuid {
+        let slide_submission = models::exercise_slide_submissions::insert_exercise_slide_submission(
+            conn,
+            models::exercise_slide_submissions::NewExerciseSlideSubmission {
+                exercise_slide_id,
+                course_id: Some(course_id),
+                exam_id: None,
+                user_id,
+                exercise_id,
+                user_points_update_strategy:
+                    models::exercise_task_gradings::UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+            },
+        )
+        .await
+        .expect("slide submission");
+        models::exercise_task_submissions::insert(
+            conn,
+            PKeyPolicy::Generate,
+            slide_submission.id,
+            exercise_slide_id,
+            exercise_task_id,
+            &SubmittedAnswer::File {
+                file_upload_ids,
+                metadata: None,
+            },
+        )
+        .await
+        .expect("task submission")
+    }
+
+    async fn archive_entries(body: Vec<u8>) -> Vec<(String, String)> {
+        use futures::io::AsyncReadExt;
+        let reader = ZipFileReader::new(body).await.expect("a readable zip");
+        let mut entries = Vec::new();
+        for index in 0..reader.file().entries().len() {
+            let name = reader.file().entries()[index]
+                .filename()
+                .as_str()
+                .expect("a utf-8 entry name")
+                .to_string();
+            let mut contents = String::new();
+            reader
+                .reader_with_entry(index)
+                .await
+                .expect("entry reader")
+                .read_to_string(&mut contents)
+                .await
+                .expect("entry contents");
+            entries.push((name, contents));
+        }
+        entries
+    }
+
+    #[actix_web::test]
+    async fn streams_every_users_answer_files_with_positional_names() {
+        insert_data!(:tx, user: first_student, :org, course: course, instance: _instance, :course_module, :chapter, :page, exercise: exercise, slide: slide, task: task);
+        let second_student = models::users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &format!("second-student-{}@example.org", Uuid::new_v4()),
+            None,
+            None,
+        )
+        .await
+        .expect("second student");
+        let teacher = models::users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &format!("teacher-{}@example.org", Uuid::new_v4()),
+            None,
+            None,
+        )
+        .await
+        .expect("teacher");
+        models::roles::insert(
+            tx.as_mut(),
+            teacher,
+            UserRole::Teacher,
+            RoleDomain::Course(course),
+        )
+        .await
+        .expect("teacher role");
+
+        let file_store = temp_file_store();
+        let first_first = upload_answer_file(tx.as_mut(), &file_store, "first user file one").await;
+        let first_second =
+            upload_answer_file(tx.as_mut(), &file_store, "first user file two").await;
+        let earlier = upload_answer_file(tx.as_mut(), &file_store, "first user earlier").await;
+        let second_users_file = upload_answer_file(tx.as_mut(), &file_store, "second user").await;
+
+        let earlier_submission = submit_file_answer(
+            tx.as_mut(),
+            course,
+            first_student,
+            exercise,
+            slide,
+            task,
+            vec![earlier],
+        )
+        .await;
+        let later_submission = submit_file_answer(
+            tx.as_mut(),
+            course,
+            first_student,
+            exercise,
+            slide,
+            task,
+            vec![first_first, first_second],
+        )
+        .await;
+        let second_students_submission = submit_file_answer(
+            tx.as_mut(),
+            course,
+            second_student,
+            exercise,
+            slide,
+            task,
+            vec![second_users_file],
+        )
+        .await;
+        tx.commit().await;
+
+        let app = exercises_app!(Arc::new(file_store));
+        let cookie = login!(app, teacher);
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&download_uri(exercise))
+                .cookie(cookie)
+                .to_request(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let disposition = response
+            .headers()
+            .get("Content-Disposition")
+            .expect("a content disposition")
+            .to_str()
+            .expect("an ascii content disposition")
+            .to_string();
+        assert!(disposition.starts_with("attachment; "));
+        assert!(disposition.ends_with("-answers.zip\""));
+
+        let entries = archive_entries(test::read_body(response).await.to_vec()).await;
+        let mut expected = vec![
+            (
+                format!("{first_student}/{earlier_submission}/0.txt"),
+                "first user earlier".to_string(),
+            ),
+            (
+                format!("{first_student}/{later_submission}/0.txt"),
+                "first user file one".to_string(),
+            ),
+            (
+                format!("{first_student}/{later_submission}/1.txt"),
+                "first user file two".to_string(),
+            ),
+            (
+                format!("{second_student}/{second_students_submission}/0.txt"),
+                "second user".to_string(),
+            ),
+        ];
+        let mut actual = entries.clone();
+        expected.sort();
+        actual.sort();
+        assert_eq!(actual, expected);
+        assert!(
+            !entries
+                .iter()
+                .any(|(name, _)| name.contains("student-real-name")),
+            "the stored filename must not reach the archive"
+        );
+    }
+
+    #[actix_web::test]
+    async fn a_non_teacher_is_forbidden() {
+        insert_data!(:tx, user: student, :org, course: course, instance: _instance, :course_module, :chapter, :page, exercise: exercise, slide: slide, task: task);
+        let file_store = temp_file_store();
+        let file = upload_answer_file(tx.as_mut(), &file_store, "answer").await;
+        submit_file_answer(
+            tx.as_mut(),
+            course,
+            student,
+            exercise,
+            slide,
+            task,
+            vec![file],
+        )
+        .await;
+        tx.commit().await;
+
+        let app = exercises_app!(Arc::new(file_store));
+        let cookie = login!(app, student);
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&download_uri(exercise))
+                .cookie(cookie)
+                .to_request(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+    }
 }

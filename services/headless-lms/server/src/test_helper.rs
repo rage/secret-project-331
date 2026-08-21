@@ -208,11 +208,12 @@ impl headless_lms_utils::file_store::FileStore for TempFileStore {
 
     async fn download_stream(
         &self,
-        _path: &std::path::Path,
+        path: &std::path::Path,
     ) -> headless_lms_utils::prelude::UtilResult<
         Box<dyn futures::Stream<Item = std::io::Result<bytes::Bytes>>>,
     > {
-        unimplemented!("not reached by these tests")
+        let file = tokio::fs::File::open(self.0.path().join(path)).await?;
+        Ok(Box::new(tokio_util::io::ReaderStream::new(file)))
     }
 
     async fn get_direct_download_url(

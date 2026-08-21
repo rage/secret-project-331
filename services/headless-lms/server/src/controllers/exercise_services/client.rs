@@ -12,13 +12,13 @@ what turns the client's uploaded files into the service's own answer. The course
 queries filter on that capability, and submit rejects a task whose service lacks it.
 */
 use crate::controllers::helpers::file_uploading;
-use crate::domain::error::BadRequestReason;
+use crate::domain::error::{BadRequestReason, bad_request_with_reason};
+use crate::domain::exercise_services::answer_uploads;
 use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use actix_web::FromRequest;
 use exercise_services_api as api;
-use headless_lms_models::exercise_answer_uploads::AnswerUpload;
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::UserExerciseState;
 use models::CourseOrExamId;
@@ -583,11 +583,6 @@ async fn get_exercise(
     }))
 }
 
-/// Builds a 422 whose `message_key` the client keys its error handling on.
-fn bad_request_with_reason(reason: BadRequestReason, message: String) -> ControllerError {
-    controller_err!(BadRequestWithReason(reason), message)
-}
-
 /// Rejects a user who is not enrolled on the exercise's course.
 ///
 /// The shared submit domain fn reports a not-enrolled user as 401 Unauthorized, but the editor
@@ -706,72 +701,6 @@ async fn build_user_answer(
     )
     .await?;
     Ok(answer)
-}
-
-/// Rejects a submit naming a file the host has no usable upload record of.
-///
-/// Ownership alone would not be enough: without the exercise binding, any of the user's uploads
-/// could be replayed into any other exercise's submission. A reaped upload is reported distinctly
-/// from an unrecognised one, because only the former is a race a client can recover from by
-/// uploading again.
-fn verify_uploads_are_usable(
-    requested: &[Uuid],
-    found: &[AnswerUpload],
-) -> Result<(), ControllerError> {
-    for id in requested {
-        match found.iter().find(|upload| &upload.file_upload_id == id) {
-            Some(upload) if upload.deleted => {
-                return Err(bad_request_with_reason(
-                    BadRequestReason::UploadExpired,
-                    format!("Uploaded file {id} is no longer available; upload it again"),
-                ));
-            }
-            Some(_) => {}
-            None => {
-                return Err(bad_request_with_reason(
-                    BadRequestReason::UnknownUpload,
-                    format!("Uploaded file {id} was not uploaded for this exercise by this user"),
-                ));
-            }
-        }
-    }
-    Ok(())
-}
-
-/// Rejects a submit naming the same upload twice.
-///
-/// Deduplicating instead would record the file twice under one submission and list it twice in a
-/// download, and would hide a client defect while doing so. There is no answer a duplicate could
-/// sensibly mean, so it is reported rather than repaired.
-fn verify_uploads_are_distinct(requested: &[Uuid]) -> Result<(), ControllerError> {
-    let mut seen = HashSet::with_capacity(requested.len());
-    for id in requested {
-        if !seen.insert(id) {
-            return Err(bad_request_with_reason(
-                BadRequestReason::DuplicateUpload,
-                format!("Uploaded file {id} was named more than once"),
-            ));
-        }
-    }
-    Ok(())
-}
-
-/// Checks every id a submit names against the uploads recorded for this exercise and user.
-async fn verify_uploads_belong_to_exercise(
-    conn: &mut PgConnection,
-    exercise_id: Uuid,
-    user_id: Uuid,
-    requested: &[Uuid],
-) -> Result<(), ControllerError> {
-    verify_uploads_are_distinct(requested)?;
-    let recorded = models::exercise_answer_uploads::get_for_exercise_and_user(
-        conn,
-        exercise_id,
-        user_id,
-        requested,
-    )
-    .await?;
-    verify_uploads_are_usable(requested, &recorded)
 }
 
 /// Resolves the client's upload ids to the references the exercise service is given, preserving
@@ -1014,7 +943,7 @@ async fn submit_exercise(
         &capable_slugs,
     )?;
 
-    verify_uploads_belong_to_exercise(
+    answer_uploads::verify_uploads_belong_to_exercise(
         &mut conn,
         exercise.id,
         user.id,
@@ -1035,18 +964,15 @@ async fn submit_exercise(
     // submission without that record is one `download_submission` can never serve.
     let mut tx = conn.begin().await?;
 
-    // The validation above ran unlocked and the exercise-service hop took real time, so the
-    // reaper may have retired an upload in the meantime. Re-check under a row lock the reaper
-    // honours, inside the transaction that records the association, so no interleaving can
-    // produce a 200 for a submission whose files are gone.
-    let locked = models::exercise_answer_uploads::lock_for_exercise_and_user(
+    // The build-user-answer hop took real time, so the reaper may have retired an upload since
+    // the unlocked check above.
+    answer_uploads::lock_and_verify_uploads_are_usable(
         &mut tx,
         exercise.id,
         user.id,
         &submission.uploaded_file_ids,
     )
     .await?;
-    verify_uploads_are_usable(&submission.uploaded_file_ids, &locked)?;
 
     let result = domain::exercises::process_submission(
         &mut tx,
@@ -1646,115 +1572,6 @@ mod tests {
         );
     }
 
-    fn message_key_of(error: &ControllerError) -> String {
-        use actix_web::ResponseError;
-        use futures_util::FutureExt;
-        let response = error.error_response();
-        let bytes = actix_web::body::to_bytes(response.into_body())
-            .now_or_never()
-            .expect("response should resolve immediately")
-            .expect("body bytes");
-        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
-        value["message_key"]
-            .as_str()
-            .unwrap_or_default()
-            .to_string()
-    }
-
-    #[test]
-    fn a_submission_naming_no_files_is_accepted() {
-        assert!(verify_uploads_are_usable(&[], &[]).is_ok());
-    }
-
-    #[test]
-    fn a_submission_naming_its_own_uploads_is_accepted() {
-        let first = Uuid::new_v4();
-        let second = Uuid::new_v4();
-        let found = vec![
-            AnswerUpload {
-                file_upload_id: second,
-                deleted: false,
-            },
-            AnswerUpload {
-                file_upload_id: first,
-                deleted: false,
-            },
-        ];
-        // Lookup order must not matter; the client's order is what the caller preserves.
-        assert!(verify_uploads_are_usable(&[first, second], &found).is_ok());
-    }
-
-    /// An upload bound to another exercise, or to another user, is not returned by the lookup at
-    /// all, so it must be indistinguishable from an id that was never uploaded.
-    #[test]
-    fn a_submission_naming_a_foreign_upload_is_rejected_as_unknown() {
-        use actix_web::ResponseError;
-        use actix_web::http::StatusCode;
-        let foreign = Uuid::new_v4();
-        let error = verify_uploads_are_usable(&[foreign], &[])
-            .expect_err("an upload not bound to this exercise and user must be rejected");
-        assert_eq!(error.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
-        assert_eq!(message_key_of(&error), "unknown_upload");
-    }
-
-    /// The reaper soft-deletes precisely so this stays distinguishable from `unknown_upload`: only
-    /// this case is a race a client can recover from by uploading again.
-    #[test]
-    fn a_submission_naming_a_reaped_upload_is_rejected_as_expired() {
-        use actix_web::ResponseError;
-        use actix_web::http::StatusCode;
-        let reaped = Uuid::new_v4();
-        let error = verify_uploads_are_usable(
-            &[reaped],
-            &[AnswerUpload {
-                file_upload_id: reaped,
-                deleted: true,
-            }],
-        )
-        .expect_err("a reaped upload must be rejected");
-        assert_eq!(error.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
-        assert_eq!(message_key_of(&error), "upload_expired");
-    }
-
-    /// One bad id among good ones must fail the whole submit rather than being dropped, or the
-    /// exercise service would silently grade a partial answer.
-    #[test]
-    fn one_unusable_upload_rejects_the_whole_submission() {
-        let good = Uuid::new_v4();
-        let reaped = Uuid::new_v4();
-        let found = vec![
-            AnswerUpload {
-                file_upload_id: good,
-                deleted: false,
-            },
-            AnswerUpload {
-                file_upload_id: reaped,
-                deleted: true,
-            },
-        ];
-        let error = verify_uploads_are_usable(&[good, reaped], &found).expect_err("must reject");
-        assert_eq!(message_key_of(&error), "upload_expired");
-    }
-
-    #[test]
-    fn a_submission_naming_distinct_uploads_is_accepted() {
-        assert!(verify_uploads_are_distinct(&[]).is_ok());
-        assert!(verify_uploads_are_distinct(&[Uuid::new_v4(), Uuid::new_v4()]).is_ok());
-    }
-
-    /// Deduplicating would record one file twice under a submission and list it twice in a
-    /// download, so a duplicate is reported as the client bug it is.
-    #[test]
-    fn a_submission_naming_the_same_upload_twice_is_rejected() {
-        use actix_web::ResponseError;
-        use actix_web::http::StatusCode;
-        let repeated = Uuid::new_v4();
-        let error = verify_uploads_are_distinct(&[repeated, Uuid::new_v4(), repeated])
-            .expect_err("a repeated upload id must be rejected");
-        assert_eq!(error.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
-        assert_eq!(message_key_of(&error), "duplicate_upload");
-    }
-
     fn capable_slugs() -> Vec<String> {
         vec!["tmc".to_string(), "other-native".to_string()]
     }
@@ -2030,7 +1847,7 @@ mod upload_tests {
             2
         );
         assert!(
-            verify_uploads_belong_to_exercise(tx.as_mut(), exercise, user, &ids)
+            answer_uploads::verify_uploads_belong_to_exercise(tx.as_mut(), exercise, user, &ids)
                 .await
                 .is_ok()
         );
@@ -2140,14 +1957,23 @@ mod upload_tests {
         .expect("binding");
 
         assert!(
-            verify_uploads_belong_to_exercise(tx.as_mut(), exercise, user, &[file_id])
-                .await
-                .is_ok()
+            answer_uploads::verify_uploads_belong_to_exercise(
+                tx.as_mut(),
+                exercise,
+                user,
+                &[file_id]
+            )
+            .await
+            .is_ok()
         );
-        let error =
-            verify_uploads_belong_to_exercise(tx.as_mut(), other_exercise, user, &[file_id])
-                .await
-                .expect_err("another exercise must not be able to name this upload");
+        let error = answer_uploads::verify_uploads_belong_to_exercise(
+            tx.as_mut(),
+            other_exercise,
+            user,
+            &[file_id],
+        )
+        .await
+        .expect_err("another exercise must not be able to name this upload");
         assert_eq!(message_key_of(&error), "unknown_upload");
         tx.rollback().await;
     }
@@ -2155,10 +1981,14 @@ mod upload_tests {
     #[actix_web::test]
     async fn a_submit_naming_an_unrecorded_id_is_rejected_as_unknown() {
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
-        let error =
-            verify_uploads_belong_to_exercise(tx.as_mut(), exercise, user, &[Uuid::new_v4()])
-                .await
-                .expect_err("an id the host never issued must be rejected");
+        let error = answer_uploads::verify_uploads_belong_to_exercise(
+            tx.as_mut(),
+            exercise,
+            user,
+            &[Uuid::new_v4()],
+        )
+        .await
+        .expect_err("an id the host never issued must be rejected");
         assert_eq!(message_key_of(&error), "unknown_upload");
         tx.rollback().await;
     }
@@ -2195,9 +2025,14 @@ mod upload_tests {
         .await
         .expect("soft delete");
 
-        let error = verify_uploads_belong_to_exercise(tx.as_mut(), exercise, user, &[file_id])
-            .await
-            .expect_err("a reaped upload must be rejected");
+        let error = answer_uploads::verify_uploads_belong_to_exercise(
+            tx.as_mut(),
+            exercise,
+            user,
+            &[file_id],
+        )
+        .await
+        .expect_err("a reaped upload must be rejected");
         assert_eq!(message_key_of(&error), "upload_expired");
         tx.rollback().await;
     }
@@ -2308,21 +2143,6 @@ mod upload_tests {
             "the submission must not survive a failed association"
         );
         tx.rollback().await;
-    }
-
-    fn message_key_of(error: &ControllerError) -> String {
-        use actix_web::ResponseError;
-        use futures_util::FutureExt;
-        let response = error.error_response();
-        let bytes = actix_web::body::to_bytes(response.into_body())
-            .now_or_never()
-            .expect("response should resolve immediately")
-            .expect("body bytes");
-        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
-        value["message_key"]
-            .as_str()
-            .unwrap_or_default()
-            .to_string()
     }
 }
 

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { Account, AddMessage, ArrowDownToBracket } from "@vectopus/atlas-icons-react"
+import { Account, AddMessage, ArrowDownToBracket, Pencil } from "@vectopus/atlas-icons-react"
 import { useRouter } from "next/navigation"
 import type { DOMAttributes } from "react"
 import React from "react"
@@ -17,6 +17,7 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -172,16 +173,48 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
 
   const chatbotInfo = currentConversationInfo.data
 
-  if (chatbotInfo?.course_id === null) {
+  const permissionCheck = useAuthorizeMultiple(
+    chatbotInfo?.course_id
+      ? [
+          {
+            action: { type: "teach" },
+            resource: { type: "course", id: chatbotInfo.course_id },
+          },
+          {
+            action: { type: "edit" },
+            resource: { type: "global_permissions" },
+          },
+        ]
+      : [
+          {
+            action: { type: "edit" },
+            resource: { type: "global_permissions" },
+          },
+        ],
+  )
+
+  const hasPermission = permissionCheck.isSuccess && permissionCheck.data?.some(Boolean)
+
+  if (hasPermission && chatbotInfo) {
     items.push({
       // oxlint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-edit-chatbot-button",
       onAction: () => {
-        console.log("chatbot info:", chatbotInfo)
-        console.log("chatbot configuration id:", chatbotInfo.chatbot_configuration_id)
         router.push(manageChatbotRoute(chatbotInfo.chatbot_configuration_id))
       },
+      icon: (
+        <Pencil
+          className={css`
+            color: ${baseTheme.colors.green[700]};
+            position: relative;
+            height: 22px;
+            width: 22px;
+            top: -0.275rem;
+          `}
+        />
+      ),
       type: "action",
+
       label: t("edit-chatbot"),
     })
   }

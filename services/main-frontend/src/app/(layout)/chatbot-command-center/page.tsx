@@ -10,6 +10,7 @@ import {
   getAllChatbotsOptions,
   getAllCoursesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -58,15 +59,20 @@ const ChatbotCommandCenterPage: React.FC = () => {
             padding: 1.5rem;
           `}
         >
-          <Button
-            size="medium"
-            // variant="secondary"
-            onClick={() => {
-              setCreateChatbotVisible(true)
-            }}
+          <OnlyRenderIfPermissions
+            action={{ type: "edit" }}
+            resource={{ type: "global_permissions" }}
           >
-            {t("create-global-chatbot")}
-          </Button>
+            <Button
+              size="medium"
+              // variant="secondary"
+              onClick={() => {
+                setCreateChatbotVisible(true)
+              }}
+            >
+              {t("create-global-chatbot")}
+            </Button>
+          </OnlyRenderIfPermissions>
         </div>
       </div>
       <QueryResults

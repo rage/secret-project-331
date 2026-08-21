@@ -1,4 +1,6 @@
-use crate::domain::oauth::helpers::oauth_invalid_client;
+use crate::domain::oauth::helpers::{
+    ClientAuthError, authenticate_oauth_client, oauth_invalid_client,
+};
 use crate::domain::oauth::introspect_query::IntrospectQuery;
 use crate::domain::oauth::introspect_response::IntrospectResponse;
 use crate::domain::oauth::oauth_validated::OAuthValidated;
@@ -200,32 +202,28 @@ async fn authenticate_introspecting_client(
     form: &crate::domain::oauth::introspect_query::IntrospectParams,
     token_hmac_key: &secrecy::SecretString,
 ) -> Result<OAuthClient, ControllerError> {
-    let client = OAuthClient::find_by_client_id(conn, &form.client_id)
-        .await
-        .map_err(|e| {
-            tracing::warn!(err = %e, "OAuth introspect: unknown client_id");
-            oauth_invalid_client("invalid client_id")
-        })?;
+    let client = authenticate_oauth_client(
+        conn,
+        &form.client_id,
+        form.client_secret.as_ref(),
+        token_hmac_key,
+    )
+    .await
+    .map_err(|e| match e {
+        ClientAuthError::UnknownClient => oauth_invalid_client("invalid client_id"),
+        ClientAuthError::ClientSecretMissing => {
+            tracing::warn!("OAuth introspect: confidential client has no stored secret");
+            oauth_invalid_client("invalid client secret")
+        }
+        ClientAuthError::ClientSecretMismatch => {
+            tracing::warn!("OAuth introspect: invalid client secret");
+            oauth_invalid_client("invalid client secret")
+        }
+    })?;
 
     if !client.is_confidential() {
         tracing::warn!("OAuth introspect: public client may not introspect");
         return Err(oauth_invalid_client("invalid client_id"));
-    }
-
-    let Some(secret) = &client.client_secret else {
-        tracing::warn!("OAuth introspect: confidential client has no stored secret");
-        return Err(oauth_invalid_client("invalid client secret"));
-    };
-    let provided = token_digest_sha256(
-        form.client_secret
-            .as_ref()
-            .map(|s| s.expose_secret())
-            .unwrap_or_default(),
-        token_hmac_key,
-    );
-    if !secret.constant_eq(&provided) {
-        tracing::warn!("OAuth introspect: invalid client secret");
-        return Err(oauth_invalid_client("invalid client secret"));
     }
 
     Ok(client)

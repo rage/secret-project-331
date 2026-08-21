@@ -9,7 +9,7 @@
 //! `token_service.rs`, so it can be unit-tested without actix extractors.
 
 use crate::domain::oauth::helpers::{
-    oauth_invalid_client, oauth_invalid_scope, oauth_unauthorized_client,
+    oauth_invalid_client, oauth_invalid_scope, oauth_unauthorized_client, split_and_validate_scopes,
 };
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
@@ -100,7 +100,7 @@ pub struct DeviceDecisionResponse {
 
 /// Normalize a user-entered `user_code` into the canonical `XXXX-XXXX` shape.
 ///
-/// Uppercases, strips everything that is not a base32 alphanumeric (so a missing
+/// Uppercases, strips everything that is not alphanumeric (so a missing
 /// or extra hyphen and surrounding whitespace are tolerated), and re-inserts the
 /// single group separator when exactly eight characters remain. Malformed input
 /// is returned uppercased-and-stripped and will not match any stored code.
@@ -132,18 +132,13 @@ fn resolve_device_scopes(
     client: &OAuthClient,
     scope: Option<&str>,
 ) -> Result<Vec<String>, ControllerError> {
-    let requested: Vec<String> = match scope {
+    match scope {
         Some(s) if s.split_whitespace().next().is_some() => {
-            s.split_whitespace().map(|s| s.to_string()).collect()
+            split_and_validate_scopes(s, &client.scopes)
+                .map_err(|_| oauth_invalid_scope("requested scope is not allowed"))
         }
-        _ => client.scopes.clone(),
-    };
-    for s in &requested {
-        if !client.scopes.contains(s) {
-            return Err(oauth_invalid_scope("requested scope is not allowed"));
-        }
+        _ => Ok(client.scopes.clone()),
     }
-    Ok(requested)
 }
 
 /// Number of times a colliding `user_code` is regenerated before giving up.
@@ -237,7 +232,7 @@ async fn create_device_authorization(
     let requested_scopes = resolve_device_scopes(&client, form.scope.as_deref())?;
 
     // The table only grows through this endpoint, so this is where it shrinks. A failure here must
-    // not fail the login.
+    // not fail the device authorization request.
     match OAuthDeviceCode::delete_expired(conn).await {
         Ok(0) => {}
         Ok(deleted) => tracing::info!(deleted, "device_authorization: pruned expired device codes"),

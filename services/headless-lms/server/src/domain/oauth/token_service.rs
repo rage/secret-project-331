@@ -5,6 +5,7 @@ use uuid::Uuid;
 
 use crate::domain::exercise_services::token::invalidate_cached_users;
 use crate::domain::oauth::errors::TokenGrantError;
+use crate::domain::oauth::helpers::split_and_validate_scopes;
 use crate::domain::oauth::pkce::verify_token_pkce;
 use headless_lms_utils::cache::Cache;
 
@@ -38,19 +39,12 @@ fn resolve_refresh_scopes(
     match requested {
         None => Ok(original.to_vec()),
         Some(s) if s.split_whitespace().next().is_none() => Ok(original.to_vec()),
-        Some(s) => {
-            let requested_scopes: Vec<String> =
-                s.split_whitespace().map(|s| s.to_string()).collect();
-            for scope in &requested_scopes {
-                if !original.iter().any(|o| o == scope) {
-                    return Err(TokenGrantError::InvalidScope(format!(
-                        "requested scope \"{}\" was not included in the original grant",
-                        scope
-                    )));
-                }
-            }
-            Ok(requested_scopes)
-        }
+        Some(s) => split_and_validate_scopes(s, original).map_err(|scope| {
+            TokenGrantError::InvalidScope(format!(
+                "requested scope \"{}\" was not included in the original grant",
+                scope
+            ))
+        }),
     }
 }
 

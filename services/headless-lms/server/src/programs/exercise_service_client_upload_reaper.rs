@@ -12,9 +12,12 @@ use crate::config::{FileStoreRuntimeConfig, program_config::ProgramConfig};
 use crate::{setup_file_store, setup_tracing};
 use chrono::Utc;
 use dotenvy::dotenv;
+use futures::{StreamExt, stream};
 use headless_lms_models::{self as models, error::TryToOptional};
 use headless_lms_utils::file_store::FileStore;
 use sqlx::{PgConnection, PgPool};
+
+const MAX_CONCURRENT_REAPS: usize = 8;
 
 pub async fn main() -> anyhow::Result<()> {
     // TODO: Audit that the environment access only happens in single-threaded code.
@@ -25,27 +28,38 @@ pub async fn main() -> anyhow::Result<()> {
     let base_url = ProgramConfig::required("BASE_URL")?;
     let file_store = setup_file_store(&FileStoreRuntimeConfig::try_from_env()?, &base_url).await;
     let db_pool = PgPool::connect(&database_url).await?;
-    let mut conn = db_pool.acquire().await?;
-    reap(&mut conn, file_store.as_ref()).await
+    reap(&db_pool, file_store.as_ref()).await
 }
 
-async fn reap(conn: &mut PgConnection, file_store: &dyn FileStore) -> anyhow::Result<()> {
+async fn reap(pool: &PgPool, file_store: &dyn FileStore) -> anyhow::Result<()> {
     let cutoff = models::exercise_service_client_uploads::retention_cutoff(Utc::now());
-    let reapable = models::exercise_service_client_uploads::get_reapable(conn, cutoff).await?;
+    let mut conn = pool.acquire().await?;
+    let reapable = models::exercise_service_client_uploads::get_reapable(&mut conn, cutoff).await?;
+    drop(conn);
     info!("Reaping {} orphaned client uploads.", reapable.len());
 
     let mut reaped = 0;
     let mut skipped = 0;
     let mut failed = 0;
-    for upload in reapable {
-        match reap_one(conn, file_store, &upload).await {
+    let mut results = stream::iter(reapable)
+        .map(|upload| async move {
+            let file_upload_id = upload.file_upload_id;
+            let result = match pool.acquire().await {
+                Ok(mut conn) => reap_one(&mut conn, file_store, &upload).await,
+                Err(err) => Err(err.into()),
+            };
+            (file_upload_id, result)
+        })
+        .buffer_unordered(MAX_CONCURRENT_REAPS);
+    while let Some((file_upload_id, result)) = results.next().await {
+        match result {
             Ok(true) => reaped += 1,
             Ok(false) => skipped += 1,
             Err(err) => {
                 failed += 1;
                 error!(
                     "Failed to reap client upload {}: {:#?}",
-                    upload.file_upload_id, err
+                    file_upload_id, err
                 );
             }
         }
@@ -150,6 +164,9 @@ mod tests {
 
     /// Covers the whole per-row sequence: the object goes, the file row is soft-deleted, and the
     /// binding survives soft-deleted so submit can still answer `upload_expired`.
+    ///
+    /// Committed, since `reap` now reaps each row over its own pool connection rather than the
+    /// connection fixtures were inserted on.
     #[actix_web::test]
     async fn reaps_an_orphaned_upload_and_leaves_a_row_behind() {
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
@@ -172,19 +189,25 @@ mod tests {
         .await
         .expect("binding");
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
+        tx.commit().await;
 
+        let pool = PgPool::connect(&test_database_url())
+            .await
+            .expect("test pool");
         let file_store = RecordingFileStore::default();
-        reap(tx.as_mut(), &file_store).await.expect("reap");
+        reap(&pool, &file_store).await.expect("reap");
 
         assert_eq!(*file_store.deleted.lock().expect("lock"), vec![path]);
+        let mut check_conn = Conn::init().await;
+        let mut check_tx = check_conn.begin().await;
         assert!(
-            models::file_uploads::get_many(tx.as_mut(), &[file_id])
+            models::file_uploads::get_many(check_tx.as_mut(), &[file_id])
                 .await
                 .expect("file lookup")
                 .is_empty()
         );
         let recorded = models::exercise_service_client_uploads::get_for_exercise_and_user(
-            tx.as_mut(),
+            check_tx.as_mut(),
             exercise,
             user,
             &[file_id],
@@ -193,9 +216,10 @@ mod tests {
         .expect("binding lookup");
         assert_eq!(recorded.len(), 1);
         assert!(recorded[0].deleted);
-        tx.rollback().await;
+        check_tx.rollback().await;
     }
 
+    /// Committed, for the same reason as above.
     #[actix_web::test]
     async fn spares_an_upload_inside_the_retention_window() {
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
@@ -216,19 +240,25 @@ mod tests {
         )
         .await
         .expect("binding");
+        tx.commit().await;
 
+        let pool = PgPool::connect(&test_database_url())
+            .await
+            .expect("test pool");
         let file_store = RecordingFileStore::default();
-        reap(tx.as_mut(), &file_store).await.expect("reap");
+        reap(&pool, &file_store).await.expect("reap");
 
         assert!(file_store.deleted.lock().expect("lock").is_empty());
+        let mut check_conn = Conn::init().await;
+        let mut check_tx = check_conn.begin().await;
         assert_eq!(
-            models::file_uploads::get_many(tx.as_mut(), &[file_id])
+            models::file_uploads::get_many(check_tx.as_mut(), &[file_id])
                 .await
                 .expect("file lookup")
                 .len(),
             1
         );
-        tx.rollback().await;
+        check_tx.rollback().await;
     }
 
     /// Fails every delete, standing in for a transient object-store error.
@@ -287,6 +317,8 @@ mod tests {
     /// A failed object delete must surface in the exit status and be retried later. Before this
     /// was fixed the run was green and the object was orphaned forever, because the binding's own
     /// `deleted_at` excluded the row from every later listing.
+    ///
+    /// Committed, for the same reason as the tests above.
     #[actix_web::test]
     async fn a_failed_object_delete_fails_the_run_and_is_retried() {
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
@@ -309,31 +341,40 @@ mod tests {
         .await
         .expect("binding");
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
+        tx.commit().await;
 
+        let pool = PgPool::connect(&test_database_url())
+            .await
+            .expect("test pool");
         let failing = FailingFileStore::default();
-        reap(tx.as_mut(), &failing)
+        reap(&pool, &failing)
             .await
             .expect_err("a run where every delete failed must not exit successfully");
         assert_eq!(*failing.attempts.lock().expect("lock"), vec![path]);
+        let mut check_conn = Conn::init().await;
+        let mut check_tx = check_conn.begin().await;
         assert_eq!(
-            models::file_uploads::get_many(tx.as_mut(), &[file_id])
+            models::file_uploads::get_many(check_tx.as_mut(), &[file_id])
                 .await
                 .expect("file lookup")
                 .len(),
             1,
             "the file row must survive, since it is what makes the retry possible"
         );
+        check_tx.rollback().await;
 
         let retry = RecordingFileStore::default();
-        reap(tx.as_mut(), &retry).await.expect("retry");
+        reap(&pool, &retry).await.expect("retry");
         assert_eq!(*retry.deleted.lock().expect("lock"), vec![path]);
+        let mut check_conn = Conn::init().await;
+        let mut check_tx = check_conn.begin().await;
         assert!(
-            models::file_uploads::get_many(tx.as_mut(), &[file_id])
+            models::file_uploads::get_many(check_tx.as_mut(), &[file_id])
                 .await
                 .expect("file lookup")
                 .is_empty()
         );
-        tx.rollback().await;
+        check_tx.rollback().await;
     }
 
     /// The reap-vs-submit race with two real connections, which is the part

@@ -1,1 +1,0 @@
-DROP TABLE exercise_service_client_uploads;

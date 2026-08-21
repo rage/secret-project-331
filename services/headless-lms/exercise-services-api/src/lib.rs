@@ -1,5 +1,5 @@
 //! Wire types for the exercise-services client API (`/api/v0/exercise-services/client`), the
-//! HTTP surface a native TMC client authenticates against and exchanges for course, exercise,
+//! HTTP surface a native client authenticates against and exchanges for course, exercise,
 //! and submission data. Consumed externally by `tmc-langs-rust`, so it stays free of
 //! server-internal dependencies; the `openapi` feature adds `utoipa::ToSchema` derives for the
 //! server's own OpenAPI generation and is off by default for other consumers.
@@ -125,13 +125,13 @@ pub enum ExerciseTaskSubmissionStatus {
 pub enum GradingProgress {
     /// The grading could not complete.
     Failed,
-    /// There is no grading process occurring; for example, the student has not yet made any submission.
+    /// No grading has occurred yet, e.g. the student has made no submission.
     NotReady,
-    /// Final Grade is pending, and it does require human intervention; if a Score value is present, it indicates the current value is partial and may be updated during the manual grading.
+    /// Final grade pending, needs human intervention. `score_given`, if present, is partial and may still change.
     PendingManual,
-    /// Final Grade is pending, but does not require manual intervention; if a Score value is present, it indicates the current value is partial and may be updated.
+    /// Final grade pending, no human intervention needed. `score_given`, if present, is partial and may still change.
     Pending,
-    /// The grading process is completed; the score value, if any, represents the current Final Grade;
+    /// Grading is complete. `score_given`, if present, is the final grade.
     FullyGraded,
 }
 

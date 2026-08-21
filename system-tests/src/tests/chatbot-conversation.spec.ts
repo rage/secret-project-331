@@ -22,10 +22,9 @@ async function isCitationPopoverOpen(page: Page) {
 /**
  * Expands the reference list of a chatbot answer.
  *
- * The toggle only exists once the answer has citations, and those do not arrive with the streamed
- * answer text: they are persisted server side and then picked up by a refetch of the conversation.
- * Waiting for the answer text to appear therefore does not mean the toggle exists yet, so wait for
- * the toggle itself before clicking it instead of leaning on the click's own action timeout.
+ * Citations arrive via a post-stream refetch, not with the streamed answer text, so the toggle
+ * can still be missing after the text appears — wait for the toggle itself rather than relying
+ * on the click's own action timeout.
  */
 async function showReferences(scope: Page | Locator) {
   const toggle = scope.getByRole("button", { name: "Show references" })

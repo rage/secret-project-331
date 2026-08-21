@@ -146,6 +146,17 @@ fn client_tasks_from_slide(
         .collect()
 }
 
+/// Ids of the course's currently open chapters. Shared by the exercise list and progress views
+/// so their visibility rules cannot drift apart.
+async fn open_chapter_ids(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<HashSet<Uuid>> {
+    Ok(models::chapters::get_course_chapters(conn, course_id)
+        .await?
+        .into_iter()
+        .filter(DatabaseChapter::has_opened)
+        .map(|c| c.id)
+        .collect())
+}
+
 /// Extractor guarding every client route: reads `X-Client-Version` and rejects obsolete
 /// clients before the handler runs. Yields no data; its presence applies the check.
 #[derive(Debug)]
@@ -304,12 +315,7 @@ async fn get_course_exercises(
 
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
     let mut slides = Vec::new();
-    let open_chapter_ids = models::chapters::get_course_chapters(&mut conn, *course)
-        .await?
-        .into_iter()
-        .filter(DatabaseChapter::has_opened)
-        .map(|c| c.id)
-        .collect::<HashSet<_>>();
+    let open_chapter_ids = open_chapter_ids(&mut conn, *course).await?;
 
     let course = models::courses::get_course(&mut conn, *course).await?;
     let open_chapter_exercises =
@@ -417,12 +423,7 @@ async fn get_course_progress(
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
 
     let course = models::courses::get_course(&mut conn, *course).await?;
-    let open_chapter_ids = models::chapters::get_course_chapters(&mut conn, course.id)
-        .await?
-        .into_iter()
-        .filter(DatabaseChapter::has_opened)
-        .map(|c| c.id)
-        .collect::<HashSet<_>>();
+    let open_chapter_ids = open_chapter_ids(&mut conn, course.id).await?;
 
     // One read for the whole course instead of a query per exercise.
     let states = models::user_exercise_states::get_all_for_user_and_course_or_exam(
@@ -619,6 +620,18 @@ fn verify_slide_and_task_belong(
             BadRequest,
             format!("Exercise task {task_id} does not belong to exercise slide {slide_id}")
         ));
+    }
+    Ok(())
+}
+
+/// Rejects access to a submission owned by a different user.
+fn verify_submission_owner(
+    submission_user_id: Uuid,
+    user_id: Uuid,
+    forbidden_message: String,
+) -> Result<(), ControllerError> {
+    if submission_user_id != user_id {
+        return Err(controller_err!(Forbidden, forbidden_message));
     }
     Ok(())
 }
@@ -1114,12 +1127,11 @@ async fn get_submission_grading(
         submission.exercise_slide_submission_id,
     )
     .await?;
-    if slide_submission.user_id != user.id {
-        return Err(controller_err!(
-            Forbidden,
-            "Cannot view another user's submission grading".to_string()
-        ));
-    }
+    verify_submission_owner(
+        slide_submission.user_id,
+        user.id,
+        "Cannot view another user's submission grading".to_string(),
+    )?;
     let token = skip_authorize();
 
     let grading = models::exercise_task_gradings::get_by_exercise_task_submission_id(
@@ -1247,12 +1259,11 @@ async fn download_submission(
     let mut conn = pool.acquire().await?;
     let slide_submission =
         models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id).await?;
-    if slide_submission.user_id != user.id {
-        return Err(controller_err!(
-            Forbidden,
-            "Cannot download another user's submission".to_string()
-        ));
-    }
+    verify_submission_owner(
+        slide_submission.user_id,
+        user.id,
+        "Cannot download another user's submission".to_string(),
+    )?;
     let token = skip_authorize();
 
     let task_submissions = models::exercise_task_submissions::get_by_exercise_slide_submission_id(
@@ -1332,12 +1343,11 @@ async fn share_submission(
     let mut conn = pool.acquire().await?;
     let slide_submission =
         models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id).await?;
-    if slide_submission.user_id != user.id {
-        return Err(controller_err!(
-            Forbidden,
-            "Cannot share another user's submission".to_string()
-        ));
-    }
+    verify_submission_owner(
+        slide_submission.user_id,
+        user.id,
+        "Cannot share another user's submission".to_string(),
+    )?;
     let token = skip_authorize();
 
     let share = domain::exercise_services::submission_sharing::share_submission(
@@ -1866,6 +1876,7 @@ mod upload_tests {
             test_chatbot: false,
             test_sisu: false,
             test_suotar: false,
+            disable_embedding_vector_creation_when_seeding: false,
             suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
                 .expect("Failed to build the mock Suotar configuration"),
             development_uuid_login: false,

@@ -1,6 +1,9 @@
 use crate::domain::oauth::dpop::verify_dpop_from_actix_for_token;
 use crate::domain::oauth::errors::TokenGrantError;
-use crate::domain::oauth::helpers::{oauth_invalid_client, ok_json_no_cache, scope_has_openid};
+use crate::domain::oauth::helpers::{
+    ClientAuthError, authenticate_oauth_client, oauth_invalid_client, ok_json_no_cache,
+    scope_has_openid,
+};
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::oidc::generate_id_token;
 use crate::domain::oauth::token_query::TokenQuery;
@@ -15,10 +18,7 @@ use chrono::{Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::cache::Cache;
-use models::{
-    library::oauth::token_digest_sha256, oauth_access_token::TokenType, oauth_client::OAuthClient,
-};
-use secrecy::ExposeSecret;
+use models::oauth_access_token::TokenType;
 use sqlx::PgPool;
 use utoipa::OpenApi;
 
@@ -122,37 +122,24 @@ pub async fn token(
     let access_ttl = Duration::hours(1);
     let refresh_ttl = Duration::days(30);
 
-    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
-        .await
-        .map_err(|e| {
-            tracing::error!(err = %e, "OAuth token: client lookup failed");
-            oauth_invalid_client("invalid client_id")
-        })?;
+    let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
+    let client = authenticate_oauth_client(
+        &mut conn,
+        &form.client_id,
+        form.client_secret.as_ref(),
+        token_hmac_key,
+    )
+    .await
+    .map_err(|e| match e {
+        ClientAuthError::UnknownClient => oauth_invalid_client("invalid client_id"),
+        ClientAuthError::ClientSecretMissing => {
+            oauth_invalid_client("client_secret required for confidential clients")
+        }
+        ClientAuthError::ClientSecretMismatch => oauth_invalid_client("invalid client secret"),
+    })?;
 
     // Add non-secret fields to the span for observability
     tracing::Span::current().record("client_id", &form.client_id);
-
-    if client.is_confidential() {
-        match client.client_secret {
-            Some(ref secret) => {
-                let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
-                if !secret.constant_eq(&token_digest_sha256(
-                    form.client_secret
-                        .as_ref()
-                        .map(|s| s.expose_secret())
-                        .unwrap_or_default(),
-                    token_hmac_key,
-                )) {
-                    return Err(oauth_invalid_client("invalid client secret"));
-                }
-            }
-            None => {
-                return Err(oauth_invalid_client(
-                    "client_secret required for confidential clients",
-                ));
-            }
-        }
-    }
 
     // Check if client allows this grant type
     let grant_kind = form.grant.kind();

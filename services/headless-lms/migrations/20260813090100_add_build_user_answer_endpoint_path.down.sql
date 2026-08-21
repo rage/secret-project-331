@@ -1,1 +1,0 @@
-ALTER TABLE exercise_service_info DROP COLUMN build_user_answer_endpoint_path;

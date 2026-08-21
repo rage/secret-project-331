@@ -324,23 +324,25 @@ pub struct BuildUserAnswerResponse {
 /// endpoint removes.
 const BUILD_USER_ANSWER_TIMEOUT_SECS: u64 = 10;
 
-/// Asks the exercise service at `url` to build a `UserAnswer` from the given uploaded files.
-pub async fn post_build_user_answer_request(
+/// Posts `body` to an exercise service and parses its JSON response, wrapping an unsuccessful
+/// status in a `ModelError::HttpRequest`. `log_phrase` fills "...while {log_phrase}" in the log
+/// line, and `error_verb_phrase` fills "{error_verb_phrase} failed with status: ..." in the error.
+async fn post_exercise_service_json<Req, Resp>(
     url: Url,
-    public_spec: Option<&serde_json::Value>,
-    uploaded_files: Vec<UploadedFileRef>,
-) -> ModelResult<serde_json::Value> {
+    timeout: std::time::Duration,
+    body: &Req,
+    log_phrase: &str,
+    error_verb_phrase: &str,
+) -> ModelResult<Resp>
+where
+    Req: Serialize,
+    Resp: serde::de::DeserializeOwned,
+{
     let client = reqwest::Client::new();
     let response = client
         .post(url.clone())
-        .timeout(std::time::Duration::from_secs(
-            BUILD_USER_ANSWER_TIMEOUT_SECS,
-        ))
-        .json(&BuildUserAnswerRequest {
-            request_id: Uuid::new_v4(),
-            public_spec,
-            uploaded_files,
-        })
+        .timeout(timeout)
+        .json(body)
         .send()
         .await
         .map_err(ModelError::from)?;
@@ -353,7 +355,8 @@ pub async fn post_build_user_answer_request(
             ?url,
             ?response_body,
             status_code = %status_code,
-            "Exercise service returned an unsuccessful status code while building a user answer"
+            "Exercise service returned an unsuccessful status code while {}",
+            log_phrase
         );
         return Err(ModelError::new(
             ModelErrorType::HttpRequest {
@@ -361,14 +364,34 @@ pub async fn post_build_user_answer_request(
                 response_body: response_body.clone(),
             },
             format!(
-                "Building the user answer failed with status: {status_code} response: {response_body}"
+                "{error_verb_phrase} failed with status: {status_code} response: {response_body}"
             ),
             None,
         ));
     }
 
-    let parsed: BuildUserAnswerResponse = parse_response_json(response).await?;
-    Ok(parsed.answer)
+    parse_response_json(response).await
+}
+
+/// Asks the exercise service at `url` to build a `UserAnswer` from the given uploaded files.
+pub async fn post_build_user_answer_request(
+    url: Url,
+    public_spec: Option<&serde_json::Value>,
+    uploaded_files: Vec<UploadedFileRef>,
+) -> ModelResult<serde_json::Value> {
+    let response: BuildUserAnswerResponse = post_exercise_service_json(
+        url,
+        std::time::Duration::from_secs(BUILD_USER_ANSWER_TIMEOUT_SECS),
+        &BuildUserAnswerRequest {
+            request_id: Uuid::new_v4(),
+            public_spec,
+            uploaded_files,
+        },
+        "building a user answer",
+        "Building the user answer",
+    )
+    .await?;
+    Ok(response.answer)
 }
 
 /// Asks an exercise service which files one of its answers consists of. Sent to the service's
@@ -413,43 +436,19 @@ pub async fn post_answer_files_request(
     public_spec: Option<&serde_json::Value>,
     answer: &serde_json::Value,
 ) -> ModelResult<Vec<AnswerFile>> {
-    let client = reqwest::Client::new();
-    let response = client
-        .post(url.clone())
-        .timeout(std::time::Duration::from_secs(ANSWER_FILES_TIMEOUT_SECS))
-        .json(&AnswerFilesRequest {
+    let response: AnswerFilesResponse = post_exercise_service_json(
+        url,
+        std::time::Duration::from_secs(ANSWER_FILES_TIMEOUT_SECS),
+        &AnswerFilesRequest {
             request_id: Uuid::new_v4(),
             public_spec,
             answer,
-        })
-        .send()
-        .await
-        .map_err(ModelError::from)?;
-
-    let status = response.status();
-    if !status.is_success() {
-        let status_code = status.as_u16();
-        let response_body = response.text().await.unwrap_or_default();
-        error!(
-            ?url,
-            ?response_body,
-            status_code = %status_code,
-            "Exercise service returned an unsuccessful status code while listing an answer's files"
-        );
-        return Err(ModelError::new(
-            ModelErrorType::HttpRequest {
-                status_code,
-                response_body: response_body.clone(),
-            },
-            format!(
-                "Listing the answer's files failed with status: {status_code} response: {response_body}"
-            ),
-            None,
-        ));
-    }
-
-    let parsed: AnswerFilesResponse = parse_response_json(response).await?;
-    Ok(parsed.files)
+        },
+        "listing an answer's files",
+        "Listing the answer's files",
+    )
+    .await?;
+    Ok(response.files)
 }
 
 /// Column definition for exercise service CSV export; callers must use scalar-only cell values.

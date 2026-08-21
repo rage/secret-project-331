@@ -18,15 +18,8 @@ pub enum DeviceCodeStatus {
 
 /// **INTERNAL/DATABASE-ONLY MODEL - DO NOT EXPOSE TO CLIENTS**
 ///
-/// This struct is a database model that contains a `Digest` field, which contains raw bytes
-/// and uses custom (de)serialization. This model must **never** be serialized into external
-/// API payloads or returned directly to clients.
-///
-/// For external-facing responses, use DTOs that strip or convert `Digest` fields to safe types.
-///
-/// **Rationale**: The `Digest` type contains sensitive raw bytes and uses custom serialization
-/// that is not suitable for external APIs. Exposing this model directly could leak internal
-/// implementation details or cause serialization issues.
+/// Contains a `Digest` field with raw bytes and custom serialization; never serialize this
+/// directly into external API payloads. Use DTOs that strip or convert `Digest` fields instead.
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct OAuthDeviceCode {
     pub device_code_digest: Digest,
@@ -260,10 +253,6 @@ impl OAuthDeviceCode {
     }
 
     /// Single-use redemption of an approved device code within an existing transaction.
-    ///
-    /// # Transaction Requirements
-    /// This method must be called within an existing database transaction.
-    /// The caller is responsible for managing the transaction (begin, commit, rollback).
     ///
     /// Deletes the approved, unexpired row and returns it, so a second
     /// redemption of the same code finds nothing (single-use). The returned row

@@ -110,9 +110,11 @@ jobs:
       # OpenAPI drift gate: re-export the specs under server/openapi and fail if they
       # differ from what is committed.
       - name: Export OpenAPI specs
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e CARGO_TERM_COLOR=always \
@@ -120,7 +122,8 @@ jobs:
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo run -p headless-lms-entrypoint -- export-openapi
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
 
       - name: Install pnpm dependencies
         run: pnpm install --frozen-lockfile

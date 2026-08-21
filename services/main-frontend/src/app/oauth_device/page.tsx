@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -16,9 +15,11 @@ import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, TextField } from "@/shared-module/components"
+import { getOauthScopeDescriptions } from "@/utils/oauthScopeDescriptions"
 
 interface DeviceCodeFields {
   userCode: string
@@ -33,11 +34,10 @@ const denyButtonStyles = css`
 `
 
 const DeviceVerificationPage: React.FC = () => {
-  const searchParams = useSearchParams()
   const { t } = useTranslation("main-frontend")
   usePageTitle(t("title-authorize-application"))
 
-  const queryUserCode = searchParams.get("user_code") ?? ""
+  const queryUserCode = useQueryParameter("user_code")
   // The code being verified, as opposed to the form field, which is what the user is typing.
   const [userCode, setUserCode] = useState(queryUserCode)
   const [approved, setApproved] = useState(false)
@@ -66,13 +66,7 @@ const DeviceVerificationPage: React.FC = () => {
     { onSuccess: () => setDenied(true) },
   )
 
-  const scopeDescriptions: Record<string, string> = {
-    openid: t("oauth-scope-description-openid"),
-    email: t("oauth-scope-description-email"),
-    profile: t("oauth-scope-description-profile"),
-    offline_access: t("oauth-scope-description-offline-access"),
-    "exercise-services": t("oauth-scope-description-exercise-services"),
-  }
+  const scopeDescriptions = getOauthScopeDescriptions(t)
 
   const sectionClass = css`
     display: flex;

@@ -149,7 +149,7 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
             flex-shrink: 0;
             min-height: 20px;
             box-sizing: border-box;
-            background: ${baseTheme.colors.red[400]};
+            background: ${baseTheme.colors.red[600]};
             border-radius: 20px;
             font-size: 12px;
             color: ${baseTheme.colors.primary[100]};

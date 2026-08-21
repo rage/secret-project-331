@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT verified_via,\n  COUNT(*) AS \"total!\",\n  COUNT(*) FILTER (WHERE verified_at >= $1) AS \"since_count!\"\nFROM verified_student_numbers\nWHERE deleted_at IS NULL\nGROUP BY verified_via\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "verified_via",
+        "type_info": {
+          "Custom": {
+            "name": "student_number_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_link",
+                "email_match_fast_track",
+                "admin_manual"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_via"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "total!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "since_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "312bc19271060330db75a92cdceaf29edd2406ae5609478b0fcba3dbbb1b19dd"
+}

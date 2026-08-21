@@ -90,6 +90,12 @@ else
 fi
 
 run_command "$COMMAND" "${ARGUMENTS[@]}"
+
+# Some minikube/kubeadm version combinations fail to apply the
+# minikube.k8s.io/primary=true node label that the ingress addon's pods
+# require via nodeSelector, leaving them permanently Pending.
+run_command kubectl label node minikube minikube.k8s.io/primary=true --overwrite
+
 # Have to update the config for the ingress to that the ingress controller does not reject our ingresses
 run_command kubectl patch configmap ingress-nginx-controller -n ingress-nginx --type merge -p '{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}'
 

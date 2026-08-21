@@ -10,10 +10,12 @@ use super::preconditions::{PRECONDITIONS_LIMIT, recompute_preconditions};
 
 /// Audits a change to `subject_user_id`'s linked student number on every registration it can affect,
 /// then applies it. Returns how many of the account's registrations the recompute moved.
+///
+/// `actor_user_id` is `None` when a worker made the change and no person decided it.
 pub async fn record_student_number_change(
     conn: &mut PgConnection,
     subject_user_id: Uuid,
-    actor_user_id: Uuid,
+    actor_user_id: Option<Uuid>,
     event_kind: CreditRegistrationEventKind,
     message: &str,
 ) -> ModelResult<i64> {
@@ -27,7 +29,7 @@ pub async fn record_student_number_change(
         conn,
         &affected,
         event_kind,
-        Some(actor_user_id),
+        actor_user_id,
         Some(message),
     )
     .await?;

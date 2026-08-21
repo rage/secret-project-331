@@ -14,10 +14,13 @@ use headless_lms_models::{
     credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent},
     credit_registrations::{
         CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope,
-        StudentCreditRegistration,
+        StudentCreditRegistration, StudentRegistrationFilter,
     },
     email_deliveries::{EmailSendStatus, EmailSendStatusReport},
     library::credit_registration::StudentFacingCreditRegistrationStatus,
+    library::credit_registration::student_notifications::{
+        self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
+    },
     open_university_product_access_tokens,
     student_number_verification_tokens::{self, StudentNumberVerificationToken},
     verified_student_numbers::{
@@ -42,8 +45,11 @@ const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
 #[openapi(paths(
     get_my_credit_registrations,
     get_my_credit_registration_for_course_module,
+    get_my_credit_registration_enrolment_banners,
     request_credit_registration_enrolment_recheck,
+    dismiss_credit_registration_enrolment_banner,
     get_my_verified_student_number,
+    dismiss_my_auto_link_notice,
     unlink_my_student_number,
     preview_student_number_verification_token,
     claim_student_number_verification_token,
@@ -59,6 +65,44 @@ pub struct LinkingEmailStatus {
     pub email_send_status: EmailSendStatus,
     pub sent_at: Option<DateTime<Utc>>,
     pub emailed_to_masked: String,
+}
+
+/// The same, for one of the two terminal-state mails. No address: these go to the account's own,
+/// which the reader either owns or already sees.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct NotificationEmailStatus {
+    pub kind: CreditRegistrationNotificationKind,
+    pub email_send_status: EmailSendStatus,
+    pub sent_at: Option<DateTime<Utc>>,
+}
+
+impl NotificationEmailStatus {
+    /// The mail that belongs with the row's current status, or `None` for a status that has none:
+    /// a row shows at most one line, and an old action-needed mail on a since-registered row would
+    /// contradict the badge above it.
+    pub(crate) fn for_status(
+        status: StudentFacingCreditRegistrationStatus,
+        credit_registration_id: Uuid,
+        mails: &[RegistrationNotificationEmail],
+    ) -> Option<Self> {
+        let wanted = match status {
+            StudentFacingCreditRegistrationStatus::NeedsEnrolment => {
+                CreditRegistrationNotificationKind::ActionNeeded
+            }
+            StudentFacingCreditRegistrationStatus::Registered => {
+                CreditRegistrationNotificationKind::Registered
+            }
+            _ => return None,
+        };
+        let mail = mails.iter().find(|mail| {
+            mail.credit_registration_id == credit_registration_id && mail.kind == wanted
+        })?;
+        Some(Self {
+            kind: mail.kind,
+            email_send_status: mail.send_status.email_send_status,
+            sent_at: mail.send_status.sent_at,
+        })
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -81,6 +125,11 @@ pub struct MyCreditRegistration {
     /// suspected cheater — which `users.rs` hides from them for that exact reason. Every cause of
     /// `not_registering` has to stay indistinguishable here.
     pub consent_withdrawn_while_in_flight: bool,
+    /// The registry declined this attempt because it already holds an equal or better grade. Still a
+    /// `registered` stage — the credit exists — but the student raised a grade and nothing changed,
+    /// so it earns a line of its own. Unlike the ledger state, this one is safe to expose: it says
+    /// something about the student's own transcript and nothing about how we treat them.
+    pub registry_already_held_equal_or_better: bool,
     /// Whether the pipeline is still expected to move this row: drives the status page's polling.
     pub status_is_moving: bool,
     pub error_code: Option<CreditRegistrationErrorCode>,
@@ -101,6 +150,8 @@ pub struct MyCreditRegistration {
     /// Only on a row waiting for a student number whose account was linked at some point: the mail is
     /// addressed to a Sisu person, and a never-linked account names none.
     pub linking_email: Option<LinkingEmailStatus>,
+    /// The terminal-state mail this row's status has, if one has been queued.
+    pub notification_email: Option<NotificationEmailStatus>,
 }
 
 /// The live registration for one course module, with the attempts a newer one replaced.
@@ -129,6 +180,11 @@ pub struct MyVerifiedStudentNumber {
     pub verified_via_email_masked: Option<String>,
     pub first_names: Option<String>,
     pub last_name: Option<String>,
+    /// Whether the pipeline linked this without asking, because the study registry holds this
+    /// account's verified address for the student number. True until the student puts the notice
+    /// away, and the notice is what makes a wrong automatic link noticeable.
+    pub linked_automatically: bool,
+    pub auto_link_notice_dismissed: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -251,7 +307,9 @@ pub async fn get_my_credit_registrations(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let res = build_my_credit_registrations(&mut conn, user.id, None).await?;
+    let res =
+        build_my_credit_registrations(&mut conn, user.id, StudentRegistrationFilter::default())
+            .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -280,8 +338,15 @@ pub async fn get_my_credit_registration_for_course_module(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let mut all =
-        build_my_credit_registrations(&mut conn, user.id, Some(*course_module_id)).await?;
+    let mut all = build_my_credit_registrations(
+        &mut conn,
+        user.id,
+        StudentRegistrationFilter {
+            course_module_id: Some(*course_module_id),
+            ..StudentRegistrationFilter::default()
+        },
+    )
+    .await?;
     let live_position = all.iter().position(|row| !row.superseded);
     let res = live_position.map(|position| {
         let registration = all.remove(position);
@@ -292,6 +357,85 @@ pub async fn get_my_credit_registration_for_course_module(
     });
 
     token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}` - The
+caller's registrations on one course that owe them the in-course re-enrol banner.
+
+Scoped to the course rather than filtered from `/my` on the client, because every course-material page
+view calls this. Empty is the normal answer.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/my/enrolment-banners/by-course/{course_id}",
+    operation_id = "getMyCreditRegistrationEnrolmentBanners",
+    tag = "credit-registrations",
+    params(("course_id" = Uuid, Path, description = "Course id")),
+    responses(
+        (status = 200, description = "The caller's undismissed enrolment banners on the course", body = Vec<MyCreditRegistration>)
+    )
+)]
+pub async fn get_my_credit_registration_enrolment_banners(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<MyCreditRegistration>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let res = build_my_credit_registrations(
+        &mut conn,
+        user.id,
+        StudentRegistrationFilter {
+            course_id: Some(*course_id),
+            enrolment_banner_due: true,
+            ..StudentRegistrationFilter::default()
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
+in-course re-enrol banner for one registration.
+
+Idempotent. Not a permanent opt-out: a later entry into the same state clears the dismissal.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my/{id}/dismiss-enrolment-banner",
+    operation_id = "dismissCreditRegistrationEnrolmentBanner",
+    tag = "credit-registrations",
+    params(("id" = Uuid, Path, description = "Credit registration id")),
+    responses(
+        (status = 200, description = "The banner is dismissed"),
+        (status = 403, description = "Not the caller's registration")
+    )
+)]
+pub async fn dismiss_credit_registration_enrolment_banner(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let registration = models::credit_registrations::get_by_id(&mut conn, *id).await?;
+    if registration.user_id != user.id {
+        return Err(controller_err!(
+            Forbidden,
+            "Not your registration.".to_string()
+        ));
+    }
+    models::credit_registrations::dismiss_enrolment_banner(&mut conn, registration.id, user.id)
+        .await?;
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -403,6 +547,34 @@ pub async fn get_my_verified_student_number(
 }
 
 /**
+POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
+away the notice saying the pipeline linked this student number without asking.
+
+Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my/student-number/dismiss-auto-link-notice",
+    operation_id = "dismissMyAutoLinkNotice",
+    tag = "credit-registrations",
+    responses(
+        (status = 200, description = "The notice is dismissed")
+    )
+)]
+pub async fn dismiss_my_auto_link_notice(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    verified_student_numbers::dismiss_auto_link_notice(&mut conn, user.id).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
 DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
 from the signed-in account.
 
@@ -436,7 +608,7 @@ pub async fn unlink_my_student_number(
     let affected_registration_count = record_student_number_change(
         &mut tx,
         user.id,
-        user.id,
+        Some(user.id),
         CreditRegistrationEventKind::StudentAction,
         "The student unlinked their student number.",
     )
@@ -598,7 +770,7 @@ pub async fn claim_student_number_verification_token(
                 link_reason: None,
                 verified_from_course_id: verification_token.course_id,
             },
-            user.id,
+            Some(user.id),
             CreditRegistrationEventKind::StudentAction,
             "The student linked a student number.",
         )
@@ -733,9 +905,12 @@ pub async fn get_my_credit_registration_consents(
     .await?;
     let courses = models::courses::get_by_ids(&mut conn, &course_ids).await?;
     let consents = course_credit_registration_consents::get_by_user_id(&mut conn, user.id).await?;
-    let registrations =
-        models::credit_registrations::get_student_facing_by_user_id(&mut conn, user.id, None)
-            .await?;
+    let registrations = models::credit_registrations::get_student_facing_by_user_id(
+        &mut conn,
+        user.id,
+        StudentRegistrationFilter::default(),
+    )
+    .await?;
 
     let mut res: Vec<MyCreditRegistrationConsent> = courses
         .into_iter()
@@ -769,14 +944,13 @@ pub async fn get_my_credit_registration_consents(
 async fn build_my_credit_registrations(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Option<Uuid>,
+    filter: StudentRegistrationFilter,
 ) -> Result<Vec<MyCreditRegistration>, ControllerError> {
-    let rows = models::credit_registrations::get_student_facing_by_user_id(
-        conn,
-        user_id,
-        course_module_id,
-    )
-    .await?;
+    let rows =
+        models::credit_registrations::get_student_facing_by_user_id(conn, user_id, filter).await?;
+
+    let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
+    let notification_mails = student_notifications::get_for_registrations(conn, &ids).await?;
 
     let mut enrolment_links: HashMap<String, Option<String>> = HashMap::new();
     let mut linking_mails: Option<LinkingMailCache> = None;
@@ -793,11 +967,14 @@ async fn build_my_credit_registrations(
         } else {
             None
         };
+        let notification_email =
+            NotificationEmailStatus::for_status(status, row.id, &notification_mails);
         res.push(to_my_credit_registration(
             row,
             status,
             enrolment_link,
             linking_email,
+            notification_email,
         ));
     }
     Ok(res)
@@ -808,6 +985,7 @@ fn to_my_credit_registration(
     status: StudentFacingCreditRegistrationStatus,
     enrolment_link: Option<String>,
     linking_email: Option<LinkingEmailStatus>,
+    notification_email: Option<NotificationEmailStatus>,
 ) -> MyCreditRegistration {
     let can_request_enrolment_recheck = row.state == CreditRegistrationState::NoUsableEnrolment
         && row.enrolment_checked_at.is_none_or(|checked| {
@@ -826,6 +1004,7 @@ fn to_my_credit_registration(
         student_facing_status: status,
         consent_withdrawn_while_in_flight: row.state
             == CreditRegistrationState::AbandonedByConsentWithdrawal,
+        registry_already_held_equal_or_better: row.state == CreditRegistrationState::NotImproved,
         status_is_moving: status.is_moving(),
         error_code: row.error_code,
         next_attempt_at: row.next_attempt_at,
@@ -840,6 +1019,7 @@ fn to_my_credit_registration(
         enrolment_realisation_name: row.enrolment_realisation_name,
         enrolment_link,
         linking_email,
+        notification_email,
     }
 }
 
@@ -856,10 +1036,9 @@ async fn resolve_enrolment_link(
     if let Some(cached) = cache.get(product_id) {
         return Ok(cached.clone());
     }
-    let link = open_university_product_access_tokens::get_by_product_id(conn, product_id)
-        .await?
-        .as_ref()
-        .and_then(open_university_product_access_tokens::enrolment_url);
+    let link =
+        open_university_product_access_tokens::enrolment_url_for_product(conn, Some(product_id))
+            .await?;
     cache.insert(product_id.clone(), link.clone());
     Ok(link)
 }
@@ -1008,6 +1187,9 @@ fn to_my_verified_student_number(link: VerifiedStudentNumber) -> MyVerifiedStude
         verified_via_email_masked: link.verified_via_email.as_deref().map(mask_email),
         first_names: link.first_names,
         last_name: link.last_name,
+        linked_automatically: link.verified_via
+            == StudentNumberVerificationMethod::EmailMatchFastTrack,
+        auto_link_notice_dismissed: link.auto_link_notice_dismissed_at.is_some(),
     }
 }
 
@@ -1075,8 +1257,16 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::delete().to(unlink_my_student_number),
         )
         .route(
+            "/my/student-number/dismiss-auto-link-notice",
+            web::post().to(dismiss_my_auto_link_notice),
+        )
+        .route(
             "/my/by-course-module/{course_module_id}",
             web::get().to(get_my_credit_registration_for_course_module),
+        )
+        .route(
+            "/my/enrolment-banners/by-course/{course_id}",
+            web::get().to(get_my_credit_registration_enrolment_banners),
         )
         // `.route(web::post())`, never `.to()`: a resource's default route answers every method, so
         // these mutations would run on a GET a link can trigger with the visitor's session cookie.
@@ -1088,6 +1278,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                     ..Default::default()
                 }))
                 .route(web::post().to(request_credit_registration_enrolment_recheck)),
+        )
+        .service(
+            web::resource("/my/{id}/dismiss-enrolment-banner")
+                .route(web::post().to(dismiss_credit_registration_enrolment_banner)),
         )
         .route(
             "/student-number-verifications/{token}",

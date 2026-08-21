@@ -49,6 +49,7 @@ KNOWN_SUBSTEPS = frozenset(
         "pnpm-install-all",
         "sort-package-json",
         "remove-pnpm-overrides",
+        "sync-package-manager",
         "pnpm-update",
         "pnpm-audit",
         "cargo-upgrade",
@@ -197,6 +198,40 @@ def remove_pnpm_overrides(folder: Path, use_color: bool) -> bool:
     del pnpm["overrides"]
     if not pnpm:
         del data["pnpm"]
+    write_package_json(data, package_json_path)
+    return True
+
+
+def sync_package_manager_field(folder: Path, root_package_manager: str | None, use_color: bool) -> bool:
+    """Copy the workspace root's pinned pnpm version into a service's package.json.
+
+    Docker builds scope each service's context to its own directory, so corepack
+    never sees the root pin and silently fetches its own idea of "latest" pnpm
+    instead of the version already cached in the base image.
+    """
+    if not root_package_manager:
+        return False
+    package_json_path = folder / "package.json"
+    if not package_json_path.exists():
+        return False
+
+    try:
+        data = json.loads(package_json_path.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        print(colorize(f"Error processing {package_json_path}: {exc}", RED, use_color))
+        return False
+
+    if data.get("packageManager") == root_package_manager:
+        return False
+
+    print(
+        colorize(
+            f"Syncing packageManager to {root_package_manager} in {folder.name}/package.json",
+            BLUE,
+            use_color,
+        )
+    )
+    data["packageManager"] = root_package_manager
     write_package_json(data, package_json_path)
     return True
 
@@ -587,6 +622,7 @@ class StepRunner(StepRunnerProtocol):
             "pnpm-install-all": self.substep_pnpm_install_all,
             "sort-package-json": self.substep_sort_package_json,
             "remove-pnpm-overrides": self.substep_remove_pnpm_overrides,
+            "sync-package-manager": self.substep_sync_package_manager,
             "pnpm-update": self.run_pnpm_update,
             "pnpm-audit": self.run_pnpm_audit,
             "cargo-upgrade": self.run_cargo_upgrade,
@@ -1042,6 +1078,28 @@ class StepRunner(StepRunnerProtocol):
                 cwd=step.cwd,
                 add_args=["package.json"],
                 message=f"Remove pnpm.overrides from {step.target_name}",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
+    def read_root_package_manager(self) -> str | None:
+        data = safe_read_json(self.repo_root / "package.json")
+        value = data.get("packageManager")
+        return value if isinstance(value, str) else None
+
+    def substep_sync_package_manager(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        changed = sync_package_manager_field(
+            step.cwd, self.read_root_package_manager(), self.use_color
+        )
+        substep_record["changed"] = changed
+        if changed and git_has_changes_for_paths(step.cwd, ["package.json"]):
+            commit = self.git_commit(
+                cwd=step.cwd,
+                add_args=["package.json"],
+                message=f"Sync packageManager pin in {step.target_name}",
                 step_id=step.id,
                 substep_id=substep_id,
             )
@@ -1884,6 +1942,13 @@ def build_steps(repo_root: Path) -> list[Step]:
             [
                 "sort-package-json",
                 "remove-pnpm-overrides",
+            ]
+        )
+        # The repo-root step is where this pin comes from, so it has nothing to sync to.
+        if not setup_workspace:
+            substeps.append("sync-package-manager")
+        substeps.extend(
+            [
                 "pnpm-update",
                 "pnpm-audit",
             ]

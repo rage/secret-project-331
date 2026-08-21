@@ -9,6 +9,23 @@
  * assert a global count. Reading another file's rows is fine; writing to a range you do not own
  * breaks its owner's assertions, so claim a free range here first.
  *
+ * Three corollaries that have each cost a broken spec:
+ * - Never assert an exact `itemsProcessed`/`itemsFailed` from `runXTick`, except `0` for "nothing
+ *   was ever eligible" (actor-independent). A live worker can run the same tick first and leave a
+ *   correct count of 0 where the spec expected 1. Assert per-student call counts
+ *   (`countMockCallsForStudent`) or reached state instead.
+ * - `pausePhase` blocks the pausing spec's own explicit ticks against that phase too, not just the
+ *   worker's — there is no way to pause the worker alone. Never pause a phase you still intend to
+ *   tick yourself.
+ * - A `requestLevel` fault with an owner (`armMockSuotarFault`) fires only when *every* item in the
+ *   request matches; the unscoped worker can batch a foreign student into the same call and
+ *   silently suppress it. Prefer an `itemLevel` fault for a single-student fault, and where the
+ *   contract forces `requestLevel` (see `armMockSuotarFault`'s validation), hold the student with
+ *   `setTestExclusiveHold` **before** materializing their row — every one of their rows is then
+ *   invisible to unscoped claims from birth, so the worker can never batch one with anything, while
+ *   your own scoped ticks are unaffected. A hold set only after the row exists still races the
+ *   worker's own next tick (it ticks every 10s regardless of any one test).
+ *
  * | Student numbers | File                             | Courses it writes to        |
  * | --------------- | -------------------------------- | --------------------------- |
  * | `9000001xx`     | suotar-happy-path                | via-suotar                  |
@@ -16,16 +33,16 @@
  * | `9000003xx`     | suotar-enrolment-problems        | via-suotar                  |
  * | `9000004xx`     | suotar-import-outcomes           | via-suotar, import-outcomes |
  * | `9000005xx`     | suotar-verify-outcomes           | via-suotar                  |
- * | `9000006xx`     | suotar-sisu-outage               | not written yet             |
+ * | `9000006xx`     | suotar-sisu-outage               | via-suotar                  |
  * | `9000007xx`     | suotar-consent                   | via-suotar                  |
- * | `9000008xx`     | suotar-teacher-views             | none (states course, paused)|
+ * | `9000008xx`     | suotar-teacher-views             | retry (paused), states (read)|
  * | `9000009xx`     | suotar-admin-dashboard           | admin                       |
  * | `9000010xx`     | suotar-old-flow-coexistence      | old-flow                    |
  * | `9000011xx`     | suotar-backfill-and-late-consent | backfill                    |
- * | `9000012xx`     | suotar-grade-improvement         | not written yet             |
- * | `9000013xx`     | suotar-student-emails            | not written yet             |
- * | `9000014xx`     | suotar-fast-track-linking        | not written yet             |
- * | `9000015xx`     | suotar-in-course-banner          | not written yet             |
+ * | `9000012xx`     | suotar-grade-improvement         | grade-improvement           |
+ * | `9000013xx`     | suotar-student-emails            | via-suotar                  |
+ * | `9000014xx`     | suotar-fast-track-linking        | via-suotar                  |
+ * | `9000015xx`     | suotar-in-course-banner          | via-suotar                  |
  * | `9000016xx`     | suotar-student-profile           | none (reads seeded rows)    |
  */
 
@@ -46,16 +63,20 @@ export const ADMIN_COURSE_SLUG = "credit-registration-admin"
 export const IMPORT_OUTCOMES_COURSE_SLUG = "credit-registration-import-outcomes"
 export const BACKFILL_COURSE_SLUG = "credit-registration-backfill"
 export const OLD_FLOW_COURSE_SLUG = "credit-registration-old-flow"
+export const GRADE_IMPROVEMENT_COURSE_SLUG = "credit-registration-grade-improvement"
 
 /** Must match the `*_COURSE_ID` constants in `seed_credit_registration.rs`. */
 export const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
 export const BACKFILL_COURSE_ID = "c5ed17ea-0003-4a5e-9e6e-c0de00000003"
 export const STATES_COURSE_ID = "c5ed17ea-0007-4a5e-9e6e-c0de00000007"
+export const RETRY_COURSE_ID = "c5ed17ea-0009-4a5e-9e6e-c0de00000009"
 export const OLD_FLOW_COURSE_ID = "c5ed17ea-0002-4a5e-9e6e-c0de00000002"
 
 /** University course codes: what the mock Suotar keys its world on. */
 export const CRS_101 = "CRS-101"
 export const CRS_ADMIN_101 = "CRS-ADMIN-101"
+/** The one seeded module on a graded scale rather than pass/fail. */
+export const CRS_GRADED_101 = "CRS-GRADED-101"
 
 export const CREDIT_REGISTRATION_ORGANIZATION_SLUG = "credit-registration"
 
@@ -80,9 +101,15 @@ export const linkStudentNumberUrl = (token: string): string =>
  */
 export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-backfill-2@example.com",
+  "credit-registration-banner-reenrols@example.com",
+  "credit-registration-banner-stuck@example.com",
   "credit-registration-consent-withdrawn@example.com",
   "credit-registration-consent-withheld@example.com",
   "credit-registration-consented-linked@example.com",
+  "credit-registration-emails-no-enrolment@example.com",
+  "credit-registration-emails-registered@example.com",
+  "credit-registration-emails-unmailed@example.com",
+  "credit-registration-grade-improvement@example.com",
   "credit-registration-import-outcomes@example.com",
   "credit-registration-import-timeout@example.com",
   "credit-registration-link-claimer@example.com",
@@ -91,6 +118,7 @@ export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-profile-empty@example.com",
   "credit-registration-superseded@example.com",
   "credit-registration-two-enrolments@example.com",
+  "credit-registration-verified-email@example.com",
   "credit-registration-verify-misregistered@example.com",
   "credit-registration-verify-polling@example.com",
 ] as const

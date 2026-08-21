@@ -1,0 +1,31 @@
+name: Commit and push generated content
+description: Commit any changes in a companion-repo checkout as github-actions[bot] and push them
+inputs:
+  working-directory:
+    description: Path to the companion repo checkout to commit and push from
+    required: true
+  git-ssh-command:
+    description: Optional GIT_SSH_COMMAND override, for repos checked out via a manually written SSH key file instead of actions/checkout's ssh-key input
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        GIT_SSH_COMMAND_OVERRIDE: ${{ inputs.git-ssh-command }}
+      run: |
+        git config --local user.email "bot@example.com"
+        git config --local user.name "github-actions[bot]"
+        git add .
+        if git diff --cached --quiet; then
+          echo "No generated-content changes to commit."
+          exit 0
+        fi
+        git commit -m "Update: $GITHUB_SHA"
+        if [ -n "$GIT_SSH_COMMAND_OVERRIDE" ]; then
+          GIT_SSH_COMMAND="$GIT_SSH_COMMAND_OVERRIDE" git push
+        else
+          git push
+        fi

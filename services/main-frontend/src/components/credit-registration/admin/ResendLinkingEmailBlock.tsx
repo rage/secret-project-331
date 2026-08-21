@@ -80,6 +80,7 @@ const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
 
   return (
     <form className={rootCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
+      <Infobox>{t("credit-registration-resend-address-they-can-read-hint")}</Infobox>
       <div className={rowCss}>
         <TextField
           name="student_number"

@@ -5,7 +5,7 @@
 //! The row's `study_registry_registrar_id` is null, which is what marks it as ours: we registered the
 //! attainment ourselves rather than handing it to a third party holding an API key.
 
-use crate::credit_registrations::RegistrationScope;
+use crate::credit_registrations::{CreditRegistrationState, RegistrationScope};
 use crate::prelude::*;
 
 /// How many rows one iteration may mirror.
@@ -27,7 +27,7 @@ WITH unmirrored AS (
     cr.student_number
   FROM credit_registrations cr
   WHERE cr.deleted_at IS NULL
-    AND cr.state IN ('registered', 'duplicate', 'not_improved')
+    AND cr.state = ANY($5::credit_registration_state [])
     AND cr.student_number IS NOT NULL
     -- A regrade keeps the superseded attempt's success state; only the live attempt may still mirror,
     -- or a completion with both gets two ledger rows and the teacher's completions list shows it twice.
@@ -74,10 +74,97 @@ FROM inserted
         scope.course_id,
         scope.user_id,
         &scope.credit_registration_ids,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_one(conn)
     .await?;
     Ok(mirrored)
+}
+
+/// One ledger row whose standing in the legacy ledger disagrees with ours.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LegacyLedgerDivergence {
+    pub credit_registration_id: Uuid,
+    pub course_module_completion_id: Uuid,
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: Option<String>,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_id: Uuid,
+    pub state: CreditRegistrationState,
+    pub state_entered_at: DateTime<Utc>,
+    /// We registered it and the legacy ledger has no row of ours, so the teacher views and the pull
+    /// stream still call the completion unregistered.
+    pub mirror_missing: bool,
+    /// A registrar took the completion through the pull path while our pipeline had not finished
+    /// with it, which is how the same attainment gets submitted twice.
+    pub registered_by_a_registrar: bool,
+}
+
+/// Ledger rows the legacy ledger contradicts, in either direction.
+///
+/// Not "every completion the pull path registered": `materialize` skips those on purpose, so
+/// listing them would report the coexistence design as a fault. Only rows where one side has moved
+/// and the other has not are here.
+pub async fn get_legacy_ledger_divergences(
+    conn: &mut PgConnection,
+    limit: i64,
+) -> ModelResult<Vec<LegacyLedgerDivergence>> {
+    let res = sqlx::query_as!(
+        LegacyLedgerDivergence,
+        r#"
+SELECT cr.id AS credit_registration_id,
+  cr.course_module_completion_id,
+  cr.user_id,
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  ud.email AS "email?",
+  cr.course_id,
+  c.name AS course_name,
+  cr.course_module_id,
+  cr.state,
+  cr.state_entered_at,
+  d.mirror_missing AS "mirror_missing!",
+  d.registered_by_a_registrar AS "registered_by_a_registrar!"
+FROM credit_registrations cr
+  JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
+  CROSS JOIN LATERAL (
+    SELECT cr.state = ANY($2::credit_registration_state [])
+      AND cr.student_number IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1
+        FROM course_module_completion_registered_to_study_registries r
+        WHERE r.course_module_completion_id = cr.course_module_completion_id
+          AND r.study_registry_registrar_id IS NULL
+          AND r.deleted_at IS NULL
+      ) AS mirror_missing,
+      NOT (cr.state = ANY($2::credit_registration_state []))
+      AND EXISTS (
+        SELECT 1
+        FROM course_module_completion_registered_to_study_registries r
+        WHERE r.course_module_completion_id = cr.course_module_completion_id
+          AND r.study_registry_registrar_id IS NOT NULL
+          AND r.deleted_at IS NULL
+      ) AS registered_by_a_registrar
+  ) d
+WHERE cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND (
+    d.mirror_missing
+    OR d.registered_by_a_registrar
+  )
+ORDER BY cr.state_entered_at DESC
+LIMIT $1
+        "#,
+        limit,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 #[cfg(test)]

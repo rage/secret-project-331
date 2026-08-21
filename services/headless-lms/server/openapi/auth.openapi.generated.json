@@ -444,6 +444,17 @@
           },
           {
             "type": "object",
+            "description": "Seeing a course's credit registrations and acting on them. Separate from\n`ViewUserProgressOrDetails` and `Edit` because these surfaces carry every student's unmasked\nstudent number, which is their key in the national study registry, and an assistant on a\ncourse is often another student on it.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["view_and_manage_credit_registrations"]
+              }
+            }
+          },
+          {
+            "type": "object",
             "required": ["type"],
             "properties": {
               "type": {

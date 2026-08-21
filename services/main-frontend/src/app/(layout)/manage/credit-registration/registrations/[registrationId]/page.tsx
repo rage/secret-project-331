@@ -1,12 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
+import type { TFunction } from "i18next"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  notificationKindLabel,
   sendStatusLabel,
   verificationMethodLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
@@ -26,10 +28,12 @@ import type {
   AdminCreditRegistrationDetails,
   AdminCreditRegistrationRow,
   AdminLinkingEmail,
+  AdminNotificationEmail,
   AdminSuotarApiCall,
   CreditRegistrationAdminActionRecord,
 } from "@/generated/api/types.generated"
 import { creditRegistrationItemRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
+import type { DescriptionListItem, TableColumn } from "@/shared-module/components"
 import {
   Badge,
   DescriptionList,
@@ -75,6 +79,18 @@ const attemptChainCss = css`
 const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
   const { t } = useTranslation()
   const row = details.registration
+  // Next to the grade we sent, which is the comparison that explains the verdict.
+  const heldGrade: DescriptionListItem[] = details.not_improved_attainment
+    ? [
+        {
+          label: t("label-credit-registration-registry-held-grade"),
+          value: [
+            details.not_improved_attainment.grade_scale_id ?? ABSENT,
+            details.not_improved_attainment.grade_id ?? ABSENT,
+          ].join(SLASH),
+        },
+      ]
+    : []
   return (
     <section className={sectionCss}>
       <div className={headerRowCss}>
@@ -140,6 +156,7 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
               MIDDLE_DOT +
               (row.credits ?? ABSENT),
           },
+          ...heldGrade,
           {
             label: t("label-credit-registration-enrolment"),
             value: <code>{row.selected_enrolment_id ?? ABSENT}</code>,
@@ -313,8 +330,26 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
   )
 }
 
+/** Every mail table shares a send-status and retries column; only the surrounding columns differ. */
+const sendStatusColumns = <T extends { send_status: AdminLinkingEmail["send_status"] }>(
+  t: TFunction,
+): [TableColumn<T>, TableColumn<T>] => [
+  {
+    header: t("credit-registration-admin-send-status-header"),
+    cell: (mail) =>
+      [sendStatusLabel(t, mail.send_status.email_send_status), mail.send_status.failure_code]
+        .filter(Boolean)
+        .join(MIDDLE_DOT),
+  },
+  {
+    header: t("label-credit-registration-retries"),
+    cell: (mail) => mail.send_status.retry_count,
+  },
+]
+
 const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => {
   const { t } = useTranslation()
+  const [sendStatusColumn, retriesColumn] = sendStatusColumns<AdminLinkingEmail>(t)
   if (mails.length === 0) {
     return null
   }
@@ -327,16 +362,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
         rows={mails}
         columns={[
           { header: t("label-email"), cell: (mail) => mail.emailed_to },
-          {
-            header: t("credit-registration-admin-send-status-header"),
-            cell: (mail) =>
-              [
-                sendStatusLabel(t, mail.send_status.email_send_status),
-                mail.send_status.failure_code,
-              ]
-                .filter(Boolean)
-                .join(MIDDLE_DOT),
-          },
+          sendStatusColumn,
           {
             header: t("label-credit-registration-claimed-slot"),
             cell: (mail) => <RelativeTime at={mail.claimed_at} />,
@@ -345,10 +371,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
             header: t("label-credit-registration-handed-over"),
             cell: (mail) => <RelativeTime at={mail.send_status.sent_at} />,
           },
-          {
-            header: t("label-credit-registration-retries"),
-            cell: (mail) => mail.send_status.retry_count,
-          },
+          retriesColumn,
           {
             header: t("label-credit-registration-token-claimed"),
             cell: (mail) =>
@@ -358,6 +381,33 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
                 <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-token-unclaimed")}</Badge>
               ),
           },
+        ]}
+      />
+    </section>
+  )
+}
+
+const NotificationSection: React.FC<{ mails: AdminNotificationEmail[] }> = ({ mails }) => {
+  const { t } = useTranslation()
+  const [sendStatusColumn, retriesColumn] = sendStatusColumns<AdminNotificationEmail>(t)
+  if (mails.length === 0) {
+    return null
+  }
+  return (
+    <section className={sectionCss}>
+      <h2 className={headingCss}>{t("credit-registration-heading-notification-emails")}</h2>
+      <Table
+        caption={t("credit-registration-heading-notification-emails")}
+        rowKey={(mail) => mail.kind}
+        rows={mails}
+        columns={[
+          { header: t("label-kind"), cell: (mail) => notificationKindLabel(t, mail.kind) },
+          sendStatusColumn,
+          {
+            header: t("label-credit-registration-handed-over"),
+            cell: (mail) => <RelativeTime at={mail.send_status.sent_at} />,
+          },
+          retriesColumn,
         ]}
       />
     </section>
@@ -401,6 +451,7 @@ const RegistrationDetailPage: React.FC = () => {
           <TimelineSection details={details} />
           <ApiCallSection calls={details.suotar_api_calls} />
           <LinkingSection mails={details.linking_emails} />
+          <NotificationSection mails={details.notification_emails} />
           <section className={sectionCss}>
             <h2 className={headingCss}>{t("credit-registration-heading-actions")}</h2>
             <AdminTransitionBlock registration={details.registration} />

@@ -217,9 +217,11 @@ impl headless_lms_utils::file_store::FileStore for TempFileStore {
 
     async fn get_direct_download_url(
         &self,
-        _path: &std::path::Path,
+        path: &std::path::Path,
     ) -> headless_lms_utils::prelude::UtilResult<String> {
-        unimplemented!("not reached by these tests")
+        let full_path = self.0.path().join(path);
+        tokio::fs::metadata(&full_path).await?;
+        Ok(format!("file://{}", full_path.display()))
     }
 
     async fn delete(&self, path: &std::path::Path) -> headless_lms_utils::prelude::UtilResult<()> {

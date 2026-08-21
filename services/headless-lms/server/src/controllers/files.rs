@@ -3,6 +3,7 @@ Handlers for HTTP requests to `/api/v0/files`.
 
 */
 use super::helpers::file_uploading;
+use crate::domain::models_requests::{DownloadClaim, JwtKey};
 pub use crate::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
 use crate::prelude::*;
 use actix_files::NamedFile;
@@ -355,6 +356,56 @@ async fn upload_answer_files(
     token.authorized_ok(web::Json(entries))
 }
 
+/// The download claim as it rides in the URL the host puts in a grading request.
+#[derive(Debug, Deserialize)]
+struct DownloadClaimQuery {
+    #[serde(rename = "download-claim")]
+    download_claim: String,
+}
+
+/**
+GET `/api/v0/files/claimed/:file_upload_id?download-claim=:jwt`
+Redirects to one host-stored file, authorized by a claim naming that file.
+
+Used by exercise services grading a file-typed answer: the claim, not a session, is the
+authorization, and it names a single file so a service cannot reach any other one.
+*/
+#[instrument(skip(file_store, jwt_key, query))]
+async fn redirect_claimed_file(
+    file_upload_id: web::Path<Uuid>,
+    query: web::Query<DownloadClaimQuery>,
+    pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
+    jwt_key: web::Data<JwtKey>,
+) -> ControllerResult<HttpResponse> {
+    // accessed from exercise services, which cannot authenticate using login
+    let token = skip_authorize();
+    let claim = DownloadClaim::validate(&query.download_claim, &jwt_key)?;
+    if claim.file_upload_id() != *file_upload_id {
+        return Err(controller_err!(
+            BadRequest,
+            "Download claim does not match the requested file".to_string()
+        ));
+    }
+
+    let mut conn = pool.acquire().await?;
+    let file = models::file_uploads::get_many(&mut conn, &[*file_upload_id])
+        .await?
+        .pop()
+        .ok_or_else(|| controller_err!(NotFound, "File not found".to_string()))?;
+    let url = file_store
+        .get_direct_download_url(Path::new(&file.path))
+        .await
+        .map_err(|err| controller_err!(NotFound, "File not found".to_string(), err))?;
+
+    token.authorized_ok(
+        HttpResponse::Found()
+            .append_header(("location", url))
+            .append_header(("cache-control", "max-age=300, private"))
+            .finish(),
+    )
+}
+
 /// Who an answer upload is bound to, and where its objects are stored.
 struct AnswerUploadDestination {
     exercise_id: Uuid,
@@ -419,6 +470,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/answer-uploads/{exercise_task_id}",
             web::post().to(upload_answer_files),
+        )
+        .route(
+            "/claimed/{file_upload_id}",
+            web::get().to(redirect_claimed_file),
         )
         .route(
             "/{exercise_service_slug}",
@@ -681,5 +736,202 @@ mod answer_upload_tests {
             assert_eq!(origin, "iframe");
         }
         check.rollback().await;
+    }
+}
+
+#[cfg(test)]
+mod claimed_file_tests {
+    use super::*;
+    use crate::domain::models_requests::DOWNLOAD_CLAIM_PARAM;
+    use crate::test_helper::*;
+    use actix_web::http::StatusCode;
+    use actix_web::{App, test};
+    use std::sync::Arc;
+
+    macro_rules! claimed_files_app {
+        ($file_store:expr) => {{
+            let pool = PgPool::connect(&test_database_url()).await.expect("pool");
+            test::init_service(
+                App::new()
+                    .app_data(web::Data::new(pool))
+                    .app_data(web::Data::from($file_store))
+                    .app_data(web::Data::new(JwtKey::test_key()))
+                    .service(web::scope("/api/v0/files").configure(_add_routes)),
+            )
+            .await
+        }};
+    }
+
+    fn claimed_uri(file_upload_id: Uuid, claim: &str) -> String {
+        format!("/api/v0/files/claimed/{file_upload_id}?{DOWNLOAD_CLAIM_PARAM}={claim}")
+    }
+
+    fn claim_for(file_upload_id: Uuid) -> String {
+        DownloadClaim::expiring_in_1_day(file_upload_id)
+            .sign(&JwtKey::test_key())
+            .expect("signing should succeed")
+    }
+
+    /// A stored object with a `file_uploads` row pointing at it.
+    async fn stored_file(store: &Arc<dyn FileStore>) -> (String, Uuid) {
+        let path = format!("claimed-file-tests/{}.txt", Uuid::new_v4());
+        store
+            .upload(Path::new(&path), b"contents".to_vec(), "text/plain")
+            .await
+            .expect("the stored object");
+        let id = insert_file_upload(&path).await;
+        (path, id)
+    }
+
+    /// Records a stored object, committing so the handler's own connection can see it.
+    async fn insert_file_upload(path: &str) -> Uuid {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let id = models::file_uploads::insert(
+            tx.as_mut(),
+            "answer.txt",
+            path,
+            "text/plain",
+            None,
+            Some(8),
+        )
+        .await
+        .expect("the file upload row");
+        tx.commit().await;
+        id
+    }
+
+    async fn soft_delete_file_upload(id: Uuid) {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        models::file_uploads::delete_and_fetch_path(tx.as_mut(), id)
+            .await
+            .expect("the file upload row");
+        tx.commit().await;
+    }
+
+    #[actix_web::test]
+    async fn a_claimed_file_redirects_to_the_store_url() {
+        let store: Arc<dyn FileStore> = Arc::new(temp_file_store());
+        let (path, id) = stored_file(&store).await;
+        let expected_url = store
+            .get_direct_download_url(Path::new(&path))
+            .await
+            .expect("the store url");
+        let app = claimed_files_app!(Arc::clone(&store));
+
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&claimed_uri(id, &claim_for(id)))
+                .to_request(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::FOUND);
+        assert_eq!(
+            response
+                .headers()
+                .get("location")
+                .expect("a location header"),
+            expected_url.as_str()
+        );
+    }
+
+    /// Naming a single file is what keeps a service from reaching any other one, so a claim must
+    /// not authorize the file the path names.
+    #[actix_web::test]
+    async fn a_claim_for_another_file_is_rejected() {
+        let store: Arc<dyn FileStore> = Arc::new(temp_file_store());
+        let (_path, id) = stored_file(&store).await;
+        let app = claimed_files_app!(Arc::clone(&store));
+
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&claimed_uri(id, &claim_for(Uuid::new_v4())))
+                .to_request(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    #[actix_web::test]
+    async fn a_tampered_claim_is_rejected() {
+        let store: Arc<dyn FileStore> = Arc::new(temp_file_store());
+        let app = claimed_files_app!(Arc::clone(&store));
+        let id = Uuid::new_v4();
+        let mut claim = claim_for(id);
+        claim.pop();
+
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&claimed_uri(id, &claim))
+                .to_request(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    #[actix_web::test]
+    async fn a_request_without_a_claim_is_rejected() {
+        let store: Arc<dyn FileStore> = Arc::new(temp_file_store());
+        let app = claimed_files_app!(Arc::clone(&store));
+
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&format!("/api/v0/files/claimed/{}", Uuid::new_v4()))
+                .to_request(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[actix_web::test]
+    async fn a_soft_deleted_file_is_not_found() {
+        let store: Arc<dyn FileStore> = Arc::new(temp_file_store());
+        let (_path, id) = stored_file(&store).await;
+        soft_delete_file_upload(id).await;
+        let app = claimed_files_app!(Arc::clone(&store));
+
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&claimed_uri(id, &claim_for(id)))
+                .to_request(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+
+    /// A literal first segment must reach this handler rather than the catch-all, which serves any
+    /// path with no authorization at all.
+    #[actix_web::test]
+    async fn the_claimed_file_path_is_not_shadowed_by_the_catch_all() {
+        let store: Arc<dyn FileStore> = Arc::new(temp_file_store());
+        let path = format!("claimed/{}", Uuid::new_v4());
+        store
+            .upload(Path::new(&path), b"contents".to_vec(), "text/plain")
+            .await
+            .expect("the stored object");
+        let app = claimed_files_app!(Arc::clone(&store));
+
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&format!("/api/v0/files/{path}"))
+                .to_request(),
+        )
+        .await;
+
+        // Reaching the catch-all would redirect to the object that is really there; this handler
+        // instead refuses a request carrying no claim.
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     }
 }

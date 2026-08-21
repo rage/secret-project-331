@@ -56,7 +56,7 @@ pub async fn process_submission(
         submission,
         GradingPolicy::Default,
         models_requests::fetch_service_info,
-        models_requests::make_grading_request_sender(jwt_key),
+        models_requests::make_grading_request_sender(jwt_key, app_conf.base_url.clone()),
         file_store,
         app_conf,
     )

@@ -14,6 +14,57 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v0/files/answer-uploads/{exercise_task_id}": {
+      "post": {
+        "tags": ["files"],
+        "summary": "\nPOST `/api/v0/files/answer-uploads/:exercise_task_id`\nUsed to upload the files a student is attaching to an answer for the given exercise task.\n\nUnlike `POST /api/v0/files/:exercise_service_slug` this binds every stored file to the uploader and\nthe task's exercise, which is what lets a later submission verify that the answer only names files\nthe submitter uploaded for that exercise.\n\n# Returns\nAn ordered list of `file_uploads` ids and stored URLs, in the order the parts were sent.",
+        "operationId": "uploadFilesForExerciseAnswer",
+        "parameters": [
+          {
+            "name": "exercise_task_id",
+            "in": "path",
+            "description": "Exercise task the files are attached to",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "format": "binary"
+                },
+                "propertyNames": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseServiceUploadResultEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/files/{exercise_service_slug}": {
       "post": {
         "tags": ["files"],
@@ -21262,10 +21313,12 @@
       },
       "ExerciseServiceUploadResultEntry": {
         "type": "object",
+        "description": "What an upload route returns for one stored file: the `file_uploads` row id an answer names it\nby, and the URL it can be fetched from.",
         "required": ["id", "url"],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
           "url": {
             "type": "string"

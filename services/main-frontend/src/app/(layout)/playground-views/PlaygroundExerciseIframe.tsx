@@ -14,7 +14,7 @@ import type {
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import { uploadFilesFromExerciseIframe } from "@/utils/uploadFilesFromExerciseIframe"
+import { uploadFilesFromExerciseServiceIframe } from "@/utils/uploadFilesFromExerciseIframe"
 
 interface PlaygroundExerciseIframeProps {
   url: string
@@ -83,7 +83,7 @@ const PlaygroundExerciseIframe: React.FC<
             } else if (msg.message === "file-upload") {
               let response: MessageToIframe
               try {
-                const files = await uploadFilesFromExerciseIframe("playground", msg.files)
+                const files = await uploadFilesFromExerciseServiceIframe("playground", msg.files)
                 response = {
                   // oxlint-disable-next-line i18next/no-literal-string
                   message: "upload-result",

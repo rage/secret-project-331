@@ -19,11 +19,10 @@ import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
   EXERCISE_IFRAME_QUEUE_ID,
 } from "@/stores/course-material/throttledRendererStore"
-import { uploadFilesFromExerciseIframe } from "@/utils/uploadFilesFromExerciseIframe"
+import { uploadFilesForExerciseTaskAnswer } from "@/utils/uploadFilesFromExerciseIframe"
 
 interface ExerciseTaskIframeProps {
   exerciseTaskId: string
-  exerciseServiceSlug: string
   url: string
   postThisStateToIFrame: ExerciseIframeState | null
   setAnswer:
@@ -35,12 +34,11 @@ interface ExerciseTaskIframeProps {
 
 /**
  * Upload files on the iframe's behalf (plugins never store data themselves) and return the stored
- * ordered host-assigned id/URL entries. A logged-in student is authorized to upload to the exercise
- * service's slug.
+ * ordered host-assigned id/URL entries. A logged-in student is authorized to upload files bound to
+ * their own exercise task.
  */
 const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframeProps>> = ({
   exerciseTaskId,
-  exerciseServiceSlug,
   url,
   postThisStateToIFrame,
   setAnswer,
@@ -64,8 +62,8 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       } else if (messageContainer.message === "file-upload") {
         let response: MessageToIframe
         try {
-          const files = await uploadFilesFromExerciseIframe(
-            exerciseServiceSlug,
+          const files = await uploadFilesForExerciseTaskAnswer(
+            exerciseTaskId,
             messageContainer.files,
           )
           response = {
@@ -88,7 +86,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
         responsePort.postMessage(response)
       }
     },
-    [setAnswer, exerciseServiceSlug],
+    [setAnswer, exerciseTaskId],
   )
 
   const childFactory = useCallback<ChildFactoryWithCallback>(

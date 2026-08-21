@@ -3078,8 +3078,12 @@ export const zExerciseServiceNewOrUpdate = z.object({
   slug: z.string(),
 })
 
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
 export const zExerciseServiceUploadResultEntry = z.object({
-  id: z.string(),
+  id: z.uuid(),
   url: z.string(),
 })
 
@@ -6041,6 +6045,17 @@ export const zVerifyEmailOwnershipPayload = z.object({
  * indistinguishable to someone typing digits, and telling them apart only helps a guesser.
  */
 export const zVerifyEmailOwnershipResult = z.enum(["verified", "already_verified", "invalid"])
+
+export const zUploadFilesForExerciseAnswerBody = z.record(z.string(), z.string())
+
+export const zUploadFilesForExerciseAnswerPath = z.object({
+  exercise_task_id: z.uuid(),
+})
+
+/**
+ * Uploaded files
+ */
+export const zUploadFilesForExerciseAnswerResponse = z.array(zExerciseServiceUploadResultEntry)
 
 export const zUploadFilesFromExerciseServiceBody = z.record(z.string(), z.string())
 

@@ -388,6 +388,7 @@ import {
   updatePlaygroundExample,
   updateUserInfo,
   uploadCourseMedia,
+  uploadFilesForExerciseAnswer,
   uploadFilesFromExerciseService,
   upsertCoursePartnersBlock,
   verifyEmailOwnership,
@@ -1082,12 +1083,48 @@ import type {
   UpdateUserInfoResponse,
   UploadCourseMediaData,
   UploadCourseMediaResponse,
+  UploadFilesForExerciseAnswerData,
+  UploadFilesForExerciseAnswerResponse,
   UploadFilesFromExerciseServiceData,
   UploadFilesFromExerciseServiceResponse,
   UpsertCoursePartnersBlockData,
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipResponse,
 } from "../types.generated"
+
+/**
+ *
+ * POST `/api/v0/files/answer-uploads/:exercise_task_id`
+ * Used to upload the files a student is attaching to an answer for the given exercise task.
+ *
+ * Unlike `POST /api/v0/files/:exercise_service_slug` this binds every stored file to the uploader and
+ * the task's exercise, which is what lets a later submission verify that the answer only names files
+ * the submitter uploaded for that exercise.
+ *
+ * # Returns
+ * An ordered list of `file_uploads` ids and stored URLs, in the order the parts were sent.
+ */
+export const uploadFilesForExerciseAnswerMutation = (
+  options?: Partial<Options<UploadFilesForExerciseAnswerData>>,
+): UseMutationOptions<
+  UploadFilesForExerciseAnswerResponse,
+  DefaultError,
+  Options<UploadFilesForExerciseAnswerData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UploadFilesForExerciseAnswerResponse,
+    DefaultError,
+    Options<UploadFilesForExerciseAnswerData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await uploadFilesForExerciseAnswer({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

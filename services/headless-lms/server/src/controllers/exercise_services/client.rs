@@ -18,7 +18,7 @@ use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use actix_web::FromRequest;
 use exercise_services_api as api;
-use headless_lms_models::exercise_service_client_uploads::ClientUpload;
+use headless_lms_models::exercise_answer_uploads::AnswerUpload;
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::UserExerciseState;
 use models::CourseOrExamId;
@@ -716,7 +716,7 @@ async fn build_user_answer(
 /// uploading again.
 fn verify_uploads_are_usable(
     requested: &[Uuid],
-    found: &[ClientUpload],
+    found: &[AnswerUpload],
 ) -> Result<(), ControllerError> {
     for id in requested {
         match found.iter().find(|upload| &upload.file_upload_id == id) {
@@ -764,7 +764,7 @@ async fn verify_uploads_belong_to_exercise(
     requested: &[Uuid],
 ) -> Result<(), ControllerError> {
     verify_uploads_are_distinct(requested)?;
-    let recorded = models::exercise_service_client_uploads::get_for_exercise_and_user(
+    let recorded = models::exercise_answer_uploads::get_for_exercise_and_user(
         conn,
         exercise_id,
         user_id,
@@ -893,7 +893,7 @@ async fn upload_exercise_files(
     let files = uploads
         .into_iter()
         .map(|upload| api::UploadedFile {
-            id: upload.file_upload_id,
+            id: upload.entry.id,
             name: upload.name,
             download_url: upload.entry.url,
         })
@@ -928,12 +928,13 @@ async fn store_client_uploads(
     let mut tx = conn.begin().await?;
     let uploads =
         file_uploading::record_exercise_service_upload(&mut tx, streamed, Some(user_id)).await?;
-    let file_upload_ids: Vec<Uuid> = uploads.iter().map(|u| u.file_upload_id).collect();
-    models::exercise_service_client_uploads::insert_many(
+    let file_upload_ids: Vec<Uuid> = uploads.iter().map(|u| u.entry.id).collect();
+    models::exercise_answer_uploads::insert_many(
         &mut tx,
         exercise_id,
         user_id,
         &file_upload_ids,
+        models::exercise_answer_uploads::AnswerUploadOrigin::NativeClient,
     )
     .await?;
     tx.commit().await?;
@@ -1038,7 +1039,7 @@ async fn submit_exercise(
     // reaper may have retired an upload in the meantime. Re-check under a row lock the reaper
     // honours, inside the transaction that records the association, so no interleaving can
     // produce a 200 for a submission whose files are gone.
-    let locked = models::exercise_service_client_uploads::lock_for_exercise_and_user(
+    let locked = models::exercise_answer_uploads::lock_for_exercise_and_user(
         &mut tx,
         exercise.id,
         user.id,
@@ -1670,11 +1671,11 @@ mod tests {
         let first = Uuid::new_v4();
         let second = Uuid::new_v4();
         let found = vec![
-            ClientUpload {
+            AnswerUpload {
                 file_upload_id: second,
                 deleted: false,
             },
-            ClientUpload {
+            AnswerUpload {
                 file_upload_id: first,
                 deleted: false,
             },
@@ -1705,7 +1706,7 @@ mod tests {
         let reaped = Uuid::new_v4();
         let error = verify_uploads_are_usable(
             &[reaped],
-            &[ClientUpload {
+            &[AnswerUpload {
                 file_upload_id: reaped,
                 deleted: true,
             }],
@@ -1722,11 +1723,11 @@ mod tests {
         let good = Uuid::new_v4();
         let reaped = Uuid::new_v4();
         let found = vec![
-            ClientUpload {
+            AnswerUpload {
                 file_upload_id: good,
                 deleted: false,
             },
-            ClientUpload {
+            AnswerUpload {
                 file_upload_id: reaped,
                 deleted: true,
             },
@@ -1883,7 +1884,6 @@ mod upload_tests {
     use headless_lms_base::config::{
         ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
     };
-    use headless_lms_utils::prelude::UtilResult;
     use models::exercise_slide_submissions::NewExerciseSlideSubmission;
     use models::exercise_task_gradings::UserPointsUpdateStrategy;
     use secrecy::SecretString;
@@ -1946,69 +1946,6 @@ mod upload_tests {
         )
     }
 
-    /// Writes into a temp dir. `LocalFileStore` is unusable here because it demands the
-    /// `HEADLESS_LMS_CACHE_FILES_PATH` env var, and mutating the environment from a test that runs
-    /// alongside others is worse than implementing the three methods these tests reach.
-    pub(super) struct TempFileStore(pub(super) tempfile::TempDir);
-
-    #[async_trait::async_trait(?Send)]
-    impl FileStore for TempFileStore {
-        async fn upload(
-            &self,
-            path: &std::path::Path,
-            contents: Vec<u8>,
-            _mime_type: &str,
-        ) -> UtilResult<()> {
-            let full = self.0.path().join(path);
-            if let Some(parent) = full.parent() {
-                tokio::fs::create_dir_all(parent).await?;
-            }
-            tokio::fs::write(full, contents).await?;
-            Ok(())
-        }
-
-        async fn upload_stream(
-            &self,
-            path: &std::path::Path,
-            mut contents: headless_lms_utils::file_store::GenericPayload,
-            mime_type: &str,
-        ) -> UtilResult<()> {
-            use futures::StreamExt;
-            let mut bytes = Vec::new();
-            while let Some(chunk) = contents.next().await {
-                bytes.extend_from_slice(&chunk?);
-            }
-            self.upload(path, bytes, mime_type).await
-        }
-
-        async fn download(&self, path: &std::path::Path) -> UtilResult<Vec<u8>> {
-            Ok(tokio::fs::read(self.0.path().join(path)).await?)
-        }
-
-        async fn download_stream(
-            &self,
-            _path: &std::path::Path,
-        ) -> UtilResult<Box<dyn futures::Stream<Item = std::io::Result<bytes::Bytes>>>> {
-            unimplemented!("not reached by these tests")
-        }
-
-        async fn get_direct_download_url(&self, _path: &std::path::Path) -> UtilResult<String> {
-            unimplemented!("not reached by these tests")
-        }
-
-        async fn delete(&self, path: &std::path::Path) -> UtilResult<()> {
-            Ok(tokio::fs::remove_file(self.0.path().join(path)).await?)
-        }
-
-        fn get_cache_files_folder_path(&self) -> UtilResult<&std::path::Path> {
-            Ok(self.0.path())
-        }
-    }
-
-    pub(super) fn file_store() -> TempFileStore {
-        TempFileStore(tempfile::tempdir().expect("temp dir"))
-    }
-
     async fn insert_task_submission(
         conn: &mut PgConnection,
         course_id: Uuid,
@@ -2051,7 +1988,7 @@ mod upload_tests {
     #[actix_web::test]
     async fn the_files_route_stores_and_binds_every_part() {
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
-        let store = file_store();
+        let store = temp_file_store();
         let first = Uuid::new_v4();
         let second = Uuid::new_v4();
         let mut uploaded_paths = Vec::new();
@@ -2069,20 +2006,14 @@ mod upload_tests {
         .expect("the upload succeeds");
 
         assert_eq!(
-            uploads
-                .iter()
-                .map(|u| (u.entry.id.as_str(), u.name.as_str()))
-                .collect::<Vec<_>>(),
-            vec![
-                (first.to_string().as_str(), "a.tar.zst"),
-                (second.to_string().as_str(), "b.txt")
-            ]
+            uploads.iter().map(|u| u.name.as_str()).collect::<Vec<_>>(),
+            vec!["a.tar.zst", "b.txt"]
         );
         // The ids the client submits with are the host's, not the field names it chose.
         assert!(
             uploads
                 .iter()
-                .all(|u| u.file_upload_id.to_string() != u.entry.id)
+                .all(|u| u.entry.id != first && u.entry.id != second)
         );
         assert!(
             uploads
@@ -2090,7 +2021,7 @@ mod upload_tests {
                 .all(|u| u.entry.url.contains(CLIENT_UPLOAD_PATH_PREFIX))
         );
 
-        let ids: Vec<Uuid> = uploads.iter().map(|u| u.file_upload_id).collect();
+        let ids: Vec<Uuid> = uploads.iter().map(|u| u.entry.id).collect();
         assert_eq!(
             models::file_uploads::get_many(tx.as_mut(), &ids)
                 .await
@@ -2111,7 +2042,7 @@ mod upload_tests {
     #[actix_web::test]
     async fn every_stored_object_is_recorded_for_cleanup() {
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
-        let store = file_store();
+        let store = temp_file_store();
         let mut uploaded_paths = Vec::new();
 
         let uploads = store_client_uploads(
@@ -2131,7 +2062,7 @@ mod upload_tests {
 
         let recorded: Vec<&str> = uploaded_paths.iter().map(|p| p.path.as_str()).collect();
         assert_eq!(recorded.len(), uploads.len());
-        let ids: Vec<Uuid> = uploads.iter().map(|u| u.file_upload_id).collect();
+        let ids: Vec<Uuid> = uploads.iter().map(|u| u.entry.id).collect();
         for file in models::file_uploads::get_many(tx.as_mut(), &ids)
             .await
             .expect("file uploads")
@@ -2198,11 +2129,12 @@ mod upload_tests {
         )
         .await
         .expect("file upload");
-        models::exercise_service_client_uploads::insert_many(
+        models::exercise_answer_uploads::insert_many(
             tx.as_mut(),
             exercise,
             user,
             &[file_id],
+            models::exercise_answer_uploads::AnswerUploadOrigin::NativeClient,
         )
         .await
         .expect("binding");
@@ -2246,17 +2178,20 @@ mod upload_tests {
         )
         .await
         .expect("file upload");
-        models::exercise_service_client_uploads::insert_many(
+        models::exercise_answer_uploads::insert_many(
             tx.as_mut(),
             exercise,
             user,
             &[file_id],
+            models::exercise_answer_uploads::AnswerUploadOrigin::NativeClient,
         )
         .await
         .expect("binding");
-        sqlx::query("UPDATE exercise_service_client_uploads SET deleted_at = now() WHERE file_upload_id = $1")
-            .bind(file_id)
-            .execute(&mut **tx.as_mut())
+        sqlx::query(
+            "UPDATE exercise_answer_uploads SET deleted_at = now() WHERE file_upload_id = $1",
+        )
+        .bind(file_id)
+        .execute(&mut **tx.as_mut())
         .await
         .expect("soft delete");
 
@@ -2293,7 +2228,7 @@ mod upload_tests {
             .await
             .expect("associations");
 
-        let store = file_store();
+        let store = temp_file_store();
         let files = models::exercise_task_submission_files::get_by_task_submission_ids(
             tx.as_mut(),
             &[submission_id],
@@ -2333,7 +2268,7 @@ mod upload_tests {
     /// list rather than the 404 the single-archive contract had to return.
     #[test]
     fn download_reports_an_empty_list_rather_than_failing() {
-        let store = file_store();
+        let store = temp_file_store();
         let response = submission_files_response(Vec::new(), &store, &app_conf());
         assert!(response.files.is_empty());
     }
@@ -2582,9 +2517,7 @@ mod route_tests {
     /// The routes under a real actix app, with the app data every extractor and handler reads.
     macro_rules! client_api_app {
         () => {{
-            let file_store: Arc<dyn FileStore> = Arc::new(upload_tests::TempFileStore(
-                tempfile::tempdir().expect("temp dir"),
-            ));
+            let file_store: Arc<dyn FileStore> = Arc::new(temp_file_store());
             client_api_app!(file_store)
         }};
         ($file_store:expr) => {{
@@ -2699,7 +2632,7 @@ mod route_tests {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
         let ids: Vec<Uuid> = body.files.iter().map(|file| file.id).collect();
-        let recorded = models::exercise_service_client_uploads::get_for_exercise_and_user(
+        let recorded = models::exercise_answer_uploads::get_for_exercise_and_user(
             tx.as_mut(),
             fixture.exercise,
             fixture.user,
@@ -2796,7 +2729,7 @@ mod route_tests {
         let fixture = committed_fixture(true).await;
         let store_dir = tempfile::tempdir().expect("temp dir");
         let store_path = store_dir.path().to_path_buf();
-        let app = client_api_app!(Arc::new(upload_tests::TempFileStore(store_dir)));
+        let app = client_api_app!(Arc::new(crate::test_helper::TempFileStore(store_dir)));
 
         let mut body = String::new();
         body.push_str(&format!("--{BOUNDARY}\r\n"));
@@ -2962,7 +2895,7 @@ mod route_tests {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
         sqlx::query(
-            "UPDATE exercise_service_client_uploads SET deleted_at = now() WHERE file_upload_id = $1",
+            "UPDATE exercise_answer_uploads SET deleted_at = now() WHERE file_upload_id = $1",
         )
         .bind(ids[0])
         .execute(&mut **tx.as_mut())
@@ -3123,7 +3056,7 @@ mod route_tests {
                 .await
                 .expect("reaper connection");
             sqlx::query(
-                "UPDATE exercise_service_client_uploads SET deleted_at = now() WHERE file_upload_id = ANY($1)",
+                "UPDATE exercise_answer_uploads SET deleted_at = now() WHERE file_upload_id = ANY($1)",
             )
             .bind(&reap)
             .execute(&mut conn)
@@ -3568,7 +3501,7 @@ mod route_tests {
         let fixture = committed_fixture_with_service(true, Some(url)).await;
         open_exercise(&fixture).await;
 
-        let store: Arc<dyn FileStore> = Arc::new(upload_tests::TempFileStore(
+        let store: Arc<dyn FileStore> = Arc::new(crate::test_helper::TempFileStore(
             tempfile::tempdir().expect("temp dir"),
         ));
         let app = client_api_app!(store.clone());
@@ -3629,7 +3562,7 @@ mod route_tests {
         let fixture = committed_fixture_with_service(true, Some(url)).await;
         open_exercise(&fixture).await;
 
-        submit_from_the_iframe(&fixture, browser_answer(), &upload_tests::file_store()).await;
+        submit_from_the_iframe(&fixture, browser_answer(), &temp_file_store()).await;
 
         let request = state.calls(&state.answer_files_requests);
         assert_eq!(request[0]["answer"], browser_answer());
@@ -3655,7 +3588,7 @@ mod route_tests {
         .expect("clear endpoint");
 
         let from_iframe =
-            submit_from_the_iframe(&fixture, browser_answer(), &upload_tests::file_store()).await;
+            submit_from_the_iframe(&fixture, browser_answer(), &temp_file_store()).await;
         let app = client_api_app!();
         let body = download(&app, &fixture.token, from_iframe).await;
         assert_eq!(body, serde_json::json!({ "files": [] }));

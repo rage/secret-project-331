@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_answer_uploads (file_upload_id, exercise_id, user_id, origin)\nSELECT file_upload_id,\n  $2,\n  $3,\n  $4\nFROM UNNEST($1::uuid []) AS t(file_upload_id)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "answer_upload_origin",
+            "kind": {
+              "Enum": [
+                "native_client",
+                "iframe"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "89c04a1e097bf0017c4ffa1dbb2530041a3239a00e82a5973a954ccdcbc845e5"
+}

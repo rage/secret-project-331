@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: exercise-service-client-upload-reaper
+  name: exercise-answer-upload-reaper
   labels:
-    app: exercise-service-client-upload-reaper
+    app: exercise-answer-upload-reaper
     deploymentType: with-init-container-cronjob
     needs-db: "job"
 spec:
@@ -19,9 +19,9 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
-            - name: exercise-service-client-upload-reaper
+            - name: exercise-answer-upload-reaper
               image: headless-lms
-              command: ["bin/run", "exercise-service-client-upload-reaper"]
+              command: ["bin/run", "exercise-answer-upload-reaper"]
               resources:
                 requests:
                   memory: 200Mi

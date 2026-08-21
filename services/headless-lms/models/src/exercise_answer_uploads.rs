@@ -1,19 +1,33 @@
-//! Files uploaded through the exercise-services client API, bound to the exercise and user
-//! they were uploaded for.
+//! Files uploaded to be named in an exercise answer, bound to the exercise and user they were
+//! uploaded for.
 //!
 //! The binding is what lets submit reject a file uploaded for a different exercise; ownership
 //! alone would let any exercise's submission name any of the user's uploads. It lives in its own
 //! table rather than as a nullable column on `file_uploads` because `file_uploads` is shared with
-//! CMS media, organization images, certificates and iframe-uploaded answer files, and the reaper's
-//! safety depends on the distinction being structural.
+//! CMS media, organization images and certificates, and the reaper's safety depends on the
+//! distinction being structural.
 
 use crate::prelude::*;
-use chrono::Duration;
 
-/// A client upload as seen by submit validation. `deleted` distinguishes a reaped upload
+/// Cap on one reaper run's listing, bounding its object-store fan-out and its runtime under the
+/// CronJob deadline. A backlog is worked off over successive runs.
+const REAP_BATCH_LIMIT: i64 = 1000;
+
+/// The channel a file was uploaded through. Selects the reaper's retention window: a native client
+/// uploads seconds before submitting, while an iframe student may hold an upload for the length of
+/// an exam.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[sqlx(type_name = "answer_upload_origin", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+pub enum AnswerUploadOrigin {
+    NativeClient,
+    Iframe,
+}
+
+/// An answer upload as seen by submit validation. `deleted` distinguishes a reaped upload
 /// (answerable with `upload_expired`) from one that was never recorded.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ClientUpload {
+pub struct AnswerUpload {
     pub file_upload_id: Uuid,
     pub deleted: bool,
 }
@@ -24,18 +38,21 @@ pub async fn insert_many(
     exercise_id: Uuid,
     user_id: Uuid,
     file_upload_ids: &[Uuid],
+    origin: AnswerUploadOrigin,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
-INSERT INTO exercise_service_client_uploads (file_upload_id, exercise_id, user_id)
+INSERT INTO exercise_answer_uploads (file_upload_id, exercise_id, user_id, origin)
 SELECT file_upload_id,
   $2,
-  $3
+  $3,
+  $4
 FROM UNNEST($1::uuid []) AS t(file_upload_id)
 ",
         file_upload_ids,
         exercise_id,
-        user_id
+        user_id,
+        origin
     )
     .execute(conn)
     .await?;
@@ -52,12 +69,12 @@ pub async fn get_for_exercise_and_user(
     exercise_id: Uuid,
     user_id: Uuid,
     file_upload_ids: &[Uuid],
-) -> ModelResult<Vec<ClientUpload>> {
+) -> ModelResult<Vec<AnswerUpload>> {
     let res = sqlx::query!(
         "
 SELECT file_upload_id,
   deleted_at
-FROM exercise_service_client_uploads
+FROM exercise_answer_uploads
 WHERE file_upload_id = ANY($1)
   AND exercise_id = $2
   AND user_id = $3
@@ -70,7 +87,7 @@ WHERE file_upload_id = ANY($1)
     .await?;
     Ok(res
         .into_iter()
-        .map(|row| ClientUpload {
+        .map(|row| AnswerUpload {
             file_upload_id: row.file_upload_id,
             deleted: row.deleted_at.is_some(),
         })
@@ -89,12 +106,12 @@ pub async fn lock_for_exercise_and_user(
     exercise_id: Uuid,
     user_id: Uuid,
     file_upload_ids: &[Uuid],
-) -> ModelResult<Vec<ClientUpload>> {
+) -> ModelResult<Vec<AnswerUpload>> {
     let res = sqlx::query!(
         "
 SELECT file_upload_id,
   deleted_at
-FROM exercise_service_client_uploads
+FROM exercise_answer_uploads
 WHERE file_upload_id = ANY($1)
   AND exercise_id = $2
   AND user_id = $3
@@ -108,17 +125,11 @@ FOR UPDATE
     .await?;
     Ok(res
         .into_iter()
-        .map(|row| ClientUpload {
+        .map(|row| AnswerUpload {
             file_upload_id: row.file_upload_id,
             deleted: row.deleted_at.is_some(),
         })
         .collect())
-}
-
-/// Oldest upload time the reaper still spares. Kept short because an upload is only ever meant
-/// to live for the few seconds between a client's upload call and its submit call.
-pub fn retention_cutoff(now: DateTime<Utc>) -> DateTime<Utc> {
-    now - Duration::hours(1)
 }
 
 /// An upload the reaper may remove: old enough, and named by no submission.
@@ -130,33 +141,33 @@ pub struct ReapableUpload {
     pub path: String,
 }
 
-/// Client uploads created before `cutoff` that no submission was ever made from.
+/// Answer uploads past their origin's retention window that no submission was ever made from,
+/// oldest first, at most [`REAP_BATCH_LIMIT`] of them.
 ///
-/// `FROM exercise_service_client_uploads` is the safety property of this whole feature, not an
-/// optimisation: `file_uploads` also holds CMS media, organization images, certificates and
-/// iframe-uploaded answer files, and iframe uploads are referenced only from inside opaque
-/// answer blobs the host cannot parse, so the host cannot tell whether one is still needed.
-/// Widening this query to `file_uploads` would silently destroy student answers and course
-/// media. Never do it.
+/// `FROM exercise_answer_uploads` is the safety property of this whole feature, not an
+/// optimisation: `file_uploads` also holds CMS media, organization images and certificates, none
+/// of which are bound here, so the host cannot tell whether one is still needed. Widening this
+/// query to `file_uploads` would silently destroy course media. Never do it.
 ///
 /// Progress is tracked by `file_uploads.deleted_at`, not by the binding's: the binding is retired
 /// first and the object removed afterwards, so a row whose object delete failed still has a live
 /// `file_uploads` row and comes back on the next run. Filtering on `u.deleted_at IS NULL` instead
 /// would make every transient object-store error orphan its object permanently.
-pub async fn get_reapable(
-    conn: &mut PgConnection,
-    cutoff: DateTime<Utc>,
-) -> ModelResult<Vec<ReapableUpload>> {
+pub async fn get_reapable(conn: &mut PgConnection) -> ModelResult<Vec<ReapableUpload>> {
     let res = sqlx::query_as!(
         ReapableUpload,
         "
 SELECT u.id,
   u.file_upload_id,
   f.path
-FROM exercise_service_client_uploads AS u
+FROM exercise_answer_uploads AS u
   JOIN file_uploads AS f ON f.id = u.file_upload_id
 WHERE f.deleted_at IS NULL
-  AND u.created_at < $1
+  AND u.created_at < now() - CASE
+    u.origin
+    WHEN 'native_client' THEN interval '1 hour'
+    ELSE interval '7 days'
+  END
   AND NOT EXISTS (
     SELECT 1
     FROM exercise_task_submission_files AS s
@@ -164,8 +175,9 @@ WHERE f.deleted_at IS NULL
       AND s.deleted_at IS NULL
   )
 ORDER BY u.created_at
+LIMIT $1
 ",
-        cutoff
+        REAP_BATCH_LIMIT
     )
     .fetch_all(conn)
     .await?;
@@ -193,7 +205,7 @@ pub async fn mark_reaped(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool>
     let locked = sqlx::query_scalar!(
         "
 SELECT id
-FROM exercise_service_client_uploads
+FROM exercise_answer_uploads
 WHERE id = $1
 FOR UPDATE
 ",
@@ -207,7 +219,7 @@ FOR UPDATE
     }
     let retired = sqlx::query_scalar!(
         "
-UPDATE exercise_service_client_uploads AS u
+UPDATE exercise_answer_uploads AS u
 SET deleted_at = COALESCE(u.deleted_at, now())
 WHERE u.id = $1
   AND NOT EXISTS (
@@ -231,6 +243,7 @@ mod test {
     use super::*;
     use crate::library::grading::SubmittedAnswer;
     use crate::test_helper::*;
+    use chrono::Duration;
 
     async fn insert_file(tx: &mut PgConnection, name: &str) -> Uuid {
         crate::file_uploads::insert(
@@ -250,7 +263,7 @@ mod test {
     /// queries below.
     async fn soft_delete(tx: &mut PgConnection, file_upload_id: Uuid) {
         sqlx::query(
-            "UPDATE exercise_service_client_uploads SET deleted_at = now() WHERE file_upload_id = $1",
+            "UPDATE exercise_answer_uploads SET deleted_at = now() WHERE file_upload_id = $1",
         )
         .bind(file_upload_id)
         .execute(tx)
@@ -278,7 +291,7 @@ mod test {
     async fn backdate(tx: &mut PgConnection, file_upload_id: Uuid, age: Duration) {
         backdate_file(&mut *tx, file_upload_id, age).await;
         sqlx::query(
-            "UPDATE exercise_service_client_uploads SET created_at = now() - $2 WHERE file_upload_id = $1",
+            "UPDATE exercise_answer_uploads SET created_at = now() - $2 WHERE file_upload_id = $1",
         )
         .bind(file_upload_id)
         .bind(age)
@@ -334,13 +347,28 @@ mod test {
         Some(task_submission)
     }
 
-    async fn reapable_file_ids(tx: &mut PgConnection) -> Vec<Uuid> {
-        get_reapable(tx, retention_cutoff(Utc::now()))
+    /// Which of `of_interest` the reaper lists, in listing order. Scoped to the caller's own
+    /// fixtures because the shared test database also holds rows other tests committed.
+    async fn reapable_among(tx: &mut PgConnection, of_interest: &[Uuid]) -> Vec<Uuid> {
+        get_reapable(tx)
             .await
             .unwrap()
             .into_iter()
             .map(|upload| upload.file_upload_id)
+            .filter(|file_upload_id| of_interest.contains(file_upload_id))
             .collect()
+    }
+
+    /// The binding the reaper listed for this file. Panics if it listed none, which is the
+    /// assertion every caller wants first.
+    async fn reapable_binding_of(tx: &mut PgConnection, file_upload_id: Uuid) -> Uuid {
+        get_reapable(tx)
+            .await
+            .unwrap()
+            .into_iter()
+            .find(|upload| upload.file_upload_id == file_upload_id)
+            .expect("the reaper must list this upload")
+            .id
     }
 
     #[tokio::test]
@@ -370,15 +398,33 @@ mod test {
         let mine = insert_file(tx.as_mut(), "mine").await;
         let for_other_exercise = insert_file(tx.as_mut(), "other-exercise").await;
         let for_other_user = insert_file(tx.as_mut(), "other-user").await;
-        insert_many(tx.as_mut(), exercise_id, user_id, &[mine])
-            .await
-            .unwrap();
-        insert_many(tx.as_mut(), other_exercise, user_id, &[for_other_exercise])
-            .await
-            .unwrap();
-        insert_many(tx.as_mut(), exercise_id, other_user, &[for_other_user])
-            .await
-            .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[mine],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
+        insert_many(
+            tx.as_mut(),
+            other_exercise,
+            user_id,
+            &[for_other_exercise],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            other_user,
+            &[for_other_user],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
 
         let found = get_for_exercise_and_user(
             tx.as_mut(),
@@ -390,7 +436,7 @@ mod test {
         .unwrap();
         assert_eq!(
             found,
-            vec![ClientUpload {
+            vec![AnswerUpload {
                 file_upload_id: mine,
                 deleted: false
             }]
@@ -403,9 +449,15 @@ mod test {
     async fn a_soft_deleted_upload_is_still_found_and_flagged() {
         insert_data!(:tx, user:user_id, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:_slide, task:_task);
         let file_id = insert_file(tx.as_mut(), "reaped").await;
-        insert_many(tx.as_mut(), exercise_id, user_id, &[file_id])
-            .await
-            .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[file_id],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
         soft_delete(tx.as_mut(), file_id).await;
 
         let found = get_for_exercise_and_user(tx.as_mut(), exercise_id, user_id, &[file_id])
@@ -413,7 +465,7 @@ mod test {
             .unwrap();
         assert_eq!(
             found,
-            vec![ClientUpload {
+            vec![AnswerUpload {
                 file_upload_id: file_id,
                 deleted: true
             }]
@@ -440,9 +492,15 @@ mod test {
     #[tokio::test]
     async fn inserting_an_empty_list_records_nothing() {
         insert_data!(:tx, user:user_id, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:_slide, task:_task);
-        insert_many(tx.as_mut(), exercise_id, user_id, &[])
-            .await
-            .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
         tx.rollback().await;
     }
 
@@ -451,13 +509,22 @@ mod test {
         insert_data!(:tx, user:user_id, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:_slide, task:_task);
         let just_under = insert_file(tx.as_mut(), "just-under").await;
         let just_over = insert_file(tx.as_mut(), "just-over").await;
-        insert_many(tx.as_mut(), exercise_id, user_id, &[just_under, just_over])
-            .await
-            .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[just_under, just_over],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
         backdate(tx.as_mut(), just_under, Duration::minutes(59)).await;
         backdate(tx.as_mut(), just_over, Duration::minutes(61)).await;
 
-        assert_eq!(reapable_file_ids(tx.as_mut()).await, vec![just_over]);
+        assert_eq!(
+            reapable_among(tx.as_mut(), &[just_under, just_over]).await,
+            vec![just_over]
+        );
         tx.rollback().await;
     }
 
@@ -467,28 +534,29 @@ mod test {
     async fn a_fully_reaped_upload_is_not_reaped_again() {
         insert_data!(:tx, user:user_id, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:_slide, task:_task);
         let file_id = insert_file(tx.as_mut(), "old").await;
-        insert_many(tx.as_mut(), exercise_id, user_id, &[file_id])
-            .await
-            .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[file_id],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
-        assert_eq!(reapable_file_ids(tx.as_mut()).await, vec![file_id]);
-
-        let id = get_reapable(tx.as_mut(), retention_cutoff(Utc::now()))
-            .await
-            .unwrap()[0]
-            .id;
+        let id = reapable_binding_of(tx.as_mut(), file_id).await;
         assert!(mark_reaped(tx.as_mut(), id).await.unwrap());
         // Removing the file row is what records that the object is gone.
         crate::file_uploads::delete_and_fetch_path(tx.as_mut(), file_id)
             .await
             .unwrap();
 
-        assert!(reapable_file_ids(tx.as_mut()).await.is_empty());
+        assert!(reapable_among(tx.as_mut(), &[file_id]).await.is_empty());
         assert_eq!(
             get_for_exercise_and_user(tx.as_mut(), exercise_id, user_id, &[file_id])
                 .await
                 .unwrap(),
-            vec![ClientUpload {
+            vec![AnswerUpload {
                 file_upload_id: file_id,
                 deleted: true
             }]
@@ -501,9 +569,15 @@ mod test {
         insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
         let submitted = insert_file(tx.as_mut(), "submitted").await;
         let orphan = insert_file(tx.as_mut(), "orphan").await;
-        insert_many(tx.as_mut(), exercise_id, user_id, &[submitted, orphan])
-            .await
-            .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[submitted, orphan],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
         backdate(tx.as_mut(), submitted, Duration::hours(2)).await;
         backdate(tx.as_mut(), orphan, Duration::hours(2)).await;
 
@@ -518,23 +592,25 @@ mod test {
         )
         .await;
 
-        assert_eq!(reapable_file_ids(tx.as_mut()).await, vec![orphan]);
+        assert_eq!(
+            reapable_among(tx.as_mut(), &[submitted, orphan]).await,
+            vec![orphan]
+        );
         tx.rollback().await;
     }
 
     /// The load-bearing negative test. `file_uploads` is shared with CMS media, organization
-    /// images and iframe-uploaded student answers, and the host cannot tell whether an iframe
-    /// upload is still referenced, because that reference lives inside an opaque answer blob.
-    /// Anyone widening `get_reapable` to select from `file_uploads` must fail here.
+    /// images and answer files with no binding here, none of which the host can tell are still
+    /// referenced. Anyone widening `get_reapable` to select from `file_uploads` must fail here.
     #[tokio::test]
-    async fn uploads_outside_the_client_api_are_never_reaped() {
+    async fn unbound_uploads_are_never_reaped() {
         insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:_slide, task:_task);
         let org_id = crate::organizations::all_organizations(tx.as_mut())
             .await
             .unwrap()[0]
             .id;
 
-        let iframe_answer =
+        let unbound_answer =
             insert_file_at(tx.as_mut(), "answer.tar.zst", "tmc/AbCdEfGhIjKlMnOp").await;
         let cms_media = insert_file_at(
             tx.as_mut(),
@@ -548,16 +624,29 @@ mod test {
             &format!("organization/{org_id}/images/aBcDeFgHiJ"),
         )
         .await;
-        let client_upload = insert_file(tx.as_mut(), "orphan").await;
-        insert_many(tx.as_mut(), exercise_id, user_id, &[client_upload])
-            .await
-            .unwrap();
-        backdate(tx.as_mut(), client_upload, Duration::hours(2)).await;
-        for foreign in [iframe_answer, cms_media, organization_image] {
+        let bound_upload = insert_file(tx.as_mut(), "orphan").await;
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[bound_upload],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
+        backdate(tx.as_mut(), bound_upload, Duration::hours(2)).await;
+        for foreign in [unbound_answer, cms_media, organization_image] {
             backdate_file(tx.as_mut(), foreign, Duration::hours(2)).await;
         }
 
-        assert_eq!(reapable_file_ids(tx.as_mut()).await, vec![client_upload]);
+        assert_eq!(
+            reapable_among(
+                tx.as_mut(),
+                &[unbound_answer, cms_media, organization_image, bound_upload]
+            )
+            .await,
+            vec![bound_upload]
+        );
         tx.rollback().await;
     }
 
@@ -568,22 +657,25 @@ mod test {
     /// This covers the interleaving logically, in one transaction. The row lock that makes the two
     /// orderings the *only* possibilities needs two connections, and so committed fixtures, which
     /// this harness cannot produce; that half lives in the server crate, as
-    /// `programs::exercise_service_client_upload_reaper`'s
+    /// `programs::exercise_answer_upload_reaper`'s
     /// `a_concurrent_reaper_blocks_on_the_submit_lock_and_then_declines_to_reap`.
     #[tokio::test]
     async fn a_reap_cannot_retire_an_upload_a_submission_just_referenced() {
         insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
         let file_id = insert_file(tx.as_mut(), "raced").await;
-        insert_many(tx.as_mut(), exercise_id, user_id, &[file_id])
-            .await
-            .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[file_id],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
 
         // The reaper lists it while the submit is still validating.
-        let listed = get_reapable(tx.as_mut(), retention_cutoff(Utc::now()))
-            .await
-            .unwrap();
-        assert_eq!(listed.len(), 1);
+        let binding = reapable_binding_of(tx.as_mut(), file_id).await;
 
         // The submit wins the race and records the association.
         let task_submission = insert_task_submission_referencing(
@@ -599,14 +691,14 @@ mod test {
         assert!(task_submission.is_some());
 
         assert!(
-            !mark_reaped(tx.as_mut(), listed[0].id).await.unwrap(),
+            !mark_reaped(tx.as_mut(), binding).await.unwrap(),
             "the reaper must abandon an upload that became referenced after it was listed"
         );
         assert_eq!(
             get_for_exercise_and_user(tx.as_mut(), exercise_id, user_id, &[file_id])
                 .await
                 .unwrap(),
-            vec![ClientUpload {
+            vec![AnswerUpload {
                 file_upload_id: file_id,
                 deleted: false
             }],
@@ -621,14 +713,18 @@ mod test {
     async fn a_locked_lookup_reports_an_upload_the_reaper_already_retired() {
         insert_data!(:tx, user:user_id, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:_slide, task:_task);
         let file_id = insert_file(tx.as_mut(), "reaped-first").await;
-        insert_many(tx.as_mut(), exercise_id, user_id, &[file_id])
-            .await
-            .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[file_id],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
-        let listed = get_reapable(tx.as_mut(), retention_cutoff(Utc::now()))
-            .await
-            .unwrap();
-        assert!(mark_reaped(tx.as_mut(), listed[0].id).await.unwrap());
+        let binding = reapable_binding_of(tx.as_mut(), file_id).await;
+        assert!(mark_reaped(tx.as_mut(), binding).await.unwrap());
 
         let mut inner = tx.begin().await;
         let locked = lock_for_exercise_and_user(inner.as_mut(), exercise_id, user_id, &[file_id])
@@ -636,7 +732,7 @@ mod test {
             .unwrap();
         assert_eq!(
             locked,
-            vec![ClientUpload {
+            vec![AnswerUpload {
                 file_upload_id: file_id,
                 deleted: true
             }]
@@ -651,25 +747,113 @@ mod test {
     async fn mark_reaped_is_idempotent_so_a_failed_object_delete_can_be_retried() {
         insert_data!(:tx, user:user_id, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:_slide, task:_task);
         let file_id = insert_file(tx.as_mut(), "retry").await;
-        insert_many(tx.as_mut(), exercise_id, user_id, &[file_id])
-            .await
-            .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[file_id],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
-        let id = get_reapable(tx.as_mut(), retention_cutoff(Utc::now()))
-            .await
-            .unwrap()[0]
-            .id;
+        let id = reapable_binding_of(tx.as_mut(), file_id).await;
 
         assert!(mark_reaped(tx.as_mut(), id).await.unwrap());
         assert!(mark_reaped(tx.as_mut(), id).await.unwrap());
         // Still listed, because the object delete has not been confirmed by removing the file row.
-        assert_eq!(reapable_file_ids(tx.as_mut()).await, vec![file_id]);
+        assert_eq!(reapable_among(tx.as_mut(), &[file_id]).await, vec![file_id]);
+        tx.rollback().await;
+    }
+
+    /// An iframe student may hold an upload for the length of an exam, so the window that a native
+    /// client's upload is already past must still spare theirs.
+    #[tokio::test]
+    async fn an_iframe_upload_outlives_the_native_client_window() {
+        insert_data!(:tx, user:user_id, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:_slide, task:_task);
+        let native = insert_file(tx.as_mut(), "native").await;
+        let iframe = insert_file(tx.as_mut(), "iframe").await;
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[native],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[iframe],
+            AnswerUploadOrigin::Iframe,
+        )
+        .await
+        .unwrap();
+        backdate(tx.as_mut(), native, Duration::hours(2)).await;
+        backdate(tx.as_mut(), iframe, Duration::hours(2)).await;
+
+        assert_eq!(
+            reapable_among(tx.as_mut(), &[native, iframe]).await,
+            vec![native]
+        );
         tx.rollback().await;
     }
 
     #[tokio::test]
-    async fn the_retention_window_is_one_hour() {
-        let now = Utc::now();
-        assert_eq!(retention_cutoff(now), now - Duration::hours(1));
+    async fn an_iframe_upload_past_seven_days_is_reaped() {
+        insert_data!(:tx, user:user_id, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:_slide, task:_task);
+        let file_id = insert_file(tx.as_mut(), "stale-iframe").await;
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[file_id],
+            AnswerUploadOrigin::Iframe,
+        )
+        .await
+        .unwrap();
+        backdate(tx.as_mut(), file_id, Duration::days(8)).await;
+
+        assert_eq!(reapable_among(tx.as_mut(), &[file_id]).await, vec![file_id]);
+        tx.rollback().await;
+    }
+
+    /// The interlock does not depend on origin: a submission's files are spared however old the
+    /// binding is.
+    #[tokio::test]
+    async fn a_submitted_iframe_upload_is_spared_past_its_window() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        let submitted = insert_file(tx.as_mut(), "submitted-iframe").await;
+        let orphan = insert_file(tx.as_mut(), "orphan-iframe").await;
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[submitted, orphan],
+            AnswerUploadOrigin::Iframe,
+        )
+        .await
+        .unwrap();
+        backdate(tx.as_mut(), submitted, Duration::days(8)).await;
+        backdate(tx.as_mut(), orphan, Duration::days(8)).await;
+
+        insert_task_submission_referencing(
+            tx.as_mut(),
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+            &[submitted],
+        )
+        .await;
+
+        assert_eq!(
+            reapable_among(tx.as_mut(), &[submitted, orphan]).await,
+            vec![orphan]
+        );
+        tx.rollback().await;
     }
 }

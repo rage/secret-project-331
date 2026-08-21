@@ -28,21 +28,17 @@ const EXERCISE_UPLOAD_MAX_FILES: usize = 10;
 const EXERCISE_UPLOAD_MAX_FILE_BYTES: u64 = 100 * 1024 * 1024;
 const EXERCISE_UPLOAD_MAX_BATCH_BYTES: u64 = 100 * 1024 * 1024;
 
+/// What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+/// by, and the URL it can be fetched from.
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct ExerciseServiceUploadResultEntry {
-    pub id: String,
+    pub id: Uuid,
     pub url: String,
 }
 
-/// One stored upload, with the host-side identity the wire result omits.
-///
-/// `entry.id` is the UUID the *caller* chose as the multipart field name, which is all the iframe
-/// protocol needs. A caller that has to reference the file later — the exercise-services client
-/// API, whose submit names uploads by id — needs the `file_uploads` row id and the original file
-/// name instead.
+/// One stored upload, with the original file name the wire result omits.
 pub struct ExerciseServiceUpload {
     pub entry: ExerciseServiceUploadResultEntry,
-    pub file_upload_id: Uuid,
     pub name: String,
 }
 
@@ -56,6 +52,7 @@ struct ExerciseServiceUploadMetadata {
     filename: String,
     mime_type: String,
     size_bytes: i64,
+    url: String,
 }
 
 /// Processes an upload from an exercise service, an exercise iframe or a native client.
@@ -82,8 +79,7 @@ pub async fn process_exercise_service_upload(
 
 /// The parts of an upload that have reached the object store but have no database row yet.
 pub struct StreamedExerciseServiceUpload {
-    results: Vec<ExerciseServiceUploadResultEntry>,
-    metadata: Vec<ExerciseServiceUploadMetadata>,
+    parts: Vec<ExerciseServiceUploadMetadata>,
 }
 
 /// Streams every multipart part to the object store, issuing no statements at all.
@@ -99,8 +95,7 @@ pub async fn stream_exercise_service_upload(
     uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
     base_url: &str,
 ) -> Result<StreamedExerciseServiceUpload, ControllerError> {
-    let mut results = Vec::new();
-    let mut metadata = Vec::new();
+    let mut parts = Vec::new();
     let mut ids = HashSet::new();
     let batch_bytes = Arc::new(AtomicU64::new(0));
     while let Some(item) = payload.next().await {
@@ -111,7 +106,7 @@ pub async fn stream_exercise_service_upload(
                 anyhow::anyhow!("Multipart error: {}", err)
             )
         })?;
-        validate_exercise_upload_file_count(results.len())?;
+        validate_exercise_upload_file_count(parts.len())?;
         let field_name = {
             let name_ref = field.name().ok_or_else(|| {
                 controller_err!(
@@ -152,47 +147,45 @@ pub async fn stream_exercise_service_upload(
         }
         upload_result?;
         let url = format!("{base_url}/api/v0/files/{path}");
-        results.push(ExerciseServiceUploadResultEntry {
-            id: field_name,
-            url,
-        });
-        metadata.push(ExerciseServiceUploadMetadata {
+        parts.push(ExerciseServiceUploadMetadata {
             path,
             filename,
             mime_type,
             size_bytes: uploaded_bytes.load(Ordering::SeqCst) as i64,
+            url,
         });
     }
-    validate_exercise_upload_not_empty(results.len())?;
-    Ok(StreamedExerciseServiceUpload { results, metadata })
+    validate_exercise_upload_not_empty(parts.len())?;
+    Ok(StreamedExerciseServiceUpload { parts })
 }
 
 /// Records the `file_uploads` rows for an already-streamed upload.
 ///
-/// Takes the caller's transaction so that a caller which has further rows to write — the
-/// exercise-services client API binds each upload to an exercise and user — lands them together
-/// with these.
+/// Takes the caller's transaction so that a caller which has further rows to write — the answer
+/// upload routes bind each upload to an exercise and user — lands them together with these.
 pub async fn record_exercise_service_upload(
     tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     streamed: StreamedExerciseServiceUpload,
     uploader: Option<Uuid>,
 ) -> Result<Vec<ExerciseServiceUpload>, ControllerError> {
-    let StreamedExerciseServiceUpload { results, metadata } = streamed;
-    let mut uploads = Vec::with_capacity(results.len());
-    for (entry, upload) in results.into_iter().zip(metadata) {
+    let StreamedExerciseServiceUpload { parts } = streamed;
+    let mut uploads = Vec::with_capacity(parts.len());
+    for part in parts {
         let file_upload_id = models::file_uploads::insert(
             tx,
-            &upload.filename,
-            &upload.path,
-            &upload.mime_type,
+            &part.filename,
+            &part.path,
+            &part.mime_type,
             uploader,
-            Some(upload.size_bytes),
+            Some(part.size_bytes),
         )
         .await?;
         uploads.push(ExerciseServiceUpload {
-            entry,
-            file_upload_id,
-            name: upload.filename,
+            entry: ExerciseServiceUploadResultEntry {
+                id: file_upload_id,
+                url: part.url,
+            },
+            name: part.filename,
         });
     }
     Ok(uploads)

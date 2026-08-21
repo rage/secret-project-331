@@ -162,6 +162,82 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
     }
 }
 
+/// A file store backed by a temp dir, for tests that upload real bytes.
+///
+/// `LocalFileStore` is unusable for that: it demands the `HEADLESS_LMS_CACHE_FILES_PATH` env var,
+/// and mutating the environment from a test that runs alongside others is worse than implementing
+/// the handful of methods tests reach.
+pub struct TempFileStore(pub tempfile::TempDir);
+
+#[async_trait::async_trait(?Send)]
+impl headless_lms_utils::file_store::FileStore for TempFileStore {
+    async fn upload(
+        &self,
+        path: &std::path::Path,
+        contents: Vec<u8>,
+        _mime_type: &str,
+    ) -> headless_lms_utils::prelude::UtilResult<()> {
+        let full = self.0.path().join(path);
+        if let Some(parent) = full.parent() {
+            tokio::fs::create_dir_all(parent).await?;
+        }
+        tokio::fs::write(full, contents).await?;
+        Ok(())
+    }
+
+    async fn upload_stream(
+        &self,
+        path: &std::path::Path,
+        mut contents: headless_lms_utils::file_store::GenericPayload,
+        mime_type: &str,
+    ) -> headless_lms_utils::prelude::UtilResult<()> {
+        use futures::StreamExt;
+        let mut bytes = Vec::new();
+        while let Some(chunk) = contents.next().await {
+            bytes.extend_from_slice(&chunk?);
+        }
+        self.upload(path, bytes, mime_type).await
+    }
+
+    async fn download(
+        &self,
+        path: &std::path::Path,
+    ) -> headless_lms_utils::prelude::UtilResult<Vec<u8>> {
+        Ok(tokio::fs::read(self.0.path().join(path)).await?)
+    }
+
+    async fn download_stream(
+        &self,
+        _path: &std::path::Path,
+    ) -> headless_lms_utils::prelude::UtilResult<
+        Box<dyn futures::Stream<Item = std::io::Result<bytes::Bytes>>>,
+    > {
+        unimplemented!("not reached by these tests")
+    }
+
+    async fn get_direct_download_url(
+        &self,
+        _path: &std::path::Path,
+    ) -> headless_lms_utils::prelude::UtilResult<String> {
+        unimplemented!("not reached by these tests")
+    }
+
+    async fn delete(&self, path: &std::path::Path) -> headless_lms_utils::prelude::UtilResult<()> {
+        Ok(tokio::fs::remove_file(self.0.path().join(path)).await?)
+    }
+
+    fn get_cache_files_folder_path(
+        &self,
+    ) -> headless_lms_utils::prelude::UtilResult<&std::path::Path> {
+        Ok(self.0.path())
+    }
+}
+
+/// A `TempFileStore` whose directory is removed when it is dropped.
+pub fn temp_file_store() -> TempFileStore {
+    TempFileStore(tempfile::tempdir().expect("temp dir"))
+}
+
 #[macro_export]
 /// Helper macro that can be used to conveniently insert data that has some prerequisites.
 /// The macro accepts variable arguments in the following order:

@@ -1,16 +1,15 @@
-//! Removes files uploaded through the exercise-services client API that no submission was ever
-//! made from.
+//! Removes files uploaded to be named in an exercise answer that no submission was ever made
+//! from.
 //!
-//! A client uploads immediately before submitting, so anything still unreferenced an hour later
-//! is the residue of a crashed or abandoned run. The binding row is soft-deleted rather than
-//! removed so that a submit naming a reaped file can still answer `upload_expired` instead of the
-//! misleading `unknown_upload`.
+//! How long an upload is spared depends on its origin, since a native client uploads immediately
+//! before submitting while an iframe student may hold an upload for the length of an exam. The
+//! binding row is soft-deleted rather than removed so that a submit naming a reaped file can
+//! still answer `upload_expired` instead of the misleading `unknown_upload`.
 
 use std::{env, path::Path};
 
 use crate::config::{FileStoreRuntimeConfig, program_config::ProgramConfig};
 use crate::{setup_file_store, setup_tracing};
-use chrono::Utc;
 use dotenvy::dotenv;
 use futures::{StreamExt, stream};
 use headless_lms_models::{self as models, error::TryToOptional};
@@ -32,11 +31,10 @@ pub async fn main() -> anyhow::Result<()> {
 }
 
 async fn reap(pool: &PgPool, file_store: &dyn FileStore) -> anyhow::Result<()> {
-    let cutoff = models::exercise_service_client_uploads::retention_cutoff(Utc::now());
     let mut conn = pool.acquire().await?;
-    let reapable = models::exercise_service_client_uploads::get_reapable(&mut conn, cutoff).await?;
+    let reapable = models::exercise_answer_uploads::get_reapable(&mut conn).await?;
     drop(conn);
-    info!("Reaping {} orphaned client uploads.", reapable.len());
+    info!("Reaping {} orphaned answer uploads.", reapable.len());
 
     let mut reaped = 0;
     let mut skipped = 0;
@@ -58,20 +56,20 @@ async fn reap(pool: &PgPool, file_store: &dyn FileStore) -> anyhow::Result<()> {
             Err(err) => {
                 failed += 1;
                 error!(
-                    "Failed to reap client upload {}: {:#?}",
+                    "Failed to reap answer upload {}: {:#?}",
                     file_upload_id, err
                 );
             }
         }
     }
     info!(
-        "Orphaned client uploads reaped. Succeeded: {reaped}, skipped: {skipped}, failed: {failed}, retention cutoff: {cutoff}."
+        "Orphaned answer uploads reaped. Succeeded: {reaped}, skipped: {skipped}, failed: {failed}."
     );
     // The CronJob's exit status is the only signal anyone watches, so a run where every delete
     // failed must not look green.
     if failed > 0 {
         anyhow::bail!(
-            "Failed to reap {failed} of {} client uploads.",
+            "Failed to reap {failed} of {} answer uploads.",
             reaped + failed
         );
     }
@@ -89,9 +87,9 @@ async fn reap(pool: &PgPool, file_store: &dyn FileStore) -> anyhow::Result<()> {
 async fn reap_one(
     conn: &mut PgConnection,
     file_store: &dyn FileStore,
-    upload: &models::exercise_service_client_uploads::ReapableUpload,
+    upload: &models::exercise_answer_uploads::ReapableUpload,
 ) -> anyhow::Result<bool> {
-    if !models::exercise_service_client_uploads::mark_reaped(conn, upload.id).await? {
+    if !models::exercise_answer_uploads::mark_reaped(conn, upload.id).await? {
         return Ok(false);
     }
     file_store.delete(Path::new(&upload.path)).await?;
@@ -200,11 +198,12 @@ mod tests {
         )
         .await
         .expect("file upload");
-        models::exercise_service_client_uploads::insert_many(
+        models::exercise_answer_uploads::insert_many(
             tx.as_mut(),
             exercise,
             user,
             &[file_id],
+            models::exercise_answer_uploads::AnswerUploadOrigin::NativeClient,
         )
         .await
         .expect("binding");
@@ -226,7 +225,7 @@ mod tests {
                 .expect("file lookup")
                 .is_empty()
         );
-        let recorded = models::exercise_service_client_uploads::get_for_exercise_and_user(
+        let recorded = models::exercise_answer_uploads::get_for_exercise_and_user(
             check_tx.as_mut(),
             exercise,
             user,
@@ -254,11 +253,12 @@ mod tests {
         )
         .await
         .expect("file upload");
-        models::exercise_service_client_uploads::insert_many(
+        models::exercise_answer_uploads::insert_many(
             tx.as_mut(),
             exercise,
             user,
             &[file_id],
+            models::exercise_answer_uploads::AnswerUploadOrigin::NativeClient,
         )
         .await
         .expect("binding");
@@ -282,6 +282,102 @@ mod tests {
                 .expect("file lookup")
                 .len(),
             1
+        );
+        check_tx.rollback().await;
+    }
+
+    /// The origin split, end to end: two hours is past a native client's window but nowhere near an
+    /// iframe student's, who may still be holding the file mid-exam.
+    ///
+    /// Committed, for the same reason as the tests above.
+    #[actix_web::test]
+    async fn spares_an_iframe_upload_a_native_client_upload_would_lose() {
+        let _serialized = REAPER_TESTS.lock().await;
+        insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
+        let path = "exercise-services-client/mid-exam";
+        let file_id = models::file_uploads::insert(
+            tx.as_mut(),
+            "mid-exam.pdf",
+            path,
+            "application/pdf",
+            Some(user),
+            None,
+        )
+        .await
+        .expect("file upload");
+        models::exercise_answer_uploads::insert_many(
+            tx.as_mut(),
+            exercise,
+            user,
+            &[file_id],
+            models::exercise_answer_uploads::AnswerUploadOrigin::Iframe,
+        )
+        .await
+        .expect("binding");
+        backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
+        tx.commit().await;
+
+        let pool = PgPool::connect(&test_database_url())
+            .await
+            .expect("test pool");
+        let file_store = RecordingFileStore::default();
+        reap(&pool, &file_store).await.expect("reap");
+
+        assert_eq!(deletions_of(&file_store.deleted, path), 0);
+        let mut check_conn = Conn::init().await;
+        let mut check_tx = check_conn.begin().await;
+        assert_eq!(
+            models::file_uploads::get_many(check_tx.as_mut(), &[file_id])
+                .await
+                .expect("file lookup")
+                .len(),
+            1
+        );
+        check_tx.rollback().await;
+    }
+
+    /// Committed, for the same reason as the tests above.
+    #[actix_web::test]
+    async fn reaps_an_iframe_upload_past_seven_days() {
+        let _serialized = REAPER_TESTS.lock().await;
+        insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
+        let path = "exercise-services-client/abandoned";
+        let file_id = models::file_uploads::insert(
+            tx.as_mut(),
+            "abandoned.pdf",
+            path,
+            "application/pdf",
+            Some(user),
+            None,
+        )
+        .await
+        .expect("file upload");
+        models::exercise_answer_uploads::insert_many(
+            tx.as_mut(),
+            exercise,
+            user,
+            &[file_id],
+            models::exercise_answer_uploads::AnswerUploadOrigin::Iframe,
+        )
+        .await
+        .expect("binding");
+        backdate(tx.as_mut(), file_id, Duration::days(8)).await;
+        tx.commit().await;
+
+        let pool = PgPool::connect(&test_database_url())
+            .await
+            .expect("test pool");
+        let file_store = RecordingFileStore::default();
+        reap(&pool, &file_store).await.expect("reap");
+
+        assert_eq!(deletions_of(&file_store.deleted, path), 1);
+        let mut check_conn = Conn::init().await;
+        let mut check_tx = check_conn.begin().await;
+        assert!(
+            models::file_uploads::get_many(check_tx.as_mut(), &[file_id])
+                .await
+                .expect("file lookup")
+                .is_empty()
         );
         check_tx.rollback().await;
     }
@@ -359,11 +455,12 @@ mod tests {
         )
         .await
         .expect("file upload");
-        models::exercise_service_client_uploads::insert_many(
+        models::exercise_answer_uploads::insert_many(
             tx.as_mut(),
             exercise,
             user,
             &[file_id],
+            models::exercise_answer_uploads::AnswerUploadOrigin::NativeClient,
         )
         .await
         .expect("binding");
@@ -405,7 +502,7 @@ mod tests {
     }
 
     /// The reap-vs-submit race with two real connections, which is the part
-    /// `models::exercise_service_client_uploads`' own tests cannot reach: they run inside one
+    /// `models::exercise_answer_uploads`' own tests cannot reach: they run inside one
     /// uncommitted transaction, so a second connection can never see their fixtures.
     ///
     /// What is under test is not just the outcome but the mechanism — that a reaper running
@@ -431,11 +528,12 @@ mod tests {
         )
         .await
         .expect("file upload");
-        models::exercise_service_client_uploads::insert_many(
+        models::exercise_answer_uploads::insert_many(
             tx.as_mut(),
             exercise,
             user,
             &[file_id],
+            models::exercise_answer_uploads::AnswerUploadOrigin::NativeClient,
         )
         .await
         .expect("binding");
@@ -446,7 +544,7 @@ mod tests {
         // the association.
         let mut submit_conn = Conn::init().await;
         let mut submit_tx = submit_conn.begin().await;
-        let locked = models::exercise_service_client_uploads::lock_for_exercise_and_user(
+        let locked = models::exercise_answer_uploads::lock_for_exercise_and_user(
             submit_tx.as_mut(),
             exercise,
             user,
@@ -462,7 +560,7 @@ mod tests {
         let mut reaper_tx = reaper_conn.begin().await;
         // Scoped so the pinned future releases its borrow of `reaper_tx` before the rollback.
         let reaped = {
-            let mut reap = std::pin::pin!(models::exercise_service_client_uploads::mark_reaped(
+            let mut reap = std::pin::pin!(models::exercise_answer_uploads::mark_reaped(
                 reaper_tx.as_mut(),
                 binding_id
             ));
@@ -521,7 +619,7 @@ mod tests {
 
         let mut check_conn = Conn::init().await;
         let mut check_tx = check_conn.begin().await;
-        let recorded = models::exercise_service_client_uploads::get_for_exercise_and_user(
+        let recorded = models::exercise_answer_uploads::get_for_exercise_and_user(
             check_tx.as_mut(),
             exercise,
             user,
@@ -531,7 +629,7 @@ mod tests {
         .expect("binding lookup");
         assert_eq!(
             recorded,
-            vec![models::exercise_service_client_uploads::ClientUpload {
+            vec![models::exercise_answer_uploads::AnswerUpload {
                 file_upload_id: file_id,
                 deleted: false
             }],
@@ -542,19 +640,17 @@ mod tests {
 
     /// Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
     async fn binding_id_of(conn: &mut PgConnection, file_upload_id: uuid::Uuid) -> uuid::Uuid {
-        sqlx::query_scalar(
-            "SELECT id FROM exercise_service_client_uploads WHERE file_upload_id = $1",
-        )
-        .bind(file_upload_id)
-        .fetch_one(conn)
-        .await
-        .expect("binding id")
+        sqlx::query_scalar("SELECT id FROM exercise_answer_uploads WHERE file_upload_id = $1")
+            .bind(file_upload_id)
+            .fetch_one(conn)
+            .await
+            .expect("binding id")
     }
 
     /// Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
     async fn backdate(conn: &mut PgConnection, file_upload_id: uuid::Uuid, age: Duration) {
         sqlx::query(
-            "UPDATE exercise_service_client_uploads SET created_at = now() - $2 WHERE file_upload_id = $1",
+            "UPDATE exercise_answer_uploads SET created_at = now() - $2 WHERE file_upload_id = $1",
         )
         .bind(file_upload_id)
         .bind(age)

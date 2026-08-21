@@ -2850,6 +2850,10 @@ export type ExerciseServiceNewOrUpdate = {
   slug: string
 }
 
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
 export type ExerciseServiceUploadResultEntry = {
   id: string
   url: string
@@ -4784,6 +4788,30 @@ export type VerifyEmailOwnershipPayload = {
  * indistinguishable to someone typing digits, and telling them apart only helps a guesser.
  */
 export type VerifyEmailOwnershipResult = "verified" | "already_verified" | "invalid"
+
+export type UploadFilesForExerciseAnswerData = {
+  body: {
+    [key: string]: Blob | File
+  }
+  path: {
+    /**
+     * Exercise task the files are attached to
+     */
+    exercise_task_id: string
+  }
+  query?: never
+  url: "/api/v0/files/answer-uploads/{exercise_task_id}"
+}
+
+export type UploadFilesForExerciseAnswerResponses = {
+  /**
+   * Uploaded files
+   */
+  200: Array<ExerciseServiceUploadResultEntry>
+}
+
+export type UploadFilesForExerciseAnswerResponse =
+  UploadFilesForExerciseAnswerResponses[keyof UploadFilesForExerciseAnswerResponses]
 
 export type UploadFilesFromExerciseServiceData = {
   body: {

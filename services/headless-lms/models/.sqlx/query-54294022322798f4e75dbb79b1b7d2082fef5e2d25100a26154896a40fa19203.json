@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id\nFROM exercise_service_client_uploads\nWHERE id = $1\nFOR UPDATE\n",
+  "query": "\nSELECT id\nFROM exercise_answer_uploads\nWHERE id = $1\nFOR UPDATE\n",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "exercise_service_client_uploads",
+            "table": "exercise_answer_uploads",
             "name": "id"
           }
         }
@@ -24,5 +24,5 @@
       false
     ]
   },
-  "hash": "f5c463d78a4bcbdc14a8a3755fe647aa9512c9f740470597aad3ea20f4382250"
+  "hash": "54294022322798f4e75dbb79b1b7d2082fef5e2d25100a26154896a40fa19203"
 }

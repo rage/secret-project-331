@@ -31,8 +31,6 @@ pub struct ChatbotConversationInfo {
     pub course_name: Option<String>,
     pub hide_citations: bool,
     pub suggested_messages: Option<Vec<ChatbotConversationSuggestedMessage>>,
-    pub chatbot_configuration_id: Uuid,
-    pub course_id: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -208,7 +206,5 @@ pub async fn get_current_conversation_info(
         chatbot_name: chatbot_configuration.chatbot_name,
         course_name: course.map(|course| course.name),
         hide_citations: chatbot_configuration.hide_citations,
-        chatbot_configuration_id,
-        course_id: chatbot_configuration.course_id,
     })
 }

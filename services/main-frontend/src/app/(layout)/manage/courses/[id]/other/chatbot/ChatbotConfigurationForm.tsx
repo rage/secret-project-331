@@ -25,7 +25,10 @@ import {
   includeIf,
   omitUndefined,
 } from "@/shared-module/common/utils/nullability"
-import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
+import {
+  chatbotCommandCenterRoute,
+  courseChatbotSettingsRoute,
+} from "@/shared-module/common/utils/routes"
 import {
   Button,
   Checkbox,
@@ -160,7 +163,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         if (oldChatbotConf.course_id) {
           router.push(courseChatbotSettingsRoute(oldChatbotConf.course_id))
         } else {
-          router.back()
+          router.push(chatbotCommandCenterRoute())
         }
       },
     },

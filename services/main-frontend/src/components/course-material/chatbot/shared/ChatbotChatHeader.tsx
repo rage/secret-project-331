@@ -171,14 +171,14 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
     })
   }
 
-  const chatbotInfo = currentConversationInfo.data
+  const chatbotConversationInfo = currentConversationInfo.data?.current_conversation
 
   const permissionCheck = useAuthorizeMultiple(
-    chatbotInfo?.course_id
+    chatbotConversationInfo?.course_id
       ? [
           {
             action: { type: "teach" },
-            resource: { type: "course", id: chatbotInfo.course_id },
+            resource: { type: "course", id: chatbotConversationInfo.course_id },
           },
           {
             action: { type: "edit" },
@@ -195,12 +195,12 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
 
   const hasPermission = permissionCheck.isSuccess && permissionCheck.data?.some(Boolean)
 
-  if (hasPermission && chatbotInfo) {
+  if (hasPermission && chatbotConversationInfo) {
     items.push({
       // oxlint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-edit-chatbot-button",
       onAction: () => {
-        router.push(manageChatbotRoute(chatbotInfo.chatbot_configuration_id))
+        router.push(manageChatbotRoute(chatbotConversationInfo.chatbot_configuration_id))
       },
       icon: (
         <Pencil

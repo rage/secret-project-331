@@ -37,13 +37,11 @@ const ChatbotCommandCenterPage: React.FC = () => {
 
   const closeDialogOpenEdit = (id: string) => {
     setCreateChatbotVisible(false)
-    console.log("NEW CHATBOT ID", id)
     router.push(manageChatbotRoute(id))
   }
   const closeDialog = () => {
     setCreateChatbotVisible(false)
   }
-  console.log("CREATE CHATBOT VISIBLE", createChatbotVisible)
 
   return (
     <>
@@ -65,7 +63,6 @@ const ChatbotCommandCenterPage: React.FC = () => {
           >
             <Button
               size="medium"
-              // variant="secondary"
               onClick={() => {
                 setCreateChatbotVisible(true)
               }}

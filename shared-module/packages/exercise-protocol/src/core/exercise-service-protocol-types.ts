@@ -23,7 +23,17 @@ export type MessageFromIframe =
 
 export interface CurrentStateMessage {
   message: "current-state"
-  data: unknown // { private_spec: unknown } | { public_spec: unknown } ?
+  /**
+   * The plugin's own answer JSON. When `files` is present this is metadata *about* those files,
+   * and may be omitted entirely by a plugin whose answer is nothing but the files.
+   */
+  data: unknown
+  /**
+   * Host file ids from `upload-result` that this answer consists of, in the order the plugin
+   * wants them graded and displayed. Present makes the answer file-typed; absent leaves it
+   * JSON-typed. The host verifies every id was uploaded by this user for this exercise.
+   */
+  files?: string[]
   valid: boolean
   /**
    * Optional, already-localized reasons the current answer is not yet submittable
@@ -224,6 +234,19 @@ export interface UserInformation {
 
 export type UserVariablesMap = Record<string, unknown>
 
+/** A host-stored file that an answer consists of, as handed back to a plugin for display. */
+export interface AnswerFileRef {
+  /** `file_uploads.id`; the same value the plugin put in `CurrentStateMessage.files`. */
+  id: string
+  /** Host download URL. Needs no authentication; the plugin must not persist it. */
+  url: string
+  /** Name the file was uploaded under. A plugin that anonymizes ignores this. */
+  name: string
+  mime: string
+  /** Absent for files uploaded before this column existed; the host cannot back-fill it. */
+  size_bytes?: number
+}
+
 export interface AnswerExerciseIframeState {
   view_type: "answer-exercise"
   exercise_task_id: string
@@ -233,6 +256,7 @@ export interface AnswerExerciseIframeState {
   data: {
     public_spec: unknown
     previous_submission: unknown | null
+    previous_submission_files?: AnswerFileRef[]
   }
 }
 
@@ -245,6 +269,7 @@ export interface ViewSubmissionIframeState {
   data: {
     grading: ExerciseTaskGradingResult | null
     user_answer: unknown
+    user_answer_files?: AnswerFileRef[]
     public_spec: unknown
     model_solution_spec: unknown
   }
@@ -272,6 +297,7 @@ export interface CustomViewIframeState {
         task_id: string
         public_spec: unknown
         user_answer: unknown
+        user_answer_files?: AnswerFileRef[]
         grading: unknown
       }[]
     }[]

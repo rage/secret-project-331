@@ -46,7 +46,6 @@ export interface ExerciseTaskSubmission {
   exercise_slide_submission_id: string
   exercise_task_id: string
   exercise_slide_id: string
-  data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
 }

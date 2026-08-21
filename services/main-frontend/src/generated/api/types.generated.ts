@@ -542,9 +542,49 @@ export type AnalysisWorkspaceV1 = {
   wishes_topics?: string | null
 }
 
+/**
+ * The answer a submission or grading request carries, as either the raw JSON a plugin produced
+ * or the files a plugin's answer consists of.
+ */
+export type AnswerData =
+  | {
+      data: unknown
+      kind: "json"
+    }
+  | {
+      files: Array<AnswerFile>
+      kind: "file"
+      /**
+       * The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
+       */
+      metadata?: unknown
+    }
+
+/**
+ * One host-stored file that an answer consists of.
+ */
+export type AnswerFile = {
+  id: string
+  mime: string
+  /**
+   * The name the file was uploaded under. Not necessarily what a viewer should be shown -- a
+   * plugin that anonymizes filenames keeps its display name in `AnswerData::File::metadata`.
+   */
+  name: string
+  order_number: number
+  /**
+   * `None` for a file stored before the size was recorded.
+   */
+  size_bytes?: number | null
+  /**
+   * Capability download URL, minted at read time from the file's path. Never persisted.
+   */
+  url: string
+}
+
 export type AnswerRequiringAttentionWithTasks = {
+  answer?: null | AnswerData
   created_at: string
-  data_json?: unknown
   deleted_at?: string | null
   exercise_id: string
   given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
@@ -2936,8 +2976,8 @@ export type ExerciseTaskGradingResult = {
 }
 
 export type ExerciseTaskSubmission = {
+  answer?: null | AnswerData
   created_at: string
-  data_json?: unknown
   deleted_at?: string | null
   exercise_slide_id: string
   exercise_slide_submission_id: string

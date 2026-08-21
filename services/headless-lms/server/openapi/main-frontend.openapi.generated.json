@@ -15011,6 +15011,72 @@
           }
         }
       },
+      "AnswerData": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["data", "kind"],
+            "properties": {
+              "data": {},
+              "kind": {
+                "type": "string",
+                "enum": ["json"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["files", "kind"],
+            "properties": {
+              "files": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AnswerFile"
+                }
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["file"]
+              },
+              "metadata": {
+                "description": "The plugin's own JSON about the files. `None` for a plugin whose answer is the files."
+              }
+            }
+          }
+        ],
+        "description": "The answer a submission or grading request carries, as either the raw JSON a plugin produced\nor the files a plugin's answer consists of."
+      },
+      "AnswerFile": {
+        "type": "object",
+        "description": "One host-stored file that an answer consists of.",
+        "required": ["id", "name", "mime", "order_number", "url"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name the file was uploaded under. Not necessarily what a viewer should be shown -- a\nplugin that anonymizes filenames keeps its display name in `AnswerData::File::metadata`."
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size_bytes": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "`None` for a file stored before the size was recorded."
+          },
+          "url": {
+            "type": "string",
+            "description": "Capability download URL, minted at read time from the file's path. Never persisted."
+          }
+        }
+      },
       "AnswerRequiringAttentionWithTasks": {
         "type": "object",
         "required": [
@@ -15027,11 +15093,20 @@
           "received_peer_review_flagging_reports"
         ],
         "properties": {
+          "answer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnswerData"
+              }
+            ]
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
-          "data_json": {},
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -21649,11 +21724,20 @@
           "exercise_slide_id"
         ],
         "properties": {
+          "answer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnswerData"
+              }
+            ]
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
-          "data_json": {},
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"

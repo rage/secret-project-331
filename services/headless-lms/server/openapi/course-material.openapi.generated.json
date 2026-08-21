@@ -2452,7 +2452,7 @@
     "/api/v0/course-material/exercises/{exercise_id}/submissions": {
       "post": {
         "tags": ["course-material-exercises"],
-        "summary": "\nPOST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an\nexercise.\n\n# Example\n```http\nPOST /api/v0/course-material/exercises/:exercise_id/submissions HTTP/1.1\nContent-Type: application/json\n\n{\n  \"exercise_slide_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n  \"exercise_task_answers\": [\n    {\n      \"exercise_task_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n      \"data_json\": { \"selectedOptionId\": \"8f09e9a0-ac20-486a-ba29-704e7eeaf6af\" }\n    }\n  ]\n}\n```",
+        "summary": "\nPOST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an\nexercise.\n\n# Example\n```http\nPOST /api/v0/course-material/exercises/:exercise_id/submissions HTTP/1.1\nContent-Type: application/json\n\n{\n  \"exercise_slide_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n  \"exercise_task_answers\": [\n    {\n      \"exercise_task_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n      \"answer\": {\n        \"kind\": \"json\",\n        \"data\": { \"selectedOptionId\": \"8f09e9a0-ac20-486a-ba29-704e7eeaf6af\" }\n      }\n    }\n  ]\n}\n```",
         "operationId": "postSubmission",
         "parameters": [
           {
@@ -2884,6 +2884,72 @@
         "type": "string",
         "description": "\nIndicates what is the user's completion status for a exercise.\n\nAs close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.",
         "enum": ["Initialized", "Started", "InProgress", "Submitted", "Completed"]
+      },
+      "AnswerData": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["data", "kind"],
+            "properties": {
+              "data": {},
+              "kind": {
+                "type": "string",
+                "enum": ["json"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["files", "kind"],
+            "properties": {
+              "files": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AnswerFile"
+                }
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["file"]
+              },
+              "metadata": {
+                "description": "The plugin's own JSON about the files. `None` for a plugin whose answer is the files."
+              }
+            }
+          }
+        ],
+        "description": "The answer a submission or grading request carries, as either the raw JSON a plugin produced\nor the files a plugin's answer consists of."
+      },
+      "AnswerFile": {
+        "type": "object",
+        "description": "One host-stored file that an answer consists of.",
+        "required": ["id", "name", "mime", "order_number", "url"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name the file was uploaded under. Not necessarily what a viewer should be shown -- a\nplugin that anonymizes filenames keeps its display name in `AnswerData::File::metadata`."
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size_bytes": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "`None` for a file stored before the size was recorded."
+          },
+          "url": {
+            "type": "string",
+            "description": "Capability download URL, minted at read time from the file's path. Never persisted."
+          }
+        }
       },
       "ChapterLockPreview": {
         "type": "object",
@@ -4491,11 +4557,20 @@
           "exercise_task_id"
         ],
         "properties": {
+          "answer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnswerData"
+              }
+            ]
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
-          "data_json": {},
           "exercise_slide_id": {
             "type": "string",
             "format": "uuid"
@@ -5127,11 +5202,20 @@
           "exercise_slide_id"
         ],
         "properties": {
+          "answer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnswerData"
+              }
+            ]
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
-          "data_json": {},
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -6272,9 +6356,11 @@
       },
       "StudentExerciseTaskSubmission": {
         "type": "object",
-        "required": ["exercise_task_id", "data_json"],
+        "required": ["exercise_task_id", "answer"],
         "properties": {
-          "data_json": {},
+          "answer": {
+            "$ref": "#/components/schemas/SubmittedAnswer"
+          },
           "exercise_task_id": {
             "type": "string",
             "format": "uuid"
@@ -6303,6 +6389,43 @@
             "$ref": "#/components/schemas/ExerciseTaskSubmission"
           }
         }
+      },
+      "SubmittedAnswer": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["data", "kind"],
+            "properties": {
+              "data": {},
+              "kind": {
+                "type": "string",
+                "enum": ["json"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["file_upload_ids", "kind"],
+            "properties": {
+              "file_upload_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "description": "Ordered; the order is part of the answer (exercise-file-submission grades by position).\nEvery id must be an upload this user made for this exercise."
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["file"]
+              },
+              "metadata": {
+                "description": "The plugin's own JSON about the files. `None` for a plugin whose answer is the files."
+              }
+            }
+          }
+        ],
+        "description": "The answer a student submits for one exercise task, as either JSON or a set of host-stored\nfiles."
       },
       "TeacherDecisionType": {
         "type": "string",

@@ -123,4 +123,36 @@ test.describe("Chatbot command center testing", () => {
       ).toBeHidden()
     })
   })
+
+  test("can create new global chatbot", async ({ page }) => {
+    await page.goto("http://project-331.local/")
+    await page.getByRole("link", { name: "Chatbot command center" }).click()
+    await page.getByRole("button", { name: "Create a new global chatbot" }).click()
+    await page.getByRole("textbox", { name: "Name" }).click()
+    await page.getByRole("textbox", { name: "Name" }).fill("new global chatbot")
+    await page.getByRole("button", { name: "Save" }).click()
+    await page.getByRole("button", { name: "Back" }).click()
+    await page.getByRole("button", { name: "Chatbot to test" }).click()
+    await expect(
+      page
+        .getByLabel("Global chatbots", { exact: true })
+        .getByRole("option", { name: "new global chatbot" }),
+    ).toBeVisible()
+  })
+
+  test("can edit chatbot from dropdown", async ({ page }) => {
+    await page.getByText("Global chatbot", { exact: true }).click()
+    await page.getByTestId("chatbot-header-menu-button").click()
+    await page.getByText("Edit chatbot").click()
+    await page.getByRole("textbox", { name: "Name" }).click()
+    await page.getByRole("textbox", { name: "Name" }).fill("Global chatbot test")
+    await page.getByRole("button", { name: "Save", exact: true }).click()
+    await page.getByRole("button", { name: "Back" }).click()
+    await page.getByRole("button", { name: "Chatbot to test" }).click()
+    await expect(
+      page
+        .getByLabel("Global chatbots", { exact: true })
+        .getByRole("option", { name: "Global chatbot test" }),
+    ).toBeVisible()
+  })
 })

@@ -1116,7 +1116,9 @@ export const zChatbotConversationMessage = z.object({
  * Should contain all information required to display the chatbot to the user.
  */
 export const zChatbotConversationInfo = z.object({
+  chatbot_configuration_id: z.uuid(),
   chatbot_name: z.string(),
+  course_id: z.uuid().nullish(),
   course_name: z.string().nullish(),
   current_conversation: zChatbotConversation.nullish(),
   current_conversation_message_citations: z.array(zChatbotConversationMessageCitation).nullish(),

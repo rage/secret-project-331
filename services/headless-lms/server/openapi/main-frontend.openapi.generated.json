@@ -515,7 +515,7 @@
             "name": "course_id",
             "in": "query",
             "description": "Course id",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -596,6 +596,36 @@
                   "items": {
                     "$ref": "#/components/schemas/ChatbotConfiguration"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/chatbots/create": {
+      "post": {
+        "tags": ["chatbots"],
+        "summary": "POST `/api/v0/main-frontend/chatbots/create`",
+        "operationId": "createChatbot",
+        "requestBody": {
+          "description": "JSON object with chatbot name and optional course id, e.g. \"name: Chatbot 1, course_id: null\".",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChatbotRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created chatbot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfiguration"
                 }
               }
             }
@@ -2885,45 +2915,6 @@
                   "items": {
                     "$ref": "#/components/schemas/ChatbotConfiguration"
                   }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": ["courses"],
-        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/chatbots`",
-        "operationId": "createCourseChatbot",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "JSON string literal chatbot name, e.g. \"Chatbot 1\".",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Created course chatbot",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChatbotConfiguration"
                 }
               }
             }
@@ -18340,6 +18331,19 @@
           }
         }
       },
+      "CreateChatbotRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "CreateCourseDesignerPlanRequest": {
         "type": "object",
         "properties": {
@@ -19671,7 +19675,7 @@
           "finding_count": {
             "type": "integer",
             "format": "int64",
-            "description": "The four detector counts, which is the tab badge. The consent-withdrawal bucket is\ndeliberately outside it."
+            "description": "The five detector counts, which is the tab badge. The consent-withdrawal bucket is\ndeliberately outside it."
           },
           "legacy_divergence_count": {
             "type": "integer",

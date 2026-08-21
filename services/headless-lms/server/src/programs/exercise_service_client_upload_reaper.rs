@@ -110,7 +110,14 @@ mod tests {
     use chrono::Duration;
     use headless_lms_base::error::backend_error::BackendError;
     use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
-    use std::sync::Mutex;
+    use std::sync::{LazyLock, Mutex};
+
+    /// `reap` is global: it takes every eligible row in the shared test database, so two of
+    /// these tests in flight at once reap each other's committed fixtures. Held for the whole test,
+    /// fixtures included. Tokio's mutex rather than `std`'s, so one failing test does not poison
+    /// the lock and fail the rest.
+    static REAPER_TESTS: LazyLock<tokio::sync::Mutex<()>> =
+        LazyLock::new(|| tokio::sync::Mutex::new(()));
 
     /// Records what the reaper asked it to delete. The real stores are irrelevant here: the
     /// property under test is which paths the reaper touches.
@@ -162,6 +169,17 @@ mod tests {
         }
     }
 
+    /// How many times the reaper touched `path`. Scoped this way because the tests commit their
+    /// fixtures, so every run also sees the rows of whatever sibling test is running beside it.
+    fn deletions_of(recorded: &Mutex<Vec<String>>, path: &str) -> usize {
+        recorded
+            .lock()
+            .expect("lock")
+            .iter()
+            .filter(|recorded_path| recorded_path.as_str() == path)
+            .count()
+    }
+
     /// Covers the whole per-row sequence: the object goes, the file row is soft-deleted, and the
     /// binding survives soft-deleted so submit can still answer `upload_expired`.
     ///
@@ -169,6 +187,7 @@ mod tests {
     /// connection fixtures were inserted on.
     #[actix_web::test]
     async fn reaps_an_orphaned_upload_and_leaves_a_row_behind() {
+        let _serialized = REAPER_TESTS.lock().await;
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
         let path = "exercise-services-client/orphan";
         let file_id = models::file_uploads::insert(
@@ -197,7 +216,7 @@ mod tests {
         let file_store = RecordingFileStore::default();
         reap(&pool, &file_store).await.expect("reap");
 
-        assert_eq!(*file_store.deleted.lock().expect("lock"), vec![path]);
+        assert_eq!(deletions_of(&file_store.deleted, path), 1);
         let mut check_conn = Conn::init().await;
         let mut check_tx = check_conn.begin().await;
         assert!(
@@ -222,6 +241,7 @@ mod tests {
     /// Committed, for the same reason as above.
     #[actix_web::test]
     async fn spares_an_upload_inside_the_retention_window() {
+        let _serialized = REAPER_TESTS.lock().await;
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
         let file_id = models::file_uploads::insert(
             tx.as_mut(),
@@ -248,7 +268,10 @@ mod tests {
         let file_store = RecordingFileStore::default();
         reap(&pool, &file_store).await.expect("reap");
 
-        assert!(file_store.deleted.lock().expect("lock").is_empty());
+        assert_eq!(
+            deletions_of(&file_store.deleted, "exercise-services-client/fresh"),
+            0
+        );
         let mut check_conn = Conn::init().await;
         let mut check_tx = check_conn.begin().await;
         assert_eq!(
@@ -321,6 +344,7 @@ mod tests {
     /// Committed, for the same reason as the tests above.
     #[actix_web::test]
     async fn a_failed_object_delete_fails_the_run_and_is_retried() {
+        let _serialized = REAPER_TESTS.lock().await;
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
         let path = "exercise-services-client/transient";
         let file_id = models::file_uploads::insert(
@@ -350,7 +374,7 @@ mod tests {
         reap(&pool, &failing)
             .await
             .expect_err("a run where every delete failed must not exit successfully");
-        assert_eq!(*failing.attempts.lock().expect("lock"), vec![path]);
+        assert_eq!(deletions_of(&failing.attempts, path), 1);
         let mut check_conn = Conn::init().await;
         let mut check_tx = check_conn.begin().await;
         assert_eq!(
@@ -365,7 +389,7 @@ mod tests {
 
         let retry = RecordingFileStore::default();
         reap(&pool, &retry).await.expect("retry");
-        assert_eq!(*retry.deleted.lock().expect("lock"), vec![path]);
+        assert_eq!(deletions_of(&retry.deleted, path), 1);
         let mut check_conn = Conn::init().await;
         let mut check_tx = check_conn.begin().await;
         assert!(
@@ -389,6 +413,7 @@ mod tests {
     /// declines rather than destroying the files of a submission that already returned 200.
     #[actix_web::test]
     async fn a_concurrent_reaper_blocks_on_the_submit_lock_and_then_declines_to_reap() {
+        let _serialized = REAPER_TESTS.lock().await;
         // Committed so the reaper's connection can see them. Deliberately not backdated: an
         // upload inside the retention window is invisible to `get_reapable`, so what this test
         // leaves in the database cannot perturb the unfiltered `reap()` calls above.

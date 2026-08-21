@@ -12,7 +12,7 @@ use crate::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
     },
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
-    exercise_task_submissions::{self, ExerciseTaskSubmission},
+    exercise_task_submissions::{self, AnswerData, ExerciseTaskSubmission},
     exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{self, Exercise, ExerciseStatus, GradingProgress},
     flagged_answers::{self, FlaggedAnswer},
@@ -70,7 +70,24 @@ impl StudentExerciseSlideSubmissionResult {
 
 pub struct StudentExerciseTaskSubmission {
     pub exercise_task_id: Uuid,
-    pub data_json: serde_json::Value,
+    pub answer: SubmittedAnswer,
+}
+
+/// The answer a student submits for one exercise task, as either JSON or a set of host-stored
+/// files.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum SubmittedAnswer {
+    Json {
+        data: serde_json::Value,
+    },
+    File {
+        /// Ordered; the order is part of the answer (exercise-file-submission grades by position).
+        /// Every id must be an upload this user made for this exercise.
+        file_upload_ids: Vec<Uuid>,
+        /// The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
+        metadata: Option<serde_json::Value>,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -105,6 +122,8 @@ pub async fn create_user_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_with_user_state: &ExerciseWithUserState,
     user_exercise_slide_submission: &StudentExerciseSlideSubmission,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<ExerciseSlideSubmissionWithTasks> {
     let selected_exercise_slide_id = exercise_with_user_state
         .user_exercise_state()
@@ -158,10 +177,12 @@ pub async fn create_user_exercise_slide_submission(
             exercise_slide_submission.id,
             exercise_task.exercise_slide_id,
             exercise_task.id,
-            &task_submission.data_json,
+            &task_submission.answer,
         )
         .await?;
-        let submission = exercise_task_submissions::get_by_id(&mut tx, submission_id).await?;
+        let submission =
+            exercise_task_submissions::get_by_id(&mut tx, submission_id, file_store, app_conf)
+                .await?;
         exercise_slide_submission_tasks.push(submission)
     }
 
@@ -180,10 +201,14 @@ pub async fn update_grading_with_single_regrading_result(
     regrading_submission: &ExerciseTaskRegradingSubmission,
     exercise_task_grading: &ExerciseTaskGrading,
     exercise_task_grading_result: &ExerciseTaskGradingResult,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<()> {
     let task_submission = exercise_task_submissions::get_by_id(
         &mut *conn,
         regrading_submission.exercise_task_submission_id,
+        file_store,
+        app_conf,
     )
     .await?;
     let slide_submission = exercise_slide_submissions::get_by_id(
@@ -225,6 +250,7 @@ pub enum GradingPolicy {
     Fixed(HashMap<Uuid, ExerciseTaskGradingResult>),
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn grade_user_submission(
     conn: &mut PgConnection,
     exercise_with_user_state: &mut ExerciseWithUserState,
@@ -236,6 +262,8 @@ pub async fn grade_user_submission(
         &ExerciseTask,
         &ExerciseTaskSubmission,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<StudentExerciseSlideSubmissionResult> {
     let mut tx = conn.begin().await?;
 
@@ -246,6 +274,8 @@ pub async fn grade_user_submission(
         &mut tx,
         exercise_with_user_state,
         user_exercise_slide_submission,
+        file_store,
+        app_conf,
     )
     .await?;
     let user_exercise_state = exercise_with_user_state.user_exercise_state();
@@ -267,6 +297,8 @@ pub async fn grade_user_submission(
                     user_exercise_state,
                     &fetch_service_info,
                     &send_grading_request,
+                    file_store,
+                    app_conf,
                 )
                 .await;
                 match submission {
@@ -337,6 +369,8 @@ pub async fn grade_user_submission(
                     exercise_with_user_state.exercise(),
                     user_exercise_slide_state.id,
                     &fixed_result,
+                    file_store,
+                    app_conf,
                 )
                 .await?;
                 results.push(submission);
@@ -373,6 +407,7 @@ pub async fn grade_user_submission(
     Ok(result)
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn grade_user_submission_task(
     conn: &mut PgConnection,
     submission: &ExerciseTaskSubmission,
@@ -385,10 +420,13 @@ async fn grade_user_submission_task(
         &ExerciseTask,
         &ExerciseTaskSubmission,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<StudentExerciseTaskSubmissionResult> {
     let grading = exercise_task_gradings::new_grading(conn, exercise, submission).await?;
+    exercise_task_submissions::set_grading_id(conn, grading.id, submission.id).await?;
     let updated_submission =
-        exercise_task_submissions::set_grading_id(conn, grading.id, submission.id).await?;
+        exercise_task_submissions::get_by_id(conn, submission.id, file_store, app_conf).await?;
     let exercise_task =
         exercise_tasks::get_exercise_task_by_id(conn, submission.exercise_task_id).await?;
     let grading = exercise_task_gradings::grade_submission(
@@ -424,10 +462,13 @@ async fn create_fixed_grading_for_submission_task(
     exercise: &Exercise,
     user_exercise_slide_state_id: Uuid,
     fixed_result: &ExerciseTaskGradingResult,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<StudentExerciseTaskSubmissionResult> {
     let grading = exercise_task_gradings::new_grading(conn, exercise, submission).await?;
+    exercise_task_submissions::set_grading_id(conn, grading.id, submission.id).await?;
     let updated_submission =
-        exercise_task_submissions::set_grading_id(conn, grading.id, submission.id).await?;
+        exercise_task_submissions::get_by_id(conn, submission.id, file_store, app_conf).await?;
     let updated_grading =
         exercise_task_gradings::update_grading(conn, &grading, fixed_result, exercise).await?;
     user_exercise_task_states::upsert_with_grading(
@@ -559,7 +600,7 @@ pub struct AnswerRequiringAttentionWithTasks {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub data_json: Option<serde_json::Value>,
+    pub answer: Option<AnswerData>,
     pub grading_progress: GradingProgress,
     pub score_given: Option<f32>,
     pub submission_id: Uuid,
@@ -577,6 +618,8 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
     pagination: Pagination,
     viewer_user_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<AnswersRequiringAttention> {
     let exercise = exercises::get_exercise_by_id(conn, exercise_id).await?;
     let answer_requiring_attention_count =
@@ -585,6 +628,8 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
         conn,
         exercise.id,
         pagination,
+        file_store,
+        app_conf,
     )
     .await?;
     let mut answers = Vec::with_capacity(data.len());
@@ -595,6 +640,8 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             viewer_user_id,
             &fetch_service_info,
             false,
+            file_store,
+            app_conf,
         )
         .await?;
         let given_peer_reviews = peer_or_self_review_question_submissions::get_given_peer_reviews(
@@ -619,7 +666,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             created_at: answer.created_at,
             updated_at: answer.updated_at,
             deleted_at: answer.deleted_at,
-            data_json: answer.data_json.to_owned(),
+            answer: answer.answer.to_owned(),
             grading_progress: answer.grading_progress,
             score_given: answer.score_given,
             submission_id: answer.submission_id,

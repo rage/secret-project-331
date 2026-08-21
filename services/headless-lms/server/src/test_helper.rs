@@ -35,6 +35,12 @@ pub fn init_app_conf() -> anyhow::Result<ApplicationConfiguration> {
     Ok(app_config)
 }
 
+/// A file store for tests that only need download URLs, not stored bytes.
+pub fn init_file_store() -> LocalFileStore {
+    LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
+        .expect("Failed to initialize test file store")
+}
+
 pub async fn test_config() -> ServerConfig {
     let database_url = env::var("DATABASE_URL_TEST")
         .or_else(|_| env::var("DATABASE_URL"))

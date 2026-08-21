@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ets.exercise_slide_submission_id,\n  ets.id AS exercise_task_submission_id,\n  ets.exercise_task_id,\n  ess.exercise_id,\n  ess.user_id,\n  ets.created_at AS submitted_at,\n  ets.data_json AS answer\nFROM exercise_task_submissions ets\n  JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id\nWHERE ess.exercise_id = $1\n  AND ets.exercise_task_id = $2\n  AND ess.deleted_at IS NULL\n  AND ets.deleted_at IS NULL\nORDER BY ets.created_at ASC\n        ",
+  "query": "\nSELECT ets.exercise_slide_submission_id,\n  ets.id AS exercise_task_submission_id,\n  ets.exercise_task_id,\n  ess.exercise_id,\n  ess.user_id,\n  ets.created_at AS submitted_at,\n  ets.data_json,\n  ets.answer_kind AS \"answer_kind: AnswerKind\"\nFROM exercise_task_submissions ets\n  JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id\nWHERE ess.exercise_id = $1\n  AND ets.exercise_task_id = $2\n  AND ess.deleted_at IS NULL\n  AND ets.deleted_at IS NULL\nORDER BY ets.created_at ASC\n        ",
   "describe": {
     "columns": [
       {
@@ -71,12 +71,33 @@
       },
       {
         "ordinal": 6,
-        "name": "answer",
+        "name": "data_json",
         "type_info": "Jsonb",
         "origin": {
           "Table": {
             "table": "exercise_task_submissions",
             "name": "data_json"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "answer_kind: AnswerKind",
+        "type_info": {
+          "Custom": {
+            "name": "answer_kind",
+            "kind": {
+              "Enum": [
+                "json",
+                "file"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "answer_kind"
           }
         }
       }
@@ -94,8 +115,9 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
-  "hash": "b1ca784edab12733cd1d22869b4441113b2e860c06d1259726e7c6d3225c1961"
+  "hash": "8b717d937d485e6500e9f29e58c1867fc74c908a9f29a8d943d4772ad34c37a6"
 }

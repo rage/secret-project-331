@@ -55,6 +55,7 @@ struct ExerciseServiceUploadMetadata {
     path: String,
     filename: String,
     mime_type: String,
+    size_bytes: i64,
 }
 
 /// Processes an upload from an exercise service, an exercise iframe or a native client.
@@ -137,7 +138,8 @@ pub async fn stream_exercise_service_upload(
             .content_type()
             .map(ToString::to_string)
             .unwrap_or_default();
-        let (stream, stream_error) = limited_exercise_upload_stream(field, batch_bytes.clone());
+        let (stream, stream_error, uploaded_bytes) =
+            limited_exercise_upload_stream(field, batch_bytes.clone());
         let upload_result = file_store
             .upload_stream(Path::new(&path), stream, &mime_type)
             .await;
@@ -158,6 +160,7 @@ pub async fn stream_exercise_service_upload(
             path,
             filename,
             mime_type,
+            size_bytes: uploaded_bytes.load(Ordering::SeqCst) as i64,
         });
     }
     validate_exercise_upload_not_empty(results.len())?;
@@ -183,6 +186,7 @@ pub async fn record_exercise_service_upload(
             &upload.path,
             &upload.mime_type,
             uploader,
+            Some(upload.size_bytes),
         )
         .await?;
         uploads.push(ExerciseServiceUpload {
@@ -194,17 +198,28 @@ pub async fn record_exercise_service_upload(
     Ok(uploads)
 }
 
-/// Returns a side channel for typed upload-limit errors because the stream yields `anyhow` errors.
-/// Callers must inspect it after `upload_stream` returns.
+/// Returns a side channel for typed upload-limit errors because the stream yields `anyhow` errors,
+/// and the running byte count of this part. Both are only meaningful once `upload_stream` has
+/// returned: the count is still climbing while the stream is being consumed.
 fn limited_exercise_upload_stream(
     field: mp::Field,
     batch_bytes: Arc<AtomicU64>,
-) -> (GenericPayload, Arc<Mutex<Option<ControllerError>>>) {
+) -> (
+    GenericPayload,
+    Arc<Mutex<Option<ControllerError>>>,
+    Arc<AtomicU64>,
+) {
     let per_file_bytes = Arc::new(AtomicU64::new(0));
     let stream_error = Arc::new(Mutex::new(None));
     let payload_stream_error = stream_error.clone();
+    let payload_per_file_bytes = per_file_bytes.clone();
     let stream = Box::pin(futures::stream::try_unfold(
-        (field, per_file_bytes, batch_bytes, payload_stream_error),
+        (
+            field,
+            payload_per_file_bytes,
+            batch_bytes,
+            payload_stream_error,
+        ),
         |(mut field, per_file_bytes, batch_bytes, stream_error)| async move {
             let Some(chunk) = field.next().await else {
                 return Ok(None);
@@ -224,7 +239,7 @@ fn limited_exercise_upload_stream(
             )))
         },
     ));
-    (stream, stream_error)
+    (stream, stream_error, per_file_bytes)
 }
 
 fn validate_exercise_upload_file_count(files_received: usize) -> Result<(), ControllerError> {
@@ -597,8 +612,8 @@ async fn upload_file_to_storage_in_existing_transaction(
     uploader: Option<Uuid>,
 ) -> Result<Uuid, ControllerError> {
     let path_string = path.to_str().context("invalid path")?.to_string();
-    let id =
-        models::file_uploads::insert(conn, file_name, &path_string, mime_type, uploader).await?;
+    let id = models::file_uploads::insert(conn, file_name, &path_string, mime_type, uploader, None)
+        .await?;
     file_store.upload_stream(path, file, mime_type).await?;
     Ok(id)
 }

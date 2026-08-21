@@ -36,6 +36,8 @@ pub async fn regrade(
         &ExerciseTask,
         &ExerciseTaskSubmission,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<()> {
     // stores all the futures which will resolve into new gradings
     let mut grading_futures = GradingFutures::new();
@@ -59,6 +61,8 @@ pub async fn regrade(
             regrading_id,
             &mut grading_futures,
             &send_grading_request,
+            file_store,
+            app_conf,
         )
         .await
         {
@@ -142,6 +146,8 @@ pub async fn regrade(
             &regrading_submission,
             &grading,
             &grading_result,
+            file_store,
+            app_conf,
         )
         .await?;
     }
@@ -169,6 +175,8 @@ async fn do_single_regrading(
         &ExerciseTask,
         &ExerciseTaskSubmission,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<RegradingStatus> {
     let mut regrading_status = RegradingStatus {
         exercise_services_full: false,
@@ -204,6 +212,8 @@ async fn do_single_regrading(
         let submission = models::exercise_task_submissions::get_submission(
             &mut *conn,
             regrading_submission.exercise_task_submission_id,
+            file_store,
+            app_conf,
         )
         .await?;
         let exercise_slide =
@@ -337,7 +347,7 @@ mod test {
         exercises::{self, GradingProgress},
         library::grading::{
             GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
-            StudentExerciseTaskSubmission,
+            StudentExerciseTaskSubmission, SubmittedAnswer,
         },
         user_exercise_states::{self, ExerciseWithUserState},
     };
@@ -383,7 +393,7 @@ mod test {
                 exercise_slide_id: slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: task,
-                    data_json: Value::Null,
+                    answer: SubmittedAnswer::Json { data: Value::Null },
                 }],
             },
             HashMap::from([(task, grading_result.clone())]),
@@ -429,19 +439,25 @@ mod test {
             .unwrap();
         assert!(regrading_submission.grading_after_regrading.is_none());
 
-        regrade(tx.as_mut(), &services, |_, _, _| {
-            async {
-                Ok(ExerciseTaskGradingResult {
-                    grading_progress: GradingProgress::FullyGraded,
-                    score_given: 0.0,
-                    score_maximum: 1,
-                    feedback_text: None,
-                    feedback_json: None,
-                    set_user_variables: None,
-                })
-            }
-            .boxed()
-        })
+        regrade(
+            tx.as_mut(),
+            &services,
+            |_, _, _| {
+                async {
+                    Ok(ExerciseTaskGradingResult {
+                        grading_progress: GradingProgress::FullyGraded,
+                        score_given: 0.0,
+                        score_maximum: 1,
+                        feedback_text: None,
+                        feedback_json: None,
+                        set_user_variables: None,
+                    })
+                }
+                .boxed()
+            },
+            &init_file_store(),
+            &init_app_conf().expect("app conf"),
+        )
         .await
         .unwrap();
 
@@ -496,7 +512,7 @@ mod test {
                 exercise_slide_id: slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: task,
-                    data_json: Value::Null,
+                    answer: SubmittedAnswer::Json { data: Value::Null },
                 }],
             },
             HashMap::from([(task, grading_result.clone())]),
@@ -540,19 +556,25 @@ mod test {
         assert!(regrading.regrading_started_at.is_none());
         assert!(regrading.regrading_completed_at.is_none());
 
-        regrade(tx.as_mut(), &services, |_, _, _| {
-            async {
-                Ok(ExerciseTaskGradingResult {
-                    grading_progress: GradingProgress::FullyGraded,
-                    score_given: 1.0,
-                    score_maximum: 1,
-                    feedback_text: None,
-                    feedback_json: None,
-                    set_user_variables: None,
-                })
-            }
-            .boxed()
-        })
+        regrade(
+            tx.as_mut(),
+            &services,
+            |_, _, _| {
+                async {
+                    Ok(ExerciseTaskGradingResult {
+                        grading_progress: GradingProgress::FullyGraded,
+                        score_given: 1.0,
+                        score_maximum: 1,
+                        feedback_text: None,
+                        feedback_json: None,
+                        set_user_variables: None,
+                    })
+                }
+                .boxed()
+            },
+            &init_file_store(),
+            &init_app_conf().expect("app conf"),
+        )
         .await
         .unwrap();
 
@@ -605,7 +627,7 @@ mod test {
                 exercise_slide_id: slide_1,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: task_1,
-                    data_json: Value::Null,
+                    answer: SubmittedAnswer::Json { data: Value::Null },
                 }],
             },
             HashMap::from([(task_1, grading_result.clone())]),
@@ -646,7 +668,7 @@ mod test {
                 exercise_slide_id: slide_2,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: task_2,
-                    data_json: Value::Null,
+                    answer: SubmittedAnswer::Json { data: Value::Null },
                 }],
             },
             HashMap::from([(task_2, grading_result.clone())]),
@@ -717,19 +739,25 @@ mod test {
         );
         assert!(regrading_2.regrading_started_at.is_none());
 
-        regrade(tx.as_mut(), &services, |_, _, _| {
-            async {
-                Ok(ExerciseTaskGradingResult {
-                    grading_progress: GradingProgress::Pending,
-                    score_given: 0.0,
-                    score_maximum: 1,
-                    feedback_text: None,
-                    feedback_json: None,
-                    set_user_variables: None,
-                })
-            }
-            .boxed()
-        })
+        regrade(
+            tx.as_mut(),
+            &services,
+            |_, _, _| {
+                async {
+                    Ok(ExerciseTaskGradingResult {
+                        grading_progress: GradingProgress::Pending,
+                        score_given: 0.0,
+                        score_maximum: 1,
+                        feedback_text: None,
+                        feedback_json: None,
+                        set_user_variables: None,
+                    })
+                }
+                .boxed()
+            },
+            &init_file_store(),
+            &init_app_conf().expect("app conf"),
+        )
         .await
         .unwrap();
 
@@ -770,7 +798,7 @@ mod test {
                 exercise_slide_id: slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: task,
-                    data_json: Value::Null,
+                    answer: SubmittedAnswer::Json { data: Value::Null },
                 }],
             },
             HashMap::from([(
@@ -843,19 +871,25 @@ mod test {
             0.0
         );
 
-        regrade(tx.as_mut(), &services, |_, _, _| {
-            async {
-                Ok(ExerciseTaskGradingResult {
-                    grading_progress: GradingProgress::FullyGraded,
-                    score_given: 1.0,
-                    score_maximum: 1,
-                    feedback_text: None,
-                    feedback_json: None,
-                    set_user_variables: None,
-                })
-            }
-            .boxed()
-        })
+        regrade(
+            tx.as_mut(),
+            &services,
+            |_, _, _| {
+                async {
+                    Ok(ExerciseTaskGradingResult {
+                        grading_progress: GradingProgress::FullyGraded,
+                        score_given: 1.0,
+                        score_maximum: 1,
+                        feedback_text: None,
+                        feedback_json: None,
+                        set_user_variables: None,
+                    })
+                }
+                .boxed()
+            },
+            &init_file_store(),
+            &init_app_conf().expect("app conf"),
+        )
         .await
         .unwrap();
 
@@ -898,7 +932,7 @@ mod test {
                 exercise_slide_id: slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: task,
-                    data_json: Value::Null,
+                    answer: SubmittedAnswer::Json { data: Value::Null },
                 }],
             },
             HashMap::from([(task, grading_result.clone())]),
@@ -927,9 +961,15 @@ mod test {
         .unwrap();
 
         let services = HashMap::new();
-        regrade(tx.as_mut(), &services, |_, _, _| unimplemented!())
-            .await
-            .unwrap();
+        regrade(
+            tx.as_mut(),
+            &services,
+            |_, _, _| unimplemented!(),
+            &init_file_store(),
+            &init_app_conf().expect("app conf"),
+        )
+        .await
+        .unwrap();
 
         let regrading = models::regradings::get_by_id(tx.as_mut(), regrading)
             .await
@@ -972,6 +1012,8 @@ mod test {
             GradingPolicy::Fixed(mock_results),
             |_| unimplemented!(),
             |_, _, _| unimplemented!(),
+            &init_file_store(),
+            &init_app_conf().expect("app conf"),
         )
         .await
         .unwrap();

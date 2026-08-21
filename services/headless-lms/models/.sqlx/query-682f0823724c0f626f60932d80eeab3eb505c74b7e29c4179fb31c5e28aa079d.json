@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT DISTINCT ON (us_state.user_id)\n        us_state.id,\n        us_state.user_id,\n        us_state.exercise_id,\n        us_state.score_given,\n        us_state.grading_progress,\n        t_submission.data_json,\n        s_submission.created_at,\n        s_submission.updated_at,\n        s_submission.deleted_at,\n        s_submission.id AS submission_id\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n            ON t_submission.exercise_slide_submission_id =\n                s_submission.id\n    WHERE us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id = $1\n    AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL\n    AND s_submission.deleted_at IS NULL\n    AND t_submission.deleted_at IS NULL\n    ORDER BY us_state.user_id, s_submission.created_at DESC\n    LIMIT $2 OFFSET $3;",
+  "query": "\n        SELECT DISTINCT ON (us_state.user_id)\n        us_state.id,\n        us_state.user_id,\n        us_state.exercise_id,\n        us_state.score_given,\n        us_state.grading_progress AS \"grading_progress: GradingProgress\",\n        t_submission.id AS task_submission_id,\n        t_submission.data_json,\n        t_submission.answer_kind AS \"answer_kind: AnswerKind\",\n        s_submission.created_at,\n        s_submission.updated_at,\n        s_submission.deleted_at,\n        s_submission.id AS submission_id\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n            ON t_submission.exercise_slide_submission_id =\n                s_submission.id\n    WHERE us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id = $1\n    AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL\n    AND s_submission.deleted_at IS NULL\n    AND t_submission.deleted_at IS NULL\n    ORDER BY us_state.user_id, s_submission.created_at DESC\n    LIMIT $2 OFFSET $3;",
   "describe": {
     "columns": [
       {
@@ -49,7 +49,7 @@
       },
       {
         "ordinal": 4,
-        "name": "grading_progress",
+        "name": "grading_progress: GradingProgress",
         "type_info": {
           "Custom": {
             "name": "grading_progress",
@@ -73,6 +73,17 @@
       },
       {
         "ordinal": 5,
+        "name": "task_submission_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
         "name": "data_json",
         "type_info": "Jsonb",
         "origin": {
@@ -83,7 +94,28 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
+        "name": "answer_kind: AnswerKind",
+        "type_info": {
+          "Custom": {
+            "name": "answer_kind",
+            "kind": {
+              "Enum": [
+                "json",
+                "file"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "answer_kind"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
         "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -94,7 +126,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 9,
         "name": "updated_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -105,7 +137,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 10,
         "name": "deleted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -116,7 +148,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 11,
         "name": "submission_id",
         "type_info": "Uuid",
         "origin": {
@@ -140,12 +172,14 @@
       false,
       true,
       false,
+      false,
       true,
+      false,
       false,
       false,
       true,
       false
     ]
   },
-  "hash": "65e0c3eea950253d945a2e6843dbc61cd9fb60047ce0689453be5ebeb8fa700a"
+  "hash": "682f0823724c0f626f60932d80eeab3eb505c74b7e29c4179fb31c5e28aa079d"
 }

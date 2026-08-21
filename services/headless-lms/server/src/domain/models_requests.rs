@@ -13,7 +13,7 @@ use headless_lms_models::{
     HttpErrorType, ModelError, ModelErrorType, ModelResult,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::{ExerciseTaskGradingRequest, ExerciseTaskGradingResult},
-    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_task_submissions::{AnswerData, ExerciseTaskSubmission},
     exercise_tasks::ExerciseTask,
 };
 use secrecy::{ExposeSecret, SecretString};
@@ -620,7 +620,7 @@ pub fn make_grading_request_sender(
             .json(&ExerciseTaskGradingRequest {
                 grading_update_url: &grading_update_url,
                 exercise_spec: &exercise_task.private_spec,
-                submission_data: &submission.data_json,
+                submission_data: submission.answer.as_ref().and_then(AnswerData::plugin_json),
             });
         async move {
             let res = req.send().await.map_err(ModelError::from)?;

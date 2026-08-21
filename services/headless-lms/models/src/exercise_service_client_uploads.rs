@@ -229,6 +229,7 @@ RETURNING u.id
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::library::grading::SubmittedAnswer;
     use crate::test_helper::*;
 
     async fn insert_file(tx: &mut PgConnection, name: &str) -> Uuid {
@@ -237,6 +238,7 @@ mod test {
             name,
             &format!("exercise-services-client/{name}"),
             "application/octet-stream",
+            None,
             None,
         )
         .await
@@ -257,7 +259,7 @@ mod test {
     }
 
     async fn insert_file_at(tx: &mut PgConnection, name: &str, path: &str) -> Uuid {
-        crate::file_uploads::insert(tx, name, path, "application/octet-stream", None)
+        crate::file_uploads::insert(tx, name, path, "application/octet-stream", None, None)
             .await
             .unwrap()
     }
@@ -316,7 +318,9 @@ mod test {
             slide_submission.id,
             slide_id,
             task_id,
-            &serde_json::json!({ "opaque": "plugin owned" }),
+            &SubmittedAnswer::Json {
+                data: serde_json::json!({ "opaque": "plugin owned" }),
+            },
         )
         .await
         .unwrap();

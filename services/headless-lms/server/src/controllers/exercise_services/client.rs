@@ -23,7 +23,9 @@ use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::UserExerciseState;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
-use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
+use models::library::grading::{
+    StudentExerciseSlideSubmission, StudentExerciseTaskSubmission, SubmittedAnswer,
+};
 use std::collections::HashSet;
 use std::future::{Ready, ready};
 use std::path::Path;
@@ -303,11 +305,13 @@ async fn get_course(
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_course_exercises(
     pool: web::Data<PgPool>,
     user: UserFromOAuthToken,
     course: web::Path<Uuid>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<Vec<api::ExerciseSlide>>> {
     let mut conn = pool.acquire().await?;
@@ -333,6 +337,8 @@ async fn get_course_exercises(
             Some(user.id),
             &open_exercise,
             models_requests::fetch_service_info,
+            file_store.as_ref(),
+            app_conf.as_ref(),
         )
         .await?;
         // The per-user "reveal once solved" gate lives in `get_exercise`, so this list view
@@ -480,11 +486,13 @@ async fn get_course_progress(
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
     user: UserFromOAuthToken,
     exercise_id: web::Path<Uuid>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::ExerciseSlide>> {
     let mut conn = pool.acquire().await?;
@@ -502,6 +510,8 @@ async fn get_exercise(
         Some(user.id),
         &exercise,
         models_requests::fetch_service_info,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await?;
     let course_id = match course_or_exam_id {
@@ -1018,7 +1028,7 @@ async fn submit_exercise(
         app_conf.as_ref(),
     )?;
 
-    let data_json = build_user_answer(&mut conn, &exercise_task, uploaded_files).await?;
+    let answer_json = build_user_answer(&mut conn, &exercise_task, uploaded_files).await?;
 
     // The submission and the record of which files it was made from must land together: a
     // submission without that record is one `download_submission` can never serve.
@@ -1045,10 +1055,12 @@ async fn submit_exercise(
             exercise_slide_id: submission.exercise_slide_id,
             exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                 exercise_task_id: submission.exercise_task_id,
-                data_json,
+                answer: SubmittedAnswer::Json { data: answer_json },
             }],
         },
         jwt_key.into_inner(),
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await;
     let result = match result {
@@ -1112,16 +1124,23 @@ async fn submit_exercise(
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_submission_grading(
     pool: web::Data<PgPool>,
     submission_id: web::Path<Uuid>,
     user: UserFromOAuthToken,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionStatus>> {
     let mut conn = pool.acquire().await?;
-    let submission =
-        models::exercise_task_submissions::get_by_id(&mut conn, *submission_id).await?;
+    let submission = models::exercise_task_submissions::get_by_id(
+        &mut conn,
+        *submission_id,
+        file_store.as_ref(),
+        app_conf.as_ref(),
+    )
+    .await?;
     let slide_submission = models::exercise_slide_submissions::get_by_id(
         &mut conn,
         submission.exercise_slide_submission_id,
@@ -1269,6 +1288,8 @@ async fn download_submission(
     let task_submissions = models::exercise_task_submissions::get_by_exercise_slide_submission_id(
         &mut conn,
         *submission_id,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await?;
     // Resolved from the host's own file records, never from the exercise service's answer: the
@@ -2017,7 +2038,9 @@ mod upload_tests {
             slide_submission.id,
             slide_id,
             task_id,
-            &serde_json::json!({ "opaque": "plugin owned" }),
+            &SubmittedAnswer::Json {
+                data: serde_json::json!({ "opaque": "plugin owned" }),
+            },
         )
         .await
         .expect("task submission")
@@ -2171,6 +2194,7 @@ mod upload_tests {
             "exercise-services-client/a",
             "application/octet-stream",
             Some(user),
+            None,
         )
         .await
         .expect("file upload");
@@ -2218,6 +2242,7 @@ mod upload_tests {
             "exercise-services-client/a",
             "application/octet-stream",
             Some(user),
+            None,
         )
         .await
         .expect("file upload");
@@ -2258,6 +2283,7 @@ mod upload_tests {
                     &format!("exercise-services-client/{name}"),
                     "application/octet-stream",
                     Some(user),
+                    None,
                 )
                 .await
                 .expect("file upload"),
@@ -2336,9 +2362,14 @@ mod upload_tests {
         }
 
         assert!(
-            models::exercise_task_submissions::get_by_id(tx.as_mut(), submission_id)
-                .await
-                .is_err(),
+            models::exercise_task_submissions::get_by_id(
+                tx.as_mut(),
+                submission_id,
+                &crate::test_helper::init_file_store(),
+                &crate::test_helper::init_app_conf().expect("app conf"),
+            )
+            .await
+            .is_err(),
             "the submission must not survive a failed association"
         );
         tx.rollback().await;
@@ -3285,11 +3316,20 @@ mod route_tests {
 
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let submission =
-            models::exercise_task_submissions::get_by_id(tx.as_mut(), body.task_submission_id)
-                .await
-                .expect("task submission");
-        assert_eq!(submission.data_json, Some(stub_answer()));
+        let submission = models::exercise_task_submissions::get_by_id(
+            tx.as_mut(),
+            body.task_submission_id,
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect("task submission");
+        assert_eq!(
+            submission.answer,
+            Some(models::exercise_task_submissions::AnswerData::Json {
+                data: stub_answer()
+            })
+        );
         assert_eq!(
             submission.exercise_slide_submission_id,
             body.slide_submission_id
@@ -3428,11 +3468,12 @@ mod route_tests {
                 exercise_slide_id: fixture.slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: fixture.task,
-                    data_json: answer,
+                    answer: SubmittedAnswer::Json { data: answer },
                 }],
             },
             std::sync::Arc::new(JwtKey::test_key()),
             store,
+            &crate::test_helper::init_app_conf().expect("app conf"),
         )
         .await
         .expect("iframe submission");

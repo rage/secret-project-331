@@ -1,7 +1,9 @@
 use std::{env, error::Error, sync::Arc, time::Duration};
 
+use crate::config::FileStoreRuntimeConfig;
 use crate::config::program_config::ProgramConfig;
 use crate::domain::models_requests::{self, JwtKey};
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models as models;
 use models::library::regrading;
 use sqlx::PgPool;
@@ -17,6 +19,9 @@ pub async fn main() -> anyhow::Result<()> {
     let db_url = ProgramConfig::database_url_with_default();
     let jwt_password = secrecy::SecretString::new(ProgramConfig::required("JWT_PASSWORD")?.into());
     let jwt_key = Arc::new(JwtKey::new(&jwt_password)?);
+    let app_conf = ApplicationConfiguration::try_from_env()?;
+    let file_store =
+        crate::setup_file_store(&FileStoreRuntimeConfig::try_from_env()?, &app_conf.base_url).await;
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
     let mut ticks = 60;
@@ -46,6 +51,8 @@ pub async fn main() -> anyhow::Result<()> {
             &mut conn,
             &exercise_services_by_type,
             models_requests::make_grading_request_sender(Arc::clone(&jwt_key)),
+            file_store.as_ref(),
+            &app_conf,
         )
         .await
         {

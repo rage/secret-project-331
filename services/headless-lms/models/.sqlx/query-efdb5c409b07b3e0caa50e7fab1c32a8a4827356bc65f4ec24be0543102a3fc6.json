@@ -1,0 +1,129 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT exercise_task_submissions.id,\n  user_id,\n  exercise_task_submissions.created_at,\n  exercise_slide_submissions.exercise_id,\n  exercise_task_submissions.exercise_task_id,\n  exercise_task_gradings.score_given,\n  exercise_task_submissions.data_json,\n  exercise_task_submissions.answer_kind AS \"answer_kind: AnswerKind\",\n  answer_files.files AS \"files!: serde_json::Value\"\nFROM exercise_task_submissions\n  JOIN exercise_slide_submissions ON exercise_task_submissions.exercise_slide_submission_id = exercise_slide_submissions.id\n  JOIN exercise_task_gradings on exercise_task_submissions.exercise_task_grading_id = exercise_task_gradings.id\n  JOIN exercises on exercise_slide_submissions.exercise_id = exercises.id\n  LEFT JOIN LATERAL (\n    SELECT COALESCE(\n        jsonb_agg(\n          jsonb_build_object(\n            'id', fu.id,\n            'name', fu.name,\n            'mime', fu.mime,\n            'size_bytes', fu.size_bytes,\n            'path', fu.path,\n            'order_number', etsf.order_number\n          )\n          ORDER BY etsf.order_number\n        ),\n        '[]'::jsonb\n      ) AS files\n    FROM exercise_task_submission_files etsf\n      JOIN file_uploads fu ON fu.id = etsf.file_upload_id\n    WHERE etsf.exercise_task_submission_id = exercise_task_submissions.id\n      AND etsf.deleted_at IS NULL\n      AND fu.deleted_at IS NULL\n  ) answer_files ON TRUE\nWHERE exercise_slide_submissions.exam_id = $1\n  AND exercise_task_submissions.deleted_at IS NULL\n  AND exercise_task_gradings.deleted_at IS NULL\n  AND exercises.deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "exercise_task_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "exercise_task_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "score_given",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_gradings",
+            "name": "score_given"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "data_json",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "data_json"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "answer_kind: AnswerKind",
+        "type_info": {
+          "Custom": {
+            "name": "answer_kind",
+            "kind": {
+              "Enum": [
+                "json",
+                "file"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "answer_kind"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "files!: serde_json::Value",
+        "type_info": "Jsonb",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      null
+    ]
+  },
+  "hash": "efdb5c409b07b3e0caa50e7fab1c32a8a4827356bc65f4ec24be0543102a3fc6"
+}

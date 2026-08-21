@@ -44,7 +44,7 @@ pub struct ExerciseTaskGrading {
 pub struct ExerciseTaskGradingRequest<'a> {
     pub grading_update_url: &'a str,
     pub exercise_spec: &'a Option<serde_json::Value>,
-    pub submission_data: &'a Option<serde_json::Value>,
+    pub submission_data: Option<&'a serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

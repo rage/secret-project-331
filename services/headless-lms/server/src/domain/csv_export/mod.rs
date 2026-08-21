@@ -262,6 +262,7 @@ mod test {
         exercises::{self, GradingProgress},
         library::grading::{
             GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseTaskSubmission,
+            SubmittedAnswer,
         },
         user_exercise_states,
         user_exercise_states::ExerciseWithUserState,
@@ -433,7 +434,7 @@ mod test {
                 exercise_slide_id: ex_slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: et,
-                    data_json: Value::Null,
+                    answer: SubmittedAnswer::Json { data: Value::Null },
                 }],
             },
             GradingPolicy::Fixed(HashMap::from([(
@@ -449,6 +450,8 @@ mod test {
             )])),
             models_requests::fetch_service_info,
             models_requests::make_grading_request_sender(jwt_key),
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
         )
         .await
         .unwrap();

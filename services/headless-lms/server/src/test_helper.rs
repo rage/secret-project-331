@@ -233,6 +233,23 @@ impl headless_lms_utils::file_store::FileStore for TempFileStore {
     }
 }
 
+/// The `message_key` a controller error puts in its response body, which is the part of an error a
+/// client branches on.
+pub fn message_key_of(error: &crate::domain::error::ControllerError) -> String {
+    use actix_web::ResponseError;
+    use futures::FutureExt;
+    let response = error.error_response();
+    let bytes = actix_web::body::to_bytes(response.into_body())
+        .now_or_never()
+        .expect("response should resolve immediately")
+        .expect("body bytes");
+    let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+    value["message_key"]
+        .as_str()
+        .unwrap_or_default()
+        .to_string()
+}
+
 /// A `TempFileStore` whose directory is removed when it is dropped.
 pub fn temp_file_store() -> TempFileStore {
     TempFileStore(tempfile::tempdir().expect("temp dir"))

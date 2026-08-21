@@ -28,9 +28,12 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up deploy key
         run: |
@@ -46,7 +49,8 @@ jobs:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the repo root
         run: pnpm install --frozen-lockfile
 
@@ -69,18 +73,9 @@ jobs:
         run: cp -r ./storybook/storybook-static/* ./storybook/storybook-static-repo/
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      - name: Commit files
-        run: |
-          git config --local user.email "bot@example.com"
-          git config --local user.name "github-actions[bot]"
-          git add .
-          git commit -m "Update: $GITHUB_SHA" --allow-empty
-        working-directory: ./storybook/storybook-static-repo
-        if: ${{ github.ref == 'refs/heads/master' }}
-
-      - name: Push changes
-        run: git push
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
-        working-directory: ./storybook/storybook-static-repo
+      - name: Commit and push storybook
+        uses: ./.github/actions/commit-and-push-generated-content
+        with:
+          working-directory: ./storybook/storybook-static-repo
+          git-ssh-command: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
         if: ${{ github.ref == 'refs/heads/master' }}

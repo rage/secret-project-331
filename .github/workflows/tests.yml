@@ -23,6 +23,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 35
 
     services:
       postgres:
@@ -43,24 +44,16 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Free up disk space
-        run: |
-          echo "Space before:"
-          df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          echo "Space after:"
-          df -h
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # The compile-time font guard rejects unhydrated git-lfs pointers.
           lfs: true
+          persist-credentials: false
 
-      - uses: actions/cache@v4
+      - name: Free up disk space
+        uses: ./.github/actions/free-disk-space
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/bin/
@@ -75,7 +68,7 @@ jobs:
       - name: Get service container network
         id: get_network
         run: |
-          POSTGRES_CONTAINER=$(docker ps -q -f ancestor=postgres:16.4 | head -1)
+          POSTGRES_CONTAINER=$(docker ps -q -f ancestor=pgvector/pgvector:pg18-trixie | head -1)
           if [ -z "$POSTGRES_CONTAINER" ]; then
             echo "Postgres container not found, trying redis..."
             REDIS_CONTAINER=$(docker ps -q -f ancestor=redis:7.2 | head -1)
@@ -91,9 +84,11 @@ jobs:
           echo "Using network: $NETWORK"
 
       - name: Cargo clippy
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace \
             -e CARGO_TERM_COLOR=always \
@@ -101,9 +96,11 @@ jobs:
             cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings
 
       - name: Build
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e CARGO_TERM_COLOR=always \
@@ -111,9 +108,11 @@ jobs:
             cargo build --verbose
 
       - name: Set up unit test database
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_test \
@@ -121,9 +120,11 @@ jobs:
             sqlx database setup
 
       - name: Set up integration test database
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_integration \
@@ -131,18 +132,22 @@ jobs:
             sqlx database setup
 
       - name: Wait for Redis
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             bash -c "timeout 20s bash -c 'until redis-cli -h redis ping; do echo \"Waiting for Redis...\"; sleep 1; done'"
 
       - name: Run tests
+        env:
+          NETWORK: ${{ steps.get_network.outputs.network }}
         run: |
           docker run --rm \
-            --network "${{ steps.get_network.outputs.network }}" \
+            --network "$NETWORK" \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e CARGO_TERM_COLOR=always \
@@ -151,24 +156,19 @@ jobs:
             -e REDIS_URL=redis://redis:6379/1 \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo test --verbose
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 🧪 Headless LMS Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Database**: PostgreSQL 16.4"
-            echo "- **Cache**: Redis 7.2"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   cms:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -179,23 +179,19 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/cms
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 📝 CMS Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: CMS"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   shared-module-common:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
       - name: Install dependencies for shared-module/packages/common
@@ -210,23 +206,19 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./shared-module/packages/common
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 🔧 Shared Module Common Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Shared Module Common"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   shared-module-components:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
       - name: Install dependencies for shared-module/packages/components
@@ -237,23 +229,19 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./shared-module/packages/components
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 🧱 Shared Module Components Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Shared Module Components"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   quizzes:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -264,23 +252,19 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/quizzes
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## ❓ Quizzes Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Quizzes"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   main-frontend:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -291,23 +275,19 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/main-frontend
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 🎨 Main Frontend Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Main Frontend"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   example-exercise-typecheck:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -324,23 +304,19 @@ jobs:
       - name: Run Playwright browser tests
         run: pnpm run test:playwright
         working-directory: ./services/example-exercise
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 🧩 Example Exercise Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Example Exercise"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   tmc-typecheck:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -351,23 +327,19 @@ jobs:
       - name: Run tests
         run: pnpm run test
         working-directory: ./services/tmc
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 🧪 TMC Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: TMC"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   shared-module-exercise-packages:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
       - name: Install dependencies for the exercise packages
@@ -416,23 +388,19 @@ jobs:
       - name: Browser tests for exercise-service-test-utils
         run: pnpm run test:playwright
         working-directory: ./shared-module/packages/exercise-service-test-utils
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 🧩 Exercise Package Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Packages**: exercise-protocol, exercise-client, exercise-react, exercise-iframe-host, exercise-service-test-utils"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   create-exercise-service:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
       - name: Install dependencies for shared-module/packages/create-exercise-service
@@ -450,11 +418,3 @@ jobs:
       - name: Typecheck the generated project
         run: pnpm exec tsc --noEmit
         working-directory: ${{ runner.temp }}/smoke-exercise
-      - name: Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 🏗️ Create Exercise Service Checks"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Service**: Create Exercise Service"
-          } >> "$GITHUB_STEP_SUMMARY"

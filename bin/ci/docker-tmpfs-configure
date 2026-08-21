@@ -1,0 +1,25 @@
+#!/bin/bash
+source "$(dirname "$0")/../.common"
+
+sudo systemctl stop docker
+
+sudo mkdir -p /mnt/docker-tmpfs
+sudo mount -t tmpfs -o size=50g tmpfs /mnt/docker-tmpfs
+sudo mkdir -p /etc/docker
+
+echo '{
+  "data-root": "/mnt/docker-tmpfs",
+  "storage-driver": "overlay2"
+}' | sudo tee /etc/docker/daemon.json
+
+echo "docker MemoryMax=$(systemctl show docker -p MemoryMax --value 2>/dev/null)"
+sudo systemctl start docker
+
+sudo systemctl status docker --no-pager
+
+docker_root_dir="$(docker info --format '{{.DockerRootDir}}')"
+if [ "$docker_root_dir" != "/mnt/docker-tmpfs" ]; then
+  echo "::error::Docker root dir is '$docker_root_dir', expected /mnt/docker-tmpfs" >&2
+  exit 1
+fi
+echo "Docker root dir: $docker_root_dir"

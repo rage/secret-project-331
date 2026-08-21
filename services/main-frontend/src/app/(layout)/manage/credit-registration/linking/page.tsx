@@ -38,6 +38,10 @@ const WAITING_QUERY = "?state=pending_student_number"
 // oxlint-disable-next-line i18next/no-literal-string
 const ADMIN_MANUAL = "admin_manual"
 // oxlint-disable-next-line i18next/no-literal-string
+const FAST_TRACK = "email_match_fast_track"
+// oxlint-disable-next-line i18next/no-literal-string
+const EMPTY_SHARE = "-"
+// oxlint-disable-next-line i18next/no-literal-string
 const SEND_FAILED: EmailSendStatus = "send_failed"
 
 const funnelCss = css`
@@ -123,6 +127,21 @@ const FunnelSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
       value: funnel.manual_links_in_window,
     },
   ]
+  // Its own list because it branches off `discovered` and never reaches a mail: rendering it inside
+  // the steps above would read as a stage everyone passes through.
+  const fastTrackSteps = [
+    {
+      label: t("credit-registration-admin-funnel-fast-tracked-last-run"),
+      value: funnel.fast_tracked_last_run,
+    },
+    {
+      label: t("credit-registration-admin-funnel-fast-tracked-in-window"),
+      value: funnel.fast_tracked_in_window,
+    },
+  ]
+  const fastTrackTotal =
+    stats.links_total_by_method.find((row) => row.verified_via === FAST_TRACK)?.count ?? 0
+  const linksTotal = stats.links_total_by_method.reduce((sum, row) => sum + row.count, 0)
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-linking-funnel")}</h2>
@@ -140,6 +159,34 @@ const FunnelSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
         ))}
       </div>
       <p className={noteCss}>{t("credit-registration-admin-funnel-no-link-fetch-step")}</p>
+      <h3 className={headingCss}>{t("credit-registration-heading-fast-track")}</h3>
+      <p className={noteCss}>{t("credit-registration-admin-fast-track-is-a-branch-note")}</p>
+      <div className={funnelCss}>
+        {fastTrackSteps.map((step) => (
+          <Meter
+            key={step.label}
+            value={step.value}
+            maxValue={scale}
+            label={step.label}
+            valueLabel={String(step.value)}
+            showLabel
+          />
+        ))}
+      </div>
+      <div className={tilesCss}>
+        <StatTile
+          label={t("credit-registration-admin-fast-track-share")}
+          value={
+            linksTotal === 0 ? EMPTY_SHARE : `${Math.round((fastTrackTotal / linksTotal) * 100)}%`
+          }
+        />
+      </div>
+      <p className={noteCss}>
+        {t("credit-registration-admin-fast-track-share-note", {
+          fastTracked: fastTrackTotal,
+          total: linksTotal,
+        })}
+      </p>
       <h3 className={headingCss}>{t("credit-registration-heading-suppression")}</h3>
       <p className={noteCss}>{t("credit-registration-admin-suppression-is-healthy")}</p>
       <div className={tilesCss}>
@@ -278,6 +325,34 @@ const RealisationSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats })
             {
               header: t("credit-registration-admin-no-address-in-registry"),
               cell: (row) => row.no_address_count ?? ABSENT,
+            },
+            {
+              header: t("credit-registration-admin-funnel-fast-tracked"),
+              cell: (row) => row.fast_tracked_count ?? ABSENT,
+            },
+            {
+              header: t("credit-registration-admin-fast-track-skipped-no-account"),
+              cell: (row) => row.fast_track_skipped_no_account_count ?? ABSENT,
+            },
+            {
+              header: t("credit-registration-admin-fast-track-skipped-unverified"),
+              cell: (row) => row.fast_track_skipped_unverified_count ?? ABSENT,
+            },
+            {
+              header: t("credit-registration-admin-fast-track-skipped-stale"),
+              cell: (row) => row.fast_track_skipped_stale_verification_count ?? ABSENT,
+            },
+            {
+              header: t("credit-registration-admin-fast-track-skipped-name-mismatch"),
+              cell: (row) => row.fast_track_skipped_name_mismatch_count ?? ABSENT,
+            },
+            {
+              header: t("credit-registration-admin-fast-track-skipped-has-number"),
+              cell: (row) => row.fast_track_skipped_account_has_number_count ?? ABSENT,
+            },
+            {
+              header: t("credit-registration-admin-fast-track-skipped-unlinked-before"),
+              cell: (row) => row.fast_track_skipped_unlinked_before_count ?? ABSENT,
             },
           ]}
         />

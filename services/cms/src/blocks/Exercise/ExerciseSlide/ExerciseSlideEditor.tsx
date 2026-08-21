@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { InnerBlocks } from "@wordpress/block-editor"
+import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import React, { useContext } from "react"
 
 import Button from "@/shared-module/common/components/Button"
@@ -32,35 +32,38 @@ const ExerciseSlideEditor: React.FC<
   const dispatch = useContext(EditorContentDispatch)
 
   const { t } = useTranslation()
+  const blockProps = useBlockProps()
 
   const handleAddNewTask = () => {
     dispatch({ type: "addExerciseTask", payload: { clientId } })
   }
 
   return (
-    <ExerciseSlideEditorCard id={attributes.id}>
-      <div
-        className={css`
-          font-family: ${primaryFont};
-          font-size: ${typography.h5};
-          margin-bottom: 1.5rem;
-        `}
-      >
-        {t("slide-title", { number: attributes.order_number + 1 })}
-      </div>
-      <div className={gutenbergControlsHidden}>
-        <InnerBlocks
-          allowedBlocks={ALLOWED_NESTED_BLOCKS}
-          template={INNER_BLOCKS_TEMPLATE}
-          templateLock={false}
-        />
-      </div>
-      <div>
-        <Button variant="secondary" size="medium" onClick={handleAddNewTask}>
-          {t("add-task")}
-        </Button>
-      </div>
-    </ExerciseSlideEditorCard>
+    <div {...blockProps}>
+      <ExerciseSlideEditorCard id={attributes.id}>
+        <div
+          className={css`
+            font-family: ${primaryFont};
+            font-size: ${typography.h5};
+            margin-bottom: 1.5rem;
+          `}
+        >
+          {t("slide-title", { number: attributes.order_number + 1 })}
+        </div>
+        <div className={gutenbergControlsHidden}>
+          <InnerBlocks
+            allowedBlocks={ALLOWED_NESTED_BLOCKS}
+            template={INNER_BLOCKS_TEMPLATE}
+            templateLock={false}
+          />
+        </div>
+        <div>
+          <Button variant="secondary" size="medium" onClick={handleAddNewTask}>
+            {t("add-task")}
+          </Button>
+        </div>
+      </ExerciseSlideEditorCard>
+    </div>
   )
 }
 

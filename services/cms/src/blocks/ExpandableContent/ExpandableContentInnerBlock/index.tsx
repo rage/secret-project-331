@@ -13,6 +13,7 @@ export interface ExpandableContentConfigurationProps {
 }
 const ExpandableContentInnerBlockConfiguration: BlockConfiguration<ExpandableContentConfigurationProps> =
   {
+    apiVersion: 3,
     title: "Expandable Content",
     description: "One or more heading that has expandable/collapsible content",
     category: MOOCFI_CATEGORY_SLUG,

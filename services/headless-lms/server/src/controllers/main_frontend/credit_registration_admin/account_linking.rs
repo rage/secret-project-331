@@ -22,6 +22,7 @@ use headless_lms_models::verified_student_numbers::{
 };
 use utoipa::ToSchema;
 
+use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
 use crate::domain::credit_registration_phases::PhaseContext;
 use crate::domain::credit_registration_phases::linking_mail_resend::{
     LinkingMailResendOutcome, ResendDecision, ResolvedPerson, resend_linking_mail_for_target,
@@ -56,6 +57,7 @@ fn phase_context<'a>(
         test_mode: app_conf.test_mode,
         caller,
         base_url: &app_conf.base_url,
+        suotar_conf: &app_conf.suotar_configuration,
     }
 }
 
@@ -73,6 +75,11 @@ pub struct AccountLinkingFunnel {
     pub suppressed_by_dedup_last_run: i64,
     pub suppressed_by_rate_cap_last_run: i64,
     pub no_address_in_study_registry_last_run: i64,
+    /// The branch that skips the mail entirely: discovered persons linked straight away because the
+    /// study registry holds a verified account address for them. A terminal branch off `discovered`,
+    /// not a stage every person passes through.
+    pub fast_tracked_in_window: i64,
+    pub fast_tracked_last_run: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -115,6 +122,16 @@ pub struct AccountLinkingRealisationCounters {
     pub suppressed_by_rate_cap_count: Option<i32>,
     /// Persons the registry holds no address for: the one population no remedy here can reach.
     pub no_address_count: Option<i32>,
+    pub fast_tracked_count: Option<i32>,
+    pub fast_track_skipped_no_account_count: Option<i32>,
+    /// Matched an account that has never proved the address. The population an email-verification
+    /// campaign would convert.
+    pub fast_track_skipped_unverified_count: Option<i32>,
+    pub fast_track_skipped_stale_verification_count: Option<i32>,
+    /// A rise here is the only early warning of a university address reissued to a different person.
+    pub fast_track_skipped_name_mismatch_count: Option<i32>,
+    pub fast_track_skipped_account_has_number_count: Option<i32>,
+    pub fast_track_skipped_unlinked_before_count: Option<i32>,
 }
 
 /// A person mailed to the cap for one course whose number was never claimed.
@@ -298,6 +315,16 @@ pub async fn get_account_linking_stats(
             suppressed_by_dedup_count: row.last_suppressed_by_dedup_count,
             suppressed_by_rate_cap_count: row.last_suppressed_by_rate_cap_count,
             no_address_count: row.last_no_address_count,
+            fast_tracked_count: row.last_fast_tracked_count,
+            fast_track_skipped_no_account_count: row.last_fast_track_skipped_no_account_count,
+            fast_track_skipped_unverified_count: row.last_fast_track_skipped_unverified_count,
+            fast_track_skipped_stale_verification_count: row
+                .last_fast_track_skipped_stale_verification_count,
+            fast_track_skipped_name_mismatch_count: row.last_fast_track_skipped_name_mismatch_count,
+            fast_track_skipped_account_has_number_count: row
+                .last_fast_track_skipped_account_has_number_count,
+            fast_track_skipped_unlinked_before_count: row
+                .last_fast_track_skipped_unlinked_before_count,
         })
         .collect::<Vec<_>>();
     let sum = |pick: fn(&AccountLinkingRealisationCounters) -> Option<i32>| -> i64 {
@@ -331,23 +358,25 @@ pub async fn get_account_linking_stats(
         })
         .collect();
 
-    let links_total_by_method = verified_student_numbers::count_by_method_since(&mut conn, None)
-        .await?
-        .into_iter()
-        .map(|(verified_via, count)| VerifiedStudentNumberMethodTotal {
-            verified_via,
-            count,
-        })
-        .collect::<Vec<_>>();
-    let links_in_window_by_method =
-        verified_student_numbers::count_by_method_since(&mut conn, Some(since))
-            .await?
-            .into_iter()
-            .map(|(verified_via, count)| VerifiedStudentNumberMethodTotal {
+    let method_counts = verified_student_numbers::count_by_method_since(&mut conn, since).await?;
+    let links_total_by_method = method_counts
+        .iter()
+        .map(
+            |&(verified_via, total, _)| VerifiedStudentNumberMethodTotal {
                 verified_via,
-                count,
-            })
-            .collect::<Vec<_>>();
+                count: total,
+            },
+        )
+        .collect::<Vec<_>>();
+    let links_in_window_by_method = method_counts
+        .iter()
+        .map(
+            |&(verified_via, _, in_window)| VerifiedStudentNumberMethodTotal {
+                verified_via,
+                count: in_window,
+            },
+        )
+        .collect::<Vec<_>>();
     let in_window = |method: StudentNumberVerificationMethod| -> i64 {
         links_in_window_by_method
             .iter()
@@ -380,6 +409,8 @@ pub async fn get_account_linking_stats(
         suppressed_by_dedup_last_run: sum(|row| row.suppressed_by_dedup_count),
         suppressed_by_rate_cap_last_run: sum(|row| row.suppressed_by_rate_cap_count),
         no_address_in_study_registry_last_run: sum(|row| row.no_address_count),
+        fast_tracked_in_window: in_window(StudentNumberVerificationMethod::EmailMatchFastTrack),
+        fast_tracked_last_run: sum(|row| row.fast_tracked_count),
     };
 
     token.authorized_ok(web::Json(AccountLinkingStats {
@@ -597,45 +628,32 @@ pub async fn admin_resolve_student_number_for_linking(
     };
     let linking_emails = build_linking_emails(&mut conn, mails).await?;
 
+    let shared = AdminResolveStudentNumberResult {
+        found: false,
+        student_number: student_number.to_string(),
+        sisu_person_id: None,
+        first_names: None,
+        last_name: None,
+        code: None,
+        study_registry_unavailable: false,
+        already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
+        already_linked_to_user_email,
+        already_linked_via: existing.as_ref().map(|link| link.verified_via),
+        linking_emails,
+    };
     let result = match resolved {
         Ok(Some(person)) => AdminResolveStudentNumberResult {
             found: true,
-            student_number: student_number.to_string(),
             sisu_person_id: Some(person.sisu_person_id),
             first_names: Some(person.first_names),
             last_name: Some(person.last_name),
             code: Some(person.code),
-            study_registry_unavailable: false,
-            already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
-            already_linked_to_user_email,
-            already_linked_via: existing.as_ref().map(|link| link.verified_via),
-            linking_emails,
+            ..shared
         },
-        Ok(None) => AdminResolveStudentNumberResult {
-            found: false,
-            student_number: student_number.to_string(),
-            sisu_person_id: None,
-            first_names: None,
-            last_name: None,
-            code: None,
-            study_registry_unavailable: false,
-            already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
-            already_linked_to_user_email,
-            already_linked_via: existing.as_ref().map(|link| link.verified_via),
-            linking_emails,
-        },
+        Ok(None) => AdminResolveStudentNumberResult { ..shared },
         Err(()) => AdminResolveStudentNumberResult {
-            found: false,
-            student_number: student_number.to_string(),
-            sisu_person_id: None,
-            first_names: None,
-            last_name: None,
-            code: None,
             study_registry_unavailable: true,
-            already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
-            already_linked_to_user_email,
-            already_linked_via: existing.as_ref().map(|link| link.verified_via),
-            linking_emails,
+            ..shared
         },
     };
 
@@ -744,7 +762,7 @@ pub async fn admin_manually_link_student_number(
                 link_reason: Some(reason.clone()),
                 verified_from_course_id: None,
             },
-            user.id,
+            Some(user.id),
             models::credit_registration_events::CreditRegistrationEventKind::AdminAction,
             "An administrator linked this student number by hand.",
         )
@@ -824,34 +842,22 @@ async fn finish_resend(
     retired_mail_count: i64,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {
-    models::credit_registration_admin_actions::record(
-        conn,
-        &NewCreditRegistrationAdminAction {
-            target_id: Some(payload.course_id),
-            reason: payload.reason.clone(),
-            details: Some(serde_json::json!({
-                "outcome": outcome,
-                "student_number": student_number,
-                "override_rate_caps": payload.override_rate_caps,
-                "retired_mail_count": retired_mail_count,
-            })),
-            ..NewCreditRegistrationAdminAction::new(
-                CreditRegistrationAdminAction::ResendLinkEmail,
-                CreditRegistrationAdminActionTarget::Course,
-                user.id,
-                GLOBAL_ADMIN_ROLE,
-            )
-        },
-    )
-    .await?;
-
-    let mails = credit_registration_account_linking_emails::get_by_course_id_and_student_number(
+    let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
         conn,
         payload.course_id,
-        student_number,
+        Some(student_number),
+        user.id,
+        GLOBAL_ADMIN_ROLE,
+        None,
+        payload.reason.clone(),
+        serde_json::json!({
+            "outcome": outcome,
+            "student_number": student_number,
+            "override_rate_caps": payload.override_rate_caps,
+            "retired_mail_count": retired_mail_count,
+        }),
     )
     .await?;
-    let mails_sent_for_this_course = mails.len() as i64;
     let linking_emails = build_linking_emails(conn, mails).await?;
 
     token.authorized_ok(web::Json(AdminResendAccountLinkingEmailResult {

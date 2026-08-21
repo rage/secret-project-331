@@ -12,12 +12,12 @@ import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/author-inner-block"]
 const AUTHOR_BLOCK_TEMPLATE: Template[] = [["moocfi/author-inner-block"]]
-const AuthorEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
-  clientId,
-}) => {
+const AuthorEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<Record<string, never>>>
+> = () => {
   const { t } = useTranslation()
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <div>
         <div
           className={css`

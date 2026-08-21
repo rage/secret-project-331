@@ -2,10 +2,11 @@
 
 import { css } from "@emotion/css"
 import {
+  columnVisibilityFeature,
   createColumnHelper,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -26,6 +27,8 @@ export interface DailyVisitCountsGroupedByUtmProps {
 }
 
 const DEFAULT_HEIGHT = 300
+
+const tableFeaturesConfig = tableFeatures({ columnVisibilityFeature })
 
 const containerStyles = css`
   margin-bottom: 2rem;
@@ -104,9 +107,12 @@ const DailyVisitCountsGroupedByUtm: React.FC<
     return sorted
   }, [query.data])
 
-  const columnHelper = createColumnHelper<PageVisitDatumSummaryByCourse>()
+  const columnHelper = createColumnHelper<
+    typeof tableFeaturesConfig,
+    PageVisitDatumSummaryByCourse
+  >()
 
-  const columns = [
+  const columns = columnHelper.columns([
     columnHelper.accessor("visit_date", {
       header: t("header-visit-date"),
     }),
@@ -116,12 +122,12 @@ const DailyVisitCountsGroupedByUtm: React.FC<
     columnHelper.accessor("utm_term", { header: "UTM Term" }),
     columnHelper.accessor("utm_content", { header: "UTM Content" }),
     columnHelper.accessor("num_visitors", { header: t("header-number-of-visitors") }),
-  ]
+  ])
 
-  const table = useReactTable({
+  const table = useTable({
+    features: tableFeaturesConfig,
     data: aggregatedData ?? [],
     columns,
-    getCoreRowModel: getCoreRowModel(),
   })
 
   return (

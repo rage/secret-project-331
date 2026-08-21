@@ -11,15 +11,11 @@ import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/heading", "core/list"]
 
-const FrontFlipCardEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
+const FrontFlipCardEditor: React.FC<BlockEditProps<Record<string, never>>> = () => {
   const { t } = useTranslation()
 
   return (
-    <BlockPlaceholderWrapper
-      id={clientId}
-      title={t("front-card")}
-      explanation={t("front-card-explanation")}
-    >
+    <BlockPlaceholderWrapper title={t("front-card")} explanation={t("front-card-explanation")}>
       <div
         className={css`
           width: 100%;

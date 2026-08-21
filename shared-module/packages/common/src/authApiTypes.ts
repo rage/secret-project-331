@@ -24,6 +24,7 @@ export type Action =
   | { type: "view_user_progress_or_details" }
   | { type: "view_internal_course_structure" }
   | { type: "view_stats" }
+  | { type: "view_and_manage_credit_registrations" }
   | { type: "administrate" }
 
 export interface ActionOnResource {

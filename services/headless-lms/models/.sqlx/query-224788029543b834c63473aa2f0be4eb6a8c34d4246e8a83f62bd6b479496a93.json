@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT credit_registration_id\nFROM credit_registration_events\nWHERE details #>> '{response,submittedAttainmentId}' IS NOT NULL\n  AND deleted_at IS NULL\nGROUP BY credit_registration_id\nHAVING COUNT(\n    DISTINCT details #>> '{response,submittedAttainmentId}'\n  ) > 1\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credit_registration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "credit_registration_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "224788029543b834c63473aa2f0be4eb6a8c34d4246e8a83f62bd6b479496a93"
+}

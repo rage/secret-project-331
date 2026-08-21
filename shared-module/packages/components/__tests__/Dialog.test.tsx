@@ -34,10 +34,10 @@ function DialogHarness(props: { isDismissable?: boolean; onClose?: () => void })
 }
 
 /**
- * react-aria's outside-interaction detection binds `pointerdown`+`click` only when
- * `PointerEvent` exists, and falls back to `mousedown`+`mouseup` when it does not.
- * jsdom provides no `PointerEvent`, so drive both sequences: whichever pair react-aria
- * bound fires exactly once, and the other pair is ignored by the branch it did not take.
+ * react-aria dismisses via document-level listeners on the modal ref, not handlers on the underlay
+ * element, and binds either pointerdown+click or mousedown+mouseup depending on whether the
+ * environment has `PointerEvent` (jsdom does not). Only one pair is ever bound, so firing both
+ * still dismisses exactly once, and the test does not depend on which branch jsdom takes.
  */
 function clickUnderlay() {
   const underlay = screen.getByRole("dialog").parentElement!

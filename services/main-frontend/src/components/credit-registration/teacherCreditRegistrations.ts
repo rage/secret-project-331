@@ -1,12 +1,20 @@
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { type QueryClient, queryOptions, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
 
+import {
+  getCourseCreditRegistrationActionsQueryKey,
+  getCourseCreditRegistrationSummaryQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { getCourseCreditRegistrationsForUsers } from "@/generated/api/sdk.generated"
 import type {
   CourseCreditRegistration,
+  CreditRegistrationNotificationKind,
   EmailSendStatus,
+  NotificationEmailStatus,
   StudentNumberVerificationMethod,
 } from "@/generated/api/types.generated"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import { humanReadableDate } from "@/shared-module/common/utils/time"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import { labelFrom, widenedLookup } from "./labelFrom"
@@ -32,11 +40,32 @@ const fetchInBatches = async (
   return rows
 }
 
-/** Keyed `userId:moduleId`, newest attempt only. */
-export const useTeacherCreditRegistrations = (courseId: string | null, userIds: string[]) =>
-  useQuery(
+/**
+ * Keyed `userId:moduleId`, newest attempt only.
+ *
+ * Not implied by the permission that opens a students/completions view: an assistant may read it,
+ * and a registration carries the student's national study registry identity. `isAuthorized` lets
+ * every consumer show the same loading/denied state instead of each guarding the query itself.
+ */
+export const useTeacherCreditRegistrations = (
+  courseId: string | null,
+  userIds: string[],
+): { data: CreditRegistrationIndex | undefined; isAuthorized: boolean } => {
+  const isAuthorized =
+    useAuthorizeMultiple(
+      courseId !== null
+        ? [
+            {
+              action: { type: "view_and_manage_credit_registrations" },
+              resource: { type: "course", id: courseId },
+            },
+          ]
+        : [],
+    ).data?.[0] === true
+
+  const query = useQuery(
     optionalGeneratedQueryOptions({
-      value: courseId !== null && userIds.length > 0 ? { courseId, userIds } : null,
+      value: isAuthorized && courseId !== null && userIds.length > 0 ? { courseId, userIds } : null,
       isReady: (v): v is { courseId: string; userIds: string[] } => v !== null,
       build: ({ courseId: id, userIds: ids }) =>
         // oxlint-disable-next-line @tanstack/query/exhaustive-deps
@@ -47,6 +76,33 @@ export const useTeacherCreditRegistrations = (courseId: string | null, userIds: 
         }),
     }),
   )
+
+  return { data: query.data, isAuthorized }
+}
+
+/**
+ * Marks every page's worth of these stale after an action that moved a row. Keyed by the user ids the
+ * caller happened to be showing, so the family is invalidated by course id and prefix rather than by one key.
+ */
+export const invalidateTeacherCreditRegistrations = (
+  queryClient: QueryClient,
+  courseId: string,
+): Promise<void> => queryClient.invalidateQueries({ queryKey: [QUERY_KEY_PREFIX, courseId] })
+
+/** The single-row and bulk retry actions both move rows and so invalidate the same surfaces. */
+export const useInvalidateAfterRetry = (courseId: string) => {
+  const queryClient = useQueryClient()
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: getCourseCreditRegistrationSummaryQueryKey({ path: { course_id: courseId } }),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: getCourseCreditRegistrationActionsQueryKey({ path: { course_id: courseId } }),
+      }),
+      invalidateTeacherCreditRegistrations(queryClient, courseId),
+    ])
+}
 
 export type CreditRegistrationIndex = Map<string, CourseCreditRegistration>
 
@@ -102,5 +158,36 @@ export const linkingEmailSentence = (
 ): string =>
   labelFrom(t, LINKING_EMAIL_KEYS, status, LINKING_EMAIL_KEYS.queued, {
     address: maskedAddress,
-    date: sentAt ? new Date(sentAt).toLocaleDateString(locale) : "",
+    date: humanReadableDate(sentAt, locale) ?? "",
   })
+
+const NOTIFICATION_EMAIL_LABEL_KEYS = {
+  action_needed: "label-credit-registration-action-needed-email",
+  registered: "label-credit-registration-registered-email",
+} as const satisfies Record<CreditRegistrationNotificationKind, string>
+
+const NOTIFICATION_EMAIL_KEYS = {
+  queued: "credit-registration-teacher-notification-email-queued",
+  retrying: "credit-registration-teacher-notification-email-retrying",
+  sent: "credit-registration-teacher-notification-email-sent",
+  send_failed: "credit-registration-teacher-notification-email-send-failed",
+} as const satisfies Record<EmailSendStatus, string>
+
+export const notificationEmailLabel = (t: TFunction, kind: CreditRegistrationNotificationKind) =>
+  labelFrom(t, NOTIFICATION_EMAIL_LABEL_KEYS, kind, NOTIFICATION_EMAIL_LABEL_KEYS.registered)
+
+/** Our own send status only: no wording here may imply a delivery. */
+export const notificationEmailSentence = (
+  t: TFunction,
+  notificationEmail: NotificationEmailStatus,
+  locale: string,
+): string =>
+  labelFrom(
+    t,
+    NOTIFICATION_EMAIL_KEYS,
+    notificationEmail.email_send_status,
+    NOTIFICATION_EMAIL_KEYS.queued,
+    {
+      date: humanReadableDate(notificationEmail.sent_at, locale) ?? "",
+    },
+  )

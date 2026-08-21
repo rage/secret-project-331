@@ -998,8 +998,8 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
         PageInfo,
         r#"
     SELECT
-        p.id as page_id,
-        p.title as page_title,
+        p.id as "page_id!",
+        p.title as "page_title!",
         c.id as "course_id?",
         c.name as "course_name?",
         c.slug as "course_slug?",
@@ -4856,9 +4856,11 @@ mod test {
         course_id: Uuid,
         chapter_locking_enabled: bool,
     ) {
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let course_before_update = courses::get_course(tx, course_id).await.unwrap();
         courses::update_course(
             tx,
+            &app_config,
             course_id,
             courses::CourseUpdate {
                 chapter_locking_enabled,

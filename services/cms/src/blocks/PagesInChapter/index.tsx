@@ -9,6 +9,7 @@ import PagesInChapterEditor from "./PagesInChapterEditor"
 import PagesInChapterSave from "./PagesInChapterSave"
 
 const PagesInChapterConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Pages In Chapter",
   description: "Pages In Chapter",
   category: MOOCFI_CATEGORY_SLUG,

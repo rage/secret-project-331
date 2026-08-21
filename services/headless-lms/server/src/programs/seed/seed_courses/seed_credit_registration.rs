@@ -26,7 +26,9 @@
 
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
-use headless_lms_base::config::{SuotarConfiguration, bool_env_false_by_default};
+use headless_lms_base::config::{
+    ApplicationConfiguration, SuotarConfiguration, bool_env_false_by_default,
+};
 use headless_lms_models::{
     PKeyPolicy, course_credit_registration_consents, course_instance_enrollments,
     course_module_completions::{self, NewCourseModuleCompletionSeed},
@@ -91,6 +93,8 @@ pub const ADMIN_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0006_4a5e_9e6e_c0de
 /// One frozen ledger row per registration state and per error code, on a paused module. Read by
 /// `suotar-teacher-views.spec.ts` and the admin explorer, written by neither.
 pub const STATES_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0007_4a5e_9e6e_c0de00000007);
+/// Owned by `suotar-teacher-views.spec.ts`'s retry half, and swept by its bulk retry.
+pub const RETRY_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0009_4a5e_9e6e_c0de00000009);
 
 /// A study registry registrar whose key a spec can present, so the legacy pull stream is readable
 /// from a test. Every other registrar's key is random by design.
@@ -141,6 +145,7 @@ pub const CRS_OLD_102: &str = "CRS-OLD-102";
 pub const CRS_BACKFILL_101: &str = "CRS-BACKFILL-101";
 pub const CRS_ADMIN_101: &str = "CRS-ADMIN-101";
 pub const CRS_STATES_101: &str = "CRS-STATES-101";
+pub const CRS_RETRY_101: &str = "CRS-RETRY-101";
 
 pub const CRS_GRADED_101: &str = "CRS-GRADED-101";
 /// One module per import failure, each breaking exactly one thing.
@@ -162,6 +167,7 @@ pub const IMPORT_OUTCOMES_COURSE_SLUG: &str = "credit-registration-import-outcom
 pub const GRADE_IMPROVEMENT_COURSE_SLUG: &str = "credit-registration-grade-improvement";
 pub const ADMIN_COURSE_SLUG: &str = "credit-registration-admin";
 pub const STATES_COURSE_SLUG: &str = "credit-registration-states";
+pub const RETRY_COURSE_SLUG: &str = "credit-registration-retry";
 
 /// A seeded student and the Sisu person the mock must answer with for them. The database rows and
 /// the pushed persons must carry the same identifiers, so both are built from here.
@@ -216,6 +222,17 @@ pub const IMPORT_TIMEOUT: MockPersonFixture = MockPersonFixture {
     last_name: "Timedout",
     sisu_email: "zzyzx.timedout@helsinki.example",
     account_email: Some("credit-registration-import-timeout@example.com"),
+};
+/// The outage spec's own person, so a fault keyed on this student number cannot reach another
+/// spec's row on the shared course. Enrolment left unseeded for `IMPORT_TIMEOUT`'s reason: its spec
+/// arms the outage before creating the enrolment, so no earlier unscoped sweep can import the row
+/// while the study registry is still answering normally.
+pub const SISU_OUTAGE: MockPersonFixture = MockPersonFixture {
+    student_number: "900000601",
+    first_names: "Zzyzx",
+    last_name: "Outaged",
+    sisu_email: "zzyzx.outaged@helsinki.example",
+    account_email: Some("credit-registration-sisu-outage@example.com"),
 };
 /// Deliberately absent from the mock's enrolments: the only way to reach `no_usable_enrolment`
 /// without arming a fault.
@@ -354,6 +371,99 @@ pub const FAST_TRACK_TWIN: MockPersonFixture = MockPersonFixture {
     sisu_email: "credit-registration-unverified-twin@example.com",
     account_email: Some("credit-registration-unverified-twin@example.com"),
 };
+/// Verified far outside the recency window: a deprovisioned university address can be reissued, and
+/// the account holding it would still look verified.
+pub const FAST_TRACK_STALE: MockPersonFixture = MockPersonFixture {
+    student_number: "900001403",
+    first_names: "Zzyzx",
+    last_name: "Staleproof",
+    sisu_email: "credit-registration-stale-proof@example.com",
+    account_email: Some("credit-registration-stale-proof@example.com"),
+};
+/// The recycled-address signal: the address is proved, but the account belongs to somebody else.
+/// `seed_fast_track_near_misses` gives its account a name unlike the registry's.
+pub const FAST_TRACK_NAME_MISMATCH: MockPersonFixture = MockPersonFixture {
+    student_number: "900001404",
+    first_names: "Zzyzx",
+    last_name: "Registryname",
+    sisu_email: "credit-registration-name-mismatch@example.com",
+    account_email: Some("credit-registration-name-mismatch@example.com"),
+};
+/// Its account already holds [`FAST_TRACK_OTHER_NUMBER`], so swapping it belongs behind the mailed
+/// link's confirmation screen, which names both numbers.
+pub const FAST_TRACK_HAS_NUMBER: MockPersonFixture = MockPersonFixture {
+    student_number: "900001405",
+    first_names: "Zzyzx",
+    last_name: "Alreadynumbered",
+    sisu_email: "credit-registration-has-number@example.com",
+    account_email: Some("credit-registration-has-number@example.com"),
+};
+/// Not on any roster: only the account's existing link needs it to exist.
+pub const FAST_TRACK_OTHER_NUMBER: &str = "900001495";
+/// `mock_suotar_world` moves its account address to the registry's *secondary* field, which is
+/// self-entered there and therefore never proof.
+pub const FAST_TRACK_SECONDARY_ONLY: MockPersonFixture = MockPersonFixture {
+    student_number: "900001406",
+    first_names: "Zzyzx",
+    last_name: "Secondonly",
+    sisu_email: "zzyzx.secondonly@helsinki.example",
+    account_email: Some("credit-registration-secondary-only@example.com"),
+};
+/// A confirmed account whose address the registry simply does not hold. The population the linking
+/// mail exists for, and the regression that matters most: it must still be mailed.
+pub const FAST_TRACK_NO_MATCH: MockPersonFixture = MockPersonFixture {
+    student_number: "900001407",
+    first_names: "Zzyzx",
+    last_name: "Othermailbox",
+    sisu_email: "zzyzx.othermailbox@helsinki.example",
+    account_email: Some("credit-registration-fast-track-no-match@example.com"),
+};
+
+/// Absent from the mock's enrolments, like `NO_ENROLMENT`, so its row parks where the in-course
+/// re-enrol banner shows. Its spec only reads and dismisses, so the row stays parked.
+pub const BANNER_STUCK: MockPersonFixture = MockPersonFixture {
+    student_number: "900001501",
+    first_names: "Zzyzx",
+    last_name: "Bannerstuck",
+    sisu_email: "zzyzx.bannerstuck@helsinki.example",
+    account_email: Some("credit-registration-banner-stuck@example.com"),
+};
+/// Its own person, because its spec creates the enrolment that makes the banner go away and that
+/// must not clear another spec's banner.
+pub const BANNER_REENROLS: MockPersonFixture = MockPersonFixture {
+    student_number: "900001502",
+    first_names: "Zzyzx",
+    last_name: "Bannerreenrols",
+    sisu_email: "zzyzx.bannerreenrols@helsinki.example",
+    account_email: Some("credit-registration-banner-reenrols@example.com"),
+};
+
+/// Driven all the way to `registered`, which is what earns the "your credits are in Sisu" mail.
+pub const EMAILS_REGISTERED: MockPersonFixture = MockPersonFixture {
+    student_number: "900001301",
+    first_names: "Zzyzx",
+    last_name: "Mailedsuccess",
+    sisu_email: "zzyzx.mailedsuccess@helsinki.example",
+    account_email: Some("credit-registration-emails-registered@example.com"),
+};
+/// Deliberately absent from the mock's enrolments, like `NO_ENROLMENT`, so its row parks at
+/// `no_usable_enrolment` and earns the action-needed mail without arming a fault.
+pub const EMAILS_NO_ENROLMENT: MockPersonFixture = MockPersonFixture {
+    student_number: "900001302",
+    first_names: "Zzyzx",
+    last_name: "Mailedaction",
+    sisu_email: "zzyzx.mailedaction@helsinki.example",
+    account_email: Some("credit-registration-emails-no-enrolment@example.com"),
+};
+/// Never asked for consent, so its row sits at `pending_consent`: the negative half of "exactly two
+/// mails exist".
+pub const EMAILS_UNMAILED: MockPersonFixture = MockPersonFixture {
+    student_number: "900001303",
+    first_names: "Zzyzx",
+    last_name: "Nevermailed",
+    sisu_email: "zzyzx.nevermailed@helsinki.example",
+    account_email: Some("credit-registration-emails-unmailed@example.com"),
+};
 
 pub const IMPORT_OUTCOMES: MockPersonFixture = MockPersonFixture {
     student_number: "900000401",
@@ -407,7 +517,10 @@ struct SeededStudent {
     email: String,
 }
 
-pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> Result<Uuid> {
+pub async fn seed_credit_registration(
+    app_config: &ApplicationConfiguration,
+    common_course_data: CommonCourseData,
+) -> Result<Uuid> {
     let CommonCourseData {
         db_pool,
         organization_id: org,
@@ -460,15 +573,16 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
                     .uh_course_code(CRS_102.to_string())
                     .credit_registration(credit_registration_config(CRS_102, false)),
             )
-            .seed(&mut conn, &cx)
+            .seed(&mut conn, app_config, &cx)
             .await?;
 
-    seed_old_flow_course(&mut conn, org, teacher_user_id).await?;
-    seed_backfill_course(&mut conn, org, teacher_user_id).await?;
-    seed_import_outcomes_course(&mut conn, org, teacher_user_id).await?;
-    seed_grade_improvement_course(&mut conn, org, teacher_user_id).await?;
-    seed_admin_course(&mut conn, org, teacher_user_id).await?;
-    seed_states_course(&mut conn, org, teacher_user_id).await?;
+    seed_old_flow_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_backfill_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_import_outcomes_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_grade_improvement_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_admin_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_states_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_retry_course(&mut conn, app_config, org, teacher_user_id).await?;
 
     info!("inserting credit registration students");
 
@@ -560,11 +674,16 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     // Consented, linked and completed; the mock's enrolments decide which of them gets stuck where.
     for fixture in [
         &IMPORT_TIMEOUT,
+        &SISU_OUTAGE,
         &NO_ENROLMENT,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
         &CONSENT_WITHDRAWN,
+        &EMAILS_REGISTERED,
+        &EMAILS_NO_ENROLMENT,
+        &BANNER_STUCK,
+        &BANNER_REENROLS,
     ] {
         let student = seed_spec_student(
             &mut conn,
@@ -577,16 +696,18 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
         .await?;
         seed_eligible_completion(&mut conn, &student, suotar_course.id, None).await?;
     }
-    let consent_withheld = seed_spec_student(
-        &mut conn,
-        &cx,
-        &CONSENT_WITHHELD,
-        suotar_course.id,
-        suotar_instance.id,
-        false,
-    )
-    .await?;
-    seed_eligible_completion(&mut conn, &consent_withheld, suotar_course.id, None).await?;
+    for fixture in [&CONSENT_WITHHELD, &EMAILS_UNMAILED] {
+        let student = seed_spec_student(
+            &mut conn,
+            &cx,
+            fixture,
+            suotar_course.id,
+            suotar_instance.id,
+            false,
+        )
+        .await?;
+        seed_eligible_completion(&mut conn, &student, suotar_course.id, None).await?;
+    }
 
     // `not_consented` gets no row at all: a missing row is what makes the course-start dialog
     // appear, while `consent_given = false` means asked and declined.
@@ -678,6 +799,11 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
 
     // The happy-path actor answers the consent dialog itself, so its completion has to wait here.
     seed_eligible_completion(&mut conn, &not_consented, suotar_course.id, None).await?;
+    // Consented and complete already: the fast track has to unblock this row with no click at all.
+    seed_eligible_completion(&mut conn, &verified_email, suotar_course.id, None).await?;
+
+    info!("inserting credit registration fast track near misses");
+    seed_fast_track_near_misses(&mut conn, &cx).await?;
 
     info!("inserting credit registration linking tokens");
     seed_linking_tokens(&mut conn, &cx, suotar_course.id, unverified_twin.user_id).await?;
@@ -705,6 +831,70 @@ pub async fn seed_credit_registration(common_course_data: CommonCourseData) -> R
     push_mock_suotar_world(&base_url).await?;
 
     Ok(SUOTAR_COURSE_ID)
+}
+
+/// The accounts that make the fast track *not* fire, one per reason it may refuse. Each holds a
+/// confirmed address, so what separates them is only the thing under test; the twin above is the
+/// unconfirmed case. None of them is given a completion: being on the registry's roster is all it
+/// takes to be offered to the fast track.
+async fn seed_fast_track_near_misses(conn: &mut PgConnection, cx: &SeedContext) -> Result<()> {
+    let now = Utc::now();
+    for (fixture, verified_at) in [
+        (&FAST_TRACK_STALE, now - Duration::days(400)),
+        (&FAST_TRACK_NAME_MISMATCH, now - Duration::days(30)),
+        (&FAST_TRACK_HAS_NUMBER, now - Duration::days(30)),
+        (&FAST_TRACK_SECONDARY_ONLY, now - Duration::days(30)),
+        (&FAST_TRACK_NO_MATCH, now - Duration::days(30)),
+    ] {
+        let account_email = fixture
+            .account_email
+            .ok_or_else(|| anyhow::anyhow!("a fast track near miss needs an account"))?;
+        // Unlike its neighbours the mismatch account is a different person from the one the registry
+        // names, which is the whole fixture.
+        let (first_name, last_name) =
+            if fixture.student_number == FAST_TRACK_NAME_MISMATCH.student_number {
+                ("Qqoqq", "Accountname")
+            } else {
+                (fixture.first_names, fixture.last_name)
+            };
+        let student = insert_student(
+            conn,
+            cx.v5(account_email.as_bytes()),
+            account_email,
+            first_name,
+            last_name,
+        )
+        .await?;
+        user_details::set_email_verified(
+            conn,
+            student.user_id,
+            EmailVerificationMethod::EmailedCode,
+            verified_at,
+        )
+        .await?;
+        if fixture.student_number == FAST_TRACK_HAS_NUMBER.student_number {
+            verified_student_numbers::insert(
+                conn,
+                PKeyPolicy::Fixed(cx.v5(b"verified-student-number:fast-track-has-number")),
+                &NewVerifiedStudentNumber {
+                    user_id: student.user_id,
+                    student_number: FAST_TRACK_OTHER_NUMBER.to_string(),
+                    sisu_person_id: format!("hy-hlo-{FAST_TRACK_OTHER_NUMBER}"),
+                    first_names: Some(fixture.first_names.to_string()),
+                    last_name: Some(fixture.last_name.to_string()),
+                    verified_via: StudentNumberVerificationMethod::EmailedLink,
+                    verified_via_email: Some(account_email.to_string()),
+                    verified_via_email_match_field: None,
+                    account_email_verified_at: None,
+                    linked_by_user_id: None,
+                    link_reason: None,
+                    verified_from_course_id: None,
+                },
+            )
+            .await?;
+        }
+    }
+    Ok(())
 }
 
 /// Aligns the mock Suotar's world with the rows just written. Nothing is cleared first: the mock
@@ -777,6 +967,7 @@ fn instance_config(instance_id: Uuid) -> CourseInstanceConfig {
 /// second, Suotar-side registration.
 async fn seed_old_flow_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -842,7 +1033,7 @@ async fn seed_old_flow_course(
                             ),
                     ),
             )
-            .seed(conn, &cx)
+            .seed(conn, app_config, &cx)
             .await?;
 
     for student in [&still_legacy, &already_cut_over] {
@@ -855,6 +1046,7 @@ async fn seed_old_flow_course(
 /// assert it is skipped rather than re-pushed.
 async fn seed_backfill_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -923,7 +1115,7 @@ async fn seed_backfill_course(
     .course_id(BACKFILL_COURSE_ID)
     .instance(instance_config(cx.v5(b"instance:backfill")))
     .module(module)
-    .seed(conn, &cx)
+    .seed(conn, app_config, &cx)
     .await?;
 
     // Nobody here is asked for consent: the point of the backfill is that its rows wait until one of
@@ -943,6 +1135,7 @@ async fn seed_backfill_course(
 /// takes three mails at three addresses because the dedup key is the address.
 async fn seed_admin_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -963,7 +1156,7 @@ async fn seed_admin_course(
                 .uh_course_code(CRS_ADMIN_101.to_string())
                 .credit_registration(credit_registration_config(CRS_ADMIN_101, true)),
         )
-        .seed(conn, &cx)
+        .seed(conn, app_config, &cx)
         .await?;
 
     let unlinked =
@@ -1002,6 +1195,7 @@ async fn seed_admin_course(
 /// workers in the test deployment would walk these onwards seconds after the seed finished.
 async fn seed_states_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -1031,7 +1225,7 @@ async fn seed_states_course(
                 ..credit_registration_config(CRS_STATES_101, false)
             }),
     )
-    .seed(conn, &cx)
+    .seed(conn, app_config, &cx)
     .await?;
 
     for (index, state) in CreditRegistrationState::ALL.iter().enumerate() {
@@ -1058,6 +1252,69 @@ async fn seed_states_course(
             &format!("Error{:02}", index + 1),
             CreditRegistrationState::FailedPermanent,
             Some(*error_code),
+        )
+        .await?;
+    }
+    Ok(())
+}
+
+/// Rows a teacher may put back on the queue and rows they may not.
+///
+/// Its own course rather than more rows on the states course, because a bulk retry sweeps a whole
+/// course and would leave the states fixture with no `failed_permanent` row and no error codes.
+/// Paused for the same reason the states course is: a retried row has to hold still in
+/// `ready_to_submit` long enough for the spec to read it.
+async fn seed_retry_course(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    org: Uuid,
+    teacher_user_id: Uuid,
+) -> Result<()> {
+    let cx = SeedContext {
+        teacher: teacher_user_id,
+        org,
+        base_course_ns: RETRY_COURSE_ID,
+    };
+    let (course, instance, _) = CourseBuilder::new("Credit registration retry", RETRY_COURSE_SLUG)
+        .desc("Fixture course holding the registrations a teacher retries, and the ones they cannot.")
+        .course_id(RETRY_COURSE_ID)
+        .role(teacher_user_id, UserRole::Teacher)
+        .instance(instance_config(cx.v5(b"instance:retry")))
+        .module(
+            ModuleBuilder::new()
+                .order(0)
+                .ects(5.0)
+                .uh_course_code(CRS_RETRY_101.to_string())
+                .credit_registration(CreditRegistrationSeed {
+                    paused_reason: Some(
+                        "Seeded fixture: the retry specs read these rows and the workers must not move them."
+                            .to_string(),
+                    ),
+                    ..credit_registration_config(CRS_RETRY_101, false)
+                }),
+        )
+        .seed(conn, app_config, &cx)
+        .await?;
+
+    for (person, last_name, state) in [
+        (80, "Retry01", CreditRegistrationState::FailedPermanent),
+        (81, "Retry02", CreditRegistrationState::FailedPermanent),
+        (82, "Retry03", CreditRegistrationState::SubmissionUncertain),
+        (
+            83,
+            "Retry04",
+            CreditRegistrationState::AbandonedByConsentWithdrawal,
+        ),
+    ] {
+        seed_frozen_registration(
+            conn,
+            &cx,
+            course.id,
+            instance.id,
+            person,
+            last_name,
+            state,
+            None,
         )
         .await?;
     }
@@ -1163,6 +1420,7 @@ async fn seed_frozen_registration(
 /// by flipping something every other spec on the course can see.
 async fn seed_import_outcomes_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -1189,7 +1447,7 @@ async fn seed_import_outcomes_course(
         }
         course = course.module(module);
     }
-    let (course, instance, _) = course.seed(conn, &cx).await?;
+    let (course, instance, _) = course.seed(conn, app_config, &cx).await?;
     let student =
         seed_spec_student(conn, &cx, &IMPORT_OUTCOMES, course.id, instance.id, true).await?;
     for module in headless_lms_models::course_modules::get_by_course_id(conn, course.id).await? {
@@ -1216,6 +1474,7 @@ async fn seed_import_outcomes_course(
 
 async fn seed_grade_improvement_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
 ) -> Result<()> {
@@ -1235,11 +1494,14 @@ async fn seed_grade_improvement_course(
         ModuleBuilder::new()
             .order(0)
             .ects(5.0)
-            .uh_course_code(CRS_GRADED_101.to_string()),
+            .uh_course_code(CRS_GRADED_101.to_string())
+            .credit_registration(credit_registration_config(CRS_GRADED_101, false)),
     )
-    .seed(conn, &cx)
+    .seed(conn, app_config, &cx)
     .await?;
-    seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id, true).await?;
+    let student =
+        seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id, true).await?;
+    seed_eligible_completion(conn, &student, course.id, Some(3)).await?;
     Ok(())
 }
 
@@ -1660,12 +1922,20 @@ pub fn mock_suotar_world() -> WorldPush {
         &SUPERSEDED,
         &FAST_TRACK_VERIFIED,
         &FAST_TRACK_TWIN,
+        &FAST_TRACK_STALE,
+        &FAST_TRACK_NAME_MISMATCH,
+        &FAST_TRACK_HAS_NUMBER,
+        &FAST_TRACK_SECONDARY_ONLY,
+        &FAST_TRACK_NO_MATCH,
         &IMPORT_TIMEOUT,
+        &SISU_OUTAGE,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
         &CONSENT_WITHHELD,
         &CONSENT_WITHDRAWN,
+        &EMAILS_REGISTERED,
+        &EMAILS_UNMAILED,
     ];
     let on_crs_admin_101 = [
         &ADMIN_UNLINKED,
@@ -1687,16 +1957,29 @@ pub fn mock_suotar_world() -> WorldPush {
         }
         upsert
     }));
+    for upsert in &mut persons {
+        // The one fixture whose account address is on the registry's secondary field. The mail still
+        // goes to both addresses; only the fast track's proof is primary-only.
+        if upsert.student_number == FAST_TRACK_SECONDARY_ONLY.student_number {
+            upsert.secondary_email = FAST_TRACK_SECONDARY_ONLY.account_email.map(str::to_string);
+        }
+    }
     persons.push(person(&NO_ENROLMENT));
+    persons.push(person(&EMAILS_NO_ENROLMENT));
+    persons.push(person(&BANNER_STUCK));
+    persons.push(person(&BANNER_REENROLS));
     persons.push(person(&IMPORT_OUTCOMES));
     persons.push(person(&GRADE_IMPROVEMENT));
     persons.extend(BACKFILL_STUDENTS.iter().map(person));
 
     let mut enrolments: Vec<EnrolmentUpsert> = on_crs_101
         .iter()
-        // Like `NO_ENROLMENT`, minus the person: `IMPORT_TIMEOUT`'s own spec creates its enrolment,
-        // so no earlier, unscoped resolve-enrolments sweep can resolve it before the fault is armed.
-        .filter(|fixture| fixture.student_number != IMPORT_TIMEOUT.student_number)
+        // Like `NO_ENROLMENT`, minus the person: these two specs create their own enrolment, so no
+        // earlier, unscoped resolve-enrolments sweep can resolve it before their fault is armed.
+        .filter(|fixture| {
+            fixture.student_number != IMPORT_TIMEOUT.student_number
+                && fixture.student_number != SISU_OUTAGE.student_number
+        })
         .map(|fixture| enrolment(fixture, CRS_101, RealisationKind::Degree, wide.clone(), now))
         .collect();
     enrolments.extend(BACKFILL_STUDENTS.iter().map(|fixture| {
@@ -1788,6 +2071,7 @@ pub fn mock_suotar_world() -> WorldPush {
         }
         .build(&wide),
         CourseUnitShape::new(CRS_STATES_101, STATES_COURSE_SLUG, 5.0).build(&wide),
+        CourseUnitShape::new(CRS_RETRY_101, RETRY_COURSE_SLUG, 5.0).build(&wide),
         // Every other module is pass/fail, so grade improvement needs a graded one.
         CourseUnitShape {
             grade_scale_id: "sis-0-5",

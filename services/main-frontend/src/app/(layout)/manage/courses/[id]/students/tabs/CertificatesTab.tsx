@@ -31,6 +31,7 @@ import {
   useCourseStudentsIdentity,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { StaleTableWrapper } from "./StaleTableWrapper"
 import { StudentPillCell } from "./StudentPillCell"
 
@@ -170,7 +171,7 @@ export const CertificatesTabContent: React.FC = () => {
   const parsedEditDate = editData?.date ? new Date(editData.date) : null
   const editDateValid = parsedEditDate !== null && !Number.isNaN(parsedEditDate.getTime())
 
-  const columns = useMemo<ColumnDef<CertificateRow, unknown>[]>(
+  const columns = useMemo<ColumnDef<StudentsTableFeatures, CertificateRow, unknown>[]>(
     () => [
       {
         // oxlint-disable-next-line i18next/no-literal-string

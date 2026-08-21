@@ -10,10 +10,12 @@ import { includeIf } from "@/shared-module/common/utils/nullability"
 /**
  * PlaceholderWrapper used by blocks that do not allow editing directly, i.e. no nested blocks.
  * Uses Gutenberg's native Placeholder component for consistent styling and a11y.
+ *
+ * Must be the outermost element the block's `edit` renders: it carries the block wrapper props
+ * Gutenberg needs from apiVersion 2 onwards for selection, dragging and toolbar anchoring.
  */
 
 interface BlockPlaceholderWrapperProps {
-  id?: string
   title: string
   explanation: string
   icon?: IconType
@@ -21,7 +23,6 @@ interface BlockPlaceholderWrapperProps {
 }
 
 const BlockPlaceholderWrapper: React.FC<React.PropsWithChildren<BlockPlaceholderWrapperProps>> = ({
-  id,
   children,
   title,
   explanation,
@@ -31,11 +32,7 @@ const BlockPlaceholderWrapper: React.FC<React.PropsWithChildren<BlockPlaceholder
   const blockProps = useBlockProps({ className })
 
   return (
-    <div
-      {...blockProps}
-      // oxlint-disable-next-line i18next/no-literal-string
-      {...includeIf(id, { id: `placeholder-block-${id}` })}
-    >
+    <div {...blockProps}>
       <Placeholder {...includeIf(icon, { icon })} label={title} instructions={explanation}>
         {children}
       </Placeholder>

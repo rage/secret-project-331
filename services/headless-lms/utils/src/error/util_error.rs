@@ -34,6 +34,8 @@ pub enum UtilErrorType {
     /// tell an upstream auth rejection (401/403) from an upstream server error (5xx).
     TmcHttpStatusError(u16),
     TmcErrorResponse,
+    EmbeddingRequestBuildError,
+    ReqwestError,
     SisuClientError(SisuErrorVariant),
     SuotarClientError(SuotarErrorVariant),
 }
@@ -227,6 +229,16 @@ impl From<walkdir::Error> for UtilError {
             UtilErrorType::Walkdir,
             source.to_string(),
             Some(source.into()),
+        )
+    }
+}
+
+impl From<reqwest::Error> for UtilError {
+    fn from(err: reqwest::Error) -> UtilError {
+        Self::new(
+            UtilErrorType::ReqwestError,
+            err.to_string(),
+            Some(err.into()),
         )
     }
 }

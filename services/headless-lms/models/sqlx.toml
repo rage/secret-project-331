@@ -1,4 +1,8 @@
 [macros.type-overrides]
+'vector' = "pgvector::Vector"
+
+
+# Enums
 'activity_progress' = "crate::exercises::ActivityProgress"
 'application_task' = "crate::application_task_default_language_models::ApplicationTask"
 'application_type' = "crate::oauth_client::ApplicationType"

@@ -146,7 +146,7 @@ pub async fn admin_unlink_student_number(
     let affected_registration_count = record_student_number_change(
         &mut tx,
         link.user_id,
-        user.id,
+        Some(user.id),
         CreditRegistrationEventKind::AdminAction,
         "An administrator unlinked this student number.",
     )

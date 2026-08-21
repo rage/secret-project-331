@@ -9,6 +9,7 @@ import ChapterProgressEditor from "./ChapterProgressEditor"
 import ChapterProgressSave from "./ChapterProgressSave"
 
 const ChapterProgressConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Chapter Progress",
   description: "Chapter Progress block.",
   category: MOOCFI_CATEGORY_SLUG,

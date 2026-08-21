@@ -18,6 +18,25 @@ pub fn enrolment_url(token: &OpenUniversityProductAccessToken) -> Option<String>
     ))
 }
 
+/// The enrolment page for a module's configured product, following the whole fallback chain:
+/// no product configured, or no refresh has ever succeeded for it, means `None` and the caller
+/// degrades to generic "enrol in Sisu" copy.
+///
+/// Every surface that offers a student a way back into an enrolment goes through this, so the mail,
+/// the status page and the profile cannot disagree about whether a link exists.
+pub async fn enrolment_url_for_product(
+    conn: &mut PgConnection,
+    open_university_product_id: Option<&str>,
+) -> ModelResult<Option<String>> {
+    let Some(product_id) = open_university_product_id else {
+        return Ok(None);
+    };
+    Ok(get_by_product_id(conn, product_id)
+        .await?
+        .as_ref()
+        .and_then(enrolment_url))
+}
+
 #[derive(Debug, Clone)]
 pub struct OpenUniversityProductAccessToken {
     pub id: Uuid,

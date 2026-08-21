@@ -10,7 +10,7 @@ import {
 
 const test = withBrowserDiagnostics(base)
 
-test("file-upload guards accept a genuine Map and File and reject plain objects", async ({
+test("file-upload guards accept genuine File instances and reject look-alikes", async ({
   page,
 }) => {
   const file = new File([new Uint8Array([0, 1, 2, 255])], "sample.bin", {
@@ -20,17 +20,15 @@ test("file-upload guards accept a genuine Map and File and reject plain objects"
   const message = {
     message: "file-upload",
     requestId: "request-1",
-    files: new Map<string, string | Blob>([["sample.bin", file]]),
+    files: [file],
   }
 
   expect(isFileUploadMessage(message)).toBe(true)
   expect(isMessageFromIframe(message)).toBe(true)
-  expect(
-    isFileUploadMessage({
-      ...message,
-      files: { "sample.bin": file },
-    }),
-  ).toBe(false)
+  expect(isFileUploadMessage({ ...message, files: new Map([["sample.bin", file]]) })).toBe(false)
+  expect(isFileUploadMessage({ ...message, files: { "sample.bin": file } })).toBe(false)
+  expect(isFileUploadMessage({ ...message, files: [new Blob([new Uint8Array([0])])] })).toBe(false)
+  expect(isFileUploadMessage({ ...message, requestId: 12 })).toBe(false)
 
   const cloned = await page.evaluate(async () => {
     const channel = new MessageChannel()
@@ -42,17 +40,17 @@ test("file-upload guards accept a genuine Map and File and reject plain objects"
       type: "application/octet-stream",
       lastModified: 1_725_000_000_000,
     })
-    channel.port1.postMessage(new Map([["sample.bin", sourceFile]]))
+    channel.port1.postMessage([sourceFile])
     const data = await received
-    if (!(data instanceof Map)) {
-      return { isMap: false }
+    if (!Array.isArray(data)) {
+      return { isArray: false }
     }
-    const receivedFile = data.get("sample.bin")
+    const receivedFile: unknown = data[0]
     if (!(receivedFile instanceof File)) {
-      return { isMap: true, isFile: false }
+      return { isArray: true, isFile: false }
     }
     return {
-      isMap: true,
+      isArray: true,
       isFile: true,
       name: receivedFile.name,
       type: receivedFile.type,
@@ -63,7 +61,7 @@ test("file-upload guards accept a genuine Map and File and reject plain objects"
   })
 
   expect(cloned).toEqual({
-    isMap: true,
+    isArray: true,
     isFile: true,
     name: "sample.bin",
     type: "application/octet-stream",
@@ -73,12 +71,14 @@ test("file-upload guards accept a genuine Map and File and reject plain objects"
   })
 })
 
-test("upload-result guards require URL Maps on success but accept correlated errors", () => {
+test("upload-result guards require ordered id/url entries on success but accept correlated errors", () => {
   const success = {
     message: "upload-result",
     requestId: "request-1",
     success: true,
-    urls: new Map([["sample.bin", "https://files.example/sample.bin"]]),
+    files: [
+      { id: "0f1d7b2e-1f4a-4c53-9a9e-4d3d3f1b0c11", url: "https://files.example/sample.bin" },
+    ],
   }
   const failure = {
     message: "upload-result",
@@ -94,8 +94,11 @@ test("upload-result guards require URL Maps on success but accept correlated err
   expect(
     isUploadResultMessage({
       ...success,
-      urls: { "sample.bin": "https://files.example/sample.bin" },
+      files: new Map([["sample.bin", "https://files.example/sample.bin"]]),
     }),
+  ).toBe(false)
+  expect(
+    isUploadResultMessage({ ...success, files: [{ url: "https://files.example/sample.bin" }] }),
   ).toBe(false)
   expect(isUploadResultMessage({ ...failure, requestId: 12 })).toBe(false)
   expect(isUploadResultMessage({ ...failure, error: null })).toBe(false)

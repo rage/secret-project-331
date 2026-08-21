@@ -23,6 +23,9 @@ use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
     EnrolmentCriteria, any_attained_by_person, attainment_for_course_unit, select_enrolment,
 };
+use headless_lms_models::library::credit_registration::grade_mapping::{
+    GradeComparison, GradeSource, compare_grades, map_grade,
+};
 use headless_lms_models::library::credit_registration::outcomes::{
     submit_error_outcome, unanswered_item_outcome,
 };
@@ -262,6 +265,7 @@ async fn choose(
             existing,
             context.sisu_person_id.as_deref().unwrap_or_default(),
         )
+        .map(|attained| (attained, None))
     } else {
         enrolments.iter().find_map(|enrolment| {
             attainment_for_course_unit(
@@ -269,9 +273,19 @@ async fn choose(
                 &enrolment.course_unit_id,
                 &enrolment.assessment_item_id,
             )
+            .map(|attained| (attained, Some(enrolment)))
         })
     };
-    if let Some(attained) = already_attained {
+    // A grade improvement is the one case where an attainment we already hold is not a reason to
+    // stop: only the registry can say whether the better grade replaces it.
+    let already_attained = already_attained.filter(|(attained, enrolment)| {
+        !improves_on(
+            attained,
+            context,
+            enrolment.map(|enrolment| enrolment.grade_scale_id.as_str()),
+        )
+    });
+    if let Some((attained, _)) = already_attained {
         headless_lms_models::credit_registrations::set_sisu_attainment_if_unclaimed(
             conn,
             row.id,
@@ -387,6 +401,28 @@ async fn choose(
     )
     .await?;
     Ok(false)
+}
+
+/// Whether the grade we would send beats the one the registry already holds for this course unit.
+///
+/// Anything else — equal, worse, or a grade on a scale that does not rank against the held one —
+/// is false, so the duplicate guard stands and no second attainment can reach a transcript on a
+/// guess.
+fn improves_on(
+    attained: &headless_lms_utils::services::suotar::ExistingAttainment,
+    context: &SubmissionContext,
+    enrolment_grade_scale_id: Option<&str>,
+) -> bool {
+    map_grade(GradeSource {
+        passed: context.completion.passed,
+        grade: context.completion.grade,
+        configured_grade_scale_id: context.configured_grade_scale_id.as_deref(),
+        enrolment_grade_scale_id,
+    })
+    .is_ok_and(|mapped| {
+        compare_grades(&attained.grade_scale_id, &attained.grade_id, &mapped)
+            == GradeComparison::Better
+    })
 }
 
 struct ResolveRequest {

@@ -7,6 +7,7 @@ import { Fragment } from "@wordpress/element"
 
 import { useTranslation } from "@/utils/useCmsTranslation"
 
+import { useIsBlockPreviewMode } from "./blockPreviewMode"
 import { shouldWarnAboutImageAltPlaceholder } from "./imageAltWarning"
 
 interface ImageBlockProps {
@@ -28,19 +29,15 @@ const WARNING_NOTICE_STATUS = "warning"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withImageWarnings = createHigherOrderComponent((BlockEdit) => {
-  const ImageWithWarnings = (props: ImageBlockProps) => {
+  const ImageWarnings = (props: ImageBlockProps) => {
     const { t } = useTranslation()
+    const isPreviewMode = useIsBlockPreviewMode()
 
-    if (props.name !== IMAGE_BLOCK_NAME) {
-      return <BlockEdit {...props} />
-    }
-
-    const warningKeys: ImageWarningKey[] = shouldWarnAboutImageAltPlaceholder(
-      props.attributes?.alt,
-      props.attributes?.isDecorative,
-    )
-      ? [IMAGE_ALT_WARNING_KEY]
-      : []
+    const warningKeys: ImageWarningKey[] =
+      !isPreviewMode &&
+      shouldWarnAboutImageAltPlaceholder(props.attributes?.alt, props.attributes?.isDecorative)
+        ? [IMAGE_ALT_WARNING_KEY]
+        : []
 
     return (
       <Fragment>
@@ -68,8 +65,10 @@ const withImageWarnings = createHigherOrderComponent((BlockEdit) => {
     )
   }
 
-  ImageWithWarnings.displayName = "ImageWarnings"
-  return ImageWithWarnings
+  const BlockEditWithImageWarnings = (props: ImageBlockProps) =>
+    props.name === IMAGE_BLOCK_NAME ? <ImageWarnings {...props} /> : <BlockEdit {...props} />
+
+  return BlockEditWithImageWarnings
   // oxlint-disable-next-line i18next/no-literal-string
 }, "withImageWarnings")
 

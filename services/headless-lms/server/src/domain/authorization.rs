@@ -221,6 +221,11 @@ pub enum Action {
     ViewUserProgressOrDetails,
     ViewInternalCourseStructure,
     ViewStats,
+    /// Seeing a course's credit registrations and acting on them. Separate from
+    /// `ViewUserProgressOrDetails` and `Edit` because these surfaces carry every student's unmasked
+    /// student number, which is their key in the national study registry, and an assistant on a
+    /// course is often another student on it.
+    ViewAndManageCreditRegistrations,
     Administrate,
 }
 
@@ -738,6 +743,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | ViewUserProgressOrDetails
                 | ViewInternalCourseStructure
                 | ViewStats
+                | ViewAndManageCreditRegistrations
         ),
         Assistant => matches!(
             action,

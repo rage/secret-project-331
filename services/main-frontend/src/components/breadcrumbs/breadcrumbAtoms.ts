@@ -20,7 +20,7 @@ export interface BreadcrumbEntry {
 export const breadcrumbEntriesAtom = atom<Record<string, BreadcrumbEntry>>({})
 
 export const sortedBreadcrumbEntriesAtom = atom((get) =>
-  Object.values(get(breadcrumbEntriesAtom)).sort((a, b) => a.order - b.order),
+  Object.values(get(breadcrumbEntriesAtom)).toSorted((a, b) => a.order - b.order),
 )
 
 export interface BreadcrumbItemWithKey {

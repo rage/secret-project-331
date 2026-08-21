@@ -19,12 +19,11 @@ const ALLOWED_NESTED_BLOCKS = [
 
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
-> = ({ clientId }) => {
+> = () => {
   const { t } = useTranslation()
 
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("revealable-content-placeholder")}
       explanation={t("revealable-content-explanation")}
     >

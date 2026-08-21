@@ -486,9 +486,11 @@ mod tests {
         course_id: Uuid,
         chapter_locking_enabled: bool,
     ) {
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let course_before_update = crate::courses::get_course(tx, course_id).await.unwrap();
         crate::courses::update_course(
             tx,
+            &app_config,
             course_id,
             crate::courses::CourseUpdate {
                 chapter_locking_enabled,
@@ -615,6 +617,7 @@ mod tests {
     #[tokio::test]
     async fn unlock_then_complete_chapter_updates_status() {
         insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let chapter = crate::chapters::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
@@ -637,6 +640,7 @@ mod tests {
             .unwrap();
         crate::courses::update_course(
             tx.as_mut(),
+            &app_config,
             course,
             crate::courses::CourseUpdate {
                 name: existing_course.name,
@@ -749,6 +753,7 @@ mod tests {
     #[tokio::test]
     async fn get_or_init_all_for_course_unlocks_first_chapter_when_all_not_unlocked_yet() {
         insert_data!(:tx, :user, :org, course: course);
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
 
         let all_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course)
             .await
@@ -800,6 +805,7 @@ mod tests {
 
         crate::courses::update_course(
             tx.as_mut(),
+            &app_config,
             course,
             crate::courses::CourseUpdate {
                 name: existing_course.name,

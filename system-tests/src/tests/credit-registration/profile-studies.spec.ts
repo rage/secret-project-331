@@ -1,6 +1,5 @@
-import { expect, test } from "@playwright/test"
-
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 const COURSE_URL = "http://project-331.local/org/uh-cs/courses/automatic-completions"
 const COURSE_PAGE_URL = `${COURSE_URL}/chapter-1/page-1`

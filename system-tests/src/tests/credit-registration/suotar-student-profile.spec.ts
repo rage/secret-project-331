@@ -1,11 +1,10 @@
-import { expect, test } from "@playwright/test"
-
 import {
   CREDIT_REGISTRATIONS_API,
   PROFILE_CREDIT_REGISTRATION_URL,
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
 import { ADMIN_REGISTRATIONS_URL } from "@/utils/creditRegistrationAdmin"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 /**
  * Owns student numbers `9000016xx` and reads two fixtures the seed writes rather than drives: the

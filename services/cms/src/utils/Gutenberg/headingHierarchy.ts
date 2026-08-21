@@ -64,56 +64,61 @@ const createRawHeadingEntry = (
   }
 }
 
+/** Blocks that contribute to the heading outline. Keep in sync with `extractBlockHeadingEntries`. */
+export const HEADING_SOURCE_BLOCK_NAMES = [
+  "core/heading",
+  "moocfi/hero-section",
+  "moocfi/landing-page-hero-section",
+  "moocfi/ingress",
+  "moocfi/course-objective-section",
+  "moocfi/terminology-block",
+  "moocfi/aside-with-image",
+  "moocfi/expandable-content-inner-block",
+]
+
+const extractBlockHeadingEntries = (block: BlockInstance): RawHeadingEntry[] => {
+  switch (block.name) {
+    case "core/heading": {
+      const level = parseHeadingLevel(block.attributes?.level)
+      if (level === null) {
+        return []
+      }
+      const entry = createRawHeadingEntry(block, level, block.attributes?.content)
+      return entry ? [entry] : []
+    }
+    case "moocfi/hero-section":
+    case "moocfi/landing-page-hero-section": {
+      const entry = createRawHeadingEntry(block, 1, block.attributes?.title)
+      return entry ? [entry] : []
+    }
+    case "moocfi/ingress": {
+      const titleEntry = createRawHeadingEntry(block, 2, block.attributes?.title)
+      const subtitleEntry = createRawHeadingEntry(block, 3, block.attributes?.subtitle)
+      return [titleEntry, subtitleEntry].filter((entry): entry is RawHeadingEntry => entry !== null)
+    }
+    case "moocfi/course-objective-section":
+    case "moocfi/terminology-block": {
+      const entry = createRawHeadingEntry(block, 2, block.attributes?.title)
+      return entry ? [entry] : []
+    }
+    case "moocfi/aside-with-image": {
+      const entry = createRawHeadingEntry(block, 4, block.attributes?.title)
+      return entry ? [entry] : []
+    }
+    case "moocfi/expandable-content-inner-block": {
+      const entry = createRawHeadingEntry(block, 4, block.attributes?.name)
+      return entry ? [entry] : []
+    }
+    default:
+      return []
+  }
+}
+
 const extractRawHeadingEntries = (blocks: BlockInstance[]): RawHeadingEntry[] => {
   const entries: RawHeadingEntry[] = []
 
   for (const block of blocks) {
-    switch (block.name) {
-      case "core/heading": {
-        const level = parseHeadingLevel(block.attributes?.level)
-        if (level !== null) {
-          const entry = createRawHeadingEntry(block, level, block.attributes?.content)
-          if (entry) {
-            entries.push(entry)
-          }
-        }
-        break
-      }
-      case "moocfi/hero-section":
-      case "moocfi/landing-page-hero-section": {
-        const entry = createRawHeadingEntry(block, 1, block.attributes?.title)
-        if (entry) {
-          entries.push(entry)
-        }
-        break
-      }
-      case "moocfi/ingress": {
-        const titleEntry = createRawHeadingEntry(block, 2, block.attributes?.title)
-        const subtitleEntry = createRawHeadingEntry(block, 3, block.attributes?.subtitle)
-        if (titleEntry) {
-          entries.push(titleEntry)
-        }
-        if (subtitleEntry) {
-          entries.push(subtitleEntry)
-        }
-        break
-      }
-      case "moocfi/course-objective-section":
-      case "moocfi/terminology": {
-        const entry = createRawHeadingEntry(block, 2, block.attributes?.title)
-        if (entry) {
-          entries.push(entry)
-        }
-        break
-      }
-      case "moocfi/aside-with-image": {
-        const entry = createRawHeadingEntry(block, 4, block.attributes?.title)
-        if (entry) {
-          entries.push(entry)
-        }
-        break
-      }
-    }
+    entries.push(...extractBlockHeadingEntries(block))
 
     if (block.innerBlocks.length > 0) {
       entries.push(...extractRawHeadingEntries(block.innerBlocks))
@@ -127,10 +132,8 @@ const isReservedH1Block = (entry: RawHeadingEntry): boolean =>
   entry.blockName === "moocfi/hero-section" ||
   entry.blockName === "moocfi/landing-page-hero-section"
 
-export const analyzeHeadingHierarchy = (blocks: BlockInstance[]): HeadingHierarchyEntry[] => {
-  const rawEntries = extractRawHeadingEntries(blocks)
-
-  return rawEntries.map((entry, index) => {
+const analyzeRawHeadingEntries = (rawEntries: RawHeadingEntry[]): HeadingHierarchyEntry[] =>
+  rawEntries.map((entry, index) => {
     const previousEntry = index > 0 ? rawEntries[index - 1] : null
     const issues: HeadingHierarchyIssue[] = []
 
@@ -156,15 +159,31 @@ export const analyzeHeadingHierarchy = (blocks: BlockInstance[]): HeadingHierarc
       issues,
     }
   })
-}
 
-export const getHeadingHierarchyIssuesForBlock = (
+/** Analyzes the outline of a block tree, walking inner blocks. */
+export const analyzeHeadingHierarchy = (blocks: BlockInstance[]): HeadingHierarchyEntry[] =>
+  analyzeRawHeadingEntries(extractRawHeadingEntries(blocks))
+
+/**
+ * Analyzes the outline of an already flattened block list in document order, e.g. the result of the
+ * block editor's `getBlocksByName`. Inner blocks are not walked; the list must already contain
+ * descendants. Prefer `analyzeHeadingHierarchy` for a block tree.
+ */
+export const analyzeHeadingHierarchyForFlatBlocks = (
   blocks: BlockInstance[],
-  clientId: string,
-): HeadingHierarchyIssue[] => {
-  const entries = analyzeHeadingHierarchy(blocks)
+): HeadingHierarchyEntry[] =>
+  analyzeRawHeadingEntries(blocks.flatMap((block) => extractBlockHeadingEntries(block)))
 
-  return entries
+/**
+ * Picks the deduplicated issues one block is responsible for out of an analyzed outline. A block can
+ * contribute several headings (e.g. an ingress title and subtitle), so entries are matched by
+ * client id rather than by index.
+ */
+export const getHeadingHierarchyIssuesForBlock = (
+  entries: HeadingHierarchyEntry[],
+  clientId: string,
+): HeadingHierarchyIssue[] =>
+  entries
     .filter((entry) => entry.blockClientId === clientId)
     .flatMap((entry) => entry.issues)
     .filter(
@@ -174,4 +193,3 @@ export const getHeadingHierarchyIssuesForBlock = (
             candidate.type === issue.type && candidate.previousLevel === issue.previousLevel,
         ) === index,
     )
-}

@@ -1,6 +1,7 @@
 import type { BrowserContext, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
+import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -62,13 +63,13 @@ test.describe("Peer review followed by self review works", () => {
         .getByRole("button")
         .first()
         .click()
-      await teacherPage.getByText("Peer and self review").click()
+      await expandPeerAndSelfReviewConfig(teacherPage)
       await teacherPage.getByText("Add peer review").click()
       await teacherPage.getByText("Add self review").click()
       await waitForSuccessNotification(teacherPage, async () => {
         await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
       })
-      await teacherPage.getByText("Peer and self review").click()
+      await expandPeerAndSelfReviewConfig(teacherPage)
       const page1Promise = teacherPage.waitForEvent("popup")
       await teacherPage.getByRole("link", { name: "Course default peer review" }).click()
       const page1 = await page1Promise

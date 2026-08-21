@@ -1,0 +1,8 @@
+#!/bin/bash
+source "$(dirname "$0")/../.common"
+
+sudo systemctl stop docker || true
+sudo rm -f /etc/docker/daemon.json || true
+sudo systemctl start docker || true
+sudo umount /mnt/docker-tmpfs || true
+sudo rmdir /mnt/docker-tmpfs || true

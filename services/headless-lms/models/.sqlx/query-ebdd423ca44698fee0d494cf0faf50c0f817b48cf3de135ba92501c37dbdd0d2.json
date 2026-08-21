@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT worker_name\nFROM suotar_api_calls\nWHERE deleted_at IS NULL\nORDER BY worker_name\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "worker_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "worker_name"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "ebdd423ca44698fee0d494cf0faf50c0f817b48cf3de135ba92501c37dbdd0d2"
+}

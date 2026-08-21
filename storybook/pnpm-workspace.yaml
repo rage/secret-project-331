@@ -41,3 +41,6 @@ confirmModulesPurge: false
 updateNotifier: false
 
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - brace-expansion@5.0.9

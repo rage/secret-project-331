@@ -17,13 +17,12 @@ const ALLOWED_NESTED_BLOCKS = ["core/table"]
 const TABLE_TEMPLATE: Template[] = [["core/table", { title: "TableBox" }]]
 
 const TableEditor: React.FC<React.PropsWithChildren<BlockEditProps<TableBoxAttributes>>> = ({
-  clientId,
   attributes,
   setAttributes,
 }) => {
   const { t } = useTranslation()
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <InspectorControls key="tablebox-settings">
         <TableBoxWidthCustomizer attributes={attributes} setAttributes={setAttributes} />
       </InspectorControls>

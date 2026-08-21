@@ -1,6 +1,10 @@
-import { describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { handleGrade } from "./grade"
+
+vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
+  reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
+}))
 
 // Grading shells out to tmc-langs-cli and a Kubernetes sandbox pod; unit tests cover request
 // validation, system tests cover the full flow.
@@ -22,6 +26,18 @@ const REPOSITORY_EXERCISE = {
   download_url: "http://files.example/template.tar.zst",
 }
 
+const SUBMISSION_FILE = {
+  id: "7d6c9ba0-1d31-4a2d-9f2e-4a2a6e0d3a11",
+  name: "submission.tar.zst",
+  mime: "application/octet-stream",
+  size_bytes: 1234,
+  download_url: "http://files.example/submission.tar.zst",
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
 describe("POST /api/grade", () => {
   it("rejects invalid JSON with 400", async () => {
     const res = await handleGrade(post("not json"))
@@ -38,7 +54,7 @@ describe("POST /api/grade", () => {
       post({
         grading_update_url: "http://x",
         exercise_spec: { type: "editor" },
-        submission_data: { type: "editor", archive_download_url: "http://y" },
+        submission_files: [SUBMISSION_FILE],
       }),
     )
     expect(res.status).toBe(400)
@@ -46,29 +62,65 @@ describe("POST /api/grade", () => {
     expect(body.message).toContain("Invalid grading request")
   })
 
-  it("rejects a grading request without submission data with 400", async () => {
+  // A JSON-typed answer arrives with no files at all: ungradable, but not a service failure.
+  it("rejects a grading request without submission files with 400", async () => {
     const res = await handleGrade(
       post({
         grading_update_url: "http://x",
         exercise_spec: { type: "editor", repository_exercise: REPOSITORY_EXERCISE },
-        submission_data: null,
+        submission_files: [],
       }),
     )
     expect(res.status).toBe(400)
     const body = (await res.json()) as { message: string }
-    expect(body.message).toContain("unexpected submission type")
+    expect(body.message).toContain("submission_files")
   })
 
-  it("rejects a submission whose type does not match the exercise spec with 400", async () => {
+  it("rejects a grading request whose submission files are missing entirely with 400", async () => {
     const res = await handleGrade(
       post({
         grading_update_url: "http://x",
         exercise_spec: { type: "editor", repository_exercise: REPOSITORY_EXERCISE },
-        submission_data: { type: "browser", files: [] },
       }),
     )
     expect(res.status).toBe(400)
     const body = (await res.json()) as { message: string }
-    expect(body.message).toContain("unexpected submission type 'editor'")
+    expect(body.message).toContain("submission_files")
+  })
+
+  it("rejects more than one submission file with 400, rather than grading only the first", async () => {
+    const res = await handleGrade(
+      post({
+        grading_update_url: "http://x",
+        exercise_spec: { type: "editor", repository_exercise: REPOSITORY_EXERCISE },
+        submission_files: [SUBMISSION_FILE, { ...SUBMISSION_FILE, name: "extra.tar.zst" }],
+      }),
+    )
+    expect(res.status).toBe(400)
+    const body = (await res.json()) as { message: string }
+    expect(body.message).toContain("exactly one archive")
+  })
+
+  // The host sends null for a file stored before it recorded sizes, and tmc has no size limit of
+  // its own, so an unknown size must not keep an answer from being graded.
+  it("grades from the request's download url even when the file size is unknown", async () => {
+    const downloads: string[] = []
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string) => {
+        downloads.push(url)
+        return Promise.reject(new Error("download stopped by the test"))
+      }),
+    )
+    await expect(
+      handleGrade(
+        post({
+          grading_update_url: "http://x",
+          exercise_spec: { type: "editor", repository_exercise: REPOSITORY_EXERCISE },
+          submission_files: [{ ...SUBMISSION_FILE, size_bytes: null }],
+        }),
+      ),
+    ).rejects.toThrow("download stopped by the test")
+    expect(downloads).toEqual([SUBMISSION_FILE.download_url])
   })
 })

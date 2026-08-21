@@ -10,6 +10,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import type { ExerciseIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import type { Block } from "@/types/courseMaterialBlock"
+import type { CapturedExerciseTaskAnswer } from "@/utils/course-material/exerciseTaskAnswer"
 
 import ContentRenderer from "../.."
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
@@ -19,7 +20,7 @@ interface ExerciseTaskProps {
   exerciseTask: CourseMaterialExerciseTask
   isExam: boolean
   postThisStateToIFrame: ExerciseIframeState | undefined
-  setAnswer: (answer: { valid: boolean; data: unknown; validityMessages?: string[] }) => void
+  setAnswer: (answer: CapturedExerciseTaskAnswer) => void
   exerciseNumber: number
   isChapterLocked: boolean
 }

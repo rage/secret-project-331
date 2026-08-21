@@ -5,7 +5,8 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import {
-  answerDataToPluginAnswer,
+  answerDataToAnswerExerciseFields,
+  answerDataToViewSubmissionFields,
   exerciseTaskGradingToExerciseTaskGradingResult,
 } from "@/shared-module/common/utils/typeMappter"
 import type {
@@ -77,7 +78,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
                 grading: exerciseTaskGradingToExerciseTaskGradingResult(
                   exerciseTask.previous_submission_grading,
                 ),
-                user_answer: answerDataToPluginAnswer(exerciseTask.previous_submission.answer),
+                ...answerDataToViewSubmissionFields(exerciseTask.previous_submission.answer),
               },
             }
           } else if (exerciseTask.previous_submission) {
@@ -95,7 +96,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
                 grading: exerciseTaskGradingToExerciseTaskGradingResult(
                   exerciseTask.previous_submission_grading,
                 ),
-                user_answer: answerDataToPluginAnswer(exerciseTask.previous_submission.answer),
+                ...answerDataToViewSubmissionFields(exerciseTask.previous_submission.answer),
               },
             }
           }
@@ -142,7 +143,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
             grading: exerciseTaskGradingToExerciseTaskGradingResult(submissionResult.grading),
             model_solution_spec: submissionResult.model_solution_spec,
             public_spec,
-            user_answer: answerDataToPluginAnswer(submissionResult.submission.answer),
+            ...answerDataToViewSubmissionFields(submissionResult.submission.answer),
           },
         }
       })
@@ -166,7 +167,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
           user_variables: userVariables,
           data: {
             public_spec: exerciseTask.public_spec,
-            previous_submission: answerDataToPluginAnswer(exerciseTask.previous_submission?.answer),
+            ...answerDataToAnswerExerciseFields(exerciseTask.previous_submission?.answer),
           },
         }
       })

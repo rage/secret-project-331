@@ -19,15 +19,14 @@ import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
   EXERCISE_IFRAME_QUEUE_ID,
 } from "@/stores/course-material/throttledRendererStore"
+import type { CapturedExerciseTaskAnswer } from "@/utils/course-material/exerciseTaskAnswer"
 import { uploadFilesForExerciseTaskAnswer } from "@/utils/uploadFilesFromExerciseIframe"
 
 interface ExerciseTaskIframeProps {
   exerciseTaskId: string
   url: string
   postThisStateToIFrame: ExerciseIframeState | null
-  setAnswer:
-    | ((answer: { valid: boolean; data: unknown; validityMessages?: string[] }) => void)
-    | null
+  setAnswer: ((answer: CapturedExerciseTaskAnswer) => void) | null
   title: string
   headingBeforeIframe?: string
 }
@@ -55,9 +54,9 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       }
 
       if (messageContainer.message === "current-state") {
-        const { data, valid, validityMessages } = messageContainer
+        const { data, valid, files, validityMessages } = messageContainer
         if (setAnswer) {
-          setAnswer({ data, valid, ...omitUndefined({ validityMessages }) })
+          setAnswer({ data, valid, ...omitUndefined({ files, validityMessages }) })
         }
       } else if (messageContainer.message === "file-upload") {
         let response: MessageToIframe

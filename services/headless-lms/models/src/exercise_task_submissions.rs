@@ -17,6 +17,45 @@ use crate::{
     prelude::*,
 };
 
+/// Which of a submission's two answer representations is the answer: the opaque blob in
+/// `data_json`, or the rows in `exercise_task_submission_files`.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
+#[sqlx(type_name = "answer_kind", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+pub enum AnswerKind {
+    Json,
+    File,
+}
+
+/// The answer a submission or grading request carries, as either the raw JSON a plugin produced
+/// or the files a plugin's answer consists of.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum AnswerData {
+    Json {
+        data: serde_json::Value,
+    },
+    File {
+        files: Vec<AnswerFile>,
+        /// The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
+        metadata: Option<serde_json::Value>,
+    },
+}
+
+/// One host-stored file that an answer consists of.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+pub struct AnswerFile {
+    pub id: Uuid,
+    /// The name the file was uploaded under. Not necessarily what a viewer should be shown -- a
+    /// plugin that anonymizes filenames keeps its display name in `AnswerData::File::metadata`.
+    pub name: String,
+    pub mime: String,
+    pub size_bytes: i64,
+    pub order_number: i32,
+    /// Capability download URL, minted at read time from the file's path. Never persisted.
+    pub url: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct ExerciseTaskSubmission {

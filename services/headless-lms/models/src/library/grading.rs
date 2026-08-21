@@ -73,6 +73,23 @@ pub struct StudentExerciseTaskSubmission {
     pub data_json: serde_json::Value,
 }
 
+/// The answer a student submits for one exercise task, as either JSON or a set of host-stored
+/// files.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum SubmittedAnswer {
+    Json {
+        data: serde_json::Value,
+    },
+    File {
+        /// Ordered; the order is part of the answer (exercise-file-submission grades by position).
+        /// Every id must be an upload this user made for this exercise.
+        file_upload_ids: Vec<Uuid>,
+        /// The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
+        metadata: Option<serde_json::Value>,
+    },
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct StudentExerciseTaskSubmissionResult {

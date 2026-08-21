@@ -200,8 +200,8 @@ pub fn handle_anonymous_token(req: &HttpRequest, user: Option<AuthUser>) -> Opti
     }
 }
 
-/** Checks the Authorization header against a secret from environment variables to verify if the request originates from the TMC server. Returns an authorization token if the secret matches, otherwise an unauthorized error.
- */
+/// Checks the Authorization header against a secret from environment variables to verify the
+/// request originates from the TMC server.
 pub async fn authenticate_tmc_server(
     request: &HttpRequest,
 ) -> Result<AuthorizationToken, ControllerError> {
@@ -294,16 +294,10 @@ pub async fn authenticate_tmc_mooc_fi_user(
 
 pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
 
-/**
-Exchanges user credentials with TMC server to obtain an OAuth token.
-
-This function attempts to authenticate a user with the TMC server using their email and password.
-It returns different results based on the authentication outcome:
-
-- `Ok(Some(token))` - Authentication successful, returns the OAuth token
-- `Ok(None)` - Authentication failed due to invalid credentials (email/password)
-- `Err(...)` - Authentication failed due to other errors (server issues, network problems, etc.)
-*/
+/// Exchanges user credentials with TMC for an OAuth token.
+///
+/// `Ok(None)` means the credentials were rejected; other failures (network, server errors) are
+/// `Err`.
 pub async fn exchange_password_with_tmc(
     client: &OAuthClient,
     email: String,
@@ -482,9 +476,7 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
     Ok(user)
 }
 
-/// Authenticates a test user with predefined credentials.
-/// Returns Ok(true) if authentication succeeds, Ok(false) if credentials are incorrect,
-/// and Err for other errors.
+/// Authenticates a test user against predefined credentials.
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,
     email: &str,
@@ -573,10 +565,7 @@ pub async fn authenticate_test_token(
     Ok(Some(user))
 }
 
-/**
- Gets the rate limit protection API key from environment variables and converts it to a header value.
- This key is used to bypass rate limiting when making requests to TMC server.
-*/
+/// The rate-limit-bypass header value for requests to the TMC server.
 fn get_ratelimit_api_key() -> Result<reqwest::header::HeaderValue, HttpClientError<reqwest::Error>>
 {
     let key = server_runtime_config()
@@ -592,14 +581,8 @@ fn get_ratelimit_api_key() -> Result<reqwest::header::HeaderValue, HttpClientErr
         })
 }
 
-/**
- HTTP Client used only for authenticating with TMC server. This function:
- 1. Ensures TMC server does not rate limit auth requests from backend by adding a special header
- 2. Converts between oauth2 crate's internal http types and our reqwest types:
-    - Converts oauth2::HttpRequest to a reqwest::Request
-    - Makes the request using our REQWEST_CLIENT
-    - Converts the reqwest::Response back to oauth2::HttpResponse
-*/
+/// oauth2's HTTP transport, adapted to reqwest and tagged with the header that keeps TMC from
+/// rate-limiting the backend's own auth requests.
 async fn async_http_client_with_headers(
     oauth_request: oauth2::HttpRequest,
 ) -> Result<oauth2::HttpResponse, HttpClientError<reqwest::Error>> {

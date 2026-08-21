@@ -1,9 +1,9 @@
 use crate::controllers::mock_document_storage::{MOCK_DOCUMENTS, MockDocument};
 use crate::prelude::*;
 use headless_lms_chatbot::{
-    azure_chatbot::InputItem,
+    azure_chatbot::azure::{protocol::InputItem, tools::AzureLLMToolDefinition},
     chatbot_tools::{
-        AzureLLMToolDefinition, ChatbotToolDeclaration,
+        ChatbotToolDeclaration,
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
         custom_tools::course_structure::CourseStructureTool, get_chatbot_tool_definitions,
         tool_is_answered_by_client,
@@ -32,6 +32,22 @@ const CLIENT_TOOL_CALL_TRIGGER: &str = "!MOCK_CLIENT_TOOL_CALL!";
 /// Opens the trigger `!MOCK_TOOL_CALL:<tool_name>:<arguments>!`, which makes the mock call any
 /// registered tool, so exercising a new one end to end needs no scenario of its own here.
 const TOOL_CALL_BY_NAME_PREFIX: &str = "!MOCK_TOOL_CALL:";
+
+/// Drives an answer Azure cut short by `max_output_tokens`: the round ends on
+/// `response.incomplete` instead of `response.completed`.
+const INCOMPLETE_ANSWER_TRIGGER: &str = "!MOCK_INCOMPLETE_ANSWER!";
+
+/// Drives a stream a proxy closed cleanly before Azure ever sent a terminal event — neither
+/// `response.completed` nor `response.incomplete`.
+const TRUNCATED_STREAM_TRIGGER: &str = "!MOCK_TRUNCATED_STREAM!";
+
+/// Drives a search round whose completed output fails to parse as the chatbot's search-output
+/// schema: the same plain-text failure shape a real search backend can return, but on a
+/// `completed` item rather than the in-progress placeholder every other scenario here uses.
+const MALFORMED_SEARCH_OUTPUT_TRIGGER: &str = "!MOCK_MALFORMED_SEARCH_OUTPUT!";
+
+/// Drives a round that includes an output item kind the chatbot has no variant for.
+const UNKNOWN_ITEM_TYPE_TRIGGER: &str = "!MOCK_UNKNOWN_ITEM_TYPE!";
 
 /// The trigger text that makes the mock call `tool_name` with `arguments`.
 fn tool_call_by_name_trigger(tool_name: &str, arguments: &str) -> String {
@@ -219,6 +235,30 @@ const SCENARIOS: &[Scenario] = &[
         example: MockRequest::after_tool_run,
     },
     Scenario {
+        name: "an answer cut short by the token limit",
+        matches: |request| request.message_contains(INCOMPLETE_ANSWER_TRIGGER),
+        respond: |_, _| incomplete_answer_round(),
+        example: || MockRequest::chat(INCOMPLETE_ANSWER_TRIGGER),
+    },
+    Scenario {
+        name: "a stream that ends before response.completed",
+        matches: |request| request.message_contains(TRUNCATED_STREAM_TRIGGER),
+        respond: |_, _| truncated_stream_round(),
+        example: || MockRequest::chat(TRUNCATED_STREAM_TRIGGER),
+    },
+    Scenario {
+        name: "a completed search output that fails to parse",
+        matches: |request| request.message_contains(MALFORMED_SEARCH_OUTPUT_TRIGGER),
+        respond: |_, _| malformed_search_output_round(),
+        example: || MockRequest::chat(MALFORMED_SEARCH_OUTPUT_TRIGGER),
+    },
+    Scenario {
+        name: "an output item type the chatbot does not know",
+        matches: |request| request.message_contains(UNKNOWN_ITEM_TYPE_TRIGGER),
+        respond: |_, _| unknown_item_type_round(),
+        example: || MockRequest::chat(UNKNOWN_ITEM_TYPE_TRIGGER),
+    },
+    Scenario {
         name: "the default chat answer",
         matches: |request| request.stream && request.message.is_some(),
         respond: |_, base_url| search_and_text_round(base_url),
@@ -308,8 +348,8 @@ fn sse_body(events: Vec<(&str, Value)>) -> String {
 }
 
 /// Wraps a round's own `events` in the lifecycle events every round shares: `response.created`,
-/// which is where the chatbot picks up the response id it needs before the first delta, and the
-/// terminal `response.completed`.
+/// which is where the chatbot picks up the response id it needs before the round is classified,
+/// and the terminal `response.completed`.
 fn round(response_id: &str, events: Vec<(&'static str, Value)>, usage: Value) -> String {
     let mut all = vec![(
         "response.created",
@@ -495,9 +535,9 @@ const MOCK_MULTIPLE_CHOICE_ARGUMENTS: &str =
 /// Every tool it is used with works without a user, so the round works for an anonymous course
 /// material visitor.
 ///
-/// The chatbot picks its parser from the first delta event and passes the tool parser only what
-/// follows it, so the completed function call has to arrive in a later `output_item.done`, and
-/// the round must contain no text delta at all.
+/// The chatbot classifies the round from the function call item it announces and passes the tool
+/// parser only what follows that item, so the completed call has to arrive in a later
+/// `output_item.done`, and the round must contain no text delta at all.
 fn function_call_round(tool_name: &str, arguments: &str) -> String {
     let response_id = format!("resp_{}", Uuid::new_v4());
     let item_id = format!("fc_{}", Uuid::new_v4());
@@ -552,6 +592,160 @@ fn tool_answer_round() -> String {
         // a cache read here.
         usage(96, 42, 24, 8),
     )
+}
+
+/// An answer `max_output_tokens` cut short: it ends on `response.incomplete`, never on
+/// `response.completed`, with only a partial delta having streamed.
+fn incomplete_answer_round() -> String {
+    let response_id = format!("resp_{}", Uuid::new_v4());
+    let item_id = format!("msg_{}", Uuid::new_v4());
+
+    let events = vec![
+        (
+            "response.created",
+            json!({"response": response_object(&response_id)}),
+        ),
+        (
+            "response.output_item.added",
+            json!({
+                "output_index": 0,
+                "item": message_item(&item_id, &response_id, json!([]), "in_progress"),
+            }),
+        ),
+        (
+            "response.output_text.delta",
+            json!({
+                "content_index": 0,
+                "item_id": item_id,
+                "output_index": 0,
+                "delta": "This answer gets cut",
+            }),
+        ),
+        (
+            "response.incomplete",
+            json!({"response": {
+                "id": response_id,
+                "object": "response",
+                "status": "incomplete",
+                "incomplete_details": {"reason": "max_output_tokens"},
+                "usage": usage(30, 0, 8, 0),
+            }}),
+        ),
+    ];
+    sse_body(events)
+}
+
+/// A stream a proxy closed cleanly before Azure ever sent `response.completed` or
+/// `response.incomplete` — the shape a clean EOF produces, as opposed to the idle-timeout error a
+/// stalled connection produces.
+fn truncated_stream_round() -> String {
+    let response_id = format!("resp_{}", Uuid::new_v4());
+    let item_id = format!("fc_{}", Uuid::new_v4());
+    let call_id = format!("call_{}", Uuid::new_v4());
+
+    sse_body(vec![
+        (
+            "response.created",
+            json!({"response": response_object(&response_id)}),
+        ),
+        (
+            "response.output_item.done",
+            json!({
+                "output_index": 0,
+                "item": {
+                    "type": "function_call",
+                    "id": item_id,
+                    "response_id": response_id,
+                    "call_id": call_id,
+                    "name": <CourseStructureTool as ChatbotToolDeclaration>::NAME,
+                    "arguments": "{}",
+                    "status": "completed",
+                },
+            }),
+        ),
+    ])
+}
+
+/// A completed Azure AI Search output whose `output` is the same plain-text failure shape a real
+/// search backend can return, rather than the `AISearchOutput` JSON the round otherwise expects —
+/// on a `completed` item, unlike the in-progress placeholder [`search_and_text_round`] always
+/// resolves through.
+fn malformed_search_output_round() -> String {
+    let response_id = format!("resp_{}", Uuid::new_v4());
+    let call_id = format!("call_{}", Uuid::new_v4());
+    let search_item_id = format!("fc_{}", Uuid::new_v4());
+    let output_item_id = format!("fco_{}", Uuid::new_v4());
+    let message_item_id = format!("msg_{}", Uuid::new_v4());
+
+    let mut events = reasoning_item_events(&response_id);
+    events.extend([
+        (
+            "response.output_item.done",
+            json!({
+                "output_index": 1,
+                "item": {
+                    "type": "azure_ai_search_call",
+                    "id": search_item_id,
+                    "response_id": response_id,
+                    "call_id": call_id,
+                    "arguments": r#"{"query":"tell me more"}"#,
+                    "status": "completed",
+                },
+            }),
+        ),
+        (
+            "response.output_item.done",
+            json!({
+                "output_index": 2,
+                "item": {
+                    "type": "azure_ai_search_call_output",
+                    "id": output_item_id,
+                    "response_id": response_id,
+                    "call_id": call_id,
+                    "output": "remote tool call failed",
+                    "status": "completed",
+                },
+            }),
+        ),
+    ]);
+    events.extend(message_item_events(
+        &message_item_id,
+        &response_id,
+        3,
+        &["Sorry", ", search is unavailable."],
+    ));
+
+    round(&response_id, events, usage(38, 0, 40, 32))
+}
+
+/// A round that includes an output item kind the chatbot has no variant for, between the
+/// reasoning item and the answer, the way an Azure feature this code predates would arrive.
+fn unknown_item_type_round() -> String {
+    let response_id = format!("resp_{}", Uuid::new_v4());
+    let item_id = format!("ws_{}", Uuid::new_v4());
+    let message_item_id = format!("msg_{}", Uuid::new_v4());
+
+    let mut events = reasoning_item_events(&response_id);
+    events.push((
+        "response.output_item.done",
+        json!({
+            "output_index": 1,
+            "item": {
+                "type": "web_search_call",
+                "id": item_id,
+                "response_id": response_id,
+                "status": "completed",
+            },
+        }),
+    ));
+    events.extend(message_item_events(
+        &message_item_id,
+        &response_id,
+        2,
+        &["Handled", " gracefully."],
+    ));
+
+    round(&response_id, events, usage(20, 0, 20, 16))
 }
 
 /// The default chat answer: a search of the course material, the results it returns, and a text
@@ -759,7 +953,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
 #[cfg(test)]
 mod tests {
     use headless_lms_chatbot::{
-        azure_chatbot::{AISearchOutput, OutputItem, ResponseOutput},
+        azure_chatbot::azure::protocol::{
+            AISearchOutput, OutputItem, ReceivedOutputItem, ResponseOutput,
+        },
         chatbot_tools::ClientChatbotTool,
         llm_utils::{LLMResponse, parse_text_completion},
     };
@@ -808,7 +1004,11 @@ mod tests {
         events
             .iter()
             .filter_map(|(_, data)| {
-                match serde_json::from_str::<ResponseOutput>(data).ok()?.item? {
+                match serde_json::from_str::<ResponseOutput>(data)
+                    .ok()?
+                    .item?
+                    .known()?
+                {
                     OutputItem::FunctionCall { tool_name, .. } => Some(tool_name),
                     _ => None,
                 }
@@ -926,9 +1126,9 @@ mod tests {
         }
     }
 
-    /// The chatbot decides how to parse the rest of the stream from the first delta event and
-    /// hands the tool parser only what comes after it. The tool parser needs a completed function
-    /// call and a `response.completed`, and errors on a text delta.
+    /// The chatbot classifies the round from the function call item it announces and hands the
+    /// tool parser what follows. The tool parser needs a completed function call and a
+    /// `response.completed`, and errors on a text delta.
     #[test]
     fn the_function_call_round_drives_the_tool_call_parser() {
         let body = respond(&MockRequest::chat(TOOL_CALL_TRIGGER));
@@ -1033,7 +1233,11 @@ mod tests {
         let search_outputs: Vec<String> = sse_events(&body)
             .into_iter()
             .filter_map(|(_, data)| {
-                match serde_json::from_str::<ResponseOutput>(data).ok()?.item? {
+                match serde_json::from_str::<ResponseOutput>(data)
+                    .ok()?
+                    .item?
+                    .known()?
+                {
                     OutputItem::AzureAiSearchCallOutput { output, .. }
                         if output.contains("get_urls") =>
                     {
@@ -1055,5 +1259,82 @@ mod tests {
                 assert!(url.as_str().starts_with(BASE_URL), "{url}");
             }
         }
+    }
+
+    /// An answer cut short by the token limit ends on `response.incomplete`, never on
+    /// `response.completed`.
+    #[test]
+    fn the_incomplete_answer_round_ends_on_incomplete_not_completed() {
+        let body = respond(&MockRequest::chat(INCOMPLETE_ANSWER_TRIGGER));
+        let events = sse_events(&body);
+        assert_eq!(
+            events.last().map(|(event, _)| *event),
+            Some("response.incomplete")
+        );
+        assert!(
+            !events
+                .iter()
+                .any(|(event, _)| *event == "response.completed"),
+            "an incomplete round must not also carry a response.completed"
+        );
+    }
+
+    /// A stream closed before Azure sends a terminal event must not carry one, or it stops
+    /// exercising the shape a proxy's clean EOF produces.
+    #[test]
+    fn the_truncated_stream_round_carries_no_terminal_event() {
+        let body = respond(&MockRequest::chat(TRUNCATED_STREAM_TRIGGER));
+        let events = sse_events(&body);
+        assert!(!events.is_empty(), "the round streams no events at all");
+        assert!(
+            !events
+                .iter()
+                .any(|(event, _)| *event == "response.completed" || *event == "response.incomplete"),
+            "a truncated stream must carry neither response.completed nor response.incomplete"
+        );
+    }
+
+    /// The completed search output this scenario carries fails to parse as the chatbot's
+    /// search-output schema, on a `completed` item rather than the in-progress placeholder every
+    /// other search scenario here uses.
+    #[test]
+    fn the_malformed_search_output_round_carries_a_completed_output_that_fails_to_parse() {
+        let body = respond(&MockRequest::chat(MALFORMED_SEARCH_OUTPUT_TRIGGER));
+        let events = sse_events(&body);
+        let output = events
+            .iter()
+            .find_map(|(_, data)| {
+                match serde_json::from_str::<ResponseOutput>(data)
+                    .ok()?
+                    .item?
+                    .known()?
+                {
+                    OutputItem::AzureAiSearchCallOutput { output, .. } => Some(output),
+                    _ => None,
+                }
+            })
+            .expect("the round carries a search output item");
+        assert!(
+            serde_json::from_str::<AISearchOutput>(&output).is_err(),
+            "the output was expected to fail the chatbot's search-output schema: {output}"
+        );
+    }
+
+    /// An item type the chatbot has no variant for still deserializes as
+    /// `ReceivedOutputItem::Unreadable` rather than failing the line it arrives on.
+    #[test]
+    fn the_unknown_item_type_round_deserializes_as_unreadable() {
+        let body = respond(&MockRequest::chat(UNKNOWN_ITEM_TYPE_TRIGGER));
+        let events = sse_events(&body);
+        let saw_unreadable = events.iter().any(|(event, data)| {
+            event.starts_with("response.output_item.")
+                && matches!(
+                    serde_json::from_str::<ResponseOutput>(data)
+                        .ok()
+                        .and_then(|r| r.item),
+                    Some(ReceivedOutputItem::Unreadable(_))
+                )
+        });
+        assert!(saw_unreadable, "the round carries no unreadable item");
     }
 }

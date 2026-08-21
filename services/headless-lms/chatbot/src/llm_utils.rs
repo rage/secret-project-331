@@ -1,20 +1,22 @@
 use secrecy::{ExposeSecret, SecretString};
 
 use crate::{
-    azure_chatbot::{
+    azure_chatbot::azure::protocol::{
         InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, MistralParams,
         NonThinkingParams, OutputItem, Reasoning, ReasoningContext, ReasoningOutput,
-        Response as AzureResponse, ResponseError, ResponseReasoning, SummaryType, ThinkingParams,
-        Usage,
+        RequestTextOptions, Response as AzureResponse, ResponseError, ResponseReasoning,
+        SummaryType, ThinkingParams, Usage,
     },
+    azure_chatbot::azure::tools::AZURE_AI_SEARCH_TOOL_NAME,
     chatbot_error::ChatbotResult,
-    chatbot_tools::{
-        provider_tools::azure_ai_search::AZURE_AI_SEARCH_TOOL_NAME, tool_is_answered_by_client,
-    },
+    chatbot_tools::tool_is_answered_by_client,
     prelude::*,
 };
 use core::default::Default;
-use headless_lms_base::config::{ApplicationConfiguration, AzureSearchConfiguration};
+use headless_lms_base::config::{
+    ApplicationConfiguration, AzureChatbotConfiguration, AzureConfiguration,
+    AzureSearchConfiguration,
+};
 use headless_lms_models::{
     chatbot_configurations::{ChatbotConfiguration, ReasoningEffortLevel},
     chatbot_configurations_models::ModelType,
@@ -30,6 +32,49 @@ use reqwest::Response;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, instrument, trace, warn};
+
+/// The Azure section of the application configuration, or an error naming what's missing.
+pub fn azure_configuration(
+    app_config: &ApplicationConfiguration,
+) -> ChatbotResult<&AzureConfiguration> {
+    app_config.azure_configuration.as_ref().ok_or_else(|| {
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
+    })
+}
+
+/// The Azure AI Search section of the application configuration, or an error naming what's missing.
+pub fn azure_search_configuration(
+    app_config: &ApplicationConfiguration,
+) -> ChatbotResult<&AzureSearchConfiguration> {
+    azure_configuration(app_config)?
+        .search_config
+        .as_ref()
+        .ok_or_else(|| {
+            chatbot_err!(
+                AzureRequestBuildError,
+                "Search configuration is missing from the Azure configuration"
+            )
+        })
+}
+
+/// The Azure chatbot (Foundry) section of the application configuration, or an error naming
+/// what's missing.
+pub fn azure_chatbot_configuration(
+    app_config: &ApplicationConfiguration,
+) -> ChatbotResult<&AzureChatbotConfiguration> {
+    azure_configuration(app_config)?
+        .chatbot_config
+        .as_ref()
+        .ok_or_else(|| {
+            chatbot_err!(
+                AzureRequestBuildError,
+                "Chatbot configuration is missing from the Azure configuration"
+            )
+        })
+}
 
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -533,6 +578,22 @@ pub struct AzureCompletionRequest {
     pub include: Option<Vec<String>>,
 }
 
+/// The wire shape of [`AzureCompletionRequest`], borrowing its conversation instead of owning it.
+///
+/// A turn's request grows every round, so building the outbound body from an owned
+/// `AzureCompletionRequest` would deep-copy the whole accumulated conversation per round just to
+/// serialize it. Serialize-only: nothing needs to read one of these back, so unlike its owned
+/// sibling it derives no `Deserialize`.
+#[derive(Serialize)]
+struct AzureCompletionRequestRef<'a> {
+    #[serde(flatten)]
+    base: &'a LLMRequest,
+    stream: bool,
+    store: StoreDisabled,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    include: Option<Vec<String>>,
+}
+
 /// Response from LLM for simple completions
 #[derive(Deserialize, Debug)]
 pub struct LLMResponse {
@@ -550,13 +611,10 @@ pub fn string_list_response_format(name: &str, property: &str) -> LLMRequestResp
     LLMRequestResponseFormatParam {
         format_type: JSONType::JsonSchema,
         name: name.to_string(),
-        schema: Schema {
-            type_field: JSONType::Object,
-            description: None,
-            properties: IndexMap::from([(property.to_string(), string_array_property(None))]),
-            required: vec![property.to_string()],
-            additional_properties: false,
-        },
+        schema: Schema::strict_object(
+            IndexMap::from([(property.to_string(), string_array_property(None))]),
+            None,
+        ),
         strict: true,
     }
 }
@@ -695,6 +753,42 @@ async fn make_llm_request(
     process_llm_response(response, &request.base.input).await
 }
 
+/// Builds the error for a failed LLM HTTP response, parsing `error_text` as an Azure error body
+/// when possible and attaching it as the error's Azure source.
+fn llm_http_error(status: reqwest::StatusCode, error_text: String) -> ChatbotError {
+    let azure_response = serde_json::from_str::<AzureResponse>(&error_text);
+    match azure_response {
+        Ok(response) => {
+            let azure_error: Option<ResponseError> = response.error;
+            // Format the error message to be minimal and add the Azure source.
+            let mut error = chatbot_err!(
+                FailedAzureResponse,
+                format!(
+                    "Error calling LLM API: Status: {}. Error: {}",
+                    status,
+                    &azure_error
+                        .as_ref()
+                        .and_then(|e| e.code.to_owned())
+                        .or_else(|| azure_error.as_ref().and_then(|e| e.error_type.to_owned()))
+                        .unwrap_or(error_text)
+                )
+            );
+            if let Some(e) = azure_error {
+                error.add_azure_source(e);
+            };
+            error
+        }
+        // If Azure returned data in some other shape, just show the unparsed text.
+        Err(_) => chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error calling LLM API: Status: {}. Error: {}",
+                status, &error_text
+            )
+        ),
+    }
+}
+
 /// Process a non-streaming LLM response
 #[instrument(skip(response), fields(status = %response.status()))]
 async fn process_llm_response(
@@ -710,40 +804,7 @@ async fn process_llm_response(
             input = %summarize_input_for_log(input),
             "Error calling LLM API"
         );
-        // Azure can return a JSON Response, so parse it and take the error from it.
-        let azure_response = serde_json::from_str::<AzureResponse>(&error_text);
-        let error = match azure_response {
-            Ok(response) => {
-                let azure_error: Option<ResponseError> = response.error;
-                // Format the error message to be minimal and add the Azure source.
-                let mut error = chatbot_err!(
-                    FailedAzureResponse,
-                    format!(
-                        "Error calling LLM API: Status: {}. Error: {}",
-                        status,
-                        &azure_error
-                            .as_ref()
-                            .and_then(|e| e.code.to_owned())
-                            .or_else(|| azure_error.as_ref().and_then(|e| e.error_type.to_owned()))
-                            .unwrap_or(error_text)
-                    )
-                );
-                if let Some(e) = azure_error {
-                    error.add_azure_source(e);
-                };
-                error
-            }
-            // If Azure returned data in some other shape, just show the unparsed text.
-            Err(_) => chatbot_err!(
-                FailedAzureResponse,
-                format!(
-                    "Error calling LLM API: Status: {}. Error: {}",
-                    status, &error_text
-                )
-            ),
-        };
-
-        return Err(error);
+        return Err(llm_http_error(status, error_text));
     }
 
     trace!("Processing successful LLM response");
@@ -766,30 +827,17 @@ async fn process_llm_response(
     max_tokens
 ))]
 pub async fn make_streaming_llm_request(
-    chat_request: LLMRequest,
+    chat_request: &LLMRequest,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<Response> {
     debug!(
         "Preparing streaming LLM request with {} messages",
         chat_request.input.len()
     );
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        error!("Azure configuration missing");
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
+    let chatbot_config = azure_chatbot_configuration(app_config)
+        .inspect_err(|_| error!("Azure chatbot configuration missing"))?;
 
-    let chatbot_config = azure_config.chatbot_config.as_ref().ok_or_else(|| {
-        error!("Chatbot configuration missing");
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Chatbot configuration is missing from the Azure configuration"
-        )
-    })?;
-
-    let request = AzureCompletionRequest {
+    let request = AzureCompletionRequestRef {
         include: reasoning_include(&chat_request.params),
         base: chat_request,
         stream: true,
@@ -812,7 +860,7 @@ pub async fn make_streaming_llm_request(
         .await
         .map_err(|_| {
             chatbot_err!(
-                StreamingError,
+                StreamEndedEarly,
                 format!(
                     "The LLM did not send response headers within {} seconds",
                     STREAM_RESPONSE_HEADERS_TIMEOUT.as_secs()
@@ -829,40 +877,7 @@ pub async fn make_streaming_llm_request(
             input = %summarize_input_for_log(&request.base.input),
             "Error calling streaming LLM API"
         );
-        // Azure can return a JSON Response, so parse it and take the error from it.
-        let azure_response = serde_json::from_str::<AzureResponse>(&error_text);
-        let error = match azure_response {
-            Ok(response) => {
-                let azure_error: Option<ResponseError> = response.error;
-                // Format the error message to be minimal and add the Azure source.
-                let mut error = chatbot_err!(
-                    FailedAzureResponse,
-                    format!(
-                        "Error calling LLM API: Status: {}. Error: {}",
-                        status,
-                        &azure_error
-                            .as_ref()
-                            .and_then(|e| e.code.to_owned())
-                            .or_else(|| azure_error.as_ref().and_then(|e| e.error_type.to_owned()))
-                            .unwrap_or(error_text)
-                    )
-                );
-                if let Some(e) = azure_error {
-                    error.add_azure_source(e);
-                };
-                error
-            }
-            // If Azure returned data in some other shape, just show the unparsed text.
-            Err(_) => chatbot_err!(
-                FailedAzureResponse,
-                format!(
-                    "Error calling LLM API: Status: {}. Error: {}",
-                    status, &error_text
-                )
-            ),
-        };
-
-        return Err(error);
+        return Err(llm_http_error(status, error_text));
     }
 
     debug!("Successfully initiated streaming response");
@@ -883,21 +898,8 @@ pub async fn make_blocking_llm_request(
         "Preparing blocking LLM request with {} messages",
         chat_request.input.len()
     );
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        error!("Azure configuration missing");
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let chatbot_config = azure_config.chatbot_config.as_ref().ok_or_else(|| {
-        error!("Chatbot configuration missing");
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Chatbot configuration is missing from the Azure configuration"
-        )
-    })?;
+    let chatbot_config = azure_chatbot_configuration(app_config)
+        .inspect_err(|_| error!("Azure chatbot configuration missing"))?;
 
     let api_endpoint = chatbot_config.responses_endpoint()?;
 
@@ -926,6 +928,32 @@ pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
         ));
     };
     Ok(res)
+}
+
+/// Sends `input` as a one-shot structured-JSON request and deserializes the reply as `T`.
+///
+/// `on_invalid_response` builds the error raised when the reply doesn't parse as `T`, so each
+/// caller can raise its own [`ChatbotErrorType`] and wording for that failure.
+pub async fn request_structured_json<T: serde::de::DeserializeOwned>(
+    input: Vec<APIInputMessage>,
+    model: String,
+    params: LLMRequestParams,
+    max_output_tokens: Option<i32>,
+    format: LLMRequestResponseFormatParam,
+    app_config: &ApplicationConfiguration,
+    on_invalid_response: impl FnOnce() -> ChatbotError,
+) -> ChatbotResult<T> {
+    let chat_request = LLMRequest {
+        max_output_tokens,
+        text: Some(RequestTextOptions {
+            verbosity: None,
+            format: Some(format),
+        }),
+        ..LLMRequest::new(model, input, params)
+    };
+    let completion = make_blocking_llm_request(chat_request, app_config).await?;
+    let content = parse_text_completion(completion)?;
+    serde_json::from_str(&content).map_err(|_| on_invalid_response())
 }
 
 pub fn get_params_for_model(
@@ -1004,7 +1032,7 @@ pub fn get_params_for_model(
                 }),
             })
         }
-        ModelType::Mistral => LLMRequestParams::Mistral(MistralParams { test: true }),
+        ModelType::Mistral => LLMRequestParams::Mistral(MistralParams { placeholder: true }),
     }
 }
 
@@ -1066,7 +1094,9 @@ mod tests {
         });
         assert_eq!(reasoning_include(&non_thinking), None);
         assert_eq!(
-            reasoning_include(&LLMRequestParams::Mistral(MistralParams { test: true })),
+            reasoning_include(&LLMRequestParams::Mistral(MistralParams {
+                placeholder: true
+            })),
             None
         );
 

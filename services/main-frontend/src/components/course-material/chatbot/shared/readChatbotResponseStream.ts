@@ -65,7 +65,7 @@ const readChatbotResponseStream = async (
     return false
   }
 
-  // The response is newline-delimited JSON, not SSE, despite its text/event-stream content type.
+  // The response is newline-delimited JSON (application/x-ndjson), not SSE.
   // One decoder for the whole stream so multi-byte characters split across chunks survive.
   const decoder = new TextDecoder()
   let buffer = ""

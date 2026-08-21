@@ -9,15 +9,12 @@ use indexmap::IndexMap;
 use std::collections::HashMap;
 
 use crate::{
-    azure_chatbot::{
-        InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
-        RequestTextOptions, ThinkingParams,
+    azure_chatbot::azure::protocol::{
+        InputItem, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        ThinkingParams,
     },
     chatbot_error::chatbot_err,
-    llm_utils::{
-        APIInputMessage, MessageContent, make_blocking_llm_request, model_is_thinking,
-        parse_text_completion,
-    },
+    llm_utils::{APIInputMessage, MessageContent, model_is_thinking, request_structured_json},
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 use headless_lms_base::config::ApplicationConfiguration;
@@ -52,10 +49,8 @@ fn response_format() -> LLMRequestResponseFormatParam {
     LLMRequestResponseFormatParam {
         format_type: JSONType::JsonSchema,
         name: RESPONSE_FORMAT_NAME.to_string(),
-        schema: Schema {
-            type_field: JSONType::Object,
-            description: None,
-            properties: IndexMap::from([
+        schema: Schema::strict_object(
+            IndexMap::from([
                 (
                     "course_description".to_string(),
                     SchemaPropertyType::Item(JsonItem {
@@ -69,10 +64,8 @@ fn response_format() -> LLMRequestResponseFormatParam {
                     SchemaPropertyType::ArrayProperty(ArrayProperty {
                         type_field: JSONType::Array,
                         description: None,
-                        items: ArrayItem::Schema(Schema {
-                            type_field: JSONType::Object,
-                            description: None,
-                            properties: IndexMap::from([
+                        items: ArrayItem::Schema(Schema::strict_object(
+                            IndexMap::from([
                                 (
                                     "course_code".to_string(),
                                     SchemaPropertyType::Item(JsonItem {
@@ -89,23 +82,13 @@ fn response_format() -> LLMRequestResponseFormatParam {
                                 ),
                                 ("prerequisites".to_string(), string_array_property(None)),
                             ]),
-                            required: Vec::from([
-                                "course_code".to_string(),
-                                "description".to_string(),
-                                "prerequisites".to_string(),
-                            ]),
-                            additional_properties: false,
-                        }),
+                            None,
+                        )),
                     }),
                 ),
             ]),
-            required: Vec::from([
-                "course_description".to_string(),
-                "audience".to_string(),
-                "modules".to_string(),
-            ]),
-            additional_properties: false,
-        },
+            None,
+        ),
         strict: true,
     }
 }
@@ -189,32 +172,21 @@ pub async fn generate_description(
         )
     };
 
-    let chat_request = LLMRequest {
-        input: vec![system_prompt, user_prompt],
-        model: task_lm.model.to_owned(),
-        max_output_tokens,
-        tools: vec![],
-        tool_choice: None,
-        parallel_tool_calls: None,
-        prompt_cache_key: None,
+    let descriptions: SisuDescriptionResponse = request_structured_json(
+        vec![system_prompt, user_prompt],
+        task_lm.model.to_owned(),
         params,
-        text: Some(RequestTextOptions {
-            verbosity: None,
-            format: Some(response_format()),
-        }),
-    };
-
-    let completion = make_blocking_llm_request(chat_request, app_config).await?;
-
-    let completion_content: &String = &parse_text_completion(completion)?;
-
-    let descriptions: SisuDescriptionResponse =
-        serde_json::from_str(completion_content).map_err(|_| {
+        max_output_tokens,
+        response_format(),
+        app_config,
+        || {
             chatbot_err!(
                 SisuDescriptionError,
                 "Sisu description LLM returned an incorrectly formatted response.".to_string()
             )
-        })?;
+        },
+    )
+    .await?;
     Ok(descriptions)
 }
 

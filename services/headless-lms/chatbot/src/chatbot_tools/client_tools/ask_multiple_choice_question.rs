@@ -7,10 +7,11 @@ use headless_lms_utils::json_schema_types::{
 };
 
 use crate::{
+    azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::ClientToolAnswer,
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotToolDeclaration, ClientChatbotTool, LLMToolType,
-        client_answer_data, tool_permission::ToolPermission,
+        ChatbotToolDeclaration, ClientChatbotTool, ClientToolName, client_answer_data,
+        tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
 };
@@ -47,7 +48,7 @@ struct MultipleChoiceAnswer {
 }
 
 impl ChatbotToolDeclaration for AskMultipleChoiceQuestionTool {
-    const NAME: &'static str = "ask_multiple_choice_question";
+    const NAME: &'static str = ClientToolName::AskMultipleChoiceQuestion.as_str();
 
     /// A clarifying question reveals nothing the user did not write themselves.
     const PERMISSION: ToolPermission = ToolPermission::Anyone;
@@ -57,10 +58,8 @@ impl ChatbotToolDeclaration for AskMultipleChoiceQuestionTool {
             tool_type: LLMToolType::Function,
             name: Self::NAME.to_string(),
             description: "Ask the user a question with a short list of answers and wait for them to pick one. Use it when one specific piece of information from the user decides how you answer and the sensible answers are few and known in advance, for example which of several topics they mean or which language they want. Do not use it for open questions, for anything you can find out with another tool, or to ask for permission. Ask one question at a time.".to_string(),
-            parameters: Schema {
-                type_field: JSONType::Object,
-                description: None,
-                properties: IndexMap::from([
+            parameters: Schema::strict_object(
+                IndexMap::from([
                     (
                         "question".to_string(),
                         SchemaPropertyType::Item(JsonItem {
@@ -77,9 +76,8 @@ impl ChatbotToolDeclaration for AskMultipleChoiceQuestionTool {
                         ))),
                     ),
                 ]),
-                required: vec!["question".to_string(), "choices".to_string()],
-                additional_properties: false,
-            },
+                None,
+            ),
             strict: true,
         }
     }
@@ -264,8 +262,7 @@ mod tests {
         ] {
             let error =
                 AskMultipleChoiceQuestionTool::parse_response(&arguments, &data_answer(refused))
-                    .err()
-                    .expect("the choice was not offered");
+                    .expect_err("the choice was not offered");
             assert_eq!(error.error_type(), &ChatbotErrorType::InvalidToolAnswer);
         }
     }

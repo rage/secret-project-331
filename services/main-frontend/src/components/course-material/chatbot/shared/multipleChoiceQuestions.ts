@@ -3,18 +3,16 @@ import { z } from "zod"
 import type {
   ChatbotConversationMessage,
   ClientToolAnswer,
+  ClientToolName,
 } from "@/generated/course-material-api/types.generated"
 import { zChatbotConversationMessageToolCall } from "@/generated/course-material-api/zod.generated"
 
 /**
- * The client tool this UI answers.
- *
- * Equal to `AskMultipleChoiceQuestionTool::NAME` in
- * `services/headless-lms/chatbot/src/chatbot_tools/client_tools/ask_multiple_choice_question.rs`.
- * If the two drift apart the call renders as an anonymous tool status line and the turn stays
- * suspended until the learner writes something else.
+ * The client tool this UI answers, generated from `ClientToolName` in
+ * `services/headless-lms/chatbot/src/chatbot_tools/mod.rs`. A drift between the two is a compile
+ * error here rather than a call that silently renders as an anonymous tool status line.
  */
-export const ASK_MULTIPLE_CHOICE_QUESTION_TOOL = "ask_multiple_choice_question"
+export const ASK_MULTIPLE_CHOICE_QUESTION_TOOL: ClientToolName = "ask_multiple_choice_question"
 
 /**
  * The bounds `AskMultipleChoiceQuestionTool::parse_arguments` enforces. Mirrored because a question
@@ -39,6 +37,20 @@ export interface MultipleChoiceQuestion {
    */
   choices: string[]
 }
+
+const zMultipleChoiceQuestion = z.object({
+  toolCallId: z.string(),
+  question: z.string(),
+  choices: z.array(z.string()),
+})
+
+/**
+ * Narrows a client tool registry entry's `unknown` call back to this tool's own type. Always true
+ * for a call this tool's own `parseCall` produced; exists so the registry never needs a cast to
+ * cross that boundary.
+ */
+export const isMultipleChoiceQuestion = (call: unknown): call is MultipleChoiceQuestion =>
+  zMultipleChoiceQuestion.safeParse(call).success
 
 /**
  * The clarifying question named by a call's raw arguments, or null if they cannot be answered.

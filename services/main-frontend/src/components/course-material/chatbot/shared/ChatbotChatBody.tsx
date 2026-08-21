@@ -9,6 +9,7 @@ import type {
   ChatbotConversationMessage,
   ChatbotConversationMessageCitation,
   ClientToolAnswer,
+  ClientToolName,
 } from "@/generated/course-material-api/types.generated"
 import SendIcon from "@/imgs/send.svg"
 import StopIcon from "@/imgs/stop.svg"
@@ -306,7 +307,7 @@ interface ConversationRowProps {
   row: ConversationRowData
   isTurnInFlight: boolean
   citations: Map<string, ChatbotConversationMessageCitation[]>
-  onAnswer: (toolCallId: string, answer: ClientToolAnswer) => void
+  onAnswer: (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => void
 }
 
 /** One row of the conversation: a client tool call, or a user/assistant message, each with its own
@@ -337,16 +338,16 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
     return (
       <li className={messageListItemStyle} aria-label={t("question-from-the-chatbot")}>
         {row.items !== null && <ToolCallReasoningBubble messages={row.items} />}
-        <entry.Bubble
-          toolCallId={row.call.toolCallId}
-          call={row.call.call}
-          isOpen={row.call.isOpen}
+        {entry.renderBubble({
+          toolCallId: row.call.toolCallId,
+          call: row.call.call,
+          isOpen: row.call.isOpen,
           // A stream is still writing to the conversation, so the call this answers may not be
           // stored yet and answering it would be refused.
-          isTurnInFlight={isTurnInFlight}
-          closedAnswer={row.call.closedAnswer}
-          onAnswer={onAnswer}
-        />
+          isTurnInFlight,
+          closedAnswer: row.call.closedAnswer,
+          onAnswer,
+        })}
       </li>
     )
   }
@@ -371,7 +372,7 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
 interface ChatbotConversationViewProps {
   rows: ConversationRowData[]
   citations: Map<string, ChatbotConversationMessageCitation[]>
-  onAnswer: (toolCallId: string, answer: ClientToolAnswer) => void
+  onAnswer: (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => void
   isTurnInFlight: boolean
   streamedMessageCount: number
   suggestedMessages: { id: string; message: string }[]
@@ -574,11 +575,11 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   )
 
   const handleAnswer = useCallback(
-    (toolCallId: string, answer: ClientToolAnswer) => {
+    (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => {
       // The choices go away with the answer, taking the focused button with them, and the message
       // field is where the learner carries on either way.
       composerRef.current?.focus()
-      toolResponseMutation.mutate({ toolCallId, answer })
+      toolResponseMutation.mutate({ toolCallId, toolName, answer })
     },
     [toolResponseMutation],
   )

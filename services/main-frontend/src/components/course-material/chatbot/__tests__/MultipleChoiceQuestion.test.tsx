@@ -120,6 +120,7 @@ describe("Clarifying question from the chatbot", () => {
 
     expect(answer).toHaveBeenCalledWith({
       toolCallId: TOOL_CALL_ID,
+      toolName: ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
       answer: multipleChoiceAnswer(1),
     })
   })

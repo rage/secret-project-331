@@ -22,7 +22,7 @@ pub struct ChatbotConversation {
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
-/** Should contain all information required to display the chatbot to the user. */
+/// Everything needed to display the chatbot to the user.
 pub struct ChatbotConversationInfo {
     pub current_conversation: Option<ChatbotConversation>,
     pub current_conversation_messages: Option<Vec<ChatbotConversationMessage>>,

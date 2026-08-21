@@ -4,16 +4,17 @@ use headless_lms_utils::document_schema_processor::get_learning_objectives;
 use sqlx::PgConnection;
 
 use crate::{
+    azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_error::chatbot_err,
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotToolDeclaration, LLMToolType,
-        ToolProperties, no_parameters, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, no_parameters,
+        tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
     user_context::ChatbotUserContext,
 };
 
-pub type CourseStructureTool = ToolProperties<CourseStructureState, CourseStructureArguments>;
+pub type CourseStructureTool = ToolProperties<CourseStructureState>;
 
 pub struct CourseStructureState {
     course_pages_info: Vec<PageDocumentInfo>,
@@ -61,7 +62,7 @@ pub struct PageDocumentInfo {
     pub learning_objectives: Option<String>,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Deserialize)]
 pub struct CourseStructureArguments {}
 
 impl ChatbotToolDeclaration for CourseStructureTool {
@@ -92,7 +93,7 @@ impl ChatbotTool for CourseStructureTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
-        arguments: Self::Arguments,
+        _arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self>
     where
@@ -156,7 +157,6 @@ impl ChatbotTool for CourseStructureTool {
             state: CourseStructureState {
                 course_pages_info: info,
             },
-            arguments,
         })
     }
 
@@ -166,9 +166,5 @@ impl ChatbotTool for CourseStructureTool {
 
     fn output_description_instructions(&self) -> Option<String> {
         Some("The user has access to the course structure, so you shouldn't give it to them: they know it already. You can give an overview if asked. Use the course structure to find out more about the course and answer the user's questions. You can look up the content of the listed course pages with the document_lookup tool. The learning objectives listed on the course front page or top level pages are objectives for the whole course. Learning objectives listed on a chapter front page encompass the whole chapter, and objectives listed on a generic page are for the page only.".to_string())
-    }
-
-    fn get_arguments(&self) -> &Self::Arguments {
-        &self.arguments
     }
 }

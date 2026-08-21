@@ -369,7 +369,7 @@
           "200": {
             "description": "Chatbot response stream",
             "content": {
-              "text/event-stream": {
+              "application/x-ndjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ChatbotChatStreamEvent"
                 }
@@ -420,7 +420,7 @@
           "200": {
             "description": "Chatbot response stream",
             "content": {
-              "text/event-stream": {
+              "application/x-ndjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ChatbotChatStreamEvent"
                 }
@@ -3171,17 +3171,6 @@
                 "enum": ["Error"]
               }
             }
-          },
-          {
-            "type": "object",
-            "description": "If a ChatbotChatStreamEvent has been constructed from a StreamItem etc.,\nnot all variants are valid ChatbotChatStreamEvents and shouldn't be sent to\nthe frontend in the stream. In that case, use this variant.",
-            "required": ["type"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["Invalid"]
-              }
-            }
           }
         ]
       },
@@ -3224,7 +3213,7 @@
       },
       "ChatbotConversationInfo": {
         "type": "object",
-        "description": "Should contain all information required to display the chatbot to the user.",
+        "description": "Everything needed to display the chatbot to the user.",
         "required": ["chatbot_name", "hide_citations"],
         "properties": {
           "chatbot_name": {
@@ -3602,7 +3591,7 @@
       },
       "ChatbotToolResponse": {
         "type": "object",
-        "required": ["tool_call_id", "answer"],
+        "required": ["tool_call_id", "tool_name", "answer"],
         "properties": {
           "answer": {
             "$ref": "#/components/schemas/ClientToolAnswer"
@@ -3610,6 +3599,10 @@
           "tool_call_id": {
             "type": "string",
             "description": "The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event."
+          },
+          "tool_name": {
+            "$ref": "#/components/schemas/ClientToolName",
+            "description": "The tool the caller believes `tool_call_id` belongs to, checked against the call's\nrecorded name so a client answering the wrong bubble fails clearly instead of being\nsilently accepted as whatever tool the call actually was."
           }
         }
       },
@@ -3639,6 +3632,11 @@
           }
         ],
         "description": "What a client answered a tool call with.\n\nThe tool the call belongs to decides what shape the answer has to be in and what the model is\ntold it means."
+      },
+      "ClientToolName": {
+        "type": "string",
+        "description": "The name of a client tool, generated into the frontend as a string union so it names one of\n[ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.\n\nThe bounds a tool enforces on its arguments and the shape of its answer stay hand-written on\nthe frontend: routing those through the OpenAPI schema would need either a schema per tool or\nwidening the argument and answer types this crate uses to serialize them, for a part of the\ncontract that only fails loudly, unlike the name.",
+        "enum": ["ask_multiple_choice_question"]
       },
       "CodeGiveawayStatus": {
         "oneOf": [

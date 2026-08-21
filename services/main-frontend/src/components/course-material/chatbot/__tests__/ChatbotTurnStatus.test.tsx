@@ -14,7 +14,7 @@ import ChatbotChatBody from "../shared/ChatbotChatBody"
 // jsdom lacks IntersectionObserver, needed by TextAreaField's auto-resize inside ChatbotChatBody.
 beforeAll(setupIntersectionObserverMock)
 
-/// A reasoning item as the reducer holds it mid-stream, before its finished event arrives.
+/** A reasoning item as the reducer holds it mid-stream, before its finished event arrives. */
 const unfinishedReasoningItem = (): ChatbotConversationMessageWithStatus =>
   ({
     finished: false,

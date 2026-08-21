@@ -137,9 +137,21 @@ export const zClientToolAnswer = z.object({
   type: z.enum(["Data"]),
 })
 
+/**
+ * The name of a client tool, generated into the frontend as a string union so it names one of
+ * [ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.
+ *
+ * The bounds a tool enforces on its arguments and the shape of its answer stay hand-written on
+ * the frontend: routing those through the OpenAPI schema would need either a schema per tool or
+ * widening the argument and answer types this crate uses to serialize them, for a part of the
+ * contract that only fails loudly, unlike the name.
+ */
+export const zClientToolName = z.enum(["ask_multiple_choice_question"])
+
 export const zChatbotToolResponse = z.object({
   answer: zClientToolAnswer,
   tool_call_id: z.string(),
+  tool_name: zClientToolName,
 })
 
 export const zCodeGiveawayStatus = z.union([
@@ -954,9 +966,6 @@ export const zChatbotChatStreamEvent = z.union([
   z.object({
     data: zStreamEventError,
     type: z.enum(["Error"]),
-  }),
-  z.object({
-    type: z.enum(["Invalid"]),
   }),
 ])
 

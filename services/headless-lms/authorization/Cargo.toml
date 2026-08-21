@@ -13,21 +13,14 @@ headless-lms-base = { path = "../base" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
 
-# A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
-# 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
-# A library to generate and parse UUIDs.
 uuid = { version = "1.23.4", features = ["serde", "v4", "v5"] }
-# Code-first OpenAPI schema generation for the action and resource types exposed by the API.
 utoipa.workspace = true
-# Application-level tracing for Rust.
 tracing = "0.1.44"
-# Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.1"
-#  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
+# Should be removed after Rust 1.65.
 backtrace = "0.3.76"
-# Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.103"
 
 [lints.clippy]

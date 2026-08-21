@@ -402,6 +402,18 @@ LIMIT 1
     Ok(res)
 }
 
+/// Which unanswered tool calls a repair may abort.
+pub enum UnansweredToolCallScope<'a> {
+    /// The calls of the turn the caller is itself running, named by the responses that turn's
+    /// rounds were given. A call of another turn is one that turn may be about to answer, and a
+    /// `tool_call_id` that ends up with two outputs is replayed as two and rejected by the
+    /// provider for the rest of the conversation.
+    OwnTurn(&'a [String]),
+    /// The calls of any turn that have gone unanswered since the cutoff, for a caller repairing
+    /// what turns it knows nothing about left behind.
+    AnyTurnOlderThan(DateTime<Utc>),
+}
+
 /// Sometimes during chatbot conversation streaming, the stream ends unexpectedly while a
 /// tool call has been made but not answered. This happens also with provider tools that
 /// we can't control. In this case, the conversation is left in a state which is invalid,
@@ -412,10 +424,9 @@ LIMIT 1
 /// output is not a failure but a suspended turn waiting for the client, and is left alone.
 /// [abort_pending_client_tool_calls] is what ends the wait.
 ///
-/// `created_before` bounds which calls may be aborted. A caller repairing the turn it is itself
-/// running passes `None`; a caller sweeping at the start of an unrelated request must pass a
-/// cutoff, because nothing serializes requests for one conversation and a call whose output has
-/// not been written yet may belong to a turn still streaming in another request.
+/// `scope` bounds which calls may be aborted, because nothing serializes the requests of one
+/// conversation and a call whose output has not been written yet may belong to a turn still
+/// streaming in another request.
 ///
 /// Which calls to answer is decided again under the conversation lock, in one transaction with the
 /// inserts: two sweeps racing would otherwise both answer the same call, and a `tool_call_id`
@@ -431,12 +442,17 @@ LIMIT 1
 pub async fn answer_hanging_tool_call_messages_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
-    created_before: Option<DateTime<Utc>>,
+    scope: UnansweredToolCallScope<'_>,
     output_text: &str,
 ) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
     let needs_answering = |tool_call: &ChatbotConversationMessageToolCall| {
         !tool_call.tool_kind.is_answered_by_client()
-            && created_before.is_none_or(|cutoff| tool_call.created_at < cutoff)
+            && match scope {
+                UnansweredToolCallScope::OwnTurn(response_ids) => {
+                    response_ids.contains(&tool_call.response_id)
+                }
+                UnansweredToolCallScope::AnyTurnOlderThan(cutoff) => tool_call.created_at < cutoff,
+            }
     };
 
     let unanswered =
@@ -920,6 +936,11 @@ mod tests {
     /// output answering it agree on one.
     const RESPONSE_ID: &str = "resp_test";
 
+    /// The responses of a turn whose rounds all got [`RESPONSE_ID`].
+    fn own_turn_response_ids() -> Vec<String> {
+        vec![RESPONSE_ID.to_string()]
+    }
+
     fn user_message(conversation_id: Uuid, text: &str) -> ChatbotConversationMessage {
         chatbot_text_message(conversation_id, MessageRole::User, text, None)
     }
@@ -1000,7 +1021,7 @@ mod tests {
         answer_hanging_tool_call_messages_for_conversation(
             tx.as_mut(),
             conversation,
-            None,
+            UnansweredToolCallScope::OwnTurn(&own_turn_response_ids()),
             "aborted",
         )
         .await
@@ -1095,7 +1116,7 @@ mod tests {
         answer_hanging_tool_call_messages_for_conversation(
             tx.as_mut(),
             conversation,
-            Some(cutoff),
+            UnansweredToolCallScope::AnyTurnOlderThan(cutoff),
             "aborted",
         )
         .await
@@ -1111,7 +1132,7 @@ mod tests {
         answer_hanging_tool_call_messages_for_conversation(
             tx.as_mut(),
             conversation,
-            Some(Utc::now() + chrono::Duration::minutes(10)),
+            UnansweredToolCallScope::AnyTurnOlderThan(Utc::now() + chrono::Duration::minutes(10)),
             "aborted",
         )
         .await
@@ -1148,7 +1169,7 @@ mod tests {
         answer_hanging_tool_call_messages_for_conversation(
             tx.as_mut(),
             conversation,
-            None,
+            UnansweredToolCallScope::OwnTurn(&own_turn_response_ids()),
             "aborted",
         )
         .await
@@ -1500,7 +1521,7 @@ mod tests {
         answer_hanging_tool_call_messages_for_conversation(
             tx.as_mut(),
             other_conversation,
-            None,
+            UnansweredToolCallScope::OwnTurn(&own_turn_response_ids()),
             "aborted",
         )
         .await

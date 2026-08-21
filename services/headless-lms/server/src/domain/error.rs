@@ -1032,12 +1032,49 @@ impl From<crate::domain::oauth::pkce::PkceError> for ControllerError {
 
 impl From<ChatbotError> for ControllerError {
     fn from(err: ChatbotError) -> Self {
+        // A failure that came from the models layer is mapped like any other ModelError, so
+        // that e.g. a chatbot conversation referencing a deleted course answers 404.
+        let err = match err.into_model_error() {
+            Ok(model_error) => return model_error.into(),
+            Err(err) => err,
+        };
+
+        let backtrace: Backtrace = match BackendError::backtrace(&err) {
+            Some(backtrace) => backtrace.clone(),
+            _ => Backtrace::new(),
+        };
+        let span_trace = err.span_trace().clone();
         let error_type = match err.error_type() {
             // The one chatbot error the caller can fix, so the only one it is told about.
             ChatbotErrorType::InvalidToolAnswer => ControllerErrorType::BadRequest,
-            _ => ControllerErrorType::InternalServerError,
+            ChatbotErrorType::InvalidMessageShape
+            | ChatbotErrorType::InvalidToolName
+            | ChatbotErrorType::InvalidToolArguments
+            | ChatbotErrorType::ToolUseError
+            | ChatbotErrorType::ChatbotModelError
+            | ChatbotErrorType::ChatbotMessageSuggestError
+            | ChatbotErrorType::UrlParse
+            | ChatbotErrorType::TokioIo
+            | ChatbotErrorType::SerdeJson
+            | ChatbotErrorType::SqlxError
+            | ChatbotErrorType::ReqwestError
+            | ChatbotErrorType::Other
+            | ChatbotErrorType::DeserializationError
+            | ChatbotErrorType::AzureAISearchFilterError
+            | ChatbotErrorType::UpstreamReportedError
+            | ChatbotErrorType::ResponseIncomplete
+            | ChatbotErrorType::StreamEndedEarly
+            | ChatbotErrorType::UnexpectedProtocolShape
+            | ChatbotErrorType::StreamInvariantViolation
+            | ChatbotErrorType::ContentCleaning
+            | ChatbotErrorType::AzureRequestBuildError
+            | ChatbotErrorType::FailedAzureResponse
+            | ChatbotErrorType::SisuDescriptionError
+            | ChatbotErrorType::ChatbotUtilError => ControllerErrorType::InternalServerError,
         };
-        ControllerError::new(error_type, err.message().to_string(), Some(err.into()))
+        let message = err.message().to_string();
+
+        Self::new_with_traces(error_type, message, Some(err.into()), backtrace, span_trace)
     }
 }
 

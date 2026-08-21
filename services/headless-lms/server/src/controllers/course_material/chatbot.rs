@@ -1,13 +1,14 @@
-use actix_web::http::header::ContentType;
-use headless_lms_chatbot::azure_chatbot::{
-    ChatbotChatStreamEvent, answer_tool_call_and_resume_stream, send_chat_request_and_parse_stream,
+use headless_lms_chatbot::azure_chatbot::events::ChatbotChatStreamEvent;
+use headless_lms_chatbot::azure_chatbot::turn::{
+    answer_tool_call_and_resume_stream, send_chat_request_and_parse_stream,
 };
-use headless_lms_chatbot::chatbot_tools::ClientToolAnswer;
+use headless_lms_chatbot::chatbot_tools::{ClientToolAnswer, ClientToolName};
 use headless_lms_chatbot::conversation_context::ChatbotPageContext;
 use headless_lms_chatbot::llm_utils::estimate_tokens;
 use headless_lms_chatbot::user_context::ChatbotUserContext;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
+use headless_lms_models::chatbot_conversation_message_tool_calls;
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
@@ -99,7 +100,7 @@ Sends a new chat message to the chatbot.
             status = 200,
             description = "Chatbot response stream",
             body = ChatbotChatStreamEvent,
-            content_type = "text/event-stream"
+            content_type = "application/x-ndjson"
         )
     )
 )]
@@ -148,7 +149,7 @@ async fn send_message(
 
     token.authorized_ok(
         HttpResponse::Ok()
-            .content_type(ContentType(mime::TEXT_EVENT_STREAM))
+            .content_type("application/x-ndjson")
             .streaming(response_stream),
     )
 }
@@ -207,6 +208,10 @@ async fn authorize_access_to_conversation(
 pub struct ChatbotToolResponse {
     /// The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event.
     pub tool_call_id: String,
+    /// The tool the caller believes `tool_call_id` belongs to, checked against the call's
+    /// recorded name so a client answering the wrong bubble fails clearly instead of being
+    /// silently accepted as whatever tool the call actually was.
+    pub tool_name: ClientToolName,
     pub answer: ClientToolAnswer,
 }
 
@@ -232,7 +237,7 @@ turn or a lone `Suspended` event when the turn is still waiting for another answ
             status = 200,
             description = "Chatbot response stream",
             body = ChatbotChatStreamEvent,
-            content_type = "text/event-stream"
+            content_type = "application/x-ndjson"
         )
     )
 )]
@@ -250,6 +255,7 @@ async fn tool_response(
 ) -> ControllerResult<HttpResponse> {
     let ChatbotToolResponse {
         tool_call_id,
+        tool_name,
         answer,
     } = payload.into_inner();
     let chatbot_configuration_id = params.0;
@@ -265,6 +271,21 @@ async fn tool_response(
     )
     .await?;
 
+    let recorded_call =
+        chatbot_conversation_message_tool_calls::get_by_conversation_and_tool_call_id(
+            &mut conn,
+            conversation_id,
+            &tool_call_id,
+        )
+        .await?;
+    if recorded_call.is_none_or(|call| call.tool_name != tool_name.as_str()) {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "tool_name does not match the tool call being answered".to_string(),
+            None,
+        ));
+    }
+
     let response_stream = answer_tool_call_and_resume_stream(
         // An Arc, cheap to clone.
         pool.get_ref().clone(),
@@ -279,7 +300,7 @@ async fn tool_response(
 
     token.authorized_ok(
         HttpResponse::Ok()
-            .content_type(ContentType(mime::TEXT_EVENT_STREAM))
+            .content_type("application/x-ndjson")
             .streaming(response_stream),
     )
 }

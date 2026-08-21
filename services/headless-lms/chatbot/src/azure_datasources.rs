@@ -1,7 +1,10 @@
 use secrecy::ExposeSecret;
 use serde_json::json;
 
-use crate::{llm_utils::azure_search_request, prelude::*};
+use crate::{
+    llm_utils::{azure_configuration, azure_search_configuration, azure_search_request},
+    prelude::*,
+};
 
 pub const API_VERSION: &str = "2024-07-01";
 
@@ -9,19 +12,7 @@ pub async fn does_azure_datasource_exist(
     datasource_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<bool> {
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure search configuration is missing from the Azure configuration"
-        )
-    })?;
+    let search_config = azure_search_configuration(app_config)?;
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("datasources('{}')", datasource_name));
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
@@ -52,13 +43,7 @@ pub async fn create_azure_datasource(
     container_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<()> {
-    // Retrieve Azure configurations from the application configuration
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
+    let azure_config = azure_configuration(app_config)?;
 
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
         chatbot_err!(

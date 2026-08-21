@@ -30,8 +30,8 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
       if (!originalMessage.success) {
         const question = questionOf(m)
         if (question !== null) {
-          // Left out, the transcript would jump straight to an answer that reads as if the chatbot
-          // had picked one reading of the learner's message out of thin air.
+          // If left out, the transcript would jump straight to an answer that reads as if the
+          // chatbot had picked one reading of the learner's message out of thin air.
           const choices = question.choices.map((choice) => `- ${choice}`).join("\n")
           return `[${bot} asked:]\n${question.question}\n${choices}\n\n`
         }

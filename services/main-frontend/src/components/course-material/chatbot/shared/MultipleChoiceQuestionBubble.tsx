@@ -9,7 +9,11 @@ import { useTranslation } from "react-i18next"
 import { baseTheme } from "@/shared-module/common/styles"
 
 import type { ClientToolBubbleProps } from "./clientToolRegistry"
-import { chosenChoiceIndex, multipleChoiceAnswer } from "./multipleChoiceQuestions"
+import {
+  ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
+  chosenChoiceIndex,
+  multipleChoiceAnswer,
+} from "./multipleChoiceQuestions"
 import type { MultipleChoiceQuestion } from "./multipleChoiceQuestions"
 
 type MultipleChoiceQuestionBubbleProps = ClientToolBubbleProps<MultipleChoiceQuestion>
@@ -189,7 +193,7 @@ const MultipleChoiceQuestionBubble: React.FC<MultipleChoiceQuestionBubbleProps> 
 
   const handleChoiceClick = (choiceIndex: number) => {
     setLocallyChosenChoiceIndex(choiceIndex)
-    onAnswer(toolCallId, multipleChoiceAnswer(choiceIndex))
+    onAnswer(toolCallId, ASK_MULTIPLE_CHOICE_QUESTION_TOOL, multipleChoiceAnswer(choiceIndex))
   }
 
   return (

@@ -27,7 +27,10 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
-import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
+import {
+  answerDataToPluginAnswer,
+  exerciseTaskGradingToExerciseTaskGradingResult,
+} from "@/shared-module/common/utils/typeMappter"
 import { courseMaterialAtom } from "@/state/course-material"
 import type { Block } from "@/types/courseMaterialBlock"
 
@@ -324,7 +327,9 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                       grading: exerciseTaskGradingToExerciseTaskGradingResult(
                         course_material_exercise_task.previous_submission_grading,
                       ),
-                      user_answer: course_material_exercise_task.previous_submission?.data_json,
+                      user_answer: answerDataToPluginAnswer(
+                        course_material_exercise_task.previous_submission?.answer,
+                      ),
                       public_spec: course_material_exercise_task.public_spec,
                       model_solution_spec: course_material_exercise_task.model_solution_spec,
                     },

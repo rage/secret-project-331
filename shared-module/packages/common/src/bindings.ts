@@ -1152,7 +1152,6 @@ export interface AnswerRequiringAttention {
   created_at: string
   updated_at: string
   deleted_at: string | null
-  data_json: unknown | null
   grading_progress: GradingProgress
   score_given: number | null
   submission_id: string
@@ -1275,7 +1274,6 @@ export interface ExerciseTaskSubmission {
   exercise_slide_submission_id: string
   exercise_task_id: string
   exercise_slide_id: string
-  data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
 }
@@ -1542,7 +1540,6 @@ export interface CustomViewExerciseTaskSubmission {
   exercise_slide_id: string
   exercise_task_id: string
   exercise_task_grading_id: string | null
-  data_json: unknown | null
 }
 
 export interface CustomViewExerciseTasks {
@@ -1608,7 +1605,6 @@ export interface AnswerRequiringAttentionWithTasks {
   created_at: string
   updated_at: string
   deleted_at: string | null
-  data_json: unknown | null
   grading_progress: GradingProgress
   score_given: number | null
   submission_id: string
@@ -1638,7 +1634,6 @@ export interface StudentExerciseSlideSubmissionResult {
 
 export interface StudentExerciseTaskSubmission {
   exercise_task_id: string
-  data_json: unknown
 }
 
 export interface StudentExerciseTaskSubmissionResult {

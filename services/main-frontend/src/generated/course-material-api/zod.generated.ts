@@ -19,6 +19,45 @@ export const zActivityProgress = z.enum([
   "Completed",
 ])
 
+/**
+ * One host-stored file that an answer consists of.
+ */
+export const zAnswerFile = z.object({
+  id: z.uuid(),
+  mime: z.string(),
+  name: z.string(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  size_bytes: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    })
+    .nullish(),
+  url: z.string(),
+})
+
+/**
+ * The answer a submission or grading request carries, as either the raw JSON a plugin produced
+ * or the files a plugin's answer consists of.
+ */
+export const zAnswerData = z.union([
+  z.object({
+    data: z.unknown(),
+    kind: z.enum(["json"]),
+  }),
+  z.object({
+    files: z.array(zAnswerFile),
+    kind: z.enum(["file"]),
+    metadata: z.unknown().optional(),
+  }),
+])
+
 export const zChapterLockingStatus = z.enum([
   "unlocked",
   "completed_and_locked",
@@ -350,8 +389,8 @@ export const zCustomViewExerciseTaskSpec = z.object({
 })
 
 export const zCustomViewExerciseTaskSubmission = z.object({
+  answer: zAnswerData.nullish(),
   created_at: z.iso.datetime(),
-  data_json: z.unknown().optional(),
   exercise_slide_id: z.uuid(),
   exercise_slide_submission_id: z.uuid(),
   exercise_task_grading_id: z.uuid().nullish(),
@@ -421,8 +460,8 @@ export const zExercise = z.object({
 })
 
 export const zExerciseTaskSubmission = z.object({
+  answer: zAnswerData.nullish(),
   created_at: z.iso.datetime(),
-  data_json: z.unknown().optional(),
   deleted_at: z.iso.datetime().nullish(),
   exercise_slide_id: z.uuid(),
   exercise_slide_submission_id: z.uuid(),
@@ -936,8 +975,31 @@ export const zStudentCountry = z.object({
   user_id: z.uuid(),
 })
 
+export const zStudentExerciseTaskSubmissionResult = z.object({
+  exercise_task_exercise_service_slug: z.string(),
+  grading: zExerciseTaskGrading.nullish(),
+  model_solution_spec: z.unknown().optional(),
+  submission: zExerciseTaskSubmission,
+})
+
+/**
+ * The answer a student submits for one exercise task, as either JSON or a set of host-stored
+ * files.
+ */
+export const zSubmittedAnswer = z.union([
+  z.object({
+    data: z.unknown(),
+    kind: z.enum(["json"]),
+  }),
+  z.object({
+    file_upload_ids: z.array(z.uuid()),
+    kind: z.enum(["file"]),
+    metadata: z.unknown().optional(),
+  }),
+])
+
 export const zStudentExerciseTaskSubmission = z.object({
-  data_json: z.unknown(),
+  answer: zSubmittedAnswer,
   exercise_task_id: z.uuid(),
 })
 
@@ -947,13 +1009,6 @@ export const zStudentExerciseTaskSubmission = z.object({
 export const zStudentExerciseSlideSubmission = z.object({
   exercise_slide_id: z.uuid(),
   exercise_task_submissions: z.array(zStudentExerciseTaskSubmission),
-})
-
-export const zStudentExerciseTaskSubmissionResult = z.object({
-  exercise_task_exercise_service_slug: z.string(),
-  grading: zExerciseTaskGrading.nullish(),
-  model_solution_spec: z.unknown().optional(),
-  submission: zExerciseTaskSubmission,
 })
 
 export const zTeacherDecisionType = z.enum([

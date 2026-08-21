@@ -1,5 +1,19 @@
 import type { ExerciseTaskGradingResult } from "../exerciseServiceTypes"
 
+type AnswerDataLike = { kind: "json"; data: unknown } | { kind: "file"; metadata?: unknown }
+
+/**
+ * The plain JSON an exercise plugin's IFrame expects as a previous answer, from the
+ * `AnswerData`/`SubmittedAnswer` union the API returns. There is no file-rendering support yet,
+ * so a file-kind answer yields its metadata rather than the files.
+ */
+export function answerDataToPluginAnswer(answer: AnswerDataLike | null | undefined): unknown {
+  if (!answer) {
+    return null
+  }
+  return answer.kind === "json" ? answer.data : (answer.metadata ?? null)
+}
+
 interface ExerciseTaskGradingLike {
   grading_progress: ExerciseTaskGradingResult["grading_progress"]
   unscaled_score_given?: number | null

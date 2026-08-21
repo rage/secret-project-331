@@ -15,6 +15,46 @@ export type ClientOptions = {
  */
 export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submitted" | "Completed"
 
+/**
+ * The answer a submission or grading request carries, as either the raw JSON a plugin produced
+ * or the files a plugin's answer consists of.
+ */
+export type AnswerData =
+  | {
+      data: unknown
+      kind: "json"
+    }
+  | {
+      files: Array<AnswerFile>
+      kind: "file"
+      /**
+       * The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
+       */
+      metadata?: unknown
+    }
+
+/**
+ * One host-stored file that an answer consists of.
+ */
+export type AnswerFile = {
+  id: string
+  mime: string
+  /**
+   * The name the file was uploaded under. Not necessarily what a viewer should be shown -- a
+   * plugin that anonymizes filenames keeps its display name in `AnswerData::File::metadata`.
+   */
+  name: string
+  order_number: number
+  /**
+   * `None` for a file stored before the size was recorded.
+   */
+  size_bytes?: number | null
+  /**
+   * Capability download URL, minted at read time from the file's path. Never persisted.
+   */
+  url: string
+}
+
 export type ChapterLockPreview = {
   has_unreturned_exercises: boolean
   unreturned_exercises: Array<UnreturnedExercise>
@@ -486,8 +526,8 @@ export type CustomViewExerciseTaskSpec = {
 }
 
 export type CustomViewExerciseTaskSubmission = {
+  answer?: null | AnswerData
   created_at: string
-  data_json?: unknown
   exercise_slide_id: string
   exercise_slide_submission_id: string
   exercise_task_grading_id?: string | null
@@ -660,8 +700,8 @@ export type ExerciseTaskGrading = {
 }
 
 export type ExerciseTaskSubmission = {
+  answer?: null | AnswerData
   created_at: string
-  data_json?: unknown
   deleted_at?: string | null
   exercise_slide_id: string
   exercise_slide_submission_id: string
@@ -1023,7 +1063,7 @@ export type StudentExerciseSlideSubmissionResult = {
 }
 
 export type StudentExerciseTaskSubmission = {
-  data_json: unknown
+  answer: SubmittedAnswer
   exercise_task_id: string
 }
 
@@ -1033,6 +1073,28 @@ export type StudentExerciseTaskSubmissionResult = {
   model_solution_spec?: unknown
   submission: ExerciseTaskSubmission
 }
+
+/**
+ * The answer a student submits for one exercise task, as either JSON or a set of host-stored
+ * files.
+ */
+export type SubmittedAnswer =
+  | {
+      data: unknown
+      kind: "json"
+    }
+  | {
+      /**
+       * Ordered; the order is part of the answer (exercise-file-submission grades by position).
+       * Every id must be an upload this user made for this exercise.
+       */
+      file_upload_ids: Array<string>
+      kind: "file"
+      /**
+       * The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
+       */
+      metadata?: unknown
+    }
 
 export type TeacherDecisionType =
   | "FullPoints"

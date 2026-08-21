@@ -43,6 +43,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+import { answerDataToPluginAnswer } from "@/shared-module/common/utils/typeMappter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -228,6 +229,8 @@ function exerciseBlockTitleHeadingStyles(exerciseNameIsLong: boolean) {
 
 // Special care taken here to ensure exercise content can have full width of
 // the page.
+const JSON_ANSWER_KIND = "json"
+
 const ExerciseBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
 > = (props) => {
@@ -293,7 +296,7 @@ const ExerciseBlock: React.FC<
     const a = new Map()
     getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
       if (et.previous_submission) {
-        a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+        a.set(et.id, { valid: true, data: answerDataToPluginAnswer(et.previous_submission.answer) })
       }
     })
     setAnswers(a)
@@ -374,7 +377,10 @@ const ExerciseBlock: React.FC<
         const a = new Map()
         getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
           if (et.previous_submission) {
-            a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+            a.set(et.id, {
+              valid: true,
+              data: answerDataToPluginAnswer(et.previous_submission.answer),
+            })
           }
         })
         setAnswers(a)
@@ -832,7 +838,10 @@ const ExerciseBlock: React.FC<
                             courseMaterialExercise.current_exercise_slide.exercise_tasks.map(
                               (task) => ({
                                 exercise_task_id: task.id,
-                                data_json: answers.get(task.id)?.data,
+                                answer: {
+                                  kind: JSON_ANSWER_KIND,
+                                  data: answers.get(task.id)?.data,
+                                },
                               }),
                             ),
                         },

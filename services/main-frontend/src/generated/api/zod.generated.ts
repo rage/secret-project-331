@@ -407,6 +407,45 @@ export const zAnalysisWorkspaceV1 = z.object({
   wishes_topics: z.string().nullish(),
 })
 
+/**
+ * One host-stored file that an answer consists of.
+ */
+export const zAnswerFile = z.object({
+  id: z.uuid(),
+  mime: z.string(),
+  name: z.string(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  size_bytes: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    })
+    .nullish(),
+  url: z.string(),
+})
+
+/**
+ * The answer a submission or grading request carries, as either the raw JSON a plugin produced
+ * or the files a plugin's answer consists of.
+ */
+export const zAnswerData = z.union([
+  z.object({
+    data: z.unknown(),
+    kind: z.enum(["json"]),
+  }),
+  z.object({
+    files: z.array(zAnswerFile),
+    kind: z.enum(["file"]),
+    metadata: z.unknown().optional(),
+  }),
+])
+
 export const zAuthorizedClientInfo = z.object({
   client_id: z.uuid(),
   client_name: z.string(),
@@ -3101,8 +3140,8 @@ export const zExerciseSlideSubmissionShare = z.object({
 })
 
 export const zExerciseTaskSubmission = z.object({
+  answer: zAnswerData.nullish(),
   created_at: z.iso.datetime(),
-  data_json: z.unknown().optional(),
   deleted_at: z.iso.datetime().nullish(),
   exercise_slide_id: z.uuid(),
   exercise_slide_submission_id: z.uuid(),
@@ -4442,8 +4481,8 @@ export const zFlaggedAnswer = z.object({
 })
 
 export const zAnswerRequiringAttentionWithTasks = z.object({
+  answer: zAnswerData.nullish(),
   created_at: z.iso.datetime(),
-  data_json: z.unknown().optional(),
   deleted_at: z.iso.datetime().nullish(),
   exercise_id: z.uuid(),
   given_peer_reviews: z.array(zPeerReviewWithQuestionsAndAnswers),

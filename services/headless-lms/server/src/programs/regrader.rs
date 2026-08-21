@@ -50,7 +50,10 @@ pub async fn main() -> anyhow::Result<()> {
         if let Err(err) = regrading::regrade(
             &mut conn,
             &exercise_services_by_type,
-            models_requests::make_grading_request_sender(Arc::clone(&jwt_key)),
+            models_requests::make_grading_request_sender(
+                Arc::clone(&jwt_key),
+                app_conf.base_url.clone(),
+            ),
             file_store.as_ref(),
             &app_conf,
         )

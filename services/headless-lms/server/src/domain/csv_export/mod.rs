@@ -427,6 +427,7 @@ mod test {
         let mut exercise_with_user_state =
             ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
         let jwt_key = Arc::new(JwtKey::test_key());
+        let app_conf = crate::test_helper::init_app_conf().expect("app conf");
         headless_lms_models::library::grading::grade_user_submission(
             tx,
             &mut exercise_with_user_state,
@@ -449,9 +450,9 @@ mod test {
                 },
             )])),
             models_requests::fetch_service_info,
-            models_requests::make_grading_request_sender(jwt_key),
+            models_requests::make_grading_request_sender(jwt_key, app_conf.base_url.clone()),
             &crate::test_helper::init_file_store(),
-            &crate::test_helper::init_app_conf().expect("app conf"),
+            &app_conf,
         )
         .await
         .unwrap();

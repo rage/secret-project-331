@@ -3066,6 +3066,11 @@ mod route_tests {
         assert_eq!(uploaded_names(&build_request), vec!["b.txt", "a.tar.zst"]);
         let grade_request = state.calls(&state.grade_requests).remove(0);
         assert_eq!(grade_request["submission_data"], stub_answer());
+        assert_eq!(
+            grade_request["submission_files"],
+            serde_json::json!([]),
+            "a json answer's grading request must carry no files"
+        );
 
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;

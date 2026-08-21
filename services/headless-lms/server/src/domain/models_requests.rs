@@ -12,8 +12,12 @@ use futures::{
 use headless_lms_models::{
     HttpErrorType, ModelError, ModelErrorType, ModelResult,
     exercise_service_info::ExerciseServiceInfoApi,
-    exercise_task_gradings::{ExerciseTaskGradingRequest, ExerciseTaskGradingResult},
-    exercise_task_submissions::{AnswerData, ExerciseTaskSubmission},
+    exercise_task_gradings::{
+        ExerciseTaskGradingRequest, ExerciseTaskGradingResult, GradingRequestFile,
+    },
+    exercise_task_submissions::{
+        AnswerData, AnswerFile as SubmittedAnswerFile, ExerciseTaskSubmission,
+    },
     exercise_tasks::ExerciseTask,
 };
 use secrecy::{ExposeSecret, SecretString};
@@ -32,6 +36,8 @@ use super::error::{ControllerError, ControllerErrorType};
 const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 pub const PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM: &str = "playground-grading-callback-claim";
+/// Query parameter carrying a [`DownloadClaim`]; the claimed-file route repeats it in a rename.
+pub const DOWNLOAD_CLAIM_PARAM: &str = "download-claim";
 
 /// A type for caching the spec fetching (only for the seed)
 type SpecCache = HashMap<(String, String, Option<String>), serde_json::Value>;
@@ -131,6 +137,51 @@ impl FromRequest for UploadClaim {
             Result::<_, Self::Error>::Ok(claim)
         };
         ready(try_from_request())
+    }
+}
+
+/// Authorizes the bearer to read one specific host-stored file for a while.
+///
+/// Minted by the host when it hands a file-typed answer to an exercise service's grade endpoint, so
+/// the service fetches a URL the host chose rather than one a student supplied. The read-side mirror
+/// of [`UploadClaim`]; unlike it, this claim names a single file rather than a namespace, so a
+/// holder cannot reach any other file.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DownloadClaim {
+    file_upload_id: Uuid,
+    exp: usize,
+    iat: usize,
+}
+
+impl DownloadClaim {
+    pub fn file_upload_id(&self) -> Uuid {
+        self.file_upload_id
+    }
+
+    /// A day, not the grading request's 120 s: a service may finish asynchronously through
+    /// `grading_update_url` long after the request returns.
+    pub fn expiring_in_1_day(file_upload_id: Uuid) -> Self {
+        let now = Utc::now().timestamp().max(0) as usize;
+        let exp = (Utc::now().timestamp() + Duration::days(1).num_seconds()).max(0) as usize;
+        Self {
+            file_upload_id,
+            exp,
+            iat: now,
+        }
+    }
+
+    pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
+        sign_hs256_claim(&self, key)
+    }
+
+    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
+        validate_hs256_claim(token, key).map_err(|err| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                format!("Invalid jwt key: {}", err),
+                Some(err.into()),
+            )
+        })
     }
 }
 
@@ -582,8 +633,48 @@ fn fetch_service_info_with_timeout(
     .boxed()
 }
 
+/// The grading request's file list for a submission's answer: the answer's files in answer order
+/// for a file-typed answer, empty for a JSON-typed one.
+///
+/// Mints a single-file download claim per file, so the service fetches a URL the host chose rather
+/// than one a student supplied.
+fn grading_request_files(
+    answer: Option<&AnswerData>,
+    base_url: &str,
+    jwt_key: &JwtKey,
+) -> Result<Vec<GradingRequestFile>, jsonwebtoken::errors::Error> {
+    let files: &[SubmittedAnswerFile] = match answer {
+        Some(AnswerData::File { files, .. }) => files,
+        Some(AnswerData::Json { .. }) | None => return Ok(Vec::new()),
+    };
+    let mut ordered: Vec<&SubmittedAnswerFile> = files.iter().collect();
+    ordered.sort_by_key(|file| file.order_number);
+    ordered
+        .into_iter()
+        .map(|file| {
+            let claim = DownloadClaim::expiring_in_1_day(file.id).sign(jwt_key)?;
+            Ok(GradingRequestFile {
+                id: file.id,
+                name: file.name.clone(),
+                mime: file.mime.clone(),
+                size_bytes: file.size_bytes,
+                download_url: format!(
+                    "{base_url}/api/v0/files/claimed/{}?{DOWNLOAD_CLAIM_PARAM}={claim}",
+                    file.id
+                ),
+            })
+        })
+        .collect()
+}
+
+/// Sends a submission to an exercise service for grading, with the claims the service needs to
+/// report back and to read a file-typed answer's files.
+///
+/// `base_url` is the host's own public base url, so both the callback and the file urls point at a
+/// host the service can reach.
 pub fn make_grading_request_sender(
     jwt_key: Arc<JwtKey>,
+    base_url: String,
 ) -> impl Fn(
     Url,
     &ExerciseTask,
@@ -591,11 +682,24 @@ pub fn make_grading_request_sender(
 ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>> {
     move |grade_url, exercise_task, submission| {
         let client = reqwest::Client::new();
-        // TODO: use real url
         let grading_update_url = format!(
-            "http://project-331.local/api/v0/exercise-services/grading/grading-update/{}",
+            "{base_url}/api/v0/exercise-services/grading/grading-update/{}",
             submission.id
         );
+        let submission_files =
+            match grading_request_files(submission.answer.as_ref(), &base_url, &jwt_key) {
+                Ok(files) => files,
+                Err(err) => {
+                    return async move {
+                        Err(ModelError::new(
+                            ModelErrorType::Generic,
+                            format!("Failed to sign download claim: {err}"),
+                            Some(err.into()),
+                        ))
+                    }
+                    .boxed();
+                }
+            };
         let grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);
         let signed_grading_update_claim = match grading_update_claim.sign(&jwt_key) {
             Ok(claim) => claim,
@@ -621,6 +725,7 @@ pub fn make_grading_request_sender(
                 grading_update_url: &grading_update_url,
                 exercise_spec: &exercise_task.private_spec,
                 submission_data: submission.answer.as_ref().and_then(AnswerData::plugin_json),
+                submission_files: &submission_files,
             });
         async move {
             let res = req.send().await.map_err(ModelError::from)?;
@@ -868,6 +973,126 @@ mod tests {
 
     fn future_timestamp(seconds_ahead: i64) -> i64 {
         (Utc::now() + Duration::seconds(seconds_ahead)).timestamp()
+    }
+
+    fn answer_file(
+        id: Uuid,
+        name: &str,
+        order_number: i32,
+        size_bytes: Option<i64>,
+    ) -> SubmittedAnswerFile {
+        SubmittedAnswerFile {
+            id,
+            name: name.to_string(),
+            mime: "application/octet-stream".to_string(),
+            size_bytes,
+            order_number,
+            url: format!("http://project-331.local/api/v0/files/tmc/{name}"),
+        }
+    }
+
+    #[test]
+    fn download_claim_round_trips() {
+        let key = JwtKey::test_key();
+        let file_upload_id = Uuid::new_v4();
+        let token = DownloadClaim::expiring_in_1_day(file_upload_id)
+            .sign(&key)
+            .expect("signing should succeed");
+        let claim = DownloadClaim::validate(&token, &key).expect("the claim should validate");
+        assert_eq!(claim.file_upload_id(), file_upload_id);
+    }
+
+    /// A grading request's claims outlive the request itself, but not by more than a day.
+    #[test]
+    fn download_claim_expires_in_a_day() {
+        let claim = DownloadClaim::expiring_in_1_day(Uuid::new_v4());
+        let lifetime = claim.exp as i64 - claim.iat as i64;
+        assert_eq!(lifetime, Duration::days(1).num_seconds());
+    }
+
+    #[test]
+    fn expired_download_claim_is_rejected() {
+        let key = JwtKey::test_key();
+        let token = sign_json(
+            json!({
+                "file_upload_id": Uuid::new_v4(),
+                "exp": past_timestamp(3600),
+                "iat": past_timestamp(7200),
+            }),
+            &key,
+        );
+        DownloadClaim::validate(&token, &key).expect_err("an expired claim must be rejected");
+    }
+
+    #[test]
+    fn download_claim_signed_with_another_key_is_rejected() {
+        let token = DownloadClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&other_key())
+            .expect("signing should succeed");
+        DownloadClaim::validate(&token, &JwtKey::test_key())
+            .expect_err("a claim signed with another key must be rejected");
+    }
+
+    /// A downstream grader grades by position, so the request must list the files in the order the
+    /// answer records, whatever order they were resolved in.
+    #[test]
+    fn grading_request_files_are_in_answer_order_with_a_claim_for_each_file() {
+        let key = JwtKey::test_key();
+        let first = Uuid::new_v4();
+        let second = Uuid::new_v4();
+        let answer = AnswerData::File {
+            files: vec![
+                answer_file(second, "b.txt", 1, None),
+                answer_file(first, "a.tar.zst", 0, Some(12)),
+            ],
+            metadata: Some(json!({ "archive_name": "a.tar.zst" })),
+        };
+
+        let files = grading_request_files(Some(&answer), "http://project-331.local", &key)
+            .expect("the files should be built");
+
+        assert_eq!(
+            files.iter().map(|file| file.id).collect::<Vec<_>>(),
+            vec![first, second]
+        );
+        assert_eq!(files[0].size_bytes, Some(12));
+        assert_eq!(
+            files[1].size_bytes, None,
+            "an unknown size must not become a zero"
+        );
+        for (file, id) in files.iter().zip([first, second]) {
+            let (path, query) = file
+                .download_url
+                .strip_prefix("http://project-331.local/api/v0/files/claimed/")
+                .expect("a claimed-file url")
+                .split_once('?')
+                .expect("a claim in the query string");
+            assert_eq!(path, id.to_string());
+            let token = query
+                .strip_prefix(&format!("{DOWNLOAD_CLAIM_PARAM}="))
+                .expect("the claim parameter");
+            let claim = DownloadClaim::validate(token, &key).expect("the claim should validate");
+            assert_eq!(claim.file_upload_id(), id);
+        }
+    }
+
+    #[test]
+    fn a_json_answer_has_no_grading_request_files() {
+        let key = JwtKey::test_key();
+        let answer = AnswerData::Json {
+            data: json!({ "answer": 1 }),
+        };
+
+        assert!(
+            grading_request_files(Some(&answer), "http://project-331.local", &key)
+                .expect("the files should be built")
+                .is_empty()
+        );
+        assert!(
+            grading_request_files(None, "http://project-331.local", &key)
+                .expect("the files should be built")
+                .is_empty()
+        );
     }
 
     #[test]

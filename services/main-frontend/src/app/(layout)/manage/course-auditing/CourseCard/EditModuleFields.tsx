@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import { Checkbox, nullIfEmpty, stringToNumberOrNull, TextField } from "@/shared-module/components"
 
-import type { EditCourseAuditingData, EditModuleData } from "./CourseAuditingCard"
-import { FieldSet, Legend } from "./page"
+import { contentRowStyles, FieldSet, Legend } from "../page"
+import type { EditCourseAuditingData, EditModuleData } from "./CourseCard"
 
 interface Props {
   control: Control<EditCourseAuditingData>
@@ -43,42 +43,46 @@ const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
         label={t("label-enable-registering-completion-to-uh-open-university")}
         name={`modules.${idx}.enable_registering_completion_to_uh_open_university` as const}
       />
-      <div
-        key={module.id}
-        className={css`
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 1rem;
-        `}
-      >
-        <TextField
-          control={control}
-          label={t("uh-course-code")}
-          name={`modules.${idx}.uh_course_code` as const}
-          rules={nullIfEmpty}
-        />
-        <TextField
-          control={control}
-          label={t("ects-credits")}
-          name={`modules.${idx}.ects_credits` as const}
-          // oxlint-disable-next-line i18next/no-literal-string
-          inputMode="decimal"
-          type="number"
-          min={0}
-          rules={{
-            ...stringToNumberOrNull,
-            valueAsNumber: true,
-            validate: (v) => {
-              return (
-                v === null ||
-                v === undefined ||
-                (typeof v === "number" && Number.isFinite(v)) ||
-                t("course-plans-analysis-error-credits-invalid")
-              )
-            },
-          }}
-        />
+      <div key={module.id} className={contentRowStyles}>
+        <div
+          className={css`
+            flex: auto;
+          `}
+        >
+          <TextField
+            control={control}
+            label={t("uh-course-code")}
+            name={`modules.${idx}.uh_course_code` as const}
+            rules={nullIfEmpty}
+          />
+        </div>
+        <div
+          className={css`
+            flex: auto;
+          `}
+        >
+          <TextField
+            control={control}
+            label={t("ects-credits")}
+            name={`modules.${idx}.ects_credits` as const}
+            // oxlint-disable-next-line i18next/no-literal-string
+            inputMode="decimal"
+            type="number"
+            min={0}
+            rules={{
+              ...stringToNumberOrNull,
+              valueAsNumber: true,
+              validate: (v) => {
+                return (
+                  v === null ||
+                  v === undefined ||
+                  (typeof v === "number" && Number.isFinite(v)) ||
+                  t("course-plans-analysis-error-credits-invalid")
+                )
+              },
+            }}
+          />
+        </div>
       </div>
     </FieldSet>
   )

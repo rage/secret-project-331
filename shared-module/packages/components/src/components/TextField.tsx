@@ -136,6 +136,8 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (type === "number" && !Number.isNaN(e.target.valueAsNumber)) {
       field.onChange(e.target.valueAsNumber)
+    } else if (type === "number" && e.target.value === "") {
+      field.onChange(null)
     } else {
       field.onChange(e.target.value)
     }

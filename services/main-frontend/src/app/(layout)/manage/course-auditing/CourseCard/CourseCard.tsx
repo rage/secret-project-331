@@ -30,18 +30,18 @@ import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 import { Button, Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
 
+import { contentRowStyles, FieldSet, Legend } from "../page"
 import ContentDisplayBox from "./ContentDisplayBox"
 import CourseMetadata from "./CourseMetadata"
 import ClosedSectionFields from "./EditClosedFields"
 import EditModuleFields from "./EditModuleFields"
-import { contentRowStyles, FieldSet, Legend } from "./page"
 
 const linkStyles = css`
   color: ${baseTheme.colors.green[700]};
   text-decoration: underline;
 `
 
-interface CourseAuditingCardProps {
+interface CourseCardProps {
   id: string
   courseAuditingData: CourseAuditingData
 }
@@ -71,7 +71,7 @@ export const buildFormValues = (data: CourseAuditingData): EditCourseAuditingDat
   }
 }
 
-const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAuditingData }) => {
+const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
   const { confirm } = useDialog()
   const { t } = useTranslation()
 
@@ -580,7 +580,7 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
               {t("modules")}
             </div>
             {courseAuditingData.modules.map((module) => (
-              <FieldSet key={module.id}>
+              <FieldSet key={module.id} data-testid="module-display-field-set">
                 <Legend>
                   {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
                 </Legend>
@@ -644,4 +644,4 @@ const CourseAuditingCard: React.FC<CourseAuditingCardProps> = ({ id, courseAudit
   )
 }
 
-export default CourseAuditingCard
+export default CourseCard

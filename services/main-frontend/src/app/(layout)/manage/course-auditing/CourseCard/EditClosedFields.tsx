@@ -15,8 +15,8 @@ import {
   TextField,
 } from "@/shared-module/components"
 
-import type { EditCourseAuditingData } from "./CourseAuditingCard"
-import { contentRowStyles } from "./page"
+import { contentRowStyles } from "../page"
+import type { EditCourseAuditingData } from "./CourseCard"
 
 const EditClosedFields = (): React.ReactElement => {
   const { t } = useTranslation()

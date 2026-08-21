@@ -13,7 +13,7 @@ import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { undefinedToNull } from "@/shared-module/common/utils/nullability"
 import { Button } from "@/shared-module/components"
 
-import { buildFormValues, type EditCourseAuditingData } from "./CourseAuditingCard"
+import { buildFormValues, type EditCourseAuditingData } from "./CourseCard"
 
 interface Props {
   courseId: string

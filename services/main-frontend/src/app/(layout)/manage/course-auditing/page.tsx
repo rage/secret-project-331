@@ -7,7 +7,6 @@ import { parseISO } from "date-fns"
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { useDebounce } from "use-debounce"
 
 import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseAuditingData } from "@/generated/api/types.generated"
@@ -17,7 +16,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { Button, nullIfEmpty, QueryResult, Switch, TextField } from "@/shared-module/components"
 
-import CourseAuditingCard from "./CourseAuditingCard"
+import CourseCard from "./CourseCard/CourseCard"
 
 export interface CourseFilter {
   search_course: string
@@ -84,17 +83,13 @@ const CourseAuditing = () => {
     "no_audiences",
   ])
 
-  const [debouncedSearchCourse] = useDebounce(searchCourse, 300)
-
   const filteredCourses = useMemo(
     () =>
       [...(courseData ?? [])]
         .filter((course: CourseAuditingData) => {
           if (
-            !course.name.toLocaleLowerCase().includes(debouncedSearchCourse?.toLocaleLowerCase()) &&
-            !course.description
-              ?.toLocaleLowerCase()
-              .includes(debouncedSearchCourse?.toLocaleLowerCase())
+            !course.name.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase()) &&
+            !course.description?.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase())
           ) {
             return false
           }
@@ -127,15 +122,15 @@ const CourseAuditing = () => {
           }
           return true
         })
-        .sort((a, b) => a.name.localeCompare(b.name)),
+        .toSorted((a, b) => a.name.localeCompare(b.name)),
     [
       courseData,
-      debouncedSearchCourse,
       emptyUhCourseCode,
       notClosed,
       shortDescription,
       noPrerequisites,
       noAudiences,
+      searchCourse,
     ],
   )
 
@@ -214,7 +209,7 @@ const CourseAuditing = () => {
           >
             <p>{t("course-auditing-showing-courses", { count: filteredCourses.length })}</p>
             {filteredCourses.map((course) => (
-              <CourseAuditingCard key={course.id} id={course.id} courseAuditingData={course} />
+              <CourseCard key={course.id} id={course.id} courseAuditingData={course} />
             ))}
           </div>
         )}

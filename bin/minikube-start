@@ -73,6 +73,41 @@ if [[ "$OSTYPE" == "darwin"* ]] && [ "$MEMORY_TO_USE" != "max" ] && [ "$user_set
   fi
 fi
 
+PROFILE="minikube"
+FORWARDED_ARGUMENTS=()
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --profile)
+      if [ "$#" -gt 1 ]; then
+        PROFILE="$2"
+        shift 2
+      else
+        FORWARDED_ARGUMENTS+=("$1")
+        shift
+      fi
+      ;;
+    --profile=*)
+      PROFILE="${1#--profile=}"
+      shift
+      ;;
+    --addons)
+      if [ "$#" -gt 1 ] && [ "$2" = "ingress" ]; then
+        shift 2
+      else
+        FORWARDED_ARGUMENTS+=("$1")
+        shift
+      fi
+      ;;
+    --addons=ingress)
+      shift
+      ;;
+    *)
+      FORWARDED_ARGUMENTS+=("$1")
+      shift
+      ;;
+  esac
+done
+
 echo -e "${BLUE}Hint: you can append options to the command by giving this script extra arguments."
 echo -e "Example:${BOLD} bin/minikube-start --disk-size 30g ${RESET_EVERYTHING}${BLUE}"
 echo "Appending new options overrides preceding ones."
@@ -80,13 +115,13 @@ echo -e "$RESET_EVERYTHING"
 
 if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
   echo "🪟  Detected Windows with $CORES available cores and ${TOTAL_MEM_GB}GB of total memory."
-  ARGUMENTS=(start --vm-driver=virtualbox --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
+  ARGUMENTS=(start --profile "$PROFILE" --vm-driver=virtualbox --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "${FORWARDED_ARGUMENTS[@]}")
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "🍎 Detected macOS with $CORES available cores and ${TOTAL_MEM_GB}GB of total memory."
-  ARGUMENTS=(start --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
+  ARGUMENTS=(start --profile "$PROFILE" --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "${FORWARDED_ARGUMENTS[@]}")
 else
   echo "🐧 Detected Linux with $CORES available cores and ${TOTAL_MEM_GB}GB of total memory."
-  ARGUMENTS=(start --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
+  ARGUMENTS=(start --profile "$PROFILE" --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "${FORWARDED_ARGUMENTS[@]}")
 fi
 
 run_command "$COMMAND" "${ARGUMENTS[@]}"
@@ -94,7 +129,9 @@ run_command "$COMMAND" "${ARGUMENTS[@]}"
 # Some minikube/kubeadm version combinations fail to apply the
 # minikube.k8s.io/primary=true node label that the ingress addon's pods
 # require via nodeSelector, leaving them permanently Pending.
-run_command kubectl label node minikube minikube.k8s.io/primary=true --overwrite
+run_command kubectl label node "$PROFILE" minikube.k8s.io/primary=true --overwrite
+
+run_command minikube --profile "$PROFILE" addons enable ingress
 
 # Have to update the config for the ingress to that the ingress controller does not reject our ingresses
 run_command kubectl patch configmap ingress-nginx-controller -n ingress-nginx --type merge -p '{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}'

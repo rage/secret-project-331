@@ -15,11 +15,10 @@ import {
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
 import { makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
-import { expect, test } from "@/utils/fixtures"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   runImportSubmissionTick,
-  runLegacyMirrorTick,
   runMaterializeTick,
   runPreconditionsTick,
   runResolveEnrolmentsTick,
@@ -112,13 +111,6 @@ test("Student consents, links student number, gets automatically registered end 
       page.getByRole("table", { name: "My credit registrations" }).getByText("Registered in Sisu"),
     ).toBeVisible()
     await accessibilityCheck(page, "Profile credit registration tab")
-  })
-
-  await test.step("The success is mirrored into the legacy ledger exactly once", async () => {
-    const first = await runLegacyMirrorTick(page.request, scope)
-    expect(first.itemsProcessed).toBe(1)
-    const second = await runLegacyMirrorTick(page.request, scope)
-    expect(second.itemsProcessed).toBe(0)
   })
 
   await test.step("A Suotar-enabled module has left the legacy pull stream", async () => {

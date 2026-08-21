@@ -13,6 +13,7 @@ export interface CourseObjectiveSectionAttributes {
 }
 
 const CourseObjectiveSectionConfiguration: BlockConfiguration<CourseObjectiveSectionAttributes> = {
+  apiVersion: 3,
   title: "Course Objective Section",
   description: "Course Objective section where you describe what you will learn in this course.",
   category: MOOCFI_CATEGORY_SLUG,

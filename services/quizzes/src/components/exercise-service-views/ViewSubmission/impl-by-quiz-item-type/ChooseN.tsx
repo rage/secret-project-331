@@ -148,11 +148,13 @@ const MultipleChoiceClickableFeedback: React.FC<
                       align-items: center;
                       width: 1.25rem;
                       height: 1.25rem;
-                      color: ${shouldBeSelected === undefined
-                        ? "#2d4a7f"
-                        : isCorrect
-                          ? "#16a34a"
-                          : "#c53030"};
+                      color: ${
+                        shouldBeSelected === undefined
+                          ? "#2d4a7f"
+                          : isCorrect
+                            ? "#16a34a"
+                            : "#c53030"
+                      };
                     `}
                   >
                     <span aria-hidden="true">

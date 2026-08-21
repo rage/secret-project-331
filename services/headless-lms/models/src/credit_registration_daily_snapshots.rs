@@ -29,6 +29,68 @@ pub struct DailyStateCounts {
     pub left_count: i32,
 }
 
+/// One row per state, whether or not anything is in it: a state missing from a day would read as a
+/// gap in the chart rather than as an empty queue.
+///
+/// `count` is the depth right now, so this has to be called on the day it describes.
+/// `entered_count`/`left_count` come from the transitions inside `[day_start, day_end)`, which the
+/// caller passes explicitly: `snapshot_date` alone would make the day boundary depend on the
+/// database's timezone.
+pub async fn count_states_for_day(
+    conn: &mut PgConnection,
+    day_start: DateTime<Utc>,
+    day_end: DateTime<Utc>,
+) -> ModelResult<Vec<DailyStateCounts>> {
+    let states = CreditRegistrationState::ALL.to_vec();
+    let res = sqlx::query_as!(
+        DailyStateCounts,
+        r#"
+WITH depth AS (
+  SELECT state,
+    COUNT(*)::int AS count
+  FROM credit_registrations
+  WHERE deleted_at IS NULL
+    -- As in `credit_registrations::count_by_state`, which feeds the funnel and the alerts off the
+    -- same states: counting replaced attempts here would make the two disagree on every course
+    -- that regrades.
+    AND superseded_by_id IS NULL
+  GROUP BY state
+),
+-- A transition writes one event carrying both ends, so entering and leaving are the same rows read
+-- from either side. A self-transition is neither.
+flow AS (
+  SELECT from_state,
+    to_state
+  FROM credit_registration_events
+  WHERE deleted_at IS NULL
+    AND created_at >= $2
+    AND created_at < $3
+    AND from_state IS DISTINCT FROM to_state
+)
+SELECT s.state AS "state!: CreditRegistrationState",
+  COALESCE(depth.count, 0) AS "count!",
+  (
+    SELECT COUNT(*)::int
+    FROM flow
+    WHERE flow.to_state = s.state
+  ) AS "entered_count!",
+  (
+    SELECT COUNT(*)::int
+    FROM flow
+    WHERE flow.from_state = s.state
+  ) AS "left_count!"
+FROM UNNEST($1::credit_registration_state []) AS s(state)
+  LEFT JOIN depth ON depth.state = s.state
+        "#,
+        &states as &[CreditRegistrationState],
+        day_start,
+        day_end,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Writes one day's counts. Idempotent, so a re-run cannot double-count.
 pub async fn write_snapshot_for_date(
     conn: &mut PgConnection,

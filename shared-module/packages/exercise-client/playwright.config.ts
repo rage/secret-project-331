@@ -13,9 +13,16 @@ export default defineConfig({
     screenshot: { mode: "only-on-failure", fullPage: true },
     video: "retain-on-failure",
   },
+  // Firefox and WebKit stay a local-only check. They earn their keep for File and MessageChannel
+  // behaviour, which genuinely differs between engines, but CI runs chromium alone so the job needs
+  // one browser download rather than three.
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    ...(process.env.CI
+      ? []
+      : [
+          { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+          { name: "webkit", use: { ...devices["Desktop Safari"] } },
+        ]),
   ],
 })

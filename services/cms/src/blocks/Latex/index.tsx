@@ -13,6 +13,7 @@ export interface TextAttributes {
 }
 
 const LatexBlockConfiguration: BlockConfiguration<TextAttributes> = {
+  apiVersion: 3,
   title: "Latex",
   description: "Block for writing LaTex",
   category: "text",

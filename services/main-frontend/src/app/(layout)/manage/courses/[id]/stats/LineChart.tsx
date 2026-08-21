@@ -6,6 +6,7 @@ import type { EChartsOption, TooltipComponentFormatterCallbackParams } from "ech
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import Echarts from "@/components/charts/Echarts"
 import type { CountResult } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
@@ -14,7 +15,6 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
-import Echarts from "./Echarts"
 import StatsHeader from "./StatsHeader"
 
 export const MONTHLY_PERIOD = "Month" as const

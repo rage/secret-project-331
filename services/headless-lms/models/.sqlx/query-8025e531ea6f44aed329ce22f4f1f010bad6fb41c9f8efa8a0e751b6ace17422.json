@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE student_number_verification_tokens\nSET deleted_at = now()\nWHERE id IN (\n    SELECT id\n    FROM student_number_verification_tokens\n    WHERE used_at IS NULL\n      AND deleted_at IS NULL\n      AND expires_at < now()\n    ORDER BY expires_at\n    LIMIT $1\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8025e531ea6f44aed329ce22f4f1f010bad6fb41c9f8efa8a0e751b6ace17422"
+}

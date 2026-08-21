@@ -18,7 +18,6 @@ const INNER_BLOCKS_TEMPLATE: TemplateArray = [
 ]
 
 const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAttributes>>> = ({
-  clientId,
   attributes,
   setAttributes,
 }) => {
@@ -26,7 +25,6 @@ const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAt
 
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("flip-card-placeholder")}
       explanation={t("flip-card-placeholder-explanation")}
     >

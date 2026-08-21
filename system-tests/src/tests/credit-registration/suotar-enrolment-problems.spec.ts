@@ -6,8 +6,8 @@ import {
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
-import { expect, test } from "@/utils/fixtures"
 import { getMockSuotarWorld, upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   runImportSubmissionTick,

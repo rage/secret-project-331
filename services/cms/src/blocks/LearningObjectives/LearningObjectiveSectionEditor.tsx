@@ -96,10 +96,10 @@ const Content = styled.div`
 
 const LearningObjectiveSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, unknown>>>
-> = ({ clientId }) => {
+> = () => {
   const { t } = useTranslation()
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <Wrapper>
         <Header>
           <h2>{t("learning-objectives-editor-title")}</h2>

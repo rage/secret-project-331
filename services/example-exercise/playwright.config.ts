@@ -48,16 +48,22 @@ export default defineConfig({
         ...(executablePath ? { launchOptions: { executablePath } } : {}),
       },
     },
-    {
-      name: "iframe-boundary-firefox",
-      testMatch: /iframe-boundary\/.*\.spec\.ts/,
-      use: { ...devices["Desktop Firefox"] },
-    },
-    {
-      name: "iframe-boundary-webkit",
-      testMatch: /iframe-boundary\/.*\.spec\.ts/,
-      use: { ...devices["Desktop Safari"] },
-    },
+    // Firefox and WebKit stay a local-only check. The iframe boundary is where engines genuinely
+    // differ, but CI runs chromium alone so the job needs one browser download rather than three.
+    ...(process.env.CI
+      ? []
+      : [
+          {
+            name: "iframe-boundary-firefox",
+            testMatch: /iframe-boundary\/.*\.spec\.ts/,
+            use: { ...devices["Desktop Firefox"] },
+          },
+          {
+            name: "iframe-boundary-webkit",
+            testMatch: /iframe-boundary\/.*\.spec\.ts/,
+            use: { ...devices["Desktop Safari"] },
+          },
+        ]),
   ],
   webServer: {
     command: "pnpm run dev",

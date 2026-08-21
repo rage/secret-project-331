@@ -198,6 +198,9 @@ export const zAction = z.union([
     type: z.enum(["view_stats"]),
   }),
   z.object({
+    type: z.enum(["view_and_manage_credit_registrations"]),
+  }),
+  z.object({
     type: z.enum(["administrate"]),
   }),
 ])

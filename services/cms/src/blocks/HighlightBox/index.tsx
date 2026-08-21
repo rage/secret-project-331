@@ -14,6 +14,7 @@ export interface HighlightAttributes {
 }
 
 const HighlightBoxConfiguration: BlockConfiguration<HighlightAttributes> = {
+  apiVersion: 3,
   title: "HighlightBox",
   description: "Useful block for a table of definitions",
   category: "text",

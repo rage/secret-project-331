@@ -21,6 +21,7 @@ import {
   useCourseStudentsProgressStructure,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { StaleTableWrapper } from "./StaleTableWrapper"
 import { StudentPillCell } from "./StudentPillCell"
 
@@ -68,7 +69,7 @@ export const ProgressTabContent: React.FC = () => {
     if (!structure || !detail) {
       return {
         allRows: [] as ProgressRow[],
-        dynamicColumns: [] as ColumnDef<ProgressRow, unknown>[],
+        dynamicColumns: [] as ColumnDef<StudentsTableFeatures, ProgressRow, unknown>[],
       }
     }
 
@@ -96,7 +97,7 @@ export const ProgressTabContent: React.FC = () => {
     )
 
     // --- columns: Student | Total | per-chapter with maxima in subheaders
-    const cols: ColumnDef<ProgressRow, unknown>[] = [
+    const cols: ColumnDef<StudentsTableFeatures, ProgressRow, unknown>[] = [
       {
         // oxlint-disable-next-line i18next/no-literal-string
         id: "last_name",

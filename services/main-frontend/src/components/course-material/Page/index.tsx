@@ -48,6 +48,7 @@ import SelectUserInformationForm from "../forms/SelectUserInformationForm"
 import HeadingsNavigation from "../HeadingsNavigation"
 import AiUsageNoticeDialog from "../modals/AiUsageNoticeDialog"
 import CourseSettingsModal from "../modals/CourseSettingsModal"
+import CreditRegistrationEnrolmentBanner from "../notifications/CreditRegistrationEnrolmentBanner"
 import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNotification"
 import ReferenceList from "../ReferencesList"
 
@@ -264,6 +265,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               organizationSlug={organizationSlug}
             />
           )}
+        {courseId && <CreditRegistrationEnrolmentBanner courseId={courseId} />}
         {courseId && activeStep === DialogStep.ChooseInstance && (
           <CourseSettingsModal
             onClose={() => {

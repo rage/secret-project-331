@@ -13,6 +13,7 @@ export interface InstructionBoxAttributes {
 }
 
 const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> = {
+  apiVersion: 3,
   title: "InstructionBox",
   description: "Useful block for instructions",
   category: "text",

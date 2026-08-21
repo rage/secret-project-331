@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { monospaceFont } from "@/shared-module/common/styles"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import { Badge, DescriptionList, Dialog, QueryResult } from "@/shared-module/components"
 
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
@@ -15,11 +16,15 @@ import { STACKED } from "./constants"
 import {
   registrationErrorHelp,
   registrationExplanation,
+  registrationGradeLabel,
   registrationStatusLabel,
 } from "./creditRegistrationCopy"
+import RetryCreditRegistrationBlock from "./RetryCreditRegistrationBlock"
 import {
   isAdminEstablishedLink,
   linkingEmailSentence,
+  notificationEmailLabel,
+  notificationEmailSentence,
   studentNumberVerificationLabel,
 } from "./teacherCreditRegistrations"
 
@@ -153,6 +158,13 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
     })
   }
 
+  if (registration.notification_email) {
+    items.push({
+      label: notificationEmailLabel(t, registration.notification_email.kind),
+      value: notificationEmailSentence(t, registration.notification_email, i18n.language),
+    })
+  }
+
   return (
     <Dialog
       open={open}
@@ -164,19 +176,40 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
       {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
         <ResendLinkingEmailBlock registration={registration} />
       )}
-      <div className={sectionHeadingCss}>{t("heading-credit-registration-timeline")}</div>
+      <RetryCreditRegistrationBlock registration={registration} />
       <QueryResult query={detailsQuery}>
         {(details) => (
-          <ul className={timelineCss}>
-            {details.events.map((event) => (
-              <li className={timelineRowCss} key={event.id}>
-                <span className={timestampCss}>{new Date(event.created_at).toLocaleString()}</span>
-                {/* Deliberately untranslated: this is what a teacher quotes to support. */}
-                <span className={ledgerStateCss}>{event.to_state ?? event.kind}</span>
-                {event.message && <span>{event.message}</span>}
-              </li>
-            ))}
-          </ul>
+          <>
+            {/* The grade already in the registry, which is why a better one was turned down. */}
+            {details.not_improved_attainment ? (
+              <DescriptionList
+                layout={STACKED}
+                items={[
+                  {
+                    label: t("label-credit-registration-registry-held-grade"),
+                    value: registrationGradeLabel(
+                      t,
+                      details.not_improved_attainment.grade_id,
+                      details.not_improved_attainment.grade_scale_id,
+                    ),
+                  },
+                ]}
+              />
+            ) : null}
+            <div className={sectionHeadingCss}>{t("heading-credit-registration-timeline")}</div>
+            <ul className={timelineCss}>
+              {details.events.map((event) => (
+                <li className={timelineRowCss} key={event.id}>
+                  <span className={timestampCss}>
+                    {humanReadableDateTime(event.created_at, i18n.language)}
+                  </span>
+                  {/* Deliberately untranslated: this is what a teacher quotes to support. */}
+                  <span className={ledgerStateCss}>{event.to_state ?? event.kind}</span>
+                  {event.message && <span>{event.message}</span>}
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </QueryResult>
     </Dialog>

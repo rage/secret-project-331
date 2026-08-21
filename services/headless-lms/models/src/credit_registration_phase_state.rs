@@ -20,6 +20,7 @@ pub const PHASES: &[&str] = &[
     "product-token-refresh",
     "config-validation",
     "retention-sweep",
+    "ledger-snapshot",
 ];
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

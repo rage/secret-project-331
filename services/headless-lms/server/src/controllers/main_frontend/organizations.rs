@@ -9,13 +9,9 @@ use models::{
     pages::{self, NewPage},
 };
 
-use crate::controllers::auth::is_user_global_admin;
-use crate::domain::authorization::{Action as Act, Resource as Res};
 use crate::{
     controllers::helpers::file_uploading::upload_image_for_organization,
-    domain::authorization::{
-        Action, Resource, authorize, authorize_with_fetched_list_of_roles, skip_authorize,
-    },
+    domain::authorization::{is_permitted, is_user_global_admin},
     prelude::*,
 };
 
@@ -162,15 +158,14 @@ async fn get_organization_duplicatable_courses(
 
     let mut duplicatable_courses = Vec::new();
     for course in courses {
-        if authorize_with_fetched_list_of_roles(
+        if is_permitted(
             &mut conn,
-            Action::Duplicate,
-            Some(user.id),
-            Resource::Course(course.id),
+            Act::Duplicate,
+            Res::Course(course.id),
             &user_roles,
         )
         .await
-        .is_ok()
+        .unwrap_or(false)
         {
             duplicatable_courses.push(course);
         }
@@ -456,10 +451,10 @@ async fn get_organization(
         .await
         {
             Ok(token) => token,
-            Err(err) if matches!(err.error_type(), ControllerErrorType::Forbidden) => {
+            Err(err) if err.is_denial() => {
                 return Err(organization_not_found());
             }
-            Err(err) => return Err(err),
+            Err(err) => return Err(err.into()),
         }
     } else {
         skip_authorize()
@@ -573,9 +568,9 @@ async fn create_organization(
 
     let token = authorize(
         &mut conn,
-        Action::Administrate,
+        Act::Administrate,
         Some(user.id),
-        Resource::GlobalPermissions,
+        Res::GlobalPermissions,
     )
     .await?;
 
@@ -636,9 +631,9 @@ async fn soft_delete_organization(
 
     let token = authorize(
         &mut conn,
-        Action::Administrate,
+        Act::Administrate,
         Some(user.id),
-        Resource::GlobalPermissions,
+        Res::GlobalPermissions,
     )
     .await?;
 

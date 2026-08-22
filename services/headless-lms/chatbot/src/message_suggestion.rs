@@ -1,15 +1,13 @@
-use std::collections::HashMap;
-
 use crate::{
-    azure_chatbot::{
-        InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
-        RequestTextOptions, ThinkingParams,
+    azure_chatbot::azure::protocol::{
+        InputItem, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        ThinkingParams,
     },
     chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
-        model_is_thinking, parse_text_completion,
+        APIInputMessage, MessageContent, estimate_tokens, model_is_thinking,
+        request_structured_json, string_list_response_format,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
@@ -20,16 +18,22 @@ use headless_lms_models::{
     chatbot_conversation_message_messages::MessageRole,
     chatbot_conversation_messages::{ChatbotConversationMessage, Message},
 };
-use headless_lms_utils::json_schema_types::{
-    ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType,
-};
-use rand::seq::IndexedRandom;
 
 /// Shape of the structured LLM output response, defined by the JSONSchema in
-/// generate_suggested_messages
+/// [response_format]
 #[derive(serde::Deserialize)]
 struct ChatbotNextMessageSuggestionResponse {
     suggestions: Vec<String>,
+}
+
+/// Names this feature's structured output to Azure. The test-mode mock Azure API picks its canned
+/// answer for this feature by this name.
+pub const RESPONSE_FORMAT_NAME: &str = "ChatbotNextMessageSuggestionResponse";
+
+/// The structured output format the suggestion LLM is asked to answer in. Must stay in
+/// sync with [ChatbotNextMessageSuggestionResponse].
+fn response_format() -> LLMRequestResponseFormatParam {
+    string_list_response_format(RESPONSE_FORMAT_NAME, "suggestions")
 }
 
 /// System prompt instructions for generating suggested next messages
@@ -66,6 +70,10 @@ Constraints:
 /// User prompt instructions for generating suggested next messages
 pub const USER_PROMPT: &str = r#"Suggest exactly three messages that the user could send next."#;
 
+/// How much of the transcript the suggestion prompt carries. A suggestion only answers the recent
+/// thread, so a long conversation does not pay to send all of it.
+const RECENT_MESSAGES_IN_PROMPT: usize = 5;
+
 /// Calls an LLM and generates suggested messages for a chatbot conversation
 pub async fn generate_suggested_messages(
     app_config: &ApplicationConfiguration,
@@ -77,11 +85,13 @@ pub async fn generate_suggested_messages(
 ) -> ChatbotResult<Vec<String>> {
     let prompt = SYSTEM_PROMPT.to_owned()
         + &format!("The course is: {}\n\n", course_name)
-        // if there are initial suggested messages, then include <=5 of them as examples
+        // Taken in order rather than sampled: a random subset here varies a prompt prefix that is
+        // otherwise identical for every learner on the course, which costs a prompt cache hit and
+        // buys nothing, since the model is being shown examples rather than choosing between them.
         + &(if let Some(ism) = initial_suggested_messages {
-            let mut rng = rand::rng();
             let examples = ism
-                .sample(&mut rng, 5)
+                .iter()
+                .take(5)
                 .cloned()
                 .collect::<Vec<String>>()
                 .join(" ");
@@ -127,52 +137,22 @@ pub async fn generate_suggested_messages(
         )
     };
 
-    let chat_request = LLMRequest {
-        input: vec![system_prompt, user_prompt],
-        model: task_lm.model.to_owned(),
-        max_output_tokens,
-        tools: vec![],
-        tool_choice: None,
-        parallel_tool_calls: None,
+    let suggestions: ChatbotNextMessageSuggestionResponse = request_structured_json(
+        vec![system_prompt, user_prompt],
+        task_lm.model.to_owned(),
         params,
-        text: Some(RequestTextOptions {
-            verbosity: None,
-            format: Some(LLMRequestResponseFormatParam {
-                format_type: JSONType::JsonSchema,
-                name: "ChatbotNextMessageSuggestionResponse".to_string(),
-                schema: Schema {
-                    type_field: JSONType::Object,
-                    description: None,
-                    properties: HashMap::from([(
-                        "suggestions".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                            type_field: JSONType::Array,
-                            description: None,
-                            items: ArrayItem::JsonItem(JsonItem {
-                                type_field: JSONType::String,
-                                description: None,
-                            }),
-                        }),
-                    )]),
-                    required: vec!["suggestions".to_string()],
-                    additional_properties: false,
-                },
-                strict: true,
-            }),
-        }),
-    };
-
-    let completion = make_blocking_llm_request(chat_request, app_config).await?;
-
-    let completion_content: &String = &parse_text_completion(completion)?;
-    let suggestions: ChatbotNextMessageSuggestionResponse =
-        serde_json::from_str(completion_content).map_err(|_| {
+        max_output_tokens,
+        response_format(),
+        app_config,
+        || {
             chatbot_err!(
                 ChatbotMessageSuggestError,
                 "The message suggestion LLM returned an incorrectly formatted response."
                     .to_string()
             )
-        })?;
+        },
+    )
+    .await?;
 
     Ok(suggestions.suggestions)
 }
@@ -190,7 +170,17 @@ fn create_conversation_from_msgs(
     let conversation: Vec<ChatbotConversationMessage> = sorted_conversation_messages
         .iter()
         .filter_map(|el| match &el.message {
-            Message::Text(_) => Some(el.to_owned()),
+            // Only the roles [`create_msg_string`] renders. A developer page-context message would
+            // otherwise spend one of the [`RECENT_MESSAGES_IN_PROMPT`] slots, and its tokens,
+            // rendering nothing.
+            Message::Text(text)
+                if matches!(
+                    text.message_role,
+                    MessageRole::Assistant | MessageRole::User
+                ) =>
+            {
+                Some(el.to_owned())
+            }
             _ => None,
         })
         .collect();
@@ -232,6 +222,7 @@ fn create_conversation_from_msgs(
             ChatbotMessageSuggestError,
             "Failed to create context for message suggestion LLM, there were no conversation messages or none of them fit into the context."
         ))?;
+    let cutoff = cutoff.max(conv_len.saturating_sub(RECENT_MESSAGES_IN_PROMPT));
     // cut off messages older than order_n from the conversation to keep context short
     let conversation = conversation[cutoff..]
         .iter()
@@ -266,7 +257,8 @@ fn create_msg_string(m: &ChatbotConversationMessage) -> String {
         Message::ToolCall(tool_call) => {
             format!(
                 "Tool call: Name: {} Arguments: {}\n\n",
-                tool_call.tool_name, tool_call.tool_arguments
+                tool_call.tool_name,
+                tool_call.arguments_json()
             )
         }
         Message::ToolOutput(tool_output) => {
@@ -279,8 +271,31 @@ fn create_msg_string(m: &ChatbotConversationMessage) -> String {
 #[cfg(test)]
 mod tests {
     use headless_lms_models::chatbot_conversation_message_messages::ChatbotConversationMessageMessage;
+    use headless_lms_models::chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall;
+    use headless_lms_models::test_helper::chatbot_text_message;
+    use uuid::Uuid;
 
     use super::*;
+
+    /// A row keeps the argument text the model wrote as a JSON string, so rendering the stored value
+    /// itself escapes it a second time and the model is asked to suggest replies to a conversation
+    /// full of backslashes.
+    #[test]
+    fn a_tool_call_is_described_with_the_argument_text_the_model_wrote() {
+        let call = ChatbotConversationMessage {
+            message: Message::ToolCall(ChatbotConversationMessageToolCall {
+                tool_name: "course_progress".to_string(),
+                tool_arguments: serde_json::Value::String(r#"{"query":"loops"}"#.to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            create_msg_string(&call),
+            "Tool call: Name: course_progress Arguments: {\"query\":\"loops\"}\n\n"
+        );
+    }
 
     fn get_msgs() -> Vec<ChatbotConversationMessage> {
         vec![ChatbotConversationMessage {
@@ -524,159 +539,14 @@ Want to try a challenge problem next time with completing the square?".to_string
         ]
     }
 
+    /// Nothing bounds how long a conversation runs, and the whole transcript would otherwise be
+    /// rendered into every suggestion request the learner triggers.
     #[test]
-    fn create_context_it_fits() {
-        let used_tokens = 2000;
-        let token_budget = 3000;
-        let conv_msgs = get_msgs();
-
-        let convo = create_conversation_from_msgs(&conv_msgs, used_tokens, token_budget)
+    fn a_long_conversation_is_rendered_from_its_last_five_messages_only() {
+        let convo = create_conversation_from_msgs(&get_msgs(), 0, 100_000)
             .expect("Creating conversation string failed!");
 
         let expected_string = r#"Assistant:
-Hello! What can I help you with?
-
-Student:
-Hi, I’m stuck on solving quadratic equations. I don’t really get when to factor and when to use the quadratic formula.
-
-Assistant:
-No worries — that’s a super common question 😊
-Let’s start simple: do you remember the standard form of a quadratic equation?
-
-Student:
-Is it something like ax² + bx + c = 0?
-
-Assistant:
-Exactly! Great start.
-Now, factoring works best when the numbers are “nice” — meaning you can easily find two numbers that multiply to ac and add to b.
-
-The quadratic formula works every time, but it can be more work.
-
-Let’s try this one:
-x² + 5x + 6 = 0
-
-Would you like to try factoring it?
-
-Student:
-Okay… I need two numbers that multiply to 6 and add to 5. So 2 and 3?
-
-Assistant:
-Perfect! 🎯
-
-So we rewrite it as:
-(x + 2)(x + 3) = 0
-
-Now what do we do?
-
-Student:
-Set each part equal to zero?
-x + 2 = 0 and x + 3 = 0?
-
-Assistant:
-Yes!
-
-So your solutions are:
-x = -2
-x = -3
-
-See how clean that was? That’s when factoring is ideal.
-
-Now let’s try one that’s harder:
-2x² + 3x + 1 = 0
-
-Do you want to try factoring again, or use the quadratic formula?
-
-Student:
-Factoring looks harder with the 2 in front… maybe quadratic formula?
-
-Assistant:
-Good instinct. When a ≠ 1, the quadratic formula is often safer.
-
-The formula is:
-
-x = (-b ± √(b² - 4ac)) / 2a
-
-For this equation:
-a = 2
-b = 3
-c = 1
-
-First step: calculate the discriminant (b² - 4ac). Want to try that?
-
-Student:
-Okay
-3² - 4(2)(1)
-= 9 - 8
-= 1
-
-Assistant:
-Excellent!
-
-Now plug it into the formula:
-
-x = (-3 ± √1) / 4
-
-Since √1 = 1, what are the two answers?
-
-Student:
-(-3 + 1)/4 = -2/4 = -1/2
-(-3 - 1)/4 = -4/4 = -1
-
-Assistant:
-YES 👏
-
-So your solutions are:
-x = -1/2
-x = -1
-
-You handled that really well.
-
-Quick check:
-When would you choose factoring over the quadratic formula?
-
-Student:
-If the numbers are simple and easy to factor. Otherwise use the formula since it always works.
-
-Assistant:
-Exactly right. You’ve got it!
-
-Want to try a challenge problem next time with completing the square?
-
-"#.to_string();
-
-        assert_eq!(convo, expected_string);
-    }
-
-    #[test]
-    fn create_context_it_wont_fit() {
-        let used_tokens = 2000;
-        let token_budget = 2300;
-        let conv_msgs = get_msgs();
-
-        let convo = create_conversation_from_msgs(&conv_msgs, used_tokens, token_budget)
-            .expect("Creating conversation string failed!");
-
-        let expected_string = r#"Assistant:
-Good instinct. When a ≠ 1, the quadratic formula is often safer.
-
-The formula is:
-
-x = (-b ± √(b² - 4ac)) / 2a
-
-For this equation:
-a = 2
-b = 3
-c = 1
-
-First step: calculate the discriminant (b² - 4ac). Want to try that?
-
-Student:
-Okay
-3² - 4(2)(1)
-= 9 - 8
-= 1
-
-Assistant:
 Excellent!
 
 Now plug it into the formula:
@@ -711,6 +581,90 @@ Want to try a challenge problem next time with completing the square?
 
 "#
         .to_string();
+
         assert_eq!(convo, expected_string);
+    }
+
+    fn text_msg(
+        order_number: i32,
+        message_role: MessageRole,
+        text: &str,
+        used_tokens: i32,
+    ) -> ChatbotConversationMessage {
+        let mut message = chatbot_text_message(Uuid::nil(), message_role, text, None);
+        message.order_number = order_number;
+        if let Message::Text(text) = &mut message.message {
+            text.used_tokens = used_tokens;
+        }
+        message
+    }
+
+    fn msgs_with_one_long_answer() -> Vec<ChatbotConversationMessage> {
+        vec![
+            text_msg(0, MessageRole::Assistant, "Here is the derivation.", 60),
+            text_msg(1, MessageRole::User, "Why does the loop never end?", 20),
+            text_msg(2, MessageRole::Assistant, "Check the condition.", 20),
+            text_msg(3, MessageRole::User, "The counter never decrements.", 20),
+        ]
+    }
+
+    /// The message count is a floor on the cutoff, not a replacement for it, so a window of five
+    /// that does not fit still has to be trimmed rather than sent and rejected by the model.
+    #[test]
+    fn the_token_budget_still_trims_inside_the_five_message_window() {
+        let convo = create_conversation_from_msgs(&msgs_with_one_long_answer(), 0, 80)
+            .expect("Creating conversation string failed!");
+
+        let expected_string = r#"Student:
+Why does the loop never end?
+
+Assistant:
+Check the condition.
+
+Student:
+The counter never decrements.
+
+"#
+        .to_string();
+
+        assert_eq!(convo, expected_string);
+    }
+
+    /// A conversation carries developer messages holding the page context, and `create_msg_string`
+    /// renders that role as nothing. Counting one against the window would silently spend a slot,
+    /// and its tokens, on a message the model never sees.
+    #[test]
+    fn a_developer_message_does_not_spend_one_of_the_five_slots() {
+        // The developer message sits inside the last five so that counting it would push a
+        // rendered message out of the window.
+        let messages = vec![
+            text_msg(0, MessageRole::User, "First question", 10),
+            text_msg(1, MessageRole::Assistant, "one", 10),
+            text_msg(2, MessageRole::Developer, "Page context", 500),
+            text_msg(3, MessageRole::Assistant, "two", 10),
+            text_msg(4, MessageRole::Assistant, "three", 10),
+            text_msg(5, MessageRole::Assistant, "four", 10),
+            text_msg(6, MessageRole::Assistant, "five", 10),
+        ];
+
+        let convo = create_conversation_from_msgs(&messages, 0, 100_000)
+            .expect("Creating conversation string failed!");
+
+        assert_eq!(
+            convo,
+            "Assistant:\none\n\nAssistant:\ntwo\n\nAssistant:\nthree\n\nAssistant:\nfour\n\nAssistant:\nfive\n\n"
+        );
+    }
+
+    /// The test-mode mock Azure API picks this feature's canned answer by the format name, so the
+    /// name is pinned even though the shape it wraps is shared.
+    #[test]
+    fn the_response_format_is_named_after_this_feature() {
+        let serialized =
+            serde_json::to_value(response_format()).expect("The response format serializes");
+        assert_eq!(
+            serialized["name"],
+            serde_json::json!("ChatbotNextMessageSuggestionResponse")
+        );
     }
 }

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE pages\nSET url_path = v.path\nFROM unnest($1::uuid[], $2::text[]) AS v(id, path)\nWHERE pages.id = v.id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ad8db4c8dc6229b108a1ce8e823ac0e2623867eb50d148bbdb6e87a309b4491f"
+}

@@ -116,6 +116,44 @@ export const zChatbotConversationSuggestedMessage = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * What the learner has open when they send a message.
+ *
+ * Only the page id is accepted: everything the model reads is looked up from the database.
+ * The context becomes a developer message, which the model weighs above the learner's own
+ * words, so a client that could write its text could give itself instructions.
+ */
+export const zChatbotPageContext = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+ */
+export const zClientToolAnswer = z.object({
+  data: z.object({
+    result: z.record(z.string(), z.unknown()),
+  }),
+  type: z.enum(["Data"]),
+})
+
+/**
+ * The name of a client tool, generated into the frontend as a string union so it names one of
+ * [ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.
+ *
+ * The bounds a tool enforces on its arguments and the shape of its answer stay hand-written on
+ * the frontend: routing those through the OpenAPI schema would need either a schema per tool or
+ * widening the argument and answer types this crate uses to serialize them, for a part of the
+ * contract that only fails loudly, unlike the name.
+ */
+export const zClientToolName = z.enum(["ask_multiple_choice_question"])
+
+export const zChatbotToolResponse = z.object({
+  answer: zClientToolAnswer,
+  tool_call_id: z.string(),
+  tool_name: zClientToolName,
+})
+
 export const zCodeGiveawayStatus = z.union([
   z.object({
     tag: z.enum(["Disabled"]),
@@ -881,6 +919,11 @@ export const zSearchRequest = z.object({
   query: z.string(),
 })
 
+export const zSendChatbotMessage = z.object({
+  message: z.string(),
+  page_context: zChatbotPageContext.nullish(),
+})
+
 export const zShowExerciseAnswers = z.object({
   show_exercise_answers: z.boolean(),
 })
@@ -918,11 +961,11 @@ export const zChatbotChatStreamEvent = z.union([
     type: z.enum(["Done"]),
   }),
   z.object({
-    data: zStreamEventError,
-    type: z.enum(["Error"]),
+    type: z.enum(["Suspended"]),
   }),
   z.object({
-    type: z.enum(["Invalid"]),
+    data: zStreamEventError,
+    type: z.enum(["Error"]),
   }),
 ])
 
@@ -1065,7 +1108,10 @@ export const zTermUpdate = z.object({
   term: z.string(),
 })
 
-export const zToolKind = z.enum(["function", "azure_ai_search"])
+/**
+ * Who answers a tool call, which decides what happens to a call that has no output yet.
+ */
+export const zToolKind = z.enum(["function", "azure_ai_search", "client_tool"])
 
 export const zChatbotConversationMessageToolCall = z.object({
   chatbot_conversation_message_id: z.uuid(),
@@ -1082,6 +1128,7 @@ export const zChatbotConversationMessageToolCall = z.object({
 
 export const zChatbotConversationMessageToolOutput = z.object({
   chatbot_conversation_message_id: z.uuid(),
+  client_answer: z.record(z.string(), z.unknown()).nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
@@ -1446,7 +1493,7 @@ export const zNewChatbotConversationPath = z.object({
  */
 export const zNewChatbotConversationResponse = zChatbotConversation
 
-export const zSendChatbotMessageBody = z.string()
+export const zSendChatbotMessageBody = zSendChatbotMessage
 
 export const zSendChatbotMessagePath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -1457,6 +1504,18 @@ export const zSendChatbotMessagePath = z.object({
  * Chatbot response stream
  */
 export const zSendChatbotMessageResponse = zChatbotChatStreamEvent
+
+export const zSendChatbotToolResponseBody = zChatbotToolResponse
+
+export const zSendChatbotToolResponsePath = z.object({
+  chatbot_configuration_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
+
+/**
+ * Chatbot response stream
+ */
+export const zSendChatbotToolResponseResponse = zChatbotChatStreamEvent
 
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),

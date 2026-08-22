@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM chatbot_conversation_message_tool_calls AS ccmtc\nWHERE ccmtc.chatbot_conversation_message_id IN (\n    SELECT id\n    FROM chatbot_conversation_messages\n    WHERE conversation_id = $1\n      AND deleted_at IS NULL\n  )\n  AND ccmtc.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT id\n    FROM chatbot_conversation_message_tool_outputs\n    WHERE tool_call_id = ccmtc.tool_call_id\n      AND deleted_at IS NULL\n  )\n        ",
+  "query": "\nINSERT INTO chatbot_conversation_message_tool_outputs (\n    chatbot_conversation_message_id,\n    output,\n    tool_call_id,\n    tool_kind,\n    response_id,\n    client_answer\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
+            "table": "chatbot_conversation_message_tool_outputs",
             "name": "id"
           }
         }
@@ -20,79 +20,68 @@
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
+            "table": "chatbot_conversation_message_tool_outputs",
             "name": "chatbot_conversation_message_id"
           }
         }
       },
       {
         "ordinal": 2,
-        "name": "tool_name",
+        "name": "output",
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
-            "name": "tool_name"
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "output"
           }
         }
       },
       {
         "ordinal": 3,
-        "name": "tool_arguments",
-        "type_info": "Jsonb",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
-            "name": "tool_arguments"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
         "name": "tool_call_id",
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
+            "table": "chatbot_conversation_message_tool_outputs",
             "name": "tool_call_id"
           }
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
+            "table": "chatbot_conversation_message_tool_outputs",
             "name": "created_at"
           }
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 5,
         "name": "updated_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
+            "table": "chatbot_conversation_message_tool_outputs",
             "name": "updated_at"
           }
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "deleted_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
+            "table": "chatbot_conversation_message_tool_outputs",
             "name": "deleted_at"
           }
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "tool_kind",
         "type_info": {
           "Custom": {
@@ -100,33 +89,61 @@
             "kind": {
               "Enum": [
                 "function",
-                "azure-ai-search"
+                "azure-ai-search",
+                "client-tool"
               ]
             }
           }
         },
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
+            "table": "chatbot_conversation_message_tool_outputs",
             "name": "tool_kind"
           }
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "response_id",
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "chatbot_conversation_message_tool_calls",
+            "table": "chatbot_conversation_message_tool_outputs",
             "name": "response_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "client_answer",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "client_answer"
           }
         }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "tool_kind",
+            "kind": {
+              "Enum": [
+                "function",
+                "azure-ai-search",
+                "client-tool"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Jsonb"
       ]
     },
     "nullable": [
@@ -136,11 +153,11 @@
       false,
       false,
       false,
-      false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "08916f5b8a92f9acf9366c004ed6bf9658021ee39cde4bcdf027424b2e8b95b8"
+  "hash": "d1538726524c663793d38f9aff6980d04d5a4419e730f425c5200fdc0b591779"
 }

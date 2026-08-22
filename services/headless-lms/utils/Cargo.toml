@@ -23,6 +23,9 @@ futures = "0.3.34"
 uuid = { version = "1.24.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
+# Hash map that keeps insertion order, so serialized tool and response schemas are byte-stable and
+# Azure's prompt cache can match on them.
+indexmap = { version = "2.14.0", features = ["serde"] }
 # Date and time library for Rust
 chrono = { version = "0.4.45", features = ["serde"] }
 # A JSON serialization file format

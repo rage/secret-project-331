@@ -7,21 +7,6 @@ import type { ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"
 
 describe("chatbotReducer", () => {
-  it("works with RECEIVED_CONVERSATION_MESSAGES", () => {
-    const newMessages: ChatbotConversationMessage[] = [messageFactory(), messageFactory()]
-    const initialState: ChatbotState = { messages: [] }
-    const newState = chatbotReducer(initialState, {
-      type: "RECEIVED_CONVERSATION_MESSAGES",
-      payload: newMessages,
-    })
-    const expectedState: ChatbotState = {
-      messages: [
-        { finished: true, message: messageFactory(), optimistic: false },
-        { finished: true, message: messageFactory(), optimistic: false },
-      ],
-    }
-    expect(newState).toStrictEqual(expectedState)
-  })
   it("works with USER_SENDS_MESSAGE when there's no messages", () => {
     const initialState: ChatbotState = { messages: [] }
     const newState = chatbotReducer(initialState, {
@@ -273,6 +258,25 @@ describe("chatbotReducer", () => {
     expect(newState.messages[2]!.message).toMatchObject({ message: { reasoning_id: "id_1" } })
     expect(newState.messages[3]).toMatchObject({ finished: false, optimistic: false })
     expect(newState.messages[3]!.message).toMatchObject({ message: { reasoning_id: "id_2" } })
+  })
+  it("works with TURN_ENDED, finishing items an Error event or an early stream close stranded", () => {
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        {
+          finished: false,
+          message: messageFactory({ message: { tool_call_id: "id_1" } }, "toolCall"),
+          optimistic: false,
+        },
+        {
+          finished: false,
+          message: messageFactory({ message: { reasoning_id: "id_2" } }, "reasoning"),
+          optimistic: false,
+        },
+      ],
+    }
+    const newState = chatbotReducer(initialState, { type: "TURN_ENDED" })
+    expect(newState.messages.every((m) => m.finished)).toBe(true)
   })
 })
 

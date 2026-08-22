@@ -59,8 +59,27 @@ pub async fn process_submission(
     Ok(result)
 }
 
-/// Rejects a file-typed answer naming uploads this user did not make for this exercise, or naming
-/// none at all.
+/// Collects every uploaded file id named across all of a submission's file-typed answers.
+///
+/// One list for the whole submission, not one per task: a file named by two different task
+/// submissions is still a duplicate, and the callers below run their checks against this list in a
+/// single batched query rather than one query per task.
+fn named_upload_ids(submission: &StudentExerciseSlideSubmission) -> Vec<Uuid> {
+    submission
+        .exercise_task_submissions
+        .iter()
+        .filter_map(|task_submission| match &task_submission.answer {
+            SubmittedAnswer::File {
+                file_upload_ids, ..
+            } => Some(file_upload_ids.iter().copied()),
+            _ => None,
+        })
+        .flatten()
+        .collect()
+}
+
+/// Rejects a file-typed answer naming uploads this user did not make for this exercise, naming none
+/// at all, or naming the same upload as another task submission in the same slide submission.
 ///
 /// Unlocked, so [`lock_and_verify_named_uploads`] must repeat it inside the submission transaction.
 async fn verify_named_uploads(
@@ -70,22 +89,19 @@ async fn verify_named_uploads(
     submission: &StudentExerciseSlideSubmission,
 ) -> Result<(), ControllerError> {
     for task_submission in &submission.exercise_task_submissions {
-        let SubmittedAnswer::File {
+        if let SubmittedAnswer::File {
             file_upload_ids, ..
         } = &task_submission.answer
-        else {
-            continue;
-        };
-        answer_uploads::verify_answer_names_uploads(file_upload_ids)?;
-        answer_uploads::verify_uploads_belong_to_exercise(
-            conn,
-            exercise_id,
-            user_id,
-            file_upload_ids,
-        )
-        .await?;
+        {
+            answer_uploads::verify_answer_names_uploads(file_upload_ids)?;
+        }
     }
-    Ok(())
+    let file_upload_ids = named_upload_ids(submission);
+    if file_upload_ids.is_empty() {
+        return Ok(());
+    }
+    answer_uploads::verify_uploads_belong_to_exercise(conn, exercise_id, user_id, &file_upload_ids)
+        .await
 }
 
 /// Re-checks the named uploads under the reaper's row lock, inside the transaction that records the
@@ -96,22 +112,12 @@ async fn lock_and_verify_named_uploads(
     user_id: Uuid,
     submission: &StudentExerciseSlideSubmission,
 ) -> Result<(), ControllerError> {
-    for task_submission in &submission.exercise_task_submissions {
-        let SubmittedAnswer::File {
-            file_upload_ids, ..
-        } = &task_submission.answer
-        else {
-            continue;
-        };
-        answer_uploads::lock_and_verify_uploads_are_usable(
-            tx,
-            exercise_id,
-            user_id,
-            file_upload_ids,
-        )
-        .await?;
+    let file_upload_ids = named_upload_ids(submission);
+    if file_upload_ids.is_empty() {
+        return Ok(());
     }
-    Ok(())
+    answer_uploads::lock_and_verify_uploads_are_usable(tx, exercise_id, user_id, &file_upload_ids)
+        .await
 }
 
 /// Grades one slide submission and trims the result down to what the submitter may see. Runs inside
@@ -329,6 +335,7 @@ mod tests {
         conn: &mut PgConnection,
         slide: Uuid,
         internal_url: String,
+        order_number: i32,
     ) -> Uuid {
         let slug = format!("submit-test-{}", Uuid::new_v4());
         let service = models::exercise_services::insert_exercise_service(
@@ -367,7 +374,7 @@ mod tests {
                 public_spec: Some(serde_json::Value::Null),
                 private_spec: Some(serde_json::Value::Null),
                 model_solution_spec: Some(serde_json::Value::Null),
-                order_number: 1,
+                order_number,
             },
         )
         .await
@@ -597,7 +604,7 @@ mod tests {
             });
             let url = start_exercise_service_stub($state.clone());
             insert_data!(:$tx, user: user, :org, course: course, instance: instance, :course_module, chapter: chapter, page: page, exercise: exercise, slide: slide, task: _unservable);
-            let task = insert_graded_task($tx.as_mut(), slide, url).await;
+            let task = insert_graded_task($tx.as_mut(), slide, url, 1).await;
             enroll_and_open($tx.as_mut(), user, course, instance.id, exercise, slide).await;
             let $fixture = Fixture {
                 user,
@@ -674,6 +681,60 @@ mod tests {
             "duplicate_upload",
         )
         .await;
+        tx.rollback().await;
+    }
+
+    /// Distinctness is a property of the whole slide submission, not of one task's file list: two
+    /// task submissions in the same slide submission naming the same upload must be rejected the
+    /// same way as one task naming it twice.
+    #[actix_web::test]
+    async fn naming_the_same_upload_from_two_different_tasks_is_rejected() {
+        fixture!(tx, fixture, state);
+        let other_task = insert_graded_task(
+            tx.as_mut(),
+            fixture.slide,
+            start_exercise_service_stub(state.clone()),
+            2,
+        )
+        .await;
+        let file = bind_upload(tx.as_mut(), fixture.exercise, fixture.user, "shared.txt").await;
+        let store = temp_file_store();
+        let exercise = models::exercises::get_by_id(tx.as_mut(), fixture.exercise)
+            .await
+            .expect("exercise");
+
+        let error = process_submission(
+            tx.as_mut(),
+            fixture.user,
+            exercise,
+            &StudentExerciseSlideSubmission {
+                exercise_slide_id: fixture.slide,
+                exercise_task_submissions: vec![
+                    StudentExerciseTaskSubmission {
+                        exercise_task_id: fixture.task,
+                        answer: file_answer(vec![file]),
+                    },
+                    StudentExerciseTaskSubmission {
+                        exercise_task_id: other_task,
+                        answer: file_answer(vec![file]),
+                    },
+                ],
+            },
+            Arc::new(crate::domain::models_requests::JwtKey::test_key()),
+            &store,
+            &init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect_err("naming the same upload from two tasks must be rejected");
+        assert_eq!(message_key_of(&error), "duplicate_upload");
+        assert_eq!(
+            slide_submission_count(tx.as_mut(), fixture.exercise, fixture.user).await,
+            0
+        );
+        assert!(
+            state.grade_requests.lock().expect("stub lock").is_empty(),
+            "the answer must be refused at the edge, before the exercise service is asked anything"
+        );
         tx.rollback().await;
     }
 
@@ -782,7 +843,7 @@ mod tests {
         // Committed so the reaper's connection can see them. An IFrame upload's retention window is
         // seven days, so nothing this leaves behind is visible to `get_reapable`.
         insert_data!(:tx, user: user, :org, course: course, instance: instance, :course_module, chapter: chapter, page: page, exercise: exercise, slide: slide, task: _unservable);
-        let task = insert_graded_task(tx.as_mut(), slide, url).await;
+        let task = insert_graded_task(tx.as_mut(), slide, url, 1).await;
         enroll_and_open(tx.as_mut(), user, course, instance.id, exercise, slide).await;
         let file = bind_upload(tx.as_mut(), exercise, user, "raced.txt").await;
         let binding = binding_id_of(tx.as_mut(), file).await;

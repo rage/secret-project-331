@@ -1103,8 +1103,8 @@ async fn download_submission(
     .await?;
     // Resolved from the host's own file records, never from the exercise service's answer: the
     // answer is an opaque plugin-owned blob and reading it would tie this endpoint to one plugin's
-    // shape. An IFrame-made submission is recorded at submit time by asking its service to
-    // enumerate the answer's files, so both origins are served by this one read.
+    // shape. Both native-client and IFrame-made file answers are recorded here at submit time, so
+    // both origins are served by this one read.
     let task_submission_ids: Vec<Uuid> = task_submissions.iter().map(|ts| ts.id).collect();
     let files = models::exercise_task_submission_files::get_by_task_submission_ids(
         &mut conn,

@@ -13,7 +13,7 @@ use crate::{
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings, file_store::FileStore,
-    language_tag_to_name::LANGUAGE_TAG_TO_NAME,
+    language_tag_to_name::LANGUAGE_TAG_TO_NAME, strings::non_empty_trimmed,
 };
 use pgvector::Vector;
 use utoipa::ToSchema;
@@ -251,6 +251,9 @@ pub async fn insert(
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
 
+    let name = non_empty_trimmed(&new_course.name).unwrap_or(&new_course.name);
+    let description = non_empty_trimmed(&new_course.description);
+
     let res = sqlx::query!(
         "
 INSERT INTO courses(
@@ -284,8 +287,8 @@ VALUES(
 RETURNING id
         ",
         pkey_policy.into_uuid(),
-        new_course.name,
-        new_course.description,
+        name,
+        description,
         new_course.slug,
         new_course.organization_id,
         new_course.language_code,
@@ -303,8 +306,8 @@ RETURNING id
             &mut tx,
             app_config,
             res.id,
-            Some(&new_course.name),
-            Some(&new_course.description),
+            non_empty_trimmed(&new_course.name),
+            description,
         )
         .await?
     }

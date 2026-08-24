@@ -911,6 +911,14 @@ async fn mock_azure_embeddings(
 ) -> ControllerResult<String> {
     assert!(app_conf.test_chatbot && app_conf.test_mode);
 
+    if payload.input.iter().any(|s| s.trim().is_empty()) {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "input must not be empty".to_string(),
+            None,
+        ));
+    }
+
     let mock_response = EmbeddingResponse {
         object: "list".to_string(),
         model: "mock-embedder-3-small".to_string(),

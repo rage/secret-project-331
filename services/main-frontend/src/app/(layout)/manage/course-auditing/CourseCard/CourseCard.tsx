@@ -121,6 +121,8 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
         reset()
         updateMutation.reset()
         setEditing(!editing)
+        removedPrereqIds.current = []
+        removedAudienceIds.current = []
       }
     } else {
       reset()

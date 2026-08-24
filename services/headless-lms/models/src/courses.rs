@@ -638,7 +638,7 @@ WHERE id = $1
     .await?;
 
     if old_course.description != data_update.description
-        && data_update.description != None
+        && data_update.description.is_some()
         && data_update.description != Some("".to_string())
     {
         update_course_embeddings(

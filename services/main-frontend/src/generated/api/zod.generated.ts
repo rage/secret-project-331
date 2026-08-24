@@ -1233,6 +1233,11 @@ export const zCourseUpdate = z.object({
   name: z.string(),
 })
 
+export const zCreateChatbotRequest = z.object({
+  course_id: z.uuid().nullish(),
+  name: z.string(),
+})
+
 export const zCreateCourseDesignerPlanRequest = z.object({
   name: z.string().nullish(),
 })
@@ -6125,7 +6130,7 @@ export const zGetCourseChaptersPath = z.object({
 export const zGetCourseChaptersResponse = z.array(zDatabaseChapter)
 
 export const zGetChatbotModelsQuery = z.object({
-  course_id: z.uuid(),
+  course_id: z.uuid().optional(),
 })
 
 /**
@@ -6148,6 +6153,16 @@ export const zGetChatbotModelResponse = zChatbotConfigurationModel
  * All chatbots
  */
 export const zGetAllChatbotsResponse = z.array(zChatbotConfiguration)
+
+/**
+ * JSON object with chatbot name and optional course id, e.g. "name: Chatbot 1, course_id: null".
+ */
+export const zCreateChatbotBody = zCreateChatbotRequest
+
+/**
+ * Created chatbot
+ */
+export const zCreateChatbotResponse = zChatbotConfiguration
 
 export const zDeleteChatbotConfigurationPath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -6755,20 +6770,6 @@ export const zGetCourseChatbotsPath = z.object({
  * Course chatbots
  */
 export const zGetCourseChatbotsResponse = z.array(zChatbotConfiguration)
-
-/**
- * JSON string literal chatbot name, e.g. "Chatbot 1".
- */
-export const zCreateCourseChatbotBody = z.string()
-
-export const zCreateCourseChatbotPath = z.object({
-  course_id: z.string(),
-})
-
-/**
- * Created course chatbot
- */
-export const zCreateCourseChatbotResponse = zChatbotConfiguration
 
 export const zSetCourseChatbotAsDefaultPath = z.object({
   course_id: z.string(),

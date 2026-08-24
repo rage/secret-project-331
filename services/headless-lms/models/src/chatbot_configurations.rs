@@ -21,6 +21,11 @@ pub enum VerbosityLevel {
     Medium,
     High,
 }
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
+pub struct CreateChatbotRequest {
+    pub name: String,
+    pub course_id: Option<Uuid>,
+}
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct ChatbotConfiguration {

@@ -10,7 +10,7 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import CreateChatbotForm from "./CreateChatbotForm"
 
 interface CreateChatbotDialogProps {
-  courseId: string
+  courseId: string | null
   getChatbotsList: UseQueryResult<ChatbotConfiguration[], unknown>
   open: boolean
   close: () => void

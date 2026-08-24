@@ -4,6 +4,7 @@ import {
   appApiErrorFromTransportFailure,
   extractRequestIdFromHeaders,
   extractRetryAfterSeconds,
+  isAbortError,
   isAppApiError,
 } from "../AppApiError"
 import { normalizeErrorForDisplay } from "../normalizeErrorForDisplay"
@@ -131,5 +132,23 @@ describe("AppApiError", () => {
     expect(normalized.type).toBe("validation_error")
     expect(normalized.code).toBe("FORM_VALIDATION_FAILED")
     expect(normalized.messageKey).toBe("validation_error")
+  })
+
+  test("recognizes an abort both as an AppApiError and as the raw DOMException", () => {
+    const domException = new DOMException("The operation was aborted.", "AbortError")
+    const wrapped = appApiErrorFromTransportFailure({ error: domException })
+
+    expect(wrapped.kind).toBe("abort")
+    expect(isAbortError(wrapped)).toBe(true)
+    expect(isAbortError(domException)).toBe(true)
+  })
+
+  test("does not treat a network failure or an unrelated error as an abort", () => {
+    const networkFailure = appApiErrorFromTransportFailure({
+      error: new TypeError("Failed to fetch"),
+    })
+
+    expect(isAbortError(networkFailure)).toBe(false)
+    expect(isAbortError(new Error("Bad gateway"))).toBe(false)
   })
 })

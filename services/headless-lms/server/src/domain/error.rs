@@ -12,8 +12,9 @@ use actix_web::{
 use backtrace::Backtrace;
 use derive_more::Display;
 use dpop_verifier::error::DpopError;
+use headless_lms_authorization::error::{AuthorizationError, AuthorizationErrorType};
 use headless_lms_base::error::{backend_error::BackendError, clean_format::ColorChoice};
-use headless_lms_chatbot::prelude::ChatbotError;
+use headless_lms_chatbot::prelude::{ChatbotError, ChatbotErrorType};
 use headless_lms_models::{ModelError, ModelErrorType, prelude::UtilErrorType};
 use headless_lms_utils::error::util_error::{SisuErrorVariant, UtilError};
 use serde::{Deserialize, Serialize};
@@ -250,7 +251,13 @@ pub struct ControllerError {
 // Generate the clean developer `Debug`/`clean_string` and a cause resolver.
 headless_lms_base::impl_clean_debug!(
     ControllerError,
-    [ControllerError, ChatbotError, ModelError, UtilError]
+    [
+        ControllerError,
+        AuthorizationError,
+        ChatbotError,
+        ModelError,
+        UtilError
+    ]
 );
 
 impl std::error::Error for ControllerError {
@@ -795,6 +802,35 @@ impl From<ModelError> for ControllerError {
     }
 }
 
+impl From<AuthorizationError> for ControllerError {
+    fn from(err: AuthorizationError) -> Self {
+        // A check that failed because the models layer did is mapped like any other
+        // ModelError, so that e.g. authorizing against a nonexistent page still answers 404.
+        let err = match err.into_model_error() {
+            Ok(model_error) => return model_error.into(),
+            Err(err) => err,
+        };
+
+        let backtrace: Backtrace = match BackendError::backtrace(&err) {
+            Some(backtrace) => backtrace.clone(),
+            _ => Backtrace::new(),
+        };
+        let span_trace = err.span_trace().clone();
+        let error_type = match err.error_type() {
+            AuthorizationErrorType::Unauthorized => ControllerErrorType::Unauthorized,
+            AuthorizationErrorType::Forbidden => ControllerErrorType::Forbidden,
+            AuthorizationErrorType::InternalServerError | AuthorizationErrorType::Model => {
+                ControllerErrorType::InternalServerError
+            }
+        };
+        // `message()`, not `to_string()`: the message reaches the user verbatim, while the
+        // nested role and action detail stays reachable through the source chain.
+        let message = err.message().to_string();
+
+        Self::new_with_traces(error_type, message, Some(err.into()), backtrace, span_trace)
+    }
+}
+
 impl From<UtilError> for ControllerError {
     fn from(err: UtilError) -> Self {
         let backtrace: Backtrace =
@@ -1006,11 +1042,49 @@ impl From<crate::domain::oauth::pkce::PkceError> for ControllerError {
 
 impl From<ChatbotError> for ControllerError {
     fn from(err: ChatbotError) -> Self {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            err.message().to_string(),
-            Some(err.into()),
-        )
+        // A failure that came from the models layer is mapped like any other ModelError, so
+        // that e.g. a chatbot conversation referencing a deleted course answers 404.
+        let err = match err.into_model_error() {
+            Ok(model_error) => return model_error.into(),
+            Err(err) => err,
+        };
+
+        let backtrace: Backtrace = match BackendError::backtrace(&err) {
+            Some(backtrace) => backtrace.clone(),
+            _ => Backtrace::new(),
+        };
+        let span_trace = err.span_trace().clone();
+        let error_type = match err.error_type() {
+            // The one chatbot error the caller can fix, so the only one it is told about.
+            ChatbotErrorType::InvalidToolAnswer => ControllerErrorType::BadRequest,
+            ChatbotErrorType::InvalidMessageShape
+            | ChatbotErrorType::InvalidToolName
+            | ChatbotErrorType::InvalidToolArguments
+            | ChatbotErrorType::ToolUseError
+            | ChatbotErrorType::ChatbotModelError
+            | ChatbotErrorType::ChatbotMessageSuggestError
+            | ChatbotErrorType::UrlParse
+            | ChatbotErrorType::TokioIo
+            | ChatbotErrorType::SerdeJson
+            | ChatbotErrorType::SqlxError
+            | ChatbotErrorType::ReqwestError
+            | ChatbotErrorType::Other
+            | ChatbotErrorType::DeserializationError
+            | ChatbotErrorType::AzureAISearchFilterError
+            | ChatbotErrorType::UpstreamReportedError
+            | ChatbotErrorType::ResponseIncomplete
+            | ChatbotErrorType::StreamEndedEarly
+            | ChatbotErrorType::UnexpectedProtocolShape
+            | ChatbotErrorType::StreamInvariantViolation
+            | ChatbotErrorType::ContentCleaning
+            | ChatbotErrorType::AzureRequestBuildError
+            | ChatbotErrorType::FailedAzureResponse
+            | ChatbotErrorType::SisuDescriptionError
+            | ChatbotErrorType::ChatbotUtilError => ControllerErrorType::InternalServerError,
+        };
+        let message = err.message().to_string();
+
+        Self::new_with_traces(error_type, message, Some(err.into()), backtrace, span_trace)
     }
 }
 

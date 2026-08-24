@@ -6,9 +6,8 @@ use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_t
 use crate::{
     OAuthClient,
     domain::{
-        authorization::{
-            self, ActionOnResource, authorize_with_fetched_list_of_roles, skip_authorize,
-        },
+        authentication,
+        authorization::{ActionOnResource, is_permitted, is_user_global_admin, skip_authorize},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
     },
     prelude::*,
@@ -16,7 +15,7 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
-use headless_lms_models::{ModelErrorType, ModelResult};
+use headless_lms_models::ModelErrorType;
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
     user_email_codes::UserEmailCodePurpose, user_passwords, users,
@@ -295,7 +294,7 @@ pub async fn signup(
         .await;
 
         let token = skip_authorize();
-        authorization::remember(&session, user)?;
+        authentication::remember(&session, user)?;
         token.authorized_ok(web::Json(SignupResponse::Success))
     } else {
         Err(ControllerError::new(
@@ -388,7 +387,7 @@ async fn handle_test_mode_signup(
     )
     .await;
 
-    authorization::remember(session, user)?;
+    authentication::remember(session, user)?;
 
     let token = skip_authorize();
     token.authorized_ok(web::Json(SignupResponse::Success))
@@ -435,15 +434,14 @@ pub async fn authorize_multiple_actions_on_resources(
         let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
 
         for action_on_resource in input {
-            if (authorize_with_fetched_list_of_roles(
+            if is_permitted(
                 &mut conn,
                 action_on_resource.action,
-                Some(user.id),
                 action_on_resource.resource,
                 &user_roles,
             )
-            .await)
-                .is_ok()
+            .await
+            .unwrap_or(false)
             {
                 results.push(true);
             } else {
@@ -525,7 +523,7 @@ async fn handle_uuid_login(
             return handle_email_verification(conn, &user).await;
         }
 
-        authorization::remember(session, user)?;
+        authentication::remember(session, user)?;
         token.authorized_ok(web::Json(LoginResponse::Success))
     } else {
         warn!("Authentication failed");
@@ -552,7 +550,7 @@ async fn handle_test_mode_login(
     };
 
     let mut is_authenticated =
-        authorization::authenticate_test_user(conn, email, password, app_conf)
+        authentication::authenticate_test_user(conn, email, password, app_conf)
             .await
             .map_err(|e| {
                 ControllerError::new(
@@ -575,7 +573,7 @@ async fn handle_test_mode_login(
             return handle_email_verification(conn, &user).await;
         }
 
-        authorization::remember(session, user)?;
+        authentication::remember(session, user)?;
     } else {
         warn!("Authentication failed");
     }
@@ -620,7 +618,7 @@ async fn handle_production_login(
 
     // Try to authenticate via TMC and store password to courses.mooc.fi if successful
     if !is_authenticated {
-        let auth_result = authorization::authenticate_tmc_mooc_fi_user(
+        let auth_result = authentication::authenticate_tmc_mooc_fi_user(
             conn,
             client,
             email.to_string(),
@@ -672,7 +670,7 @@ async fn handle_production_login(
                 return handle_email_verification(conn, &user).await;
             }
 
-            authorization::remember(session, user)?;
+            authentication::remember(session, user)?;
         }
         token.authorized_ok(web::Json(LoginResponse::Success))
     } else {
@@ -694,7 +692,7 @@ POST `/api/v0/auth/logout` Logs out.
 #[instrument(skip(session))]
 #[allow(clippy::async_yields_async)]
 pub async fn logout(session: Session) -> HttpResponse {
-    authorization::forget(&session);
+    authentication::forget(&session);
     HttpResponse::Ok().finish()
 }
 
@@ -712,7 +710,7 @@ GET `/api/v0/auth/logged-in` Returns the current user's login status.
 )]
 #[instrument(skip(session))]
 pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<bool> {
-    let logged_in = authorization::has_auth_user_session(&session, pool).await;
+    let logged_in = authentication::has_auth_user_session(&session, pool).await;
     web::Json(logged_in)
 }
 
@@ -939,7 +937,7 @@ pub async fn delete_user_account(
         .await?;
 
         tx.commit().await?;
-        authorization::forget(&session);
+        authentication::forget(&session);
         token.authorized_ok(web::Json(true))
     } else {
         return token.authorized_ok(web::Json(false));
@@ -965,13 +963,6 @@ pub async fn update_user_information_to_tmc(
             anyhow::anyhow!("TMC user update failed: {}", e)
         })?;
     Ok(())
-}
-
-pub async fn is_user_global_admin(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<bool> {
-    let roles = models::roles::get_roles(conn, user_id).await?;
-    Ok(roles
-        .iter()
-        .any(|r| r.role == models::roles::UserRole::Admin && r.is_global))
 }
 
 async fn handle_email_verification(
@@ -1153,7 +1144,7 @@ pub async fn verify_email(
             )
         })?;
 
-    authorization::remember(&session, user)?;
+    authentication::remember(&session, user)?;
 
     let skip_token = skip_authorize();
     skip_token.authorized_ok(web::Json(true))
@@ -1179,9 +1170,9 @@ pub async fn verify_email(
         CreateAccountDetails,
         SignupResponse,
         UserInfo,
-        crate::domain::authorization::ActionOnResource,
-        crate::domain::authorization::Action,
-        crate::domain::authorization::Resource,
+        headless_lms_authorization::ActionOnResource,
+        headless_lms_authorization::Action,
+        headless_lms_authorization::Resource,
         SendEmailCodeData,
         EmailCode,
         VerifyEmailRequest,

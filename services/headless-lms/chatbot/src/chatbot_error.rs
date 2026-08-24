@@ -6,13 +6,14 @@ use std::fmt::Display;
 use std::panic::Location;
 
 use backtrace::Backtrace;
+use headless_lms_authorization::error::AuthorizationError;
 use headless_lms_models::ModelError;
 use headless_lms_utils::error::util_error::UtilError;
 use tracing_error::SpanTrace;
 
 use headless_lms_base::error::backend_error::BackendError;
 
-use crate::azure_chatbot::ResponseError as AzureResponseError;
+use crate::azure_chatbot::azure::protocol::ResponseError as AzureResponseError;
 use crate::search_filter::SearchFilterError;
 
 /**
@@ -26,6 +27,9 @@ pub enum ChatbotErrorType {
     InvalidMessageShape,
     InvalidToolName,
     InvalidToolArguments,
+    /// A client answered a tool call the conversation has no room for. The only chatbot error
+    /// type the client is at fault for, so the only one that leaves the server as a 4xx.
+    InvalidToolAnswer,
     ToolUseError,
     ChatbotModelError,
     ChatbotMessageSuggestError,
@@ -37,12 +41,60 @@ pub enum ChatbotErrorType {
     Other,
     DeserializationError,
     AzureAISearchFilterError,
-    StreamingError,
+    /// Azure reported a failure on the response itself (a `response.error` or `.failed` object).
+    UpstreamReportedError,
+    /// Azure marked the response incomplete (e.g. truncated by a token or content-filter limit).
+    ResponseIncomplete,
+    /// The stream (or the request that was supposed to open one) ended before the turn reached
+    /// a point where it could be resolved one way or the other.
+    StreamEndedEarly,
+    /// A stream line didn't have the shape a given parsing state expected, though the byte-level
+    /// structure it arrived in was still well-formed.
+    UnexpectedProtocolShape,
+    /// One of our own assumptions about the protocol was violated in a way that indicates a bug
+    /// on our side rather than something Azure sent, e.g. a response id we always expect to be
+    /// set by that point in the stream.
+    StreamInvariantViolation,
     ContentCleaning,
     AzureRequestBuildError,
     FailedAzureResponse,
     SisuDescriptionError,
     ChatbotUtilError,
+}
+
+impl ChatbotErrorType {
+    /// Whether a stream-level failure of this kind should drop the connection rather than
+    /// report an Error event to the client and let the turn continue. Exhaustive so that adding
+    /// a variant forces a decision here instead of silently defaulting to "show and carry on".
+    pub fn should_terminate_stream(&self) -> bool {
+        match self {
+            ChatbotErrorType::SerdeJson
+            | ChatbotErrorType::DeserializationError
+            | ChatbotErrorType::SqlxError
+            | ChatbotErrorType::ReqwestError
+            | ChatbotErrorType::UrlParse => true,
+            ChatbotErrorType::InvalidMessageShape
+            | ChatbotErrorType::InvalidToolName
+            | ChatbotErrorType::InvalidToolArguments
+            | ChatbotErrorType::InvalidToolAnswer
+            | ChatbotErrorType::ToolUseError
+            | ChatbotErrorType::ChatbotModelError
+            | ChatbotErrorType::ChatbotMessageSuggestError
+            | ChatbotErrorType::TokioIo
+            | ChatbotErrorType::Other
+            | ChatbotErrorType::AzureAISearchFilterError
+            | ChatbotErrorType::UpstreamReportedError
+            | ChatbotErrorType::ResponseIncomplete
+            | ChatbotErrorType::StreamEndedEarly
+            | ChatbotErrorType::UnexpectedProtocolShape
+            | ChatbotErrorType::StreamInvariantViolation
+            | ChatbotErrorType::ContentCleaning
+            | ChatbotErrorType::AzureRequestBuildError
+            | ChatbotErrorType::FailedAzureResponse
+            | ChatbotErrorType::SisuDescriptionError
+            | ChatbotErrorType::ChatbotUtilError => false,
+        }
+    }
 }
 
 /**
@@ -107,7 +159,6 @@ pub struct ChatbotError {
     backtrace: Box<Backtrace>,
     /// Source location where the error was raised.
     location: Option<&'static Location<'static>>,
-    azure_source: Option<Box<AzureResponseError>>,
 }
 
 impl std::error::Error for ChatbotError {
@@ -169,20 +220,45 @@ impl BackendError for ChatbotError {
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
             location,
-            azure_source: None,
         }
     }
 }
 
 impl ChatbotError {
+    /// The Azure error this error's source chain holds, if any.
     pub fn azure_source(&self) -> Option<AzureResponseError> {
-        self.azure_source.as_deref().cloned()
+        self.source
+            .as_ref()
+            .and_then(|source| source.downcast_ref::<AzureResponseError>())
+            .cloned()
     }
 
+    /// Attaches Azure's own error object as this error's source, so it joins the ordinary cause
+    /// chain instead of a side channel invisible to the developer-facing error log. Only meant
+    /// for a freshly constructed error with no source yet; overwrites one if there already is.
     pub fn add_azure_source(&mut self, err: AzureResponseError) {
-        self.azure_source = Some(Box::new(err));
+        self.source = Some(err.into());
+    }
+
+    /// Unwraps a [ChatbotErrorType::ChatbotModelError] into the [ModelError] it wraps, so the
+    /// caller can apply its own `ModelError` mapping instead of collapsing every data-loading
+    /// failure into one status code. Any other error is handed back unchanged.
+    pub fn into_model_error(mut self) -> Result<ModelError, Self> {
+        if !matches!(self.error_type, ChatbotErrorType::ChatbotModelError) {
+            return Err(self);
+        }
+        match self.source.take().map(|source| source.downcast()) {
+            Some(Ok(model_error)) => Ok(model_error),
+            Some(Err(source)) => {
+                self.source = Some(source);
+                Err(self)
+            }
+            None => Err(self),
+        }
     }
 }
+
+impl std::error::Error for AzureResponseError {}
 
 impl From<url::ParseError> for ChatbotError {
     fn from(source: url::ParseError) -> Self {
@@ -247,6 +323,18 @@ impl From<ModelError> for ChatbotError {
             err.to_string(),
             Some(err.into()),
         )
+    }
+}
+
+impl From<AuthorizationError> for ChatbotError {
+    fn from(err: AuthorizationError) -> ChatbotError {
+        // A check that failed because the models layer did is mapped like any other ModelError,
+        // so that a missing course does not read as a permission problem.
+        let err = match err.into_model_error() {
+            Ok(model_error) => return model_error.into(),
+            Err(err) => err,
+        };
+        Self::new(ChatbotErrorType::Other, err.to_string(), Some(err.into()))
     }
 }
 

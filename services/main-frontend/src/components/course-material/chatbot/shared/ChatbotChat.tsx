@@ -10,16 +10,20 @@ import useSynchronizeDefaultChatbotCommunicationChannel from "./hooks/useSynchro
 interface ChatbotChatProps {
   chatbotConfigurationId: string
   isCourseMaterialBlock: boolean
+  /** The course material page to send as context with a message, or null where there is none. */
+  pageId: string | null
 }
 
 const ChatbotChat: React.FC<ChatbotChatProps> = ({
   chatbotConfigurationId,
   isCourseMaterialBlock,
+  pageId,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const chatbotStateAndData = useChatbotStateAndData(
     chatbotConfigurationId,
     isCourseMaterialBlock ? undefined : setIsOpen,
+    pageId,
   )
 
   useSynchronizeDefaultChatbotCommunicationChannel(
@@ -28,6 +32,7 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
     chatbotStateAndData.newMessageMutation.mutateAsync,
     chatbotStateAndData.newConversationMutation.mutateAsync,
     chatbotStateAndData.dispatch,
+    chatbotStateAndData.isTurnInFlight,
   )
 
   return (

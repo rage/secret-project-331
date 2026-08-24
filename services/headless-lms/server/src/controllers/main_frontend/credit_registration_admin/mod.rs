@@ -75,6 +75,7 @@ async fn authorize_credit_registration_admin(
         Res::GlobalPermissions,
     )
     .await
+    .map_err(Into::into)
 }
 
 /// Refuses an empty or whitespace reason. Every audited action names one.

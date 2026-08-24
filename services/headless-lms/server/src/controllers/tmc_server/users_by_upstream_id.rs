@@ -5,9 +5,8 @@ These endpoints are used by the TMC server so that it can integrate with this sy
 */
 
 use crate::{
-    domain::authorization::{
-        authorize_access_from_tmc_server_to_course_mooc_fi,
-        get_or_create_user_from_tmc_mooc_fi_response,
+    domain::authentication::{
+        authenticate_tmc_server, get_or_create_user_from_tmc_mooc_fi_response,
     },
     prelude::*,
 };
@@ -27,7 +26,7 @@ pub async fn get_user_by_upstream_id(
     tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<User>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
+    let token = authenticate_tmc_server(&request).await?;
     let tmc_user = tmc_client
         .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(&upstream_id)
         .await?;
@@ -76,7 +75,7 @@ pub async fn get_migration_status_by_upstream_id(
     pool: web::Data<PgPool>,
     request: HttpRequest,
 ) -> ControllerResult<web::Json<UserMigrationStatusResponse>> {
-    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
+    let token = authenticate_tmc_server(&request).await?;
     let mut conn = pool.acquire().await?;
 
     let response = match models::users::find_by_upstream_id(&mut conn, *upstream_id).await? {

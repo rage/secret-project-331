@@ -44,7 +44,7 @@ const ChatbotDisclaimer: React.FC<ChatbotAgreeProps> = ({ agreeButton, hideHeade
           flex-grow: 1;
           display: flex;
           flex-direction: column;
-          overflow: scroll;
+          overflow-y: auto;
         `}
       >
         {!hideHeader && <h2>{t("about-the-chatbot")}</h2>}

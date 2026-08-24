@@ -154,6 +154,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           setTriggerElementId(e.currentTarget.id)
         }}
         hoverCitationProps={hoverCitationProps}
+        isPending={isPending}
       />
     )
 
@@ -166,6 +167,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     citationButtonClicked,
     renumberFilterCitationsResult,
     triggerElementId,
+    isPending,
   ])
 
   return (

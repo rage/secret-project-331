@@ -145,7 +145,7 @@ pub mod users;
 pub mod verified_student_numbers;
 
 pub mod prelude;
-#[cfg(test)]
+#[cfg(any(test, feature = "test-helpers"))]
 pub mod test_helper;
 
 use exercises::Exercise;

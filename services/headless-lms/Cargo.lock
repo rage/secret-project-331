@@ -2715,6 +2715,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "headless-lms-authorization"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "backtrace",
+ "headless-lms-base",
+ "headless-lms-models",
+ "headless-lms-utils",
+ "serde",
+ "sqlx",
+ "tracing",
+ "tracing-error",
+ "utoipa",
+ "uuid",
+]
+
+[[package]]
 name = "headless-lms-base"
 version = "0.1.0"
 dependencies = [
@@ -2775,9 +2792,11 @@ dependencies = [
  "chrono",
  "futures",
  "futures-util",
+ "headless-lms-authorization",
  "headless-lms-base",
  "headless-lms-models",
  "headless-lms-utils",
+ "indexmap 2.14.0",
  "pin-project",
  "rand 0.10.2",
  "reqwest 0.13.4",
@@ -2887,6 +2906,7 @@ dependencies = [
  "futures-util",
  "git2",
  "governor",
+ "headless-lms-authorization",
  "headless-lms-base",
  "headless-lms-certificates",
  "headless-lms-chatbot",
@@ -2956,6 +2976,7 @@ dependencies = [
  "google-cloud-auth",
  "google-cloud-storage",
  "headless-lms-base",
+ "indexmap 2.14.0",
  "ipnet",
  "once_cell",
  "percent-encoding",

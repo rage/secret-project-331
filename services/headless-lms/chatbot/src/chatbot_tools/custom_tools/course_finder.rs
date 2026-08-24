@@ -1,11 +1,14 @@
 use std::collections::HashMap;
 
+use indexmap::IndexMap;
+
 use crate::{
+    azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, ChatbotUserContext, LLMToolParamType,
-        LLMToolParams, LLMToolType, ToolProperties,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::ChatbotResult,
+    user_context::ChatbotUserContext,
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
@@ -15,7 +18,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings,
-    json_schema_types::{ArrayItem, ArrayProperty, JSONType, JsonItem, SchemaPropertyType},
+    json_schema_types::{Schema, string_array_property},
 };
 use serde::{Deserialize, Deserializer, Serialize};
 use sqlx::PgConnection;
@@ -26,7 +29,7 @@ pub struct CourseFinderState {
     courses: Vec<CourseOccurrences>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct CourseFinderArguments {
     #[serde(deserialize_with = "empty_vec_as_none")]
     description: Option<Vec<String>>,
@@ -41,25 +44,10 @@ pub struct CourseOccurrences {
     occurrences: usize,
 }
 
-pub type CourseFinderTool = ToolProperties<CourseFinderState, CourseFinderArguments>;
+pub type CourseFinderTool = ToolProperties<CourseFinderState>;
 
 impl ChatbotTool for CourseFinderTool {
-    type State = CourseFinderState;
     type Arguments = CourseFinderArguments;
-
-    fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments> {
-        serde_json::from_str::<Self::Arguments>(&args_string).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("Couldn't parse tool arguments. Arguments: {args_string}"),
-                e
-            )
-        })
-    }
-
-    fn get_arguments(&self) -> &Self::Arguments {
-        &self.arguments
-    }
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
@@ -126,7 +114,6 @@ impl ChatbotTool for CourseFinderTool {
             state: CourseFinderState {
                 courses: course_occurrences,
             },
-            arguments,
         })
     }
 
@@ -138,50 +125,35 @@ impl ChatbotTool for CourseFinderTool {
     fn output_description_instructions(&self) -> Option<String> {
         Some("Do not return the whole JSON of the courses to the user. Present the most suitable courses based on the user query. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
     }
+}
+
+impl ChatbotToolDeclaration for CourseFinderTool {
+    const NAME: &'static str = "course_finder";
+
+    const PERMISSION: ToolPermission = ToolPermission::Anyone;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
-            name: "course_finder".to_string(),
+            name: Self::NAME.to_string(),
             description: "Find suitable courses for the user if they want to find available courses for their conditions. The arguments should be created based on the terms with which the user wants to filter the courses. The needed arguments should therefore be parsed from the user message. The arguments are arrays of keywords for the parameters the user is using to search the courses. At least one of the three arguments is required. Match on any single argument will find a course so it is safe to provide all types of arguments when suitable. This tool is useful to find any courses if the user wants recommendations for courses they can take.".to_string(),
-            parameters: LLMToolParams {
-                tool_type: LLMToolParamType::Object,
-                properties: HashMap::from([
+            parameters: Schema::strict_object(
+                IndexMap::from([
                     (
                         "description".to_string(),
-                         SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                type_field: JSONType::Array,
-                            description: Some("List of keywords used to search course descriptions based on if the user tries to find courses based on what they contain or teach.".to_string()),
-                            items: ArrayItem::JsonItem(JsonItem {
-                                    type_field: JSONType::String,
-                                    description: None,
-                                }),
-            })),
+                        string_array_property(Some("List of keywords used to search course descriptions based on if the user tries to find courses based on what they contain or teach.")),
+                    ),
                     (
                         "prerequisites".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                type_field: JSONType::Array,
-                            description: Some("List of keywords of preliminary knowledge possessed to be suitable for a course.".to_string()),
-                            items: ArrayItem::JsonItem(JsonItem {
-                                    type_field: JSONType::String,
-                                    description: None,
-                                }),})
+                        string_array_property(Some("List of keywords of preliminary knowledge possessed to be suitable for a course.")),
                     ),
                     (
                         "audiences".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                                type_field: JSONType::Array,
-                            description: Some("List of keywords of audience types that a course is suitable for.".to_string()),
-                            items: ArrayItem::JsonItem(JsonItem {
-                                    type_field: JSONType::String,
-                                    description: None,
-                                }),
-                        }),
+                        string_array_property(Some("List of keywords of audience types that a course is suitable for.")),
                     ),
                 ]),
-                required: vec!["description".to_string(), "prerequisites".to_string(), "audiences".to_string()],
-                additional_properties: false,
-            },
+                None,
+            ),
             strict: true,
         }
     }

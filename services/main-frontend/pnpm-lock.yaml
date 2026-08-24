@@ -22,6 +22,8 @@ overrides:
   yaml@>=1.0.0 <1.10.3: '>=1.10.3'
   yaml@>=2.0.0 <2.8.3: '>=2.8.3'
 
+packageExtensionsChecksum: sha256-6c+LC01KWw8Cwy6KG17dtXwyPXZ9GFFvxuNVlBmHJww=
+
 importers:
 
   .:
@@ -8040,7 +8042,9 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
 
-  '@vectopus/atlas-icons-react@https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b': {}
+  '@vectopus/atlas-icons-react@https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b':
+    dependencies:
+      '@babel/runtime': 7.29.7
 
   '@yarnpkg/lockfile@1.1.0': {}
 

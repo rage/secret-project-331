@@ -7,9 +7,10 @@ pub use crate::controllers::UploadResult;
 pub use crate::controllers::helpers::file_uploading::{
     StoreKind, upload_field_from_cms, upload_file_from_cms,
 };
+pub use crate::domain::authentication::{AuthUser, parse_secret_key_from_header};
 pub use crate::domain::authorization::{
-    Action as Act, AuthUser, Resource as Res, authorize, authorize_access_to_course_material,
-    parse_secret_key_from_header, skip_authorize,
+    Action as Act, AuthorizedOk, Resource as Res, authorize, authorize_access_to_course_material,
+    skip_authorize,
 };
 pub(crate) use crate::domain::error::controller_err;
 pub use crate::domain::{

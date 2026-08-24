@@ -4,7 +4,6 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { GradingMode } from "@/components/grading/gradingDecision"
 import { GradingDecisionDialog } from "@/components/grading/GradingDecisionDialog"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { NewTeacherGradingDecision } from "@/generated/api/types.generated"
@@ -25,19 +24,6 @@ interface ExerciseGradingCardProps {
   courseId: string | null
   onGradingSubmit?: () => void
 }
-
-// RejectAndReset requires a course_id; omit it for exam states.
-const AVAILABLE_MODES_WITH_COURSE: readonly GradingMode[] = [
-  "award-points",
-  "reject-and-reset",
-  "suspected-plagiarism",
-  "unauthorized-ai-use",
-]
-const AVAILABLE_MODES_WITHOUT_COURSE: readonly GradingMode[] = [
-  "award-points",
-  "suspected-plagiarism",
-  "unauthorized-ai-use",
-]
 
 const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
   userExerciseStateId,
@@ -90,7 +76,7 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
 
       <GradingDecisionDialog
         target={{ userExerciseStateId, exerciseId, exerciseMaxPoints }}
-        availableModes={courseId ? AVAILABLE_MODES_WITH_COURSE : AVAILABLE_MODES_WITHOUT_COURSE}
+        canResetExercise={courseId !== null}
         rejectWarning={t("warning-check-newer-submissions-before-rejecting")}
         isSubmitting={gradingMutation.isPending}
         intro={

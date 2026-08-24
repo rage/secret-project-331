@@ -189,8 +189,8 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/manage/courses/5158f2c6-98d9-4be9-b372-528f2c736dd7/exercises",
     )
     await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
-    await teacherPage.getByRole("button", { name: "Flag this answer" }).click()
-    await teacherPage.getByRole("radio", { name: "Reject and reset" }).check()
+    await teacherPage.getByRole("button", { name: "Set points to 0" }).click()
+    await teacherPage.getByRole("checkbox", { name: "Reset answer" }).check()
     await teacherPage
       .getByRole("textbox", { name: "Feedback for student (optional)" })
       .fill(teacherFeedbackText)

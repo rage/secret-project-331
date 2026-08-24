@@ -10,7 +10,6 @@ import {
   ExerciseCardPointsBadge,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
-import type { GradingMode } from "@/components/grading/gradingDecision"
 import { GradingDecisionControls } from "@/components/grading/GradingDecisionControls"
 import { UserDisplay } from "@/components/UserDisplay"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
@@ -25,19 +24,6 @@ import { dateToString } from "@/shared-module/common/utils/time"
 
 import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
 import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
-
-// RejectAndReset requires a course_id (see teacher_grading_decisions.rs); omit it for exam states.
-const AVAILABLE_MODES_WITH_COURSE: readonly GradingMode[] = [
-  "award-points",
-  "reject-and-reset",
-  "suspected-plagiarism",
-  "unauthorized-ai-use",
-]
-const AVAILABLE_MODES_WITHOUT_COURSE: readonly GradingMode[] = [
-  "award-points",
-  "suspected-plagiarism",
-  "unauthorized-ai-use",
-]
 
 interface Props {
   answerRequiringAttention: AnswerRequiringAttentionWithTasks
@@ -174,9 +160,8 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 exerciseId: answerRequiringAttention.exercise_id,
                 exerciseMaxPoints,
               }}
-              availableModes={
-                courseId ? AVAILABLE_MODES_WITH_COURSE : AVAILABLE_MODES_WITHOUT_COURSE
-              }
+              // Resetting requires a course_id (see teacher_grading_decisions.rs).
+              canResetExercise={courseId !== null}
               isSubmitting={submitMutation.isPending}
               onSubmit={handleGradingDecisionSubmit}
             />

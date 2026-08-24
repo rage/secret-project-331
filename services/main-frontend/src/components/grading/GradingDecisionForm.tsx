@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ArrowLeft, Flag } from "@vectopus/atlas-icons-react"
+import { ArrowLeft, ArrowRight } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import type { NewTeacherGradingDecision } from "@/generated/api/types.generated"
 import {
   Button,
+  Checkbox,
   Infobox,
   NumberField,
   Radio,
@@ -21,23 +22,29 @@ import {
 import {
   buildGradingDecision,
   type GradingDecisionFormValues,
-  type GradingMode,
+  type GradingReason,
   type GradingTarget,
+  isZeroPoints,
   resolveAction,
 } from "./gradingDecision"
 
 interface GradingDecisionFormProps {
   target: GradingTarget
-  /** Always includes "award-points"; call sites drop modes that don't apply in their context. */
-  availableModes: readonly GradingMode[]
-  /** Shown when the selected mode is "reject-and-reset". */
+  /** False in exam contexts: resetting an exercise requires a course (see teacher_grading_decisions.rs). */
+  canResetExercise: boolean
+  /** Shown when the teacher asks to let the student answer again. */
   rejectWarning?: React.ReactNode
   layout: "inline" | "dialog"
   isSubmitting?: boolean
   onSubmit: (decision: NewTeacherGradingDecision) => void | Promise<void>
-  /** Dialog shell passes its close handler; inline shell omits it (resets the form instead). */
-  onCancel?: () => void
 }
+
+const REASONS: readonly GradingReason[] = [
+  "bad-answer",
+  "plagiarism",
+  "unauthorized-ai-use",
+  "other",
+]
 
 const formCss = css`
   display: flex;
@@ -45,18 +52,39 @@ const formCss = css`
   gap: 1.25rem;
 `
 
-const pointsBlockCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+/* Row one is arrow / track / arrow / number field; the scale sits on row two under the track
+   alone, so the arrows and the field stay aligned with the track itself. */
+const pointsGridCss = css`
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: 0.5rem;
 `
 
 const pointsFieldCss = css`
-  width: 9rem;
+  width: 6rem;
+  margin-left: 0.75rem;
+`
+
+/* The icon variant's muted grey is too faint for a 2px-stroke glyph this small. */
+const arrowButtonCss = css`
+  --btn-icon-fg: var(--color-gray-700);
+  --btn-icon-fg-hover: var(--color-green-700);
+`
+
+const scaleCss = css`
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  /* Matches the slider track's own thumb inset so the endpoints line up with the track ends. */
+  padding: 0 0.625rem;
+  font-size: var(--font-size-1);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-gray-400);
 `
 
 const trackCss = css`
-  /* The number field above already labels this control; a second visible "Points" would
+  /* The number field beside it already labels this control; a second visible "Points" would
      just repeat it, so the slider keeps its label for assistive tech only. */
   & label {
     position: absolute;
@@ -68,26 +96,11 @@ const trackCss = css`
   }
 `
 
-const scaleCss = css`
-  display: flex;
-  justify-content: space-between;
-  /* Matches the slider track's own thumb inset so the endpoints line up with the track ends. */
-  padding: 0 0.625rem;
-  margin-top: 0.25rem;
-  font-size: var(--font-size-1);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-gray-400);
-`
-
-const flagLaneCss = css`
-  padding: 1rem;
-  border-left: 3px solid var(--color-crimson-600);
-  border-radius: 0 var(--control-radius) var(--control-radius) 0;
-  background: var(--color-crimson-50);
-`
-
-const flagOptionsCss = css`
-  gap: 0.625rem;
+const reasonGroupCss = css`
+  /* A <legend> is not laid out as a grid item, so the fieldset's own gap never reaches it. */
+  & legend {
+    margin-bottom: 1rem;
+  }
 
   /* The options are cards rather than bare rows, so they need more air than the
      group's default 4px row gap. The legend is always followed by the option list. */
@@ -96,7 +109,7 @@ const flagOptionsCss = css`
   }
 `
 
-const flagOptionCss = css`
+const reasonCss = css`
   padding: 0.75rem 0.875rem;
   border: 1px solid var(--color-clear-400);
   border-radius: var(--control-radius);
@@ -108,85 +121,99 @@ const flagOptionCss = css`
   }
 
   &:has(input:checked) {
-    border-color: var(--color-crimson-600);
+    border-color: var(--color-green-600);
   }
+`
+
+/* The standalone Checkbox puts its description under the whole row, flush left, while the radio
+   cards above indent theirs under the label. Its only div child is that message container. */
+const resetCheckboxCss = css`
+  & > div {
+    padding-left: calc(1.125rem + var(--space-3));
+  }
+`
+
+const resetBlockCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--color-crimson-200);
+  border-radius: var(--control-radius);
+  background: var(--color-crimson-50);
 `
 
 const footerCss = css`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-end;
   gap: 0.75rem;
-`
-
-const footerActionsCss = css`
-  display: flex;
-  gap: 0.75rem;
-  margin-left: auto;
 `
 
 // oxlint-disable-next-line i18next/no-literal-string
-const awardPoints = "award-points" as const
+const badAnswer = "bad-answer" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const verticalOrientation = "vertical" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const warningTone = "warning" as const
 
-function modeLabel(t: TFunction, mode: GradingMode): string {
-  switch (mode) {
-    case "award-points":
-      return t("label-decision-award-points")
-    case "reject-and-reset":
-      return t("button-text-reject-and-reset")
-    case "suspected-plagiarism":
-      return t("button-text-suspected-plagiarism")
+function reasonLabel(t: TFunction, reason: GradingReason): string {
+  switch (reason) {
+    case "bad-answer":
+      return t("label-reason-bad-answer")
+    case "plagiarism":
+      return t("label-reason-plagiarism")
     case "unauthorized-ai-use":
-      return t("button-text-suspected-unauthorized-ai-use")
+      return t("label-reason-unauthorized-ai-use")
+    case "other":
+      return t("label-reason-other")
   }
 }
 
-function modeDescription(t: TFunction, mode: GradingMode): string {
-  switch (mode) {
-    case "award-points":
-      return t("description-decision-award-points")
-    case "reject-and-reset":
-      return t("description-decision-reject-and-reset")
-    case "suspected-plagiarism":
-      return t("description-decision-suspected-plagiarism")
+function reasonDescription(t: TFunction, reason: GradingReason): string {
+  switch (reason) {
+    case "bad-answer":
+      return t("description-reason-bad-answer")
+    case "plagiarism":
+      return t("description-reason-plagiarism")
     case "unauthorized-ai-use":
-      return t("description-decision-unauthorized-ai-use")
+      return t("description-reason-unauthorized-ai-use")
+    case "other":
+      return t("description-reason-other")
   }
 }
 
 export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
   target,
-  availableModes,
+  canResetExercise,
   rejectWarning,
   layout,
   isSubmitting = false,
   onSubmit,
-  onCancel,
 }) => {
   const { t, i18n } = useTranslation()
-  const scaleFormatter = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language])
+  const pointsFormatter = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language])
 
   const { control, handleSubmit, watch, setValue, reset } = useForm<GradingDecisionFormValues>({
-    defaultValues: { mode: awardPoints, points: 0, feedback: "" },
+    defaultValues: {
+      points: target.exerciseMaxPoints,
+      reason: badAnswer,
+      resetExercise: false,
+      feedback: "",
+    },
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
   })
 
-  const mode = watch("mode")
   const points = watch("points")
-  const action = resolveAction(mode, points, target.exerciseMaxPoints)
-  const isFullPoints = action === "FullPoints"
+  const reason = watch("reason")
+  const resetExercise = watch("resetExercise")
+  // Both reveals follow the decision the form would submit, so an exercise worth zero points
+  // can't hide the feedback field while still recording a reason.
+  const action = resolveAction(points, reason, target.exerciseMaxPoints)
+  const isZero = isZeroPoints(points)
 
-  const flagModes = availableModes.filter((availableMode) => availableMode !== awardPoints)
-  const firstFlagMode = flagModes[0]
-  const isFlagging = mode !== awardPoints
-
-  const switchMode = (nextMode: GradingMode) => {
-    setValue("mode", nextMode, { shouldDirty: true, shouldValidate: true })
+  const setPoints = (value: number) => {
+    setValue("points", value, { shouldDirty: true, shouldValidate: true })
   }
 
   const onValidSubmit = (values: GradingDecisionFormValues) => {
@@ -198,110 +225,109 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
 
   return (
     <form className={formCss} onSubmit={handleSubmit(onValidSubmit)}>
-      {isFlagging ? (
-        <div className={flagLaneCss}>
+      <div className={pointsGridCss}>
+        <Button
+          type="button"
+          variant="icon"
+          size="small"
+          className={arrowButtonCss}
+          icon={<ArrowLeft size={20} weight="bold" />}
+          aria-label={t("label-set-points-to", { points: 0 })}
+          onClick={() => setPoints(0)}
+        />
+        <Slider
+          className={trackCss}
+          name="points"
+          control={control}
+          label={t("points")}
+          minValue={0}
+          maxValue={target.exerciseMaxPoints}
+          step={0.1}
+          showValueLabel={false}
+        />
+        <Button
+          type="button"
+          variant="icon"
+          size="small"
+          className={arrowButtonCss}
+          icon={<ArrowRight size={20} weight="bold" />}
+          aria-label={t("label-set-points-to", { points: target.exerciseMaxPoints })}
+          onClick={() => setPoints(target.exerciseMaxPoints)}
+        />
+        <NumberField
+          className={pointsFieldCss}
+          name="points"
+          control={control}
+          label={t("points")}
+          minValue={0}
+          maxValue={target.exerciseMaxPoints}
+          step={0.1}
+          rules={{
+            validate: (value) =>
+              value !== null &&
+              value >= 0 &&
+              value <= target.exerciseMaxPoints &&
+              Number.isInteger(value * 100)
+                ? true
+                : t("points-out-of-range", { max: target.exerciseMaxPoints }),
+          }}
+        />
+        <div className={scaleCss} aria-hidden="true">
+          <span>{pointsFormatter.format(0)}</span>
+          <span>{pointsFormatter.format(target.exerciseMaxPoints)}</span>
+        </div>
+      </div>
+
+      {isZero && (
+        <>
           <RadioGroup
-            className={flagOptionsCss}
-            name="mode"
+            className={reasonGroupCss}
+            name="reason"
             control={control}
             label={t("label-what-is-wrong-with-this-answer")}
             orientation={verticalOrientation}
           >
-            {flagModes.map((flagMode) => (
+            {REASONS.map((option) => (
               <Radio
-                key={flagMode}
-                className={flagOptionCss}
-                value={flagMode}
-                label={modeLabel(t, flagMode)}
-                description={modeDescription(t, flagMode)}
+                key={option}
+                className={reasonCss}
+                value={option}
+                label={reasonLabel(t, option)}
+                description={reasonDescription(t, option)}
               />
             ))}
           </RadioGroup>
-          {mode === "reject-and-reset" && rejectWarning ? (
-            <Infobox tone={warningTone}>{rejectWarning}</Infobox>
-          ) : null}
-        </div>
-      ) : (
-        <div className={pointsBlockCss}>
-          <NumberField
-            className={pointsFieldCss}
-            name="points"
-            control={control}
-            label={t("points")}
-            minValue={0}
-            maxValue={target.exerciseMaxPoints}
-            step={0.1}
-            rules={{
-              validate: (value) =>
-                value !== null &&
-                value >= 0 &&
-                value <= target.exerciseMaxPoints &&
-                // Limit to 2 decimal places
-                Number.isInteger(value * 100)
-                  ? true
-                  : t("points-out-of-range", { max: target.exerciseMaxPoints }),
-            }}
-          />
-          <div>
-            <Slider
-              className={trackCss}
-              name="points"
-              control={control}
-              label={t("points")}
-              minValue={0}
-              maxValue={target.exerciseMaxPoints}
-              step={0.1}
-              showValueLabel={false}
-            />
-            <div className={scaleCss} aria-hidden="true">
-              <span>{scaleFormatter.format(0)}</span>
-              <span>{scaleFormatter.format(target.exerciseMaxPoints)}</span>
+
+          {canResetExercise && (
+            <div className={resetBlockCss}>
+              <Checkbox
+                className={resetCheckboxCss}
+                name="resetExercise"
+                control={control}
+                label={t("label-reset-answer")}
+                description={t("description-reset-answer")}
+              />
+              {resetExercise && rejectWarning ? (
+                <Infobox tone={warningTone}>{rejectWarning}</Infobox>
+              ) : null}
             </div>
-          </div>
-        </div>
+          )}
+        </>
       )}
 
-      <TextArea
-        name="feedback"
-        control={control}
-        label={t("label-feedback-for-student-optional")}
-        placeholder={t("placeholder-teacher-feedback-for-student")}
-        isDisabled={isFullPoints}
-        description={isFullPoints ? t("notification-full-points-feedback-not-shown") : undefined}
-      />
+      {action !== "FullPoints" && (
+        <TextArea
+          name="feedback"
+          control={control}
+          label={t("label-feedback-for-student-optional")}
+          placeholder={t("placeholder-teacher-feedback-for-student")}
+        />
+      )}
 
       <div className={footerCss}>
-        {isFlagging ? (
-          <Button
-            type="button"
-            variant="tertiary"
-            size="small"
-            icon={<ArrowLeft size={14} />}
-            onClick={() => switchMode(awardPoints)}
-          >
-            {t("button-text-back-to-awarding-points")}
-          </Button>
-        ) : firstFlagMode !== undefined ? (
-          <Button
-            type="button"
-            variant="tertiary"
-            size="small"
-            icon={<Flag size={14} />}
-            onClick={() => switchMode(firstFlagMode)}
-          >
-            {t("button-text-flag-this-answer")}
-          </Button>
-        ) : null}
-        <div className={footerActionsCss}>
-          {layout === "dialog" && (
-            <Button type="button" variant="secondary" size="medium" onClick={() => onCancel?.()}>
-              {t("button-text-cancel")}
-            </Button>
-          )}
-          <Button type="submit" variant="primary" size="medium" disabled={isSubmitting}>
-            {t("button-text-save-grading-decision")}
-          </Button>
-        </div>
+        <Button type="submit" variant="primary" size="medium" disabled={isSubmitting}>
+          {t("button-text-save-grading-decision")}
+        </Button>
       </div>
     </form>
   )

@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { GradingMode } from "@/components/grading/gradingDecision"
 import { GradingDecisionDialog } from "@/components/grading/GradingDecisionDialog"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type {
@@ -25,14 +24,6 @@ interface ExerciseAccordionProps {
   exerciseStatus: ExerciseStatusSummaryForUser
   onPointsUpdate: () => void
 }
-
-// No "current submission" concept on this page; reject-and-reset is exclusive to the
-// manual-review and single-submission views (see teacher_grading_decisions.rs).
-const AVAILABLE_MODES: readonly GradingMode[] = [
-  "award-points",
-  "suspected-plagiarism",
-  "unauthorized-ai-use",
-]
 
 const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
   exerciseStatus,
@@ -582,7 +573,9 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                   exerciseId: exerciseStatus.exercise.id,
                   exerciseMaxPoints: exerciseStatus.exercise.score_maximum || 0,
                 }}
-                availableModes={AVAILABLE_MODES}
+                // This page has no "current submission" concept, so resetting the whole
+                // exercise from here would be too blunt an action to offer.
+                canResetExercise={false}
                 isSubmitting={submitMutation.isPending}
                 onSubmit={handleGradingDecision}
               />

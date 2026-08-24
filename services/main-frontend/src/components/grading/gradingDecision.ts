@@ -3,15 +3,14 @@ import type {
   TeacherDecisionType,
 } from "@/generated/api/types.generated"
 
-export type GradingMode =
-  | "award-points"
-  | "reject-and-reset"
-  | "suspected-plagiarism"
-  | "unauthorized-ai-use"
+/** Why an answer was given zero points. Only asked for once the points reach zero. */
+export type GradingReason = "bad-answer" | "plagiarism" | "unauthorized-ai-use" | "other"
 
 export interface GradingDecisionFormValues {
-  mode: GradingMode
   points: number | null
+  reason: GradingReason
+  /** Lets the student answer the exercise again. Independent of the reason. */
+  resetExercise: boolean
   feedback: string
 }
 
@@ -23,29 +22,32 @@ export interface GradingTarget {
 
 const FULL_POINTS_TOLERANCE = 1e-9
 
-/** Maps a mode + points value to the backend decision type. Reject/plagiarism/AI-use always zero the points server-side. */
+export function isZeroPoints(points: number | null): boolean {
+  return (points ?? 0) <= FULL_POINTS_TOLERANCE
+}
+
+export function isFullPoints(points: number | null, exerciseMaxPoints: number): boolean {
+  return Math.abs((points ?? 0) - exerciseMaxPoints) < FULL_POINTS_TOLERANCE
+}
+
+/** Maps the form state to the backend decision type. The reason only applies at zero points. */
 export function resolveAction(
-  mode: GradingMode,
   points: number | null,
+  reason: GradingReason,
   exerciseMaxPoints: number,
 ): TeacherDecisionType {
-  switch (mode) {
-    case "reject-and-reset":
-      return "RejectAndReset"
-    case "suspected-plagiarism":
+  if (!isZeroPoints(points)) {
+    return isFullPoints(points, exerciseMaxPoints) ? "FullPoints" : "CustomPoints"
+  }
+  switch (reason) {
+    case "bad-answer":
+      return "BadAnswer"
+    case "plagiarism":
       return "SuspectedPlagiarism"
     case "unauthorized-ai-use":
       return "UnauthorizedAiUse"
-    case "award-points": {
-      const value = points ?? 0
-      if (value <= FULL_POINTS_TOLERANCE) {
-        return "ZeroPoints"
-      }
-      if (Math.abs(value - exerciseMaxPoints) < FULL_POINTS_TOLERANCE) {
-        return "FullPoints"
-      }
-      return "CustomPoints"
-    }
+    case "other":
+      return "Other"
   }
 }
 
@@ -53,14 +55,15 @@ export function buildGradingDecision(
   values: GradingDecisionFormValues,
   target: GradingTarget,
 ): NewTeacherGradingDecision {
-  const action = resolveAction(values.mode, values.points, target.exerciseMaxPoints)
+  const action = resolveAction(values.points, values.reason, target.exerciseMaxPoints)
   const trimmedFeedback = values.feedback.trim()
   return {
     user_exercise_state_id: target.userExerciseStateId,
     exercise_id: target.exerciseId,
     action,
-    manual_points: values.mode === "award-points" ? (values.points ?? 0) : null,
+    manual_points: action === "CustomPoints" ? (values.points ?? 0) : null,
     justification: action === "FullPoints" || trimmedFeedback === "" ? null : trimmedFeedback,
     hidden: false,
+    reset_exercise: isZeroPoints(values.points) && values.resetExercise,
   }
 }

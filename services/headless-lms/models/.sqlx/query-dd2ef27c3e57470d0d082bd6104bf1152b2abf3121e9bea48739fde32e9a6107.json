@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  e.sent_at,\n  e.email_delivery_id,\n  ed.sent AS delivery_sent,\n  ed.retryable,\n  ed.first_failed_at,\n  ed.retry_count\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
+  "query": "\nSELECT\n  e.sent_at AS \"sent_at!\",\n  e.email_delivery_id,\n  ed.sent AS delivery_sent,\n  ed.retryable,\n  ed.first_failed_at,\n  ed.retry_count\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "sent_at",
+        "name": "sent_at!",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
@@ -76,13 +76,13 @@
       ]
     },
     "nullable": [
+      true,
+      true,
+      false,
       false,
       true,
-      true,
-      true,
-      true,
-      true
+      false
     ]
   },
-  "hash": "2db6309936cbb729effe976a625ca4c4f0c0f0cfde745b3d5fb68dc15580549a"
+  "hash": "dd2ef27c3e57470d0d082bd6104bf1152b2abf3121e9bea48739fde32e9a6107"
 }

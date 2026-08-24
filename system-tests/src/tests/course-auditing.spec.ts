@@ -248,6 +248,8 @@ test("Inserting incorrect or wrong UUID displays proper errors", async ({ page }
 
   await expect(page.getByRole("heading", { name: "Unsaved changes" })).toBeVisible()
   await page.getByTestId("confirm-dialog-yes-button").click()
+
+  await expect(page.getByRole("textbox", { name: " Closed course successor" })).toBeHidden()
 })
 
 test("Generating new course metadata successfully after setting default UH course code", async ({

@@ -20,7 +20,7 @@ import CourseCard from "./CourseCard/CourseCard"
 
 export interface CourseFilter {
   search_course: string
-  empty_uh_course_code: boolean
+  no_default_uh_course_code: boolean
   not_closed: boolean
   short_description: boolean
   no_prerequisites: boolean
@@ -59,7 +59,7 @@ const CourseAuditing = () => {
   const { control, watch, reset } = useForm<CourseFilter>({
     defaultValues: {
       search_course: "",
-      empty_uh_course_code: false,
+      no_default_uh_course_code: false,
       not_closed: true,
       short_description: false,
       no_prerequisites: false,
@@ -69,14 +69,14 @@ const CourseAuditing = () => {
 
   const [
     searchCourse,
-    emptyUhCourseCode,
+    noDefaultUhCourseCode,
     notClosed,
     shortDescription,
     noPrerequisites,
     noAudiences,
   ] = watch([
     "search_course",
-    "empty_uh_course_code",
+    "no_default_uh_course_code",
     "not_closed",
     "short_description",
     "no_prerequisites",
@@ -94,7 +94,7 @@ const CourseAuditing = () => {
             return false
           }
           if (
-            emptyUhCourseCode &&
+            noDefaultUhCourseCode &&
             course.modules.find((m) => m.order_number === 0)?.uh_course_code !== null
           ) {
             return false
@@ -125,9 +125,9 @@ const CourseAuditing = () => {
         .toSorted((a, b) => a.name.localeCompare(b.name)),
     [
       courseData,
-      emptyUhCourseCode,
       notClosed,
       shortDescription,
+      noDefaultUhCourseCode,
       noPrerequisites,
       noAudiences,
       searchCourse,
@@ -180,9 +180,9 @@ const CourseAuditing = () => {
           `}
         >
           <Switch
-            name="empty_uh_course_code"
+            name="no_default_uh_course_code"
             control={control}
-            label={t("course-auditing-filter-empty-uh-course-code")}
+            label={t("course-auditing-filter-uh-course-code-not-set")}
           />
           <Switch
             name="not_closed"
@@ -194,8 +194,16 @@ const CourseAuditing = () => {
             control={control}
             label={t("course-auditing-filter-short-description")}
           />
-          <Switch name="no_prerequisites" control={control} label={t("prerequisites-not-set")} />
-          <Switch name="no_audiences" control={control} label={t("audiences-not-set")} />
+          <Switch
+            name="no_prerequisites"
+            control={control}
+            label={t("course-auditing-filter-prerequisites-not-set")}
+          />
+          <Switch
+            name="no_audiences"
+            control={control}
+            label={t("course-auditing-filter-audiences-not-set")}
+          />
         </div>
       </FieldSet>
       <QueryResult query={getCoursesForAuditing} treatEmptyAsData>

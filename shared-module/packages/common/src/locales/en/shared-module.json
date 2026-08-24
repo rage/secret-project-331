@@ -88,7 +88,7 @@
       "title": "Forbidden"
     },
     "foreign_key_violation": {
-      "message": "Reference does not exist",
+      "message": "Reference does not exist.",
       "title": "Foreign key violation"
     },
     "generic_sisu_error": {

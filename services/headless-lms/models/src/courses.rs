@@ -1465,7 +1465,7 @@ pub async fn set_metadata(
 
     let mut tx = conn.begin().await?;
 
-    let prerequisites = if let Some(embeddings) = prerequisite_embeddings {
+    if let Some(embeddings) = prerequisite_embeddings {
         upsert_course_prerequisites(
             &mut tx,
             course_id,
@@ -1478,7 +1478,7 @@ pub async fn set_metadata(
         vec![]
     };
 
-    let audiences = if let Some(embeddings) = audience_embeddings {
+    if let Some(embeddings) = audience_embeddings {
         upsert_course_audiences(
             &mut tx,
             course_id,
@@ -1517,13 +1517,17 @@ pub async fn set_metadata(
     };
     let updated_course = update_course(&mut tx, app_config, course_id, update_payload).await?;
 
+    tx.commit().await?;
+
+    let prerequisites = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let audiences = crate::course_audiences::get_by_course_id(conn, course_id).await?;
+
     let res = CourseMetadata {
         course_description: updated_course.description,
         course_audiences: audiences,
         course_prerequisites: prerequisites,
         course_updated_at: updated_course.updated_at,
     };
-    tx.commit().await?;
     Ok(res)
 }
 

@@ -1045,6 +1045,8 @@ export type TeacherDecisionType =
   | "SuspectedPlagiarism"
   | "RejectAndReset"
   | "UnauthorizedAiUse"
+  | "BadAnswer"
+  | "Other"
 
 export type Term = {
   course_id: string

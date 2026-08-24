@@ -23675,7 +23675,7 @@
       },
       "NewTeacherGradingDecision": {
         "type": "object",
-        "required": ["user_exercise_state_id", "exercise_id", "action", "hidden"],
+        "required": ["user_exercise_state_id", "exercise_id", "action", "hidden", "reset_exercise"],
         "properties": {
           "action": {
             "$ref": "#/components/schemas/TeacherDecisionType"
@@ -23693,6 +23693,10 @@
           "manual_points": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "reset_exercise": {
+            "type": "boolean",
+            "description": "Resets the student's progress on the exercise so they can answer it again. Independent of\n`action`, so a decision can record why the answer was rejected and still reopen it.\nRequires the exercise to belong to a course."
           },
           "user_exercise_state_id": {
             "type": "string",
@@ -26120,7 +26124,9 @@
           "CustomPoints",
           "SuspectedPlagiarism",
           "RejectAndReset",
-          "UnauthorizedAiUse"
+          "UnauthorizedAiUse",
+          "BadAnswer",
+          "Other"
         ]
       },
       "TeacherGradingDecision": {

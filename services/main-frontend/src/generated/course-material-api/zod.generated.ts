@@ -963,6 +963,8 @@ export const zTeacherDecisionType = z.enum([
   "SuspectedPlagiarism",
   "RejectAndReset",
   "UnauthorizedAiUse",
+  "BadAnswer",
+  "Other",
 ])
 
 export const zExamEnrollmentData = z.union([

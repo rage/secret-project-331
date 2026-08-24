@@ -27,6 +27,8 @@ pub enum TeacherDecisionType {
     SuspectedPlagiarism,
     RejectAndReset,
     UnauthorizedAiUse,
+    BadAnswer,
+    Other,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -38,6 +40,10 @@ pub struct NewTeacherGradingDecision {
     pub manual_points: Option<f32>,
     pub justification: Option<String>,
     pub hidden: bool,
+    /// Resets the student's progress on the exercise so they can answer it again. Independent of
+    /// `action`, so a decision can record why the answer was rejected and still reopen it.
+    /// Requires the exercise to belong to a course.
+    pub reset_exercise: bool,
 }
 
 pub async fn add_teacher_grading_decision(

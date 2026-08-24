@@ -60,66 +60,27 @@ async fn create_teacher_grading_decision(
         Res::Exercise(student_state.exercise_id),
     )
     .await?;
-    let points_given;
-    if *action == TeacherDecisionType::FullPoints {
-        points_given = exercise.score_maximum as f32;
-    } else if *action == TeacherDecisionType::ZeroPoints {
-        points_given = 0.0;
-    } else if *action == TeacherDecisionType::CustomPoints {
-        points_given = manual_points.unwrap_or(0.0);
-        if points_given < 0.0 || points_given > exercise.score_maximum as f32 {
-            return Err(controller_err!(
-                BadRequest,
-                "manual_points must be between 0 and the exercise's maximum points".to_string()
-            ));
+    // A match rather than an if/else chain: a new decision type must be given points here
+    // deliberately instead of silently falling through to "Invalid query".
+    let points_given = match *action {
+        TeacherDecisionType::FullPoints => exercise.score_maximum as f32,
+        TeacherDecisionType::ZeroPoints
+        | TeacherDecisionType::SuspectedPlagiarism
+        | TeacherDecisionType::UnauthorizedAiUse
+        | TeacherDecisionType::RejectAndReset
+        | TeacherDecisionType::BadAnswer
+        | TeacherDecisionType::Other => 0.0,
+        TeacherDecisionType::CustomPoints => {
+            let points = manual_points.unwrap_or(0.0);
+            if points < 0.0 || points > exercise.score_maximum as f32 {
+                return Err(controller_err!(
+                    BadRequest,
+                    "manual_points must be between 0 and the exercise's maximum points".to_string()
+                ));
+            }
+            points
         }
-    } else if *action == TeacherDecisionType::SuspectedPlagiarism
-        || *action == TeacherDecisionType::UnauthorizedAiUse
-    {
-        points_given = 0.0;
-    } else if *action == TeacherDecisionType::RejectAndReset {
-        points_given = 0.0;
-
-        models::teacher_grading_decisions::upsert_by_state_id_and_exercise_id(
-            &mut conn,
-            user_exercise_state_id,
-            student_state.exercise_id,
-            *action,
-            points_given,
-            Some(user.id),
-            justification.clone(),
-            hidden,
-        )
-        .await?;
-
-        let course_id = student_state.course_id.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "RejectAndReset requires course_id".to_string(),
-                None,
-            )
-        })?;
-
-        let _reset = models::exercises::reset_progress_by_course_id_user_ids_and_exercise_ids(
-            &mut conn,
-            course_id,
-            &[student_state.user_id],
-            &[student_state.exercise_id],
-            Some(user.id),
-            Some("reset-by-staff".to_string()),
-        )
-        .await?;
-
-        info!("Teacher took the following action: RejectAndReset.",);
-
-        return token.authorized_ok(web::Json(None));
-    } else {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Invalid query".to_string(),
-            None,
-        ));
-    }
+    };
 
     info!(
         "Teacher took the following action: {:?}. Points given: {:?}.",
@@ -137,6 +98,29 @@ async fn create_teacher_grading_decision(
         hidden,
     )
     .await?;
+
+    // RejectAndReset is the older single-action spelling of the same request.
+    if payload.reset_exercise || *action == TeacherDecisionType::RejectAndReset {
+        let course_id = student_state.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Resetting the exercise requires it to belong to a course".to_string(),
+                None,
+            )
+        })?;
+
+        let _reset = models::exercises::reset_progress_by_course_id_user_ids_and_exercise_ids(
+            &mut conn,
+            course_id,
+            &[student_state.user_id],
+            &[student_state.exercise_id],
+            Some(user.id),
+            Some("reset-by-staff".to_string()),
+        )
+        .await?;
+
+        return token.authorized_ok(web::Json(None));
+    }
 
     let new_user_exercise_state = models::user_exercise_states::recalculate_by_id_and_exercise_id(
         &mut conn,

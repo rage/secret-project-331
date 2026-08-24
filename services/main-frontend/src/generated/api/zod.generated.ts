@@ -5348,6 +5348,8 @@ export const zTeacherDecisionType = z.enum([
   "SuspectedPlagiarism",
   "RejectAndReset",
   "UnauthorizedAiUse",
+  "BadAnswer",
+  "Other",
 ])
 
 export const zNewTeacherGradingDecision = z.object({
@@ -5356,6 +5358,7 @@ export const zNewTeacherGradingDecision = z.object({
   hidden: z.boolean(),
   justification: z.string().nullish(),
   manual_points: z.number().nullish(),
+  reset_exercise: z.boolean(),
   user_exercise_state_id: z.uuid(),
 })
 

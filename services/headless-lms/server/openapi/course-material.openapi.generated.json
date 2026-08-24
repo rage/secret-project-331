@@ -6316,7 +6316,9 @@
           "CustomPoints",
           "SuspectedPlagiarism",
           "RejectAndReset",
-          "UnauthorizedAiUse"
+          "UnauthorizedAiUse",
+          "BadAnswer",
+          "Other"
         ]
       },
       "Term": {

@@ -3611,6 +3611,12 @@ export type NewTeacherGradingDecision = {
   hidden: boolean
   justification?: string | null
   manual_points?: number | null
+  /**
+   * Resets the student's progress on the exercise so they can answer it again. Independent of
+   * `action`, so a decision can record why the answer was rejected and still reopen it.
+   * Requires the exercise to belong to a course.
+   */
+  reset_exercise: boolean
   user_exercise_state_id: string
 }
 
@@ -4493,6 +4499,8 @@ export type TeacherDecisionType =
   | "SuspectedPlagiarism"
   | "RejectAndReset"
   | "UnauthorizedAiUse"
+  | "BadAnswer"
+  | "Other"
 
 export type TeacherGradingDecision = {
   created_at: string

@@ -254,8 +254,8 @@ const composerButtonStyle = css`
   color: ${baseTheme.colors.primary[100]};
   cursor: pointer;
   transition:
-    background-color 0.15s,
-    color 0.15s;
+    background-color 0.2s,
+    color 0.2s;
 
   svg {
     width: 18px;
@@ -278,7 +278,7 @@ const sendButtonStyle = css`
   /* The glyph points right; the rotation aims it up-right, so it applies to the send state only. */
   svg {
     position: relative;
-    left: -1px;
+    left: -2px;
     transform: rotate(45deg);
   }
 

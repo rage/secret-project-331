@@ -5,9 +5,13 @@ import Link from "next/link"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CustomPointsPopup from "@/app/(layout)/manage/exercises/[id]/submissions/CustomPointsPopup"
+import type { GradingMode } from "@/components/grading/gradingDecision"
+import { GradingDecisionDialog } from "@/components/grading/GradingDecisionDialog"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
-import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
+import type {
+  ExerciseStatusSummaryForUser,
+  NewTeacherGradingDecision,
+} from "@/generated/api/types.generated"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -21,6 +25,14 @@ interface ExerciseAccordionProps {
   exerciseStatus: ExerciseStatusSummaryForUser
   onPointsUpdate: () => void
 }
+
+// No "current submission" concept on this page; reject-and-reset is exclusive to the
+// manual-review and single-submission views (see teacher_grading_decisions.rs).
+const AVAILABLE_MODES: readonly GradingMode[] = [
+  "award-points",
+  "suspected-plagiarism",
+  "unauthorized-ai-use",
+]
 
 const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
   exerciseStatus,
@@ -43,24 +55,14 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
     },
   )
 
-  const handleCustomPoints = useCallback(
-    (points: number) => {
+  const handleGradingDecision = useCallback(
+    (decision: NewTeacherGradingDecision) => {
       if (!userExerciseState) {
         throw new Error("User exercise state not found")
       }
-      submitMutation.mutate({
-        body: {
-          user_exercise_state_id: userExerciseState.id,
-          exercise_id: exerciseStatus.exercise.id,
-          // oxlint-disable-next-line i18next/no-literal-string
-          action: "CustomPoints",
-          manual_points: points,
-          justification: null,
-          hidden: false,
-        },
-      })
+      submitMutation.mutate({ body: decision })
     },
-    [exerciseStatus.exercise.id, submitMutation, userExerciseState],
+    [submitMutation, userExerciseState],
   )
 
   return (
@@ -574,10 +576,14 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
               `}
             >
               <DebugModal data={exerciseStatus} />
-              <CustomPointsPopup
-                exerciseMaxPoints={exerciseStatus.exercise.score_maximum || 0}
-                onSubmit={handleCustomPoints}
-                longButtonName
+              <GradingDecisionDialog
+                target={{
+                  userExerciseStateId: userExerciseState.id,
+                  exerciseId: exerciseStatus.exercise.id,
+                  exerciseMaxPoints: exerciseStatus.exercise.score_maximum || 0,
+                }}
+                availableModes={AVAILABLE_MODES}
+                onSubmit={handleGradingDecision}
               />
             </div>
           </div>

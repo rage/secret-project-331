@@ -10,6 +10,8 @@ import {
   ExerciseCardPointsBadge,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
+import type { GradingMode } from "@/components/grading/gradingDecision"
+import { GradingDecisionControls } from "@/components/grading/GradingDecisionControls"
 import { UserDisplay } from "@/components/UserDisplay"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type {
@@ -23,7 +25,19 @@ import { dateToString } from "@/shared-module/common/utils/time"
 
 import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
 import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
-import TeacherGradingDecisionControls from "./TeacherGradingDecisionControls"
+
+// RejectAndReset requires a course_id (see teacher_grading_decisions.rs); omit it for exam states.
+const AVAILABLE_MODES_WITH_COURSE: readonly GradingMode[] = [
+  "award-points",
+  "reject-and-reset",
+  "suspected-plagiarism",
+  "unauthorized-ai-use",
+]
+const AVAILABLE_MODES_WITHOUT_COURSE: readonly GradingMode[] = [
+  "award-points",
+  "suspected-plagiarism",
+  "unauthorized-ai-use",
+]
 
 interface Props {
   answerRequiringAttention: AnswerRequiringAttentionWithTasks
@@ -154,11 +168,16 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 rgba(15, 23, 42, 0.04) 0 0 0 1px;
             `}
           >
-            <TeacherGradingDecisionControls
-              userExerciseStateId={answerRequiringAttention.id}
-              exerciseId={answerRequiringAttention.exercise_id}
-              exerciseMaxPoints={exerciseMaxPoints}
-              onGradingDecisionSubmit={handleGradingDecisionSubmit}
+            <GradingDecisionControls
+              target={{
+                userExerciseStateId: answerRequiringAttention.id,
+                exerciseId: answerRequiringAttention.exercise_id,
+                exerciseMaxPoints,
+              }}
+              availableModes={
+                courseId ? AVAILABLE_MODES_WITH_COURSE : AVAILABLE_MODES_WITHOUT_COURSE
+              }
+              onSubmit={handleGradingDecisionSubmit}
             />
 
             <div

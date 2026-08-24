@@ -4,31 +4,52 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CustomPointsPopup from "@/app/(layout)/manage/exercises/[id]/submissions/CustomPointsPopup"
+import type { GradingMode } from "@/components/grading/gradingDecision"
+import { GradingDecisionDialog } from "@/components/grading/GradingDecisionDialog"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type { NewTeacherGradingDecision } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
+import { Infobox } from "@/shared-module/components"
+
+// oxlint-disable-next-line i18next/no-literal-string
+const warningTone = "warning" as const
 
 interface ExerciseGradingCardProps {
   userExerciseStateId: string
   exerciseId: string
   exerciseMaxPoints: number
   isLatestSubmission: boolean
+  /** RejectAndReset requires a course_id (see teacher_grading_decisions.rs); omit it for exam states. */
+  courseId: string | null
   onGradingSubmit?: () => void
 }
+
+// RejectAndReset requires a course_id; omit it for exam states.
+const AVAILABLE_MODES_WITH_COURSE: readonly GradingMode[] = [
+  "award-points",
+  "reject-and-reset",
+  "suspected-plagiarism",
+  "unauthorized-ai-use",
+]
+const AVAILABLE_MODES_WITHOUT_COURSE: readonly GradingMode[] = [
+  "award-points",
+  "suspected-plagiarism",
+  "unauthorized-ai-use",
+]
 
 const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
   userExerciseStateId,
   exerciseId,
   exerciseMaxPoints,
   isLatestSubmission,
+  courseId,
   onGradingSubmit,
 }) => {
   const { t } = useTranslation()
 
-  // Custom points mutation
-  const customPointsMutation = useToastMutationOptions(
+  const gradingMutation = useToastMutationOptions(
     createTeacherGradingDecisionMutation(),
     {
       notify: true,
@@ -40,6 +61,10 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
       },
     },
   )
+
+  const handleGradingDecision = (decision: NewTeacherGradingDecision) => {
+    gradingMutation.mutate({ body: decision })
+  }
 
   return (
     <div
@@ -63,77 +88,23 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
         {t("exercise-grading")}
       </h3>
 
-      <p
-        className={css`
-          margin: 0 0 1rem 0;
-          color: ${baseTheme.colors.gray[600]};
-          font-size: 0.875rem;
-          line-height: 1.5;
-        `}
-      >
-        {t(
-          "custom-points-description",
-          "Give custom points for the entire exercise. This will override all previous grading for this exercise.",
-        )}
-      </p>
-
-      {/* Warning for non-current submission */}
-      {!isLatestSubmission && (
-        <div
-          className={css`
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background-color: ${baseTheme.colors.yellow[100]};
-            border: 1px solid ${baseTheme.colors.yellow[200]};
-            border-radius: 0.25rem;
-          `}
-        >
-          <div
-            className={css`
-              display: flex;
-              align-items: center;
-              gap: 0.5rem;
-            `}
-          >
-            <span
+      <GradingDecisionDialog
+        target={{ userExerciseStateId, exerciseId, exerciseMaxPoints }}
+        availableModes={courseId ? AVAILABLE_MODES_WITH_COURSE : AVAILABLE_MODES_WITHOUT_COURSE}
+        rejectWarning={t("warning-check-newer-submissions-before-rejecting")}
+        intro={
+          !isLatestSubmission && (
+            <Infobox
+              tone={warningTone}
               className={css`
-                font-weight: 600;
-                color: ${baseTheme.colors.gray[700]};
+                margin-bottom: 1rem;
               `}
             >
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              {"⚠️"}
-            </span>
-            <span
-              className={css`
-                color: ${baseTheme.colors.gray[700]};
-              `}
-            >
-              {t(
-                "warning-custom-points-non-current-submission",
-                "Warning: This is not the latest submission. Custom points will be applied to the entire exercise, not just this submission.",
-              )}
-            </span>
-          </div>
-        </div>
-      )}
-
-      <CustomPointsPopup
-        exerciseMaxPoints={exerciseMaxPoints}
-        onSubmit={(points) =>
-          customPointsMutation.mutate({
-            body: {
-              user_exercise_state_id: userExerciseStateId,
-              exercise_id: exerciseId,
-              // oxlint-disable-next-line i18next/no-literal-string
-              action: "CustomPoints",
-              manual_points: points,
-              justification: null,
-              hidden: false,
-            },
-          })
+              {t("warning-custom-points-non-current-submission")}
+            </Infobox>
+          )
         }
-        longButtonName
+        onSubmit={handleGradingDecision}
       />
     </div>
   )

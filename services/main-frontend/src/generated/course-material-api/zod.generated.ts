@@ -76,11 +76,6 @@ export const zChatbotConversation = z.object({
   user_id: z.uuid().nullish(),
 })
 
-export const zChatbotConversationFirstMessage = z.object({
-  conversation_id: z.uuid(),
-  text: z.string(),
-})
-
 export const zChatbotConversationMessageCitation = z.object({
   citation_number: z
     .int()
@@ -1428,11 +1423,6 @@ export const zGetCourseMaterialChapterPagesExcludingFrontPageResponse = z.array(
  * All chatbot conversations for user
  */
 export const zAllUserConversationsResponse = z.array(zChatbotConversation)
-
-/**
- * All first messages
- */
-export const zAllFirstMessagesResponse = z.array(zChatbotConversationFirstMessage)
 
 export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
   course_id: z.uuid(),

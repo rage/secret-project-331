@@ -11,7 +11,7 @@ use headless_lms_models::chatbot_conversation_message_messages::{
 };
 use headless_lms_models::chatbot_conversation_messages::Message;
 use headless_lms_models::chatbot_conversations::{
-    self, ChatbotConversation, ChatbotConversationFirstMessage, ChatbotConversationInfo,
+    self, ChatbotConversation, ChatbotConversationInfo,
 };
 use headless_lms_models::{chatbot_configurations, courses};
 use rand::seq::IndexedRandom;
@@ -32,7 +32,6 @@ use rand::distr::{Alphanumeric, SampleString};
     conversation_info,
     current_conversation_id,
     all_user_conversations,
-    all_first_messages
 ))]
 pub(crate) struct CourseMaterialChatbotApiDoc;
 
@@ -387,32 +386,6 @@ async fn all_user_conversations(
 }
 
 /**
-GET `/api/v0/course-material/chatbot/conversations/messages/first`
-
-Returns all first messages the user has sent.
-*/
-#[utoipa::path(
-    get,
-    path = "/conversations/messages/first",
-    operation_id = "allFirstMessages",
-    tag = "course-material-chatbot",
-    responses(
-        (status = 200, description = "All first messages", body = Vec<ChatbotConversationFirstMessage>)
-    )
-)]
-#[instrument(skip(pool))]
-async fn all_first_messages(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<Vec<ChatbotConversationFirstMessage>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
-
-    let res = chatbot_conversations::get_first_user_message_and_conversation_id(&mut conn).await?;
-    token.authorized_ok(web::Json(res))
-}
-
-/**
 GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
 
 Returns specific chatbot conversation for the user.
@@ -634,9 +607,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/{chatbot_configuration_id}/conversations/current/id",
         web::get().to(current_conversation_id),
     )
-    .route("/conversations/all", web::get().to(all_user_conversations))
-    .route(
-        "/conversations/messages/first",
-        web::get().to(all_first_messages),
-    );
+    .route("/conversations/all", web::get().to(all_user_conversations));
 }

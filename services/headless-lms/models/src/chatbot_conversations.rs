@@ -215,30 +215,6 @@ ORDER BY chatbot_conversations.created_at DESC;
     Ok(res)
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct ChatbotConversationFirstMessage {
-    pub conversation_id: Uuid,
-    pub text: String,
-}
-
-pub async fn get_first_user_message_and_conversation_id(
-    conn: &mut PgConnection,
-) -> ModelResult<Vec<ChatbotConversationFirstMessage>> {
-    let res = sqlx::query_as!(
-        ChatbotConversationFirstMessage,
-        r#"
-SELECT chatbot_conversation_messages.conversation_id,
-  chatbot_conversation_message_messages.text
-FROM chatbot_conversation_messages
-  JOIN chatbot_conversation_message_messages ON chatbot_conversation_messages.id = chatbot_conversation_message_messages.chatbot_conversation_message_id
-WHERE chatbot_conversation_messages.order_number = 2;
-        "#,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
 /// Gets the current conversation for the user, if any. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
 pub async fn get_current_conversation_info(
     tx: &mut PgConnection,

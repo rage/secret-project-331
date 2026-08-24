@@ -256,28 +256,6 @@
         }
       }
     },
-    "/api/v0/course-material/chatbot/conversations/messages/first": {
-      "get": {
-        "tags": ["course-material-chatbot"],
-        "summary": "\nGET `/api/v0/course-material/chatbot/conversations/messages/first`\n\nReturns all first messages the user has sent.",
-        "operationId": "allFirstMessages",
-        "responses": {
-          "200": {
-            "description": "All first messages",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ChatbotConversationFirstMessage"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/course-material/chatbot/default-for-course/{course_id}": {
       "get": {
         "tags": ["course-material-chatbot"],
@@ -3277,19 +3255,6 @@
           "user_id": {
             "type": ["string", "null"],
             "format": "uuid"
-          }
-        }
-      },
-      "ChatbotConversationFirstMessage": {
-        "type": "object",
-        "required": ["conversation_id", "text"],
-        "properties": {
-          "conversation_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "text": {
-            "type": "string"
           }
         }
       },

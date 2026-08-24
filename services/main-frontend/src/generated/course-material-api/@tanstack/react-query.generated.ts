@@ -8,7 +8,6 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from "@tanst
 import { client } from "../client.generated"
 import {
   acknowledgeAiUsageNotice,
-  allFirstMessages,
   allUserConversations,
   claimCodeFromCodeGiveaway,
   deleteCourseMaterialGlossaryTerm,
@@ -96,8 +95,6 @@ import {
 import type {
   AcknowledgeAiUsageNoticeData,
   AcknowledgeAiUsageNoticeResponse,
-  AllFirstMessagesData,
-  AllFirstMessagesResponse,
   AllUserConversationsData,
   AllUserConversationsResponse,
   ClaimCodeFromCodeGiveawayData,
@@ -503,32 +500,6 @@ export const allUserConversationsOptions = (options?: Options<AllUserConversatio
         throwOnError: true,
       }),
     queryKey: allUserConversationsQueryKey(options),
-  })
-
-export const allFirstMessagesQueryKey = (options?: Options<AllFirstMessagesData>) =>
-  createQueryKey("allFirstMessages", options)
-
-/**
- *
- * GET `/api/v0/course-material/chatbot/conversations/messages/first`
- *
- * Returns all first messages the user has sent.
- */
-export const allFirstMessagesOptions = (options?: Options<AllFirstMessagesData>) =>
-  queryOptions<
-    AllFirstMessagesResponse,
-    DefaultError,
-    AllFirstMessagesResponse,
-    ReturnType<typeof allFirstMessagesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await allFirstMessages({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: allFirstMessagesQueryKey(options),
   })
 
 export const getDefaultChatbotConfigurationForCourseQueryKey = (

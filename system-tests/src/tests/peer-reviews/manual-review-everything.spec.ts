@@ -101,24 +101,21 @@ test.describe("test ManualReviewEverything behavior", () => {
     await waitForMessageChannelIframesToBeReady(teacherPage)
 
     // Make sure the iframe above is loaded so that it does not cause scrolling
-    await teacherPage.getByRole("button", { name: "Custom points" }).first().waitFor()
+    await teacherPage.getByRole("button", { name: "Save grading decision" }).first().waitFor()
     const frame = await getLocatorForNthExerciseServiceIframe(teacherPage, "example-exercise", 1)
     await frame.getByText("a").waitFor()
 
-    await teacherPage.getByRole("button", { name: "Custom points" }).nth(0).click()
-    await teacherPage.getByRole("spinbutton").fill("0.25")
+    await teacherPage.getByRole("spinbutton").nth(0).fill("0.25")
     await waitForSuccessNotification(teacherPage, async () => {
-      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+      await teacherPage.getByRole("button", { name: "Save grading decision" }).nth(0).click()
     })
-    await teacherPage.getByRole("button", { name: "Custom points" }).nth(1).click()
-    await teacherPage.getByRole("spinbutton").fill("0.25")
+    await teacherPage.getByRole("spinbutton").nth(1).fill("0.25")
     await waitForSuccessNotification(teacherPage, async () => {
-      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+      await teacherPage.getByRole("button", { name: "Save grading decision" }).nth(1).click()
     })
-    await teacherPage.getByRole("button", { name: "Custom points" }).nth(2).click()
-    await teacherPage.getByRole("spinbutton").fill("0.25")
+    await teacherPage.getByRole("spinbutton").nth(2).fill("0.25")
     await waitForSuccessNotification(teacherPage, async () => {
-      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+      await teacherPage.getByRole("button", { name: "Save grading decision" }).nth(2).click()
     })
 
     // Now all students should see their results.

@@ -189,16 +189,13 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/manage/courses/5158f2c6-98d9-4be9-b372-528f2c736dd7/exercises",
     )
     await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
-    await teacherPage.getByRole("button", { name: "Reject and reset" }).waitFor()
-    // oxlint-disable-next-line playwright/no-wait-for-timeout
-    await teacherPage.waitForTimeout(100)
-    // Opens the feedback popup; its own confirm button is a second, identically-labeled element.
-    await teacherPage.getByRole("button", { name: "Reject and reset" }).first().click()
+    await teacherPage.getByRole("button", { name: "Flag this answer" }).click()
+    await teacherPage.getByRole("radio", { name: "Reject and reset" }).check()
     await teacherPage
       .getByRole("textbox", { name: "Feedback for student (optional)" })
       .fill(teacherFeedbackText)
     await waitForSuccessNotification(teacherPage, async () => {
-      await teacherPage.getByRole("button", { name: "Reject and reset" }).nth(1).click()
+      await teacherPage.getByRole("button", { name: "Save grading decision" }).click()
     })
   })
 

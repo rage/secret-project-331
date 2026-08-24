@@ -56,11 +56,11 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
   )
 
   const handleGradingDecision = useCallback(
-    (decision: NewTeacherGradingDecision) => {
+    async (decision: NewTeacherGradingDecision) => {
       if (!userExerciseState) {
         throw new Error("User exercise state not found")
       }
-      submitMutation.mutate({ body: decision })
+      await submitMutation.mutateAsync({ body: decision })
     },
     [submitMutation, userExerciseState],
   )
@@ -583,6 +583,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
                   exerciseMaxPoints: exerciseStatus.exercise.score_maximum || 0,
                 }}
                 availableModes={AVAILABLE_MODES}
+                isSubmitting={submitMutation.isPending}
                 onSubmit={handleGradingDecision}
               />
             </div>

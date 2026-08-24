@@ -99,14 +99,13 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
       .click()
 
     // Make sure the iframe above is loaded so that it does not cause scrolling
-    await teacherPage.getByRole("button", { name: "Custom points" }).first().waitFor()
+    await teacherPage.getByRole("button", { name: "Save grading decision" }).first().waitFor()
     const frame = await getLocatorForNthExerciseServiceIframe(teacherPage, "example-exercise", 1)
     await frame.getByText("a").waitFor()
 
-    await teacherPage.getByRole("button", { name: "Custom points" }).first().click()
-    await teacherPage.getByRole("spinbutton").fill("0.75")
+    await teacherPage.getByRole("spinbutton").first().fill("0.75")
     await waitForSuccessNotification(teacherPage, async () => {
-      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+      await teacherPage.getByRole("button", { name: "Save grading decision" }).first().click()
     })
 
     // Now student 2 should see their results.

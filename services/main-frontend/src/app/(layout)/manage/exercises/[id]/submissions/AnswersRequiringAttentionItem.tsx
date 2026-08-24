@@ -177,6 +177,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
               availableModes={
                 courseId ? AVAILABLE_MODES_WITH_COURSE : AVAILABLE_MODES_WITHOUT_COURSE
               }
+              isSubmitting={submitMutation.isPending}
               onSubmit={handleGradingDecisionSubmit}
             />
 

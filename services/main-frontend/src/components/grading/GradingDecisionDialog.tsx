@@ -18,7 +18,7 @@ interface GradingDecisionDialogProps {
   /** Extra content rendered at the top of the dialog, e.g. a stale-submission notice. */
   intro?: React.ReactNode
   isSubmitting?: boolean
-  onSubmit: (decision: NewTeacherGradingDecision) => void
+  onSubmit: (decision: NewTeacherGradingDecision) => Promise<void>
 }
 
 const buttonRowCss = css`
@@ -38,8 +38,8 @@ export const GradingDecisionDialog: React.FC<GradingDecisionDialogProps> = ({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
-  const handleSubmit = (decision: NewTeacherGradingDecision) => {
-    onSubmit(decision)
+  const handleSubmit = async (decision: NewTeacherGradingDecision) => {
+    await onSubmit(decision)
     setOpen(false)
   }
 

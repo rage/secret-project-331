@@ -62,8 +62,8 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
     },
   )
 
-  const handleGradingDecision = (decision: NewTeacherGradingDecision) => {
-    gradingMutation.mutate({ body: decision })
+  const handleGradingDecision = async (decision: NewTeacherGradingDecision) => {
+    await gradingMutation.mutateAsync({ body: decision })
   }
 
   return (
@@ -92,6 +92,7 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
         target={{ userExerciseStateId, exerciseId, exerciseMaxPoints }}
         availableModes={courseId ? AVAILABLE_MODES_WITH_COURSE : AVAILABLE_MODES_WITHOUT_COURSE}
         rejectWarning={t("warning-check-newer-submissions-before-rejecting")}
+        isSubmitting={gradingMutation.isPending}
         intro={
           !isLatestSubmission && (
             <Infobox

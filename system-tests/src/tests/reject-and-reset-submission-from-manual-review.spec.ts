@@ -182,6 +182,8 @@ test("Reject and reset submission", async () => {
     ).toBeVisible()
   })
 
+  const teacherFeedbackText = "Please recheck your answer and try again."
+
   await test.step("Teacher can reject and reset Student1 submission", async () => {
     await teacherPage.goto(
       "http://project-331.local/manage/courses/5158f2c6-98d9-4be9-b372-528f2c736dd7/exercises",
@@ -192,6 +194,9 @@ test("Reject and reset submission", async () => {
     await teacherPage.waitForTimeout(100)
     // Opens the feedback popup; its own confirm button is a second, identically-labeled element.
     await teacherPage.getByRole("button", { name: "Reject and reset" }).first().click()
+    await teacherPage
+      .getByRole("textbox", { name: "Feedback for student (optional)" })
+      .fill(teacherFeedbackText)
     await waitForSuccessNotification(teacherPage, async () => {
       await teacherPage.getByRole("button", { name: "Reject and reset" }).nth(1).click()
     })
@@ -205,6 +210,9 @@ test("Reject and reset submission", async () => {
     await selectCourseInstanceIfPrompted(student1Page)
     await expect(
       getExerciseRegion(student1Page, EXERCISE_NAME).getByText("The course staff has reviewed"),
+    ).toBeVisible()
+    await expect(
+      getExerciseRegion(student1Page, EXERCISE_NAME).getByText(teacherFeedbackText),
     ).toBeVisible()
     await getExerciseRegion(student1Page, EXERCISE_NAME)
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')

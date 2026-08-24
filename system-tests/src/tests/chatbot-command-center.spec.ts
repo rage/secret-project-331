@@ -136,7 +136,7 @@ test.describe("Chatbot command center testing", () => {
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
-    await page.getByRole("button", { name: "Back" }).click()
+    await page.getByRole("link", { name: "Chatbot command center" }).click()
     await page.getByRole("button", { name: "Chatbot to test" }).click()
     await expect(
       page
@@ -157,7 +157,7 @@ test.describe("Chatbot command center testing", () => {
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save", exact: true }).click()
     })
-    await page.getByRole("button", { name: "Back" }).click()
+    await page.getByRole("link", { name: "Chatbot command center" }).click()
     await waitForSpinnersToDisappear(page)
     await page.getByText("Chatbot to test").waitFor()
     await page.getByRole("button", { name: "Chatbot to test" }).click({ delay: 50 })

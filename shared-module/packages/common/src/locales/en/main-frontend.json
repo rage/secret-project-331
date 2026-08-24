@@ -2197,6 +2197,7 @@
   "points-label": "Points",
   "points-must-be-a-non-negative-integer": "Points must be a non-negative integer",
   "points-must-be-non-negative": "Points must be non-negative",
+  "points-out-of-range": "Points must be between 0 and {{max}}, with at most two decimal places.",
   "points-required-for-completion": "Points required for completion",
   "points-value": "{{points}} points",
   "popular-regions": "Popular Countries",

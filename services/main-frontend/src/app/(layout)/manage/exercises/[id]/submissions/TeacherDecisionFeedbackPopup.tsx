@@ -2,13 +2,14 @@
 
 import { css } from "@emotion/css"
 import React, { useCallback, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
 import Button from "@/shared-module/common/components/Button"
 import type { ButtonProps } from "@/shared-module/common/components/Button"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { NumberField, TextArea } from "@/shared-module/components"
 
 export interface TeacherDecisionFeedbackResult {
   points: number | null
@@ -21,6 +22,11 @@ interface TeacherDecisionFeedbackPopupProps {
   /** Present only for decisions that need a manual points value, e.g. CustomPoints. */
   pointsSlider?: { exerciseMaxPoints: number }
   onSubmit: (result: TeacherDecisionFeedbackResult) => void
+}
+
+interface FeedbackFormValues {
+  points: number | null
+  feedback: string
 }
 
 /**
@@ -37,11 +43,20 @@ const TeacherDecisionFeedbackPopup: React.FC<TeacherDecisionFeedbackPopupProps> 
 }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [points, setPoints] = useState(0)
-  const [feedback, setFeedback] = useState("")
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null)
+
+  const {
+    control,
+    handleSubmit,
+    reset: resetForm,
+    formState: { isValid },
+  } = useForm<FeedbackFormValues>({
+    defaultValues: { points: 0, feedback: "" },
+    // oxlint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+  })
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: "bottom",
@@ -55,11 +70,10 @@ const TeacherDecisionFeedbackPopup: React.FC<TeacherDecisionFeedbackPopupProps> 
     ],
   })
 
-  const reset = useCallback(() => {
+  const closeAndReset = useCallback(() => {
     setOpen(false)
-    setPoints(0)
-    setFeedback("")
-  }, [])
+    resetForm()
+  }, [resetForm])
 
   const handleOpenPopup = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
@@ -69,29 +83,23 @@ const TeacherDecisionFeedbackPopup: React.FC<TeacherDecisionFeedbackPopupProps> 
   const handleCancel = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.preventDefault()
-      reset()
+      closeAndReset()
     },
-    [reset],
+    [closeAndReset],
   )
 
-  const handleSliderChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setPoints(Number(event.target.value))
-  }, [])
+  const onValidSubmit = useCallback(
+    (fields: FeedbackFormValues) => {
+      onSubmit({
+        points: pointsSlider ? fields.points : null,
+        justification: fields.feedback.trim() === "" ? null : fields.feedback.trim(),
+      })
+      closeAndReset()
+    },
+    [onSubmit, pointsSlider, closeAndReset],
+  )
 
-  const handleSubmitAndClose = useCallback(() => {
-    onSubmit({
-      points: pointsSlider ? points : null,
-      justification: feedback.trim() === "" ? null : feedback.trim(),
-    })
-    reset()
-  }, [onSubmit, points, feedback, pointsSlider, reset])
-
-  const isSubmitDisabled =
-    pointsSlider !== undefined &&
-    (points > pointsSlider.exerciseMaxPoints ||
-      points < 0 ||
-      // Limit to 2 decimal places
-      !Number.isInteger(points * 100))
+  const isSubmitDisabled = pointsSlider !== undefined && !isValid
 
   return (
     <>
@@ -126,7 +134,8 @@ const TeacherDecisionFeedbackPopup: React.FC<TeacherDecisionFeedbackPopupProps> 
         >
           {/* oxlint-disable-next-line react/forbid-dom-props */}
           <div ref={setArrowElement} style={styles.arrow} />
-          <div
+          <form
+            onSubmit={handleSubmit(onValidSubmit)}
             className={css`
               display: flex;
               flex-direction: column;
@@ -134,61 +143,29 @@ const TeacherDecisionFeedbackPopup: React.FC<TeacherDecisionFeedbackPopupProps> 
             `}
           >
             {pointsSlider && (
-              <div
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  gap: 1rem;
-                `}
-              >
-                <input
-                  className={css`
-                    flex: 1;
-                    height: 0.375rem;
-                    -webkit-appearance: none;
-                    background: ${baseTheme.colors.clear[200]};
-                    border-radius: 0.1875rem;
-                    outline: none;
-                    &::-webkit-slider-thumb {
-                      -webkit-appearance: none;
-                      width: 1.125rem;
-                      height: 1.125rem;
-                      background: ${baseTheme.colors.blue[500]};
-                      border-radius: 50%;
-                      cursor: pointer;
-                    }
-                  `}
-                  type="range"
-                  min="0"
-                  max={pointsSlider.exerciseMaxPoints}
-                  step={0.1}
-                  value={points}
-                  onChange={handleSliderChange}
-                  aria-label={t("points")}
-                />
-                <input
-                  className={css`
-                    width: 5rem;
-                    padding: 0.5rem 0.75rem;
-                    border: 0.0625rem solid ${baseTheme.colors.clear[200]};
-                    border-radius: 0.25rem;
-                    font-size: 1rem;
-                    text-align: center;
-                  `}
-                  value={points}
-                  onChange={handleSliderChange}
-                  min="0.0"
-                  step={0.1}
-                  max={pointsSlider.exerciseMaxPoints}
-                  type="number"
-                  aria-label={t("points")}
-                />
-              </div>
+              <NumberField
+                name="points"
+                control={control}
+                label={t("points")}
+                minValue={0}
+                maxValue={pointsSlider.exerciseMaxPoints}
+                step={0.1}
+                rules={{
+                  validate: (value) =>
+                    value !== null &&
+                    value >= 0 &&
+                    value <= pointsSlider.exerciseMaxPoints &&
+                    // Limit to 2 decimal places
+                    Number.isInteger(value * 100)
+                      ? true
+                      : t("points-out-of-range", { max: pointsSlider.exerciseMaxPoints }),
+                }}
+              />
             )}
-            <TextAreaField
+            <TextArea
+              name="feedback"
+              control={control}
               label={t("label-feedback-for-student-optional")}
-              value={feedback}
-              onChangeByValue={setFeedback}
               placeholder={t("placeholder-teacher-feedback-for-student")}
             />
             <div
@@ -201,18 +178,12 @@ const TeacherDecisionFeedbackPopup: React.FC<TeacherDecisionFeedbackPopupProps> 
               <Button type="button" variant="white" size="medium" onClick={handleCancel}>
                 {t("button-text-cancel")}
               </Button>
-              <Button
-                type="button"
-                variant={variant}
-                size="medium"
-                disabled={isSubmitDisabled}
-                onClick={handleSubmitAndClose}
-              >
+              <Button type="submit" variant={variant} size="medium" disabled={isSubmitDisabled}>
                 {/* Distinct from triggerLabel, matching CustomPointsPopup's trigger/submit split. */}
                 {pointsSlider ? t("button-text-give-custom-points") : triggerLabel}
               </Button>
             </div>
-          </div>
+          </form>
         </div>
       )}
     </>

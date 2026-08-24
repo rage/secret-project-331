@@ -1122,6 +1122,7 @@
   "points-label": "Бали",
   "points-must-be-a-non-negative-integer": "Бали повинні бути не від'ємним цілим числом",
   "points-must-be-non-negative": "Бали повинні бути не від'ємними",
+  "points-out-of-range": "Бали повинні бути від 0 до {{max}}, максимум із двома десятковими знаками.",
   "points-required-for-completion": "Бали, необхідні для завершення",
   "popular-regions": "Популярні країни",
   "position-x": "Позиція (X)",

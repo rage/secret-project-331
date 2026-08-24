@@ -1102,6 +1102,7 @@
   "points-label": "Poeng",
   "points-must-be-a-non-negative-integer": "Poeng kan ikke være et negativt heltall.",
   "points-must-be-non-negative": "Poeng kan ikke være negative",
+  "points-out-of-range": "Poeng må være mellom 0 og {{max}}, med maks to desimaler.",
   "points-required-for-completion": "Poeng som kreves før fullført",
   "popular-regions": "Populære land",
   "position-x": "Posisjon (X)",

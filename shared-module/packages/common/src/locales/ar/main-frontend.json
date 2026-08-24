@@ -1116,6 +1116,7 @@
   "points-label": "النقاط",
   "points-must-be-a-non-negative-integer": "يجب أن تكون النقاط عدداً صحيحاً غير سالب",
   "points-must-be-non-negative": "يجب أن تكون النقاط غير سالبة",
+  "points-out-of-range": "يجب أن تكون النقاط بين 0 و{{max}}، بحد أقصى منزلتين عشريتين.",
   "points-required-for-completion": "النقاط المطلوبة للإكمال",
   "popular-regions": "البلدان الشعبية",
   "position-x": "الموقع (X)",

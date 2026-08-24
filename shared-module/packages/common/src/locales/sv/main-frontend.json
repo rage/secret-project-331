@@ -1114,6 +1114,7 @@
   "points-label": "Poäng",
   "points-must-be-a-non-negative-integer": "Poäng måste vara ett icke-negativt heltal",
   "points-must-be-non-negative": "Poäng måste vara icke-negativa",
+  "points-out-of-range": "Poängen måste vara mellan 0 och {{max}}, med högst två decimaler.",
   "points-required-for-completion": "Poäng krävs för slutförande",
   "popular-regions": "Populära länder",
   "position-x": "Position (X)",

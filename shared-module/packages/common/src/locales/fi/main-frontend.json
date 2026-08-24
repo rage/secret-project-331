@@ -2077,6 +2077,7 @@
   "points-label": "Pisteet",
   "points-must-be-a-non-negative-integer": "Pisteiden on oltava nollasta ylöspäin oleva kokonaisluku",
   "points-must-be-non-negative": "Pisteiden on oltava nollasta ylöspäin",
+  "points-out-of-range": "Pisteiden on oltava välillä 0–{{max}}, enintään kahdella desimaalilla.",
   "points-required-for-completion": "Pistettä vaaditaan läpipääsyyn",
   "popular-regions": "Suositut maat",
   "position-x": "Sijainti (X)",

@@ -441,7 +441,7 @@ pub async fn get_send_status_totals_since(
         Row,
         r#"
 SELECT
-  e.sent_at,
+  e.sent_at AS "sent_at!",
   e.email_delivery_id,
   ed.sent AS delivery_sent,
   ed.retryable,

@@ -531,9 +531,9 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }
     setDataFileError(undefined)
     updateSpec(JSON.stringify(rewritten, null, 2))
-    if (step === STEP_DATA) {
-      setStep(STEP_METHOD)
-    }
+    // The upload calls back twice (first a local blob URL, then the stored file), so the second
+    // call can land after the teacher has moved on; only advance if the data step is still current.
+    setStep((current) => (current === STEP_DATA ? STEP_METHOD : current))
   }
 
   const handleDataFileError = (error: unknown) => {

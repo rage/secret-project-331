@@ -242,6 +242,30 @@ test("Chart block re-attaches the data file to a spec that dropped it", async ({
   await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
 })
 
+// Long enough that the stored file is reported only after the editor has been opened.
+const LATE_UPLOAD_DELAY_MS = 5000
+
+test("Chart block keeps the editor open when the data file finishes uploading late", async ({
+  page,
+}) => {
+  // The media library reports an attachment twice: first a local blob URL, then the stored file.
+  // Holding the response back puts that second report after the teacher has moved on.
+  await page.route("**/api/v0/cms/courses/*/upload", async (route) => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, LATE_UPLOAD_DELAY_MS)
+    })
+    await route.continue()
+  })
+
+  const dialog = await openEditorWithDataFile(page, "Chart block late upload test page")
+
+  // The spec names the stored file only once that second report has been handled, so reading the
+  // name out of the editor proves the editor outlived it instead of being sent back a step.
+  await expect(dialog.locator(".monaco-editor").first()).toContainText(".csv", { timeout: 30_000 })
+  await expect(dialog.getByText("How do you want to create the chart?")).toBeHidden()
+  await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
+})
+
 test("Chart block renders a spec whose data lives in its layers", async ({ page }) => {
   const dialog = await openEditorWithDataFile(page, "Chart block layered spec test page")
 

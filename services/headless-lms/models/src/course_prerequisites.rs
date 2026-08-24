@@ -56,7 +56,7 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn get_all_course_prerequisites(
+pub async fn get_all_edit_course_prerequisites(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<EditCoursePrerequisite>> {
     let res = sqlx::query_as!(
@@ -74,7 +74,7 @@ WHERE deleted_at IS NULL
     Ok(res)
 }
 
-pub async fn get_prerequisites_by_course_id(
+pub async fn get_edit_course_prerequisites_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<EditCoursePrerequisite>> {

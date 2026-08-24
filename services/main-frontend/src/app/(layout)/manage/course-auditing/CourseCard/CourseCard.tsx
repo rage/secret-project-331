@@ -129,8 +129,8 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
     }
   }
 
-  const onSubmit = handleSubmit((data: EditCourseAuditingData) => {
-    updateMutation.mutateAsync({
+  const onSubmit = handleSubmit(async (data: EditCourseAuditingData) => {
+    await updateMutation.mutateAsync({
       body: {
         description: nullIfEmptyString(data.description),
         closed_at: data.set_course_closed_at

@@ -55,7 +55,9 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn get_all_audiences(conn: &mut PgConnection) -> ModelResult<Vec<EditCourseAudience>> {
+pub async fn get_all_edit_course_audiences(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<EditCourseAudience>> {
     let res = sqlx::query_as!(
         EditCourseAudience,
         "
@@ -71,7 +73,7 @@ WHERE deleted_at IS NULL
     Ok(res)
 }
 
-pub async fn get_audiences_by_course_id(
+pub async fn get_edit_course_audiences_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<EditCourseAudience>> {

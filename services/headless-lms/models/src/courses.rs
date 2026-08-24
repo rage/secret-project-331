@@ -398,9 +398,9 @@ GROUP BY c.id,
     let modules_data = crate::course_modules::get_all_modules(conn).await?;
 
     let prerequisites_data =
-        crate::course_prerequisites::get_all_course_prerequisites(conn).await?;
+        crate::course_prerequisites::get_all_edit_course_prerequisites(conn).await?;
 
-    let audiences_data = crate::course_audiences::get_all_audiences(conn).await?;
+    let audiences_data = crate::course_audiences::get_all_edit_course_audiences(conn).await?;
 
     let mut modules_by_course_id: HashMap<Uuid, Vec<CourseModule>> = HashMap::new();
     for module in modules_data {
@@ -492,10 +492,11 @@ GROUP BY c.id,
     modules_data.sort_by_key(|c| c.order_number);
 
     let prerequisites_data =
-        crate::course_prerequisites::get_prerequisites_by_course_id(conn, course_id).await?;
+        crate::course_prerequisites::get_edit_course_prerequisites_by_course_id(conn, course_id)
+            .await?;
 
     let audiences_data =
-        crate::course_audiences::get_audiences_by_course_id(conn, course_id).await?;
+        crate::course_audiences::get_edit_course_audiences_by_course_id(conn, course_id).await?;
 
     let data: CourseAuditingData = CourseAuditingData {
         id: course_data.id,
@@ -636,7 +637,10 @@ WHERE id = $1
     .execute(&mut *tx)
     .await?;
 
-    if old_course.description != data_update.description {
+    if old_course.description != data_update.description
+        && data_update.description != None
+        && data_update.description != Some("".to_string())
+    {
         update_course_embeddings(
             &mut tx,
             app_config,

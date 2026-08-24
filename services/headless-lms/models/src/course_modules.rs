@@ -33,7 +33,6 @@ struct CourseModulesSchema {
 /// Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
 /// `completion_policy`.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
 pub struct CourseModule {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -159,7 +158,6 @@ impl From<CourseModulesSchema> for CourseModule {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-
 pub struct NewCourseModule {
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
@@ -229,6 +227,182 @@ impl NewCourseModule {
     ) -> Self {
         self.enable_credit_registration_via_suotar = enable_credit_registration_via_suotar;
         self
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct NewModule {
+    name: String,
+    order_number: i32,
+    chapters: Vec<Uuid>,
+    uh_course_code: Option<String>,
+    ects_credits: Option<f32>,
+    completion_policy: CompletionPolicy,
+    completion_registration_link_override: Option<String>,
+    enable_registering_completion_to_uh_open_university: bool,
+    enable_credit_registration_via_suotar: bool,
+    credit_registration: CourseModuleCreditRegistrationEdit,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ModifiedModule {
+    id: Uuid,
+    name: Option<String>,
+    order_number: i32,
+    uh_course_code: Option<String>,
+    ects_credits: Option<f32>,
+    completion_policy: CompletionPolicy,
+    completion_registration_link_override: Option<String>,
+    enable_registering_completion_to_uh_open_university: bool,
+    enable_credit_registration_via_suotar: bool,
+    credit_registration: CourseModuleCreditRegistrationEdit,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct CourseAuditingModuleUpdate {
+    pub id: Uuid,
+    pub name: Option<String>,
+    pub order_number: i32,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub completion_registration_link_override: Option<String>,
+    pub enable_registering_completion_to_uh_open_university: bool,
+}
+
+/// The module editor's writable half of the Suotar configuration. The pause and the
+/// config-validation verdict are not here: their writers are the admin dashboard and the pipeline.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CourseModuleCreditRegistrationEdit {
+    pub open_university_product_id: Option<String>,
+    /// `None` means derive the grade scale from the completion.
+    pub grade_scale_id: Option<String>,
+    /// The full set for the module; anything missing from it is soft-deleted.
+    pub realisations: Vec<CourseModuleSuotarRealisationEdit>,
+}
+
+impl CourseModuleCreditRegistrationEdit {
+    /// Whether the editor sent nothing worth storing. Blank strings count as empty because that is
+    /// what the form submits for an untouched field.
+    pub fn is_empty(&self) -> bool {
+        self.open_university_product_id
+            .as_deref()
+            .and_then(non_empty)
+            .is_none()
+            && self.grade_scale_id.as_deref().and_then(non_empty).is_none()
+            && self.realisations.is_empty()
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CourseModuleSuotarRealisationEdit {
+    pub course_unit_realisation_id: String,
+    /// Rendered to students as the name of the realisation their credits go against.
+    pub label: Option<String>,
+    pub active: bool,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ModuleUpdates {
+    new_modules: Vec<NewModule>,
+    deleted_modules: Vec<Uuid>,
+    modified_modules: Vec<ModifiedModule>,
+    moved_chapters: Vec<(Uuid, Uuid)>,
+}
+
+/// How many chapters and exercises a course module contains. Used for deciding whether the module
+/// is small enough to be exempt from the minimum cheater threshold.
+pub struct ModuleSizeCounts {
+    pub chapters: i64,
+    pub exercises: i64,
+}
+
+/// Per-module credit-registration configuration: the rollout switch and the module's own fields
+/// merged with its `course_module_suotar_configurations` row. Every field of that row is optional
+/// here because a module with no configuration row is a valid, unconfigured module.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CourseModuleCreditRegistrationConfig {
+    pub course_module_id: Uuid,
+    pub course_id: Uuid,
+    pub enable_credit_registration_via_suotar: bool,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub open_university_product_id: Option<String>,
+    /// `None` means derive the grade scale from the completion.
+    pub credit_registration_grade_scale_id: Option<String>,
+    pub credit_registration_paused_at: Option<DateTime<Utc>>,
+    pub credit_registration_paused_by_user_id: Option<Uuid>,
+    pub credit_registration_pause_reason: Option<String>,
+    pub credit_registration_config_checked_at: Option<DateTime<Utc>>,
+    /// `None` means never checked, which is not the same as a failed check.
+    pub credit_registration_course_code_resolves: Option<bool>,
+    pub credit_registration_product_token_found: Option<bool>,
+    pub credit_registration_config_check_message: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AutomaticCompletionRequirements {
+    /// Course module associated with these requirements.
+    pub course_module_id: Uuid,
+    pub number_of_exercises_attempted_treshold: Option<i32>,
+    pub number_of_points_treshold: Option<i32>,
+    pub requires_exam: bool,
+}
+
+impl AutomaticCompletionRequirements {
+    /// Shorthand for checking whether the given exercise related values pass their respective
+    /// tresholds.
+    pub fn passes_exercise_tresholds(
+        &self,
+        exercises_attempted: i32,
+        exercise_points: i32,
+    ) -> bool {
+        self.passes_number_of_exercises_attempted_treshold(exercises_attempted)
+            && self.passes_number_of_exercise_points_treshold(exercise_points)
+    }
+
+    /// Whether the given number is higher than the exercises attempted treshold. Always returns
+    /// true if there is no treshold.
+    pub fn passes_number_of_exercises_attempted_treshold(&self, exercises_attempted: i32) -> bool {
+        self.number_of_exercises_attempted_treshold
+            .map(|x| x <= exercises_attempted)
+            .unwrap_or(true)
+    }
+
+    /// Whether the given number is higher than the exercise points treshold. Always returns true
+    /// if there is no treshold.
+    pub fn passes_number_of_exercise_points_treshold(&self, exercise_points: i32) -> bool {
+        self.number_of_points_treshold
+            .map(|x| x <= exercise_points)
+            .unwrap_or(true)
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "policy", rename_all = "kebab-case")]
+pub enum CompletionPolicy {
+    Automatic(AutomaticCompletionRequirements),
+    Manual,
+}
+
+impl CompletionPolicy {
+    /// Returns associated data for `Automatic` variant, if matches.
+    pub fn automatic(&self) -> Option<&AutomaticCompletionRequirements> {
+        match self {
+            CompletionPolicy::Automatic(requirements) => Some(requirements),
+            CompletionPolicy::Manual => None,
+        }
+    }
+
+    fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>, bool) {
+        match self {
+            CompletionPolicy::Automatic(requirements) => (
+                true,
+                requirements.number_of_exercises_attempted_treshold,
+                requirements.number_of_points_treshold,
+                requirements.requires_exam,
+            ),
+            CompletionPolicy::Manual => (false, None, None, false),
+        }
     }
 }
 
@@ -635,13 +809,6 @@ where c.id = $1
     Ok(res)
 }
 
-/// How many chapters and exercises a course module contains. Used for deciding whether the module
-/// is small enough to be exempt from the minimum cheater threshold.
-pub struct ModuleSizeCounts {
-    pub chapters: i64,
-    pub exercises: i64,
-}
-
 pub async fn get_chapter_and_exercise_counts(
     conn: &mut PgConnection,
     course_module_id: Uuid,
@@ -827,29 +994,6 @@ WHERE cie.user_id = $1
     Ok(res)
 }
 
-/// Per-module credit-registration configuration: the rollout switch and the module's own fields
-/// merged with its `course_module_suotar_configurations` row. Every field of that row is optional
-/// here because a module with no configuration row is a valid, unconfigured module.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CourseModuleCreditRegistrationConfig {
-    pub course_module_id: Uuid,
-    pub course_id: Uuid,
-    pub enable_credit_registration_via_suotar: bool,
-    pub uh_course_code: Option<String>,
-    pub ects_credits: Option<f32>,
-    pub open_university_product_id: Option<String>,
-    /// `None` means derive the grade scale from the completion.
-    pub credit_registration_grade_scale_id: Option<String>,
-    pub credit_registration_paused_at: Option<DateTime<Utc>>,
-    pub credit_registration_paused_by_user_id: Option<Uuid>,
-    pub credit_registration_pause_reason: Option<String>,
-    pub credit_registration_config_checked_at: Option<DateTime<Utc>>,
-    /// `None` means never checked, which is not the same as a failed check.
-    pub credit_registration_course_code_resolves: Option<bool>,
-    pub credit_registration_product_token_found: Option<bool>,
-    pub credit_registration_config_check_message: Option<String>,
-}
-
 /// Shared by every getter below, so the 13-column join lives in one place. `enabled_only` isn't a
 /// "this id or any" filter like the other two: the by-id and by-course lookups want every module,
 /// opted in or not, while the all-modules listing wants only the opted-in ones.
@@ -923,74 +1067,6 @@ pub async fn get_all_suotar_enabled(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
     credit_registration_configs(conn, None, None, true).await
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
-pub struct AutomaticCompletionRequirements {
-    /// Course module associated with these requirements.
-    pub course_module_id: Uuid,
-    pub number_of_exercises_attempted_treshold: Option<i32>,
-    pub number_of_points_treshold: Option<i32>,
-    pub requires_exam: bool,
-}
-
-impl AutomaticCompletionRequirements {
-    /// Shorthand for checking whether the given exercise related values pass their respective
-    /// tresholds.
-    pub fn passes_exercise_tresholds(
-        &self,
-        exercises_attempted: i32,
-        exercise_points: i32,
-    ) -> bool {
-        self.passes_number_of_exercises_attempted_treshold(exercises_attempted)
-            && self.passes_number_of_exercise_points_treshold(exercise_points)
-    }
-
-    /// Whether the given number is higher than the exercises attempted treshold. Always returns
-    /// true if there is no treshold.
-    pub fn passes_number_of_exercises_attempted_treshold(&self, exercises_attempted: i32) -> bool {
-        self.number_of_exercises_attempted_treshold
-            .map(|x| x <= exercises_attempted)
-            .unwrap_or(true)
-    }
-
-    /// Whether the given number is higher than the exercise points treshold. Always returns true
-    /// if there is no treshold.
-    pub fn passes_number_of_exercise_points_treshold(&self, exercise_points: i32) -> bool {
-        self.number_of_points_treshold
-            .map(|x| x <= exercise_points)
-            .unwrap_or(true)
-    }
-}
-
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, ToSchema)]
-#[serde(tag = "policy", rename_all = "kebab-case")]
-pub enum CompletionPolicy {
-    Automatic(AutomaticCompletionRequirements),
-    Manual,
-}
-
-impl CompletionPolicy {
-    /// Returns associated data for `Automatic` variant, if matches.
-    pub fn automatic(&self) -> Option<&AutomaticCompletionRequirements> {
-        match self {
-            CompletionPolicy::Automatic(requirements) => Some(requirements),
-            CompletionPolicy::Manual => None,
-        }
-    }
-
-    fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>, bool) {
-        match self {
-            CompletionPolicy::Automatic(requirements) => (
-                true,
-                requirements.number_of_exercises_attempted_treshold,
-                requirements.number_of_points_treshold,
-                requirements.requires_exam,
-            ),
-            CompletionPolicy::Manual => (false, None, None, false),
-        }
-    }
 }
 
 pub async fn update_automatic_completion_status(
@@ -1116,89 +1192,6 @@ RETURNING id,
     .fetch_one(conn)
     .await?;
     Ok(res.into())
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
-pub struct NewModule {
-    name: String,
-    order_number: i32,
-    chapters: Vec<Uuid>,
-    uh_course_code: Option<String>,
-    ects_credits: Option<f32>,
-    completion_policy: CompletionPolicy,
-    completion_registration_link_override: Option<String>,
-    enable_registering_completion_to_uh_open_university: bool,
-    enable_credit_registration_via_suotar: bool,
-    credit_registration: CourseModuleCreditRegistrationEdit,
-}
-
-#[derive(Debug, Deserialize, ToSchema)]
-
-pub struct ModifiedModule {
-    id: Uuid,
-    name: Option<String>,
-    order_number: i32,
-    uh_course_code: Option<String>,
-    ects_credits: Option<f32>,
-    completion_policy: CompletionPolicy,
-    completion_registration_link_override: Option<String>,
-    enable_registering_completion_to_uh_open_university: bool,
-    enable_credit_registration_via_suotar: bool,
-    credit_registration: CourseModuleCreditRegistrationEdit,
-}
-
-#[derive(Debug, Deserialize, ToSchema)]
-
-pub struct CourseAuditingModuleUpdate {
-    pub id: Uuid,
-    pub name: Option<String>,
-    pub order_number: i32,
-    pub uh_course_code: Option<String>,
-    pub ects_credits: Option<f32>,
-    pub completion_registration_link_override: Option<String>,
-    pub enable_registering_completion_to_uh_open_university: bool,
-}
-
-/// The module editor's writable half of the Suotar configuration. The pause and the
-/// config-validation verdict are not here: their writers are the admin dashboard and the pipeline.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CourseModuleCreditRegistrationEdit {
-    pub open_university_product_id: Option<String>,
-    /// `None` means derive the grade scale from the completion.
-    pub grade_scale_id: Option<String>,
-    /// The full set for the module; anything missing from it is soft-deleted.
-    pub realisations: Vec<CourseModuleSuotarRealisationEdit>,
-}
-
-impl CourseModuleCreditRegistrationEdit {
-    /// Whether the editor sent nothing worth storing. Blank strings count as empty because that is
-    /// what the form submits for an untouched field.
-    pub fn is_empty(&self) -> bool {
-        self.open_university_product_id
-            .as_deref()
-            .and_then(non_empty)
-            .is_none()
-            && self.grade_scale_id.as_deref().and_then(non_empty).is_none()
-            && self.realisations.is_empty()
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CourseModuleSuotarRealisationEdit {
-    pub course_unit_realisation_id: String,
-    /// Rendered to students as the name of the realisation their credits go against.
-    pub label: Option<String>,
-    pub active: bool,
-}
-
-#[derive(Debug, Deserialize, ToSchema)]
-
-pub struct ModuleUpdates {
-    new_modules: Vec<NewModule>,
-    deleted_modules: Vec<Uuid>,
-    modified_modules: Vec<ModifiedModule>,
-    moved_chapters: Vec<(Uuid, Uuid)>,
 }
 
 pub async fn update_with_order_number(

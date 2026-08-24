@@ -590,6 +590,17 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   `}
                 >
                   <Button
+                    type="button"
+                    size="medium"
+                    variant="secondary"
+                    className={css`
+                      margin-right: 0.5rem;
+                    `}
+                    onClick={() => router.back()}
+                  >
+                    {t("back")}
+                  </Button>
+                  <Button
                     disabled={isSubmitting}
                     type="submit"
                     size="medium"

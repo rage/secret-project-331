@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
-import { useMemo } from "react"
+import { useDeferredValue, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -83,54 +83,61 @@ const CourseAuditing = () => {
     "no_audiences",
   ])
 
+  const deferredSearchCourse = useDeferredValue(searchCourse)
+
+  const sortedCourses = useMemo(
+    () => [...(courseData ?? [])].toSorted((a, b) => a.name.localeCompare(b.name)),
+    [courseData],
+  )
+
   const filteredCourses = useMemo(
     () =>
-      [...(courseData ?? [])]
-        .filter((course: CourseAuditingData) => {
-          if (
-            !course.name.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase()) &&
-            !course.description?.toLocaleLowerCase().includes(searchCourse?.toLocaleLowerCase())
-          ) {
-            return false
-          }
-          if (
-            noDefaultUhCourseCode &&
-            course.modules.find((m) => m.order_number === 0)?.uh_course_code !== null
-          ) {
-            return false
-          }
-          if (
-            notClosed && course.closed_at !== null && course.closed_at !== undefined
-              ? parseISO(course.closed_at).getTime() < Date.now()
-              : false
-          ) {
-            return false
-          }
-          if (
-            shortDescription &&
-            !(course.description !== null && course.description !== undefined
-              ? course.description?.length < 200
-              : false)
-          ) {
-            return false
-          }
-          if (noPrerequisites && course.prerequisites.length > 0) {
-            return false
-          }
-          if (noAudiences && course.audiences.length > 0) {
-            return false
-          }
-          return true
-        })
-        .toSorted((a, b) => a.name.localeCompare(b.name)),
+      sortedCourses.filter((course: CourseAuditingData) => {
+        if (
+          !course.name.toLocaleLowerCase().includes(deferredSearchCourse?.toLocaleLowerCase()) &&
+          !course.description
+            ?.toLocaleLowerCase()
+            .includes(deferredSearchCourse?.toLocaleLowerCase())
+        ) {
+          return false
+        }
+        if (
+          noDefaultUhCourseCode &&
+          course.modules.find((m) => m.order_number === 0)?.uh_course_code !== null
+        ) {
+          return false
+        }
+        if (
+          notClosed && course.closed_at !== null && course.closed_at !== undefined
+            ? parseISO(course.closed_at).getTime() < Date.now()
+            : false
+        ) {
+          return false
+        }
+        if (
+          shortDescription &&
+          !(course.description !== null && course.description !== undefined
+            ? course.description?.length < 200
+            : false)
+        ) {
+          return false
+        }
+        if (noPrerequisites && course.prerequisites.length > 0) {
+          return false
+        }
+        if (noAudiences && course.audiences.length > 0) {
+          return false
+        }
+        return true
+      }),
     [
-      courseData,
+      sortedCourses,
       notClosed,
       shortDescription,
       noDefaultUhCourseCode,
       noPrerequisites,
       noAudiences,
-      searchCourse,
+      deferredSearchCourse,
     ],
   )
 

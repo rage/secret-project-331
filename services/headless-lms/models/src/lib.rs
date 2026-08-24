@@ -74,6 +74,7 @@ pub mod exercise_task_submission_files;
 pub mod exercise_task_submissions;
 pub mod exercise_tasks;
 pub mod exercises;
+pub mod external_courses;
 pub mod feedback;
 pub mod file_uploads;
 pub mod flagged_answers;

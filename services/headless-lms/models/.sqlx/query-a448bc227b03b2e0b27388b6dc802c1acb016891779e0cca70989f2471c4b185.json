@@ -1,0 +1,102 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT  t.id AS \"id!\",\n    t.created_at AS \"created_at!\",\n    t.updated_at AS \"updated_at!\",\n    t.deleted_at,\n    t.name AS \"name!\",\n    t.name_embedding,\n    t.description,\n    t.description_embedding,\n    t.url AS \"url!\"\nFROM (\n    SELECT\n        ec.*,\n        LEAST(MIN(name_embedding <#> v.embedding),\n              MIN(description_embedding <#> v.embedding)) AS distance\n    FROM external_courses ec\n    CROSS JOIN unnest($1::vector[]) AS v(embedding)\n    WHERE deleted_at IS NULL\n    GROUP BY id\n    ORDER BY distance ASC\n    LIMIT 5\n) t\nUNION\nSELECT ec.*\nFROM external_courses ec\nCROSS JOIN unnest($2::text[]) AS k(keyword)\nWHERE deleted_at IS NULL\nAND to_tsvector('english', description)\n@@ websearch_to_tsquery('english', k.keyword)\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "name!",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "name_embedding",
+        "type_info": {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "description",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "description_embedding",
+        "type_info": {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "url!",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "vector[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "vector",
+                  "kind": "Simple"
+                }
+              }
+            }
+          }
+        },
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "a448bc227b03b2e0b27388b6dc802c1acb016891779e0cca70989f2471c4b185"
+}

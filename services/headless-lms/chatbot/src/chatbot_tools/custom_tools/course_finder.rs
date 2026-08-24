@@ -12,6 +12,7 @@ use headless_lms_models::{
     course_audiences::get_course_ids_by_audience_vectors,
     course_prerequisites::get_course_ids_by_prerequisite_vectors,
     courses::{self, Course, get_by_description_vectors},
+    external_courses::{ExternalCourse, get_external_courses_by_embeddings},
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings,
@@ -21,9 +22,10 @@ use serde::{Deserialize, Deserializer, Serialize};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CourseFinderState {
     courses: Vec<CourseOccurrences>,
+    external_courses: Vec<ExternalCourse>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -92,15 +94,26 @@ impl ChatbotTool for CourseFinderTool {
             vec![]
         };
 
-        let description_courses = if let Some(description) = &arguments.description {
-            let description_embeddings = create_embeddings(app_config, description.clone())
-                .await?
-                .to_owned();
+        let (description_courses, external_courses) =
+            if let Some(description) = &arguments.description {
+                let description_embeddings = create_embeddings(app_config, description.clone())
+                    .await?
+                    .to_owned();
 
-            get_by_description_vectors(conn, description_embeddings, description.clone()).await?
-        } else {
-            vec![]
-        };
+                let external_courses = get_external_courses_by_embeddings(
+                    conn,
+                    description.clone(),
+                    description_embeddings.clone(),
+                )
+                .await?;
+
+                let courses =
+                    get_by_description_vectors(conn, description_embeddings, description.clone())
+                        .await?;
+                (courses, external_courses)
+            } else {
+                (vec![], vec![])
+            };
 
         let course_ids = [description_courses, audience_courses, prerequisite_courses].concat();
 
@@ -125,18 +138,18 @@ impl ChatbotTool for CourseFinderTool {
         Ok(CourseFinderTool {
             state: CourseFinderState {
                 courses: course_occurrences,
+                external_courses,
             },
             arguments,
         })
     }
 
     fn output(&self) -> String {
-        serde_json::to_string(&self.state.courses)
-            .unwrap_or_else(|_| "No courses found".to_string())
+        serde_json::to_string(&self.state).unwrap_or_else(|_| "No courses found".to_string())
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("Do not return the whole JSON of the courses to the user. Present the most suitable courses based on the user query. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
+        Some("Do not return the whole JSON of the courses to the user. Courses under the 'courses'key are what you should prioritize. If in addition to those courses there is some external course that matches the user query especially well, you can recommend that as well. If you recommend an external course, mention that is hosted on another platform. Present the most suitable courses based on the user query. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
     }
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {

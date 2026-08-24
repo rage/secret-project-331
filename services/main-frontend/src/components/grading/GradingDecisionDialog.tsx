@@ -55,8 +55,6 @@ export const GradingDecisionDialog: React.FC<GradingDecisionDialogProps> = ({
           target={target}
           canResetExercise={canResetExercise}
           rejectWarning={rejectWarning}
-          // oxlint-disable-next-line i18next/no-literal-string
-          layout="dialog"
           isSubmitting={isSubmitting}
           onSubmit={handleSubmit}
         />

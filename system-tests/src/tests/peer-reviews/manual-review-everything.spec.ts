@@ -105,15 +105,21 @@ test.describe("test ManualReviewEverything behavior", () => {
     const frame = await getLocatorForNthExerciseServiceIframe(teacherPage, "example-exercise", 1)
     await frame.getByText("a").waitFor()
 
-    await teacherPage.getByRole("spinbutton").nth(0).fill("0.25")
+    const pointsField0 = teacherPage.getByRole("textbox", { name: "Points" }).nth(0)
+    await pointsField0.fill("0.25")
+    await pointsField0.press("Tab")
     await waitForSuccessNotification(teacherPage, async () => {
       await teacherPage.getByRole("button", { name: "Save grading decision" }).nth(0).click()
     })
-    await teacherPage.getByRole("spinbutton").nth(1).fill("0.25")
+    const pointsField1 = teacherPage.getByRole("textbox", { name: "Points" }).nth(1)
+    await pointsField1.fill("0.25")
+    await pointsField1.press("Tab")
     await waitForSuccessNotification(teacherPage, async () => {
       await teacherPage.getByRole("button", { name: "Save grading decision" }).nth(1).click()
     })
-    await teacherPage.getByRole("spinbutton").nth(2).fill("0.25")
+    const pointsField2 = teacherPage.getByRole("textbox", { name: "Points" }).nth(2)
+    await pointsField2.fill("0.25")
+    await pointsField2.press("Tab")
     await waitForSuccessNotification(teacherPage, async () => {
       await teacherPage.getByRole("button", { name: "Save grading decision" }).nth(2).click()
     })

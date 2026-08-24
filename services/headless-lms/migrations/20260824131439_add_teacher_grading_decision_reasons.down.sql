@@ -1,3 +1,6 @@
+ALTER TABLE exercise_reset_logs
+DROP COLUMN teacher_feedback;
+
 UPDATE teacher_grading_decisions
 SET teacher_decision = 'suspected-plagiarism'
 WHERE teacher_decision = 'unauthorized-ai-use';

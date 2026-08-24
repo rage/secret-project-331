@@ -34,9 +34,11 @@ const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMess
 }) => {
   const { t } = useTranslation()
 
+  // A teacher who wrote feedback said something more specific than the canned reset sentence,
+  // so their words replace it rather than stacking a second box on top of it.
   const resetMessageText = useMemo(
-    () => getResetMessageText(shouldSeeResetMessage ?? null, t),
-    [shouldSeeResetMessage, t],
+    () => (teacherFeedback ? null : getResetMessageText(shouldSeeResetMessage ?? null, t)),
+    [shouldSeeResetMessage, teacherFeedback, t],
   )
 
   const statusMessageText = useMemo(

@@ -116,6 +116,8 @@ async fn create_teacher_grading_decision(
             &[student_state.exercise_id],
             Some(user.id),
             Some("reset-by-staff".to_string()),
+            // The reset soft-deletes the decision above, so the feedback rides along with the log.
+            if hidden { None } else { justification.clone() },
         )
         .await?;
 

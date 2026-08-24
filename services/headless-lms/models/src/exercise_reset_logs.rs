@@ -21,6 +21,9 @@ pub struct ExerciseResetLog {
 }
 
 /// Adds a log entry for reset exercises for a user
+///
+/// `reason` is a message key the course material translates; `teacher_feedback` is free text the
+/// teacher wrote for the student and outlives the grading decision the reset soft-deletes.
 pub async fn log_exercise_reset(
     tx: &mut PgConnection,
     reset_by: Option<Uuid>,
@@ -28,6 +31,7 @@ pub async fn log_exercise_reset(
     exercise_ids: &[Uuid],
     course_id: Uuid,
     reason: Option<String>,
+    teacher_feedback: Option<String>,
 ) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
@@ -37,6 +41,7 @@ INSERT INTO exercise_reset_logs (
     exercise_id,
     course_id,
     reason,
+    teacher_feedback,
     reset_at
   )
 SELECT $1,
@@ -44,13 +49,15 @@ SELECT $1,
   unnest($3::uuid []),
   $4,
   $5,
+  $6,
   NOW()
       "#,
         reset_by,
         user_id,
         &exercise_ids,
         course_id,
-        reason
+        reason,
+        teacher_feedback
     )
     .execute(&mut *tx)
     .await?;
@@ -91,15 +98,24 @@ ORDER BY erl.reset_at DESC"#,
     Ok(result)
 }
 
-/// Check if the user's exercise has been reset and no new submissions have been made since.
-pub async fn user_should_see_reset_message_for_exercise(
+/// What the course material tells a student whose exercise was reset.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ExerciseResetNotice {
+    /// Message key the course material maps to a translation.
+    pub reason: String,
+    /// Free text the teacher wrote for the student while resetting.
+    pub teacher_feedback: Option<String>,
+}
+
+/// The notice for the user's latest reset, or None once they have submitted again since it.
+pub async fn get_reset_notice_for_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-) -> ModelResult<Option<String>> {
+) -> ModelResult<Option<ExerciseResetNotice>> {
     let row = sqlx::query!(
         r#"
-SELECT erl.reset_by, erl.reason
+SELECT erl.reset_by, erl.reason, erl.teacher_feedback
 FROM exercise_reset_logs erl
 LEFT JOIN exercise_slide_submissions es
   ON es.user_id = erl.reset_for
@@ -117,15 +133,17 @@ LIMIT 1
     .fetch_optional(conn)
     .await?;
 
-    let message = row.and_then(|r| {
-        if let Some(reason) = r.reason {
-            Some(reason)
-        } else if r.reset_by.is_some() {
-            Some("reset-by-staff".to_string())
-        } else {
-            None
-        }
+    let notice = row.and_then(|r| {
+        let reason = match (r.reason, r.reset_by) {
+            (Some(reason), _) => reason,
+            (None, Some(_)) => "reset-by-staff".to_string(),
+            (None, None) => return None,
+        };
+        Some(ExerciseResetNotice {
+            reason,
+            teacher_feedback: r.teacher_feedback,
+        })
     });
 
-    Ok(message)
+    Ok(notice)
 }

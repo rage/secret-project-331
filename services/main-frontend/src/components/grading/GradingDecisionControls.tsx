@@ -48,8 +48,6 @@ export const GradingDecisionControls: React.FC<GradingDecisionControlsProps> = (
         target={target}
         canResetExercise={canResetExercise}
         rejectWarning={rejectWarning}
-        // oxlint-disable-next-line i18next/no-literal-string
-        layout="inline"
         isSubmitting={isSubmitting}
         onSubmit={onSubmit}
       />

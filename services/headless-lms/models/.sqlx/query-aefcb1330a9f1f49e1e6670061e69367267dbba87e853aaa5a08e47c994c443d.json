@@ -93,7 +93,9 @@
                 "custom-points",
                 "suspected-plagiarism",
                 "reject-and-reset",
-                "unauthorized-ai-use"
+                "unauthorized-ai-use",
+                "bad-answer",
+                "other"
               ]
             }
           }
@@ -142,7 +144,9 @@
                 "custom-points",
                 "suspected-plagiarism",
                 "reject-and-reset",
-                "unauthorized-ai-use"
+                "unauthorized-ai-use",
+                "bad-answer",
+                "other"
               ]
             }
           }

@@ -205,12 +205,13 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student1Page)
-    await expect(
-      getExerciseRegion(student1Page, EXERCISE_NAME).getByText("The course staff has reviewed"),
-    ).toBeVisible()
+    // The teacher's own feedback replaces the generic "answer was reset by staff" message.
     await expect(
       getExerciseRegion(student1Page, EXERCISE_NAME).getByText(teacherFeedbackText),
     ).toBeVisible()
+    await expect(
+      getExerciseRegion(student1Page, EXERCISE_NAME).getByText("The course staff has reviewed"),
+    ).toBeHidden()
     await getExerciseRegion(student1Page, EXERCISE_NAME)
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "4" })

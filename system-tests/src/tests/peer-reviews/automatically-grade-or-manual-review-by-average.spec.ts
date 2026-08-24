@@ -103,7 +103,9 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
     const frame = await getLocatorForNthExerciseServiceIframe(teacherPage, "example-exercise", 1)
     await frame.getByText("a").waitFor()
 
-    await teacherPage.getByRole("spinbutton").first().fill("0.75")
+    const pointsField = teacherPage.getByRole("textbox", { name: "Points" }).first()
+    await pointsField.fill("0.75")
+    await pointsField.press("Tab")
     await waitForSuccessNotification(teacherPage, async () => {
       await teacherPage.getByRole("button", { name: "Save grading decision" }).first().click()
     })

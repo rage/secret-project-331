@@ -34,7 +34,6 @@ interface GradingDecisionFormProps {
   canResetExercise: boolean
   /** Shown when the teacher asks to let the student answer again. */
   rejectWarning?: React.ReactNode
-  layout: "inline" | "dialog"
   isSubmitting?: boolean
   onSubmit: (decision: NewTeacherGradingDecision) => void | Promise<void>
 }
@@ -125,14 +124,6 @@ const reasonCss = css`
   }
 `
 
-/* The standalone Checkbox puts its description under the whole row, flush left, while the radio
-   cards above indent theirs under the label. Its only div child is that message container. */
-const resetCheckboxCss = css`
-  & > div {
-    padding-left: calc(1.125rem + var(--space-3));
-  }
-`
-
 const resetBlockCss = css`
   display: flex;
   flex-direction: column;
@@ -186,14 +177,13 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
   target,
   canResetExercise,
   rejectWarning,
-  layout,
   isSubmitting = false,
   onSubmit,
 }) => {
   const { t, i18n } = useTranslation()
   const pointsFormatter = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language])
 
-  const { control, handleSubmit, watch, setValue, reset } = useForm<GradingDecisionFormValues>({
+  const { control, handleSubmit, watch, setValue } = useForm<GradingDecisionFormValues>({
     defaultValues: {
       points: target.exerciseMaxPoints,
       reason: badAnswer,
@@ -216,11 +206,10 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
     setValue("points", value, { shouldDirty: true, shouldValidate: true })
   }
 
+  // Deliberately not resetting: the inline shell greys the card out and leaves it in place so a
+  // misclick can be spotted, which only works while the form still shows what was submitted.
   const onValidSubmit = (values: GradingDecisionFormValues) => {
     onSubmit(buildGradingDecision(values, target))
-    if (layout === "inline") {
-      reset()
-    }
   }
 
   return (
@@ -301,7 +290,6 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
           {canResetExercise && (
             <div className={resetBlockCss}>
               <Checkbox
-                className={resetCheckboxCss}
                 name="resetExercise"
                 control={control}
                 label={t("label-reset-answer")}

@@ -166,9 +166,5 @@ test.describe("Chatbot command center testing", () => {
         .getByLabel("Global chatbots", { exact: true })
         .getByRole("option", { name: "Global chatbot test" }),
     ).toBeVisible()
-    // await page.getByRole("button", { name: "Chatbot to test" }).click()
-    // await page.getByText("Global chatbot test", { exact: true }).click()
-    // await page.getByText("Ah, there you are, my dear old bean. Shall we begin??").waitFor()
-    // await expect(page.getByRole("heading", { name: "Global chatbot test" })).toBeVisible()
   })
 })

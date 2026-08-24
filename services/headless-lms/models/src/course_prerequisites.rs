@@ -155,7 +155,7 @@ FROM UNNEST ($2::UUID [], $3::TEXT [], $4::VECTOR []) AS course_prerequisite(id,
 UPDATE
 SET prerequisite = EXCLUDED.prerequisite,
   embedding = EXCLUDED.embedding
-WHERE EXCLUDED.deleted_at IS NULL
+WHERE course_prerequisites.deleted_at IS NULL
 RETURNING *
 "#,
         course_id,

@@ -232,11 +232,7 @@ impl From<sqlx::Error> for ModelError {
             ),
             sqlx::Error::Database(db_err) => {
                 if db_err.is_foreign_key_violation() {
-                    ModelError::new(
-                        ModelErrorType::ForeignKeyViolation,
-                        err.to_string(),
-                        Some(err.into()),
-                    )
+                    model_err!(ForeignKeyViolation, err.to_string(), err)
                 } else if let Some(constraint) = db_err.constraint() {
                     match constraint {
                         "email_templates_subject_check" => ModelError::new(

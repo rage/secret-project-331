@@ -30,6 +30,7 @@ const CourseMetadata: React.FC<React.PropsWithChildren<Props>> = ({ courseId, re
 
   const defaultModule = courseStructure.data?.modules.find((module) => module.order_number === 0)
 
+  const structureLoaded = courseStructure.isSuccess
   const hasCourseCode =
     defaultModule?.uh_course_code !== null && defaultModule?.uh_course_code !== undefined
 
@@ -44,14 +45,14 @@ const CourseMetadata: React.FC<React.PropsWithChildren<Props>> = ({ courseId, re
           className={css`
             margin: 0.5rem 0;
           `}
-          disabled={!hasCourseCode}
+          disabled={!structureLoaded || !hasCourseCode}
           variant="primary"
           size="medium"
           onClick={() => setShowForm(true)}
         >
           {t("generate-ai-metadata")}
         </Button>
-        {!hasCourseCode && (
+        {structureLoaded && !hasCourseCode && (
           <GenericInfobox>{t("missing-uh-course-code-notification")}</GenericInfobox>
         )}
       </div>

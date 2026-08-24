@@ -671,12 +671,15 @@ FROM (
       )
   ) AS v
 WHERE cm.id = v.id
+  AND cm.course_id = $6
+  AND cm.deleted_at IS NULL
 "#,
         &module_ids,
         &uh_course_codes as &[Option<String>],
         &completion_registration_link_overrides as &[Option<String>],
         &ects_credits as &[Option<f32>],
         &enable_registering_completion_to_uh_open_university,
+        course_id
     )
     .execute(&mut *tx)
     .await?;

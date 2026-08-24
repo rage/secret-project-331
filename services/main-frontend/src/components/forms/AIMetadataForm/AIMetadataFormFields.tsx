@@ -63,10 +63,6 @@ const buildFormValues = (
   prereqIds: string[],
   audienceIds: string[],
 ): EditCourseMetadataData => {
-  if (sisuData.modules[0] === undefined) {
-    throw new Error("Course has no default module")
-  }
-
   return {
     course_description: sisuData.course_description,
     course_audiences: sisuData.audience.map((audience, idx) => ({
@@ -74,7 +70,7 @@ const buildFormValues = (
       course_id: course.id,
       audience,
     })),
-    course_prerequisites: sisuData.modules[0].prerequisites.map((prerequisite, idx) => ({
+    course_prerequisites: (sisuData.modules[0]?.prerequisites ?? []).map((prerequisite, idx) => ({
       id: prereqIds[idx] ?? v4(),
       course_id: course.id,
       prerequisite,
@@ -243,7 +239,12 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
           </div>
 
           {hasPrerequisites ? (
-            <div>
+            <ul
+              className={css`
+                margin: 0;
+                padding 0;
+              `}
+            >
               {prerequisites.map((preq, idx) => (
                 <li
                   key={idx}
@@ -264,7 +265,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
                   {preq.prerequisite}
                 </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <div>{t("course-has-no-prerequisites")}</div>
           )}
@@ -372,7 +373,12 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
             </div>
           </div>
           {hasAudiences ? (
-            <div>
+            <ul
+              className={css`
+                margin: 0;
+                padding 0;
+              `}
+            >
               {audiences.map((audience, idx) => (
                 <li
                   key={idx}
@@ -393,7 +399,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
                   {audience.audience}
                 </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <div>{t("course-has-no-audiences")}</div>
           )}

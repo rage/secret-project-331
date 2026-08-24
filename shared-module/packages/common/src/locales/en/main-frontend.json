@@ -400,7 +400,7 @@
   "course-auditing-showing-courses_other": "Showing {{count}} courses",
   "course-auditing-update-error": "Could not update course.",
   "course-closed-additional-label": "Additional information",
-  "course-closed-warning-message": "This course has been closed and and you can no longer take it.",
+  "course-closed-warning-message": "This course has been closed and you can no longer take it.",
   "course-closed-warning-successor-button": "New version of the course",
   "course-closed-warning-title": "Course Closed",
   "course-created-successfully": "Course created successfully",

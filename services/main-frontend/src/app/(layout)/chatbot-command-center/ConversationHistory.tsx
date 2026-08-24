@@ -14,7 +14,8 @@ import { css } from "@emotion/css"
 import type { UseFormSetValue } from "react-hook-form"
 
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
-
+import { baseTheme } from "@/shared-module/common/styles"
+// transition: background-color 0.2s ease; on focus
 const ConversationHistory: React.FC<ConversationHistory> = ({
   setConversationId,
   conversations,
@@ -26,11 +27,17 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
       className={css`
         display: flex;
         flex-direction: column;
-        gap: 1rem;
       `}
     >
       {conversations.map((conversation) => (
-        <div key={conversation.id}>
+        <div
+          className={css`
+            border-top: 1px solid ${baseTheme.colors.gray[75]};
+            padding: 0.5rem 0;
+            margin: 0 12px;
+          `}
+          key={conversation.id}
+        >
           <Button
             size="medium"
             variant="icon"
@@ -44,6 +51,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
             className={css`
               font-size: 14px;
               font-weight: 500;
+              padding-left: 0;
             `}
           >
             <div
@@ -56,7 +64,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
               <div
                 className={css`
                   white-space: nowrap;
-                  max-width: 250px;
+                  max-width: 320px;
                   overflow: hidden;
                   text-overflow: ellipsis;
                 `}
@@ -75,7 +83,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
                   overflow: hidden;
                   text-overflow: ellipsis;
                   text-align: left;
-                  border: 1px solid #8fb4b2;
+                  border: 1px solid ${baseTheme.colors.green[300]};
                   border-radius: 999px;
                   color: gray;
                   max-width: 100px;

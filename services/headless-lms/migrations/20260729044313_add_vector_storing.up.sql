@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 ALTER TABLE course_prerequisites
 ADD COLUMN embedding vector(1536);
 
@@ -28,11 +29,11 @@ COMMENT ON COLUMN course_embeddings.description_embedding IS 'Embedding vector o
 
 CREATE INDEX ON course_prerequisites USING hnsw (embedding vector_ip_ops)
 WHERE deleted_at IS NULL;
-CREATE INDEX course_prerequisites_prerequisite_trgm_idx ON course_prerequisites USING GIST (prerequisite gist_trgm_ops)
+CREATE INDEX ON course_prerequisites USING GIST (prerequisite gist_trgm_ops)
 WHERE deleted_at IS NULL;
 CREATE INDEX ON course_audiences USING hnsw (embedding vector_ip_ops)
 WHERE deleted_at IS NULL;
-CREATE INDEX course_audiences_audience_trgm_idx ON course_audiences USING GIST (audience gist_trgm_ops)
+CREATE INDEX ON course_audiences USING GIST (audience gist_trgm_ops)
 WHERE deleted_at IS NULL;
 CREATE INDEX ON course_embeddings USING hnsw (title_embedding vector_ip_ops)
 WHERE deleted_at IS NULL;

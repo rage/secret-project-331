@@ -180,10 +180,6 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
             action: { type: "teach" },
             resource: { type: "course", id: chatbotConversationInfo.course_id },
           },
-          {
-            action: { type: "edit" },
-            resource: { type: "global_permissions" },
-          },
         ]
       : [
           {

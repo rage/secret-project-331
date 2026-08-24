@@ -167,10 +167,9 @@ async fn create_chatbot(
         let course = models::courses::get_course(&mut conn, course_id).await?;
 
         if !course.can_add_chatbot {
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Course doesn't allow creating chatbots.".to_string(),
-                None,
+            return Err(controller_err!(
+                BadRequest,
+                "Course doesn't allow creating chatbots.".to_string()
             ));
         }
         token
@@ -182,10 +181,10 @@ async fn create_chatbot(
     let model = models::chatbot_configurations_models::get_default(&mut tx)
         .await
         .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
+            controller_err!(
+                BadRequest,
                 "No default chatbot model configured. Ask an admin to set one.".to_string(),
-                Some(e.into()),
+                e
             )
         })?;
 

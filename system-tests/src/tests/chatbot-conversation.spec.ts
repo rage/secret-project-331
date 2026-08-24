@@ -125,6 +125,7 @@ test.describe("Test chatbot chat box", () => {
 
     await test.step("student can't edit chatbot", async () => {
       await chatbotDialog.getByRole("button", { name: "Actions", exact: true }).click()
+      await expect(student1Page.getByRole("menuitem", { name: "New conversation" })).toBeVisible()
       await expect(student1Page.getByRole("menuitem", { name: "Edit chatbot" })).toHaveCount(0)
       await student1Page.locator("body").click()
     })

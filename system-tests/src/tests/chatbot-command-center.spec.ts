@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
 test.describe("Chatbot command center testing", () => {
   test.use({
     storageState: "src/states/admin@example.com.json",
@@ -130,7 +133,9 @@ test.describe("Chatbot command center testing", () => {
     await page.getByRole("button", { name: "Create a new global chatbot" }).click()
     await page.getByRole("textbox", { name: "Name" }).click()
     await page.getByRole("textbox", { name: "Name" }).fill("new global chatbot")
-    await page.getByRole("button", { name: "Save" }).click()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
     await page.getByRole("button", { name: "Back" }).click()
     await page.getByRole("button", { name: "Chatbot to test" }).click()
     await expect(
@@ -142,17 +147,28 @@ test.describe("Chatbot command center testing", () => {
 
   test("can edit chatbot from dropdown", async ({ page }) => {
     await page.getByText("Global chatbot", { exact: true }).click()
+    await expect(page.getByText("About the chatbot")).toBeVisible()
+    await page.getByRole("button", { name: "Agree" }).click()
+    await expect(page.getByText("Chatbots can make mistakes.")).toBeVisible()
     await page.getByTestId("chatbot-header-menu-button").click()
     await page.getByText("Edit chatbot").click()
     await page.getByRole("textbox", { name: "Name" }).click()
     await page.getByRole("textbox", { name: "Name" }).fill("Global chatbot test")
-    await page.getByRole("button", { name: "Save", exact: true }).click()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save", exact: true }).click()
+    })
     await page.getByRole("button", { name: "Back" }).click()
-    await page.getByRole("button", { name: "Chatbot to test" }).click()
+    await waitForSpinnersToDisappear(page)
+    await page.getByText("Chatbot to test").waitFor()
+    await page.getByRole("button", { name: "Chatbot to test" }).click({ delay: 50 })
     await expect(
       page
         .getByLabel("Global chatbots", { exact: true })
         .getByRole("option", { name: "Global chatbot test" }),
     ).toBeVisible()
+    // await page.getByRole("button", { name: "Chatbot to test" }).click()
+    // await page.getByText("Global chatbot test", { exact: true }).click()
+    // await page.getByText("Ah, there you are, my dear old bean. Shall we begin??").waitFor()
+    // await expect(page.getByRole("heading", { name: "Global chatbot test" })).toBeVisible()
   })
 })

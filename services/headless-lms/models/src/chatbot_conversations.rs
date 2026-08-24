@@ -18,6 +18,7 @@ pub struct ChatbotConversation {
     pub course_id: Option<Uuid>,
     pub user_id: Option<Uuid>,
     pub chatbot_configuration_id: Uuid,
+    pub conversation_title: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -44,15 +45,17 @@ INSERT INTO chatbot_conversations (
     course_id,
     user_id,
     anonymous_token,
-    chatbot_configuration_id
+    chatbot_configuration_id,
+    conversation_title
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *
         "#,
         input.course_id,
         input.user_id,
         input.anonymous_token,
-        input.chatbot_configuration_id
+        input.chatbot_configuration_id,
+        input.conversation_title
     )
     .fetch_one(conn)
     .await?;
@@ -90,13 +93,15 @@ INSERT INTO chatbot_conversations (
     course_id,
     user_id,
     anonymous_token,
-    chatbot_configuration_id
+    chatbot_configuration_id,
+    conversation_title
   )
 SELECT $1,
   chatbot_configurations.course_id,
   $2,
   $3,
-  chatbot_configurations.id
+  chatbot_configurations.id,
+  NULL
 FROM chatbot_configurations
 WHERE chatbot_configurations.id = $4
   AND chatbot_configurations.deleted_at IS NULL
@@ -105,7 +110,7 @@ RETURNING *
         pkey_policy.into_uuid(),
         user_id,
         anonymous_token,
-        chatbot_configuration_id
+        chatbot_configuration_id,
     )
     .fetch_one(conn)
     .await?;
@@ -186,11 +191,22 @@ pub async fn get_all_conversations_for_user(
     let res = sqlx::query_as!(
         ChatbotConversation,
         r#"
-SELECT *
+SELECT chatbot_conversations.id,
+  chatbot_conversations.anonymous_token,
+    chatbot_conversations.created_at,
+  chatbot_conversations.updated_at,
+  chatbot_conversations.deleted_at,
+  chatbot_conversations.course_id,
+  chatbot_conversations.user_id,
+  chatbot_conversations.chatbot_configuration_id,
+  msg_msgs.text AS "conversation_title?"
 FROM chatbot_conversations
-WHERE user_id = $1
-  AND deleted_at IS NULL
-ORDER BY created_at DESC
+  LEFT JOIN chatbot_conversation_messages AS msgs ON msgs.conversation_id = chatbot_conversations.id
+  AND msgs.order_number = 2
+  LEFT JOIN chatbot_conversation_message_messages AS msg_msgs ON msgs.id = msg_msgs.chatbot_conversation_message_id
+WHERE chatbot_conversations.user_id = $1
+  AND chatbot_conversations.deleted_at IS NULL
+ORDER BY chatbot_conversations.created_at DESC;
         "#,
         user_id,
     )

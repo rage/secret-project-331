@@ -8,13 +8,10 @@ import type { UseFormSetValue } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
-import {
-  allFirstMessagesOptions,
-  allUserConversationsOptions,
-} from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { allUserConversationsOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, QueryResults } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import ConversationHistory from "./ConversationHistory"
 
@@ -22,7 +19,7 @@ interface SideBarProps {
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   setConversationId: React.Dispatch<string>
   setValue: UseFormSetValue<ChatbotConfiguration>
-  chatbots
+  chatbots: ChatbotConfiguration[]
 }
 
 const SideBar: React.FC<SideBarProps> = ({
@@ -34,7 +31,7 @@ const SideBar: React.FC<SideBarProps> = ({
   const { t } = useTranslation()
 
   const allConversationsQuery = useQuery(allUserConversationsOptions())
-  const messageQuery = useQuery(allFirstMessagesOptions())
+
   return (
     <div>
       <Button
@@ -56,18 +53,16 @@ const SideBar: React.FC<SideBarProps> = ({
       >
         {t("new-conversation")}
       </Button>
-      <QueryResults
-        queries={[allConversationsQuery, messageQuery] as const}
-        renderData={([conversations, messages]) => (
+      <QueryResult query={allConversationsQuery}>
+        {(conversations) => (
           <ConversationHistory
             conversations={conversations}
-            messages={messages}
             setConversationId={setConversationId}
             setValue={setValue}
             chatbots={chatbots}
           />
         )}
-      />
+      </QueryResult>
     </div>
   )
 }

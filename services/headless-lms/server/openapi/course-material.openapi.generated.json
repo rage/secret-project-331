@@ -3251,6 +3251,9 @@
             "type": "string",
             "format": "uuid"
           },
+          "conversation_title": {
+            "type": ["string", "null"]
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"

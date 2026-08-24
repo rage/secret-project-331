@@ -1,16 +1,12 @@
 "use client"
 
-import type {
-  ChatbotConversation,
-  ChatbotConversationFirstMessage,
-} from "@/generated/course-material-api/types.generated"
+import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { Button } from "@/shared-module/components"
 
 interface ConversationHistory {
   setConversationId: React.Dispatch<string>
   conversations: ChatbotConversation[]
   setValue: UseFormSetValue<ChatbotConfiguration>
-  messages: ChatbotConversationFirstMessage[]
   chatbots: ChatbotConfiguration[]
 }
 
@@ -22,19 +18,9 @@ import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 const ConversationHistory: React.FC<ConversationHistory> = ({
   setConversationId,
   conversations,
-  messages,
   setValue,
   chatbots,
 }) => {
-  const conversationsAndFirstMessages = conversations.map((conversation) => {
-    const firstMessage = messages.find(
-      (message) => message.conversation_id === conversation.id,
-    )?.text
-    const chatbotName = chatbots.find(
-      (chatbot) => chatbot.id === conversation.chatbot_configuration_id,
-    )?.chatbot_name
-    return { ...conversation, firstMessage, chatbotName }
-  })
   return (
     <div
       className={css`
@@ -43,7 +29,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
         gap: 1rem;
       `}
     >
-      {conversationsAndFirstMessages.map((conversation) => (
+      {conversations.map((conversation) => (
         <div key={conversation.id}>
           <Button
             size="medium"
@@ -75,8 +61,8 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
                   text-overflow: ellipsis;
                 `}
               >
-                {conversation.firstMessage !== undefined
-                  ? conversation.firstMessage
+                {conversation.conversation_title !== null
+                  ? conversation.conversation_title
                   : // oxlint-disable-next-line i18next/no-literal-string
                     "untitled conversation"}
               </div>
@@ -98,7 +84,10 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
                   padding-bottom: 5px;
                 `}
               >
-                {conversation.chatbotName}
+                {
+                  chatbots.find((chatbot) => chatbot.id === conversation.chatbot_configuration_id)
+                    ?.chatbot_name
+                }
               </span>
             </div>
           </Button>

@@ -242,7 +242,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
             <ul
               className={css`
                 margin: 0;
-                padding 0;
+                padding: 0;
               `}
             >
               {prerequisites.map((preq, idx) => (
@@ -376,7 +376,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
             <ul
               className={css`
                 margin: 0;
-                padding 0;
+                padding: 0;
               `}
             >
               {audiences.map((audience, idx) => (

@@ -4,7 +4,32 @@ import { v4 } from "uuid"
 import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 
 import type { ChatbotState } from "../chatbotReducer"
-import chatbotReducer from "../chatbotReducer"
+import chatbotReducer, { hasStreamedAssistantContent } from "../chatbotReducer"
+
+describe("hasStreamedAssistantContent", () => {
+  it("is false right after USER_SENDS_MESSAGE, before anything of the chatbot's own has arrived", () => {
+    const state = chatbotReducer({ messages: [] }, { type: "USER_SENDS_MESSAGE", payload: "Lol" })
+
+    expect(hasStreamedAssistantContent(state.messages)).toBe(false)
+  })
+
+  it("is true once the chatbot's own content has streamed in", () => {
+    const withUserMessage = chatbotReducer(
+      { messages: [] },
+      { type: "USER_SENDS_MESSAGE", payload: "Lol" },
+    )
+    const withStreamedReply = chatbotReducer(withUserMessage, {
+      type: "RECEIVED_TEXT_DELTA",
+      payload: { text: "Hi", message_id: v4() },
+    })
+
+    expect(hasStreamedAssistantContent(withStreamedReply.messages)).toBe(true)
+  })
+
+  it("is false for an empty conversation", () => {
+    expect(hasStreamedAssistantContent([])).toBe(false)
+  })
+})
 
 describe("chatbotReducer", () => {
   it("works with USER_SENDS_MESSAGE when there's no messages", () => {

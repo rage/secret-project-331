@@ -21,14 +21,22 @@ const statusRowStyle = css`
   color: ${baseTheme.colors.gray[600]};
 `
 
+// No border/background here: with no text, the pill would just be a gray box around three dots.
+const bareStyle = css`
+  display: flex;
+  align-items: center;
+  margin: 0.25rem 0;
+`
+
 interface ChatbotStatusRowProps {
-  /** What the chatbot is doing, already translated. */
-  text: string
+  /** What the chatbot is doing, already translated. Omitted before Azure has said anything more
+   * specific than "the turn started" — claiming e.g. "Thinking" that early would be a guess. */
+  text?: string
 }
 
 /** What the chatbot is doing right now, shown from the moment a turn starts until it settles. */
 const ChatbotStatusRow: React.FC<ChatbotStatusRowProps> = ({ text }) => (
-  <div className={statusRowStyle}>
+  <div className={text ? statusRowStyle : bareStyle}>
     {text}
     <ThinkingIndicator />
   </div>

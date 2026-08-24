@@ -245,4 +245,11 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
   })
 }
 
+/** Whether the chatbot has produced anything of its own yet in the running turn's messages, as
+ * opposed to only the learner's optimistic message — the signal for whether the thinking status
+ * row should still be shown instead of the chatbot's own streamed content. */
+export const hasStreamedAssistantContent = (
+  messages: ChatbotConversationMessageWithStatus[],
+): boolean => messages.some((m) => !m.optimistic)
+
 export default chatbotReducer

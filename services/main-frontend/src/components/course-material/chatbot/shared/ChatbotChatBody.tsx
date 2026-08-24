@@ -21,6 +21,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
+import { hasStreamedAssistantContent } from "./chatbotReducer"
 import ChatbotStatusRow from "./ChatbotStatusRow"
 import type { ClosedClientToolAnswer } from "./clientToolRegistry"
 import { CLIENT_TOOL_REGISTRY } from "./clientToolRegistry"
@@ -374,7 +375,7 @@ interface ChatbotConversationViewProps {
   citations: Map<string, ChatbotConversationMessageCitation[]>
   onAnswer: (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => void
   isTurnInFlight: boolean
-  streamedMessageCount: number
+  hasStreamedAssistantContent: boolean
   suggestedMessages: { id: string; message: string }[]
   isSuggestionsLoading: boolean
   onPickSuggestion: (message: string) => void
@@ -396,7 +397,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
   citations,
   onAnswer,
   isTurnInFlight,
-  streamedMessageCount,
+  hasStreamedAssistantContent: hasStreamedContent,
   suggestedMessages,
   isSuggestionsLoading,
   onPickSuggestion,
@@ -432,10 +433,12 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
             onAnswer={onAnswer}
           />
         ))}
-        {/* From the first streamed item on, the streamed bubbles carry the status instead. */}
-        {isTurnInFlight && streamedMessageCount === 0 && (
+        {/* hasStreamedContent ignores the optimistic user message, so this row stays up from
+          send until the chatbot's own content starts streaming. No text yet: Azure hasn't said
+          more than "turn started" at this point, so claiming "Thinking" here would be a guess. */}
+        {isTurnInFlight && !hasStreamedContent && (
           <li className={messageListItemStyle}>
-            <ChatbotStatusRow text={t("chatbot-status-thinking")} />
+            <ChatbotStatusRow />
           </li>
         )}
         <li className={suggestionsRowStyle}>
@@ -700,7 +703,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           citations={citations}
           onAnswer={handleAnswer}
           isTurnInFlight={isTurnInFlight}
-          streamedMessageCount={messageState.messages.length}
+          hasStreamedAssistantContent={hasStreamedAssistantContent(messageState.messages)}
           suggestedMessages={currentConversationInfo.data.suggested_messages ?? []}
           isSuggestionsLoading={currentConversationInfo.isRefetching}
           onPickSuggestion={handlePickSuggestion}

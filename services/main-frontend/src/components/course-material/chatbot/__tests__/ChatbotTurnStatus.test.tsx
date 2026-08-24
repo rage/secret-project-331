@@ -18,7 +18,7 @@ beforeAll(setupIntersectionObserverMock)
 const unfinishedReasoningItem = (): ChatbotConversationMessageWithStatus =>
   ({
     finished: false,
-    optimistic: true,
+    optimistic: false,
     message: {
       conversation_id: CONVERSATION_ID,
       created_at: TIME,
@@ -37,18 +37,25 @@ const unfinishedReasoningItem = (): ChatbotConversationMessageWithStatus =>
   }) as unknown as ChatbotConversationMessageWithStatus
 
 describe("Turn status while the chatbot answers", () => {
-  // A bare div here is an axe `list` violation, because the row's parent is the message <ul>.
-  it("renders the status row as a list item", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps({ isTurnInFlight: true }).props} />)
+  // A bare div here is an axe `list` violation, since the row's parent is the message <ul>.
+  // No text is asserted: right after send Azure hasn't said anything more specific than "the
+  // turn started", so the row must not yet claim "Thinking" (see the next describe block).
+  it("renders the status row as a list item with the dots but no claim about what's happening yet", () => {
+    const { container } = render(
+      <ChatbotChatBody {...makeChatBodyProps({ isTurnInFlight: true }).props} />,
+    )
 
     const rows = screen.getAllByRole("listitem")
-    expect(rows.some((row) => row.textContent === "chatbot-status-thinking")).toBe(true)
+    const statusRow = rows.find((row) => row.querySelector('[aria-hidden="true"]') !== null)
+    expect(statusRow).toBeDefined()
+    expect(statusRow!.textContent).toBe("")
+    expect(container.querySelector('[aria-hidden="true"]')).toBeInTheDocument()
   })
 
   it("drops the status row once no turn is in flight", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps().props} />)
+    const { container } = render(<ChatbotChatBody {...makeChatBodyProps().props} />)
 
-    expect(screen.queryByText("chatbot-status-thinking")).toBeNull()
+    expect(container.querySelector('[aria-hidden="true"]')).toBeNull()
   })
 
   it("marks the message list busy only while a turn is in flight", () => {

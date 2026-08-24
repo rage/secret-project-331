@@ -963,6 +963,69 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-auditing/": {
+      "get": {
+        "tags": ["course_auditing"],
+        "summary": "\nGET `/api/v0/main-frontend/course-auditing`",
+        "operationId": "getCoursesForAuditing",
+        "responses": {
+          "200": {
+            "description": "Courses for auditing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseAuditingData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-auditing/{course_id}": {
+      "put": {
+        "tags": ["course_auditing"],
+        "summary": "\nPUT `/api/v0/main-frontend/course-auditing/:id`",
+        "operationId": "updateCourseAuditingData",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseAuditingDataUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseAuditingData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions": {
       "get": {
         "tags": ["course-credit-registrations"],
@@ -16714,6 +16777,152 @@
           }
         }
       },
+      "CourseAuditingData": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "created_at",
+          "updated_at",
+          "organization_id",
+          "organization_name",
+          "organization_slug",
+          "prerequisites",
+          "audiences",
+          "modules"
+        ],
+        "properties": {
+          "audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditCourseAudience"
+            }
+          },
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModule"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "organization_slug": {
+            "type": "string"
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditCoursePrerequisite"
+            }
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseAuditingDataUpdate": {
+        "type": "object",
+        "required": ["prerequisites", "audiences", "modules"],
+        "properties": {
+          "audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditCourseAudience"
+            }
+          },
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseAuditingModuleUpdate"
+            }
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditCoursePrerequisite"
+            }
+          }
+        }
+      },
+      "CourseAuditingModuleUpdate": {
+        "type": "object",
+        "required": ["id", "order_number", "enable_registering_completion_to_uh_open_university"],
+        "properties": {
+          "completion_registration_link_override": {
+            "type": ["string", "null"]
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "enable_registering_completion_to_uh_open_university": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
       "CourseBreadcrumbInfo": {
         "type": "object",
         "required": [
@@ -17841,7 +18050,7 @@
       },
       "CourseMetadata": {
         "type": "object",
-        "required": ["course_audiences", "course_prerequisites"],
+        "required": ["course_audiences", "course_prerequisites", "course_updated_at"],
         "properties": {
           "course_audiences": {
             "type": "array",
@@ -17857,6 +18066,10 @@
             "items": {
               "$ref": "#/components/schemas/CoursePrerequisite"
             }
+          },
+          "course_updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -17867,7 +18080,7 @@
           "course_audiences": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/NewCourseAudience"
+              "$ref": "#/components/schemas/EditCourseAudience"
             }
           },
           "course_description": {
@@ -17876,7 +18089,7 @@
           "course_prerequisites": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/NewCoursePrerequisite"
+              "$ref": "#/components/schemas/EditCoursePrerequisite"
             }
           }
         }
@@ -17892,7 +18105,8 @@
           "order_number",
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
-          "certification_enabled"
+          "certification_enabled",
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "certification_enabled": {
@@ -17924,6 +18138,9 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
@@ -20460,6 +20677,40 @@
           "users_with_some_unregistered_completions": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "EditCourseAudience": {
+        "type": "object",
+        "required": ["id", "course_id", "audience"],
+        "properties": {
+          "audience": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EditCoursePrerequisite": {
+        "type": "object",
+        "required": ["id", "course_id", "prerequisite"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "prerequisite": {
+            "type": "string"
           }
         }
       },
@@ -23185,24 +23436,6 @@
           "teacher_in_charge_name": {
             "type": "string",
             "description": "Name of the teacher who is responsible for the course. Must be a valid name."
-          }
-        }
-      },
-      "NewCourseAudience": {
-        "type": "object",
-        "required": ["audience"],
-        "properties": {
-          "audience": {
-            "type": "string"
-          }
-        }
-      },
-      "NewCoursePrerequisite": {
-        "type": "object",
-        "required": ["prerequisite"],
-        "properties": {
-          "prerequisite": {
-            "type": "string"
           }
         }
       },

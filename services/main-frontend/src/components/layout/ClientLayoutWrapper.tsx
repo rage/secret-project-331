@@ -5,7 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query"
 import { Provider } from "jotai"
 import { usePathname, useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
-import { RouterProvider } from "react-aria-components"
+import { I18nProvider, RouterProvider } from "react-aria-components"
 
 import { LanguageOptionsProvider } from "@/contexts/LanguageOptionsContext"
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
@@ -85,10 +85,12 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
           <OverlayProvider>
             <DialogProvider>
               <LanguageOptionsProvider>
-                <GlobalStyles />
-                <PageTitleManager />
-                <RouteFocusManager pathname={pathname} />
-                <LoginStateContextProvider>{children}</LoginStateContextProvider>
+                <I18nProvider locale={language}>
+                  <GlobalStyles />
+                  <PageTitleManager />
+                  <RouteFocusManager pathname={pathname} />
+                  <LoginStateContextProvider>{children}</LoginStateContextProvider>
+                </I18nProvider>
               </LanguageOptionsProvider>
             </DialogProvider>
           </OverlayProvider>

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled\nFROM course_modules\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+  "query": "\nINSERT INTO course_modules (\n    id,\n    course_id,\n    name,\n    order_number,\n    automatic_completion,\n    automatic_completion_number_of_exercises_attempted_treshold,\n    automatic_completion_number_of_points_treshold,\n    automatic_completion_requires_exam,\n    ects_credits,\n    enable_registering_completion_to_uh_open_university,\n    uh_course_code,\n    enable_credit_registration_via_suotar\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar\n        ",
   "describe": {
     "columns": [
       {
@@ -189,11 +189,33 @@
             "name": "certification_enabled"
           }
         }
+      },
+      {
+        "ordinal": 17,
+        "name": "enable_credit_registration_via_suotar",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "enable_credit_registration_via_suotar"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "UuidArray"
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Int4",
+        "Bool",
+        "Int4",
+        "Int4",
+        "Bool",
+        "Float4",
+        "Bool",
+        "Varchar",
+        "Bool"
       ]
     },
     "nullable": [
@@ -213,8 +235,9 @@
       true,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "ca3c52faa11354371e2bdef794cfdb2c73797b220dafd119d75440bb8d1ed760"
+  "hash": "a0c09fee2b9272a9a503c57b1d89e075f7edd8c83cca237b784dabeaa9dd5840"
 }

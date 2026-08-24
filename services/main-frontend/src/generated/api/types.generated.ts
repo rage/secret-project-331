@@ -1074,6 +1074,44 @@ export type CourseAudience = {
   updated_at: string
 }
 
+export type CourseAuditingData = {
+  audiences: Array<EditCourseAudience>
+  closed_additional_message?: string | null
+  closed_at?: string | null
+  closed_course_successor_id?: string | null
+  created_at: string
+  description?: string | null
+  id: string
+  modules: Array<CourseModule>
+  name: string
+  organization_id: string
+  organization_name: string
+  organization_slug: string
+  prerequisites: Array<EditCoursePrerequisite>
+  slug: string
+  updated_at: string
+}
+
+export type CourseAuditingDataUpdate = {
+  audiences: Array<EditCourseAudience>
+  closed_additional_message?: string | null
+  closed_at?: string | null
+  closed_course_successor_id?: string | null
+  description?: string | null
+  modules: Array<CourseAuditingModuleUpdate>
+  prerequisites: Array<EditCoursePrerequisite>
+}
+
+export type CourseAuditingModuleUpdate = {
+  completion_registration_link_override?: string | null
+  ects_credits?: number | null
+  enable_registering_completion_to_uh_open_university: boolean
+  id: string
+  name?: string | null
+  order_number: number
+  uh_course_code?: string | null
+}
+
 export type CourseBreadcrumbInfo = {
   course_id: string
   course_name: string
@@ -1444,12 +1482,13 @@ export type CourseMetadata = {
   course_audiences: Array<CourseAudience>
   course_description?: string | null
   course_prerequisites: Array<CoursePrerequisite>
+  course_updated_at: string
 }
 
 export type CourseMetadataUpdate = {
-  course_audiences: Array<NewCourseAudience>
+  course_audiences: Array<EditCourseAudience>
   course_description?: string | null
-  course_prerequisites: Array<NewCoursePrerequisite>
+  course_prerequisites: Array<EditCoursePrerequisite>
 }
 
 /**
@@ -1468,6 +1507,7 @@ export type CourseModule = {
   created_at: string
   deleted_at?: string | null
   ects_credits?: number | null
+  enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
@@ -2563,6 +2603,18 @@ export type DomainCompletionStats = {
   users_with_some_unregistered_completions: number
 }
 
+export type EditCourseAudience = {
+  audience: string
+  course_id: string
+  id: string
+}
+
+export type EditCoursePrerequisite = {
+  course_id: string
+  id: string
+  prerequisite: string
+}
+
 export type EditProposalInfo = {
   block_proposals: Array<BlockProposalInfo>
   page_id: string
@@ -3483,14 +3535,6 @@ export type NewCourse = {
    * Name of the teacher who is responsible for the course. Must be a valid name.
    */
   teacher_in_charge_name: string
-}
-
-export type NewCourseAudience = {
-  audience: string
-}
-
-export type NewCoursePrerequisite = {
-  prerequisite: string
 }
 
 export type NewExam = {
@@ -5315,6 +5359,45 @@ export type DeleteCodeGiveawayCodeResponses = {
    */
   200: unknown
 }
+
+export type GetCoursesForAuditingData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-auditing/"
+}
+
+export type GetCoursesForAuditingResponses = {
+  /**
+   * Courses for auditing
+   */
+  200: Array<CourseAuditingData>
+}
+
+export type GetCoursesForAuditingResponse =
+  GetCoursesForAuditingResponses[keyof GetCoursesForAuditingResponses]
+
+export type UpdateCourseAuditingDataData = {
+  body: CourseAuditingDataUpdate
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-auditing/{course_id}"
+}
+
+export type UpdateCourseAuditingDataResponses = {
+  /**
+   * Updated course
+   */
+  200: CourseAuditingData
+}
+
+export type UpdateCourseAuditingDataResponse =
+  UpdateCourseAuditingDataResponses[keyof UpdateCourseAuditingDataResponses]
 
 export type GetCourseCreditRegistrationActionsData = {
   body?: never

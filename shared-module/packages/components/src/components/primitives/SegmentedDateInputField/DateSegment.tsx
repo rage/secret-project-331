@@ -6,6 +6,7 @@ import { useRef } from "react"
 import { useDateSegment } from "react-aria"
 
 import {
+  kloSegmentLiteralCss,
   segmentCss,
   segmentLiteralCss,
   segmentPlaceholderCss,
@@ -30,6 +31,8 @@ export function DateSegment({
         segmentCss,
         segment.isPlaceholder ? segmentPlaceholderCss : undefined,
         segment.type === "literal" ? segmentLiteralCss : undefined,
+        segment.type === "literal" ? segmentLiteralCss : undefined,
+        segment.text.trim() === "klo" ? kloSegmentLiteralCss : undefined,
       )}
     >
       {segment.text}

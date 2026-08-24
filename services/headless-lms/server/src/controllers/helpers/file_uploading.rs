@@ -11,10 +11,6 @@ use headless_lms_utils::file_store::{FileStore, GenericPayload};
 use headless_lms_utils::{
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
-use mime::Mime;
-use models::exercise_slides::ExerciseSlide;
-use models::exercise_tasks::ExerciseTask;
-use models::exercises::Exercise;
 use models::organizations::DatabaseOrganization;
 use rand::distr::Alphanumeric;
 use rand::distr::SampleString;
@@ -38,6 +34,18 @@ pub struct ExerciseServiceUploadResultEntry {
     pub url: String,
 }
 
+/// One stored upload, with the host-side identity the wire result omits.
+///
+/// `entry.id` is the UUID the *caller* chose as the multipart field name, which is all the iframe
+/// protocol needs. A caller that has to reference the file later — the exercise-services client
+/// API, whose submit names uploads by id — needs the `file_uploads` row id and the original file
+/// name instead.
+pub struct ExerciseServiceUpload {
+    pub entry: ExerciseServiceUploadResultEntry,
+    pub file_upload_id: Uuid,
+    pub name: String,
+}
+
 /** Tracks uploaded object paths for cleanup when the batch fails. */
 pub struct ExerciseServiceUploadCleanup {
     pub path: String,
@@ -49,17 +57,47 @@ struct ExerciseServiceUploadMetadata {
     mime_type: String,
 }
 
-/// Processes an upload from an exercise service or an exercise iframe.
+/// Processes an upload from an exercise service, an exercise iframe or a native client.
 /// This function assumes that any permission checks have already been made.
+///
+/// `path_prefix` only namespaces the stored objects; it carries no authorization meaning.
 pub async fn process_exercise_service_upload(
     conn: &mut PgConnection,
-    exercise_service_slug: &str,
+    path_prefix: &str,
+    payload: Multipart,
+    file_store: &dyn FileStore,
+    uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
+    uploader: Option<Uuid>,
+    base_url: &str,
+) -> Result<Vec<ExerciseServiceUpload>, ControllerError> {
+    let streamed =
+        stream_exercise_service_upload(path_prefix, payload, file_store, uploaded_paths, base_url)
+            .await?;
+    let mut tx = conn.begin().await?;
+    let uploads = record_exercise_service_upload(&mut tx, streamed, uploader).await?;
+    tx.commit().await?;
+    Ok(uploads)
+}
+
+/// The parts of an upload that have reached the object store but have no database row yet.
+pub struct StreamedExerciseServiceUpload {
+    results: Vec<ExerciseServiceUploadResultEntry>,
+    metadata: Vec<ExerciseServiceUploadMetadata>,
+}
+
+/// Streams every multipart part to the object store, issuing no statements at all.
+///
+/// Split from the row inserts on purpose: the limits here are byte-based, not time-based, so a
+/// handler that opened a transaction first would hold a connection `idle in transaction` for as
+/// long as the client cares to trickle 100 MiB, and enough concurrent slow uploads would exhaust
+/// the pool and hold back the vacuum xmin horizon.
+pub async fn stream_exercise_service_upload(
+    path_prefix: &str,
     mut payload: Multipart,
     file_store: &dyn FileStore,
     uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
-    uploader: Option<AuthUser>,
     base_url: &str,
-) -> Result<Vec<ExerciseServiceUploadResultEntry>, ControllerError> {
+) -> Result<StreamedExerciseServiceUpload, ControllerError> {
     let mut results = Vec::new();
     let mut metadata = Vec::new();
     let mut ids = HashSet::new();
@@ -93,7 +131,7 @@ pub async fn process_exercise_service_upload(
         .to_string();
 
         let random_filename = generate_random_string(32);
-        let path = format!("{exercise_service_slug}/{random_filename}");
+        let path = format!("{path_prefix}/{random_filename}");
         uploaded_paths.push(ExerciseServiceUploadCleanup { path: path.clone() });
         let mime_type = field
             .content_type()
@@ -123,19 +161,37 @@ pub async fn process_exercise_service_upload(
         });
     }
     validate_exercise_upload_not_empty(results.len())?;
-    let mut tx = conn.begin().await?;
-    for upload in metadata {
-        models::file_uploads::insert(
-            &mut tx,
+    Ok(StreamedExerciseServiceUpload { results, metadata })
+}
+
+/// Records the `file_uploads` rows for an already-streamed upload.
+///
+/// Takes the caller's transaction so that a caller which has further rows to write — the
+/// exercise-services client API binds each upload to an exercise and user — lands them together
+/// with these.
+pub async fn record_exercise_service_upload(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    streamed: StreamedExerciseServiceUpload,
+    uploader: Option<Uuid>,
+) -> Result<Vec<ExerciseServiceUpload>, ControllerError> {
+    let StreamedExerciseServiceUpload { results, metadata } = streamed;
+    let mut uploads = Vec::with_capacity(results.len());
+    for (entry, upload) in results.into_iter().zip(metadata) {
+        let file_upload_id = models::file_uploads::insert(
+            tx,
             &upload.filename,
             &upload.path,
             &upload.mime_type,
-            uploader.map(|user| user.id),
+            uploader,
         )
         .await?;
+        uploads.push(ExerciseServiceUpload {
+            entry,
+            file_upload_id,
+            name: upload.filename,
+        });
     }
-    tx.commit().await?;
-    Ok(results)
+    Ok(uploads)
 }
 
 /// Returns a side channel for typed upload-limit errors because the stream yields `anyhow` errors.
@@ -513,50 +569,6 @@ pub async fn upload_certificate_svg(
     Ok((id, safe_path))
 }
 
-pub struct ExerciseTaskInfo<'a> {
-    pub course_id: Uuid,
-    pub exercise: &'a Exercise,
-    pub exercise_slide: &'a ExerciseSlide,
-    pub exercise_task: &'a ExerciseTask,
-}
-
-pub async fn upload_exercise_archive(
-    conn: &mut PgConnection,
-    file: GenericPayload,
-    file_store: &dyn FileStore,
-    exercise: ExerciseTaskInfo<'_>,
-    mime: Mime,
-    uploader: Uuid,
-) -> Result<(Uuid, PathBuf), ControllerError> {
-    let file_name = &exercise.exercise.name;
-    let path = nested_path(
-        &[
-            "user-exercise-uploads",
-            "exercise",
-            &exercise.exercise.id.to_string(),
-            "slide",
-            &exercise.exercise_slide.id.to_string(),
-            "task",
-            &exercise.exercise_task.id.to_string(),
-            file_name,
-        ],
-        FileType::File,
-        StoreKind::Course(exercise.course_id),
-    );
-    let safe_path = make_filename_safe(&path);
-    let id = upload_file_to_storage(
-        conn,
-        &safe_path,
-        file_name,
-        mime.as_ref(),
-        file,
-        file_store,
-        Some(uploader),
-    )
-    .await?;
-    Ok((id, safe_path))
-}
-
 async fn upload_file_to_storage(
     conn: &mut PgConnection,
     path: &Path,
@@ -789,10 +801,6 @@ enum FileType {
 }
 
 fn path(file_name: &str, file_type: FileType, store_kind: StoreKind) -> PathBuf {
-    nested_path(&[file_name], file_type, store_kind)
-}
-
-fn nested_path(components: &[&str], file_type: FileType, store_kind: StoreKind) -> PathBuf {
     let (base_dir, base_id) = match store_kind {
         StoreKind::Organization(id) => ("organization", id),
         StoreKind::Course(id) => ("course", id),
@@ -803,8 +811,7 @@ fn nested_path(components: &[&str], file_type: FileType, store_kind: StoreKind) 
         FileType::Audio => "audios",
         FileType::File => "files",
     };
-    [base_dir, &base_id.to_string(), file_type_subdir]
+    [base_dir, &base_id.to_string(), file_type_subdir, file_name]
         .iter()
-        .chain(components)
         .collect()
 }

@@ -32,6 +32,7 @@ import {
   adminUnlinkStudentNumber,
   advanceCourseDesignerStage,
   approveOauthConsent,
+  approveOauthDeviceVerification,
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
@@ -83,6 +84,8 @@ import {
   deletePageAudioFile,
   deletePlaygroundExample,
   denyOauthConsent,
+  denyOauthDeviceVerification,
+  deviceAuthorizationOauth,
   dismissCourseSuspectedCheater,
   dismissCreditRegistrationEnrolmentBanner,
   dismissMyAutoLinkNotice,
@@ -239,6 +242,7 @@ import {
   getNumberOfPeopleRegisteredCompletionToStudyRegistry,
   getNumberOfPeopleStartedCourse,
   getOauthAuthorizedClients,
+  getOauthDeviceVerification,
   getOauthJwks,
   getOauthOpenidConfiguration,
   getOauthUserInfo,
@@ -265,6 +269,7 @@ import {
   getRegradingsCount,
   getResetPasswordTokenStatus,
   getRoles,
+  getSharedSubmissionInfo,
   getSisuCourseLlmDescriptions,
   getStatusCronjobs,
   getStatusDeployments,
@@ -317,6 +322,7 @@ import {
   listCreditRegistrationAdminActions,
   listCreditRegistrationPhases,
   listCreditRegistrationsForAdmin,
+  listOwnSubmissionShares,
   listSuotarApiCalls,
   listVerifiedStudentNumbersForAdmin,
   markFeedbackAsRead,
@@ -341,6 +347,8 @@ import {
   retryCreditRegistration,
   retryFailedCreditRegistrationsForCourse,
   revokeOauthToken,
+  revokeSubmissionShare,
+  revokeSubmissionSharesOfSubmission,
   saveCourseDesignerSchedule,
   searchUserDetailsByEmail,
   searchUserDetailsByOtherDetails,
@@ -422,6 +430,8 @@ import type {
   AdvanceCourseDesignerStageResponse,
   ApproveOauthConsentData,
   ApproveOauthConsentResponse,
+  ApproveOauthDeviceVerificationData,
+  ApproveOauthDeviceVerificationResponse,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
@@ -505,6 +515,10 @@ import type {
   DeletePlaygroundExampleResponse,
   DenyOauthConsentData,
   DenyOauthConsentResponse,
+  DenyOauthDeviceVerificationData,
+  DenyOauthDeviceVerificationResponse,
+  DeviceAuthorizationOauthData,
+  DeviceAuthorizationOauthResponse,
   DismissCourseSuspectedCheaterData,
   DismissCreditRegistrationEnrolmentBannerData,
   DismissMyAutoLinkNoticeData,
@@ -805,6 +819,8 @@ import type {
   GetNumberOfPeopleStartedCourseResponse,
   GetOauthAuthorizedClientsData,
   GetOauthAuthorizedClientsResponse,
+  GetOauthDeviceVerificationData,
+  GetOauthDeviceVerificationResponse,
   GetOauthJwksData,
   GetOauthOpenidConfigurationData,
   GetOauthUserInfoData,
@@ -853,6 +869,8 @@ import type {
   GetResetPasswordTokenStatusResponse,
   GetRolesData,
   GetRolesResponse,
+  GetSharedSubmissionInfoData,
+  GetSharedSubmissionInfoResponse,
   GetSisuCourseLlmDescriptionsData,
   GetSisuCourseLlmDescriptionsResponse,
   GetStatusCronjobsData,
@@ -955,6 +973,8 @@ import type {
   ListCreditRegistrationPhasesResponse,
   ListCreditRegistrationsForAdminData,
   ListCreditRegistrationsForAdminResponse,
+  ListOwnSubmissionSharesData,
+  ListOwnSubmissionSharesResponse,
   ListSuotarApiCallsData,
   ListSuotarApiCallsResponse,
   ListVerifiedStudentNumbersForAdminData,
@@ -994,6 +1014,10 @@ import type {
   RetryFailedCreditRegistrationsForCourseData,
   RetryFailedCreditRegistrationsForCourseResponse,
   RevokeOauthTokenData,
+  RevokeSubmissionShareData,
+  RevokeSubmissionShareResponse,
+  RevokeSubmissionSharesOfSubmissionData,
+  RevokeSubmissionSharesOfSubmissionResponse,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponse,
   SearchUserDetailsByEmailData,
@@ -9132,22 +9156,169 @@ export const denyOauthConsentMutation = (
 }
 
 /**
+ * Handles `POST /device_authorization` — the RFC 8628 device authorization
+ * endpoint.
+ *
+ * Public, form-encoded, no session required (rate-limited like `/token`).
+ * Validates the client, checks it is allowed the device-code grant, validates
+ * requested scopes against the client's registered scopes, then issues an
+ * opaque `device_code` (stored only as an HMAC digest) plus a human-typable
+ * `user_code`.
+ *
+ * Follows [RFC 8628 §3.1–§3.2](https://datatracker.ietf.org/doc/html/rfc8628#section-3.1).
+ *
+ * # Example
+ * ```http
+ * POST /api/v0/main-frontend/oauth/device_authorization HTTP/1.1
+ * Content-Type: application/x-www-form-urlencoded
+ *
+ * client_id=tmc-vscode&scope=exercise-services
+ * ```
+ *
+ * Successful response:
+ * ```http
+ * HTTP/1.1 200 OK
+ * Content-Type: application/json
+ *
+ * {
+ * "device_code": "GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS",
+ * "user_code": "WDJB-MJHT",
+ * "verification_uri": "https://courses.mooc.fi/oauth_device",
+ * "verification_uri_complete": "https://courses.mooc.fi/oauth_device?user_code=WDJB-MJHT",
+ * "expires_in": 900,
+ * "interval": 5
+ * }
+ * ```
+ */
+export const deviceAuthorizationOauthMutation = (
+  options?: Partial<Options<DeviceAuthorizationOauthData>>,
+): UseMutationOptions<
+  DeviceAuthorizationOauthResponse,
+  DefaultError,
+  Options<DeviceAuthorizationOauthData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeviceAuthorizationOauthResponse,
+    DefaultError,
+    Options<DeviceAuthorizationOauthData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await deviceAuthorizationOauth({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getOauthDeviceVerificationQueryKey = (
+  options: Options<GetOauthDeviceVerificationData>,
+) => createQueryKey("getOauthDeviceVerification", options)
+
+/**
+ * Handles `GET /device_verification` — render data for the browser consent page.
+ *
+ * Session-authed. Looks up the still-pending, unexpired grant for the given
+ * `user_code` (normalizing the input first) and returns the client name and
+ * requested scopes so the page can ask the user to approve. A code that is
+ * unknown, expired, or no longer pending yields `404 Not Found` so the page can
+ * show a distinguishable "invalid or expired code" message.
+ */
+export const getOauthDeviceVerificationOptions = (
+  options: Options<GetOauthDeviceVerificationData>,
+) =>
+  queryOptions<
+    GetOauthDeviceVerificationResponse,
+    DefaultError,
+    GetOauthDeviceVerificationResponse,
+    ReturnType<typeof getOauthDeviceVerificationQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getOauthDeviceVerification({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getOauthDeviceVerificationQueryKey(options),
+  })
+
+/**
+ * Handles `POST /device_verification/approve`.
+ *
+ * Session-authed. Persists the user's consent via the same
+ * `OAuthUserClientScopes::insert` the web consent flow uses (consent is always
+ * recorded — never short-circuited on a pre-existing grant), then marks the
+ * device code approved and bound to the signed-in user.
+ */
+export const approveOauthDeviceVerificationMutation = (
+  options?: Partial<Options<ApproveOauthDeviceVerificationData>>,
+): UseMutationOptions<
+  ApproveOauthDeviceVerificationResponse,
+  DefaultError,
+  Options<ApproveOauthDeviceVerificationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ApproveOauthDeviceVerificationResponse,
+    DefaultError,
+    Options<ApproveOauthDeviceVerificationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await approveOauthDeviceVerification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * Handles `POST /device_verification/deny`.
+ *
+ * Session-authed. Marks the pending device code denied; the polling client then
+ * receives `access_denied` at the token endpoint.
+ */
+export const denyOauthDeviceVerificationMutation = (
+  options?: Partial<Options<DenyOauthDeviceVerificationData>>,
+): UseMutationOptions<
+  DenyOauthDeviceVerificationResponse,
+  DefaultError,
+  Options<DenyOauthDeviceVerificationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DenyOauthDeviceVerificationResponse,
+    DefaultError,
+    Options<DenyOauthDeviceVerificationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await denyOauthDeviceVerification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * Handles the `/introspect` endpoint for OAuth 2.0 token introspection (RFC 7662).
  *
  * This endpoint allows resource servers to query the authorization server about
  * the active state and metadata of an access token.
  *
  * ### Security Features
- * - Client authentication is required (client_id and client_secret for confidential clients)
- * - Returns `active: false` for invalid/expired tokens or authentication failures
- * to prevent token enumeration attacks
- * - Always returns 200 OK, even for invalid tokens (per RFC 7662)
+ * - Only a confidential client may introspect; an unknown client, a public client or a bad
+ * secret is 401 `invalid_client` (RFC 7662 §2.1, §2.3)
+ * - Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token
+ * existence is never disclosed to an authenticated caller
  *
  * ### Request Parameters
  * - `token` (required): The token to be introspected
  * - `token_type_hint` (optional): Hint about token type ("access_token" or "refresh_token")
- * - `client_id` (required): Client identifier
- * - `client_secret` (required for confidential clients): Client secret
+ * - `client_id` (required): Client identifier of a confidential client
+ * - `client_secret` (required): Client secret
  *
  * ### Response
  * Returns a JSON object with:
@@ -9162,6 +9333,11 @@ export const denyOauthConsentMutation = (
  * - `iss`: Issuer
  * - `jti`: JWT ID
  * - `token_type`: "Bearer" or "DPoP"
+ * - Non-standard members, returned only to callers that authenticated as a
+ * confidential client and omitted (never falsified) otherwise:
+ * - `upstream_id`: the token owner's legacy TMC user id
+ * - `client_bearer_allowed`: whether the client the token was issued to may use it
+ * as a plain Bearer credential. Consumers must fail closed if it is absent.
  *
  * Follows [RFC 7662 — OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662).
  *
@@ -10803,6 +10979,117 @@ export const removeRoleMutation = (
   }
   return mutationOptions
 }
+
+export const listOwnSubmissionSharesQueryKey = (options?: Options<ListOwnSubmissionSharesData>) =>
+  createQueryKey("listOwnSubmissionShares", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions` - Lists the shares the current user has minted,
+ * newest first, so they can be reviewed and withdrawn.
+ */
+export const listOwnSubmissionSharesOptions = (options?: Options<ListOwnSubmissionSharesData>) =>
+  queryOptions<
+    ListOwnSubmissionSharesResponse,
+    DefaultError,
+    ListOwnSubmissionSharesResponse,
+    ReturnType<typeof listOwnSubmissionSharesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listOwnSubmissionShares({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listOwnSubmissionSharesQueryKey(options),
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
+ * share the current user has minted for one submission.
+ */
+export const revokeSubmissionSharesOfSubmissionMutation = (
+  options?: Partial<Options<RevokeSubmissionSharesOfSubmissionData>>,
+): UseMutationOptions<
+  RevokeSubmissionSharesOfSubmissionResponse,
+  DefaultError,
+  Options<RevokeSubmissionSharesOfSubmissionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RevokeSubmissionSharesOfSubmissionResponse,
+    DefaultError,
+    Options<RevokeSubmissionSharesOfSubmissionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await revokeSubmissionSharesOfSubmission({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/{token}` - Withdraws one share, after which the
+ * link stops resolving.
+ *
+ * Only the share's creator may revoke it: holding the token is authority to view, not to withdraw.
+ * Revoking an unknown or already-revoked share is a no-op, reported as `false`.
+ */
+export const revokeSubmissionShareMutation = (
+  options?: Partial<Options<RevokeSubmissionShareData>>,
+): UseMutationOptions<
+  RevokeSubmissionShareResponse,
+  DefaultError,
+  Options<RevokeSubmissionShareData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RevokeSubmissionShareResponse,
+    DefaultError,
+    Options<RevokeSubmissionShareData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await revokeSubmissionShare({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getSharedSubmissionInfoQueryKey = (options: Options<GetSharedSubmissionInfoData>) =>
+  createQueryKey("getSharedSubmissionInfo", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
+ * render a shared submission.
+ *
+ * The `token` is the unguessable share id minted by the client share endpoint. Login is
+ * required, but holding the token is the only capability needed to view the submission —
+ * no teacher or course role.
+ */
+export const getSharedSubmissionInfoOptions = (options: Options<GetSharedSubmissionInfoData>) =>
+  queryOptions<
+    GetSharedSubmissionInfoResponse,
+    DefaultError,
+    GetSharedSubmissionInfoResponse,
+    ReturnType<typeof getSharedSubmissionInfoQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getSharedSubmissionInfo({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getSharedSubmissionInfoQueryKey(options),
+  })
 
 export const getStatusCronjobsQueryKey = (options?: Options<GetStatusCronjobsData>) =>
   createQueryKey("getStatusCronjobs", options)

@@ -1,54 +1,45 @@
 #!/bin/bash
+# Points services/tmc at a released tmc-langs: downloads the tagged bindings and the matching CLI
+# binary, and rewrites the `// VERSION=` line of cli.d.ts that bin/.common's
+# ensure_tmc_langs_cli_downloaded, bin/tmc-langs-setup and the system-test workflow all read to pick
+# which released binary to fetch.
+#
+# bin/tmc-langs-update-bindings-from-checkout is the unreleased counterpart: it regenerates the type
+# surface from a sibling tmc-langs-rust checkout and leaves that version line alone.
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-FOLDER_PATH="$BASEDIR/../services/tmc/"
-RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
-run_command cd "$RELATIVE_PATH" || exit
+ROOT_ABSOLUTE_PATH=$(realpath "$BASEDIR/..")
+TMC_PATH="$ROOT_ABSOLUTE_PATH/services/tmc"
 
 if [ -z ${1+x} ]; then
   echo -e "Missing version argument"
   exit 1
 fi
 VERSION="$1"
-LANGS_FILENAME_ROOT="tmc-langs-cli-x86_64-unknown-linux-gnu"
-LANGS_FILENAME="${LANGS_FILENAME_ROOT}-${VERSION}"
-LANGS_PATH="./bin/$LANGS_FILENAME"
 
 echo "Updating TMC langs version to $VERSION"
 
 BINDINGS_DOWNLOAD_URL="https://raw.githubusercontent.com/rage/tmc-langs-rust/${VERSION}/crates/tmc-langs-cli/bindings.d.ts"
-BINDINGS_DOWNLOAD_TARGET="./src/tmc/cli.d.ts"
-BINDINGS_GUARD="./src/tmc/cli.guard.ts"
+BINDINGS_DOWNLOAD_TARGET="$TMC_PATH/src/tmc/cli.d.ts"
+BINDINGS_GUARD="$TMC_PATH/src/tmc/cli.guard.ts"
+
+echo "Downloading generated type definitions"
+# Fetch before removing: a failed download used to leave the checkout with no bindings at all.
+GENERATED=$(curl --fail --location --show-error "$BINDINGS_DOWNLOAD_URL")
 
 echo "Removing old generated type definitions"
 run_command rm -f "$BINDINGS_DOWNLOAD_TARGET"
 run_command rm -f "$BINDINGS_GUARD"
-echo "Downloading generated type definitions"
-GENERATED=$(curl "$BINDINGS_DOWNLOAD_URL")
 # write version to the file
 printf "// VERSION=%s\n" "$VERSION" > "$BINDINGS_DOWNLOAD_TARGET"
 # write URL to the file to make it easy to keep track of the version
 printf "// %s\n\n" "$BINDINGS_DOWNLOAD_URL" >> "$BINDINGS_DOWNLOAD_TARGET"
 echo "$GENERATED" >> "$BINDINGS_DOWNLOAD_TARGET"
 
-# write guard annotation for CliOutput and RunResult
-run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$BINDINGS_DOWNLOAD_TARGET"
-run_command sed -i '/^export type RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$BINDINGS_DOWNLOAD_TARGET"
-run_command pnpm exec oxfmt "$BINDINGS_DOWNLOAD_TARGET"
+regenerate_tmc_langs_bindings_guard "$ROOT_ABSOLUTE_PATH" "$BINDINGS_DOWNLOAD_TARGET" "$BINDINGS_GUARD"
 
-# generate guard. Guard files are committed exactly as ts-auto-guard emits them and are excluded
-# from both oxlint and oxfmt, so no lint-disable prepend or formatting pass is needed here (an
-# oxfmt run would also abort, since every matched file is ignored).
-run_command pnpm exec ts-auto-guard --paths "$BINDINGS_DOWNLOAD_TARGET" --project ./tsconfig.json
-# ts-auto-guard 5.x cannot emit `import type`; its leading import references only types, so under
-# verbatimModuleSyntax rewrite the `import {` to `import type {` (a no-op at runtime).
-run_command sed -i -E 's/^import \{/import type {/' "$BINDINGS_GUARD"
-
-echo "Removing old langs binary"
-run_command find ./bin/ -name "${LANGS_FILENAME_ROOT}*" -delete
-
-echo "Downloading CLI to ${LANGS_PATH}"
-run_command curl "https://download.mooc.fi/tmc-langs-rust/${LANGS_FILENAME}" --output "$LANGS_PATH"
-run_command chmod +x "$LANGS_PATH"
+# Delegate the binary: tmc-langs-setup reads the `// VERSION=` line just written, resolves the
+# platform triple, and verifies the published sha256 — none of which this script did.
+run_command "$BASEDIR/tmc-langs-setup"

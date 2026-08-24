@@ -86,6 +86,7 @@ const processModelSolution = async (
       log,
       debug,
       solutionDir,
+      privateSpec.type,
       privateSpec.repository_exercise,
       upload_url,
       uploadClaim,
@@ -106,6 +107,7 @@ const uploadModelSolution = async (
   log: (message: string, ...args: unknown[]) => void,
   debug: (message: string, ...args: unknown[]) => void,
   solutionDir: string,
+  exerciseType: ModelSolutionSpec["type"],
   exercise: RepositoryExercise,
   uploadUrl: string,
   uploadClaim: string | null,
@@ -122,5 +124,8 @@ const uploadModelSolution = async (
     uploadUrl,
     uploadClaim,
   })
-  return { spec: { solution_download_url: solutionDownloadUrl }, paths: [solutionArchive] }
+  return {
+    spec: { type: exerciseType, solution_download_url: solutionDownloadUrl },
+    paths: [solutionArchive],
+  }
 }

@@ -2,6 +2,7 @@
 Handlers for HTTP requests to `/api/v0/auth`.
 */
 
+use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_tokens;
 use crate::{
     OAuthClient,
     domain::{
@@ -21,6 +22,7 @@ use headless_lms_models::{
     user_email_codes::UserEmailCodePurpose, user_passwords, users,
 };
 use headless_lms_utils::{
+    cache::Cache,
     prelude::UtilErrorType,
     services::tmc::{NewUserInfo, TmcClient},
 };
@@ -871,7 +873,7 @@ POST `/api/v0/auth/delete-user-account` If users single-use code is correct then
         (status = 200, description = "Whether the account was deleted", body = bool)
     )
 )]
-#[instrument(skip(pool, payload, auth_user, session))]
+#[instrument(skip(pool, payload, auth_user, session, cache, app_conf))]
 #[allow(clippy::async_yields_async)]
 pub async fn delete_user_account(
     auth_user: Option<AuthUser>,
@@ -879,6 +881,8 @@ pub async fn delete_user_account(
     payload: web::Json<EmailCode>,
     session: Session,
     tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<bool>> {
     let token = skip_authorize();
     if let Some(auth_user) = auth_user {
@@ -919,7 +923,13 @@ pub async fn delete_user_account(
         }
 
         // Delete user locally and mark email code as used
-        users::delete_user(&mut tx, auth_user.id).await?;
+        delete_user_and_invalidate_cached_tokens(
+            &mut tx,
+            &cache,
+            &app_conf.oauth_server_configuration.oauth_token_hmac_key,
+            auth_user.id,
+        )
+        .await?;
         user_email_codes::mark_user_email_code_used(
             &mut tx,
             auth_user.id,
@@ -929,7 +939,6 @@ pub async fn delete_user_account(
         .await?;
 
         tx.commit().await?;
-
         authorization::forget(&session);
         token.authorized_ok(web::Json(true))
     } else {

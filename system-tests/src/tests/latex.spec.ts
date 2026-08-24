@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { createCourse } from "@/utils/flows/newCourse.flow"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
@@ -16,21 +17,13 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
-  await page
-    .getByRole("region", { name: "Courses" })
-    .getByRole("button", { name: "Create", exact: true })
-    .click()
-
-  await page.click('input[type="radio"]')
-  // Fill input[type="text"]
-  await page.fill("text=Name", "Latex course")
-
-  await page.fill("text=Teacher in charge name", "teacher")
-  await page.fill("text=Teacher in charge email", "teacher@example.com")
-
-  await page.fill('textarea:below(:text("Description"))', "Course description")
-
-  await page.click(`button:text("Create"):below(:text("Course language"))`)
+  await createCourse(page, {
+    name: "Latex course",
+    language: "English",
+    teacherInChargeName: "teacher",
+    teacherInChargeEmail: "teacher@example.com",
+    description: "Course description",
+  })
 
   await page.locator("[aria-label=\"Manage course 'Latex course'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")

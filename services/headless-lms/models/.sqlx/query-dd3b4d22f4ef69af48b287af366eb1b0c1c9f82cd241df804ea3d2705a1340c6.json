@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_slide_submission_shares\nSET deleted_at = now()\nWHERE id = $1\n  AND created_by = $2\n  AND deleted_at IS NULL\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submission_shares",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "dd3b4d22f4ef69af48b287af366eb1b0c1c9f82cd241df804ea3d2705a1340c6"
+}

@@ -1,6 +1,6 @@
-/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { createCourseLanguageVersion } from "@/utils/flows/newCourse.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -25,22 +25,13 @@ test("Creating a new language version works", async ({ page, headless }, testInf
 
   await page.getByRole("tab", { name: "Language versions" }).click()
 
-  // Click text=New language version
-  await page.click(`:nth-match(button:below(:text("All course language versions")):text("New"), 1)`)
-
-  await page.click('input[type="radio"]')
-
-  // Fill input[type="text"]
-  await page.fill("text=Name", "Johdatus lokalisointiin")
-
-  await page.click(':nth-match(input[type="radio"], 2)')
-
-  await page.fill("text=Teacher in charge name", "teacher")
-  await page.fill("text=Teacher in charge email", "teacher@example.com")
-
-  await page.fill('textarea:below(:text("Description"))', "Course description")
-
-  await page.getByRole("button", { name: "Create" }).click()
+  await createCourseLanguageVersion(page, "Introduction to localizing", {
+    name: "Johdatus lokalisointiin",
+    language: "Finnish",
+    teacherInChargeName: "teacher",
+    teacherInChargeEmail: "teacher@example.com",
+    description: "Course description",
+  })
   await page.getByText("Course created successfully").waitFor()
 
   await page.goto("http://project-331.local/org/uh-cs")
@@ -105,15 +96,13 @@ test("creator of new language version can grant permissions to same users as the
 
   //make new language version
   await page.getByRole("tab", { name: "Language versions" }).click()
-  await page.getByRole("button", { name: "New" }).click()
-  await page.getByLabel("Name  *", { exact: true }).fill("Intro to localizing with permissions")
-  await page.getByLabel("Teacher in charge name  *").fill("Teacher Example")
-  await page.getByLabel("Teacher in charge email  *").fill("teacher@example.com")
-  await page
-    .getByLabel("Grant access to this course to everyone who had access to the original one")
-    .check()
-  await page.getByLabel("Swedish").check()
-  await page.getByRole("button", { name: "Create" }).click()
+  await createCourseLanguageVersion(page, "Introduction to localizing", {
+    name: "Intro to localizing with permissions",
+    language: "Swedish",
+    teacherInChargeName: "Teacher Example",
+    teacherInChargeEmail: "teacher@example.com",
+    grantAccessToOriginalUsers: true,
+  })
   //go to created language version and check permissions
   await page.getByRole("link", { name: "Intro to localizing with permissions" }).click()
   await page.getByRole("tab", { name: "Permissions" }).click()

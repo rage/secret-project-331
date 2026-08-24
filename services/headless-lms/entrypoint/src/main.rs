@@ -1,6 +1,7 @@
 use anyhow::Result;
 use headless_lms_server::openapi::{
-    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, ErrorsApiDoc, MainFrontendApiDoc,
+    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, ErrorsApiDoc, ExerciseServicesClientApiDoc,
+    MainFrontendApiDoc,
 };
 use headless_lms_server::programs;
 use std::future::Future;
@@ -42,6 +43,12 @@ fn main() -> Result<()> {
         Program {
             name: "ended-exams-processor",
             execute: Box::new(|| tokio_run(programs::ended_exams_processor::main())),
+        },
+        Program {
+            name: "exercise-service-client-upload-reaper",
+            execute: Box::new(
+                || tokio_run(programs::exercise_service_client_upload_reaper::main()),
+            ),
         },
         Program {
             name: "open-university-registration-link-fetcher",
@@ -178,6 +185,10 @@ fn export_openapi_specs() -> Result<()> {
     write_spec(
         &output_dir.join("errors.openapi.generated.json"),
         ErrorsApiDoc::openapi(),
+    )?;
+    write_spec(
+        &output_dir.join("exercise-services-client.openapi.generated.json"),
+        ExerciseServicesClientApiDoc::openapi(),
     )?;
     Ok(())
 }

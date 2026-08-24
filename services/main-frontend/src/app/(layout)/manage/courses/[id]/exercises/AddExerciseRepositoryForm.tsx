@@ -97,7 +97,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
       >
         {t("add")}
       </Button>
-      <Button size="medium" variant="tertiary" onClick={onCancel}>
+      <Button size="medium" variant="tertiary" type="button" onClick={onCancel}>
         {t("button-text-cancel")}
       </Button>
     </form>

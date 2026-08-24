@@ -248,6 +248,33 @@ function ensure_tmc_langs_cli_downloaded() {
   fi
 }
 
+# Annotates a freshly vendored services/tmc/src/tmc/cli.d.ts, formats it and regenerates
+# cli.guard.ts. Shared by bin/tmc-langs-update and bin/tmc-langs-update-bindings-from-checkout:
+# both must produce byte-identical output, or the latter's --check reports drift depending on which
+# script last ran.
+#
+# oxfmt and ts-auto-guard are devDependencies of the workspace root only, so pnpm exec has to run
+# from there — from services/tmc it fails with ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL.
+function regenerate_tmc_langs_bindings_guard() {
+  local repo_root="$1"
+  local bindings_target="$2"
+  local guard_target="$3"
+
+  # ts-auto-guard emits a guard only for annotated types, and the plugin uses exactly these two.
+  run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$bindings_target"
+  run_command sed -i '/^export type RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$bindings_target"
+  (
+    cd "$repo_root" || exit 1
+    run_command pnpm exec oxfmt "$bindings_target"
+    # Guard files are committed exactly as ts-auto-guard emits them and are excluded from both
+    # oxlint and oxfmt, so no formatting pass follows (oxfmt would abort on an all-ignored match).
+    run_command pnpm exec ts-auto-guard --paths "$bindings_target" --project "$repo_root/services/tmc/tsconfig.json"
+  )
+  # ts-auto-guard 5.x cannot emit `import type`; its leading import references only types, so under
+  # verbatimModuleSyntax rewrite the `import {` to `import type {` (a no-op at runtime).
+  run_command sed -i -E 's/^import \{/import type {/' "$guard_target"
+}
+
 function wait_for_postgres_pod() {
   local start_time
   local timeout

@@ -115,6 +115,31 @@ pub struct ExerciseSlideSubmissionInfo {
     pub user_exercise_state: Option<UserExerciseState>,
 }
 
+impl ExerciseSlideSubmissionInfo {
+    /// Redacts fields that must never reach a holder of a share token, who has no teacher or
+    /// course role. Unlike the role-gated paths, the shared view always hides:
+    ///
+    /// - every task's model solution spec, regardless of grading state — otherwise
+    ///   "submit → share → open my own link" is the cheapest path to a solution. (The
+    ///   course-material path reveals it once the student has full points or is out of tries.)
+    /// - the submitter's `user_id`, zeroed rather than removed so the wire shape stays the
+    ///   same for other consumers of this type.
+    /// - `user_exercise_state`, dropped whole rather than field by field: every one of its
+    ///   members is the submitter's own progress (`user_id`, `score_given`,
+    ///   `activity_progress`, `reviewing_stage`), a share-link holder needs none of it, and
+    ///   nulling members individually would re-leak the moment one is added.
+    /// - each task's `pseudonumous_user_id`, a stable per-service pseudonym that otherwise
+    ///   links all of one user's shares to each other.
+    pub fn strip_for_shared_view(&mut self) {
+        for task in &mut self.tasks {
+            task.model_solution_spec = None;
+            task.pseudonumous_user_id = None;
+        }
+        self.exercise_slide_submission.user_id = Uuid::nil();
+        self.user_exercise_state = None;
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct ExerciseSlideSubmissionAndUserExerciseState {
@@ -454,7 +479,56 @@ FROM exercise_slide_submissions
 WHERE user_id = $1
   AND exercise_id = $2
   AND deleted_at IS NULL
-ORDER BY created_at DESC
+ORDER BY created_at DESC, id DESC
+        "#,
+        user_id,
+        exercise_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+/// One of the user's submissions to an exercise, with the grading of its task submission.
+///
+/// The exercise-services client API only serves single-task (editor) slides, so "the slide's
+/// grading" is unambiguous; `DISTINCT ON` keeps that true for any slide that has more.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UserExerciseSlideSubmissionWithGrading {
+    pub id: Uuid,
+    pub exercise_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub score_given: Option<f32>,
+    pub grading_progress: Option<GradingProgress>,
+}
+
+/// The user's submissions to an exercise, newest first, each joined to its grading.
+///
+/// One query rather than two per submission: a student who retries an exercise 200 times used to
+/// cost 401 round trips for one listing.
+pub async fn get_users_submissions_for_exercise_with_gradings(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<UserExerciseSlideSubmissionWithGrading>> {
+    let submissions = sqlx::query_as!(
+        UserExerciseSlideSubmissionWithGrading,
+        r#"
+SELECT DISTINCT ON (ess.created_at, ess.id)
+  ess.id,
+  ess.exercise_id,
+  ess.created_at,
+  etg.score_given,
+  etg.grading_progress AS "grading_progress?: GradingProgress"
+FROM exercise_slide_submissions AS ess
+  LEFT JOIN exercise_task_submissions AS ets ON ets.exercise_slide_submission_id = ess.id
+  AND ets.deleted_at IS NULL
+  LEFT JOIN exercise_task_gradings AS etg ON etg.id = ets.exercise_task_grading_id
+  AND etg.deleted_at IS NULL
+WHERE ess.user_id = $1
+  AND ess.exercise_id = $2
+  AND ess.deleted_at IS NULL
+ORDER BY ess.created_at DESC, ess.id DESC, ets.created_at
         "#,
         user_id,
         exercise_id,
@@ -1007,4 +1081,193 @@ AND deleted_at IS NULL
     .execute(&mut *conn)
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::exercise_tasks::CourseMaterialExerciseTask;
+    use crate::exercises::ActivityProgress;
+    use crate::user_exercise_states::ReviewingStage;
+
+    fn dummy_exercise() -> Exercise {
+        Exercise {
+            id: Uuid::new_v4(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            name: "Test exercise".to_string(),
+            course_id: Some(Uuid::new_v4()),
+            exam_id: None,
+            page_id: Uuid::new_v4(),
+            chapter_id: None,
+            deadline: None,
+            deleted_at: None,
+            score_maximum: 1,
+            order_number: 0,
+            copied_from: None,
+            max_tries_per_slide: None,
+            limit_number_of_tries: false,
+            needs_peer_review: false,
+            needs_self_review: false,
+            use_course_default_peer_or_self_review_config: false,
+            exercise_language_group_id: None,
+            teacher_reviews_answer_after_locking: false,
+        }
+    }
+
+    fn dummy_slide_submission(user_id: Uuid) -> ExerciseSlideSubmission {
+        ExerciseSlideSubmission {
+            id: Uuid::new_v4(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            exercise_slide_id: Uuid::new_v4(),
+            course_id: Some(Uuid::new_v4()),
+            exam_id: None,
+            exercise_id: Uuid::new_v4(),
+            user_id,
+            user_points_update_strategy:
+                UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+            flag_count: None,
+        }
+    }
+
+    fn dummy_user_exercise_state(user_id: Uuid) -> UserExerciseState {
+        UserExerciseState {
+            id: Uuid::new_v4(),
+            user_id,
+            exercise_id: Uuid::new_v4(),
+            course_id: Some(Uuid::new_v4()),
+            exam_id: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            score_given: Some(1.0),
+            grading_progress: GradingProgress::FullyGraded,
+            activity_progress: ActivityProgress::Completed,
+            reviewing_stage: ReviewingStage::ReviewedAndLocked,
+            selected_exercise_slide_id: Some(Uuid::new_v4()),
+        }
+    }
+
+    /// Every field of the shared view that could name or fingerprint the submitter. A new
+    /// identity-bearing field must be added here as well as to `strip_for_shared_view`.
+    fn identifiers_in(info: &ExerciseSlideSubmissionInfo) -> Vec<String> {
+        let mut found = Vec::new();
+        if info.exercise_slide_submission.user_id != Uuid::nil() {
+            found.push("exercise_slide_submission.user_id".to_string());
+        }
+        if info.user_exercise_state.is_some() {
+            found.push("user_exercise_state".to_string());
+        }
+        for (index, task) in info.tasks.iter().enumerate() {
+            if task.pseudonumous_user_id.is_some() {
+                found.push(format!("tasks[{index}].pseudonumous_user_id"));
+            }
+        }
+        found
+    }
+
+    fn dummy_task_with_model_solution() -> CourseMaterialExerciseTask {
+        CourseMaterialExerciseTask {
+            id: Uuid::new_v4(),
+            exercise_service_slug: "tmc".to_string(),
+            exercise_slide_id: Uuid::new_v4(),
+            exercise_iframe_url: None,
+            pseudonumous_user_id: Some(Uuid::new_v4()),
+            assignment: serde_json::json!([]),
+            public_spec: Some(serde_json::json!({ "public": true })),
+            model_solution_spec: Some(serde_json::json!({ "solution": "the answer" })),
+            previous_submission: None,
+            previous_submission_grading: None,
+            order_number: 0,
+            deleted_at: None,
+        }
+    }
+
+    /// The strip is unconditional, i.e. independent of grading state.
+    #[test]
+    fn strip_for_shared_view_removes_model_solution_and_user_id() {
+        let user_id = Uuid::new_v4();
+        let mut info = ExerciseSlideSubmissionInfo {
+            tasks: vec![
+                dummy_task_with_model_solution(),
+                dummy_task_with_model_solution(),
+            ],
+            exercise: dummy_exercise(),
+            exercise_slide_submission: dummy_slide_submission(user_id),
+            user_exercise_state: Some(dummy_user_exercise_state(user_id)),
+        };
+
+        assert!(
+            info.tasks.iter().all(|t| t.model_solution_spec.is_some()),
+            "test fixture should start with model solutions present"
+        );
+        assert_eq!(info.exercise_slide_submission.user_id, user_id);
+
+        info.strip_for_shared_view();
+
+        assert!(
+            info.tasks.iter().all(|t| t.model_solution_spec.is_none()),
+            "model_solution_spec must be absent from every task in the shared view"
+        );
+        assert_eq!(
+            info.exercise_slide_submission.user_id,
+            Uuid::nil(),
+            "submitter user_id must not be exposed in the shared view"
+        );
+    }
+
+    /// A share link is forwardable, so nothing reachable through it may name or fingerprint the
+    /// submitter — not their user id, not their progress row, not the per-service pseudonym that
+    /// would link their shares together.
+    #[test]
+    fn strip_for_shared_view_leaves_no_user_identifier() {
+        let user_id = Uuid::new_v4();
+        let mut info = ExerciseSlideSubmissionInfo {
+            tasks: vec![
+                dummy_task_with_model_solution(),
+                dummy_task_with_model_solution(),
+            ],
+            exercise: dummy_exercise(),
+            exercise_slide_submission: dummy_slide_submission(user_id),
+            user_exercise_state: Some(dummy_user_exercise_state(user_id)),
+        };
+
+        assert_eq!(
+            identifiers_in(&info),
+            vec![
+                "exercise_slide_submission.user_id",
+                "user_exercise_state",
+                "tasks[0].pseudonumous_user_id",
+                "tasks[1].pseudonumous_user_id",
+            ],
+            "the fixture must start with every identifier present, or this test proves nothing"
+        );
+
+        info.strip_for_shared_view();
+
+        assert_eq!(
+            identifiers_in(&info),
+            Vec::<String>::new(),
+            "no user identifier may survive the strip"
+        );
+    }
+
+    #[test]
+    fn strip_for_shared_view_keeps_public_spec() {
+        let mut info = ExerciseSlideSubmissionInfo {
+            tasks: vec![dummy_task_with_model_solution()],
+            exercise: dummy_exercise(),
+            exercise_slide_submission: dummy_slide_submission(Uuid::new_v4()),
+            user_exercise_state: Some(dummy_user_exercise_state(Uuid::new_v4())),
+        };
+
+        info.strip_for_shared_view();
+
+        assert!(
+            info.tasks[0].public_spec.is_some(),
+            "public_spec should remain available in the shared view"
+        );
+    }
 }

@@ -1097,17 +1097,31 @@ pub async fn authenticate_test_user(
     Ok(true)
 }
 
-// Only used for testing, not to use in production.
+/// Maps a fixed, well-known test token to a seeded user. **Test/dev mode only.**
+///
+/// The exercise-services client API's `UserFromOAuthToken` extractor calls this before the real
+/// OAuth-token path when `test_mode` is on, so tests can skip the device-authorization flow.
+/// An unrecognised token yields `Ok(None)` so the caller falls through to real OAuth validation,
+/// keeping genuine device-flow tokens working under `test_mode`.
 pub async fn authenticate_test_token(
     conn: &mut PgConnection,
-    _token: &SecretString,
+    token: &SecretString,
     application_configuration: &ApplicationConfiguration,
-) -> anyhow::Result<User> {
+) -> anyhow::Result<Option<User>> {
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     assert!(application_configuration.test_mode);
-    // TODO: this has never worked
-    let user = models::users::get_by_email(conn, "TODO").await?;
-    Ok(user)
+
+    // These token strings are well-known constants, not secrets; they only work under
+    // `test_mode`.
+    let email = match token.expose_secret() {
+        "test-token-langs" => "langs@example.com",
+        "test-token-student1" => "student1@example.com",
+        "test-token-student2" => "student2@example.com",
+        _ => return Ok(None),
+    };
+    let user = models::users::get_by_email(conn, email).await?;
+    info!("Test mode: mapped fixed test token to seeded user {email}");
+    Ok(Some(user))
 }
 
 /**

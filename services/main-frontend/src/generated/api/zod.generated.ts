@@ -2589,6 +2589,61 @@ export const zDeploymentInfo = z.object({
   selector_labels: z.record(z.string(), z.string()),
 })
 
+/**
+ * Form body for `POST /device_authorization` (RFC 8628 §3.1).
+ */
+export const zDeviceAuthorizationForm = z.object({
+  client_id: z.string(),
+  scope: z.string().nullish(),
+})
+
+/**
+ * Success body for `POST /device_authorization` (RFC 8628 §3.2).
+ */
+export const zDeviceAuthorizationResponse = z.object({
+  device_code: z.string(),
+  expires_in: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  interval: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  user_code: z.string(),
+  verification_uri: z.string(),
+  verification_uri_complete: z.string(),
+})
+
+/**
+ * Body for the approve/deny verification actions.
+ */
+export const zDeviceDecisionBody = z.object({
+  user_code: z.string(),
+})
+
+/**
+ * Result of an approve/deny action.
+ */
+export const zDeviceDecisionResponse = z.object({
+  status: z.string(),
+})
+
+/**
+ * Render data returned to the verification page so it can show the user what
+ * they are about to authorize.
+ */
+export const zDeviceVerificationInfo = z.object({
+  client_id: z.string(),
+  client_name: z.string(),
+  scopes: z.array(z.string()),
+  user_code: z.string(),
+})
+
 export const zDomainCompletionStats = z.object({
   email_domain: z.string(),
   not_registered_completions: z.coerce
@@ -3090,6 +3145,20 @@ export const zExerciseSlideSubmissionCountByWeekAndHour = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
+})
+
+/**
+ * A shareable link to an existing exercise-slide submission. The `id` is the
+ * unguessable token used in the shareable URL; a viewer resolves the token back
+ * to the submission it points at.
+ */
+export const zExerciseSlideSubmissionShare = z.object({
+  created_at: z.iso.datetime(),
+  created_by: z.uuid(),
+  deleted_at: z.iso.datetime().nullish(),
+  exercise_slide_submission_id: z.uuid(),
+  id: z.uuid(),
+  updated_at: z.iso.datetime(),
 })
 
 export const zExerciseTaskSubmission = z.object({
@@ -8738,6 +8807,36 @@ export const zDenyOauthConsentBody = zConsentDenyQuery
  */
 export const zDenyOauthConsentResponse = zConsentResponse
 
+export const zDeviceAuthorizationOauthBody = zDeviceAuthorizationForm
+
+/**
+ * Device authorization response
+ */
+export const zDeviceAuthorizationOauthResponse = zDeviceAuthorizationResponse
+
+export const zGetOauthDeviceVerificationQuery = z.object({
+  user_code: z.string(),
+})
+
+/**
+ * Pending device authorization render data
+ */
+export const zGetOauthDeviceVerificationResponse = zDeviceVerificationInfo
+
+export const zApproveOauthDeviceVerificationBody = zDeviceDecisionBody
+
+/**
+ * Device authorization approved
+ */
+export const zApproveOauthDeviceVerificationResponse = zDeviceDecisionResponse
+
+export const zDenyOauthDeviceVerificationBody = zDeviceDecisionBody
+
+/**
+ * Device authorization denied
+ */
+export const zDenyOauthDeviceVerificationResponse = zDeviceDecisionResponse
+
 export const zIntrospectOauthTokenBody = z.unknown()
 
 export const zRevokeOauthTokenBody = z.unknown()
@@ -9200,6 +9299,45 @@ export const zGetPendingRolesQuery = z.object({
 export const zGetPendingRolesResponse = z.array(zPendingRole)
 
 export const zRemoveRoleBody = zRoleInfo
+
+/**
+ * The caller's live shares, newest first
+ */
+export const zListOwnSubmissionSharesResponse = z.array(zExerciseSlideSubmissionShare)
+
+export const zRevokeSubmissionSharesOfSubmissionPath = z.object({
+  submission_id: z.uuid(),
+})
+
+/**
+ * How many shares were withdrawn
+ */
+export const zRevokeSubmissionSharesOfSubmissionResponse = z.coerce
+  .bigint()
+  .min(BigInt("-9223372036854775808"), {
+    error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+  })
+  .max(BigInt("9223372036854775807"), {
+    error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+  })
+
+export const zRevokeSubmissionSharePath = z.object({
+  token: z.uuid(),
+})
+
+/**
+ * Whether a live share was withdrawn
+ */
+export const zRevokeSubmissionShareResponse = z.boolean()
+
+export const zGetSharedSubmissionInfoPath = z.object({
+  token: z.uuid(),
+})
+
+/**
+ * Data needed to render the shared submission
+ */
+export const zGetSharedSubmissionInfoResponse = zExerciseSlideSubmissionInfo
 
 /**
  * Cronjobs

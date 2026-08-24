@@ -272,7 +272,15 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   name={"enabled_to_students"}
                 />
               </div>
-              <Checkbox control={control} label={t("use-azure-search")} name={"use_azure_search"} />
+              {/* Azure search queries a per-course index, so a chatbot with no course has
+              nothing to search and is not offered the setting. */}
+              {oldChatbotConf.course_id && (
+                <Checkbox
+                  control={control}
+                  label={t("use-azure-search")}
+                  name={"use_azure_search"}
+                />
+              )}
 
               <div
                 className={css`

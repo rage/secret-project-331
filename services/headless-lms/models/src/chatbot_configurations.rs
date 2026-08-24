@@ -173,6 +173,12 @@ fn validate_max_output_tokens(input: &NewChatbotConf) -> ModelResult<()> {
     Ok(())
 }
 
+/// Whether the configuration may use Azure search, which needs a course: the search index it
+/// queries is built per course, so a configuration without one has nothing to search.
+fn azure_search_allowed(input: &NewChatbotConf, course_id: Option<Uuid>) -> bool {
+    input.use_azure_search && course_id.is_some()
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {
     let res = sqlx::query_as!(
         ChatbotConfiguration,
@@ -195,7 +201,8 @@ pub async fn insert(
     input: NewChatbotConf,
 ) -> ModelResult<ChatbotConfiguration> {
     validate_max_output_tokens(&input)?;
-    let maintain_azure_search_index = input.use_azure_search;
+    let use_azure_search = azure_search_allowed(&input, input.course_id);
+    let maintain_azure_search_index = use_azure_search;
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
@@ -245,7 +252,7 @@ RETURNING *
         input.max_output_tokens,
         input.verbosity as VerbosityLevel,
         input.reasoning_effort as ReasoningEffortLevel,
-        input.use_azure_search,
+        use_azure_search,
         input.use_tools,
         maintain_azure_search_index,
         input.default_chatbot,
@@ -264,6 +271,10 @@ pub async fn edit(
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConfiguration> {
     validate_max_output_tokens(&input)?;
+    // The course the configuration is already attached to, not the one the caller sent: `edit`
+    // never moves a configuration between courses.
+    let course_id = get_by_id(conn, chatbot_configuration_id).await?.course_id;
+    let use_azure_search = azure_search_allowed(&input, course_id);
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
@@ -307,8 +318,8 @@ RETURNING *
         input.frequency_penalty,
         input.presence_penalty,
         input.max_output_tokens,
-        input.use_azure_search,
-        input.maintain_azure_search_index,
+        use_azure_search,
+        use_azure_search,
         input.hide_citations,
         input.use_semantic_reranking,
         input.default_chatbot,

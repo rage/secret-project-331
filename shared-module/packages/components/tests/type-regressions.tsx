@@ -3,12 +3,13 @@
 import React from "react"
 import type { Control } from "react-hook-form"
 
-import { Radio, Switch, TextArea, TextField } from "../src"
+import { Radio, Slider, Switch, TextArea, TextField } from "../src"
 
 interface Form {
   text: string
   notes: string
   enabled: boolean
+  points: number
 }
 const control = null as unknown as Control<Form>
 
@@ -36,3 +37,9 @@ void React.createElement(Switch<Form>, { name: "enabled", control, label: "Enabl
 void React.createElement(Radio, { label: "Choice", value: "a" })
 // @ts-expect-error Radio always renders a radio input.
 void React.createElement(Radio, { label: "Choice", value: "a", type: "text" })
+
+void React.createElement(Slider<Form>, { name: "points", control, label: "Points", maxValue: 10 })
+// @ts-expect-error Slider requires RHF wiring.
+void React.createElement(Slider<Form>, { label: "Points", maxValue: 10 })
+// @ts-expect-error Slider requires a maxValue.
+void React.createElement(Slider<Form>, { name: "points", control, label: "Points" })

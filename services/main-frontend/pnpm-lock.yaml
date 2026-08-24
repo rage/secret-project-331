@@ -116,6 +116,9 @@ importers:
       '@react-stately/select':
         specifier: ^3.10.1
         version: 3.10.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@react-stately/slider':
+        specifier: ^3.8.1
+        version: 3.8.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@react-stately/tabs':
         specifier: ^3.9.1
         version: 3.9.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1859,6 +1862,12 @@ packages:
 
   '@react-stately/select@3.10.1':
     resolution: {integrity: sha512-f7rVJO/YAfq33hienemL6fg95uZZQ+vIvcwzQelIr2WDZvyf3p4OPS1CMzcroyl3tNsYvG/Vy26dOuF4tu6vOA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-stately/slider@3.8.1':
+    resolution: {integrity: sha512-MSfiRJakgdp2FSPtDeViEgXbYjRBGXXSTvExUvDDZx2xiEmSgefEQ4WWwCWPN4tdWbRISZoCYrmG8mY04Gevpw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -7498,6 +7507,13 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
       react-stately: 3.49.0(react@19.2.8)
 
+  '@react-stately/slider@3.8.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      react: 19.2.8
+      react-dom: 19.2.8(react@19.2.8)
+      react-stately: 3.49.0(react@19.2.8)
+
   '@react-stately/tabs@3.9.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@swc/helpers': 0.5.23
@@ -11577,6 +11593,7 @@ time:
   '@react-stately/radio@3.12.1': '2026-05-28T17:28:35.669Z'
   '@react-stately/searchfield@3.6.1': '2026-05-28T17:28:35.996Z'
   '@react-stately/select@3.10.1': '2026-05-28T17:28:35.917Z'
+  '@react-stately/slider@3.8.1': '2026-05-28T17:28:36.194Z'
   '@react-stately/tabs@3.9.1': '2026-05-28T17:28:36.045Z'
   '@react-stately/toggle@3.10.1': '2026-05-28T17:28:36.333Z'
   '@react-types/dialog@3.6.0': '2026-04-14T22:43:55.173Z'

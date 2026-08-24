@@ -40,6 +40,7 @@
     "@react-stately/radio": "^3.12.1",
     "@react-stately/searchfield": "^3.6.1",
     "@react-stately/select": "^3.10.1",
+    "@react-stately/slider": "^3.8.1",
     "@react-stately/tabs": "^3.9.1",
     "@react-stately/toggle": "^3.10.1",
     "@react-types/dialog": "^3.6.0",

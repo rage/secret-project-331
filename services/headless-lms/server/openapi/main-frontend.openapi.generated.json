@@ -19690,7 +19690,7 @@
           "finding_count": {
             "type": "integer",
             "format": "int64",
-            "description": "The four detector counts, which is the tab badge. The consent-withdrawal bucket is\ndeliberately outside it."
+            "description": "The five detector counts, which is the tab badge. The consent-withdrawal bucket is\ndeliberately outside it."
           },
           "legacy_divergence_count": {
             "type": "integer",
@@ -25497,7 +25497,8 @@
           "ZeroPoints",
           "CustomPoints",
           "SuspectedPlagiarism",
-          "RejectAndReset"
+          "RejectAndReset",
+          "UnauthorizedAiUse"
         ]
       },
       "TeacherGradingDecision": {

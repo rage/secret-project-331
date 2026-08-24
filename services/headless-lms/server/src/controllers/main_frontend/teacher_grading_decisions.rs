@@ -67,7 +67,15 @@ async fn create_teacher_grading_decision(
         points_given = 0.0;
     } else if *action == TeacherDecisionType::CustomPoints {
         points_given = manual_points.unwrap_or(0.0);
-    } else if *action == TeacherDecisionType::SuspectedPlagiarism {
+        if points_given < 0.0 || points_given > exercise.score_maximum as f32 {
+            return Err(controller_err!(
+                BadRequest,
+                "manual_points must be between 0 and the exercise's maximum points".to_string()
+            ));
+        }
+    } else if *action == TeacherDecisionType::SuspectedPlagiarism
+        || *action == TeacherDecisionType::UnauthorizedAiUse
+    {
         points_given = 0.0;
     } else if *action == TeacherDecisionType::RejectAndReset {
         points_given = 0.0;

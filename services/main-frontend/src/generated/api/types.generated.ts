@@ -2312,7 +2312,7 @@ export type CreditRegistrationPhaseStatus = {
 
 export type CreditRegistrationReconciliation = {
   /**
-   * The four detector counts, which is the tab badge. The consent-withdrawal bucket is
+   * The five detector counts, which is the tab badge. The consent-withdrawal bucket is
    * deliberately outside it.
    */
   finding_count: number
@@ -4365,6 +4365,7 @@ export type TeacherDecisionType =
   | "CustomPoints"
   | "SuspectedPlagiarism"
   | "RejectAndReset"
+  | "UnauthorizedAiUse"
 
 export type TeacherGradingDecision = {
   created_at: string

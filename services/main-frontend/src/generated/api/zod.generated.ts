@@ -5226,6 +5226,7 @@ export const zTeacherDecisionType = z.enum([
   "CustomPoints",
   "SuspectedPlagiarism",
   "RejectAndReset",
+  "UnauthorizedAiUse",
 ])
 
 export const zNewTeacherGradingDecision = z.object({

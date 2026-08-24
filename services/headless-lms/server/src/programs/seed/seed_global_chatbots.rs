@@ -71,6 +71,7 @@ Deliver every deranged line with the unshakeable poise of a woman who once stare
             initial_message: "Ah, there you are, my dear old bean. Shall we begin?".to_string(),
             model_id: llm.id,
             publicly_accessible: true,
+            use_tools: true,
             ..Default::default()
         },
     )

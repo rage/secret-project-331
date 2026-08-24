@@ -109,6 +109,8 @@ impl UnauthorizedReason {
 pub enum BadRequestReason {
     #[display("Course slug already taken")]
     CourseSlugAlreadyTaken,
+    #[display("Foreign key violation")]
+    ForeignKeyViolation,
     /// The user is not enrolled on the course the requested exercise belongs to.
     #[display("Not enrolled")]
     NotEnrolled,
@@ -128,6 +130,7 @@ impl BadRequestReason {
     fn message_key(self) -> &'static str {
         match self {
             Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
+            Self::ForeignKeyViolation => "foreign_key_violation",
             Self::NotEnrolled => "not_enrolled",
             Self::UploadExpired => "upload_expired",
             Self::UnknownUpload => "unknown_upload",
@@ -776,6 +779,13 @@ impl From<ModelError> for ControllerError {
             ),
             ModelErrorType::InvalidRequest => Self::new_with_traces(
                 ControllerErrorType::BadRequest,
+                err.message().to_string(),
+                Some(err.into()),
+                backtrace,
+                span_trace,
+            ),
+            ModelErrorType::ForeignKeyViolation => Self::new_with_traces(
+                ControllerErrorType::BadRequestWithReason(BadRequestReason::ForeignKeyViolation),
                 err.message().to_string(),
                 Some(err.into()),
                 backtrace,

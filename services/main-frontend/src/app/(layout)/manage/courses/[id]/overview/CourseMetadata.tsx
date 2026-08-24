@@ -9,28 +9,28 @@ import type {
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import AIMetadataForm from "@/components/forms/AIMetadataForm"
 import type { Course } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Button from "@/shared-module/common/components/Button"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 
-import AIMetadataForm from "./AIMetadataForm/index"
-
 interface Props {
-  course: Course
+  courseId: string
   refetch: (
     options?: (RefetchOptions & RefetchQueryFilters) | undefined,
   ) => Promise<QueryObserverResult<Course, Error>>
 }
 
-const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
+const CourseMetadata: React.FC<React.PropsWithChildren<Props>> = ({ courseId, refetch }) => {
   const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
 
-  const courseStructure = useCourseStructure(course.id)
+  const courseStructure = useCourseStructure(courseId)
 
   const defaultModule = courseStructure.data?.modules.find((module) => module.order_number === 0)
 
+  const structureLoaded = courseStructure.isSuccess
   const hasCourseCode =
     defaultModule?.uh_course_code !== null && defaultModule?.uh_course_code !== undefined
 
@@ -40,36 +40,25 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
 
   return (
     <div>
-      {hasCourseCode ? (
+      <div>
         <Button
           className={css`
             margin: 0.5rem 0;
           `}
+          disabled={!structureLoaded || !hasCourseCode}
           variant="primary"
           size="medium"
           onClick={() => setShowForm(true)}
         >
           {t("generate-ai-metadata")}
         </Button>
-      ) : (
-        <div>
-          <Button
-            className={css`
-              margin: 0.5rem 0;
-            `}
-            disabled
-            variant="primary"
-            size="medium"
-            onClick={() => setShowForm(true)}
-          >
-            {t("generate-ai-metadata")}
-          </Button>
+        {structureLoaded && !hasCourseCode && (
           <GenericInfobox>{t("missing-uh-course-code-notification")}</GenericInfobox>
-        </div>
-      )}
+        )}
+      </div>
 
       <AIMetadataForm
-        course={course}
+        courseId={courseId}
         onSubmitForm={handleOnUpdateCourse}
         open={showForm}
         onClose={() => setShowForm(false)}
@@ -78,4 +67,4 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
   )
 }
 
-export default CourseDescription
+export default CourseMetadata

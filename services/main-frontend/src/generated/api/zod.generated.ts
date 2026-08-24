@@ -792,6 +792,19 @@ export const zCourseAudience = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCourseAuditingModuleUpdate = z.object({
+  completion_registration_link_override: z.string().nullish(),
+  ects_credits: z.number().nullish(),
+  enable_registering_completion_to_uh_open_university: z.boolean(),
+  id: z.uuid(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  uh_course_code: z.string().nullish(),
+})
+
 export const zCourseBreadcrumbInfo = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
@@ -1071,6 +1084,7 @@ export const zCourseModule = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   ects_credits: z.number().nullish(),
+  enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
@@ -1197,6 +1211,7 @@ export const zCourseMetadata = z.object({
   course_audiences: z.array(zCourseAudience),
   course_description: z.string().nullish(),
   course_prerequisites: z.array(zCoursePrerequisite),
+  course_updated_at: z.iso.datetime(),
 })
 
 /**
@@ -2689,6 +2704,52 @@ export const zDomainCompletionStats = z.object({
     }),
 })
 
+export const zEditCourseAudience = z.object({
+  audience: z.string(),
+  course_id: z.uuid(),
+  id: z.uuid(),
+})
+
+export const zEditCoursePrerequisite = z.object({
+  course_id: z.uuid(),
+  id: z.uuid(),
+  prerequisite: z.string(),
+})
+
+export const zCourseAuditingData = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  description: z.string().nullish(),
+  id: z.uuid(),
+  modules: z.array(zCourseModule),
+  name: z.string(),
+  organization_id: z.uuid(),
+  organization_name: z.string(),
+  organization_slug: z.string(),
+  prerequisites: z.array(zEditCoursePrerequisite),
+  slug: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseAuditingDataUpdate = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  description: z.string().nullish(),
+  modules: z.array(zCourseAuditingModuleUpdate),
+  prerequisites: z.array(zEditCoursePrerequisite),
+})
+
+export const zCourseMetadataUpdate = z.object({
+  course_audiences: z.array(zEditCourseAudience),
+  course_description: z.string().nullish(),
+  course_prerequisites: z.array(zEditCoursePrerequisite),
+})
+
 export const zEditProposalInfo = z.object({
   block_proposals: z.array(zBlockProposalInfo),
   page_id: z.uuid(),
@@ -3677,20 +3738,6 @@ export const zCopyCourseRequest = zNewCourse.and(
     mode: zCopyCourseMode,
   }),
 )
-
-export const zNewCourseAudience = z.object({
-  audience: z.string(),
-})
-
-export const zNewCoursePrerequisite = z.object({
-  prerequisite: z.string(),
-})
-
-export const zCourseMetadataUpdate = z.object({
-  course_audiences: z.array(zNewCourseAudience),
-  course_description: z.string().nullish(),
-  course_prerequisites: z.array(zNewCoursePrerequisite),
-})
 
 export const zNewExam = z.object({
   ends_at: z.iso.datetime().nullish(),
@@ -6246,6 +6293,22 @@ export const zDeleteCodeGiveawayCodePath = z.object({
   id: z.uuid(),
   code_id: z.uuid(),
 })
+
+/**
+ * Courses for auditing
+ */
+export const zGetCoursesForAuditingResponse = z.array(zCourseAuditingData)
+
+export const zUpdateCourseAuditingDataBody = zCourseAuditingDataUpdate
+
+export const zUpdateCourseAuditingDataPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Updated course
+ */
+export const zUpdateCourseAuditingDataResponse = zCourseAuditingData
 
 export const zGetCourseCreditRegistrationActionsPath = z.object({
   course_id: z.uuid(),

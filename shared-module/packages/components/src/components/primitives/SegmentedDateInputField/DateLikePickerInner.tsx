@@ -1,5 +1,6 @@
 "use client"
 
+import type { CalendarDate, CalendarDateTime, ZonedDateTime } from "@internationalized/date"
 import {
   createCalendar,
   getLocalTimeZone,
@@ -9,7 +10,11 @@ import {
   toCalendarDate,
   toTime,
 } from "@internationalized/date"
-import { useDateFieldState, useDatePickerState } from "@react-stately/datepicker"
+import {
+  useDateFieldState,
+  useDatePickerState,
+  type DateFieldStateOptions,
+} from "@react-stately/datepicker"
 import type { DateValue } from "react-aria"
 import { useDateField, useDatePicker } from "react-aria"
 
@@ -66,7 +71,7 @@ export function DateLikePickerInner({
 
   const pickerState = useDatePickerState(pickerProps)
   const pickerAria = useDatePicker(pickerProps, pickerState, base.groupRef)
-  const dateFieldProps = {
+  const dateFieldProps: DateFieldStateOptions<CalendarDate | CalendarDateTime | ZonedDateTime> = {
     ...pickerAria.fieldProps,
     createCalendar,
     locale: base.locale,

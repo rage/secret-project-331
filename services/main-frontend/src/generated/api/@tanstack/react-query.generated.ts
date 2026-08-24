@@ -180,6 +180,7 @@ import {
   getCoursePrerequisites,
   getCourseProgressForUser,
   getCourseReferences,
+  getCoursesForAuditing,
   getCourseStructure,
   getCourseStudentChapterLockingStatuses,
   getCourseStudentsCertificates,
@@ -370,6 +371,7 @@ import {
   updateChapter,
   updateChapterImage,
   updateCourse,
+  updateCourseAuditingData,
   updateCourseChapterOrdering,
   updateCourseDesignerStageTask,
   updateCourseDesignerStageWorkspace,
@@ -693,6 +695,8 @@ import type {
   GetCourseReferencesData,
   GetCourseReferencesResponse,
   GetCourseResponse,
+  GetCoursesForAuditingData,
+  GetCoursesForAuditingResponse,
   GetCourseStructureData,
   GetCourseStructureResponse,
   GetCourseStudentChapterLockingStatusesData,
@@ -1051,6 +1055,8 @@ import type {
   UpdateChapterImageData,
   UpdateChapterImageResponse,
   UpdateChapterResponse,
+  UpdateCourseAuditingDataData,
+  UpdateCourseAuditingDataResponse,
   UpdateCourseChapterOrderingData,
   UpdateCourseData,
   UpdateCourseDesignerStageTaskData,
@@ -1828,6 +1834,56 @@ export const deleteCodeGiveawayCodeMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await deleteCodeGiveawayCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCoursesForAuditingQueryKey = (options?: Options<GetCoursesForAuditingData>) =>
+  createQueryKey("getCoursesForAuditing", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-auditing`
+ */
+export const getCoursesForAuditingOptions = (options?: Options<GetCoursesForAuditingData>) =>
+  queryOptions<
+    GetCoursesForAuditingResponse,
+    DefaultError,
+    GetCoursesForAuditingResponse,
+    ReturnType<typeof getCoursesForAuditingQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCoursesForAuditing({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCoursesForAuditingQueryKey(options),
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/course-auditing/:id`
+ */
+export const updateCourseAuditingDataMutation = (
+  options?: Partial<Options<UpdateCourseAuditingDataData>>,
+): UseMutationOptions<
+  UpdateCourseAuditingDataResponse,
+  DefaultError,
+  Options<UpdateCourseAuditingDataData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateCourseAuditingDataResponse,
+    DefaultError,
+    Options<UpdateCourseAuditingDataData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateCourseAuditingData({
         ...options,
         ...fnOptions,
         throwOnError: true,

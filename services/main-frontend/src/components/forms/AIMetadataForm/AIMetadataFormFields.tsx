@@ -2,9 +2,10 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { FormProvider, useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
 import type {
   Course,
@@ -15,8 +16,8 @@ import type {
 } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { undefinedToNull } from "@/shared-module/common/utils/nullability"
-import { TextArea, TextField } from "@/shared-module/components"
-import { Button, Checkbox } from "@/shared-module/components/"
+import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
+import { Button, Checkbox, nullIfEmpty, TextArea, TextField } from "@/shared-module/components/"
 
 const FieldSet = styled.fieldset`
   margin-bottom: 1rem;
@@ -50,6 +51,36 @@ interface AIMetadataFormProps {
   onSubmit: (data: CourseMetadataUpdate) => void
 }
 
+interface EditCourseMetadataData extends CourseMetadataUpdate {
+  useSuggestedDescription: boolean
+  useSuggestedPrerequisites: boolean
+  useSuggestedAudiences: boolean
+}
+
+const buildFormValues = (
+  course: Course,
+  sisuData: SisuDescriptionResponse,
+  prereqIds: string[],
+  audienceIds: string[],
+): EditCourseMetadataData => {
+  return {
+    course_description: sisuData.course_description,
+    course_audiences: sisuData.audience.map((audience, idx) => ({
+      id: audienceIds[idx] ?? v4(),
+      course_id: course.id,
+      audience,
+    })),
+    course_prerequisites: (sisuData.modules[0]?.prerequisites ?? []).map((prerequisite, idx) => ({
+      id: prereqIds[idx] ?? v4(),
+      course_id: course.id,
+      prerequisite,
+    })),
+    useSuggestedDescription: true,
+    useSuggestedPrerequisites: true,
+    useSuggestedAudiences: true,
+  }
+}
+
 const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps>> = ({
   course,
   sisuData,
@@ -61,31 +92,26 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
 }) => {
   const { t } = useTranslation()
 
-  if (sisuData.modules[0] === undefined) {
-    throw new Error("Course has no default module")
-  }
+  const removedPrereqIds = useRef<string[]>([])
+  const removedAudienceIds = useRef<string[]>([])
+  const initialPrereqIds = useMemo(() => prerequisites.map((p) => p.id), [prerequisites])
+  const initialAudienceIds = useMemo(() => audiences.map((a) => a.id), [audiences])
 
-  const methods = useForm<
-    CourseMetadataUpdate & {
-      useSuggestedDescription: boolean
-      useSuggestedPrerequisites: boolean
-      useSuggestedAudiences: boolean
-    }
-  >({
-    defaultValues: {
-      course_description: sisuData.course_description,
-      course_audiences: sisuData.audience.map((audience) => ({
-        audience,
-      })),
-      course_prerequisites: sisuData.modules[0].prerequisites.map((prerequisite) => ({
-        prerequisite,
-      })),
-      useSuggestedDescription: true,
-      useSuggestedPrerequisites: true,
-      useSuggestedAudiences: true,
-    },
+  const methods = useForm<EditCourseMetadataData>({
+    defaultValues: buildFormValues(course, sisuData, initialPrereqIds, initialAudienceIds),
   })
-  const { control, handleSubmit } = methods
+
+  const { control, handleSubmit, getValues, reset } = methods
+
+  useEffect(() => {
+    reset(buildFormValues(course, sisuData, initialPrereqIds, initialAudienceIds))
+
+    const mappedPrereqIds = getValues("course_prerequisites").map((p) => p.id)
+    const mappedAudiencedIds = getValues("course_audiences").map((a) => a.id)
+
+    removedPrereqIds.current = initialPrereqIds.filter((p) => !mappedPrereqIds.includes(p))
+    removedAudienceIds.current = initialAudienceIds.filter((a) => !mappedAudiencedIds.includes(a))
+  }, [reset, getValues, sisuData, course, initialPrereqIds, initialAudienceIds])
 
   const {
     fields: prereqField,
@@ -116,6 +142,40 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
       course_audiences: courseAudiences,
     })
   })
+
+  const handlePrereqRemove = (idx: number) => {
+    const prereq_id = getValues(`course_prerequisites.${idx}.id`)
+
+    removedPrereqIds.current.push(prereq_id)
+    removePrereq(idx)
+  }
+
+  const handlePrereqAppend = () => {
+    const prereq_id = removedPrereqIds.current.pop()
+
+    appendPrereq({
+      id: prereq_id ?? v4(),
+      course_id: course.id,
+      prerequisite: "",
+    })
+  }
+
+  const handleAudienceRemove = (idx: number) => {
+    const audience_id = getValues(`course_audiences.${idx}.id`)
+
+    removedAudienceIds.current.push(audience_id)
+    removeAudience(idx)
+  }
+
+  const handleAudienceAppend = () => {
+    const audience_id = removedAudienceIds.current.pop()
+
+    appendAudience({
+      id: audience_id ?? v4(),
+      course_id: course.id,
+      audience: "",
+    })
+  }
 
   return (
     <FormProvider {...methods}>
@@ -151,6 +211,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
               label={t("text-field-label-ai-description")}
               autoResize={true}
               name={"course_description"}
+              rules={nullIfEmpty}
             />
           </FieldContainer>
         </FieldSet>
@@ -178,18 +239,33 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
           </div>
 
           {hasPrerequisites ? (
-            <div>
+            <ul
+              className={css`
+                margin: 0;
+                padding: 0;
+              `}
+            >
               {prerequisites.map((preq, idx) => (
                 <li
                   key={idx}
                   className={css`
                     list-style-type: none;
+                    padding: 0.2rem 0;
+                    padding-left: 1.25rem;
+                    position: relative;
+
+                    ::before {
+                      content: "•";
+                      position: absolute;
+                      left: 0;
+                      color: ${baseTheme.colors.green[600]};
+                    }
                   `}
                 >
                   {preq.prerequisite}
                 </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <div>{t("course-has-no-prerequisites")}</div>
           )}
@@ -213,17 +289,33 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
               key={item.id}
               className={css`
                 display: flex;
-                flex-flow: row nowrap;
+                flex-flow: row wrap;
               `}
             >
-              <TextField
+              <div
                 className={css`
-                  flex-grow: 1;
+                  flex: 1 1 400px;
                 `}
-                control={control}
-                name={`course_prerequisites.${idx}.prerequisite`}
-                label={t("text-field-label-prerequisites", { index: idx + 1 })}
-              />
+              >
+                <TextField
+                  className={css`
+                    flex-grow: 1;
+                  `}
+                  control={control}
+                  name={`course_prerequisites.${idx}.prerequisite`}
+                  label={t("text-field-label-prerequisites", { index: idx + 1 })}
+                  rules={{
+                    ...nullIfEmpty,
+                    validate: (value) => {
+                      if (!nullIfEmptyString(value)) {
+                        return t("field-cannot-be-empty")
+                      }
+                      return true
+                    },
+                  }}
+                />
+              </div>
+
               <Button
                 className={css`
                   height: fit-content;
@@ -233,7 +325,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
                 size="small"
                 type="button"
                 variant="tertiary"
-                onClick={() => removePrereq(idx)}
+                onClick={() => handlePrereqRemove(idx)}
               >
                 {t("button-remove")}
               </Button>
@@ -252,7 +344,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
               size="medium"
               type="button"
               variant="secondary"
-              onClick={() => appendPrereq({ prerequisite: "" })}
+              onClick={() => handlePrereqAppend()}
             >
               {t("add-new-prerequisite")}
             </Button>
@@ -281,18 +373,33 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
             </div>
           </div>
           {hasAudiences ? (
-            <div>
+            <ul
+              className={css`
+                margin: 0;
+                padding: 0;
+              `}
+            >
               {audiences.map((audience, idx) => (
                 <li
                   key={idx}
                   className={css`
                     list-style-type: none;
+                    padding: 0.2rem 0;
+                    padding-left: 1.25rem;
+                    position: relative;
+
+                    ::before {
+                      content: "•";
+                      position: absolute;
+                      left: 0;
+                      color: ${baseTheme.colors.green[600]};
+                    }
                   `}
                 >
                   {audience.audience}
                 </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <div>{t("course-has-no-audiences")}</div>
           )}
@@ -316,17 +423,33 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
               key={item.id}
               className={css`
                 display: flex;
-                flex-flow: row nowrap;
+                flex-flow: row wrap;
               `}
             >
-              <TextField
+              <div
                 className={css`
-                  flex-grow: 1;
+                  flex: 1 1 400px;
                 `}
-                control={control}
-                name={`course_audiences.${idx}.audience`}
-                label={t("text-field-label-audiences", { index: idx + 1 })}
-              />
+              >
+                <TextField
+                  className={css`
+                    flex-grow: 1;
+                  `}
+                  control={control}
+                  name={`course_audiences.${idx}.audience`}
+                  label={t("text-field-label-audiences", { index: idx + 1 })}
+                  rules={{
+                    ...nullIfEmpty,
+                    validate: (value) => {
+                      if (!nullIfEmptyString(value)) {
+                        return t("field-cannot-be-empty")
+                      }
+                      return true
+                    },
+                  }}
+                />
+              </div>
+
               <Button
                 className={css`
                   height: fit-content;
@@ -336,7 +459,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
                 size="small"
                 type="button"
                 variant="tertiary"
-                onClick={() => removeAudience(idx)}
+                onClick={() => handleAudienceRemove(idx)}
               >
                 {t("button-remove")}
               </Button>
@@ -350,7 +473,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
             size="medium"
             type="button"
             variant="secondary"
-            onClick={() => appendAudience({ audience: "" })}
+            onClick={() => handleAudienceAppend()}
           >
             {t("add-new-audience")}
           </Button>

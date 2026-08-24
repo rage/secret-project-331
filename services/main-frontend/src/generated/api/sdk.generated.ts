@@ -367,6 +367,8 @@ import type {
   GetCourseReferencesData,
   GetCourseReferencesResponses,
   GetCourseResponses,
+  GetCoursesForAuditingData,
+  GetCoursesForAuditingResponses,
   GetCourseStructureData,
   GetCourseStructureResponses,
   GetCourseStudentChapterLockingStatusesData,
@@ -756,6 +758,8 @@ import type {
   UpdateChapterImageData,
   UpdateChapterImageResponses,
   UpdateChapterResponses,
+  UpdateCourseAuditingDataData,
+  UpdateCourseAuditingDataResponses,
   UpdateCourseChapterOrderingData,
   UpdateCourseChapterOrderingResponses,
   UpdateCourseData,
@@ -937,6 +941,7 @@ import {
   zGetCourseProgressForUserResponse,
   zGetCourseReferencesResponse,
   zGetCourseResponse,
+  zGetCoursesForAuditingResponse,
   zGetCourseStructureResponse,
   zGetCourseStudentChapterLockingStatusesResponse,
   zGetCourseStudentsCertificatesResponse,
@@ -1107,6 +1112,7 @@ import {
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
   zUpdateChapterResponse,
+  zUpdateCourseAuditingDataResponse,
   zUpdateCourseDesignerStageTaskResponse,
   zUpdateCourseDesignerStageWorkspaceResponse,
   zUpdateCoursePeerReviewQueueReviewsReceivedResponse,
@@ -1662,6 +1668,38 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-auditing`
+ */
+export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCoursesForAuditingData, ThrowOnError>,
+): RequestResult<GetCoursesForAuditingResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetCoursesForAuditingResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCoursesForAuditingResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-auditing/",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/course-auditing/:id`
+ */
+export const updateCourseAuditingData = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateCourseAuditingDataData, ThrowOnError>,
+): RequestResult<UpdateCourseAuditingDataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateCourseAuditingDataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateCourseAuditingDataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-auditing/{course_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
 
 /**
  *

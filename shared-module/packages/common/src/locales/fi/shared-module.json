@@ -77,6 +77,10 @@
     "course_slug_already_taken": {
       "message": "Toinen kurssi käyttää jo tätä lyhyttä nimeä. Valitse jokin muu.",
       "title": "Lyhyt nimi on jo käytössä"
+    },
+    "foreign_key_violation": {
+      "message": "Viittausta ei ole olemassa.",
+      "title": "Viiteavainvirhe"
     }
   },
   "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",

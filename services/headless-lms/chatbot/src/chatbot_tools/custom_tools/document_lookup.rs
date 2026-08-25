@@ -1,19 +1,19 @@
 use indexmap::IndexMap;
-use std::str::FromStr;
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::{
     json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType},
     strings::truncate_utf8_at_boundary,
 };
-use serde::{Deserialize, Deserializer};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties,
+        argument_parsing::deserialize_to_optional_uuid_and_errors_to_none,
+        tool_permission::ToolPermission,
     },
     citations::parse_document_filepath,
     llm_utils::estimate_tokens,
@@ -37,23 +37,6 @@ pub struct DocumentLookupArguments {
     #[serde(deserialize_with = "deserialize_to_optional_uuid_and_errors_to_none")]
     page_id: Option<Uuid>,
     format: String,
-}
-
-/// Deserializes an optional string field and parses it into an Uuid, doing this
-/// optionally without failure. If an error occurs, a None is returned. This is
-/// desired for the page_id field in DocumentLookupArguments, which is generated
-/// by an LLM and can be None or a non-Uuid string in some cases. If any errors
-/// should occur, they are emitted in ChatbotTools's from_db_and_arguments.
-fn deserialize_to_optional_uuid_and_errors_to_none<'de, D>(
-    deserializer: D,
-) -> Result<Option<Uuid>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let res = String::deserialize(deserializer)
-        .ok()
-        .and_then(|s| Uuid::from_str(&s).ok());
-    Ok(res)
 }
 
 /// Truncates page content until its estimated token count fits the budget we are willing to hand

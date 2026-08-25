@@ -19,7 +19,9 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use sqlx::PgConnection;
 use utoipa::ToSchema;
 
+pub mod argument_parsing;
 pub mod client_tools;
+pub mod course_scope;
 pub mod custom_tools;
 pub mod provider_tools;
 pub mod tool_permission;

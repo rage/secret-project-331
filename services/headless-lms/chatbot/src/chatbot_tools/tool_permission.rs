@@ -15,6 +15,8 @@ pub enum ToolPermission {
     Anyone,
     /// May teach the course the chatbot belongs to: [Action::Teach] on it.
     TeachesCourse,
+    /// Holds a global admin role: [Action::Administrate] on [Resource::GlobalPermissions].
+    GlobalAdmin,
 }
 
 impl ToolPermission {
@@ -29,6 +31,7 @@ impl ToolPermission {
         match self {
             Self::Anyone => Ok(true),
             Self::TeachesCourse => holds_course_permission(conn, user_context, Action::Teach).await,
+            Self::GlobalAdmin => holds_global_admin(conn, user_context).await,
         }
     }
 }
@@ -47,6 +50,25 @@ async fn holds_course_permission(
 
     let roles = user_context.roles(conn).await?;
     Ok(is_permitted(conn, action, Resource::Course(course_id), roles).await?)
+}
+
+/// Whether the caller holds a global admin role. Anonymous callers fail closed without a query.
+async fn holds_global_admin(
+    conn: &mut PgConnection,
+    user_context: &ChatbotUserContext,
+) -> ChatbotResult<bool> {
+    let Some(_user_id) = user_context.user_id else {
+        return Ok(false);
+    };
+
+    let roles = user_context.roles(conn).await?;
+    Ok(is_permitted(
+        conn,
+        Action::Administrate,
+        Resource::GlobalPermissions,
+        roles,
+    )
+    .await?)
 }
 
 #[cfg(test)]
@@ -77,6 +99,18 @@ pub(crate) mod test_helpers {
             user_id,
         }
     }
+
+    pub fn global_role(user_id: Uuid, role: UserRole) -> Role {
+        Role {
+            is_global: true,
+            organization_id: None,
+            course_id: None,
+            course_instance_id: None,
+            exam_id: None,
+            role,
+            user_id,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -96,7 +130,11 @@ mod tests {
         insert_data!(:tx, :user, :org, :course);
         let context = context(None, Some(course), Vec::new());
 
-        for permission in [ToolPermission::Anyone, ToolPermission::TeachesCourse] {
+        for permission in [
+            ToolPermission::Anyone,
+            ToolPermission::TeachesCourse,
+            ToolPermission::GlobalAdmin,
+        ] {
             let holds = permission
                 .is_satisfied_by(tx.as_mut(), &context)
                 .await
@@ -153,6 +191,48 @@ mod tests {
         assert!(
             !ToolPermission::TeachesCourse
                 .is_satisfied_by(tx.as_mut(), &context)
+                .await
+                .expect("the check completes")
+        );
+    }
+
+    /// `GlobalAdmin` requires the stricter `Administrate` action: a course teacher and a global
+    /// `TeachingAndLearningServices` role must not satisfy it, only a global `Admin` role.
+    #[tokio::test]
+    async fn global_admin_requires_a_global_admin_role() {
+        insert_data!(:tx, :user, :org, :course);
+        let admin_context = context(
+            Some(user),
+            Some(course),
+            vec![global_role(user, UserRole::Admin)],
+        );
+        assert!(
+            ToolPermission::GlobalAdmin
+                .is_satisfied_by(tx.as_mut(), &admin_context)
+                .await
+                .expect("the check completes")
+        );
+
+        let teacher_context = context(
+            Some(user),
+            Some(course),
+            vec![course_role(user, course, UserRole::Teacher)],
+        );
+        assert!(
+            !ToolPermission::GlobalAdmin
+                .is_satisfied_by(tx.as_mut(), &teacher_context)
+                .await
+                .expect("the check completes")
+        );
+
+        let tals_context = context(
+            Some(user),
+            Some(course),
+            vec![global_role(user, UserRole::TeachingAndLearningServices)],
+        );
+        assert!(
+            !ToolPermission::GlobalAdmin
+                .is_satisfied_by(tx.as_mut(), &tals_context)
                 .await
                 .expect("the check completes")
         );

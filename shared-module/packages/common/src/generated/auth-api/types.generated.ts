@@ -58,6 +58,9 @@ export type Action =
       type: "view_stats"
     }
   | {
+      type: "view_and_manage_credit_registrations"
+    }
+  | {
       type: "administrate"
     }
 

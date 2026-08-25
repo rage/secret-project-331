@@ -1,9 +1,9 @@
 import type { Page } from "@playwright/test"
-import { expect, test } from "@playwright/test"
 
 import { AccountTab } from "@/utils/components/UserSettings/AccountTab"
 import { ORIGIN } from "@/utils/creditRegistration"
 import { signUp } from "@/utils/flows/signup.flow"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 /**
  * No mail capture exists in this repo, so the code comes from

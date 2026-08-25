@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"registered_count!\",\n  CEIL(\n    EXTRACT(\n      EPOCH\n      FROM PERCENTILE_DISC(0.5) WITHIN GROUP (\n          ORDER BY terminal_at - created_at\n        )\n    )\n  )::bigint AS \"p50_end_to_end_secs\",\n  CEIL(\n    EXTRACT(\n      EPOCH\n      FROM PERCENTILE_DISC(0.95) WITHIN GROUP (\n          ORDER BY terminal_at - created_at\n        )\n    )\n  )::bigint AS \"p95_end_to_end_secs\",\n  CEIL(\n    EXTRACT(\n      EPOCH\n      FROM PERCENTILE_DISC(0.5) WITHIN GROUP (\n          ORDER BY registered_at - submitted_at\n        )\n    )\n  )::bigint AS \"p50_confirmation_secs\",\n  CEIL(\n    EXTRACT(\n      EPOCH\n      FROM PERCENTILE_DISC(0.95) WITHIN GROUP (\n          ORDER BY registered_at - submitted_at\n        )\n    )\n  )::bigint AS \"p95_confirmation_secs\"\nFROM credit_registrations\nWHERE state = 'registered'\n  AND terminal_at >= $1\n  AND terminal_at < $2\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "registered_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "p50_end_to_end_secs",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "p95_end_to_end_secs",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "p50_confirmation_secs",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "p95_confirmation_secs",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "e9a830a7ee7bedb46dd3496ece06b62ffc233904121e83857066d665ee731a00"
+}

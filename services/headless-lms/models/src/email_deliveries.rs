@@ -58,10 +58,35 @@ pub struct Email {
 }
 
 /// Inserts an email delivery; fails if the user or email template is soft-deleted.
+///
+/// For a template whose substitutions the sender cannot look up from the account, use
+/// [`insert_email_delivery_with_placeholders`].
 pub async fn insert_email_delivery(
     conn: &mut PgConnection,
     user_id: Uuid,
     email_template_id: Uuid,
+) -> ModelResult<Uuid> {
+    insert_delivery_for_user(conn, user_id, email_template_id, None).await
+}
+
+/// Queues a mail to an account, carrying its substitutions on the delivery row.
+///
+/// The sibling of [`insert_email_delivery_to_address`] for recipients we do have an account for:
+/// the address comes from the account, the values in the message do not.
+pub async fn insert_email_delivery_with_placeholders(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    email_template_id: Uuid,
+    placeholders: &serde_json::Value,
+) -> ModelResult<Uuid> {
+    insert_delivery_for_user(conn, user_id, email_template_id, Some(placeholders)).await
+}
+
+async fn insert_delivery_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    email_template_id: Uuid,
+    placeholders: Option<&serde_json::Value>,
 ) -> ModelResult<Uuid> {
     let check = sqlx::query_as!(
         CheckUserAndTemplateRow,
@@ -96,13 +121,15 @@ SELECT
 INSERT INTO email_deliveries (
     id,
     user_id,
-    email_template_id
+    email_template_id,
+    placeholders
 )
-VALUES ($1, $2, $3)
+VALUES ($1, $2, $3, $4)
         "#,
         id,
         user_id,
-        email_template_id
+        email_template_id,
+        placeholders,
     )
     .execute(conn)
     .await?;
@@ -301,6 +328,35 @@ pub struct EmailDeliveryError {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+}
+
+/// Which mails one account has been queued, newest first. There is no mail capture in this repo, so
+/// a system test asserting a message was composed reads the queue instead of an inbox.
+pub async fn get_recent_template_types_for_user_for_testing(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    limit: i64,
+) -> ModelResult<Vec<(EmailTemplateType, serde_json::Value)>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT t.email_template_type AS "template_type",
+  COALESCE(d.placeholders, '{}'::jsonb) AS "placeholders!"
+FROM email_deliveries d
+  JOIN email_templates t ON t.id = d.email_template_id
+WHERE d.user_id = $1
+  AND d.deleted_at IS NULL
+ORDER BY d.created_at DESC
+LIMIT $2
+        "#,
+        user_id,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.template_type, row.placeholders))
+        .collect())
 }
 
 pub async fn increment_retry_and_schedule(

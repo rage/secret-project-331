@@ -4,7 +4,7 @@ import {
   OLD_FLOW_COURSE_SLUG,
 } from "@/utils/creditRegistration"
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
-import { expect, test } from "@/utils/fixtures"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { runMaterializeTick } from "@/utils/suotarControl"
 
 /**

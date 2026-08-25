@@ -103,11 +103,11 @@ const CompletionsPage: React.FC = () => {
     () => getCompletionsList.data?.users.map((user) => user.userId) ?? [],
     [getCompletionsList.data],
   )
-  const creditRegistrationsQuery = useTeacherCreditRegistrations(
+  const { data: creditRegistrationsData } = useTeacherCreditRegistrations(
     courseInstanceQuery.data?.course_id ?? null,
     listedUserIds,
   )
-  const creditRegistrations = creditRegistrationsQuery.data ?? EMPTY_CREDIT_REGISTRATIONS
+  const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
 
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })

@@ -199,6 +199,61 @@ pub async fn get_by_id(
     Ok(res)
 }
 
+/// A certificate as its holder's own profile lists it: what it is for, and how to open it.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct UserCertificate {
+    pub id: Uuid,
+    pub name_on_certificate: String,
+    /// Addresses the public validation page, which is also how the holder views the image.
+    pub verification_id: String,
+    pub created_at: DateTime<Utc>,
+    pub course_id: Uuid,
+    pub course_name: String,
+    /// `None` for a course's default module.
+    pub course_module_name: Option<String>,
+}
+
+/// Every certificate the user holds, newest first.
+///
+/// One row per certificate even when its configuration requires several modules: the row names the
+/// first required module, which is the whole requirement for every configuration a course editor can
+/// currently build.
+pub async fn get_all_by_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<UserCertificate>> {
+    let res = sqlx::query_as!(
+        UserCertificate,
+        r#"
+SELECT DISTINCT ON (gc.id) gc.id,
+  gc.name_on_certificate,
+  gc.verification_id,
+  gc.created_at,
+  c.id AS course_id,
+  c.name AS course_name,
+  cm.name AS course_module_name
+FROM generated_certificates gc
+  JOIN certificate_configuration_to_requirements cctr ON cctr.certificate_configuration_id = gc.certificate_configuration_id
+  AND cctr.deleted_at IS NULL
+  JOIN course_modules cm ON cm.id = cctr.course_module_id
+  AND cm.deleted_at IS NULL
+  JOIN courses c ON c.id = cm.course_id
+  AND c.deleted_at IS NULL
+WHERE gc.user_id = $1
+  AND gc.deleted_at IS NULL
+ORDER BY gc.id,
+  cm.order_number
+        "#,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    // `DISTINCT ON` dictates the query's own ordering, so the newest-first order is applied here.
+    let mut res = res;
+    res.sort_by_key(|certificate| std::cmp::Reverse(certificate.created_at));
+    Ok(res)
+}
+
 pub async fn find_existing(
     conn: &mut PgConnection,
     user_id: Uuid,

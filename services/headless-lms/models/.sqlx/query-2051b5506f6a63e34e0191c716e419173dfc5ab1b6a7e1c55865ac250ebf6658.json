@@ -1,0 +1,347 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cmsr.id,\n  cmsr.created_at,\n  cmsr.updated_at,\n  cmsr.deleted_at,\n  cmsr.course_module_id,\n  cmsr.course_unit_realisation_id,\n  cmsr.label,\n  cmsr.active,\n  cmsr.last_listed_at,\n  cmsr.last_listed_person_count,\n  cmsr.last_already_linked_count,\n  cmsr.last_mailed_count,\n  cmsr.last_suppressed_by_dedup_count,\n  cmsr.last_suppressed_by_rate_cap_count,\n  cmsr.last_no_address_count,\n  cmsr.last_fast_tracked_count,\n  cmsr.last_fast_track_skipped_no_account_count,\n  cmsr.last_fast_track_skipped_unverified_count,\n  cmsr.last_fast_track_skipped_stale_verification_count,\n  cmsr.last_fast_track_skipped_name_mismatch_count,\n  cmsr.last_fast_track_skipped_account_has_number_count,\n  cmsr.last_fast_track_skipped_unlinked_before_count,\n  cmsr.last_listing_attempted_at,\n  cmsr.last_listing_error AS \"last_listing_error?\",\n  cmsr.consecutive_listing_failures\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\nWHERE ($1::uuid IS NULL OR cmsr.course_module_id = $1)\n  AND ($2::uuid IS NULL OR cm.course_id = $2)\n  AND cm.deleted_at IS NULL\n  AND cmsr.deleted_at IS NULL\nORDER BY cm.order_number,\n  cmsr.created_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_unit_realisation_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "course_unit_realisation_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "label",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "label"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "active",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "active"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "last_listed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "last_listed_person_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listed_person_count"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "last_already_linked_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_already_linked_count"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "last_mailed_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_mailed_count"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "last_suppressed_by_dedup_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_suppressed_by_dedup_count"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "last_suppressed_by_rate_cap_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_suppressed_by_rate_cap_count"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "last_no_address_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_no_address_count"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "last_fast_tracked_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_fast_tracked_count"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "last_fast_track_skipped_no_account_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_fast_track_skipped_no_account_count"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "last_fast_track_skipped_unverified_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_fast_track_skipped_unverified_count"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "last_fast_track_skipped_stale_verification_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_fast_track_skipped_stale_verification_count"
+          }
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "last_fast_track_skipped_name_mismatch_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_fast_track_skipped_name_mismatch_count"
+          }
+        }
+      },
+      {
+        "ordinal": 20,
+        "name": "last_fast_track_skipped_account_has_number_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_fast_track_skipped_account_has_number_count"
+          }
+        }
+      },
+      {
+        "ordinal": 21,
+        "name": "last_fast_track_skipped_unlinked_before_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_fast_track_skipped_unlinked_before_count"
+          }
+        }
+      },
+      {
+        "ordinal": 22,
+        "name": "last_listing_attempted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listing_attempted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 23,
+        "name": "last_listing_error?",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "acceptor_not_found",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "sisu_temporarily_unavailable",
+                "misregistered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "last_listing_error"
+          }
+        }
+      },
+      {
+        "ordinal": 24,
+        "name": "consecutive_listing_failures",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_realisations",
+            "name": "consecutive_listing_failures"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "2051b5506f6a63e34e0191c716e419173dfc5ab1b6a7e1c55865ac250ebf6658"
+}

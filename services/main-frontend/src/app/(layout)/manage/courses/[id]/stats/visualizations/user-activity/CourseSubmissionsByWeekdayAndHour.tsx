@@ -7,6 +7,7 @@ import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import Echarts from "@/components/charts/Echarts"
 import { getCourseWeekdayHourSubmissionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseSlideSubmissionCountByWeekAndHour } from "@/generated/api/types.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -15,7 +16,6 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
 import { InstructionBox } from "../../CourseStatsPage"
-import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 export interface CourseSubmissionsByWeekdayAndHourProps {

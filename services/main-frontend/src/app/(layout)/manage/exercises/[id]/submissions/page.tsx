@@ -95,18 +95,15 @@ const SubmissionsPage: React.FC = () => {
     [csvExportTaskOptionsQuery.data],
   )
 
-  const hasFileAnswerTasks = useMemo(
-    () => (csvExportTaskOptionsQuery.data ?? []).some((task) => task.produces_file_answers),
-    [csvExportTaskOptionsQuery.data],
-  )
-
+  // Deliberately not gated on the exercise service's `produces_file_answers` capability: a service
+  // that stopped declaring it, or an `exercise_service_info` row still at its default because the
+  // service-info fetcher has not run, would otherwise hide files that demonstrably exist.
   const answerFilesExistQuery = useQuery({
     ...exerciseHasAnswerFilesOptions({
       path: {
         exercise_id: id,
       },
     }),
-    enabled: hasFileAnswerTasks,
   })
 
   const getTaskLabel = (task: ExerciseCsvExportTaskOption) =>
@@ -207,7 +204,7 @@ const SubmissionsPage: React.FC = () => {
         >
           {t("button-text-export-answers-csv")}
         </Button>
-        {hasFileAnswerTasks && answerFilesExistQuery.data && (
+        {answerFilesExistQuery.data && (
           <a href={answerFilesHref} download>
             <Button variant="secondary" size="small" type="button">
               {t("button-text-download-answer-files")}

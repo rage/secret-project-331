@@ -35,4 +35,18 @@ describe("extractTarZstd", () => {
 
     expect(await extractTarZstd(archive)).toEqual([{ filepath: "src/big.txt", contents }])
   })
+
+  it("extracts a 40 MiB archive, which the host's 100 MiB upload limit still allows", async () => {
+    const contents = incompressibleText(40 * 1024 * 1024)
+    const archive = await packTarZstd("src/huge.txt", contents)
+
+    expect(await extractTarZstd(archive)).toEqual([{ filepath: "src/huge.txt", contents }])
+  }, 120_000)
+
+  it("throws on an archive expanding past the largest destination size instead of truncating it", async () => {
+    const bomb = Buffer.from(zstdCompressSync(Buffer.alloc(300 * 1024 * 1024)))
+    expect(bomb.length).toBeLessThan(1024 * 1024)
+
+    await expect(extractTarZstd(bomb)).rejects.toThrow(/Failed to decompress/)
+  }, 120_000)
 })

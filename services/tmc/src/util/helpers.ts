@@ -16,8 +16,22 @@ export const buildArchiveName = (exercise: RepositoryExercise, identifier?: stri
  * Destination sizes tried when decompressing, in bytes. zstddec cannot grow its destination and
  * returns nothing instead of failing when the archive does not fit, so a too-small first guess has
  * to be retried rather than mistaken for an empty archive.
+ *
+ * Each attempt grows the decoder's wasm heap to its size and the heap never shrinks again, so the
+ * rungs climb gradually and the last one is the permanent worst case. The top rung is also the only
+ * thing bounding how far a hostile archive can expand, so it must stay finite: 256 MiB is far above
+ * any real exercise project while keeping a decompression bomb from exhausting a browser tab.
+ *
+ * Never pass 0 instead: zstddec then takes the size from the frame header, and the archives
+ * tmc-langs writes carry no content size there, which yields a wrong-length buffer of heap garbage
+ * rather than an error.
  */
-const DECOMPRESSED_SIZE_ATTEMPTS = [1024 * 1024, 32 * 1024 * 1024]
+const DECOMPRESSED_SIZE_ATTEMPTS = [
+  1024 * 1024,
+  16 * 1024 * 1024,
+  64 * 1024 * 1024,
+  256 * 1024 * 1024,
+]
 
 /** A tar always carries its trailing zero blocks, so nothing decompressed means the decode failed. */
 const decompress = (decoder: ZSTDDecoder, tarZstdArchive: Buffer): Uint8Array => {

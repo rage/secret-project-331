@@ -87,6 +87,10 @@ export function chatbotCommandCenterRoute() {
   return "/chatbot-command-center"
 }
 
+export function courseAuditingRoute() {
+  return "/manage/course-auditing"
+}
+
 export function manageOrganizationRoute(organizationId: string) {
   return `/manage/organizations/${organizationId}`
 }
@@ -355,8 +359,36 @@ export function creditRegistrationRegistrationsRoute() {
   return "/manage/credit-registration/registrations"
 }
 
+export function creditRegistrationPipelineRoute() {
+  return "/manage/credit-registration/pipeline"
+}
+
+export function creditRegistrationErrorsRoute() {
+  return "/manage/credit-registration/errors"
+}
+
 export function creditRegistrationLinkingRoute() {
   return "/manage/credit-registration/linking"
+}
+
+export function creditRegistrationCoursesRoute() {
+  return "/manage/credit-registration/courses"
+}
+
+export function creditRegistrationApiLogRoute() {
+  return "/manage/credit-registration/api-log"
+}
+
+export function creditRegistrationWorkersRoute() {
+  return "/manage/credit-registration/workers"
+}
+
+export function creditRegistrationReconciliationRoute() {
+  return "/manage/credit-registration/reconciliation"
+}
+
+export function creditRegistrationAuditRoute() {
+  return "/manage/credit-registration/audit"
 }
 
 export function creditRegistrationItemRoute(creditRegistrationId: string) {

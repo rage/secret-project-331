@@ -1,7 +1,7 @@
 use crate::domain::oauth::consent_deny_query::ConsentDenyQuery;
 use crate::domain::oauth::consent_query::ConsentQuery;
 use crate::domain::oauth::consent_response::ConsentResponse;
-use crate::domain::oauth::helpers::oauth_invalid_request;
+use crate::domain::oauth::helpers::{oauth_invalid_request, split_and_validate_scopes};
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
 use models::{
@@ -64,24 +64,8 @@ pub async fn approve_consent(
         ));
     }
 
-    // Validate requested scopes against client.allowed scopes
-    let requested_scopes: Vec<String> = form
-        .scope
-        .split_whitespace()
-        .map(|s| s.to_string())
-        .collect();
-
-    let allowed_scopes = &client.scopes;
-
-    for scope in &requested_scopes {
-        if !allowed_scopes.contains(scope) {
-            return Err(oauth_invalid_request(
-                "invalid scope",
-                None,
-                Some(&form.state),
-            ));
-        }
-    }
+    let requested_scopes = split_and_validate_scopes(&form.scope, &client.scopes)
+        .map_err(|_| oauth_invalid_request("invalid scope", None, Some(&form.state)))?;
 
     OAuthUserClientScopes::insert(&mut conn, user.id, client.id, &requested_scopes).await?;
 

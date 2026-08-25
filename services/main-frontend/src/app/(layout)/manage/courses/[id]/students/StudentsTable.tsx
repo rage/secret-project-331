@@ -130,6 +130,14 @@ export function StudentsTable<T extends object>({
   })
 
   const virtualItems = rowVirtualizer.getVirtualItems()
+  // Identifies which rows are actually mounted right now. Column widths are decided by their real
+  // (`table-layout: auto`) content, so a different virtualized window can change them even though
+  // `data`/`columns` did not -- this re-measures the header whenever that window moves (below),
+  // keeping the floating clone's frozen widths in sync with the real table.
+  const firstVirtualIndex = virtualItems[0]?.index
+  const lastVirtualIndex = virtualItems[virtualItems.length - 1]?.index
+  // oxlint-disable-next-line i18next/no-literal-string -- not user-facing, a React dependency key
+  const virtualRangeKey = `${firstVirtualIndex}:${lastVirtualIndex}`
   const scrollMargin = rowVirtualizer.options.scrollMargin
   const paddingTop = (virtualItems[0]?.start ?? 0) - scrollMargin
   const lastVirtualItem = virtualItems[virtualItems.length - 1]
@@ -197,12 +205,15 @@ export function StudentsTable<T extends object>({
     setShowFloatingHeader(rect.top < 0 && rect.bottom > headerHeight)
   }, [])
 
-  // Re-measure header cell widths whenever the rendered content could change column widths, and
-  // re-check pin state since a shorter/taller page can push the table above/below the threshold.
+  // Re-measure header cell widths whenever the rendered content could change column widths -- either
+  // because data/columns changed outright, or because virtualization mounted a different window of
+  // rows (`virtualRangeKey`) whose cell content naturally sizes the columns differently under
+  // `table-layout: auto`. Also re-check pin state since a shorter/taller page can push the table
+  // above/below the threshold.
   useLayoutEffect(() => {
     measureHeader()
     updateShowFloatingHeader()
-  }, [data, columns, measureHeader, updateShowFloatingHeader])
+  }, [data, columns, virtualRangeKey, measureHeader, updateShowFloatingHeader])
 
   // The floating header's inner wrapper is a fresh DOM node each time it mounts (it only exists
   // while showFloatingHeader is true), so it starts untransformed -- sync it to the current

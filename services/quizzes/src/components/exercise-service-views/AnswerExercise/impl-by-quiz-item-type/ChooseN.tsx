@@ -140,6 +140,8 @@ const ChooseN: React.FunctionComponent<
                   className={css`
                     flex: 1;
                     text-align: center;
+                    /* Reserve space so the checkmark (right: 0.875rem, width: 1.25rem) never overlaps the text */
+                    padding: 0 2.125rem;
                   `}
                 >
                   {o.title || o.body}

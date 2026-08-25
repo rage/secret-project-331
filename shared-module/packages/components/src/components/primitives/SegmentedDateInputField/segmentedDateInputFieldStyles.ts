@@ -8,7 +8,12 @@ export const segmentedFieldShellCss = css`
   outline: none;
 `
 
-/** Single tight row of date/time segments (no wrap, no flex-grow between parts). */
+/**
+ * Single tight row of date/time segments (no wrap, no flex-grow between parts). The segments
+ * themselves don't shrink (flex: 0 0 auto in segmentCss), so on a narrow viewport where the full
+ * date+time text is wider than the field, this scrolls horizontally within its own box instead of
+ * spilling past it and overlapping the parent card.
+ */
 export const segmentedSegmentsRowCss = css`
   display: inline-flex;
   max-width: 100%;
@@ -18,6 +23,12 @@ export const segmentedSegmentsRowCss = css`
   justify-content: flex-start;
   gap: 2px;
   white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `
 
 export const segmentedFieldDisabledCss = css`
@@ -51,7 +62,7 @@ export const segmentCss = css`
   outline: none;
   font-variant-numeric: tabular-nums;
 
-  &:focus-visible {
+  &[data-focus-visible="true"] {
     background: var(--color-blue-50);
   }
 `
@@ -63,6 +74,10 @@ export const segmentPlaceholderCss = css`
 export const segmentLiteralCss = css`
   color: var(--field-chrome);
   user-select: none;
+`
+
+export const kloSegmentLiteralCss = css`
+  visibility: hidden;
 `
 
 export const datePickerButtonCss = css`
@@ -131,12 +146,21 @@ export const segmentedSegmentsRowRestHiddenCss = css`
   pointer-events: none;
 `
 
+// The shared popover shell (selectStyles.ts) also sets `min-width: var(--popover-trigger-width)`,
+// sized for combobox/select popovers that should match their trigger's width. That's wrong for a
+// calendar, and which `min-width` rule wins is otherwise a coin flip based on module load order
+// (both classes have equal specificity). The `&&` doubles this class's specificity so our
+// viewport-based floor always wins instead of the field's (possibly wider) rendered width.
 export const datePickerPopoverCss = css`
-  width: min(360px, calc(100vw - 32px));
-  min-width: min(320px, calc(100vw - 32px));
+  && {
+    width: min(360px, calc(100vw - 32px));
+    min-width: min(320px, calc(100vw - 32px));
+  }
 `
 
 export const dateTimePickerPopoverCss = css`
-  width: min(720px, calc(100vw - 32px));
-  min-width: min(320px, calc(100vw - 32px));
+  && {
+    width: min(720px, calc(100vw - 32px));
+    min-width: min(320px, calc(100vw - 32px));
+  }
 `

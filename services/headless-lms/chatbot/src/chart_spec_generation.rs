@@ -1,8 +1,7 @@
-use std::collections::HashMap;
 use std::sync::OnceLock;
 
 use crate::{
-    azure_chatbot::{
+    azure_chatbot::azure::protocol::{
         InputItem, LLMRequest, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
         RequestTextOptions, ThinkingParams,
     },
@@ -21,6 +20,7 @@ use headless_lms_models::{
     chatbot_conversation_message_messages::MessageRole,
 };
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
+use indexmap::IndexMap;
 
 /// Structured LLM response for chart spec generation.
 #[derive(serde::Deserialize)]
@@ -60,8 +60,32 @@ Your output must follow the JSON schema exactly:
   "spec": "<the complete Vega-Lite specification serialized as a JSON string>"
 }"#;
 
-/// User prompt prefix; also used by the mock LLM endpoint to recognize this task.
+/// User prompt prefix.
 pub const USER_PROMPT_PREFIX: &str = "Create or edit a Vega-Lite chart specification according to the request below. Return JSON only.";
+
+/// Names this feature's structured output to Azure. The test-mode mock Azure API picks its canned
+/// answer for this feature by this name.
+pub const RESPONSE_FORMAT_NAME: &str = "ChartSpecGenerationResponse";
+
+/// The structured output format the chart spec LLM is asked to answer in. Must stay in sync with
+/// [ChartSpecGenerationResponse].
+fn response_format() -> LLMRequestResponseFormatParam {
+    LLMRequestResponseFormatParam {
+        format_type: JSONType::JsonSchema,
+        name: RESPONSE_FORMAT_NAME.to_string(),
+        schema: Schema::strict_object(
+            IndexMap::from([(
+                "spec".to_string(),
+                SchemaPropertyType::Item(JsonItem {
+                    type_field: JSONType::String,
+                    description: None,
+                }),
+            )]),
+            None,
+        ),
+        strict: true,
+    }
+}
 
 /// Input payload for chart spec generation.
 pub struct ChartSpecGenerationInput {
@@ -257,34 +281,12 @@ pub async fn generate_chart_spec(
 
     for attempt in 0..MAX_GENERATION_ATTEMPTS {
         let chat_request = LLMRequest {
-            input: messages.clone(),
-            model: task_lm.model.to_owned(),
             max_output_tokens,
-            tools: vec![],
-            tool_choice: None,
-            parallel_tool_calls: None,
-            params: params.clone(),
             text: Some(RequestTextOptions {
                 verbosity: None,
-                format: Some(LLMRequestResponseFormatParam {
-                    format_type: JSONType::JsonSchema,
-                    name: "ChartSpecGenerationResponse".to_string(),
-                    schema: Schema {
-                        type_field: JSONType::Object,
-                        description: None,
-                        properties: HashMap::from([(
-                            "spec".to_string(),
-                            SchemaPropertyType::Item(JsonItem {
-                                type_field: JSONType::String,
-                                description: None,
-                            }),
-                        )]),
-                        required: vec!["spec".to_string()],
-                        additional_properties: false,
-                    },
-                    strict: true,
-                }),
+                format: Some(response_format()),
             }),
+            ..LLMRequest::new(task_lm.model.to_owned(), messages.clone(), params.clone())
         };
 
         let completion = make_blocking_llm_request(chat_request, app_config).await?;

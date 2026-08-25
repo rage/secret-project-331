@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT etsf.exercise_task_submission_id,\n  etsf.file_upload_id,\n  fu.name,\n  fu.path,\n  etsf.order_number\nFROM exercise_task_submission_files AS etsf\n  JOIN file_uploads AS fu ON fu.id = etsf.file_upload_id\nWHERE etsf.exercise_task_submission_id = ANY($1)\n  AND etsf.deleted_at IS NULL\n  AND fu.deleted_at IS NULL\nORDER BY etsf.exercise_task_submission_id,\n  etsf.order_number\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_task_submission_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submission_files",
+            "name": "exercise_task_submission_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "file_upload_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submission_files",
+            "name": "file_upload_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "path"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "order_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submission_files",
+            "name": "order_number"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d0427daefffe0f661c24ddda489cf2c9a1a055d102b2086ece2c8958417e9f50"
+}

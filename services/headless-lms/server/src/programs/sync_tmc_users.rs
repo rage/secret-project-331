@@ -5,8 +5,12 @@ use std::env;
 
 use crate::config::program_config::ProgramConfig;
 use crate::domain::email_ownership_verification::queue_verification_email_best_effort;
+use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_tokens;
 use crate::setup_tracing;
 use anyhow::Context;
+use headless_lms_base::config::OAuthServerConfiguration;
+use headless_lms_utils::cache::Cache;
+use secrecy::SecretString;
 
 use chrono::DateTime;
 use dotenvy::dotenv;
@@ -46,7 +50,11 @@ pub async fn main() -> anyhow::Result<()> {
     let recent_changes = fetch_recently_changed_user_details().await?;
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
-    delete_users(&mut conn, &recent_changes).await?;
+    // Required rather than best-effort: a job run without them would delete users while leaving
+    // their tokens authenticating the exercise-services client API from stale cache hits.
+    let cache = Cache::new(&ProgramConfig::required("REDIS_URL")?)?;
+    let token_hmac_key = OAuthServerConfiguration::try_from_env()?.oauth_token_hmac_key;
+    delete_users(&mut conn, &recent_changes, &cache, &token_hmac_key).await?;
     update_users(
         &mut conn,
         email_ownership_verification_enabled,
@@ -128,6 +136,8 @@ pub async fn update_users(
 pub async fn delete_users(
     conn: &mut PgConnection,
     recent_changes: &TMCRecentChanges,
+    cache: &Cache,
+    token_hmac_key: &SecretString,
 ) -> anyhow::Result<()> {
     let to_delete = recent_changes
         .changes
@@ -139,7 +149,7 @@ pub async fn delete_users(
     let user_ids_in_db = get_users_ids_in_db_from_upstream_ids(&mut *conn, &to_delete).await?;
     info!("{} users need to be deleted", to_delete.len());
     for id in user_ids_in_db {
-        models::users::delete_user(&mut *conn, id).await?;
+        delete_user_and_invalidate_cached_tokens(&mut *conn, cache, token_hmac_key, id).await?;
     }
     info!("Deletions done");
     Ok(())

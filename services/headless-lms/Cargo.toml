@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "authorization",
   "base",
   "entrypoint",
   "server",
@@ -8,7 +9,7 @@ members = [
   "doc-macro",
   "certificates",
   "chatbot",
-  "langs-api",
+  "exercise-services-api",
 ]
 
 resolver = "2"

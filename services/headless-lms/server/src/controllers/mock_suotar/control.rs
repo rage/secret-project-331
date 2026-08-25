@@ -5,6 +5,8 @@
 //! `test_mode && test_suotar`, so no token; the client is hand-written in
 //! `system-tests/src/utils/suotarControl.ts`.
 
+use chrono::Duration;
+
 use crate::domain::credit_registration_phases::{
     CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, run_phase_once,
 };
@@ -47,8 +49,6 @@ pub enum PhaseTickResult {
         /// Set when the iteration ran but failed; already scrubbed by the phase.
         error: Option<String>,
     },
-    /// No implementation is registered for this phase in `run_phase_once` yet.
-    PhaseNotImplemented { phase: String },
     /// The phase is paused, or the circuit breaker for this scope is open. Not a failure.
     Skipped { phase: String, reason: String },
     /// The scope names something this phase's claim query cannot narrow on.
@@ -79,9 +79,6 @@ impl PhaseTickResult {
             PhaseTick::ScopeNotSupported => Self::ScopeNotSupported {
                 phase: phase.as_str().to_string(),
             },
-            PhaseTick::NotImplemented => Self::PhaseNotImplemented {
-                phase: phase.as_str().to_string(),
-            },
         }
     }
 }
@@ -93,9 +90,9 @@ pub struct RegistrarTickResult {
     pub phases: Vec<PhaseTickResult>,
 }
 
-/// Runs one iteration of one pipeline phase: 200 when it ran, 501 `phaseNotImplemented`, 400
-/// `unknownPhase`. An optional scope narrows the rows the iteration may claim; absent is unscoped,
-/// which is what production does.
+/// Runs one iteration of one pipeline phase: 200 when it ran, 400 for `unknownPhase` or a scope the
+/// phase cannot narrow on. An optional scope narrows the rows the iteration may claim; absent is
+/// unscoped, which is what production does.
 async fn run_tick(
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
@@ -132,8 +129,9 @@ async fn run_tick(
         PhaseTickResult::Ran { .. } | PhaseTickResult::Skipped { .. } => {
             HttpResponse::Ok().json(&result)
         }
-        PhaseTickResult::ScopeNotSupported { .. } => HttpResponse::BadRequest().json(&result),
-        _ => HttpResponse::NotImplemented().json(&result),
+        PhaseTickResult::ScopeNotSupported { .. } | PhaseTickResult::UnknownPhase { .. } => {
+            HttpResponse::BadRequest().json(&result)
+        }
     })
 }
 
@@ -160,6 +158,175 @@ async fn run_registrar_tick(
     token.authorized_ok(HttpResponse::Ok().json(RegistrarTickResult { phases }))
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RegradeCompletionPayload {
+    pub credit_registration_id: Uuid,
+    /// `null` puts the completion on the pass/fail scale, which is how a spec crosses grade scales.
+    pub grade: Option<i32>,
+    /// Absent leaves it alone.
+    pub passed: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct RegradeCompletionResult {
+    pub course_module_completion_id: Uuid,
+    pub grade: Option<i32>,
+}
+
+/// Rewrites the grade of the completion behind one ledger row.
+///
+/// A test hook, not a product path: the manual completion flow writes a new completion row, so
+/// nothing else in the product edits a completion's grade, and the grade-improvement statement is
+/// about exactly that edit.
+async fn regrade_completion(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    payload: web::Json<RegradeCompletionPayload>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    let mut conn = pool.acquire().await?;
+    let registration =
+        models::credit_registrations::get_by_id(&mut conn, payload.credit_registration_id).await?;
+    models::course_module_completions::set_grade_for_testing(
+        &mut conn,
+        registration.course_module_completion_id,
+        payload.grade,
+        payload.passed,
+    )
+    .await?;
+    token.authorized_ok(HttpResponse::Ok().json(RegradeCompletionResult {
+        course_module_completion_id: registration.course_module_completion_id,
+        grade: payload.grade,
+    }))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SetTestExclusiveHoldPayload {
+    pub user_email: String,
+    /// Absent holds every course of the user; set to narrow to one.
+    pub course_id: Option<Uuid>,
+    pub hold_secs: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct SetTestExclusiveHoldResult {
+    pub held_until: DateTime<Utc>,
+}
+
+/// Comfortably above Playwright's own 100 s per-test timeout (`playwright.config.ts`'s `timeout`),
+/// so no legitimate hold is ever rejected; a value anywhere near this is a spec that mistyped a
+/// unit, not one that needs the identity held that long.
+const MAX_TEST_EXCLUSIVE_HOLD_SECS: i64 = 120;
+
+/// Excuses a user's rows from the live background worker's unscoped sweeps — see
+/// `credit_registrations::set_test_exclusive_hold_for_testing`. Keyed on identity rather than a row
+/// id, so a spec can hold before materialize creates the row it means to protect.
+async fn set_test_exclusive_hold(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    payload: web::Json<SetTestExclusiveHoldPayload>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    if !(0..=MAX_TEST_EXCLUSIVE_HOLD_SECS).contains(&payload.hold_secs) {
+        return token.authorized_ok(HttpResponse::BadRequest().json(format!(
+            "holdSecs must be between 0 and {MAX_TEST_EXCLUSIVE_HOLD_SECS}"
+        )));
+    }
+
+    let mut conn = pool.acquire().await?;
+    let Some(user_id) = models::user_details::get_active_user_id_by_email_case_insensitive(
+        &mut conn,
+        &payload.user_email,
+    )
+    .await?
+    else {
+        return token.authorized_ok(HttpResponse::BadRequest().json(UnresolvedScope {
+            status: "unresolvedScope".to_string(),
+            half: "userEmail".to_string(),
+            value: payload.user_email.clone(),
+        }));
+    };
+
+    let held_until = Utc::now() + Duration::seconds(payload.hold_secs);
+    models::credit_registrations::set_test_exclusive_hold_for_testing(
+        &mut conn,
+        user_id,
+        payload.course_id,
+        held_until,
+    )
+    .await?;
+
+    token.authorized_ok(HttpResponse::Ok().json(SetTestExclusiveHoldResult { held_until }))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QueuedEmailsQuery {
+    pub user_email: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct QueuedEmail {
+    pub template_type: String,
+    pub placeholders: serde_json::Value,
+}
+
+/// How many of an account's mails one read looks back over. Generous: the shared test database has a
+/// live pipeline queueing mail for everybody, and a short window would turn "exactly one" into a
+/// false pass.
+const QUEUED_EMAIL_SCAN: i64 = 200;
+
+/// The mails queued to one account, newest first. There is no mail capture in this repo, so a spec
+/// asserting a message was composed reads the send queue instead of an inbox.
+async fn queued_emails(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    query: web::Query<QueuedEmailsQuery>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    let mut conn = pool.acquire().await?;
+    let Some(user_id) = models::user_details::get_active_user_id_by_email_case_insensitive(
+        &mut conn,
+        &query.user_email,
+    )
+    .await?
+    else {
+        return token.authorized_ok(HttpResponse::BadRequest().json(UnresolvedScope {
+            status: "unresolvedScope".to_string(),
+            half: "userEmail".to_string(),
+            value: query.user_email.clone(),
+        }));
+    };
+    let queued = models::email_deliveries::get_recent_template_types_for_user_for_testing(
+        &mut conn,
+        user_id,
+        QUEUED_EMAIL_SCAN,
+    )
+    .await?
+    .into_iter()
+    .map(|(template_type, placeholders)| QueuedEmail {
+        template_type: serde_json::to_value(template_type)
+            .ok()
+            .and_then(|value| value.as_str().map(str::to_string))
+            .unwrap_or_default(),
+        placeholders,
+    })
+    .collect::<Vec<_>>();
+
+    token.authorized_ok(HttpResponse::Ok().json(queued))
+}
+
 /// Attributed to the tick rather than to a worker, so the audit log says which traffic a test made.
 fn tick_context<'a>(
     app_conf: &'a ApplicationConfiguration,
@@ -172,6 +339,7 @@ fn tick_context<'a>(
         test_mode: app_conf.test_mode,
         caller: "run-tick",
         base_url: &app_conf.base_url,
+        suotar_conf: &app_conf.suotar_configuration,
     }
 }
 
@@ -242,43 +410,28 @@ fn known_phase_names() -> Vec<String> {
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/run-tick", web::post().to(run_tick))
         .route("/run-registrar-tick", web::post().to(run_registrar_tick))
+        .route("/regrade-completion", web::post().to(regrade_completion))
+        .route(
+            "/test-exclusive-hold",
+            web::post().to(set_test_exclusive_hold),
+        )
+        .route("/queued-emails", web::get().to(queued_emails))
         .configure(commands::_add_routes);
 }
 
 #[cfg(test)]
 mod tests {
     use actix_web::{App, http::StatusCode, test, web::Data};
-    use headless_lms_base::config::{OAuthServerConfiguration, SuotarConfiguration};
-    use secrecy::{SecretBox, SecretString};
-    use std::sync::Arc;
 
     use super::*;
     use crate::controllers::configure_controllers;
-    use crate::domain::credit_registration_phases::ScopeSupport;
 
     /// The mock config is present either way; `test_suotar` alone decides whether the routes exist.
     fn app_conf(test_suotar: bool) -> ApplicationConfiguration {
         ApplicationConfiguration {
-            base_url: "http://project-331.local".to_string(),
-            test_mode: true,
-            test_chatbot: false,
-            test_sisu: false,
             test_suotar,
-            disable_embedding_vector_creation_when_seeding: false,
-            development_uuid_login: false,
-            enable_admin_email_verification: false,
-            enable_email_ownership_verification: false,
-            azure_configuration: None,
-            suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
-                .expect("the mock configuration is built from a constant base url"),
-            tmc_account_creation_origin: None,
-            tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
-            oauth_server_configuration: OAuthServerConfiguration {
-                rsa_public_key: "test".into(),
-                rsa_private_key: SecretString::new("test".into()),
-                oauth_token_hmac_key: SecretString::new("test".into()),
-                dpop_nonce_key: Arc::new(SecretBox::new(Box::new("test".into()))),
-            },
+            ..ApplicationConfiguration::mock_conf()
+                .expect("the mock configuration is built from constants")
         }
     }
 
@@ -310,42 +463,11 @@ mod tests {
         test::call_service(&service, req).await
     }
 
-    #[actix_web::test]
-    async fn run_tick_reports_phase_not_implemented_when_the_mock_is_enabled() {
-        let res = call_run_tick(true, "?phase=retention-sweep").await;
-        assert_eq!(res.status(), StatusCode::NOT_IMPLEMENTED);
-        let body: PhaseTickResult = test::read_body_json(res).await;
-        assert_eq!(
-            body,
-            PhaseTickResult::PhaseNotImplemented {
-                phase: "retention-sweep".to_string()
-            }
-        );
-    }
-
     /// Without the flag the routes must be absent, not merely refuse.
     #[actix_web::test]
     async fn run_tick_is_absent_when_the_mock_is_disabled() {
         let res = call_run_tick(false, "?phase=verify").await;
         assert_eq!(res.status(), StatusCode::NOT_FOUND);
-    }
-
-    /// A typed refusal rather than a 404 or a 500, so a spec written against an unbuilt phase fails
-    /// legibly.
-    #[actix_web::test]
-    async fn a_phase_that_is_not_built_yet_dispatches_to_a_typed_refusal() {
-        for phase in CreditRegistrationPhase::ALL
-            .into_iter()
-            .filter(|phase| phase.scope_support() == ScopeSupport::NONE)
-        {
-            let res = call_run_tick(true, &format!("?phase={}", phase.as_str())).await;
-            assert_eq!(
-                res.status(),
-                StatusCode::NOT_IMPLEMENTED,
-                "phase {} did not dispatch",
-                phase.as_str()
-            );
-        }
     }
 
     /// A caller that asked to be narrowed and cannot be must be told, not quietly run wide over a

@@ -16,6 +16,7 @@ import type { ChatbotConfiguration, NewChatbotConf } from "@/generated/api/types
 import Accordion from "@/shared-module/common/components/Accordion"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
+import WarningInfobox from "@/shared-module/common/components/WarningInfobox"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isHtmlButtonElement } from "@/shared-module/common/utils/dom"
@@ -25,7 +26,10 @@ import {
   includeIf,
   omitUndefined,
 } from "@/shared-module/common/utils/nullability"
-import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
+import {
+  chatbotCommandCenterRoute,
+  courseChatbotSettingsRoute,
+} from "@/shared-module/common/utils/routes"
 import {
   Button,
   Checkbox,
@@ -48,7 +52,12 @@ interface Message {
 
 type ConfigureChatbotFields = Omit<
   NewChatbotConf,
-  "course_id" | "maintain_azure_search_index" | "chatbotconf_id"
+  | "course_id"
+  | "maintain_azure_search_index"
+  | "chatbotconf_id"
+  | "daily_tokens_per_user"
+  | "weekly_tokens_per_user"
+  | "max_output_tokens"
 > & { suggested_messages: Message[] }
 
 const itemsContainerCss = css`
@@ -71,10 +80,6 @@ const MEDIUM = "medium"
 const HIGH = "high"
 const XHIGH = "xhigh"
 
-// Minimum max_output_tokens accepted by the backend (see MIN_MAX_OUTPUT_TOKENS in
-// chatbot_configurations.rs and the DB CHECK constraint).
-const MIN_OUTPUT_TOKENS = 10000
-
 const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQueryRefetch }) => {
   const { t } = useTranslation()
   const router = useRouter()
@@ -91,13 +96,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       enabled_to_students: oldChatbotConf.enabled_to_students,
       prompt: oldChatbotConf.prompt,
       initial_message: oldChatbotConf.initial_message,
-      weekly_tokens_per_user: oldChatbotConf.weekly_tokens_per_user,
-      daily_tokens_per_user: oldChatbotConf.daily_tokens_per_user,
       temperature: oldChatbotConf.temperature,
       top_p: oldChatbotConf.top_p,
       frequency_penalty: oldChatbotConf.frequency_penalty,
       presence_penalty: oldChatbotConf.presence_penalty,
-      max_output_tokens: oldChatbotConf.max_output_tokens,
       verbosity: oldChatbotConf.verbosity,
       reasoning_effort: oldChatbotConf.reasoning_effort,
       use_azure_search: oldChatbotConf.use_azure_search,
@@ -125,15 +127,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const getChatbotModelsList = useQuery({
     ...getChatbotModelsOptions({
-      query: {
-        course_id: assertNotNullOrUndefined(oldChatbotConf.course_id),
-      },
+      query: oldChatbotConf.course_id
+        ? {
+            course_id: oldChatbotConf.course_id,
+          }
+        : {},
     }),
-    enabled: !!oldChatbotConf.course_id,
   })
 
   const modelFieldValue = watch("model_id")
   const suggestMessagesFieldValue = watch("suggest_next_messages")
+  const useAzureSearchFieldValue = watch("use_azure_search")
+  const useToolsFieldValue = watch("use_tools")
 
   const configureChatbotMutation = useToastMutationOptions(
     configureChatbotMutationOptions(),
@@ -156,7 +161,11 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     },
     {
       onSuccess: () => {
-        router.push(courseChatbotSettingsRoute(assertNotNullOrUndefined(oldChatbotConf.course_id)))
+        if (oldChatbotConf.course_id) {
+          router.push(courseChatbotSettingsRoute(oldChatbotConf.course_id))
+        } else {
+          router.push(chatbotCommandCenterRoute())
+        }
       },
     },
   )
@@ -179,13 +188,14 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         enabled_to_students: data.enabled_to_students,
         prompt: data.prompt,
         initial_message: data.initial_message,
-        weekly_tokens_per_user: +data.weekly_tokens_per_user,
-        daily_tokens_per_user: +data.daily_tokens_per_user,
+        // token limits are not editable in this form, keep the old values
+        weekly_tokens_per_user: oldChatbotConf.weekly_tokens_per_user,
+        daily_tokens_per_user: oldChatbotConf.daily_tokens_per_user,
+        max_output_tokens: oldChatbotConf.max_output_tokens,
         temperature: +data.temperature,
         top_p: +data.top_p,
         frequency_penalty: +data.frequency_penalty,
         presence_penalty: +data.presence_penalty,
-        max_output_tokens: +data.max_output_tokens,
         reasoning_effort: data.reasoning_effort,
         verbosity: data.verbosity,
         use_azure_search: data.use_azure_search,
@@ -262,79 +272,141 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   name={"enabled_to_students"}
                 />
               </div>
-              <Select
-                id="model-select"
-                control={control}
-                label={t("select-LLM")}
-                options={chatbotModels.map((m) => {
-                  return {
-                    value: m.id,
-                    label: `${m.model} (${["GPTThinking", "GPTHardThinking"].includes(m.model_type) ? t("reasoning") : t("non-reasoning")})`,
-                  }
-                })}
-                name={"model_id"}
-              />
-              <Checkbox control={control} label={t("use-azure-search")} name={"use_azure_search"} />
-              <Checkbox control={control} label={t("hide-citations")} name={"hide_citations"} />
-              <Checkbox control={control} label={t("enable-tool-use")} name={"use_tools"} />
-              <Checkbox
-                control={control}
-                label={t("suggest-next-messages")}
-                name={"suggest_next_messages"}
-              />
-              <GenericInfobox>{t("recommend-message-suggesting")}</GenericInfobox>
-              {suggestMessagesFieldValue && (
+              {/* Azure search queries a per-course index, so a chatbot with no course has
+              nothing to search and is not offered the setting. */}
+              {oldChatbotConf.course_id && (
+                <Checkbox
+                  control={control}
+                  label={t("use-azure-search")}
+                  name={"use_azure_search"}
+                />
+              )}
+
+              <div
+                className={css`
+                  margin-top: 10px;
+                `}
+              >
+                <h3>{t("model-heading")}</h3>
                 <div className={itemsContainerCss}>
-                  <h4>{t("initial-message-suggestions")}</h4>
+                  <Select
+                    id="model-select"
+                    control={control}
+                    label={t("select-LLM")}
+                    options={chatbotModels.map((m) => {
+                      return {
+                        value: m.id,
+                        label: `${m.model} (${["GPTThinking", "GPTHardThinking"].includes(m.model_type) ? t("reasoning") : t("non-reasoning")})`,
+                      }
+                    })}
+                    name={"model_id"}
+                  />
+                  {selectedModelThinking && (
+                    <>
+                      <Select
+                        id="verbosity-select"
+                        control={control}
+                        name={"verbosity"}
+                        label={t("select-verbosity")}
+                        options={[
+                          { value: LOW, label: t("reasoning-effort-low") },
+                          { value: MEDIUM, label: t("reasoning-effort-medium") },
+                          { value: HIGH, label: t("reasoning-effort-high") },
+                        ]}
+                      />
+                      <Select
+                        id="reasoning-effort-select"
+                        label={t("select-reasoning-effort")}
+                        name={"reasoning_effort"}
+                        control={control}
+                        options={[
+                          { value: NONE, label: t("reasoning-effort-none") },
+                          { value: MINIMAL, label: t("reasoning-effort-minimal") },
+                          { value: LOW, label: t("reasoning-effort-low") },
+                          { value: MEDIUM, label: t("reasoning-effort-medium") },
+                          { value: HIGH, label: t("reasoning-effort-high") },
+                          { value: XHIGH, label: t("reasoning-effort-xhigh") },
+                        ]}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div
+                className={css`
+                  margin-top: 10px;
+                `}
+              >
+                <h3>{t("suggested-messages-heading")}</h3>
+                <Checkbox
+                  control={control}
+                  label={t("suggest-next-messages")}
+                  name={"suggest_next_messages"}
+                />
+                <GenericInfobox>{t("recommend-message-suggesting")}</GenericInfobox>
+                {suggestMessagesFieldValue && fields.length === 0 && (
                   <div
                     className={css`
-                      margin: 20px 20px;
+                      margin-top: 10px;
                     `}
                   >
-                    {fields.map((item, idx) => (
-                      <div
-                        key={item.id}
-                        className={css`
-                          display: flex;
-                          flex-flow: row nowrap;
-                          margin: 10px 0;
-                        `}
-                      >
-                        <TextField
-                          className={css`
-                            flex-grow: 3;
-                          `}
-                          control={control}
-                          name={`suggested_messages.${idx}.message` as const}
-                          key={item.id}
-                          errorMessage={errors.suggested_messages?.[idx]?.message?.message}
-                          label={t("label-message")}
-                        />
-                        <Button
-                          className={css`
-                            height: fit-content;
-                            margin: 1.7rem 0 0 0.5rem;
-                          `}
-                          size="small"
-                          type="button"
-                          variant="tertiary"
-                          onClick={() => remove(idx)}
-                        >
-                          {t("button-remove")}
-                        </Button>
-                      </div>
-                    ))}
-                    <Button
-                      size="medium"
-                      type="button"
-                      variant="secondary"
-                      onClick={() => append({ message: "" })}
-                    >
-                      {t("add-new-message")}
-                    </Button>
+                    <WarningInfobox>{t("no-suggested-messages-warning")}</WarningInfobox>
                   </div>
-                </div>
-              )}
+                )}
+                {suggestMessagesFieldValue && (
+                  <div className={itemsContainerCss}>
+                    <div
+                      className={css`
+                        margin: 20px 20px;
+                      `}
+                    >
+                      {fields.map((item, idx) => (
+                        <div
+                          key={item.id}
+                          className={css`
+                            display: flex;
+                            flex-flow: row nowrap;
+                            margin: 10px 0;
+                          `}
+                        >
+                          <TextField
+                            className={css`
+                              flex-grow: 3;
+                            `}
+                            control={control}
+                            name={`suggested_messages.${idx}.message` as const}
+                            key={item.id}
+                            errorMessage={errors.suggested_messages?.[idx]?.message?.message}
+                            label={t("label-message")}
+                          />
+                          <Button
+                            className={css`
+                              height: fit-content;
+                              margin: 1.7rem 0 0 0.5rem;
+                            `}
+                            size="small"
+                            type="button"
+                            variant="tertiary"
+                            onClick={() => remove(idx)}
+                          >
+                            {t("button-remove")}
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        size="medium"
+                        type="button"
+                        variant="secondary"
+                        onClick={() => append({ message: "" })}
+                      >
+                        {t("add-new-message")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <Accordion>
                 <details
                   className={css`
@@ -359,47 +431,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                       `}
                     >
                       <div className={itemsContainerCss}>
-                        <h4>{t("configure-tokens")}</h4>
-                        <TextField
+                        <h4>{t("tools-heading")}</h4>
+                        <Checkbox
                           control={control}
-                          className={textFieldCss}
-                          type="number"
-                          label={t("daily-token-user")}
-                          name={"daily_tokens_per_user"}
+                          label={t("enable-tool-use")}
+                          name={"use_tools"}
                         />
-                        <TextField
-                          control={control}
-                          className={textFieldCss}
-                          type="number"
-                          label={t("weekly-token-user")}
-                          name={"weekly_tokens_per_user"}
-                        />
-                        <TextField
-                          className={textFieldCss}
-                          control={control}
-                          type="number"
-                          label={
-                            selectedModelThinking
-                              ? t("max-completion-tokens")
-                              : t("max-token-response")
-                          }
-                          name={"max_output_tokens"}
-                          rules={{
-                            required: t("required-field"),
-                            min: {
-                              value: MIN_OUTPUT_TOKENS,
-                              message: t("error-field-value-at-least", {
-                                field: selectedModelThinking
-                                  ? t("max-completion-tokens")
-                                  : t("max-token-response"),
-                                lower: String(MIN_OUTPUT_TOKENS),
-                              }),
-                            },
-                          }}
-                        />
+                        {!useToolsFieldValue && (
+                          <WarningInfobox>{t("enable-tool-use-note")}</WarningInfobox>
+                        )}
                       </div>
                       <div className={itemsContainerCss}>
-                        <h4>{t("configure-search")}</h4>
+                        <h4>{t("citations-and-search-tuning")}</h4>
                         <div
                           className={css`
                             margin: 20px 20px;
@@ -407,189 +450,137 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                         >
                           <Checkbox
                             control={control}
+                            label={t("hide-citations")}
+                            name={"hide_citations"}
+                            isDisabled={!useAzureSearchFieldValue}
+                          />
+                          <Checkbox
+                            control={control}
                             label={t("use-semantic-reranking")}
                             name={"use_semantic_reranking"}
+                            isDisabled={!useAzureSearchFieldValue}
                           />
                         </div>
                       </div>
-                      <div
-                        className={css`
-                          flex-direction: column;
-                          flex-grow: 1;
-                          gap: 20px;
-                          justify-content: space-between;
-                          margin-right: 20px;
-                        `}
-                      >
-                        {selectedModelThinking ? (
-                          <div className={itemsContainerCss}>
-                            <h4>{t("configure-reasoning")}</h4>
-                            <div
-                              className={css`
-                                margin: 20px 20px;
-                              `}
-                            >
-                              <Select
-                                id="verbosity-select"
-                                control={control}
-                                name={"verbosity"}
-                                label={t("select-verbosity")}
-                                isDisabled={!selectedModelThinking}
-                                options={[
-                                  { value: LOW, label: t("reasoning-effort-low") },
-                                  { value: MEDIUM, label: t("reasoning-effort-medium") },
-                                  { value: HIGH, label: t("reasoning-effort-high") },
-                                ]}
-                              />
-                              <Select
-                                id="reasoning-effort-select"
-                                label={t("select-reasoning-effort")}
-                                name={"reasoning_effort"}
-                                control={control}
-                                isDisabled={!selectedModelThinking}
-                                options={[
-                                  { value: NONE, label: t("reasoning-effort-none") },
-                                  { value: MINIMAL, label: t("reasoning-effort-minimal") },
-                                  { value: LOW, label: t("reasoning-effort-low") },
-                                  { value: MEDIUM, label: t("reasoning-effort-medium") },
-                                  { value: HIGH, label: t("reasoning-effort-high") },
-                                  { value: XHIGH, label: t("reasoning-effort-xhigh") },
-                                ]}
-                              />
-                            </div>
+                      {!selectedModelThinking && (
+                        <div className={itemsContainerCss}>
+                          <h4>{t("model-tuning")}</h4>
+                          <div
+                            className={css`
+                              margin: 20px 20px;
+                            `}
+                          >
+                            <TextField
+                              className={textFieldCss}
+                              control={control}
+                              type="number"
+                              label={t("frequency-penalty")}
+                              step="0.01"
+                              name={"frequency_penalty"}
+                              rules={{
+                                required: t("required-field"),
+                                min: {
+                                  value: 0,
+                                  message: t("error-field-value-between", {
+                                    field: t("frequency-penalty"),
+                                    lower: "0",
+                                    upper: "1",
+                                  }),
+                                },
+                                max: {
+                                  value: 1,
+                                  message: t("error-field-value-between", {
+                                    field: t("frequency-penalty"),
+                                    lower: "0",
+                                    upper: "1",
+                                  }),
+                                },
+                              }}
+                            />
+                            <TextField
+                              className={textFieldCss}
+                              type="number"
+                              control={control}
+                              label={t("presence-penalty")}
+                              step="0.01"
+                              name={"presence_penalty"}
+                              rules={{
+                                required: t("required-field"),
+                                min: {
+                                  value: 0,
+                                  message: t("error-field-value-between", {
+                                    field: t("presence-penalty"),
+                                    lower: "0",
+                                    upper: "1",
+                                  }),
+                                },
+                                max: {
+                                  value: 1,
+                                  message: t("error-field-value-between", {
+                                    field: t("presence-penalty"),
+                                    lower: "0",
+                                    upper: "1",
+                                  }),
+                                },
+                              }}
+                            />
+                            <TextField
+                              control={control}
+                              className={textFieldCss}
+                              type="number"
+                              step="0.01"
+                              label={t("temperature")}
+                              name={"temperature"}
+                              rules={{
+                                required: t("required-field"),
+                                min: {
+                                  value: 0,
+                                  message: t("error-field-value-between", {
+                                    field: t("temperature"),
+                                    lower: "0",
+                                    upper: "1",
+                                  }),
+                                },
+                                max: {
+                                  value: 1,
+                                  message: t("error-field-value-between", {
+                                    field: t("temperature"),
+                                    lower: "0",
+                                    upper: "1",
+                                  }),
+                                },
+                              }}
+                            />
+                            <TextField
+                              className={textFieldCss}
+                              type="number"
+                              control={control}
+                              step="0.01"
+                              label={t("top-p")}
+                              name={"top_p"}
+                              rules={{
+                                required: t("required-field"),
+                                min: {
+                                  value: 0,
+                                  message: t("error-field-value-between", {
+                                    field: t("top-p"),
+                                    lower: "0",
+                                    upper: "1",
+                                  }),
+                                },
+                                max: {
+                                  value: 1,
+                                  message: t("error-field-value-between", {
+                                    field: t("top-p"),
+                                    lower: "0",
+                                    upper: "1",
+                                  }),
+                                },
+                              }}
+                            />
                           </div>
-                        ) : (
-                          <div>
-                            {" "}
-                            <div className={itemsContainerCss}>
-                              <h3>{t("non-reasoning-model-settings")}</h3>
-                              <h4>{t("configure-penalty")}</h4>
-                              <TextField
-                                className={textFieldCss}
-                                control={control}
-                                type="number"
-                                label={t("frequency-penalty")}
-                                step="0.01"
-                                isDisabled={selectedModelThinking}
-                                name={"frequency_penalty"}
-                                rules={{
-                                  required: t("required-field"),
-                                  min: {
-                                    value: 0,
-                                    message: t("error-field-value-between", {
-                                      field: t("frequency-penalty"),
-                                      lower: "0",
-                                      upper: "1",
-                                    }),
-                                  },
-                                  max: {
-                                    value: 1,
-                                    message: t("error-field-value-between", {
-                                      field: t("frequency-penalty"),
-                                      lower: "0",
-                                      upper: "1",
-                                    }),
-                                  },
-                                }}
-                              />
-                              <TextField
-                                className={textFieldCss}
-                                type="number"
-                                control={control}
-                                label={t("presence-penalty")}
-                                step="0.01"
-                                isDisabled={selectedModelThinking}
-                                name={"presence_penalty"}
-                                rules={{
-                                  required: t("required-field"),
-                                  min: {
-                                    value: 0,
-                                    message: t("error-field-value-between", {
-                                      field: t("presence-penalty"),
-                                      lower: "0",
-                                      upper: "1",
-                                    }),
-                                  },
-                                  max: {
-                                    value: 1,
-                                    message: t("error-field-value-between", {
-                                      field: t("presence-penalty"),
-                                      lower: "0",
-                                      upper: "1",
-                                    }),
-                                  },
-                                }}
-                              />
-                            </div>
-                            <div className={itemsContainerCss}>
-                              <h4>{t("configure-creativity")}</h4>
-                              <TextField
-                                control={control}
-                                className={textFieldCss}
-                                type="number"
-                                step="0.01"
-                                label={t("temperature")}
-                                isDisabled={selectedModelThinking}
-                                name={"temperature"}
-                                rules={{
-                                  required: t("required-field"),
-                                  min: {
-                                    value: 0,
-                                    message: t("error-field-value-between", {
-                                      field: t("temperature"),
-                                      lower: "0",
-                                      upper: "1",
-                                    }),
-                                  },
-                                  max: {
-                                    value: 1,
-                                    message: t("error-field-value-between", {
-                                      field: t("temperature"),
-                                      lower: "0",
-                                      upper: "1",
-                                    }),
-                                  },
-                                }}
-                              />
-                              <TextField
-                                className={textFieldCss}
-                                type="number"
-                                control={control}
-                                step="0.01"
-                                label={t("top-p")}
-                                isDisabled={selectedModelThinking}
-                                name={"top_p"}
-                                rules={{
-                                  required: t("required-field"),
-                                  min: {
-                                    value: 0,
-                                    message: t("error-field-value-between", {
-                                      field: t("top-p"),
-                                      lower: "0",
-                                      upper: "1",
-                                    }),
-                                  },
-                                  max: {
-                                    value: 1,
-                                    message: t("error-field-value-between", {
-                                      field: t("top-p"),
-                                      lower: "0",
-                                      upper: "1",
-                                    }),
-                                  },
-                                }}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      <div
-                        className={css`
-                          flex-direction: column;
-                          flex-grow: 1;
-                          margin-left: 20px;
-                        `}
-                      ></div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </details>

@@ -3,7 +3,6 @@
 import { produce } from "immer"
 import { v4 } from "uuid"
 
-import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 import {
   zChatbotConversationMessageMessage,
   zChatbotConversationMessageReasoning,
@@ -18,10 +17,6 @@ export interface ChatbotState {
 
 // todo: accpt chat stream events?
 export type ChatbotAction =
-  | {
-      type: "RECEIVED_CONVERSATION_MESSAGES"
-      payload: ChatbotConversationMessage[]
-    }
   | { type: "USER_SENDS_MESSAGE"; payload: string }
   | {
       type: "RECEIVED_TEXT_DELTA"
@@ -43,14 +38,10 @@ export type ChatbotAction =
   | { type: "REASONING_IN_PROGRESS"; payload: { reasoning_id: string } }
   | { type: "REASONING_FINISHED"; payload: { reasoning_id: string } }
   | { type: "RESPONSE_COMPLETED" }
+  | { type: "TURN_ENDED" }
 
 const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotState => {
   return produce(state, (draftState) => {
-    if (action.type === "RECEIVED_CONVERSATION_MESSAGES") {
-      draftState.messages = action.payload.map((m) => {
-        return { message: m, finished: true, optimistic: false }
-      })
-    }
     if (action.type === "USER_SENDS_MESSAGE") {
       const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
 
@@ -243,7 +234,22 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
     if (action.type === "RESPONSE_COMPLETED") {
       draftState.messages = []
     }
+    if (action.type === "TURN_ENDED") {
+      // An `Error` event or a stream that closes early never sends the matching
+      // TOOL_CALL_FINISHED/REASONING_FINISHED, so without this those items would stay
+      // finished: false after the turn that was writing them is over.
+      draftState.messages.forEach((m) => {
+        m.finished = true
+      })
+    }
   })
 }
+
+/** Whether the chatbot has produced anything of its own yet in the running turn's messages, as
+ * opposed to only the learner's optimistic message — the signal for whether the thinking status
+ * row should still be shown instead of the chatbot's own streamed content. */
+export const hasStreamedAssistantContent = (
+  messages: ChatbotConversationMessageWithStatus[],
+): boolean => messages.some((m) => !m.optimistic)
 
 export default chatbotReducer

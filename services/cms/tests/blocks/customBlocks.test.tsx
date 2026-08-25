@@ -113,6 +113,20 @@ await jest.unstable_mockModule("vega-lite", () => ({
   compile: () => ({ spec: {} }),
 }))
 
+// Unlike the other blocks' queries (all gated on a courseId from context, which stays unset here),
+// moocfi/exercise-custom-view-block fetches unconditionally. jsdom has no Fetch API globals, so the
+// real request throws synchronously; how many renders land before the assertions run then depends on
+// a microtask-timing race, intermittently doubling the wrapper ref push this file asserts against.
+await jest.unstable_mockModule("@/hooks/useAllExerciseServices", () => ({
+  default: () => ({
+    data: [],
+    isFetching: false,
+    isError: false,
+    error: undefined,
+    refetch: () => {},
+  }),
+}))
+
 const { QueryClient, QueryClientProvider } = await import("@tanstack/react-query")
 const {
   blockTypeMapForPages,

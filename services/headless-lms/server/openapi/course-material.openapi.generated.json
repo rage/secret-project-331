@@ -359,7 +359,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/SendChatbotMessage"
               }
             }
           },
@@ -369,7 +369,58 @@
           "200": {
             "description": "Chatbot response stream",
             "content": {
-              "text/event-stream": {
+              "application/x-ndjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotChatStreamEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response": {
+      "post": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nPOST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`\n\nAnswers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else\nis outstanding. Responds with the same stream `send-message` does, carrying either the resumed\nturn or a lone `Suspended` event when the turn is still waiting for another answer.",
+        "operationId": "sendChatbotToolResponse",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "description": "Conversation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatbotToolResponse"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Chatbot response stream",
+            "content": {
+              "application/x-ndjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ChatbotChatStreamEvent"
                 }
@@ -3099,6 +3150,17 @@
           },
           {
             "type": "object",
+            "description": "The turn stopped to wait for the client to answer a tool call, so it ends with neither an\nanswer nor an error. Terminal like `Done`: the client stops reading, answers the call\nthrough the tool-response endpoint, and reads the stream that returns.\n\nCarries nothing, because the call it waits on was already streamed as an unfinished\n`ToolCall` event, and survives a reload only through the conversation's messages anyway.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Suspended"]
+              }
+            }
+          },
+          {
+            "type": "object",
             "required": ["data", "type"],
             "properties": {
               "data": {
@@ -3107,17 +3169,6 @@
               "type": {
                 "type": "string",
                 "enum": ["Error"]
-              }
-            }
-          },
-          {
-            "type": "object",
-            "description": "If a ChatbotChatStreamEvent has been constructed from a StreamItem etc.,\nnot all variants are valid ChatbotChatStreamEvents and shouldn't be sent to\nthe frontend in the stream. In that case, use this variant.",
-            "required": ["type"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["Invalid"]
               }
             }
           }
@@ -3162,7 +3213,7 @@
       },
       "ChatbotConversationInfo": {
         "type": "object",
-        "description": "Should contain all information required to display the chatbot to the user.",
+        "description": "Everything needed to display the chatbot to the user.",
         "required": ["chatbot_name", "hide_citations"],
         "properties": {
           "chatbot_name": {
@@ -3200,7 +3251,8 @@
             "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/ChatbotConversationSuggestedMessage"
-            }
+            },
+            "description": "What to offer the learner as their next message. Absent when nothing should be offered: the\nconfiguration has suggestions off, or the conversation is at a point where a suggestion does\nnot belong, such as a turn suspended on a question to the learner. Empty means suggestions\nare wanted but none have been generated yet, which is what makes the endpoint generate them."
           }
         }
       },
@@ -3463,6 +3515,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "client_answer": {
+            "type": ["object", "null"],
+            "description": "The answer payload the client sent, in the shape the answered tool defines. None for\noutputs no client answered."
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -3521,6 +3577,66 @@
             "format": "date-time"
           }
         }
+      },
+      "ChatbotPageContext": {
+        "type": "object",
+        "description": "What the learner has open when they send a message.\n\nOnly the page id is accepted: everything the model reads is looked up from the database.\nThe context becomes a developer message, which the model weighs above the learner's own\nwords, so a client that could write its text could give itself instructions.",
+        "required": ["page_id"],
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ChatbotToolResponse": {
+        "type": "object",
+        "required": ["tool_call_id", "tool_name", "answer"],
+        "properties": {
+          "answer": {
+            "$ref": "#/components/schemas/ClientToolAnswer"
+          },
+          "tool_call_id": {
+            "type": "string",
+            "description": "The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event."
+          },
+          "tool_name": {
+            "$ref": "#/components/schemas/ClientToolName",
+            "description": "The tool the caller believes `tool_call_id` belongs to, checked against the call's\nrecorded name so a client answering the wrong bubble fails clearly instead of being\nsilently accepted as whatever tool the call actually was."
+          }
+        }
+      },
+      "ClientToolAnswer": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The tool ran on the client. `result` is JSON of whatever shape the tool defines.",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "description": "The tool ran on the client. `result` is JSON of whatever shape the tool defines.",
+                "required": ["result"],
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "description": "An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not\nknown here. Unlike the tool call arguments we hand back to clients, this one is built\nby the client, so declaring it a string would make the generated binding unusable."
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Data"]
+              }
+            }
+          }
+        ],
+        "description": "What a client answered a tool call with.\n\nThe tool the call belongs to decides what shape the answer has to be in and what the model is\ntold it means."
+      },
+      "ClientToolName": {
+        "type": "string",
+        "description": "The name of a client tool, generated into the frontend as a string union so it names one of\n[ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.\n\nThe bounds a tool enforces on its arguments and the shape of its answer stay hand-written on\nthe frontend: routing those through the OpenAPI schema would need either a schema per tool or\nwidening the argument and answer types this crate uses to serialize them, for a part of the\ncontract that only fails loudly, unlike the name.",
+        "enum": ["ask_multiple_choice_question"]
       },
       "CodeGiveawayStatus": {
         "oneOf": [
@@ -4013,6 +4129,17 @@
           "should_show_reset_message": {
             "type": ["string", "null"]
           },
+          "teacher_grading_decision": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourseMaterialTeacherGradingDecision",
+                "description": "The latest non-FullPoints grading decision addressed to the student, unless the teacher marked it hidden."
+              }
+            ]
+          },
           "user_course_instance_exercise_service_variables": {
             "type": "array",
             "items": {
@@ -4268,6 +4395,19 @@
           },
           "token": {
             "type": "string"
+          }
+        }
+      },
+      "CourseMaterialTeacherGradingDecision": {
+        "type": "object",
+        "description": "What the student is told about a teacher's grading decision.\n\nThe decision type is included so the material can explain the decision in the student's own\nlanguage; the justification is whatever the teacher wrote on top of that, if anything.",
+        "required": ["teacher_decision"],
+        "properties": {
+          "justification": {
+            "type": ["string", "null"]
+          },
+          "teacher_decision": {
+            "$ref": "#/components/schemas/TeacherDecisionType"
           }
         }
       },
@@ -6161,6 +6301,27 @@
           }
         }
       },
+      "SendChatbotMessage": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "What the learner wrote."
+          },
+          "page_context": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChatbotPageContext",
+                "description": "The course material page the learner has open, when they are on one."
+              }
+            ]
+          }
+        }
+      },
       "ShowExerciseAnswers": {
         "type": "object",
         "required": ["show_exercise_answers"],
@@ -6311,7 +6472,10 @@
           "ZeroPoints",
           "CustomPoints",
           "SuspectedPlagiarism",
-          "RejectAndReset"
+          "RejectAndReset",
+          "UnauthorizedAiUse",
+          "BadAnswer",
+          "Other"
         ]
       },
       "Term": {
@@ -6360,7 +6524,8 @@
       },
       "ToolKind": {
         "type": "string",
-        "enum": ["function", "azure_ai_search"]
+        "description": "Who answers a tool call, which decides what happens to a call that has no output yet.",
+        "enum": ["function", "azure_ai_search", "client_tool"]
       },
       "UnreturnedExercise": {
         "type": "object",

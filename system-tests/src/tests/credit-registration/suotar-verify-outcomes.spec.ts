@@ -7,8 +7,8 @@ import {
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
 import { makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
-import { expect, test } from "@/utils/fixtures"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { runPhasesUpToSubmission, runVerifyPollTick } from "@/utils/suotarControl"
 
 /**

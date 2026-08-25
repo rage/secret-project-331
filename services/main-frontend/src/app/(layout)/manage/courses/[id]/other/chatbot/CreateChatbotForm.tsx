@@ -5,7 +5,7 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { createCourseChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
+import { createChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -13,7 +13,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 interface CreateChatbotProps {
-  courseId: string
+  courseId: string | null
   getChatbotsList: UseQueryResult<ChatbotConfiguration[], unknown>
   closeEdit: (url_id: string) => void
 }
@@ -34,8 +34,8 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
     formState: { errors },
   } = useForm<CreateChatbotFields>()
 
-  const createChatbotMutation = useToastMutationOptions(
-    createCourseChatbotMutation(),
+  const chatbotCreationMutation = useToastMutationOptions(
+    createChatbotMutation(),
     {
       notify: true,
       method: "POST",
@@ -52,11 +52,8 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
     <div>
       <form
         onSubmit={handleSubmit((data) => {
-          createChatbotMutation.mutate({
-            body: data.name.trim(),
-            path: {
-              course_id: courseId,
-            },
+          chatbotCreationMutation.mutate({
+            body: { name: data.name.trim(), course_id: courseId },
           })
         })}
       >
@@ -76,7 +73,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
           type="submit"
           size="medium"
           variant="primary"
-          disabled={createChatbotMutation.isPending}
+          disabled={chatbotCreationMutation.isPending}
         >
           {t("save")}
         </Button>

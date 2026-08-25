@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { animated, useSpring } from "react-spring"
+import { animated, useSpring } from "@react-spring/web"
 
 import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
 import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"

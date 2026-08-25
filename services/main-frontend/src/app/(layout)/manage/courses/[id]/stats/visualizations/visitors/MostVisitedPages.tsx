@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import Echarts from "@/components/charts/Echarts"
 import { getCoursePageVisitDatumSummaryByPagesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -12,7 +13,6 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "../../CourseStatsPage"
-import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 import NoDataMessage from "../NoDataMessage"
 

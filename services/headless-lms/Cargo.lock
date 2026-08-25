@@ -1929,6 +1929,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "exercise-services-api"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "oauth2",
+ "serde",
+ "serde_json",
+ "utoipa",
+ "uuid",
+]
+
+[[package]]
 name = "fallible-iterator"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2777,6 +2789,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "headless-lms-authorization"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "backtrace",
+ "headless-lms-base",
+ "headless-lms-models",
+ "headless-lms-utils",
+ "serde",
+ "sqlx",
+ "tracing",
+ "tracing-error",
+ "utoipa",
+ "uuid",
+]
+
+[[package]]
 name = "headless-lms-base"
 version = "0.1.0"
 dependencies = [
@@ -2837,9 +2866,11 @@ dependencies = [
  "chrono",
  "futures",
  "futures-util",
+ "headless-lms-authorization",
  "headless-lms-base",
  "headless-lms-models",
  "headless-lms-utils",
+ "indexmap 2.14.0",
  "jsonschema",
  "pin-project",
  "rand 0.10.2",
@@ -2944,11 +2975,13 @@ dependencies = [
  "doc-macro",
  "dotenvy",
  "dpop-verifier",
+ "exercise-services-api",
  "flate2",
  "futures",
  "futures-util",
  "git2",
  "governor",
+ "headless-lms-authorization",
  "headless-lms-base",
  "headless-lms-certificates",
  "headless-lms-chatbot",
@@ -2964,7 +2997,6 @@ dependencies = [
  "listenfd",
  "mime",
  "mockito",
- "mooc-langs-api",
  "oauth2",
  "once_cell",
  "p256 0.14.0",
@@ -3019,6 +3051,7 @@ dependencies = [
  "google-cloud-auth",
  "google-cloud-storage",
  "headless-lms-base",
+ "indexmap 2.14.0",
  "ipnet",
  "once_cell",
  "percent-encoding",
@@ -4564,18 +4597,6 @@ dependencies = [
  "serde_urlencoded",
  "similar",
  "tokio",
-]
-
-[[package]]
-name = "mooc-langs-api"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "oauth2",
- "serde",
- "serde_json",
- "thiserror 2.0.20",
- "uuid",
 ]
 
 [[package]]

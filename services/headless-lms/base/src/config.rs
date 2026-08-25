@@ -33,6 +33,20 @@ fn i64_env_or(key: &str, default: i64) -> i64 {
         .unwrap_or(default)
 }
 
+/// Parses a [`Url::join`] base, adding the trailing slash one needs: joining onto a base without it
+/// replaces the base's last path segment instead of extending it.
+///
+/// On the parsed path, never the raw string: a slash appended to the string lands inside any query
+/// or fragment the value carries, and makes trailing whitespace the parser would have trimmed
+/// interior, where it percent-encodes instead.
+fn parse_join_base(url: &str) -> Result<Url, url::ParseError> {
+    let mut url = Url::parse(url)?;
+    if !url.path().ends_with('/') {
+        url.set_path(&format!("{}/", url.path()));
+    }
+    Ok(url)
+}
+
 #[derive(Clone)]
 pub struct ApplicationConfiguration {
     pub base_url: String,
@@ -170,8 +184,8 @@ pub const SUOTAR_AUTH_SCHEME: &str = "Basic";
 /// The only token the mock Suotar accepts. Public on purpose: never a real credential.
 pub const MOCK_SUOTAR_TOKEN: &str = "mock-suotar-token";
 
-/// Auto-links a student number when Sisu's address matches a verified account email. Off until that
-/// fast track exists; then it is the incident kill switch for it.
+/// Auto-links a student number when Sisu's address matches a verified account email. The same flag
+/// is the kill switch that stops it during an incident.
 const FAST_TRACK_EMAIL_MATCH_ENABLED_DEFAULT: bool = false;
 
 /// Days an `email_verified_at` may be old and still count as fast-track proof. Bounded because a
@@ -183,9 +197,7 @@ pub struct SuotarConfiguration {
     /// Ends in `/` because it is a [`Url::join`] base and joined paths must be relative.
     pub api_base_url: Url,
     pub api_token: SecretString,
-    /// Nothing reads it yet.
     pub fast_track_email_match_enabled: bool,
-    /// Nothing reads it yet.
     pub fast_track_max_email_verification_age_days: i64,
 }
 
@@ -239,13 +251,8 @@ impl SuotarConfiguration {
         let api_token = api_token.context(
             "SUOTAR_API_KEY must be defined unless TEST_MODE and USE_MOCK_SUOTAR_ENDPOINT are both on. Credit registration writes to the real student registry, so there is no mock fallback.",
         )?;
-        let api_base_url = if api_base_url.ends_with('/') {
-            api_base_url
-        } else {
-            format!("{api_base_url}/")
-        };
         Ok(Self {
-            api_base_url: Url::parse(&api_base_url)
+            api_base_url: parse_join_base(&api_base_url)
                 .context("Invalid URL in SUOTAR_API_BASE_URL")?,
             api_token: SecretString::new(api_token.into()),
             fast_track_email_match_enabled,
@@ -257,33 +264,48 @@ impl SuotarConfiguration {
 #[derive(Clone)]
 pub struct AzureChatbotConfiguration {
     pub api_key: SecretString,
+    /// Ends in `/` because it is a [`Url::join`] base and joined paths must be relative.
     pub api_base: Url,
     pub project_name: String,
 }
 
 impl AzureChatbotConfiguration {
     /// Attempts to create an AzureChatbotConfiguration from environment variables.
-    /// Returns `Ok(Some(AzureChatbotConfiguration))` if both environment variables are set.
-    /// Returns `Ok(None)` if no environment variables are set for chatbot.
-    /// Returns an error if set environment variables fail to parse.
+    ///
+    /// Needs all three of `AZURE_CHATBOT_API_KEY`, `AZURE_CHATBOT_API_ENDPOINT` and
+    /// `AZURE_PROJECT_NAME`. Any of them missing gives `Ok(None)` rather than an error, so a caller
+    /// that requires a chatbot has to reject the `None` itself. Errors only on a set value that
+    /// fails to parse.
     pub fn try_from_env() -> anyhow::Result<Option<Self>> {
         let api_key = env::var("AZURE_CHATBOT_API_KEY").ok();
-        let api_endpoint_str = env::var("AZURE_CHATBOT_API_ENDPOINT").ok();
+        let api_endpoint = env::var("AZURE_CHATBOT_API_ENDPOINT").ok();
         let project_name = env::var("AZURE_PROJECT_NAME").ok();
 
-        if let (Some(api_key), Some(api_endpoint_str), Some(project_name)) =
-            (api_key, api_endpoint_str, project_name)
+        if let (Some(api_key), Some(api_endpoint), Some(project_name)) =
+            (api_key, api_endpoint, project_name)
         {
-            let api_base = Url::parse(&api_endpoint_str)
-                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?;
-            Ok(Some(AzureChatbotConfiguration {
-                api_key: SecretString::new(api_key.into()),
-                api_base,
+            Ok(Some(Self::from_values(
+                api_key,
+                &api_endpoint,
                 project_name,
-            }))
+            )?))
         } else {
             Ok(None)
         }
+    }
+
+    /// Pure so the join base can be tested without touching process env.
+    fn from_values(
+        api_key: String,
+        api_endpoint: &str,
+        project_name: String,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            api_key: SecretString::new(api_key.into()),
+            api_base: parse_join_base(api_endpoint)
+                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?,
+            project_name,
+        })
     }
 
     pub fn responses_endpoint(&self) -> anyhow::Result<Url> {
@@ -562,6 +584,91 @@ mod tests {
                 .expect("a relative join on a base ending in a slash")
                 .as_str(),
             "https://suotar.example.com/api/persons/resolve-by-student-numbers"
+        );
+    }
+
+    fn azure_chatbot_conf(api_endpoint: &str) -> AzureChatbotConfiguration {
+        AzureChatbotConfiguration::from_values(
+            "key".to_string(),
+            api_endpoint,
+            "some-project".to_string(),
+        )
+        .expect("valid fixture values")
+    }
+
+    fn azure_chatbot_embeddings_endpoint(api_endpoint: &str) -> String {
+        azure_chatbot_conf(api_endpoint)
+            .embeddings_endpoint()
+            .expect("a relative join on a base ending in a slash")
+            .to_string()
+    }
+
+    #[test]
+    fn azure_chatbot_configuration_normalises_the_join_base() {
+        let conf = azure_chatbot_conf("https://example.services.ai.azure.com/foundry");
+        assert_eq!(
+            conf.api_base.as_str(),
+            "https://example.services.ai.azure.com/foundry/"
+        );
+        assert_eq!(
+            conf.responses_endpoint()
+                .expect("a relative join on a base ending in a slash")
+                .as_str(),
+            "https://example.services.ai.azure.com/foundry/api/projects/some-project/openai/v1/responses"
+        );
+        assert_eq!(
+            conf.embeddings_endpoint()
+                .expect("a relative join on a base ending in a slash")
+                .as_str(),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+    }
+
+    /// `AZURE_CHATBOT_API_ENDPOINT` is read untrimmed, so a file-mounted secret hands over whatever
+    /// whitespace the file ends with, and a deployment pinning `api-version` hands over a query.
+    #[test]
+    fn a_query_a_fragment_or_stray_whitespace_does_not_move_the_join_base() {
+        assert_eq!(
+            azure_chatbot_embeddings_endpoint(
+                "https://example.services.ai.azure.com/foundry?api-version=2024-10-21"
+            ),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+        assert_eq!(
+            azure_chatbot_embeddings_endpoint(
+                "https://example.services.ai.azure.com/foundry#anchor"
+            ),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+        assert_eq!(
+            azure_chatbot_embeddings_endpoint("https://example.services.ai.azure.com/foundry "),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+        assert_eq!(
+            azure_chatbot_embeddings_endpoint("https://example.services.ai.azure.com/foundry/ "),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+    }
+
+    #[test]
+    fn a_join_base_that_already_ends_in_a_slash_is_left_as_it_is() {
+        assert_eq!(
+            azure_chatbot_conf("https://example.services.ai.azure.com/foundry/")
+                .api_base
+                .as_str(),
+            "https://example.services.ai.azure.com/foundry/"
+        );
+        assert_eq!(
+            azure_chatbot_conf("https://example.services.ai.azure.com/foundry//")
+                .api_base
+                .as_str(),
+            "https://example.services.ai.azure.com/foundry//"
+        );
+        assert_eq!(
+            azure_chatbot_conf("https://example.services.ai.azure.com")
+                .api_base
+                .as_str(),
+            "https://example.services.ai.azure.com/"
         );
     }
 

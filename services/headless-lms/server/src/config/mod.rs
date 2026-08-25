@@ -41,6 +41,26 @@ pub struct FileStoreRuntimeConfig {
     pub google_cloud_storage_bucket_name: Option<String>,
 }
 
+impl FileStoreRuntimeConfig {
+    /// Loads the file store configuration from environment variables.
+    pub fn try_from_env() -> anyhow::Result<Self> {
+        let use_google_cloud_storage =
+            ProgramConfig::bool_flag("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE");
+        let google_cloud_storage_bucket_name = if use_google_cloud_storage {
+            Some(
+                env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME")
+                    .context("GOOGLE_CLOUD_STORAGE_BUCKET_NAME must be defined when FILE_STORE_USE_GOOGLE_CLOUD_STORAGE is enabled")?,
+            )
+        } else {
+            None
+        };
+        Ok(Self {
+            use_google_cloud_storage,
+            google_cloud_storage_bucket_name,
+        })
+    }
+}
+
 #[derive(Clone)]
 pub struct ServerRuntimeConfig {
     /// Database connection URL — contains credentials, so kept secret.
@@ -70,16 +90,7 @@ impl ServerRuntimeConfig {
     pub fn try_from_env() -> anyhow::Result<Self> {
         let app_conf = ApplicationConfiguration::try_from_env()?;
         let test_mode = app_conf.test_mode;
-        let file_store_use_google_cloud_storage =
-            ProgramConfig::bool_flag("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE");
-        let google_cloud_storage_bucket_name = if file_store_use_google_cloud_storage {
-            Some(
-                env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME")
-                    .context("GOOGLE_CLOUD_STORAGE_BUCKET_NAME must be defined when FILE_STORE_USE_GOOGLE_CLOUD_STORAGE is enabled")?,
-            )
-        } else {
-            None
-        };
+        let file_store = FileStoreRuntimeConfig::try_from_env()?;
         let ratelimit_protection_safe_api_key = match env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
         {
             Ok(value) => value,
@@ -128,10 +139,7 @@ impl ServerRuntimeConfig {
             ),
             host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
             port: env::var("PORT").unwrap_or_else(|_| "3001".to_string()),
-            file_store: FileStoreRuntimeConfig {
-                use_google_cloud_storage: file_store_use_google_cloud_storage,
-                google_cloud_storage_bucket_name,
-            },
+            file_store,
             tmc_server_secret_for_communicating_to_secret_project: SecretString::new(
                 env::var("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT")
                     .context(

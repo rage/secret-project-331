@@ -21,9 +21,9 @@ pub async fn seed_application_task_llms(
         &mut conn,
         NewChatbotConfigurationModel {
             id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
-            model: "mock-gpt".to_string(),
+            model: "gpt-5.6-luna".to_string(),
             default_model: true,
-            model_type: ModelType::GPTNonThinking,
+            model_type: ModelType::GPTHardThinking,
             context_size: 10000,
         },
     )

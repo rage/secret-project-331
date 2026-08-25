@@ -11,22 +11,15 @@ import { YearMonthPicker } from "../YearMonthPicker"
 import { CalendarGrid } from "./CalendarGrid"
 import { CalendarNavButton } from "./CalendarNavButton"
 import {
-  chooseMonthYearLabel,
-  clearLabel,
   leftDirection,
   longDateTimePart,
-  nextMonthLabel,
-  nextWeekLabel,
-  nowLabel,
   numericDateTimePart,
   pickerViewCalendar,
   pickerViewMonth,
   pickerViewYear,
-  previousMonthLabel,
   rightDirection,
-  todayLabel,
-  tomorrowLabel,
 } from "./datePickerCalendarConstants"
+import { useDatePickerCalendarLabels } from "./datePickerCalendarLabels"
 import {
   calendarHeaderCenterCss,
   calendarHeaderCss,
@@ -60,6 +53,7 @@ export function DatePickerCalendar({
   const ref = React.useRef<HTMLDivElement>(null)
   const { dialogProps: resolvedDialogProps } = useDialog(dialogProps, ref)
   const { locale } = useLocale()
+  const labels = useDatePickerCalendarLabels()
   const [pickerView, setPickerView] = React.useState<CalendarPickerView>(pickerViewCalendar)
   const state = useCalendarState({
     ...calendarProps,
@@ -102,12 +96,12 @@ export function DatePickerCalendar({
                 <CalendarNavButton
                   direction={leftDirection}
                   isDisabled={state.isPreviousVisibleRangeInvalid()}
-                  label={previousMonthLabel}
+                  label={labels.previousMonth}
                   onPress={() => state.focusPreviousPage()}
                 />
                 <div className={calendarHeaderCenterCss}>
                   <button
-                    aria-label={`${chooseMonthYearLabel}: ${visibleMonthLabel}`}
+                    aria-label={labels.chooseMonthAndYear(visibleMonthLabel)}
                     className={monthYearLinkCss}
                     disabled={!isInteractive}
                     type="button"
@@ -119,7 +113,7 @@ export function DatePickerCalendar({
                     {" "}
                   </span>
                   <button
-                    aria-label={`${chooseMonthYearLabel}: ${visibleYearLabel}`}
+                    aria-label={labels.chooseMonthAndYear(visibleYearLabel)}
                     className={monthYearLinkCss}
                     disabled={!isInteractive}
                     type="button"
@@ -131,7 +125,7 @@ export function DatePickerCalendar({
                 <CalendarNavButton
                   direction={rightDirection}
                   isDisabled={state.isNextVisibleRangeInvalid()}
-                  label={nextMonthLabel}
+                  label={labels.nextMonth}
                   onPress={() => state.focusNextPage()}
                 />
               </div>
@@ -145,7 +139,7 @@ export function DatePickerCalendar({
                   type="button"
                   onClick={onClear}
                 >
-                  {clearLabel}
+                  {labels.clear}
                 </button>
                 {timeSelectorProps ? (
                   <button
@@ -154,7 +148,7 @@ export function DatePickerCalendar({
                     type="button"
                     onClick={() => onSelectNow?.()}
                   >
-                    {nowLabel}
+                    {labels.now}
                   </button>
                 ) : (
                   <button
@@ -170,7 +164,7 @@ export function DatePickerCalendar({
                       onSelectToday(todayDate)
                     }}
                   >
-                    {todayLabel}
+                    {labels.today}
                   </button>
                 )}
                 {onSelectTomorrow ? (
@@ -188,7 +182,7 @@ export function DatePickerCalendar({
                       onSelectTomorrow(next)
                     }}
                   >
-                    {tomorrowLabel}
+                    {labels.tomorrow}
                   </button>
                 ) : null}
                 {onSelectNextWeek ? (
@@ -206,7 +200,7 @@ export function DatePickerCalendar({
                       onSelectNextWeek(next)
                     }}
                   >
-                    {nextWeekLabel}
+                    {labels.nextWeek}
                   </button>
                 ) : null}
               </div>

@@ -62,12 +62,15 @@ pub mod exams;
 pub mod exercise_language_groups;
 pub mod exercise_repositories;
 pub mod exercise_reset_logs;
+pub mod exercise_service_client_uploads;
 pub mod exercise_service_info;
 pub mod exercise_services;
+pub mod exercise_slide_submission_shares;
 pub mod exercise_slide_submissions;
 pub mod exercise_slides;
 pub mod exercise_task_gradings;
 pub mod exercise_task_regrading_submissions;
+pub mod exercise_task_submission_files;
 pub mod exercise_task_submissions;
 pub mod exercise_tasks;
 pub mod exercises;
@@ -83,6 +86,7 @@ pub mod material_references;
 pub mod oauth_access_token;
 pub mod oauth_auth_code;
 pub mod oauth_client;
+pub mod oauth_device_codes;
 pub mod oauth_dpop_proofs;
 pub mod oauth_refresh_tokens;
 pub mod oauth_user_client_scopes;
@@ -141,7 +145,7 @@ pub mod users;
 pub mod verified_student_numbers;
 
 pub mod prelude;
-#[cfg(test)]
+#[cfg(any(test, feature = "test-helpers"))]
 pub mod test_helper;
 
 use exercises::Exercise;

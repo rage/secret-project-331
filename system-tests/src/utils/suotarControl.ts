@@ -34,6 +34,7 @@ export const CREDIT_REGISTRATION_PHASES = [
   "product-token-refresh",
   "config-validation",
   "retention-sweep",
+  "ledger-snapshot",
 ] as const
 
 export type CreditRegistrationPhase = (typeof CREDIT_REGISTRATION_PHASES)[number]
@@ -61,7 +62,6 @@ export interface RanPhaseTick {
 
 export type PhaseTickResult =
   | RanPhaseTick
-  | { status: "phaseNotImplemented"; phase: CreditRegistrationPhase }
   /** The phase is paused, or its circuit breaker is open. Nothing ran this tick. */
   | { status: "skipped"; phase: CreditRegistrationPhase; reason: "paused" | "circuitBreakerOpen" }
   /** The scope named something this phase's claim query cannot narrow on. */
@@ -149,10 +149,14 @@ export const runVerifyPollTick = (
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "verify", scope)
 
-export const runLegacyMirrorTick = (
+/**
+ * Separate from the registrar tick sequence because the whole point of these specs is that one
+ * explicit iteration queues each mail once and a second queues nothing.
+ */
+export const runStudentNotificationsTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<RanPhaseTick> => runTick(request, "legacy-mirror", scope)
+): Promise<RanPhaseTick> => runTick(request, "student-notifications", scope)
 
 export const runEnrolmentDiscoveryTick = (
   request: APIRequestContext,
@@ -172,6 +176,87 @@ export const runProductTokenRefreshTick = (
   request: APIRequestContext,
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "product-token-refresh", scope)
+
+export const runConfigValidationTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "config-validation", scope)
+
+export const runRetentionSweepTick = (request: APIRequestContext): Promise<RanPhaseTick> =>
+  runTick(request, "retention-sweep")
+
+export const runLedgerSnapshotTick = (request: APIRequestContext): Promise<RanPhaseTick> =>
+  runTick(request, "ledger-snapshot")
+
+/** One mail sitting in our send queue for an account. */
+export interface QueuedEmail {
+  templateType: string
+  placeholders: Record<string, string>
+}
+
+/**
+ * The mails queued to one account, newest first. No mail capture exists in this repo, so a spec
+ * asserting a message was composed reads the send queue rather than an inbox.
+ */
+export const queuedEmailsFor = async (
+  request: APIRequestContext,
+  userEmail: string,
+): Promise<QueuedEmail[]> => {
+  const response = await request.get(
+    `${CONTROL_BASE_URL}/queued-emails?userEmail=${encodeURIComponent(userEmail)}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `Reading the queued emails of ${userEmail} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return (await response.json()) as QueuedEmail[]
+}
+
+/**
+ * Rewrites the grade of the completion behind one ledger row.
+ *
+ * A test hook rather than a product path: a teacher regrade writes a *new* completion row, and the
+ * grade-improvement statement is about a completion edited in place. `grade: null` puts it on the
+ * pass/fail scale, which is how a spec makes two grades incomparable.
+ */
+export const regradeCompletion = async (
+  request: APIRequestContext,
+  params: { creditRegistrationId: string; grade: number | null; passed?: boolean },
+): Promise<void> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/regrade-completion`, { data: params })
+  if (!response.ok()) {
+    throw new Error(
+      `Regrading the completion of ${params.creditRegistrationId} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+}
+
+/**
+ * Excuses every one of a user's rows (or, with `courseId`, just that course's) from the live
+ * background worker's unscoped sweeps for `holdSecs`: a scoped tick (this spec's own) ignores the
+ * hold regardless, only an unscoped one skips the rows. Keyed on identity rather than a row id, so
+ * call this **before** `runMaterializeTick` — the worker ticks `preconditions`/`resolve-enrolments`
+ * every 10s regardless of any one test, so a hold set only after the row exists still races the
+ * worker's own next tick. Use this before driving a row through an owner-narrowed `requestLevel`
+ * fault (see `armMockSuotarFault`'s doc comment) — otherwise the worker can batch the row with an
+ * unrelated one and silently suppress the fault.
+ */
+export const setTestExclusiveHold = async (
+  request: APIRequestContext,
+  userEmail: string,
+  holdSecs: number,
+  courseId?: string,
+): Promise<void> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/test-exclusive-hold`, {
+    data: { userEmail, courseId, holdSecs },
+  })
+  if (!response.ok()) {
+    throw new Error(
+      `Holding ${userEmail} for ${holdSecs}s answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+}
 
 /**
  * Drives a consented completion as far as a submission, one phase per tick. Each phase claims what

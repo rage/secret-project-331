@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ON (gc.id) gc.id,\n  gc.name_on_certificate,\n  gc.verification_id,\n  gc.created_at,\n  c.id AS course_id,\n  c.name AS course_name,\n  cm.name AS course_module_name\nFROM generated_certificates gc\n  JOIN certificate_configuration_to_requirements cctr ON cctr.certificate_configuration_id = gc.certificate_configuration_id\n  AND cctr.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cctr.course_module_id\n  AND cm.deleted_at IS NULL\n  JOIN courses c ON c.id = cm.course_id\n  AND c.deleted_at IS NULL\nWHERE gc.user_id = $1\n  AND gc.deleted_at IS NULL\nORDER BY gc.id,\n  cm.order_number\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "name_on_certificate",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "name_on_certificate"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "verification_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "verification_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_module_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "757c809ac80638cd183c0e3dc8a03505c8aa158010b9dbb609b682ce13998206"
+}

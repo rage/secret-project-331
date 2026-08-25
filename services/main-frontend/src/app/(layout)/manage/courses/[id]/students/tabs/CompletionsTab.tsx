@@ -199,14 +199,15 @@ const buildColumns = (
 export const CompletionsTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
-  const params = useStudentsListParams()
+  const params = useStudentsListParams(DETAIL_SORT_COLUMNS)
   const { sorting, onSortingChange } = useStudentsSorting(DETAIL_SORT_COLUMNS)
 
   const identityQuery = useCourseStudentsIdentity(courseId, params)
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
-  const creditRegistrationsQuery = useTeacherCreditRegistrations(courseId, userIds)
+  const { data: creditRegistrationsData, isAuthorized: canSeeCreditRegistrations } =
+    useTeacherCreditRegistrations(courseId, userIds)
 
   // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
   // detail request promptly -- only the expensive pivot below is deprioritized.
@@ -218,7 +219,7 @@ export const CompletionsTabContent: React.FC = () => {
     () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], t),
     [deferredIdentityRows, deferredDetailData, t],
   )
-  const creditRegistrations = creditRegistrationsQuery.data ?? EMPTY_CREDIT_REGISTRATIONS
+  const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
   const columns = useMemo(
     () => buildColumns(modulesInOrder, t, creditRegistrations),
     [modulesInOrder, t, creditRegistrations],
@@ -236,7 +237,7 @@ export const CompletionsTabContent: React.FC = () => {
 
   return (
     <>
-      <CourseCreditRegistrationSummaryPanel courseId={courseId} />
+      {canSeeCreditRegistrations && <CourseCreditRegistrationSummaryPanel courseId={courseId} />}
       <StaleTableWrapper isStale={isStale}>
         <StudentsTable
           columns={columns}

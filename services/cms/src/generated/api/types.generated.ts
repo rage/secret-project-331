@@ -230,6 +230,7 @@ export type CourseModule = {
   created_at: string
   deleted_at?: string | null
   ects_credits?: number | null
+  enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
@@ -1110,6 +1111,28 @@ export type UpdateCmsPageResponses = {
 }
 
 export type UpdateCmsPageResponse = UpdateCmsPageResponses[keyof UpdateCmsPageResponses]
+
+export type GetExercisesWithSubmissionsData = {
+  body: Array<string>
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/pages/{page_id}/exercises-with-submissions"
+}
+
+export type GetExercisesWithSubmissionsResponses = {
+  /**
+   * Exercise ids, among the given ones, that have submissions
+   */
+  200: Array<string>
+}
+
+export type GetExercisesWithSubmissionsResponse =
+  GetExercisesWithSubmissionsResponses[keyof GetExercisesWithSubmissionsResponses]
 
 export type GetCmsPageInfoData = {
   body?: never

@@ -153,6 +153,34 @@ FROM enrolled e
     Ok(res)
 }
 
+/// Standing consents of these accounts, as `(user_id, course_id)` pairs. Consent is per course, so
+/// a selection spanning courses cannot be judged by user alone.
+///
+/// `consent_withdrawn_at` survives a later consent as an audit trail, so `consent_given` alone is
+/// what counts as consented, here and in the precondition engine.
+pub async fn get_consenting_user_and_course_ids(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+) -> ModelResult<Vec<(Uuid, Uuid)>> {
+    let res = sqlx::query!(
+        r#"
+SELECT user_id,
+  course_id
+FROM course_credit_registration_consents
+WHERE user_id = ANY($1::uuid [])
+  AND consent_given
+  AND deleted_at IS NULL
+        "#,
+        user_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res
+        .into_iter()
+        .map(|row| (row.user_id, row.course_id))
+        .collect())
+}
+
 pub async fn get_consenting_user_ids_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,

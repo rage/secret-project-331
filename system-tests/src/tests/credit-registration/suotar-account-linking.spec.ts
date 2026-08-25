@@ -1,17 +1,18 @@
-import { expect, test } from "@playwright/test"
-
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   CREDIT_REGISTRATIONS_API,
   linkStudentNumberUrl,
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 /**
  * Owns student numbers `9000002xx` and the four fixed tokens the seed writes rather than mails.
  *
  * Serial and order-dependent: the first test links `900000201` to the claiming account, which is
  * what makes the conflict case below a conflict.
+ * `retries: 0` follows: a retry replays the group from that first test, whose token is single-use and
+ * by then spent, so retrying only turns one failure into three.
  */
 const CLAIMER_EMAIL = "credit-registration-link-claimer@example.com"
 
@@ -27,7 +28,7 @@ const EXPIRED_COPY = "This link has expired."
 const ALREADY_USED_COPY = "This link has already been used."
 const CONFLICT_COPY = "This student number is already linked to a different account."
 
-test.describe.configure({ mode: "serial" })
+test.describe.configure({ mode: "serial", retries: 0 })
 
 test("A preview consumes nothing, and confirming links the number to the logged-in account", async ({
   page,

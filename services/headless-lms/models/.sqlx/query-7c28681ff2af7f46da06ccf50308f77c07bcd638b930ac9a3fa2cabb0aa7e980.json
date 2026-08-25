@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT details #> '{response,result,previousAttainment}' AS \"attainment!\"\nFROM credit_registration_events\nWHERE credit_registration_id = $1\n  AND to_state = 'not_improved'\n  AND details #> '{response,result,previousAttainment}' IS NOT NULL\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "attainment!",
+        "type_info": "Jsonb",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "7c28681ff2af7f46da06ccf50308f77c07bcd638b930ac9a3fa2cabb0aa7e980"
+}

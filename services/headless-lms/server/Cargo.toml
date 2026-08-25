@@ -10,12 +10,13 @@ license.workspace = true
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
+headless-lms-authorization = { path = "../authorization" }
 headless-lms-base = { path = "../base" }
 headless-lms-certificates = { path = "../certificates" }
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-chatbot = { path = "../chatbot" }
-mooc-langs-api = { path = "../langs-api" }
+exercise-services-api = { path = "../exercise-services-api", features = ["openapi"] }
 doc-macro = { path = "../doc-macro" }
 rustls.workspace = true
 

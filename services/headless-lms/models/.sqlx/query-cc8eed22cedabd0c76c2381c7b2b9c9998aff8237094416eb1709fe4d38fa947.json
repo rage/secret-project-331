@@ -200,6 +200,17 @@
             "name": "deleted_at"
           }
         }
+      },
+      {
+        "ordinal": 17,
+        "name": "auto_link_notice_dismissed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "auto_link_notice_dismissed_at"
+          }
+        }
       }
     ],
     "parameters": {
@@ -224,6 +235,7 @@
       true,
       false,
       false,
+      true,
       true
     ]
   },

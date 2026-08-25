@@ -994,6 +994,55 @@
         }
       }
     },
+    "/api/v0/cms/pages/{page_id}/exercises-with-submissions": {
+      "post": {
+        "tags": ["cms_pages"],
+        "summary": "\nPOST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns\nthe subset that has at least one existing submission. Used by the editor to warn the teacher before\nsaving a page edit that would remove one of these exercises, since that soft-deletes it and orphans\nits submissions.",
+        "operationId": "getExercisesWithSubmissions",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Exercise ids, among the given ones, that have submissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/pages/{page_id}/info": {
       "get": {
         "tags": ["cms_pages"],
@@ -1863,7 +1912,8 @@
           "order_number",
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
-          "certification_enabled"
+          "certification_enabled",
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "certification_enabled": {
@@ -1895,6 +1945,9 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"

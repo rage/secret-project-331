@@ -158,7 +158,8 @@ export function useSegmentedFieldBase(
     isFocused,
     label,
     layout,
-    locale,
+    // Used en-CA to display date in YYYY-MM-DD format instead of MM/DD/YYYY
+    locale: locale === "en" ? "en-CA" : locale,
     max,
     min,
     notice,

@@ -17,17 +17,22 @@ import {
   addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
+  adminBulkTransitionCreditRegistrations,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
+  adminPauseCourseModuleCreditRegistration,
   adminPausePhase,
+  adminRequeueRetryableCreditRegistrations,
   adminResendAccountLinkingEmail,
   adminResolveStudentNumberForLinking,
+  adminResumeCourseModuleCreditRegistration,
   adminResumePhase,
   adminRunPhaseNow,
   adminTransitionCreditRegistration,
   adminUnlinkStudentNumber,
   advanceCourseDesignerStage,
   approveOauthConsent,
+  approveOauthDeviceVerification,
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
@@ -35,9 +40,9 @@ import {
   configureChatbot,
   confirmCourseSuspectedCheater,
   createChapter,
+  createChatbot,
   createCodeGiveaway,
   createCourse,
-  createCourseChatbot,
   createCourseCopy,
   createCourseDesignerPlan,
   createCourseDesignerScheduleSuggestion,
@@ -79,12 +84,17 @@ import {
   deletePageAudioFile,
   deletePlaygroundExample,
   denyOauthConsent,
+  denyOauthDeviceVerification,
+  deviceAuthorizationOauth,
   dismissCourseSuspectedCheater,
+  dismissCreditRegistrationEnrolmentBanner,
+  dismissMyAutoLinkNotice,
   downloadCodeGiveawayCodesCsv,
   duplicateExam,
   editCourseInstance,
   editExam,
   exchangeOauthToken,
+  exportCourseCreditRegistrations,
   exportCourseExerciseTasksCsv,
   exportCourseInstanceCompletionsCsv,
   exportCourseInstancePointsCsv,
@@ -126,6 +136,7 @@ import {
   getCourseCompletionsHistoryByInstance,
   getCourseCompletionsHistoryCustomTimePeriod,
   getCourseCompletionStatsForEmailDomain,
+  getCourseCreditRegistrationActions,
   getCourseCreditRegistrationModuleConfigs,
   getCourseCreditRegistrations,
   getCourseCreditRegistrationsForUsers,
@@ -169,6 +180,7 @@ import {
   getCoursePrerequisites,
   getCourseProgressForUser,
   getCourseReferences,
+  getCoursesForAuditing,
   getCourseStructure,
   getCourseStudentChapterLockingStatuses,
   getCourseStudentsCertificates,
@@ -182,9 +194,15 @@ import {
   getCourseUsersCountsByExercise,
   getCourseUserSettingsForUser,
   getCourseWeekdayHourSubmissionCounts,
+  getCreditRegistrationAttentionItems,
   getCreditRegistrationDetails,
+  getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
   getCreditRegistrationOverview,
+  getCreditRegistrationPipelineHistory,
+  getCreditRegistrationReconciliation,
+  getCreditRegistrationStatsByCourse,
+  getCreditRegistrationThresholds,
   getCurrentTime,
   getEditProposalCount,
   getEditProposals,
@@ -209,9 +227,11 @@ import {
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
+  getMyCertificates,
   getMyCourseCreditRegistrationConsent,
   getMyCourses,
   getMyCreditRegistrationConsents,
+  getMyCreditRegistrationEnrolmentBanners,
   getMyCreditRegistrationForCourseModule,
   getMyCreditRegistrations,
   getMyEmailVerificationStatus,
@@ -222,6 +242,7 @@ import {
   getNumberOfPeopleRegisteredCompletionToStudyRegistry,
   getNumberOfPeopleStartedCourse,
   getOauthAuthorizedClients,
+  getOauthDeviceVerification,
   getOauthJwks,
   getOauthOpenidConfiguration,
   getOauthUserInfo,
@@ -248,6 +269,7 @@ import {
   getRegradingsCount,
   getResetPasswordTokenStatus,
   getRoles,
+  getSharedSubmissionInfo,
   getSisuCourseLlmDescriptions,
   getStatusCronjobs,
   getStatusDeployments,
@@ -263,6 +285,7 @@ import {
   getStudentCompletionsByCountry,
   getStudentEnrollmentsByCountry,
   getStudentsByCountryTotals,
+  getSuotarApiCall,
   getSuotarHealth,
   getTotalUsersCompletedCourse,
   getTotalUsersCompletedCourseByInstance,
@@ -296,7 +319,11 @@ import {
   hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
+  listCreditRegistrationAdminActions,
+  listCreditRegistrationPhases,
   listCreditRegistrationsForAdmin,
+  listOwnSubmissionShares,
+  listSuotarApiCalls,
   listVerifiedStudentNumbersForAdmin,
   markFeedbackAsRead,
   type Options,
@@ -317,7 +344,11 @@ import {
   resetExercisesForSelectedUsers,
   resetUserPassword,
   restorePageHistory,
+  retryCreditRegistration,
+  retryFailedCreditRegistrationsForCourse,
   revokeOauthToken,
+  revokeSubmissionShare,
+  revokeSubmissionSharesOfSubmission,
   saveCourseDesignerSchedule,
   searchUserDetailsByEmail,
   searchUserDetailsByOtherDetails,
@@ -340,6 +371,7 @@ import {
   updateChapter,
   updateChapterImage,
   updateCourse,
+  updateCourseAuditingData,
   updateCourseChapterOrdering,
   updateCourseDesignerStageTask,
   updateCourseDesignerStageWorkspace,
@@ -370,16 +402,22 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdminBulkTransitionCreditRegistrationsData,
+  AdminBulkTransitionCreditRegistrationsResponse,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberResponse,
   AdminMaterializeCreditRegistrationsData,
   AdminMaterializeCreditRegistrationsResponse,
+  AdminPauseCourseModuleCreditRegistrationData,
   AdminPausePhaseData,
   AdminPausePhaseResponse,
+  AdminRequeueRetryableCreditRegistrationsData,
+  AdminRequeueRetryableCreditRegistrationsResponse,
   AdminResendAccountLinkingEmailData,
   AdminResendAccountLinkingEmailResponse,
   AdminResolveStudentNumberForLinkingData,
   AdminResolveStudentNumberForLinkingResponse,
+  AdminResumeCourseModuleCreditRegistrationData,
   AdminResumePhaseData,
   AdminResumePhaseResponse,
   AdminRunPhaseNowData,
@@ -392,6 +430,8 @@ import type {
   AdvanceCourseDesignerStageResponse,
   ApproveOauthConsentData,
   ApproveOauthConsentResponse,
+  ApproveOauthDeviceVerificationData,
+  ApproveOauthDeviceVerificationResponse,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
@@ -403,10 +443,10 @@ import type {
   ConfirmCourseSuspectedCheaterData,
   CreateChapterData,
   CreateChapterResponse,
+  CreateChatbotData,
+  CreateChatbotResponse,
   CreateCodeGiveawayData,
   CreateCodeGiveawayResponse,
-  CreateCourseChatbotData,
-  CreateCourseChatbotResponse,
   CreateCourseCopyData,
   CreateCourseCopyResponse,
   CreateCourseData,
@@ -475,7 +515,13 @@ import type {
   DeletePlaygroundExampleResponse,
   DenyOauthConsentData,
   DenyOauthConsentResponse,
+  DenyOauthDeviceVerificationData,
+  DenyOauthDeviceVerificationResponse,
+  DeviceAuthorizationOauthData,
+  DeviceAuthorizationOauthResponse,
   DismissCourseSuspectedCheaterData,
+  DismissCreditRegistrationEnrolmentBannerData,
+  DismissMyAutoLinkNoticeData,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponse,
   DuplicateExamData,
@@ -483,6 +529,8 @@ import type {
   EditCourseInstanceData,
   EditExamData,
   ExchangeOauthTokenData,
+  ExportCourseCreditRegistrationsData,
+  ExportCourseCreditRegistrationsResponse,
   ExportCourseExerciseTasksCsvData,
   ExportCourseExerciseTasksCsvResponse,
   ExportCourseInstanceCompletionsCsvData,
@@ -562,6 +610,8 @@ import type {
   GetCourseCompletionsHistoryResponse,
   GetCourseCompletionStatsForEmailDomainData,
   GetCourseCompletionStatsForEmailDomainResponse,
+  GetCourseCreditRegistrationActionsData,
+  GetCourseCreditRegistrationActionsResponse,
   GetCourseCreditRegistrationModuleConfigsData,
   GetCourseCreditRegistrationModuleConfigsResponse,
   GetCourseCreditRegistrationsData,
@@ -645,6 +695,8 @@ import type {
   GetCourseReferencesData,
   GetCourseReferencesResponse,
   GetCourseResponse,
+  GetCoursesForAuditingData,
+  GetCoursesForAuditingResponse,
   GetCourseStructureData,
   GetCourseStructureResponse,
   GetCourseStudentChapterLockingStatusesData,
@@ -671,12 +723,24 @@ import type {
   GetCourseUserSettingsForUserResponse,
   GetCourseWeekdayHourSubmissionCountsData,
   GetCourseWeekdayHourSubmissionCountsResponse,
+  GetCreditRegistrationAttentionItemsData,
+  GetCreditRegistrationAttentionItemsResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
+  GetCreditRegistrationErrorsByCodeData,
+  GetCreditRegistrationErrorsByCodeResponse,
   GetCreditRegistrationForAdminData,
   GetCreditRegistrationForAdminResponse,
   GetCreditRegistrationOverviewData,
   GetCreditRegistrationOverviewResponse,
+  GetCreditRegistrationPipelineHistoryData,
+  GetCreditRegistrationPipelineHistoryResponse,
+  GetCreditRegistrationReconciliationData,
+  GetCreditRegistrationReconciliationResponse,
+  GetCreditRegistrationStatsByCourseData,
+  GetCreditRegistrationStatsByCourseResponse,
+  GetCreditRegistrationThresholdsData,
+  GetCreditRegistrationThresholdsResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
   GetEditProposalCountData,
@@ -725,12 +789,16 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponse,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponse,
+  GetMyCertificatesData,
+  GetMyCertificatesResponse,
   GetMyCourseCreditRegistrationConsentData,
   GetMyCourseCreditRegistrationConsentResponse,
   GetMyCoursesData,
   GetMyCoursesResponse,
   GetMyCreditRegistrationConsentsData,
   GetMyCreditRegistrationConsentsResponse,
+  GetMyCreditRegistrationEnrolmentBannersData,
+  GetMyCreditRegistrationEnrolmentBannersResponse,
   GetMyCreditRegistrationForCourseModuleData,
   GetMyCreditRegistrationForCourseModuleResponse,
   GetMyCreditRegistrationsData,
@@ -751,6 +819,8 @@ import type {
   GetNumberOfPeopleStartedCourseResponse,
   GetOauthAuthorizedClientsData,
   GetOauthAuthorizedClientsResponse,
+  GetOauthDeviceVerificationData,
+  GetOauthDeviceVerificationResponse,
   GetOauthJwksData,
   GetOauthOpenidConfigurationData,
   GetOauthUserInfoData,
@@ -799,6 +869,8 @@ import type {
   GetResetPasswordTokenStatusResponse,
   GetRolesData,
   GetRolesResponse,
+  GetSharedSubmissionInfoData,
+  GetSharedSubmissionInfoResponse,
   GetSisuCourseLlmDescriptionsData,
   GetSisuCourseLlmDescriptionsResponse,
   GetStatusCronjobsData,
@@ -829,6 +901,8 @@ import type {
   GetStudentEnrollmentsByCountryResponse,
   GetStudentsByCountryTotalsData,
   GetStudentsByCountryTotalsResponse,
+  GetSuotarApiCallData,
+  GetSuotarApiCallResponse,
   GetSuotarHealthData,
   GetSuotarHealthResponse,
   GetTotalUsersCompletedCourseByInstanceData,
@@ -893,8 +967,16 @@ import type {
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
+  ListCreditRegistrationAdminActionsData,
+  ListCreditRegistrationAdminActionsResponse,
+  ListCreditRegistrationPhasesData,
+  ListCreditRegistrationPhasesResponse,
   ListCreditRegistrationsForAdminData,
   ListCreditRegistrationsForAdminResponse,
+  ListOwnSubmissionSharesData,
+  ListOwnSubmissionSharesResponse,
+  ListSuotarApiCallsData,
+  ListSuotarApiCallsResponse,
   ListVerifiedStudentNumbersForAdminData,
   ListVerifiedStudentNumbersForAdminResponse,
   MarkFeedbackAsReadData,
@@ -927,7 +1009,15 @@ import type {
   ResetUserPasswordResponse,
   RestorePageHistoryData,
   RestorePageHistoryResponse,
+  RetryCreditRegistrationData,
+  RetryCreditRegistrationResponse,
+  RetryFailedCreditRegistrationsForCourseData,
+  RetryFailedCreditRegistrationsForCourseResponse,
   RevokeOauthTokenData,
+  RevokeSubmissionShareData,
+  RevokeSubmissionShareResponse,
+  RevokeSubmissionSharesOfSubmissionData,
+  RevokeSubmissionSharesOfSubmissionResponse,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponse,
   SearchUserDetailsByEmailData,
@@ -965,6 +1055,8 @@ import type {
   UpdateChapterImageData,
   UpdateChapterImageResponse,
   UpdateChapterResponse,
+  UpdateCourseAuditingDataData,
+  UpdateCourseAuditingDataResponse,
   UpdateCourseChapterOrderingData,
   UpdateCourseData,
   UpdateCourseDesignerStageTaskData,
@@ -1422,13 +1514,13 @@ export const getCourseChaptersOptions = (options: Options<GetCourseChaptersData>
     queryKey: getCourseChaptersQueryKey(options),
   })
 
-export const getChatbotModelsQueryKey = (options: Options<GetChatbotModelsData>) =>
+export const getChatbotModelsQueryKey = (options?: Options<GetChatbotModelsData>) =>
   createQueryKey("getChatbotModels", options)
 
 /**
  * GET `/api/v0/main-frontend/chatbot-models?course_id={course_id}`
  */
-export const getChatbotModelsOptions = (options: Options<GetChatbotModelsData>) =>
+export const getChatbotModelsOptions = (options?: Options<GetChatbotModelsData>) =>
   queryOptions<
     GetChatbotModelsResponse,
     DefaultError,
@@ -1490,6 +1582,27 @@ export const getAllChatbotsOptions = (options?: Options<GetAllChatbotsData>) =>
       }),
     queryKey: getAllChatbotsQueryKey(options),
   })
+
+/**
+ * POST `/api/v0/main-frontend/chatbots/create`
+ */
+export const createChatbotMutation = (
+  options?: Partial<Options<CreateChatbotData>>,
+): UseMutationOptions<CreateChatbotResponse, DefaultError, Options<CreateChatbotData>> => {
+  const mutationOptions: UseMutationOptions<
+    CreateChatbotResponse,
+    DefaultError,
+    Options<CreateChatbotData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createChatbot({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  * DELETE `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
@@ -1729,6 +1842,84 @@ export const deleteCodeGiveawayCodeMutation = (
   return mutationOptions
 }
 
+export const getCoursesForAuditingQueryKey = (options?: Options<GetCoursesForAuditingData>) =>
+  createQueryKey("getCoursesForAuditing", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-auditing`
+ */
+export const getCoursesForAuditingOptions = (options?: Options<GetCoursesForAuditingData>) =>
+  queryOptions<
+    GetCoursesForAuditingResponse,
+    DefaultError,
+    GetCoursesForAuditingResponse,
+    ReturnType<typeof getCoursesForAuditingQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCoursesForAuditing({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCoursesForAuditingQueryKey(options),
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/course-auditing/:id`
+ */
+export const updateCourseAuditingDataMutation = (
+  options?: Partial<Options<UpdateCourseAuditingDataData>>,
+): UseMutationOptions<
+  UpdateCourseAuditingDataResponse,
+  DefaultError,
+  Options<UpdateCourseAuditingDataData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateCourseAuditingDataResponse,
+    DefaultError,
+    Options<UpdateCourseAuditingDataData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateCourseAuditingData({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseCreditRegistrationActionsQueryKey = (
+  options: Options<GetCourseCreditRegistrationActionsData>,
+) => createQueryKey("getCourseCreditRegistrationActions", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions` - The manual
+ * actions taken on this course's credit registrations, newest first.
+ */
+export const getCourseCreditRegistrationActionsOptions = (
+  options: Options<GetCourseCreditRegistrationActionsData>,
+) =>
+  queryOptions<
+    GetCourseCreditRegistrationActionsResponse,
+    DefaultError,
+    GetCourseCreditRegistrationActionsResponse,
+    ReturnType<typeof getCourseCreditRegistrationActionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCreditRegistrationActions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCreditRegistrationActionsQueryKey(options),
+  })
+
 /**
  *
  * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The
@@ -1755,6 +1946,34 @@ export const getCourseCreditRegistrationsForUsersMutation = (
   }
   return mutationOptions
 }
+
+export const exportCourseCreditRegistrationsQueryKey = (
+  options: Options<ExportCourseCreditRegistrationsData>,
+) => createQueryKey("exportCourseCreditRegistrations", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/export` - Every credit
+ * registration of the course as csv.
+ */
+export const exportCourseCreditRegistrationsOptions = (
+  options: Options<ExportCourseCreditRegistrationsData>,
+) =>
+  queryOptions<
+    ExportCourseCreditRegistrationsResponse,
+    DefaultError,
+    ExportCourseCreditRegistrationsResponse,
+    ReturnType<typeof exportCourseCreditRegistrationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await exportCourseCreditRegistrations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: exportCourseCreditRegistrationsQueryKey(options),
+  })
 
 export const getCourseCreditRegistrationsQueryKey = (
   options: Options<GetCourseCreditRegistrationsData>,
@@ -1930,6 +2149,38 @@ export const resendCourseCreditRegistrationLinkingEmailMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this
+ * course's failed registrations back on the pipeline.
+ *
+ * Refuses the same rows the single-row retry refuses and reports how many of each it left alone rather
+ * than failing the whole call over them. The cap applies to the rows a retry can actually move: the
+ * refused ones are counted across the whole course, because they would otherwise sit in the batch
+ * forever and a course that accumulated a capful of them could never retry anything again.
+ */
+export const retryFailedCreditRegistrationsForCourseMutation = (
+  options?: Partial<Options<RetryFailedCreditRegistrationsForCourseData>>,
+): UseMutationOptions<
+  RetryFailedCreditRegistrationsForCourseResponse,
+  DefaultError,
+  Options<RetryFailedCreditRegistrationsForCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RetryFailedCreditRegistrationsForCourseResponse,
+    DefaultError,
+    Options<RetryFailedCreditRegistrationsForCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await retryFailedCreditRegistrationsForCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getCourseCreditRegistrationSummaryQueryKey = (
   options: Options<GetCourseCreditRegistrationSummaryData>,
 ) => createQueryKey("getCourseCreditRegistrationSummary", options)
@@ -1988,6 +2239,36 @@ export const getCreditRegistrationDetailsOptions = (
       }),
     queryKey: getCreditRegistrationDetailsQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry`
+ * - Puts one failed registration back on the pipeline.
+ *
+ * Authorized on the row's own course, which is why no course id appears in the path: a teacher of one
+ * course must not be able to pair it with a foreign registration id.
+ */
+export const retryCreditRegistrationMutation = (
+  options?: Partial<Options<RetryCreditRegistrationData>>,
+): UseMutationOptions<
+  RetryCreditRegistrationResponse,
+  DefaultError,
+  Options<RetryCreditRegistrationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RetryCreditRegistrationResponse,
+    DefaultError,
+    Options<RetryCreditRegistrationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await retryCreditRegistration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getCourseInstanceQueryKey = (options: Options<GetCourseInstanceData>) =>
   createQueryKey("getCourseInstance", options)
@@ -3106,31 +3387,6 @@ export const getCourseChatbotsOptions = (options: Options<GetCourseChatbotsData>
       }),
     queryKey: getCourseChatbotsQueryKey(options),
   })
-
-/**
- * POST `/api/v0/main-frontend/courses/{course_id}/chatbots`
- */
-export const createCourseChatbotMutation = (
-  options?: Partial<Options<CreateCourseChatbotData>>,
-): UseMutationOptions<
-  CreateCourseChatbotResponse,
-  DefaultError,
-  Options<CreateCourseChatbotData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateCourseChatbotResponse,
-    DefaultError,
-    Options<CreateCourseChatbotData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await createCourseChatbot({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
 
 /**
  * POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default`
@@ -5947,6 +6203,240 @@ export const adminResolveStudentNumberForLinkingMutation = (
   return mutationOptions
 }
 
+export const getCreditRegistrationAttentionItemsQueryKey = (
+  options?: Options<GetCreditRegistrationAttentionItemsData>,
+) => createQueryKey("getCreditRegistrationAttentionItems", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
+ * wants a human to look at, with the detectors that picked each.
+ *
+ * Superseded attempts and rows abandoned by a consent withdrawal are outside every detector: neither
+ * is something a person can act on.
+ */
+export const getCreditRegistrationAttentionItemsOptions = (
+  options?: Options<GetCreditRegistrationAttentionItemsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationAttentionItemsResponse,
+    DefaultError,
+    GetCreditRegistrationAttentionItemsResponse,
+    ReturnType<typeof getCreditRegistrationAttentionItemsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationAttentionItems({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationAttentionItemsQueryKey(options),
+  })
+
+export const listCreditRegistrationAdminActionsQueryKey = (
+  options?: Options<ListCreditRegistrationAdminActionsData>,
+) => createQueryKey("listCreditRegistrationAdminActions", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit` - A page of the global action log,
+ * newest first.
+ *
+ * Covers admin and course-teacher actors alike, and every target kind: a registration, a course
+ * module, a course, a phase, a student-number link or its token.
+ */
+export const listCreditRegistrationAdminActionsOptions = (
+  options?: Options<ListCreditRegistrationAdminActionsData>,
+) =>
+  queryOptions<
+    ListCreditRegistrationAdminActionsResponse,
+    DefaultError,
+    ListCreditRegistrationAdminActionsResponse,
+    ReturnType<typeof listCreditRegistrationAdminActionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listCreditRegistrationAdminActions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listCreditRegistrationAdminActionsQueryKey(options),
+  })
+
+export const listCreditRegistrationAdminActionsInfiniteQueryKey = (
+  options?: Options<ListCreditRegistrationAdminActionsData>,
+): QueryKey<Options<ListCreditRegistrationAdminActionsData>> =>
+  createQueryKey("listCreditRegistrationAdminActions", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit` - A page of the global action log,
+ * newest first.
+ *
+ * Covers admin and course-teacher actors alike, and every target kind: a registration, a course
+ * module, a course, a phase, a student-number link or its token.
+ */
+export const listCreditRegistrationAdminActionsInfiniteOptions = (
+  options?: Options<ListCreditRegistrationAdminActionsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    ListCreditRegistrationAdminActionsResponse,
+    DefaultError,
+    InfiniteData<ListCreditRegistrationAdminActionsResponse>,
+    QueryKey<Options<ListCreditRegistrationAdminActionsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListCreditRegistrationAdminActionsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListCreditRegistrationAdminActionsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listCreditRegistrationAdminActions({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listCreditRegistrationAdminActionsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+export const getCreditRegistrationStatsByCourseQueryKey = (
+  options?: Options<GetCreditRegistrationStatsByCourseData>,
+) => createQueryKey("getCreditRegistrationStatsByCourse", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * its validated configuration and its volumes.
+ */
+export const getCreditRegistrationStatsByCourseOptions = (
+  options?: Options<GetCreditRegistrationStatsByCourseData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationStatsByCourseResponse,
+    DefaultError,
+    GetCreditRegistrationStatsByCourseResponse,
+    ReturnType<typeof getCreditRegistrationStatsByCourseQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationStatsByCourse({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationStatsByCourseQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause` - Stops every
+ * phase from claiming this module's rows.
+ *
+ * Freezes the rows where they stand rather than cancelling them, so resuming picks up what was already
+ * in flight.
+ */
+export const adminPauseCourseModuleCreditRegistrationMutation = (
+  options?: Partial<Options<AdminPauseCourseModuleCreditRegistrationData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<AdminPauseCourseModuleCreditRegistrationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminPauseCourseModuleCreditRegistrationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminPauseCourseModuleCreditRegistration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/resume` - Lets the
+ * phases claim this module's rows again.
+ */
+export const adminResumeCourseModuleCreditRegistrationMutation = (
+  options?: Partial<Options<AdminResumeCourseModuleCreditRegistrationData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<AdminResumeCourseModuleCreditRegistrationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminResumeCourseModuleCreditRegistrationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminResumeCourseModuleCreditRegistration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCreditRegistrationErrorsByCodeQueryKey = (
+  options?: Options<GetCreditRegistrationErrorsByCodeData>,
+) => createQueryKey("getCreditRegistrationErrorsByCode", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/errors/by-code` - Error events per code over a
+ * window and the window before it, with the terminal verdicts of the same window beside them.
+ *
+ * Counts events, not rows: an error that happened really happened, whether or not a later attempt
+ * succeeded, and hiding it would hide the configuration bug that caused it.
+ */
+export const getCreditRegistrationErrorsByCodeOptions = (
+  options?: Options<GetCreditRegistrationErrorsByCodeData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationErrorsByCodeResponse,
+    DefaultError,
+    GetCreditRegistrationErrorsByCodeResponse,
+    ReturnType<typeof getCreditRegistrationErrorsByCodeQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationErrorsByCode({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationErrorsByCodeQueryKey(options),
+  })
+
 /**
  *
  * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
@@ -6004,6 +6494,34 @@ export const getCreditRegistrationOverviewOptions = (
         throwOnError: true,
       }),
     queryKey: getCreditRegistrationOverviewQueryKey(options),
+  })
+
+export const listCreditRegistrationPhasesQueryKey = (
+  options?: Options<ListCreditRegistrationPhasesData>,
+) => createQueryKey("listCreditRegistrationPhases", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
+ * and the queue it is responsible for.
+ */
+export const listCreditRegistrationPhasesOptions = (
+  options?: Options<ListCreditRegistrationPhasesData>,
+) =>
+  queryOptions<
+    ListCreditRegistrationPhasesResponse,
+    DefaultError,
+    ListCreditRegistrationPhasesResponse,
+    ReturnType<typeof listCreditRegistrationPhasesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listCreditRegistrationPhases({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listCreditRegistrationPhasesQueryKey(options),
   })
 
 /**
@@ -6074,6 +6592,62 @@ export const adminRunPhaseNowMutation = (
   }
   return mutationOptions
 }
+
+export const getCreditRegistrationPipelineHistoryQueryKey = (
+  options?: Options<GetCreditRegistrationPipelineHistoryData>,
+) => createQueryKey("getCreditRegistrationPipelineHistory", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
+ * ledger state, with what entered and left each state that day.
+ */
+export const getCreditRegistrationPipelineHistoryOptions = (
+  options?: Options<GetCreditRegistrationPipelineHistoryData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationPipelineHistoryResponse,
+    DefaultError,
+    GetCreditRegistrationPipelineHistoryResponse,
+    ReturnType<typeof getCreditRegistrationPipelineHistoryQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationPipelineHistory({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationPipelineHistoryQueryKey(options),
+  })
+
+export const getCreditRegistrationReconciliationQueryKey = (
+  options?: Options<GetCreditRegistrationReconciliationData>,
+) => createQueryKey("getCreditRegistrationReconciliation", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/reconciliation` - The drift detectors: work the
+ * ledger should be doing and is not, and outcomes the study registry and the ledger disagree about.
+ */
+export const getCreditRegistrationReconciliationOptions = (
+  options?: Options<GetCreditRegistrationReconciliationData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationReconciliationResponse,
+    DefaultError,
+    GetCreditRegistrationReconciliationResponse,
+    ReturnType<typeof getCreditRegistrationReconciliationQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationReconciliation({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationReconciliationQueryKey(options),
+  })
 
 export const listCreditRegistrationsForAdminQueryKey = (
   options?: Options<ListCreditRegistrationsForAdminData>,
@@ -6154,6 +6728,69 @@ export const listCreditRegistrationsForAdminInfiniteOptions = (
     },
   )
   return opts as Omit<typeof opts, "initialData">
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a
+ * selection of rows by hand, one transaction for the lot.
+ *
+ * Resubmitting refuses every row in `submission_uncertain`, whatever the selection said. Taking one of
+ * those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
+ * looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
+ * attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
+ * time.
+ */
+export const adminBulkTransitionCreditRegistrationsMutation = (
+  options?: Partial<Options<AdminBulkTransitionCreditRegistrationsData>>,
+): UseMutationOptions<
+  AdminBulkTransitionCreditRegistrationsResponse,
+  DefaultError,
+  Options<AdminBulkTransitionCreditRegistrationsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminBulkTransitionCreditRegistrationsResponse,
+    DefaultError,
+    Options<AdminBulkTransitionCreditRegistrationsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminBulkTransitionCreditRegistrations({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/requeue-retryable` - Makes every
+ * `failed_retryable` row waiting out a backoff due now.
+ *
+ * The button pressed once the study registry says an outage is over. Touches nothing but
+ * `next_attempt_at`: the rows are already where the pipeline wants them, they are merely waiting.
+ */
+export const adminRequeueRetryableCreditRegistrationsMutation = (
+  options?: Partial<Options<AdminRequeueRetryableCreditRegistrationsData>>,
+): UseMutationOptions<
+  AdminRequeueRetryableCreditRegistrationsResponse,
+  DefaultError,
+  Options<AdminRequeueRetryableCreditRegistrationsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminRequeueRetryableCreditRegistrationsResponse,
+    DefaultError,
+    Options<AdminRequeueRetryableCreditRegistrationsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminRequeueRetryableCreditRegistrations({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
 }
 
 export const getCreditRegistrationForAdminQueryKey = (
@@ -6326,6 +6963,109 @@ export const adminUnlinkStudentNumberMutation = (
   return mutationOptions
 }
 
+export const listSuotarApiCallsQueryKey = (options?: Options<ListSuotarApiCallsData>) =>
+  createQueryKey("listSuotarApiCalls", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study
+ * registry call log, newest first.
+ *
+ * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
+ * the bodies are scrubbed, so there is no student number in them to search.
+ */
+export const listSuotarApiCallsOptions = (options?: Options<ListSuotarApiCallsData>) =>
+  queryOptions<
+    ListSuotarApiCallsResponse,
+    DefaultError,
+    ListSuotarApiCallsResponse,
+    ReturnType<typeof listSuotarApiCallsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listSuotarApiCalls({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listSuotarApiCallsQueryKey(options),
+  })
+
+export const listSuotarApiCallsInfiniteQueryKey = (
+  options?: Options<ListSuotarApiCallsData>,
+): QueryKey<Options<ListSuotarApiCallsData>> => createQueryKey("listSuotarApiCalls", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study
+ * registry call log, newest first.
+ *
+ * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
+ * the bodies are scrubbed, so there is no student number in them to search.
+ */
+export const listSuotarApiCallsInfiniteOptions = (options?: Options<ListSuotarApiCallsData>) => {
+  const opts = infiniteQueryOptions<
+    ListSuotarApiCallsResponse,
+    DefaultError,
+    InfiniteData<ListSuotarApiCallsResponse>,
+    QueryKey<Options<ListSuotarApiCallsData>>,
+    | number
+    | Pick<QueryKey<Options<ListSuotarApiCallsData>>[0], "body" | "headers" | "path" | "query">
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListSuotarApiCallsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listSuotarApiCalls({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listSuotarApiCallsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+export const getSuotarApiCallQueryKey = (options: Options<GetSuotarApiCallData>) =>
+  createQueryKey("getSuotarApiCall", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls/{suotar_api_call_id}` - One
+ * call with its stored bodies, the ledger rows it covered and the timeline entries it produced.
+ */
+export const getSuotarApiCallOptions = (options: Options<GetSuotarApiCallData>) =>
+  queryOptions<
+    GetSuotarApiCallResponse,
+    DefaultError,
+    GetSuotarApiCallResponse,
+    ReturnType<typeof getSuotarApiCallQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getSuotarApiCall({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getSuotarApiCallQueryKey(options),
+  })
+
 export const getSuotarHealthQueryKey = (options?: Options<GetSuotarHealthData>) =>
   createQueryKey("getSuotarHealth", options)
 
@@ -6349,6 +7089,37 @@ export const getSuotarHealthOptions = (options?: Options<GetSuotarHealthData>) =
         throwOnError: true,
       }),
     queryKey: getSuotarHealthQueryKey(options),
+  })
+
+export const getCreditRegistrationThresholdsQueryKey = (
+  options?: Options<GetCreditRegistrationThresholdsData>,
+) => createQueryKey("getCreditRegistrationThresholds", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/thresholds` - Every number the alert rules and
+ * the stuck detectors use.
+ *
+ * The same values `/overview` embeds in its health block. Separate so a tab explaining "stuck after
+ * 2 hours" can say so without reading the whole overview aggregate.
+ */
+export const getCreditRegistrationThresholdsOptions = (
+  options?: Options<GetCreditRegistrationThresholdsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationThresholdsResponse,
+    DefaultError,
+    GetCreditRegistrationThresholdsResponse,
+    ReturnType<typeof getCreditRegistrationThresholdsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationThresholds({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationThresholdsQueryKey(options),
   })
 
 export const getMyCourseCreditRegistrationConsentQueryKey = (
@@ -6488,6 +7259,37 @@ export const getMyCreditRegistrationConsentsOptions = (
     queryKey: getMyCreditRegistrationConsentsQueryKey(options),
   })
 
+export const getMyCreditRegistrationEnrolmentBannersQueryKey = (
+  options: Options<GetMyCreditRegistrationEnrolmentBannersData>,
+) => createQueryKey("getMyCreditRegistrationEnrolmentBanners", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}` - The
+ * caller's registrations on one course that owe them the in-course re-enrol banner.
+ *
+ * Scoped to the course rather than filtered from `/my` on the client, because every course-material page
+ * view calls this. Empty is the normal answer.
+ */
+export const getMyCreditRegistrationEnrolmentBannersOptions = (
+  options: Options<GetMyCreditRegistrationEnrolmentBannersData>,
+) =>
+  queryOptions<
+    GetMyCreditRegistrationEnrolmentBannersResponse,
+    DefaultError,
+    GetMyCreditRegistrationEnrolmentBannersResponse,
+    ReturnType<typeof getMyCreditRegistrationEnrolmentBannersQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCreditRegistrationEnrolmentBanners({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCreditRegistrationEnrolmentBannersQueryKey(options),
+  })
+
 /**
  *
  * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
@@ -6544,6 +7346,60 @@ export const getMyVerifiedStudentNumberOptions = (
       }),
     queryKey: getMyVerifiedStudentNumberQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
+ * away the notice saying the pipeline linked this student number without asking.
+ *
+ * Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
+ */
+export const dismissMyAutoLinkNoticeMutation = (
+  options?: Partial<Options<DismissMyAutoLinkNoticeData>>,
+): UseMutationOptions<unknown, DefaultError, Options<DismissMyAutoLinkNoticeData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<DismissMyAutoLinkNoticeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await dismissMyAutoLinkNotice({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
+ * in-course re-enrol banner for one registration.
+ *
+ * Idempotent. Not a permanent opt-out: a later entry into the same state clears the dismissal.
+ */
+export const dismissCreditRegistrationEnrolmentBannerMutation = (
+  options?: Partial<Options<DismissCreditRegistrationEnrolmentBannerData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<DismissCreditRegistrationEnrolmentBannerData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<DismissCreditRegistrationEnrolmentBannerData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await dismissCreditRegistrationEnrolmentBanner({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -8296,22 +9152,169 @@ export const denyOauthConsentMutation = (
 }
 
 /**
+ * Handles `POST /device_authorization` — the RFC 8628 device authorization
+ * endpoint.
+ *
+ * Public, form-encoded, no session required (rate-limited like `/token`).
+ * Validates the client, checks it is allowed the device-code grant, validates
+ * requested scopes against the client's registered scopes, then issues an
+ * opaque `device_code` (stored only as an HMAC digest) plus a human-typable
+ * `user_code`.
+ *
+ * Follows [RFC 8628 §3.1–§3.2](https://datatracker.ietf.org/doc/html/rfc8628#section-3.1).
+ *
+ * # Example
+ * ```http
+ * POST /api/v0/main-frontend/oauth/device_authorization HTTP/1.1
+ * Content-Type: application/x-www-form-urlencoded
+ *
+ * client_id=tmc-vscode&scope=exercise-services
+ * ```
+ *
+ * Successful response:
+ * ```http
+ * HTTP/1.1 200 OK
+ * Content-Type: application/json
+ *
+ * {
+ * "device_code": "GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS",
+ * "user_code": "WDJB-MJHT",
+ * "verification_uri": "https://courses.mooc.fi/oauth_device",
+ * "verification_uri_complete": "https://courses.mooc.fi/oauth_device?user_code=WDJB-MJHT",
+ * "expires_in": 900,
+ * "interval": 5
+ * }
+ * ```
+ */
+export const deviceAuthorizationOauthMutation = (
+  options?: Partial<Options<DeviceAuthorizationOauthData>>,
+): UseMutationOptions<
+  DeviceAuthorizationOauthResponse,
+  DefaultError,
+  Options<DeviceAuthorizationOauthData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeviceAuthorizationOauthResponse,
+    DefaultError,
+    Options<DeviceAuthorizationOauthData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await deviceAuthorizationOauth({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getOauthDeviceVerificationQueryKey = (
+  options: Options<GetOauthDeviceVerificationData>,
+) => createQueryKey("getOauthDeviceVerification", options)
+
+/**
+ * Handles `GET /device_verification` — render data for the browser consent page.
+ *
+ * Session-authed. Looks up the still-pending, unexpired grant for the given
+ * `user_code` (normalizing the input first) and returns the client name and
+ * requested scopes so the page can ask the user to approve. A code that is
+ * unknown, expired, or no longer pending yields `404 Not Found` so the page can
+ * show a distinguishable "invalid or expired code" message.
+ */
+export const getOauthDeviceVerificationOptions = (
+  options: Options<GetOauthDeviceVerificationData>,
+) =>
+  queryOptions<
+    GetOauthDeviceVerificationResponse,
+    DefaultError,
+    GetOauthDeviceVerificationResponse,
+    ReturnType<typeof getOauthDeviceVerificationQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getOauthDeviceVerification({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getOauthDeviceVerificationQueryKey(options),
+  })
+
+/**
+ * Handles `POST /device_verification/approve`.
+ *
+ * Session-authed. Persists the user's consent via the same
+ * `OAuthUserClientScopes::insert` the web consent flow uses (consent is always
+ * recorded — never short-circuited on a pre-existing grant), then marks the
+ * device code approved and bound to the signed-in user.
+ */
+export const approveOauthDeviceVerificationMutation = (
+  options?: Partial<Options<ApproveOauthDeviceVerificationData>>,
+): UseMutationOptions<
+  ApproveOauthDeviceVerificationResponse,
+  DefaultError,
+  Options<ApproveOauthDeviceVerificationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ApproveOauthDeviceVerificationResponse,
+    DefaultError,
+    Options<ApproveOauthDeviceVerificationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await approveOauthDeviceVerification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * Handles `POST /device_verification/deny`.
+ *
+ * Session-authed. Marks the pending device code denied; the polling client then
+ * receives `access_denied` at the token endpoint.
+ */
+export const denyOauthDeviceVerificationMutation = (
+  options?: Partial<Options<DenyOauthDeviceVerificationData>>,
+): UseMutationOptions<
+  DenyOauthDeviceVerificationResponse,
+  DefaultError,
+  Options<DenyOauthDeviceVerificationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DenyOauthDeviceVerificationResponse,
+    DefaultError,
+    Options<DenyOauthDeviceVerificationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await denyOauthDeviceVerification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * Handles the `/introspect` endpoint for OAuth 2.0 token introspection (RFC 7662).
  *
  * This endpoint allows resource servers to query the authorization server about
  * the active state and metadata of an access token.
  *
  * ### Security Features
- * - Client authentication is required (client_id and client_secret for confidential clients)
- * - Returns `active: false` for invalid/expired tokens or authentication failures
- * to prevent token enumeration attacks
- * - Always returns 200 OK, even for invalid tokens (per RFC 7662)
+ * - Only a confidential client may introspect; an unknown client, a public client or a bad
+ * secret is 401 `invalid_client` (RFC 7662 §2.1, §2.3)
+ * - Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token
+ * existence is never disclosed to an authenticated caller
  *
  * ### Request Parameters
  * - `token` (required): The token to be introspected
  * - `token_type_hint` (optional): Hint about token type ("access_token" or "refresh_token")
- * - `client_id` (required): Client identifier
- * - `client_secret` (required for confidential clients): Client secret
+ * - `client_id` (required): Client identifier of a confidential client
+ * - `client_secret` (required): Client secret
  *
  * ### Response
  * Returns a JSON object with:
@@ -8326,6 +9329,11 @@ export const denyOauthConsentMutation = (
  * - `iss`: Issuer
  * - `jti`: JWT ID
  * - `token_type`: "Bearer" or "DPoP"
+ * - Non-standard members, returned only to callers that authenticated as a
+ * confidential client and omitted (never falsified) otherwise:
+ * - `upstream_id`: the token owner's legacy TMC user id
+ * - `client_bearer_allowed`: whether the client the token was issued to may use it
+ * as a plain Bearer credential. Consumers must fail closed if it is absent.
  *
  * Follows [RFC 7662 — OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662).
  *
@@ -9968,6 +10976,117 @@ export const removeRoleMutation = (
   return mutationOptions
 }
 
+export const listOwnSubmissionSharesQueryKey = (options?: Options<ListOwnSubmissionSharesData>) =>
+  createQueryKey("listOwnSubmissionShares", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions` - Lists the shares the current user has minted,
+ * newest first, so they can be reviewed and withdrawn.
+ */
+export const listOwnSubmissionSharesOptions = (options?: Options<ListOwnSubmissionSharesData>) =>
+  queryOptions<
+    ListOwnSubmissionSharesResponse,
+    DefaultError,
+    ListOwnSubmissionSharesResponse,
+    ReturnType<typeof listOwnSubmissionSharesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listOwnSubmissionShares({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listOwnSubmissionSharesQueryKey(options),
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
+ * share the current user has minted for one submission.
+ */
+export const revokeSubmissionSharesOfSubmissionMutation = (
+  options?: Partial<Options<RevokeSubmissionSharesOfSubmissionData>>,
+): UseMutationOptions<
+  RevokeSubmissionSharesOfSubmissionResponse,
+  DefaultError,
+  Options<RevokeSubmissionSharesOfSubmissionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RevokeSubmissionSharesOfSubmissionResponse,
+    DefaultError,
+    Options<RevokeSubmissionSharesOfSubmissionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await revokeSubmissionSharesOfSubmission({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/{token}` - Withdraws one share, after which the
+ * link stops resolving.
+ *
+ * Only the share's creator may revoke it: holding the token is authority to view, not to withdraw.
+ * Revoking an unknown or already-revoked share is a no-op, reported as `false`.
+ */
+export const revokeSubmissionShareMutation = (
+  options?: Partial<Options<RevokeSubmissionShareData>>,
+): UseMutationOptions<
+  RevokeSubmissionShareResponse,
+  DefaultError,
+  Options<RevokeSubmissionShareData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RevokeSubmissionShareResponse,
+    DefaultError,
+    Options<RevokeSubmissionShareData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await revokeSubmissionShare({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getSharedSubmissionInfoQueryKey = (options: Options<GetSharedSubmissionInfoData>) =>
+  createQueryKey("getSharedSubmissionInfo", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
+ * render a shared submission.
+ *
+ * The `token` is the unguessable share id minted by the client share endpoint. Login is
+ * required, but holding the token is the only capability needed to view the submission —
+ * no teacher or course role.
+ */
+export const getSharedSubmissionInfoOptions = (options: Options<GetSharedSubmissionInfoData>) =>
+  queryOptions<
+    GetSharedSubmissionInfoResponse,
+    DefaultError,
+    GetSharedSubmissionInfoResponse,
+    ReturnType<typeof getSharedSubmissionInfoQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getSharedSubmissionInfo({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getSharedSubmissionInfoQueryKey(options),
+  })
+
 export const getStatusCronjobsQueryKey = (options?: Options<GetStatusCronjobsData>) =>
   createQueryKey("getStatusCronjobs", options)
 
@@ -10615,6 +11734,33 @@ export const getUserResearchConsentOptions = (options?: Options<GetUserResearchC
         throwOnError: true,
       }),
     queryKey: getUserResearchConsentQueryKey(options),
+  })
+
+export const getMyCertificatesQueryKey = (options?: Options<GetMyCertificatesData>) =>
+  createQueryKey("getMyCertificates", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/my-certificates` - Every certificate the authenticated user holds.
+ *
+ * No user id parameter, so it cannot be pointed at another account. Anyone holding a certificate's
+ * verification id can already fetch its image; this only lists which ones are the caller's.
+ */
+export const getMyCertificatesOptions = (options?: Options<GetMyCertificatesData>) =>
+  queryOptions<
+    GetMyCertificatesResponse,
+    DefaultError,
+    GetMyCertificatesResponse,
+    ReturnType<typeof getMyCertificatesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCertificates({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCertificatesQueryKey(options),
   })
 
 export const getMyCoursesQueryKey = (options?: Options<GetMyCoursesData>) =>

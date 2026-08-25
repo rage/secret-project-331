@@ -10,6 +10,7 @@ pub mod chapters;
 pub mod chatbot_models;
 pub mod chatbots;
 pub mod code_giveaways;
+pub mod course_auditing;
 pub mod course_credit_registrations;
 pub mod course_designer;
 pub mod course_instances;
@@ -37,6 +38,7 @@ pub mod playground_views;
 pub mod proposed_edits;
 pub mod regradings;
 pub mod roles;
+pub mod shared_submissions;
 pub mod status;
 pub mod teacher_grading_decisions;
 pub mod time;
@@ -54,6 +56,7 @@ use utoipa::OpenApi;
         (path = "/chatbot-models", api = chatbot_models::MainFrontendChatbotModelsApiDoc),
         (path = "/chatbots", api = chatbots::MainFrontendChatbotsApiDoc),
         (path = "/code-giveaways", api = code_giveaways::MainFrontendCodeGiveawaysApiDoc),
+        (path = "/course-auditing", api = course_auditing::MainFrontendCourseAuditingApiDoc),
         (path = "/course-credit-registrations", api = course_credit_registrations::MainFrontendCourseCreditRegistrationsApiDoc),
         (path = "/course-plans", api = course_designer::MainFrontendCourseDesignerApiDoc),
         (path = "/course-instances", api = course_instances::MainFrontendCourseInstancesApiDoc),
@@ -81,6 +84,7 @@ use utoipa::OpenApi;
         (path = "/proposed-edits", api = proposed_edits::MainFrontendProposedEditsApiDoc),
         (path = "/regradings", api = regradings::MainFrontendRegradingsApiDoc),
         (path = "/roles", api = roles::MainFrontendRolesApiDoc),
+        (path = "/shared-submissions", api = shared_submissions::MainFrontendSharedSubmissionsApiDoc),
         (path = "/status", api = status::MainFrontendStatusApiDoc),
         (path = "/teacher-grading-decisions", api = teacher_grading_decisions::MainFrontendTeacherGradingDecisionsApiDoc),
         (path = "/time", api = time::MainFrontendTimeApiDoc),
@@ -93,6 +97,7 @@ pub struct MainFrontendRoutesApiDoc;
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/chapters").configure(chapters::_add_routes))
+        .service(web::scope("/course-auditing").configure(course_auditing::_add_routes))
         .service(
             web::scope("/course-credit-registrations")
                 .configure(course_credit_registrations::_add_routes),
@@ -140,5 +145,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/chatbots").configure(chatbots::_add_routes))
         .service(web::scope("/chatbot-models").configure(chatbot_models::_add_routes))
         .service(web::scope("/time").configure(time::_add_routes))
+        .service(web::scope("/shared-submissions").configure(shared_submissions::_add_routes))
         .service(web::scope("/status").configure(status::_add_routes));
 }

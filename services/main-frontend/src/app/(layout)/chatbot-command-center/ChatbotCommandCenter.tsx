@@ -2,19 +2,23 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useEffect, useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
+import { AddMessage } from "@vectopus/atlas-icons-react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import ConversationIdContext from "@/contexts/course-material/ConversationIdContext"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
-import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import {
+  allUserConversationsOptions,
+  getCurrentConversationIdOptions,
+} from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Select } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
-import SideBar from "./SideBar"
+import ConversationHistory from "./ConversationHistory"
+import NewConversationDialog from "./NewConversationDialog"
 
 interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
@@ -23,16 +27,19 @@ interface ChatbotCommandCenterProps {
 
 const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) => {
   const { t } = useTranslation()
-  const { control, watch, setValue } = useForm<ChatbotConfiguration>({})
-  const configuration_id = watch("id")
+  const [configurationId, setConfigurationId] = useState<null | string>(null)
   const [conversationId, setConversationId] = useState<null | string>(null)
+  const [showChatbotDialog, setChatbotDialog] = useState(false)
+
   const currentConversationIdQuery = useQuery(
     getCurrentConversationIdOptions({
       path: {
-        chatbot_configuration_id: configuration_id,
+        chatbot_configuration_id: configurationId,
       },
     }),
   )
+
+  const allConversationsQuery = useQuery(allUserConversationsOptions())
 
   const sideBarContainer = css`
     border-radius: 10px;
@@ -41,7 +48,7 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     padding: 0;
     margin-top: 1rem;
     padding-top: 1rem;
-    max-height: 87vh;
+    max-height: 75vh;
     overflow-y: auto;
   `
 
@@ -93,27 +100,17 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     return groupedSorted
   }, [chatbots, courses, t])
 
-  // Prevents chatbot disclaimer from showing up
-  // when chatbot is changed from dropdown
-  useEffect(() => {
-    // This also runs when conversation is changed which is problematic
-    // if conversation also changes chatbot because then the selected chatbot
-    // conversation is not set but the current is fetched.
-    // SHOULD ONLY HAPPEN WHEN CHATBOT CHANGED FROM DROPDOWN
-    setConversationId(null)
-  }, [configuration_id])
-
   const activeConversationId = currentConversationIdQuery.isLoading
     ? null
     : (conversationId ?? currentConversationIdQuery.data)
 
   const chatbotStateAndData = useChatbotStateAndData(
-    configuration_id,
+    configurationId,
     undefined,
     activeConversationId,
     setConversationId,
   )
-  // console.log(chatbotStateAndData.currentConversationInfo.data?.current_conversation)
+
   return (
     <div
       className={css`
@@ -124,35 +121,53 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
       `}
     >
       <div className={sideBarContainer}>
-        {configuration_id && (
-          <SideBar
-            newConversationMutation={chatbotStateAndData.newConversationMutation}
-            setConversationId={setConversationId}
-            setValue={setValue}
-            chatbots={chatbots}
-          />
-        )}
+        <Button
+          className={css`
+            padding-bottom: 1rem;
+          `}
+          icon={
+            <AddMessage
+              className={css`
+                color: ${baseTheme.colors.green[700]};
+              `}
+            />
+          }
+          // oxlint-disable-next-line i18next/no-literal-string
+          iconPosition="start"
+          size="medium"
+          variant="icon"
+          onClick={() => setChatbotDialog(true)}
+        >
+          {t("new-conversation")}
+        </Button>
+        <QueryResult query={allConversationsQuery}>
+          {(conversations) => (
+            <ConversationHistory
+              conversations={conversations}
+              setConversationId={setConversationId}
+              setConfigurationId={setConfigurationId}
+              chatbots={chatbots}
+            />
+          )}
+        </QueryResult>
       </div>
       <div>
         <h1>{t("link-text-chatbot-command-center")}</h1>
-        <form>
-          <Select
-            id={"chatbot-select"}
-            control={control}
-            name={"id"}
-            label={t("select-chatbot")}
-            options={chatbotOptions}
-            searchEnabled={true}
-            searchPlaceholder={t("chatbot-search-placeholder")}
-          />
-        </form>
         <div
           className={css`
             margin-top: 0.5rem;
             height: 75vh;
           `}
         >
-          {configuration_id === undefined ? (
+          <NewConversationDialog
+            chatbotOptions={chatbotOptions}
+            setConversationId={setConversationId}
+            setConfigurationId={setConfigurationId}
+            newConversationMutation={chatbotStateAndData.newConversationMutation}
+            onClose={() => setChatbotDialog(false)}
+            open={showChatbotDialog}
+          />
+          {configurationId === undefined ? (
             <div
               className={css`
                 display: flex;

@@ -6,12 +6,11 @@ import { Button } from "@/shared-module/components"
 interface ConversationHistory {
   setConversationId: React.Dispatch<string>
   conversations: ChatbotConversation[]
-  setValue: UseFormSetValue<ChatbotConfiguration>
+  setConfigurationId: React.Dispatch<string>
   chatbots: ChatbotConfiguration[]
 }
 
 import { css } from "@emotion/css"
-import type { UseFormSetValue } from "react-hook-form"
 
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -19,7 +18,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 const ConversationHistory: React.FC<ConversationHistory> = ({
   setConversationId,
   conversations,
-  setValue,
+  setConfigurationId,
   chatbots,
 }) => {
   return (
@@ -30,10 +29,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
           variant="icon"
           onClick={() => {
             setConversationId(conversation.id)
-            setValue("id", conversation.chatbot_configuration_id, {
-              shouldValidate: true,
-              shouldDirty: true,
-            })
+            setConfigurationId(conversation.chatbot_configuration_id)
           }}
           className={css`
             width: calc(100% - 2rem);

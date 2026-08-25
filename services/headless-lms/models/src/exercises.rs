@@ -105,14 +105,24 @@ pub struct CourseMaterialExercise {
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
     pub user_course_instance_exercise_service_variables: Vec<UserCourseExerciseServiceVariable>,
     pub should_show_reset_message: Option<String>,
-    /// Teacher's feedback text from the latest non-FullPoints grading decision, unless the teacher marked it hidden.
-    pub teacher_feedback: Option<String>,
+    /// The latest non-FullPoints grading decision addressed to the student, unless the teacher marked it hidden.
+    pub teacher_grading_decision: Option<CourseMaterialTeacherGradingDecision>,
+}
+
+/// What the student is told about a teacher's grading decision.
+///
+/// The decision type is included so the material can explain the decision in the student's own
+/// language; the justification is whatever the teacher wrote on top of that, if anything.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct CourseMaterialTeacherGradingDecision {
+    pub teacher_decision: TeacherDecisionType,
+    pub justification: Option<String>,
 }
 
 impl CourseMaterialExercise {
     pub fn clear_grading_information(&mut self) {
         self.exercise_status = None;
-        self.teacher_feedback = None;
+        self.teacher_grading_decision = None;
         self.current_exercise_slide
             .exercise_tasks
             .iter_mut()
@@ -504,14 +514,17 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
-    let teacher_feedback = if let Some(user_id) = user_id {
+    let teacher_grading_decision = if let Some(user_id) = user_id {
         let decision = crate::teacher_grading_decisions::try_to_get_latest_grading_decision_still_addressed_to_student(
             &mut *conn, user_id, exercise.id,
         )
         .await?;
         decision.and_then(|d| {
             if d.teacher_decision != TeacherDecisionType::FullPoints && d.hidden != Some(true) {
-                d.justification
+                Some(CourseMaterialTeacherGradingDecision {
+                    teacher_decision: d.teacher_decision,
+                    justification: d.justification,
+                })
             } else {
                 None
             }
@@ -607,7 +620,7 @@ pub async fn get_course_material_exercise(
         user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
         should_show_reset_message,
-        teacher_feedback,
+        teacher_grading_decision,
     })
 }
 

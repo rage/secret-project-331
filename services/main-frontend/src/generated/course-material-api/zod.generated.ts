@@ -967,6 +967,17 @@ export const zTeacherDecisionType = z.enum([
   "Other",
 ])
 
+/**
+ * What the student is told about a teacher's grading decision.
+ *
+ * The decision type is included so the material can explain the decision in the student's own
+ * language; the justification is whatever the teacher wrote on top of that, if anything.
+ */
+export const zCourseMaterialTeacherGradingDecision = z.object({
+  justification: z.string().nullish(),
+  teacher_decision: zTeacherDecisionType,
+})
+
 export const zExamEnrollmentData = z.union([
   z.object({
     enrollment: zExamEnrollment,
@@ -1364,7 +1375,7 @@ export const zCourseMaterialExercise = z.object({
   peer_or_self_review_config: zCourseMaterialPeerOrSelfReviewConfig.nullish(),
   previous_exercise_slide_submission: zExerciseSlideSubmission.nullish(),
   should_show_reset_message: z.string().nullish(),
-  teacher_feedback: z.string().nullish(),
+  teacher_grading_decision: zCourseMaterialTeacherGradingDecision.nullish(),
   user_course_instance_exercise_service_variables: z.array(zUserCourseExerciseServiceVariable),
 })
 

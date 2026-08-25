@@ -1,7 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ArrowLeftLine, ArrowRightLine } from "@vectopus/atlas-icons-react"
+// The package has these two the wrong way round: ArrowLeftLine draws an arrow pointing right, and
+// ArrowRightLine one pointing left, so they are aliased by where they actually take the value.
+import {
+  ArrowLeftLine as ArrowToMaxPoints,
+  ArrowRightLine as ArrowToZeroPoints,
+} from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -233,7 +238,7 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
           variant="icon"
           size="small"
           className={arrowButtonCss}
-          icon={<ArrowLeftLine size={20} weight="bold" />}
+          icon={<ArrowToZeroPoints size={20} weight="bold" />}
           aria-label={t("label-set-points-to", { points: 0 })}
           onClick={() => setPoints(0)}
         />
@@ -252,7 +257,7 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
           variant="icon"
           size="small"
           className={arrowButtonCss}
-          icon={<ArrowRightLine size={20} weight="bold" />}
+          icon={<ArrowToMaxPoints size={20} weight="bold" />}
           aria-label={t("label-set-points-to", { points: target.exerciseMaxPoints })}
           onClick={() => setPoints(target.exerciseMaxPoints)}
         />

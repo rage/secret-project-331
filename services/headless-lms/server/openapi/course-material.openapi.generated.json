@@ -4013,9 +4013,16 @@
           "should_show_reset_message": {
             "type": ["string", "null"]
           },
-          "teacher_feedback": {
-            "type": ["string", "null"],
-            "description": "Teacher's feedback text from the latest non-FullPoints grading decision, unless the teacher marked it hidden."
+          "teacher_grading_decision": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourseMaterialTeacherGradingDecision",
+                "description": "The latest non-FullPoints grading decision addressed to the student, unless the teacher marked it hidden."
+              }
+            ]
           },
           "user_course_instance_exercise_service_variables": {
             "type": "array",
@@ -4272,6 +4279,19 @@
           },
           "token": {
             "type": "string"
+          }
+        }
+      },
+      "CourseMaterialTeacherGradingDecision": {
+        "type": "object",
+        "description": "What the student is told about a teacher's grading decision.\n\nThe decision type is included so the material can explain the decision in the student's own\nlanguage; the justification is whatever the teacher wrote on top of that, if anything.",
+        "required": ["teacher_decision"],
+        "properties": {
+          "justification": {
+            "type": ["string", "null"]
+          },
+          "teacher_decision": {
+            "$ref": "#/components/schemas/TeacherDecisionType"
           }
         }
       },

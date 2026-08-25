@@ -340,10 +340,7 @@ export type CourseMaterialExercise = {
   peer_or_self_review_config?: null | CourseMaterialPeerOrSelfReviewConfig
   previous_exercise_slide_submission?: null | ExerciseSlideSubmission
   should_show_reset_message?: string | null
-  /**
-   * Teacher's feedback text from the latest non-FullPoints grading decision, unless the teacher marked it hidden.
-   */
-  teacher_feedback?: string | null
+  teacher_grading_decision?: null | CourseMaterialTeacherGradingDecision
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
 }
 
@@ -432,6 +429,17 @@ export type CourseMaterialPeerOrSelfReviewSubmission = {
   peer_or_self_review_config_id: string
   peer_review_question_answers: Array<CourseMaterialPeerOrSelfReviewQuestionAnswer>
   token: string
+}
+
+/**
+ * What the student is told about a teacher's grading decision.
+ *
+ * The decision type is included so the material can explain the decision in the student's own
+ * language; the justification is whatever the teacher wrote on top of that, if anything.
+ */
+export type CourseMaterialTeacherGradingDecision = {
+  justification?: string | null
+  teacher_decision: TeacherDecisionType
 }
 
 export type CourseModuleCompletion = {

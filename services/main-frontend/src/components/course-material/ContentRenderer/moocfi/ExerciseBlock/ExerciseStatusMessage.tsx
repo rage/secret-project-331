@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import YellowBox from "@/components/course-material/YellowBox"
 import type {
   CourseMaterialPeerOrSelfReviewConfig,
+  CourseMaterialTeacherGradingDecision,
   Exercise,
   GradingProgress,
   ReviewingStage,
@@ -20,9 +21,22 @@ interface ExerciseStatusMessageProps {
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null | undefined
   exercise: Exercise
   shouldSeeResetMessage: string | null | undefined
-  /** Justification text from the latest non-FullPoints teacher grading decision, if the teacher chose to share it. */
-  teacherFeedback: string | null | undefined
+  /** The latest teacher grading decision the student is allowed to see, if there is one. */
+  teacherGradingDecision: CourseMaterialTeacherGradingDecision | null | undefined
 }
+
+const feedbackHeadingCss = css`
+  font-family: ${primaryFont};
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[700]};
+  margin-bottom: 0.25rem;
+`
+
+const feedbackParagraphCss = css`
+  & + & {
+    margin-top: 0.5rem;
+  }
+`
 
 const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMessageProps>> = ({
   gradingProgress,
@@ -30,15 +44,13 @@ const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMess
   peerOrSelfReviewConfig,
   exercise,
   shouldSeeResetMessage,
-  teacherFeedback,
+  teacherGradingDecision,
 }) => {
   const { t } = useTranslation()
 
-  // A teacher who wrote feedback said something more specific than the canned reset sentence,
-  // so their words replace it rather than stacking a second box on top of it.
   const resetMessageText = useMemo(
-    () => (teacherFeedback ? null : getResetMessageText(shouldSeeResetMessage ?? null, t)),
-    [shouldSeeResetMessage, teacherFeedback, t],
+    () => getResetMessageText(shouldSeeResetMessage ?? null, t),
+    [shouldSeeResetMessage, t],
   )
 
   const statusMessageText = useMemo(
@@ -53,7 +65,19 @@ const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMess
     [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, t],
   )
 
-  if (resetMessageText === null && statusMessageText === null && !teacherFeedback) {
+  // What the decision itself means comes first, then the teacher's own words about this answer.
+  const decisionExplanation = getDecisionExplanationText(
+    teacherGradingDecision?.teacher_decision ?? null,
+    t,
+  )
+  const justification = teacherGradingDecision?.justification?.trim() || null
+
+  if (
+    resetMessageText === null &&
+    statusMessageText === null &&
+    decisionExplanation === null &&
+    justification === null
+  ) {
     return null
   }
 
@@ -69,19 +93,11 @@ const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMess
           <p>{statusMessageText}</p>
         </YellowBox>
       )}
-      {teacherFeedback && (
+      {(decisionExplanation || justification) && (
         <YellowBox>
-          <p
-            className={css`
-              font-family: ${primaryFont};
-              font-weight: 600;
-              color: ${baseTheme.colors.gray[700]};
-              margin-bottom: 0.25rem;
-            `}
-          >
-            {t("label-feedback")}
-          </p>
-          <p>{teacherFeedback}</p>
+          <p className={feedbackHeadingCss}>{t("label-feedback")}</p>
+          {decisionExplanation && <p className={feedbackParagraphCss}>{decisionExplanation}</p>}
+          {justification && <p className={feedbackParagraphCss}>{justification}</p>}
         </YellowBox>
       )}
     </>
@@ -100,6 +116,30 @@ function getResetMessageText(shouldSeeResetMessage: string | null, t: TFunction)
       return t("help-text-flagged-answers-skip-manual-review-and-allow-retry")
     case "reset-by-staff":
       return t("help-text-exercise-involves-reject-and-reset-by-staff")
+    default:
+      return null
+  }
+}
+
+/**
+ * Explains a teacher's decision to the student in the material's own words.
+ *
+ * Only the decisions the teacher picks as a reason say anything; the point-setting ones speak for
+ * themselves through the score, so they leave the teacher's own message to stand alone.
+ */
+function getDecisionExplanationText(
+  teacherDecision: CourseMaterialTeacherGradingDecision["teacher_decision"] | null,
+  t: TFunction,
+): string | null {
+  switch (teacherDecision) {
+    case "BadAnswer":
+      return t("help-text-grading-decision-bad-answer")
+    case "SuspectedPlagiarism":
+      return t("help-text-grading-decision-plagiarism")
+    case "UnauthorizedAiUse":
+      return t("help-text-grading-decision-unauthorized-ai-use")
+    case "Other":
+      return t("help-text-grading-decision-other")
     default:
       return null
   }

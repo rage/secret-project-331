@@ -2943,7 +2943,7 @@
           "size_bytes": {
             "type": ["integer", "null"],
             "format": "int64",
-            "description": "`None` for a file stored before the size was recorded."
+            "description": "`None` for a file stored before the size was recorded. Omitted from the serialized form\nrather than nulled: the exercise service protocol's `size_bytes` is optional, not nullable,\nand its generated guard rejects a null."
           },
           "url": {
             "type": "string",

@@ -573,7 +573,9 @@ export type AnswerFile = {
   name: string
   order_number: number
   /**
-   * `None` for a file stored before the size was recorded.
+   * `None` for a file stored before the size was recorded. Omitted from the serialized form
+   * rather than nulled: the exercise service protocol's `size_bytes` is optional, not nullable,
+   * and its generated guard rejects a null.
    */
   size_bytes?: number | null
   /**

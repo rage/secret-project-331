@@ -63,7 +63,10 @@ pub struct AnswerFile {
     /// plugin that anonymizes filenames keeps its display name in `AnswerData::File::metadata`.
     pub name: String,
     pub mime: String,
-    /// `None` for a file stored before the size was recorded.
+    /// `None` for a file stored before the size was recorded. Omitted from the serialized form
+    /// rather than nulled: the exercise service protocol's `size_bytes` is optional, not nullable,
+    /// and its generated guard rejects a null.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub size_bytes: Option<i64>,
     pub order_number: i32,
     /// Capability download URL, minted at read time from the file's path. Never persisted.
@@ -1208,6 +1211,24 @@ mod test {
     };
     use crate::exercise_task_gradings::UserPointsUpdateStrategy;
     use crate::test_helper::*;
+
+    /// The exercise service protocol declares `size_bytes` optional but not nullable, so a null
+    /// would make a plugin's generated guard reject the whole iframe state, not just the size.
+    #[test]
+    fn unknown_file_size_serializes_as_an_absent_key() {
+        let file = AnswerFile {
+            id: Uuid::new_v4(),
+            name: "a.tar.zst".to_string(),
+            mime: "application/octet-stream".to_string(),
+            size_bytes: None,
+            order_number: 0,
+            url: "http://project-331.local/api/v0/files/uploads/a.tar.zst".to_string(),
+        };
+
+        let json = serde_json::to_value(&file).unwrap();
+
+        assert!(json.get("size_bytes").is_none());
+    }
 
     async fn insert_slide_submission(
         tx: &mut PgConnection,

@@ -245,13 +245,13 @@ async fn upload_from_exercise_service(
         }
     }
 
-    let mut uploaded_paths = Vec::new();
+    let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
     let uploaded_files = match file_uploading::process_exercise_service_upload(
         &mut conn,
         exercise_service_slug.as_str(),
         payload,
         file_store.as_ref(),
-        &mut uploaded_paths,
+        &mut cleanup.uploaded_paths,
         user.map(|user| user.id),
         &app_conf.base_url,
     )
@@ -259,18 +259,11 @@ async fn upload_from_exercise_service(
     {
         Ok(uploads) => uploads.into_iter().map(|upload| upload.entry).collect(),
         Err(outer_err) => {
-            // something went wrong while uploading the files, try to delete leftovers
-            for uploaded in uploaded_paths {
-                if let Err(err) = file_store.delete(Path::new(&uploaded.path)).await {
-                    error!(
-                        "Failed to delete file '{}' during cleanup: {err}",
-                        uploaded.path
-                    );
-                }
-            }
+            cleanup.clean_up().await;
             return Err(outer_err);
         }
     };
+    cleanup.disarm();
 
     token.authorized_ok(web::Json(uploaded_files))
 }
@@ -335,7 +328,7 @@ async fn upload_answer_files(
     )
     .await?;
 
-    let mut uploaded_paths = Vec::new();
+    let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
     let stored = store_answer_uploads(
         &mut conn,
         AnswerUploadDestination {
@@ -345,26 +338,18 @@ async fn upload_answer_files(
         },
         payload,
         file_store.as_ref(),
-        &mut uploaded_paths,
+        &mut cleanup.uploaded_paths,
         &app_conf.base_url,
     )
     .await;
     let uploads = match stored {
         Ok(uploads) => uploads,
         Err(error) => {
-            // Objects reach the store before their rows are committed, so a rollback alone would
-            // leave objects behind that no record points at and the reaper cannot see.
-            for uploaded in uploaded_paths {
-                if let Err(delete_error) = file_store.delete(Path::new(&uploaded.path)).await {
-                    error!(
-                        "Failed to delete file '{}' during cleanup: {delete_error}",
-                        uploaded.path
-                    );
-                }
-            }
+            cleanup.clean_up().await;
             return Err(error);
         }
     };
+    cleanup.disarm();
 
     let entries = uploads.into_iter().map(|upload| upload.entry).collect();
     token.authorized_ok(web::Json(entries))

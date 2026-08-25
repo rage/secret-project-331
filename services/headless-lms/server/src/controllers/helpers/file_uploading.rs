@@ -47,6 +47,71 @@ pub struct ExerciseServiceUploadCleanup {
     pub path: String,
 }
 
+/// Deletes the objects an upload has already stored, unless the upload got far enough to
+/// [`disarm`](Self::disarm) it.
+///
+/// Objects reach the store before their rows are committed, so an upload that fails part way has to
+/// delete them itself; the reaper only finds objects through the rows that were never written. On
+/// the handler's own error path call [`clean_up`](Self::clean_up) and await it. The `Drop` path is
+/// the backstop for the case that has no error path at all: the client aborting the multipart body,
+/// which drops the handler future at an await point.
+pub struct UploadCleanup {
+    pub uploaded_paths: Vec<ExerciseServiceUploadCleanup>,
+    file_store: web::Data<dyn FileStore>,
+    armed: bool,
+}
+
+impl UploadCleanup {
+    pub fn new(file_store: web::Data<dyn FileStore>) -> Self {
+        Self {
+            uploaded_paths: Vec::new(),
+            file_store,
+            armed: true,
+        }
+    }
+
+    /// Deletes what has been stored so far and disarms, so the `Drop` backstop cannot delete the
+    /// same objects again.
+    pub async fn clean_up(&mut self) {
+        self.armed = false;
+        for uploaded in std::mem::take(&mut self.uploaded_paths) {
+            if let Err(delete_error) = self.file_store.delete(Path::new(&uploaded.path)).await {
+                error!(
+                    "Failed to delete file '{}' during cleanup: {delete_error}",
+                    uploaded.path
+                );
+            }
+        }
+    }
+
+    /// Call only once the uploads are recorded, with no await in between: an await would give the
+    /// runtime a chance to drop the handler and delete objects that already have rows.
+    pub fn disarm(&mut self) {
+        self.armed = false;
+    }
+}
+
+impl Drop for UploadCleanup {
+    fn drop(&mut self) {
+        if !self.armed || self.uploaded_paths.is_empty() {
+            return;
+        }
+        let uploaded_paths = std::mem::take(&mut self.uploaded_paths);
+        let file_store = self.file_store.clone();
+        // `drop` cannot await, so the deletes run detached and outlive this request.
+        actix_web::rt::spawn(async move {
+            for uploaded in uploaded_paths {
+                if let Err(delete_error) = file_store.delete(Path::new(&uploaded.path)).await {
+                    error!(
+                        "Failed to delete file '{}' during cleanup: {delete_error}",
+                        uploaded.path
+                    );
+                }
+            }
+        });
+    }
+}
+
 struct ExerciseServiceUploadMetadata {
     path: String,
     filename: String,

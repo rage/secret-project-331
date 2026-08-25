@@ -717,35 +717,27 @@ async fn upload_exercise_files(
         .ok_or_else(|| anyhow::anyhow!("Cannot upload files for non-course exercises"))?;
     verify_enrolled(&mut conn, user.id, course_id).await?;
 
-    let mut uploaded_paths = Vec::new();
+    let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
     let stored = store_client_uploads(
         &mut conn,
         exercise.id,
         user.id,
         payload,
         file_store.as_ref(),
-        &mut uploaded_paths,
+        &mut cleanup.uploaded_paths,
         &app_conf.base_url,
     )
     .await;
     let uploads = match stored {
         Ok(uploads) => uploads,
         Err(error) => {
-            // Objects reach the store before their rows are committed, so a rollback alone
-            // would leave objects behind that no record points at and the reaper cannot see.
-            // This covers the commit failure too: an early return there would leak up to
-            // 100 MiB with no `file_uploads` row, and so no binding for the reaper to find.
-            for uploaded in uploaded_paths {
-                if let Err(delete_error) = file_store.delete(Path::new(&uploaded.path)).await {
-                    error!(
-                        "Failed to delete file '{}' during cleanup: {delete_error}",
-                        uploaded.path
-                    );
-                }
-            }
+            // A commit failure inside `store_client_uploads` surfaces here too: up to 100 MiB is
+            // already in the store with no `file_uploads` row, so nothing the reaper can find.
+            cleanup.clean_up().await;
             return Err(error);
         }
     };
+    cleanup.disarm();
 
     let files = uploads
         .into_iter()

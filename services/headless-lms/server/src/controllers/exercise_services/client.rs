@@ -667,6 +667,10 @@ fn verify_task_is_client_capable(
  * UUID the client picks; the host assigns the ids a submit request then names. Uploads are
  * bound to this exercise and user, and unreferenced ones are reaped, so a client should upload
  * immediately before submitting.
+ *
+ * Gated on the caller being able to answer the exercise at all, so stored objects cannot be
+ * accumulated past a deadline or a closed exam. The per-slide try limit is only checked across the
+ * whole exercise here, because this route is bound to an exercise rather than a slide.
  */
 #[utoipa::path(
     post,
@@ -688,7 +692,7 @@ fn verify_task_is_client_capable(
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists", body = crate::domain::error::ApiErrorResponse),
-        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), or the multipart body violates the field-name, file-count or size rules", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed or every slide is out of tries, or the multipart body violates the field-name, file-count or size rules", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -716,6 +720,7 @@ async fn upload_exercise_files(
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot upload files for non-course exercises"))?;
     verify_enrolled(&mut conn, user.id, course_id).await?;
+    domain::exercises::verify_user_can_answer_exercise(&mut conn, user.id, &exercise).await?;
 
     let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
     let stored = store_client_uploads(
@@ -2428,6 +2433,37 @@ mod route_tests {
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
         let body: serde_json::Value = test::read_body_json(response).await;
         assert_eq!(message_key(&body), "not_enrolled");
+    }
+
+    /// The native route must refuse what the iframe route refuses: stashing files for a submission
+    /// the student can no longer make. A passed deadline stands in for the whole gate.
+    #[actix_web::test]
+    async fn a_user_past_the_deadline_cannot_upload() {
+        let fixture = committed_fixture(true).await;
+        expire_deadline(fixture.exercise).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "first")],
+        )
+        .to_request();
+
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    async fn expire_deadline(exercise: Uuid) {
+        let mut conn = PgConnection::connect(&test_database_url())
+            .await
+            .expect("connection");
+        sqlx::query!(
+            "UPDATE exercises SET deadline = now() - interval '1 day' WHERE id = $1",
+            exercise
+        )
+        .execute(&mut conn)
+        .await
+        .expect("deadline");
     }
 
     #[actix_web::test]

@@ -210,6 +210,74 @@ pub async fn verify_user_can_answer_exercise_slide(
     Ok(())
 }
 
+/// The same gate as [`verify_user_can_answer_exercise_slide`] for a caller that has only an
+/// exercise id, such as the native client's upload route.
+///
+/// The try limit is per slide, so without a slide id this can only reject a user who has exhausted
+/// *every* slide of the exercise; one who is out of tries on the slide they actually mean to answer
+/// still gets through here and is rejected on submit. Everything else -- deadline, enrolment, exam
+/// window -- is checked in full.
+pub async fn verify_user_can_answer_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &Exercise,
+) -> Result<(), ControllerError> {
+    enforce_deadline(conn, exercise).await?;
+    let course_or_exam_id =
+        resolve_course_or_exam_id_for_submitting(conn, user_id, exercise).await?;
+    verify_any_slide_has_tries_left(conn, user_id, exercise, course_or_exam_id).await
+}
+
+/// Rejects a user who has used up the try limit on every slide of the exercise, and so cannot
+/// submit to it at all. A slide nobody has submitted to has all its tries left.
+async fn verify_any_slide_has_tries_left(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &Exercise,
+    course_or_exam_id: CourseOrExamId,
+) -> Result<(), ControllerError> {
+    let Some(max_tries_per_slide) = try_limit(exercise) else {
+        return Ok(());
+    };
+    let submission_counts =
+        models::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
+            conn,
+            exercise.id,
+            course_or_exam_id,
+            user_id,
+        )
+        .await?;
+    let slides =
+        models::exercise_slides::get_exercise_slides_by_exercise_id(conn, exercise.id).await?;
+    if slides
+        .iter()
+        .any(|slide| submission_counts.get(&slide.id).unwrap_or(&0) < &max_tries_per_slide)
+    {
+        return Ok(());
+    }
+    tracing::error!(
+        user_id = %user_id,
+        exercise_id = %exercise.id,
+        course_or_exam_id = ?course_or_exam_id,
+        max_tries_per_slide = %max_tries_per_slide,
+        "User has run out of tries on every slide of the exercise"
+    );
+    Err(ControllerError::new(
+        ControllerErrorType::BadRequest,
+        "You've ran out of tries.".to_string(),
+        None,
+    ))
+}
+
+/// The per-slide try limit, or `None` when the exercise does not limit tries.
+fn try_limit(exercise: &Exercise) -> Option<i64> {
+    exercise
+        .limit_number_of_tries
+        .then_some(exercise.max_tries_per_slide)
+        .flatten()
+        .map(i64::from)
+}
+
 /// Returns an error if the chapter's or exercise's deadline has passed.
 async fn enforce_deadline(
     conn: &mut PgConnection,
@@ -237,15 +305,15 @@ async fn enforce_deadline(
     Ok(())
 }
 
-/// Submissions for exams are posted from course instances or from exams. Make respective validations
-/// while figuring out which.
-async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
+/// Resolves the course instance or exam a submission would be recorded against, and rejects a
+/// submission the user may not make at all: not enrolled on the course, or past the exam's window.
+///
+/// Does not check the try limit, which is per slide; see the two callers for that.
+async fn resolve_course_or_exam_id_for_submitting(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise: &Exercise,
-    slide_id: Uuid,
-) -> Result<(CourseOrExamId, bool), ControllerError> {
-    let mut last_try = false;
+) -> Result<CourseOrExamId, ControllerError> {
     let course_id_or_exam_id: CourseOrExamId = if let Some(course_id) = exercise.course_id {
         // If submitting for a course, there should be existing course settings that dictate which
         // instance the user is on.
@@ -284,9 +352,24 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
         ))
     }?
     .data;
-    if exercise.limit_number_of_tries
-        && let Some(max_tries_per_slide) = exercise.max_tries_per_slide
-    {
+    Ok(course_id_or_exam_id)
+}
+
+/// The gate a submit runs: everything [`resolve_course_or_exam_id_for_submitting`] rejects, plus the
+/// per-slide try limit.
+///
+/// Also reports whether this would be the user's last try on the slide, which decides whether the
+/// model solution may be revealed.
+async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &Exercise,
+    slide_id: Uuid,
+) -> Result<(CourseOrExamId, bool), ControllerError> {
+    let mut last_try = false;
+    let course_id_or_exam_id =
+        resolve_course_or_exam_id_for_submitting(conn, user_id, exercise).await?;
+    if let Some(max_tries_per_slide) = try_limit(exercise) {
         // check if the user has attempts remaining
         let slide_id_to_submissions_count =
                 models::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
@@ -298,7 +381,7 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
                 .await?;
 
         let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(&0);
-        if count >= &(max_tries_per_slide as i64) {
+        if count >= &max_tries_per_slide {
             tracing::error!(
                 user_id = %user_id,
                 exercise_id = %exercise.id,
@@ -315,7 +398,7 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
                 None,
             ));
         }
-        if count + 1 >= (max_tries_per_slide as i64) {
+        if count + 1 >= max_tries_per_slide {
             last_try = true;
         }
     }

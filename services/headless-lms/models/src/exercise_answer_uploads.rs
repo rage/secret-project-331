@@ -152,7 +152,9 @@ pub struct ReapableUpload {
 /// Files referenced only from a spec blob (e.g. ones a teacher attaches in the CMS editor) must be
 /// uploaded through the unbound `POST /api/v0/files/{exercise_service_slug}` route: the host never
 /// inspects spec contents, so such a file never gets an `exercise_task_submission_files` row and a
-/// binding here would have it reaped a week later.
+/// binding here would have it reaped a week later. Nothing else owns their lifecycle either, so a
+/// file dropped from a spec is never reclaimed and stays fetchable at its unauthenticated
+/// `GET /api/v0/files/*` url forever.
 ///
 /// Progress is tracked by `file_uploads.deleted_at`, not by the binding's: the binding is retired
 /// first and the object removed afterwards, so a row whose object delete failed still has a live

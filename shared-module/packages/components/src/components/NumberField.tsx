@@ -101,6 +101,12 @@ export type NumberFieldProps<T extends FieldValues, N extends Path<T> = Path<T>>
   minValue?: number
   maxValue?: number
   step?: number
+  /**
+   * What happens to a typed value on blur. `"snap"` (the default) rounds it to the nearest `step`;
+   * `"validate"` keeps it as typed, leaving range and precision to the caller's `rules`. Use
+   * `"validate"` when `step` is only meant to size the stepper buttons.
+   */
+  commitBehavior?: "snap" | "validate"
   formatOptions?: Intl.NumberFormatOptions
   isWheelDisabled?: boolean
   placeholder?: string
@@ -126,6 +132,7 @@ export function NumberField<T extends FieldValues, N extends Path<T> = Path<T>>(
     minValue,
     maxValue,
     step,
+    commitBehavior,
     formatOptions,
     isWheelDisabled,
     placeholder,
@@ -163,6 +170,7 @@ export function NumberField<T extends FieldValues, N extends Path<T> = Path<T>>(
       minValue,
       maxValue,
       step,
+      commitBehavior,
       formatOptions,
       isDisabled,
       isReadOnly,

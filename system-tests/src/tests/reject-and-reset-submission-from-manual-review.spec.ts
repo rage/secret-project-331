@@ -1,4 +1,4 @@
-import type { BrowserContext } from "@playwright/test"
+import type { BrowserContext, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
@@ -25,6 +25,21 @@ test.afterEach(async () => {
   await context2.close()
   await context3.close()
 })
+
+/**
+ * Picks one peer review answer and makes sure it stuck.
+ *
+ * The form remounts while the reviewed answer's iframe settles, which silently drops a selection
+ * made a moment too early -- the radio keeps focus but loses its checked state, leaving Submit
+ * disabled.
+ */
+async function selectPeerReviewAnswer(page: Page, name: string) {
+  const radio = getExerciseRegion(page, EXERCISE_NAME).getByRole("radio", { name })
+  await expect(async () => {
+    await radio.click()
+    await expect(radio).toBeChecked()
+  }).toPass({ timeout: 15_000 })
+}
 
 test("Reject and reset submission", async () => {
   test.slow()
@@ -104,18 +119,14 @@ test("Reject and reset submission", async () => {
     await getExerciseRegion(student1Page, EXERCISE_NAME)
       .getByRole("button", { name: "Start peer review" })
       .click()
-    await getExerciseRegion(student1Page, EXERCISE_NAME)
-      .getByRole("radio", { name: "Strongly agree" })
-      .click()
+    await selectPeerReviewAnswer(student1Page, "Strongly agree")
     await waitForSuccessNotification(student1Page, async () => {
       await getExerciseRegion(student1Page, EXERCISE_NAME)
         .getByRole("button", { name: "Submit" })
         .click()
     })
 
-    await getExerciseRegion(student1Page, EXERCISE_NAME)
-      .getByRole("radio", { name: "Strongly agree" })
-      .click()
+    await selectPeerReviewAnswer(student1Page, "Strongly agree")
     await waitForSuccessNotification(student1Page, async () => {
       await getExerciseRegion(student1Page, EXERCISE_NAME)
         .getByRole("button", { name: "Submit" })
@@ -130,21 +141,14 @@ test("Reject and reset submission", async () => {
     await getExerciseRegion(student2Page, EXERCISE_NAME)
       .getByRole("button", { name: "Start peer review" })
       .click()
-    await getExerciseRegion(student2Page, EXERCISE_NAME)
-      .getByRole("radio", { name: "Strongly disagree" })
-      .click()
+    await selectPeerReviewAnswer(student2Page, "Strongly disagree")
     await waitForSuccessNotification(student2Page, async () => {
       await getExerciseRegion(student2Page, EXERCISE_NAME)
         .getByRole("button", { name: "Submit" })
         .click()
     })
 
-    await getExerciseRegion(student2Page, EXERCISE_NAME)
-      .getByRole("radio", { name: "Strongly disagree" })
-      .click()
-    await getExerciseRegion(student2Page, EXERCISE_NAME)
-      .getByRole("radio", { name: "Strongly disagree" })
-      .click()
+    await selectPeerReviewAnswer(student2Page, "Strongly disagree")
     await waitForSuccessNotification(student2Page, async () => {
       await getExerciseRegion(student2Page, EXERCISE_NAME)
         .getByRole("button", { name: "Submit" })
@@ -159,18 +163,14 @@ test("Reject and reset submission", async () => {
     await getExerciseRegion(teacherPage, EXERCISE_NAME)
       .getByRole("button", { name: "Start peer review" })
       .click()
-    await getExerciseRegion(teacherPage, EXERCISE_NAME)
-      .getByRole("radio", { name: "Strongly disagree" })
-      .click()
+    await selectPeerReviewAnswer(teacherPage, "Strongly disagree")
     await waitForSuccessNotification(teacherPage, async () => {
       await getExerciseRegion(teacherPage, EXERCISE_NAME)
         .getByRole("button", { name: "Submit" })
         .click()
     })
 
-    await getExerciseRegion(teacherPage, EXERCISE_NAME)
-      .getByRole("radio", { name: "Strongly disagree" })
-      .click()
+    await selectPeerReviewAnswer(teacherPage, "Strongly disagree")
     await waitForSuccessNotification(teacherPage, async () => {
       await getExerciseRegion(teacherPage, EXERCISE_NAME)
         .getByRole("button", { name: "Submit" })

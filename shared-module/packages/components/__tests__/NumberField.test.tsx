@@ -132,6 +132,41 @@ describe("NumberField - floating label behavior (DOM state)", () => {
   })
 })
 
+describe("NumberField - commitBehavior", () => {
+  test("snaps a typed value to the step by default", () => {
+    const { getValues } = renderNumberField(
+      (control) => (
+        <NumberField name="f" control={control} label="Quantity" maxValue={1} step={0.1} />
+      ),
+      1,
+    )
+    const input = screen.getByRole("textbox")
+    fireEvent.change(input, { target: { value: "0.75" } })
+    fireEvent.blur(input)
+    expect(getValues().f).toBe(0.7)
+  })
+
+  test('keeps a typed off-step value with commitBehavior="validate"', () => {
+    const { getValues } = renderNumberField(
+      (control) => (
+        <NumberField
+          name="f"
+          control={control}
+          label="Quantity"
+          maxValue={1}
+          step={0.1}
+          commitBehavior="validate"
+        />
+      ),
+      1,
+    )
+    const input = screen.getByRole("textbox")
+    fireEvent.change(input, { target: { value: "0.75" } })
+    fireEvent.blur(input)
+    expect(getValues().f).toBe(0.75)
+  })
+})
+
 describe("NumberField - stepper buttons", () => {
   test("increment button raises the value and commits it to the form", () => {
     const { getValues } = renderNumberField(

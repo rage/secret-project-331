@@ -146,6 +146,8 @@ const badAnswer = "bad-answer" as const
 const verticalOrientation = "vertical" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const warningTone = "warning" as const
+// oxlint-disable-next-line i18next/no-literal-string
+const validateOnCommit = "validate" as const
 
 /** Keeps dragging practical on high-point exercises; the number field still takes any value. */
 function sliderStep(exerciseMaxPoints: number): number {
@@ -262,6 +264,9 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
           minValue={0}
           maxValue={target.exerciseMaxPoints}
           step={0.1}
+          // The step only sizes the stepper buttons here; snapping to it would quietly turn a
+          // typed 0.75 into 0.7, which the rule below explicitly allows.
+          commitBehavior={validateOnCommit}
           rules={{
             validate: (value) =>
               value !== null &&

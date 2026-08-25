@@ -94,8 +94,8 @@ const SubmissionsPage: React.FC = () => {
     [csvExportTaskOptionsQuery.data],
   )
 
-  const fileAnswerTaskOptions = useMemo(
-    () => (csvExportTaskOptionsQuery.data ?? []).filter((task) => task.produces_file_answers),
+  const hasFileAnswerTasks = useMemo(
+    () => (csvExportTaskOptionsQuery.data ?? []).some((task) => task.produces_file_answers),
     [csvExportTaskOptionsQuery.data],
   )
 
@@ -197,20 +197,13 @@ const SubmissionsPage: React.FC = () => {
         >
           {t("button-text-export-answers-csv")}
         </Button>
-        <a href={answerFilesHref} download>
-          <Button
-            variant="secondary"
-            size="small"
-            type="button"
-            disabled={
-              csvExportTaskOptionsQuery.isLoading ||
-              csvExportTaskOptionsQuery.isError ||
-              fileAnswerTaskOptions.length === 0
-            }
-          >
-            {t("button-text-download-answer-files")}
-          </Button>
-        </a>
+        {hasFileAnswerTasks && (
+          <a href={answerFilesHref} download>
+            <Button variant="secondary" size="small" type="button">
+              {t("button-text-download-answer-files")}
+            </Button>
+          </a>
+        )}
       </div>
       {csvExportTaskOptionsQuery.isSuccess &&
         definitionTaskOptions.length === 0 &&

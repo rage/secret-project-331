@@ -29,7 +29,7 @@ const REPOSITORY_EXERCISE = {
 const SUBMISSION_FILE = {
   id: "7d6c9ba0-1d31-4a2d-9f2e-4a2a6e0d3a11",
   name: "submission.tar.zst",
-  mime: "application/octet-stream",
+  mime: "application/x-zstd-compressed-tar",
   size_bytes: 1234,
   download_url: "http://files.example/submission.tar.zst",
 }

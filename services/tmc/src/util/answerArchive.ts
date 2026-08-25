@@ -2,7 +2,8 @@ import basePath from "@/lib/basePath"
 import { extractTarZstd } from "@/util/helpers"
 import type { ExerciseFile, PublicSpec } from "@/util/stateInterfaces"
 
-const ARCHIVE_MIME = "application/octet-stream"
+/** The host names the entries of its answer-file zip export from this mime; it maps it to `.tar.zst`. */
+const ARCHIVE_MIME = "application/x-zstd-compressed-tar"
 
 /** Name the packed browser answer is stored under; the host shows it when the archive is downloaded. */
 const PACKED_ARCHIVE_NAME = "submission.tar.zst"

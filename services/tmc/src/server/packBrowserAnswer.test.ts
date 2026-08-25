@@ -48,7 +48,7 @@ describe("POST /api/pack-browser-answer", () => {
       post([{ filepath: "src/main.py", contents: "print(1)" }]),
     )
     expect(res.status).toBe(200)
-    expect(res.headers.get("content-type")).toBe("application/octet-stream")
+    expect(res.headers.get("content-type")).toBe("application/x-zstd-compressed-tar")
     expect(await res.text()).toBe("packed-archive")
   })
 

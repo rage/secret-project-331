@@ -11,7 +11,7 @@ import { packBrowserAnswerRequestSchema } from "./requestSchemas"
 
 const { log } = createLogger("pack-browser-answer")
 
-const ARCHIVE_MIME = "application/octet-stream"
+const ARCHIVE_MIME = "application/x-zstd-compressed-tar"
 
 /**
  * Packs the files of a browser answer into the project archive that answer consists of, and returns

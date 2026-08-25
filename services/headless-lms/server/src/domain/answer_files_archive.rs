@@ -27,6 +27,7 @@ const MIME_EXTENSIONS: &[(&str, &str)] = &[
     ("application/json", "json"),
     ("application/pdf", "pdf"),
     ("application/x-tar", "tar"),
+    ("application/x-zstd-compressed-tar", "tar.zst"),
     ("application/zip", "zip"),
     ("application/zstd", "zst"),
     ("image/gif", "gif"),
@@ -205,6 +206,10 @@ mod test {
         assert_eq!(extension_for_mime("text/plain"), Some("txt"));
         assert_eq!(extension_for_mime("TEXT/PLAIN; charset=utf-8"), Some("txt"));
         assert_eq!(extension_for_mime("image/jpeg"), Some("jpg"));
+        assert_eq!(
+            extension_for_mime("application/x-zstd-compressed-tar"),
+            Some("tar.zst")
+        );
     }
 
     #[test]
@@ -236,6 +241,15 @@ mod test {
             ..file
         };
         assert_eq!(entry_name(&unknown), format!("{user_id}/{submission_id}/3"));
+
+        let two_part_extension = ExerciseAnswerFile {
+            mime: "application/x-zstd-compressed-tar".to_string(),
+            ..unknown
+        };
+        assert_eq!(
+            entry_name(&two_part_extension),
+            format!("{user_id}/{submission_id}/3.tar.zst")
+        );
     }
 
     #[test]

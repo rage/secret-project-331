@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ArrowLeft, ArrowRight } from "@vectopus/atlas-icons-react"
+import { ArrowLeftLine, ArrowRightLine } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -147,6 +147,17 @@ const verticalOrientation = "vertical" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const warningTone = "warning" as const
 
+/** Keeps dragging practical on high-point exercises; the number field still takes any value. */
+function sliderStep(exerciseMaxPoints: number): number {
+  if (exerciseMaxPoints > 10) {
+    return 1
+  }
+  if (exerciseMaxPoints > 5) {
+    return 0.5
+  }
+  return 0.1
+}
+
 function reasonLabel(t: TFunction, reason: GradingReason): string {
   switch (reason) {
     case "bad-answer":
@@ -220,7 +231,7 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
           variant="icon"
           size="small"
           className={arrowButtonCss}
-          icon={<ArrowLeft size={20} weight="bold" />}
+          icon={<ArrowLeftLine size={20} weight="bold" />}
           aria-label={t("label-set-points-to", { points: 0 })}
           onClick={() => setPoints(0)}
         />
@@ -231,7 +242,7 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
           label={t("points")}
           minValue={0}
           maxValue={target.exerciseMaxPoints}
-          step={0.1}
+          step={sliderStep(target.exerciseMaxPoints)}
           showValueLabel={false}
         />
         <Button
@@ -239,7 +250,7 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
           variant="icon"
           size="small"
           className={arrowButtonCss}
-          icon={<ArrowRight size={20} weight="bold" />}
+          icon={<ArrowRightLine size={20} weight="bold" />}
           aria-label={t("label-set-points-to", { points: target.exerciseMaxPoints })}
           onClick={() => setPoints(target.exerciseMaxPoints)}
         />

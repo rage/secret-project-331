@@ -8,7 +8,7 @@ export const containerStyles = css`
   margin: 0 auto;
 `
 
-export const preStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
+export const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
   margin-top: 0;
   font-size: ${fontSizePx}px;
   font-family: ${monospaceFont} !important;
@@ -16,12 +16,14 @@ export const preStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
   white-space: pre-wrap;
   overflow-wrap: break-word;
   padding: 16px;
-  ${allowFullWidth
-    ? `
+  ${
+    allowFullWidth
+      ? `
     margin-top: -1.5rem;
     margin-bottom: -1.5rem;
   `
-    : ""}
+      : ""
+  }
 `
 
 export const codeBlockStyles = css`

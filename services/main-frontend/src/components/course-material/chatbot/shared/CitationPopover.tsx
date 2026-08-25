@@ -105,6 +105,10 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
         toggle: () => {
           //NOP
         },
+        point: null,
+        setPoint: () => {
+          //NOP
+        },
       }}
     >
       <SpeechBalloonPopover

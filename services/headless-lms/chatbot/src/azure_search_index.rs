@@ -1,8 +1,10 @@
 use secrecy::ExposeSecret;
 
-use crate::prelude::*;
+use crate::{
+    llm_utils::{azure_search_configuration, azure_search_request},
+    prelude::*,
+};
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_utils::http::REQWEST_CLIENT;
 
 const API_VERSION: &str = "2024-07-01";
 
@@ -239,28 +241,13 @@ pub async fn does_search_index_exist(
     index_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<bool> {
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure search configuration is missing from the Azure configuration"
-        )
-    })?;
+    let search_config = azure_search_configuration(app_config)?;
 
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("indexes('{}')", index_name));
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    let response = REQWEST_CLIENT
-        .get(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
+    let response = azure_search_request(reqwest::Method::GET, url, search_config)
         .send()
         .await?;
 
@@ -285,19 +272,7 @@ pub async fn create_search_index(
     index_name: String,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<()> {
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure search configuration is missing from the Azure configuration"
-        )
-    })?;
+    let search_config = azure_search_configuration(app_config)?;
 
     let fields = vec![
         Field {
@@ -557,10 +532,7 @@ pub async fn create_search_index(
     url.set_path("/indexes");
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    let response = REQWEST_CLIENT
-        .post(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
+    let response = azure_search_request(reqwest::Method::POST, url, search_config)
         .body(index_json)
         .send()
         .await?;
@@ -602,19 +574,7 @@ pub async fn add_documents_to_index<T>(
 where
     T: Serialize,
 {
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure search configuration is missing from the Azure configuration"
-        )
-    })?;
+    let search_config = azure_search_configuration(app_config)?;
 
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("indexes('{}')/docs/index", index_name));
@@ -639,10 +599,7 @@ where
 
     let batch_json = serde_json::to_string(&batch)?;
 
-    let response = REQWEST_CLIENT
-        .post(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
+    let response = azure_search_request(reqwest::Method::POST, url, search_config)
         .body(batch_json)
         .send()
         .await?;

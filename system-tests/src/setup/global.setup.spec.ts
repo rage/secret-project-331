@@ -6,11 +6,14 @@ import path from "path"
 import type { BrowserContext, Page } from "@playwright/test"
 import { test } from "@playwright/test"
 
+import { CREDIT_REGISTRATION_STUDENT_EMAILS } from "../utils/creditRegistration"
 import { login } from "../utils/login"
 
 const ONE_WEEK_MS = 10 * 10 * 10 * 60 * 60 * 24 * 7
 
 test("Global setup, setting up login states", async ({ page, context }) => {
+  // A few dozen logins, each a form submission and a page load.
+  test.slow()
   await createLoginStates(page, context)
 })
 
@@ -39,6 +42,11 @@ async function createLoginStates(page: Page, context: BrowserContext) {
       email: "langs@example.com",
       password: "langs",
     },
+    // Seeded by `seed_credit_registration.rs`, which hashes the address's local part as the password.
+    ...CREDIT_REGISTRATION_STUDENT_EMAILS.map((email) => ({
+      email,
+      password: email.replace(/@.*$/, ""),
+    })),
   ]
   // Creating the storage states for different users takes some time, so we'll avoid doing it again if the stored state has been already created recently.
   // Using older storage states would run into problems with cookie expiry. A different solution could modify the saved storage states

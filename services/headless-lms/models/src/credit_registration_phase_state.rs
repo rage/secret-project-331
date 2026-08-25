@@ -20,6 +20,7 @@ pub const PHASES: &[&str] = &[
     "product-token-refresh",
     "config-validation",
     "retention-sweep",
+    "ledger-snapshot",
 ];
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -51,6 +52,18 @@ pub struct PhaseRunOutcome {
     pub items_failed: i32,
     /// `None` on success. Scrub before passing.
     pub error: Option<String>,
+}
+
+impl PhaseRunOutcome {
+    /// A clean iteration that moved `count` rows; saturating, so an over-large sweep never reaches
+    /// the dashboard as negative throughput.
+    pub fn processed(count: i64) -> Self {
+        Self {
+            items_processed: count.try_into().unwrap_or(i32::MAX),
+            items_failed: 0,
+            error: None,
+        }
+    }
 }
 
 pub async fn get_all(conn: &mut PgConnection) -> ModelResult<Vec<CreditRegistrationPhaseState>> {

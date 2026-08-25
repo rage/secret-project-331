@@ -1,27 +1,45 @@
-use std::collections::HashMap;
-
 use crate::{
-    azure_chatbot::ChatbotUserContext,
+    azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_error::chatbot_err,
     chatbot_tools::{
-        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
-        ToolProperties,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, no_parameters,
+        tool_permission::ToolPermission,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
+    user_context::ChatbotUserContext,
 };
-use headless_lms_base::prelude_base_and_re_exports::BackendError;
+use headless_lms_base::{
+    config::ApplicationConfiguration, prelude_base_and_re_exports::BackendError,
+};
 use headless_lms_models::{
     course_modules::{CompletionPolicy, CourseModule},
     user_exercise_states::UserCourseProgress,
 };
 use sqlx::PgConnection;
 
-pub type CourseProgressTool = ToolProperties<CourseProgressState, CourseProgressArguments>;
+pub type CourseProgressTool = ToolProperties<CourseProgressState>;
+
+impl ChatbotToolDeclaration for CourseProgressTool {
+    const NAME: &'static str = "course_progress";
+
+    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+
+    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
+        AzureLLMFunctionToolDefinition {
+            tool_type: LLMToolType::Function,
+            name: Self::NAME.to_string(),
+            description: "Get the user's progress on this course, including information about exercises attempted, points gained, the passing criteria for the course and if the user meets the criteria.".to_string(),
+            parameters: no_parameters(),
+            strict: true
+        }
+    }
+}
 
 impl ChatbotTool for CourseProgressTool {
-    type State = CourseProgressState;
     type Arguments = CourseProgressArguments;
 
+    /// The LLM calls this tool without arguments, so whatever it emitted is ignored rather than
+    /// deserialized: an empty argument string is not valid JSON.
     fn parse_arguments(_args_string: String) -> ChatbotResult<Self::Arguments> {
         Ok(CourseProgressArguments {})
     }
@@ -29,7 +47,8 @@ impl ChatbotTool for CourseProgressTool {
     /// Create a CourseProgressTool instance
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
-        arguments: Self::Arguments,
+        _app_config: &ApplicationConfiguration,
+        _arguments: Self::Arguments,
         user_context: &ChatbotUserContext,
     ) -> ChatbotResult<Self> {
         let Some(user_id) = user_context.user_id else {
@@ -62,7 +81,6 @@ impl ChatbotTool for CourseProgressTool {
                 course_name: course_name.clone(),
                 progress,
             },
-            arguments,
         })
     }
 
@@ -139,23 +157,9 @@ impl ChatbotTool for CourseProgressTool {
         )
         }
     }
-
-    fn get_arguments(&self) -> &Self::Arguments {
-        &self.arguments
-    }
-
-    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
-        AzureLLMFunctionToolDefinition {
-            tool_type: LLMToolType::Function,
-            name: "course_progress".to_string(),
-            description: "Get the user's progress on this course, including information about exercises attempted, points gained, the passing criteria for the course and if the user meets the criteria.".to_string(),
-            parameters: LLMToolParams {tool_type: LLMToolParamType::Object, properties: HashMap::new(), required: vec![], additional_properties: false},
-            strict: true
-        }
-    }
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Deserialize)]
 pub struct CourseProgressArguments {}
 
 pub struct CourseProgressState {
@@ -336,7 +340,6 @@ mod tests {
                     course_name,
                     progress,
                 },
-                arguments: CourseProgressArguments {},
             }
         }
     }

@@ -17,6 +17,7 @@ import type { PageSearchResult } from "@/generated/course-material-api/types.gen
 import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -294,7 +295,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
         setPhraseSearchResults(pagesWithPhrase)
         setWordSearchResults(pagesWithWords)
       } catch (e: unknown) {
-        if (e instanceof Error && e.name === "AbortError") {
+        if (isAbortError(e)) {
           return
         }
         const parsed = normalizeErrorForDisplay(e, t)

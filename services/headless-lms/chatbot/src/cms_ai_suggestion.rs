@@ -1,16 +1,13 @@
-use std::collections::HashMap;
-
 use crate::{
-    azure_chatbot::{
-        ArrayItem, ArrayProperty, InputItem, JSONType, JsonItem, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
-        SchemaPropertyType, ThinkingParams,
+    azure_chatbot::azure::protocol::{
+        InputItem, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        ThinkingParams,
     },
     chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
-        model_is_thinking, parse_text_completion,
+        APIInputMessage, MessageContent, estimate_tokens, model_is_thinking,
+        request_structured_json, string_list_response_format,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
@@ -25,6 +22,16 @@ use headless_lms_models::{
 #[derive(serde::Deserialize)]
 struct CmsParagraphSuggestionResponse {
     suggestions: Vec<String>,
+}
+
+/// Names this feature's structured output to Azure. The test-mode mock Azure API picks its canned
+/// answer for this feature by this name.
+pub const RESPONSE_FORMAT_NAME: &str = "CmsParagraphSuggestionResponse";
+
+/// The structured output format the suggestion LLM is asked to answer in. Must stay in
+/// sync with [CmsParagraphSuggestionResponse].
+fn response_format() -> LLMRequestResponseFormatParam {
+    string_list_response_format(RESPONSE_FORMAT_NAME, "suggestions")
 }
 
 /// Returns a short human-readable instruction for the given action id. Used so the model
@@ -250,49 +257,22 @@ pub async fn generate_paragraph_suggestions(
         )
     };
 
-    let chat_request = LLMRequest {
-        input: vec![system_message, user_message],
-        model: task_lm.model.to_owned(),
-        max_output_tokens,
-        tools: vec![],
-        tool_choice: None,
-        parallel_tool_calls: None,
+    let response: CmsParagraphSuggestionResponse = request_structured_json(
+        vec![system_message, user_message],
+        task_lm.model.to_owned(),
         params,
-        text: Some(RequestTextOptions {
-            verbosity: None,
-            format: Some(LLMRequestResponseFormatParam {
-                format_type: JSONType::JsonSchema,
-                name: "CmsParagraphSuggestionResponse".to_string(),
-                schema: Schema {
-                    type_field: JSONType::Object,
-                    properties: HashMap::from([(
-                        "suggestions".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                            type_field: JSONType::Array,
-                            items: ArrayItem::JsonItem(JsonItem {
-                                type_field: JSONType::String,
-                            }),
-                        }),
-                    )]),
-                    required: vec!["suggestions".to_string()],
-                    additional_properties: false,
-                },
-                strict: true,
-            }),
-        }),
-    };
-
-    let completion = make_blocking_llm_request(chat_request, app_config).await?;
-
-    let completion_content: &String = &parse_text_completion(completion)?;
-    let response: CmsParagraphSuggestionResponse = serde_json::from_str(completion_content)
-        .map_err(|_| {
+        max_output_tokens,
+        response_format(),
+        app_config,
+        || {
             chatbot_err!(
                 ChatbotMessageSuggestError,
                 "The CMS paragraph suggestion LLM returned an incorrectly formatted response."
                     .to_string()
             )
-        })?;
+        },
+    )
+    .await?;
 
     if response.suggestions.is_empty() {
         return Err(chatbot_err!(
@@ -302,4 +282,21 @@ pub async fn generate_paragraph_suggestions(
     }
 
     Ok(response.suggestions)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The test-mode mock Azure API picks this feature's canned answer by the format name, so the
+    /// name is pinned even though the shape it wraps is shared.
+    #[test]
+    fn the_response_format_is_named_after_this_feature() {
+        let serialized =
+            serde_json::to_value(response_format()).expect("The response format serializes");
+        assert_eq!(
+            serialized["name"],
+            serde_json::json!("CmsParagraphSuggestionResponse")
+        );
+    }
 }

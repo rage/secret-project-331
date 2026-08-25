@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import type { TFunction } from "i18next"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -12,7 +13,8 @@ import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
-import ThinkingIndicator from "./ThinkingIndicator"
+import ChatbotStatusRow from "./ChatbotStatusRow"
+import { ASK_MULTIPLE_CHOICE_QUESTION_TOOL } from "./multipleChoiceQuestions"
 
 const textStyle = css`
   padding: 0 0.5rem;
@@ -47,6 +49,82 @@ const iconStyle = (open: boolean) => css`
   margin: 0 0.5rem 0 1.5rem;
 `
 
+// Hoisted because emotion re-serializes and re-hashes the result on every call.
+const expandableListStyle = css`
+  margin: 0.6rem;
+  padding-left: 1.5rem;
+`
+
+interface ToolPresentation {
+  /** Status shown while the tool call is still streaming in. */
+  inProgressStatus: (t: TFunction, toolName: string) => string
+  /** Line shown in the expanded list once the call has finished. */
+  finishedText: (t: TFunction, toolArguments: string, toolName: string) => string
+  /** Collapsed summary label; defaults to the finished text. */
+  summaryLabel?: (t: TFunction) => string
+  /** Show the expandable summary UI even when there are too few messages for it. */
+  forcesCollapsible?: boolean
+}
+
+const usingNamedTool = (t: TFunction, toolName: string) =>
+  `${t("chatbot-status-using-tool")} "${toolName.replaceAll("_", " ")}"`
+
+const UNKNOWN_TOOL_PRESENTATION: ToolPresentation = {
+  inProgressStatus: usingNamedTool,
+  finishedText: (t, toolArguments, toolName) =>
+    `${t("chatbot-status-using-tool-finished")} "${toolName.replaceAll("_", " ")}" ${toolArguments}`,
+  summaryLabel: (t) => t("chatbot-status-used-tools"),
+}
+
+const TOOL_PRESENTATIONS: Record<string, ToolPresentation> = {
+  azure_ai_search: {
+    inProgressStatus: (t) => `${t("chatbot-status-using-tool")} "${t("course-material-search")}"`,
+    finishedText: (t, toolArguments) => {
+      let query = `""`
+      if (toolArguments.length > 0) {
+        const parsed: { query: string } = JSON.parse(toolArguments)
+        query = `"${parsed.query}"`
+      }
+      return t("chatbot-status-course-material-search-finished", { query })
+    },
+    summaryLabel: (t) => t("chatbot-status-course-material-search"),
+    forcesCollapsible: true,
+  },
+  document_lookup: {
+    inProgressStatus: usingNamedTool,
+    finishedText: (t, toolArguments) => {
+      let title = undefined
+      if (toolArguments.length > 0) {
+        try {
+          const parsed: { title?: string } = JSON.parse(toolArguments)
+          title = parsed.title && `"${parsed.title}"`
+        } catch (e) {
+          console.error("Failed to parse document lookup arguments", e)
+        }
+      }
+      return title
+        ? t("chatbot-status-document-lookup-finished-title", { title })
+        : t("chatbot-status-document-lookup-finished")
+    },
+    summaryLabel: (t) => t("chatbot-status-document-lookup-finished"),
+    forcesCollapsible: true,
+  },
+  course_finder: {
+    inProgressStatus: usingNamedTool,
+    finishedText: (t) => t("chatbot-status-course-finder-finished"),
+  },
+  [ASK_MULTIPLE_CHOICE_QUESTION_TOOL]: {
+    // A question the learner will read gets its own bubble once its arguments have arrived
+    // whole, so here it is still being written and has no choices to show yet.
+    inProgressStatus: (t) => t("chatbot-status-preparing-a-question"),
+    // Only questions too malformed to render land here; the rest have their own bubble.
+    finishedText: (t) => t("chatbot-status-asked-a-question"),
+  },
+}
+
+const toolPresentation = (toolName: string): ToolPresentation =>
+  TOOL_PRESENTATIONS[toolName] ?? UNKNOWN_TOOL_PRESENTATION
+
 interface ToolCallReasoningBubbleProps {
   messages: ChatbotConversationMessageWithStatus[]
 }
@@ -56,10 +134,8 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
   const [isOpen, setIsOpen] = useState(false)
 
   let summaryText: string
-  let inProgressItems = messages.filter((m) => {
-    return !m.finished
-  })
-  let finished = inProgressItems.length === 0
+  const inProgressItems = messages.filter((m) => !m.finished)
+  const finished = inProgressItems.length === 0
   let collapsible = messages.length > 2
 
   if (!finished) {
@@ -74,31 +150,21 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
       }
       let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
       if (res2.success) {
-        let tool =
-          res2.data.tool_name === "azure_ai_search"
-            ? t("course-material-search")
-            : res2.data.tool_name.replaceAll("_", " ")
-        summaryText += `${t("chatbot-status-using-tool")} "${tool}"`
+        summaryText += toolPresentation(res2.data.tool_name).inProgressStatus(
+          t,
+          res2.data.tool_name,
+        )
       }
     })
-    return (
-      <span className={detailsStyle}>
-        {summaryText} {<ThinkingIndicator />}
-      </span>
-    )
+    return <ChatbotStatusRow text={summaryText} />
   }
-  summaryText = ""
   let expandableText: string[] = []
-  messages.forEach((m, idx) => {
+  let summaryLabels: string[] = []
+  messages.forEach((m) => {
     let res1 = zChatbotConversationMessageReasoning.safeParse(m.message.message)
     if (res1.success) {
       expandableText.push(t("chatbot-status-thinking-finished"))
-      if (idx === 0) {
-        summaryText += t("chatbot-status-thinking-finished")
-      }
-      if (idx === 1) {
-        summaryText += `, ${t("chatbot-status-thinking-finished")}`
-      }
+      summaryLabels.push(t("chatbot-status-thinking-finished"))
     }
     let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
     if (res2.success) {
@@ -106,58 +172,16 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
         res2.data.tool_arguments.replaceAll(/[{}]/g, "").length === 0
           ? ""
           : res2.data.tool_arguments
-      if (res2.data.tool_name === "azure_ai_search") {
+      const presentation = toolPresentation(res2.data.tool_name)
+      if (presentation.forcesCollapsible) {
         collapsible = true
-        // in azure ai search, the arguments are this shape
-        let query = `""`
-        if (toolArguments.length > 0) {
-          let obj: { query: string } = JSON.parse(toolArguments)
-          query = `"${obj.query}"`
-        }
-
-        expandableText.push(t("chatbot-status-course-material-search-finished", { query }))
-        if (idx === 0) {
-          summaryText += t("chatbot-status-course-material-search")
-        }
-        if (idx === 1) {
-          summaryText += `, ${t("chatbot-status-course-material-search")}`
-        }
-      } else if (res2.data.tool_name === "document_lookup") {
-        collapsible = true
-        let title = undefined
-        if (toolArguments.length > 0) {
-          try {
-            const obj: { title?: string } = JSON.parse(toolArguments)
-            title = obj.title && `"${obj.title}"`
-          } catch (e) {
-            console.error("Failed to parse document lookup arguments", e)
-          }
-        }
-        if (title) {
-          expandableText.push(t("chatbot-status-document-lookup-finished-title", { title }))
-        } else {
-          expandableText.push(t("chatbot-status-document-lookup-finished"))
-        }
-
-        if (idx === 0) {
-          summaryText += t("chatbot-status-document-lookup-finished")
-        }
-        if (idx === 1) {
-          summaryText += `, ${t("chatbot-status-document-lookup-finished")}`
-        }
-      } else {
-        expandableText.push(
-          `${t("chatbot-status-using-tool-finished")} "${res2.data.tool_name.replaceAll("_", " ")}" ${toolArguments}`,
-        )
-        if (idx === 0) {
-          summaryText += t("chatbot-status-used-tools")
-        }
-        if (idx === 1) {
-          summaryText += `, ${t("chatbot-status-used-tools")}`
-        }
       }
+      const finishedText = presentation.finishedText(t, toolArguments, res2.data.tool_name)
+      expandableText.push(finishedText)
+      summaryLabels.push(presentation.summaryLabel?.(t) ?? finishedText)
     }
   })
+  summaryText = summaryLabels.slice(0, 2).join(", ")
 
   if (!collapsible) {
     return (
@@ -172,15 +196,10 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
         <summary>
           <span className={textStyle}>
             {summaryText}
-            {collapsible && <DownIcon className={iconStyle(isOpen)} />}
+            <DownIcon className={iconStyle(isOpen)} />
           </span>
         </summary>
-        <ul
-          className={css`
-            margin: 0.6rem;
-            padding-left: 1.5rem;
-          `}
-        >
+        <ul className={expandableListStyle}>
           {expandableText.map((item, idx) => (
             <li key={idx}>{item}</li>
           ))}

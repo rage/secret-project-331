@@ -1496,6 +1496,8 @@ mod test {
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
                 has_custom_view: false,
+                build_user_answer_endpoint_path: None,
+                answer_files_endpoint_path: None,
             },
         )
         .await
@@ -1647,10 +1649,12 @@ mod test {
             slide: _exercise_slide_id,
             task: _exercise_task_id
         );
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
 
         let existing_course = courses::get_course(tx.as_mut(), course_id).await.unwrap();
         courses::update_course(
             tx.as_mut(),
+            &app_config,
             course_id,
             courses::CourseUpdate {
                 name: existing_course.name,

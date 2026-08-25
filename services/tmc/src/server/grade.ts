@@ -1,17 +1,12 @@
 import { promises as fs } from "fs"
-import path from "path"
 
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import {
-  compressProject,
-  extractProject,
-  fastAvailablePoints,
-  prepareSubmission,
-} from "@/tmc/langs"
+import { extractProject, fastAvailablePoints, prepareSubmission } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
+import { compressBrowserAnswer } from "@/util/browserAnswerArchive"
 import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
@@ -123,15 +118,8 @@ const processGrading = async (req: GradeRequest): Promise<Response> => {
       debug("grading browser submission")
       const submissionDir = temporaryDirectory()
       tempPaths.push(submissionDir)
-      for (const { filepath, contents } of submission_data.files) {
-        const resolved = path.resolve(submissionDir, filepath)
-        debug("making", path.dirname(resolved))
-        await fs.mkdir(path.dirname(resolved), { recursive: true })
-        debug("writing", resolved)
-        await fs.writeFile(resolved, contents)
-      }
       debug("compressing project")
-      await compressProject(submissionDir, submissionArchivePath, "zstd", true, log)
+      await compressBrowserAnswer(submissionDir, submissionArchivePath, submission_data.files, log)
       extractSubmissionNaively = false
     } else {
       return badRequest(`unexpected submission type '${exercise_spec.type}'`)

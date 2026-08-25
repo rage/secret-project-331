@@ -17,12 +17,13 @@ run_command cd "$RELATIVE_CMS_PATH" || exit
 # Keep NODE_OPTIONS off pnpm itself; pnpm 11 validates workspace config before
 # exec and will try to load pnpm hooks during startup if the hook is inherited.
 HOOK_IMPORT="./scripts/registerDiffResolveHook.mjs"
-run_command pnpm exec env NODE_OPTIONS="${NODE_OPTIONS:-} --import $HOOK_IMPORT" tsx scripts/extractGutenbergAttributeTypes.ts
-
-# Format the generated files with oxfmt
-run_command pnpm exec oxfmt ../main-frontend/types/GutenbergBlockAttributes.ts ../main-frontend/types/DeprecatedGutenbergBlockAttributes.ts
+run_command pnpm exec env NODE_OPTIONS="${NODE_OPTIONS:-} --import $HOOK_IMPORT" tsx scripts/extractGutenbergAttributeTypes.mts
 
 run_command cd ../..
+
+# Format the generated files with oxfmt
+run_command pnpm exec oxfmt services/main-frontend/types/GutenbergBlockAttributes.ts services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts
+
 if [ -f "./services/main-frontend/types/GutenbergBlockAttributes.guard.ts" ]; then
   run_command rm ./services/main-frontend/types/GutenbergBlockAttributes.guard.ts
 fi

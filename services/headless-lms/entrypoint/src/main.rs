@@ -1,6 +1,7 @@
 use anyhow::Result;
 use headless_lms_server::openapi::{
-    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, ErrorsApiDoc, MainFrontendApiDoc,
+    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, ErrorsApiDoc, ExerciseServicesClientApiDoc,
+    MainFrontendApiDoc,
 };
 use headless_lms_server::programs;
 use std::future::Future;
@@ -28,6 +29,10 @@ struct Program {
 fn main() -> Result<()> {
     let programs_list = vec![
         Program {
+            name: "credit-registrar",
+            execute: Box::new(|| tokio_run(programs::credit_registrar::main())),
+        },
+        Program {
             name: "doc-file-generator",
             execute: Box::new(|| tokio_run(programs::doc_file_generator::main())),
         },
@@ -38,6 +43,12 @@ fn main() -> Result<()> {
         Program {
             name: "ended-exams-processor",
             execute: Box::new(|| tokio_run(programs::ended_exams_processor::main())),
+        },
+        Program {
+            name: "exercise-service-client-upload-reaper",
+            execute: Box::new(
+                || tokio_run(programs::exercise_service_client_upload_reaper::main()),
+            ),
         },
         Program {
             name: "open-university-registration-link-fetcher",
@@ -73,6 +84,10 @@ fn main() -> Result<()> {
                 programs::sorter::sort()?;
                 Ok(())
             }),
+        },
+        Program {
+            name: "suotar-syncer",
+            execute: Box::new(|| tokio_run(programs::suotar_syncer::main())),
         },
         Program {
             name: "sync-tmc-users",
@@ -170,6 +185,10 @@ fn export_openapi_specs() -> Result<()> {
     write_spec(
         &output_dir.join("errors.openapi.generated.json"),
         ErrorsApiDoc::openapi(),
+    )?;
+    write_spec(
+        &output_dir.join("exercise-services-client.openapi.generated.json"),
+        ExerciseServicesClientApiDoc::openapi(),
     )?;
     Ok(())
 }

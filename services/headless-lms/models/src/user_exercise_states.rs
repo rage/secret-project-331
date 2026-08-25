@@ -49,6 +49,8 @@ pub enum ReviewingStage {
     ReviewedAndLocked,
     /// In this stage the exercise has been locked due to chapter locking, but no review has been performed.
     Locked,
+    /// In this stage the chapter was locked while the student had not returned an answer to the exercise. There is nothing for anyone to review, and the student can no longer answer the exercise.
+    NotAnsweredAndLocked,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -1409,7 +1411,7 @@ mod tests {
                 Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
             )
             .set_timestamps(timestamp, timestamp, None)
-            .set_registration_info(None, Some(5.0), None, false),
+            .set_registration_info(None, Some(5.0), None, false, false),
         ];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,

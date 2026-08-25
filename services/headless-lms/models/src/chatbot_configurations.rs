@@ -21,6 +21,11 @@ pub enum VerbosityLevel {
     Medium,
     High,
 }
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
+pub struct CreateChatbotRequest {
+    pub name: String,
+    pub course_id: Option<Uuid>,
+}
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct ChatbotConfiguration {
@@ -51,6 +56,7 @@ pub struct ChatbotConfiguration {
     pub default_chatbot: bool,
     pub suggest_next_messages: bool,
     pub initial_suggested_messages: Option<Vec<String>>,
+    pub publicly_accessible: bool,
 }
 
 impl Default for ChatbotConfiguration {
@@ -73,16 +79,17 @@ impl Default for ChatbotConfiguration {
             top_p: 1.0,
             frequency_penalty: 0.0,
             presence_penalty: 0.0,
-            reasoning_effort: ReasoningEffortLevel::Minimal,
+            reasoning_effort: ReasoningEffortLevel::Medium,
             verbosity: VerbosityLevel::Medium,
-            use_azure_search: false,
-            maintain_azure_search_index: false,
+            use_azure_search: true,
+            maintain_azure_search_index: true,
             hide_citations: false,
             use_semantic_reranking: false,
-            use_tools: false,
+            use_tools: true,
             default_chatbot: false,
-            suggest_next_messages: false,
+            suggest_next_messages: true,
             initial_suggested_messages: None,
+            publicly_accessible: false,
         }
     }
 }
@@ -114,6 +121,7 @@ pub struct NewChatbotConf {
     pub chatbotconf_id: Option<Uuid>,
     pub suggest_next_messages: bool,
     pub initial_suggested_messages: Option<Vec<String>>,
+    pub publicly_accessible: bool,
 }
 
 impl Default for NewChatbotConf {
@@ -144,6 +152,7 @@ impl Default for NewChatbotConf {
             chatbotconf_id: None,
             suggest_next_messages: chatbot_conf.suggest_next_messages,
             initial_suggested_messages: chatbot_conf.initial_suggested_messages,
+            publicly_accessible: chatbot_conf.publicly_accessible,
         }
     }
 }
@@ -162,6 +171,12 @@ fn validate_max_output_tokens(input: &NewChatbotConf) -> ModelResult<()> {
         ));
     }
     Ok(())
+}
+
+/// Whether the configuration may use Azure search, which needs a course: the search index it
+/// queries is built per course, so a configuration without one has nothing to search.
+fn azure_search_allowed(input: &NewChatbotConf, course_id: Option<Uuid>) -> bool {
+    input.use_azure_search && course_id.is_some()
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {
@@ -186,7 +201,8 @@ pub async fn insert(
     input: NewChatbotConf,
 ) -> ModelResult<ChatbotConfiguration> {
     validate_max_output_tokens(&input)?;
-    let maintain_azure_search_index = input.use_azure_search;
+    let use_azure_search = azure_search_allowed(&input, input.course_id);
+    let maintain_azure_search_index = use_azure_search;
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
@@ -213,9 +229,10 @@ INSERT INTO chatbot_configurations (
     maintain_azure_search_index,
     default_chatbot,
     suggest_next_messages,
-    initial_suggested_messages
+    initial_suggested_messages,
+    publicly_accessible
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
 RETURNING *
         "#,
         pkey_policy.into_uuid(),
@@ -235,12 +252,13 @@ RETURNING *
         input.max_output_tokens,
         input.verbosity as VerbosityLevel,
         input.reasoning_effort as ReasoningEffortLevel,
-        input.use_azure_search,
+        use_azure_search,
         input.use_tools,
         maintain_azure_search_index,
         input.default_chatbot,
         input.suggest_next_messages,
         input.initial_suggested_messages.as_deref(),
+        input.publicly_accessible
     )
     .fetch_one(conn)
     .await?;
@@ -253,6 +271,10 @@ pub async fn edit(
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConfiguration> {
     validate_max_output_tokens(&input)?;
+    // The course the configuration is already attached to, not the one the caller sent: `edit`
+    // never moves a configuration between courses.
+    let course_id = get_by_id(conn, chatbot_configuration_id).await?.course_id;
+    let use_azure_search = azure_search_allowed(&input, course_id);
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
@@ -279,8 +301,9 @@ SET
     reasoning_effort = $19,
     use_tools = $20,
     suggest_next_messages = $21,
-    initial_suggested_messages = $22
-WHERE id = $23
+    initial_suggested_messages = $22,
+    publicly_accessible = $23
+WHERE id = $24
     AND deleted_at IS NULL
 RETURNING *
 "#,
@@ -295,8 +318,8 @@ RETURNING *
         input.frequency_penalty,
         input.presence_penalty,
         input.max_output_tokens,
-        input.use_azure_search,
-        input.maintain_azure_search_index,
+        use_azure_search,
+        use_azure_search,
         input.hide_citations,
         input.use_semantic_reranking,
         input.default_chatbot,
@@ -306,6 +329,7 @@ RETURNING *
         input.use_tools,
         input.suggest_next_messages,
         input.initial_suggested_messages.as_deref(),
+        input.publicly_accessible,
         chatbot_configuration_id,
     )
     .fetch_one(conn)

@@ -4,7 +4,7 @@ import { cx } from "@emotion/css"
 import { useToggleState } from "@react-stately/toggle"
 import React, { useEffect, useId, useRef } from "react"
 import { mergeProps, useCheckbox, useFocusRing } from "react-aria"
-import type { FieldValues, Path } from "react-hook-form"
+import type { FieldValues, Path, RegisterOptions } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
@@ -36,10 +36,14 @@ const stackedLayout = "stacked" as const
  * @example
  * <Checkbox name="terms" control={control} label="I agree" />
  */
-export type CheckboxProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
-  T,
-  N
+export type CheckboxProps<T extends FieldValues, N extends Path<T> = Path<T>> = Omit<
+  RhfFieldProps<T, N>,
+  "rules"
 > & {
+  // `onChange`/`onBlur` side effects belong in a `watch` + `useEffect` on the settled field value,
+  // not here: react-hook-form invokes these itself, from a native listener that on this component
+  // observes a stale `checked` value.
+  rules?: Omit<RegisterOptions<T, N>, "onChange" | "onBlur"> | undefined
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -83,7 +87,9 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
   const { field, resolvedError, isInvalid } = useRhfField({
     name,
     control,
-    ...omitUndefined({ rules }),
+    // `rules` excludes `onChange`/`onBlur` at the public API boundary above; react-hook-form's
+    // own `RegisterOptions` union just doesn't factor through `Omit` cleanly.
+    ...omitUndefined({ rules: rules as RegisterOptions<T, N> | undefined }),
     errorMessage,
   })
   const selected = Boolean(field.value)
@@ -104,9 +110,7 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     isDisabled,
     isReadOnly,
     isSelected: selected,
-    onChange: (next) => {
-      field.onChange(next)
-    },
+    onChange: field.onChange,
   })
 
   const inputValue =

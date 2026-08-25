@@ -1,0 +1,120 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH registered_completions AS (\n  SELECT course_module_completion_id,\n    user_id,\n    course_id\n  FROM course_module_completion_registered_to_study_registries\n  WHERE deleted_at IS NULL\n  UNION\n  SELECT course_module_completion_id,\n    user_id,\n    course_id\n  FROM credit_registrations\n  WHERE deleted_at IS NULL\n    AND state = ANY($2::credit_registration_state [])\n)\nSELECT c.name AS course_name,\n  EXTRACT('year' FROM cms.completion_date)::int as \"year!\",\n  CASE WHEN $1 = 'Month' THEN EXTRACT('month' FROM cms.completion_date)::int ELSE NULL END as \"month\",\n  COUNT(DISTINCT rc.user_id) as \"value!\",\n  c.id as \"course_id!\",\n  o.id as \"organization_id\",\n  o.name as \"organization_name\"\nFROM registered_completions rc\nJOIN course_module_completions cms ON rc.course_module_completion_id = cms.id\nJOIN courses c ON rc.course_id = c.id\nJOIN organizations o ON c.organization_id = o.id\nWHERE c.is_draft = FALSE\n  AND c.deleted_at IS NULL\n  AND c.is_test_mode = FALSE\nGROUP BY c.name, c.id, o.id, o.name, \"year!\", \"month\"\nORDER BY c.id, \"year!\", \"month\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "year!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "month",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "value!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "organization_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "organizations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "organization_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "organizations",
+            "name": "name"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null,
+      null,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "36fc9da61e4531833c2fd7b07f6fcc2daa3226986b880f2323d112c2eb6aaa69"
+}

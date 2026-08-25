@@ -1,0 +1,211 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT vsn.id,\n  vsn.user_id,\n  ud.email AS \"user_email?\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  vsn.student_number,\n  vsn.sisu_person_id,\n  vsn.verified_at,\n  vsn.verified_via,\n  vsn.verified_via_email,\n  vsn.linked_by_user_id,\n  vsn.link_reason,\n  vsn.verified_from_course_id,\n  (\n    SELECT COUNT(*)\n    FROM credit_registrations cr\n    WHERE cr.user_id = vsn.user_id\n      AND cr.superseded_by_id IS NULL\n      AND cr.deleted_at IS NULL\n  ) AS \"live_registration_count!\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM verified_student_numbers vsn\n  LEFT JOIN user_details ud ON ud.user_id = vsn.user_id\nWHERE vsn.deleted_at IS NULL\n  AND (\n    $1::student_number_verification_method IS NULL\n    OR vsn.verified_via = $1\n  )\n  AND (\n    $2::text IS NULL\n    OR LOWER(vsn.student_number) LIKE '%' || $2 || '%' ESCAPE '\\'\n    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\\'\n  )\nORDER BY vsn.verified_at DESC,\n  vsn.id\nLIMIT $3 OFFSET $4\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "user_email?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "student_number",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "sisu_person_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "sisu_person_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "verified_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "verified_via",
+        "type_info": {
+          "Custom": {
+            "name": "student_number_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_link",
+                "email_match_fast_track",
+                "admin_manual"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_via"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "verified_via_email",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_via_email"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "linked_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "linked_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "link_reason",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "link_reason"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "verified_from_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "verified_from_course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "live_registration_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 14,
+        "name": "total_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "student_number_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_link",
+                "email_match_fast_track",
+                "admin_manual"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "fd875659c0be13d2f3891bf1d748676a7170288b00147bfbf07925b69b7f886e"
+}

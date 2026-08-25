@@ -14,6 +14,7 @@ const baseModule: UserModuleCompletionStatus = {
   completed: true,
   default: false,
   enable_registering_completion_to_uh_open_university: true,
+  enable_credit_registration_via_suotar: false,
   grade: 5,
   module_id: "module-1",
   name: "Introduction",

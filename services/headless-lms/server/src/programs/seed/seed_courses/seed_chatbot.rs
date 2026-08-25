@@ -9,6 +9,7 @@ use crate::programs::seed::seed_helpers::{chatbot_block, heading, list, list_ite
 use anyhow::Result;
 use chrono::Utc;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::NewChatbotConf;
 use headless_lms_models::chatbot_configurations_models;
 use headless_lms_models::roles::UserRole;
@@ -20,6 +21,7 @@ use uuid::Uuid;
 use super::super::seed_users::SeedUsersResult;
 
 pub async fn seed_chatbot_course(
+    app_config: &ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -73,6 +75,7 @@ pub async fn seed_chatbot_course(
             hide_citations: false,
             model_id: llm.id,
             default_chatbot: true,
+            use_tools: true,
             ..Default::default()
         })
         .chatbot_config(NewChatbotConf {
@@ -85,6 +88,7 @@ pub async fn seed_chatbot_course(
             use_azure_search: true,
             hide_citations: false,
             model_id: llm.id,
+            use_tools: true,
             ..Default::default()})
         .chatbot_config(NewChatbotConf {
             course_id: Some(course_id),
@@ -98,6 +102,7 @@ pub async fn seed_chatbot_course(
             model_id: llm.id,
             suggest_next_messages: true,
             initial_suggested_messages: Some(vec!["What is going on?".to_string(), "Tell me more about your fascinating self.".to_string(), "What's the time? What's the time? What's the time? What's the time? What's the time? What's the time? Aaaaaaaaaaaaaaaaaaaaaaaaaaah!".to_string()]),
+            use_tools: true,
             ..Default::default()})
         .role(seed_users_result.teacher_user_id, UserRole::Teacher)
         .module(
@@ -288,7 +293,7 @@ pub async fn seed_chatbot_course(
                 ),
         );
 
-    let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
+    let (course, _default_instance, _last_module) = course.seed(&mut conn, app_config, &cx).await?;
 
     Ok(course.id)
 }

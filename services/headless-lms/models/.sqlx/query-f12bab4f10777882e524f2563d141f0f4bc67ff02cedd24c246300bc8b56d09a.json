@@ -1,0 +1,183 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            DELETE FROM oauth_device_codes\n             WHERE device_code_digest = $1\n               AND status = 'approved'\n               AND expires_at > now()\n            RETURNING *\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "device_code_digest",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "device_code_digest"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_code",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "user_code"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "client_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "scopes",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "scopes"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "status",
+        "type_info": {
+          "Custom": {
+            "name": "device_code_status",
+            "kind": {
+              "Enum": [
+                "pending",
+                "approved",
+                "denied"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "status"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "jti",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "jti"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "interval_seconds",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "interval_seconds"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "last_polled_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "last_polled_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "expires_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "expires_at"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "metadata",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "oauth_device_codes",
+            "name": "metadata"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f12bab4f10777882e524f2563d141f0f4bc67ff02cedd24c246300bc8b56d09a"
+}

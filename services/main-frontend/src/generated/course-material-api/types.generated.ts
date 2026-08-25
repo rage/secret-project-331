@@ -78,21 +78,22 @@ export type ChatbotChatStreamEvent =
       type: "Done"
     }
   | {
+      type: "Suspended"
+    }
+  | {
       data: StreamEventError
       type: "Error"
     }
-  | {
-      type: "Invalid"
-    }
 
 export type ChatbotConversation = {
+  anonymous_token?: string | null
   chatbot_configuration_id: string
   course_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string
   updated_at: string
-  user_id: string
+  user_id?: string | null
 }
 
 /**
@@ -105,6 +106,12 @@ export type ChatbotConversationInfo = {
   current_conversation_message_citations?: Array<ChatbotConversationMessageCitation> | null
   current_conversation_messages?: Array<ChatbotConversationMessage> | null
   hide_citations: boolean
+  /**
+   * What to offer the learner as their next message. Absent when nothing should be offered: the
+   * configuration has suggestions off, or the conversation is at a point where a suggestion does
+   * not belong, such as a turn suspended on a question to the learner. Empty means suggestions
+   * are wanted but none have been generated yet, which is what makes the endpoint generate them.
+   */
   suggested_messages?: Array<ChatbotConversationSuggestedMessage> | null
 }
 
@@ -177,6 +184,13 @@ export type ChatbotConversationMessageToolCall = {
 
 export type ChatbotConversationMessageToolOutput = {
   chatbot_conversation_message_id: string
+  /**
+   * The answer payload the client sent, in the shape the answered tool defines. None for
+   * outputs no client answered.
+   */
+  client_answer?: {
+    [key: string]: unknown
+  } | null
   created_at: string
   deleted_at?: string | null
   id: string
@@ -195,6 +209,62 @@ export type ChatbotConversationSuggestedMessage = {
   message: string
   updated_at: string
 }
+
+/**
+ * What the learner has open when they send a message.
+ *
+ * Only the page id is accepted: everything the model reads is looked up from the database.
+ * The context becomes a developer message, which the model weighs above the learner's own
+ * words, so a client that could write its text could give itself instructions.
+ */
+export type ChatbotPageContext = {
+  page_id: string
+}
+
+export type ChatbotToolResponse = {
+  answer: ClientToolAnswer
+  /**
+   * The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event.
+   */
+  tool_call_id: string
+  /**
+   * The tool the caller believes `tool_call_id` belongs to, checked against the call's
+   * recorded name so a client answering the wrong bubble fails clearly instead of being
+   * silently accepted as whatever tool the call actually was.
+   */
+  tool_name: ClientToolName
+}
+
+/**
+ * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+ */
+export type ClientToolAnswer = {
+  /**
+   * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+   */
+  data: {
+    /**
+     * An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not
+     * known here. Unlike the tool call arguments we hand back to clients, this one is built
+     * by the client, so declaring it a string would make the generated binding unusable.
+     */
+    result: {
+      [key: string]: unknown
+    }
+  }
+  type: "Data"
+}
+
+/**
+ * The name of a client tool, generated into the frontend as a string union so it names one of
+ * [ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.
+ *
+ * The bounds a tool enforces on its arguments and the shape of its answer stay hand-written on
+ * the frontend: routing those through the OpenAPI schema would need either a schema per tool or
+ * widening the argument and answer types this crate uses to serialize them, for a part of the
+ * contract that only fails loudly, unlike the name.
+ */
+export type ClientToolName = "ask_multiple_choice_question"
 
 export type CodeGiveawayStatus =
   | {
@@ -978,6 +1048,7 @@ export type ReviewingStage =
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
   | "Locked"
+  | "NotAnsweredAndLocked"
 
 export type SaveCourseSettingsPayload = {
   background_question_answers: Array<NewCourseBackgroundQuestionAnswer>
@@ -985,6 +1056,14 @@ export type SaveCourseSettingsPayload = {
 
 export type SearchRequest = {
   query: string
+}
+
+export type SendChatbotMessage = {
+  /**
+   * What the learner wrote.
+   */
+  message: string
+  page_context?: null | ChatbotPageContext
 }
 
 export type ShowExerciseAnswers = {
@@ -1054,7 +1133,10 @@ export type TermUpdate = {
   term: string
 }
 
-export type ToolKind = "function" | "azure_ai_search"
+/**
+ * Who answers a tool call, which decides what happens to a call that has no output yet.
+ */
+export type ToolKind = "function" | "azure_ai_search" | "client_tool"
 
 export type UnreturnedExercise = {
   id: string
@@ -1175,6 +1257,7 @@ export type UserModuleCompletionStatus = {
   certification_enabled: boolean
   completed: boolean
   default: boolean
+  enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   grade?: number | null
   module_id: string
@@ -1403,7 +1486,7 @@ export type NewChatbotConversationResponse =
   NewChatbotConversationResponses[keyof NewChatbotConversationResponses]
 
 export type SendChatbotMessageData = {
-  body: string
+  body: SendChatbotMessage
   path: {
     /**
      * Chatbot configuration id
@@ -1427,6 +1510,32 @@ export type SendChatbotMessageResponses = {
 
 export type SendChatbotMessageResponse =
   SendChatbotMessageResponses[keyof SendChatbotMessageResponses]
+
+export type SendChatbotToolResponseData = {
+  body: ChatbotToolResponse
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response"
+}
+
+export type SendChatbotToolResponseResponses = {
+  /**
+   * Chatbot response stream
+   */
+  200: ChatbotChatStreamEvent
+}
+
+export type SendChatbotToolResponseResponse =
+  SendChatbotToolResponseResponses[keyof SendChatbotToolResponseResponses]
 
 export type ClaimCodeFromCodeGiveawayData = {
   body?: never

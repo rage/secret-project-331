@@ -50,8 +50,7 @@ build:
     gitCommit:
       variant: CommitSha
   local:
-    useDockerCLI:
-      true
+    useDockerCLI: true
       # Allow parallel builds
     concurrency: 0
     push: false

@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import hljs from "highlight.js"
 import type { DOMAttributes, ReactPortal } from "react"
 import React, { memo, useLayoutEffect, useMemo, useRef, useState } from "react"
@@ -13,7 +13,10 @@ import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationR
 import { getRemarkable } from "@/utils/course-material/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
-import { codeBlockStyles, preStyles } from "../../ContentRenderer/core/formatting/CodeBlock/styles"
+import {
+  codeBlockStyles,
+  getPreStyles,
+} from "../../ContentRenderer/core/formatting/CodeBlock/styles"
 import CitationButton from "./CitationButton"
 
 const PORTAL_PLACEHOLDER_QUERY_SELECTOR = "[data-chatbot-citation='true']"
@@ -49,7 +52,7 @@ const messageStyle = css`
     /*the pre element corresponds to md raw text, this property
     will force long strings in it to wrap and not overflow */
     white-space: pre-wrap;
-    ${preStyles(defaultFontSizePx, false)}
+    ${getPreStyles(defaultFontSizePx, false)}
     padding: 0;
     border-radius: 0.4rem;
   }
@@ -106,6 +109,15 @@ export enum MessageRenderType {
   ChatbotWithCitations = 2,
 }
 
+// Markdown wraps the message in <p>, so a thinking indicator after it lands on its own line
+// unless the last paragraph is flattened to inline. Scoped to `p`: forcing a trailing list,
+// table, or heading inline would mangle it, so those just wrap the indicator instead.
+const lastLineInlineStyle = css`
+  & > p:last-child {
+    display: inline;
+  }
+`
+
 interface RenderedMessageProps {
   renderOption: MessageRenderType
   message: string
@@ -114,24 +126,38 @@ interface RenderedMessageProps {
   currentTriggerId: string | undefined
   handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
   hoverCitationProps: DOMAttributes<HTMLButtonElement>
+  isPending: boolean
 }
 
 interface MessageWithPortalsComponentProps {
   msg: string
+  isPending: boolean
 }
 
-const MemoMessageWithInnerHTML: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
-  /* this span is the parent to the portal containers. memo it so that it won't be
-   re-rendered when the portals are created */
+/* const MemoMessageWithInnerHTML: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
+  // this span is the parent to the portal containers. memo it so that it won't be
+   re-rendered when the portals are created
   return (
     <span
       className={messageStyle}
       dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}
     ></span>
   )
-})
+}) */
 
-MemoMessageWithInnerHTML.displayName = "MemoMessageWithInnerHTML"
+const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(
+  ({ msg, isPending }) => {
+    /* Parent to the portal containers — memoized so portal creation elsewhere doesn't remount it. */
+    return (
+      <span
+        className={cx(messageStyle, isPending && lastLineInlineStyle)}
+        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}
+      ></span>
+    )
+  },
+)
+
+MessageWithPortalsComponent.displayName = "MessageWithPortalsComponent"
 
 const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
@@ -141,6 +167,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   currentTriggerId,
   handleClick,
   hoverCitationProps,
+  isPending,
 }) => {
   // create a ref for this component so that we don't query the whole document later
   const thisNode = useRef<HTMLElement>(null)
@@ -234,15 +261,16 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
 
   if (renderOption === MessageRenderType.ChatbotNoCitations) {
     return (
-      <span ref={thisNode}>
-        <MemoMessageWithInnerHTML msg={renderedMessage} />
-      </span>
+      <span
+        className={cx(messageStyle, isPending && lastLineInlineStyle)}
+        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(renderedMessage) }}
+      ></span>
     )
   }
 
   return (
     <span ref={thisNode}>
-      <MemoMessageWithInnerHTML msg={renderedMessage} />
+      <MessageWithPortalsComponent msg={renderedMessage} isPending={isPending} />
       {readyForPortal && portals}
     </span>
   )

@@ -24,6 +24,7 @@ pub struct CreateNewCourseFixedIds {
 /// Creates a new course with a front page and default instances.
 pub async fn create_new_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     pkey_policy: PKeyPolicy<CreateNewCourseFixedIds>,
     new_course: NewCourse,
     user: Uuid,
@@ -37,6 +38,7 @@ pub async fn create_new_course(
 
     let course_id = courses::insert(
         &mut tx,
+        app_config,
         pkey_policy.map_ref(|x| x.course_id),
         course_language_group_id,
         &new_course,

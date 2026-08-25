@@ -1,15 +1,20 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use secrecy::{ExposeSecret, SecretString};
 use sqlx::{Connection, PgConnection};
 use uuid::Uuid;
 
+use crate::domain::exercise_services::token::invalidate_cached_users;
 use crate::domain::oauth::errors::TokenGrantError;
+use crate::domain::oauth::helpers::split_and_validate_scopes;
 use crate::domain::oauth::pkce::verify_token_pkce;
+use headless_lms_utils::cache::Cache;
+
 use headless_lms_models::library::oauth::Digest;
 use headless_lms_models::library::oauth::tokens::token_digest_sha256;
 use headless_lms_models::oauth_access_token::TokenType;
 use headless_lms_models::oauth_auth_code::OAuthAuthCode;
 use headless_lms_models::oauth_client::OAuthClient;
+use headless_lms_models::oauth_device_codes::{DeviceCodeStatus, OAuthDeviceCode};
 use headless_lms_models::oauth_refresh_tokens::{
     IssueTokensFromAuthCodeParams, OAuthRefreshTokens, RotateRefreshTokenParams,
 };
@@ -22,6 +27,25 @@ pub struct TokenPair {
     pub refresh_token: String,
     pub access_digest: Digest,
     pub refresh_digest: Digest,
+}
+
+/// Resolves a refresh grant's requested scope against the token's original scope,
+/// per RFC 6749 §6: absent `scope`, the original set carries over unchanged; a
+/// space-delimited subset narrows it; anything outside the original set is rejected.
+fn resolve_refresh_scopes(
+    original: &[String],
+    requested: Option<&str>,
+) -> Result<Vec<String>, TokenGrantError> {
+    match requested {
+        None => Ok(original.to_vec()),
+        Some(s) if s.split_whitespace().next().is_none() => Ok(original.to_vec()),
+        Some(s) => split_and_validate_scopes(s, original).map_err(|scope| {
+            TokenGrantError::InvalidScope(format!(
+                "requested scope \"{}\" was not included in the original grant",
+                scope
+            ))
+        }),
+    }
 }
 
 /// Generate a new token pair (access token and refresh token) with their digests.
@@ -47,6 +71,7 @@ pub struct TokenGrantRequest<'a> {
     pub token_hmac_key: &'a SecretString,
 }
 
+#[derive(Debug)]
 pub struct TokenGrantResult {
     pub user_id: Uuid,
     pub scopes: Vec<String>,
@@ -55,10 +80,74 @@ pub struct TokenGrantResult {
     pub issue_id_token: bool,
 }
 
+/// RFC 9700 §4.14.2: presenting a refresh token that has already been revoked — by a rotation
+/// that superseded it, or by `/revoke` — is evidence the token leaked, so the whole (user, client)
+/// family is taken down instead of only this request failing. Without that, an attacker who
+/// redeems a stolen token first keeps a self-renewing family alive while the victim silently
+/// re-logs-in into a new one.
+///
+/// Runs before the issuance transaction: that transaction is rolled back on error, which would
+/// undo the takedown.
+///
+/// A token still valid here that loses a concurrent race to another rotation is deliberately left
+/// alone — that is one client refreshing twice, and the winning rotation already turned the family
+/// over.
+async fn revoke_family_on_refresh_token_reuse(
+    conn: &mut PgConnection,
+    cache: &Cache,
+    client: &OAuthClient,
+    refresh_token: &SecretString,
+    token_hmac_key: &SecretString,
+) -> Result<(), TokenGrantError> {
+    let presented = token_digest_sha256(refresh_token.expose_secret(), token_hmac_key);
+    let found = OAuthRefreshTokens::find_any_by_digest(conn, presented, client.id)
+        .await
+        .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
+    let Some(token) = found else {
+        return Ok(());
+    };
+    if !token.revoked {
+        return Ok(());
+    }
+
+    tracing::warn!(
+        user_id = %token.user_id,
+        client_id = %client.id,
+        "OAuth token: reuse of a revoked refresh token; revoking the whole (user, client) token family"
+    );
+    let revoked_access_digests = OAuthRefreshTokens::revoke_grant(conn, token.user_id, client.id)
+        .await
+        .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
+    invalidate_cached_users(cache, &revoked_access_digests, token_hmac_key).await;
+
+    Err(TokenGrantError::InvalidGrant(
+        "Given grant is invalid".to_string(),
+    ))
+}
+
 pub async fn process_token_grant(
     conn: &mut PgConnection,
+    cache: &Cache,
     request: TokenGrantRequest<'_>,
 ) -> Result<TokenGrantResult, TokenGrantError> {
+    // Handled on the bare connection, before the issuance transaction the other grants
+    // roll back on failure, because its poll bookkeeping must persist on error too.
+    // See `process_device_code_grant`.
+    if let TokenGrant::DeviceCode { device_code } = request.grant {
+        return process_device_code_grant(conn, &request, device_code).await;
+    }
+
+    if let TokenGrant::RefreshToken { refresh_token, .. } = request.grant {
+        revoke_family_on_refresh_token_reuse(
+            conn,
+            cache,
+            request.client,
+            refresh_token,
+            request.token_hmac_key,
+        )
+        .await?;
+    }
+
     let mut tx = conn
         .begin()
         .await
@@ -137,14 +226,24 @@ pub async fn process_token_grant(
                 issue_id_token: has_openid,
             })
         }
-        TokenGrant::RefreshToken { refresh_token, .. } => {
+        TokenGrant::RefreshToken {
+            refresh_token,
+            scope,
+        } => {
             let presented =
                 token_digest_sha256(refresh_token.expose_secret(), request.token_hmac_key);
-            // Consume with client_id check in WHERE clause to prevent DoS attacks
+            // Consume with client_id check in WHERE clause to prevent DoS attacks.
+            // A token that isn't currently valid — unknown, expired, revoked, or already
+            // rotated — fails as invalid_grant here; the revoked case has already been
+            // punished by `revoke_family_on_refresh_token_reuse`.
             let old =
                 OAuthRefreshTokens::consume_in_transaction(&mut tx, presented, request.client.id)
                     .await
                     .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?;
+
+            // On `Err` the caller rolls back the transaction, so the consumed-token
+            // update above is undone too and the refresh token isn't burned.
+            let effective_scopes = resolve_refresh_scopes(&old.scopes, scope.as_deref())?;
 
             if let Some(expected_jkt) = old.dpop_jkt.as_deref() {
                 let presented_jkt = request.dpop_jkt.ok_or_else(|| {
@@ -176,6 +275,7 @@ pub async fn process_token_grant(
                     access_token_type: refresh_issue_type,
                     access_token_dpop_jkt: at_jkt,
                     refresh_token_dpop_jkt: refresh_jkt,
+                    scopes: &effective_scopes,
                 },
             )
             .await
@@ -183,11 +283,15 @@ pub async fn process_token_grant(
 
             Ok(TokenGrantResult {
                 user_id: old.user_id,
-                scopes: old.scopes.clone(),
+                scopes: effective_scopes,
                 nonce: None,
                 access_expires_at: request.access_expires_at,
                 issue_id_token: false,
             })
+        }
+        TokenGrant::DeviceCode { .. } => {
+            // Handled before the transaction is opened (see process_token_grant).
+            unreachable!("device_code grant is dispatched before the issuance transaction")
         }
         TokenGrant::Unknown => Err(TokenGrantError::UnsupportedGrantType),
     };
@@ -203,5 +307,732 @@ pub async fn process_token_grant(
             // Transaction will be rolled back on drop
             Err(e)
         }
+    }
+}
+
+/// Handle the RFC 8628 device-code grant at the token endpoint.
+///
+/// The poll is recorded on the bare connection so `last_polled_at` persists
+/// regardless of the outcome (a pending / slow_down response must still advance
+/// the poll clock). Only the approved branch opens a transaction, which
+/// atomically consumes the single-use device code and reuses the
+/// authorization-code issuance path so access/refresh creation and scope
+/// persistence stay identical across grants.
+async fn process_device_code_grant(
+    conn: &mut PgConnection,
+    request: &TokenGrantRequest<'_>,
+    device_code: &SecretString,
+) -> Result<TokenGrantResult, TokenGrantError> {
+    let digest = token_digest_sha256(device_code.expose_secret(), request.token_hmac_key);
+
+    // Record this poll and read back enough state to decide the response.
+    // An unknown device_code surfaces as a record-not-found => invalid grant.
+    let poll = OAuthDeviceCode::record_poll(conn, &digest)
+        .await
+        .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?;
+
+    // RFC 8628 §3.4: the device_code is bound to the client it was issued to; a
+    // different client must not redeem it even if it, too, is allowed the device
+    // grant. Fail as invalid_grant without revealing whether the code or the
+    // presenting client was the mismatch.
+    if poll.client_id != request.client.id {
+        return Err(TokenGrantError::InvalidGrant(
+            "Given grant is invalid".to_string(),
+        ));
+    }
+
+    let now = Utc::now();
+
+    if poll.status == DeviceCodeStatus::Denied {
+        return Err(TokenGrantError::AccessDenied);
+    }
+    if poll.expires_at <= now {
+        return Err(TokenGrantError::ExpiredToken);
+    }
+    if poll.status == DeviceCodeStatus::Approved {
+        let mut tx = conn.begin().await.map_err(|e| {
+            TokenGrantError::ServerError(format!("Failed to start transaction: {}", e))
+        })?;
+
+        // Single-use redemption: the row is deleted so a replay finds nothing.
+        let device = OAuthDeviceCode::consume_approved_in_transaction(&mut tx, &digest)
+            .await
+            .map_err(|e| TokenGrantError::InvalidGrant(format!("{}", e)))?;
+
+        let user_id = device.user_id.ok_or_else(|| {
+            TokenGrantError::ServerError("approved device code missing user_id".into())
+        })?;
+
+        OAuthRefreshTokens::issue_tokens_from_auth_code_in_transaction(
+            &mut tx,
+            IssueTokensFromAuthCodeParams {
+                user_id,
+                client_id: device.client_id,
+                scopes: &device.scopes,
+                access_token_digest: &request.token_pair.access_digest,
+                refresh_token_digest: &request.token_pair.refresh_digest,
+                access_token_expires_at: request.access_expires_at,
+                refresh_token_expires_at: request.refresh_expires_at,
+                access_token_type: request.issued_token_type,
+                access_token_dpop_jkt: request.dpop_jkt,
+                refresh_token_dpop_jkt: request.dpop_jkt,
+            },
+        )
+        .await
+        .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
+
+        tx.commit().await.map_err(|e| {
+            TokenGrantError::ServerError(format!("Failed to commit transaction: {}", e))
+        })?;
+
+        return Ok(TokenGrantResult {
+            user_id,
+            scopes: device.scopes,
+            nonce: None,
+            access_expires_at: request.access_expires_at,
+            issue_id_token: false,
+        });
+    }
+
+    // Still pending: emit slow_down when the client polled faster than the
+    // advertised interval, otherwise authorization_pending.
+    let polled_too_soon = poll
+        .previous_polled_at
+        .map(|prev| {
+            now.signed_duration_since(prev) < Duration::seconds(poll.interval_seconds as i64)
+        })
+        .unwrap_or(false);
+    if polled_too_soon {
+        Err(TokenGrantError::SlowDown)
+    } else {
+        Err(TokenGrantError::AuthorizationPending)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::*;
+    use headless_lms_models::PKeyPolicy;
+    use headless_lms_models::library::oauth::pkce::PkceMethod;
+    use headless_lms_models::library::oauth::{
+        GrantTypeName, generate_access_token, generate_user_code,
+    };
+    use headless_lms_models::oauth_access_token::OAuthAccessToken;
+    use headless_lms_models::oauth_client::{
+        ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
+    };
+    use headless_lms_models::oauth_device_codes::{NewDeviceCodeParams, OAuthDeviceCode};
+    use headless_lms_models::oauth_refresh_tokens::NewRefreshTokenParams;
+    use headless_lms_models::users;
+
+    fn hmac_key() -> SecretString {
+        SecretString::new("test-token-service-hmac-key".to_string().into())
+    }
+
+    /// A `Cache` pointed at a port nothing listens on. Every operation degrades to a no-op, which
+    /// is all these tests need: they assert on database state, not on cache contents.
+    fn test_cache() -> Cache {
+        Cache::new("redis://127.0.0.1:1").expect("cache")
+    }
+
+    /// Build a request that reuses a caller-supplied token pair (so the test can
+    /// recover the issued refresh-token plaintext).
+    fn build_request_with_pair<'a>(
+        grant: &'a TokenGrant,
+        client: &'a OAuthClient,
+        key: &'a SecretString,
+        token_pair: TokenPair,
+    ) -> TokenGrantRequest<'a> {
+        TokenGrantRequest {
+            grant,
+            client,
+            token_pair,
+            access_expires_at: Utc::now() + Duration::hours(1),
+            refresh_expires_at: Utc::now() + Duration::days(30),
+            issued_token_type: TokenType::Bearer,
+            dpop_jkt: None,
+            token_hmac_key: key,
+        }
+    }
+
+    async fn insert_refresh_token(
+        conn: &mut PgConnection,
+        user_id: Uuid,
+        client_id: Uuid,
+    ) -> String {
+        let plaintext = generate_access_token();
+        let digest = token_digest_sha256(&plaintext, &hmac_key());
+        OAuthRefreshTokens::insert(
+            conn,
+            NewRefreshTokenParams {
+                digest: &digest,
+                user_id,
+                client_id,
+                scopes: &["exercise-services".to_string()],
+                audience: None,
+                expires_at: Utc::now() + Duration::days(30),
+                rotated_from: None,
+                metadata: serde_json::Map::new(),
+                dpop_jkt: None,
+            },
+        )
+        .await
+        .unwrap();
+        plaintext
+    }
+
+    fn refresh_grant(plaintext: &str) -> TokenGrant {
+        TokenGrant::RefreshToken {
+            refresh_token: plaintext.into(),
+            scope: None,
+        }
+    }
+
+    /// Like [`refresh_grant`], but with an explicit (possibly down-scoping)
+    /// `scope` request parameter.
+    fn refresh_grant_with_scope(plaintext: &str, scope: &str) -> TokenGrant {
+        TokenGrant::RefreshToken {
+            refresh_token: plaintext.into(),
+            scope: Some(scope.to_string()),
+        }
+    }
+
+    /// Like [`insert_refresh_token`], but with a caller-chosen scope set (so
+    /// down-scoping tests have more than one scope to narrow from).
+    async fn insert_refresh_token_with_scopes(
+        conn: &mut PgConnection,
+        user_id: Uuid,
+        client_id: Uuid,
+        scopes: &[String],
+    ) -> String {
+        let plaintext = generate_access_token();
+        let digest = token_digest_sha256(&plaintext, &hmac_key());
+        OAuthRefreshTokens::insert(
+            conn,
+            NewRefreshTokenParams {
+                digest: &digest,
+                user_id,
+                client_id,
+                scopes,
+                audience: None,
+                expires_at: Utc::now() + Duration::days(30),
+                rotated_from: None,
+                metadata: serde_json::Map::new(),
+                dpop_jkt: None,
+            },
+        )
+        .await
+        .unwrap();
+        plaintext
+    }
+
+    async fn insert_device_client(conn: &mut PgConnection) -> OAuthClient {
+        let client_id = format!("cli-{}", &generate_access_token()[..12]);
+        OAuthClient::insert(
+            conn,
+            NewClientParams {
+                client_id: &client_id,
+                client_name: "Device flow token test client",
+                application_type: ApplicationType::Native,
+                token_endpoint_auth_method: TokenEndpointAuthMethod::None,
+                client_secret: None,
+                client_secret_expires_at: None,
+                redirect_uris: &["urn:ietf:wg:oauth:2.0:oob".to_string()],
+                post_logout_redirect_uris: None,
+                allowed_grant_types: &[GrantTypeName::DeviceCode, GrantTypeName::RefreshToken],
+                scopes: &["exercise-services".to_string()],
+                require_pkce: true,
+                pkce_methods_allowed: &[PkceMethod::S256],
+                allowed_origins: None,
+                bearer_allowed: true,
+            },
+        )
+        .await
+        .unwrap()
+    }
+
+    /// Inserts a device code and returns its plaintext (the caller hashes it to
+    /// build the grant).
+    async fn insert_device_code(
+        conn: &mut PgConnection,
+        client_id: Uuid,
+        expires_at: DateTime<Utc>,
+    ) -> (String, String) {
+        let device_code = generate_access_token();
+        let user_code = generate_user_code();
+        let digest = token_digest_sha256(&device_code, &hmac_key());
+        OAuthDeviceCode::insert(
+            conn,
+            NewDeviceCodeParams {
+                device_code_digest: &digest,
+                user_code: &user_code,
+                client_id,
+                scopes: &["exercise-services".to_string()],
+                interval_seconds: 5,
+                expires_at,
+                metadata: serde_json::Map::new(),
+            },
+        )
+        .await
+        .unwrap();
+        (device_code, user_code)
+    }
+
+    fn build_request<'a>(
+        grant: &'a TokenGrant,
+        client: &'a OAuthClient,
+        key: &'a SecretString,
+    ) -> TokenGrantRequest<'a> {
+        TokenGrantRequest {
+            grant,
+            client,
+            token_pair: generate_token_pair(key),
+            access_expires_at: Utc::now() + Duration::hours(1),
+            refresh_expires_at: Utc::now() + Duration::days(30),
+            issued_token_type: TokenType::Bearer,
+            dpop_jkt: None,
+            token_hmac_key: key,
+        }
+    }
+
+    #[actix_web::test]
+    async fn device_grant_happy_path_issues_tokens_and_is_single_use() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "device-happy@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let client = insert_device_client(tx.as_mut()).await;
+        let (device_code, user_code) =
+            insert_device_code(tx.as_mut(), client.id, Utc::now() + Duration::minutes(15)).await;
+        OAuthDeviceCode::approve(tx.as_mut(), &user_code, user)
+            .await
+            .unwrap();
+
+        let grant = TokenGrant::DeviceCode {
+            device_code: device_code.clone().into(),
+        };
+        let result = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect("device grant should succeed");
+        assert_eq!(result.user_id, user);
+        assert_eq!(result.scopes, vec!["exercise-services".to_string()]);
+        assert!(!result.issue_id_token);
+
+        // Second redemption of the same device code fails (single-use).
+        let grant2 = TokenGrant::DeviceCode {
+            device_code: device_code.into(),
+        };
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant2, &client, &key),
+        )
+        .await
+        .expect_err("replay should fail");
+        assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn device_grant_pending_returns_authorization_pending() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let client = insert_device_client(tx.as_mut()).await;
+        let (device_code, _user_code) =
+            insert_device_code(tx.as_mut(), client.id, Utc::now() + Duration::minutes(15)).await;
+
+        let grant = TokenGrant::DeviceCode {
+            device_code: device_code.into(),
+        };
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect_err("pending grant should not succeed");
+        assert!(matches!(err, TokenGrantError::AuthorizationPending));
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn device_grant_denied_returns_access_denied() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let client = insert_device_client(tx.as_mut()).await;
+        let (device_code, user_code) =
+            insert_device_code(tx.as_mut(), client.id, Utc::now() + Duration::minutes(15)).await;
+        OAuthDeviceCode::deny(tx.as_mut(), &user_code)
+            .await
+            .unwrap();
+
+        let grant = TokenGrant::DeviceCode {
+            device_code: device_code.into(),
+        };
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect_err("denied grant should not succeed");
+        assert!(matches!(err, TokenGrantError::AccessDenied));
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn device_grant_expired_returns_expired_token() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let client = insert_device_client(tx.as_mut()).await;
+        // Already expired (still within the 30-minute CHECK ceiling relative to created_at).
+        let (device_code, _user_code) =
+            insert_device_code(tx.as_mut(), client.id, Utc::now() - Duration::minutes(1)).await;
+
+        let grant = TokenGrant::DeviceCode {
+            device_code: device_code.into(),
+        };
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect_err("expired grant should not succeed");
+        assert!(matches!(err, TokenGrantError::ExpiredToken));
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn device_grant_fast_polling_returns_slow_down() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let client = insert_device_client(tx.as_mut()).await;
+        let (device_code, _user_code) =
+            insert_device_code(tx.as_mut(), client.id, Utc::now() + Duration::minutes(15)).await;
+
+        // First poll: authorization_pending (no previous poll recorded).
+        let grant1 = TokenGrant::DeviceCode {
+            device_code: device_code.clone().into(),
+        };
+        let first = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant1, &client, &key),
+        )
+        .await
+        .expect_err("first poll should be pending");
+        assert!(matches!(first, TokenGrantError::AuthorizationPending));
+
+        // Second immediate poll: slow_down (polled well within the interval).
+        let grant2 = TokenGrant::DeviceCode {
+            device_code: device_code.into(),
+        };
+        let second = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant2, &client, &key),
+        )
+        .await
+        .expect_err("fast second poll should slow down");
+        assert!(matches!(second, TokenGrantError::SlowDown));
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn device_grant_unknown_code_is_invalid_grant() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let client = insert_device_client(tx.as_mut()).await;
+
+        let grant = TokenGrant::DeviceCode {
+            device_code: "does-not-exist".into(),
+        };
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant, &client, &key),
+        )
+        .await
+        .expect_err("unknown device code should fail");
+        assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn device_grant_rejects_mismatched_client() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "device-mismatch@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        // Two distinct clients, both allowed the device_code grant.
+        let client_a = insert_device_client(tx.as_mut()).await;
+        let client_b = insert_device_client(tx.as_mut()).await;
+
+        // The device code is issued to (and approved for) client A.
+        let (device_code, user_code) =
+            insert_device_code(tx.as_mut(), client_a.id, Utc::now() + Duration::minutes(15)).await;
+        OAuthDeviceCode::approve(tx.as_mut(), &user_code, user)
+            .await
+            .unwrap();
+
+        // Client B presenting A's device code must be rejected (RFC 8628 §3.4).
+        let grant_b = TokenGrant::DeviceCode {
+            device_code: device_code.clone().into(),
+        };
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant_b, &client_b, &key),
+        )
+        .await
+        .expect_err("cross-client device code redemption must fail");
+        assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
+
+        // The binding check does not consume the code, so the original client
+        // (A) can still redeem it successfully.
+        let grant_a = TokenGrant::DeviceCode {
+            device_code: device_code.into(),
+        };
+        let ok = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request(&grant_a, &client_a, &key),
+        )
+        .await
+        .expect("the client the code was issued to should still succeed");
+        assert_eq!(ok.user_id, user);
+
+        tx.rollback().await;
+    }
+
+    /// Refresh tokens are single-use, and reuse is treated as a leak: presenting a superseded
+    /// token fails as `invalid_grant` *and* takes down the whole (user, client) family, including
+    /// the successor the legitimate holder is still using (RFC 9700 §4.14.2). Anything less lets
+    /// an attacker who redeemed the stolen token first keep renewing forever.
+    #[actix_web::test]
+    async fn refresh_reuse_of_a_rotated_token_revokes_the_whole_family() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "refresh-reuse@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let client = insert_device_client(tx.as_mut()).await;
+
+        // RT1 -> RT2 (normal rotation; revokes the family).
+        let rt1 = insert_refresh_token(tx.as_mut(), user, client.id).await;
+        let pair2 = generate_token_pair(&key);
+        let rt2 = pair2.refresh_token.clone();
+        let at2 = pair2.access_token.clone();
+        let grant1 = refresh_grant(&rt1);
+        process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request_with_pair(&grant1, &client, &key, pair2),
+        )
+        .await
+        .expect("initial rotation should succeed");
+
+        // The rotation revoked RT1 along with the rest of the family.
+        assert!(
+            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt1, &key))
+                .await
+                .is_err(),
+            "the rotated token must no longer be valid"
+        );
+
+        // Reusing RT1 fails, even immediately after the rotation.
+        let grant2 = refresh_grant(&rt1);
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request_with_pair(&grant2, &client, &key, generate_token_pair(&key)),
+        )
+        .await
+        .expect_err("reusing a rotated refresh token must fail");
+        assert!(matches!(err, TokenGrantError::InvalidGrant(_)));
+
+        // The takedown reaches the successor the legitimate holder still has: the victim is
+        // logged out rather than left sharing a live family with the attacker.
+        assert!(
+            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&rt2, &key))
+                .await
+                .is_err(),
+            "RT2 must be dead after a reuse of its predecessor was detected"
+        );
+        // The access token issued alongside RT2 goes with it, or the bearer keeps working.
+        assert!(
+            OAuthAccessToken::find_valid(tx.as_mut(), token_digest_sha256(&at2, &key))
+                .await
+                .is_err(),
+            "the access token from the rotated pair must be revoked with the family"
+        );
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn refresh_with_subset_scope_narrows_the_issued_tokens() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "refresh-downscope@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let client = insert_device_client(tx.as_mut()).await;
+
+        let original_scopes = vec!["exercise-services".to_string(), "openid".to_string()];
+        let rt1 =
+            insert_refresh_token_with_scopes(tx.as_mut(), user, client.id, &original_scopes).await;
+
+        let pair2 = generate_token_pair(&key);
+        // `Digest` doesn't implement `Clone` (it wraps a `SecretBox`), so hang
+        // on to the plaintexts instead and re-derive the digests afterwards.
+        let new_refresh_plaintext = pair2.refresh_token.clone();
+        let new_access_plaintext = pair2.access_token.clone();
+        let grant = refresh_grant_with_scope(&rt1, "exercise-services");
+        let result = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request_with_pair(&grant, &client, &key, pair2),
+        )
+        .await
+        .expect("requesting a subset of the original scope should be granted");
+
+        // The response reports the narrowed scope, not the original one.
+        assert_eq!(result.scopes, vec!["exercise-services".to_string()]);
+
+        // The persisted refresh + access token rows are narrowed too, not
+        // just the response body: an old-scope check against the DB row
+        // (e.g. a later exercise-services gate) must see the same narrowed
+        // set the client asked for.
+        let new_refresh_row = OAuthRefreshTokens::find_valid(
+            tx.as_mut(),
+            token_digest_sha256(&new_refresh_plaintext, &key),
+        )
+        .await
+        .expect("new refresh token should be valid");
+        assert_eq!(
+            new_refresh_row.scopes,
+            vec!["exercise-services".to_string()]
+        );
+
+        let new_access_row = OAuthAccessToken::find_valid(
+            tx.as_mut(),
+            token_digest_sha256(&new_access_plaintext, &key),
+        )
+        .await
+        .expect("new access token should be valid");
+        assert_eq!(new_access_row.scopes, vec!["exercise-services".to_string()]);
+
+        tx.rollback().await;
+    }
+
+    #[actix_web::test]
+    async fn refresh_requesting_scope_outside_original_grant_is_rejected_without_consuming_token() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "refresh-widescope@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let client = insert_device_client(tx.as_mut()).await;
+
+        let original_scopes = vec!["exercise-services".to_string()];
+        let rt1 =
+            insert_refresh_token_with_scopes(tx.as_mut(), user, client.id, &original_scopes).await;
+
+        // Ask for a scope that was never granted to this refresh token.
+        let grant = refresh_grant_with_scope(&rt1, "exercise-services admin");
+        let err = process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request_with_pair(&grant, &client, &key, generate_token_pair(&key)),
+        )
+        .await
+        .expect_err("a wider-than-original scope request must be rejected");
+        assert!(matches!(err, TokenGrantError::InvalidScope(_)));
+
+        // The rejected request must not have burned the single-use refresh
+        // token: it must still be redeemable afterwards.
+        let rt1_digest = token_digest_sha256(&rt1, &key);
+        let still_valid = OAuthRefreshTokens::find_valid(tx.as_mut(), rt1_digest).await;
+        assert!(
+            still_valid.is_ok(),
+            "a rejected down-scope request must not consume/rotate the refresh token"
+        );
+
+        // And it must still be genuinely usable for a normal (non-down-scoping) refresh.
+        let grant2 = refresh_grant(&rt1);
+        process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request_with_pair(&grant2, &client, &key, generate_token_pair(&key)),
+        )
+        .await
+        .expect("the untouched refresh token should still work for a normal refresh");
+
+        tx.rollback().await;
     }
 }

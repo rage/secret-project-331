@@ -1,0 +1,930 @@
+use crate::{
+    domain::{authentication, error::as_controller_error},
+    prelude::*,
+};
+use actix_web::{FromRequest, http::header};
+use chrono::{DateTime, Utc};
+use futures_util::{FutureExt, future::LocalBoxFuture};
+use headless_lms_utils::cache::Cache;
+use models::{
+    library::oauth::{Digest, EXERCISE_SERVICES_SCOPE, token_digest_sha256},
+    oauth_access_token::{OAuthAccessToken, TokenType},
+    oauth_client::OAuthClient,
+    users::User,
+};
+use secrecy::{ExposeSecret, SecretString};
+use sqlx::PgConnection;
+use std::ops::{Deref, DerefMut};
+use std::time::Duration;
+
+/// Authenticated user extracted from a courses.mooc.fi OAuth 2.0 access token.
+///
+/// The client sends an opaque access token issued by this backend's own OAuth
+/// provider (via the device-authorization flow) as `Authorization: Bearer <token>`.
+/// The token is hashed to a digest, looked up in `oauth_access_tokens`, gated on
+/// the `exercise-services` scope, and mapped to the local user that owns it.
+///
+/// The exact error bodies and status codes are a contract with the tmc-langs client,
+/// which keys its error mapping on them:
+///  - a missing / invalid / expired / revoked token, a token whose client may
+///    not use Bearer tokens, a sender-constrained (DPoP) token, or a token whose
+///    user no longer exists all yield `401` with an `unauthorized` body;
+///  - a valid token that lacks the `exercise-services` scope yields `403` with a
+///    `forbidden` body.
+#[derive(Debug, Clone)]
+pub struct UserFromOAuthToken(User);
+
+impl Deref for UserFromOAuthToken {
+    type Target = User;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for UserFromOAuthToken {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+/// Builds the `401 unauthorized` error the langs client expects for any rejected token.
+fn unauthorized(message: &str) -> ControllerError {
+    controller_err!(Unauthorized, message.to_string())
+}
+
+/// Builds the `403 forbidden` error the langs client expects for a token missing the scope.
+fn forbidden(message: &str) -> ControllerError {
+    controller_err!(Forbidden, message.to_string())
+}
+
+/// Classify a model lookup error raised while resolving a Bearer token.
+///
+/// An absent row (token, client or user missing, or the user soft-deleted) is an
+/// authentication failure and maps to `401`; anything else is infrastructure and must
+/// propagate as `500`. The distinction is load-bearing: langs turns a `401` into
+/// refresh-then-DELETE-credentials, so collapsing a transient DB blip into `401` would
+/// force-log-out every user for the duration of the outage.
+fn lookup_error(err: models::ModelError, unauthorized_message: &str) -> ControllerError {
+    use headless_lms_base::error::backend_error::BackendError;
+    match err.error_type() {
+        models::ModelErrorType::RecordNotFound | models::ModelErrorType::NotFound => {
+            unauthorized(unauthorized_message)
+        }
+        _ => {
+            let source: anyhow::Error = err.into();
+            controller_err!(
+                InternalServerError,
+                "A database error occurred while validating the access token.".to_string(),
+                source
+            )
+        }
+    }
+}
+
+/// Resolve an opaque Bearer access token to the local user that owns it.
+///
+/// Pure DB work (no actix, no cache) so it can be unit-tested directly. Flow:
+/// digest the token → look up a still-valid `oauth_access_tokens` row → reject
+/// sender-constrained (DPoP) tokens (this API is Bearer-only, so
+/// `find_valid_for_sender` is deliberately not used) → require the issuing
+/// client to allow Bearer tokens → require the `exercise-services` scope → load
+/// the user.
+///
+/// Also returns the token's `expires_at`, so the caller can cap cache TTL to it.
+async fn resolve_oauth_user(
+    conn: &mut PgConnection,
+    token: &SecretString,
+    token_hmac_key: &SecretString,
+) -> Result<(User, DateTime<Utc>), ControllerError> {
+    let digest = token_digest_sha256(token.expose_secret(), token_hmac_key);
+    let access_token = OAuthAccessToken::find_valid(conn, digest)
+        .await
+        .map_err(|e| lookup_error(e, "The access token is missing, invalid, or expired."))?;
+
+    // Bearer-only: a DPoP (sender-constrained) token must be presented with a
+    // proof, which this API does not verify, so reject it rather than accept it
+    // unbound.
+    if access_token.token_type != TokenType::Bearer {
+        return Err(unauthorized(
+            "This API accepts only Bearer tokens; the presented token is sender-constrained.",
+        ));
+    }
+
+    let client = OAuthClient::find_by_id(conn, access_token.client_id)
+        .await
+        .map_err(|e| lookup_error(e, "The access token's client could not be found."))?;
+    if !client.allows_bearer() {
+        return Err(unauthorized(
+            "The access token's client is not permitted to use Bearer tokens.",
+        ));
+    }
+
+    if !access_token
+        .scopes
+        .iter()
+        .any(|scope| scope == EXERCISE_SERVICES_SCOPE)
+    {
+        return Err(forbidden(
+            "The access token does not grant the required exercise-services scope.",
+        ));
+    }
+
+    let user_id = access_token
+        .user_id
+        .ok_or_else(|| unauthorized("The access token is not associated with a user."))?;
+
+    // `get_active_by_id` filters `deleted_at IS NULL`, so a soft-deleted
+    // (banned/removed) user resolves to RecordNotFound -> 401, rather than
+    // continuing to authenticate until the token expires.
+    let user = models::users::get_active_by_id(conn, user_id)
+        .await
+        .map_err(|e| lookup_error(e, "The access token's user could not be found."))?;
+
+    Ok((user, access_token.expires_at))
+}
+
+impl FromRequest for UserFromOAuthToken {
+    type Error = ControllerError;
+    type Future = LocalBoxFuture<'static, Result<Self, ControllerError>>;
+
+    fn from_request(req: &HttpRequest, _payload: &mut actix_http::Payload) -> Self::Future {
+        let app_data = (|| -> Result<_, ControllerError> {
+            let pool = req
+                .app_data::<web::Data<PgPool>>()
+                .ok_or_else(|| {
+                    controller_err!(InternalServerError, "Missing database pool".to_string())
+                })?
+                .clone();
+            let app_conf = req
+                .app_data::<web::Data<ApplicationConfiguration>>()
+                .ok_or_else(|| {
+                    controller_err!(
+                        InternalServerError,
+                        "Missing application configuration".to_string()
+                    )
+                })?
+                .clone();
+            let cache = req
+                .app_data::<web::Data<Cache>>()
+                .ok_or_else(|| controller_err!(InternalServerError, "Missing cache".to_string()))?
+                .clone();
+            Ok((pool, app_conf, cache))
+        })();
+
+        let auth_header = req
+            .headers()
+            .get(header::AUTHORIZATION)
+            .map(|hv| String::from_utf8_lossy(hv.as_bytes()))
+            .and_then(|h| h.strip_prefix("Bearer ").map(str::to_string))
+            .map(|o| SecretString::new(o.into()));
+
+        async move {
+            let (pool, app_conf, cache) = app_data?;
+            let Some(token) = auth_header else {
+                return Err(unauthorized("Missing bearer token"));
+            };
+            let mut conn = pool.acquire().await?;
+
+            // In test/dev mode a small set of fixed tokens map straight to seeded users so
+            // tests can skip the device flow. Anything else falls through to the real
+            // OAuth-token path below.
+            if app_conf.test_mode {
+                warn!("Test mode is on: fixed test tokens map directly to seeded users.");
+                if let Some(user) =
+                    authentication::authenticate_test_token(&mut conn, &token, &app_conf)
+                        .await
+                        .map_err(as_controller_error(
+                            ControllerErrorType::Unauthorized,
+                            "Could not find user for test token".to_string(),
+                        ))?
+                {
+                    return Ok(Self(user));
+                }
+            }
+
+            let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
+            let digest = token_digest_sha256(token.expose_secret(), token_hmac_key);
+
+            // A cache hit skips `resolve_oauth_user`, and with it the token-validity,
+            // bearer_allowed, scope and soft-delete checks, for the cache TTL — see
+            // `MAX_CACHE_TTL` for why that bound is the security-relevant number. The TTL is
+            // additionally clamped to the token's own remaining lifetime so a cached mapping
+            // never outlives the token.
+            let user = match load_user(&cache, &digest, token_hmac_key).await {
+                Some(user) => user,
+                None => {
+                    let (user, expires_at) =
+                        resolve_oauth_user(&mut conn, &token, token_hmac_key).await?;
+                    let ttl = cache_ttl_for_token(expires_at, Utc::now());
+                    cache_user(&cache, &digest, token_hmac_key, &user, ttl).await;
+                    user
+                }
+            };
+
+            Ok(Self(user))
+        }
+        .boxed_local()
+    }
+}
+
+/// Domain separator for the cache-key KDF. Changing it invalidates every cache entry.
+const CACHE_KEY_CONTEXT: &str = "headless-lms exercise-services token cache v1";
+
+/// Cache key for a token, derived from its `oauth_access_tokens.digest` rather than the token
+/// plaintext: bulk revocation only ever holds digests, so a plaintext-derived key could not
+/// be evicted. Keyed (not a bare hash) so a leaked Redis dump is inert and a guessed digest
+/// cannot be confirmed offline.
+fn digest_to_cache_key(digest: &Digest, token_hmac_key: &SecretString) -> String {
+    let subkey = blake3::derive_key(CACHE_KEY_CONTEXT, token_hmac_key.expose_secret().as_bytes());
+    format!(
+        "user:{}",
+        blake3::keyed_hash(&subkey, digest.as_slice()).to_hex()
+    )
+}
+
+/// Upper bound on cache TTL, independent of the token's own expiry.
+///
+/// A cache hit skips every authorization check in `resolve_oauth_user`, so this is the window in
+/// which a change that nothing evicts for goes unnoticed. Every mutation this application performs
+/// does evict: token revocation (`/revoke`), refresh-family revocation on reuse, consent withdrawal
+/// (`authorized_clients`), and user deletion — both self-service and the `sync_tmc_users` batch —
+/// all go through code that holds the affected digests.
+///
+/// What remains is only out-of-band SQL, and it cannot be hooked from here:
+///  - a hard `DELETE FROM users`/`oauth_clients`, whose `ON DELETE CASCADE` into
+///    `oauth_access_tokens` holds no digests and runs no Rust;
+///  - `oauth_clients` changes — `bearer_allowed = false`, a soft delete, a narrowed `scopes` — for
+///    which no Rust mutator exists at all, so there is no call site to evict from.
+///
+/// For those paths this bound is still the only guard, which is why it is minutes and not an hour:
+/// a change made by hand has to take effect without also flushing Redis.
+const MAX_CACHE_TTL: Duration = Duration::from_secs(15 * 60);
+
+/// `min(MAX_CACHE_TTL, expires_at - now)`, floored at zero — a flat TTL could otherwise
+/// outlive a short-lived token.
+fn cache_ttl_for_token(expires_at: DateTime<Utc>, now: DateTime<Utc>) -> Duration {
+    let until_expiry = (expires_at - now).to_std().unwrap_or(Duration::ZERO);
+    until_expiry.min(MAX_CACHE_TTL)
+}
+
+pub async fn cache_user(
+    cache: &Cache,
+    digest: &Digest,
+    token_hmac_key: &SecretString,
+    user: &User,
+    ttl: Duration,
+) {
+    cache
+        .cache_json(digest_to_cache_key(digest, token_hmac_key), user, ttl)
+        .await;
+}
+
+pub async fn load_user(
+    cache: &Cache,
+    digest: &Digest,
+    token_hmac_key: &SecretString,
+) -> Option<User> {
+    cache
+        .get_json(digest_to_cache_key(digest, token_hmac_key))
+        .await
+}
+
+/// Evicts a cached user mapping. Call this right after revoking a token so it can't
+/// keep authenticating from a stale cache hit for the rest of its TTL.
+///
+/// Entries written before this keying scheme shipped are unreachable and only age out
+/// within `MAX_CACHE_TTL`.
+pub(crate) async fn invalidate_cached_user(
+    cache: &Cache,
+    digest: &Digest,
+    token_hmac_key: &SecretString,
+) {
+    cache
+        .invalidate(digest_to_cache_key(digest, token_hmac_key))
+        .await;
+}
+
+/// Evicts every mapping a batch revocation invalidated — a refresh family, a withdrawn consent, a
+/// deleted user. Same contract as `invalidate_cached_user`, for the callers that revoke more than
+/// one token at a time.
+pub(crate) async fn invalidate_cached_users(
+    cache: &Cache,
+    digests: &[Digest],
+    token_hmac_key: &SecretString,
+) {
+    for digest in digests {
+        invalidate_cached_user(cache, digest, token_hmac_key).await;
+    }
+}
+
+/// Soft-deletes a user and evicts every cached mapping their access tokens had.
+///
+/// The only supported way to delete a user: `models::users::delete_user` returns the digests of the
+/// tokens it hard-deleted, and a caller that drops them leaves a banned account authenticating from
+/// a cache hit for the rest of `MAX_CACHE_TTL`. Both callers — self-service account deletion and the
+/// `sync_tmc_users` batch — go through here so neither can forget.
+pub async fn delete_user_and_invalidate_cached_tokens(
+    conn: &mut PgConnection,
+    cache: &Cache,
+    token_hmac_key: &SecretString,
+    user_id: uuid::Uuid,
+) -> Result<(), models::ModelError> {
+    let revoked = models::users::delete_user(conn, user_id).await?;
+    invalidate_cached_users(cache, &revoked, token_hmac_key).await;
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::*;
+    use actix_web::ResponseError;
+    use actix_web::http::StatusCode;
+    use chrono::{Duration as ChronoDuration, Utc};
+    use headless_lms_models::library::oauth::pkce::PkceMethod;
+    use headless_lms_models::library::oauth::{GrantTypeName, generate_access_token};
+    use headless_lms_models::oauth_access_token::NewAccessTokenParams;
+    use headless_lms_models::oauth_client::{
+        ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
+    };
+
+    fn hmac_key() -> SecretString {
+        SecretString::new("test-exercise-services-hmac-key".to_string().into())
+    }
+
+    async fn insert_client(
+        conn: &mut PgConnection,
+        scopes: &[String],
+        bearer_allowed: bool,
+    ) -> OAuthClient {
+        let client_id = format!("cli-{}", &generate_access_token()[..12]);
+        OAuthClient::insert(
+            conn,
+            NewClientParams {
+                client_id: &client_id,
+                client_name: "Exercise services token test client",
+                application_type: ApplicationType::Native,
+                token_endpoint_auth_method: TokenEndpointAuthMethod::None,
+                client_secret: None,
+                client_secret_expires_at: None,
+                redirect_uris: &["urn:ietf:wg:oauth:2.0:oob".to_string()],
+                post_logout_redirect_uris: None,
+                allowed_grant_types: &[GrantTypeName::DeviceCode, GrantTypeName::RefreshToken],
+                scopes,
+                require_pkce: true,
+                pkce_methods_allowed: &[PkceMethod::S256],
+                allowed_origins: None,
+                bearer_allowed,
+            },
+        )
+        .await
+        .unwrap()
+    }
+
+    /// Insert an access token for the given user/client and return its plaintext.
+    async fn insert_token(
+        conn: &mut PgConnection,
+        client: &OAuthClient,
+        user_id: uuid::Uuid,
+        scopes: &[String],
+        token_type: TokenType,
+        expires_at: chrono::DateTime<Utc>,
+    ) -> String {
+        let plaintext = generate_access_token();
+        let digest = token_digest_sha256(&plaintext, &hmac_key());
+        let dpop_jkt = match token_type {
+            TokenType::Bearer => None,
+            // A JWK SHA-256 thumbprint is 43 base64url chars (DB CHECK requires 43..=128).
+            TokenType::DPoP => Some("0123456789abcdefghijklmnopqrstuvwxyzABCDEFG"),
+        };
+        OAuthAccessToken::insert(
+            conn,
+            NewAccessTokenParams {
+                digest: &digest,
+                user_id: Some(user_id),
+                client_id: client.id,
+                scopes,
+                audience: None,
+                token_type,
+                dpop_jkt,
+                metadata: serde_json::Map::new(),
+                expires_at,
+            },
+        )
+        .await
+        .unwrap();
+        plaintext
+    }
+
+    fn secret(s: &str) -> SecretString {
+        SecretString::new(s.to_string().into())
+    }
+
+    #[actix_web::test]
+    async fn happy_path_returns_the_token_owner() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let (resolved, _expires_at) = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect("valid token should resolve");
+        assert_eq!(resolved.id, user);
+    }
+
+    #[test]
+    fn cache_ttl_is_clamped_for_long_lived_tokens() {
+        let now = Utc::now();
+        // Token good for another 24h: the cap, not the token, decides the TTL.
+        let ttl = cache_ttl_for_token(now + ChronoDuration::hours(24), now);
+        assert_eq!(ttl, MAX_CACHE_TTL);
+    }
+
+    /// Guards the bound argued for in `MAX_CACHE_TTL`'s doc: minutes, never an hour.
+    #[test]
+    fn the_cache_ttl_cap_stays_in_minutes() {
+        assert!(MAX_CACHE_TTL <= Duration::from_secs(15 * 60));
+    }
+
+    #[test]
+    fn cache_ttl_tracks_tokens_shorter_lived_than_the_cap() {
+        let now = Utc::now();
+        // Token expiring in 30 seconds: the mapping must not outlive it.
+        let ttl = cache_ttl_for_token(now + ChronoDuration::seconds(30), now);
+        assert!(ttl <= Duration::from_secs(30));
+        assert!(ttl > Duration::from_secs(25));
+    }
+
+    #[test]
+    fn cache_ttl_is_zero_for_already_expired_tokens() {
+        let now = Utc::now();
+        // A token at/after expiry yields a zero TTL rather than a negative or flat 1h.
+        let ttl = cache_ttl_for_token(now - ChronoDuration::minutes(1), now);
+        assert_eq!(ttl, Duration::ZERO);
+    }
+
+    #[actix_web::test]
+    async fn unknown_token_is_unauthorized() {
+        insert_data!(:tx);
+        let err = resolve_oauth_user(tx.as_mut(), &secret("not-a-real-token"), &hmac_key())
+            .await
+            .expect_err("unknown token should be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+        assert_unauthorized_body(err);
+    }
+
+    #[actix_web::test]
+    async fn expired_token_is_unauthorized() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() - ChronoDuration::minutes(1),
+        )
+        .await;
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("expired token should be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn missing_scope_is_forbidden() {
+        insert_data!(:tx, :user);
+        // Client and token both carry a non-exercise-services scope.
+        let client = insert_client(tx.as_mut(), &["openid".to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &["openid".to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("token without the scope should be forbidden");
+        assert_eq!(err.status_code(), StatusCode::FORBIDDEN);
+        assert_forbidden_body(err);
+    }
+
+    #[actix_web::test]
+    async fn client_without_bearer_allowed_is_unauthorized() {
+        insert_data!(:tx, :user);
+        let client =
+            insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], false).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("bearer_allowed=false client should be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn dpop_bound_token_is_rejected() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::DPoP,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("DPoP-bound token should be rejected on this Bearer-only API");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn soft_deleted_user_is_unauthorized() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        // Soft-delete the token owner. Their still-valid access token must stop
+        // authenticating rather than working until it expires.
+        sqlx::query("UPDATE users SET deleted_at = now() WHERE id = $1")
+            .bind(user)
+            .execute(&mut **tx.as_mut())
+            .await
+            .unwrap();
+
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("a soft-deleted user's token must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+        assert_unauthorized_body(err);
+    }
+
+    /// Deleting the account must take its credentials down with it, not merely make the
+    /// `users` join fail: the returned digests are what lets the caller evict the cache, and a
+    /// deleted access-token row is what makes the ban survive a cache that was never evicted.
+    #[actix_web::test]
+    async fn deleting_a_user_revokes_their_tokens_and_reports_the_digests() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+        let digest = token_digest_sha256(&token, &hmac_key());
+
+        let revoked = models::users::delete_user(tx.as_mut(), user)
+            .await
+            .expect("delete user");
+        assert_eq!(
+            revoked.len(),
+            1,
+            "the deleted access token's digest must be reported for cache eviction"
+        );
+
+        assert!(
+            OAuthAccessToken::find_valid(tx.as_mut(), digest)
+                .await
+                .is_err(),
+            "the access token row must be gone, not just orphaned"
+        );
+        let err = resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect_err("a deleted user's token must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn lookup_error_maps_not_found_to_401_and_db_errors_to_500() {
+        use headless_lms_models::{ModelError, ModelErrorType};
+
+        // A missing row (token/client/user absent or soft-deleted) -> 401 with the
+        // exact unauthorized body the langs client keys on.
+        let not_found = lookup_error(
+            ModelError::new(
+                ModelErrorType::RecordNotFound,
+                "no such row".to_string(),
+                None::<anyhow::Error>,
+            ),
+            "missing",
+        );
+        assert_eq!(not_found.status_code(), StatusCode::UNAUTHORIZED);
+        assert_unauthorized_body(not_found);
+
+        // An infrastructure error (sqlx surfaces connection/statement failures as
+        // ModelErrorType::Database) -> 500, so a DB blip never masquerades as an
+        // invalid token and forces the client to drop its credentials.
+        let db_error = lookup_error(
+            ModelError::new(
+                ModelErrorType::Database,
+                "connection reset".to_string(),
+                None::<anyhow::Error>,
+            ),
+            "missing",
+        );
+        assert_eq!(
+            db_error.status_code(),
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "transient DB errors must not collapse into 401"
+        );
+    }
+
+    /// Assert the exact 401 body shape the langs client depends on.
+    fn assert_unauthorized_body(err: ControllerError) {
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("body resolves immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(value["message_key"], "unauthorized");
+    }
+
+    /// Assert the exact 403 body shape the langs client depends on.
+    fn assert_forbidden_body(err: ControllerError) {
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("body resolves immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+        assert_eq!(value["type"], "forbidden");
+        assert_eq!(value["message_key"], "forbidden");
+    }
+
+    /// A token that authenticated once (populating the cache) must not keep
+    /// authenticating from that entry after it's revoked. Drives the underlying
+    /// functions directly rather than the actix extractor or `/revoke` handler,
+    /// since those need a `PgPool`/running `App` this crate's tests don't set up.
+    ///
+    /// Needs a real Redis; a no-op (not a failure) when `REDIS_URL` isn't set,
+    /// matching `headless_lms_utils::cache`'s own test convention.
+    #[actix_web::test]
+    async fn revoking_an_access_token_evicts_its_cached_user() {
+        let Some(cache) = connected_test_cache().await else {
+            return;
+        };
+
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let plaintext = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+        let token = secret(&plaintext);
+
+        // Populate the cache the way the extractor would on a first request.
+        let (resolved, expires_at) = resolve_oauth_user(tx.as_mut(), &token, &hmac_key())
+            .await
+            .expect("token should resolve before revocation");
+        let ttl = cache_ttl_for_token(expires_at, Utc::now());
+        let digest = token_digest_sha256(&plaintext, &hmac_key());
+        cache_user(&cache, &digest, &hmac_key(), &resolved, ttl).await;
+        assert!(
+            load_user(&cache, &digest, &hmac_key()).await.is_some(),
+            "user should be cached after the first successful resolution"
+        );
+
+        // Revoke it the way the /revoke controller's access-token path does:
+        // hard-delete the DB row, then evict the cache entry.
+        OAuthAccessToken::revoke_by_digest(
+            tx.as_mut(),
+            token_digest_sha256(&plaintext, &hmac_key()),
+        )
+        .await
+        .expect("revoke_by_digest should succeed");
+        invalidate_cached_user(&cache, &digest, &hmac_key()).await;
+
+        // The very next lookup must miss the cache (not just eventually,
+        // once the TTL naturally expires).
+        assert!(
+            load_user(&cache, &digest, &hmac_key()).await.is_none(),
+            "a revoked token's cache entry must not survive revocation"
+        );
+
+        // And re-resolving from the DB must now fail too, confirming this
+        // isn't passing only because the cache was never populated.
+        let err = resolve_oauth_user(tx.as_mut(), &token, &hmac_key())
+            .await
+            .expect_err("a revoked token must not resolve from the DB either");
+        assert_eq!(err.status_code(), StatusCode::UNAUTHORIZED);
+    }
+
+    /// The bug this keying scheme exists for: bulk revocation holds no token plaintext, so
+    /// with a plaintext-derived cache key it could not evict and the token kept
+    /// authenticating for up to `MAX_CACHE_TTL`.
+    ///
+    /// Needs a real Redis; a no-op (not a failure) when `REDIS_URL` isn't set.
+    #[actix_web::test]
+    async fn bulk_revoking_a_clients_tokens_evicts_their_cached_users() {
+        let Some(cache) = connected_test_cache().await else {
+            return;
+        };
+
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let plaintext = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+
+        let (resolved, expires_at) =
+            resolve_oauth_user(tx.as_mut(), &secret(&plaintext), &hmac_key())
+                .await
+                .expect("token should resolve before revocation");
+        let digest = token_digest_sha256(&plaintext, &hmac_key());
+        cache_user(
+            &cache,
+            &digest,
+            &hmac_key(),
+            &resolved,
+            cache_ttl_for_token(expires_at, Utc::now()),
+        )
+        .await;
+        assert!(load_user(&cache, &digest, &hmac_key()).await.is_some());
+
+        // The bulk path never sees plaintext — it must be able to evict from the digests alone.
+        let revoked =
+            models::oauth_user_client_scopes::OAuthUserClientScopes::revoke_user_client_everything(
+                tx.as_mut(),
+                user,
+                client.id,
+            )
+            .await
+            .expect("bulk revoke should succeed");
+        assert_eq!(
+            revoked.len(),
+            1,
+            "bulk revoke must return the deleted digest"
+        );
+        for revoked_digest in &revoked {
+            invalidate_cached_user(&cache, revoked_digest, &hmac_key()).await;
+        }
+
+        assert!(
+            load_user(&cache, &digest, &hmac_key()).await.is_none(),
+            "a bulk-revoked token's cache entry must not survive revocation"
+        );
+    }
+
+    /// Deleting a user must take effect on the next request, not after `MAX_CACHE_TTL`. This is the
+    /// path both the self-service account deletion and the `sync_tmc_users` batch take; the batch
+    /// used to drop the digests and rely on the TTL alone.
+    ///
+    /// Needs a real Redis; a no-op (not a failure) when `REDIS_URL` isn't set.
+    #[actix_web::test]
+    async fn deleting_a_user_evicts_their_cached_tokens() {
+        let Some(cache) = connected_test_cache().await else {
+            return;
+        };
+
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        // Two tokens, so a hook that only evicted the first would fail here.
+        let mut digests = Vec::new();
+        for _ in 0..2 {
+            let plaintext = insert_token(
+                tx.as_mut(),
+                &client,
+                user,
+                &[EXERCISE_SERVICES_SCOPE.to_string()],
+                TokenType::Bearer,
+                Utc::now() + ChronoDuration::hours(1),
+            )
+            .await;
+            let (resolved, expires_at) =
+                resolve_oauth_user(tx.as_mut(), &secret(&plaintext), &hmac_key())
+                    .await
+                    .expect("token should resolve before deletion");
+            let digest = token_digest_sha256(&plaintext, &hmac_key());
+            cache_user(
+                &cache,
+                &digest,
+                &hmac_key(),
+                &resolved,
+                cache_ttl_for_token(expires_at, Utc::now()),
+            )
+            .await;
+            assert!(load_user(&cache, &digest, &hmac_key()).await.is_some());
+            digests.push(digest);
+        }
+
+        delete_user_and_invalidate_cached_tokens(tx.as_mut(), &cache, &hmac_key(), user)
+            .await
+            .expect("deletion should succeed");
+
+        for digest in &digests {
+            assert!(
+                load_user(&cache, digest, &hmac_key()).await.is_none(),
+                "a deleted user's cache entries must not survive the deletion"
+            );
+        }
+    }
+
+    #[test]
+    fn cache_key_is_not_the_db_digest() {
+        let digest = token_digest_sha256("some-token", &hmac_key());
+        let key = digest_to_cache_key(&digest, &hmac_key());
+        // A key that merely re-encoded the digest would leak it into Redis.
+        let digest_hex: String = digest
+            .as_slice()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect();
+        assert!(!key.contains(&digest_hex));
+    }
+
+    #[test]
+    fn cache_key_is_stable_per_digest() {
+        let a = token_digest_sha256("token-a", &hmac_key());
+        let b = token_digest_sha256("token-b", &hmac_key());
+        assert_eq!(
+            digest_to_cache_key(&a, &hmac_key()),
+            digest_to_cache_key(&a, &hmac_key())
+        );
+        assert_ne!(
+            digest_to_cache_key(&a, &hmac_key()),
+            digest_to_cache_key(&b, &hmac_key())
+        );
+    }
+
+    #[test]
+    fn cache_key_depends_on_the_hmac_key() {
+        let digest = token_digest_sha256("token", &hmac_key());
+        let other = secret("a-different-hmac-key");
+        assert_ne!(
+            digest_to_cache_key(&digest, &hmac_key()),
+            digest_to_cache_key(&digest, &other)
+        );
+    }
+
+    /// A Redis-backed `Cache` that has completed its initial connection, or `None` when
+    /// `REDIS_URL` isn't set (matching `headless_lms_utils::cache`'s own test convention).
+    async fn connected_test_cache() -> Option<Cache> {
+        let redis_url = test_redis_url()?;
+        let cache = Cache::new(&redis_url).expect("failed to construct Redis cache client");
+        // `Cache::wait_for_initial_connection` is `#[cfg(test)]` *inside the utils crate*, so
+        // it isn't visible here (cfg(test) doesn't cross a crate boundary into a downstream
+        // dependent's tests) — poll the public `initial_connection_successful` instead.
+        let deadline = tokio::time::Instant::now() + Duration::from_secs(10);
+        while !cache.initial_connection_successful() {
+            assert!(
+                tokio::time::Instant::now() < deadline,
+                "failed to connect to Redis within timeout"
+            );
+            tokio::time::sleep(Duration::from_millis(100)).await;
+        }
+        Some(cache)
+    }
+}

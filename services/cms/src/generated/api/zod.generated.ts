@@ -132,8 +132,8 @@ export const zCourseInstance = z.object({
 })
 
 /**
- *
- * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+ * `completion_policy`.
  */
 export const zCourseModule = z.object({
   certification_enabled: z.boolean(),
@@ -144,6 +144,7 @@ export const zCourseModule = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   ects_credits: z.number().nullish(),
+  enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
@@ -548,6 +549,7 @@ export const zChatbotConfiguration = z.object({
   model_id: z.uuid(),
   presence_penalty: z.number(),
   prompt: z.string(),
+  publicly_accessible: z.boolean(),
   reasoning_effort: zReasoningEffortLevel,
   suggest_next_messages: z.boolean(),
   temperature: z.number(),

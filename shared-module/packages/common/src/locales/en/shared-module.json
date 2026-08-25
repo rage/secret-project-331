@@ -79,9 +79,17 @@
       "message": "This chapter is not open yet.",
       "title": "Chapter is closed"
     },
+    "course_slug_already_taken": {
+      "message": "Another course is already using this slug. Please choose a different one.",
+      "title": "Slug is already in use"
+    },
     "forbidden": {
       "message": "You do not have permission for this action.",
       "title": "Forbidden"
+    },
+    "foreign_key_violation": {
+      "message": "Reference does not exist.",
+      "title": "Foreign key violation"
     },
     "generic_sisu_error": {
       "message": "Something went wrong in generating description",

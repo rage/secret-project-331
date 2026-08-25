@@ -9,6 +9,7 @@ import ExerciseSettingsEditor from "./ExerciseSettingsEditor"
 import ExerciseSettingsSave from "./ExerciseSettingsSave"
 
 const ExerciseSettingsConfiguration: BlockConfiguration<Record<string, never>> = {
+  apiVersion: 3,
   title: "ExerciseSettings",
   description: "Wrapper block for exercise settings, required for the exercise block to work",
   category: MOOCFI_CATEGORY_SLUG,

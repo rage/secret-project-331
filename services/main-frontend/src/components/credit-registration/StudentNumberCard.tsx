@@ -1,0 +1,196 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { IdCard } from "@vectopus/atlas-icons-react"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import {
+  getMyCreditRegistrationsOptions,
+  getMyCreditRegistrationsQueryKey,
+  getMyVerifiedStudentNumberOptions,
+  getMyVerifiedStudentNumberQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { dismissMyAutoLinkNotice, unlinkMyStudentNumber } from "@/generated/api/sdk.generated"
+import type {
+  MyVerifiedStudentNumber,
+  StudentNumberVerificationMethod,
+} from "@/generated/api/types.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { humanReadableDate } from "@/shared-module/common/utils/time"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Badge, Button, DescriptionList, Infobox, QueryResult } from "@/shared-module/components"
+
+import { TONE } from "./constants"
+import { LinkingEmailLine } from "./EmailStatusLine"
+import SectionCard from "./SectionCard"
+
+/** A student disputing a wrong number needs to know how the link was proved. */
+const PROVENANCE_KEYS = {
+  emailed_link: "student-number-verified-via-emailed-link",
+  email_match_fast_track: "student-number-verified-via-email-match",
+  admin_manual: "student-number-verified-via-admin-manual",
+} as const satisfies Record<StudentNumberVerificationMethod, string>
+
+const noticeActionsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`
+
+const StudentNumberCard: React.FC = () => {
+  const { t } = useTranslation()
+  const linkQuery = useQuery({ ...getMyVerifiedStudentNumberOptions() })
+  const registrationsQuery = useQuery({ ...getMyCreditRegistrationsOptions() })
+
+  const linkingEmail =
+    registrationsQuery.data?.find(
+      (registration) =>
+        registration.student_facing_status === "needs_student_number" && registration.linking_email,
+    )?.linking_email ?? null
+
+  return (
+    <SectionCard icon={<IdCard size={16} />} title={t("heading-student-number")}>
+      <QueryResult
+        query={linkQuery}
+        treatNullAsEmpty
+        emptyFallback={<NotLinked linkingEmail={linkingEmail} />}
+      >
+        {(link) => (link ? <Linked link={link} /> : null)}
+      </QueryResult>
+    </SectionCard>
+  )
+}
+
+const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
+  const { t, i18n } = useTranslation()
+  const queryClient = useQueryClient()
+  const { confirm } = useDialog()
+
+  const unlink = useToastMutation<void, unknown, void>(
+    async () => {
+      await unlinkMyStudentNumber()
+    },
+    { notify: true, method: "DELETE" },
+    {
+      onSuccess: async () => {
+        // Unlinking moves unsent registrations back to waiting for a student number.
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: getMyVerifiedStudentNumberQueryKey() }),
+          queryClient.invalidateQueries({ queryKey: getMyCreditRegistrationsQueryKey() }),
+        ])
+      },
+    },
+  )
+
+  const askAndUnlink = async () => {
+    const confirmed = await confirm(
+      t("confirm-remove-student-number-message"),
+      t("confirm-remove-student-number-title"),
+    )
+    if (confirmed) {
+      unlink.mutate()
+    }
+  }
+
+  const sisuName = [link.first_names, link.last_name].filter(Boolean).join(" ")
+  const items = [
+    { label: t("label-student-number"), value: link.student_number },
+    ...(sisuName ? [{ label: t("label-name-in-university-records"), value: sisuName }] : []),
+    {
+      label: t("label-confirmed-at"),
+      value: humanReadableDate(link.verified_at, i18n.language) ?? "",
+    },
+    {
+      label: t("label-how-it-was-confirmed"),
+      value: t(PROVENANCE_KEYS[link.verified_via], {
+        email: link.verified_via_email_masked ?? "",
+      }),
+    },
+  ]
+
+  return (
+    <>
+      <Badge tone={TONE.SUCCESS}>{t("badge-student-number-linked")}</Badge>
+      {link.linked_automatically && !link.auto_link_notice_dismissed && (
+        <AutoLinkNotice link={link} onUnlink={askAndUnlink} unlinkPending={unlink.isPending} />
+      )}
+      <DescriptionList items={items} />
+      <p>{t("student-number-credits-registered-under-this-number")}</p>
+      <Button variant="secondary" size="medium" isLoading={unlink.isPending} onClick={askAndUnlink}>
+        {t("button-remove-student-number")}
+      </Button>
+    </>
+  )
+}
+
+/**
+ * The only way a student finds out we linked a number without asking them. Its unlink button is the
+ * whole point, so dismissing must not be the easier of the two to hit.
+ */
+const AutoLinkNotice: React.FC<{
+  link: MyVerifiedStudentNumber
+  onUnlink: () => void | Promise<void>
+  unlinkPending: boolean
+}> = ({ link, onUnlink, unlinkPending }) => {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+
+  const dismiss = useToastMutation<void, unknown, void>(
+    async () => {
+      await dismissMyAutoLinkNotice()
+    },
+    { notify: false },
+    {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getMyVerifiedStudentNumberQueryKey() })
+      },
+    },
+  )
+
+  return (
+    <div data-testid="auto-link-notice">
+      <Infobox tone={TONE.INFO}>
+        <p>
+          {t("student-number-linked-automatically-notice", {
+            number: link.student_number,
+            email: link.verified_via_email_masked ?? "",
+          })}
+        </p>
+        <div className={noticeActionsCss}>
+          <Button variant="secondary" size="medium" isLoading={unlinkPending} onClick={onUnlink}>
+            {t("button-not-my-student-number-unlink")}
+          </Button>
+          <Button
+            variant="tertiary"
+            size="medium"
+            isLoading={dismiss.isPending}
+            onClick={() => dismiss.mutate()}
+          >
+            {t("button-dismiss-notice")}
+          </Button>
+        </div>
+      </Infobox>
+    </div>
+  )
+}
+
+const NotLinked: React.FC<{
+  linkingEmail: React.ComponentProps<typeof LinkingEmailLine>["linkingEmail"]
+}> = ({ linkingEmail }) => {
+  const { t } = useTranslation()
+  return (
+    <>
+      <p>{t("student-number-not-linked")}</p>
+      <Infobox>{t("student-number-how-linking-works")}</Infobox>
+      <LinkingEmailLine linkingEmail={linkingEmail} />
+      {linkingEmail && <p>{t("student-number-linking-mail-resend-hint")}</p>}
+      <p>{t("student-number-cannot-read-that-address")}</p>
+    </>
+  )
+}
+
+export default withErrorBoundary(StudentNumberCard)

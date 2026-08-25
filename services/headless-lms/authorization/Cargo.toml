@@ -1,0 +1,28 @@
+[package]
+name = "headless-lms-authorization"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+# Deliberately free of any web-framework dependency so that every crate above `models` can
+# evaluate authorization; the actix response plumbing lives in the server crate.
+[dependencies]
+headless-lms-base = { path = "../base" }
+headless-lms-utils = { path = "../utils" }
+headless-lms-models = { path = "../models" }
+
+serde = { version = "1.0.228", features = ["derive"] }
+sqlx.workspace = true
+uuid = { version = "1.23.4", features = ["serde", "v4", "v5"] }
+utoipa.workspace = true
+tracing = "0.1.44"
+tracing-error = "0.2.1"
+# Should be removed after Rust 1.65.
+backtrace = "0.3.76"
+anyhow = "1.0.103"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

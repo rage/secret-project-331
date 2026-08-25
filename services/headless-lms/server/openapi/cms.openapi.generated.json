@@ -1111,7 +1111,8 @@
           "use_semantic_reranking",
           "use_tools",
           "default_chatbot",
-          "suggest_next_messages"
+          "suggest_next_messages",
+          "publicly_accessible"
         ],
         "properties": {
           "chatbot_name": {
@@ -1176,6 +1177,9 @@
           },
           "prompt": {
             "type": "string"
+          },
+          "publicly_accessible": {
+            "type": "boolean"
           },
           "reasoning_effort": {
             "$ref": "#/components/schemas/ReasoningEffortLevel"
@@ -1787,7 +1791,7 @@
       },
       "CourseModule": {
         "type": "object",
-        "description": "\n * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).",
+        "description": "Like [CourseModulesSchema], but the automatic-completion columns are collapsed into\n`completion_policy`.",
         "required": [
           "id",
           "created_at",
@@ -1796,7 +1800,8 @@
           "order_number",
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
-          "certification_enabled"
+          "certification_enabled",
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "certification_enabled": {
@@ -1828,6 +1833,9 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"

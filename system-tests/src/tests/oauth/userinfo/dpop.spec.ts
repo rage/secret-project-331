@@ -1,13 +1,14 @@
 import type { Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
+import { setupRedirectServer, teardownRedirectServer } from "@/fixtures/oauth"
+
 import { assertAndExtractCodeFromCallbackUrl } from "../../../utils/oauth/callbackHelpers"
 import { ConsentPage } from "../../../utils/oauth/consentPage"
 import { getOAuthTestUser, USERINFO } from "../../../utils/oauth/constants"
 import { createDPoPKey } from "../../../utils/oauth/dpop"
 import { performLogin } from "../../../utils/oauth/loginHelpers"
 import { generateCodeChallenge, generateCodeVerifier } from "../../../utils/oauth/pkce"
-import { setupRedirectServer, teardownRedirectServer } from "../../../utils/oauth/redirectServer"
 import { callUserInfo, exchangeCodeForToken } from "../../../utils/oauth/tokenHelpers"
 import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 

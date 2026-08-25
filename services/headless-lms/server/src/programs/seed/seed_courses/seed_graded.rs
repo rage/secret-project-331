@@ -10,6 +10,7 @@ use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
 use anyhow::{Context, Result};
 use chrono::Utc;
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::certificate_configuration_to_requirements;
 use headless_lms_models::certificate_configurations::{
     DatabaseCertificateConfiguration, insert as insert_certificate_configuration,
@@ -24,6 +25,7 @@ use uuid::Uuid;
 use super::super::seed_users::SeedUsersResult;
 
 pub async fn seed_graded_course(
+    app_config: ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -101,7 +103,8 @@ pub async fn seed_graded_course(
         );
 
     // Insert course
-    let (course, default_instance, last_module) = course_builder.seed(&mut conn, &cx).await?;
+    let (course, default_instance, last_module) =
+        course_builder.seed(&mut conn, &app_config, &cx).await?;
 
     // Enroll users to default instance
     for uid in example_normal_user_ids.iter() {

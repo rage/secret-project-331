@@ -23,6 +23,7 @@ export type BackendMessageKey =
   | "validation_error"
   | "response_validation_error"
   | "validation_error_with_metadata"
+  | "course_slug_already_taken"
   | "not_found"
   | "unauthorized"
   | "chapter_not_open_yet"
@@ -33,6 +34,7 @@ export type BackendMessageKey =
   | "invalid_course_code"
   | "generic_sisu_error"
   | "sisu_resource_not_found"
+  | "foreign_key_violation"
 
 export interface ErrorViewIssue {
   path?: string | undefined
@@ -76,6 +78,7 @@ function isBackendMessageKey(value: unknown): value is BackendMessageKey {
     value === "validation_error" ||
     value === "response_validation_error" ||
     value === "validation_error_with_metadata" ||
+    value === "course_slug_already_taken" ||
     value === "not_found" ||
     value === "unauthorized" ||
     value === "chapter_not_open_yet" ||
@@ -85,7 +88,8 @@ function isBackendMessageKey(value: unknown): value is BackendMessageKey {
     value === "oauth_error" ||
     value === "invalid_course_code" ||
     value === "generic_sisu_error" ||
-    value === "sisu_resource_not_found"
+    value === "sisu_resource_not_found" ||
+    value === "foreign_key_violation"
   )
 }
 
@@ -244,6 +248,7 @@ function normalizePayload(payload: SimplifiedPayload, t: TFunction): ErrorViewMo
       ? "rate_limit"
       : messageKey === "validation_error" ||
           messageKey === "validation_error_with_metadata" ||
+          messageKey === "course_slug_already_taken" ||
           messageKey === "response_validation_error"
         ? "validation"
         : messageKey === "unauthorized" ||

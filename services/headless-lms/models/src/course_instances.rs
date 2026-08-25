@@ -117,17 +117,17 @@ pub async fn get_course_instance_with_info(
         CourseInstanceWithCourseInfo,
         r#"
 SELECT
-    c.id AS "course_id!",
-    c.slug AS "course_slug!",
-    c.name AS "course_name!",
+    c.id AS "course_id",
+    c.slug AS "course_slug",
+    c.name AS "course_name",
     c.description AS course_description,
-    ci.id AS course_instance_id,
+    ci.id AS "course_instance_id!",
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,
-    o.name AS "organization_name!"
+    o.name AS "organization_name"
 FROM course_instances AS ci
-  LEFT JOIN courses AS c ON ci.course_id = c.id
-  LEFT JOIN organizations AS o ON o.id = c.organization_id
+  JOIN courses AS c ON ci.course_id = c.id
+  JOIN organizations AS o ON o.id = c.organization_id
 WHERE ci.id = $1
   AND ci.deleted_at IS NULL
   AND c.deleted_at IS NULL
@@ -562,10 +562,12 @@ WHERE cie.user_id = $1
     Ok(course_instances)
 }
 
-pub async fn get_enrolled_course_instances_for_user_with_exercise_type(
+/// Course instances the user is enrolled on that contain at least one task of any of the
+/// given exercise types. An empty `exercise_types` matches nothing.
+pub async fn get_enrolled_course_instances_for_user_with_exercise_types(
     conn: &mut PgConnection,
     user_id: Uuid,
-    exercise_type: &str,
+    exercise_types: &[String],
 ) -> ModelResult<Vec<CourseInstanceWithCourseInfo>> {
     let course_instances = sqlx::query_as!(
         CourseInstanceWithCourseInfo,
@@ -587,16 +589,17 @@ FROM course_instances AS ci
   LEFT JOIN exercise_tasks AS et ON et.exercise_slide_id = es.id
   LEFT JOIN organizations AS o ON o.id = c.organization_id
 WHERE cie.user_id = $1
-  AND et.exercise_type = $2
+  AND et.exercise_type = ANY($2)
   AND ci.deleted_at IS NULL
   AND cie.deleted_at IS NULL
   AND c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
   AND e.deleted_at IS NULL
   AND es.deleted_at IS NULL
   AND et.deleted_at IS NULL
 "#,
         user_id,
-        exercise_type,
+        exercise_types,
     )
     .fetch_all(conn)
     .await?;
@@ -926,7 +929,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn gets_enrolled_course_instances_for_user_with_exercise_type() {
+    async fn gets_enrolled_course_instances_for_user_with_exercise_types() {
         insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_course_module_id, chapter:chapter_id, page:page_id, :exercise, slide:exercise_slide_id);
 
         // enroll user on course
@@ -940,8 +943,9 @@ mod test {
         )
         .await
         .unwrap();
+        let tmc = ["tmc".to_string()];
         let course_instances =
-            get_enrolled_course_instances_for_user_with_exercise_type(tx.as_mut(), user_id, "tmc")
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &tmc)
                 .await
                 .unwrap();
         assert!(
@@ -966,13 +970,116 @@ mod test {
         .await
         .unwrap();
         let course_instances =
-            get_enrolled_course_instances_for_user_with_exercise_type(tx.as_mut(), user_id, "tmc")
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &tmc)
                 .await
                 .unwrap();
         assert_eq!(
             course_instances.len(),
             1,
             "user should be enrolled on one course with tmc exercises"
+        );
+
+        // A type list the course has no task for must not match, and neither must an empty list.
+        let others = ["quizzes".to_string(), "example-exercise".to_string()];
+        assert!(
+            get_enrolled_course_instances_for_user_with_exercise_types(
+                tx.as_mut(),
+                user_id,
+                &others
+            )
+            .await
+            .unwrap()
+            .is_empty()
+        );
+        assert!(
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &[])
+                .await
+                .unwrap()
+                .is_empty()
+        );
+
+        // Any list containing a type the course does have matches.
+        let mixed = ["quizzes".to_string(), "tmc".to_string()];
+        assert_eq!(
+            get_enrolled_course_instances_for_user_with_exercise_types(
+                tx.as_mut(),
+                user_id,
+                &mixed
+            )
+            .await
+            .unwrap()
+            .len(),
+            1
+        );
+        tx.rollback().await;
+    }
+
+    /// A soft-deleted organization takes its courses out of every listing, or the client API keeps
+    /// offering courses of an organization the main frontend has already stopped showing.
+    #[tokio::test]
+    async fn skips_courses_of_a_deleted_organization() {
+        insert_data!(:tx, user:user_id, org:org_id, course:course_id, :instance, course_module:_course_module_id, chapter:_chapter, page:_page, :exercise, slide:exercise_slide_id);
+        crate::exercise_tasks::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            NewExerciseTask {
+                assignment: Vec::new(),
+                exercise_slide_id,
+                exercise_type: "tmc".to_string(),
+                model_solution_spec: None,
+                private_spec: None,
+                public_spec: None,
+                order_number: 1,
+            },
+        )
+        .await
+        .unwrap();
+        crate::course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id,
+                user_id,
+                course_instance_id: instance.id,
+            },
+        )
+        .await
+        .unwrap();
+
+        let tmc = ["tmc".to_string()];
+        assert_eq!(
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &tmc)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+        assert_eq!(
+            get_enrolled_course_instances_for_user(tx.as_mut(), user_id)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+
+        // Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
+        sqlx::query("UPDATE organizations SET deleted_at = now() WHERE id = $1")
+            .bind(org_id)
+            .execute(&mut **tx.as_mut())
+            .await
+            .unwrap();
+
+        assert!(
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &tmc)
+                .await
+                .unwrap()
+                .is_empty(),
+            "a deleted organization's courses must not be listed"
+        );
+        assert!(
+            get_enrolled_course_instances_for_user(tx.as_mut(), user_id)
+                .await
+                .unwrap()
+                .is_empty()
         );
         tx.rollback().await;
     }

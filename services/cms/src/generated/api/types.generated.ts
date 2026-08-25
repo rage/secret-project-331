@@ -35,6 +35,7 @@ export type ChatbotConfiguration = {
   model_id: string
   presence_penalty: number
   prompt: string
+  publicly_accessible: boolean
   reasoning_effort: ReasoningEffortLevel
   suggest_next_messages: boolean
   temperature: number
@@ -201,8 +202,8 @@ export type CourseInstance = {
 }
 
 /**
- *
- * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+ * `completion_policy`.
  */
 export type CourseModule = {
   certification_enabled: boolean
@@ -216,6 +217,7 @@ export type CourseModule = {
   created_at: string
   deleted_at?: string | null
   ects_credits?: number | null
+  enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null

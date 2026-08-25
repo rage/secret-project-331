@@ -14,7 +14,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { BlockRendererProps } from "../../.."
 import { CopyButton } from "./CopyButton"
 import { parseHighlightedCode } from "./highlightParser"
-import { preStyles } from "./styles"
+import { getPreStyles } from "./styles"
 import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
 
 const SyntaxHighlightedContainer = dynamicImport(() => import("./SyntaxHighlightedContainer"))
@@ -70,7 +70,9 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
           </VisuallyHidden>
         )}
         {cleanCode && <CopyButton content={cleanCode} />}
-        <pre className={preStyles(fontSizePx, dontAllowBlockToBeWiderThanContainerWidth ?? false)}>
+        <pre
+          className={getPreStyles(fontSizePx, dontAllowBlockToBeWiderThanContainerWidth ?? false)}
+        >
           <SyntaxHighlightedContainer
             content={cleanCode}
             highlightedLines={highlightedLines}

@@ -379,6 +379,7 @@ export function generateMultipleChoiceGradingRequest(
     grading_update_url: "example",
     exercise_spec: privateSpecQuiz,
     submission_data: userAnswer,
+    submission_files: [],
   }
 }
 
@@ -438,6 +439,7 @@ export function generateChooseNGradingRequest(
     grading_update_url: "example",
     exercise_spec: privateSpecQuiz,
     submission_data: userAnswer,
+    submission_files: [],
   }
 }
 
@@ -486,6 +488,7 @@ export function generateTimelineGradingRequest(
     grading_update_url: "example",
     exercise_spec: privateSpecQuiz,
     submission_data: userAnswer,
+    submission_files: [],
   }
 }
 
@@ -541,5 +544,6 @@ export function generateUnknownItemTypeGradingRequest() {
     grading_update_url: "example",
     exercise_spec: privateSpecQuiz,
     submission_data: userAnswer,
+    submission_files: [],
   }
 }

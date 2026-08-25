@@ -20,6 +20,7 @@ describe("POST /api/grade", () => {
     const res = await handleGrade(
       post({
         grading_update_url: "http://x",
+        submission_files: [],
         exercise_spec: SPEC,
         submission_data: { selectedOptionId: "a" },
       }),
@@ -35,6 +36,7 @@ describe("POST /api/grade", () => {
     const res = await handleGrade(
       post({
         grading_update_url: "http://x",
+        submission_files: [],
         exercise_spec: SPEC,
         submission_data: { selectedOptionId: "b" },
       }),
@@ -46,7 +48,12 @@ describe("POST /api/grade", () => {
 
   it("gives zero and a null feedback when nothing was selected", async () => {
     const res = await handleGrade(
-      post({ grading_update_url: "http://x", exercise_spec: SPEC, submission_data: {} }),
+      post({
+        grading_update_url: "http://x",
+        submission_files: [],
+        exercise_spec: SPEC,
+        submission_data: {},
+      }),
     )
     const result = (await res.json()) as Record<string, unknown>
     expect(result.score_given).toBe(0)
@@ -57,6 +64,7 @@ describe("POST /api/grade", () => {
     const res = await handleGrade(
       post({
         grading_update_url: "http://x",
+        submission_files: [],
         exercise_spec: { version: "1", alternatives: SPEC },
         submission_data: { version: "1", selectedOptionId: "a" },
       }),

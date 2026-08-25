@@ -527,7 +527,19 @@ export function isNonGenericGradingRequest(obj: unknown): obj is NonGenericGradi
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["grading_update_url"] === "string"
+        typeof typedObj["grading_update_url"] === "string" &&
+        Array.isArray(typedObj["submission_files"]) &&
+        typedObj["submission_files"].every((e: any) =>
+            (e !== null &&
+                typeof e === "object" ||
+                typeof e === "function") &&
+            typeof e["id"] === "string" &&
+            typeof e["name"] === "string" &&
+            typeof e["mime"] === "string" &&
+            (e["size_bytes"] === null ||
+                typeof e["size_bytes"] === "number") &&
+            typeof e["download_url"] === "string"
+        )
     )
 }
 

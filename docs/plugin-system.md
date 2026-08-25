@@ -203,6 +203,16 @@ The backend communicates with the plugin via REST to grade answers and generate 
 - **Method**: POST
 - **Purpose**: Grades a student's answer.
 
+> **Grading a file answer.** The grading request carries `submission_files` alongside
+> `submission_data`: the answer's files in the order the plugin named them in `current-state`'s
+> `files`, and an empty list for an answer that has none. Each entry has the host `id` the plugin
+> saw at upload time, the `name` and `mime` the student's browser reported, `size_bytes` (`null`
+> only for a file stored before the host recorded sizes, so an unknown size is distinguishable from
+> an empty file), and a `download_url` the plugin fetches the contents from. The URL is minted per
+> request and expires — fetch it while grading, never store it. `submission_data` still carries
+> whatever metadata the plugin put in the answer, and may be absent when the files are the whole
+> answer.
+
 ## Input and Output Types Summary
 
 ### Views
@@ -215,12 +225,12 @@ The backend communicates with the plugin via REST to grade answers and generate 
 
 ### REST API Endpoints
 
-| Endpoint Name                     | Inputs                   | Outputs               |
-| --------------------------------- | ------------------------ | --------------------- |
-| **Service Info**                  | None                     | Metadata              |
-| **Public Spec Generator**         | `private_spec`           | `public_spec`         |
-| **Model Solution Spec Generator** | `private_spec`           | `model_solution_spec` |
-| **Grade Endpoint**                | `private_spec`, `answer` | `GradingResult`       |
+| Endpoint Name                     | Inputs                                       | Outputs               |
+| --------------------------------- | -------------------------------------------- | --------------------- |
+| **Service Info**                  | None                                         | Metadata              |
+| **Public Spec Generator**         | `private_spec`                               | `public_spec`         |
+| **Model Solution Spec Generator** | `private_spec`                               | `model_solution_spec` |
+| **Grade Endpoint**                | `private_spec`, `answer`, the answer's files | `GradingResult`       |
 
 The Grade endpoint returns a `GradingResult`: `grading_progress` (`FullyGraded` \| `Pending` \| `PendingManual` \| `Failed`), `score_given`/`score_maximum`, `feedback_text`, and `feedback_json` (the plugin-defined `grading_feedback`).
 
@@ -243,7 +253,7 @@ The Grade endpoint returns a `GradingResult`: `grading_progress` (`FullyGraded` 
 3. Course material sends `set-state` with the `public_spec` to the IFrame.
 4. Student interacts with the exercise. Plugin sends `current-state` with the updated `answer`.
 5. Student submits. Course material sends the `answer` to the backend.
-6. Backend retrieves `private_spec` and calls the Grade endpoint with `private_spec` and `answer`.
+6. Backend retrieves `private_spec` and calls the Grade endpoint with `private_spec`, `answer`, and — for a file answer — a `submission_files` list of download URLs for the files the answer named.
 7. Plugin returns a `GradingResult` (`grading_progress`, `score_given`/`score_maximum`, `feedback_text`, `feedback_json`). Backend stores this.
 8. Course material sends `set-state` to switch the IFrame to the View Submission view with `public_spec`, `answer`, `grading_feedback`, and optionally `model_solution_spec`.
 

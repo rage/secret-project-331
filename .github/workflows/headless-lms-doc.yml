@@ -6,7 +6,10 @@ on:
   push:
     branches: [master]
     paths:
-      - ".github/actions/setup-node-pnpm/**"
+      - ".github/actions/setup-nix-env/**"
+      - ".github/actions/commit-and-push-generated-content/**"
+      - "flake.nix"
+      - "flake.lock"
       - ".github/workflows/headless-lms-doc.yml"
       - "bin/.common"
       - "bin/generate-doc-files"
@@ -18,7 +21,10 @@ on:
   pull_request:
     branches: [master]
     paths:
-      - ".github/actions/setup-node-pnpm/**"
+      - ".github/actions/setup-nix-env/**"
+      - ".github/actions/commit-and-push-generated-content/**"
+      - "flake.nix"
+      - "flake.lock"
       - ".github/workflows/headless-lms-doc.yml"
       - "bin/.common"
       - "bin/generate-doc-files"
@@ -37,16 +43,17 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           # The compile-time font guard rejects unhydrated git-lfs pointers.
           lfs: true
 
       - name: Cache Cargo dependencies and docs build output
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/bin/
@@ -58,7 +65,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-headless-lms-docs-cargo-
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: Run pnpm install --frozen-lockfile
         run: pnpm install --frozen-lockfile --ignore-scripts
 
@@ -70,7 +78,8 @@ jobs:
         working-directory: services/headless-lms
 
       - name: Check out docs repo
-        uses: actions/checkout@v5
+        # zizmor: ignore[artipacked] the persisted ssh-key config is required for the later commit-and-push step
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: rage/secret-project-331-headless-lms-docs
           path: headless-lms-docs
@@ -86,16 +95,8 @@ jobs:
         working-directory: ./headless-lms-docs
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      - name: Commit docs
-        run: |
-          git config --local user.email "bot@example.com"
-          git config --local user.name "github-actions[bot]"
-          git add .
-          git commit -m "Update: $GITHUB_SHA" --allow-empty
-        working-directory: ./headless-lms-docs
-        if: ${{ github.ref == 'refs/heads/master' }}
-
-      - name: Push docs
-        run: git push
-        working-directory: ./headless-lms-docs
+      - name: Commit and push docs
+        uses: ./.github/actions/commit-and-push-generated-content
+        with:
+          working-directory: ./headless-lms-docs
         if: ${{ github.ref == 'refs/heads/master' }}

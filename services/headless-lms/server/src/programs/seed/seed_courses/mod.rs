@@ -17,6 +17,8 @@ pub mod seed_glossary;
 pub use seed_generated_description::seed_generated_description;
 pub mod seed_introduction_to_codes;
 pub use seed_introduction_to_codes::seed_introduction_to_codes;
+pub mod seed_introduction_to_course_auditing;
+pub use seed_introduction_to_course_auditing::seed_introduction_to_course_auditing;
 pub mod seed_switching_course_instances_course;
 pub use seed_switching_course_instances_course::seed_switching_course_instances_course;
 

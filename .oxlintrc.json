@@ -46,6 +46,7 @@
     "**/*.guard.ts",
     "**/DeprecatedGutenbergBlockAttributes.ts",
     "**/*.generated.*",
+    "**/*.gen.ts",
     "**/.claude/**",
     "**/shared-module/**",
     "!shared-module/**",

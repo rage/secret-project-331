@@ -93,7 +93,7 @@ mod test {
     fn truncate_utf8_at_boundary_handles_finnish_characters() {
         let input = format!("{}äz", "a".repeat(254));
         let result = truncate_utf8_at_boundary(&input, 255);
-        assert_eq!(result.as_bytes().len(), 254);
+        assert_eq!(result.len(), 254);
         assert!(result.is_char_boundary(result.len()));
         assert_eq!(result, "a".repeat(254));
     }
@@ -102,7 +102,7 @@ mod test {
     fn truncate_utf8_at_boundary_handles_emoji() {
         let input = format!("{}😀z", "a".repeat(254));
         let result = truncate_utf8_at_boundary(&input, 255);
-        assert_eq!(result.as_bytes().len(), 254);
+        assert_eq!(result.len(), 254);
         assert!(result.is_char_boundary(result.len()));
         assert_eq!(result, "a".repeat(254));
     }

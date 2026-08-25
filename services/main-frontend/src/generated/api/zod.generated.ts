@@ -792,6 +792,19 @@ export const zCourseAudience = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCourseAuditingModuleUpdate = z.object({
+  completion_registration_link_override: z.string().nullish(),
+  ects_credits: z.number().nullish(),
+  enable_registering_completion_to_uh_open_university: z.boolean(),
+  id: z.uuid(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  uh_course_code: z.string().nullish(),
+})
+
 export const zCourseBreadcrumbInfo = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
@@ -1071,6 +1084,7 @@ export const zCourseModule = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   ects_credits: z.number().nullish(),
+  enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
@@ -1197,6 +1211,7 @@ export const zCourseMetadata = z.object({
   course_audiences: z.array(zCourseAudience),
   course_description: z.string().nullish(),
   course_prerequisites: z.array(zCoursePrerequisite),
+  course_updated_at: z.iso.datetime(),
 })
 
 /**
@@ -1230,6 +1245,11 @@ export const zCourseUpdate = z.object({
   is_joinable_by_code_only: z.boolean(),
   is_test_mode: z.boolean(),
   is_unlisted: z.boolean(),
+  name: z.string(),
+})
+
+export const zCreateChatbotRequest = z.object({
+  course_id: z.uuid().nullish(),
   name: z.string(),
 })
 
@@ -2574,6 +2594,61 @@ export const zDeploymentInfo = z.object({
   selector_labels: z.record(z.string(), z.string()),
 })
 
+/**
+ * Form body for `POST /device_authorization` (RFC 8628 §3.1).
+ */
+export const zDeviceAuthorizationForm = z.object({
+  client_id: z.string(),
+  scope: z.string().nullish(),
+})
+
+/**
+ * Success body for `POST /device_authorization` (RFC 8628 §3.2).
+ */
+export const zDeviceAuthorizationResponse = z.object({
+  device_code: z.string(),
+  expires_in: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  interval: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  user_code: z.string(),
+  verification_uri: z.string(),
+  verification_uri_complete: z.string(),
+})
+
+/**
+ * Body for the approve/deny verification actions.
+ */
+export const zDeviceDecisionBody = z.object({
+  user_code: z.string(),
+})
+
+/**
+ * Result of an approve/deny action.
+ */
+export const zDeviceDecisionResponse = z.object({
+  status: z.string(),
+})
+
+/**
+ * Render data returned to the verification page so it can show the user what
+ * they are about to authorize.
+ */
+export const zDeviceVerificationInfo = z.object({
+  client_id: z.string(),
+  client_name: z.string(),
+  scopes: z.array(z.string()),
+  user_code: z.string(),
+})
+
 export const zDomainCompletionStats = z.object({
   email_domain: z.string(),
   not_registered_completions: z.coerce
@@ -2627,6 +2702,52 @@ export const zDomainCompletionStats = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+})
+
+export const zEditCourseAudience = z.object({
+  audience: z.string(),
+  course_id: z.uuid(),
+  id: z.uuid(),
+})
+
+export const zEditCoursePrerequisite = z.object({
+  course_id: z.uuid(),
+  id: z.uuid(),
+  prerequisite: z.string(),
+})
+
+export const zCourseAuditingData = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  description: z.string().nullish(),
+  id: z.uuid(),
+  modules: z.array(zCourseModule),
+  name: z.string(),
+  organization_id: z.uuid(),
+  organization_name: z.string(),
+  organization_slug: z.string(),
+  prerequisites: z.array(zEditCoursePrerequisite),
+  slug: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseAuditingDataUpdate = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  description: z.string().nullish(),
+  modules: z.array(zCourseAuditingModuleUpdate),
+  prerequisites: z.array(zEditCoursePrerequisite),
+})
+
+export const zCourseMetadataUpdate = z.object({
+  course_audiences: z.array(zEditCourseAudience),
+  course_description: z.string().nullish(),
+  course_prerequisites: z.array(zEditCoursePrerequisite),
 })
 
 export const zEditProposalInfo = z.object({
@@ -3029,6 +3150,20 @@ export const zExerciseSlideSubmissionCountByWeekAndHour = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
+})
+
+/**
+ * A shareable link to an existing exercise-slide submission. The `id` is the
+ * unguessable token used in the shareable URL; a viewer resolves the token back
+ * to the submission it points at.
+ */
+export const zExerciseSlideSubmissionShare = z.object({
+  created_at: z.iso.datetime(),
+  created_by: z.uuid(),
+  deleted_at: z.iso.datetime().nullish(),
+  exercise_slide_submission_id: z.uuid(),
+  id: z.uuid(),
+  updated_at: z.iso.datetime(),
 })
 
 export const zExerciseTaskSubmission = z.object({
@@ -3603,20 +3738,6 @@ export const zCopyCourseRequest = zNewCourse.and(
     mode: zCopyCourseMode,
   }),
 )
-
-export const zNewCourseAudience = z.object({
-  audience: z.string(),
-})
-
-export const zNewCoursePrerequisite = z.object({
-  prerequisite: z.string(),
-})
-
-export const zCourseMetadataUpdate = z.object({
-  course_audiences: z.array(zNewCourseAudience),
-  course_description: z.string().nullish(),
-  course_prerequisites: z.array(zNewCoursePrerequisite),
-})
 
 export const zNewExam = z.object({
   ends_at: z.iso.datetime().nullish(),
@@ -6057,7 +6178,7 @@ export const zGetCourseChaptersPath = z.object({
 export const zGetCourseChaptersResponse = z.array(zDatabaseChapter)
 
 export const zGetChatbotModelsQuery = z.object({
-  course_id: z.uuid(),
+  course_id: z.uuid().optional(),
 })
 
 /**
@@ -6080,6 +6201,16 @@ export const zGetChatbotModelResponse = zChatbotConfigurationModel
  * All chatbots
  */
 export const zGetAllChatbotsResponse = z.array(zChatbotConfiguration)
+
+/**
+ * JSON object with chatbot name and optional course id, e.g. "name: Chatbot 1, course_id: null".
+ */
+export const zCreateChatbotBody = zCreateChatbotRequest
+
+/**
+ * Created chatbot
+ */
+export const zCreateChatbotResponse = zChatbotConfiguration
 
 export const zDeleteChatbotConfigurationPath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -6163,6 +6294,22 @@ export const zDeleteCodeGiveawayCodePath = z.object({
   id: z.uuid(),
   code_id: z.uuid(),
 })
+
+/**
+ * Courses for auditing
+ */
+export const zGetCoursesForAuditingResponse = z.array(zCourseAuditingData)
+
+export const zUpdateCourseAuditingDataBody = zCourseAuditingDataUpdate
+
+export const zUpdateCourseAuditingDataPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Updated course
+ */
+export const zUpdateCourseAuditingDataResponse = zCourseAuditingData
 
 export const zGetCourseCreditRegistrationActionsPath = z.object({
   course_id: z.uuid(),
@@ -6687,20 +6834,6 @@ export const zGetCourseChatbotsPath = z.object({
  * Course chatbots
  */
 export const zGetCourseChatbotsResponse = z.array(zChatbotConfiguration)
-
-/**
- * JSON string literal chatbot name, e.g. "Chatbot 1".
- */
-export const zCreateCourseChatbotBody = z.string()
-
-export const zCreateCourseChatbotPath = z.object({
-  course_id: z.string(),
-})
-
-/**
- * Created course chatbot
- */
-export const zCreateCourseChatbotResponse = zChatbotConfiguration
 
 export const zSetCourseChatbotAsDefaultPath = z.object({
   course_id: z.string(),
@@ -8678,6 +8811,36 @@ export const zDenyOauthConsentBody = zConsentDenyQuery
  */
 export const zDenyOauthConsentResponse = zConsentResponse
 
+export const zDeviceAuthorizationOauthBody = zDeviceAuthorizationForm
+
+/**
+ * Device authorization response
+ */
+export const zDeviceAuthorizationOauthResponse = zDeviceAuthorizationResponse
+
+export const zGetOauthDeviceVerificationQuery = z.object({
+  user_code: z.string(),
+})
+
+/**
+ * Pending device authorization render data
+ */
+export const zGetOauthDeviceVerificationResponse = zDeviceVerificationInfo
+
+export const zApproveOauthDeviceVerificationBody = zDeviceDecisionBody
+
+/**
+ * Device authorization approved
+ */
+export const zApproveOauthDeviceVerificationResponse = zDeviceDecisionResponse
+
+export const zDenyOauthDeviceVerificationBody = zDeviceDecisionBody
+
+/**
+ * Device authorization denied
+ */
+export const zDenyOauthDeviceVerificationResponse = zDeviceDecisionResponse
+
 export const zIntrospectOauthTokenBody = z.unknown()
 
 export const zRevokeOauthTokenBody = z.unknown()
@@ -9140,6 +9303,45 @@ export const zGetPendingRolesQuery = z.object({
 export const zGetPendingRolesResponse = z.array(zPendingRole)
 
 export const zRemoveRoleBody = zRoleInfo
+
+/**
+ * The caller's live shares, newest first
+ */
+export const zListOwnSubmissionSharesResponse = z.array(zExerciseSlideSubmissionShare)
+
+export const zRevokeSubmissionSharesOfSubmissionPath = z.object({
+  submission_id: z.uuid(),
+})
+
+/**
+ * How many shares were withdrawn
+ */
+export const zRevokeSubmissionSharesOfSubmissionResponse = z.coerce
+  .bigint()
+  .min(BigInt("-9223372036854775808"), {
+    error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+  })
+  .max(BigInt("9223372036854775807"), {
+    error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+  })
+
+export const zRevokeSubmissionSharePath = z.object({
+  token: z.uuid(),
+})
+
+/**
+ * Whether a live share was withdrawn
+ */
+export const zRevokeSubmissionShareResponse = z.boolean()
+
+export const zGetSharedSubmissionInfoPath = z.object({
+  token: z.uuid(),
+})
+
+/**
+ * Data needed to render the shared submission
+ */
+export const zGetSharedSubmissionInfoResponse = zExerciseSlideSubmissionInfo
 
 /**
  * Cronjobs

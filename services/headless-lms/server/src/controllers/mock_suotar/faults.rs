@@ -605,8 +605,7 @@ mod tests {
             Predicate::StudentNumber("900000101".to_string()),
         ];
         let problem = validate(&unresolvable, &transient(true), false)
-            .err()
-            .expect("list-by-course carries no student number");
+            .expect_err("list-by-course carries no student number");
         assert!(problem.message.contains("courseCode"));
 
         let indirect = vec![

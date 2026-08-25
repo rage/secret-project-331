@@ -1,12 +1,12 @@
 import { promises as fs } from "fs"
-import path from "path"
 
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import type { RunResult } from "@/tmc/cli"
 import { isRunResult } from "@/tmc/cli.guard"
-import { compressProject, extractProject, prepareSubmission } from "@/tmc/langs"
+import { extractProject, prepareSubmission } from "@/tmc/langs"
+import { compressBrowserAnswer } from "@/util/browserAnswerArchive"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
 
@@ -38,23 +38,8 @@ export const runTests = async (
       debug("testing browser submission")
       const submissionDir = temporaryDirectory()
       tempPaths.push(submissionDir)
-      for (const { filepath, contents } of submission.files) {
-        if (filepath.includes("\0")) {
-          throw new Error("Invalid filepath: null byte")
-        }
-        const resolved = path.resolve(submissionDir, filepath)
-        const relative = path.relative(submissionDir, resolved)
-        if (relative.startsWith("..") || path.isAbsolute(relative)) {
-          throw new Error(`Invalid filepath: path escapes submission dir: ${filepath}`)
-        }
-        if (!resolved.startsWith(submissionDir)) {
-          throw new Error(`Invalid filepath: path escapes submission dir: ${filepath}`)
-        }
-        await fs.mkdir(path.dirname(resolved), { recursive: true })
-        await fs.writeFile(resolved, contents)
-      }
       debug("compressing project")
-      await compressProject(submissionDir, submissionArchivePath, "zstd", true, log)
+      await compressBrowserAnswer(submissionDir, submissionArchivePath, submission.files, log)
     } else {
       throw new Error("Unreachable")
     }

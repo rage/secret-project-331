@@ -3,6 +3,7 @@
 use crate::{
     domain::{
         authorization::skip_authorize,
+        exercise_services::submission_files,
         models_requests::{self, GivePeerReviewClaim, JwtKey},
     },
     prelude::*,
@@ -278,9 +279,10 @@ Content-Type: application/json
         )
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, jwt_key))]
 async fn post_submission(
     pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
     jwt_key: web::Data<JwtKey>,
     exercise_id: web::Path<Uuid>,
     payload: web::Json<StudentExerciseSlideSubmission>,
@@ -325,12 +327,13 @@ async fn post_submission(
         Res::Exercise(exercise.id),
     )
     .await?;
-    let result = domain::exercises::process_submission(
+    let result = submission_files::submit_recording_answer_files(
         &mut conn,
         user.id,
-        exercise.clone(),
+        exercise,
         &submission,
         jwt_key.into_inner(),
+        file_store.as_ref(),
     )
     .await?;
     token.authorized_ok(web::Json(result))

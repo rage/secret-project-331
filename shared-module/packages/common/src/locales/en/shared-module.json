@@ -109,6 +109,10 @@
       "message": "You do not have permission for this action.",
       "title": "Forbidden"
     },
+    "foreign_key_violation": {
+      "message": "Reference does not exist.",
+      "title": "Foreign key violation"
+    },
     "generic_sisu_error": {
       "message": "Something went wrong in generating description",
       "title": "Could not generate description"

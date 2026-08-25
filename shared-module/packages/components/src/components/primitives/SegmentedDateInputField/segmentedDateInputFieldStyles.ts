@@ -76,6 +76,10 @@ export const segmentLiteralCss = css`
   user-select: none;
 `
 
+export const kloSegmentLiteralCss = css`
+  visibility: hidden;
+`
+
 export const datePickerButtonCss = css`
   display: inline-flex;
   align-items: center;

@@ -19,6 +19,7 @@
 'credit_registration_error_code' = "crate::credit_registrations::CreditRegistrationErrorCode"
 'credit_registration_event_kind' = "crate::credit_registration_events::CreditRegistrationEventKind"
 'credit_registration_state' = "crate::credit_registrations::CreditRegistrationState"
+'device_code_status' = "crate::oauth_device_codes::DeviceCodeStatus"
 'email_template_type' = "crate::email_templates::EmailTemplateType"
 'email_verification_method' = "crate::user_details::EmailVerificationMethod"
 'error_source' = "crate::errors::ErrorSource"
@@ -74,6 +75,9 @@
 
 [macros.table-overrides.'oauth_auth_codes']
 'digest' = "crate::library::oauth::Digest"
+
+[macros.table-overrides.'oauth_device_codes']
+'device_code_digest' = "crate::library::oauth::Digest"
 
 [macros.table-overrides.'oauth_access_tokens']
 'digest' = "crate::library::oauth::Digest"

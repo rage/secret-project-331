@@ -248,6 +248,33 @@ function ensure_tmc_langs_cli_downloaded() {
   fi
 }
 
+# Annotates a freshly vendored services/tmc/src/tmc/cli.d.ts, formats it and regenerates
+# cli.guard.ts. Shared by bin/tmc-langs-update and bin/tmc-langs-update-bindings-from-checkout:
+# both must produce byte-identical output, or the latter's --check reports drift depending on which
+# script last ran.
+#
+# oxfmt and ts-auto-guard are devDependencies of the workspace root only, so pnpm exec has to run
+# from there — from services/tmc it fails with ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL.
+function regenerate_tmc_langs_bindings_guard() {
+  local repo_root="$1"
+  local bindings_target="$2"
+  local guard_target="$3"
+
+  # ts-auto-guard emits a guard only for annotated types, and the plugin uses exactly these two.
+  run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$bindings_target"
+  run_command sed -i '/^export type RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$bindings_target"
+  (
+    cd "$repo_root" || exit 1
+    run_command pnpm exec oxfmt "$bindings_target"
+    # Guard files are committed exactly as ts-auto-guard emits them and are excluded from both
+    # oxlint and oxfmt, so no formatting pass follows (oxfmt would abort on an all-ignored match).
+    run_command pnpm exec ts-auto-guard --paths "$bindings_target" --project "$repo_root/services/tmc/tsconfig.json"
+  )
+  # ts-auto-guard 5.x cannot emit `import type`; its leading import references only types, so under
+  # verbatimModuleSyntax rewrite the `import {` to `import type {` (a no-op at runtime).
+  run_command sed -i -E 's/^import \{/import type {/' "$guard_target"
+}
+
 function wait_for_postgres_pod() {
   local start_time
   local timeout
@@ -293,6 +320,36 @@ function wait_for_postgres_pod() {
     if [ $iteration_elapsed -lt 10 ]; then
       sleep $((10 - iteration_elapsed))
     fi
+  done
+}
+
+# kubectl exec uses a different transport (an HTTP upgrade to a raw stream) than plain API calls
+# like kubectl wait/get, so it can hit a transient "server gave HTTP response to HTTPS client" race
+# against the API server's exec proxy right after a fresh minikube start/deploy, even once the pod
+# itself reports Ready. Poll with a no-op exec until that path is actually usable.
+function wait_for_kubectl_exec_ready() {
+  local pod_name="$1"
+  local start_time
+  local timeout
+  start_time=$(date +%s)
+  timeout=60
+
+  echo "Waiting for kubectl exec to be ready on $pod_name..."
+
+  while true; do
+    if kubectl exec "$pod_name" -- true &> /dev/null; then
+      echo -e "${GREEN}kubectl exec is ready!${RESET_EVERYTHING}"
+      return 0
+    fi
+
+    local current_time
+    current_time=$(date +%s)
+    local elapsed=$((current_time - start_time))
+    if [ $elapsed -gt $timeout ]; then
+      echo -e "${RED}Timed out waiting for kubectl exec to become ready after ${timeout} seconds${RESET_EVERYTHING}"
+      return 1
+    fi
+    sleep 2
   done
 }
 

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { approveOauthConsent, denyOauthConsent } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { getOauthScopeDescriptions } from "@/utils/oauthScopeDescriptions"
 
 export default function ConsentPage() {
   const searchParams = useSearchParams()
@@ -31,12 +32,7 @@ export default function ConsentPage() {
 
   const scopes = query.scope.split(" ").filter(Boolean)
 
-  const scopeDescriptions: Record<string, string> = {
-    openid: t("oauth-scope-description-openid"),
-    email: t("oauth-scope-description-email"),
-    profile: t("oauth-scope-description-profile"),
-    offline_access: t("oauth-scope-description-offline-access"),
-  }
+  const scopeDescriptions = getOauthScopeDescriptions(t)
 
   const onApprove = async () => {
     const res = await approveOauthConsent({

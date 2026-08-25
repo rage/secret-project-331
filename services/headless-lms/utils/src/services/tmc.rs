@@ -263,10 +263,10 @@ impl TmcClient {
 
             let error_message = parse_tmc_error_response(&error_text, Some(status));
 
-            Err(UtilError::new(
-                UtilErrorType::TmcHttpError,
-                error_message,
-                None,
+            // A statusful failure, unlike the send failure above, which stays `TmcHttpError`.
+            Err(util_err!(
+                TmcHttpStatusError(status.as_u16()),
+                error_message
             ))
         }
     }

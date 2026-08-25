@@ -95,6 +95,7 @@ import {
   editCourseInstance,
   editExam,
   exchangeOauthToken,
+  exerciseHasAnswerFiles,
   exportCourseCreditRegistrations,
   exportCourseExerciseTasksCsv,
   exportCourseInstanceCompletionsCsv,
@@ -531,6 +532,8 @@ import type {
   EditCourseInstanceData,
   EditExamData,
   ExchangeOauthTokenData,
+  ExerciseHasAnswerFilesData,
+  ExerciseHasAnswerFilesResponse,
   ExportCourseCreditRegistrationsData,
   ExportCourseCreditRegistrationsResponse,
   ExportCourseExerciseTasksCsvData,
@@ -8577,6 +8580,30 @@ export const exportExerciseDefinitionsCsvOptions = (
         throwOnError: true,
       }),
     queryKey: exportExerciseDefinitionsCsvQueryKey(options),
+  })
+
+export const exerciseHasAnswerFilesQueryKey = (options: Options<ExerciseHasAnswerFilesData>) =>
+  createQueryKey("exerciseHasAnswerFiles", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
+ */
+export const exerciseHasAnswerFilesOptions = (options: Options<ExerciseHasAnswerFilesData>) =>
+  queryOptions<
+    ExerciseHasAnswerFilesResponse,
+    DefaultError,
+    ExerciseHasAnswerFilesResponse,
+    ReturnType<typeof exerciseHasAnswerFilesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await exerciseHasAnswerFiles({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: exerciseHasAnswerFilesQueryKey(options),
   })
 
 export const getExerciseSubmissionsQueryKey = (options: Options<GetExerciseSubmissionsData>) =>

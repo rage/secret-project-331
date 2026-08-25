@@ -196,6 +196,8 @@ import type {
   ExchangeOauthTokenData,
   ExchangeOauthTokenErrors,
   ExchangeOauthTokenResponses,
+  ExerciseHasAnswerFilesData,
+  ExerciseHasAnswerFilesResponses,
   ExportCourseCreditRegistrationsData,
   ExportCourseCreditRegistrationsResponses,
   ExportCourseExerciseTasksCsvData,
@@ -862,6 +864,7 @@ import {
   zDownloadCodeGiveawayCodesCsvResponse,
   zDownloadExerciseAnswerFilesResponse,
   zDuplicateExamResponse,
+  zExerciseHasAnswerFilesResponse,
   zExportCourseCreditRegistrationsResponse,
   zExportCourseExerciseTasksCsvResponse,
   zExportCourseInstanceCompletionsCsvResponse,
@@ -6495,6 +6498,20 @@ export const exportExerciseDefinitionsCsv = <ThrowOnError extends boolean = true
     responseValidator: async (data) => await zExportExerciseDefinitionsCsvResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/export-definitions-csv",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
+ */
+export const exerciseHasAnswerFiles = <ThrowOnError extends boolean = true>(
+  options: Options<ExerciseHasAnswerFilesData, ThrowOnError>,
+): RequestResult<ExerciseHasAnswerFilesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<ExerciseHasAnswerFilesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zExerciseHasAnswerFilesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercises/{exercise_id}/has-answer-files",
     ...options,
   })
 

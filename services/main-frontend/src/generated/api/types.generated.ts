@@ -10981,6 +10981,28 @@ export type ExportExerciseDefinitionsCsvResponses = {
 export type ExportExerciseDefinitionsCsvResponse =
   ExportExerciseDefinitionsCsvResponses[keyof ExportExerciseDefinitionsCsvResponses]
 
+export type ExerciseHasAnswerFilesData = {
+  body?: never
+  path: {
+    /**
+     * Exercise id
+     */
+    exercise_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercises/{exercise_id}/has-answer-files"
+}
+
+export type ExerciseHasAnswerFilesResponses = {
+  /**
+   * Whether the exercise has answer files
+   */
+  200: boolean
+}
+
+export type ExerciseHasAnswerFilesResponse =
+  ExerciseHasAnswerFilesResponses[keyof ExerciseHasAnswerFilesResponses]
+
 export type GetExerciseSubmissionsData = {
   body?: never
   path: {

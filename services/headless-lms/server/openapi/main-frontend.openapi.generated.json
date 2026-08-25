@@ -9909,6 +9909,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/exercises/{exercise_id}/has-answer-files": {
+      "get": {
+        "tags": ["exercises"],
+        "summary": "\nGET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.",
+        "operationId": "exerciseHasAnswerFiles",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether the exercise has answer files",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/exercises/{exercise_id}/submissions": {
       "get": {
         "tags": ["exercises"],

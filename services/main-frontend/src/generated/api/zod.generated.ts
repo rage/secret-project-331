@@ -8634,6 +8634,15 @@ export const zExportExerciseDefinitionsCsvQuery = z.object({
  */
 export const zExportExerciseDefinitionsCsvResponse = z.string()
 
+export const zExerciseHasAnswerFilesPath = z.object({
+  exercise_id: z.uuid(),
+})
+
+/**
+ * Whether the exercise has answer files
+ */
+export const zExerciseHasAnswerFilesResponse = z.boolean()
+
 export const zGetExerciseSubmissionsPath = z.object({
   exercise_id: z.uuid(),
 })

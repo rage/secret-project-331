@@ -135,6 +135,37 @@ ORDER BY ess.user_id,
     Ok(res)
 }
 
+/// Whether the exercise has at least one file-typed answer whose files still exist.
+///
+/// Matches the rows [`get_answer_files_by_exercise_id`] would return, without reading them: the
+/// caller only decides whether to offer the bulk download.
+pub async fn exercise_has_answer_files(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM exercise_task_submissions AS ets
+      JOIN exercise_slide_submissions AS ess ON ets.exercise_slide_submission_id = ess.id
+      JOIN exercise_task_submission_files AS etsf ON etsf.exercise_task_submission_id = ets.id
+      JOIN file_uploads AS fu ON fu.id = etsf.file_upload_id
+    WHERE ess.exercise_id = $1
+      AND ets.answer_kind = 'file'
+      AND ets.deleted_at IS NULL
+      AND ess.deleted_at IS NULL
+      AND etsf.deleted_at IS NULL
+      AND fu.deleted_at IS NULL
+  ) AS "exists!"
+"#,
+        exercise_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.exists)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -647,6 +678,52 @@ mod test {
                 .await
                 .unwrap()
                 .is_empty()
+        );
+        tx.rollback().await;
+    }
+    #[tokio::test]
+    async fn reports_answer_files_only_where_a_file_answer_exists() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        assert!(
+            !exercise_has_answer_files(tx.as_mut(), exercise_id)
+                .await
+                .unwrap()
+        );
+
+        let json_submission = insert_task_submission(
+            tx.as_mut(),
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+        )
+        .await;
+        let file_id = insert_file(tx.as_mut(), "smuggled.png").await;
+        insert_many(tx.as_mut(), json_submission, &[file_id])
+            .await
+            .unwrap();
+        assert!(
+            !exercise_has_answer_files(tx.as_mut(), exercise_id)
+                .await
+                .unwrap()
+        );
+
+        let answer_file = insert_file(tx.as_mut(), "answer.png").await;
+        insert_file_answer(
+            tx.as_mut(),
+            course_id,
+            user_id,
+            exercise_id,
+            slide_id,
+            task_id,
+            &[answer_file],
+        )
+        .await;
+        assert!(
+            exercise_has_answer_files(tx.as_mut(), exercise_id)
+                .await
+                .unwrap()
         );
         tx.rollback().await;
     }

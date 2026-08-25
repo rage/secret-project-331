@@ -31,6 +31,7 @@ const EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE: usize = 1000;
     export_exercise_task_definitions_csv,
     export_exercise_task_answers_csv,
     download_exercise_answer_files,
+    exercise_has_answer_files,
     get_exercise_answers_requiring_attention,
     get_exercises_by_course_id,
     reset_exercises_for_selected_users
@@ -964,6 +965,42 @@ async fn download_exercise_answer_files(
 }
 
 /**
+GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
+ */
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/has-answer-files",
+    operation_id = "exerciseHasAnswerFiles",
+    tag = "exercises",
+    params(("exercise_id" = Uuid, Path, description = "Exercise id")),
+    responses(
+        (status = 200, description = "Whether the exercise has answer files", body = bool)
+    )
+)]
+async fn exercise_has_answer_files(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
+        CourseOrExamId::Course(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(id)).await?
+        }
+        CourseOrExamId::Exam(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
+        }
+    };
+
+    let has_answer_files =
+        models::exercise_task_submission_files::exercise_has_answer_files(&mut conn, *exercise_id)
+            .await?;
+
+    token.authorized_ok(web::Json(has_answer_files))
+}
+
+/**
 GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
 #[instrument(skip(pool, file_store, app_conf))]
@@ -1157,6 +1194,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{exercise_id}/download-answer-files",
         web::get().to(download_exercise_answer_files),
+    )
+    .route(
+        "/{exercise_id}/has-answer-files",
+        web::get().to(exercise_has_answer_files),
     )
     .route(
         "/{exercise_id}/answers-requiring-attention",

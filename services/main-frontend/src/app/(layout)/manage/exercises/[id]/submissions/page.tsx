@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
+  exerciseHasAnswerFilesOptions,
   getExerciseCsvExportTaskOptionsOptions,
   getExerciseOptions,
   getExerciseSubmissionsOptions,
@@ -98,6 +99,15 @@ const SubmissionsPage: React.FC = () => {
     () => (csvExportTaskOptionsQuery.data ?? []).some((task) => task.produces_file_answers),
     [csvExportTaskOptionsQuery.data],
   )
+
+  const answerFilesExistQuery = useQuery({
+    ...exerciseHasAnswerFilesOptions({
+      path: {
+        exercise_id: id,
+      },
+    }),
+    enabled: hasFileAnswerTasks,
+  })
 
   const getTaskLabel = (task: ExerciseCsvExportTaskOption) =>
     t("label-csv-export-task-option", {
@@ -197,7 +207,7 @@ const SubmissionsPage: React.FC = () => {
         >
           {t("button-text-export-answers-csv")}
         </Button>
-        {hasFileAnswerTasks && (
+        {hasFileAnswerTasks && answerFilesExistQuery.data && (
           <a href={answerFilesHref} download>
             <Button variant="secondary" size="small" type="button">
               {t("button-text-download-answer-files")}

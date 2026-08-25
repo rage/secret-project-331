@@ -1377,6 +1377,46 @@ pub async fn get_returned_exercise_ids_for_user_and_course(
         .collect())
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, FromRow)]
+pub struct UserExerciseStateWithExerciseName {
+    pub exercise_id: Uuid,
+    pub exercise_name: String,
+    pub reviewing_stage: ReviewingStage,
+    pub score_given: Option<f32>,
+}
+
+/// The user's exercise states in the given course currently sitting in one of `stages`, e.g. to
+/// list what is awaiting peer/self/manual review.
+pub async fn get_states_in_reviewing_stages_for_user_and_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    stages: &[ReviewingStage],
+) -> ModelResult<Vec<UserExerciseStateWithExerciseName>> {
+    let res = sqlx::query_as!(
+        UserExerciseStateWithExerciseName,
+        r#"
+SELECT e.id AS exercise_id,
+  e.name AS exercise_name,
+  ues.reviewing_stage AS "reviewing_stage: ReviewingStage",
+  ues.score_given
+FROM user_exercise_states ues
+  JOIN exercises e ON e.id = ues.exercise_id
+WHERE ues.user_id = $1
+  AND ues.course_id = $2
+  AND ues.reviewing_stage = ANY($3::reviewing_stage[])
+  AND ues.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+        "#,
+        user_id,
+        course_id,
+        stages as &[ReviewingStage],
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 #[cfg(test)]
 mod tests {
     use chrono::TimeZone;

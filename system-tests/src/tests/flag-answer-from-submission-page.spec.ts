@@ -119,7 +119,10 @@ test.describe("flagging an answer from the submission page", () => {
 
     await test.step("teacher awards partial points with feedback instead", async () => {
       await teacherPage.getByRole("button", { name: "Grade" }).click()
-      await teacherPage.getByRole("textbox", { name: "Points", exact: true }).fill("0.5")
+      const pointsField = teacherPage.getByRole("textbox", { name: "Points", exact: true })
+      await pointsField.fill("0.5")
+      // The field only commits its value on blur, and the feedback box appears with the commit.
+      await pointsField.blur()
       await teacherPage
         .getByRole("textbox", { name: "Feedback for student (optional)" })
         .fill(PARTIAL_POINTS_FEEDBACK)

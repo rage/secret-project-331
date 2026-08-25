@@ -25,7 +25,7 @@ use crate::{
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
-    prelude::{ChatbotResult, chatbot_err},
+    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
     user_context::ChatbotUserContext,
 };
 

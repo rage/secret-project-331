@@ -1,5 +1,6 @@
 pub mod course_configuration;
 pub mod course_finder;
+pub mod course_material_search;
 pub mod course_progress;
 pub mod course_structure;
 pub mod document_lookup;

@@ -26,7 +26,7 @@ use crate::{
         argument_parsing::deserialize_to_optional_uuid_and_errors_to_none,
         tool_permission::ToolPermission,
     },
-    prelude::{ChatbotResult, chatbot_err},
+    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
     user_context::ChatbotUserContext,
 };
 
@@ -128,6 +128,43 @@ pub struct UserCourseStateArguments {
     facets: Vec<UserCourseStateFacet>,
 }
 
+/// Manual, not derived: ids and facets need validation `#[derive(Deserialize)]` can't express,
+/// and this is what [ChatbotTool::Arguments]'s `DeserializeOwned` bound is satisfied by
+/// (`parse_arguments` below is overridden and never calls it, but the bound still has to hold).
+impl<'de> Deserialize<'de> for UserCourseStateArguments {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let raw = RawArguments::deserialize(deserializer)?;
+        build_arguments(raw).map_err(serde::de::Error::custom)
+    }
+}
+
+fn build_arguments(raw: RawArguments) -> ChatbotResult<UserCourseStateArguments> {
+    let user_id = Uuid::from_str(&raw.user_id).map_err(|e| {
+        chatbot_err!(
+            InvalidToolArguments,
+            format!("'{}' is not a valid user_id.", raw.user_id),
+            e
+        )
+    })?;
+    let course_id = Uuid::from_str(&raw.course_id).map_err(|e| {
+        chatbot_err!(
+            InvalidToolArguments,
+            format!("'{}' is not a valid course_id.", raw.course_id),
+            e
+        )
+    })?;
+    let facets = parse_facets(&raw.facets)?;
+    Ok(UserCourseStateArguments {
+        user_id,
+        course_id,
+        exercise_id: raw.exercise_id,
+        facets,
+    })
+}
+
 impl ChatbotToolDeclaration for UserCourseStateTool {
     const NAME: &'static str = "user_course_state";
 
@@ -186,27 +223,7 @@ impl ChatbotTool for UserCourseStateTool {
                 e
             )
         })?;
-        let user_id = Uuid::from_str(&raw.user_id).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("'{}' is not a valid user_id.", raw.user_id),
-                e
-            )
-        })?;
-        let course_id = Uuid::from_str(&raw.course_id).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("'{}' is not a valid course_id.", raw.course_id),
-                e
-            )
-        })?;
-        let facets = parse_facets(&raw.facets)?;
-        Ok(UserCourseStateArguments {
-            user_id,
-            course_id,
-            exercise_id: raw.exercise_id,
-            facets,
-        })
+        build_arguments(raw)
     }
 
     async fn from_db_and_arguments(

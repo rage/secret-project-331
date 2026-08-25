@@ -10,6 +10,10 @@ use crate::{
     user_context::ChatbotUserContext,
 };
 
+/// Shared schema description for the `course_id` argument of every course-material tool
+/// (`course_structure`, `document_lookup`) that accepts the lenient sentinel form.
+pub const COURSE_ID_ARGUMENT_DESCRIPTION: &str = "The course whose structure to list. Leave empty to use the course this chatbot is on; a global support chatbot must always pass one.";
+
 /// Resolves which course a material tool acts on, and enforces that leaving the chatbot's own
 /// course is a global-admin move. Tool-level [ToolPermission] is checked before the call by the
 /// registry; this is the per-argument half it cannot express.

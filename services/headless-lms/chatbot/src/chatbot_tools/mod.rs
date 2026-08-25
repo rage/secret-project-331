@@ -18,6 +18,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use sqlx::PgConnection;
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 pub mod argument_parsing;
 pub mod client_tools;
@@ -77,6 +78,12 @@ pub trait ChatbotTool: ChatbotToolDeclaration {
 
     /// Output the result of the tool call in LLM-readable form
     fn output(&self) -> String;
+
+    /// Page references this call's output cites, numbered as the tool told the model to cite
+    /// them. Empty for a tool whose output is not quotable material.
+    fn citations(&self) -> Vec<ToolCitation> {
+        Vec::new()
+    }
 
     /// Additional instructions for the LLM on how to describe and
     /// communicate the tool output. Just-in-time prompt.
@@ -247,6 +254,18 @@ pub struct ChatbotToolCallResult {
     /// The arguments the tool was called with, as JSON, persisted with the function call message.
     pub arguments: String,
     pub output: String,
+    pub citations: Vec<ToolCitation>,
+}
+
+/// One page reference a tool call's output cites, ready to become a
+/// [headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation]
+/// row once the message it was attached beside is stored.
+pub struct ToolCitation {
+    pub page_id: Uuid,
+    pub title: String,
+    pub snippet: String,
+    pub document_url: String,
+    pub citation_number: i32,
 }
 
 /// Defines the chatbot tools the LLM can call, split by who produces the output of a call.
@@ -322,6 +341,7 @@ macro_rules! chatbot_tool_registry {
                     return Ok(ChatbotToolCallResult {
                         arguments: fn_args.to_owned(),
                         output: tool.get_tool_output(),
+                        citations: tool.citations(),
                     });
                 }
             )*

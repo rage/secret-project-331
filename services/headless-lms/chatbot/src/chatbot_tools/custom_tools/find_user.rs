@@ -14,7 +14,9 @@ use crate::{
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
-    prelude::{ChatbotResult, TryToOptional, chatbot_err},
+    prelude::{
+        BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, TryToOptional, chatbot_err,
+    },
     user_context::ChatbotUserContext,
 };
 
@@ -45,6 +47,58 @@ pub struct FindUserArguments {
 struct RawFindUserArguments {
     query: String,
     kind: String,
+}
+
+/// Manual, not derived: `kind` needs validation `#[derive(Deserialize)]` can't express, and this
+/// is what [ChatbotTool::Arguments]'s `DeserializeOwned` bound is satisfied by (`parse_arguments`
+/// below is overridden and never calls it, but the bound still has to hold).
+impl<'de> serde::Deserialize<'de> for FindUserArguments {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let raw = RawFindUserArguments::deserialize(deserializer)?;
+        build_arguments(raw).map_err(serde::de::Error::custom)
+    }
+}
+
+fn build_arguments(raw: RawFindUserArguments) -> ChatbotResult<FindUserArguments> {
+    let query = raw.query.trim().to_string();
+    if query.is_empty() {
+        return Err(chatbot_err!(
+            InvalidToolArguments,
+            "query must not be empty.".to_string()
+        ));
+    }
+
+    let kind = match raw.kind.as_str() {
+        "email" => FindUserKind::Email,
+        "name" => FindUserKind::Name,
+        "user_id" => FindUserKind::UserId,
+        "upstream_id" => FindUserKind::UpstreamId,
+        "auto" => FindUserKind::Auto,
+        other => {
+            return Err(chatbot_err!(
+                InvalidToolArguments,
+                format!(
+                    "Unknown kind '{other}'. Valid values: email, name, user_id, upstream_id, auto."
+                )
+            ));
+        }
+    };
+
+    if matches!(kind, FindUserKind::Email | FindUserKind::Name)
+        && query.chars().count() < MIN_FUZZY_QUERY_LENGTH
+    {
+        return Err(chatbot_err!(
+            InvalidToolArguments,
+            format!(
+                "query must be at least {MIN_FUZZY_QUERY_LENGTH} characters long for email or name search."
+            )
+        ));
+    }
+
+    Ok(FindUserArguments { query, kind })
 }
 
 impl ChatbotToolDeclaration for FindUserTool {
@@ -92,43 +146,7 @@ impl ChatbotTool for FindUserTool {
                 e
             )
         })?;
-
-        let query = raw.query.trim().to_string();
-        if query.is_empty() {
-            return Err(chatbot_err!(
-                InvalidToolArguments,
-                "query must not be empty.".to_string()
-            ));
-        }
-
-        let kind = match raw.kind.as_str() {
-            "email" => FindUserKind::Email,
-            "name" => FindUserKind::Name,
-            "user_id" => FindUserKind::UserId,
-            "upstream_id" => FindUserKind::UpstreamId,
-            "auto" => FindUserKind::Auto,
-            other => {
-                return Err(chatbot_err!(
-                    InvalidToolArguments,
-                    format!(
-                        "Unknown kind '{other}'. Valid values: email, name, user_id, upstream_id, auto."
-                    )
-                ));
-            }
-        };
-
-        if matches!(kind, FindUserKind::Email | FindUserKind::Name)
-            && query.chars().count() < MIN_FUZZY_QUERY_LENGTH
-        {
-            return Err(chatbot_err!(
-                InvalidToolArguments,
-                format!(
-                    "query must be at least {MIN_FUZZY_QUERY_LENGTH} characters long for email or name search."
-                )
-            ));
-        }
-
-        Ok(FindUserArguments { query, kind })
+        build_arguments(raw)
     }
 
     async fn from_db_and_arguments(

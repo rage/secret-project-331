@@ -199,6 +199,7 @@ async fn authorize_access_to_conversation(
         user.map(|u| u.id),
         chatbot_configuration.course_id,
         course_name,
+        conversation_id,
     );
 
     Ok((token, chatbot_user))

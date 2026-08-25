@@ -11,6 +11,9 @@ pub struct ChatbotUserContext {
     pub user_id: Option<Uuid>,
     pub course_id: Option<Uuid>,
     pub course_name: Option<String>,
+    /// The conversation this turn belongs to. `None` only in tests that build a context without
+    /// one; every production call site has a conversation id in scope.
+    pub conversation_id: Option<Uuid>,
     roles: OnceCell<Vec<Role>>,
 }
 
@@ -20,11 +23,13 @@ impl ChatbotUserContext {
         user_id: Option<Uuid>,
         course_id: Option<Uuid>,
         course_name: Option<String>,
+        conversation_id: Uuid,
     ) -> Self {
         Self {
             user_id,
             course_id,
             course_name,
+            conversation_id: Some(conversation_id),
             roles: OnceCell::new(),
         }
     }
@@ -53,8 +58,11 @@ impl ChatbotUserContext {
         roles: Vec<Role>,
     ) -> Self {
         Self {
+            user_id,
+            course_id,
+            course_name,
+            conversation_id: None,
             roles: OnceCell::new_with(Some(roles)),
-            ..Self::new(user_id, course_id, course_name)
         }
     }
 }

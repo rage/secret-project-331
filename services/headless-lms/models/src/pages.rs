@@ -69,6 +69,8 @@ pub struct PageInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PageInfoSpecial {
+    pub page_id: Uuid,
+    pub url_path: String,
     pub page_title: String,
     pub order_number: i32,
     pub chapter_title: Option<String>,
@@ -1069,6 +1071,8 @@ pub async fn get_page_info_special_for_course(
         PageInfoSpecial,
         r#"
     SELECT
+        p.id AS page_id,
+        p.url_path AS "url_path!",
         p.title AS page_title,
         p.order_number,
         p.content,

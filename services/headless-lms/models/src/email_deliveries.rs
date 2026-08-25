@@ -586,7 +586,7 @@ SELECT et.email_template_type AS "email_template_type: EmailTemplateType",
   ed.first_failed_at,
   ed.last_attempt_at,
   latest_error.error_code,
-  latest_error.is_transient
+  latest_error.is_transient AS "is_transient?"
 FROM email_deliveries ed
   JOIN email_templates et ON et.id = ed.email_template_id
   LEFT JOIN LATERAL (

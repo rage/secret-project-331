@@ -7,6 +7,9 @@ use futures::StreamExt;
 use futures::stream::BoxStream;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_conversation_messages::{self, ChatbotConversationMessage};
+use headless_lms_models::chatbot_conversation_messages_citations::{
+    self, ChatbotConversationMessageCitation,
+};
 use tracing::trace;
 use url::Url;
 
@@ -337,6 +340,7 @@ async fn record_tool_call(
     tool_name: &str,
     result: ChatbotToolCallResult,
 ) -> ChatbotResult<Vec<APIInputMessage>> {
+    let citations = result.citations;
     let tool_call_message = APIOutputMessage {
         message_type: OutputItem::FunctionCall {
             response_id: response_id.to_owned(),
@@ -364,6 +368,28 @@ async fn record_tool_call(
         output_message.to_chatbot_conversation_message(conversation_id)?,
     )
     .await?;
+
+    if !citations.is_empty() {
+        let (rows, page_ids) = citations
+            .into_iter()
+            .map(|citation| {
+                (
+                    ChatbotConversationMessageCitation {
+                        conversation_message_id: stored_output.id,
+                        conversation_id,
+                        title: citation.title,
+                        content: citation.snippet,
+                        document_url: citation.document_url,
+                        citation_number: citation.citation_number,
+                        ..Default::default()
+                    },
+                    Some(citation.page_id),
+                )
+            })
+            .unzip();
+        chatbot_conversation_messages_citations::insert_batch(&mut tx, rows, page_ids).await?;
+    }
+
     tx.commit().await?;
 
     Ok(vec![
@@ -519,7 +545,11 @@ where
                 };
 
                 let tool_result = if let Some(output) = refused_client_call {
-                    ChatbotToolCallResult { arguments: args, output }
+                    ChatbotToolCallResult {
+                        arguments: args,
+                        output,
+                        citations: Vec::new(),
+                    }
                 } else {
                     // The tool runs outside the transaction so a failure cannot leave a
                     // function call without its output. `args` is only borrowed here, so it is
@@ -535,6 +565,7 @@ where
                                 "Chatbot tool call failed, reporting the failure to the LLM.",
                             )?,
                             arguments: args,
+                            citations: Vec::new(),
                         },
                     }
                 };

@@ -5,4 +5,5 @@ pub mod course_structure;
 pub mod document_lookup;
 pub mod find_course;
 pub mod find_user;
+pub mod user_course_state;
 pub mod user_overview;

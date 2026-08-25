@@ -113,7 +113,9 @@ pub struct StoredAnswer {
 /// Resolves stored answers into the outbound union in one batch, minting a download URL per file.
 ///
 /// Keyed by submission id. A submission is absent from the map only when its `json` answer has no
-/// `data_json` at all, which is the `None` its DTO carries.
+/// `data_json` at all, which is the `None` its DTO carries. Only rows predating
+/// `exercise_task_submissions_json_answer_has_data` can be like that; the constraint is deliberately
+/// left unvalidated so they survive.
 pub async fn attach_answer_data(
     conn: &mut PgConnection,
     stored: &[StoredAnswer],

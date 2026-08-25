@@ -2,9 +2,12 @@ CREATE TYPE answer_kind AS ENUM ('json', 'file');
 
 ALTER TABLE exercise_task_submissions
   ADD COLUMN answer_kind answer_kind NOT NULL DEFAULT 'json';
+-- NOT VALID, and never validated: data_json is nullable and long predates answer_kind, so a single
+-- legacy contentless answer would abort a validating scan of the platform's largest table. Inserts
+-- and updates are still checked, and attach_answer_data tolerates such a row.
 ALTER TABLE exercise_task_submissions
   ADD CONSTRAINT exercise_task_submissions_json_answer_has_data
-  CHECK (answer_kind <> 'json' OR data_json IS NOT NULL);
+  CHECK (answer_kind <> 'json' OR data_json IS NOT NULL) NOT VALID;
 
 ALTER TABLE rejected_exercise_task_submissions
   ADD COLUMN answer_kind answer_kind NOT NULL DEFAULT 'json';

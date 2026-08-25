@@ -94,6 +94,13 @@ pub enum ChatbotChatStreamEvent {
     /// Carries nothing, because the call it waits on was already streamed as an unfinished
     /// `ToolCall` event, and survives a reload only through the conversation's messages anyway.
     Suspended,
+    /// A confirmed action tool call executed, carrying data for the confirming admin's browser
+    /// only (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and
+    /// the model never sees it either.
+    ActionExecuted {
+        tool_call_id: String,
+        payload: serde_json::Value,
+    },
     Error(StreamEventError),
 }
 

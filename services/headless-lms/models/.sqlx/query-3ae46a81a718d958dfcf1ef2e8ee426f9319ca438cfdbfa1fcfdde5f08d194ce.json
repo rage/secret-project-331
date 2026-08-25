@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id\nFROM chatbot_conversation_message_tool_outputs\nWHERE tool_call_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3ae46a81a718d958dfcf1ef2e8ee426f9319ca438cfdbfa1fcfdde5f08d194ce"
+}

@@ -52,6 +52,14 @@ const readChatbotResponseStream = async (
               }
             : { type: "TOOL_CALL_IN_PROGRESS", payload: { ...parsedValue.data } },
         )
+      } else if (parsedValue.type === "ActionExecuted") {
+        dispatch({
+          type: "ACTION_EXECUTED",
+          payload: {
+            tool_call_id: parsedValue.data.tool_call_id,
+            payload: parsedValue.data.payload,
+          },
+        })
       } else if (parsedValue.type === "Error") {
         setError(parsedValue.data)
       } else if (parsedValue.type === "Done" || parsedValue.type === "Suspended") {

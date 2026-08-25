@@ -2,6 +2,7 @@ use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, AzureLLMToolDefinition},
     chatbot_error::chatbot_err,
     chatbot_tools::{
+        action_tools::{ConfirmAnswer, ConfirmableActionTool},
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
         custom_tools::{
             course_finder::CourseFinderTool, course_progress::CourseProgressTool,
@@ -20,6 +21,7 @@ use sqlx::PgConnection;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
+pub mod action_tools;
 pub mod argument_parsing;
 pub mod client_tools;
 pub mod course_scope;
@@ -257,6 +259,17 @@ pub struct ChatbotToolCallResult {
     pub citations: Vec<ToolCitation>,
 }
 
+/// What executing a confirmed (or declining an unconfirmed) action tool call produced.
+pub struct ActionToolOutcome {
+    /// The tool output the resumed turn reads.
+    pub output: String,
+    /// The data the confirming admin's browser gets as an [ActionExecuted] stream event, never
+    /// persisted and never shown to the model. `None` for a decline.
+    ///
+    /// [ActionExecuted]: crate::azure_chatbot::events::ChatbotChatStreamEvent::ActionExecuted
+    pub client_payload: Option<serde_json::Value>,
+}
+
 /// One page reference a tool call's output cites, ready to become a
 /// [headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation]
 /// row once the message it was attached beside is stored.
@@ -278,7 +291,8 @@ pub struct ToolCitation {
 macro_rules! chatbot_tool_registry {
     (
         server_tools: [$($server_tool:ty),* $(,)?],
-        client_tools: [$($client_tool:ty),* $(,)?] $(,)?
+        client_tools: [$($client_tool:ty),* $(,)?],
+        action_tools: [$($action_tool:ty),* $(,)?] $(,)?
     ) => {
         /// Every tool the server runs, whoever is allowed to use it.
         ///
@@ -370,6 +384,16 @@ macro_rules! chatbot_tool_registry {
                     ));
                 }
             )*
+            $(
+                if <$action_tool as ChatbotToolDeclaration>::PERMISSION
+                    .is_satisfied_by(&mut *conn, user_context)
+                    .await?
+                {
+                    definitions.push(AzureLLMToolDefinition::Function(
+                        <$action_tool as ChatbotToolDeclaration>::get_tool_definition(),
+                    ));
+                }
+            )*
             Ok(definitions)
         }
 
@@ -396,20 +420,113 @@ macro_rules! chatbot_tool_registry {
                     return Ok(());
                 }
             )*
+            $(
+                if tool_name == <$action_tool as ChatbotToolDeclaration>::NAME {
+                    <$action_tool as ConfirmableActionTool>::parse_arguments(arguments)?;
+                    return Ok(());
+                }
+            )*
             Err(chatbot_err!(
                 InvalidToolName,
                 format!("No client tool is registered under the name {tool_name}")
             ))
         }
 
-        /// The permission a client tool requires, or `None` when no client tool goes by that name.
+        /// The permission a client tool (including an action tool) requires, or `None` when no
+        /// client-answered tool goes by that name.
         pub fn client_tool_permission(tool_name: &str) -> Option<ToolPermission> {
             $(
                 if tool_name == <$client_tool as ChatbotToolDeclaration>::NAME {
                     return Some(<$client_tool as ChatbotToolDeclaration>::PERMISSION);
                 }
             )*
+            $(
+                if tool_name == <$action_tool as ChatbotToolDeclaration>::NAME {
+                    return Some(<$action_tool as ChatbotToolDeclaration>::PERMISSION);
+                }
+            )*
             None
+        }
+
+        /// Whether `tool_name` is a [ConfirmableActionTool] rather than a pure
+        /// [ClientChatbotTool]: its answer runs a mutation through [execute_action_tool] instead
+        /// of being rendered directly by [client_tool_answer_output].
+        pub fn tool_is_confirmable_action(tool_name: &str) -> bool {
+            $(
+                if tool_name == <$action_tool as ChatbotToolDeclaration>::NAME {
+                    return true;
+                }
+            )*
+            false
+        }
+
+        /// Runs the confirmed (or records the declined) action tool call the LLM asked for.
+        ///
+        /// `tool_call_id` is the row id of the recorded call, stored on the audit row so it traces
+        /// back to the conversation. Fails with [ChatbotErrorType::InvalidToolAnswer] when `answer`
+        /// is not a [ConfirmAnswer], and with [ChatbotErrorType::InvalidToolName] when no action
+        /// tool goes by `tool_name`. A declined answer never touches the database beyond what the
+        /// caller writes for the closed call itself.
+        pub async fn execute_action_tool(
+            conn: &mut PgConnection,
+            app_config: &ApplicationConfiguration,
+            tool_name: &str,
+            arguments: &str,
+            tool_call_id: Uuid,
+            answer: &ClientToolAnswer,
+            acting_user_id: Uuid,
+        ) -> ChatbotResult<ActionToolOutcome> {
+            $(
+                if tool_name == <$action_tool as ChatbotToolDeclaration>::NAME {
+                    let parsed_arguments =
+                        <$action_tool as ConfirmableActionTool>::parse_arguments(arguments)?;
+                    let confirm: ConfirmAnswer = client_answer_data(answer)?;
+                    let instructions =
+                        <$action_tool as ConfirmableActionTool>::output_description_instructions();
+
+                    if !confirm.confirmed {
+                        return Ok(ActionToolOutcome {
+                            output: delimited_tool_output(
+                                &<$action_tool as ConfirmableActionTool>::declined_output(&parsed_arguments),
+                                instructions.as_deref(),
+                            ),
+                            client_payload: None,
+                        });
+                    }
+
+                    let executed = <$action_tool as ConfirmableActionTool>::execute(
+                        &mut *conn,
+                        app_config,
+                        &parsed_arguments,
+                        acting_user_id,
+                    )
+                    .await?;
+
+                    models::chatbot_action_logs::insert(
+                        &mut *conn,
+                        models::chatbot_action_logs::NewChatbotActionLog {
+                            acting_user_id,
+                            tool_call_id,
+                            tool_name: tool_name.to_string(),
+                            arguments: serde_json::from_str(arguments)
+                                .unwrap_or(serde_json::Value::String(arguments.to_string())),
+                            target_user_id: executed.audit.target_user_id,
+                            course_id: executed.audit.course_id,
+                            summary: executed.audit.summary,
+                        },
+                    )
+                    .await?;
+
+                    return Ok(ActionToolOutcome {
+                        output: delimited_tool_output(&executed.output, instructions.as_deref()),
+                        client_payload: executed.client_payload,
+                    });
+                }
+            )*
+            Err(chatbot_err!(
+                InvalidToolName,
+                format!("No action tool is registered under the name {tool_name}")
+            ))
         }
 
         /// Turns a client's answer into the tool output the resumed turn reads.
@@ -446,6 +563,8 @@ chatbot_tool_registry!(
         CourseFinderTool,
     ],
     client_tools: [AskMultipleChoiceQuestionTool],
+    // Filled in once T7-T10 (the confirmable action tools) exist.
+    action_tools: [],
 );
 
 /// A second registry, generated from tools that exist only here.
@@ -539,7 +658,11 @@ mod generated_filter_tests {
         }
     }
 
-    chatbot_tool_registry!(server_tools: [], client_tools: [OpenTool, TeacherTool]);
+    chatbot_tool_registry!(
+        server_tools: [],
+        client_tools: [OpenTool, TeacherTool],
+        action_tools: [],
+    );
 
     async fn offered(conn: &mut PgConnection, user_context: &ChatbotUserContext) -> Vec<String> {
         function_definitions(

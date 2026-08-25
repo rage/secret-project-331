@@ -25,6 +25,10 @@ export interface ClientToolBubbleProps<TCall> {
   /** Whether a turn is streaming right now; no answer can be sent while true. */
   isTurnInFlight: boolean
   closedAnswer: ClosedClientToolAnswer
+  /** Data a confirmed action tool's execution sent back for this browser only, keyed onto this
+   * call by `tool_call_id` when the `ActionExecuted` stream event arrived. `undefined` for a call
+   * that never executed (a pure client tool, an unconfirmed action, or one from before reload). */
+  executionPayload?: unknown
   onAnswer: (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => void
 }
 

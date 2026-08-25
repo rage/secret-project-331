@@ -3161,6 +3161,28 @@
           },
           {
             "type": "object",
+            "description": "A confirmed action tool call executed, carrying data for the confirming admin's browser\nonly (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and\nthe model never sees it either.",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "description": "A confirmed action tool call executed, carrying data for the confirming admin's browser\nonly (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and\nthe model never sees it either.",
+                "required": ["tool_call_id", "payload"],
+                "properties": {
+                  "payload": {},
+                  "tool_call_id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["ActionExecuted"]
+              }
+            }
+          },
+          {
+            "type": "object",
             "required": ["data", "type"],
             "properties": {
               "data": {

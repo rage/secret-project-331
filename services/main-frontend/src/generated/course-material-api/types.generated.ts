@@ -81,6 +81,18 @@ export type ChatbotChatStreamEvent =
       type: "Suspended"
     }
   | {
+      /**
+       * A confirmed action tool call executed, carrying data for the confirming admin's browser
+       * only (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and
+       * the model never sees it either.
+       */
+      data: {
+        payload: unknown
+        tool_call_id: string
+      }
+      type: "ActionExecuted"
+    }
+  | {
       data: StreamEventError
       type: "Error"
     }
@@ -97,7 +109,7 @@ export type ChatbotConversation = {
 }
 
 /**
- * Should contain all information required to display the chatbot to the user.
+ * Everything needed to display the chatbot to the user.
  */
 export type ChatbotConversationInfo = {
   chatbot_name: string

@@ -160,8 +160,15 @@ async fn begin_turn(
             tool_call_id,
             answer,
         } => {
+            // One transaction for the answer path: a confirmed action tool's mutation, its audit
+            // row (both inside `client_tool_output_for_answer`), and the recorded tool output
+            // below commit or roll back together, so the transcript can never claim an effect the
+            // database does not have.
+            let mut tx = conn.begin().await?;
+
             let answered = client_tool_output_for_answer(
-                &mut conn,
+                &mut tx,
+                &app_config,
                 conversation_id,
                 &unanswered,
                 tool_call_id,
@@ -171,7 +178,7 @@ async fn begin_turn(
             .await?;
 
             let outcome = models::chatbot_conversation_messages::answer_client_tool_call(
-                &mut conn,
+                &mut tx,
                 conversation_id,
                 tool_call_id,
                 answered.output,
@@ -179,6 +186,8 @@ async fn begin_turn(
             )
             .await
             .map_err(rejected_tool_answer_error)?;
+
+            tx.commit().await?;
 
             if !outcome.turn_can_resume {
                 trace!(
@@ -190,14 +199,36 @@ async fn begin_turn(
             let configuration =
                 models::chatbot_configurations::get_by_id(&mut conn, chatbot_configuration_id)
                     .await?;
-            LLMRequest::build_from_conversation(
+            let chat_request = LLMRequest::build_from_conversation(
                 &mut conn,
                 &configuration,
                 conversation_id,
                 &user_context,
                 &app_config,
             )
-            .await?
+            .await?;
+
+            // The reset link (or similar) an executed action tool produced is for this browser
+            // only and is never persisted, so it can only reach the client by riding ahead of the
+            // resumed turn's own stream.
+            if let Some(payload) = answered.execution_payload {
+                let event = ChatbotChatStreamEvent::ActionExecuted {
+                    tool_call_id: tool_call_id.to_string(),
+                    payload,
+                };
+                let line = ndjson_line(&event)?;
+                return Ok(Box::pin(
+                    futures::stream::once(async move { Ok(line) }).chain(stream_turn(
+                        pool,
+                        app_config,
+                        conversation_id,
+                        chat_request,
+                        user_context,
+                    )),
+                ));
+            }
+
+            chat_request
         }
     };
 

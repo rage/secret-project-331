@@ -266,6 +266,59 @@ WHERE ccmtc.chatbot_conversation_message_id IN (
     Ok(res)
 }
 
+/// Locks the call row for the duration of the surrounding transaction and refuses to hand it over
+/// for execution if it already has an output.
+///
+/// This is the exactly-once guard for a confirmable action: two concurrent confirms of the same
+/// call serialize on `FOR UPDATE`, and the loser sees the output that the winner just inserted and
+/// errors here instead of running the mutation a second time. Errors with
+/// [ModelErrorType::InvalidRequest] when an output already exists, and with
+/// [ModelErrorType::RecordNotFound] when the call itself does not.
+pub async fn lock_unanswered_for_execution(
+    conn: &mut PgConnection,
+    tool_call_id: Uuid,
+) -> ModelResult<()> {
+    let call = sqlx::query!(
+        r#"
+SELECT id, tool_call_id
+FROM chatbot_conversation_message_tool_calls
+WHERE id = $1
+  AND deleted_at IS NULL
+FOR UPDATE
+        "#,
+        tool_call_id
+    )
+    .fetch_optional(&mut *conn)
+    .await?
+    .ok_or_else(|| {
+        model_err!(
+            RecordNotFound,
+            format!("No tool call {tool_call_id} to execute")
+        )
+    })?;
+
+    let already_answered = sqlx::query!(
+        r#"
+SELECT id
+FROM chatbot_conversation_message_tool_outputs
+WHERE tool_call_id = $1
+  AND deleted_at IS NULL
+        "#,
+        call.tool_call_id
+    )
+    .fetch_optional(conn)
+    .await?
+    .is_some();
+
+    if already_answered {
+        return Err(model_err!(
+            InvalidRequest,
+            format!("Tool call {tool_call_id} has already been answered")
+        ));
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,11 +1,17 @@
 //! Turning a client's answer to a suspended tool call into the output that resumes the turn.
 
-use headless_lms_models::chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall;
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_conversation_message_tool_calls::{
+    self, ChatbotConversationMessageToolCall,
+};
 
 use super::abort::permission_revoked_output;
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::tool_permission::ToolPermission;
-use crate::chatbot_tools::{ClientToolAnswer, client_tool_answer_output, client_tool_permission};
+use crate::chatbot_tools::{
+    ClientToolAnswer, client_tool_answer_output, client_tool_permission, execute_action_tool,
+    tool_is_confirmable_action,
+};
 use crate::prelude::*;
 use crate::user_context::ChatbotUserContext;
 
@@ -15,6 +21,9 @@ pub(crate) struct AnsweredClientToolCall {
     pub(crate) output: String,
     /// The payload the client sent, or None when the call was aborted instead of answered.
     pub(crate) client_answer: Option<serde_json::Value>,
+    /// Data for the confirming admin's browser only, from a confirmed action tool's execution.
+    /// Never persisted; carried out of band as an `ActionExecuted` stream event.
+    pub(crate) execution_payload: Option<serde_json::Value>,
 }
 
 /// Turns a client's answer to a suspended call into the tool output that resumes the turn.
@@ -30,6 +39,7 @@ pub(crate) struct AnsweredClientToolCall {
 /// client got wrong.
 pub(crate) async fn client_tool_output_for_answer(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     conversation_id: Uuid,
     unanswered: &[ChatbotConversationMessageToolCall],
     tool_call_id: &str,
@@ -50,7 +60,15 @@ pub(crate) async fn client_tool_output_for_answer(
         ));
     };
 
-    apply_client_tool_answer(conn, tool_call, permission, answer, user_context).await
+    apply_client_tool_answer(
+        conn,
+        app_config,
+        tool_call,
+        permission,
+        answer,
+        user_context,
+    )
+    .await
 }
 
 /// Why a call the client wants to answer is not among the conversation's unanswered ones: it
@@ -90,6 +108,7 @@ async fn missing_tool_call_error(
 /// because the turn stays stuck until its call has some output.
 async fn apply_client_tool_answer(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     tool_call: &ChatbotConversationMessageToolCall,
     permission: ToolPermission,
     answer: &ClientToolAnswer,
@@ -101,6 +120,40 @@ async fn apply_client_tool_answer(
         return Ok(AnsweredClientToolCall {
             output: output.to_string(),
             client_answer: None,
+            execution_payload: None,
+        });
+    }
+
+    if tool_is_confirmable_action(&tool_call.tool_name) {
+        // `GlobalAdmin` (the only permission an action tool can require) implies a user id; the
+        // permission check above already re-verified the caller still holds it.
+        let acting_user_id = user_context.user_id.ok_or_else(|| {
+            chatbot_err!(
+                ToolUseError,
+                "An action tool was confirmed by a caller with no user id.".to_string()
+            )
+        })?;
+
+        // Exactly-once guard: locks the call row for the rest of this transaction and refuses if
+        // it was already answered, so two concurrent confirms cannot both execute the mutation.
+        chatbot_conversation_message_tool_calls::lock_unanswered_for_execution(conn, tool_call.id)
+            .await?;
+
+        let outcome = execute_action_tool(
+            conn,
+            app_config,
+            &tool_call.tool_name,
+            &tool_call.arguments_json(),
+            tool_call.id,
+            answer,
+            acting_user_id,
+        )
+        .await?;
+        let ClientToolAnswer::Data { result } = answer;
+        return Ok(AnsweredClientToolCall {
+            output: outcome.output,
+            client_answer: Some(result.clone()),
+            execution_payload: outcome.client_payload,
         });
     }
 
@@ -110,6 +163,7 @@ async fn apply_client_tool_answer(
     Ok(AnsweredClientToolCall {
         output,
         client_answer: Some(result.clone()),
+        execution_payload: None,
     })
 }
 
@@ -171,9 +225,11 @@ mod tests {
     async fn apply_client_tool_answer_aborts_when_the_permission_is_not_satisfied() {
         insert_data!(:tx, :user, :org, :course);
         let revoked = context(Some(user), Some(course), Vec::new());
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
 
         let aborted = apply_client_tool_answer(
             tx.as_mut(),
+            &app_config,
             &recorded_question(),
             ToolPermission::TeachesCourse,
             &picked_the_second_choice(),
@@ -197,9 +253,11 @@ mod tests {
             Some(course),
             vec![course_role(user, course, UserRole::Teacher)],
         );
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
 
         let applied = apply_client_tool_answer(
             tx.as_mut(),
+            &app_config,
             &recorded_question(),
             ToolPermission::TeachesCourse,
             &picked_the_second_choice(),

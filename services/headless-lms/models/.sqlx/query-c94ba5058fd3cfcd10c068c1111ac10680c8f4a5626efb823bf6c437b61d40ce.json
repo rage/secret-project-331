@@ -1,0 +1,87 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  u.id AS \"user_id!\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  COALESCE(\n    array_agg(DISTINCT ci.name) FILTER (WHERE ci.name IS NOT NULL),\n    ARRAY[]::text[]\n  ) AS \"course_instances!: Vec<String>\",\n  COALESCE(bool_or(ci.id IS NOT NULL), false) AS \"has_active_instance!\"\nFROM course_instance_enrollments cie\n  JOIN users u ON u.id = cie.user_id\n  LEFT JOIN user_details ud ON ud.user_id = u.id\n  LEFT JOIN course_instances ci\n    ON ci.id = cie.course_instance_id\n   AND ci.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT cmc.grade, cmc.passed\n    FROM course_module_completions cmc\n    WHERE cmc.user_id = u.id\n      AND cmc.course_id = $1\n      AND cmc.course_module_id = $7\n      AND cmc.deleted_at IS NULL\n    ORDER BY cmc.completion_date DESC\n    LIMIT 1\n  ) gm ON $7::uuid IS NOT NULL\n  LEFT JOIN (\n    SELECT ues.user_id, COALESCE(SUM(ues.score_given), 0)::double precision AS total_points\n    FROM user_exercise_states ues\n      JOIN exercises ex ON ex.id = ues.exercise_id\n    WHERE ues.course_id = $1\n      AND ues.deleted_at IS NULL\n      AND ex.deleted_at IS NULL\n    GROUP BY ues.user_id\n  ) points ON points.user_id = u.id\nWHERE cie.course_id = $1\n  AND cie.deleted_at IS NULL\n  AND u.deleted_at IS NULL\n  AND ($4::uuid IS NULL OR cie.course_instance_id = $4)\n  AND (\n    $2::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\\'\n    OR ($3::uuid IS NOT NULL AND u.id = $3)\n  )\n  AND (\n    $8::text IS NULL\n    OR ($8 = 'not_completed' AND gm.grade IS NULL AND gm.passed IS NULL)\n    OR ($8 = 'passed' AND gm.grade IS NULL AND gm.passed = true)\n    OR ($8 = 'failed' AND gm.grade IS NULL AND gm.passed = false)\n    OR ($8 ~ '^[0-9]+$' AND gm.grade = $8::int)\n  )\nGROUP BY u.id, ud.first_name, ud.last_name, ud.email\nORDER BY\n  CASE\n    WHEN $9 = 'total_points' AND $10 = 'asc' THEN COALESCE(MAX(points.total_points), 0)\n  END ASC NULLS LAST,\n  CASE\n    WHEN $9 = 'total_points' AND $10 = 'desc' THEN COALESCE(MAX(points.total_points), 0)\n  END DESC NULLS LAST,\n  CASE\n    WHEN $10 <> 'asc' THEN NULL\n    WHEN $9 = 'first_name' THEN LOWER(TRIM(ud.first_name))\n    WHEN $9 = 'email' THEN LOWER(ud.email)\n    WHEN $9 = 'last_name' THEN LOWER(TRIM(ud.last_name))\n  END ASC NULLS LAST,\n  CASE\n    WHEN $10 <> 'desc' THEN NULL\n    WHEN $9 = 'first_name' THEN LOWER(TRIM(ud.first_name))\n    WHEN $9 = 'email' THEN LOWER(ud.email)\n    WHEN $9 = 'last_name' THEN LOWER(TRIM(ud.last_name))\n  END DESC NULLS LAST,\n  CASE\n    WHEN $9 = 'first_name' THEN LOWER(TRIM(ud.last_name))\n    WHEN $9 = 'last_name' THEN LOWER(TRIM(ud.first_name))\n  END ASC NULLS LAST,\n  u.id ASC\nLIMIT $5 OFFSET $6\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "users",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "email?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_instances!: Vec<String>",
+        "type_info": "VarcharArray",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "has_active_instance!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Int8",
+        "Int8",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "c94ba5058fd3cfcd10c068c1111ac10680c8f4a5626efb823bf6c437b61d40ce"
+}

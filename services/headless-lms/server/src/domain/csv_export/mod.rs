@@ -21,7 +21,10 @@ use sqlx::PgConnection;
 use std::{
     io,
     io::Write,
-    sync::{Arc, Mutex},
+    sync::{
+        Arc, Mutex,
+        atomic::{AtomicBool, Ordering},
+    },
 };
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::wrappers::UnboundedReceiverStream;
@@ -177,7 +180,12 @@ pub fn make_authorized_streamable(
 pub fn serializable_sqlx_result_stream_to_json_stream(
     stream: impl Stream<Item = sqlx::Result<impl Serialize>>,
 ) -> impl Stream<Item = Result<bytes::Bytes, ControllerError>> {
-    let res_stream = stream.enumerate().map(|(n, item)| {
+    // The opening bracket rides along with the first item, so the terminator has to know whether
+    // one was ever emitted; without this an empty stream would answer with a bare `]`.
+    let emitted_any_item = Arc::new(AtomicBool::new(false));
+    let mark_emitted = Arc::clone(&emitted_any_item);
+    let res_stream = stream.enumerate().map(move |(n, item)| {
+        mark_emitted.store(true, Ordering::Relaxed);
         item.map(|item2| {
             match serde_json::to_vec(&item2) {
                 Ok(mut v) => {
@@ -211,7 +219,15 @@ pub fn serializable_sqlx_result_stream_to_json_stream(
         })
     });
     // Chaining the end of the json array character here because in the previous map we don't know the length of the stream
-    res_stream.chain(tokio_stream::iter(vec![Ok(Bytes::from_static(b"]"))]))
+    res_stream.chain(futures::stream::once(async move {
+        Ok(Bytes::from_static(
+            if emitted_any_item.load(Ordering::Relaxed) {
+                b"]"
+            } else {
+                b"[]"
+            },
+        ))
+    }))
 }
 
 #[async_trait]

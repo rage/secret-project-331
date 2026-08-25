@@ -360,6 +360,7 @@ mod tests {
                 model_solution_spec_endpoint_path: "/model-solution".to_string(),
                 has_custom_view: false,
                 supports_native_client: false,
+                produces_file_answers: false,
             },
         )
         .await

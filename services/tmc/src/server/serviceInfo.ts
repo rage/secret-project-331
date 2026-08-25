@@ -13,6 +13,7 @@ function getImpl() {
     public_spec_endpoint_path: `${prefix}/api/public-spec`,
     model_solution_spec_endpoint_path: `${prefix}/api/model-solution`,
     supports_native_client: true,
+    produces_file_answers: true,
   })
 }
 

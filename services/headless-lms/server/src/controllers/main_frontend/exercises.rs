@@ -52,6 +52,7 @@ pub struct ExerciseCsvExportTaskOption {
     pub order_number: i32,
     pub supports_csv_export_definitions: bool,
     pub supports_csv_export_answers: bool,
+    pub produces_file_answers: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -486,7 +487,7 @@ async fn get_exercise_submissions_for_user(
 }
 
 /**
-GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.
+GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.
  */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -531,14 +532,15 @@ async fn get_exercise_csv_export_task_options(
             Ok((_service, service_info)) => (
                 csv_endpoint_is_supported(&service_info.csv_export_definitions_endpoint_path),
                 csv_endpoint_is_supported(&service_info.csv_export_answers_endpoint_path),
+                service_info.produces_file_answers,
             ),
             Err(error) => {
                 warn!(
                     exercise_type = ?exercise_type,
                     ?error,
-                    "Could not fetch exercise service info for CSV export support detection."
+                    "Could not fetch exercise service info for exercise task capability detection."
                 );
-                (false, false)
+                (false, false, false)
             }
         };
         exercise_type_support.insert(exercise_type, support);
@@ -547,17 +549,21 @@ async fn get_exercise_csv_export_task_options(
     let options = tasks
         .into_iter()
         .map(|task| {
-            let (supports_csv_export_definitions, supports_csv_export_answers) =
-                exercise_type_support
-                    .get(&task.exercise_type)
-                    .copied()
-                    .unwrap_or((false, false));
+            let (
+                supports_csv_export_definitions,
+                supports_csv_export_answers,
+                produces_file_answers,
+            ) = exercise_type_support
+                .get(&task.exercise_type)
+                .copied()
+                .unwrap_or((false, false, false));
             ExerciseCsvExportTaskOption {
                 exercise_task_id: task.id,
                 exercise_type: task.exercise_type,
                 order_number: task.order_number,
                 supports_csv_export_definitions,
                 supports_csv_export_answers,
+                produces_file_answers,
             }
         })
         .collect::<Vec<_>>();

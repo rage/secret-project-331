@@ -123,6 +123,17 @@
             "name": "supports_native_client"
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "produces_file_answers",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "produces_file_answers"
+          }
+        }
       }
     ],
     "parameters": {
@@ -141,6 +152,7 @@
       false,
       true,
       true,
+      false,
       false
     ]
   },

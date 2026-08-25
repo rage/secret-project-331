@@ -94,6 +94,11 @@ const SubmissionsPage: React.FC = () => {
     [csvExportTaskOptionsQuery.data],
   )
 
+  const fileAnswerTaskOptions = useMemo(
+    () => (csvExportTaskOptionsQuery.data ?? []).filter((task) => task.produces_file_answers),
+    [csvExportTaskOptionsQuery.data],
+  )
+
   const getTaskLabel = (task: ExerciseCsvExportTaskOption) =>
     t("label-csv-export-task-option", {
       order: task.order_number + 1,
@@ -193,7 +198,16 @@ const SubmissionsPage: React.FC = () => {
           {t("button-text-export-answers-csv")}
         </Button>
         <a href={answerFilesHref} download>
-          <Button variant="secondary" size="small" type="button">
+          <Button
+            variant="secondary"
+            size="small"
+            type="button"
+            disabled={
+              csvExportTaskOptionsQuery.isLoading ||
+              csvExportTaskOptionsQuery.isError ||
+              fileAnswerTaskOptions.length === 0
+            }
+          >
             {t("button-text-download-answer-files")}
           </Button>
         </a>

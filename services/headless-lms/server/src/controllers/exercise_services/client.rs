@@ -1833,6 +1833,7 @@ mod upload_tests {
                     model_solution_spec_endpoint_path: "/model-solution".to_string(),
                     has_custom_view: false,
                     supports_native_client: declares,
+                    produces_file_answers: false,
                 },
             )
             .await
@@ -2212,6 +2213,7 @@ mod route_tests {
                 model_solution_spec_endpoint_path: "/model-solution".to_string(),
                 has_custom_view: false,
                 supports_native_client: true,
+                produces_file_answers: false,
             },
         )
         .await

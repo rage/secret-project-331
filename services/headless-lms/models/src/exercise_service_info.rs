@@ -25,6 +25,7 @@ pub struct ExerciseServiceInfo {
     pub csv_export_definitions_endpoint_path: Option<String>,
     pub csv_export_answers_endpoint_path: Option<String>,
     pub supports_native_client: bool,
+    pub produces_file_answers: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -37,6 +38,7 @@ pub struct PathInfo {
     // #[serde(skip_serializing_if = "Option::is_none")]
     pub has_custom_view: bool,
     pub supports_native_client: bool,
+    pub produces_file_answers: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -63,6 +65,10 @@ pub struct ExerciseServiceInfoApi {
     /// what makes the service visible to the exercise-services client API.
     #[serde(default)]
     pub supports_native_client: bool,
+    /// Whether this service's answers consist of uploaded files rather than JSON. Unrelated to
+    /// `supports_native_client`, which is about the client that answers, not the answer's shape.
+    #[serde(default)]
+    pub produces_file_answers: bool,
 }
 
 pub async fn insert(
@@ -79,9 +85,10 @@ INSERT INTO exercise_service_info (
     public_spec_endpoint_path,
     model_solution_spec_endpoint_path,
     has_custom_view,
-    supports_native_client
+    supports_native_client,
+    produces_file_answers
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *
 ",
         exercise_service_info.exercise_service_id,
@@ -90,7 +97,8 @@ RETURNING *
         exercise_service_info.public_spec_endpoint_path,
         exercise_service_info.model_solution_spec_endpoint_path,
         exercise_service_info.has_custom_view,
-        exercise_service_info.supports_native_client
+        exercise_service_info.supports_native_client,
+        exercise_service_info.produces_file_answers
     )
     .fetch_one(conn)
     .await?;
@@ -141,9 +149,10 @@ INSERT INTO exercise_service_info(
     has_custom_view,
     csv_export_definitions_endpoint_path,
     csv_export_answers_endpoint_path,
-    supports_native_client
+    supports_native_client,
+    produces_file_answers
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
@@ -152,7 +161,8 @@ SET user_interface_iframe_path = $2,
   has_custom_view = $6,
   csv_export_definitions_endpoint_path = $7,
   csv_export_answers_endpoint_path = $8,
-  supports_native_client = $9
+  supports_native_client = $9,
+  produces_file_answers = $10
 RETURNING *
     "#,
         exercise_service_id,
@@ -163,7 +173,8 @@ RETURNING *
         update.has_custom_view.unwrap_or_else(|| false),
         update.csv_export_definitions_endpoint_path.as_deref(),
         update.csv_export_answers_endpoint_path.as_deref(),
-        update.supports_native_client
+        update.supports_native_client,
+        update.produces_file_answers
     )
     .fetch_one(conn)
     .await?;

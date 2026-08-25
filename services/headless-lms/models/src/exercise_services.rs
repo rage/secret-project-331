@@ -332,6 +332,7 @@ mod test {
                 model_solution_spec_endpoint_path: "/model-solution".to_string(),
                 has_custom_view: false,
                 supports_native_client,
+                produces_file_answers: false,
             },
         )
         .await
@@ -378,6 +379,7 @@ mod test {
                 csv_export_definitions_endpoint_path: None,
                 csv_export_answers_endpoint_path: None,
                 supports_native_client: true,
+                produces_file_answers: false,
             },
         )
         .await

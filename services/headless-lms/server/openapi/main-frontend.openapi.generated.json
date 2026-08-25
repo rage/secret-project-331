@@ -9747,7 +9747,7 @@
     "/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options": {
       "get": {
         "tags": ["exercises"],
-        "summary": "\nGET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.",
+        "summary": "\nGET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.",
         "operationId": "getExerciseCsvExportTaskOptions",
         "parameters": [
           {
@@ -21148,7 +21148,8 @@
           "exercise_type",
           "order_number",
           "supports_csv_export_definitions",
-          "supports_csv_export_answers"
+          "supports_csv_export_answers",
+          "produces_file_answers"
         ],
         "properties": {
           "exercise_task_id": {
@@ -21161,6 +21162,9 @@
           "order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "produces_file_answers": {
+            "type": "boolean"
           },
           "supports_csv_export_answers": {
             "type": "boolean"

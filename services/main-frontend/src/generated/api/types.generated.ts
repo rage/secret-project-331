@@ -2792,6 +2792,7 @@ export type ExerciseCsvExportTaskOption = {
   exercise_task_id: string
   exercise_type: string
   order_number: number
+  produces_file_answers: boolean
   supports_csv_export_answers: boolean
   supports_csv_export_definitions: boolean
 }

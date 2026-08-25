@@ -6428,7 +6428,7 @@ export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolea
 
 /**
  *
- * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.
  */
 export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = true>(
   options: Options<GetExerciseCsvExportTaskOptionsData, ThrowOnError>,

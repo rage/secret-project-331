@@ -19,6 +19,13 @@ export interface ExerciseServiceInfoApi {
    * never offered to such a client.
    */
   supports_native_client?: boolean
+  /**
+   * Whether this service's answers consist of uploaded files rather than JSON. Not the
+   * native-client flag: it says nothing about which clients can answer the exercise, only what an
+   * answer to it is made of. Gates teacher-facing tooling that only makes sense for file answers,
+   * such as the answer-file archive download.
+   */
+  produces_file_answers?: boolean
 }
 
 export type GradingProgress = "Pending" | "Failed" | "FullyGraded" | "PendingManual" | "NotReady"

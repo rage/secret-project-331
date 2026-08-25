@@ -3,6 +3,7 @@ import type { AnswerFileRef } from "@/shared-module/exercise-protocol/core/exerc
 import { assertNotNullOrUndefined } from "../nullability"
 import {
   answerDataToAnswerExerciseFields,
+  answerDataToAnswerFileRefs,
   answerDataToCapturedAnswerFields,
   answerDataToViewSubmissionFields,
 } from "../typeMappter"
@@ -113,5 +114,20 @@ describe("answerDataToCapturedAnswerFields", () => {
 
   test("a missing answer yields a null answer and no files field", () => {
     expect(answerDataToCapturedAnswerFields(undefined)).toEqual({ data: null })
+  })
+})
+
+describe("answerDataToAnswerFileRefs", () => {
+  test("a file answer yields its files in the host's order", () => {
+    expect(answerDataToAnswerFileRefs(fileAnswer)).toEqual([FIRST_FILE, SECOND_FILE])
+  })
+
+  test("a json answer yields no files", () => {
+    expect(answerDataToAnswerFileRefs(jsonAnswer)).toBeUndefined()
+  })
+
+  test("a missing answer yields no files", () => {
+    expect(answerDataToAnswerFileRefs(null)).toBeUndefined()
+    expect(answerDataToAnswerFileRefs(undefined)).toBeUndefined()
   })
 })

@@ -29,15 +29,31 @@ function toPluginAnswer(answer: AnswerDataLike | null | undefined): PluginAnswer
   }
   return {
     data: answer.metadata ?? null,
-    files: answer.files.map((file) => ({
-      id: file.id,
-      url: file.url,
-      name: file.name,
-      mime: file.mime,
-      // A file stored before sizes were recorded has no size; a zero would report a false one.
-      ...omitUndefined({ size_bytes: file.size_bytes ?? undefined }),
-    })),
+    ...omitUndefined({ files: answerDataToAnswerFileRefs(answer) }),
   }
+}
+
+/**
+ * The file refs of a file-typed answer, or `undefined` for a JSON answer or a missing one.
+ *
+ * For a state that carries the files without the answer JSON, such as `custom-view`; see
+ * {@link answerDataToViewSubmissionFields} for the states that carry both. The file order is the
+ * host's grading order and must not be re-sorted.
+ */
+export function answerDataToAnswerFileRefs(
+  answer: AnswerDataLike | null | undefined,
+): AnswerFileRef[] | undefined {
+  if (!answer || answer.kind !== "file") {
+    return undefined
+  }
+  return answer.files.map((file) => ({
+    id: file.id,
+    url: file.url,
+    name: file.name,
+    mime: file.mime,
+    // A file stored before sizes were recorded has no size; a zero would report a false one.
+    ...omitUndefined({ size_bytes: file.size_bytes ?? undefined }),
+  }))
 }
 
 /**

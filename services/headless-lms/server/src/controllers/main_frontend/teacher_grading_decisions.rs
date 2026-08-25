@@ -87,18 +87,6 @@ async fn create_teacher_grading_decision(
         &action, points_given
     );
 
-    let _res = models::teacher_grading_decisions::upsert_by_state_id_and_exercise_id(
-        &mut conn,
-        user_exercise_state_id,
-        student_state.exercise_id,
-        *action,
-        points_given,
-        Some(user.id),
-        justification.clone(),
-        hidden,
-    )
-    .await?;
-
     // RejectAndReset is the older single-action spelling of the same request.
     if payload.reset_exercise || *action == TeacherDecisionType::RejectAndReset {
         let course_id = student_state.course_id.ok_or_else(|| {
@@ -116,13 +104,36 @@ async fn create_teacher_grading_decision(
             &[student_state.exercise_id],
             Some(user.id),
             Some("reset-by-staff".to_string()),
-            // The reset soft-deletes the decision above, so the feedback rides along with the log.
-            if hidden { None } else { justification.clone() },
+        )
+        .await?;
+
+        // Recorded after the reset, with the plain insert since the reset soft-deleted the state
+        // the upsert validates against. A decision predating its own reset reads as superseded.
+        let _res = models::teacher_grading_decisions::add_teacher_grading_decision(
+            &mut conn,
+            user_exercise_state_id,
+            *action,
+            points_given,
+            Some(user.id),
+            justification.clone(),
+            hidden,
         )
         .await?;
 
         return token.authorized_ok(web::Json(None));
     }
+
+    let _res = models::teacher_grading_decisions::upsert_by_state_id_and_exercise_id(
+        &mut conn,
+        user_exercise_state_id,
+        student_state.exercise_id,
+        *action,
+        points_given,
+        Some(user.id),
+        justification.clone(),
+        hidden,
+    )
+    .await?;
 
     let new_user_exercise_state = models::user_exercise_states::recalculate_by_id_and_exercise_id(
         &mut conn,

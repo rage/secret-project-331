@@ -504,9 +504,9 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
-    let teacher_feedback = if let Some(state) = &user_exercise_state {
-        let decision = crate::teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id(
-            &mut *conn, state.id,
+    let teacher_feedback = if let Some(user_id) = user_id {
+        let decision = crate::teacher_grading_decisions::try_to_get_latest_grading_decision_still_addressed_to_student(
+            &mut *conn, user_id, exercise.id,
         )
         .await?;
         decision.and_then(|d| {
@@ -586,17 +586,16 @@ pub async fn get_course_material_exercise(
         _ => None,
     }.unwrap_or_default();
 
-    let reset_notice = if let Some(user_id) = user_id {
-        crate::exercise_reset_logs::get_reset_notice_for_exercise(conn, user_id, exercise_id)
-            .await?
+    let should_show_reset_message = if let Some(user_id) = user_id {
+        crate::exercise_reset_logs::user_should_see_reset_message_for_exercise(
+            conn,
+            user_id,
+            exercise_id,
+        )
+        .await?
     } else {
         None
     };
-    let should_show_reset_message = reset_notice.as_ref().map(|notice| notice.reason.clone());
-    // A reset soft-deletes the grading decision that carried the feedback, so after one the reset
-    // log is the only place the teacher's words survive.
-    let teacher_feedback =
-        teacher_feedback.or_else(|| reset_notice.and_then(|notice| notice.teacher_feedback));
 
     Ok(CourseMaterialExercise {
         exercise,
@@ -1168,6 +1167,8 @@ WHERE exercise_task_submission_id IN (
         .execute(&mut *tx)
         .await?;
 
+        // Teacher grading decisions are left in place: they hang off the state deleted here, so
+        // they cannot score the next attempt, and they carry what the teacher told the student.
         sqlx::query!(
             r#"
 UPDATE user_exercise_states
@@ -1222,24 +1223,6 @@ WHERE user_exercise_state_id IN (
         .execute(&mut *tx)
         .await?;
 
-        sqlx::query!(
-            r#"
-UPDATE teacher_grading_decisions
-SET deleted_at = NOW()
-WHERE user_exercise_state_id IN (
-    SELECT id
-    FROM user_exercise_states
-    WHERE user_id = $1
-      AND exercise_id = ANY($2)
-  )
-  AND deleted_at IS NULL
-            "#,
-            user_id,
-            exercise_ids
-        )
-        .execute(&mut *tx)
-        .await?;
-
         // Adds a log of a reset exercise for a user
         exercise_reset_logs::log_exercise_reset(
             &mut tx,
@@ -1248,7 +1231,6 @@ WHERE user_exercise_state_id IN (
             exercise_ids,
             course_id,
             reason.clone(),
-            None,
         )
         .await?;
 
@@ -1276,7 +1258,6 @@ pub async fn reset_progress_by_course_id_user_ids_and_exercise_ids(
     exercise_ids: &[Uuid],
     reset_by: Option<Uuid>,
     reason: Option<String>,
-    teacher_feedback: Option<String>,
 ) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
     let mut successful_resets = Vec::new();
     let mut tx = conn.begin().await?;
@@ -1377,27 +1358,6 @@ WHERE exercise_task_submission_id IN (
 
         sqlx::query!(
             r#"
-UPDATE teacher_grading_decisions
-SET deleted_at = NOW()
-WHERE user_exercise_state_id IN (
-    SELECT id
-    FROM user_exercise_states
-    WHERE user_id = $1
-      AND course_id = $2
-      AND exercise_id = ANY($3)
-      AND deleted_at IS NULL
-  )
-  AND deleted_at IS NULL
-            "#,
-            user_id,
-            course_id,
-            &validated_exercise_ids
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        sqlx::query!(
-            r#"
 UPDATE user_exercise_task_states
 SET deleted_at = NOW()
 WHERE user_exercise_slide_state_id IN (
@@ -1437,6 +1397,8 @@ WHERE user_exercise_state_id IN (
         .execute(&mut *tx)
         .await?;
 
+        // Teacher grading decisions are left in place: they hang off the state deleted here, so
+        // they cannot score the next attempt, and they carry what the teacher told the student.
         sqlx::query!(
             r#"
 UPDATE user_exercise_states
@@ -1460,7 +1422,6 @@ WHERE user_id = $1
             &validated_exercise_ids,
             course_id,
             reason.clone(),
-            teacher_feedback.clone(),
         )
         .await?;
 

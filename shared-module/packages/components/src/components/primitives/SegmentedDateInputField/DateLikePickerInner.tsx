@@ -8,6 +8,7 @@ import {
   now,
   toCalendar,
   toCalendarDate,
+  toCalendarDateTime,
   toTime,
 } from "@internationalized/date"
 import {
@@ -123,8 +124,10 @@ export function DateLikePickerInner({
               const calendar = currentValue?.calendar ?? new GregorianCalendar()
               const date = toCalendar(toCalendarDate(zdt), calendar)
               const time = toTime(zdt)
-              pickerState.setDateValue(date)
-              pickerState.setTimeValue(time)
+              // setDateValue/setTimeValue each close over the *other* field's pre-click
+              // value, so calling both in one tick races and the second call wins with
+              // a stale date or time. Commit the merged value once via setValue instead.
+              pickerState.setValue(toCalendarDateTime(date, time))
             }
           : undefined
       }

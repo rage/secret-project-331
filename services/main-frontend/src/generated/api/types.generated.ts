@@ -3611,6 +3611,12 @@ export type NewTeacherGradingDecision = {
   hidden: boolean
   justification?: string | null
   manual_points?: number | null
+  /**
+   * Resets the student's progress on the exercise so they can answer it again. Independent of
+   * `action`, so a decision can record why the answer was rejected and still reopen it.
+   * Requires the exercise to belong to a course.
+   */
+  reset_exercise: boolean
   user_exercise_state_id: string
 }
 
@@ -4492,6 +4498,9 @@ export type TeacherDecisionType =
   | "CustomPoints"
   | "SuspectedPlagiarism"
   | "RejectAndReset"
+  | "UnauthorizedAiUse"
+  | "BadAnswer"
+  | "Other"
 
 export type TeacherGradingDecision = {
   created_at: string
@@ -8620,7 +8629,7 @@ export type GetCourseStudentsUsersData = {
      */
     search?: string
     /**
-     * last_name | first_name | email
+     * last_name | first_name | email | total_points
      */
     sort_column?: string
     /**
@@ -8631,6 +8640,14 @@ export type GetCourseStudentsUsersData = {
      * Filter to a single course instance
      */
     course_instance_id?: string
+    /**
+     * Scopes `grade` to this module's completions
+     */
+    module_id?: string
+    /**
+     * A sis-0-5 grade ("0".."5"), "passed"/"failed", or "not_completed"; requires module_id
+     */
+    grade?: string
   }
   url: "/api/v0/main-frontend/courses/{course_id}/students/users"
 }

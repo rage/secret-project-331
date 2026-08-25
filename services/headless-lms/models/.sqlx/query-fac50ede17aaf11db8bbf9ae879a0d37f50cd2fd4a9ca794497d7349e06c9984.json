@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM (\n  SELECT u.id\n  FROM course_instance_enrollments cie\n    JOIN users u ON u.id = cie.user_id\n    LEFT JOIN user_details ud ON ud.user_id = u.id\n    LEFT JOIN LATERAL (\n      SELECT cmc.grade, cmc.passed\n      FROM course_module_completions cmc\n      WHERE cmc.user_id = u.id\n        AND cmc.course_id = $1\n        AND cmc.course_module_id = $5\n        AND cmc.deleted_at IS NULL\n      ORDER BY cmc.completion_date DESC\n      LIMIT 1\n    ) gm ON $5::uuid IS NOT NULL\n  WHERE cie.course_id = $1\n    AND cie.deleted_at IS NULL\n    AND u.deleted_at IS NULL\n    AND ($2::uuid IS NULL OR cie.course_instance_id = $2)\n    AND (\n      $3::text IS NULL\n      OR ud.name_search_helper LIKE '%' || $3 || '%' ESCAPE '\\'\n      OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\\'\n      OR ($4::uuid IS NOT NULL AND u.id = $4)\n    )\n    AND (\n      $6::text IS NULL\n      OR ($6 = 'not_completed' AND gm.grade IS NULL AND gm.passed IS NULL)\n      OR ($6 = 'passed' AND gm.grade IS NULL AND gm.passed = true)\n      OR ($6 = 'failed' AND gm.grade IS NULL AND gm.passed = false)\n      OR ($6 ~ '^[0-9]+$' AND gm.grade = $6::int)\n    )\n  GROUP BY u.id\n) t\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "fac50ede17aaf11db8bbf9ae879a0d37f50cd2fd4a9ca794497d7349e06c9984"
+}

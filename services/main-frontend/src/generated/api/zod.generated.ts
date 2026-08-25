@@ -5347,6 +5347,9 @@ export const zTeacherDecisionType = z.enum([
   "CustomPoints",
   "SuspectedPlagiarism",
   "RejectAndReset",
+  "UnauthorizedAiUse",
+  "BadAnswer",
+  "Other",
 ])
 
 export const zNewTeacherGradingDecision = z.object({
@@ -5355,6 +5358,7 @@ export const zNewTeacherGradingDecision = z.object({
   hidden: z.boolean(),
   justification: z.string().nullish(),
   manual_points: z.number().nullish(),
+  reset_exercise: z.boolean(),
   user_exercise_state_id: z.uuid(),
 })
 
@@ -7678,6 +7682,8 @@ export const zGetCourseStudentsUsersQuery = z.object({
   sort_column: z.string().optional(),
   sort_direction: z.string().optional(),
   course_instance_id: z.uuid().optional(),
+  module_id: z.uuid().optional(),
+  grade: z.string().optional(),
 })
 
 /**

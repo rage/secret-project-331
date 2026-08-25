@@ -279,6 +279,7 @@ const Submission: React.FC = () => {
                 exerciseId={exerciseId}
                 exerciseMaxPoints={submissionInfo.exercise.score_maximum}
                 isLatestSubmission={isLatestSubmission}
+                courseId={submissionInfo.exercise.course_id ?? null}
                 onGradingSubmit={handleGradingSubmit}
               />
             )}

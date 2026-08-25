@@ -116,6 +116,8 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/landing-page-copy-text", LandingPageCopyText],
   ["moocfi/iframe", Iframe],
   ["moocfi/map", Map],
+  ["moocfi/author", Author],
+  ["moocfi/author-inner-block", AuthorInnerBlock],
   ["moocfi/conditional-block", ConditionalBlock],
   ["moocfi/exercise-custom-view-block", ExerciseCustomView],
   ["moocfi/code-giveaway", CodeGiveaway],

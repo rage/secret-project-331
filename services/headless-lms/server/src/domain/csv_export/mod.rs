@@ -166,7 +166,7 @@ HttpResponse::Ok()
 ```
 */
 pub fn make_authorized_streamable(
-    stream: UnboundedReceiverStream<Result<AuthorizedResponse<bytes::Bytes>, ControllerError>>,
+    stream: impl Stream<Item = Result<AuthorizedResponse<bytes::Bytes>, ControllerError>>,
 ) -> impl Stream<Item = Result<bytes::Bytes, ControllerError>> {
     stream.map(|item| item.map(|item2| item2.data))
 }

@@ -12,10 +12,10 @@ use std::{
 
 use async_zip::{Compression, ZipEntryBuilder, base::write::ZipFileWriter};
 use bytes::Bytes;
-use futures::{StreamExt, io::AsyncWrite, io::AsyncWriteExt};
+use futures::{StreamExt, io::AsyncWrite, io::AsyncWriteExt, ready};
 use models::exercise_task_submission_files::ExerciseAnswerFile;
-use tokio::sync::mpsc::UnboundedSender;
-use tokio_stream::wrappers::UnboundedReceiverStream;
+use tokio_stream::wrappers::ReceiverStream;
+use tokio_util::sync::PollSender;
 
 use super::{authorization::AuthorizationToken, csv_export::make_authorized_streamable};
 use crate::prelude::*;
@@ -96,21 +96,30 @@ pub fn content_disposition(course_or_exam_name: &str, exercise_name: &str) -> St
     )
 }
 
-/// Writes the archive bytes into the streaming response channel as they are produced.
+/// How many written chunks may sit between the archive writer and the client before the writer has
+/// to wait. The producer reads from the file store as fast as it is served, so without a bound a
+/// slow client makes the whole archive accumulate in memory.
+const ARCHIVE_CHANNEL_CAPACITY: usize = 8;
+
+/// Writes the archive bytes into the streaming response channel as they are produced, waiting when
+/// the client is not reading them fast enough.
 struct ArchiveSink {
-    sender: UnboundedSender<ControllerResult<Bytes>>,
+    sender: PollSender<ControllerResult<Bytes>>,
     authorization_token: AuthorizationToken,
 }
 
 impl AsyncWrite for ArchiveSink {
     fn poll_write(
         self: Pin<&mut Self>,
-        _cx: &mut Context<'_>,
+        cx: &mut Context<'_>,
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
-        let token = self.authorization_token;
-        self.sender
-            .send(token.authorized_ok(Bytes::copy_from_slice(buf)))
+        let sink = self.get_mut();
+        ready!(sink.sender.poll_reserve(cx))
+            .map_err(|error| io::Error::other(error.to_string()))?;
+        let token = sink.authorization_token;
+        sink.sender
+            .send_item(token.authorized_ok(Bytes::copy_from_slice(buf)))
             .map_err(|error| io::Error::other(error.to_string()))?;
         Poll::Ready(Ok(buf.len()))
     }
@@ -135,15 +144,22 @@ pub async fn stream_exercise_answer_files(
     content_disposition: String,
     token: AuthorizationToken,
 ) -> ControllerResult<HttpResponse> {
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
+    let (sender, receiver) =
+        tokio::sync::mpsc::channel::<ControllerResult<Bytes>>(ARCHIVE_CHANNEL_CAPACITY);
     let mut conn = pool.acquire().await?;
+    let files = models::exercise_task_submission_files::get_answer_files_by_exercise_id(
+        &mut conn,
+        exercise_id,
+    )
+    .await?;
+    drop(conn);
     // `FileStore`'s futures are `?Send`, so the writer task has to stay on this thread.
     actix_web::rt::spawn(async move {
         let sink = ArchiveSink {
-            sender,
+            sender: PollSender::new(sender),
             authorization_token: token,
         };
-        if let Err(error) = write_archive(&mut conn, file_store.as_ref(), exercise_id, sink).await {
+        if let Err(error) = write_archive(file_store.as_ref(), files, sink).await {
             tracing::error!("Failed to write answer file archive: {}", error);
         }
     });
@@ -152,21 +168,15 @@ pub async fn stream_exercise_answer_files(
         HttpResponse::Ok()
             .append_header(("Content-Disposition", content_disposition))
             .append_header(("Content-Type", "application/zip"))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
+            .streaming(make_authorized_streamable(ReceiverStream::new(receiver))),
     )
 }
 
 async fn write_archive(
-    conn: &mut PgConnection,
     file_store: &dyn FileStore,
-    exercise_id: Uuid,
+    files: Vec<ExerciseAnswerFile>,
     sink: ArchiveSink,
 ) -> anyhow::Result<()> {
-    let files =
-        models::exercise_task_submission_files::get_answer_files_by_exercise_id(conn, exercise_id)
-            .await?;
     let mut archive = ZipFileWriter::new(sink);
     for file in files {
         let contents = match file_store.download_stream(Path::new(&file.path)).await {

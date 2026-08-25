@@ -1,0 +1,1 @@
+DROP TABLE rejected_exercise_task_submission_files;

@@ -63,9 +63,12 @@ async fn insert_rejected_exercise_task_submission(
     rejected_submission: &StudentExerciseTaskSubmission,
     exercise_slide_submission_id: Uuid,
 ) -> ModelResult<Uuid> {
-    let (answer_kind, answer_json) = match &rejected_submission.answer {
-        SubmittedAnswer::Json { data } => (AnswerKind::Json, Some(data)),
-        SubmittedAnswer::File { metadata, .. } => (AnswerKind::File, metadata.as_ref()),
+    let (answer_kind, answer_json, file_upload_ids) = match &rejected_submission.answer {
+        SubmittedAnswer::Json { data } => (AnswerKind::Json, Some(data), None),
+        SubmittedAnswer::File {
+            metadata,
+            file_upload_ids,
+        } => (AnswerKind::File, metadata.as_ref(), Some(file_upload_ids)),
     };
     let res = sqlx::query!(
         "
@@ -83,5 +86,42 @@ RETURNING id
     )
     .fetch_one(&mut *conn)
     .await?;
+    if let Some(file_upload_ids) = file_upload_ids {
+        insert_rejected_exercise_task_submission_files(conn, res.id, file_upload_ids).await?;
+    }
     Ok(res.id)
+}
+
+/// Records which files a rejected file answer named.
+///
+/// The files themselves are not spared from the exercise_answer_uploads reaper, so this is what a
+/// later diagnosis has to work from: the ids still resolve to soft-deleted file_uploads rows
+/// carrying each file's name, type and size.
+async fn insert_rejected_exercise_task_submission_files(
+    conn: &mut PgConnection,
+    rejected_exercise_task_submission_id: Uuid,
+    file_upload_ids: &[Uuid],
+) -> ModelResult<()> {
+    let order_numbers: Vec<i32> = (0..file_upload_ids.len())
+        .map(|index| i32::try_from(index).unwrap_or(i32::MAX))
+        .collect();
+    sqlx::query!(
+        "
+INSERT INTO rejected_exercise_task_submission_files (
+    rejected_exercise_task_submission_id,
+    file_upload_id,
+    order_number
+  )
+SELECT $1,
+  file_upload_id,
+  order_number
+FROM UNNEST($2::uuid [], $3::integer []) AS t(file_upload_id, order_number)
+",
+        rejected_exercise_task_submission_id,
+        file_upload_ids,
+        &order_numbers
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

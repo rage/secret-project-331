@@ -11,10 +11,15 @@ use serde::Deserialize;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
+pub mod reset_exercises;
+
 use headless_lms_base::config::ApplicationConfiguration;
 
 use crate::chatbot_tools::ChatbotToolDeclaration;
 use crate::prelude::ChatbotResult;
+
+pub mod edit_user_account;
+pub mod generate_password_reset_link;
 
 /// The one answer shape every action tool accepts.
 #[derive(Deserialize)]

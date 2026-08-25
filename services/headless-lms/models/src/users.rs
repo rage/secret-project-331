@@ -272,6 +272,37 @@ pub async fn update_email_for_user(
     Ok(user.id)
 }
 
+/// Points the account at a new address by user id rather than upstream id, for accounts (e.g.
+/// local-only ones) that have no upstream id. Same effect as [update_email_for_user] otherwise,
+/// including the `clear_email_verification` trigger dropping proof of the old address.
+pub async fn update_email_for_user_by_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    new_email: &str,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+
+    sqlx::query!(
+        "UPDATE user_details SET email = $1 WHERE user_id = $2",
+        new_email,
+        user_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    let email_domain = email_domain_from_email(new_email);
+    sqlx::query!(
+        "UPDATE users SET email_domain = $1 WHERE id = $2",
+        email_domain,
+        user_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+    Ok(())
+}
+
 /// Soft-deletes the user and takes their OAuth credentials down with the account.
 ///
 /// Returns the digests of the deleted access tokens so a caller holding the exercise-services

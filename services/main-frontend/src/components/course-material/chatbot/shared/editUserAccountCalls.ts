@@ -1,0 +1,81 @@
+import { z } from "zod"
+
+import type { ClientToolName } from "@/generated/course-material-api/types.generated"
+
+/**
+ * The client tool this UI answers, generated from `ClientToolName` in
+ * `services/headless-lms/chatbot/src/chatbot_tools/mod.rs`. Cast rather than typed as
+ * `ClientToolName` directly: the backend variant is added in a later wiring pass alongside the
+ * other action tools, so the generated union does not carry this literal yet.
+ */
+export const EDIT_USER_ACCOUNT_TOOL = "edit_user_account" as ClientToolName
+
+const verificationChange = z.union([z.literal(""), z.literal("verify"), z.literal("unverify")])
+
+export type VerificationChange = z.infer<typeof verificationChange>
+
+/** The arguments `EditUserAccountTool::parse_arguments` validates further server-side. */
+const rawArguments = z.object({
+  user_id: z.string(),
+  current_email: z.string(),
+  new_email: z.string(),
+  mark_email_verified: verificationChange,
+})
+
+export interface EditUserAccountCall {
+  toolCallId: string
+  userId: string
+  currentEmail: string
+  /** Empty string means no change. */
+  newEmail: string
+  markEmailVerified: VerificationChange
+}
+
+/**
+ * The call's raw arguments, parsed into what the bubble needs to render, or null if they cannot
+ * be made sense of. This is the client tool registry's `parseCall` for this tool.
+ */
+export const parseEditUserAccountCall = (
+  toolCallId: string,
+  toolArguments: string,
+): EditUserAccountCall | null => {
+  let parsedArguments: unknown
+  try {
+    parsedArguments = JSON.parse(toolArguments)
+  } catch {
+    return null
+  }
+  const args = rawArguments.safeParse(parsedArguments)
+  if (!args.success) {
+    return null
+  }
+  const currentEmail = args.data.current_email.trim()
+  if (currentEmail.length === 0) {
+    return null
+  }
+  return {
+    toolCallId,
+    userId: args.data.user_id,
+    currentEmail,
+    newEmail: args.data.new_email.trim(),
+    markEmailVerified: args.data.mark_email_verified,
+  }
+}
+
+/**
+ * Narrows a client tool registry entry's `unknown` call back to this tool's own type. Always true
+ * for a call this tool's own `parseEditUserAccountCall` produced.
+ */
+export const isEditUserAccountCall = (call: unknown): call is EditUserAccountCall => {
+  const candidate = call as Partial<EditUserAccountCall> | null
+  return (
+    !!candidate &&
+    typeof candidate.toolCallId === "string" &&
+    typeof candidate.userId === "string" &&
+    typeof candidate.currentEmail === "string" &&
+    typeof candidate.newEmail === "string" &&
+    (candidate.markEmailVerified === "" ||
+      candidate.markEmailVerified === "verify" ||
+      candidate.markEmailVerified === "unverify")
+  )
+}

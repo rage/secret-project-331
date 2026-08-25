@@ -1,0 +1,79 @@
+import { z } from "zod"
+
+import type { ClientToolName } from "@/generated/course-material-api/types.generated"
+
+/**
+ * The client tool this UI answers, matching `GeneratePasswordResetLinkTool::NAME` in
+ * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/generate_password_reset_link.rs`.
+ *
+ * Cast rather than typed directly as `ClientToolName`: that union does not have this variant yet,
+ * since it is added together with the other T7-T10 tools' wire names and `bin/generate-bindings`
+ * is re-run once. The cast becomes a real member of the union in that pass.
+ */
+export const GENERATE_PASSWORD_RESET_LINK_TOOL = "generate_password_reset_link" as ClientToolName
+
+const rawArguments = z.object({
+  user_id: z.string(),
+  user_email: z.string(),
+})
+
+export interface PasswordResetLinkCall {
+  toolCallId: string
+  userId: string
+  userEmail: string
+}
+
+const zPasswordResetLinkCall = z.object({
+  toolCallId: z.string(),
+  userId: z.string(),
+  userEmail: z.string(),
+})
+
+/**
+ * Narrows a client tool registry entry's `unknown` call back to this tool's own type. Always true
+ * for a call this tool's own `parseCall` produced; exists so the registry never needs a cast to
+ * cross that boundary.
+ */
+export const isPasswordResetLinkCall = (call: unknown): call is PasswordResetLinkCall =>
+  zPasswordResetLinkCall.safeParse(call).success
+
+/**
+ * The call's display fields, or null if the raw arguments cannot be made sense of. This is the
+ * client tool registry's `parseCall` for this tool; the backend re-verifies `userEmail` against
+ * the account before generating anything, so a stale or malformed value here only ever produces a
+ * bubble the admin can decline.
+ */
+export const parsePasswordResetLinkCall = (
+  toolCallId: string,
+  toolArguments: string,
+): PasswordResetLinkCall | null => {
+  let parsedArguments: unknown
+  try {
+    parsedArguments = JSON.parse(toolArguments)
+  } catch {
+    return null
+  }
+  const args = rawArguments.safeParse(parsedArguments)
+  if (!args.success) {
+    return null
+  }
+  const userId = args.data.user_id.trim()
+  const userEmail = args.data.user_email.trim()
+  if (userId.length === 0 || userEmail.length === 0) {
+    return null
+  }
+  return { toolCallId, userId, userEmail }
+}
+
+/**
+ * What `GeneratePasswordResetLinkTool::execute`'s `client_payload` carries: the reset link, sent
+ * to this browser only via the `ActionExecuted` stream event and never persisted.
+ */
+const zExecutionPayload = z.object({ reset_link: z.string() })
+
+/** The reset link from a call's `executionPayload`, or null if it is missing or malformed (a page
+ * reload after execution, which never receives the event again). */
+export const resetLinkOf = (executionPayload: unknown): string | null => {
+  const parsed = zExecutionPayload.safeParse(executionPayload)
+  return parsed.success ? parsed.data.reset_link : null
+}

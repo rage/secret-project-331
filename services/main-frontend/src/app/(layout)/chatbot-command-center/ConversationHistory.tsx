@@ -60,6 +60,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
                 max-width: 300px;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                padding-bottom: 5px;
               `}
             >
               {conversation.conversation_title !== null
@@ -69,7 +70,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
             </div>
             <span
               className={css`
-                padding-top: 0.25rem;
+                padding: 5px 8px;
                 font-size: 10px;
                 white-space: nowrap;
                 width: 200px;
@@ -80,9 +81,6 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
                 border-radius: 999px;
                 color: gray;
                 max-width: 100px;
-                padding-left: 10px;
-                margin-top: 5px;
-                padding-bottom: 5px;
               `}
             >
               {

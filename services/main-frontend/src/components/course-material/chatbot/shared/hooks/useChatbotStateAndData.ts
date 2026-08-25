@@ -2,7 +2,7 @@ import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getCurrentConversationIdQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { allUserConversationsQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
   ChatbotChatStreamEvent,
@@ -164,15 +164,8 @@ const useChatbotStateAndData = (
         // after the first message is sent.
         if (currentConversationInfo.data?.current_conversation_messages?.length === 1) {
           queryClient.refetchQueries({
-            queryKey: getCurrentConversationIdQueryKey({
-              path: {
-                chatbot_configuration_id: chatbotConfigurationId,
-              },
-            }),
+            queryKey: allUserConversationsQueryKey(),
           })
-          // queryClient.refetchQueries({
-          //   queryKey: allUserConversationsQueryKey(),
-          // })
         }
       },
       onError: async (err) => {

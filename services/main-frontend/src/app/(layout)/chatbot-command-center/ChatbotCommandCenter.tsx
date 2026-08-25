@@ -90,21 +90,30 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
       }
       return a.label.localeCompare(b.label)
     })
-
     return groupedSorted
   }, [chatbots, courses, t])
+
   // Prevents chatbot disclaimer from showing up
-  // when chatbot is changed
+  // when chatbot is changed from dropdown
   useEffect(() => {
+    // This also runs when conversation is changed which is problematic
+    // if conversation also changes chatbot because then the selected chatbot
+    // conversation is not set but the current is fetched.
+    // SHOULD ONLY HAPPEN WHEN CHATBOT CHANGED FROM DROPDOWN
     setConversationId(null)
   }, [configuration_id])
+
+  const activeConversationId = currentConversationIdQuery.isLoading
+    ? null
+    : (conversationId ?? currentConversationIdQuery.data)
 
   const chatbotStateAndData = useChatbotStateAndData(
     configuration_id,
     undefined,
-    conversationId ?? currentConversationIdQuery.data,
+    activeConversationId,
     setConversationId,
   )
+  // console.log(chatbotStateAndData.currentConversationInfo.data?.current_conversation)
   return (
     <div
       className={css`

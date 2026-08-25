@@ -36,6 +36,7 @@ import {
   updateCmsPage,
   uploadCmsCourseMedia,
   uploadCmsExamMedia,
+  uploadFilesFromExerciseService,
   upsertCmsCoursePartnersBlock,
   upsertCmsCourseResearchForm,
   upsertCmsCourseResearchFormQuestions,
@@ -97,6 +98,8 @@ import type {
   UploadCmsCourseMediaResponse,
   UploadCmsExamMediaData,
   UploadCmsExamMediaResponse,
+  UploadFilesFromExerciseServiceData,
+  UploadFilesFromExerciseServiceResponse,
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCourseResearchFormData,
   UpsertCmsCourseResearchFormQuestionsData,
@@ -967,3 +970,33 @@ export const getCmsRepositoryExercisesForCourseOptions = (
       }),
     queryKey: getCmsRepositoryExercisesForCourseQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/files/:exercise_service_slug`
+ * Used to upload data from exercise service iframes.
+ *
+ * # Returns
+ * An ordered list of host-assigned file ids and stored URLs.
+ */
+export const uploadFilesFromExerciseServiceMutation = (
+  options?: Partial<Options<UploadFilesFromExerciseServiceData>>,
+): UseMutationOptions<
+  UploadFilesFromExerciseServiceResponse,
+  DefaultError,
+  Options<UploadFilesFromExerciseServiceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UploadFilesFromExerciseServiceResponse,
+    DefaultError,
+    Options<UploadFilesFromExerciseServiceData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await uploadFilesFromExerciseService({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}

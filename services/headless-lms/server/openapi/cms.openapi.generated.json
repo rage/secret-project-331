@@ -1059,6 +1059,56 @@
           }
         }
       }
+    },
+    "/api/v0/files/{exercise_service_slug}": {
+      "post": {
+        "tags": ["files"],
+        "summary": "\nPOST `/api/v0/files/:exercise_service_slug`\nUsed to upload data from exercise service iframes.\n\n# Returns\nAn ordered list of host-assigned file ids and stored URLs.",
+        "operationId": "uploadFilesFromExerciseService",
+        "parameters": [
+          {
+            "name": "exercise_service_slug",
+            "in": "path",
+            "description": "Exercise service slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "format": "binary"
+                },
+                "propertyNames": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseServiceUploadResultEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2039,6 +2089,20 @@
             "type": "string"
           },
           "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "ExerciseServiceUploadResultEntry": {
+        "type": "object",
+        "description": "What an upload route returns for one stored file: the `file_uploads` row id an answer names it\nby, and the URL it can be fetched from.",
+        "required": ["id", "url"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
             "type": "string"
           }
         }

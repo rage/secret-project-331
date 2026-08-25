@@ -30,6 +30,13 @@ impl ToSchema for ExerciseUploadBinary {}
 #[derive(OpenApi)]
 #[openapi(paths(upload_from_exercise_service, upload_answer_files))]
 pub(crate) struct FilesApiDoc;
+
+/// The upload routes the CMS may call. Only the unbound slug route belongs here: files a teacher
+/// attaches in the exercise editor are referenced from a spec, which never produces an
+/// `exercise_task_submission_files` row, so an answer-upload binding would have them reaped.
+#[derive(OpenApi)]
+#[openapi(paths(upload_from_exercise_service))]
+pub(crate) struct CmsFilesApiDoc;
 /**
 
 GET `/api/v0/files/\*` Redirects the request to a file storage service.

@@ -245,6 +245,15 @@ export const zExerciseServiceIframeRenderingInfo = z.object({
   slug: z.string(),
 })
 
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
+export const zExerciseServiceUploadResultEntry = z.object({
+  id: z.uuid(),
+  url: z.string(),
+})
+
 export const zGutenbergBlock = z.object({
   attributes: z.record(z.string(), z.unknown()),
   clientId: z.uuid(),
@@ -849,3 +858,14 @@ export const zGetCmsRepositoryExercisesForCoursePath = z.object({
  * Repository exercises for course
  */
 export const zGetCmsRepositoryExercisesForCourseResponse = z.array(zRepositoryExercise)
+
+export const zUploadFilesFromExerciseServiceBody = z.record(z.string(), z.string())
+
+export const zUploadFilesFromExerciseServicePath = z.object({
+  exercise_service_slug: z.string(),
+})
+
+/**
+ * Uploaded files
+ */
+export const zUploadFilesFromExerciseServiceResponse = z.array(zExerciseServiceUploadResultEntry)

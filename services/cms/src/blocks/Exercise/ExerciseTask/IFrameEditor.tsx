@@ -22,6 +22,7 @@ import type {
   MessageToIframe,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import { uploadFilesFromExerciseServiceEditor } from "@/utils/uploadFilesFromExerciseIframe"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
@@ -32,6 +33,7 @@ const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
 const IFRAME_EDITOR = "IFRAME EDITOR"
 
 interface ExerciseTaskIFrameEditorProps {
+  exerciseServiceSlug: string
   exerciseTaskId: string
   onPrivateSpecChange: (newSpec: string) => void
   privateSpec: string | null
@@ -40,7 +42,7 @@ interface ExerciseTaskIFrameEditorProps {
 
 const ExerciseTaskIFrameEditor: React.FC<
   React.PropsWithChildren<ExerciseTaskIFrameEditorProps>
-> = ({ exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
+> = ({ exerciseServiceSlug, exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
   const { t } = useTranslation()
   const dialog = useDialog()
   const loginStateContext = useContext(LoginStateContext)
@@ -86,6 +88,32 @@ const ExerciseTaskIFrameEditor: React.FC<
           if (messageContainer.message === "current-state") {
             // oxlint-disable-next-line typescript/no-explicit-any
             onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
+          }
+          if (messageContainer.message === "file-upload") {
+            let response: MessageToIframe
+            try {
+              const files = await uploadFilesFromExerciseServiceEditor(
+                exerciseServiceSlug,
+                messageContainer.files,
+              )
+              response = {
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: "upload-result",
+                requestId: messageContainer.requestId,
+                success: true,
+                files,
+              }
+            } catch (e) {
+              response = {
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: "upload-result",
+                requestId: messageContainer.requestId,
+                success: false,
+                error: e instanceof Error ? e.message : String(e),
+              }
+            }
+            // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
+            responsePort.postMessage(response)
           }
           if (messageContainer.message === "request-repository-exercises") {
             if (courseId) {

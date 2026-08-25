@@ -69,6 +69,8 @@ import type {
   UploadCmsCourseMediaResponses,
   UploadCmsExamMediaData,
   UploadCmsExamMediaResponses,
+  UploadFilesFromExerciseServiceData,
+  UploadFilesFromExerciseServiceResponses,
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCoursePartnersBlockResponses,
   UpsertCmsCourseResearchFormData,
@@ -105,6 +107,7 @@ import {
   zUpdateCmsPageResponse,
   zUploadCmsCourseMediaResponse,
   zUploadCmsExamMediaResponse,
+  zUploadFilesFromExerciseServiceResponse,
   zUpsertCmsCourseResearchFormQuestionsResponse,
   zUpsertCmsCourseResearchFormResponse,
 } from "./zod.generated"
@@ -721,4 +724,33 @@ export const getCmsRepositoryExercisesForCourse = <ThrowOnError extends boolean 
     responseStyle: "data",
     url: "/api/v0/cms/repository-exercises/{course_id}",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/files/:exercise_service_slug`
+ * Used to upload data from exercise service iframes.
+ *
+ * # Returns
+ * An ordered list of host-assigned file ids and stored URLs.
+ */
+export const uploadFilesFromExerciseService = <ThrowOnError extends boolean = true>(
+  options: Options<UploadFilesFromExerciseServiceData, ThrowOnError>,
+): RequestResult<UploadFilesFromExerciseServiceResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UploadFilesFromExerciseServiceResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    ...formDataBodySerializer,
+    responseValidator: async (data) =>
+      await zUploadFilesFromExerciseServiceResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/files/{exercise_service_slug}",
+    ...options,
+    headers: {
+      "Content-Type": null,
+      ...options.headers,
+    },
   })

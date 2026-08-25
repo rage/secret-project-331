@@ -20,6 +20,7 @@ use crate::prelude::ChatbotResult;
 
 pub mod edit_user_account;
 pub mod generate_password_reset_link;
+pub mod update_cheating_status;
 
 /// The one answer shape every action tool accepts.
 #[derive(Deserialize)]

@@ -7,12 +7,36 @@ import type {
   ClientToolName,
 } from "@/generated/course-material-api/types.generated"
 
+import EditUserAccountBubble from "./EditUserAccountBubble"
+import {
+  EDIT_USER_ACCOUNT_TOOL,
+  isEditUserAccountCall,
+  parseEditUserAccountCall,
+} from "./editUserAccountCalls"
 import MultipleChoiceQuestionBubble from "./MultipleChoiceQuestionBubble"
 import {
   ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
   isMultipleChoiceQuestion,
   parseMultipleChoiceQuestion,
 } from "./multipleChoiceQuestions"
+import PasswordResetLinkBubble from "./PasswordResetLinkBubble"
+import {
+  GENERATE_PASSWORD_RESET_LINK_TOOL,
+  isPasswordResetLinkCall,
+  parsePasswordResetLinkCall,
+} from "./passwordResetLinkCalls"
+import ResetExercisesBubble from "./ResetExercisesBubble"
+import {
+  RESET_EXERCISES_TOOL,
+  isResetExercisesCall,
+  parseResetExercisesCall,
+} from "./resetExercisesCalls"
+import UpdateCheatingStatusBubble from "./UpdateCheatingStatusBubble"
+import {
+  UPDATE_CHEATING_STATUS_TOOL,
+  isUpdateCheatingStatusCall,
+  parseUpdateCheatingStatusCall,
+} from "./updateCheatingStatusCalls"
 
 /** What a call closed with, if it has: absent while `isOpen`. */
 export type ClosedClientToolAnswer = { value: unknown } | undefined
@@ -61,6 +85,42 @@ export const CLIENT_TOOL_REGISTRY: Record<string, ClientToolRegistryEntry> = {
         return null
       }
       return <MultipleChoiceQuestionBubble {...props} call={props.call} />
+    },
+  },
+  [GENERATE_PASSWORD_RESET_LINK_TOOL]: {
+    parseCall: parsePasswordResetLinkCall,
+    renderBubble: (props) => {
+      if (!isPasswordResetLinkCall(props.call)) {
+        return null
+      }
+      return <PasswordResetLinkBubble {...props} call={props.call} />
+    },
+  },
+  [RESET_EXERCISES_TOOL]: {
+    parseCall: parseResetExercisesCall,
+    renderBubble: (props) => {
+      if (!isResetExercisesCall(props.call)) {
+        return null
+      }
+      return <ResetExercisesBubble {...props} call={props.call} />
+    },
+  },
+  [UPDATE_CHEATING_STATUS_TOOL]: {
+    parseCall: parseUpdateCheatingStatusCall,
+    renderBubble: (props) => {
+      if (!isUpdateCheatingStatusCall(props.call)) {
+        return null
+      }
+      return <UpdateCheatingStatusBubble {...props} call={props.call} />
+    },
+  },
+  [EDIT_USER_ACCOUNT_TOOL]: {
+    parseCall: parseEditUserAccountCall,
+    renderBubble: (props) => {
+      if (!isEditUserAccountCall(props.call)) {
+        return null
+      }
+      return <EditUserAccountBubble {...props} call={props.call} />
     },
   },
 }

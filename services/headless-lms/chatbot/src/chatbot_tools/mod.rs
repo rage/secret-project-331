@@ -2,11 +2,18 @@ use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, AzureLLMToolDefinition},
     chatbot_error::chatbot_err,
     chatbot_tools::{
-        action_tools::{ConfirmAnswer, ConfirmableActionTool},
+        action_tools::{
+            ConfirmAnswer, ConfirmableActionTool, edit_user_account::EditUserAccountTool,
+            generate_password_reset_link::GeneratePasswordResetLinkTool,
+            reset_exercises::ResetExercisesTool, update_cheating_status::UpdateCheatingStatusTool,
+        },
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
         custom_tools::{
-            course_finder::CourseFinderTool, course_progress::CourseProgressTool,
+            course_configuration::CourseConfigurationTool, course_finder::CourseFinderTool,
+            course_material_search::CourseMaterialSearchTool, course_progress::CourseProgressTool,
             course_structure::CourseStructureTool, document_lookup::DocumentLookupTool,
+            find_course::FindCourseTool, find_user::FindUserTool,
+            user_course_state::UserCourseStateTool, user_overview::UserOverviewTool,
         },
         tool_permission::ToolPermission,
     },
@@ -146,6 +153,10 @@ pub enum ClientToolAnswer {
 #[serde(rename_all = "snake_case")]
 pub enum ClientToolName {
     AskMultipleChoiceQuestion,
+    GeneratePasswordResetLink,
+    ResetExercises,
+    UpdateCheatingStatus,
+    EditUserAccount,
 }
 
 impl ClientToolName {
@@ -153,6 +164,10 @@ impl ClientToolName {
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::AskMultipleChoiceQuestion => "ask_multiple_choice_question",
+            Self::GeneratePasswordResetLink => "generate_password_reset_link",
+            Self::ResetExercises => "reset_exercises",
+            Self::UpdateCheatingStatus => "update_cheating_status",
+            Self::EditUserAccount => "edit_user_account",
         }
     }
 }
@@ -502,9 +517,9 @@ macro_rules! chatbot_tool_registry {
                     )
                     .await?;
 
-                    models::chatbot_action_logs::insert(
+                    headless_lms_models::chatbot_action_logs::insert(
                         &mut *conn,
-                        models::chatbot_action_logs::NewChatbotActionLog {
+                        headless_lms_models::chatbot_action_logs::NewChatbotActionLog {
                             acting_user_id,
                             tool_call_id,
                             tool_name: tool_name.to_string(),
@@ -561,10 +576,20 @@ chatbot_tool_registry!(
         DocumentLookupTool,
         CourseStructureTool,
         CourseFinderTool,
+        FindUserTool,
+        FindCourseTool,
+        UserOverviewTool,
+        UserCourseStateTool,
+        CourseConfigurationTool,
+        CourseMaterialSearchTool,
     ],
     client_tools: [AskMultipleChoiceQuestionTool],
-    // Filled in once T7-T10 (the confirmable action tools) exist.
-    action_tools: [],
+    action_tools: [
+        GeneratePasswordResetLinkTool,
+        ResetExercisesTool,
+        UpdateCheatingStatusTool,
+        EditUserAccountTool,
+    ],
 );
 
 /// A second registry, generated from tools that exist only here.
@@ -752,8 +777,13 @@ mod tests {
     /// Every definition either registry can put in a request, whether the server or the client
     /// answers the call.
     fn all_tool_definitions() -> Vec<AzureLLMFunctionToolDefinition> {
-        let mut definitions =
-            vec![<AskMultipleChoiceQuestionTool as ChatbotToolDeclaration>::get_tool_definition()];
+        let mut definitions = vec![
+            <AskMultipleChoiceQuestionTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <GeneratePasswordResetLinkTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <ResetExercisesTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <UpdateCheatingStatusTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <EditUserAccountTool as ChatbotToolDeclaration>::get_tool_definition(),
+        ];
         definitions.extend(function_definitions(get_chatbot_tool_definitions()));
         definitions
     }

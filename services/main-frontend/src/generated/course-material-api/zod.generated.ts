@@ -146,7 +146,13 @@ export const zClientToolAnswer = z.object({
  * widening the argument and answer types this crate uses to serialize them, for a part of the
  * contract that only fails loudly, unlike the name.
  */
-export const zClientToolName = z.enum(["ask_multiple_choice_question"])
+export const zClientToolName = z.enum([
+  "ask_multiple_choice_question",
+  "generate_password_reset_link",
+  "reset_exercises",
+  "update_cheating_status",
+  "edit_user_account",
+])
 
 export const zChatbotToolResponse = z.object({
   answer: zClientToolAnswer,

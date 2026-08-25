@@ -3,12 +3,10 @@ import { z } from "zod"
 import type { ClientToolName } from "@/generated/course-material-api/types.generated"
 
 /**
- * The client tool this UI answers, generated from `ClientToolName` in
- * `services/headless-lms/chatbot/src/chatbot_tools/mod.rs`. Cast rather than typed as
- * `ClientToolName` directly: the backend variant is added in a later wiring pass alongside the
- * other action tools, so the generated union does not carry this literal yet.
+ * The client tool this UI answers, matching `ResetExercisesTool::NAME` in
+ * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/reset_exercises.rs`.
  */
-export const RESET_EXERCISES_TOOL = "reset_exercises" as ClientToolName
+export const RESET_EXERCISES_TOOL: ClientToolName = "reset_exercises"
 
 /** The arguments `ResetExercisesTool::parse_arguments` validates further server-side. */
 const rawArguments = z.object({

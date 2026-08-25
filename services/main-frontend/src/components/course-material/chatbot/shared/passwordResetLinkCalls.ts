@@ -5,12 +5,8 @@ import type { ClientToolName } from "@/generated/course-material-api/types.gener
 /**
  * The client tool this UI answers, matching `GeneratePasswordResetLinkTool::NAME` in
  * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/generate_password_reset_link.rs`.
- *
- * Cast rather than typed directly as `ClientToolName`: that union does not have this variant yet,
- * since it is added together with the other T7-T10 tools' wire names and `bin/generate-bindings`
- * is re-run once. The cast becomes a real member of the union in that pass.
  */
-export const GENERATE_PASSWORD_RESET_LINK_TOOL = "generate_password_reset_link" as ClientToolName
+export const GENERATE_PASSWORD_RESET_LINK_TOOL: ClientToolName = "generate_password_reset_link"
 
 const rawArguments = z.object({
   user_id: z.string(),

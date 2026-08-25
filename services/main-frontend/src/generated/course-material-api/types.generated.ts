@@ -276,7 +276,12 @@ export type ClientToolAnswer = {
  * widening the argument and answer types this crate uses to serialize them, for a part of the
  * contract that only fails loudly, unlike the name.
  */
-export type ClientToolName = "ask_multiple_choice_question"
+export type ClientToolName =
+  | "ask_multiple_choice_question"
+  | "generate_password_reset_link"
+  | "reset_exercises"
+  | "update_cheating_status"
+  | "edit_user_account"
 
 export type CodeGiveawayStatus =
   | {

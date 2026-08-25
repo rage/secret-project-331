@@ -3,12 +3,10 @@ import { z } from "zod"
 import type { ClientToolName } from "@/generated/course-material-api/types.generated"
 
 /**
- * The client tool this UI answers, generated from `ClientToolName` in
- * `services/headless-lms/chatbot/src/chatbot_tools/mod.rs`. Cast rather than typed as
- * `ClientToolName` directly: the backend variant is added in a later wiring pass alongside the
- * other action tools, so the generated union does not carry this literal yet.
+ * The client tool this UI answers, matching `EditUserAccountTool::NAME` in
+ * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/edit_user_account.rs`.
  */
-export const EDIT_USER_ACCOUNT_TOOL = "edit_user_account" as ClientToolName
+export const EDIT_USER_ACCOUNT_TOOL: ClientToolName = "edit_user_account"
 
 const verificationChange = z.union([z.literal(""), z.literal("verify"), z.literal("unverify")])
 

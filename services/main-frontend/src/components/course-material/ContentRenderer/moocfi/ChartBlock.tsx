@@ -15,9 +15,8 @@ interface ChartBlockAttributes {
   caption: string
   /** Chart height in pixels; width is responsive. */
   height: number
-  /** Whether `height` is still the automatic size rather than one the teacher picked. Absent on
-   * blocks saved before the attribute existed. */
-  heightIsAuto?: boolean
+  /** Whether `height` is still the automatic size rather than one the teacher picked. */
+  heightIsAuto: boolean
 }
 
 const MIN_HEIGHT = 200
@@ -53,7 +52,6 @@ const useSiteFontLoaded = (): boolean => {
 }
 
 // Mirrors the cms block's chartSpec.ts so the published chart matches the editor's sizing.
-const DEFAULT_CHART_HEIGHT = 300
 const MULTI_VIEW_KEYS = ["vconcat", "hconcat", "concat", "facet", "repeat"] as const
 
 // Multi-view specs ignore a top-level height, so they render at natural size and are scaled to the
@@ -80,11 +78,6 @@ const specHasData = (parsed: unknown): boolean => {
     return Array.isArray(value) ? value.some((view) => specHasData(view)) : specHasData(value)
   })
 }
-
-// Blocks saved before the heightIsAuto attribute existed have no flag; there the default height was
-// what marked "not sized yet".
-const isAutoHeight = (heightAttr: number, heightIsAuto: boolean | undefined): boolean =>
-  heightIsAuto ?? heightAttr === DEFAULT_CHART_HEIGHT
 
 const resolveChartLayout = (args: {
   heightAttr: number
@@ -206,7 +199,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
 
   const { boxHeightPx, scale } = resolveChartLayout({
     heightAttr: height,
-    heightIsAuto: isAutoHeight(height, heightIsAuto),
+    heightIsAuto,
     naturalHeightPx: naturalHeight,
     isMultiView: multiView,
   })

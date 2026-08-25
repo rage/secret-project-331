@@ -17,7 +17,7 @@ import type { ChartBlockAttributes } from "."
 import BlockWrapper from "../BlockWrapper"
 import ChartBlockEditModal from "./ChartBlockEditModal"
 import ChartPreview, { chartCaptionStyle } from "./ChartPreview"
-import { isAutoHeight, isMultiViewSpec, resolveChartLayout } from "./chartSpec"
+import { isMultiViewSpec, resolveChartLayout } from "./chartSpec"
 
 const MIN_CHART_HEIGHT = 120
 
@@ -75,7 +75,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
   // scaled-to-fit height, defaulting to the chart's full natural size until it's resized.
   const { boxHeightPx } = resolveChartLayout({
     heightAttr: height,
-    heightIsAuto: isAutoHeight(height, heightIsAuto),
+    heightIsAuto,
     naturalHeightPx: naturalHeight,
     isMultiView,
   })

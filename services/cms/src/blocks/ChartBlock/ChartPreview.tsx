@@ -8,7 +8,6 @@ import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import {
-  isAutoHeight,
   isMultiViewSpec,
   resolveChartLayout,
   specHasData,
@@ -71,7 +70,7 @@ export const chartCaptionStyle = css`
 interface ChartPreviewProps {
   spec: string
   height: number
-  heightIsAuto?: boolean | undefined
+  heightIsAuto: boolean
   caption?: string
   showCaption?: boolean
   /** Reports the chart's natural (unscaled) rendered height so a caller can size its box to match.
@@ -215,7 +214,7 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
 
   const { boxHeightPx, scale } = resolveChartLayout({
     heightAttr: height,
-    heightIsAuto: isAutoHeight(height, heightIsAuto),
+    heightIsAuto,
     naturalHeightPx: naturalHeight,
     isMultiView: multiView,
   })

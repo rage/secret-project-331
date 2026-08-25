@@ -15,9 +15,11 @@ export interface ChartBlockAttributes {
   /** Chart height in pixels; width is responsive. */
   height: number
   /** Whether `height` is still the automatic size rather than one the teacher picked. Multi-view
-   * charts show at their full natural height while this holds. Absent on blocks saved before the
-   * attribute existed; see isAutoHeight. */
-  heightIsAuto?: boolean
+   * charts show at their full natural height while this holds. */
+  heightIsAuto: boolean
+  /** The chart's uploaded data file, if any. Kept here rather than in `spec` so that editing the
+   * spec cannot lose it. */
+  dataFileUrl?: string | undefined
 }
 
 export { DEFAULT_CHART_HEIGHT }
@@ -42,9 +44,14 @@ const ChartBlockConfiguration: BlockConfiguration<ChartBlockAttributes> = {
       type: "number",
       default: DEFAULT_CHART_HEIGHT,
     },
-    // No default: an unset flag means the height has never been chosen.
+    // A new chart sizes itself until the teacher drags the resize handle.
     heightIsAuto: {
       type: "boolean",
+      default: true,
+    },
+    // No default: unset means no data file has been attached.
+    dataFileUrl: {
+      type: "string",
     },
   },
   icon,

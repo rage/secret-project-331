@@ -3,11 +3,11 @@ import {
   dataUrlFromSpec,
   DEFAULT_CHART_HEIGHT,
   extractInlineData,
-  isAutoHeight,
   MOBILE_CONTENT_WIDTH_PX,
   resolveChartLayout,
   specDefinesView,
   specHasData,
+  specLacksDataSource,
   specWithDataUrl,
   VEGA_LITE_SCHEMA_URL,
   wouldSideScrollOnMobile,
@@ -260,15 +260,30 @@ describe("dataUrlFromSpec", () => {
   })
 })
 
-describe("isAutoHeight", () => {
-  it("honours an explicit flag even at the default height", () => {
-    expect(isAutoHeight(DEFAULT_CHART_HEIGHT, false)).toBe(false)
-    expect(isAutoHeight(500, true)).toBe(true)
+describe("specLacksDataSource", () => {
+  it("reports a spec that names a data file", () => {
+    expect(specLacksDataSource(specWith({ url: "/files/data.csv" }))).toBe(false)
   })
 
-  it("falls back to the default height for blocks saved without the flag", () => {
-    expect(isAutoHeight(DEFAULT_CHART_HEIGHT, undefined)).toBe(true)
-    expect(isAutoHeight(500, undefined)).toBe(false)
+  it("reports a spec whose data lives in its layers", () => {
+    const spec = JSON.stringify({ layer: [{ mark: "line", data: { url: "/files/a.csv" } }] })
+    expect(specLacksDataSource(spec)).toBe(false)
+  })
+
+  it("reports inline data as a data source", () => {
+    expect(specLacksDataSource(specWith({ values: [{ a: 1 }] }))).toBe(false)
+  })
+
+  it("finds a spec whose data was deleted", () => {
+    expect(specLacksDataSource(JSON.stringify({ mark: "bar" }))).toBe(true)
+  })
+
+  it("counts an empty spec, so a file can be pointed at again", () => {
+    expect(specLacksDataSource("   ")).toBe(true)
+  })
+
+  it("leaves mid-edit invalid JSON alone", () => {
+    expect(specLacksDataSource("{ not json")).toBe(false)
   })
 })
 

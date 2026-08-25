@@ -26,7 +26,7 @@ const SPEC_WITH_INLINE_DATA = JSON.stringify({
 })
 
 // A complete chart that carries no data reference at all. Typing this over a spec that had one
-// leaves the block relying on the attached file being re-bound.
+// leaves the chart without data until the teacher puts the file back.
 const SPEC_WITHOUT_DATA = JSON.stringify({
   $schema: "https://vega.github.io/schema/vega-lite/v6.json",
   mark: "bar",
@@ -229,17 +229,61 @@ const openEditorWithDataFile = async (page: Page, title: string) => {
   return dialog
 }
 
-test("Chart block re-attaches the data file to a spec that dropped it", async ({ page }) => {
-  const dialog = await openEditorWithDataFile(page, "Chart block re-bind test page")
+test("Chart block offers the data file back to a spec that dropped it", async ({ page }) => {
+  const dialog = await openEditorWithDataFile(page, "Chart block re-insert test page")
 
-  // Editing the spec down to one that references no data leaves the chart without data until the
-  // attached file is bound back into it, which happens once typing settles rather than per
-  // keystroke, so that editing the spec is not interrupted.
+  // Nothing rewrites the spec behind the teacher's back; the file is offered back once typing
+  // settles.
   await setMonacoContent(page, SPEC_WITHOUT_DATA)
-  await expect(dialog.getByText("This chart is missing its data file.")).toBeHidden({
+  await expect(dialog.getByText("This chart is missing its data file.")).toBeVisible({
     timeout: 30_000,
   })
-  await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
+  const reinsertButton = dialog.getByRole("button", {
+    name: "Add the file back to the specification",
+  })
+  await expect(reinsertButton).toBeVisible()
+  await expect(
+    dialog.getByText("The chart specification no longer refers to this file"),
+  ).toBeVisible()
+
+  // Putting it back points the spec at the file again, and the chart renders from it.
+  await reinsertButton.click()
+  await expect(dialog.locator(".monaco-editor").first()).toContainText(".csv")
+  await expect(dialog.getByText("This chart is missing its data file.")).toBeHidden()
+  await expect(reinsertButton).toBeHidden()
+  await expect(dialog.locator("svg.marks")).toBeVisible()
+  // The pressed button unmounts, so focus goes to its sibling rather than the dialog body.
+  await expect(dialog.getByRole("button", { name: "Remove" })).toBeFocused()
+  await expect(dialog.getByText("The data file is back in the chart specification.")).toBeVisible()
+})
+
+test("Chart block remembers its data file across a save and reopen", async ({ page }) => {
+  const dialog = await openEditorWithDataFile(page, "Chart block file memory test page")
+
+  // Only the block's attribute remembers the file here; the spec text no longer names it.
+  await setMonacoContent(page, SPEC_WITHOUT_DATA)
+  await expect(dialog.getByText("This chart is missing its data file.")).toBeVisible({
+    timeout: 30_000,
+  })
+  await dialog.getByRole("button", { name: "Close" }).click()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save", exact: true }).click()
+  })
+
+  await page.reload()
+  await page.getByLabel("Block: Chart").click()
+  await page.getByRole("button", { name: "Edit chart" }).first().click()
+  await expect(dialog).toBeVisible()
+
+  // The file survived the round trip, so it can still be put back into the spec.
+  await expect(dialog.getByText(/\.csv/)).toBeVisible()
+  const reinsertButton = dialog.getByRole("button", {
+    name: "Add the file back to the specification",
+  })
+  await expect(reinsertButton).toBeVisible({ timeout: 30_000 })
+  await reinsertButton.click()
+  await expect(dialog.getByText("This chart is missing its data file.")).toBeHidden()
+  await expect(dialog.locator("svg.marks")).toBeVisible()
 })
 
 // Long enough that the stored file is reported only after the editor has been opened.
@@ -270,11 +314,14 @@ test("Chart block renders a spec whose data lives in its layers", async ({ page 
   const dialog = await openEditorWithDataFile(page, "Chart block layered spec test page")
 
   // Data on the individual layers counts as data: the chart renders instead of reporting a
-  // missing file, and the attached file is not bound in on top of it.
+  // missing file, and the attached file is not offered back on top of it.
   await setMonacoContent(page, LAYERED_SPEC_WITH_DATA_IN_LAYERS)
   // Vega gives its rendered chart's root SVG the "marks" class.
   await expect(dialog.locator("svg.marks")).toBeVisible()
   await expect(dialog.getByText("This chart is missing its data file.")).toBeHidden()
+  await expect(
+    dialog.getByRole("button", { name: "Add the file back to the specification" }),
+  ).toBeHidden()
 })
 
 test("Chart block can be generated with AI", async ({ page }) => {
@@ -307,7 +354,7 @@ test("Chart block can be generated with AI", async ({ page }) => {
     "Mock AI generated bar chart",
   )
   // The teacher's own data file survives whatever the model returned: the mock model's spec points
-  // at a different file, which is re-bound to the uploaded one.
+  // at a different file, which the generation step re-binds to the uploaded one.
   await expect(dialog.getByText(/\.csv/)).toBeVisible()
   await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
 

@@ -5,7 +5,7 @@ import type { Monaco } from "@monaco-editor/react"
 import { BlockIcon, MediaPlaceholder } from "@wordpress/block-editor"
 import { Modal, Placeholder } from "@wordpress/components"
 import { image as icon } from "@wordpress/icons"
-import React, { useContext, useEffect, useRef, useState } from "react"
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 
 import PageContext from "@/contexts/PageContext"
@@ -35,10 +35,9 @@ import {
 import ChartPreview from "./ChartPreview"
 import {
   dataFormatForUrl,
-  dataUrlFromSpec,
   extractInlineData,
   specDefinesView,
-  specHasData,
+  specLacksDataSource,
   specWithDataUrl,
 } from "./chartSpec"
 import { validateChartSpec } from "./validateChartSpec"
@@ -55,6 +54,8 @@ const DATA_EXTRACTION_DEBOUNCE_MS = 800
 
 // Debounce render validation so a large spec isn't recompiled on every keystroke.
 const RENDER_VALIDATION_DEBOUNCE_MS = 300
+
+const RESTORE_CONFIRMATION_MS = 5000
 
 // Why a spec string won't render, or null if it renders (or isn't a complete view yet): either
 // malformed JSON, or JSON that parses but fails the same compile the renderer does. See
@@ -185,6 +186,27 @@ const stepActionsStyles = css`
   display: flex;
 `
 
+// The WP placeholder lays its fieldset out in a row; this stacks the notice above the buttons.
+const dataFileActionsStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+`
+
+const dataFileButtonRowStyles = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+`
+
+const dataFileNoticeStyles = css`
+  margin: 0;
+  font-family: ${primaryFont};
+  font-size: 0.8125rem;
+  color: ${baseTheme.colors.gray[700]};
+`
+
 const methodOptionLinkStyles = css`
   font-family: ${primaryFont};
   font-size: 0.8125rem;
@@ -225,7 +247,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     : page?.exam_id
       ? { examId: page.exam_id }
       : null
-  const { spec, caption, height, heightIsAuto } = attributes
+  const { spec, caption, height, heightIsAuto, dataFileUrl } = attributes
   const [dataFileError, setDataFileError] = useState<string | undefined>(undefined)
   const [extractedDataUrl, setExtractedDataUrl] = useState<string | undefined>(undefined)
   const [isExtractingData, setIsExtractingData] = useState(false)
@@ -238,17 +260,31 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   // Where cancelling or finishing the AI prompt returns to.
   const [aiReturnStep, setAiReturnStep] = useState<AiReturnStep>(STEP_EDITOR)
 
-  // The uploaded data file, remembered independently of the spec text. Latched from the spec
-  // whenever it carries a data URL; only the Remove button clears it.
-  const [attachedDataUrl, setAttachedDataUrl] = useState<string | undefined>(() =>
-    dataUrlFromSpec(spec),
+  const isDetachedNow = useMemo(
+    () => dataFileUrl !== undefined && specLacksDataSource(spec),
+    [dataFileUrl, spec],
   )
+  // Turning this on waits for editing to pause, so the restore offer doesn't flash while a data
+  // block is being retyped. Turning it off is immediate, so acting on the offer feels instant.
+  const [dataFileDetached, setDataFileDetached] = useState(false)
   useEffect(() => {
-    const url = dataUrlFromSpec(spec)
-    if (url) {
-      setAttachedDataUrl(url)
+    if (!isDetachedNow) {
+      setDataFileDetached(false)
+      return
     }
-  }, [spec])
+    const timeout = setTimeout(() => setDataFileDetached(true), DATA_EXTRACTION_DEBOUNCE_MS)
+    return () => clearTimeout(timeout)
+  }, [isDetachedNow])
+
+  // Without this the live region says nothing: the notice is gone and the chart is visual-only.
+  const [restoreConfirmed, setRestoreConfirmed] = useState(false)
+  useEffect(() => {
+    if (!restoreConfirmed) {
+      return
+    }
+    const timeout = setTimeout(() => setRestoreConfirmed(false), RESTORE_CONFIRMATION_MS)
+    return () => clearTimeout(timeout)
+  }, [restoreConfirmed])
 
   // Drives the error box and its "Fix with AI" affordance. Debounced so a large spec isn't
   // recompiled per keystroke, and so a half-typed spec isn't flagged instantly.
@@ -267,6 +303,9 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     defaultValues: { aiPrompt: "", caption },
   })
   const aiPrompt = watch("aiPrompt")
+
+  // Focus lands here when the restore button that had it unmounts.
+  const removeDataFileButtonRef = useRef<HTMLButtonElement>(null)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   // Latest spec, so an in-flight upload can bail if the teacher kept editing.
@@ -287,41 +326,15 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     setAttributes({ spec: next })
   }
 
-  // Rewrites that reformat the whole spec run from here, once editing has paused: applying them per
-  // keystroke would replace the JSON editor's document and move the teacher's caret.
-  const scheduleSpecSettle = (specString: string) => {
+  // Waits for editing to pause: rewriting the whole spec per keystroke moves the teacher's caret.
+  const scheduleInlineDataExtraction = (specString: string) => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
-    debounceRef.current = setTimeout(() => void settleSpec(specString), DATA_EXTRACTION_DEBOUNCE_MS)
-  }
-
-  const settleSpec = async (specString: string) => {
-    await extractAndUploadInlineData(reattachDataFile(specString))
-  }
-
-  // If an edit dropped the data reference while a file is still attached, point the spec back at
-  // the file so the chart keeps its data. Returns the spec now in effect.
-  const reattachDataFile = (specString: string): string => {
-    if (!attachedDataUrl) {
-      return specString
-    }
-    let parsed: unknown
-    try {
-      parsed = JSON.parse(specString)
-    } catch {
-      return specString
-    }
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || specHasData(parsed)) {
-      return specString
-    }
-    const rebound = specWithDataUrl(specString, attachedDataUrl)
-    if (!rebound) {
-      return specString
-    }
-    const next = JSON.stringify(rebound, null, 2)
-    updateSpec(next)
-    return next
+    debounceRef.current = setTimeout(
+      () => void extractAndUploadInlineData(specString),
+      DATA_EXTRACTION_DEBOUNCE_MS,
+    )
   }
 
   // Move a pasted spec's inline data into a saved file and point the spec at it by URL.
@@ -332,7 +345,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }
     if (extractingRef.current) {
       // Try again once the in-flight upload finishes, instead of leaving this edit's data inline.
-      scheduleSpecSettle(specString)
+      scheduleInlineDataExtraction(specString)
       return
     }
     extractingRef.current = true
@@ -356,6 +369,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
         data: { url: uploaded.url, format: { type: extracted.extension } },
       }
       updateSpec(JSON.stringify(rewritten, null, 2))
+      setAttributes({ dataFileUrl: uploaded.url })
       setExtractedDataUrl(uploaded.url)
     } catch (error) {
       setDataFileError(error instanceof Error ? error.message : String(error))
@@ -377,7 +391,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     } catch {
       // Mid-edit invalid JSON; the caption syncs on the next valid state.
     }
-    scheduleSpecSettle(next)
+    scheduleInlineDataExtraction(next)
   }
 
   // Instruction that asks the model to repair a spec, embedding the renderer's error. Not
@@ -388,9 +402,9 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   // One round-trip to the generator, returning the produced spec with the data file re-bound.
   const requestSpec = async (prompt: string, currentSpec: string | null): Promise<string> => {
     let dataSample: string | undefined
-    if (attachedDataUrl) {
+    if (dataFileUrl) {
       try {
-        const res = await fetch(attachedDataUrl)
+        const res = await fetch(dataFileUrl)
         if (res.ok) {
           dataSample = (await res.text()).slice(0, DATA_SAMPLE_MAX_CHARS)
         }
@@ -402,14 +416,14 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
       body: {
         prompt,
         current_spec: currentSpec,
-        data_url: attachedDataUrl ?? null,
-        data_format: attachedDataUrl ? (dataFormatForUrl(attachedDataUrl)?.type ?? null) : null,
+        data_url: dataFileUrl ?? null,
+        data_format: dataFileUrl ? (dataFormatForUrl(dataFileUrl)?.type ?? null) : null,
         data_sample: dataSample ?? null,
         page_id: pageId ?? null,
       },
     })
     // Keep the teacher's data file bound even if the model changed or dropped the URL.
-    const rebound = attachedDataUrl ? specWithDataUrl(response.spec, attachedDataUrl) : null
+    const rebound = dataFileUrl ? specWithDataUrl(response.spec, dataFileUrl) : null
     return rebound ? JSON.stringify(rebound, null, 2) : response.spec
   }
 
@@ -530,6 +544,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
       return
     }
     setDataFileError(undefined)
+    setAttributes({ dataFileUrl: media.url })
     updateSpec(JSON.stringify(rewritten, null, 2))
     // The upload calls back twice (first a local blob URL, then the stored file), so the second
     // call can land after the teacher has moved on; only advance if the data step is still current.
@@ -541,12 +556,12 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   }
 
   const handleDataFileRemove = () => {
-    // Drop a pending settle: it would re-attach the file being removed.
+    // Drop a pending extraction: it would write a data file back into the spec being cleared.
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
     setExtractedDataUrl(undefined)
-    setAttachedDataUrl(undefined)
+    setAttributes({ dataFileUrl: undefined })
     let parsed: Record<string, unknown>
     try {
       parsed = JSON.parse(latestSpecRef.current)
@@ -555,6 +570,22 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }
     const { data: _omitted, ...specWithoutData } = parsed
     updateSpec(JSON.stringify(specWithoutData, null, 2))
+  }
+
+  const handleDataFileReinsert = () => {
+    if (!dataFileUrl) {
+      return
+    }
+    const rewritten = specWithDataUrl(latestSpecRef.current, dataFileUrl)
+    if (!rewritten) {
+      setDataFileError(t("chart-data-file-ok-but-spec-invalid"))
+      return
+    }
+    setDataFileError(undefined)
+    updateSpec(JSON.stringify(rewritten, null, 2))
+    // Synchronous, so focus moves before this button unmounts and the keyboard isn't dropped.
+    removeDataFileButtonRef.current?.focus()
+    setRestoreConfirmed(true)
   }
 
   // Pointer drag on the JSON editor's resize handle. Pointer capture keeps events flowing to the
@@ -644,15 +675,34 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
           </div>
         )}
       </div>
-      {attachedDataUrl ? (
+      {dataFileUrl ? (
         <Placeholder
           icon={<BlockIcon icon={icon} />}
           label={t("chart-data-file")}
-          instructions={dataFileNameFromUrl(attachedDataUrl)}
+          instructions={dataFileNameFromUrl(dataFileUrl)}
         >
-          <Button variant="tertiary" size="medium" onPress={handleDataFileRemove}>
-            {t("remove")}
-          </Button>
+          <div className={dataFileActionsStyles} aria-live="polite">
+            {dataFileDetached ? (
+              <p className={dataFileNoticeStyles}>{t("chart-data-file-missing-from-spec")}</p>
+            ) : restoreConfirmed ? (
+              <p className={dataFileNoticeStyles}>{t("chart-data-file-reinserted")}</p>
+            ) : null}
+            <div className={dataFileButtonRowStyles}>
+              <Button
+                variant="tertiary"
+                size="medium"
+                onPress={handleDataFileRemove}
+                ref={removeDataFileButtonRef}
+              >
+                {t("remove")}
+              </Button>
+              {dataFileDetached && (
+                <Button variant="tertiary" size="medium" onPress={handleDataFileReinsert}>
+                  {t("chart-data-file-reinsert")}
+                </Button>
+              )}
+            </div>
+          </div>
         </Placeholder>
       ) : isExtractingData ? null : (
         <MediaPlaceholder
@@ -698,7 +748,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
           {dataFileSection}
           {/* Uploading a file moves on by itself, so this is the way forward for someone who
               stepped back here to check or replace the file. */}
-          {attachedDataUrl && (
+          {dataFileUrl && (
             <div className={stepActionsStyles}>
               <Button variant="primary" size="medium" onPress={() => setStep(STEP_METHOD)}>
                 {t("continue")}
@@ -768,7 +818,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
             rows={4}
             isDisabled={isGenerating}
           />
-          {!isGenerating && !attachedDataUrl && (
+          {!isGenerating && !dataFileUrl && (
             <span
               className={css`
                 font-family: ${primaryFont};
@@ -815,7 +865,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               size="medium"
               onPress={() => void handleAiGenerate()}
               isLoading={isGenerating}
-              disabled={!aiPrompt.trim() || !attachedDataUrl}
+              disabled={!aiPrompt.trim() || !dataFileUrl}
             >
               {t("generate")}
             </Button>

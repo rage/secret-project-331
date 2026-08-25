@@ -68,13 +68,6 @@ export const specHasData = (parsed: unknown): boolean => {
   })
 }
 
-/**
- * Whether the chart is still at its automatic size. Blocks saved before the `heightIsAuto`
- * attribute existed have no flag, and there the default height was what marked "not sized yet".
- */
-export const isAutoHeight = (heightAttr: number, heightIsAuto: boolean | undefined): boolean =>
-  heightIsAuto ?? heightAttr === DEFAULT_CHART_HEIGHT
-
 export interface ChartLayout {
   /** Height of the chart's box in px — the dimension the resizable bottom edge controls. */
   boxHeightPx: number
@@ -225,4 +218,21 @@ export const dataUrlFromSpec = (specString: string): string | undefined => {
   } catch {
     return undefined
   }
+}
+
+/**
+ * Whether the spec has no data source anywhere, leaving an attached file unreferenced. An empty
+ * spec counts; invalid JSON does not, since mid-edit text says nothing about the finished spec.
+ */
+export const specLacksDataSource = (specString: string): boolean => {
+  if (specString.trim() === "") {
+    return true
+  }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(specString)
+  } catch {
+    return false
+  }
+  return !specHasData(parsed)
 }

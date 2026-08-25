@@ -28,6 +28,12 @@ import type {
 const PACK_IDLE_MS = 2500
 
 /**
+ * What went wrong with the answer's archive: reading the one the editor starts from, or storing the
+ * edited one. Either leaves the answer unsubmittable until a retry succeeds.
+ */
+export type AnswerArchiveError = "load" | "save"
+
+/**
  * The current state of the iframe as the parent needs it: the answer's archive, or nothing yet.
  *
  * An answer names its archive in `files` and carries no data of its own. Null means this view has
@@ -98,6 +104,9 @@ export function useIframeProtocol() {
   const [state, setState] = useState<ExerciseIframeState | null>(null)
   const [testRequestResponse, setTestRequestResponse] = useState<RunResult | null>(null)
   const [fileUploadResponse, setFileUploadResponse] = useState<UploadResultMessage | null>(null)
+  const [archiveError, setArchiveError] = useState<AnswerArchiveError | null>(null)
+  const [saveAttempt, setSaveAttempt] = useState(0)
+  const retrySeedRef = useRef<(() => void) | null>(null)
 
   const setStateAndSend = (
     port: MessagePort | null,
@@ -133,11 +142,14 @@ export function useIframeProtocol() {
             })
           } else if (messageData.view_type === "answer-exercise") {
             const newPublicSpec = messageData.data.public_spec as PublicSpec
-            const previousArchiveUrl = messageData.data.previous_submission_files?.[0]?.url ?? null
+            const previousArchive = messageData.data.previous_submission_files?.[0] ?? null
             const requestToken = ++latestPublicSpecRequestRef.current
             const seed = async () => {
               try {
-                const editorFiles = await initialEditorFiles(newPublicSpec, previousArchiveUrl)
+                const editorFiles = await initialEditorFiles(
+                  newPublicSpec,
+                  previousArchive?.url ?? null,
+                )
                 if (requestToken !== latestPublicSpecRequestRef.current) {
                   return
                 }
@@ -148,15 +160,23 @@ export function useIframeProtocol() {
                   view_type: "answer-exercise" as const,
                   public_spec: publicSpecClone,
                   editor_files: editorFiles,
-                  uploaded_archive_id: null,
+                  // The previous archive is already a complete answer, so adopting it lets the
+                  // student resubmit unchanged prior work in both modes.
+                  uploaded_archive_id: previousArchive?.id ?? null,
                   previous_submission: previousSubmission,
                 }))
               } catch (error) {
                 if (requestToken === latestPublicSpecRequestRef.current) {
                   logError("Failed to process public spec", error)
+                  setArchiveError("load")
                 }
               }
             }
+            retrySeedRef.current = () => {
+              setArchiveError(null)
+              void seed()
+            }
+            setArchiveError(null)
             void seed()
           } else if (messageData.view_type === "view-submission") {
             const publicSpec = messageData.data.public_spec as PublicSpec
@@ -204,9 +224,11 @@ export function useIframeProtocol() {
           const uploadedFile = messageData.files[0]
           if (!uploadedFile) {
             logError("Upload succeeded without a stored file result")
+            setArchiveError("save")
             return
           }
           const packedFiles = packedFilesRef.current
+          setArchiveError(null)
           setStateAndSend(messagePort, (old) => {
             if (old?.view_type !== "answer-exercise") {
               return old
@@ -220,6 +242,7 @@ export function useIframeProtocol() {
           })
         } else {
           logError("Failed to upload:", messageData.error)
+          setArchiveError("save")
         }
       } else if (messageData.message === "repository-exercises") {
         setState((oldState) => {
@@ -266,18 +289,31 @@ export function useIframeProtocol() {
         packedFilesRef.current = debouncedFilesToPack
         pendingFileUploadRequestIdRef.current = sendFileUploadMsg(port, [archive])
       } catch (error) {
+        if (packToken !== latestPackRequestRef.current) {
+          return
+        }
         logError("Failed to pack the answer for upload", error)
+        setArchiveError("save")
       }
     }
+    setArchiveError(null)
     void packAndUpload()
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- run per debounced edit, not per render
-  }, [debouncedFilesToPack])
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- run per debounced edit and per retry, not per render
+  }, [debouncedFilesToPack, saveAttempt])
 
   return {
     port,
     state,
     testRequestResponse,
     fileUploadResponse,
+    archiveError,
+    retryArchiveOperation: () => {
+      if (archiveError === "load") {
+        retrySeedRef.current?.()
+      } else {
+        setSaveAttempt((attempt) => attempt + 1)
+      }
+    },
     setStateAndSend: (updater: (s: ExerciseIframeState | null) => ExerciseIframeState | null) =>
       setStateAndSend(port, updater),
     setAnswerFiles: (files: ExerciseFile[]) =>

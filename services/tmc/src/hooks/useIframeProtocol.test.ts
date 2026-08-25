@@ -1,9 +1,13 @@
-import { describe, expect, it } from "vitest"
+import { MessageChannel } from "node:worker_threads"
 
+import { act, renderHook } from "@testing-library/react"
+import { afterEach, describe, expect, it } from "vitest"
+
+import type { AnswerFileRef } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 import type { AnswerExerciseState, PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
 
-import { currentStateMessage } from "./useIframeProtocol"
+import { currentStateMessage, useIframeProtocol } from "./useIframeProtocol"
 
 const REPOSITORY_EXERCISE: RepositoryExercise = {
   id: "e48717c3-fd7d-41e9-a2e5-36ce06fcd943",
@@ -24,6 +28,9 @@ const PUBLIC_SPEC: PublicSpec = {
   student_file_paths: [],
   checksum: "abc",
 }
+
+/** Editor mode has no in-browser editor, so seeding reads no archive and needs no network. */
+const EDITOR_PUBLIC_SPEC: PublicSpec = { ...PUBLIC_SPEC, type: "editor" }
 
 const answerState = (uploadedArchiveId: string | null): AnswerExerciseState => ({
   view_type: "answer-exercise",
@@ -86,5 +93,89 @@ describe("currentStateMessage", () => {
         model_solution_spec: null,
       }),
     ).toBeNull()
+  })
+})
+
+const openHostChannels: MessageChannel[] = []
+
+afterEach(() => {
+  openHostChannels.splice(0).forEach((channel) => {
+    channel.port1.close()
+    channel.port2.close()
+  })
+})
+
+/**
+ * Drives the parent side of the handshake and collects what the iframe posts back.
+ *
+ * jsdom's own MessagePort cannot deliver messages (the test setup replaces MessageChannel with an
+ * inert stub), so the port pair comes from Node.
+ */
+function connectAsHost(): {
+  postAndSettle: (message: unknown) => Promise<void>
+  received: unknown[]
+} {
+  const channel = new MessageChannel()
+  openHostChannels.push(channel)
+  const received: unknown[] = []
+  channel.port1.on("message", (message) => received.push(message))
+  const handshake = new Event("message")
+  Object.assign(handshake, { source: window.parent, ports: [channel.port2] })
+  act(() => {
+    window.dispatchEvent(handshake)
+  })
+  return {
+    postAndSettle: async (message) => {
+      channel.port1.postMessage(message)
+      // Both the port delivery and the iframe's reply cross the event loop.
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
+    },
+    received,
+  }
+}
+
+const setStateMessage = (previousSubmissionFiles: AnswerFileRef[]) => ({
+  message: "set-state",
+  view_type: "answer-exercise",
+  exercise_task_id: "2c7d2b3a-6f2e-4f1e-9a5e-8f2f5c1a9b01",
+  user_information: { pseudonymous_id: "6a1c9f2e-4b8d-4a0c-8e1f-2d3c4b5a6f02", signed_in: true },
+  data: {
+    public_spec: EDITOR_PUBLIC_SPEC,
+    previous_submission: null,
+    previous_submission_files: previousSubmissionFiles,
+  },
+})
+
+const PREVIOUS_ARCHIVE: AnswerFileRef = {
+  id: "0d0a8f74-1f7a-4c0b-9c2e-16f1a1c0f003",
+  url: "http://files.example/previous.tar.zst",
+  name: "submission.tar.zst",
+  mime: "application/x-zstd-compressed-tar",
+}
+
+describe("useIframeProtocol", () => {
+  it("posts a valid answer naming the previous submission's archive when one is seeded", async () => {
+    renderHook(() => useIframeProtocol())
+    const host = connectAsHost()
+
+    await act(() => host.postAndSettle(setStateMessage([PREVIOUS_ARCHIVE])))
+
+    expect(host.received.at(-1)).toEqual({
+      message: "current-state",
+      data: null,
+      files: [PREVIOUS_ARCHIVE.id],
+      valid: true,
+    })
+  })
+
+  it("posts an invalid answer when there is no previous submission to seed from", async () => {
+    renderHook(() => useIframeProtocol())
+    const host = connectAsHost()
+
+    await act(() => host.postAndSettle(setStateMessage([])))
+
+    expect(host.received.at(-1)).toEqual({ message: "current-state", data: null, valid: false })
   })
 })

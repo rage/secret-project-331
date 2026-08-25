@@ -17,6 +17,8 @@ const IframeView: React.FC<IframeViewProps> = ({ maxWidth }) => {
     state,
     testRequestResponse,
     fileUploadResponse,
+    archiveError,
+    retryArchiveOperation,
     setStateAndSend,
     setAnswerFiles,
     sendFileUploadMessage,
@@ -40,6 +42,8 @@ const IframeView: React.FC<IframeViewProps> = ({ maxWidth }) => {
           testRequestResponse={testRequestResponse}
           sendFileUploadMessage={sendFileUploadMessage}
           fileUploadResponse={fileUploadResponse}
+          archiveError={archiveError}
+          retryArchiveOperation={retryArchiveOperation}
           requestRepositoryExercises={requestRepositoryExercises}
         />
       </div>

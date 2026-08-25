@@ -192,6 +192,24 @@ async fn grade_submission(
     Ok(result)
 }
 
+/// Rejects an attempt to answer an exercise that a submit would reject anyway: a passed deadline,
+/// no enrolment on the course, a closed exam, or no tries left on the slide.
+///
+/// Meant for work a student does *before* submitting, such as uploading an answer's files: those
+/// objects occupy the store for days, so they must not be accepted from someone who could never
+/// submit them. Submitting re-runs these checks, so this is a gate, not a guarantee.
+pub async fn verify_user_can_answer_exercise_slide(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &Exercise,
+    slide_id: Uuid,
+) -> Result<(), ControllerError> {
+    enforce_deadline(conn, exercise).await?;
+    resolve_course_or_exam_id_and_verify_that_user_can_submit(conn, user_id, exercise, slide_id)
+        .await?;
+    Ok(())
+}
+
 /// Returns an error if the chapter's or exercise's deadline has passed.
 async fn enforce_deadline(
     conn: &mut PgConnection,

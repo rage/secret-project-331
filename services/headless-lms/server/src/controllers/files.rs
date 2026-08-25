@@ -327,6 +327,13 @@ async fn upload_answer_files(
         Res::ExerciseTask(*exercise_task_id),
     )
     .await?;
+    let exercise = models::exercises::get_by_id(&mut conn, slide.exercise_id).await?;
+    // `Act::View` on an exercise task falls through to the organization check, which grants every
+    // logged in user, so the right to answer this particular task has to be established here.
+    domain::exercises::verify_user_can_answer_exercise_slide(
+        &mut conn, user.id, &exercise, slide.id,
+    )
+    .await?;
 
     let mut uploaded_paths = Vec::new();
     let stored = store_answer_uploads(
@@ -677,10 +684,111 @@ mod answer_upload_tests {
         assert_eq!(by_slug.status(), StatusCode::UNPROCESSABLE_ENTITY);
     }
 
+    /// The ids of a committed course fixture the answer-upload route can be pointed at.
+    struct CourseTask {
+        user: Uuid,
+        exercise: Uuid,
+        task: Uuid,
+    }
+
+    /// Builds a course with one exercise task, optionally enrolling the user on it.
+    ///
+    /// Committed because the handler runs on a pool connection of its own and cannot see fixtures
+    /// left uncommitted.
+    async fn course_task(enrolled: bool) -> CourseTask {
+        insert_data!(:tx, user: user, :org, :course, instance: instance, :course_module, :chapter, :page, exercise: exercise, :slide, task: task);
+        if enrolled {
+            models::course_instance_enrollments::insert_enrollment_and_set_as_current(
+                tx.as_mut(),
+                models::course_instance_enrollments::NewCourseInstanceEnrollment {
+                    course_id: course,
+                    course_instance_id: instance.id,
+                    user_id: user,
+                },
+            )
+            .await
+            .expect("the enrollment");
+        }
+        tx.commit().await;
+        CourseTask {
+            user,
+            exercise,
+            task,
+        }
+    }
+
+    /// Applies a committed change to the fixture's exercise row, for the answering rules that are
+    /// exercise settings rather than user state.
+    async fn update_exercise(exercise: Uuid, statement: &'static str) {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        sqlx::query(statement)
+            .bind(exercise)
+            .execute(&mut **tx.as_mut())
+            .await
+            .expect("the exercise update");
+        tx.commit().await;
+    }
+
+    async fn upload_status(fixture: &CourseTask) -> StatusCode {
+        let app = files_app!();
+        let cookie = login!(app, fixture.user);
+        let request = upload_request(
+            &answer_upload_uri(fixture.task),
+            Some(&cookie),
+            &[(Uuid::new_v4(), "a.txt", "first")],
+        )
+        .to_request();
+
+        test::call_service(&app, request).await.status()
+    }
+
+    #[actix_web::test]
+    async fn answer_uploads_from_a_user_who_is_not_enrolled_are_rejected() {
+        let fixture = course_task(false).await;
+
+        assert_eq!(upload_status(&fixture).await, StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn answer_uploads_past_the_exercise_deadline_are_rejected() {
+        let fixture = course_task(true).await;
+        update_exercise(
+            fixture.exercise,
+            "UPDATE exercises SET deadline = now() - interval '1 day' WHERE id = $1",
+        )
+        .await;
+
+        assert_eq!(
+            upload_status(&fixture).await,
+            StatusCode::UNPROCESSABLE_ENTITY
+        );
+    }
+
+    #[actix_web::test]
+    async fn answer_uploads_from_a_user_out_of_tries_are_rejected() {
+        let fixture = course_task(true).await;
+        update_exercise(
+            fixture.exercise,
+            "UPDATE exercises
+             SET limit_number_of_tries = TRUE, max_tries_per_slide = 0
+             WHERE id = $1",
+        )
+        .await;
+
+        assert_eq!(
+            upload_status(&fixture).await,
+            StatusCode::UNPROCESSABLE_ENTITY
+        );
+    }
+
     #[actix_web::test]
     async fn answer_uploads_return_bound_database_ids_in_request_order() {
-        insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, exercise: exercise, :slide, task: task);
-        tx.commit().await;
+        let CourseTask {
+            user,
+            exercise,
+            task,
+        } = course_task(true).await;
         let app = files_app!();
         let cookie = login!(app, user);
         let first_field = Uuid::new_v4();

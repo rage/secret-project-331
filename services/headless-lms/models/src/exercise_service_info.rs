@@ -374,3 +374,75 @@ pub async fn get_course_material_service_info_by_exercise_type(
         _ => Ok(None),
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::exercise_services::{ExerciseServiceNewOrUpdate, insert_exercise_service};
+    use crate::test_helper::*;
+
+    fn service_info_body(produces_file_answers: Option<bool>) -> serde_json::Value {
+        let mut body = serde_json::json!({
+            "service_name": "File answers",
+            "user_interface_iframe_path": "/iframe",
+            "grade_endpoint_path": "/grade",
+            "public_spec_endpoint_path": "/public-spec",
+            "model_solution_spec_endpoint_path": "/model-solution",
+        });
+        if let Some(declared) = produces_file_answers {
+            body["produces_file_answers"] = serde_json::json!(declared);
+        }
+        body
+    }
+
+    /// Services deployed before the field existed omit it, and their service info must still
+    /// deserialize instead of failing wholesale.
+    #[test]
+    fn a_service_info_body_declares_file_answers_or_defaults_to_not_producing_them() {
+        let omitted: ExerciseServiceInfoApi =
+            serde_json::from_value(service_info_body(None)).unwrap();
+        assert!(!omitted.produces_file_answers);
+
+        let declared: ExerciseServiceInfoApi =
+            serde_json::from_value(service_info_body(Some(true))).unwrap();
+        assert!(declared.produces_file_answers);
+    }
+
+    /// What a service declares is what the teacher UI offers an answer-file download for, and the
+    /// declaration only reaches it by being stored on the fetch hop.
+    #[tokio::test]
+    async fn a_declared_file_answer_capability_survives_the_fetch_and_store_hop() {
+        insert_data!(:tx);
+        let slug = format!("file-answers-{}", Uuid::new_v4());
+        let service = insert_exercise_service(
+            tx.as_mut(),
+            &ExerciseServiceNewOrUpdate {
+                name: slug.clone(),
+                slug: slug.clone(),
+                public_url: "http://example.com/api/service".to_string(),
+                internal_url: None,
+                max_reprocessing_submissions_at_once: 1,
+            },
+        )
+        .await
+        .unwrap();
+        let declared: ExerciseServiceInfoApi =
+            serde_json::from_value(service_info_body(Some(true))).unwrap();
+
+        let fetched = get_service_info_by_exercise_type(tx.as_mut(), &slug, |_url| {
+            let declared = declared.clone();
+            Box::pin(async move { Ok(declared) })
+        })
+        .await
+        .unwrap();
+
+        assert!(fetched.produces_file_answers);
+        assert!(
+            get_service_info(tx.as_mut(), service.id)
+                .await
+                .unwrap()
+                .produces_file_answers
+        );
+        tx.rollback().await;
+    }
+}

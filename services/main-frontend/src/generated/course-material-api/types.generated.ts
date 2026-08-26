@@ -97,7 +97,7 @@ export type ChatbotConversation = {
 }
 
 /**
- * Should contain all information required to display the chatbot to the user.
+ * Everything needed to display the chatbot to the user.
  */
 export type ChatbotConversationInfo = {
   chatbot_name: string

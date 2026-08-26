@@ -90,13 +90,8 @@ impl UploadClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_hs256_claim(token, key).map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                format!("Invalid jwt key: {}", err),
-                Some(err.into()),
-            )
-        })
+        validate_hs256_claim(token, key)
+            .map_err(|err| controller_err!(BadRequest, format!("Invalid jwt key: {}", err), err))
     }
 }
 

@@ -268,11 +268,7 @@ async fn verify_any_slide_has_tries_left(
 /// The rejection both try-limit checks report, kept in one place because the message reaches the
 /// student verbatim.
 fn out_of_tries_error() -> ControllerError {
-    ControllerError::new(
-        ControllerErrorType::BadRequest,
-        "You've ran out of tries.".to_string(),
-        None,
-    )
+    controller_err!(BadRequest, "You've ran out of tries.".to_string())
 }
 
 /// The per-slide try limit, or `None` when the exercise does not limit tries.

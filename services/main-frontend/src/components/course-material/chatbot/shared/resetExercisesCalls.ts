@@ -1,8 +1,7 @@
 import { z } from "zod"
 
 import type { ClientToolName } from "@/generated/course-material-api/types.generated"
-
-import { parseJsonWithSchema } from "./parseJsonWithSchema"
+import { parseJsonWithSchema } from "@/shared-module/common/utils/parseJsonWithSchema"
 
 /**
  * The client tool this UI answers, matching `ResetExercisesTool::NAME` in

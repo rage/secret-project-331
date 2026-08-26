@@ -90,8 +90,7 @@ impl UploadClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_hs256_claim(token, key)
-            .map_err(|err| controller_err!(BadRequest, format!("Invalid jwt key: {}", err), err))
+        validate_claim(token, key)
     }
 }
 
@@ -170,13 +169,7 @@ impl DownloadClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_hs256_claim(token, key).map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                format!("Invalid jwt key: {}", err),
-                Some(err.into()),
-            )
-        })
+        validate_claim(token, key)
     }
 }
 
@@ -207,13 +200,7 @@ impl GradingUpdateClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_hs256_claim(token, key).map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                format!("Invalid jwt key: {}", err),
-                Some(err.into()),
-            )
-        })
+        validate_claim(token, key)
     }
 }
 
@@ -684,6 +671,18 @@ fn sign_hs256_claim<T: serde::Serialize>(
         claim,
         &EncodingKey::from_secret(&key.0),
     )
+}
+
+/// Decodes a claim, reporting a bad token as a request error rather than a JWT one.
+///
+/// [`validate_hs256_claim`] is the raw form that leaves the `jsonwebtoken` error unmapped, for the
+/// claims that report it differently.
+fn validate_claim<T: serde::de::DeserializeOwned>(
+    token: &str,
+    key: &JwtKey,
+) -> Result<T, ControllerError> {
+    validate_hs256_claim(token, key)
+        .map_err(|err| controller_err!(BadRequest, format!("Invalid jwt key: {}", err), err))
 }
 
 /// Decodes and verifies an HS256 token into the requested claim type.

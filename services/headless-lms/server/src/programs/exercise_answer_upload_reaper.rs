@@ -638,24 +638,15 @@ mod tests {
         check_tx.rollback().await;
     }
 
-    /// Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
     async fn binding_id_of(conn: &mut PgConnection, file_upload_id: uuid::Uuid) -> uuid::Uuid {
-        sqlx::query_scalar("SELECT id FROM exercise_answer_uploads WHERE file_upload_id = $1")
-            .bind(file_upload_id)
-            .fetch_one(conn)
+        models::test_support::answer_upload_id(conn, file_upload_id)
             .await
             .expect("binding id")
     }
 
-    /// Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
     async fn backdate(conn: &mut PgConnection, file_upload_id: uuid::Uuid, age: Duration) {
-        sqlx::query(
-            "UPDATE exercise_answer_uploads SET created_at = now() - $2 WHERE file_upload_id = $1",
-        )
-        .bind(file_upload_id)
-        .bind(age)
-        .execute(conn)
-        .await
-        .expect("backdate");
+        models::test_support::backdate_answer_upload(conn, file_upload_id, age)
+            .await
+            .expect("backdate");
     }
 }

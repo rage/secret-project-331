@@ -145,6 +145,8 @@ pub mod users;
 pub mod verified_student_numbers;
 
 pub mod prelude;
+pub mod test_support;
+
 #[cfg(test)]
 pub mod test_helper;
 

@@ -265,17 +265,10 @@ mod test {
         .unwrap()
     }
 
-    /// Deliberately not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only
-    /// queries, so a checked macro here would break every offline build. Same for the raw
-    /// queries below.
     async fn soft_delete(tx: &mut PgConnection, file_upload_id: Uuid) {
-        sqlx::query(
-            "UPDATE exercise_answer_uploads SET deleted_at = now() WHERE file_upload_id = $1",
-        )
-        .bind(file_upload_id)
-        .execute(tx)
-        .await
-        .unwrap();
+        crate::test_support::soft_delete_answer_upload(tx, file_upload_id)
+            .await
+            .unwrap();
     }
 
     async fn insert_file_at(tx: &mut PgConnection, name: &str, path: &str) -> Uuid {
@@ -287,24 +280,16 @@ mod test {
     /// Backdates both the binding and the file, so that a query widened to `file_uploads` cannot
     /// pass the negative test by accidentally tripping the age filter.
     async fn backdate_file(tx: &mut PgConnection, file_upload_id: Uuid, age: Duration) {
-        sqlx::query("UPDATE file_uploads SET created_at = now() - $2 WHERE id = $1")
-            .bind(file_upload_id)
-            .bind(age)
-            .execute(tx)
+        crate::test_support::backdate_file_upload(tx, file_upload_id, age)
             .await
             .unwrap();
     }
 
     async fn backdate(tx: &mut PgConnection, file_upload_id: Uuid, age: Duration) {
         backdate_file(&mut *tx, file_upload_id, age).await;
-        sqlx::query(
-            "UPDATE exercise_answer_uploads SET created_at = now() - $2 WHERE file_upload_id = $1",
-        )
-        .bind(file_upload_id)
-        .bind(age)
-        .execute(tx)
-        .await
-        .unwrap();
+        crate::test_support::backdate_answer_upload(tx, file_upload_id, age)
+            .await
+            .unwrap();
     }
 
     /// Records a task submission made from the given uploads, the thing that makes an upload

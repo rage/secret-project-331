@@ -702,16 +702,24 @@ mod answer_upload_tests {
         }
     }
 
-    /// Applies a committed change to the fixture's exercise row, for the answering rules that are
-    /// exercise settings rather than user state.
-    async fn update_exercise(exercise: Uuid, statement: &'static str) {
+    /// Commits a passed deadline onto the fixture's exercise, which is an exercise setting rather
+    /// than user state and so has to be visible to the request's own connection.
+    async fn expire_deadline(exercise: Uuid) {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        sqlx::query(statement)
-            .bind(exercise)
-            .execute(&mut **tx.as_mut())
+        models::test_support::expire_exercise_deadline(&mut **tx.as_mut(), exercise)
             .await
-            .expect("the exercise update");
+            .expect("the deadline update");
+        tx.commit().await;
+    }
+
+    /// Commits a try limit of zero, so every slide of the fixture's exercise is already exhausted.
+    async fn exhaust_tries(exercise: Uuid) {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        models::test_support::exhaust_exercise_tries(&mut **tx.as_mut(), exercise)
+            .await
+            .expect("the try limit update");
         tx.commit().await;
     }
 
@@ -738,11 +746,7 @@ mod answer_upload_tests {
     #[actix_web::test]
     async fn answer_uploads_past_the_exercise_deadline_are_rejected() {
         let fixture = course_task(true).await;
-        update_exercise(
-            fixture.exercise,
-            "UPDATE exercises SET deadline = now() - interval '1 day' WHERE id = $1",
-        )
-        .await;
+        expire_deadline(fixture.exercise).await;
 
         assert_eq!(
             upload_status(&fixture).await,
@@ -753,13 +757,7 @@ mod answer_upload_tests {
     #[actix_web::test]
     async fn answer_uploads_from_a_user_out_of_tries_are_rejected() {
         let fixture = course_task(true).await;
-        update_exercise(
-            fixture.exercise,
-            "UPDATE exercises
-             SET limit_number_of_tries = TRUE, max_tries_per_slide = 0
-             WHERE id = $1",
-        )
-        .await;
+        exhaust_tries(fixture.exercise).await;
 
         assert_eq!(
             upload_status(&fixture).await,
@@ -818,18 +816,17 @@ mod answer_upload_tests {
             .collect();
         assert_eq!(names, vec!["a.tar.zst", "b.txt"]);
 
-        let bindings: Vec<(Uuid, Uuid, Uuid, String)> = sqlx::query_as(
-            "SELECT file_upload_id, exercise_id, user_id, origin::text
-             FROM exercise_answer_uploads
-             WHERE file_upload_id = ANY($1)
-               AND deleted_at IS NULL",
-        )
-        .bind(&ids)
-        .fetch_all(&mut **check.as_mut())
-        .await
-        .expect("the bindings");
+        let bindings = models::test_support::answer_upload_bindings(&mut **check.as_mut(), &ids)
+            .await
+            .expect("the bindings");
         assert_eq!(bindings.len(), 2);
-        for (file_upload_id, exercise_id, user_id, origin) in bindings {
+        for models::test_support::AnswerUploadBinding {
+            file_upload_id,
+            exercise_id,
+            user_id,
+            origin,
+        } in bindings
+        {
             assert!(ids.contains(&file_upload_id));
             assert_eq!(exercise_id, exercise);
             assert_eq!(user_id, user);

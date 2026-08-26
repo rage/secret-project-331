@@ -263,26 +263,19 @@ mod test {
     /// Every submission in one test transaction shares `now()`, so submission time has to be set
     /// explicitly for the ordering to be observable at all.
     async fn set_submitted_at(tx: &mut PgConnection, submission_id: Uuid, seconds: i64) {
-        sqlx::query("UPDATE exercise_task_submissions SET created_at = now() + make_interval(secs => $2) WHERE id = $1")
-            .bind(submission_id)
-            .bind(seconds as f64)
-            .execute(tx)
+        crate::test_support::shift_submission_created_at(tx, submission_id, seconds as f64)
             .await
             .unwrap();
     }
 
     async fn soft_delete_task_submission(tx: &mut PgConnection, id: Uuid) {
-        sqlx::query("UPDATE exercise_task_submissions SET deleted_at = now() WHERE id = $1")
-            .bind(id)
-            .execute(tx)
+        crate::test_support::soft_delete_task_submission(tx, id)
             .await
             .unwrap();
     }
 
     async fn soft_delete_slide_submission(tx: &mut PgConnection, id: Uuid) {
-        sqlx::query("UPDATE exercise_slide_submissions SET deleted_at = now() WHERE id = $1")
-            .bind(id)
-            .execute(tx)
+        crate::test_support::soft_delete_slide_submission(tx, id)
             .await
             .unwrap();
     }
@@ -487,14 +480,9 @@ mod test {
         submission_id: Uuid,
         file_upload_id: Uuid,
     ) {
-        sqlx::query(
-            "UPDATE exercise_task_submission_files SET deleted_at = now() WHERE exercise_task_submission_id = $1 AND file_upload_id = $2",
-        )
-        .bind(submission_id)
-        .bind(file_upload_id)
-        .execute(tx)
-        .await
-        .unwrap();
+        crate::test_support::soft_delete_submission_file(tx, submission_id, file_upload_id)
+            .await
+            .unwrap();
     }
 
     #[tokio::test]

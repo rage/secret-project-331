@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_submission_id,\n  exercise_task_id,\n  exercise_slide_id,\n  data_json,\n  answer_kind AS \"answer_kind: AnswerKind\",\n  exercise_task_grading_id,\n  metadata\nFROM exercise_task_submissions\nWHERE id = $1\n",
+  "query": "\n        SELECT DISTINCT ON (g.exercise_task_id)\n        g.id,\n        g.created_at,\n        g.exercise_slide_submission_id,\n        g.exercise_slide_id,\n        g.exercise_task_id,\n        g.exercise_task_grading_id,\n        g.data_json,\n        g.answer_kind\n      FROM exercise_task_submissions g\n        JOIN exercise_tasks et ON et.id = g.exercise_task_id\n        JOIN exercise_slide_submissions ess ON ess.id = g.exercise_slide_submission_id\n        JOIN exercises e ON e.id = ess.exercise_id\n        JOIN chapters c ON c.id = e.chapter_id\n      WHERE ess.user_id = $1\n      AND ess.course_id = $2\n      AND et.exercise_type = $3\n      AND c.course_module_id = $4\n      AND g.deleted_at IS NULL\n      AND et.deleted_at IS NULL\n      AND ess.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n      ORDER BY g.exercise_task_id, g.created_at DESC\n      ",
   "describe": {
     "columns": [
       {
@@ -27,28 +27,6 @@
       },
       {
         "ordinal": 2,
-        "name": "updated_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "updated_at"
-          }
-        }
-      },
-      {
-        "ordinal": 3,
-        "name": "deleted_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "deleted_at"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
         "name": "exercise_slide_submission_id",
         "type_info": "Uuid",
         "origin": {
@@ -59,18 +37,7 @@
         }
       },
       {
-        "ordinal": 5,
-        "name": "exercise_task_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "exercise_task_id"
-          }
-        }
-      },
-      {
-        "ordinal": 6,
+        "ordinal": 3,
         "name": "exercise_slide_id",
         "type_info": "Uuid",
         "origin": {
@@ -81,7 +48,29 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 4,
+        "name": "exercise_task_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "exercise_task_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_task_grading_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "exercise_task_grading_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
         "name": "data_json",
         "type_info": "Jsonb",
         "origin": {
@@ -92,8 +81,8 @@
         }
       },
       {
-        "ordinal": 8,
-        "name": "answer_kind: AnswerKind",
+        "ordinal": 7,
+        "name": "answer_kind",
         "type_info": {
           "Custom": {
             "name": "answer_kind",
@@ -111,32 +100,13 @@
             "name": "answer_kind"
           }
         }
-      },
-      {
-        "ordinal": 9,
-        "name": "exercise_task_grading_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "exercise_task_grading_id"
-          }
-        }
-      },
-      {
-        "ordinal": 10,
-        "name": "metadata",
-        "type_info": "Jsonb",
-        "origin": {
-          "Table": {
-            "table": "exercise_task_submissions",
-            "name": "metadata"
-          }
-        }
       }
     ],
     "parameters": {
       "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
         "Uuid"
       ]
     },
@@ -144,15 +114,12 @@
       false,
       false,
       false,
-      true,
-      false,
       false,
       false,
       true,
-      false,
       true,
-      true
+      false
     ]
   },
-  "hash": "aeb53e17a433ce3eda695146699b207220b15bfc44acb31798a96fc20dcfa709"
+  "hash": "b474470e732c69ec3c84d0b9c74fe9a764e5f12144d161511fcb1b233e2dddb7"
 }

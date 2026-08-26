@@ -573,52 +573,34 @@ mod tests {
         .await
     }
 
-    /// Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
     async fn slide_submission_count(conn: &mut PgConnection, exercise: Uuid, user: Uuid) -> i64 {
-        sqlx::query_scalar(
-            "SELECT count(*) FROM exercise_slide_submissions WHERE exercise_id = $1 AND user_id = $2 AND deleted_at IS NULL",
-        )
-        .bind(exercise)
-        .bind(user)
-        .fetch_one(conn)
-        .await
-        .expect("count")
+        models::test_support::slide_submission_count(conn, exercise, user)
+            .await
+            .expect("count")
     }
 
     async fn answer_kind_of(conn: &mut PgConnection, submission: Uuid) -> String {
-        sqlx::query_scalar("SELECT answer_kind::text FROM exercise_task_submissions WHERE id = $1")
-            .bind(submission)
-            .fetch_one(conn)
+        models::test_support::answer_kind_text(conn, submission)
             .await
             .expect("answer kind")
     }
 
     async fn recorded_files(conn: &mut PgConnection, submission: Uuid) -> Vec<(Uuid, i32)> {
-        sqlx::query_as(
-            "SELECT file_upload_id, order_number FROM exercise_task_submission_files WHERE exercise_task_submission_id = $1 AND deleted_at IS NULL ORDER BY order_number",
-        )
-        .bind(submission)
-        .fetch_all(conn)
-        .await
-        .expect("submission files")
+        models::test_support::submission_file_positions(conn, submission)
+            .await
+            .expect("submission files")
     }
 
     async fn binding_id_of(conn: &mut PgConnection, file_upload_id: Uuid) -> Uuid {
-        sqlx::query_scalar("SELECT id FROM exercise_answer_uploads WHERE file_upload_id = $1")
-            .bind(file_upload_id)
-            .fetch_one(conn)
+        models::test_support::answer_upload_id(conn, file_upload_id)
             .await
             .expect("binding id")
     }
 
     async fn reap(conn: &mut PgConnection, file_upload_id: Uuid) {
-        sqlx::query(
-            "UPDATE exercise_answer_uploads SET deleted_at = now() WHERE file_upload_id = $1",
-        )
-        .bind(file_upload_id)
-        .execute(conn)
-        .await
-        .expect("reap");
+        models::test_support::soft_delete_answer_upload(conn, file_upload_id)
+            .await
+            .expect("reap");
     }
 
     fn stub_grading() -> ExerciseTaskGradingResult {

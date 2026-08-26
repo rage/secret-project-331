@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_submission_id,\n  exercise_task_id,\n  exercise_slide_id,\n  data_json,\n  answer_kind AS \"answer_kind: AnswerKind\",\n  exercise_task_grading_id,\n  metadata\nFROM exercise_task_submissions\nWHERE exercise_slide_submission_id = $1\n  AND deleted_at IS NULL\n            ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_submission_id,\n  exercise_task_id,\n  exercise_slide_id,\n  data_json,\n  answer_kind,\n  exercise_task_grading_id,\n  metadata\nFROM exercise_task_submissions\nWHERE exercise_slide_submission_id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -93,7 +93,7 @@
       },
       {
         "ordinal": 8,
-        "name": "answer_kind: AnswerKind",
+        "name": "answer_kind",
         "type_info": {
           "Custom": {
             "name": "answer_kind",
@@ -154,5 +154,5 @@
       true
     ]
   },
-  "hash": "c93ad836f302fb3123f5abe11a8e801b579ee15911eece9a6a57876765835d8e"
+  "hash": "fbb94186bc688d9487f48076e285fb7ce07810fe0ab0b1b16323abe946bc6a09"
 }

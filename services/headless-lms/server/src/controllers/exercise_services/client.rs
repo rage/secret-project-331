@@ -1954,13 +1954,9 @@ mod upload_tests {
         )
         .await
         .expect("binding");
-        sqlx::query(
-            "UPDATE exercise_answer_uploads SET deleted_at = now() WHERE file_upload_id = $1",
-        )
-        .bind(file_id)
-        .execute(&mut **tx.as_mut())
-        .await
-        .expect("soft delete");
+        models::test_support::soft_delete_answer_upload(tx.as_mut(), file_id)
+            .await
+            .expect("soft delete");
 
         let error = answer_uploads::verify_uploads_belong_to_exercise(
             tx.as_mut(),
@@ -2457,13 +2453,9 @@ mod route_tests {
         let mut conn = PgConnection::connect(&test_database_url())
             .await
             .expect("connection");
-        sqlx::query!(
-            "UPDATE exercises SET deadline = now() - interval '1 day' WHERE id = $1",
-            exercise
-        )
-        .execute(&mut conn)
-        .await
-        .expect("deadline");
+        models::test_support::expire_exercise_deadline(&mut conn, exercise)
+            .await
+            .expect("deadline");
     }
 
     #[actix_web::test]
@@ -2681,13 +2673,9 @@ mod route_tests {
 
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        sqlx::query(
-            "UPDATE exercise_answer_uploads SET deleted_at = now() WHERE file_upload_id = $1",
-        )
-        .bind(ids[0])
-        .execute(&mut **tx.as_mut())
-        .await
-        .expect("retire");
+        models::test_support::soft_delete_answer_upload(tx.as_mut(), ids[0])
+            .await
+            .expect("retire");
         tx.commit().await;
 
         let app = client_api_app!();
@@ -2898,14 +2886,9 @@ mod route_tests {
     async fn slide_submission_count(exercise: Uuid, user: Uuid) -> i64 {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let count: i64 = sqlx::query_scalar(
-            "SELECT count(*) FROM exercise_slide_submissions WHERE exercise_id = $1 AND user_id = $2 AND deleted_at IS NULL",
-        )
-        .bind(exercise)
-        .bind(user)
-        .fetch_one(&mut **tx.as_mut())
-        .await
-        .expect("count");
+        let count = models::test_support::slide_submission_count(tx.as_mut(), exercise, user)
+            .await
+            .expect("count");
         tx.rollback().await;
         count
     }
@@ -2913,14 +2896,9 @@ mod route_tests {
     async fn rejected_submission_count(slide: Uuid, user: Uuid) -> i64 {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let count: i64 = sqlx::query_scalar(
-            "SELECT count(*) FROM rejected_exercise_slide_submissions WHERE exercise_slide_id = $1 AND user_id = $2 AND deleted_at IS NULL",
-        )
-        .bind(slide)
-        .bind(user)
-        .fetch_one(&mut **tx.as_mut())
-        .await
-        .expect("count");
+        let count = models::test_support::rejected_slide_submission_count(tx.as_mut(), slide, user)
+            .await
+            .expect("count");
         tx.rollback().await;
         count
     }

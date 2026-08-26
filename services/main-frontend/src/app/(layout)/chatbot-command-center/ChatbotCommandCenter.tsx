@@ -48,8 +48,8 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
     padding: 0;
     margin-top: 1rem;
     padding-top: 1rem;
-    max-height: 75vh;
     overflow-y: auto;
+    contain: size;
   `
 
   const chatbotOptions = useMemo(() => {
@@ -118,6 +118,7 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
         grid-template-columns: 1fr 4fr;
         margin: 0 1rem;
         gap: 0.5rem;
+        grid-auto-rows: min-content;
       `}
     >
       <div className={sideBarContainer}>
@@ -161,13 +162,12 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
         >
           <NewConversationDialog
             chatbotOptions={chatbotOptions}
-            setConversationId={setConversationId}
             setConfigurationId={setConfigurationId}
             newConversationMutation={chatbotStateAndData.newConversationMutation}
             onClose={() => setChatbotDialog(false)}
             open={showChatbotDialog}
           />
-          {configurationId === undefined ? (
+          {configurationId === null ? (
             <div
               className={css`
                 display: flex;

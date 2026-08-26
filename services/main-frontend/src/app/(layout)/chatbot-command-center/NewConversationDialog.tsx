@@ -9,9 +9,17 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import { Button } from "@/shared-module/components"
 import { listBoxOptionCss } from "@/shared-module/components/components/primitives/selectStyles"
 
+interface ChatbotOption {
+  label: string
+  courseId: string | null | undefined
+  options: {
+    label: string
+    value: string
+  }[]
+}
+
 interface NewConversationDialogProps {
-  chatbotOptions
-  setConversationId: React.Dispatch<string>
+  chatbotOptions: ChatbotOption[]
   setConfigurationId: React.Dispatch<string>
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   open: boolean
@@ -20,7 +28,6 @@ interface NewConversationDialogProps {
 
 const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   chatbotOptions,
-  setConversationId,
   setConfigurationId,
   newConversationMutation,
   open,
@@ -45,12 +52,19 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
     margin: 0;
     padding: 0;
     list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   `
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("chatbot-preview-modal-title")}>
+    <StandardDialog open={open} onClose={onClose} title={"Chatbot selection"}>
       <div>
-        <ul>
+        <ul
+          className={css`
+            padding: 0;
+          `}
+        >
           {chatbotOptions.map((category) => (
             <li className={sectionCss} key={category.courseId}>
               <span className={sectionHeadingCss}>{category.label}</span>
@@ -59,11 +73,11 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
                   <Button
                     key={option.value}
                     onClick={() => {
-                      setConversationId(null)
                       setConfigurationId(option.value)
                       newConversationMutation.mutate()
                       onClose()
                     }}
+                    variant="icon"
                   >
                     <li className={listBoxOptionCss}>
                       <span>{option.label}</span>

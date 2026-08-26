@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use indexmap::IndexMap;
 use sqlx::PgConnection;
 use uuid::Uuid;
@@ -14,7 +12,11 @@ use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotToolDeclaration,
-        action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
+        action_tools::{
+            ActionAuditFields, ConfirmableActionTool, ExecutedAction, display_field_matches,
+            verify_display_field,
+        },
+        argument_parsing::parse_required_uuid,
         tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
@@ -124,20 +126,8 @@ impl ConfirmableActionTool for ResetExercisesTool {
             )
         })?;
 
-        let user_id = Uuid::from_str(&raw.user_id).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("Invalid user_id: {}", raw.user_id),
-                e
-            )
-        })?;
-        let course_id = Uuid::from_str(&raw.course_id).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("Invalid course_id: {}", raw.course_id),
-                e
-            )
-        })?;
+        let user_id = parse_required_uuid("user_id", &raw.user_id)?;
+        let course_id = parse_required_uuid("course_id", &raw.course_id)?;
 
         if raw.exercise_names.len() != raw.exercise_ids.len() {
             return Err(chatbot_err!(
@@ -148,13 +138,7 @@ impl ConfirmableActionTool for ResetExercisesTool {
 
         let mut exercise_ids = Vec::with_capacity(raw.exercise_ids.len());
         for id in &raw.exercise_ids {
-            exercise_ids.push(Uuid::from_str(id).map_err(|e| {
-                chatbot_err!(
-                    InvalidToolArguments,
-                    format!("Invalid exercise id: {id}"),
-                    e
-                )
-            })?);
+            exercise_ids.push(parse_required_uuid("exercise id", id)?);
         }
         for name in &raw.exercise_names {
             if name.trim().is_empty() {
@@ -222,15 +206,12 @@ impl ConfirmableActionTool for ResetExercisesTool {
                     e
                 )
             })?;
-        if !user_detail
-            .email
-            .eq_ignore_ascii_case(&arguments.user_email)
-        {
-            return Err(chatbot_err!(
-                ToolUseError,
-                "user_email does not match the account on record. Re-run find_user to get the current email before retrying.".to_string()
-            ));
-        }
+        verify_display_field(
+            "user_email",
+            &user_detail.email,
+            &arguments.user_email,
+            "find_user",
+        )?;
 
         let course = courses::get_course(conn, arguments.course_id)
             .await
@@ -241,12 +222,12 @@ impl ConfirmableActionTool for ResetExercisesTool {
                     e
                 )
             })?;
-        if !course.name.eq_ignore_ascii_case(&arguments.course_name) {
-            return Err(chatbot_err!(
-                ToolUseError,
-                "course_name does not match the course on record. Re-run find_course to get the current name before retrying.".to_string()
-            ));
-        }
+        verify_display_field(
+            "course_name",
+            &course.name,
+            &arguments.course_name,
+            "find_course",
+        )?;
 
         let course_exercises = exercises::get_exercises_by_course_id(conn, course.id).await?;
 
@@ -260,7 +241,7 @@ impl ConfirmableActionTool for ResetExercisesTool {
         } else {
             for (id, name) in arguments.exercise_ids.iter().zip(&arguments.exercise_names) {
                 match course_exercises.iter().find(|e| &e.id == id) {
-                    Some(exercise) if exercise.name.eq_ignore_ascii_case(name) => {}
+                    Some(exercise) if display_field_matches(&exercise.name, name) => {}
                     Some(exercise) => {
                         return Err(chatbot_err!(
                             ToolUseError,

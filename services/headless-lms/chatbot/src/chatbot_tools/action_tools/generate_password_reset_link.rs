@@ -12,7 +12,10 @@ use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotToolDeclaration,
-        action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
+        action_tools::{
+            ActionAuditFields, ConfirmableActionTool, ExecutedAction, verify_display_field,
+        },
+        argument_parsing::parse_required_uuid,
         tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
@@ -84,13 +87,7 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
             )
         })?;
 
-        let user_id = Uuid::parse_str(&raw.user_id).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("'{}' is not a valid user_id (UUID).", raw.user_id),
-                e
-            )
-        })?;
+        let user_id = parse_required_uuid("user_id", &raw.user_id)?;
 
         let user_email = raw.user_email.trim().to_string();
         if user_email.is_empty() {
@@ -135,12 +132,12 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
                 )
             })?;
 
-        if !details.email.eq_ignore_ascii_case(&arguments.user_email) {
-            return Err(chatbot_err!(
-                ToolUseError,
-                "The email does not match the account — re-run find_user.".to_string()
-            ));
-        }
+        verify_display_field(
+            "user_email",
+            &details.email,
+            &arguments.user_email,
+            "find_user",
+        )?;
 
         let token =
             user_passwords::insert_password_reset_token(conn, user.id, Uuid::new_v4()).await?;

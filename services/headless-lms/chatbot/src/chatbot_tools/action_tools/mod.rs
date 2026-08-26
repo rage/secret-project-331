@@ -16,7 +16,7 @@ pub mod reset_exercises;
 use headless_lms_base::config::ApplicationConfiguration;
 
 use crate::chatbot_tools::ChatbotToolDeclaration;
-use crate::prelude::ChatbotResult;
+use crate::prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err};
 
 pub mod edit_user_account;
 pub mod generate_password_reset_link;
@@ -77,4 +77,32 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
     }
 
     fn output_description_instructions() -> Option<String>;
+}
+
+/// Unicode-aware case-insensitive equality for a model-supplied display field against its
+/// current database value. `eq_ignore_ascii_case` would reject a match for cased letters outside
+/// ASCII (e.g. Finnish å/Ö) that differ only in case, spuriously refusing a genuine match.
+pub fn display_field_matches(actual: &str, supplied: &str) -> bool {
+    actual.to_lowercase() == supplied.to_lowercase()
+}
+
+/// Re-verifies a model-supplied display field against `actual`, per [ConfirmableActionTool::execute]'s
+/// contract: refuses with a descriptive error naming `field_name` and `rerun_tool` instead of
+/// mutating on a mismatch.
+pub fn verify_display_field(
+    field_name: &str,
+    actual: &str,
+    supplied: &str,
+    rerun_tool: &str,
+) -> ChatbotResult<()> {
+    if display_field_matches(actual, supplied) {
+        Ok(())
+    } else {
+        Err(chatbot_err!(
+            ToolUseError,
+            format!(
+                "The {field_name} does not match the current record. Re-run {rerun_tool} and try again."
+            )
+        ))
+    }
 }

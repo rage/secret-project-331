@@ -12,7 +12,10 @@ use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotToolDeclaration,
-        action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
+        action_tools::{
+            ActionAuditFields, ConfirmableActionTool, ExecutedAction, verify_display_field,
+        },
+        argument_parsing::parse_required_uuid,
         tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
@@ -112,13 +115,7 @@ impl ConfirmableActionTool for EditUserAccountTool {
             )
         })?;
 
-        let user_id = Uuid::parse_str(&raw.user_id).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("'{}' is not a valid user_id (UUID).", raw.user_id),
-                e
-            )
-        })?;
+        let user_id = parse_required_uuid("user_id", &raw.user_id)?;
 
         let current_email = raw.current_email.trim().to_string();
         if current_email.is_empty() {
@@ -199,12 +196,12 @@ impl ConfirmableActionTool for EditUserAccountTool {
                 )
             })?;
 
-        if !details.email.eq_ignore_ascii_case(&arguments.current_email) {
-            return Err(chatbot_err!(
-                ToolUseError,
-                "current_email does not match the account — re-run find_user.".to_string()
-            ));
-        }
+        verify_display_field(
+            "current_email",
+            &details.email,
+            &arguments.current_email,
+            "find_user",
+        )?;
 
         let old_email = details.email.clone();
         let mut new_email_applied: Option<String> = None;

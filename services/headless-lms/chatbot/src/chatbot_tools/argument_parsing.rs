@@ -1,9 +1,11 @@
-//! Shared `serde` helpers for parsing model-supplied tool arguments.
+//! Shared helpers for parsing model-supplied tool arguments.
 
 use std::str::FromStr;
 
 use serde::{Deserialize, Deserializer};
 use uuid::Uuid;
+
+use crate::prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err};
 
 /// Deserializes an optional string field and parses it into an Uuid, doing this
 /// optionally without failure. If an error occurs, a None is returned. This is
@@ -20,4 +22,16 @@ where
         .ok()
         .and_then(|s| Uuid::from_str(&s).ok());
     Ok(res)
+}
+
+/// Parses a required UUID tool argument, reporting a parse failure as
+/// [ChatbotErrorType::InvalidToolArguments] naming `field_name` and the offending value.
+pub fn parse_required_uuid(field_name: &str, value: &str) -> ChatbotResult<Uuid> {
+    Uuid::from_str(value).map_err(|e| {
+        chatbot_err!(
+            InvalidToolArguments,
+            format!("'{value}' is not a valid {field_name} (UUID)."),
+            e
+        )
+    })
 }

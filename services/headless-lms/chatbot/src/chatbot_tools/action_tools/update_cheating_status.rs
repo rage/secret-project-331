@@ -1,14 +1,11 @@
 use indexmap::IndexMap;
 use serde::Deserialize;
 use sqlx::PgConnection;
-use std::str::FromStr;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
-    courses, suspected_cheaters,
-    suspected_cheaters::SuspectedCheaterStatus,
-    user_details,
+    courses, suspected_cheaters, suspected_cheaters::SuspectedCheaterStatus, user_details, users,
 };
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
 
@@ -16,10 +13,15 @@ use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotToolDeclaration,
-        action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
+        action_tools::{
+            ActionAuditFields, ConfirmableActionTool, ExecutedAction, verify_display_field,
+        },
+        argument_parsing::parse_required_uuid,
         tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, TryToOptional, chatbot_err},
+    prelude::{
+        BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, TryToOptional, chatbot_err,
+    },
 };
 
 /// Confirms or dismisses a `Flagged` suspected-cheater row. Only a `Flagged` row is actionable:
@@ -117,20 +119,8 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
             )
         })?;
 
-        let user_id = Uuid::from_str(&raw.user_id).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("'{}' is not a valid user_id.", raw.user_id),
-                e
-            )
-        })?;
-        let course_id = Uuid::from_str(&raw.course_id).map_err(|e| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!("'{}' is not a valid course_id.", raw.course_id),
-                e
-            )
-        })?;
+        let user_id = parse_required_uuid("user_id", &raw.user_id)?;
+        let course_id = parse_required_uuid("course_id", &raw.course_id)?;
 
         let user_email = raw.user_email.trim().to_string();
         if user_email.is_empty() {
@@ -173,7 +163,16 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
         arguments: &Self::Arguments,
         _acting_user_id: Uuid,
     ) -> ChatbotResult<ExecutedAction> {
-        let user_detail = user_details::get_user_details_by_user_id(conn, arguments.user_id)
+        let user = users::get_active_by_id(conn, arguments.user_id)
+            .await
+            .map_err(|e| {
+                chatbot_err!(
+                    InvalidToolArguments,
+                    "The user no longer exists. Re-run find_user.".to_string(),
+                    e
+                )
+            })?;
+        let user_detail = user_details::get_user_details_by_user_id(conn, user.id)
             .await
             .optional()?
             .ok_or_else(|| {
@@ -182,13 +181,12 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
                     "The user no longer exists. Re-run find_user.".to_string()
                 )
             })?;
-        if !user_detail.email.eq_ignore_ascii_case(&arguments.user_email) {
-            return Err(chatbot_err!(
-                InvalidToolArguments,
-                "The email does not match the account. Re-run find_user and try again."
-                    .to_string()
-            ));
-        }
+        verify_display_field(
+            "email",
+            &user_detail.email,
+            &arguments.user_email,
+            "find_user",
+        )?;
 
         let course = courses::get_course(conn, arguments.course_id)
             .await
@@ -199,13 +197,12 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
                     "The course no longer exists. Re-run find_course.".to_string()
                 )
             })?;
-        if !course.name.eq_ignore_ascii_case(&arguments.course_name) {
-            return Err(chatbot_err!(
-                InvalidToolArguments,
-                "The course name does not match the course. Re-run find_course and try again."
-                    .to_string()
-            ));
-        }
+        verify_display_field(
+            "course_name",
+            &course.name,
+            &arguments.course_name,
+            "find_course",
+        )?;
 
         let cheater = suspected_cheaters::get_by_user_id_and_course_id(
             conn,

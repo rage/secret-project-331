@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -12,7 +12,6 @@ import type {
   AdminManuallyLinkStudentNumberResult,
   AdminResolveStudentNumberResult,
 } from "@/generated/api/types.generated"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import {
   Button,
   Checkbox,
@@ -24,6 +23,7 @@ import {
 
 import { MIDDLE_DOT, STACKED, TONE } from "../constants"
 import { noteCss } from "../styles"
+import { useActionResult } from "../useActionResult"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
@@ -61,8 +61,6 @@ const rowCss = css`
 const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }) => {
   const { t } = useTranslation()
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
-  const [preview, setPreview] = useState<AdminResolveStudentNumberResult | null>(null)
-  const [result, setResult] = useState<AdminManuallyLinkStudentNumberResult | null>(null)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
     student_number: studentNumber,
     user_id: "",
@@ -71,13 +69,15 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
   })
   const fields = watch()
 
-  const previewMutation = useToastMutation(
-    (number: string) => adminResolveStudentNumberForLinking({ body: { student_number: number } }),
-    { notify: false },
-    { onSuccess: setPreview },
-  )
-  const linkMutation = useToastMutation(
-    (values: Fields) =>
+  const { result: preview, mutation: previewMutation } = useActionResult<
+    AdminResolveStudentNumberResult,
+    string
+  >((number) => adminResolveStudentNumberForLinking({ body: { student_number: number } }))
+  const { result, mutation: linkMutation } = useActionResult<
+    AdminManuallyLinkStudentNumberResult,
+    Fields
+  >(
+    (values) =>
       adminManuallyLinkStudentNumber({
         body: {
           user_id: values.user_id.trim(),
@@ -87,13 +87,9 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
           reason: values.reason,
         },
       }),
-    { notify: false },
-    {
-      onSuccess: (data) => {
-        setResult(data)
-        // Linking resolves waiting registrations synchronously, so their state changes too.
-        void invalidateAfterLinkingChange()
-      },
+    () => {
+      // Linking resolves waiting registrations synchronously, so their state changes too.
+      void invalidateAfterLinkingChange()
     },
   )
 

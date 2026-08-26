@@ -14,7 +14,6 @@ import {
   retryabilityLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
-  HOUR_SECS,
   useCreditRegistrationAttentionItems,
   useCreditRegistrationErrorsByCode,
   useCreditRegistrationThresholds,
@@ -22,12 +21,14 @@ import {
 import AdminRequeueRetryableDialog from "@/components/credit-registration/admin/AdminRequeueRetryableDialog"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
+import { DAY_SECS, WindowSecsSelect } from "@/components/credit-registration/admin/WindowSecsSelect"
 import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
 import {
   headingCss,
   noteCss,
   sectionCss,
   sectionsCss,
+  stackedCellCss,
   tilesCss,
 } from "@/components/credit-registration/styles"
 import type {
@@ -42,14 +43,10 @@ import {
   Checkbox,
   Disclosure,
   QueryResult,
-  Select,
   StatTile,
   Table,
 } from "@/shared-module/components"
 
-const DAY_SECS = 86_400
-const WEEK_SECS = 604_800
-const MONTH_SECS = 2_592_000
 const PERCENT = 100
 
 const controlsCss = css`
@@ -61,10 +58,6 @@ const actionsCss = css`
   flex-wrap: wrap;
   gap: 1rem;
   align-items: start;
-`
-
-const stackedCellCss = css`
-  display: grid;
 `
 
 const reasonsCss = css`
@@ -345,7 +338,6 @@ const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }
 
 /** Two halves on one tab because an incident is read as one: what is breaking, and who must act. */
 const ErrorsPage: React.FC = () => {
-  const { t } = useTranslation()
   const { control, watch } = useForm<WindowFields>({
     defaultValues: { window_secs: String(DAY_SECS) },
   })
@@ -355,17 +347,7 @@ const ErrorsPage: React.FC = () => {
   return (
     <div className={sectionsCss}>
       <div className={controlsCss}>
-        <Select
-          name="window_secs"
-          control={control}
-          label={t("credit-registration-admin-window")}
-          options={[
-            { value: String(HOUR_SECS), label: t("credit-registration-admin-window-hour") },
-            { value: String(DAY_SECS), label: t("credit-registration-admin-window-day") },
-            { value: String(WEEK_SECS), label: t("credit-registration-admin-window-week") },
-            { value: String(MONTH_SECS), label: t("credit-registration-admin-window-month") },
-          ]}
-        />
+        <WindowSecsSelect control={control} includeMonth />
       </div>
       <VerdictSection windowSecs={windowSecs} />
       <QueryResult query={attentionQuery}>

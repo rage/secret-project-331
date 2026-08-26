@@ -8,7 +8,7 @@ import type {
   AdminBulkTransitionResult,
   AdminCreditRegistrationTransitionTarget,
 } from "@/generated/api/types.generated"
-import { Infobox, Select } from "@/shared-module/components"
+import { Infobox } from "@/shared-module/components"
 
 import { TONE } from "../constants"
 import { noteCss } from "../styles"
@@ -16,6 +16,7 @@ import { AdminActionDialog } from "./AdminActionDialog"
 import { bulkSkipLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAttentionItems } from "./adminCreditRegistrationHooks"
 import { ReasonField } from "./ReasonConfirmDialog"
+import { READY_TO_SUBMIT, TransitionTargetSelect } from "./TransitionTargetSelect"
 
 interface Props {
   selectedIds: string[]
@@ -26,15 +27,6 @@ interface Fields {
   to_state: AdminCreditRegistrationTransitionTarget
   reason: string
 }
-
-// oxlint-disable-next-line i18next/no-literal-string
-const READY_TO_SUBMIT = "ready_to_submit" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const CANCELLED = "cancelled" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const CLEAR_ATTENTION = "clear_needs_admin_attention" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const CHECK_NOW = "check_now" as const
 
 /**
  * Moves every selected live row to one state. The server refuses rows whose submission outcome is
@@ -70,20 +62,7 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedIds, onApplied }) 
       renderFields={(control) => (
         <>
           <p className={noteCss}>{t("credit-registration-admin-bulk-uncertain-note")}</p>
-          <Select
-            name="to_state"
-            control={control}
-            label={t("label-credit-registration-transition-target")}
-            options={[
-              { value: READY_TO_SUBMIT, label: t("credit-registration-admin-target-resubmit") },
-              { value: CANCELLED, label: t("credit-registration-admin-target-cancel") },
-              {
-                value: CLEAR_ATTENTION,
-                label: t("credit-registration-admin-target-clear-attention"),
-              },
-              { value: CHECK_NOW, label: t("credit-registration-admin-target-check-now") },
-            ]}
-          />
+          <TransitionTargetSelect control={control} />
           <ReasonField
             control={control}
             description={t("description-credit-registration-transition-reason")}

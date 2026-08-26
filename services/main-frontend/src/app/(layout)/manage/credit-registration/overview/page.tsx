@@ -12,6 +12,7 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminPhaseActions from "@/components/credit-registration/admin/AdminPhaseActions"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
+import { phaseHealth } from "@/components/credit-registration/admin/phaseStatus"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import Sparkline from "@/components/credit-registration/admin/Sparkline"
 import { TONE } from "@/components/credit-registration/constants"
@@ -322,22 +323,29 @@ const StudyRegistrySection: React.FC<{
   )
 }
 
+/** Branches on the shared `phaseHealth` so this can't disagree with the Workers tab's status column. */
 const PhaseHeartbeat: React.FC<{ phase: CreditRegistrationPhaseStatus }> = ({ phase }) => {
   const { t } = useTranslation()
-  if (phase.paused_at) {
-    return <Badge tone={TONE.WARNING}>{t("credit-registration-admin-phase-paused")}</Badge>
+  const health = phaseHealth(phase)
+  switch (health) {
+    case "paused":
+      return <Badge tone={TONE.WARNING}>{t("credit-registration-admin-phase-paused")}</Badge>
+    case "not_built":
+      return <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-phase-not-built")}</Badge>
+    case "never_reported":
+      return (
+        <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-phase-never-reported")}</Badge>
+      )
+    case "failing":
+    case "heartbeat_late":
+    case "running":
+      return (
+        <Badge tone={health === "running" ? TONE.SUCCESS : TONE.WARNING}>
+          {/* `last_heartbeat_at` is set here: `failing`/`heartbeat_late`/`running` all require it. */}
+          <RelativeTime at={phase.last_heartbeat_at ?? null} />
+        </Badge>
+      )
   }
-  if (!phase.implemented) {
-    return <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-phase-not-built")}</Badge>
-  }
-  if (!phase.last_heartbeat_at) {
-    return <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-phase-never-reported")}</Badge>
-  }
-  return (
-    <Badge tone={phase.heartbeat_late ? TONE.WARNING : TONE.SUCCESS}>
-      <RelativeTime at={phase.last_heartbeat_at} />
-    </Badge>
-  )
 }
 
 const PhaseSection: React.FC<{ phases: CreditRegistrationPhaseStatus[] }> = ({ phases }) => {

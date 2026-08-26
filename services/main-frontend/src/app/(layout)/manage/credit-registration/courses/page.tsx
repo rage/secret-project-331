@@ -13,6 +13,7 @@ import {
   noteCss,
   sectionCss,
   sectionsCss,
+  stackedCellCss,
   tilesCss,
 } from "@/components/credit-registration/styles"
 import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
@@ -25,6 +26,8 @@ import { Badge, Link, Meter, QueryResult, StatTile, Table } from "@/shared-modul
 
 // oxlint-disable-next-line i18next/no-literal-string
 const MODULE_QUERY = "?course_module_id="
+// Not from the backend's threshold config: that payload is being slimmed down separately, and this
+// tab's coloring is cosmetic rather than an alerting rule, so it keeps its own fixed cutoffs.
 const AMBER_FAILURE_RATE = 5
 const RED_FAILURE_RATE = 20
 const PERCENT = 100
@@ -33,10 +36,6 @@ const chipsCss = css`
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
-`
-
-const stackedCellCss = css`
-  display: grid;
 `
 
 const backfillCss = css`

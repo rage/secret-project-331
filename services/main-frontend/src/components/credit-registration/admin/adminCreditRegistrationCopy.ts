@@ -129,7 +129,7 @@ const RETRYABILITY_UNKNOWN_KEY = "credit-registration-admin-retryability-unknown
 export const retryabilityLabel = (t: TFunction, retryability: Retryability): string =>
   labelFrom(t, RETRYABILITY_KEYS, retryability, RETRYABILITY_UNKNOWN_KEY)
 
-const ADMIN_ACTION_KEYS = {
+export const ADMIN_ACTION_KEYS = {
   retry_item: "credit-registration-admin-action-retry-item",
   retry_failed_for_course: "credit-registration-admin-action-retry-failed-for-course",
   force_recheck: "credit-registration-admin-action-force-recheck",
@@ -153,7 +153,7 @@ const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"
 export const adminActionLabel = (t: TFunction, action: CreditRegistrationAdminAction): string =>
   labelFrom(t, ADMIN_ACTION_KEYS, action, ADMIN_ACTION_UNKNOWN_KEY)
 
-const ADMIN_TARGET_KEYS = {
+export const ADMIN_TARGET_KEYS = {
   credit_registration: "credit-registration-admin-action-target-registration",
   course_module: "credit-registration-admin-action-target-course-module",
   course: "credit-registration-admin-action-target-course",

@@ -41,6 +41,9 @@ pub type UserCourseStateTool = ToolProperties<UserCourseStateState>;
 
 pub struct UserCourseStateState {
     output: UserCourseStateOutput,
+    base_url: String,
+    user_id: Uuid,
+    course_id: Uuid,
 }
 
 #[derive(serde::Serialize)]
@@ -257,10 +260,11 @@ impl ChatbotTool for UserCourseStateTool {
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
-        _app_config: &ApplicationConfiguration,
+        app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
+        let base_url = app_config.base_url.trim_end_matches('/').to_string();
         let course = headless_lms_models::courses::get_course(conn, arguments.course_id)
             .await
             .map_err(|e| {
@@ -399,6 +403,9 @@ impl ChatbotTool for UserCourseStateTool {
                     course_name: course.name.clone(),
                     facets,
                 },
+                base_url,
+                user_id: arguments.user_id,
+                course_id: arguments.course_id,
             },
         })
     }
@@ -410,6 +417,20 @@ impl ChatbotTool for UserCourseStateTool {
     fn output_description_instructions(&self) -> Option<String> {
         let facets = &self.state.output.facets;
         let mut notes = Vec::new();
+        let base_url = &self.state.base_url;
+
+        if facets.contains_key(UserCourseStateFacet::Progress.wire_name())
+            || facets.contains_key(UserCourseStateFacet::Completions.wire_name())
+            || facets.contains_key(UserCourseStateFacet::Submissions.wire_name())
+            || facets.contains_key(UserCourseStateFacet::Reviews.wire_name())
+        {
+            notes.push(format!(
+                "{base_url}/manage/courses/{}/user-status-summary/{} shows progress, module completions, \
+                submissions and reviews for this student on one page - check the numbers there before telling \
+                the admin anything a student will act on.",
+                self.state.course_id, self.state.user_id,
+            ));
+        }
 
         if facets.contains_key(UserCourseStateFacet::Progress.wire_name()) {
             notes.push(
@@ -430,7 +451,10 @@ impl ChatbotTool for UserCourseStateTool {
             notes.push(
                 "needs_to_be_reviewed and anything derived from it is internal: it silently blocks certificates and \
                 grade visibility, and the student must never learn it exists - explain effects (\"the completion is \
-                still being processed\") without the cause.".to_string(),
+                still being processed\") without the cause. The user-status-summary page above does show this \
+                needs-review state (with a banner) to staff, so that page is where an admin can confirm the \
+                blocked-certificate cause directly; the no-cause-to-student rule above only governs what you tell \
+                the student.".to_string(),
             );
             if completions
                 .raw_completions
@@ -463,13 +487,14 @@ impl ChatbotTool for UserCourseStateTool {
                 "Quote submission timestamps exactly when the question is whether an answer saved."
                     .to_string(),
             );
-            notes.push(
+            notes.push(format!(
                 "submissions are timestamps only, with no score or answer content. An absent row can mean nothing \
                 was submitted, or that a reset soft-deleted the submissions it would have come from - cross-check \
                 the resets facet before telling anyone an answer never saved. exercise_name absent means the exercise \
                 has since been deleted from the course. exercise_attempts is present only when exercise_id was \
-                passed; its absence means \"not requested\", never \"no attempts\".".to_string(),
-            );
+                passed; its absence means \"not requested\", never \"no attempts\". Each row's exercise_id links to \
+                {base_url}/manage/exercises/<exercise_id>/submissions, the exercise-wide submission view.",
+            ));
             if let Some(attempts) = &submissions.exercise_attempts {
                 notes.push(
                     "attempt_count sums submissions across all slides, but out_of_tries is decided by the worst \
@@ -493,7 +518,9 @@ impl ChatbotTool for UserCourseStateTool {
                 "in_review_stages only queries PeerReview, SelfReview, WaitingForPeerReviews and \
                 WaitingForManualGrading; it omits ReviewedAndLocked (reviewed, scored, and permanently unanswerable \
                 because the model solution was revealed) and the chapter-locking stages, so an empty list does not \
-                mean nothing is blocking the student - only a reset clears ReviewedAndLocked. NotStarted never \
+                mean nothing is blocking the student - only a reset clears ReviewedAndLocked, and the \
+                user-status-summary page above shows ReviewedAndLocked as the exercise's own state, so check there \
+                when this list is empty. NotStarted never \
                 appears here and is the answerable state; any listed stage means the student cannot submit. Who is \
                 blocking differs by stage: PeerReview/SelfReview waits on the student's own reviews, \
                 WaitingForPeerReviews waits on other students, WaitingForManualGrading waits on the teacher. \
@@ -517,6 +544,11 @@ impl ChatbotTool for UserCourseStateTool {
                 shown to the student verbatim in the course material as the reset notice, so treat it as \
                 user-facing text, not an internal field.".to_string(),
             );
+            notes.push(format!(
+                "{base_url}/manage/users/{} lists this student's exercise resets across every course, not just this \
+                one - a superset of this facet worth checking when a reset elsewhere might explain something here.",
+                self.state.user_id,
+            ));
             if !resets.resets.is_empty() {
                 notes.push(
                     "A reset soft-deletes the affected submissions, gradings, peer-review queue entries and \
@@ -540,6 +572,12 @@ impl ChatbotTool for UserCourseStateTool {
                 now. verification_id both verifies and grants access to the certificate image - only share it with \
                 the certificate's owner.".to_string(),
             );
+            notes.push(format!(
+                "{base_url}/manage/courses/{}/students/certificates?search={} lists this student's generated \
+                certificates (issued date, verification URL, certificate image) for cross-checking \
+                generated_certificates.",
+                self.state.course_id, self.state.output.user_email,
+            ));
             if certificates
                 .configurations
                 .iter()
@@ -562,6 +600,13 @@ impl ChatbotTool for UserCourseStateTool {
                 attainment itself, not that an external registry accepted it. registered_at is the row's own \
                 created_at, not the registration date shown to the student in the registry.".to_string(),
             );
+            notes.push(format!(
+                "{base_url}/manage/courses/{}/students/completions?search={} shows per-module grade and \
+                registration status for cross-checking, and \
+                {base_url}/manage/credit-registration/registrations?user_id={} is the richer per-user view \
+                (attempt chain, event timeline, API calls, attainment ids).",
+                self.state.course_id, self.state.output.user_email, self.state.user_id,
+            ));
         }
 
         if notes.is_empty() {

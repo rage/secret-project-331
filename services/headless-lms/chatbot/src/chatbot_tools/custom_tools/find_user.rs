@@ -31,6 +31,8 @@ pub type FindUserTool = ToolProperties<FindUserState>;
 pub struct FindUserState {
     matched_as: &'static str,
     candidates: Vec<UserCandidateOutput>,
+    base_url: String,
+    query: String,
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -183,10 +185,12 @@ impl ChatbotTool for FindUserTool {
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
-        _app_config: &ApplicationConfiguration,
+        app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
+        let base_url = app_config.base_url.trim_end_matches('/').to_string();
+        let query = arguments.query.clone();
         let (matched_as, details) = match arguments.kind {
             FindUserKind::UserId => ("user_id", find_by_user_id(conn, &arguments.query).await?),
             FindUserKind::UpstreamId => (
@@ -233,6 +237,8 @@ impl ChatbotTool for FindUserTool {
             state: FindUserState {
                 matched_as,
                 candidates,
+                base_url,
+                query,
             },
         })
     }
@@ -282,7 +288,10 @@ impl ChatbotTool for FindUserTool {
             .iter()
             .any(|c| c.upstream_id.is_none());
         if has_upstream_id && missing_upstream_id {
-            notes.push("upstream_id is the TMC/mooc.fi account id; some candidates have it and some don't, which is the classic duplicate-account shape (one TMC account, one local-only account) — check with the admin before picking one.".to_string());
+            notes.push(format!(
+                "upstream_id is the TMC/mooc.fi account id; some candidates have it and some don't, which is the classic duplicate-account shape (one TMC account, one local-only account) — check with the admin before picking one. The search-users page has no upstream_id column, so this can only be confirmed on each candidate's own page ({base_url}/manage/users/<user_id>).",
+                base_url = self.state.base_url
+            ));
         }
 
         if self
@@ -292,6 +301,20 @@ impl ChatbotTool for FindUserTool {
             .any(|c| c.email_verified_method.is_some())
         {
             notes.push("email_verified_at absent means the address was never proven and is auto-cleared on every email change, so it being absent right after an address correction is expected, not suspicious. email_verified_method strength ranges from real proof (EmailedCode, TmcConfirmed) through an inference (PasswordResetBackfill) down to AdminAsserted, which is only a human's assertion and may have been set by a support admin rather than the user.".to_string());
+        }
+
+        if !self.state.candidates.is_empty() {
+            let search_url =
+                url::Url::parse(&format!("{}/manage/search-users", self.state.base_url))
+                    .map(|mut u| {
+                        u.query_pairs_mut().append_pair("search", &self.state.query);
+                        u.to_string()
+                    })
+                    .unwrap_or_else(|_| self.state.base_url.clone());
+            notes.push(format!(
+                "{search_url} runs the same three searches this tool wraps — open it and compare its row set to the candidates listed here. Each candidate's own page, {base_url}/manage/users/<user_id>, is where to confirm the email before acting on that account id.",
+                base_url = self.state.base_url
+            ));
         }
 
         Some(notes.join(" "))

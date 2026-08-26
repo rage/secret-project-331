@@ -329,17 +329,30 @@ impl ConfirmableActionTool for ResetExercisesTool {
     fn output_description_instructions(
         arguments: &Self::Arguments,
         facts: Option<&Self::Facts>,
+        app_config: &ApplicationConfiguration,
     ) -> Option<String> {
+        let base_url = app_config.base_url.trim_end_matches('/');
+        let user_status_summary_url = format!(
+            "{base_url}/manage/courses/{}/user-status-summary/{}",
+            arguments.course_id, arguments.user_id
+        );
+        let user_page_url = format!("{base_url}/manage/users/{}", arguments.user_id);
+
         let mut notes = vec![
             "Confirm to the admin what was reset and remind them the user's previous submissions and points for those exercises are gone.".to_string(),
-            "This does not revoke module completions, grades or already-generated certificates -- the module can still show completed while points read 0.".to_string(),
+            format!(
+                "This does not revoke module completions, grades or already-generated certificates -- the module can still show completed while points read 0, which is visible at {user_status_summary_url} (points back to 0 and submissions cleared for the reset exercises, module completions unchanged)."
+            ),
             "Peer-review queue entries for the reset exercises were deleted (received reviews must be earned again) and the affected chapters were unlocked.".to_string(),
+            format!(
+                "The manual reset tool page shows nothing after a successful reset (it just clears its selection and shows a toast), so use {user_status_summary_url} to confirm the reset landed and {user_page_url} to see the reset log entry and the exact reason text the student sees."
+            ),
         ];
 
         if let Some(facts) = facts {
             if facts.actual_reset_count < facts.requested_count {
                 notes.push(format!(
-                    "Only {} of the {} requested exercises had a previous submission to reset -- a lower count, including 0, is normal and not a failure to retry.",
+                    "Only {} of the {} requested exercises had a previous submission to reset -- a lower count, including 0, is normal and not a failure to retry; check {user_status_summary_url} to see which exercises had nothing to reset.",
                     facts.actual_reset_count, facts.requested_count
                 ));
             }

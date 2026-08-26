@@ -84,10 +84,12 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
     /// Just-in-time instructions for the LLM on how to describe the outcome. `facts` is `None` on
     /// a declined answer (nothing executed) and `Some` after a successful [Self::execute], so
     /// instructions can be conditioned on what this call actually did instead of always
-    /// including everything that could ever be true.
+    /// including everything that could ever be true. `app_config` is available on both branches
+    /// (unlike `facts`) so a verification link can be offered even on a decline.
     fn output_description_instructions(
         arguments: &Self::Arguments,
         facts: Option<&Self::Facts>,
+        app_config: &ApplicationConfiguration,
     ) -> Option<String>;
 }
 

@@ -36,6 +36,8 @@ pub type UserOverviewTool = ToolProperties<UserOverviewState>;
 
 pub struct UserOverviewState {
     facets: IndexMap<String, UserOverviewFacetValue>,
+    base_url: String,
+    user_id: Uuid,
 }
 
 #[derive(serde::Serialize)]
@@ -236,10 +238,11 @@ impl ChatbotTool for UserOverviewTool {
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
-        _app_config: &ApplicationConfiguration,
+        app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
+        let base_url = app_config.base_url.trim_end_matches('/').to_string();
         let user_id = arguments.user_id;
         let user_detail = user_details::get_user_details_by_user_id(conn, user_id)
             .await
@@ -364,7 +367,11 @@ impl ChatbotTool for UserOverviewTool {
         }
 
         Ok(UserOverviewTool {
-            state: UserOverviewState { facets },
+            state: UserOverviewState {
+                facets,
+                base_url,
+                user_id,
+            },
         })
     }
 
@@ -374,7 +381,24 @@ impl ChatbotTool for UserOverviewTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        let mut notes = Vec::new();
+        let mut notes: Vec<String> = Vec::new();
+        let base_url = &self.state.base_url;
+        let user_id = self.state.user_id;
+
+        let has_profile = self
+            .state
+            .facets
+            .contains_key(UserOverviewFacet::Profile.wire_name());
+        let has_enrollments = self
+            .state
+            .facets
+            .contains_key(UserOverviewFacet::Enrollments.wire_name());
+        if has_profile || has_enrollments {
+            notes.push(format!(
+                "{base_url}/manage/users/{user_id} shows this user's enrollment list and profile \
+                 fields for cross-checking."
+            ));
+        }
 
         if let Some(UserOverviewFacetValue::CheatingFlags(flags)) = self
             .state
@@ -382,7 +406,23 @@ impl ChatbotTool for UserOverviewTool {
             .get(UserOverviewFacet::CheatingFlags.wire_name())
         {
             if !flags.is_empty() {
-                notes.push(
+                let tab = |status: &SuspectedCheaterStatus| match status {
+                    SuspectedCheaterStatus::Flagged => "suspected",
+                    SuspectedCheaterStatus::ConfirmedCheating => "confirmed",
+                    SuspectedCheaterStatus::Dismissed => "dismissed",
+                };
+                let course_links = flags
+                    .iter()
+                    .map(|f| {
+                        format!(
+                            "{base_url}/manage/courses/{}/other/cheaters/{}",
+                            f.course_id,
+                            tab(&f.status)
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                notes.push(format!(
                     "cheating_flags rows are not current suspicions: the list includes resolved \
                      cases. Only status 'Flagged' is awaiting review and actionable, and only via \
                      update_cheating_status (read that tool's own description before recommending \
@@ -390,8 +430,10 @@ impl ChatbotTool for UserOverviewTool {
                      flag reflects a system heuristic, not evidence of misconduct \u{2014} never \
                      quote, imply, or hint at a cheating suspicion in any text meant for the \
                      student. created_at is when the flag was first raised, not the latest status \
-                     change.",
-                );
+                     change. Verify at {base_url}/manage/users/{user_id}, and per flag at: \
+                     {course_links}. That per-course table is keyed by user_id only, with no name \
+                     or email column, so match on the UUID."
+                ));
             }
         }
 
@@ -401,7 +443,17 @@ impl ChatbotTool for UserOverviewTool {
             .get(UserOverviewFacet::Enrollments.wire_name())
         {
             if !enrollments.is_empty() {
-                notes.push(
+                let course_links = enrollments
+                    .iter()
+                    .map(|e| {
+                        format!(
+                            "{base_url}/manage/courses/{}/user-status-summary/{user_id}",
+                            e.course_id
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                notes.push(format!(
                     "enrollments.completed_modules_count counts completion rows, including failed \
                      and under-review ones, and can double-count a module completed twice for a \
                      grade improvement \u{2014} it is not the number of modules passed. \
@@ -412,8 +464,11 @@ impl ChatbotTool for UserOverviewTool {
                      instance_name 'Default' is the course's unnamed default instance, not missing \
                      data; multiple names mean multiple enrollments in the same course. Enrollments \
                      in deleted courses are silently omitted, so their absence here does not mean \
-                     the student was never enrolled.",
-                );
+                     the student was never enrolled. Per enrollment, the deeper per-course view is \
+                     at: {course_links} \u{2014} its \"X of Y modules\" figure is derived the same \
+                     way as completed_modules_count, so it is not an independent check of the \
+                     caveat above."
+                ));
             }
         }
 
@@ -421,11 +476,33 @@ impl ChatbotTool for UserOverviewTool {
             self.state.facets.get(UserOverviewFacet::Roles.wire_name())
         {
             if !roles.is_empty() {
-                notes.push(
+                let role_links = roles
+                    .iter()
+                    .map(|role| {
+                        if let Some(organization_id) = role.organization_id {
+                            format!("{base_url}/manage/organizations/{organization_id}/permissions")
+                        } else if let Some(course_id) = role.course_id {
+                            format!("{base_url}/manage/courses/{course_id}/permissions")
+                        } else if let Some(course_instance_id) = role.course_instance_id {
+                            format!(
+                                "{base_url}/manage/course-instances/{course_instance_id}/permissions"
+                            )
+                        } else if let Some(exam_id) = role.exam_id {
+                            format!("{base_url}/manage/exams/{exam_id}/permissions")
+                        } else {
+                            format!("{base_url}/manage/permissions")
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                notes.push(format!(
                     "roles.is_global true with no scope ids is a platform-wide role. UserRole \
                      values are distinct capabilities, not a seniority hierarchy. A role on the \
-                     course in question means this person is staff there, not a student.",
-                );
+                     course in question means this person is staff there, not a student. Verify \
+                     each row's scope at: {role_links} (built from that row's own scope id) \u{2014} \
+                     the user page's role badges carry no scope attribution, so scope can only be \
+                     confirmed on these pages."
+                ));
             }
         }
 
@@ -443,7 +520,8 @@ impl ChatbotTool for UserOverviewTool {
                      failing) from a send with no failure recorded (probably just landed in spam). \
                      failure_is_transient absent means nothing has failed, not that severity is \
                      unknown; last_attempt_at absent means no attempt has been made. This is only \
-                     the 20 most recent deliveries addressed to this account, not its full history.",
+                     the 20 most recent deliveries addressed to this account, not its full history."
+                        .to_string(),
                 );
             }
         }

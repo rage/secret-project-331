@@ -286,15 +286,31 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
     fn output_description_instructions(
         arguments: &Self::Arguments,
         _facts: Option<&()>,
+        app_config: &ApplicationConfiguration,
     ) -> Option<String> {
+        let base_url = app_config.base_url.trim_end_matches('/');
+        let tab = match arguments.decision {
+            CheatingDecision::Confirm => "confirmed",
+            CheatingDecision::Dismiss => "dismissed",
+        };
+
         let mut notes = vec![
             "Never put the suspicion into words meant for the student, and do not describe how the flag was raised -- it is an automatic system heuristic, not evidence of anything. Point at user_overview's cheating_flags entry for this case before recommending a decision, and never explain the flagging mechanism itself, to the student or in any text a student could see.".to_string(),
+            format!(
+                "Before deciding, the admin can review the case at {base_url}/manage/courses/{}/other/cheaters/suspected -- that table is keyed by user_id only, with no name or email column, so match it by UUID rather than the email shown elsewhere in the conversation.",
+                arguments.course_id
+            ),
         ];
 
         match arguments.decision {
-            CheatingDecision::Confirm => notes.push("Confirming fails every module completion the user has in this course (not just the one that triggered the flag) and moves the case to a terminal state this tool cannot undo.".to_string()),
-            CheatingDecision::Dismiss => notes.push("After a dismissal, the student-visible effect is simply that their completion, grade and certificate become available again -- describe it that way, not as a cheating suspicion being cleared.".to_string()),
+            CheatingDecision::Confirm => notes.push(format!("Confirming fails every module completion the user has in this course (not just the one that triggered the flag) and moves the case to a terminal state this tool cannot undo -- the row now shows at {base_url}/manage/courses/{}/other/cheaters/{tab}.", arguments.course_id)),
+            CheatingDecision::Dismiss => notes.push(format!("After a dismissal, the student-visible effect is simply that their completion, grade and certificate become available again -- describe it that way, not as a cheating suspicion being cleared. The row now shows at {base_url}/manage/courses/{}/other/cheaters/{tab}.", arguments.course_id)),
         }
+
+        notes.push(format!(
+            "{base_url}/manage/users/{} shows this user's cheating-flag status across every course, for cross-course context.",
+            arguments.user_id
+        ));
 
         Some(notes.join(" "))
     }

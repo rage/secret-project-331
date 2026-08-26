@@ -537,6 +537,7 @@ macro_rules! chatbot_tool_registry {
                         let instructions = <$action_tool as ConfirmableActionTool>::output_description_instructions(
                             &parsed_arguments,
                             None,
+                            app_config,
                         );
                         return Ok(ActionToolOutcome {
                             output: delimited_tool_output(
@@ -557,6 +558,7 @@ macro_rules! chatbot_tool_registry {
                     let instructions = <$action_tool as ConfirmableActionTool>::output_description_instructions(
                         &parsed_arguments,
                         Some(&facts),
+                        app_config,
                     );
 
                     headless_lms_models::chatbot_action_logs::insert(

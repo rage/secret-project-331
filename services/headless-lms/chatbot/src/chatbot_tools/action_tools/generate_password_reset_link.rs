@@ -185,12 +185,18 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
     }
 
     fn output_description_instructions(
-        _arguments: &Self::Arguments,
+        arguments: &Self::Arguments,
         facts: Option<&Self::Facts>,
+        app_config: &ApplicationConfiguration,
     ) -> Option<String> {
+        let base_url = app_config.base_url.trim_end_matches('/');
         let mut notes = vec![
             "Tell the admin the link is shown above for copy-paste into their reply, that it invalidates any earlier reset link, and to send it only to the account's own email address, after confirming the requester is the account holder.".to_string(),
-            "The link expires one hour after being generated and is single-use -- tell the admin to send it right away, and to re-run this tool if the student comes back after it has lapsed rather than trying to reuse or recover the old one.".to_string(),
+            format!(
+                "Point the admin to {base_url}/manage/users/{} to confirm this is the right account and that the address they are about to send the link to is the one on the account -- not as a place to find the link itself.",
+                arguments.user_id
+            ),
+            "The link expires one hour after being generated and is single-use -- tell the admin to send it right away, and to re-run this tool if the student comes back after it has lapsed rather than trying to reuse or recover the old one. There is no admin page that lists outstanding reset links, which is why that expiry and the invalidate-on-regenerate behavior have to be stated here rather than looked up.".to_string(),
             "You never see the link itself and must not claim to know it or offer to repeat it.".to_string(),
         ];
 

@@ -28,6 +28,7 @@ pub type FindCourseTool = ToolProperties<FindCourseState>;
 
 pub struct FindCourseState {
     candidates: Vec<CourseCandidate>,
+    base_url: String,
 }
 
 struct CourseCandidate {
@@ -165,10 +166,11 @@ impl ChatbotTool for FindCourseTool {
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
-        _app_config: &ApplicationConfiguration,
+        app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
+        let base_url = app_config.base_url.trim_end_matches('/').to_string();
         let query = arguments.query;
 
         let courses = if let Ok(course_id) = Uuid::from_str(&query) {
@@ -206,7 +208,10 @@ impl ChatbotTool for FindCourseTool {
         }
 
         Ok(FindCourseTool {
-            state: FindCourseState { candidates },
+            state: FindCourseState {
+                candidates,
+                base_url,
+            },
         })
     }
 
@@ -222,6 +227,7 @@ impl ChatbotTool for FindCourseTool {
 
     fn output_description_instructions(&self) -> Option<String> {
         let candidates = &self.state.candidates;
+        let base_url = &self.state.base_url;
         let mut notes = vec![
             "If several courses match (e.g. language versions of the same course — compare \
              language_code), ask the admin which one before proceeding. The instance contact \
@@ -229,6 +235,23 @@ impl ChatbotTool for FindCourseTool {
              fresher source."
                 .to_string(),
         ];
+
+        if !candidates.is_empty() {
+            let overview_links = candidates
+                .iter()
+                .map(|c| {
+                    format!(
+                        "{} ({}): {base_url}/manage/courses/{}/overview",
+                        c.course.name, c.course.language_code, c.course.id
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            notes.push(format!(
+                "Course overview pages, to confirm you and the admin are looking at the same \
+                 course: {overview_links}."
+            ));
+        }
 
         if candidates.is_empty() {
             notes.push(
@@ -299,22 +322,30 @@ impl ChatbotTool for FindCourseTool {
             );
         }
 
-        let mut name_to_languages: std::collections::HashMap<
-            &str,
-            std::collections::HashSet<&str>,
-        > = std::collections::HashMap::new();
+        let mut name_to_candidates: std::collections::HashMap<&str, Vec<&CourseCandidate>> =
+            std::collections::HashMap::new();
         for candidate in candidates {
-            name_to_languages
+            name_to_candidates
                 .entry(candidate.course.name.as_str())
                 .or_default()
-                .insert(candidate.course.language_code.as_str());
+                .push(candidate);
         }
-        if name_to_languages.values().any(|langs| langs.len() >= 2) {
-            notes.push(
+        if let Some(ambiguous) = name_to_candidates.values().find(|group| {
+            group
+                .iter()
+                .map(|c| c.course.language_code.as_str())
+                .collect::<std::collections::HashSet<_>>()
+                .len()
+                >= 2
+        }) {
+            // Any candidate id in the group works: the language-versions page lists the whole sibling set.
+            let representative_id = ambiguous[0].course.id;
+            notes.push(format!(
                 "Some results share a name but differ in language_code — these are separate \
-                 course rows, and a student's progress lives in exactly one of them."
-                    .to_string(),
-            );
+                 course rows, and a student's progress lives in exactly one of them. \
+                 {base_url}/manage/courses/{representative_id}/language-versions lists the \
+                 whole sibling set side by side."
+            ));
         }
 
         Some(notes.join(" "))

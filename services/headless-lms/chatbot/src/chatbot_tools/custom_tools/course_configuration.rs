@@ -40,6 +40,8 @@ pub type CourseConfigurationTool = ToolProperties<CourseConfigurationState>;
 
 pub struct CourseConfigurationState {
     facets: IndexMap<String, CourseConfigurationFacetValue>,
+    base_url: String,
+    course_id: Uuid,
 }
 
 #[derive(serde::Serialize)]
@@ -331,6 +333,7 @@ impl ChatbotTool for CourseConfigurationTool {
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let course_id = arguments.course_id;
+        let base_url = app_config.base_url.trim_end_matches('/').to_string();
         let course = courses::get_course(conn, course_id).await.map_err(|e| {
             chatbot_err!(
                 ToolUseError,
@@ -541,7 +544,11 @@ impl ChatbotTool for CourseConfigurationTool {
         }
 
         Ok(CourseConfigurationTool {
-            state: CourseConfigurationState { facets },
+            state: CourseConfigurationState {
+                facets,
+                base_url,
+                course_id,
+            },
         })
     }
 
@@ -594,6 +601,13 @@ impl ChatbotTool for CourseConfigurationTool {
                  certificate_configuration must also reference the module."
                     .to_string(),
             );
+            notes.push(format!(
+                "Modules can be reviewed at {base_url}/manage/courses/{course_id}/modules, \
+                 though that page renders completion_policy as an automatic-completion checkbox \
+                 rather than a named policy and shows no certificate settings.",
+                base_url = self.state.base_url,
+                course_id = self.state.course_id
+            ));
         }
 
         if let Some(CourseConfigurationFacetValue::Certificates(certs)) = facets.get("certificates")
@@ -628,6 +642,11 @@ impl ChatbotTool for CourseConfigurationTool {
                      and over-reports on a multi-exam course."
                         .to_string(),
                 );
+                notes.push(format!(
+                    "Each exam can be reviewed at {}/manage/exams/<exam_id>; that page does not \
+                     show modules_that_require_this_exam_for_automatic_completion.",
+                    self.state.base_url
+                ));
             }
             if exams.iter().any(|e| e.ends_at.is_none()) {
                 notes.push(
@@ -645,6 +664,14 @@ impl ChatbotTool for CourseConfigurationTool {
                  shown here, so a \"locked chapter\" complaint can come from either mechanism."
                     .to_string(),
             );
+            notes.push(format!(
+                "chapter_locking_enabled can be checked in the Edit dialog at \
+                 {base_url}/manage/courses/{course_id}/overview; chapter opens_at and deadline \
+                 can be checked at {base_url}/manage/courses/{course_id}/pages, inside each \
+                 chapter's own edit dialog rather than the chapter list itself.",
+                base_url = self.state.base_url,
+                course_id = self.state.course_id
+            ));
             if schedule.chapters.iter().any(|c| c.opens_at.is_none()) {
                 notes.push(
                     "A chapter with opens_at absent is always open, not \"opening date \
@@ -716,6 +743,14 @@ impl ChatbotTool for CourseConfigurationTool {
                         .to_string(),
                 );
             }
+            notes.push(format!(
+                "Peer-review settings can be checked at \
+                 {base_url}/cms/courses/{course_id}/default-peer-review, and \
+                 flagged_answers_threshold / flagged_answers_skip_manual_review_and_allow_retry \
+                 in the Edit dialog at {base_url}/manage/courses/{course_id}/overview.",
+                base_url = self.state.base_url,
+                course_id = self.state.course_id
+            ));
         }
 
         if let Some(CourseConfigurationFacetValue::Policies(policies)) = facets.get("policies") {
@@ -749,6 +784,15 @@ impl ChatbotTool for CourseConfigurationTool {
                         .to_string(),
                 );
             }
+            notes.push(format!(
+                "closed_at, closed_additional_message, closed_course_successor_id, is_draft, \
+                 is_test_mode, is_unlisted, is_joinable_by_code_only and ai_policy can be \
+                 checked in the Edit dialog at {base_url}/manage/courses/{course_id}/overview; \
+                 cheater_detection_enabled instead shows up as per-module thresholds at \
+                 {base_url}/manage/courses/{course_id}/other/cheaters.",
+                base_url = self.state.base_url,
+                course_id = self.state.course_id
+            ));
         }
 
         if let Some(CourseConfigurationFacetValue::Staff(staff)) = facets.get("staff") {
@@ -766,6 +810,20 @@ impl ChatbotTool for CourseConfigurationTool {
                      Error variant is a note to look the code up by hand, not a failed tool call."
                         .to_string(),
                 );
+            }
+            if staff
+                .role_based_staff
+                .iter()
+                .any(|r| r.scope == "course" || r.scope == "course_instance")
+            {
+                notes.push(format!(
+                    "role_based_staff rows scoped to \"course\" or \"course_instance\" can be \
+                     checked at {base_url}/manage/courses/{course_id}/permissions; the \
+                     organization-scoped rows here aren't on that page, and this facet carries \
+                     no organization id to link to those.",
+                    base_url = self.state.base_url,
+                    course_id = self.state.course_id
+                ));
             }
         }
 

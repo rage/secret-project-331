@@ -282,9 +282,15 @@ impl ConfirmableActionTool for EditUserAccountTool {
     fn output_description_instructions(
         arguments: &Self::Arguments,
         _facts: Option<&Self::Facts>,
+        app_config: &ApplicationConfiguration,
     ) -> Option<String> {
+        let base_url = app_config.base_url.trim_end_matches('/');
         let mut notes = vec![
             "State the old and new values back to the admin. If the change was refused because the address belongs to another account, suggest comparing the two accounts' enrollments (user_overview) instead -- this tool cannot merge accounts and progress does not follow the address.".to_string(),
+            format!(
+                "No admin page can make this change -- this tool is the only way to edit another user's email or verification state -- so tell the admin to open {base_url}/manage/users/{} and confirm the address and the verification badge now read what you asked for.",
+                arguments.user_id
+            ),
         ];
 
         let email_changed = arguments.new_email.is_some();
@@ -293,7 +299,7 @@ impl ConfirmableActionTool for EditUserAccountTool {
             notes.push("Changing the email clears the account's verification automatically, so unless verify was also requested the account is now unverified and will be asked to re-confirm the address.".to_string());
         }
         if verify_requested {
-            notes.push("Marking the email verified this way records the admin's own assertion, not proof the user controls the address -- the weakest of the platform's verification methods.".to_string());
+            notes.push("Marking the email verified this way records the admin's own assertion, not proof the user controls the address -- the weakest of the platform's verification methods, and the user page shows only the verified badge and its timestamp, not the method, so this distinction is invisible there and this reply is the only record of it.".to_string());
         }
         if matches!(arguments.verification_change, VerificationChange::Unverify) {
             notes.push("Clearing verification breaks any flow gated on it (e.g. verification-only emails) -- don't do this casually.".to_string());

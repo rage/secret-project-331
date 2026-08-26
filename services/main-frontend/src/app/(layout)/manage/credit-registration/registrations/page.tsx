@@ -229,6 +229,7 @@ const RegistrationsPage: React.FC = () => {
                       <Link href={creditRegistrationItemRoute(row.id)} prefetch={false}>
                         <AdminStateBadge
                           state={row.state}
+                          pendingReason={row.pending_reason}
                           superseded={row.superseded}
                           attemptNumber={row.attempt_number}
                         />

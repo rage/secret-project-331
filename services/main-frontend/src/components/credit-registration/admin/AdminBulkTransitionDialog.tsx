@@ -4,19 +4,17 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { adminBulkTransitionCreditRegistrations } from "@/generated/api/sdk.generated"
-import type {
-  AdminBulkTransitionResult,
-  AdminCreditRegistrationTransitionTarget,
-} from "@/generated/api/types.generated"
+import type { AdminBulkTransitionResult } from "@/generated/api/types.generated"
 import { Infobox } from "@/shared-module/components"
 
 import { TONE } from "../constants"
+import { refusalSentence } from "../resubmissionRefusal"
 import { noteCss } from "../styles"
 import { AdminActionDialog } from "./AdminActionDialog"
-import { bulkSkipLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAttentionItems } from "./adminCreditRegistrationHooks"
 import { ReasonField } from "./ReasonConfirmDialog"
-import { READY_TO_SUBMIT, TransitionTargetSelect } from "./TransitionTargetSelect"
+import type { TransitionChoice } from "./TransitionTargetSelect"
+import { READY_TO_SUBMIT, transitionAction, TransitionTargetSelect } from "./TransitionTargetSelect"
 
 interface Props {
   selectedIds: string[]
@@ -24,7 +22,7 @@ interface Props {
 }
 
 interface Fields {
-  to_state: AdminCreditRegistrationTransitionTarget
+  action: TransitionChoice
   reason: string
 }
 
@@ -45,11 +43,11 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedIds, onApplied }) 
       dialogTitle={t("credit-registration-admin-bulk-transition-title", {
         count: selectedIds.length,
       })}
-      defaultValues={{ to_state: READY_TO_SUBMIT, reason: "" }}
+      defaultValues={{ action: READY_TO_SUBMIT, reason: "" }}
       mutationFn={(fields) =>
         adminBulkTransitionCreditRegistrations({
           body: {
-            to_state: fields.to_state,
+            action: transitionAction(fields.action),
             credit_registration_ids: selectedIds,
             reason: fields.reason,
           },
@@ -75,10 +73,10 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedIds, onApplied }) 
         >
           <p>{t("credit-registration-admin-bulk-applied", { count: result.applied_count })}</p>
           {result.skipped.map((skip) => (
-            <p key={skip.reason}>
+            <p key={skip.refusal}>
               {t("credit-registration-admin-bulk-skipped", {
                 count: skip.count,
-                reason: bulkSkipLabel(t, skip.reason),
+                reason: refusalSentence(t, skip.refusal),
               })}
             </p>
           ))}

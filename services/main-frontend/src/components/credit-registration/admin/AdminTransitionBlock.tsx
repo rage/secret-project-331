@@ -12,23 +12,29 @@ import {
 import { adminTransitionCreditRegistration } from "@/generated/api/sdk.generated"
 import type {
   AdminCreditRegistrationRow,
-  AdminCreditRegistrationTransitionTarget,
   AdminTransitionCreditRegistrationResult,
 } from "@/generated/api/types.generated"
 import { Infobox } from "@/shared-module/components"
 
 import { TONE } from "../constants"
+import { refusalSentence } from "../resubmissionRefusal"
 import { noteCss } from "../styles"
 import { AdminActionDialog } from "./AdminActionDialog"
 import { ReasonField } from "./ReasonConfirmDialog"
-import { CHECK_NOW, READY_TO_SUBMIT, TransitionTargetSelect } from "./TransitionTargetSelect"
+import type { TransitionChoice } from "./TransitionTargetSelect"
+import {
+  CHECK_NOW,
+  READY_TO_SUBMIT,
+  transitionAction,
+  TransitionTargetSelect,
+} from "./TransitionTargetSelect"
 
 interface Props {
   registration: AdminCreditRegistrationRow
 }
 
 interface Fields {
-  to_state: AdminCreditRegistrationTransitionTarget
+  action: TransitionChoice
   reason: string
 }
 
@@ -37,9 +43,9 @@ const SUBMISSION_UNCERTAIN = "submission_uncertain"
 // oxlint-disable-next-line i18next/no-literal-string
 const APPLIED = "applied" as const
 // oxlint-disable-next-line i18next/no-literal-string
-const REFUSED_WITHOUT_CONSENT = "refused_without_consent" as const
+const REFUSED = "refused" as const
 
-/** A resubmit is refused without consent, which is the case `misregistered` creates. */
+/** The hand actions an admin has on one row; a refused one comes back saying why. */
 const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -52,10 +58,10 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
     finished: AdminTransitionCreditRegistrationResult,
     fields: Fields,
   ): string => {
-    if (finished.outcome === REFUSED_WITHOUT_CONSENT) {
-      return t("credit-registration-admin-transition-refused-without-consent")
+    if (finished.outcome === REFUSED) {
+      return refusalSentence(t, finished.refusal)
     }
-    if (fields.to_state === CHECK_NOW) {
+    if (fields.action === CHECK_NOW) {
       return t("credit-registration-admin-check-now-applied")
     }
     return t("credit-registration-admin-transition-applied", { state: finished.state })
@@ -69,11 +75,11 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
       <AdminActionDialog<Fields, AdminTransitionCreditRegistrationResult>
         triggerLabel={t("button-text-credit-registration-transition")}
         dialogTitle={t("button-text-credit-registration-transition")}
-        defaultValues={{ to_state: READY_TO_SUBMIT, reason: "" }}
+        defaultValues={{ action: READY_TO_SUBMIT, reason: "" }}
         mutationFn={(fields) =>
           adminTransitionCreditRegistration({
             path: { credit_registration_id: registration.id },
-            body: { to_state: fields.to_state, reason: fields.reason },
+            body: { action: transitionAction(fields.action), reason: fields.reason },
           })
         }
         onSuccess={() => {

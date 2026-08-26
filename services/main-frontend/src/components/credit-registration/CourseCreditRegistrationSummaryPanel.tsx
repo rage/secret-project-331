@@ -53,7 +53,7 @@ const moduleHeaderCss = css`
 `
 
 // oxlint-disable-next-line i18next/no-literal-string
-const WAITING_FOR_STUDENT_NUMBER = "pending_student_number" as const
+const WAITING_FOR_STUDENT_NUMBER = "needs_student_number" as const
 
 const actionsRowCss = css`
   display: flex;
@@ -169,7 +169,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
             {showBlocked && (
               <BlockedStudentsDialog
                 courseId={courseId}
-                state={WAITING_FOR_STUDENT_NUMBER}
+                status={WAITING_FOR_STUDENT_NUMBER}
                 title={t("label-credit-registration-unlinked-consented-students")}
                 open={showBlocked}
                 onClose={() => setShowBlocked(false)}

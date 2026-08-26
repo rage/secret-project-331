@@ -96,6 +96,7 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
       <div className={headerRowCss}>
         <AdminStateBadge
           state={row.state}
+          pendingReason={row.pending_reason}
           superseded={row.superseded}
           attemptNumber={row.attempt_number}
         />
@@ -212,6 +213,7 @@ const AttemptChainSection: React.FC<{ attempts: AdminCreditRegistrationRow[] }> 
           <Link key={attempt.id} href={creditRegistrationItemRoute(attempt.id)}>
             <AdminStateBadge
               state={attempt.state}
+              pendingReason={attempt.pending_reason}
               superseded={attempt.superseded}
               attemptNumber={attempt.attempt_number}
             />

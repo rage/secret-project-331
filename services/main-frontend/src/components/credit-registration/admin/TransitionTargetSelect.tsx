@@ -3,7 +3,7 @@
 import type { Control, FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { AdminCreditRegistrationTransitionTarget } from "@/generated/api/types.generated"
+import type { AdminCreditRegistrationAction } from "@/generated/api/types.generated"
 import { Select } from "@/shared-module/components"
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -14,9 +14,23 @@ export const CANCELLED = "cancelled" as const
 export const CLEAR_ATTENTION = "clear_needs_admin_attention" as const
 // oxlint-disable-next-line i18next/no-literal-string
 export const CHECK_NOW = "check_now" as const
+// oxlint-disable-next-line i18next/no-literal-string
+const STATE_MOVE = "state_move" as const
+
+/** A dropdown carries one flat value, so the tagged shape the endpoint wants is rebuilt on submit. */
+export type TransitionChoice =
+  | typeof READY_TO_SUBMIT
+  | typeof CANCELLED
+  | typeof CLEAR_ATTENTION
+  | typeof CHECK_NOW
+
+export const transitionAction = (choice: TransitionChoice): AdminCreditRegistrationAction =>
+  choice === CLEAR_ATTENTION || choice === CHECK_NOW
+    ? { kind: choice }
+    : { kind: STATE_MOVE, to_state: choice }
 
 interface TransitionFields extends FieldValues {
-  to_state: AdminCreditRegistrationTransitionTarget
+  action: TransitionChoice
 }
 
 interface TransitionTargetSelectProps<T extends TransitionFields> {
@@ -30,7 +44,7 @@ export function TransitionTargetSelect<T extends TransitionFields>({
   const { t } = useTranslation()
   return (
     <Select
-      name={"to_state" as Path<T>}
+      name={"action" as Path<T>}
       control={control}
       label={t("label-credit-registration-transition-target")}
       options={[

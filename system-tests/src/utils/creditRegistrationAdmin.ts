@@ -396,7 +396,10 @@ export const makeRegistrationDueNow = async (
 ): Promise<void> => {
   const url = adminRegistrationTransitionUrl(registrationId)
   const response = await request.post(url, {
-    data: { to_state: "check_now", reason: "System test: check without waiting out the backoff." },
+    data: {
+      action: { kind: "check_now" },
+      reason: "System test: check without waiting out the backoff.",
+    },
   })
   if (!response.ok()) {
     throw new Error(`POST ${url} answered ${response.status()}: ${await response.text()}`)

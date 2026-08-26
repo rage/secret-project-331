@@ -6,14 +6,14 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import type { CreditRegistrationState } from "@/generated/api/types.generated"
+import type { StudentFacingCreditRegistrationStatus } from "@/generated/api/types.generated"
 import { Badge, Button, Dialog, QueryResult } from "@/shared-module/components"
 
 import { linkingEmailSentence } from "./teacherCreditRegistrations"
 
 interface Props {
   courseId: string
-  state: CreditRegistrationState
+  status: StudentFacingCreditRegistrationStatus
   title: string
   open: boolean
   onClose: () => void
@@ -58,13 +58,18 @@ const pagerCss = css`
 // oxlint-disable-next-line i18next/no-literal-string
 const NUMBER_TONE = "neutral" as const
 
-const BlockedStudentsDialog: React.FC<Props> = ({ courseId, state, title, open, onClose }) => {
+// One ledger state covers every blocker, so the blocker itself is filtered for here. Paging stays
+// the server's, so a page can come back with nothing on it.
+// oxlint-disable-next-line i18next/no-literal-string
+const PENDING = "pending" as const
+
+const BlockedStudentsDialog: React.FC<Props> = ({ courseId, status, title, open, onClose }) => {
   const { t, i18n } = useTranslation()
   const [page, setPage] = useState(1)
   const listQuery = useQuery({
     ...getCourseCreditRegistrationsOptions({
       path: { course_id: courseId },
-      query: { page, limit: PAGE_SIZE, state },
+      query: { page, limit: PAGE_SIZE, state: PENDING },
     }),
     enabled: open,
   })
@@ -75,28 +80,30 @@ const BlockedStudentsDialog: React.FC<Props> = ({ courseId, state, title, open, 
         {(list) => (
           <>
             <ul className={listCss}>
-              {list.data.map((row) => (
-                <li className={rowCss} key={row.id}>
-                  <div className={identityCss}>
-                    <span>
-                      {row.last_name} {row.first_name}
-                    </span>
-                    <span className={secondaryCss}>{row.email}</span>
-                    {row.student_number && <Badge tone={NUMBER_TONE}>{row.student_number}</Badge>}
-                  </div>
-                  {row.linking_email && (
-                    <div className={secondaryCss}>
-                      {linkingEmailSentence(
-                        t,
-                        row.linking_email.email_send_status,
-                        row.linking_email.sent_at,
-                        row.linking_email.emailed_to_masked,
-                        i18n.language,
-                      )}
+              {list.data
+                .filter((row) => row.student_facing_status === status)
+                .map((row) => (
+                  <li className={rowCss} key={row.id}>
+                    <div className={identityCss}>
+                      <span>
+                        {row.last_name} {row.first_name}
+                      </span>
+                      <span className={secondaryCss}>{row.email}</span>
+                      {row.student_number && <Badge tone={NUMBER_TONE}>{row.student_number}</Badge>}
                     </div>
-                  )}
-                </li>
-              ))}
+                    {row.linking_email && (
+                      <div className={secondaryCss}>
+                        {linkingEmailSentence(
+                          t,
+                          row.linking_email.email_send_status,
+                          row.linking_email.sent_at,
+                          row.linking_email.emailed_to_masked,
+                          i18n.language,
+                        )}
+                      </div>
+                    )}
+                  </li>
+                ))}
             </ul>
             <div className={pagerCss}>
               <Button

@@ -211,7 +211,10 @@ test("A teacher of another course cannot read this course's registration", async
     expect(asAdmin.status()).toBe(403)
 
     const transition = await page.request.post(adminRegistrationTransitionUrl(own.id), {
-      data: { to_state: "cancelled", reason: "System test: a teacher is not an admin." },
+      data: {
+        action: { kind: "state_move", to_state: "cancelled" },
+        reason: "System test: a teacher is not an admin.",
+      },
     })
     expect(transition.status()).toBe(403)
 

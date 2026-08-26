@@ -37,9 +37,7 @@ const YEAR_DAYS = "365"
  * new one added to the backend enum fails the build here instead of silently vanishing from the chart.
  */
 const IS_QUEUE_STATE = {
-  pending_prerequisites: true,
-  pending_consent: true,
-  pending_student_number: true,
+  pending: true,
   ready_to_submit: true,
   resolving_enrolment: true,
   checking_enrolment: true,

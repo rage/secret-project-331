@@ -61,8 +61,6 @@ const chipCss = css`
   color: inherit;
 `
 
-const secondsSince = (from: string): number => (Date.now() - new Date(from).getTime()) / 1000
-
 const StateSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ overview }) => {
   const { t } = useTranslation()
   const rows = overview.counts_by_state.toSorted((a, b) => b.count - a.count)
@@ -89,6 +87,13 @@ const StateSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ over
               </Link>
             ))}
           </div>
+          <p className={noteCss}>
+            {t("credit-registration-admin-pending-by-reason", {
+              completion: overview.pending_by_reason.completion_count,
+              consent: overview.pending_by_reason.consent_count,
+              studentNumber: overview.pending_by_reason.student_number_count,
+            })}
+          </p>
           <p className={noteCss}>
             {t("credit-registration-admin-live-rows-total", { total, success })}
           </p>
@@ -122,10 +127,7 @@ const AttentionSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ 
           value={
             oldest
               ? t("credit-registration-admin-days", {
-                  count: Math.max(
-                    0,
-                    Math.trunc(secondsSince(oldest.state_entered_at) / SECONDS_PER_DAY),
-                  ),
+                  count: Math.max(0, Math.trunc(oldest.seconds_in_state / SECONDS_PER_DAY)),
                 })
               : ABSENT
           }

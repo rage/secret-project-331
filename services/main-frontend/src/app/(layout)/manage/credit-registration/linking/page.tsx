@@ -33,7 +33,7 @@ import { Badge, Meter, QueryResult, StatTile, Table } from "@/shared-module/comp
 const WINDOW_DAYS = 30
 const STUDENT_NUMBER_PAGE_SIZE = 25
 // oxlint-disable-next-line i18next/no-literal-string
-const WAITING_QUERY = "?state=pending_student_number"
+const WAITING_QUERY = "?state=pending"
 // oxlint-disable-next-line i18next/no-literal-string
 const ADMIN_MANUAL = "admin_manual"
 // oxlint-disable-next-line i18next/no-literal-string
@@ -371,18 +371,15 @@ const StaleAddressSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }
               header: t("label-credit-registration-addresses-tried"),
               cell: (row) => (
                 <ul className={listCss}>
-                  {row.addresses.map((address, index) => {
-                    const status = row.send_statuses[index] ?? SEND_FAILED
-                    return (
-                      <li key={address}>
-                        {address}
-                        {MIDDLE_DOT}
-                        <Badge tone={status === SEND_FAILED ? TONE.WARNING : TONE.NEUTRAL}>
-                          {sendStatusLabel(t, status)}
-                        </Badge>
-                      </li>
-                    )
-                  })}
+                  {row.sends.map((send) => (
+                    <li key={send.address}>
+                      {send.address}
+                      {MIDDLE_DOT}
+                      <Badge tone={send.send_status === SEND_FAILED ? TONE.WARNING : TONE.NEUTRAL}>
+                        {sendStatusLabel(t, send.send_status)}
+                      </Badge>
+                    </li>
+                  ))}
                 </ul>
               ),
             },

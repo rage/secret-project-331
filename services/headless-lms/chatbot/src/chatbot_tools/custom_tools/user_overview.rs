@@ -374,12 +374,84 @@ impl ChatbotTool for UserOverviewTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some(
-            "cheating_flags is strictly internal: never quote, imply, or hint at a cheating \
-             suspicion in any text meant for the student. When summarizing email_deliveries, \
-             distinguish 'delivery keeps failing' (bounce-like failure_code) from 'sent fine, \
-             probably in spam'."
-                .to_string(),
-        )
+        let mut notes = Vec::new();
+
+        if let Some(UserOverviewFacetValue::CheatingFlags(flags)) = self
+            .state
+            .facets
+            .get(UserOverviewFacet::CheatingFlags.wire_name())
+        {
+            if !flags.is_empty() {
+                notes.push(
+                    "cheating_flags rows are not current suspicions: the list includes resolved \
+                     cases. Only status 'Flagged' is awaiting review and actionable, and only via \
+                     update_cheating_status (read that tool's own description before recommending \
+                     any action); 'ConfirmedCheating' and 'Dismissed' are terminal, closed cases. A \
+                     flag reflects a system heuristic, not evidence of misconduct \u{2014} never \
+                     quote, imply, or hint at a cheating suspicion in any text meant for the \
+                     student. created_at is when the flag was first raised, not the latest status \
+                     change.",
+                );
+            }
+        }
+
+        if let Some(UserOverviewFacetValue::Enrollments(enrollments)) = self
+            .state
+            .facets
+            .get(UserOverviewFacet::Enrollments.wire_name())
+        {
+            if !enrollments.is_empty() {
+                notes.push(
+                    "enrollments.completed_modules_count counts completion rows, including failed \
+                     and under-review ones, and can double-count a module completed twice for a \
+                     grade improvement \u{2014} it is not the number of modules passed. \
+                     completions_needing_review_count > 0 is internal and explains a missing or \
+                     delayed certificate; never surface it to the student. is_current reflects which \
+                     language version of the course the user last selected, not whether they are \
+                     currently enrolled \u{2014} is_current: false can still be an active enrollment. \
+                     instance_name 'Default' is the course's unnamed default instance, not missing \
+                     data; multiple names mean multiple enrollments in the same course. Enrollments \
+                     in deleted courses are silently omitted, so their absence here does not mean \
+                     the student was never enrolled.",
+                );
+            }
+        }
+
+        if let Some(UserOverviewFacetValue::Roles(roles)) =
+            self.state.facets.get(UserOverviewFacet::Roles.wire_name())
+        {
+            if !roles.is_empty() {
+                notes.push(
+                    "roles.is_global true with no scope ids is a platform-wide role. UserRole \
+                     values are distinct capabilities, not a seniority hierarchy. A role on the \
+                     course in question means this person is staff there, not a student.",
+                );
+            }
+        }
+
+        if let Some(UserOverviewFacetValue::EmailDeliveries(deliveries)) = self
+            .state
+            .facets
+            .get(UserOverviewFacet::EmailDeliveries.wire_name())
+        {
+            if !deliveries.is_empty() {
+                notes.push(
+                    "email_deliveries.status: 'Sent' means handed to the mail relay, not confirmed \
+                     delivered; 'Queued' has not been handed over yet; 'Retrying' has failed at \
+                     least once but is still within the 3-day retry window; 'SendFailed' means \
+                     retries have stopped. Distinguish a recurring failure_code (delivery keeps \
+                     failing) from a send with no failure recorded (probably just landed in spam). \
+                     failure_is_transient absent means nothing has failed, not that severity is \
+                     unknown; last_attempt_at absent means no attempt has been made. This is only \
+                     the 20 most recent deliveries addressed to this account, not its full history.",
+                );
+            }
+        }
+
+        if notes.is_empty() {
+            None
+        } else {
+            Some(notes.join(" "))
+        }
     }
 }

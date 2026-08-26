@@ -221,12 +221,102 @@ impl ChatbotTool for FindCourseTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some(
+        let candidates = &self.state.candidates;
+        let mut notes = vec![
             "If several courses match (e.g. language versions of the same course — compare \
              language_code), ask the admin which one before proceeding. The instance contact \
              emails shown here may be stale; the course_configuration tool's staff facet is the \
              fresher source."
                 .to_string(),
-        )
+        ];
+
+        if candidates.is_empty() {
+            notes.push(
+                "No courses matched. This means either nothing matched the query, or the \
+                 course was deleted (deleted courses are excluded from this search)."
+                    .to_string(),
+            );
+        }
+
+        if candidates.len() == MAX_CANDIDATES as usize {
+            notes.push(format!(
+                "Results are capped at {MAX_CANDIDATES} and ordered exact slug match > name \
+                 substring > fuzzy match; there may be more matching courses that were \
+                 silently truncated from this list."
+            ));
+        }
+
+        if candidates
+            .iter()
+            .any(|c| c.course.is_test_mode || c.course.is_draft)
+        {
+            notes.push(
+                "Some results have is_test_mode or is_draft set. A test-mode course is a \
+                 staff testing copy and a draft course is unpublished — neither is the course \
+                 a student is asking about."
+                    .to_string(),
+            );
+        }
+
+        if candidates.iter().any(|c| c.course.closed_at.is_some()) {
+            let now = chrono::Utc::now();
+            let mut closed_at_note = String::from(
+                "closed_at is a scheduled closing timestamp: absent means the course was \
+                 never scheduled to close, a future value means it's still open, and only a \
+                 past value means it's actually closed.",
+            );
+            if candidates.iter().any(|c| {
+                c.course.closed_at.is_some_and(|t| t <= now)
+                    && c.course.closed_course_successor_id.is_none()
+            }) {
+                closed_at_note.push_str(
+                    " A closed course with no closed_course_successor_id has nowhere \
+                     configured to send the student.",
+                );
+            }
+            if candidates
+                .iter()
+                .any(|c| c.course.closed_course_successor_id.is_some())
+            {
+                closed_at_note.push_str(
+                    " closed_course_successor_id is a course id, not a name — call \
+                     find_course again to identify it.",
+                );
+            }
+            notes.push(closed_at_note);
+        }
+
+        if candidates
+            .iter()
+            .flat_map(|c| &c.instances)
+            .any(|i| i.starts_at.is_none() || i.ends_at.is_none())
+        {
+            notes.push(
+                "Some instances are missing starts_at or ends_at. The platform itself is \
+                 inconsistent about whether such an instance counts as started, so report the \
+                 absence rather than asserting whether the instance is running."
+                    .to_string(),
+            );
+        }
+
+        let mut name_to_languages: std::collections::HashMap<
+            &str,
+            std::collections::HashSet<&str>,
+        > = std::collections::HashMap::new();
+        for candidate in candidates {
+            name_to_languages
+                .entry(candidate.course.name.as_str())
+                .or_default()
+                .insert(candidate.course.language_code.as_str());
+        }
+        if name_to_languages.values().any(|langs| langs.len() >= 2) {
+            notes.push(
+                "Some results share a name but differ in language_code — these are separate \
+                 course rows, and a student's progress lives in exactly one of them."
+                    .to_string(),
+            );
+        }
+
+        Some(notes.join(" "))
     }
 }

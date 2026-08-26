@@ -532,10 +532,12 @@ macro_rules! chatbot_tool_registry {
                     let parsed_arguments =
                         <$action_tool as ConfirmableActionTool>::parse_arguments(arguments)?;
                     let confirm: ConfirmAnswer = client_answer_data(answer)?;
-                    let instructions =
-                        <$action_tool as ConfirmableActionTool>::output_description_instructions();
 
                     if !confirm.confirmed {
+                        let instructions = <$action_tool as ConfirmableActionTool>::output_description_instructions(
+                            &parsed_arguments,
+                            None,
+                        );
                         return Ok(ActionToolOutcome {
                             output: delimited_tool_output(
                                 &<$action_tool as ConfirmableActionTool>::declined_output(&parsed_arguments),
@@ -545,13 +547,17 @@ macro_rules! chatbot_tool_registry {
                         });
                     }
 
-                    let executed = <$action_tool as ConfirmableActionTool>::execute(
+                    let (executed, facts) = <$action_tool as ConfirmableActionTool>::execute(
                         &mut *conn,
                         app_config,
                         &parsed_arguments,
                         acting_user_id,
                     )
                     .await?;
+                    let instructions = <$action_tool as ConfirmableActionTool>::output_description_instructions(
+                        &parsed_arguments,
+                        Some(&facts),
+                    );
 
                     headless_lms_models::chatbot_action_logs::insert(
                         &mut *conn,

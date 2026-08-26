@@ -408,7 +408,166 @@ impl ChatbotTool for UserCourseStateTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("needs_to_be_reviewed and anything derived from it is internal: it silently blocks certificates and grade visibility, and the student must never learn it exists - explain effects ('the completion is still being processed') without the cause. Quote submission timestamps exactly when the question is whether an answer saved.".to_string())
+        let facets = &self.state.output.facets;
+        let mut notes = Vec::new();
+
+        if facets.contains_key(UserCourseStateFacet::Progress.wire_name()) {
+            notes.push(
+                "progress: unlike the other facets this one serializes explicit nulls rather than omitting fields. \
+                score_required / attempted_exercises_required are null when the module's completion policy is Manual \
+                (staff grants completion), not \"nothing required\". Totals are computed across all chapters, including \
+                ones not yet opened, so a score can be measured against material the student cannot see yet. \
+                score_given: 0 does not distinguish \"scored zero\" from \"never attempted\"; attempted_exercises only \
+                counts submitted/completed activity, so a drafted-but-unsubmitted answer counts as zero. The unnamed \
+                default module is reported under the course's own name. Exam exercises have no module and are excluded \
+                from every number here.".to_string(),
+            );
+        }
+
+        if let Some(UserCourseStateFacetValue::Completions(completions)) =
+            facets.get(UserCourseStateFacet::Completions.wire_name())
+        {
+            notes.push(
+                "needs_to_be_reviewed and anything derived from it is internal: it silently blocks certificates and \
+                grade visibility, and the student must never learn it exists - explain effects (\"the completion is \
+                still being processed\") without the cause.".to_string(),
+            );
+            if completions
+                .raw_completions
+                .iter()
+                .any(|c| c.needs_to_be_reviewed)
+            {
+                notes.push(
+                    "module_completion_statuses.completed: false can mean a completion exists in raw_completions but \
+                    needs_to_be_reviewed - this is deliberate so a flagged student cannot infer suspicion, not a data \
+                    contradiction. When that happens, passed is also null on the status entry as a consequence of \
+                    completed: false, not a separate signal.".to_string(),
+                );
+            }
+            notes.push(
+                "raw_completions lists every completion row, including failed and superseded ones; \
+                module_completion_statuses reports only the best one per module (grade improvement wins), so the two \
+                can legitimately disagree in count - a regrade always writes a new row rather than editing one in \
+                place. passed: false is a recorded failure, not \"still in progress\". grade: null means the module \
+                is pass/fail, not that a grade is missing. completion_granter distinguishes staff-granted completions \
+                (exempt from cheating flags) from automatic ones. eligible_for_ects: false blocks credit registration \
+                regardless of the module's ECTS setting. completion_registration_attempt_date absent means the \
+                student never opened the open-university registration form - pair with the credit_registration facet.".to_string(),
+            );
+        }
+
+        if let Some(UserCourseStateFacetValue::Submissions(submissions)) =
+            facets.get(UserCourseStateFacet::Submissions.wire_name())
+        {
+            notes.push(
+                "Quote submission timestamps exactly when the question is whether an answer saved."
+                    .to_string(),
+            );
+            notes.push(
+                "submissions are timestamps only, with no score or answer content. An absent row can mean nothing \
+                was submitted, or that a reset soft-deleted the submissions it would have come from - cross-check \
+                the resets facet before telling anyone an answer never saved. exercise_name absent means the exercise \
+                has since been deleted from the course. exercise_attempts is present only when exercise_id was \
+                passed; its absence means \"not requested\", never \"no attempts\".".to_string(),
+            );
+            if let Some(attempts) = &submissions.exercise_attempts {
+                notes.push(
+                    "attempt_count sums submissions across all slides, but out_of_tries is decided by the worst \
+                    single slide reaching the cap, so attempt_count can exceed max_tries_per_slide with \
+                    out_of_tries: false, or be below it with out_of_tries: true.".to_string(),
+                );
+                if attempts.limit_number_of_tries && attempts.max_tries_per_slide.is_none() {
+                    notes.push(
+                        "This exercise has limit_number_of_tries: true but no max_tries_per_slide, which means the \
+                        limit does not actually exist - do not tell the student they are out of tries based on \
+                        limit_number_of_tries alone.".to_string(),
+                    );
+                }
+            }
+        }
+
+        if let Some(UserCourseStateFacetValue::Reviews(_)) =
+            facets.get(UserCourseStateFacet::Reviews.wire_name())
+        {
+            notes.push(
+                "in_review_stages only queries PeerReview, SelfReview, WaitingForPeerReviews and \
+                WaitingForManualGrading; it omits ReviewedAndLocked (reviewed, scored, and permanently unanswerable \
+                because the model solution was revealed) and the chapter-locking stages, so an empty list does not \
+                mean nothing is blocking the student - only a reset clears ReviewedAndLocked. NotStarted never \
+                appears here and is the answerable state; any listed stage means the student cannot submit. Who is \
+                blocking differs by stage: PeerReview/SelfReview waits on the student's own reviews, \
+                WaitingForPeerReviews waits on other students, WaitingForManualGrading waits on the teacher. \
+                teacher_grading_decisions are the latest decision per still-live exercise state, so a reset that \
+                soft-deletes the state makes an earlier decision disappear from this list - an empty list is not \
+                proof the student was never graded down, and a listed decision may already be superseded by a later \
+                submission. hidden: true means the decision is hidden from the student - never quote its \
+                justification back to them; hidden absent means unrecorded, not safe to quote. A FullPoints decision \
+                can be system-generated by the peer-review timeout auto-pass. In peer_review_queue, no entry for an \
+                exercise usually means the student has not yet given their own required peer reviews, not that \
+                nothing is pending; peer_review_priority is higher-served-sooner, not a queue position.".to_string(),
+            );
+        }
+
+        if let Some(UserCourseStateFacetValue::Resets(resets)) =
+            facets.get(UserCourseStateFacet::Resets.wire_name())
+        {
+            notes.push(
+                "reset_by absent means either the system did it (e.g. the automatic peer-review reset) or the \
+                acting staff account has since been deleted - it does not mean the actor is unknown. reason is \
+                shown to the student verbatim in the course material as the reset notice, so treat it as \
+                user-facing text, not an internal field.".to_string(),
+            );
+            if !resets.resets.is_empty() {
+                notes.push(
+                    "A reset soft-deletes the affected submissions, gradings, peer-review queue entries and \
+                    exercise states, and unlocks the affected chapters, but it does not touch \
+                    course_module_completions - a module can still show completed/graded while progress and \
+                    submissions show nothing. A reset restores tries; it does not revoke completions.".to_string(),
+                );
+            }
+        }
+
+        if let Some(UserCourseStateFacetValue::Certificates(certificates)) =
+            facets.get(UserCourseStateFacet::Certificates.wire_name())
+        {
+            notes.push(
+                "certificates.configurations lists only single-module (\"default\") certificate configurations - an \
+                empty array does not mean the course has no certificate. modules_blocked_by_pending_review is the \
+                internal cause (a pending suspected-cheater review) and must never be told to the student; \
+                missing_module_completions is the safe, student-explainable list. generated_certificates empty does \
+                not mean generation failed - certificates are only created when the student explicitly clicks \
+                generate, nothing generates them automatically; empty plus eligible: true means they can download it \
+                now. verification_id both verifies and grants access to the certificate image - only share it with \
+                the certificate's owner.".to_string(),
+            );
+            if certificates
+                .configurations
+                .iter()
+                .any(|c| c.eligible && !c.missing_module_completions.is_empty())
+            {
+                notes.push(
+                    "eligible checks completions across the whole platform and ignores passed, while \
+                    missing_module_completions counts an unpassed completion as missing - so eligible: true \
+                    alongside a non-empty missing_module_completions is an expected combination here, not a bug; \
+                    trust missing_module_completions when explaining what is left to do.".to_string(),
+                );
+            }
+        }
+
+        if facets.contains_key(UserCourseStateFacet::CreditRegistration.wire_name()) {
+            notes.push(
+                "credit_registration has one row per completion, keyed by course_module_id - a module with no \
+                completion produces no row at all, so an empty array can mean \"nothing completed yet\" rather than \
+                \"nothing registered\". study_registry: \"This platform\" means this platform recorded the \
+                attainment itself, not that an external registry accepted it. registered_at is the row's own \
+                created_at, not the registration date shown to the student in the registry.".to_string(),
+            );
+        }
+
+        if notes.is_empty() {
+            return None;
+        }
+        Some(notes.join(" "))
     }
 }
 

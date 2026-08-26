@@ -112,6 +112,7 @@ impl ChatbotToolDeclaration for UpdateCheatingStatusTool {
 
 impl ConfirmableActionTool for UpdateCheatingStatusTool {
     type Arguments = UpdateCheatingStatusArguments;
+    type Facts = ();
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(arguments).map_err(|e| {
@@ -165,7 +166,7 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
         _app_config: &ApplicationConfiguration,
         arguments: &Self::Arguments,
         _acting_user_id: Uuid,
-    ) -> ChatbotResult<ExecutedAction> {
+    ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let user = users::get_active_by_id(conn, arguments.user_id)
             .await
             .map_err(|e| {
@@ -217,7 +218,7 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
         .ok_or_else(|| {
             chatbot_err!(
                 InvalidToolArguments,
-                "There is no suspected-cheating record for this user in this course.".to_string()
+                "There is no suspected-cheating record for this user in this course -- no flag was ever raised. This is a substantive answer, not a failed lookup.".to_string()
             )
         })?;
 
@@ -229,7 +230,9 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
             };
             return Err(chatbot_err!(
                 InvalidToolArguments,
-                format!("This case is {status_name} -- nothing to decide.")
+                format!(
+                    "This case is {status_name} -- a terminal state, nothing to decide, and not retryable with the other decision either."
+                )
             ));
         }
 
@@ -260,27 +263,39 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
             }
         };
 
-        Ok(ExecutedAction {
-            output: format!(
-                "The cheating flag for {} in {} was {verb}. {consequence}",
-                arguments.user_email, arguments.course_name
-            ),
-            client_payload: None,
-            audit: ActionAuditFields {
-                target_user_id: Some(arguments.user_id),
-                course_id: Some(arguments.course_id),
-                summary: format!(
-                    "Cheating flag {verb} for {} in {}",
+        Ok((
+            ExecutedAction {
+                output: format!(
+                    "The cheating flag for {} in {} was {verb}. {consequence}",
                     arguments.user_email, arguments.course_name
                 ),
+                client_payload: None,
+                audit: ActionAuditFields {
+                    target_user_id: Some(arguments.user_id),
+                    course_id: Some(arguments.course_id),
+                    summary: format!(
+                        "Cheating flag {verb} for {} in {}",
+                        arguments.user_email, arguments.course_name
+                    ),
+                },
             },
-        })
+            (),
+        ))
     }
 
-    fn output_description_instructions() -> Option<String> {
-        Some(
-            "Never put the suspicion into words meant for the student. After a dismissal, the student-visible effect is simply that their completion, grade and certificate become available -- describe it that way, not as a cheating suspicion being cleared."
-                .to_string(),
-        )
+    fn output_description_instructions(
+        arguments: &Self::Arguments,
+        _facts: Option<&()>,
+    ) -> Option<String> {
+        let mut notes = vec![
+            "Never put the suspicion into words meant for the student, and do not describe how the flag was raised -- it is an automatic system heuristic, not evidence of anything. Point at user_overview's cheating_flags entry for this case before recommending a decision, and never explain the flagging mechanism itself, to the student or in any text a student could see.".to_string(),
+        ];
+
+        match arguments.decision {
+            CheatingDecision::Confirm => notes.push("Confirming fails every module completion the user has in this course (not just the one that triggered the flag) and moves the case to a terminal state this tool cannot undo.".to_string()),
+            CheatingDecision::Dismiss => notes.push("After a dismissal, the student-visible effect is simply that their completion, grade and certificate become available again -- describe it that way, not as a cheating suspicion being cleared.".to_string()),
+        }
+
+        Some(notes.join(" "))
     }
 }

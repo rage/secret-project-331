@@ -117,8 +117,16 @@ impl ChatbotToolDeclaration for ResetExercisesTool {
     }
 }
 
+/// What [ResetExercisesTool::execute] found out while performing the reset, beyond what the
+/// arguments already say.
+pub struct ResetExercisesFacts {
+    requested_count: usize,
+    actual_reset_count: usize,
+}
+
 impl ConfirmableActionTool for ResetExercisesTool {
     type Arguments = ResetExercisesArguments;
+    type Facts = ResetExercisesFacts;
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(arguments).map_err(|e| {
@@ -190,7 +198,7 @@ impl ConfirmableActionTool for ResetExercisesTool {
         _app_config: &ApplicationConfiguration,
         arguments: &Self::Arguments,
         acting_user_id: Uuid,
-    ) -> ChatbotResult<ExecutedAction> {
+    ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let user = users::get_active_by_id(conn, arguments.user_id)
             .await
             .map_err(|e| {
@@ -236,6 +244,11 @@ impl ConfirmableActionTool for ResetExercisesTool {
 
         // A wrong or stale id/name pair refuses the action instead of resetting the wrong
         // exercise: mistargeting must never survive as a silent no-op or wrong mutation.
+        let requested_count = if arguments.exercise_ids.is_empty() {
+            course_exercises.len()
+        } else {
+            arguments.exercise_ids.len()
+        };
         let (exercise_ids, exercise_label) = if arguments.exercise_ids.is_empty() {
             (
                 course_exercises.iter().map(|e| e.id).collect::<Vec<_>>(),
@@ -290,27 +303,52 @@ impl ConfirmableActionTool for ResetExercisesTool {
         .await?;
         let reset_count: usize = reset_results.iter().map(|(_, exs)| exs.len()).sum();
 
-        Ok(ExecutedAction {
-            output: format!(
-                "{reset_count} exercises were reset for {} in {}: {exercise_label}. The user can now resubmit them.",
-                user_detail.email, course.name
-            ),
-            client_payload: None,
-            audit: ActionAuditFields {
-                target_user_id: Some(user.id),
-                course_id: Some(course.id),
-                summary: format!(
-                    "Reset {reset_count} exercises for {} in {} (reason: {})",
-                    user_detail.email, course.name, arguments.reason
+        Ok((
+            ExecutedAction {
+                output: format!(
+                    "{reset_count} exercises were reset for {} in {}: {exercise_label}. The user can now resubmit them.",
+                    user_detail.email, course.name
                 ),
+                client_payload: None,
+                audit: ActionAuditFields {
+                    target_user_id: Some(user.id),
+                    course_id: Some(course.id),
+                    summary: format!(
+                        "Reset {reset_count} exercises for {} in {} (reason: {})",
+                        user_detail.email, course.name, arguments.reason
+                    ),
+                },
             },
-        })
+            ResetExercisesFacts {
+                requested_count,
+                actual_reset_count: reset_count,
+            },
+        ))
     }
 
-    fn output_description_instructions() -> Option<String> {
-        Some(
-            "Confirm to the admin what was reset and remind them the user's previous submissions and points for those exercises are gone."
-                .to_string(),
-        )
+    fn output_description_instructions(
+        arguments: &Self::Arguments,
+        facts: Option<&Self::Facts>,
+    ) -> Option<String> {
+        let mut notes = vec![
+            "Confirm to the admin what was reset and remind them the user's previous submissions and points for those exercises are gone.".to_string(),
+            "This does not revoke module completions, grades or already-generated certificates -- the module can still show completed while points read 0.".to_string(),
+            "Peer-review queue entries for the reset exercises were deleted (received reviews must be earned again) and the affected chapters were unlocked.".to_string(),
+        ];
+
+        if let Some(facts) = facts {
+            if facts.actual_reset_count < facts.requested_count {
+                notes.push(format!(
+                    "Only {} of the {} requested exercises had a previous submission to reset -- a lower count, including 0, is normal and not a failure to retry.",
+                    facts.actual_reset_count, facts.requested_count
+                ));
+            }
+        }
+
+        if !arguments.reason.trim().is_empty() {
+            notes.push("The reason text is shown to the student verbatim in the course material as the reset notice until they resubmit -- write it in student-safe wording and tell the admin what it will say.".to_string());
+        }
+
+        Some(notes.join(" "))
     }
 }

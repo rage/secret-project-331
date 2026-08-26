@@ -551,12 +551,236 @@ impl ChatbotTool for CourseConfigurationTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some(
-            "When the admin needs a human to contact, prefer the role-based staff list over the \
-             static instance fields, and say which source a contact came from. Deadline and \
-             completion policy questions should quote the exact configured values."
-                .to_string(),
-        )
+        let facets = &self.state.facets;
+        let mut notes: Vec<String> = Vec::new();
+
+        if let Some(CourseConfigurationFacetValue::Modules(modules)) = facets.get("modules") {
+            if modules.iter().any(|m| m.completion_policy == "manual") {
+                notes.push(
+                    "A module with completion_policy \"manual\" is completed by staff action, \
+                     not automatically; the absent automatic_completion_* fields there mean \
+                     \"not applicable\", not \"no threshold configured\"."
+                        .to_string(),
+                );
+            }
+            if modules.iter().any(|m| m.completion_policy == "automatic") {
+                notes.push(
+                    "For \"automatic\" modules, an absent points or exercises-attempted \
+                     threshold means that particular requirement isn't imposed (the other one \
+                     still gates completion), and switching a module to \"manual\" wipes any \
+                     stored thresholds. Meeting the listed thresholds is not sufficient by \
+                     itself: an answer sitting in WaitingForManualGrading still blocks \
+                     completion, and automatic_completion_requires_exam: true requires a passed \
+                     exam (by the exam's minimum_points_treshold), not merely an attempted one. \
+                     \"Attempted\" means an exercise's activity_progress is submitted or \
+                     completed."
+                        .to_string(),
+                );
+            }
+            if modules.iter().any(|m| m.name.is_none()) {
+                notes.push(
+                    "A module with no name is the course's default/base module; elsewhere in \
+                     the platform it is shown under the course's own name (e.g. as \"Default \
+                     module\" in the certificates facet)."
+                        .to_string(),
+                );
+            }
+            notes.push(
+                "enable_registering_completion_to_uh_open_university and \
+                 enable_credit_registration_via_suotar are mutually exclusive \
+                 credit-registration routes (student-initiated link vs. system push); both \
+                 false means the student cannot register credits at all. \
+                 certification_enabled alone is not sufficient for a certificate to exist — a \
+                 certificate_configuration must also reference the module."
+                    .to_string(),
+            );
+        }
+
+        if let Some(CourseConfigurationFacetValue::Certificates(certs)) = facets.get("certificates")
+        {
+            if certs.is_empty() {
+                notes.push(
+                    "This facet only returns certificate configurations that require exactly \
+                     one module (\"default\" is inferred from that, not a stored flag); a \
+                     genuine certificate spanning multiple modules is invisible here, so an \
+                     empty list does not mean the course has no certificate."
+                        .to_string(),
+                );
+            } else {
+                notes.push(
+                    "is_default_certificate_configuration is always true in this output and \
+                     carries no information."
+                        .to_string(),
+                );
+            }
+        }
+
+        if let Some(CourseConfigurationFacetValue::Exams(exams)) = facets.get("exams") {
+            if !exams.is_empty() {
+                notes.push(
+                    "time_minutes is the per-student budget counted from that student's own \
+                     exam enrollment start, not from starts_at; both it and the exam window \
+                     must still be open. minimum_points_treshold is the pass threshold in \
+                     points. Exams belong to an organization, so the same exam can be attached \
+                     to several courses, and modules_that_require_this_exam_for_automatic_completion \
+                     is computed across all of the course's modules and attached to every exam \
+                     row — it does not identify which exam a given module actually requires, \
+                     and over-reports on a multi-exam course."
+                        .to_string(),
+                );
+            }
+            if exams.iter().any(|e| e.ends_at.is_none()) {
+                notes.push(
+                    "An exam with ends_at absent blocks all submissions — it does not mean the \
+                     deadline is unset or unlimited."
+                        .to_string(),
+                );
+            }
+        }
+
+        if let Some(CourseConfigurationFacetValue::Schedule(schedule)) = facets.get("schedule") {
+            notes.push(
+                "chapter_locking_enabled is only the course-level switch; per-user chapter \
+                 locking (Unlocked / CompletedAndLocked / NotUnlockedYet) is separate and not \
+                 shown here, so a \"locked chapter\" complaint can come from either mechanism."
+                    .to_string(),
+            );
+            if schedule.chapters.iter().any(|c| c.opens_at.is_none()) {
+                notes.push(
+                    "A chapter with opens_at absent is always open, not \"opening date \
+                     unknown\"; deadline absent means no deadline."
+                        .to_string(),
+                );
+            }
+            if schedule
+                .chapters
+                .iter()
+                .any(|c| c.per_exercise_deadline_overrides.is_some())
+            {
+                notes.push(
+                    "earliest_exercise_deadline_override is the earliest effective exercise \
+                     deadline (falling back to the chapter's own), so it is populated even with \
+                     zero real overrides; only a non-zero exercise_deadline_override_count means \
+                     exercises actually differ from the chapter deadline."
+                        .to_string(),
+                );
+            }
+            if schedule
+                .course_instances
+                .iter()
+                .any(|i| i.starts_at.is_none() || i.ends_at.is_none())
+            {
+                notes.push(
+                    "A course instance with starts_at or ends_at absent is open-ended on that \
+                     side."
+                        .to_string(),
+                );
+            }
+        }
+
+        if let Some(CourseConfigurationFacetValue::ReviewPolicy(review)) =
+            facets.get("review_policy")
+        {
+            notes.push(
+                "accepting_threshold is compared against the average of received Likert 1–5 \
+                 answers, not points or a percentage. peer_reviews_to_give gates entry to the \
+                 review queue at all — a student who never gives reviews is never queued to \
+                 receive any, which is the most common cause of \"I never got my peer \
+                 reviews\". manual_review_cutoff_in_days is a timeout on the student's own wait, \
+                 not a teacher deadline."
+                    .to_string(),
+            );
+            notes.push(match review.processing_strategy {
+                PeerReviewProcessingStrategy::AutomaticallyGradeByAverage => {
+                    "processing_strategy AutomaticallyGradeByAverage: below \
+                     accepting_threshold the answer is rejected, and \
+                     reset_answer_if_zero_points_from_review takes effect under this strategy."
+                        .to_string()
+                }
+                PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage => {
+                    "processing_strategy AutomaticallyGradeOrManualReviewByAverage: below \
+                     accepting_threshold the answer goes to a teacher instead of being \
+                     auto-rejected."
+                        .to_string()
+                }
+                PeerReviewProcessingStrategy::ManualReviewEverything => {
+                    "processing_strategy ManualReviewEverything: a teacher reviews every \
+                     answer, but only once the give-and-receive counts are met."
+                        .to_string()
+                }
+            });
+            if review.flagged_answers_threshold.is_none() {
+                notes.push(
+                    "flagged_answers_threshold absent means peer flagging never \
+                     auto-escalates an answer."
+                        .to_string(),
+                );
+            }
+        }
+
+        if let Some(CourseConfigurationFacetValue::Policies(policies)) = facets.get("policies") {
+            notes.push(
+                "closed_at is a scheduled closing timestamp: absent means the course is never \
+                 scheduled to close, and a future value means it is still open today — compare \
+                 it to now rather than treating its presence as \"closed\". \
+                 closed_course_successor_id absent means there is no successor course to point \
+                 the student at."
+                    .to_string(),
+            );
+            if policies.closed_additional_message.is_some() {
+                notes.push(
+                    "closed_additional_message is the teacher's own text; quote it rather than \
+                     paraphrasing."
+                        .to_string(),
+                );
+            }
+            if policies.ai_policy == CourseAiPolicy::NotSet {
+                notes.push(
+                    "ai_policy: NotSet is meaningfully different from NoAi — it means no policy \
+                     was chosen, not that AI is disallowed."
+                        .to_string(),
+                );
+            }
+            if policies.course_material_ai_instructions.is_some() {
+                notes.push(
+                    "course_material_ai_instructions is serialized as a bool even though the \
+                     underlying column is text; its presence only tells you instructions exist, \
+                     not what they say."
+                        .to_string(),
+                );
+            }
+        }
+
+        if let Some(CourseConfigurationFacetValue::Staff(staff)) = facets.get("staff") {
+            notes.push(
+                "When the admin needs a human to contact, prefer role_based_staff over \
+                 static_instance_contacts and say which source a contact came from. \
+                 role_based_staff.scope (\"course\" / \"course_instance\" / \"organization\") is \
+                 the only way to tell someone who teaches this course from someone who just \
+                 runs its organization — the role list intentionally includes org-scoped roles."
+                    .to_string(),
+            );
+            if staff.sisu_fallback.is_some() {
+                notes.push(
+                    "sisu_fallback is present only when both other contact lists are empty; its \
+                     Error variant is a note to look the code up by hand, not a failed tool call."
+                        .to_string(),
+                );
+            }
+        }
+
+        if facets.contains_key("modules")
+            || facets.contains_key("schedule")
+            || facets.contains_key("policies")
+        {
+            notes.push(
+                "Quote deadline and completion-policy values exactly as configured rather than \
+                 paraphrasing them."
+                    .to_string(),
+            );
+        }
+
+        (!notes.is_empty()).then(|| notes.join(" "))
     }
 }
 

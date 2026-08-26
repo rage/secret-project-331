@@ -108,6 +108,7 @@ impl ChatbotToolDeclaration for EditUserAccountTool {
 
 impl ConfirmableActionTool for EditUserAccountTool {
     type Arguments = EditUserAccountArguments;
+    type Facts = ();
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(arguments).map_err(|e| {
@@ -175,7 +176,7 @@ impl ConfirmableActionTool for EditUserAccountTool {
         _app_config: &ApplicationConfiguration,
         arguments: &Self::Arguments,
         _acting_user_id: Uuid,
-    ) -> ChatbotResult<ExecutedAction> {
+    ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let user = users::get_active_by_id(conn, arguments.user_id)
             .await
             .map_err(|e| {
@@ -264,21 +265,40 @@ impl ConfirmableActionTool for EditUserAccountTool {
         }
         output.push('.');
 
-        Ok(ExecutedAction {
-            output,
-            client_payload: None,
-            audit: ActionAuditFields {
-                target_user_id: Some(user.id),
-                course_id: None,
-                summary,
+        Ok((
+            ExecutedAction {
+                output,
+                client_payload: None,
+                audit: ActionAuditFields {
+                    target_user_id: Some(user.id),
+                    course_id: None,
+                    summary,
+                },
             },
-        })
+            (),
+        ))
     }
 
-    fn output_description_instructions() -> Option<String> {
-        Some(
-            "State the old and new values back to the admin. If the change was refused because the address belongs to another account, suggest comparing the two accounts' enrollments (user_overview) instead."
-                .to_string(),
-        )
+    fn output_description_instructions(
+        arguments: &Self::Arguments,
+        _facts: Option<&Self::Facts>,
+    ) -> Option<String> {
+        let mut notes = vec![
+            "State the old and new values back to the admin. If the change was refused because the address belongs to another account, suggest comparing the two accounts' enrollments (user_overview) instead -- this tool cannot merge accounts and progress does not follow the address.".to_string(),
+        ];
+
+        let email_changed = arguments.new_email.is_some();
+        let verify_requested = matches!(arguments.verification_change, VerificationChange::Verify);
+        if email_changed && !verify_requested {
+            notes.push("Changing the email clears the account's verification automatically, so unless verify was also requested the account is now unverified and will be asked to re-confirm the address.".to_string());
+        }
+        if verify_requested {
+            notes.push("Marking the email verified this way records the admin's own assertion, not proof the user controls the address -- the weakest of the platform's verification methods.".to_string());
+        }
+        if matches!(arguments.verification_change, VerificationChange::Unverify) {
+            notes.push("Clearing verification breaks any flow gated on it (e.g. verification-only emails) -- don't do this casually.".to_string());
+        }
+
+        Some(notes.join(" "))
     }
 }

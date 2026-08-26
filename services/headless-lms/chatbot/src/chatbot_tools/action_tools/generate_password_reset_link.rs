@@ -78,8 +78,15 @@ impl ChatbotToolDeclaration for GeneratePasswordResetLinkTool {
     }
 }
 
+/// What [GeneratePasswordResetLinkTool::execute] found out about the account while minting the
+/// link, beyond what the arguments already say.
+pub struct GeneratePasswordResetLinkFacts {
+    is_tmc_managed_with_no_local_password: bool,
+}
+
 impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
     type Arguments = GeneratePasswordResetLinkArguments;
+    type Facts = GeneratePasswordResetLinkFacts;
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(arguments).map_err(|e| {
@@ -111,7 +118,7 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
         app_config: &ApplicationConfiguration,
         arguments: &Self::Arguments,
         _acting_user_id: Uuid,
-    ) -> ChatbotResult<ExecutedAction> {
+    ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let user = users::get_active_by_id(conn, arguments.user_id)
             .await
             .map_err(|e| {
@@ -142,6 +149,11 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
             "find_user",
         )?;
 
+        let has_local_password =
+            user_passwords::check_if_users_password_is_stored(conn, user.id).await?;
+        let is_tmc_managed_with_no_local_password =
+            user.upstream_id.is_some() && !has_local_password;
+
         let token =
             user_passwords::insert_password_reset_token(conn, user.id, Uuid::new_v4()).await?;
 
@@ -153,24 +165,41 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
             token
         );
 
-        Ok(ExecutedAction {
-            output: format!(
-                "A password reset link for {} was generated and shown to the admin in the chat. It replaces any previous reset link. The link itself is not available to you.",
-                details.email
-            ),
-            client_payload: Some(json!({ "reset_link": reset_url })),
-            audit: ActionAuditFields {
-                target_user_id: Some(user.id),
-                course_id: None,
-                summary: format!("Generated a password reset link for {}", details.email),
+        Ok((
+            ExecutedAction {
+                output: format!(
+                    "A password reset link for {} was generated and shown to the admin in the chat. It replaces any previous reset link. The link itself is not available to you.",
+                    details.email
+                ),
+                client_payload: Some(json!({ "reset_link": reset_url })),
+                audit: ActionAuditFields {
+                    target_user_id: Some(user.id),
+                    course_id: None,
+                    summary: format!("Generated a password reset link for {}", details.email),
+                },
             },
-        })
+            GeneratePasswordResetLinkFacts {
+                is_tmc_managed_with_no_local_password,
+            },
+        ))
     }
 
-    fn output_description_instructions() -> Option<String> {
-        Some(
-            "Tell the admin the link is shown above for copy-paste into their reply, that it invalidates any earlier reset link, and to send it only to the account's own email address."
-                .to_string(),
-        )
+    fn output_description_instructions(
+        _arguments: &Self::Arguments,
+        facts: Option<&Self::Facts>,
+    ) -> Option<String> {
+        let mut notes = vec![
+            "Tell the admin the link is shown above for copy-paste into their reply, that it invalidates any earlier reset link, and to send it only to the account's own email address, after confirming the requester is the account holder.".to_string(),
+            "The link expires one hour after being generated and is single-use -- tell the admin to send it right away, and to re-run this tool if the student comes back after it has lapsed rather than trying to reuse or recover the old one.".to_string(),
+            "You never see the link itself and must not claim to know it or offer to repeat it.".to_string(),
+        ];
+
+        if let Some(facts) = facts {
+            if facts.is_tmc_managed_with_no_local_password {
+                notes.push("This account has never had a local password -- redeeming the link will create one and permanently move password management for this account from TMC to this platform, which is worth telling the admin.".to_string());
+            }
+        }
+
+        Some(notes.join(" "))
     }
 }

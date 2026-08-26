@@ -253,7 +253,48 @@ impl ChatbotTool for FindUserTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("If exactly one candidate matches, proceed with its user_id. If several match, list them to the admin (email, name, created date) and ask which one is meant before doing anything else. Never guess between candidates. Mention when the matched email differs from what the admin typed (likely a typo).".to_string())
+        let mut notes = vec![
+            "If exactly one candidate matches, proceed with its user_id. If several match, list them to the admin (email, name, created date) and ask which one is meant before doing anything else. Never guess between candidates. Mention when the matched email differs from what the admin typed (likely a typo).".to_string(),
+        ];
+
+        if self.state.matched_as == "email" {
+            notes.push("kind \"email\" is a fuzzy (trigram) match, not an exact lookup: verify the returned email character-by-character against what the admin typed before using a candidate.".to_string());
+        }
+
+        if self.state.matched_as == "name" {
+            notes.push("matched_as \"name\" means an email or ID search found nothing and only the name search matched — this is a weak match; a hit on a common name could be any user with that name.".to_string());
+        }
+
+        if self.state.candidates.len() >= MAX_CANDIDATES {
+            notes.push(format!(
+                "The candidate list is capped at {MAX_CANDIDATES} and truncation is not signalled beyond this note: if this many came back, ask the admin to narrow the query rather than assuming this is the complete set."
+            ));
+        }
+
+        let has_upstream_id = self
+            .state
+            .candidates
+            .iter()
+            .any(|c| c.upstream_id.is_some());
+        let missing_upstream_id = self
+            .state
+            .candidates
+            .iter()
+            .any(|c| c.upstream_id.is_none());
+        if has_upstream_id && missing_upstream_id {
+            notes.push("upstream_id is the TMC/mooc.fi account id; some candidates have it and some don't, which is the classic duplicate-account shape (one TMC account, one local-only account) — check with the admin before picking one.".to_string());
+        }
+
+        if self
+            .state
+            .candidates
+            .iter()
+            .any(|c| c.email_verified_method.is_some())
+        {
+            notes.push("email_verified_at absent means the address was never proven and is auto-cleared on every email change, so it being absent right after an address correction is expected, not suspicious. email_verified_method strength ranges from real proof (EmailedCode, TmcConfirmed) through an inference (PasswordResetBackfill) down to AdminAsserted, which is only a human's assertion and may have been set by a support admin rather than the user.".to_string());
+        }
+
+        Some(notes.join(" "))
     }
 }
 

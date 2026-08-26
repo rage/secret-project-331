@@ -58,6 +58,11 @@ pub struct ActionAuditFields {
 pub trait ConfirmableActionTool: ChatbotToolDeclaration {
     type Arguments;
 
+    /// Extra facts [Self::execute] gathers while performing the mutation, used only to decide
+    /// what [Self::output_description_instructions] should mention for this particular call. `()`
+    /// for a tool with nothing worth gating on.
+    type Facts;
+
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments>;
 
     /// Performs the mutation. Must re-verify every model-supplied display field against the
@@ -69,14 +74,21 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
         app_config: &ApplicationConfiguration,
         arguments: &Self::Arguments,
         acting_user_id: Uuid,
-    ) -> impl std::future::Future<Output = ChatbotResult<ExecutedAction>> + Send;
+    ) -> impl std::future::Future<Output = ChatbotResult<(ExecutedAction, Self::Facts)>> + Send;
 
     fn declined_output(_arguments: &Self::Arguments) -> String {
         "The admin declined the action. Nothing was changed. Do not retry unless asked to."
             .to_string()
     }
 
-    fn output_description_instructions() -> Option<String>;
+    /// Just-in-time instructions for the LLM on how to describe the outcome. `facts` is `None` on
+    /// a declined answer (nothing executed) and `Some` after a successful [Self::execute], so
+    /// instructions can be conditioned on what this call actually did instead of always
+    /// including everything that could ever be true.
+    fn output_description_instructions(
+        arguments: &Self::Arguments,
+        facts: Option<&Self::Facts>,
+    ) -> Option<String>;
 }
 
 /// Unicode-aware case-insensitive equality for a model-supplied display field against its

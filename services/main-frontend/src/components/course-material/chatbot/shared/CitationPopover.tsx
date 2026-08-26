@@ -140,22 +140,22 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
             margin-bottom: 0.5em;
             mask-image: linear-gradient(0.5turn, black 66%, transparent);
             h1 {
-              font-size: 1.8rem;
-            }
-            h2 {
-              font-size: 1.5rem;
-            }
-            h3 {
               font-size: 1.2rem;
             }
-            h4 {
+            h2 {
               font-size: 1rem;
             }
-            h5 {
+            h3 {
               font-size: 0.8rem;
             }
-            h6 {
+            h4 {
+              font-size: 0.7rem;
+            }
+            h5 {
               font-size: 0.6rem;
+            }
+            h6 {
+              font-size: 0.5rem;
             }
           `}
           dangerouslySetInnerHTML={{

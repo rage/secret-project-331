@@ -240,6 +240,9 @@ impl LLMRequest {
             && enabled_tool_categories.contains(azure_ai_search::CATEGORY);
 
         let mut system_prompt = configuration.prompt.clone();
+        system_prompt.push_str(
+            "All code you generate should be indented with 2 spaces, regardless of the language.\n",
+        );
         if offers_search {
             system_prompt.push_str(&build_search_grounding_instruction(enabled_tool_categories));
             tools.push(AzureLLMToolDefinition::Search(

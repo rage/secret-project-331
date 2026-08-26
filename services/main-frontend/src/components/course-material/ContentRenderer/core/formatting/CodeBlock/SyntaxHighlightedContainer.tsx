@@ -1,13 +1,13 @@
 "use client"
 
 import "highlight.js/styles/atom-one-dark.css"
-import { css } from "@emotion/css"
 import hljs from "highlight.js"
 import { memo, useEffect, useRef } from "react"
 
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import { ensureLineHighlightPluginRegistered } from "./lineHighlightPlugin"
+import { codeBlockStyles } from "./styles"
 
 ensureLineHighlightPluginRegistered(hljs)
 
@@ -17,22 +17,6 @@ interface SyntaxHighlightedContainerProps {
   /** highlight.js language id/alias. When unset, highlight.js auto-detects the language. */
   language?: string
 }
-
-const codeBlockStyles = css`
-  background-color: #1a2333;
-  border-radius: 4px;
-  font-variant-ligatures: none;
-  font-feature-settings: "liga" 0;
-  .code-line {
-    display: block;
-  }
-  .highlighted-line {
-    background-color: rgba(255, 255, 100, 0.1);
-    margin: 0 -16px;
-    padding: 0 16px 0 13px;
-    border-left: 3px solid #ffd700;
-  }
-`
 
 /**
  * Renders code with syntax highlighting using highlight.js. Optionally wraps lines and highlights specific lines.

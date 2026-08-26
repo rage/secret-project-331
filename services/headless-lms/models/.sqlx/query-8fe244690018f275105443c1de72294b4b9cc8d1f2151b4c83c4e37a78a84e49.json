@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n    SELECT\n        p.title AS page_title,\n        p.order_number,\n        p.content,\n        c.name AS chapter_title,\n        c.chapter_number,\n        m.name AS module_name,\n        m.order_number AS module_number\n    FROM pages p\n    LEFT JOIN chapters c\n        ON c.id = p.chapter_id\n    LEFT JOIN course_modules m\n        ON m.id = c.course_module_id\n    WHERE p.course_id = $1\n    AND p.deleted_at IS NULL\n    AND c.deleted_at IS NULL\n    AND m.deleted_at IS NULL\n    AND p.hidden IS DISTINCT FROM $2\n        ",
+  "query": "\n    SELECT\n        p.title AS \"page_title!\",\n        p.order_number AS \"order_number!\",\n        p.content AS \"content!\",\n        c.name AS \"chapter_title?\",\n        c.chapter_number AS \"chapter_number?\",\n        m.name AS \"module_name?\",\n        m.order_number AS \"module_number?\"\n    FROM pages p\n    LEFT JOIN chapters c\n        ON c.id = p.chapter_id\n    LEFT JOIN course_modules m\n        ON m.id = c.course_module_id\n    WHERE p.course_id = $1\n    AND p.deleted_at IS NULL\n    AND c.deleted_at IS NULL\n    AND m.deleted_at IS NULL\n    AND p.hidden IS DISTINCT FROM $2\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "page_title",
+        "name": "page_title!",
         "type_info": "Varchar",
         "origin": {
           "Table": {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "order_number",
+        "name": "order_number!",
         "type_info": "Int4",
         "origin": {
           "Table": {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "content",
+        "name": "content!",
         "type_info": "Jsonb",
         "origin": {
           "Table": {
@@ -38,7 +38,7 @@
       },
       {
         "ordinal": 3,
-        "name": "chapter_title",
+        "name": "chapter_title?",
         "type_info": "Varchar",
         "origin": {
           "Table": {
@@ -49,7 +49,7 @@
       },
       {
         "ordinal": 4,
-        "name": "chapter_number",
+        "name": "chapter_number?",
         "type_info": "Int4",
         "origin": {
           "Table": {
@@ -60,7 +60,7 @@
       },
       {
         "ordinal": 5,
-        "name": "module_name",
+        "name": "module_name?",
         "type_info": "Varchar",
         "origin": {
           "Table": {
@@ -71,7 +71,7 @@
       },
       {
         "ordinal": 6,
-        "name": "module_number",
+        "name": "module_number?",
         "type_info": "Int4",
         "origin": {
           "Table": {
@@ -88,14 +88,14 @@
       ]
     },
     "nullable": [
-      false,
-      false,
-      false,
       true,
       true,
+      true,
+      false,
+      false,
       true,
       true
     ]
   },
-  "hash": "b2b8fc494830c304d92763fd59fb66cffe00e451e93a4ad943ca15e108fafc43"
+  "hash": "8fe244690018f275105443c1de72294b4b9cc8d1f2151b4c83c4e37a78a84e49"
 }

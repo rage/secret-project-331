@@ -24,40 +24,40 @@ interface ChatbotCommandCenterProps {
   conversations: ChatbotConversation[]
 }
 
+const gridContainer = css`
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+  margin: 0 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+  grid-auto-rows: min-content;
+`
+
+const sideBarContainer = css`
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+  margin: 0;
+  padding: 0;
+  padding-top: 1rem;
+  overflow-y: auto;
+  contain: size;
+`
+
+const chatbotPlaceHolder = css`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: inherit;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+`
+
 const ChatbotCommandCenter = ({ chatbots, courses, conversations }: ChatbotCommandCenterProps) => {
   const { t } = useTranslation()
   const [configurationId, setConfigurationId] = useState<null | string>(null)
   const [conversationId, setConversationId] = useState<null | string>(null)
   const [showChatbotDialog, setChatbotDialog] = useState(false)
-
-  const gridContainer = css`
-    display: grid;
-    grid-template-columns: 1fr 4fr;
-    margin: 0 1rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    gap: 0.5rem;
-    grid-auto-rows: min-content;
-  `
-
-  const sideBarContainer = css`
-    border-radius: 10px;
-    box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
-    margin: 0;
-    padding: 0;
-    padding-top: 1rem;
-    overflow-y: auto;
-    contain: size;
-  `
-
-  const chatbotPlaceHolder = css`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: inherit;
-    border-radius: 10px;
-    box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
-  `
 
   const currentConversationIdQuery = useQuery({
     ...getCurrentConversationIdOptions({

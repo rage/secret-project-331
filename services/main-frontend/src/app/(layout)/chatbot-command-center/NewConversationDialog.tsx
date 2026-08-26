@@ -1,11 +1,18 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useAutocompleteState } from "@react-stately/autocomplete"
+import { useSearchFieldState } from "@react-stately/searchfield"
 import type { UseMutationResult } from "@tanstack/react-query"
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
+import { useRef, useState } from "react"
+import { useAutocomplete, useFilter, useSearchField } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { Button } from "@/shared-module/components"
+import { listBoxEmptyStateCss } from "@/shared-module/components/components/primitives/selectStyles"
 
 interface ChatbotOption {
   label: string
@@ -24,6 +31,56 @@ interface NewConversationDialogProps {
   onClose: () => void
 }
 
+const sectionCss = css`
+  display: grid;
+  gap: var(--space-1);
+`
+
+const sectionHeadingCss = css`
+  padding: var(--space-2) var(--space-3) 0;
+  color: var(--field-label-color);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+`
+
+const sectionGroupCss = css`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`
+
+const searchfieldCss = css`
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  padding: 0 2rem;
+  width: 100%;
+  outline: none;
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  min-height: 2.5rem;
+  &:focus-visible {
+    box-shadow: none;
+    outline: 2px solid var(--field-border-color-focus);
+  }
+`
+
+const buttonCss = css`
+  width: 100%;
+  justify-content: flex-start;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--color-green-75);
+    border-color: var(--color-green-300);
+  }
+  color: var(--field-fg);
+`
+
 const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   chatbotOptions,
   setConfigurationId,
@@ -31,37 +88,85 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   open,
   onClose,
 }) => {
-  const sectionCss = css`
-    display: grid;
-    gap: var(--space-1);
-  `
+  const { t } = useTranslation("shared-module")
+  const [filterValue, setFilterValue] = useState("")
+  const searchRef = useRef<HTMLInputElement>(null)
+  const listRef = useRef(null)
 
-  const sectionHeadingCss = css`
-    padding: var(--space-2) var(--space-3) 0;
-    color: var(--field-label-color);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    line-height: 1.35;
-  `
+  let { contains } = useFilter({
+    // oxlint-disable-next-line i18next/no-literal-string
+    sensitivity: "base",
+  })
 
-  const sectionGroupCss = css`
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  `
+  const chatbotOptionsFiltered =
+    searchRef.current === document.activeElement
+      ? chatbotOptions
+          .map((category) => ({
+            ...category,
+            options: category.options.filter((option) => contains(option.label, filterValue)),
+          }))
+          .filter((category) => category.options.length > 0)
+      : chatbotOptions
+
+  const searchFieldState = useSearchFieldState({
+    value: filterValue,
+    onChange: setFilterValue,
+  })
+
+  const autoCompleteState = useAutocompleteState({})
+
+  const { inputProps: autoCompleteInputProps } = useAutocomplete(
+    {
+      inputRef: searchRef,
+      collectionRef: listRef,
+    },
+    autoCompleteState,
+  )
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const { inputProps } = useSearchField(
+    { ...autoCompleteInputProps, placeholder: "search", "aria-label": "search" },
+    searchFieldState,
+    searchRef,
+  )
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={"Chatbot selection"}>
-      <div>
-        <ul
+    <StandardDialog
+      leftAlignTitle
+      isDismissable
+      open={open}
+      onClose={onClose}
+      title={"Chatbot selection"}
+    >
+      <div
+        className={css`
+          position: relative;
+          padding: 0 6px;
+        `}
+      >
+        <span
           className={css`
-            padding: 0;
+            display: inline-block;
+            position: absolute;
+            left: 1rem;
+            top: 1.125rem;
           `}
         >
-          {chatbotOptions.map((category) => (
+          <MagnifyingGlass size={16} weight="bold" />
+        </span>
+        <input {...inputProps} ref={searchRef} className={searchfieldCss} />
+      </div>
+      <ul
+        className={css`
+          padding: 0;
+        `}
+      >
+        {chatbotOptionsFiltered.length === 0 ? (
+          <div className={listBoxEmptyStateCss} role="presentation">
+            {t("listBox.noResults")}
+          </div>
+        ) : (
+          chatbotOptionsFiltered.map((category) => (
             <li className={sectionCss} key={category.courseId}>
               <span className={sectionHeadingCss}>{category.label}</span>
               <ul className={sectionGroupCss}>
@@ -71,20 +176,11 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
                     onClick={() => {
                       setConfigurationId(option.value)
                       newConversationMutation.mutate()
+
                       onClose()
                     }}
                     variant="icon"
-                    className={css`
-                      width: 100%;
-                      justify-content: flex-start;
-                      transition: background-color 0.2s;
-
-                      &:hover:not(:disabled):not([aria-disabled="true"]) {
-                        background: var(--color-green-75);
-                        border-color: var(--color-green-300);
-                      }
-                      color: var(--field-fg);
-                    `}
+                    className={buttonCss}
                   >
                     <li>
                       <span
@@ -99,9 +195,9 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
                 ))}
               </ul>
             </li>
-          ))}
-        </ul>
-      </div>
+          ))
+        )}
+      </ul>
     </StandardDialog>
   )
 }

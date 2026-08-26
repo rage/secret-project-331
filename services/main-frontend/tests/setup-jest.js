@@ -20,6 +20,14 @@ if (typeof Blob !== "undefined") {
   }
 }
 
+// jsdom omits these too, so anything decoding a streamed response body cannot run under it.
+if (globalThis.TextEncoder === undefined) {
+  globalThis.TextEncoder = require("util").TextEncoder
+}
+if (globalThis.TextDecoder === undefined) {
+  globalThis.TextDecoder = require("util").TextDecoder
+}
+
 jest.mock("next/dynamic", () => ({
   __esModule: true,
   default: (...props) => {

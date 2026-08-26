@@ -15,8 +15,10 @@ pub struct CoursePrerequisite {
     pub embedding: Option<Vector>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
-pub struct NewCoursePrerequisite {
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
+pub struct EditCoursePrerequisite {
+    pub id: Uuid,
+    pub course_id: Uuid,
     pub prerequisite: String,
 }
 
@@ -54,6 +56,45 @@ RETURNING *
     Ok(res)
 }
 
+pub async fn get_all_edit_course_prerequisites(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<EditCoursePrerequisite>> {
+    let res = sqlx::query_as!(
+        EditCoursePrerequisite,
+        "
+SELECT id,
+prerequisite,
+course_id
+FROM course_prerequisites
+WHERE deleted_at IS NULL
+",
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_edit_course_prerequisites_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<EditCoursePrerequisite>> {
+    let res = sqlx::query_as!(
+        EditCoursePrerequisite,
+        "
+SELECT id,
+prerequisite,
+course_id
+FROM course_prerequisites
+WHERE course_id = $1
+AND deleted_at IS NULL
+",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -70,6 +111,61 @@ AND deleted_at IS NULL
     )
     .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn upsert_course_prerequisites(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    prerequisite_ids: Vec<Uuid>,
+    updated_prerequisites: Vec<String>,
+    embeddings: Vec<Vec<f32>>,
+) -> ModelResult<Vec<CoursePrerequisite>> {
+    let embed_vecs: Vec<Vector> = embeddings.into_iter().map(Vector::from).collect();
+
+    let id_count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM course_prerequisites
+WHERE id = ANY($2)
+  AND course_id != $1
+"#,
+        course_id,
+        &prerequisite_ids,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    if id_count != 0 {
+        return Err(model_err!(
+            InvalidRequest,
+            "Ids of some given prerequisite entries already exists on other courses.".to_string()
+        ));
+    }
+
+    let res = sqlx::query_as!(
+        CoursePrerequisite,
+        r#"
+INSERT INTO course_prerequisites (course_id, id, prerequisite, embedding)
+SELECT $1,
+  course_prerequisite.id,
+  course_prerequisite.prerequisite,
+  course_prerequisite.embedding
+FROM UNNEST ($2::UUID [], $3::TEXT [], $4::VECTOR []) AS course_prerequisite(id, prerequisite, embedding) ON CONFLICT (id) DO
+UPDATE
+SET prerequisite = EXCLUDED.prerequisite,
+  embedding = EXCLUDED.embedding
+WHERE course_prerequisites.deleted_at IS NULL
+RETURNING *
+"#,
+        course_id,
+        &prerequisite_ids,
+        &updated_prerequisites,
+        &embed_vecs as _
+    )
+    .fetch_all(conn)
+    .await?;
+
     Ok(res)
 }
 

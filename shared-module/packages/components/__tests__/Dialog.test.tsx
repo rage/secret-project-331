@@ -174,4 +174,49 @@ describe("Dialog", () => {
     expect(dialog).toHaveAttribute("role", "dialog")
     expect(screen.getByRole("button", { name: "Tallenna" })).toBeInTheDocument()
   })
+
+  test("renders every action", () => {
+    renderUi(
+      <Dialog
+        open
+        onClose={jest.fn()}
+        title="Confirm deletion"
+        actions={[{ label: "Cancel", variant: "secondary" }, { label: "Delete" }]}
+      >
+        <p>Content</p>
+      </Dialog>,
+    )
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument()
+  })
+
+  test("calls the handler of the pressed action only", () => {
+    const onCancel = jest.fn()
+    const onDelete = jest.fn()
+    renderUi(
+      <Dialog
+        open
+        onClose={jest.fn()}
+        title="Confirm deletion"
+        actions={[
+          { label: "Cancel", onPress: onCancel },
+          { label: "Delete", onPress: onDelete },
+        ]}
+      >
+        <p>Content</p>
+      </Dialog>,
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }))
+    expect(onDelete).toHaveBeenCalledTimes(1)
+    expect(onCancel).not.toHaveBeenCalled()
+  })
+
+  test("disables an action", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Save" actions={[{ label: "Save", disabled: true }]}>
+        <p>Content</p>
+      </Dialog>,
+    )
+    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
+  })
 })

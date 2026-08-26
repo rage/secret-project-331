@@ -1116,6 +1116,44 @@ export type CourseAudience = {
   updated_at: string
 }
 
+export type CourseAuditingData = {
+  audiences: Array<EditCourseAudience>
+  closed_additional_message?: string | null
+  closed_at?: string | null
+  closed_course_successor_id?: string | null
+  created_at: string
+  description?: string | null
+  id: string
+  modules: Array<CourseModule>
+  name: string
+  organization_id: string
+  organization_name: string
+  organization_slug: string
+  prerequisites: Array<EditCoursePrerequisite>
+  slug: string
+  updated_at: string
+}
+
+export type CourseAuditingDataUpdate = {
+  audiences: Array<EditCourseAudience>
+  closed_additional_message?: string | null
+  closed_at?: string | null
+  closed_course_successor_id?: string | null
+  description?: string | null
+  modules: Array<CourseAuditingModuleUpdate>
+  prerequisites: Array<EditCoursePrerequisite>
+}
+
+export type CourseAuditingModuleUpdate = {
+  completion_registration_link_override?: string | null
+  ects_credits?: number | null
+  enable_registering_completion_to_uh_open_university: boolean
+  id: string
+  name?: string | null
+  order_number: number
+  uh_course_code?: string | null
+}
+
 export type CourseBreadcrumbInfo = {
   course_id: string
   course_name: string
@@ -1486,12 +1524,13 @@ export type CourseMetadata = {
   course_audiences: Array<CourseAudience>
   course_description?: string | null
   course_prerequisites: Array<CoursePrerequisite>
+  course_updated_at: string
 }
 
 export type CourseMetadataUpdate = {
-  course_audiences: Array<NewCourseAudience>
+  course_audiences: Array<EditCourseAudience>
   course_description?: string | null
-  course_prerequisites: Array<NewCoursePrerequisite>
+  course_prerequisites: Array<EditCoursePrerequisite>
 }
 
 /**
@@ -1510,6 +1549,7 @@ export type CourseModule = {
   created_at: string
   deleted_at?: string | null
   ects_credits?: number | null
+  enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
@@ -1785,6 +1825,11 @@ export type CourseUpdate = {
   is_joinable_by_code_only: boolean
   is_test_mode: boolean
   is_unlisted: boolean
+  name: string
+}
+
+export type CreateChatbotRequest = {
+  course_id?: string | null
   name: string
 }
 
@@ -2598,6 +2643,18 @@ export type DomainCompletionStats = {
   unique_users: number
   users_with_some_registered_completions: number
   users_with_some_unregistered_completions: number
+}
+
+export type EditCourseAudience = {
+  audience: string
+  course_id: string
+  id: string
+}
+
+export type EditCoursePrerequisite = {
+  course_id: string
+  id: string
+  prerequisite: string
 }
 
 export type EditProposalInfo = {
@@ -3527,14 +3584,6 @@ export type NewCourse = {
   teacher_in_charge_name: string
 }
 
-export type NewCourseAudience = {
-  audience: string
-}
-
-export type NewCoursePrerequisite = {
-  prerequisite: string
-}
-
 export type NewExam = {
   ends_at?: string | null
   grade_manually: boolean
@@ -3609,6 +3658,12 @@ export type NewTeacherGradingDecision = {
   hidden: boolean
   justification?: string | null
   manual_points?: number | null
+  /**
+   * Resets the student's progress on the exercise so they can answer it again. Independent of
+   * `action`, so a decision can record why the answer was rejected and still reopen it.
+   * Requires the exercise to belong to a course.
+   */
+  reset_exercise: boolean
   user_exercise_state_id: string
 }
 
@@ -4490,6 +4545,9 @@ export type TeacherDecisionType =
   | "CustomPoints"
   | "SuspectedPlagiarism"
   | "RejectAndReset"
+  | "UnauthorizedAiUse"
+  | "BadAnswer"
+  | "Other"
 
 export type TeacherGradingDecision = {
   created_at: string
@@ -5096,11 +5154,11 @@ export type GetCourseChaptersResponse = GetCourseChaptersResponses[keyof GetCour
 export type GetChatbotModelsData = {
   body?: never
   path?: never
-  query: {
+  query?: {
     /**
      * Course id
      */
-    course_id: string
+    course_id?: string
   }
   url: "/api/v0/main-frontend/chatbot-models/"
 }
@@ -5150,6 +5208,25 @@ export type GetAllChatbotsResponses = {
 }
 
 export type GetAllChatbotsResponse = GetAllChatbotsResponses[keyof GetAllChatbotsResponses]
+
+export type CreateChatbotData = {
+  /**
+   * JSON object with chatbot name and optional course id, e.g. "name: Chatbot 1, course_id: null".
+   */
+  body: CreateChatbotRequest
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/chatbots/create"
+}
+
+export type CreateChatbotResponses = {
+  /**
+   * Created chatbot
+   */
+  200: ChatbotConfiguration
+}
+
+export type CreateChatbotResponse = CreateChatbotResponses[keyof CreateChatbotResponses]
 
 export type DeleteChatbotConfigurationData = {
   body?: never
@@ -5362,6 +5439,45 @@ export type DeleteCodeGiveawayCodeResponses = {
    */
   200: unknown
 }
+
+export type GetCoursesForAuditingData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-auditing/"
+}
+
+export type GetCoursesForAuditingResponses = {
+  /**
+   * Courses for auditing
+   */
+  200: Array<CourseAuditingData>
+}
+
+export type GetCoursesForAuditingResponse =
+  GetCoursesForAuditingResponses[keyof GetCoursesForAuditingResponses]
+
+export type UpdateCourseAuditingDataData = {
+  body: CourseAuditingDataUpdate
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-auditing/{course_id}"
+}
+
+export type UpdateCourseAuditingDataResponses = {
+  /**
+   * Updated course
+   */
+  200: CourseAuditingData
+}
+
+export type UpdateCourseAuditingDataResponse =
+  UpdateCourseAuditingDataResponses[keyof UpdateCourseAuditingDataResponses]
 
 export type GetCourseCreditRegistrationActionsData = {
   body?: never
@@ -6609,31 +6725,6 @@ export type GetCourseChatbotsResponses = {
 }
 
 export type GetCourseChatbotsResponse = GetCourseChatbotsResponses[keyof GetCourseChatbotsResponses]
-
-export type CreateCourseChatbotData = {
-  /**
-   * JSON string literal chatbot name, e.g. "Chatbot 1".
-   */
-  body: string
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/chatbots"
-}
-
-export type CreateCourseChatbotResponses = {
-  /**
-   * Created course chatbot
-   */
-  200: ChatbotConfiguration
-}
-
-export type CreateCourseChatbotResponse =
-  CreateCourseChatbotResponses[keyof CreateCourseChatbotResponses]
 
 export type SetCourseChatbotAsDefaultData = {
   body?: never
@@ -8609,7 +8700,7 @@ export type GetCourseStudentsUsersData = {
      */
     search?: string
     /**
-     * last_name | first_name | email
+     * last_name | first_name | email | total_points
      */
     sort_column?: string
     /**
@@ -8620,6 +8711,14 @@ export type GetCourseStudentsUsersData = {
      * Filter to a single course instance
      */
     course_instance_id?: string
+    /**
+     * Scopes `grade` to this module's completions
+     */
+    module_id?: string
+    /**
+     * A sis-0-5 grade ("0".."5"), "passed"/"failed", or "not_completed"; requires module_id
+     */
+    grade?: string
   }
   url: "/api/v0/main-frontend/courses/{course_id}/students/users"
 }

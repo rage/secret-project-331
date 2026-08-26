@@ -22,6 +22,11 @@ interface DotProps {
   delaySeconds: number
 }
 
+// Hoisted because emotion re-serializes and re-hashes the result on every call.
+const wrapperStyle = css`
+  margin: 0 3px;
+`
+
 // oxlint-disable-next-line i18next/no-literal-string
 const Dot = styled.span<DotProps>`
   display: inline-block;
@@ -37,13 +42,11 @@ const Dot = styled.span<DotProps>`
   animation-delay: ${({ delaySeconds }) => delaySeconds}s;
 `
 
+/// Bouncing dots, hidden from screen readers: a caller that needs the state announced has to render
+/// its own text for it.
 const ThinkingIndicator: React.FC = () => {
   return (
-    <span
-      className={css`
-        margin: 0 3px;
-      `}
-    >
+    <span aria-hidden="true" className={wrapperStyle}>
       <Dot delaySeconds={0} />
       <Dot delaySeconds={0.2} />
       <Dot delaySeconds={0.4} />

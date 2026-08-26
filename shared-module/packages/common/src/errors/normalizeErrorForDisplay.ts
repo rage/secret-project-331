@@ -34,6 +34,7 @@ export type BackendMessageKey =
   | "invalid_course_code"
   | "generic_sisu_error"
   | "sisu_resource_not_found"
+  | "foreign_key_violation"
 
 export interface ErrorViewIssue {
   path?: string | undefined
@@ -87,7 +88,8 @@ function isBackendMessageKey(value: unknown): value is BackendMessageKey {
     value === "oauth_error" ||
     value === "invalid_course_code" ||
     value === "generic_sisu_error" ||
-    value === "sisu_resource_not_found"
+    value === "sisu_resource_not_found" ||
+    value === "foreign_key_violation"
   )
 }
 

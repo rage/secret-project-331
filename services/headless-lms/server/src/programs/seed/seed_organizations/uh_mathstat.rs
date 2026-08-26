@@ -22,8 +22,10 @@ use crate::{
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
             seed_course_with_peer_review::seed_peer_review_course, seed_generated_description,
-            seed_introduction_to_codes::seed_introduction_to_codes, seed_lock_chapter_course,
-            seed_material_reference_course, seed_metadata_course::seed_metadata_course,
+            seed_introduction_to_codes::seed_introduction_to_codes,
+            seed_introduction_to_course_auditing::seed_introduction_to_course_auditing,
+            seed_lock_chapter_course, seed_material_reference_course,
+            seed_metadata_course::seed_metadata_course,
             seed_peer_review_course_without_submissions, seed_sample_course,
             seed_switching_course_instances_course,
         },
@@ -348,6 +350,15 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let _introduction_to_course_auditing = seed_introduction_to_course_auditing(
+        &app_config,
+        Uuid::parse_str("1f696688-5d8a-494f-9abc-a3b5d9e5f04a")?,
+        "Introduction to course auditing",
+        "introduction-to-course-auditing",
+        uh_data.clone(),
+    )
+    .await?;
+
     let _metadata_course = seed_metadata_course(
         &app_config,
         Uuid::parse_str("6237f9a6-15d5-46f6-89fb-d9d59bdc7b65")?,
@@ -414,6 +425,7 @@ pub async fn seed_organization_uh_mathstat(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             default_chatbot: true,
+            use_tools: true,
             model_id: seed_llm_result.llm_default_model_id,
             ..Default::default()
         },

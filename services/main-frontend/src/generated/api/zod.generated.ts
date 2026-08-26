@@ -831,6 +831,19 @@ export const zCourseAudience = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCourseAuditingModuleUpdate = z.object({
+  completion_registration_link_override: z.string().nullish(),
+  ects_credits: z.number().nullish(),
+  enable_registering_completion_to_uh_open_university: z.boolean(),
+  id: z.uuid(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  uh_course_code: z.string().nullish(),
+})
+
 export const zCourseBreadcrumbInfo = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
@@ -1110,6 +1123,7 @@ export const zCourseModule = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   ects_credits: z.number().nullish(),
+  enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
@@ -1236,6 +1250,7 @@ export const zCourseMetadata = z.object({
   course_audiences: z.array(zCourseAudience),
   course_description: z.string().nullish(),
   course_prerequisites: z.array(zCoursePrerequisite),
+  course_updated_at: z.iso.datetime(),
 })
 
 /**
@@ -1269,6 +1284,11 @@ export const zCourseUpdate = z.object({
   is_joinable_by_code_only: z.boolean(),
   is_test_mode: z.boolean(),
   is_unlisted: z.boolean(),
+  name: z.string(),
+})
+
+export const zCreateChatbotRequest = z.object({
+  course_id: z.uuid().nullish(),
   name: z.string(),
 })
 
@@ -2723,6 +2743,52 @@ export const zDomainCompletionStats = z.object({
     }),
 })
 
+export const zEditCourseAudience = z.object({
+  audience: z.string(),
+  course_id: z.uuid(),
+  id: z.uuid(),
+})
+
+export const zEditCoursePrerequisite = z.object({
+  course_id: z.uuid(),
+  id: z.uuid(),
+  prerequisite: z.string(),
+})
+
+export const zCourseAuditingData = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  description: z.string().nullish(),
+  id: z.uuid(),
+  modules: z.array(zCourseModule),
+  name: z.string(),
+  organization_id: z.uuid(),
+  organization_name: z.string(),
+  organization_slug: z.string(),
+  prerequisites: z.array(zEditCoursePrerequisite),
+  slug: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseAuditingDataUpdate = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  description: z.string().nullish(),
+  modules: z.array(zCourseAuditingModuleUpdate),
+  prerequisites: z.array(zEditCoursePrerequisite),
+})
+
+export const zCourseMetadataUpdate = z.object({
+  course_audiences: z.array(zEditCourseAudience),
+  course_description: z.string().nullish(),
+  course_prerequisites: z.array(zEditCoursePrerequisite),
+})
+
 export const zEditProposalInfo = z.object({
   block_proposals: z.array(zBlockProposalInfo),
   page_id: z.uuid(),
@@ -3716,20 +3782,6 @@ export const zCopyCourseRequest = zNewCourse.and(
     mode: zCopyCourseMode,
   }),
 )
-
-export const zNewCourseAudience = z.object({
-  audience: z.string(),
-})
-
-export const zNewCoursePrerequisite = z.object({
-  prerequisite: z.string(),
-})
-
-export const zCourseMetadataUpdate = z.object({
-  course_audiences: z.array(zNewCourseAudience),
-  course_description: z.string().nullish(),
-  course_prerequisites: z.array(zNewCoursePrerequisite),
-})
 
 export const zNewExam = z.object({
   ends_at: z.iso.datetime().nullish(),
@@ -5339,6 +5391,9 @@ export const zTeacherDecisionType = z.enum([
   "CustomPoints",
   "SuspectedPlagiarism",
   "RejectAndReset",
+  "UnauthorizedAiUse",
+  "BadAnswer",
+  "Other",
 ])
 
 export const zNewTeacherGradingDecision = z.object({
@@ -5347,6 +5402,7 @@ export const zNewTeacherGradingDecision = z.object({
   hidden: z.boolean(),
   justification: z.string().nullish(),
   manual_points: z.number().nullish(),
+  reset_exercise: z.boolean(),
   user_exercise_state_id: z.uuid(),
 })
 
@@ -6180,7 +6236,7 @@ export const zGetCourseChaptersPath = z.object({
 export const zGetCourseChaptersResponse = z.array(zDatabaseChapter)
 
 export const zGetChatbotModelsQuery = z.object({
-  course_id: z.uuid(),
+  course_id: z.uuid().optional(),
 })
 
 /**
@@ -6203,6 +6259,16 @@ export const zGetChatbotModelResponse = zChatbotConfigurationModel
  * All chatbots
  */
 export const zGetAllChatbotsResponse = z.array(zChatbotConfiguration)
+
+/**
+ * JSON object with chatbot name and optional course id, e.g. "name: Chatbot 1, course_id: null".
+ */
+export const zCreateChatbotBody = zCreateChatbotRequest
+
+/**
+ * Created chatbot
+ */
+export const zCreateChatbotResponse = zChatbotConfiguration
 
 export const zDeleteChatbotConfigurationPath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -6286,6 +6352,22 @@ export const zDeleteCodeGiveawayCodePath = z.object({
   id: z.uuid(),
   code_id: z.uuid(),
 })
+
+/**
+ * Courses for auditing
+ */
+export const zGetCoursesForAuditingResponse = z.array(zCourseAuditingData)
+
+export const zUpdateCourseAuditingDataBody = zCourseAuditingDataUpdate
+
+export const zUpdateCourseAuditingDataPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Updated course
+ */
+export const zUpdateCourseAuditingDataResponse = zCourseAuditingData
 
 export const zGetCourseCreditRegistrationActionsPath = z.object({
   course_id: z.uuid(),
@@ -6810,20 +6892,6 @@ export const zGetCourseChatbotsPath = z.object({
  * Course chatbots
  */
 export const zGetCourseChatbotsResponse = z.array(zChatbotConfiguration)
-
-/**
- * JSON string literal chatbot name, e.g. "Chatbot 1".
- */
-export const zCreateCourseChatbotBody = z.string()
-
-export const zCreateCourseChatbotPath = z.object({
-  course_id: z.string(),
-})
-
-/**
- * Created course chatbot
- */
-export const zCreateCourseChatbotResponse = zChatbotConfiguration
 
 export const zSetCourseChatbotAsDefaultPath = z.object({
   course_id: z.string(),
@@ -7669,6 +7737,8 @@ export const zGetCourseStudentsUsersQuery = z.object({
   sort_column: z.string().optional(),
   sort_direction: z.string().optional(),
   course_instance_id: z.uuid().optional(),
+  module_id: z.uuid().optional(),
+  grade: z.string().optional(),
 })
 
 /**

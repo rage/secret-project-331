@@ -566,7 +566,7 @@
             "name": "course_id",
             "in": "query",
             "description": "Course id",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -647,6 +647,36 @@
                   "items": {
                     "$ref": "#/components/schemas/ChatbotConfiguration"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/chatbots/create": {
+      "post": {
+        "tags": ["chatbots"],
+        "summary": "POST `/api/v0/main-frontend/chatbots/create`",
+        "operationId": "createChatbot",
+        "requestBody": {
+          "description": "JSON object with chatbot name and optional course id, e.g. \"name: Chatbot 1, course_id: null\".",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChatbotRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created chatbot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfiguration"
                 }
               }
             }
@@ -980,6 +1010,69 @@
         "responses": {
           "200": {
             "description": "Deleted giveaway code"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-auditing/": {
+      "get": {
+        "tags": ["course_auditing"],
+        "summary": "\nGET `/api/v0/main-frontend/course-auditing`",
+        "operationId": "getCoursesForAuditing",
+        "responses": {
+          "200": {
+            "description": "Courses for auditing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseAuditingData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-auditing/{course_id}": {
+      "put": {
+        "tags": ["course_auditing"],
+        "summary": "\nPUT `/api/v0/main-frontend/course-auditing/:id`",
+        "operationId": "updateCourseAuditingData",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseAuditingDataUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseAuditingData"
+                }
+              }
+            }
           }
         }
       }
@@ -2936,45 +3029,6 @@
                   "items": {
                     "$ref": "#/components/schemas/ChatbotConfiguration"
                   }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": ["courses"],
-        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/chatbots`",
-        "operationId": "createCourseChatbot",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "JSON string literal chatbot name, e.g. \"Chatbot 1\".",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Created course chatbot",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChatbotConfiguration"
                 }
               }
             }
@@ -6260,7 +6314,7 @@
           {
             "name": "sort_column",
             "in": "query",
-            "description": "last_name | first_name | email",
+            "description": "last_name | first_name | email | total_points",
             "required": false,
             "schema": {
               "type": "string"
@@ -6283,6 +6337,25 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "module_id",
+            "in": "query",
+            "description": "Scopes `grade` to this module's completions",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "description": "A sis-0-5 grade (\"0\"..\"5\"), \"passed\"/\"failed\", or \"not_completed\"; requires module_id",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -16911,6 +16984,152 @@
           }
         }
       },
+      "CourseAuditingData": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "created_at",
+          "updated_at",
+          "organization_id",
+          "organization_name",
+          "organization_slug",
+          "prerequisites",
+          "audiences",
+          "modules"
+        ],
+        "properties": {
+          "audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditCourseAudience"
+            }
+          },
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModule"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "organization_slug": {
+            "type": "string"
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditCoursePrerequisite"
+            }
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseAuditingDataUpdate": {
+        "type": "object",
+        "required": ["prerequisites", "audiences", "modules"],
+        "properties": {
+          "audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditCourseAudience"
+            }
+          },
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseAuditingModuleUpdate"
+            }
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditCoursePrerequisite"
+            }
+          }
+        }
+      },
+      "CourseAuditingModuleUpdate": {
+        "type": "object",
+        "required": ["id", "order_number", "enable_registering_completion_to_uh_open_university"],
+        "properties": {
+          "completion_registration_link_override": {
+            "type": ["string", "null"]
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "enable_registering_completion_to_uh_open_university": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
       "CourseBreadcrumbInfo": {
         "type": "object",
         "required": [
@@ -18038,7 +18257,7 @@
       },
       "CourseMetadata": {
         "type": "object",
-        "required": ["course_audiences", "course_prerequisites"],
+        "required": ["course_audiences", "course_prerequisites", "course_updated_at"],
         "properties": {
           "course_audiences": {
             "type": "array",
@@ -18054,6 +18273,10 @@
             "items": {
               "$ref": "#/components/schemas/CoursePrerequisite"
             }
+          },
+          "course_updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -18064,7 +18287,7 @@
           "course_audiences": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/NewCourseAudience"
+              "$ref": "#/components/schemas/EditCourseAudience"
             }
           },
           "course_description": {
@@ -18073,7 +18296,7 @@
           "course_prerequisites": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/NewCoursePrerequisite"
+              "$ref": "#/components/schemas/EditCoursePrerequisite"
             }
           }
         }
@@ -18089,7 +18312,8 @@
           "order_number",
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
-          "certification_enabled"
+          "certification_enabled",
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "certification_enabled": {
@@ -18121,6 +18345,9 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
@@ -18775,6 +19002,19 @@
           },
           "is_unlisted": {
             "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateChatbotRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
           },
           "name": {
             "type": "string"
@@ -20644,6 +20884,40 @@
           "users_with_some_unregistered_completions": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "EditCourseAudience": {
+        "type": "object",
+        "required": ["id", "course_id", "audience"],
+        "properties": {
+          "audience": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EditCoursePrerequisite": {
+        "type": "object",
+        "required": ["id", "course_id", "prerequisite"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "prerequisite": {
+            "type": "string"
           }
         }
       },
@@ -23387,24 +23661,6 @@
           }
         }
       },
-      "NewCourseAudience": {
-        "type": "object",
-        "required": ["audience"],
-        "properties": {
-          "audience": {
-            "type": "string"
-          }
-        }
-      },
-      "NewCoursePrerequisite": {
-        "type": "object",
-        "required": ["prerequisite"],
-        "properties": {
-          "prerequisite": {
-            "type": "string"
-          }
-        }
-      },
       "NewExam": {
         "type": "object",
         "required": [
@@ -23622,7 +23878,7 @@
       },
       "NewTeacherGradingDecision": {
         "type": "object",
-        "required": ["user_exercise_state_id", "exercise_id", "action", "hidden"],
+        "required": ["user_exercise_state_id", "exercise_id", "action", "hidden", "reset_exercise"],
         "properties": {
           "action": {
             "$ref": "#/components/schemas/TeacherDecisionType"
@@ -23640,6 +23896,10 @@
           "manual_points": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "reset_exercise": {
+            "type": "boolean",
+            "description": "Resets the student's progress on the exercise so they can answer it again. Independent of\n`action`, so a decision can record why the answer was rejected and still reopen it.\nRequires the exercise to belong to a course."
           },
           "user_exercise_state_id": {
             "type": "string",
@@ -26066,7 +26326,10 @@
           "ZeroPoints",
           "CustomPoints",
           "SuspectedPlagiarism",
-          "RejectAndReset"
+          "RejectAndReset",
+          "UnauthorizedAiUse",
+          "BadAnswer",
+          "Other"
         ]
       },
       "TeacherGradingDecision": {

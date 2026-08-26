@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\nprerequisite,\ncourse_id\nFROM course_prerequisites\nWHERE deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_prerequisites",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "prerequisite",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_prerequisites",
+            "name": "prerequisite"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_prerequisites",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d1f4c43b6f1c50d44a14a706cf01952975e316cc0a6a7df2c9d06a136dcb4ca6"
+}

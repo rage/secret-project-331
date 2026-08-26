@@ -10,6 +10,8 @@ license.workspace = true
 headless-lms-base = { path = "../base" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
+# Evaluates the permission a client tool requires, both when offering it and when applying an answer.
+headless-lms-authorization = { path = "../authorization" }
 
 # Wrapper types (SecretString/SecretBox) for sensitive values such as API keys.
 secrecy.workspace = true
@@ -32,6 +34,9 @@ reqwest = { version = "0.13.4", features = ["brotli", "gzip", "json", "http2", "
 serde = { version = "1.0.229", features = ["derive"] }
 # A JSON serialization file format
 serde_json = "1.0.151"
+# Hash map that keeps insertion order, so serialized tool and response schemas are byte-stable and
+# Azure's prompt cache can match on them.
+indexmap = { version = "2.14.0", features = ["serde"] }
 # Application-level tracing for Rust.
 tracing = "0.1.44"
 # A library to generate and parse UUIDs.
@@ -62,6 +67,12 @@ backtrace = "0.3.76"
 rand = "0.10.2"
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa.workspace = true
+
+[dev-dependencies]
+# `#[tokio::test]`, for the tool permission tests, which need a database connection.
+tokio = { workspace = true, features = ["macros"] }
+# Repeats the dependency above only to switch on `test_helper` and its `insert_data!` macro.
+headless-lms-models = { path = "../models", features = ["test-helpers"] }
 
 [lints.clippy]
 unwrap_used = "deny"

@@ -3,14 +3,7 @@
 //
 // Since this file is auto-generated, any changes you make to it will be overwritten by the next run of bin/generate-bindings.
 
-import type {
-  Client,
-  ClientMeta,
-  Options as Options2,
-  RequestResult,
-  ServerSentEventsResult,
-  TDataShape,
-} from "./client"
+import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from "./client"
 import { client } from "./client.generated"
 import type {
   AcknowledgeAiUsageNoticeData,
@@ -166,8 +159,9 @@ import type {
   SearchPagesWithWordsData,
   SearchPagesWithWordsResponses,
   SendChatbotMessageData,
-  SendChatbotMessageResponse,
   SendChatbotMessageResponses,
+  SendChatbotToolResponseData,
+  SendChatbotToolResponseResponses,
   UpdateCourseMaterialGlossaryTermData,
   UpdateCourseMaterialGlossaryTermResponses,
   UpdateCourseMaterialUserInfoData,
@@ -250,6 +244,7 @@ import {
   zSearchPagesWithPhraseResponse,
   zSearchPagesWithWordsResponse,
   zSendChatbotMessageResponse,
+  zSendChatbotToolResponseResponse,
   zUpdateCourseMaterialUserInfoResponse,
   zUpdateMarketingConsentResponse,
 } from "./zod.generated"
@@ -495,12 +490,34 @@ export const newChatbotConversation = <ThrowOnError extends boolean = true>(
  * Sends a new chat message to the chatbot.
  */
 export const sendChatbotMessage = <ThrowOnError extends boolean = true>(
-  options: Options<SendChatbotMessageData, ThrowOnError, SendChatbotMessageResponse>,
-): Promise<ServerSentEventsResult<SendChatbotMessageResponses>> =>
-  (options.client ?? client).sse.post<SendChatbotMessageResponses, unknown, ThrowOnError, "data">({
+  options: Options<SendChatbotMessageData, ThrowOnError>,
+): RequestResult<SendChatbotMessageResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SendChatbotMessageResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zSendChatbotMessageResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`
+ *
+ * Answers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else
+ * is outstanding. Responds with the same stream `send-message` does, carrying either the resumed
+ * turn or a lone `Suspended` event when the turn is still waiting for another answer.
+ */
+export const sendChatbotToolResponse = <ThrowOnError extends boolean = true>(
+  options: Options<SendChatbotToolResponseData, ThrowOnError>,
+): RequestResult<SendChatbotToolResponseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SendChatbotToolResponseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSendChatbotToolResponseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response",
     ...options,
     headers: {
       "Content-Type": "application/json",

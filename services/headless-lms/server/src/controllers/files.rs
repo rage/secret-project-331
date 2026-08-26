@@ -519,7 +519,7 @@ mod answer_upload_tests {
     /// Puts a user into the session without going through a login flow, so `AuthUser` resolves.
     async fn test_login(user_id: web::Path<Uuid>, session: actix_session::Session) -> HttpResponse {
         let now = Utc::now();
-        crate::domain::authorization::remember(
+        crate::domain::authentication::remember(
             &session,
             models::users::User {
                 id: *user_id,

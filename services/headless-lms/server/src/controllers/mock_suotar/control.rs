@@ -422,9 +422,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
 #[cfg(test)]
 mod tests {
     use actix_web::{App, http::StatusCode, test, web::Data};
-    use headless_lms_base::config::{OAuthServerConfiguration, SuotarConfiguration};
-    use secrecy::{SecretBox, SecretString};
-    use std::sync::Arc;
 
     use super::*;
     use crate::controllers::configure_controllers;
@@ -432,26 +429,9 @@ mod tests {
     /// The mock config is present either way; `test_suotar` alone decides whether the routes exist.
     fn app_conf(test_suotar: bool) -> ApplicationConfiguration {
         ApplicationConfiguration {
-            base_url: "http://project-331.local".to_string(),
-            test_mode: true,
-            test_chatbot: false,
-            test_sisu: false,
             test_suotar,
-            disable_embedding_vector_creation_when_seeding: false,
-            development_uuid_login: false,
-            enable_admin_email_verification: false,
-            enable_email_ownership_verification: false,
-            azure_configuration: None,
-            suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
-                .expect("the mock configuration is built from a constant base url"),
-            tmc_account_creation_origin: None,
-            tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
-            oauth_server_configuration: OAuthServerConfiguration {
-                rsa_public_key: "test".into(),
-                rsa_private_key: SecretString::new("test".into()),
-                oauth_token_hmac_key: SecretString::new("test".into()),
-                dpop_nonce_key: Arc::new(SecretBox::new(Box::new("test".into()))),
-            },
+            ..ApplicationConfiguration::mock_conf()
+                .expect("the mock configuration is built from constants")
         }
     }
 

@@ -130,6 +130,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
       // oxlint-disable-next-line i18next/no-literal-string
       action: "CustomPoints",
       manual_points: Number(data.manual_points),
+      reset_exercise: false,
     }
 
     await submitMutation.mutateAsync({

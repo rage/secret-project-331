@@ -80,10 +80,10 @@ import type {
   ConfirmCourseSuspectedCheaterResponses,
   CreateChapterData,
   CreateChapterResponses,
+  CreateChatbotData,
+  CreateChatbotResponses,
   CreateCodeGiveawayData,
   CreateCodeGiveawayResponses,
-  CreateCourseChatbotData,
-  CreateCourseChatbotResponses,
   CreateCourseCopyData,
   CreateCourseCopyResponses,
   CreateCourseData,
@@ -371,6 +371,8 @@ import type {
   GetCourseReferencesData,
   GetCourseReferencesResponses,
   GetCourseResponses,
+  GetCoursesForAuditingData,
+  GetCoursesForAuditingResponses,
   GetCourseStructureData,
   GetCourseStructureResponses,
   GetCourseStudentChapterLockingStatusesData,
@@ -760,6 +762,8 @@ import type {
   UpdateChapterImageData,
   UpdateChapterImageResponses,
   UpdateChapterResponses,
+  UpdateCourseAuditingDataData,
+  UpdateCourseAuditingDataResponses,
   UpdateCourseChapterOrderingData,
   UpdateCourseChapterOrderingResponses,
   UpdateCourseData,
@@ -831,8 +835,8 @@ import {
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
   zCreateChapterResponse,
+  zCreateChatbotResponse,
   zCreateCodeGiveawayResponse,
-  zCreateCourseChatbotResponse,
   zCreateCourseCopyResponse,
   zCreateCourseDesignerPlanResponse,
   zCreateCourseDesignerScheduleSuggestionResponse,
@@ -945,6 +949,7 @@ import {
   zGetCourseProgressForUserResponse,
   zGetCourseReferencesResponse,
   zGetCourseResponse,
+  zGetCoursesForAuditingResponse,
   zGetCourseStructureResponse,
   zGetCourseStudentChapterLockingStatusesResponse,
   zGetCourseStudentsCertificatesResponse,
@@ -1115,6 +1120,7 @@ import {
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
   zUpdateChapterResponse,
+  zUpdateCourseAuditingDataResponse,
   zUpdateCourseDesignerStageTaskResponse,
   zUpdateCourseDesignerStageWorkspaceResponse,
   zUpdateCoursePeerReviewQueueReviewsReceivedResponse,
@@ -1489,9 +1495,9 @@ export const getCourseChapters = <ThrowOnError extends boolean = true>(
  * GET `/api/v0/main-frontend/chatbot-models?course_id={course_id}`
  */
 export const getChatbotModels = <ThrowOnError extends boolean = true>(
-  options: Options<GetChatbotModelsData, ThrowOnError>,
+  options?: Options<GetChatbotModelsData, ThrowOnError>,
 ): RequestResult<GetChatbotModelsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetChatbotModelsResponses, unknown, ThrowOnError, "data">({
+  (options?.client ?? client).get<GetChatbotModelsResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetChatbotModelsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/chatbot-models/",
@@ -1526,6 +1532,23 @@ export const getAllChatbots = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/chatbots/",
     ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/chatbots/create`
+ */
+export const createChatbot = <ThrowOnError extends boolean = true>(
+  options: Options<CreateChatbotData, ThrowOnError>,
+): RequestResult<CreateChatbotResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateChatbotResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateChatbotResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbots/create",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -1686,6 +1709,38 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-auditing`
+ */
+export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCoursesForAuditingData, ThrowOnError>,
+): RequestResult<GetCoursesForAuditingResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetCoursesForAuditingResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCoursesForAuditingResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-auditing/",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/course-auditing/:id`
+ */
+export const updateCourseAuditingData = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateCourseAuditingDataData, ThrowOnError>,
+): RequestResult<UpdateCourseAuditingDataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateCourseAuditingDataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateCourseAuditingDataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-auditing/{course_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
 
 /**
  *
@@ -2746,23 +2801,6 @@ export const getCourseChatbots = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/chatbots",
     ...options,
-  })
-
-/**
- * POST `/api/v0/main-frontend/courses/{course_id}/chatbots`
- */
-export const createCourseChatbot = <ThrowOnError extends boolean = true>(
-  options: Options<CreateCourseChatbotData, ThrowOnError>,
-): RequestResult<CreateCourseChatbotResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<CreateCourseChatbotResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zCreateCourseChatbotResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/courses/{course_id}/chatbots",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   })
 
 /**

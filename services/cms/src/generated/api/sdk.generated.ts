@@ -55,6 +55,8 @@ import type {
   GetCmsPageResponses,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponses,
+  GetExercisesWithSubmissionsData,
+  GetExercisesWithSubmissionsResponses,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponses,
   UpdateCmsCourseDefaultPeerReviewData,
@@ -100,6 +102,7 @@ import {
   zGetCmsPageNavigationResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
+  zGetExercisesWithSubmissionsResponse,
   zRequestParagraphSuggestionsResponse,
   zUpdateCmsCourseDefaultPeerReviewResponse,
   zUpdateCmsEmailTemplateResponse,
@@ -673,6 +676,32 @@ export const updateCmsPage = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/cms/pages/{page_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns
+ * the subset that has at least one existing submission. Used by the editor to warn the teacher before
+ * saving a page edit that would remove one of these exercises, since that soft-deletes it and orphans
+ * its submissions.
+ */
+export const getExercisesWithSubmissions = <ThrowOnError extends boolean = true>(
+  options: Options<GetExercisesWithSubmissionsData, ThrowOnError>,
+): RequestResult<GetExercisesWithSubmissionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    GetExercisesWithSubmissionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetExercisesWithSubmissionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/exercises-with-submissions",
     ...options,
     headers: {
       "Content-Type": "application/json",

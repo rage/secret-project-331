@@ -5,7 +5,7 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
-use headless_lms_models::library::credit_registration::student_number_change::record_student_number_change;
+use headless_lms_models::library::credit_registration::student_number_change::unlink_verified_student_number;
 use headless_lms_models::verified_student_numbers::{
     self, AdminVerifiedStudentNumber, StudentNumberVerificationMethod,
 };
@@ -130,9 +130,9 @@ pub async fn admin_unlink_student_number(
     let link = verified_student_numbers::get_by_id(&mut conn, id).await?;
 
     let mut tx = conn.begin().await?;
-    verified_student_numbers::soft_delete(&mut tx, id).await?;
-    let affected_registration_count = record_student_number_change(
+    let affected_registration_count = unlink_verified_student_number(
         &mut tx,
+        id,
         link.user_id,
         Some(user.id),
         CreditRegistrationEventKind::AdminAction,

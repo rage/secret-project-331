@@ -11,7 +11,7 @@ use headless_lms_models::credit_registrations::{
     CreditRegistrationState,
 };
 use headless_lms_models::suotar_api_calls::{
-    self, SuotarApiCall, SuotarApiCallFilters, SuotarEndpoint,
+    self, SuotarApiCall, SuotarApiCallFilters, SuotarApiCallPageRow, SuotarEndpoint,
 };
 use utoipa::ToSchema;
 
@@ -159,9 +159,7 @@ pub async fn list_suotar_api_calls(
     token.authorized_ok(web::Json(SuotarApiCallsPage {
         page: Page::new(
             pagination,
-            rows.into_iter()
-                .map(|row| to_call_row(row.into()))
-                .collect(),
+            rows.into_iter().map(to_call_row).collect(),
             total_count,
         ),
         worker_names,
@@ -217,7 +215,7 @@ pub async fn get_suotar_api_call(
         request_body_sample: call.request_body_sample.clone(),
         response_body_sample: call.response_body_sample.clone(),
         error_message: call.error_message.clone(),
-        call: to_call_row(call),
+        call: to_call_row_from_full(&call),
         ledger_references,
         events,
     }))
@@ -265,7 +263,7 @@ async fn resolve_ledger_references(
         .collect())
 }
 
-fn to_call_row(call: SuotarApiCall) -> SuotarApiCallRow {
+fn to_call_row(call: SuotarApiCallPageRow) -> SuotarApiCallRow {
     SuotarApiCallRow {
         id: call.id,
         endpoint: call.endpoint,
@@ -279,6 +277,24 @@ fn to_call_row(call: SuotarApiCall) -> SuotarApiCallRow {
         request_level_error_code: call.request_level_error_code,
         worker_name: call.worker_name,
         credit_registration_ids: call.credit_registration_ids,
+    }
+}
+
+/// The same summary, from the detail endpoint's full row rather than the bodyless listing one.
+fn to_call_row_from_full(call: &SuotarApiCall) -> SuotarApiCallRow {
+    SuotarApiCallRow {
+        id: call.id,
+        endpoint: call.endpoint,
+        started_at: call.started_at,
+        duration_ms: call.duration_ms,
+        http_status: call.http_status,
+        succeeded: call.succeeded,
+        request_item_count: call.request_item_count,
+        ok_item_count: call.ok_item_count,
+        error_item_count: call.error_item_count,
+        request_level_error_code: call.request_level_error_code.clone(),
+        worker_name: call.worker_name.clone(),
+        credit_registration_ids: call.credit_registration_ids.clone(),
     }
 }
 

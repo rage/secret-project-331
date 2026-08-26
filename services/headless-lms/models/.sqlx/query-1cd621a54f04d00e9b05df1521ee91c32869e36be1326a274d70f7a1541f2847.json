@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  endpoint AS \"endpoint!: SuotarEndpoint\",\n  request_item_count,\n  http_status,\n  duration_ms,\n  succeeded,\n  ok_item_count,\n  error_item_count,\n  request_level_error_code,\n  error_message,\n  request_body_sample,\n  response_body_sample,\n  credit_registration_ids,\n  worker_name,\n  started_at,\n  COUNT(*) OVER () AS \"total_count!\"\nFROM suotar_api_calls\nWHERE deleted_at IS NULL\n  AND (\n    $1::suotar_endpoint IS NULL\n    OR endpoint = $1\n  )\n  AND ($2::bool IS NULL OR succeeded = $2)\n  AND ($3::text IS NULL OR worker_name = $3)\n  AND ($4::timestamptz IS NULL OR started_at >= $4)\n  AND ($5::timestamptz IS NULL OR started_at <= $5)\n  AND (\n    $6::uuid IS NULL\n    OR credit_registration_ids @> ARRAY [$6::uuid]\n  )\nORDER BY started_at DESC,\n  id\nLIMIT $7 OFFSET $8\n        ",
+  "query": "\nSELECT id,\n  endpoint AS \"endpoint!: SuotarEndpoint\",\n  request_item_count,\n  http_status,\n  duration_ms,\n  succeeded,\n  ok_item_count,\n  error_item_count,\n  request_level_error_code,\n  credit_registration_ids,\n  worker_name,\n  started_at,\n  COUNT(*) OVER () AS \"total_count!\"\nFROM suotar_api_calls\nWHERE deleted_at IS NULL\n  AND (\n    $1::suotar_endpoint IS NULL\n    OR endpoint = $1\n  )\n  AND ($2::bool IS NULL OR succeeded = $2)\n  AND ($3::text IS NULL OR worker_name = $3)\n  AND ($4::timestamptz IS NULL OR started_at >= $4)\n  AND ($5::timestamptz IS NULL OR started_at <= $5)\n  AND (\n    $6::uuid IS NULL\n    OR credit_registration_ids @> ARRAY [$6::uuid]\n  )\nORDER BY started_at DESC,\n  id\nLIMIT $7 OFFSET $8\n        ",
   "describe": {
     "columns": [
       {
@@ -16,39 +16,6 @@
       },
       {
         "ordinal": 1,
-        "name": "created_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "suotar_api_calls",
-            "name": "created_at"
-          }
-        }
-      },
-      {
-        "ordinal": 2,
-        "name": "updated_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "suotar_api_calls",
-            "name": "updated_at"
-          }
-        }
-      },
-      {
-        "ordinal": 3,
-        "name": "deleted_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "suotar_api_calls",
-            "name": "deleted_at"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
         "name": "endpoint!: SuotarEndpoint",
         "type_info": {
           "Custom": {
@@ -73,7 +40,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 2,
         "name": "request_item_count",
         "type_info": "Int4",
         "origin": {
@@ -84,7 +51,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 3,
         "name": "http_status",
         "type_info": "Int4",
         "origin": {
@@ -95,7 +62,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 4,
         "name": "duration_ms",
         "type_info": "Int4",
         "origin": {
@@ -106,7 +73,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 5,
         "name": "succeeded",
         "type_info": "Bool",
         "origin": {
@@ -117,7 +84,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 6,
         "name": "ok_item_count",
         "type_info": "Int4",
         "origin": {
@@ -128,7 +95,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 7,
         "name": "error_item_count",
         "type_info": "Int4",
         "origin": {
@@ -139,7 +106,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 8,
         "name": "request_level_error_code",
         "type_info": "Varchar",
         "origin": {
@@ -150,40 +117,7 @@
         }
       },
       {
-        "ordinal": 12,
-        "name": "error_message",
-        "type_info": "Text",
-        "origin": {
-          "Table": {
-            "table": "suotar_api_calls",
-            "name": "error_message"
-          }
-        }
-      },
-      {
-        "ordinal": 13,
-        "name": "request_body_sample",
-        "type_info": "Jsonb",
-        "origin": {
-          "Table": {
-            "table": "suotar_api_calls",
-            "name": "request_body_sample"
-          }
-        }
-      },
-      {
-        "ordinal": 14,
-        "name": "response_body_sample",
-        "type_info": "Jsonb",
-        "origin": {
-          "Table": {
-            "table": "suotar_api_calls",
-            "name": "response_body_sample"
-          }
-        }
-      },
-      {
-        "ordinal": 15,
+        "ordinal": 9,
         "name": "credit_registration_ids",
         "type_info": "UuidArray",
         "origin": {
@@ -194,7 +128,7 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 10,
         "name": "worker_name",
         "type_info": "Varchar",
         "origin": {
@@ -205,7 +139,7 @@
         }
       },
       {
-        "ordinal": 17,
+        "ordinal": 11,
         "name": "started_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -216,7 +150,7 @@
         }
       },
       {
-        "ordinal": 18,
+        "ordinal": 12,
         "name": "total_count!",
         "type_info": "Int8",
         "origin": "Expression"
@@ -253,16 +187,10 @@
       false,
       false,
       true,
-      false,
-      false,
-      true,
       true,
       false,
       false,
       false,
-      true,
-      true,
-      true,
       true,
       false,
       false,
@@ -270,5 +198,5 @@
       null
     ]
   },
-  "hash": "6a38dd31d1657a3391e234b8fd7f7b2603586b36666b18929755963e4ad46037"
+  "hash": "1cd621a54f04d00e9b05df1521ee91c32869e36be1326a274d70f7a1541f2847"
 }

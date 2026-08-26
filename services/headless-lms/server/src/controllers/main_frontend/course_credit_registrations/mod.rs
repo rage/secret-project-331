@@ -80,8 +80,10 @@ const RESEND_CALLER: &str = "teacher-resend";
 /// itself has to be bounded. Comfortably above the students tab's page size.
 const MAX_USER_IDS_PER_REQUEST: usize = 500;
 
-/// A regrade adds an attempt per student. Only a bound for the query above, not a rule.
-const MAX_REGISTRATION_ROWS_PER_USER: i64 = 50;
+/// `MAX_USER_IDS_PER_REQUEST` * a generous per-student attempt count would allow a ~25,000-row join
+/// per request; this is the real ceiling. A course with this many attempts across the named students
+/// needs a narrower request, not a bigger response.
+const MAX_ROWS_PER_REQUEST: i64 = 2_000;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -428,11 +430,20 @@ pub async fn get_course_credit_registrations_for_users(
         },
         // Every attempt of every named student, not a page: the tab renders one cell per student and
         // a student's superseded attempts belong in it. Bounded by the cap above rather than by a
-        // page size, which is why the sibling endpoints' `Pagination` does not apply.
-        MAX_REGISTRATION_ROWS_PER_USER * MAX_USER_IDS_PER_REQUEST as i64,
+        // page size, which is why the sibling endpoints' `Pagination` does not apply. Queried one row
+        // over the real cap so exceeding it is detectable rather than silently truncated.
+        MAX_ROWS_PER_REQUEST + 1,
         0,
     )
     .await?;
+    if rows.len() as i64 > MAX_ROWS_PER_REQUEST {
+        return Err(controller_err!(
+            BadRequest,
+            format!(
+                "This request would return more than {MAX_ROWS_PER_REQUEST} registration rows. Name fewer students per request."
+            )
+        ));
+    }
     let res = build_teacher_registrations(&mut conn, *course_id, rows).await?;
 
     token.authorized_ok(web::Json(res))
@@ -913,12 +924,10 @@ pub(crate) async fn build_teacher_registrations(
                 row.consented,
                 ResubmissionStrictness::OnlyFailedPermanent,
             );
+            let state = row.state;
             let base = CourseCreditRegistration::from(row);
-            let notification_email = NotificationEmailStatus::for_status(
-                base.student_facing_status,
-                base.id,
-                &notification_mails,
-            );
+            let notification_email =
+                NotificationEmailStatus::for_state(state, base.id, &notification_mails);
             CourseCreditRegistration {
                 linking_email,
                 notification_email,

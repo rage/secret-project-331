@@ -337,8 +337,8 @@ pub async fn list_credit_registrations_for_admin(
         submitted_before: query.submitted_before,
         search,
         search_id: search.and_then(|search| Uuid::parse_str(search).ok()),
-        credit_registration_ids: None,
         include_superseded: query.include_superseded.unwrap_or(false),
+        ..AdminCreditRegistrationFilters::default()
     };
     let sort = match query.sort.as_deref() {
         Some("created") => AdminCreditRegistrationSort::Created,
@@ -395,9 +395,7 @@ pub async fn get_credit_registration_for_admin(
         &AdminCreditRegistrationFilters {
             user_id: Some(registration.user_id),
             course_id: Some(registration.course_id),
-            // No field for this predicate; search_id already matches it (it is also matched against
-            // cr.id and cr.user_id, which cannot collide with a completion id).
-            search_id: Some(registration.course_module_completion_id),
+            course_module_completion_id: Some(registration.course_module_completion_id),
             include_superseded: true,
             ..AdminCreditRegistrationFilters::default()
         },
@@ -407,7 +405,6 @@ pub async fn get_credit_registration_for_admin(
     )
     .await?
     .into_iter()
-    .filter(|row| row.course_module_completion_id == registration.course_module_completion_id)
     .map(to_admin_row)
     .collect();
 
@@ -898,7 +895,7 @@ async fn one_admin_row(
     let rows = credit_registrations::get_admin_facing(
         conn,
         &AdminCreditRegistrationFilters {
-            search_id: Some(id),
+            id: Some(id),
             include_superseded: true,
             ..AdminCreditRegistrationFilters::default()
         },
@@ -907,7 +904,7 @@ async fn one_admin_row(
         0,
     )
     .await?;
-    Ok(rows.into_iter().find(|row| row.id == id))
+    Ok(rows.into_iter().next())
 }
 
 fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {

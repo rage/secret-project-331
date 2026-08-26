@@ -125,6 +125,13 @@ pub struct AccountLinkingRealisationCounters {
     pub fast_track_skipped_unlinked_before_count: Option<i32>,
 }
 
+/// One mail attempt: the address it went to and what we can say about its delivery.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingSendOutcome {
+    pub address: String,
+    pub send_status: EmailSendStatus,
+}
+
 /// A person mailed to the cap for one course whose number was never claimed.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingStaleAddress {
@@ -136,8 +143,7 @@ pub struct AccountLinkingStaleAddress {
     pub first_sent_at: DateTime<Utc>,
     pub last_sent_at: DateTime<Utc>,
     /// In full, newest last, one per mail.
-    pub addresses: Vec<String>,
-    pub send_statuses: Vec<EmailSendStatus>,
+    pub sends: Vec<AccountLinkingSendOutcome>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -692,6 +698,20 @@ pub async fn admin_manually_link_student_number(
         };
         return token.authorized_ok(web::Json(refused(outcome)));
     }
+    // Both unique keys, not just the number: a student who changed programmes keeps their Sisu
+    // person id and gets a new number, so checking the number alone lets this through and then
+    // trips `uq_verified_student_numbers_person` as a bare 500. See `find_conflicting_account` on
+    // the student's own claim path, which this mirrors.
+    let person_holder =
+        verified_student_numbers::get_by_sisu_person_id(&mut conn, &person.sisu_person_id).await?;
+    if let Some(holder) = &person_holder {
+        let outcome = if holder.user_id == payload.user_id {
+            AdminManualLinkOutcome::AlreadyLinkedToThisAccount
+        } else {
+            AdminManualLinkOutcome::AlreadyLinkedToAnotherAccount
+        };
+        return token.authorized_ok(web::Json(refused(outcome)));
+    }
 
     let mut tx = conn.begin().await?;
     // A student who changed programmes has a new number; the old link is retired, not deleted, so the
@@ -835,25 +855,29 @@ async fn build_stale_addresses(
         credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
     Ok(rows
         .into_iter()
-        .map(|row| AccountLinkingStaleAddress {
-            send_statuses: row
+        .map(|row| {
+            let sends = row
                 .mail_ids
                 .iter()
-                .map(|id| {
-                    reports
+                .zip(row.addresses)
+                .map(|(id, address)| AccountLinkingSendOutcome {
+                    address,
+                    send_status: reports
                         .get(id)
                         .map(|report| report.email_send_status)
-                        .unwrap_or(EmailSendStatus::Queued)
+                        .unwrap_or(EmailSendStatus::Queued),
                 })
-                .collect(),
-            student_number: row.student_number,
-            sisu_person_id: row.sisu_person_id,
-            course_id: row.course_id,
-            course_name: row.course_name,
-            mail_count: row.mail_count,
-            first_sent_at: row.first_sent_at,
-            last_sent_at: row.last_sent_at,
-            addresses: row.addresses,
+                .collect();
+            AccountLinkingStaleAddress {
+                sends,
+                student_number: row.student_number,
+                sisu_person_id: row.sisu_person_id,
+                course_id: row.course_id,
+                course_name: row.course_name,
+                mail_count: row.mail_count,
+                first_sent_at: row.first_sent_at,
+                last_sent_at: row.last_sent_at,
+            }
         })
         .collect())
 }

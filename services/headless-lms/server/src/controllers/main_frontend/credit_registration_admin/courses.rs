@@ -17,6 +17,10 @@ use crate::prelude::*;
 
 use super::{authorize_credit_registration_admin, required_reason};
 
+/// Suotar-enabled modules, comfortably above any real deployment's count. The only admin tab
+/// without a page or a limit of its own before this.
+const COURSES_LIMIT: i64 = 2_000;
+
 /// What the configuration check concluded about one module, freshly derived from the same facts and
 /// the same rule the `config-validation` phase uses.
 ///
@@ -108,7 +112,8 @@ pub async fn get_credit_registration_stats_by_course(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let overviews = course_module_suotar_configurations::get_module_overviews(&mut conn).await?;
+    let overviews =
+        course_module_suotar_configurations::get_module_overviews(&mut conn, COURSES_LIMIT).await?;
     let mut checks: HashMap<Uuid, CreditRegistrationCourseConfigCheck> =
         get_config_facts_for_enabled_modules(&mut conn, None)
             .await?

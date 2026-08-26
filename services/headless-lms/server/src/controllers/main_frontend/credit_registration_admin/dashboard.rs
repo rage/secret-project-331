@@ -53,6 +53,9 @@ pub struct CreditRegistrationOldestNonTerminal {
     pub credit_registration_id: Uuid,
     pub state: CreditRegistrationState,
     pub state_entered_at: DateTime<Utc>,
+    /// Computed server-side: a page comparing its own clock against a server timestamp misjudges
+    /// this on a skewed client, the same reason `seconds_since_heartbeat` is computed here too.
+    pub seconds_in_state: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -209,7 +212,7 @@ pub async fn get_credit_registration_overview(
         credit_registrations::count_needing_admin_attention(&mut conn).await?;
     let oldest_non_terminal = credit_registrations::get_oldest_non_terminal(&mut conn)
         .await?
-        .map(to_oldest_non_terminal);
+        .map(|row| to_oldest_non_terminal(row, Utc::now()));
     let throughput = credit_registrations::get_throughput_by_day(
         &mut conn,
         Utc::now() - chrono::Duration::days(THROUGHPUT_DAYS),
@@ -519,10 +522,12 @@ fn to_error_code_total(row: CreditRegistrationErrorCodeCount) -> CreditRegistrat
 
 fn to_oldest_non_terminal(
     row: OldestNonTerminalRegistration,
+    now: DateTime<Utc>,
 ) -> CreditRegistrationOldestNonTerminal {
     CreditRegistrationOldestNonTerminal {
         credit_registration_id: row.id,
         state: row.state,
+        seconds_in_state: (now - row.state_entered_at).num_seconds(),
         state_entered_at: row.state_entered_at,
     }
 }

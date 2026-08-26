@@ -94,6 +94,13 @@ impl CreditRegistrationState {
     /// kept in `is_success`'s own order for readability.
     pub const SUCCESS_STATES: [Self; 3] = [Self::Registered, Self::Duplicate, Self::NotImproved];
 
+    /// [`Self::SUCCESS_STATES`] minus `Registered`: the credit exists but we did not put it there.
+    pub const OTHER_SUCCESS_STATES: [Self; 2] = [Self::Duplicate, Self::NotImproved];
+
+    /// The two states a "failed" count means across the admin reports: a permanent submit failure
+    /// and a reversal the study registry made after the fact.
+    pub const HARD_FAILURE_STATES: [Self; 2] = [Self::FailedPermanent, Self::Misregistered];
+
     /// The states the pipeline itself may move a row from `self` to, staying put excluded.
     ///
     /// The one place the shape of the machine is written down: every edge here is one a phase, the
@@ -2247,8 +2254,14 @@ pub struct AdminCreditRegistrationFilters<'a> {
     /// Matched against the student's name and email, either student number, the attainment ids and
     /// the stored error text. Searching that text is not rendering it.
     pub search: Option<&'a str>,
-    /// A uuid typed into the search box: a registration, a user or a completion id.
+    /// A uuid typed into the search box: a registration, a user or a completion id. Ambiguous by
+    /// design, for a human's paste. A caller that already knows which single field it means should
+    /// use `id` or `course_module_completion_id` instead, not this plus a Rust-side filter.
     pub search_id: Option<Uuid>,
+    /// Exactly one registration.
+    pub id: Option<Uuid>,
+    /// Every attempt against one completion.
+    pub course_module_completion_id: Option<Uuid>,
     /// An exact set of rows, for a caller that already knows which ones it wants.
     pub credit_registration_ids: Option<&'a [Uuid]>,
     /// Off by default, or a course that regrades shows two rows per student.
@@ -2361,6 +2374,11 @@ WHERE cr.deleted_at IS NULL
     $13::uuid [] IS NULL
     OR cr.id = ANY($13)
   )
+  AND ($17::uuid IS NULL OR cr.id = $17)
+  AND (
+    $18::uuid IS NULL
+    OR cr.course_module_completion_id = $18
+  )
 ORDER BY CASE
     WHEN $14::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count
   END DESC NULLS LAST,
@@ -2388,6 +2406,8 @@ LIMIT $15 OFFSET $16
         sort.as_str(),
         limit,
         offset,
+        filters.id,
+        filters.course_module_completion_id,
     )
     .fetch_all(conn)
     .await?;
@@ -2433,7 +2453,7 @@ pub async fn count_by_error_code(
 SELECT error_code AS "error_code!",
   COUNT(*) FILTER (WHERE terminal_at IS NULL) AS "in_flight_count!",
   COUNT(*) FILTER (
-    WHERE state IN ('failed_permanent', 'misregistered')
+    WHERE state = ANY($1::credit_registration_state [])
   ) AS "terminal_failure_count!"
 FROM credit_registrations
 WHERE error_code IS NOT NULL
@@ -2443,6 +2463,7 @@ WHERE error_code IS NOT NULL
 GROUP BY error_code
 ORDER BY COUNT(*) DESC
         "#,
+        &CreditRegistrationState::HARD_FAILURE_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -2522,7 +2543,7 @@ pub async fn get_throughput_by_day(
 SELECT DATE_TRUNC('day', terminal_at) AS "day!",
   COUNT(*) FILTER (WHERE state = 'registered') AS "registered_count!",
   COUNT(*) FILTER (
-    WHERE state IN ('duplicate', 'not_improved')
+    WHERE state = ANY($2::credit_registration_state [])
   ) AS "other_success_count!",
   COUNT(*) FILTER (WHERE state = 'failed_permanent') AS "failed_count!"
 FROM credit_registrations
@@ -2533,6 +2554,7 @@ GROUP BY 1
 ORDER BY 1
         "#,
         since,
+        &CreditRegistrationState::OTHER_SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -2710,7 +2732,7 @@ SELECT cr.course_module_id,
   ) AS "success_count!",
   COUNT(*) FILTER (WHERE cr.terminal_at IS NULL) AS "in_flight_count!",
   COUNT(*) FILTER (
-    WHERE cr.state IN ('failed_permanent', 'misregistered')
+    WHERE cr.state = ANY($2::credit_registration_state [])
   ) AS "failed_count!",
   COUNT(*) FILTER (
     WHERE cr.state = 'abandoned_by_consent_withdrawal'
@@ -2741,6 +2763,7 @@ WHERE superseded_by_id IS NULL
 GROUP BY cr.course_module_id
         "#,
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+        &CreditRegistrationState::HARD_FAILURE_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -2787,6 +2810,7 @@ pub async fn get_attention_items(
     too_many_attempts: i32,
     limit: i64,
 ) -> ModelResult<Vec<AttentionRegistration>> {
+    let (state_thresholds, threshold_secs) = thresholds.state_seconds_arrays();
     let res = sqlx::query_as!(
         AttentionRegistration,
         r#"
@@ -2817,14 +2841,11 @@ FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
   JOIN course_modules cm ON cm.id = cr.course_module_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
-  CROSS JOIN LATERAL (
-    SELECT CASE cr.state
-        WHEN 'ready_to_submit' THEN $1::double precision
-        WHEN 'submitting' THEN $2::double precision
-        WHEN 'awaiting_verification' THEN $3::double precision
-        WHEN 'failed_retryable' THEN $4::double precision
-      END AS threshold_secs
-  ) t
+  LEFT JOIN LATERAL (
+    SELECT u.threshold_secs
+    FROM UNNEST($1::credit_registration_state [], $2::double precision []) AS u(state, threshold_secs)
+    WHERE u.state = cr.state
+  ) t ON TRUE
   CROSS JOIN LATERAL (
     SELECT cr.terminal_at IS NULL
       AND t.threshold_secs IS NOT NULL
@@ -2836,7 +2857,7 @@ FROM credit_registrations cr
       -- the whole table down with it.
       COALESCE(cr.error_code = 'retry_window_expired', FALSE) AS retry_window_expired,
       cr.state = 'misregistered' AS misregistered,
-      cr.submit_retry_count + cr.verify_attempt_count >= $5 AS too_many_attempts,
+      cr.submit_retry_count + cr.verify_attempt_count >= $3 AS too_many_attempts,
       cr.state = 'submission_uncertain' AS outcome_uncertain,
       cr.needs_admin_attention AS flagged_by_pipeline
   ) d
@@ -2853,12 +2874,10 @@ WHERE cr.superseded_by_id IS NULL
     OR d.flagged_by_pipeline
   )
 ORDER BY cr.state_entered_at
-LIMIT $6
+LIMIT $4
         "#,
-        thresholds.ready_to_submit_secs as f64,
-        thresholds.submitting_secs as f64,
-        thresholds.awaiting_verification_secs as f64,
-        thresholds.failed_retryable_secs as f64,
+        &state_thresholds as &[CreditRegistrationState],
+        &threshold_secs as &[f64],
         too_many_attempts,
         limit,
     )
@@ -2947,12 +2966,37 @@ FROM updated
 }
 
 /// How long a row may sit in one state before it counts as stuck. Seconds, per state.
-#[derive(Debug, Clone, Copy, PartialEq)]
+///
+/// Also the wire payload the health endpoint reports as thresholds: field names are the
+/// `stuck_*_secs` keys the frontend reads, so do not rename without updating it.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct StuckThresholds {
-    pub ready_to_submit_secs: i64,
-    pub submitting_secs: i64,
-    pub awaiting_verification_secs: i64,
-    pub failed_retryable_secs: i64,
+    pub stuck_ready_to_submit_secs: i64,
+    pub stuck_submitting_secs: i64,
+    pub stuck_awaiting_verification_secs: i64,
+    pub stuck_failed_retryable_secs: i64,
+}
+
+impl StuckThresholds {
+    /// The four states this covers, paired with their threshold in seconds, in a fixed order both
+    /// `get_attention_items` and `count_stuck` bind the same way: `UNNEST`ed into a
+    /// state -> threshold lookup rather than each carrying its own copy of the `CASE`.
+    fn state_seconds_arrays(&self) -> ([CreditRegistrationState; 4], [f64; 4]) {
+        (
+            [
+                CreditRegistrationState::ReadyToSubmit,
+                CreditRegistrationState::Submitting,
+                CreditRegistrationState::AwaitingVerification,
+                CreditRegistrationState::FailedRetryable,
+            ],
+            [
+                self.stuck_ready_to_submit_secs as f64,
+                self.stuck_submitting_secs as f64,
+                self.stuck_awaiting_verification_secs as f64,
+                self.stuck_failed_retryable_secs as f64,
+            ],
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -2970,6 +3014,7 @@ pub async fn count_stuck(
     conn: &mut PgConnection,
     thresholds: &StuckThresholds,
 ) -> ModelResult<Vec<StuckRegistrationCount>> {
+    let (state_thresholds, threshold_secs) = thresholds.state_seconds_arrays();
     let rows = sqlx::query_as!(
         StuckRegistrationCount,
         r#"
@@ -2980,25 +3025,15 @@ SELECT cr.state AS "state!",
   ) AS "severely_stuck_count!",
   MIN(cr.state_entered_at) AS "oldest_state_entered_at"
 FROM credit_registrations cr
-  CROSS JOIN LATERAL (
-    SELECT CASE cr.state
-        WHEN 'ready_to_submit' THEN $1::double precision
-        WHEN 'submitting' THEN $2::double precision
-        WHEN 'awaiting_verification' THEN $3::double precision
-        WHEN 'failed_retryable' THEN $4::double precision
-      END AS threshold_secs
-  ) t
+  JOIN UNNEST($1::credit_registration_state [], $2::double precision []) AS t(state, threshold_secs) ON t.state = cr.state
 WHERE cr.terminal_at IS NULL
   AND cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
-  AND t.threshold_secs IS NOT NULL
   AND now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs)
 GROUP BY cr.state
         "#,
-        thresholds.ready_to_submit_secs as f64,
-        thresholds.submitting_secs as f64,
-        thresholds.awaiting_verification_secs as f64,
-        thresholds.failed_retryable_secs as f64,
+        &state_thresholds as &[CreditRegistrationState],
+        &threshold_secs as &[f64],
     )
     .fetch_all(conn)
     .await?;

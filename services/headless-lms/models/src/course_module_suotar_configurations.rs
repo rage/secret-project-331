@@ -229,6 +229,7 @@ pub struct SuotarModuleOverview {
 /// Every Suotar-enabled module, one row each, ordered by course then module order.
 pub async fn get_module_overviews(
     conn: &mut PgConnection,
+    limit: i64,
 ) -> ModelResult<Vec<SuotarModuleOverview>> {
     let res = sqlx::query_as!(
         SuotarModuleOverview,
@@ -274,7 +275,9 @@ WHERE cm.enable_credit_registration_via_suotar
   AND cm.deleted_at IS NULL
 ORDER BY c.name,
   cm.order_number
+LIMIT $1
         "#,
+        limit,
     )
     .fetch_all(conn)
     .await?;

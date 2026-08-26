@@ -30,7 +30,7 @@ use headless_lms_models::{
 use models::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
-use models::library::credit_registration::student_number_change::record_student_number_change;
+use models::library::credit_registration::student_number_change;
 use models::library::credit_registration::withdrawal::apply_consent_change;
 use utoipa::{OpenApi, ToSchema};
 
@@ -77,23 +77,15 @@ pub struct NotificationEmailStatus {
 }
 
 impl NotificationEmailStatus {
-    /// The mail that belongs with the row's current status, or `None` for a status that has none:
-    /// a row shows at most one line, and an old action-needed mail on a since-registered row would
+    /// The mail that belongs with the row's current state, or `None` for a state that has none: a
+    /// row shows at most one line, and an old action-needed mail on a since-registered row would
     /// contradict the badge above it.
-    pub(crate) fn for_status(
-        status: StudentFacingCreditRegistrationStatus,
+    pub(crate) fn for_state(
+        state: CreditRegistrationState,
         credit_registration_id: Uuid,
         mails: &[RegistrationNotificationEmail],
     ) -> Option<Self> {
-        let wanted = match status {
-            StudentFacingCreditRegistrationStatus::NeedsEnrolment => {
-                CreditRegistrationNotificationKind::ActionNeeded
-            }
-            StudentFacingCreditRegistrationStatus::Registered => {
-                CreditRegistrationNotificationKind::Registered
-            }
-            _ => return None,
-        };
+        let wanted = CreditRegistrationNotificationKind::for_state(state)?;
         let mail = mails.iter().find(|mail| {
             mail.credit_registration_id == credit_registration_id && mail.kind == wanted
         })?;
@@ -604,9 +596,9 @@ pub async fn unlink_my_student_number(
     };
 
     let mut tx = conn.begin().await?;
-    verified_student_numbers::soft_delete(&mut tx, linked.id).await?;
-    let affected_registration_count = record_student_number_change(
+    let affected_registration_count = student_number_change::unlink_verified_student_number(
         &mut tx,
+        linked.id,
         user.id,
         Some(user.id),
         CreditRegistrationEventKind::StudentAction,
@@ -838,10 +830,6 @@ pub async fn set_my_course_credit_registration_consent(
     let mut conn = pool.acquire().await?;
     let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
 
-    let waiting_before =
-        models::credit_registrations::count_waiting_for_consent(&mut conn, user.id, *course_id)
-            .await?;
-
     let mut tx = conn.begin().await?;
     let consent = course_credit_registration_consents::upsert(
         &mut tx,
@@ -850,20 +838,19 @@ pub async fn set_my_course_credit_registration_consent(
         payload.consent_given,
     )
     .await?;
-    apply_consent_change(&mut tx, user.id, *course_id).await?;
-    let waiting_after =
-        models::credit_registrations::count_waiting_for_consent(&mut tx, user.id, *course_id)
-            .await?;
+    // Consent is the only input that just changed, so every row the recompute moves in this scope
+    // moved because of it: no need to count the waiting-for-consent bucket before and after.
+    let moved_count = apply_consent_change(&mut tx, user.id, *course_id).await?;
     tx.commit().await?;
 
     token.authorized_ok(web::Json(SetMyCourseCreditRegistrationConsentResult {
         consent_given: consent.consent_given,
         consent_given_at: consent.consent_given_at,
         consent_withdrawn_at: consent.consent_withdrawn_at,
-        // Withdrawal empties the same queue by blocking the rows, so counting the difference either
+        // Withdrawal empties the same queue by blocking the rows, so reporting this count either
         // way would report a withdrawal as having unblocked something.
         newly_unblocked_registration_count: if payload.consent_given {
-            (waiting_before - waiting_after).max(0)
+            moved_count
         } else {
             0
         },
@@ -951,7 +938,8 @@ async fn build_my_credit_registrations(
     let mut linking_mails: Option<LinkingMailCache> = None;
     let mut res = Vec::with_capacity(rows.len());
     for row in rows {
-        let status = StudentFacingCreditRegistrationStatus::of(row.state, row.preconditions());
+        let state = row.state;
+        let status = StudentFacingCreditRegistrationStatus::of(state, row.preconditions());
         let enrolment_link = if status == StudentFacingCreditRegistrationStatus::NeedsEnrolment {
             resolve_enrolment_link(conn, &row, &mut enrolment_links).await?
         } else {
@@ -963,7 +951,7 @@ async fn build_my_credit_registrations(
             None
         };
         let notification_email =
-            NotificationEmailStatus::for_status(status, row.id, &notification_mails);
+            NotificationEmailStatus::for_state(state, row.id, &notification_mails);
         res.push(to_my_credit_registration(
             row,
             status,

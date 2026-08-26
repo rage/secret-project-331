@@ -28,11 +28,22 @@ const SISU_OUTAGE_WINDOW_SECS: i64 = 15 * 60;
 const SISU_OUTAGE_MIN_ITEMS: i64 = 10;
 const SISU_OUTAGE_FAILURE_SHARE_PERCENT: i64 = 30;
 const STUCK_THRESHOLDS: StuckThresholds = StuckThresholds {
-    ready_to_submit_secs: 2 * 60 * 60,
-    submitting_secs: 15 * 60,
-    awaiting_verification_secs: 24 * 60 * 60,
-    failed_retryable_secs: 3 * 24 * 60 * 60,
+    stuck_ready_to_submit_secs: 2 * 60 * 60,
+    stuck_submitting_secs: 15 * 60,
+    stuck_awaiting_verification_secs: 24 * 60 * 60,
+    stuck_failed_retryable_secs: 3 * 24 * 60 * 60,
 };
+
+const _: () = assert!(
+    STUCK_THRESHOLDS.stuck_failed_retryable_secs
+        < headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_RETRY_AGE_SECS,
+    "a row must be considered stuck before backoff gives up retrying it"
+);
+const _: () = assert!(
+    STUCK_THRESHOLDS.stuck_submitting_secs
+        > headless_lms_models::library::credit_registration::backoff::SUBMITTING_RECOVERY_GRACE_SECS,
+    "the stuck threshold must outlast the grace period that lets a submit recover on its own"
+);
 /// Above this many stuck rows the backlog stops being something to look at tomorrow.
 const STUCK_CRITICAL_COUNT: i64 = 50;
 const LINKING_MAIL_WINDOW_SECS: i64 = 7 * 24 * 60 * 60;
@@ -113,36 +124,9 @@ pub struct CreditRegistrationAlert {
     pub subject: Option<String>,
 }
 
-/// Every number the rules used, so the UI can say "N of M" without holding a copy of M.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CreditRegistrationAlertThresholds {
-    pub credential_rejection_window_secs: i64,
-    pub unreachable_window_secs: i64,
-    pub unreachable_consecutive_failures: i64,
-    pub sisu_outage_window_secs: i64,
-    pub sisu_outage_min_items: i64,
-    pub sisu_outage_failure_share_percent: i64,
-    pub stuck_ready_to_submit_secs: i64,
-    pub stuck_submitting_secs: i64,
-    pub stuck_awaiting_verification_secs: i64,
-    pub stuck_failed_retryable_secs: i64,
-    pub stuck_critical_count: i64,
-    pub linking_mail_window_secs: i64,
-    pub linking_mail_hourly_cap: i64,
-    pub phase_heartbeat_interval_multiplier: i32,
-    pub phase_consecutive_failure_limit: i32,
-    pub phase_success_interval_multiplier: i32,
-    pub terminal_window_secs: i64,
-    pub permanent_failure_count: i64,
-    pub permanent_failure_rate_percent: i64,
-    pub misregistration_critical_count: i64,
-    pub idle_queue_depth: i64,
-    pub never_entered_min_age_secs: i64,
-    pub latency_window_secs: i64,
-    pub latency_regression_floor_secs: i64,
-    pub latency_regression_factor: i64,
-    pub fast_track_name_mismatch_count: i64,
-}
+/// The only thresholds the frontend reads off the health poll: how long a row may sit in each
+/// state before it counts as stuck. The other rule constants stay server-side.
+pub type CreditRegistrationAlertThresholds = StuckThresholds;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationHealth {
@@ -152,35 +136,9 @@ pub struct CreditRegistrationHealth {
     pub thresholds: CreditRegistrationAlertThresholds,
 }
 
+/// Alias for [`stuck_thresholds`]: the same values, named for the health-poll wire response.
 pub fn thresholds() -> CreditRegistrationAlertThresholds {
-    CreditRegistrationAlertThresholds {
-        credential_rejection_window_secs: CREDENTIAL_REJECTION_WINDOW_SECS,
-        unreachable_window_secs: UNREACHABLE_WINDOW_SECS,
-        unreachable_consecutive_failures: UNREACHABLE_CONSECUTIVE_FAILURES,
-        sisu_outage_window_secs: SISU_OUTAGE_WINDOW_SECS,
-        sisu_outage_min_items: SISU_OUTAGE_MIN_ITEMS,
-        sisu_outage_failure_share_percent: SISU_OUTAGE_FAILURE_SHARE_PERCENT,
-        stuck_ready_to_submit_secs: STUCK_THRESHOLDS.ready_to_submit_secs,
-        stuck_submitting_secs: STUCK_THRESHOLDS.submitting_secs,
-        stuck_awaiting_verification_secs: STUCK_THRESHOLDS.awaiting_verification_secs,
-        stuck_failed_retryable_secs: STUCK_THRESHOLDS.failed_retryable_secs,
-        stuck_critical_count: STUCK_CRITICAL_COUNT,
-        linking_mail_window_secs: LINKING_MAIL_WINDOW_SECS,
-        linking_mail_hourly_cap: LINKING_MAIL_HOURLY_CAP,
-        phase_heartbeat_interval_multiplier: PHASE_HEARTBEAT_INTERVAL_MULTIPLIER,
-        phase_consecutive_failure_limit: PHASE_CONSECUTIVE_FAILURE_LIMIT,
-        phase_success_interval_multiplier: PHASE_SUCCESS_INTERVAL_MULTIPLIER,
-        terminal_window_secs: TERMINAL_WINDOW_SECS,
-        permanent_failure_count: PERMANENT_FAILURE_COUNT,
-        permanent_failure_rate_percent: PERMANENT_FAILURE_RATE_PERCENT,
-        misregistration_critical_count: MISREGISTRATION_CRITICAL_COUNT,
-        idle_queue_depth: IDLE_QUEUE_DEPTH,
-        never_entered_min_age_secs: NEVER_ENTERED_MIN_AGE_SECS,
-        latency_window_secs: LATENCY_WINDOW_SECS,
-        latency_regression_floor_secs: LATENCY_REGRESSION_FLOOR_SECS,
-        latency_regression_factor: LATENCY_REGRESSION_FACTOR,
-        fast_track_name_mismatch_count: FAST_TRACK_NAME_MISMATCH_COUNT,
-    }
+    stuck_thresholds()
 }
 
 pub fn stuck_thresholds() -> StuckThresholds {

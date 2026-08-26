@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DATE_TRUNC('day', terminal_at) AS \"day!\",\n  COUNT(*) FILTER (WHERE state = 'registered') AS \"registered_count!\",\n  COUNT(*) FILTER (\n    WHERE state = ANY($2::credit_registration_state [])\n  ) AS \"other_success_count!\",\n  COUNT(*) FILTER (WHERE state = 'failed_permanent') AS \"failed_count!\"\nFROM credit_registrations\nWHERE terminal_at >= $1\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY 1\nORDER BY 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "day!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "registered_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "other_success_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "failed_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "048f74aa9f3ead8fdddce89a6274b2bd45250c205285f99182fe4af9bd10edfd"
+}

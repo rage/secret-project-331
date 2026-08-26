@@ -329,11 +329,12 @@ pub struct SuotarApiCallFilters {
 }
 
 /// A call with the page's total attached, so a page and its count cannot come from two queries.
+///
+/// No body columns: the list this feeds never renders a body, only the detail view
+/// ([`get_by_id`]) does, so the listing query does not drag up to 64KB per row across the wire for
+/// nothing.
 pub struct SuotarApiCallPageRow {
     pub id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
     pub endpoint: SuotarEndpoint,
     pub request_item_count: i32,
     pub http_status: Option<i32>,
@@ -342,41 +343,13 @@ pub struct SuotarApiCallPageRow {
     pub ok_item_count: i32,
     pub error_item_count: i32,
     pub request_level_error_code: Option<String>,
-    pub error_message: Option<String>,
-    pub request_body_sample: Option<serde_json::Value>,
-    pub response_body_sample: Option<serde_json::Value>,
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
     pub started_at: DateTime<Utc>,
     pub total_count: i64,
 }
 
-impl From<SuotarApiCallPageRow> for SuotarApiCall {
-    fn from(row: SuotarApiCallPageRow) -> Self {
-        Self {
-            id: row.id,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            deleted_at: row.deleted_at,
-            endpoint: row.endpoint,
-            request_item_count: row.request_item_count,
-            http_status: row.http_status,
-            duration_ms: row.duration_ms,
-            succeeded: row.succeeded,
-            ok_item_count: row.ok_item_count,
-            error_item_count: row.error_item_count,
-            request_level_error_code: row.request_level_error_code,
-            error_message: row.error_message,
-            request_body_sample: row.request_body_sample,
-            response_body_sample: row.response_body_sample,
-            credit_registration_ids: row.credit_registration_ids,
-            worker_name: row.worker_name,
-            started_at: row.started_at,
-        }
-    }
-}
-
-/// A page of the call log, newest first. Bodies come back exactly as stored, which is scrubbed.
+/// A page of the call log, newest first, without bodies. See [`get_by_id`] for a call's bodies.
 pub async fn get_page(
     conn: &mut PgConnection,
     filters: &SuotarApiCallFilters,
@@ -387,9 +360,6 @@ pub async fn get_page(
         SuotarApiCallPageRow,
         r#"
 SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
   endpoint AS "endpoint!: SuotarEndpoint",
   request_item_count,
   http_status,
@@ -398,9 +368,6 @@ SELECT id,
   ok_item_count,
   error_item_count,
   request_level_error_code,
-  error_message,
-  request_body_sample,
-  response_body_sample,
   credit_registration_ids,
   worker_name,
   started_at,

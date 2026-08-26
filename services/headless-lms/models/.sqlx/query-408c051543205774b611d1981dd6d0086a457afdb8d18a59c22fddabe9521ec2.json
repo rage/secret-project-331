@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  c.name AS \"course_name!\",\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  conf.open_university_product_id AS \"open_university_product_id?\",\n  conf.grade_scale_id AS \"grade_scale_id?\",\n  cm.enable_registering_completion_to_uh_open_university AS \"old_flow_also_enabled!\",\n  conf.paused_at AS \"paused_at?\",\n  conf.pause_reason AS \"pause_reason?\",\n  conf.config_checked_at AS \"config_checked_at?\",\n  conf.course_code_resolves AS \"course_code_resolves?\",\n  conf.product_token_found AS \"product_token_found?\",\n  conf.config_check_message AS \"config_check_message?\",\n  COALESCE(r.active_realisation_count, 0) AS \"active_realisation_count!\",\n  r.last_listed_at AS \"last_listed_at?\",\n  (\n    SELECT COUNT(*)\n    FROM course_module_completions cmc\n    WHERE cmc.course_module_id = cm.id\n      AND cmc.deleted_at IS NULL\n      AND cmc.passed\n      AND cmc.eligible_for_ects\n  ) AS \"eligible_completion_count!\"\nFROM course_modules cm\n  JOIN courses c ON c.id = cm.course_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cm.id\n  AND conf.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT COUNT(*) AS active_realisation_count,\n      MAX(cmsr.last_listed_at) AS last_listed_at\n    FROM course_module_suotar_realisations cmsr\n    WHERE cmsr.course_module_id = cm.id\n      AND cmsr.active\n      AND cmsr.deleted_at IS NULL\n  ) r ON TRUE\nWHERE cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\nORDER BY c.name,\n  cm.order_number\n        ",
+  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  c.name AS \"course_name!\",\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  conf.open_university_product_id AS \"open_university_product_id?\",\n  conf.grade_scale_id AS \"grade_scale_id?\",\n  cm.enable_registering_completion_to_uh_open_university AS \"old_flow_also_enabled!\",\n  conf.paused_at AS \"paused_at?\",\n  conf.pause_reason AS \"pause_reason?\",\n  conf.config_checked_at AS \"config_checked_at?\",\n  conf.course_code_resolves AS \"course_code_resolves?\",\n  conf.product_token_found AS \"product_token_found?\",\n  conf.config_check_message AS \"config_check_message?\",\n  COALESCE(r.active_realisation_count, 0) AS \"active_realisation_count!\",\n  r.last_listed_at AS \"last_listed_at?\",\n  (\n    SELECT COUNT(*)\n    FROM course_module_completions cmc\n    WHERE cmc.course_module_id = cm.id\n      AND cmc.deleted_at IS NULL\n      AND cmc.passed\n      AND cmc.eligible_for_ects\n  ) AS \"eligible_completion_count!\"\nFROM course_modules cm\n  JOIN courses c ON c.id = cm.course_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cm.id\n  AND conf.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT COUNT(*) AS active_realisation_count,\n      MAX(cmsr.last_listed_at) AS last_listed_at\n    FROM course_module_suotar_realisations cmsr\n    WHERE cmsr.course_module_id = cm.id\n      AND cmsr.active\n      AND cmsr.deleted_at IS NULL\n  ) r ON TRUE\nWHERE cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\nORDER BY c.name,\n  cm.order_number\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -188,7 +188,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Int8"
+      ]
     },
     "nullable": [
       false,
@@ -211,5 +213,5 @@
       null
     ]
   },
-  "hash": "81617d97e8e2a147ec2eb677023aa62b0d61f0bab260b27743d8788f95c96df8"
+  "hash": "408c051543205774b611d1981dd6d0086a457afdb8d18a59c22fddabe9521ec2"
 }

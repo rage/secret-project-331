@@ -195,6 +195,34 @@ pub async fn get_credit_registration_reconciliation(
     }))
 }
 
+/// A detector that is just "rows currently in this one live state". The single definition of which
+/// states these are and which detector each belongs to — `rows_in_states` iterates it instead of
+/// hand-writing the state list once for the query and again per detector's filter.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum LiveStateDetector {
+    OutcomeUncertain,
+    Misregistered,
+    OutcomeUnknownConsentWithdrawn,
+}
+
+impl LiveStateDetector {
+    const ALL: [Self; 3] = [
+        Self::OutcomeUncertain,
+        Self::Misregistered,
+        Self::OutcomeUnknownConsentWithdrawn,
+    ];
+
+    fn state(self) -> CreditRegistrationState {
+        match self {
+            Self::OutcomeUncertain => CreditRegistrationState::SubmissionUncertain,
+            Self::Misregistered => CreditRegistrationState::Misregistered,
+            Self::OutcomeUnknownConsentWithdrawn => {
+                CreditRegistrationState::AbandonedByConsentWithdrawal
+            }
+        }
+    }
+}
+
 /// The three detectors that each just read one live state, in one `IN`-list query and one
 /// admin-projection lookup shared across all three.
 async fn rows_in_states(
@@ -207,11 +235,7 @@ async fn rows_in_states(
     ),
     ControllerError,
 > {
-    let states = [
-        CreditRegistrationState::SubmissionUncertain,
-        CreditRegistrationState::Misregistered,
-        CreditRegistrationState::AbandonedByConsentWithdrawal,
-    ];
+    let states = LiveStateDetector::ALL.map(LiveStateDetector::state);
     let ids: Vec<Uuid> = credit_registrations::get_live_by_states(conn, &states, DETECTOR_LIMIT)
         .await?
         .into_iter()
@@ -219,20 +243,19 @@ async fn rows_in_states(
         .collect();
     let limit = ids.len() as i64;
     let rows = rows_by_ids(conn, &ids, limit).await?;
-    let outcome_uncertain = rows
-        .iter()
-        .filter(|row| row.state == CreditRegistrationState::SubmissionUncertain)
-        .cloned()
-        .collect();
-    let misregistered = rows
-        .iter()
-        .filter(|row| row.state == CreditRegistrationState::Misregistered)
-        .cloned()
-        .collect();
-    let outcome_unknown_consent_withdrawn = rows
-        .into_iter()
-        .filter(|row| row.state == CreditRegistrationState::AbandonedByConsentWithdrawal)
-        .collect();
+    let mut by_detector = LiveStateDetector::ALL.map(|_| Vec::new());
+    for row in rows {
+        let index = LiveStateDetector::ALL
+            .iter()
+            .position(|detector| detector.state() == row.state)
+            .expect("row was fetched by one of these states");
+        by_detector[index].push(row);
+    }
+    let [
+        outcome_uncertain,
+        misregistered,
+        outcome_unknown_consent_withdrawn,
+    ] = by_detector;
     Ok((
         outcome_uncertain,
         misregistered,

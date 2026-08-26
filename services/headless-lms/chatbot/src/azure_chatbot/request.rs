@@ -11,18 +11,16 @@ use headless_lms_models::chatbot_conversation_messages::{ChatbotConversationMess
 use super::azure::protocol::{
     InputItem, LLMRequest, LLMRequestParams, LLMToolChoice, RequestTextOptions,
 };
-use super::azure::tools::{AZURE_AI_SEARCH_TOOL_NAME, AzureLLMToolDefinition};
+use super::azure::tools::AzureLLMToolDefinition;
 use super::client_tool_calls::abort::ToolCallAbortReason;
+use super::search_grounding::build_search_grounding_instruction;
 use crate::chatbot_error::ChatbotResult;
-use crate::chatbot_tools::custom_tools::course_structure::CourseStructureTool;
-use crate::chatbot_tools::custom_tools::document_lookup::DocumentLookupTool;
 use crate::chatbot_tools::provider_tools::azure_ai_search::{
     self, get_azure_ai_search_tool_definition,
 };
 use crate::chatbot_tools::tool_category::EnabledToolCategories;
 use crate::chatbot_tools::{
-    ChatbotToolDeclaration, get_client_chatbot_tool_definitions,
-    get_permitted_chatbot_tool_definitions,
+    get_client_chatbot_tool_definitions, get_permitted_chatbot_tool_definitions,
 };
 use crate::conversation_context::{
     ChatbotPageContext, insert_page_context_message_if_changed, resolve_page_context,
@@ -30,37 +28,6 @@ use crate::conversation_context::{
 use crate::llm_utils::{APIInputMessage, MessageContent, estimate_tokens, get_params_for_model};
 use crate::prelude::*;
 use crate::user_context::ChatbotTurnContext;
-use headless_lms_models::chatbot_configurations::ToolCategory;
-
-/// The instruction appended to the system prompt when course-material search is enabled, to
-/// ground answers in retrieved course material.
-///
-/// Only called when [`azure_ai_search`] itself is in the request's tool list, so the
-/// document-lookup sentence — [`DocumentLookupTool`] shares [`azure_ai_search`]'s `CourseMaterial`
-/// category — is always included. The course-structure sentence is conditioned separately on
-/// `course_info_enabled`, since [`CourseStructureTool`] belongs to the distinct `CourseInfo`
-/// category and can be offered or withheld independently of search.
-///
-/// [`azure_ai_search`]: AZURE_AI_SEARCH_TOOL_NAME
-fn search_grounding_instruction(course_info_enabled: bool) -> String {
-    let mut instruction = format!(
-        "\n\nSearch the course material with the {AZURE_AI_SEARCH_TOOL_NAME} tool before answering, and ground your answer in the results with citations. Put only what you want to find in the query; the search is already limited to this course, so don't include the course name. Searching more than once is fine when it helps — to cover distinct sub-questions or angles, to refine when the first results don't answer, or when a follow-up or new instruction needs material you don't already have. When one search already answers, stop there."
-    );
-    instruction.push_str(&format!(
-        " If you need more information about a specific document or a topic covered in it, use the {} tool to retrieve the full document.",
-        DocumentLookupTool::NAME
-    ));
-    instruction.push_str(
-        " Skip searching only for messages that don't need course material, like greetings or thanks.",
-    );
-    if course_info_enabled {
-        instruction.push_str(&format!(
-            " If you need more information about the course, like what pages and chapters are in it, use the {} tool.",
-            CourseStructureTool::NAME
-        ));
-    }
-    instruction
-}
 
 /// A conversation's stored messages as the request should replay them.
 ///
@@ -274,9 +241,7 @@ impl LLMRequest {
 
         let mut system_prompt = configuration.prompt.clone();
         if offers_search {
-            system_prompt.push_str(&search_grounding_instruction(
-                enabled_tool_categories.contains(ToolCategory::CourseInfo),
-            ));
+            system_prompt.push_str(&build_search_grounding_instruction(enabled_tool_categories));
             tools.push(AzureLLMToolDefinition::Search(
                 get_azure_ai_search_tool_definition(
                     app_config,

@@ -398,125 +398,121 @@ impl ChatbotTool for UserOverviewTool {
             .state
             .facets
             .get(UserOverviewFacet::CheatingFlags.wire_name())
+            && !flags.is_empty()
         {
-            if !flags.is_empty() {
-                let tab = |status: &SuspectedCheaterStatus| match status {
-                    SuspectedCheaterStatus::Flagged => "suspected",
-                    SuspectedCheaterStatus::ConfirmedCheating => "confirmed",
-                    SuspectedCheaterStatus::Dismissed => "dismissed",
-                };
-                let course_links = flags
-                    .iter()
-                    .map(|f| {
-                        format!(
-                            "{base_url}/manage/courses/{}/other/cheaters/{}",
-                            f.course_id,
-                            tab(&f.status)
-                        )
-                    })
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                notes.push(format!(
-                    "cheating_flags rows are not current suspicions: the list includes resolved \
-                     cases. Only status 'Flagged' is awaiting review and actionable, and only via \
-                     update_cheating_status (read that tool's own description before recommending \
-                     any action); 'ConfirmedCheating' and 'Dismissed' are terminal, closed cases. A \
-                     flag reflects a system heuristic, not evidence of misconduct \u{2014} never \
-                     quote, imply, or hint at a cheating suspicion in any text meant for the \
-                     student. created_at is when the flag was first raised, not the latest status \
-                     change. Verify at {base_url}/manage/users/{user_id}, and per flag at: \
-                     {course_links}. That per-course table is keyed by user_id only, with no name \
-                     or email column, so match on the UUID."
-                ));
-            }
+            let tab = |status: &SuspectedCheaterStatus| match status {
+                SuspectedCheaterStatus::Flagged => "suspected",
+                SuspectedCheaterStatus::ConfirmedCheating => "confirmed",
+                SuspectedCheaterStatus::Dismissed => "dismissed",
+            };
+            let course_links = flags
+                .iter()
+                .map(|f| {
+                    format!(
+                        "{base_url}/manage/courses/{}/other/cheaters/{}",
+                        f.course_id,
+                        tab(&f.status)
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            notes.push(format!(
+                "cheating_flags rows are not current suspicions: the list includes resolved \
+                 cases. Only status 'Flagged' is awaiting review and actionable, and only via \
+                 update_cheating_status (read that tool's own description before recommending \
+                 any action); 'ConfirmedCheating' and 'Dismissed' are terminal, closed cases. A \
+                 flag reflects a system heuristic, not evidence of misconduct \u{2014} never \
+                 quote, imply, or hint at a cheating suspicion in any text meant for the \
+                 student. created_at is when the flag was first raised, not the latest status \
+                 change. Verify at {base_url}/manage/users/{user_id}, and per flag at: \
+                 {course_links}. That per-course table is keyed by user_id only, with no name \
+                 or email column, so match on the UUID."
+            ));
         }
 
         if let Some(UserOverviewFacetValue::Enrollments(enrollments)) = self
             .state
             .facets
             .get(UserOverviewFacet::Enrollments.wire_name())
+            && !enrollments.is_empty()
         {
-            if !enrollments.is_empty() {
-                let course_links = enrollments
-                    .iter()
-                    .map(|e| {
-                        format!(
-                            "{base_url}/manage/courses/{}/user-status-summary/{user_id}",
-                            e.course_id
-                        )
-                    })
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                notes.push(format!(
-                    "enrollments.completed_modules_count counts completion rows, including failed \
-                     and under-review ones, and can double-count a module completed twice for a \
-                     grade improvement \u{2014} it is not the number of modules passed. \
-                     completions_needing_review_count > 0 is internal and explains a missing or \
-                     delayed certificate; never surface it to the student. is_current reflects which \
-                     language version of the course the user last selected, not whether they are \
-                     currently enrolled \u{2014} is_current: false can still be an active enrollment. \
-                     instance_name 'Default' is the course's unnamed default instance, not missing \
-                     data; multiple names mean multiple enrollments in the same course. Enrollments \
-                     in deleted courses are silently omitted, so their absence here does not mean \
-                     the student was never enrolled. Per enrollment, the deeper per-course view is \
-                     at: {course_links} \u{2014} its \"X of Y modules\" figure is derived the same \
-                     way as completed_modules_count, so it is not an independent check of the \
-                     caveat above."
-                ));
-            }
+            let course_links = enrollments
+                .iter()
+                .map(|e| {
+                    format!(
+                        "{base_url}/manage/courses/{}/user-status-summary/{user_id}",
+                        e.course_id
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            notes.push(format!(
+                "enrollments.completed_modules_count counts completion rows, including failed \
+                 and under-review ones, and can double-count a module completed twice for a \
+                 grade improvement \u{2014} it is not the number of modules passed. \
+                 completions_needing_review_count > 0 is internal and explains a missing or \
+                 delayed certificate; never surface it to the student. is_current reflects which \
+                 language version of the course the user last selected, not whether they are \
+                 currently enrolled \u{2014} is_current: false can still be an active enrollment. \
+                 instance_name 'Default' is the course's unnamed default instance, not missing \
+                 data; multiple names mean multiple enrollments in the same course. Enrollments \
+                 in deleted courses are silently omitted, so their absence here does not mean \
+                 the student was never enrolled. Per enrollment, the deeper per-course view is \
+                 at: {course_links} \u{2014} its \"X of Y modules\" figure is derived the same \
+                 way as completed_modules_count, so it is not an independent check of the \
+                 caveat above."
+            ));
         }
 
         if let Some(UserOverviewFacetValue::Roles(roles)) =
             self.state.facets.get(UserOverviewFacet::Roles.wire_name())
+            && !roles.is_empty()
         {
-            if !roles.is_empty() {
-                let role_links = roles
-                    .iter()
-                    .map(|role| {
-                        if let Some(course_instance_id) = role.course_instance_id {
-                            format!(
-                                "{base_url}/manage/course-instances/{course_instance_id}/permissions"
-                            )
-                        } else if let Some(course_id) = role.course_id {
-                            format!("{base_url}/manage/courses/{course_id}/permissions")
-                        } else if let Some(exam_id) = role.exam_id {
-                            format!("{base_url}/manage/exams/{exam_id}/permissions")
-                        } else {
-                            format!("{base_url}/manage/permissions")
-                        }
-                    })
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                notes.push(format!(
-                    "roles only lists course-, course-instance-, or exam-scoped roles for this \
-                     user \u{2014} organization-wide and platform-wide roles are left out. UserRole \
-                     values are distinct capabilities, not a seniority hierarchy. A role on the \
-                     course in question means this person is staff there, not a student. Verify \
-                     each row's scope at: {role_links} (built from that row's own scope id) \u{2014} \
-                     the user page's role badges carry no scope attribution, so scope can only be \
-                     confirmed on these pages."
-                ));
-            }
+            let role_links = roles
+                .iter()
+                .map(|role| {
+                    if let Some(course_instance_id) = role.course_instance_id {
+                        format!(
+                            "{base_url}/manage/course-instances/{course_instance_id}/permissions"
+                        )
+                    } else if let Some(course_id) = role.course_id {
+                        format!("{base_url}/manage/courses/{course_id}/permissions")
+                    } else if let Some(exam_id) = role.exam_id {
+                        format!("{base_url}/manage/exams/{exam_id}/permissions")
+                    } else {
+                        format!("{base_url}/manage/permissions")
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            notes.push(format!(
+                "roles only lists course-, course-instance-, or exam-scoped roles for this \
+                 user \u{2014} organization-wide and platform-wide roles are left out. UserRole \
+                 values are distinct capabilities, not a seniority hierarchy. A role on the \
+                 course in question means this person is staff there, not a student. Verify \
+                 each row's scope at: {role_links} (built from that row's own scope id) \u{2014} \
+                 the user page's role badges carry no scope attribution, so scope can only be \
+                 confirmed on these pages."
+            ));
         }
 
         if let Some(UserOverviewFacetValue::EmailDeliveries(deliveries)) = self
             .state
             .facets
             .get(UserOverviewFacet::EmailDeliveries.wire_name())
+            && !deliveries.is_empty()
         {
-            if !deliveries.is_empty() {
-                notes.push(
-                    "email_deliveries.status: 'Sent' means handed to the mail relay, not confirmed \
-                     delivered; 'Queued' has not been handed over yet; 'Retrying' has failed at \
-                     least once but is still within the 3-day retry window; 'SendFailed' means \
-                     retries have stopped. Distinguish a recurring failure_code (delivery keeps \
-                     failing) from a send with no failure recorded (probably just landed in spam). \
-                     failure_is_transient absent means nothing has failed, not that severity is \
-                     unknown; last_attempt_at absent means no attempt has been made. This is only \
-                     the 20 most recent deliveries addressed to this account, not its full history."
-                        .to_string(),
-                );
-            }
+            notes.push(
+                "email_deliveries.status: 'Sent' means handed to the mail relay, not confirmed \
+                 delivered; 'Queued' has not been handed over yet; 'Retrying' has failed at \
+                 least once but is still within the 3-day retry window; 'SendFailed' means \
+                 retries have stopped. Distinguish a recurring failure_code (delivery keeps \
+                 failing) from a send with no failure recorded (probably just landed in spam). \
+                 failure_is_transient absent means nothing has failed, not that severity is \
+                 unknown; last_attempt_at absent means no attempt has been made. This is only \
+                 the 20 most recent deliveries addressed to this account, not its full history."
+                    .to_string(),
+            );
         }
 
         if notes.is_empty() {

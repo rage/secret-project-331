@@ -208,13 +208,12 @@ impl ConfirmableActionTool for EditUserAccountTool {
         if let Some(new_email) = &arguments.new_email {
             if let Some(other_user_id) =
                 user_details::get_active_user_id_by_email_case_insensitive(conn, new_email).await?
+                && other_user_id != user.id
             {
-                if other_user_id != user.id {
-                    return Err(chatbot_err!(
-                        ToolUseError,
-                        "Another account already uses this email address — likely a duplicate-account case; do not merge by email.".to_string()
-                    ));
-                }
+                return Err(chatbot_err!(
+                    ToolUseError,
+                    "Another account already uses this email address — likely a duplicate-account case; do not merge by email.".to_string()
+                ));
             }
 
             users::update_email_for_user_by_id(conn, user.id, new_email).await?;

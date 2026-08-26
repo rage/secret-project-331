@@ -913,7 +913,7 @@ async fn staff_facet(
             };
             let detail = details.get(&role.user_id);
             role_based.push(RoleBasedStaffContactInfo {
-                name: detail.and_then(|d| combined_name(d)),
+                name: detail.and_then(combined_name),
                 email: detail.map(|d| d.email.clone()),
                 role: role.role,
                 scope,

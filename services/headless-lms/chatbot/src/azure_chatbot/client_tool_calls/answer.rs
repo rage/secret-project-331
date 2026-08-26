@@ -153,9 +153,7 @@ async fn apply_client_tool_answer(
         let outcome = execute_action_tool(
             conn,
             app_config,
-            &tool_call.tool_name,
-            &tool_call.arguments_json(),
-            tool_call.id,
+            tool_call,
             answer,
             acting_user_id,
             &user_context.enabled_tool_categories,

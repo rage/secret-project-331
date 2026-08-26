@@ -502,21 +502,22 @@ macro_rules! chatbot_tool_registry {
 
         /// Runs the confirmed (or records the declined) action tool call the LLM asked for.
         ///
-        /// `tool_call_id` is the row id of the recorded call, stored on the audit row so it traces
-        /// back to the conversation. Fails with [ChatbotErrorType::InvalidToolAnswer] when `answer`
-        /// is not a [ConfirmAnswer], and with [ChatbotErrorType::InvalidToolName] when no action
-        /// tool goes by `tool_name`. A declined answer never touches the database beyond what the
+        /// `tool_call`'s row id is stored on the audit row so it traces back to the conversation.
+        /// Fails with [ChatbotErrorType::InvalidToolAnswer] when `answer` is not a
+        /// [ConfirmAnswer], and with [ChatbotErrorType::InvalidToolName] when no action tool goes
+        /// by `tool_call`'s name. A declined answer never touches the database beyond what the
         /// caller writes for the closed call itself.
         pub async fn execute_action_tool(
             conn: &mut PgConnection,
             app_config: &ApplicationConfiguration,
-            tool_name: &str,
-            arguments: &str,
-            tool_call_id: Uuid,
+            tool_call: &headless_lms_models::chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
             answer: &ClientToolAnswer,
             acting_user_id: Uuid,
             enabled_tool_categories: &EnabledToolCategories,
         ) -> ChatbotResult<ActionToolOutcome> {
+            let tool_name = tool_call.tool_name.as_str();
+            let arguments = &tool_call.arguments_json();
+            let tool_call_id = tool_call.id;
             $(
                 if tool_name == <$action_tool as ChatbotToolDeclaration>::NAME {
                     if !enabled_tool_categories.contains(<$action_tool as ChatbotToolDeclaration>::CATEGORY) {

@@ -196,10 +196,10 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
             "You never see the link itself and must not claim to know it or offer to repeat it.".to_string(),
         ];
 
-        if let Some(facts) = facts {
-            if facts.is_tmc_managed_with_no_local_password {
-                notes.push("This account has never had a local password -- redeeming the link will create one and permanently move password management for this account from TMC to this platform, which is worth telling the admin.".to_string());
-            }
+        if let Some(facts) = facts
+            && facts.is_tmc_managed_with_no_local_password
+        {
+            notes.push("This account has never had a local password -- redeeming the link will create one and permanently move password management for this account from TMC to this platform, which is worth telling the admin.".to_string());
         }
 
         Some(notes.join(" "))

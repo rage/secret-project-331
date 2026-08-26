@@ -346,13 +346,13 @@ impl ConfirmableActionTool for ResetExercisesTool {
             ),
         ];
 
-        if let Some(facts) = facts {
-            if facts.actual_reset_count < facts.requested_count {
-                notes.push(format!(
-                    "Only {} of the {} requested exercises had a previous submission to reset -- a lower count, including 0, is normal and not a failure to retry; check {user_status_summary_url} to see which exercises had nothing to reset.",
-                    facts.actual_reset_count, facts.requested_count
-                ));
-            }
+        if let Some(facts) = facts
+            && facts.actual_reset_count < facts.requested_count
+        {
+            notes.push(format!(
+                "Only {} of the {} requested exercises had a previous submission to reset -- a lower count, including 0, is normal and not a failure to retry; check {user_status_summary_url} to see which exercises had nothing to reset.",
+                facts.actual_reset_count, facts.requested_count
+            ));
         }
 
         if !arguments.reason.trim().is_empty() {

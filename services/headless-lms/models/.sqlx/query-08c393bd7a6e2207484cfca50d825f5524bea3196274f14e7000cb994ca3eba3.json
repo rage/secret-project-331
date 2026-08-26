@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO rejected_exercise_task_submission_files (\n    rejected_exercise_task_submission_id,\n    file_upload_id,\n    order_number\n  )\nSELECT $1,\n  file_upload_id,\n  (ordinality - 1)::integer\nFROM UNNEST($2::uuid []) WITH ORDINALITY AS t(file_upload_id, ordinality)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "08c393bd7a6e2207484cfca50d825f5524bea3196274f14e7000cb994ca3eba3"
+}

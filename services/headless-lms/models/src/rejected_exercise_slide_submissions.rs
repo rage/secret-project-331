@@ -97,14 +97,15 @@ RETURNING id
 /// The files themselves are not spared from the exercise_answer_uploads reaper, so this is what a
 /// later diagnosis has to work from: the ids still resolve to soft-deleted file_uploads rows
 /// carrying each file's name, type and size.
+///
+/// `order_number` must stay encoded exactly as
+/// [`exercise_task_submission_files::insert_many`](crate::exercise_task_submission_files::insert_many)
+/// encodes it, so a rejection can be compared against an accepted answer.
 async fn insert_rejected_exercise_task_submission_files(
     conn: &mut PgConnection,
     rejected_exercise_task_submission_id: Uuid,
     file_upload_ids: &[Uuid],
 ) -> ModelResult<()> {
-    let order_numbers: Vec<i32> = (0..file_upload_ids.len())
-        .map(|index| i32::try_from(index).unwrap_or(i32::MAX))
-        .collect();
     sqlx::query!(
         "
 INSERT INTO rejected_exercise_task_submission_files (
@@ -114,12 +115,11 @@ INSERT INTO rejected_exercise_task_submission_files (
   )
 SELECT $1,
   file_upload_id,
-  order_number
-FROM UNNEST($2::uuid [], $3::integer []) AS t(file_upload_id, order_number)
+  (ordinality - 1)::integer
+FROM UNNEST($2::uuid []) WITH ORDINALITY AS t(file_upload_id, ordinality)
 ",
         rejected_exercise_task_submission_id,
-        file_upload_ids,
-        &order_numbers
+        file_upload_ids
     )
     .execute(conn)
     .await?;

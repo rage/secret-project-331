@@ -25,9 +25,6 @@ pub async fn insert_many(
     exercise_task_submission_id: Uuid,
     file_upload_ids: &[Uuid],
 ) -> ModelResult<()> {
-    let order_numbers: Vec<i32> = (0..file_upload_ids.len())
-        .map(|index| i32::try_from(index).unwrap_or(i32::MAX))
-        .collect();
     sqlx::query!(
         "
 INSERT INTO exercise_task_submission_files (
@@ -37,12 +34,11 @@ INSERT INTO exercise_task_submission_files (
   )
 SELECT $1,
   file_upload_id,
-  order_number
-FROM UNNEST($2::uuid [], $3::integer []) AS t(file_upload_id, order_number)
+  (ordinality - 1)::integer
+FROM UNNEST($2::uuid []) WITH ORDINALITY AS t(file_upload_id, ordinality)
 ",
         exercise_task_submission_id,
-        file_upload_ids,
-        &order_numbers
+        file_upload_ids
     )
     .execute(conn)
     .await?;

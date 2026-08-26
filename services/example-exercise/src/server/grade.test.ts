@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest"
 
 import { handleGrade } from "./grade"
 
-function post(body: unknown): Request {
+/** Fills in the envelope fields every grading request carries, so cases name only what they vary. */
+function post(body: object): Request {
   return new Request("http://localhost/api/grade", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ grading_update_url: "http://x", submission_files: [], ...body }),
   })
 }
 
@@ -19,8 +20,6 @@ describe("POST /api/grade", () => {
   it("gives full score for the correct option", async () => {
     const res = await handleGrade(
       post({
-        grading_update_url: "http://x",
-        submission_files: [],
         exercise_spec: SPEC,
         submission_data: { selectedOptionId: "a" },
       }),
@@ -35,8 +34,6 @@ describe("POST /api/grade", () => {
   it("gives zero for an incorrect option", async () => {
     const res = await handleGrade(
       post({
-        grading_update_url: "http://x",
-        submission_files: [],
         exercise_spec: SPEC,
         submission_data: { selectedOptionId: "b" },
       }),
@@ -49,8 +46,6 @@ describe("POST /api/grade", () => {
   it("gives zero and a null feedback when nothing was selected", async () => {
     const res = await handleGrade(
       post({
-        grading_update_url: "http://x",
-        submission_files: [],
         exercise_spec: SPEC,
         submission_data: {},
       }),
@@ -63,8 +58,6 @@ describe("POST /api/grade", () => {
   it("grades a versioned exercise_spec envelope and versioned answer (migrate-on-read)", async () => {
     const res = await handleGrade(
       post({
-        grading_update_url: "http://x",
-        submission_files: [],
         exercise_spec: { version: "1", alternatives: SPEC },
         submission_data: { version: "1", selectedOptionId: "a" },
       }),
@@ -76,7 +69,8 @@ describe("POST /api/grade", () => {
   })
 
   it("rejects a malformed grading request with 400", async () => {
-    const res = await handleGrade(post({ exercise_spec: SPEC }))
+    // Overrides an envelope field `post` would otherwise supply, so the request really is malformed.
+    const res = await handleGrade(post({ exercise_spec: SPEC, grading_update_url: undefined }))
     expect(res.status).toBe(400)
   })
 })

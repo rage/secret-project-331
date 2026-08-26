@@ -2,12 +2,10 @@
 
 import { css } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
-import { useTranslation } from "react-i18next"
 
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { Button } from "@/shared-module/components"
-import { listBoxOptionCss } from "@/shared-module/components/components/primitives/selectStyles"
 
 interface ChatbotOption {
   label: string
@@ -33,8 +31,6 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   open,
   onClose,
 }) => {
-  const { t } = useTranslation()
-
   const sectionCss = css`
     display: grid;
     gap: var(--space-1);
@@ -78,8 +74,12 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
                       onClose()
                     }}
                     variant="icon"
+                    className={css`
+                      width: 100%;
+                      justify-content: flex-start;
+                    `}
                   >
-                    <li className={listBoxOptionCss}>
+                    <li>
                       <span>{option.label}</span>
                     </li>
                   </Button>

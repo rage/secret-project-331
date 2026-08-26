@@ -12,7 +12,8 @@ use sqlx::PgConnection;
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, argument_parsing::parse_required_uuid,
+        tool_permission::ToolPermission,
     },
     prelude::{
         BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, TryToOptional, chatbot_err,
@@ -218,13 +219,7 @@ impl ChatbotTool for FindUserTool {
 
 /// Looks up one user by `user_id`, rejecting a query that is not a valid UUID.
 async fn find_by_user_id(conn: &mut PgConnection, query: &str) -> ChatbotResult<Vec<UserDetail>> {
-    let user_id = Uuid::from_str(query).map_err(|e| {
-        chatbot_err!(
-            InvalidToolArguments,
-            format!("'{query}' is not a valid user_id (UUID)."),
-            e
-        )
-    })?;
+    let user_id = parse_required_uuid("user_id", query)?;
     Ok(user_details::get_user_details_by_user_id(conn, user_id)
         .await
         .optional()?
@@ -291,6 +286,14 @@ async fn find_auto(
         }
     }
 
+    if query.chars().count() < MIN_FUZZY_QUERY_LENGTH {
+        return Err(chatbot_err!(
+            InvalidToolArguments,
+            format!(
+                "query must be at least {MIN_FUZZY_QUERY_LENGTH} characters long for email or name search."
+            )
+        ));
+    }
     let details = user_details::search_for_user_details_fuzzy_match(conn, query).await?;
     Ok(("name", details))
 }

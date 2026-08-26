@@ -35,7 +35,13 @@ const DECOMPRESSED_SIZE_ATTEMPTS = [
 
 /** A tar always carries its trailing zero blocks, so nothing decompressed means the decode failed. */
 const decompress = (decoder: ZSTDDecoder, tarZstdArchive: Buffer): Uint8Array => {
-  for (const destinationSize of DECOMPRESSED_SIZE_ATTEMPTS) {
+  // A rung below the compressed length cannot hold the output, so trying it only grows the wasm
+  // heap for a guaranteed failure. The top rung is kept even then, so the ladder never empties.
+  const attempts = DECOMPRESSED_SIZE_ATTEMPTS.filter(
+    (size, index) =>
+      size >= tarZstdArchive.length || index === DECOMPRESSED_SIZE_ATTEMPTS.length - 1,
+  )
+  for (const destinationSize of attempts) {
     const decompressed = decoder.decode(tarZstdArchive, destinationSize)
     if (decompressed.length > 0) {
       return decompressed

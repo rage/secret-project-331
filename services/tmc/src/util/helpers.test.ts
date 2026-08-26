@@ -8,7 +8,9 @@ import { extractTarZstd } from "./helpers"
 
 /** Random text so the archive cannot compress down to something the first destination size fits. */
 const incompressibleText = (bytes: number): string =>
-  randomBytes(bytes).toString("base64").slice(0, bytes)
+  randomBytes(Math.ceil((bytes * 3) / 4))
+    .toString("base64")
+    .slice(0, bytes)
 
 const packTarZstd = async (filepath: string, contents: string): Promise<Buffer> => {
   const pack = tar.pack()

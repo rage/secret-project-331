@@ -3,8 +3,8 @@
 //! stop at `pending_consent`, because historical completions belong to students nobody ever asked.
 
 use crate::credit_registrations::{
-    CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
-    mark_improvement_checked, mark_superseded, park_for_successor, transition,
+    BatchMove, CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
+    mark_improvement_checked, mark_superseded, park_for_successor, transition_batch,
 };
 use crate::prelude::*;
 
@@ -17,17 +17,47 @@ pub const MATERIALIZE_LIMIT: i64 = 500;
 /// each of these costs a round trip to the study registry for a credit the student already has.
 pub const GRADE_IMPROVEMENT_LIMIT: i64 = 200;
 
-/// Creates a `pending_prerequisites` row and its `created` event for every eligible completion that
-/// has none; returns the count.
-pub async fn ensure_registration_rows_for_eligible_completions(
-    conn: &mut PgConnection,
-    scope: &RegistrationScope,
-    limit: i64,
-) -> ModelResult<i64> {
-    // The ids are generated in the CTE so request_item_id stays derivable from the row id in both
-    // directions: it is the only handle Suotar's log and ours share on one registration.
-    let created = sqlx::query_scalar!(
-        r#"
+/// The completions credit registration is responsible for: exactly the rows
+/// [`ensure_registration_rows_for_eligible_completions`] creates a ledger row for, and so exactly
+/// the rows [`get_unmaterialised_eligible_completions`] may accuse it of having missed.
+///
+/// Handed to each query's own macro rather than named as a constant, because the sqlx macros take
+/// string literals only. A database view will replace it. Both queries must name the completion
+/// `cmc` and its module `cm`.
+macro_rules! with_eligible_completions_filter {
+    ($query:ident, $($args:tt)*) => {
+        $query!(
+            r#"cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+  AND cmc.deleted_at IS NULL
+  -- A hard filter, not a precondition: a failed completion is not waiting for anything, and a row
+  -- for it would inflate every queue depth with something that can never move. A later regrade
+  -- upwards is picked up by the next iteration.
+  AND cmc.passed
+  AND cmc.eligible_for_ects
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registrations cr
+    WHERE cr.course_module_completion_id = cmc.id
+      AND cr.deleted_at IS NULL
+  )
+  -- Already in the registry through the pull path. Materialising these would send a course's whole
+  -- history at Suotar to be told so, one import batch at a time.
+  AND NOT EXISTS (
+    SELECT 1
+    FROM course_module_completion_registered_to_study_registries r
+    WHERE r.course_module_completion_id = cmc.id
+      AND r.deleted_at IS NULL
+  )"#,
+            $($args)*
+        )
+    };
+}
+
+macro_rules! registrable_completions_query {
+    ($eligible:literal, $($args:tt)*) => {
+        sqlx::query_scalar!(
+            r#"
 WITH registrable_completion AS (
   SELECT uuid_generate_v4() AS id,
     cmc.id AS course_module_completion_id,
@@ -48,28 +78,7 @@ WITH registrable_completion AS (
       ORDER BY cie.created_at DESC
       LIMIT 1
     ) enrolment ON TRUE
-  WHERE cm.enable_credit_registration_via_suotar
-    AND cm.deleted_at IS NULL
-    AND cmc.deleted_at IS NULL
-    -- A hard filter, not a precondition: a failed completion is not waiting for anything, and a
-    -- row for it would inflate every queue depth with something that can never move. A later
-    -- regrade upwards is picked up by the next iteration.
-    AND cmc.passed
-    AND cmc.eligible_for_ects
-    AND NOT EXISTS (
-      SELECT 1
-      FROM credit_registrations cr
-      WHERE cr.course_module_completion_id = cmc.id
-        AND cr.deleted_at IS NULL
-    )
-    -- Already in the registry through the pull path. Materialising these would send a course's
-    -- whole history at Suotar to be told so, one import batch at a time.
-    AND NOT EXISTS (
-      SELECT 1
-      FROM course_module_completion_registered_to_study_registries r
-      WHERE r.course_module_completion_id = cmc.id
-        AND r.deleted_at IS NULL
-    )
+  WHERE "# + $eligible + r#"
     AND ($2::uuid IS NULL OR cmc.course_id = $2)
     AND ($3::uuid IS NULL OR cmc.user_id = $3)
   ORDER BY cmc.created_at
@@ -106,7 +115,23 @@ events AS (
 )
 SELECT COUNT(*) AS "created!"
 FROM events
-        "#,
+            "#,
+            $($args)*
+        )
+    };
+}
+
+/// Creates a `pending_prerequisites` row and its `created` event for every eligible completion that
+/// has none; returns the count.
+pub async fn ensure_registration_rows_for_eligible_completions(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<i64> {
+    // The ids are generated in the CTE so request_item_id stays derivable from the row id in both
+    // directions: it is the only handle Suotar's log and ours share on one registration.
+    let created = with_eligible_completions_filter!(
+        registrable_completions_query,
         limit,
         scope.course_id,
         scope.user_id,
@@ -135,21 +160,11 @@ pub struct UnmaterialisedCompletion {
     pub missing_enrolment: bool,
 }
 
-/// Completions [`ensure_registration_rows_for_eligible_completions`] should have picked up at least
-/// `min_age_secs` ago and did not.
-///
-/// Deliberately the same predicate as the materialise statement minus its enrolment join, which is
-/// reported per row instead: a completion whose enrolment was removed is invisible to materialise
-/// and would otherwise look like a lost row forever. Returns one row over the limit where there are
-/// more, so a caller can say so without a second count.
-pub async fn get_unmaterialised_eligible_completions(
-    conn: &mut PgConnection,
-    min_age_secs: i64,
-    limit: i64,
-) -> ModelResult<Vec<UnmaterialisedCompletion>> {
-    let res = sqlx::query_as!(
-        UnmaterialisedCompletion,
-        r#"
+macro_rules! unmaterialised_completions_query {
+    ($eligible:literal, $($args:tt)*) => {
+        sqlx::query_as!(
+            UnmaterialisedCompletion,
+            r#"
 SELECT cmc.id AS course_module_completion_id,
   cmc.user_id,
   ud.first_name AS "first_name?",
@@ -172,27 +187,30 @@ FROM course_module_completions cmc
   JOIN course_modules cm ON cm.id = cmc.course_module_id
   JOIN courses c ON c.id = cmc.course_id
   LEFT JOIN user_details ud ON ud.user_id = cmc.user_id
-WHERE cm.enable_credit_registration_via_suotar
-  AND cm.deleted_at IS NULL
-  AND cmc.deleted_at IS NULL
-  AND cmc.passed
-  AND cmc.eligible_for_ects
+WHERE "# + $eligible + r#"
   AND cmc.created_at < now() - MAKE_INTERVAL(secs => $1::double precision)
-  AND NOT EXISTS (
-    SELECT 1
-    FROM credit_registrations cr
-    WHERE cr.course_module_completion_id = cmc.id
-      AND cr.deleted_at IS NULL
-  )
-  AND NOT EXISTS (
-    SELECT 1
-    FROM course_module_completion_registered_to_study_registries r
-    WHERE r.course_module_completion_id = cmc.id
-      AND r.deleted_at IS NULL
-  )
 ORDER BY cmc.created_at
 LIMIT $2
-        "#,
+            "#,
+            $($args)*
+        )
+    };
+}
+
+/// Completions [`ensure_registration_rows_for_eligible_completions`] should have picked up at least
+/// `min_age_secs` ago and did not.
+///
+/// The materialise statement's own predicate, minus its enrolment join, which is reported per row
+/// instead: a completion whose enrolment was removed is invisible to materialise and would
+/// otherwise look like a lost row forever. Returns one row over the limit where there are more, so
+/// a caller can say so without a second count.
+pub async fn get_unmaterialised_eligible_completions(
+    conn: &mut PgConnection,
+    min_age_secs: i64,
+    limit: i64,
+) -> ModelResult<Vec<UnmaterialisedCompletion>> {
+    let res = with_eligible_completions_filter!(
+        unmaterialised_completions_query,
         min_age_secs as f64,
         limit,
     )
@@ -283,7 +301,7 @@ LIMIT $1
     .fetch_all(&mut *tx)
     .await?;
 
-    let mut started = 0;
+    let mut starts = Vec::new();
     for candidate in candidates {
         // Stamped rather than merely skipped, in both refusals below: the query's pre-filter cannot
         // tell a regrade from any other touch of the completion, so a candidate left unstamped comes
@@ -335,14 +353,12 @@ LIMIT $1
         // Not `pending_prerequisites`: that chain was cleared before the first attempt was
         // accepted, the query above rechecks consent and eligibility, and a student number
         // unlinked since sends the row back by itself when the submitter finds none.
-        transition(
-            &mut tx,
-            next,
-            &Transition::to(CreditRegistrationState::ReadyToSubmit),
-        )
-        .await?;
-        started += 1;
+        starts.push(BatchMove {
+            id: next,
+            transition: Transition::to(CreditRegistrationState::ReadyToSubmit),
+        });
     }
+    let started = transition_batch(&mut tx, &starts).await?;
     tx.commit().await?;
     Ok(started)
 }

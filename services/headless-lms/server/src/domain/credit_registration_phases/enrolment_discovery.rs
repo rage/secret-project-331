@@ -13,16 +13,17 @@ use headless_lms_models::course_module_suotar_realisations::{
 use headless_lms_models::credit_registration_events::scrub_text;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
-    CreditRegistrationErrorCode, map_wire_code, recheck_no_usable_enrolment_now,
+    CreditRegistrationErrorCode, recheck_no_usable_enrolment_now,
 };
 use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
 use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::library::credit_registration::account_linking::{
     DiscoveredPerson, claim_linking_mails_batch,
 };
+use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::fast_track::{
-    FastTrackCandidate, FastTrackDecision, FastTrackLink, RegistryName, decide_fast_track,
-    find_fast_track_candidate, link_by_email_match,
+    FastTrackCandidate, FastTrackDecision, FastTrackLink, FastTrackLookup, RegistryName,
+    decide_fast_track, find_fast_track_candidate, find_fast_track_candidates, link_by_email_match,
 };
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::error::util_error::UtilError;
@@ -33,7 +34,7 @@ use headless_lms_utils::services::suotar::{
 };
 use serde_json::json;
 use sqlx::{Connection, PgConnection};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use super::{
     CreditRegistrationPhase, PhaseContext, PhaseScope, TemplateCache,
@@ -115,7 +116,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                     "Listing realisation {} failed with {}.",
                     realisation.course_unit_realisation_id, item.code
                 );
-                Err(map_wire_code(&item.code).unwrap_or(CreditRegistrationErrorCode::Unknown))
+                Err(map_code(endpoint, &item.code).unwrap_or(CreditRegistrationErrorCode::Unknown))
             }
             None => {
                 warn!(
@@ -168,6 +169,14 @@ async fn reconcile(
         .collect();
 
     let mut fast_track = FastTrackRun::new(ctx, realisation);
+    fast_track
+        .resolve_accounts(
+            conn,
+            people
+                .iter()
+                .filter(|person| !linked_person_ids.contains(person.person_id.as_str())),
+        )
+        .await?;
     let mut discovered = Vec::new();
     for person in people {
         if linked_person_ids.contains(person.person_id.as_str()) {
@@ -217,6 +226,9 @@ struct FastTrackRun<'a> {
     enabled: bool,
     max_verification_age: chrono::Duration,
     templates: TemplateCache,
+    /// The account behind each person's registry address, resolved for the whole roster at once so
+    /// only the few people a link is actually possible for cost a transaction.
+    accounts: HashMap<String, FastTrackCandidate>,
 }
 
 impl<'a> FastTrackRun<'a> {
@@ -230,7 +242,42 @@ impl<'a> FastTrackRun<'a> {
                 conf.fast_track_max_email_verification_age_days.max(0),
             ),
             templates: TemplateCache::default(),
+            accounts: HashMap::new(),
         }
+    }
+
+    async fn resolve_accounts<'p>(
+        &mut self,
+        conn: &mut PgConnection,
+        people: impl Iterator<Item = &'p ListedPerson>,
+    ) -> anyhow::Result<()> {
+        if !self.enabled {
+            return Ok(());
+        }
+        let wanted: Vec<FastTrackLookup> = people
+            .map(|person| FastTrackLookup {
+                primary_email: person.primary_email.clone(),
+                sisu_person_id: person.person_id.clone(),
+            })
+            .collect();
+        self.accounts = find_fast_track_candidates(conn, &wanted).await?;
+        Ok(())
+    }
+
+    fn decide(
+        &self,
+        candidate: Option<&FastTrackCandidate>,
+        person: &ListedPerson,
+    ) -> FastTrackDecision {
+        decide_fast_track(
+            candidate,
+            RegistryName {
+                first_names: Some(&person.first_names),
+                last_name: Some(&person.last_name),
+            },
+            Utc::now(),
+            self.max_verification_age,
+        )
     }
 
     /// Whether the person was linked here, in which case no linking mail is owed. `false` for every
@@ -244,40 +291,22 @@ impl<'a> FastTrackRun<'a> {
         if !self.enabled {
             return Ok(false);
         }
+        let decision = self.decide(self.accounts.get(&person.person_id), person);
+        if decision != FastTrackDecision::Link {
+            count_decision(outcome, decision);
+            return Ok(false);
+        }
         // One transaction, and the candidate query locks the account row: a profile edit landing
         // between reading the proof and writing the link would leave a link resting on an address
-        // the account no longer holds.
+        // the account no longer holds. The decision is taken again under that lock, so the batch
+        // above is only ever a way to skip the people no link is possible for.
         let mut tx = conn.begin().await?;
         // The registry's secondary address is self-entered, so anyone could name someone else's
         // account address there and be handed their student number.
         let candidate =
             find_fast_track_candidate(&mut tx, &person.primary_email, &person.person_id).await?;
-        let decision = decide_fast_track(
-            candidate.as_ref(),
-            RegistryName {
-                first_names: Some(&person.first_names),
-                last_name: Some(&person.last_name),
-            },
-            Utc::now(),
-            self.max_verification_age,
-        );
-        match decision {
-            FastTrackDecision::NoAccountMatch => outcome.fast_track_skipped_no_account_count += 1,
-            FastTrackDecision::UnverifiedAccount => {
-                outcome.fast_track_skipped_unverified_count += 1
-            }
-            FastTrackDecision::StaleVerification => {
-                outcome.fast_track_skipped_stale_verification_count += 1
-            }
-            FastTrackDecision::NameMismatch => outcome.fast_track_skipped_name_mismatch_count += 1,
-            FastTrackDecision::AccountHasStudentNumber => {
-                outcome.fast_track_skipped_account_has_number_count += 1
-            }
-            FastTrackDecision::UnlinkedBefore => {
-                outcome.fast_track_skipped_unlinked_before_count += 1
-            }
-            FastTrackDecision::Link => outcome.fast_tracked_count += 1,
-        }
+        let decision = self.decide(candidate.as_ref(), person);
+        count_decision(outcome, decision);
         let (FastTrackDecision::Link, Some(candidate)) = (decision, candidate) else {
             return Ok(false);
         };
@@ -335,6 +364,24 @@ impl<'a> FastTrackRun<'a> {
         )
         .await?;
         Ok(())
+    }
+}
+
+/// Every fast-track outcome has a counter on the realisation row: the skips are what says whether
+/// the flag is worth having on.
+fn count_decision(outcome: &mut RealisationListingOutcome, decision: FastTrackDecision) {
+    match decision {
+        FastTrackDecision::NoAccountMatch => outcome.fast_track_skipped_no_account_count += 1,
+        FastTrackDecision::UnverifiedAccount => outcome.fast_track_skipped_unverified_count += 1,
+        FastTrackDecision::StaleVerification => {
+            outcome.fast_track_skipped_stale_verification_count += 1
+        }
+        FastTrackDecision::NameMismatch => outcome.fast_track_skipped_name_mismatch_count += 1,
+        FastTrackDecision::AccountHasStudentNumber => {
+            outcome.fast_track_skipped_account_has_number_count += 1
+        }
+        FastTrackDecision::UnlinkedBefore => outcome.fast_track_skipped_unlinked_before_count += 1,
+        FastTrackDecision::Link => outcome.fast_tracked_count += 1,
     }
 }
 

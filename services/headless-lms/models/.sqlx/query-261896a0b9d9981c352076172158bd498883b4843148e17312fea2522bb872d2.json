@@ -1,0 +1,149 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_events (\n    credit_registration_id,\n    kind,\n    from_state,\n    to_state,\n    error_code,\n    message,\n    suotar_api_call_id,\n    actor_user_id,\n    details\n  )\nSELECT *\nFROM UNNEST(\n    $1::uuid [],\n    $2::credit_registration_event_kind [],\n    $3::credit_registration_state [],\n    $4::credit_registration_state [],\n    $5::credit_registration_error_code [],\n    $6::text [],\n    $7::uuid [],\n    $8::uuid [],\n    $9::jsonb []\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        {
+          "Custom": {
+            "name": "credit_registration_event_kind[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_event_kind",
+                  "kind": {
+                    "Enum": [
+                      "created",
+                      "state_changed",
+                      "suotar_response",
+                      "retry_scheduled",
+                      "admin_action",
+                      "student_action",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending_prerequisites",
+                      "pending_consent",
+                      "pending_student_number",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled",
+                      "abandoned_by_consent_withdrawal"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_error_code[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_error_code",
+                  "kind": {
+                    "Enum": [
+                      "person_not_found",
+                      "course_code_not_found",
+                      "enrolment_not_found",
+                      "enrolment_not_accepted",
+                      "invalid_grade_for_grade_scale",
+                      "course_not_allowed",
+                      "invalid_credits",
+                      "study_right_not_valid",
+                      "acceptor_not_found",
+                      "sisu_validation_failed",
+                      "sisu_timeout",
+                      "sisu_temporarily_unavailable",
+                      "misregistered",
+                      "unauthorized",
+                      "malformed_request",
+                      "transport_error",
+                      "unexpected_response",
+                      "no_grade_scale_mapping",
+                      "missing_uh_course_code",
+                      "missing_ects_credits",
+                      "retry_window_expired",
+                      "unknown"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TextArray",
+        "UuidArray",
+        "UuidArray",
+        "JsonbArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "261896a0b9d9981c352076172158bd498883b4843148e17312fea2522bb872d2"
+}

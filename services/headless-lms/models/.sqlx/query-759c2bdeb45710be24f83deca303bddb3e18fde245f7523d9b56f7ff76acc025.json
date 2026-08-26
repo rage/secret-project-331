@@ -1,0 +1,67 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  state AS \"state: CreditRegistrationState\"\nFROM credit_registrations\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\nORDER BY id FOR\nUPDATE\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "state: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending_prerequisites",
+                "pending_consent",
+                "pending_student_number",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled",
+                "abandoned_by_consent_withdrawal"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "759c2bdeb45710be24f83deca303bddb3e18fde245f7523d9b56f7ff76acc025"
+}

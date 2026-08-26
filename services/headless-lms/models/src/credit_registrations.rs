@@ -1,9 +1,11 @@
 //! The credit registration ledger.
 //!
-//! [`transition`] is the only writer of `state`, stamping `state_entered_at`, the lifecycle
-//! timestamps and the audit event in one transaction. Which transition to make is the caller's
-//! decision; whether it is one the machine has is decided here, from
-//! [`CreditRegistrationState::allowed_targets`].
+//! [`transition`], and its batched twin [`transition_batch`], are the only writers of `state`,
+//! stamping `state_entered_at`, the lifecycle timestamps and the audit event in one transaction.
+//! Which transition to make is the caller's decision; whether it is one the machine has is decided
+//! here, from [`CreditRegistrationState::allowed_targets`].
+use std::collections::HashMap;
+
 use chrono::NaiveDate;
 use utoipa::ToSchema;
 
@@ -121,12 +123,14 @@ impl CreditRegistrationState {
                 S::Blocked,
                 S::Cancelled,
             ],
-            // `resolving_enrolment` is resolve-enrolments claiming it; the rest is that phase's
-            // preflight and the preconditions.
+            // `resolving_enrolment` is resolve-enrolments claiming the row and `failed_retryable`
+            // is it finding nothing to ask about; the rest is that phase's preflight and the
+            // preconditions.
             S::ReadyToSubmit => &[
                 S::PendingConsent,
                 S::PendingStudentNumber,
                 S::ResolvingEnrolment,
+                S::FailedRetryable,
                 S::FailedPermanent,
                 S::Blocked,
                 S::Cancelled,
@@ -407,43 +411,6 @@ impl CreditRegistrationErrorCode {
     ];
 }
 
-/// The contract's own mapping of a per-item `code`, before any hardening of ours.
-///
-/// `None` where the code names no failure to record: every success code, and verify's
-/// `notRegistered`, which only means Sisu has not finished yet. An unrecognised code becomes
-/// `Unknown` rather than an error, since Suotar may add codes.
-pub fn map_wire_code(code: &str) -> Option<CreditRegistrationErrorCode> {
-    use CreditRegistrationErrorCode as Code;
-    let mapped = match code {
-        "personFound"
-        | "enrolmentFound"
-        | "registered"
-        | "sent"
-        | "duplicateAttainment"
-        | "notImprovedAttainment"
-        | "found"
-        | "enrolmentsListed"
-        | "notRegistered" => return None,
-        "personNotFound" => Code::PersonNotFound,
-        "courseCodeNotFound" => Code::CourseCodeNotFound,
-        "enrolmentNotFound" => Code::EnrolmentNotFound,
-        "enrolmentNotAccepted" => Code::EnrolmentNotAccepted,
-        "invalidGradeForGradeScale" => Code::InvalidGradeForGradeScale,
-        "courseNotAllowed" => Code::CourseNotAllowed,
-        "invalidCredits" => Code::InvalidCredits,
-        "studyRightNotValid" => Code::StudyRightNotValid,
-        "acceptorNotFound" => Code::AcceptorNotFound,
-        "sisuValidationFailed" => Code::SisuValidationFailed,
-        "sisuTimeout" => Code::SisuTimeout,
-        "misregistered" => Code::Misregistered,
-        "unauthorized" => Code::Unauthorized,
-        "malformedRequest" => Code::MalformedRequest,
-        "sisuTemporarilyUnavailable" => Code::SisuTemporarilyUnavailable,
-        _ => Code::Unknown,
-    };
-    Some(mapped)
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistration {
     pub id: Uuid,
@@ -517,6 +484,35 @@ pub fn import_request_item_id(registration_id: Uuid) -> String {
 /// The item id Suotar sees for one verify poll.
 pub fn verify_request_item_id(registration_id: Uuid, verify_attempt_count: i32) -> String {
     format!("vf-{registration_id}-{verify_attempt_count}")
+}
+
+/// The item id Suotar sees for one look through a student's attainments for a submission we lost
+/// track of.
+pub fn recovery_request_item_id(registration_id: Uuid, verify_attempt_count: i32) -> String {
+    format!("rc-{registration_id}-{verify_attempt_count}")
+}
+
+/// Which call a request item id addresses a row for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RequestPurpose {
+    /// Carrying the row's payload forward: `resolve-enrolments` and then `import`. The row's own
+    /// stored id, unchanged across retries, because it is the handle Suotar's log and ours share on
+    /// one registration.
+    Submission,
+    VerifyPoll(i32),
+    /// A recovery lookup, which goes to `resolve-enrolments` too: under the submission id it would
+    /// be indistinguishable from the row's own resolve call in the registry's log.
+    UncertainRecovery(i32),
+}
+
+/// What one registration is called in a request. The one place a sender picks an item id, so two
+/// calls about one row stay tellable apart in both logs.
+pub fn request_item_id(row: &CreditRegistration, purpose: RequestPurpose) -> String {
+    match purpose {
+        RequestPurpose::Submission => row.request_item_id.clone(),
+        RequestPurpose::VerifyPoll(attempt) => verify_request_item_id(row.id, attempt),
+        RequestPurpose::UncertainRecovery(attempt) => recovery_request_item_id(row.id, attempt),
+    }
 }
 
 /// Creates a ledger row at `pending_prerequisites` with a `created` event. The id is allocated here
@@ -697,16 +693,7 @@ FOR UPDATE
     }
 
     let to_state = transition.to_state;
-    // Staying put is not a move: the verify poller rewrites its own state on every poll.
-    if before.state != to_state && !transition.policy.allows(before.state, to_state) {
-        return Err(model_err!(
-            InvalidRequest,
-            format!(
-                "Credit registration {id} may not move from {:?} to {to_state:?} under {:?}.",
-                before.state, transition.policy
-            )
-        ));
-    }
+    check_edge(id, before.state, to_state, transition.policy)?;
 
     let after = sqlx::query_as!(
         CreditRegistration,
@@ -784,6 +771,202 @@ RETURNING *
 
     tx.commit().await?;
     Ok(after)
+}
+
+/// Refuses an edge outside the policy. The one place (from → to) legality is decided, for the
+/// single-row [`transition`] and the batched [`transition_batch`] alike.
+fn check_edge(
+    id: Uuid,
+    from: CreditRegistrationState,
+    to: CreditRegistrationState,
+    policy: TransitionPolicy,
+) -> ModelResult<()> {
+    // Staying put is not a move: the verify poller rewrites its own state on every poll.
+    if from == to || policy.allows(from, to) {
+        return Ok(());
+    }
+    Err(model_err!(
+        InvalidRequest,
+        format!("Credit registration {id} may not move from {from:?} to {to:?} under {policy:?}.")
+    ))
+}
+
+/// One row's move in a [`transition_batch`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct BatchMove {
+    pub id: Uuid,
+    pub transition: Transition,
+}
+
+/// [`transition`] for a whole batch: one lock, one update, one insert of events, whatever the size.
+///
+/// For the phases that decide many rows from one query and have no per-row exchange to record.
+/// Same edge table and policy as [`transition`], and the same event rows; the one difference is
+/// that a row whose state no longer matches `expected_from_state` is left alone rather than
+/// refused, since a batch has no single caller to hand the refusal to. Returns how many moved.
+pub async fn transition_batch(conn: &mut PgConnection, moves: &[BatchMove]) -> ModelResult<i64> {
+    if moves.is_empty() {
+        return Ok(0);
+    }
+    let mut tx = conn.begin().await?;
+    let ids: Vec<Uuid> = moves.iter().map(|batch_move| batch_move.id).collect();
+    let locked = sqlx::query!(
+        r#"
+SELECT id,
+  state AS "state: CreditRegistrationState"
+FROM credit_registrations
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+ORDER BY id FOR
+UPDATE
+        "#,
+        &ids
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let states: HashMap<Uuid, CreditRegistrationState> =
+        locked.into_iter().map(|row| (row.id, row.state)).collect();
+
+    let mut writes = Vec::new();
+    let mut events = Vec::new();
+    for batch_move in moves {
+        let Some(&from) = states.get(&batch_move.id) else {
+            continue;
+        };
+        let to = batch_move.transition.to_state;
+        if batch_move
+            .transition
+            .expected_from_state
+            .is_some_and(|expected| expected != from)
+        {
+            continue;
+        }
+        check_edge(batch_move.id, from, to, batch_move.transition.policy)?;
+        writes.push(batch_move);
+        events.push(NewCreditRegistrationEvent {
+            credit_registration_id: batch_move.id,
+            kind: batch_move.transition.event_kind,
+            from_state: Some(from),
+            to_state: Some(to),
+            error_code: batch_move.transition.error_code,
+            message: batch_move.transition.event_message.clone(),
+            suotar_api_call_id: batch_move.transition.suotar_api_call_id,
+            actor_user_id: batch_move.transition.actor_user_id,
+            details: batch_move.transition.event_details.clone(),
+        });
+    }
+    if writes.is_empty() {
+        tx.commit().await?;
+        return Ok(0);
+    }
+
+    let ids: Vec<Uuid> = writes.iter().map(|write| write.id).collect();
+    let to_states: Vec<CreditRegistrationState> = writes
+        .iter()
+        .map(|write| write.transition.to_state)
+        .collect();
+    let error_codes: Vec<Option<CreditRegistrationErrorCode>> = writes
+        .iter()
+        .map(|write| write.transition.error_code)
+        .collect();
+    let error_messages: Vec<Option<String>> = writes
+        .iter()
+        .map(|write| write.transition.error_message.clone())
+        .collect();
+    let needs_admin: Vec<Option<bool>> = writes
+        .iter()
+        .map(|write| write.transition.needs_admin_attention)
+        .collect();
+    let terminal: Vec<bool> = to_states.iter().map(|state| state.is_terminal()).collect();
+    let failure: Vec<bool> = to_states.iter().map(|state| state.is_failure()).collect();
+    let next_attempts: Vec<Option<DateTime<Utc>>> = writes
+        .iter()
+        .map(|write| write.transition.next_attempt_at)
+        .collect();
+    let default_delays: Vec<i64> = to_states
+        .iter()
+        .map(|state| state.default_attempt_delay_secs())
+        .collect();
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations cr
+SET state = move.to_state,
+  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in
+  -- one transaction would share an instant and the timeline would lose their order.
+  state_entered_at = clock_timestamp(),
+  error_code = move.error_code,
+  error_message = move.error_message,
+  needs_admin_attention = COALESCE(move.needs_admin_attention, cr.needs_admin_attention),
+  -- ELSE NULL: without it an admin retry stays invisible to every terminal_at IS NULL query.
+  terminal_at = CASE
+    WHEN move.terminal THEN COALESCE(cr.terminal_at, now())
+    ELSE NULL
+  END,
+  first_failed_at = CASE
+    WHEN move.failure THEN COALESCE(cr.first_failed_at, now())
+    ELSE cr.first_failed_at
+  END,
+  registered_at = CASE
+    WHEN move.to_state = 'registered' THEN COALESCE(cr.registered_at, now())
+    ELSE cr.registered_at
+  END,
+  submitted_at = CASE
+    WHEN move.to_state = 'submitting' THEN now()
+    ELSE cr.submitted_at
+  END,
+  enrolment_checked_at = CASE
+    WHEN cr.state = 'checking_enrolment'
+    AND move.to_state <> 'checking_enrolment' THEN now()
+    ELSE cr.enrolment_checked_at
+  END,
+  enrolment_banner_dismissed_at = CASE
+    WHEN move.to_state = 'no_usable_enrolment' THEN NULL
+    ELSE cr.enrolment_banner_dismissed_at
+  END,
+  next_attempt_at = COALESCE(
+    move.next_attempt_at,
+    now() + (move.default_delay_secs * INTERVAL '1 second')
+  )
+FROM UNNEST(
+    $1::uuid [],
+    $2::credit_registration_state [],
+    $3::credit_registration_error_code [],
+    $4::text [],
+    $5::boolean [],
+    $6::boolean [],
+    $7::boolean [],
+    $8::timestamptz [],
+    $9::bigint []
+  ) AS move(
+    id,
+    to_state,
+    error_code,
+    error_message,
+    needs_admin_attention,
+    terminal,
+    failure,
+    next_attempt_at,
+    default_delay_secs
+  )
+WHERE cr.id = move.id
+  AND cr.deleted_at IS NULL
+        "#,
+        &ids,
+        &to_states as &[CreditRegistrationState],
+        &error_codes as &[Option<CreditRegistrationErrorCode>],
+        &error_messages as &[Option<String>],
+        &needs_admin as &[Option<bool>],
+        &terminal,
+        &failure,
+        &next_attempts as &[Option<DateTime<Utc>>],
+        &default_delays,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    crate::credit_registration_events::insert_batch(&mut tx, &events).await?;
+    tx.commit().await?;
+    Ok(i64::try_from(writes.len()).unwrap_or(i64::MAX))
 }
 
 /// Backdates `state_entered_at` for a registration, so a test can simulate a row that has been
@@ -1376,20 +1559,51 @@ RETURNING submit_retry_count
     Ok(res.submit_retry_count)
 }
 
-pub async fn increment_verify_attempt_count(conn: &mut PgConnection, id: Uuid) -> ModelResult<i32> {
-    let res = sqlx::query!(
+/// Counts one verify poll for every row of a batch and returns each row's new count. The count is
+/// part of the poll's request item id, so it has to be taken before the request goes out.
+pub async fn increment_verify_attempt_counts(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, i32>> {
+    let rows = sqlx::query!(
         r#"
 UPDATE credit_registrations
 SET verify_attempt_count = verify_attempt_count + 1
-WHERE id = $1
+WHERE id = ANY($1)
   AND deleted_at IS NULL
-RETURNING verify_attempt_count
+RETURNING id,
+  verify_attempt_count
         "#,
-        id
+        ids
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(res.verify_attempt_count)
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.id, row.verify_attempt_count))
+        .collect())
+}
+
+/// [`schedule_next_attempt`] for a whole batch, each row with its own time.
+pub async fn schedule_next_attempts(
+    conn: &mut PgConnection,
+    scheduled: &[(Uuid, DateTime<Utc>)],
+) -> ModelResult<()> {
+    let (ids, times): (Vec<Uuid>, Vec<DateTime<Utc>>) = scheduled.iter().copied().unzip();
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations cr
+SET next_attempt_at = scheduled.at
+FROM UNNEST($1::uuid [], $2::timestamptz []) AS scheduled(id, at)
+WHERE cr.id = scheduled.id
+  AND cr.deleted_at IS NULL
+        "#,
+        &ids,
+        &times,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn set_needs_admin_attention(

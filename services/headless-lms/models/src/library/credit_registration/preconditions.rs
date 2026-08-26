@@ -3,7 +3,8 @@
 //! call it inside the transaction that writes the consent.
 
 use crate::credit_registrations::{
-    CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope, Transition,
+    BatchMove, CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope, Transition,
+    transition_batch,
 };
 use crate::prelude::*;
 
@@ -45,42 +46,33 @@ fn resume_state(
 }
 
 /// Applies at most `limit` moves to the scoped rows and returns how many moved.
+///
+/// A row a worker claimed between the snapshot and the write is left where it is: its state is that
+/// phase's to own now, and the next iteration decides again from whatever it committed. Writing
+/// anyway could put an in-flight import back into a state a second import claims.
 pub async fn recompute_preconditions(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<i64> {
-    let moves = pending_moves(conn, scope, limit).await?;
-    let mut moved = 0;
-    for pending in &moves {
-        let target = pending.target.unwrap_or_else(|| {
-            resume_state(
-                pending.has_submitted_attainment,
-                pending.has_payload_snapshot,
-                pending.frozen_identity_stale,
-            )
-        });
-        if target == pending.state {
-            continue;
-        }
-        let written = crate::credit_registrations::transition(
-            conn,
-            pending.id,
-            &transition_for(pending, target),
-        )
-        .await;
-        match written {
-            Ok(_) => moved += 1,
-            // A worker claimed the row between the snapshot and here. Its state is that phase's to
-            // own now, and the next iteration decides again from whatever it committed; writing
-            // anyway could put an in-flight import back into a state a second import claims.
-            Err(error) if matches!(error.error_type(), ModelErrorType::PreconditionFailed) => {
-                continue;
-            }
-            Err(error) => return Err(error),
-        }
-    }
-    Ok(moved)
+    let moves: Vec<BatchMove> = pending_moves(conn, scope, limit)
+        .await?
+        .iter()
+        .filter_map(|pending| {
+            let target = pending.target.unwrap_or_else(|| {
+                resume_state(
+                    pending.has_submitted_attainment,
+                    pending.has_payload_snapshot,
+                    pending.frozen_identity_stale,
+                )
+            });
+            (target != pending.state).then(|| BatchMove {
+                id: pending.id,
+                transition: transition_for(pending, target),
+            })
+        })
+        .collect();
+    transition_batch(conn, &moves).await
 }
 
 /// The transition each edge writes: kept out of the query so every edge's error code, admin flag

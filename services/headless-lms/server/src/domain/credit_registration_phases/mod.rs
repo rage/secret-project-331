@@ -50,6 +50,7 @@ use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError, UtilE
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ListedPerson, SuotarBatchResponse, SuotarClient, SuotarEndpoint, SuotarItemStatus,
+    SuotarResponseItem,
 };
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::{BTreeSet, HashMap};
@@ -555,6 +556,195 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
     })
 }
 
+/// What one iteration of a [`SuotarBatchPhase`] settled before it sent anything.
+pub(crate) struct Prepared<Row, Item> {
+    /// The rows the batch is built from, each with the request item it became.
+    pub sendable: Vec<(Row, Item)>,
+    /// Rows the preflight already wrote a decision for, so no answer is owed for them.
+    pub decided: i32,
+    /// How many of `decided` ended up carrying an error code.
+    pub failed: i32,
+}
+
+impl<Row, Item> Default for Prepared<Row, Item> {
+    fn default() -> Self {
+        Self {
+            sendable: Vec::new(),
+            decided: 0,
+            failed: 0,
+        }
+    }
+}
+
+/// A phase whose iteration is "claim rows, decide in one transaction what may be asked, send one
+/// batch, write one answer per row". `import`, `resolve-enrolments`, and each of `verify`'s two
+/// flows; [`run_suotar_batch_phase`] is the loop they share, and the only place the transaction
+/// shape, the moved-on skipping and the counters are written down.
+pub(crate) trait SuotarBatchPhase {
+    /// A row to send for, with whatever its preflight read alongside it.
+    type Row;
+    /// The request item, which is also what the audit log records as sent.
+    type Item: serde::Serialize;
+    /// The endpoint's per-item result body.
+    type Result;
+
+    /// The iteration's error when every item came back transiently unavailable.
+    const ALL_TRANSIENT_ERROR: &'static str;
+
+    /// Claims rows and decides what may be asked about them. Whatever has to be true before the
+    /// request leaves is written here, in the caller's transaction.
+    async fn prepare(
+        &mut self,
+        ctx: &PhaseContext<'_>,
+        conn: &mut PgConnection,
+        scope: &PhaseScope,
+    ) -> anyhow::Result<Prepared<Self::Row, Self::Item>>;
+
+    fn registration(row: &Self::Row) -> &CreditRegistration;
+
+    /// What the row was addressed as, and so how its answer is found again.
+    fn request_item_id(row: &Self::Row) -> String;
+
+    /// The student number this row's request carried, where it carried one: a number the registry
+    /// rejects may only cost the link it was sent under.
+    fn sent_student_number(_row: &Self::Row) -> Option<&str> {
+        None
+    }
+
+    async fn send(
+        &self,
+        ctx: &PhaseContext<'_>,
+        rows: &[Self::Row],
+        items: Vec<Self::Item>,
+    ) -> Result<SuotarBatchResponse<Self::Result>, UtilError>;
+
+    /// Applies one answer, or the absence of one, to its row. Returns whether the row ended up in a
+    /// failure state; errors with `PreconditionFailed` if another writer moved the row meanwhile.
+    async fn apply(
+        &self,
+        conn: &mut PgConnection,
+        row: &Self::Row,
+        item: Option<&SuotarResponseItem<Self::Result>>,
+        event: OutcomeEvent<'_>,
+    ) -> anyhow::Result<bool>;
+
+    /// What one row gets when the study registry rejected the whole request.
+    async fn apply_request_rejection(
+        &self,
+        conn: &mut PgConnection,
+        row: &Self::Row,
+        request: &serde_json::Value,
+        error: &UtilError,
+    ) -> anyhow::Result<bool>;
+}
+
+/// Runs one iteration of a [`SuotarBatchPhase`].
+///
+/// `items_processed` counts the rows this iteration wrote a decision for: the preflight's included,
+/// the ones another writer had moved on before the answer could be applied excluded.
+/// `items_failed` counts how many of those ended up carrying an error code.
+pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
+    phase: &mut P,
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
+    let mut conn = ctx.pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+    let prepared = phase.prepare(ctx, &mut tx, scope).await?;
+    tx.commit().await?;
+    // Held only for the claim; the Suotar call below can pin it for the whole request timeout.
+    drop(conn);
+
+    let mut processed = prepared.decided;
+    let mut items_failed = prepared.failed;
+    if prepared.sendable.is_empty() {
+        return Ok(PhaseRunOutcome {
+            items_processed: processed,
+            items_failed,
+            error: None,
+        });
+    }
+    let (rows, items): (Vec<_>, Vec<_>) = prepared.sendable.into_iter().unzip();
+    let requests = requests_json(&items);
+
+    let response = match phase.send(ctx, &rows, items).await {
+        Ok(response) => response,
+        Err(error) => {
+            let mut conn = ctx.pool.acquire().await?;
+            for (row, request) in rows.iter().zip(requests.iter()) {
+                let applied = phase
+                    .apply_request_rejection(&mut conn, row, request, &error)
+                    .await;
+                count_applied(
+                    applied,
+                    P::registration(row),
+                    &mut processed,
+                    &mut items_failed,
+                )?;
+            }
+            return Ok(PhaseRunOutcome {
+                items_processed: processed,
+                items_failed,
+                error: Some(scrub_text(error.message())),
+            });
+        }
+    };
+
+    let mut conn = ctx.pool.acquire().await?;
+    for (row, request) in rows.iter().zip(requests.iter()) {
+        let request_item_id = P::request_item_id(row);
+        let response_json = response_item_json(&response.raw_response, &request_item_id);
+        let event = OutcomeEvent {
+            suotar_api_call_id: response.call_id,
+            request: Some(request),
+            response: response_json.as_ref(),
+            sent_student_number: P::sent_student_number(row),
+            ..OutcomeEvent::default()
+        };
+        let applied = phase
+            .apply(&mut conn, row, response.item(&request_item_id), event)
+            .await;
+        count_applied(
+            applied,
+            P::registration(row),
+            &mut processed,
+            &mut items_failed,
+        )?;
+    }
+
+    Ok(PhaseRunOutcome {
+        items_processed: processed,
+        items_failed,
+        error: every_item_failed_transiently(&response).then(|| P::ALL_TRANSIENT_ERROR.to_string()),
+    })
+}
+
+/// Counts one written row, or skips one that had already moved on. Skipped rather than propagated:
+/// the row belongs to whoever moved it, and aborting would leave the rest of the batch in the state
+/// the preflight wrote, which no phase claims again.
+fn count_applied(
+    applied: anyhow::Result<bool>,
+    row: &CreditRegistration,
+    processed: &mut i32,
+    items_failed: &mut i32,
+) -> anyhow::Result<()> {
+    match applied {
+        Ok(failed) => {
+            *processed += 1;
+            *items_failed += i32::from(failed);
+            Ok(())
+        }
+        Err(error) if row_moved_on(&error) => {
+            warn!(
+                "Credit registration {} moved on while the study registry answered; leaving it. {error:#}",
+                row.id
+            );
+            Ok(())
+        }
+        Err(error) => Err(error),
+    }
+}
+
 /// Templates are stored per language and courses carry a locale. The course's language, not the
 /// recipient's: the linking mail's recipient may have no account here, and an account records no UI
 /// language to prefer.
@@ -630,22 +820,33 @@ pub(crate) async fn apply_outcome(
         conn,
         registration.id,
         &Transition {
-            error_code: outcome.error_code,
             error_message: event.error_message.map(scrub_text),
-            needs_admin_attention: outcome.needs_admin_attention,
             event_kind: CreditRegistrationEventKind::SuotarResponse,
             event_message: event.message.map(str::to_string),
             suotar_api_call_id: event.suotar_api_call_id,
             event_details: Some(suotar_exchange_details(event.request, event.response)),
-            expected_from_state,
-            next_attempt_at: outcome
-                .delay_secs
-                .map(|delay_secs| next_attempt_at(Utc::now(), delay_secs)),
-            ..Transition::to(outcome.to_state)
+            ..outcome_transition(outcome, expected_from_state)
         },
     )
     .await?;
     Ok(())
+}
+
+/// The ledger write one decided outcome asks for, without the audit half [`apply_outcome`] adds.
+/// For the paths that decide an outcome without an exchange to record.
+pub(crate) fn outcome_transition(
+    outcome: &Outcome,
+    expected_from_state: Option<CreditRegistrationState>,
+) -> Transition {
+    Transition {
+        error_code: outcome.error_code,
+        needs_admin_attention: outcome.needs_admin_attention,
+        expected_from_state,
+        next_attempt_at: outcome
+            .delay_secs
+            .map(|delay_secs| next_attempt_at(Utc::now(), delay_secs)),
+        ..Transition::to(outcome.to_state)
+    }
 }
 
 /// Whether the error is `transition` refusing to write because another writer moved the row since
@@ -691,51 +892,34 @@ pub(crate) fn every_item_failed_transiently<R>(response: &SuotarBatchResponse<R>
         })
 }
 
-/// Applies one request-level outcome to every row of a rejected batch, and reports the iteration as
-/// failed so the circuit breaker sees it.
+/// Applies one request-level outcome to one row of a batch the study registry rejected whole.
+/// Returns whether the row ended up carrying an error code.
 ///
-/// `expected_from_state` is the state the caller's own preflight transition put every row in, since
-/// `rows` was collected before that transition's effect and is stale by the time this runs.
-pub(crate) async fn request_level_failure(
-    ctx: &PhaseContext<'_>,
+/// `expected_from_state` is the state the phase's own preflight put every row in, since the rows
+/// were read before that transition and are stale by the time this runs.
+pub(crate) async fn apply_request_level_outcome(
+    conn: &mut PgConnection,
     endpoint: SuotarEndpoint,
+    row: &CreditRegistration,
+    request: &serde_json::Value,
     error: &UtilError,
-    rows: &[CreditRegistration],
-    requests: &[serde_json::Value],
     expected_from_state: CreditRegistrationState,
-) -> anyhow::Result<PhaseRunOutcome> {
-    let variant = suotar_error_variant(error);
-    let mut conn = ctx.pool.acquire().await?;
-    for (row, request) in rows.iter().zip(requests.iter()) {
-        let outcome = request_level_outcome(endpoint, variant, &row_facts(row));
-        let applied = apply_outcome(
-            &mut conn,
-            row,
-            &outcome,
-            OutcomeEvent {
-                message: Some("The study registry rejected the whole request."),
-                error_message: Some(error.message()),
-                request: Some(request),
-                ..OutcomeEvent::default()
-            },
-            Some(expected_from_state),
-        )
-        .await;
-        if let Err(error) = applied {
-            if !row_moved_on(&error) {
-                return Err(error);
-            }
-            warn!(
-                "Credit registration {} moved on before the rejection could be recorded; leaving it. {error:#}",
-                row.id
-            );
-        }
-    }
-    Ok(PhaseRunOutcome {
-        items_processed: i32::try_from(rows.len()).unwrap_or(i32::MAX),
-        items_failed: i32::try_from(rows.len()).unwrap_or(i32::MAX),
-        error: Some(scrub_text(error.message())),
-    })
+) -> anyhow::Result<bool> {
+    let outcome = request_level_outcome(endpoint, suotar_error_variant(error), &row_facts(row));
+    apply_outcome(
+        conn,
+        row,
+        &outcome,
+        OutcomeEvent {
+            message: Some("The study registry rejected the whole request."),
+            error_message: Some(error.message()),
+            request: Some(request),
+            ..OutcomeEvent::default()
+        },
+        Some(expected_from_state),
+    )
+    .await?;
+    Ok(counts_as_failed(&outcome))
 }
 
 /// A failure that never reached the study registry is safe to send again; everything else may have

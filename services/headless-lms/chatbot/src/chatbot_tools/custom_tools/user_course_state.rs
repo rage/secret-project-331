@@ -9,10 +9,14 @@ use uuid::Uuid;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     CourseOrExamId, certificate_configurations,
-    course_module_completion_registered_to_study_registries, course_module_completions,
-    course_modules, exercise_reset_logs, exercise_slide_submissions, exercises,
-    generated_certificates, library::progressing, peer_review_queue_entries,
-    study_registry_registrars, teacher_grading_decisions, user_details, user_exercise_states,
+    course_module_completion_registered_to_study_registries,
+    course_module_completions::{self, CourseModuleCompletion},
+    course_modules, exercise_reset_logs, exercise_slide_submissions,
+    exercises::{self, Exercise},
+    generated_certificates,
+    library::progressing,
+    peer_review_queue_entries, study_registry_registrars, teacher_grading_decisions, user_details,
+    user_exercise_states,
     user_exercise_states::ReviewingStage,
 };
 use headless_lms_utils::json_schema_types::{
@@ -280,13 +284,51 @@ impl ChatbotTool for UserCourseStateTool {
             serde_json::Value::String(course.name.clone()),
         );
 
+        // Fetched once and shared across facets instead of once per facet, since a single call
+        // commonly requests several facets that would otherwise repeat the same query.
+        let course_exercises = if arguments.facets.iter().any(|f| {
+            matches!(
+                f,
+                UserCourseStateFacet::Submissions | UserCourseStateFacet::Reviews
+            )
+        }) {
+            Some(exercises::get_exercises_by_course_id(conn, arguments.course_id).await?)
+        } else {
+            None
+        };
+        let completions = if arguments.facets.iter().any(|f| {
+            matches!(
+                f,
+                UserCourseStateFacet::Completions
+                    | UserCourseStateFacet::Certificates
+                    | UserCourseStateFacet::CreditRegistration
+            )
+        }) {
+            Some(
+                course_module_completions::get_all_by_course_id_and_user_id(
+                    conn,
+                    arguments.course_id,
+                    arguments.user_id,
+                )
+                .await?,
+            )
+        } else {
+            None
+        };
+
         for facet in &arguments.facets {
             let value = match facet {
                 UserCourseStateFacet::Progress => {
                     progress_facet(conn, arguments.user_id, arguments.course_id).await?
                 }
                 UserCourseStateFacet::Completions => {
-                    completions_facet(conn, arguments.user_id, arguments.course_id).await?
+                    completions_facet(
+                        conn,
+                        arguments.user_id,
+                        arguments.course_id,
+                        completions.as_ref().expect("prefetched above"),
+                    )
+                    .await?
                 }
                 UserCourseStateFacet::Submissions => {
                     submissions_facet(
@@ -294,6 +336,7 @@ impl ChatbotTool for UserCourseStateTool {
                         arguments.user_id,
                         arguments.course_id,
                         arguments.exercise_id,
+                        course_exercises.as_ref().expect("prefetched above"),
                     )
                     .await?
                 }
@@ -303,6 +346,7 @@ impl ChatbotTool for UserCourseStateTool {
                         arguments.user_id,
                         arguments.course_id,
                         arguments.exercise_id,
+                        course_exercises.as_ref().expect("prefetched above"),
                     )
                     .await?
                 }
@@ -310,10 +354,17 @@ impl ChatbotTool for UserCourseStateTool {
                     resets_facet(conn, arguments.user_id, arguments.course_id).await?
                 }
                 UserCourseStateFacet::Certificates => {
-                    certificates_facet(conn, arguments.user_id, arguments.course_id).await?
+                    certificates_facet(
+                        conn,
+                        arguments.user_id,
+                        arguments.course_id,
+                        completions.as_ref().expect("prefetched above"),
+                    )
+                    .await?
                 }
                 UserCourseStateFacet::CreditRegistration => {
-                    credit_registration_facet(conn, arguments.user_id, arguments.course_id).await?
+                    credit_registration_facet(conn, completions.as_ref().expect("prefetched above"))
+                        .await?
                 }
             };
             output.insert(facet.wire_name().to_string(), value);
@@ -345,16 +396,20 @@ async fn progress_facet(
     Ok(serde_json::to_value(progress)?)
 }
 
+/// Maps exercise id to name, for annotating rows that only carry an exercise id.
+fn exercise_name_index(exercises: &[Exercise]) -> HashMap<Uuid, &str> {
+    exercises.iter().map(|e| (e.id, e.name.as_str())).collect()
+}
+
 async fn completions_facet(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
+    raw: &[CourseModuleCompletion],
 ) -> ChatbotResult<serde_json::Value> {
     let statuses =
         progressing::get_user_module_completion_statuses_for_course(conn, user_id, course_id)
             .await?;
-    let raw = course_module_completions::get_all_by_course_id_and_user_id(conn, course_id, user_id)
-        .await?;
     let raw_json: Vec<serde_json::Value> = raw
         .iter()
         .map(|c| {
@@ -381,15 +436,12 @@ async fn submissions_facet(
     user_id: Uuid,
     course_id: Uuid,
     exercise_id: Option<Uuid>,
+    course_exercises: &[Exercise],
 ) -> ChatbotResult<serde_json::Value> {
     let times =
         exercise_slide_submissions::get_user_course_submission_times(conn, user_id, course_id)
             .await?;
-    let course_exercises = exercises::get_exercises_by_course_id(conn, course_id).await?;
-    let exercise_names: HashMap<Uuid, &str> = course_exercises
-        .iter()
-        .map(|e| (e.id, e.name.as_str()))
-        .collect();
+    let exercise_names = exercise_name_index(course_exercises);
 
     let submissions_json: Vec<serde_json::Value> = times
         .iter()
@@ -441,6 +493,7 @@ async fn reviews_facet(
     user_id: Uuid,
     course_id: Uuid,
     exercise_id: Option<Uuid>,
+    course_exercises: &[Exercise],
 ) -> ChatbotResult<serde_json::Value> {
     let states = user_exercise_states::get_states_in_reviewing_stages_for_user_and_course(
         conn,
@@ -481,11 +534,7 @@ async fn reviews_facet(
         .into_iter()
         .map(|s| (s.id, s.exercise_id))
         .collect();
-    let course_exercises = exercises::get_exercises_by_course_id(conn, course_id).await?;
-    let exercise_names: HashMap<Uuid, &str> = course_exercises
-        .iter()
-        .map(|e| (e.id, e.name.as_str()))
-        .collect();
+    let exercise_names = exercise_name_index(course_exercises);
     let decisions_json: Vec<serde_json::Value> = decisions
         .iter()
         .map(|d| {
@@ -504,7 +553,7 @@ async fn reviews_facet(
         })
         .collect();
 
-    let peer_review_json: Vec<serde_json::Value> = if let Some(exercise_id) = exercise_id {
+    let peer_review_entries = if let Some(exercise_id) = exercise_id {
         peer_review_queue_entries::try_to_get_by_user_and_exercise_and_course_ids(
             conn,
             user_id,
@@ -513,6 +562,12 @@ async fn reviews_facet(
         )
         .await?
         .into_iter()
+        .collect()
+    } else {
+        peer_review_queue_entries::get_all_by_user_and_course_id(conn, user_id, course_id).await?
+    };
+    let peer_review_json: Vec<serde_json::Value> = peer_review_entries
+        .iter()
         .map(|e| {
             serde_json::json!({
                 "exercise_id": e.exercise_id,
@@ -521,21 +576,7 @@ async fn reviews_facet(
                 "created_at": e.created_at,
             })
         })
-        .collect()
-    } else {
-        peer_review_queue_entries::get_all_by_user_and_course_id(conn, user_id, course_id)
-            .await?
-            .iter()
-            .map(|e| {
-                serde_json::json!({
-                    "exercise_id": e.exercise_id,
-                    "received_enough_peer_reviews": e.received_enough_peer_reviews,
-                    "peer_review_priority": e.peer_review_priority,
-                    "created_at": e.created_at,
-                })
-            })
-            .collect()
-    };
+        .collect();
 
     Ok(serde_json::json!({
         "in_review_stages": states_json,
@@ -575,15 +616,13 @@ async fn certificates_facet(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
+    raw_completions: &[CourseModuleCompletion],
 ) -> ChatbotResult<serde_json::Value> {
     let configurations =
         certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(
             conn, course_id,
         )
         .await?;
-    let raw_completions =
-        course_module_completions::get_all_by_course_id_and_user_id(conn, course_id, user_id)
-            .await?;
     let modules = course_modules::get_by_course_id(conn, course_id).await?;
     let module_names: HashMap<Uuid, String> = modules
         .iter()
@@ -655,12 +694,8 @@ async fn certificates_facet(
 
 async fn credit_registration_facet(
     conn: &mut PgConnection,
-    user_id: Uuid,
-    course_id: Uuid,
+    completions: &[CourseModuleCompletion],
 ) -> ChatbotResult<serde_json::Value> {
-    let completions =
-        course_module_completions::get_all_by_course_id_and_user_id(conn, course_id, user_id)
-            .await?;
     let completion_ids: Vec<Uuid> = completions.iter().map(|c| c.id).collect();
     let registrations =
         course_module_completion_registered_to_study_registries::get_registrations_by_completion_ids(
@@ -668,17 +703,24 @@ async fn credit_registration_facet(
             &completion_ids,
         )
         .await?;
+    let registrar_ids: Vec<Uuid> = registrations
+        .iter()
+        .filter_map(|r| r.study_registry_registrar_id)
+        .collect();
+    let registrar_names: HashMap<Uuid, String> =
+        study_registry_registrars::get_by_ids(conn, &registrar_ids)
+            .await?
+            .into_iter()
+            .map(|registrar| (registrar.id, registrar.name))
+            .collect();
 
     let mut result = Vec::new();
-    for completion in &completions {
+    for completion in completions {
         let registration = registrations
             .iter()
             .find(|r| r.course_module_completion_id == completion.id);
         let study_registry = match registration.and_then(|r| r.study_registry_registrar_id) {
-            Some(registrar_id) => study_registry_registrars::get_by_id(conn, registrar_id)
-                .await
-                .ok()
-                .map(|registrar| registrar.name),
+            Some(registrar_id) => registrar_names.get(&registrar_id).cloned(),
             None if registration.is_some() => Some("This platform".to_string()),
             None => None,
         };

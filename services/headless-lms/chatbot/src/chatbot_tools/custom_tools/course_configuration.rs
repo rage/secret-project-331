@@ -167,11 +167,27 @@ impl ChatbotTool for CourseConfigurationTool {
             )
         })?;
 
+        // Fetched once and shared across facets instead of once per facet, since a single call
+        // commonly requests several facets that would otherwise repeat the same query.
+        let modules = if arguments.facets.iter().any(|f| {
+            matches!(
+                f,
+                CourseConfigurationFacet::Modules
+                    | CourseConfigurationFacet::Certificates
+                    | CourseConfigurationFacet::Exams
+                    | CourseConfigurationFacet::Staff
+            )
+        }) {
+            Some(course_modules_for(conn, course_id).await?)
+        } else {
+            None
+        };
+
         let mut facets = IndexMap::new();
         for facet in &arguments.facets {
             let value = match facet {
                 CourseConfigurationFacet::Modules => {
-                    let modules = course_modules_for(conn, course_id).await?;
+                    let modules = modules.as_ref().expect("prefetched above");
                     json!(modules.iter().map(module_to_json).collect::<Vec<_>>())
                 }
                 CourseConfigurationFacet::Certificates => {
@@ -180,7 +196,7 @@ impl ChatbotTool for CourseConfigurationTool {
                             conn, course_id,
                         )
                         .await?;
-                    let modules = course_modules_for(conn, course_id).await?;
+                    let modules = modules.as_ref().expect("prefetched above");
                     json!(
                         configurations
                             .iter()
@@ -209,10 +225,19 @@ impl ChatbotTool for CourseConfigurationTool {
                 }
                 CourseConfigurationFacet::Exams => {
                     let course_exams = exams::get_exams_for_course(conn, course_id).await?;
-                    let modules = course_modules_for(conn, course_id).await?;
+                    let modules = modules.as_ref().expect("prefetched above");
+                    let exam_ids: Vec<Uuid> = course_exams.iter().map(|e| e.id).collect();
+                    let exams_by_id: std::collections::HashMap<Uuid, exams::ExamSummary> =
+                        exams::get_summaries_by_ids(conn, &exam_ids)
+                            .await?
+                            .into_iter()
+                            .map(|exam| (exam.id, exam))
+                            .collect();
                     let mut rows = Vec::with_capacity(course_exams.len());
                     for course_exam in &course_exams {
-                        let exam = exams::get(conn, course_exam.id).await?;
+                        let Some(exam) = exams_by_id.get(&course_exam.id) else {
+                            continue;
+                        };
                         let required_by_modules = modules
                             .iter()
                             .filter(|m| {
@@ -319,7 +344,15 @@ impl ChatbotTool for CourseConfigurationTool {
                         "ask_marketing_consent": course.ask_marketing_consent,
                     })
                 }
-                CourseConfigurationFacet::Staff => staff_facet(conn, app_config, course_id).await?,
+                CourseConfigurationFacet::Staff => {
+                    staff_facet(
+                        conn,
+                        app_config,
+                        course_id,
+                        modules.as_ref().expect("prefetched above"),
+                    )
+                    .await?
+                }
             };
             facets.insert(facet.wire_name().to_string(), value);
         }
@@ -384,6 +417,7 @@ async fn staff_facet(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     course_id: Uuid,
+    modules: &[headless_lms_models::course_modules::CourseModule],
 ) -> ChatbotResult<serde_json::Value> {
     let instances = course_instances::get_course_instances_for_course(conn, course_id).await?;
     let static_instance_contacts = instances
@@ -412,10 +446,8 @@ async fn staff_facet(
 
     let mut role_based = Vec::with_capacity(role_based_roles.len());
     if !role_based_roles.is_empty() {
-        let mut role_users = Vec::with_capacity(role_based_roles.len());
-        for role in &role_based_roles {
-            role_users.push(users::get_by_id(conn, role.user_id).await?);
-        }
+        let role_user_ids: Vec<Uuid> = role_based_roles.iter().map(|role| role.user_id).collect();
+        let role_users = users::get_by_ids(conn, &role_user_ids).await?;
         let details = get_users_details_by_user_id_map(conn, &role_users).await?;
         for role in &role_based_roles {
             let scope = if role.course_instance_id.is_some() {
@@ -435,7 +467,6 @@ async fn staff_facet(
         }
     }
 
-    let modules = course_modules_for(conn, course_id).await?;
     let sisu_course_code = modules.iter().find_map(|m| m.uh_course_code.clone());
 
     let sisu_fallback = if static_instance_contacts.is_empty()

@@ -109,16 +109,26 @@ impl ChatbotTool for FindCourseTool {
             courses::search_courses_by_slug_or_name(conn, &query, MAX_CANDIDATES).await?
         };
 
+        let organization_ids: Vec<Uuid> = courses.iter().map(|c| c.organization_id).collect();
+        let organization_names: std::collections::HashMap<Uuid, String> =
+            organizations::get_by_ids(conn, &organization_ids)
+                .await?
+                .into_iter()
+                .map(|org| (org.id, org.name))
+                .collect();
+
         let mut candidates = Vec::with_capacity(courses.len());
         for course in courses {
             let instances =
                 course_instances::get_course_instances_for_course(conn, course.id).await?;
-            let organization =
-                organizations::get_organization(conn, course.organization_id).await?;
+            let organization_name = organization_names
+                .get(&course.organization_id)
+                .cloned()
+                .unwrap_or_default();
             candidates.push(CourseCandidate {
                 course,
                 instances,
-                organization_name: organization.name,
+                organization_name,
             });
         }
 

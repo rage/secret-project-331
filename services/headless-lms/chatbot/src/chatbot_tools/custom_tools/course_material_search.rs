@@ -205,13 +205,20 @@ impl ChatbotTool for CourseMaterialSearchTool {
             0
         };
 
+        let ids_missing_headline: Vec<Uuid> = merged
+            .iter()
+            .filter(|r| r.title_headline.is_none())
+            .map(|r| r.id)
+            .collect();
+        let fallback_titles = pages::get_titles_by_ids(conn, &ids_missing_headline).await?;
+
         let mut hits = Vec::with_capacity(merged.len());
         for (i, result) in merged.into_iter().enumerate() {
             let title = match strip_headline_marks(result.title_headline) {
                 Some(title) => title,
                 // No headline (the query didn't match the title itself): fall back to the
                 // page's plain title rather than showing the model an empty string.
-                None => pages::get_page(conn, result.id).await?.title,
+                None => fallback_titles.get(&result.id).cloned().unwrap_or_default(),
             };
             hits.push(SearchHit {
                 page_id: result.id,

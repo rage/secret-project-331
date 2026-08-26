@@ -131,6 +131,21 @@ WHERE id = $1
     Ok(user)
 }
 
+pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<User>> {
+    let users = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id = ANY($1)
+        ",
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(users)
+}
+
 /// Like [`get_by_id`], but only returns a user that is not soft-deleted.
 ///
 /// A soft-deleted (banned/removed) user yields `RecordNotFound`, the same as a nonexistent id,

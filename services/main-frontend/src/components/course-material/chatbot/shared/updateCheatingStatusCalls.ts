@@ -59,19 +59,18 @@ export const parseUpdateCheatingStatusCall = (
   }
 }
 
+const zUpdateCheatingStatusCall = z.object({
+  toolCallId: z.string(),
+  userId: z.string(),
+  courseId: z.string(),
+  userEmail: z.string(),
+  courseName: z.string(),
+  decision,
+})
+
 /**
  * Narrows a client tool registry entry's `unknown` call back to this tool's own type. Always true
  * for a call this tool's own `parseUpdateCheatingStatusCall` produced.
  */
-export const isUpdateCheatingStatusCall = (call: unknown): call is UpdateCheatingStatusCall => {
-  const candidate = call as Partial<UpdateCheatingStatusCall> | null
-  return (
-    !!candidate &&
-    typeof candidate.toolCallId === "string" &&
-    typeof candidate.userId === "string" &&
-    typeof candidate.courseId === "string" &&
-    typeof candidate.userEmail === "string" &&
-    typeof candidate.courseName === "string" &&
-    (candidate.decision === "confirm" || candidate.decision === "dismiss")
-  )
-}
+export const isUpdateCheatingStatusCall = (call: unknown): call is UpdateCheatingStatusCall =>
+  zUpdateCheatingStatusCall.safeParse(call).success

@@ -223,12 +223,16 @@ impl ChatbotTool for UserOverviewTool {
                 }
                 UserOverviewFacet::CheatingFlags => {
                     let flags = get_suspected_cheater_info_for_user(conn, user_id).await?;
+                    let course_ids: Vec<Uuid> = flags.iter().map(|f| f.course_id).collect();
+                    let course_names: std::collections::HashMap<Uuid, String> =
+                        courses::get_by_ids(conn, &course_ids)
+                            .await?
+                            .into_iter()
+                            .map(|c| (c.id, c.name))
+                            .collect();
                     let mut rows = Vec::with_capacity(flags.len());
                     for flag in flags {
-                        let course_name = courses::get_course(conn, flag.course_id)
-                            .await
-                            .map(|c| c.name)
-                            .ok();
+                        let course_name = course_names.get(&flag.course_id).cloned();
                         rows.push(json!({
                             "course_id": flag.course_id,
                             "course_name": course_name,

@@ -56,20 +56,17 @@ export const parseEditUserAccountCall = (
   }
 }
 
+const zEditUserAccountCall = z.object({
+  toolCallId: z.string(),
+  userId: z.string(),
+  currentEmail: z.string(),
+  newEmail: z.string(),
+  markEmailVerified: verificationChange,
+})
+
 /**
  * Narrows a client tool registry entry's `unknown` call back to this tool's own type. Always true
  * for a call this tool's own `parseEditUserAccountCall` produced.
  */
-export const isEditUserAccountCall = (call: unknown): call is EditUserAccountCall => {
-  const candidate = call as Partial<EditUserAccountCall> | null
-  return (
-    !!candidate &&
-    typeof candidate.toolCallId === "string" &&
-    typeof candidate.userId === "string" &&
-    typeof candidate.currentEmail === "string" &&
-    typeof candidate.newEmail === "string" &&
-    (candidate.markEmailVerified === "" ||
-      candidate.markEmailVerified === "verify" ||
-      candidate.markEmailVerified === "unverify")
-  )
-}
+export const isEditUserAccountCall = (call: unknown): call is EditUserAccountCall =>
+  zEditUserAccountCall.safeParse(call).success

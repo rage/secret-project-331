@@ -173,19 +173,28 @@ impl ChatbotTool for FindUserTool {
             FindUserKind::Auto => find_auto(conn, &arguments.query).await?,
         };
 
+        let details: Vec<UserDetail> = details.into_iter().take(MAX_CANDIDATES).collect();
+        let user_ids: Vec<Uuid> = details.iter().map(|d| d.user_id).collect();
+        let users_by_id: std::collections::HashMap<Uuid, users::User> =
+            users::get_by_ids(conn, &user_ids)
+                .await?
+                .into_iter()
+                .map(|u| (u.id, u))
+                .collect();
+
         let mut candidates = Vec::new();
-        for detail in details.into_iter().take(MAX_CANDIDATES) {
-            let user = users::get_by_id(conn, detail.user_id).await?;
+        for detail in details {
+            let user = users_by_id.get(&detail.user_id);
             candidates.push(json!({
                 "user_id": detail.user_id,
                 "email": detail.email,
                 "first_name": detail.first_name,
                 "last_name": detail.last_name,
-                "upstream_id": user.upstream_id,
+                "upstream_id": user.and_then(|u| u.upstream_id),
                 "created_at": detail.created_at,
                 "email_verified_at": detail.email_verified_at,
                 "email_verified_method": detail.email_verified_method,
-                "deleted_at": user.deleted_at,
+                "deleted_at": user.and_then(|u| u.deleted_at),
             }));
         }
 
@@ -255,27 +264,17 @@ async fn find_auto(
     conn: &mut PgConnection,
     query: &str,
 ) -> ChatbotResult<(&'static str, Vec<UserDetail>)> {
-    if let Ok(user_id) = Uuid::from_str(query) {
-        let details: Vec<UserDetail> = user_details::get_user_details_by_user_id(conn, user_id)
-            .await
-            .optional()?
-            .into_iter()
-            .collect();
+    if Uuid::from_str(query).is_ok() {
+        let details = find_by_user_id(conn, query).await?;
         if !details.is_empty() {
             return Ok(("user_id", details));
         }
     }
 
-    if let Ok(upstream_id) = query.parse::<i32>() {
-        if let Some(user) = users::find_by_upstream_id(conn, upstream_id).await? {
-            let details: Vec<UserDetail> = user_details::get_user_details_by_user_id(conn, user.id)
-                .await
-                .optional()?
-                .into_iter()
-                .collect();
-            if !details.is_empty() {
-                return Ok(("upstream_id", details));
-            }
+    if query.parse::<i32>().is_ok() {
+        let details = find_by_upstream_id(conn, query).await?;
+        if !details.is_empty() {
+            return Ok(("upstream_id", details));
         }
     }
 

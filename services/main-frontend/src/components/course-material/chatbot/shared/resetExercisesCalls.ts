@@ -65,21 +65,20 @@ export const parseResetExercisesCall = (
   }
 }
 
+const zResetExercisesCall = z.object({
+  toolCallId: z.string(),
+  userId: z.string(),
+  courseId: z.string(),
+  userEmail: z.string(),
+  courseName: z.string(),
+  exerciseIds: z.array(z.string()),
+  exerciseNames: z.array(z.string()),
+  reason: z.string(),
+})
+
 /**
  * Narrows a client tool registry entry's `unknown` call back to this tool's own type. Always true
  * for a call this tool's own `parseResetExercisesCall` produced.
  */
-export const isResetExercisesCall = (call: unknown): call is ResetExercisesCall => {
-  const candidate = call as Partial<ResetExercisesCall> | null
-  return (
-    !!candidate &&
-    typeof candidate.toolCallId === "string" &&
-    typeof candidate.userId === "string" &&
-    typeof candidate.courseId === "string" &&
-    typeof candidate.userEmail === "string" &&
-    typeof candidate.courseName === "string" &&
-    Array.isArray(candidate.exerciseIds) &&
-    Array.isArray(candidate.exerciseNames) &&
-    typeof candidate.reason === "string"
-  )
-}
+export const isResetExercisesCall = (call: unknown): call is ResetExercisesCall =>
+  zResetExercisesCall.safeParse(call).success

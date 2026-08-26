@@ -933,6 +933,25 @@ WHERE chapter_id = $1
     Ok(res)
 }
 
+/// Titles for a set of pages, for annotating rows that only carry a page id.
+pub async fn get_titles_by_ids(
+    conn: &mut PgConnection,
+    page_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, String>> {
+    let rows = sqlx::query!(
+        "
+SELECT id,
+  title
+FROM pages
+WHERE id = ANY($1)
+        ",
+        page_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows.into_iter().map(|r| (r.id, r.title)).collect())
+}
+
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
     let page = sqlx::query_as!(
         Page,

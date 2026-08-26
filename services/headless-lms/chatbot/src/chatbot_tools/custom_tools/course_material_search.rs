@@ -38,6 +38,35 @@ struct SearchHit {
     citation_number: i32,
 }
 
+#[derive(serde::Serialize)]
+struct OutputCourse<'a> {
+    id: Uuid,
+    name: &'a str,
+    slug: &'a str,
+}
+
+#[derive(serde::Serialize)]
+struct OutputResult<'a> {
+    page_id: Uuid,
+    title: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    chapter_name: Option<&'a str>,
+    url_path: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    rank: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    snippet: Option<&'a str>,
+    citation_number: i32,
+}
+
+#[derive(serde::Serialize)]
+struct Output<'a> {
+    course: OutputCourse<'a>,
+    results: Vec<OutputResult<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    note: Option<&'static str>,
+}
+
 pub struct CourseMaterialSearchState {
     course_id: Uuid,
     course_name: String,
@@ -250,41 +279,35 @@ impl ChatbotTool for CourseMaterialSearchTool {
     }
 
     fn output(&self) -> String {
-        let course = serde_json::json!({
-            "id": self.state.course_id,
-            "name": self.state.course_name,
-            "slug": self.state.course_slug,
-        });
-        let results: Vec<serde_json::Value> = self
+        let course = OutputCourse {
+            id: self.state.course_id,
+            name: &self.state.course_name,
+            slug: &self.state.course_slug,
+        };
+        let results: Vec<OutputResult> = self
             .state
             .hits
             .iter()
-            .map(|hit| {
-                serde_json::json!({
-                    "page_id": hit.page_id,
-                    "title": hit.title,
-                    "chapter_name": hit.chapter_name,
-                    "url_path": hit.url_path,
-                    "rank": hit.rank,
-                    "snippet": hit.snippet,
-                    "citation_number": hit.citation_number,
-                })
+            .map(|hit| OutputResult {
+                page_id: hit.page_id,
+                title: &hit.title,
+                chapter_name: hit.chapter_name.as_deref(),
+                url_path: &hit.url_path,
+                rank: hit.rank,
+                snippet: hit.snippet.as_deref(),
+                citation_number: hit.citation_number,
             })
             .collect();
 
-        let value = if results.is_empty() {
-            serde_json::json!({
-                "course": course,
-                "results": results,
-                "note": "No page matched. Try different wording, or list the course's pages with course_structure.",
-            })
-        } else {
-            serde_json::json!({
-                "course": course,
-                "results": results,
-            })
+        let note = results.is_empty().then_some(
+            "No page matched. Try different wording, or list the course's pages with course_structure.",
+        );
+        let output = Output {
+            course,
+            results,
+            note,
         };
-        serde_json::to_string_pretty(&value).unwrap_or_else(|_| "No results.".to_string())
+        serde_json::to_string_pretty(&output).unwrap_or_else(|_| "No results.".to_string())
     }
 
     fn output_description_instructions(&self) -> Option<String> {

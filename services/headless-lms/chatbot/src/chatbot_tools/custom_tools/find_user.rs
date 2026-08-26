@@ -1,11 +1,12 @@
 use std::str::FromStr;
 
+use chrono::{DateTime, Utc};
 use indexmap::IndexMap;
-use serde_json::json;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
+use headless_lms_models::user_details::EmailVerificationMethod;
 use headless_lms_models::{user_details, user_details::UserDetail, users};
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
 use sqlx::PgConnection;
@@ -29,7 +30,34 @@ pub type FindUserTool = ToolProperties<FindUserState>;
 
 pub struct FindUserState {
     matched_as: &'static str,
-    candidates: Vec<serde_json::Value>,
+    candidates: Vec<UserCandidateOutput>,
+}
+
+#[derive(Clone, serde::Serialize)]
+struct UserCandidateOutput {
+    user_id: Uuid,
+    email: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    first_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    last_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    upstream_id: Option<i32>,
+    created_at: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    email_verified_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    email_verified_method: Option<EmailVerificationMethod>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(serde::Serialize)]
+struct FindUserOutput {
+    matched_as: &'static str,
+    candidates: Vec<UserCandidateOutput>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    note: Option<String>,
 }
 
 enum FindUserKind {
@@ -188,17 +216,17 @@ impl ChatbotTool for FindUserTool {
         let mut candidates = Vec::new();
         for detail in details {
             let user = users_by_id.get(&detail.user_id);
-            candidates.push(json!({
-                "user_id": detail.user_id,
-                "email": detail.email,
-                "first_name": detail.first_name,
-                "last_name": detail.last_name,
-                "upstream_id": user.and_then(|u| u.upstream_id),
-                "created_at": detail.created_at,
-                "email_verified_at": detail.email_verified_at,
-                "email_verified_method": detail.email_verified_method,
-                "deleted_at": user.and_then(|u| u.deleted_at),
-            }));
+            candidates.push(UserCandidateOutput {
+                user_id: detail.user_id,
+                email: detail.email,
+                first_name: detail.first_name,
+                last_name: detail.last_name,
+                upstream_id: user.and_then(|u| u.upstream_id),
+                created_at: detail.created_at,
+                email_verified_at: detail.email_verified_at,
+                email_verified_method: detail.email_verified_method,
+                deleted_at: user.and_then(|u| u.deleted_at),
+            });
         }
 
         Ok(FindUserTool {
@@ -210,16 +238,16 @@ impl ChatbotTool for FindUserTool {
     }
 
     fn output(&self) -> String {
-        let mut result = json!({
-            "matched_as": self.state.matched_as,
-            "candidates": self.state.candidates,
+        let note = self.state.candidates.is_empty().then(|| {
+            "No candidates found. Try a different kind (email, name, user_id, upstream_id, auto) or check the query for typos."
+                .to_string()
         });
 
-        if self.state.candidates.is_empty() {
-            result["note"] = json!(
-                "No candidates found. Try a different kind (email, name, user_id, upstream_id, auto) or check the query for typos."
-            );
-        }
+        let result = FindUserOutput {
+            matched_as: self.state.matched_as,
+            candidates: self.state.candidates.clone(),
+            note,
+        };
 
         serde_json::to_string_pretty(&result).unwrap_or_else(|_| "{}".to_string())
     }

@@ -36,6 +36,76 @@ struct CourseCandidate {
     organization_name: String,
 }
 
+#[derive(serde::Serialize)]
+struct CourseCandidateOutput {
+    course_id: Uuid,
+    name: String,
+    slug: String,
+    language_code: String,
+    organization_name: String,
+    is_draft: bool,
+    is_test_mode: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    closed_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    closed_additional_message: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    closed_course_successor_id: Option<Uuid>,
+    instances: Vec<CourseInstanceOutput>,
+}
+
+#[derive(serde::Serialize)]
+struct CourseInstanceOutput {
+    course_instance_id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    starts_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    ends_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    support_email: Option<String>,
+    teacher_in_charge_name: String,
+    teacher_in_charge_email: String,
+}
+
+impl From<&CourseInstance> for CourseInstanceOutput {
+    fn from(instance: &CourseInstance) -> Self {
+        Self {
+            course_instance_id: instance.id,
+            name: instance.name.clone(),
+            starts_at: instance.starts_at,
+            ends_at: instance.ends_at,
+            support_email: instance.support_email.clone(),
+            teacher_in_charge_name: instance.teacher_in_charge_name.clone(),
+            teacher_in_charge_email: instance.teacher_in_charge_email.clone(),
+        }
+    }
+}
+
+impl From<&CourseCandidate> for CourseCandidateOutput {
+    fn from(candidate: &CourseCandidate) -> Self {
+        let course = &candidate.course;
+        Self {
+            course_id: course.id,
+            name: course.name.clone(),
+            slug: course.slug.clone(),
+            language_code: course.language_code.clone(),
+            organization_name: candidate.organization_name.clone(),
+            is_draft: course.is_draft,
+            is_test_mode: course.is_test_mode,
+            closed_at: course.closed_at,
+            closed_additional_message: course.closed_additional_message.clone(),
+            closed_course_successor_id: course.closed_course_successor_id,
+            instances: candidate
+                .instances
+                .iter()
+                .map(CourseInstanceOutput::from)
+                .collect(),
+        }
+    }
+}
+
 #[derive(serde::Deserialize)]
 pub struct FindCourseArguments {
     query: String,
@@ -141,41 +211,11 @@ impl ChatbotTool for FindCourseTool {
     }
 
     fn output(&self) -> String {
-        let candidates: Vec<serde_json::Value> = self
+        let candidates: Vec<CourseCandidateOutput> = self
             .state
             .candidates
             .iter()
-            .map(|candidate| {
-                let course = &candidate.course;
-                let instances: Vec<serde_json::Value> = candidate
-                    .instances
-                    .iter()
-                    .map(|instance| {
-                        serde_json::json!({
-                            "course_instance_id": instance.id,
-                            "name": instance.name,
-                            "starts_at": instance.starts_at,
-                            "ends_at": instance.ends_at,
-                            "support_email": instance.support_email,
-                            "teacher_in_charge_name": instance.teacher_in_charge_name,
-                            "teacher_in_charge_email": instance.teacher_in_charge_email,
-                        })
-                    })
-                    .collect();
-                serde_json::json!({
-                    "course_id": course.id,
-                    "name": course.name,
-                    "slug": course.slug,
-                    "language_code": course.language_code,
-                    "organization_name": candidate.organization_name,
-                    "is_draft": course.is_draft,
-                    "is_test_mode": course.is_test_mode,
-                    "closed_at": course.closed_at,
-                    "closed_additional_message": course.closed_additional_message,
-                    "closed_course_successor_id": course.closed_course_successor_id,
-                    "instances": instances,
-                })
-            })
+            .map(CourseCandidateOutput::from)
             .collect();
         serde_json::to_string_pretty(&candidates).unwrap_or_else(|_| "No courses found".to_string())
     }

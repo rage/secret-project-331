@@ -1,8 +1,8 @@
 use std::str::FromStr;
 use std::time::Duration;
 
+use chrono::{DateTime, Utc};
 use indexmap::IndexMap;
-use serde_json::json;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
@@ -11,14 +11,16 @@ use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     certificate_configurations, chapters, course_instances,
     course_modules::CompletionPolicy,
-    courses, exams, peer_or_self_review_configs,
+    courses::{self, CourseAiPolicy},
+    exams, peer_or_self_review_configs,
+    peer_or_self_review_configs::PeerReviewProcessingStrategy,
     roles::{Role, UserRole, get_course_related_roles},
     user_details::get_users_details_by_user_id_map,
     users,
 };
 use headless_lms_utils::{
     json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType, string_array_property},
-    services::sisu::SisuClient,
+    services::sisu::{SisuClient, SisuCourseContact},
 };
 
 use crate::{
@@ -37,7 +39,174 @@ const SISU_LOOKUP_TIMEOUT: Duration = Duration::from_secs(5);
 pub type CourseConfigurationTool = ToolProperties<CourseConfigurationState>;
 
 pub struct CourseConfigurationState {
-    facets: IndexMap<String, serde_json::Value>,
+    facets: IndexMap<String, CourseConfigurationFacetValue>,
+}
+
+#[derive(serde::Serialize)]
+#[serde(untagged)]
+enum CourseConfigurationFacetValue {
+    Modules(Vec<ModuleInfo>),
+    Certificates(Vec<CertificateConfigurationInfo>),
+    Exams(Vec<ExamInfo>),
+    Schedule(ScheduleInfo),
+    ReviewPolicy(ReviewPolicyInfo),
+    Policies(PoliciesInfo),
+    Staff(StaffInfo),
+}
+
+#[derive(serde::Serialize)]
+struct ModuleInfo {
+    course_module_id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
+    order_number: i32,
+    completion_policy: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    automatic_completion_number_of_points_treshold: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    automatic_completion_requires_exam: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    ects_credits: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    uh_course_code: Option<String>,
+    certification_enabled: bool,
+    enable_registering_completion_to_uh_open_university: bool,
+    enable_credit_registration_via_suotar: bool,
+}
+
+#[derive(serde::Serialize)]
+struct CertificateConfigurationInfo {
+    certificate_configuration_id: Uuid,
+    is_default_certificate_configuration: bool,
+    required_course_module_ids: Vec<Uuid>,
+    required_course_module_names: Vec<String>,
+}
+
+#[derive(serde::Serialize)]
+struct ExamInfo {
+    exam_id: Uuid,
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    starts_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    ends_at: Option<DateTime<Utc>>,
+    time_minutes: i32,
+    minimum_points_treshold: i32,
+    grade_manually: bool,
+    modules_that_require_this_exam_for_automatic_completion: Vec<String>,
+}
+
+#[derive(serde::Serialize)]
+struct ScheduleInfo {
+    chapter_locking_enabled: bool,
+    chapters: Vec<ChapterScheduleInfo>,
+    course_instances: Vec<CourseInstanceScheduleInfo>,
+}
+
+#[derive(serde::Serialize)]
+struct ChapterScheduleInfo {
+    chapter_number: i32,
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    opens_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    deadline: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    per_exercise_deadline_overrides: Option<ChapterDeadlineOverrideSummary>,
+}
+
+#[derive(serde::Serialize)]
+struct ChapterDeadlineOverrideSummary {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    earliest_exercise_deadline_override: Option<DateTime<Utc>>,
+    exercise_deadline_override_count: i64,
+    exercise_deadline_override_distinct_count: i64,
+}
+
+#[derive(serde::Serialize)]
+struct CourseInstanceScheduleInfo {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    starts_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    ends_at: Option<DateTime<Utc>>,
+}
+
+#[derive(serde::Serialize)]
+struct ReviewPolicyInfo {
+    peer_reviews_to_give: i32,
+    peer_reviews_to_receive: i32,
+    accepting_threshold: f32,
+    processing_strategy: PeerReviewProcessingStrategy,
+    manual_review_cutoff_in_days: i32,
+    points_are_all_or_nothing: bool,
+    reset_answer_if_zero_points_from_review: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    flagged_answers_threshold: Option<i32>,
+    flagged_answers_skip_manual_review_and_allow_retry: bool,
+    note: &'static str,
+}
+
+#[derive(serde::Serialize)]
+struct PoliciesInfo {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    closed_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    closed_additional_message: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    closed_course_successor_id: Option<Uuid>,
+    cheater_detection_enabled: bool,
+    ai_policy: CourseAiPolicy,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    course_material_ai_instructions: Option<bool>,
+    is_draft: bool,
+    is_test_mode: bool,
+    is_unlisted: bool,
+    is_joinable_by_code_only: bool,
+    ask_marketing_consent: bool,
+}
+
+#[derive(serde::Serialize)]
+struct StaffInfo {
+    static_instance_contacts: Vec<StaticInstanceContactInfo>,
+    role_based_staff: Vec<RoleBasedStaffContactInfo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sisu_fallback: Option<SisuFallbackResult>,
+}
+
+#[derive(serde::Serialize)]
+struct StaticInstanceContactInfo {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    instance_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    support_email: Option<String>,
+    teacher_in_charge_name: String,
+    teacher_in_charge_email: String,
+}
+
+#[derive(serde::Serialize)]
+struct RoleBasedStaffContactInfo {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    email: Option<String>,
+    role: UserRole,
+    scope: &'static str,
+}
+
+#[derive(serde::Serialize)]
+#[serde(untagged)]
+enum SisuFallbackResult {
+    Contacts {
+        course_code: String,
+        contacts: Vec<SisuCourseContact>,
+    },
+    Error {
+        error: String,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -191,7 +360,9 @@ impl ChatbotTool for CourseConfigurationTool {
             let value = match facet {
                 CourseConfigurationFacet::Modules => {
                     let modules = modules.as_ref().expect("prefetched above");
-                    json!(modules.iter().map(module_to_json).collect::<Vec<_>>())
+                    CourseConfigurationFacetValue::Modules(
+                        modules.iter().map(module_to_info).collect(),
+                    )
                 }
                 CourseConfigurationFacet::Certificates => {
                     let configurations =
@@ -200,31 +371,35 @@ impl ChatbotTool for CourseConfigurationTool {
                         )
                         .await?;
                     let modules = modules.as_ref().expect("prefetched above");
-                    json!(
-                        configurations
-                            .iter()
-                            .map(|c| {
-                                let module_names = c
+                    let infos = configurations
+                        .iter()
+                        .map(|c| {
+                            let module_names = c
+                                .requirements
+                                .course_module_ids
+                                .iter()
+                                .map(|module_id| {
+                                    modules
+                                        .iter()
+                                        .find(|m| &m.id == module_id)
+                                        .and_then(|m| m.name.clone())
+                                        .unwrap_or_else(|| "Default module".to_string())
+                                })
+                                .collect::<Vec<_>>();
+                            CertificateConfigurationInfo {
+                                certificate_configuration_id: c.certificate_configuration.id,
+                                is_default_certificate_configuration: c
+                                    .requirements
+                                    .is_default_certificate_configuration(),
+                                required_course_module_ids: c
                                     .requirements
                                     .course_module_ids
-                                    .iter()
-                                    .map(|module_id| {
-                                        modules
-                                            .iter()
-                                            .find(|m| &m.id == module_id)
-                                            .and_then(|m| m.name.clone())
-                                            .unwrap_or_else(|| "Default module".to_string())
-                                    })
-                                    .collect::<Vec<_>>();
-                                json!({
-                                    "certificate_configuration_id": c.certificate_configuration.id,
-                                    "is_default_certificate_configuration": c.requirements.is_default_certificate_configuration(),
-                                    "required_course_module_ids": c.requirements.course_module_ids,
-                                    "required_course_module_names": module_names,
-                                })
-                            })
-                            .collect::<Vec<_>>()
-                    )
+                                    .clone(),
+                                required_course_module_names: module_names,
+                            }
+                        })
+                        .collect::<Vec<_>>();
+                    CourseConfigurationFacetValue::Certificates(infos)
                 }
                 CourseConfigurationFacet::Exams => {
                     let course_exams = exams::get_exams_for_course(conn, course_id).await?;
@@ -255,18 +430,19 @@ impl ChatbotTool for CourseConfigurationTool {
                                     .unwrap_or_else(|| "Default module".to_string())
                             })
                             .collect::<Vec<_>>();
-                        rows.push(json!({
-                            "exam_id": exam.id,
-                            "name": exam.name,
-                            "starts_at": exam.starts_at,
-                            "ends_at": exam.ends_at,
-                            "time_minutes": exam.time_minutes,
-                            "minimum_points_treshold": exam.minimum_points_treshold,
-                            "grade_manually": exam.grade_manually,
-                            "modules_that_require_this_exam_for_automatic_completion": required_by_modules,
-                        }));
+                        rows.push(ExamInfo {
+                            exam_id: exam.id,
+                            name: exam.name.clone(),
+                            starts_at: exam.starts_at,
+                            ends_at: exam.ends_at,
+                            time_minutes: exam.time_minutes,
+                            minimum_points_treshold: exam.minimum_points_treshold,
+                            grade_manually: exam.grade_manually,
+                            modules_that_require_this_exam_for_automatic_completion:
+                                required_by_modules,
+                        });
                     }
-                    json!(rows)
+                    CourseConfigurationFacetValue::Exams(rows)
                 }
                 CourseConfigurationFacet::Schedule => {
                     let db_chapters = chapters::get_course_chapters(conn, course_id).await?;
@@ -277,41 +453,43 @@ impl ChatbotTool for CourseConfigurationTool {
                     )
                     .await?;
 
-                    let chapters_json = db_chapters
+                    let chapters_info = db_chapters
                         .iter()
                         .map(|c| {
-                            let override_summary = overrides.get(&c.id).map(|o| {
-                                json!({
-                                    "earliest_exercise_deadline_override": o.earliest_exercise_deadline_override,
-                                    "exercise_deadline_override_count": o.exercise_deadline_override_count,
-                                    "exercise_deadline_override_distinct_count": o.exercise_deadline_override_distinct_count,
-                                })
-                            });
-                            json!({
-                                "chapter_number": c.chapter_number,
-                                "name": c.name,
-                                "opens_at": c.opens_at,
-                                "deadline": c.deadline,
-                                "per_exercise_deadline_overrides": override_summary,
-                            })
+                            let override_summary =
+                                overrides
+                                    .get(&c.id)
+                                    .map(|o| ChapterDeadlineOverrideSummary {
+                                        earliest_exercise_deadline_override: o
+                                            .earliest_exercise_deadline_override,
+                                        exercise_deadline_override_count: o
+                                            .exercise_deadline_override_count,
+                                        exercise_deadline_override_distinct_count: o
+                                            .exercise_deadline_override_distinct_count,
+                                    });
+                            ChapterScheduleInfo {
+                                chapter_number: c.chapter_number,
+                                name: c.name.clone(),
+                                opens_at: c.opens_at,
+                                deadline: c.deadline,
+                                per_exercise_deadline_overrides: override_summary,
+                            }
                         })
                         .collect::<Vec<_>>();
 
-                    let instances_json = instances
+                    let instances_info = instances
                         .iter()
-                        .map(|i| {
-                            json!({
-                                "name": i.name,
-                                "starts_at": i.starts_at,
-                                "ends_at": i.ends_at,
-                            })
+                        .map(|i| CourseInstanceScheduleInfo {
+                            name: i.name.clone(),
+                            starts_at: i.starts_at,
+                            ends_at: i.ends_at,
                         })
                         .collect::<Vec<_>>();
 
-                    json!({
-                        "chapter_locking_enabled": course.chapter_locking_enabled,
-                        "chapters": chapters_json,
-                        "course_instances": instances_json,
+                    CourseConfigurationFacetValue::Schedule(ScheduleInfo {
+                        chapter_locking_enabled: course.chapter_locking_enabled,
+                        chapters: chapters_info,
+                        course_instances: instances_info,
                     })
                 }
                 CourseConfigurationFacet::ReviewPolicy => {
@@ -319,43 +497,45 @@ impl ChatbotTool for CourseConfigurationTool {
                         conn, course_id,
                     )
                     .await?;
-                    json!({
-                        "peer_reviews_to_give": config.peer_reviews_to_give,
-                        "peer_reviews_to_receive": config.peer_reviews_to_receive,
-                        "accepting_threshold": config.accepting_threshold,
-                        "processing_strategy": config.processing_strategy,
-                        "manual_review_cutoff_in_days": config.manual_review_cutoff_in_days,
-                        "points_are_all_or_nothing": config.points_are_all_or_nothing,
-                        "reset_answer_if_zero_points_from_review": config.reset_answer_if_zero_points_from_review,
-                        "flagged_answers_threshold": course.flagged_answers_threshold,
-                        "flagged_answers_skip_manual_review_and_allow_retry": course.flagged_answers_skip_manual_review_and_allow_retry,
-                        "note": "This is the course's default review config. Individual exercises can override it with their own.",
+                    CourseConfigurationFacetValue::ReviewPolicy(ReviewPolicyInfo {
+                        peer_reviews_to_give: config.peer_reviews_to_give,
+                        peer_reviews_to_receive: config.peer_reviews_to_receive,
+                        accepting_threshold: config.accepting_threshold,
+                        processing_strategy: config.processing_strategy,
+                        manual_review_cutoff_in_days: config.manual_review_cutoff_in_days,
+                        points_are_all_or_nothing: config.points_are_all_or_nothing,
+                        reset_answer_if_zero_points_from_review: config
+                            .reset_answer_if_zero_points_from_review,
+                        flagged_answers_threshold: course.flagged_answers_threshold,
+                        flagged_answers_skip_manual_review_and_allow_retry: course
+                            .flagged_answers_skip_manual_review_and_allow_retry,
+                        note: "This is the course's default review config. Individual exercises can override it with their own.",
                     })
                 }
                 CourseConfigurationFacet::Policies => {
-                    json!({
-                        "closed_at": course.closed_at,
-                        "closed_additional_message": course.closed_additional_message,
-                        "closed_course_successor_id": course.closed_course_successor_id,
-                        "cheater_detection_enabled": course.cheater_detection_enabled,
-                        "ai_policy": course.ai_policy,
-                        "course_material_ai_instructions": course.course_material_ai_instructions,
-                        "is_draft": course.is_draft,
-                        "is_test_mode": course.is_test_mode,
-                        "is_unlisted": course.is_unlisted,
-                        "is_joinable_by_code_only": course.is_joinable_by_code_only,
-                        "ask_marketing_consent": course.ask_marketing_consent,
+                    CourseConfigurationFacetValue::Policies(PoliciesInfo {
+                        closed_at: course.closed_at,
+                        closed_additional_message: course.closed_additional_message.clone(),
+                        closed_course_successor_id: course.closed_course_successor_id,
+                        cheater_detection_enabled: course.cheater_detection_enabled,
+                        ai_policy: course.ai_policy,
+                        course_material_ai_instructions: course.course_material_ai_instructions,
+                        is_draft: course.is_draft,
+                        is_test_mode: course.is_test_mode,
+                        is_unlisted: course.is_unlisted,
+                        is_joinable_by_code_only: course.is_joinable_by_code_only,
+                        ask_marketing_consent: course.ask_marketing_consent,
                     })
                 }
-                CourseConfigurationFacet::Staff => {
+                CourseConfigurationFacet::Staff => CourseConfigurationFacetValue::Staff(
                     staff_facet(
                         conn,
                         app_config,
                         course_id,
                         modules.as_ref().expect("prefetched above"),
                     )
-                    .await?
-                }
+                    .await?,
+                ),
             };
             facets.insert(facet.wire_name().to_string(), value);
         }
@@ -387,7 +567,7 @@ async fn course_modules_for(
     Ok(headless_lms_models::course_modules::get_by_course_id(conn, course_id).await?)
 }
 
-fn module_to_json(module: &headless_lms_models::course_modules::CourseModule) -> serde_json::Value {
+fn module_to_info(module: &headless_lms_models::course_modules::CourseModule) -> ModuleInfo {
     let (completion_policy, exercises_attempted_treshold, points_treshold, requires_exam) =
         match &module.completion_policy {
             CompletionPolicy::Automatic(requirements) => (
@@ -398,20 +578,21 @@ fn module_to_json(module: &headless_lms_models::course_modules::CourseModule) ->
             ),
             CompletionPolicy::Manual => ("manual", None, None, None),
         };
-    json!({
-        "course_module_id": module.id,
-        "name": module.name,
-        "order_number": module.order_number,
-        "completion_policy": completion_policy,
-        "automatic_completion_number_of_exercises_attempted_treshold": exercises_attempted_treshold,
-        "automatic_completion_number_of_points_treshold": points_treshold,
-        "automatic_completion_requires_exam": requires_exam,
-        "ects_credits": module.ects_credits,
-        "uh_course_code": module.uh_course_code,
-        "certification_enabled": module.certification_enabled,
-        "enable_registering_completion_to_uh_open_university": module.enable_registering_completion_to_uh_open_university,
-        "enable_credit_registration_via_suotar": module.enable_credit_registration_via_suotar,
-    })
+    ModuleInfo {
+        course_module_id: module.id,
+        name: module.name.clone(),
+        order_number: module.order_number,
+        completion_policy,
+        automatic_completion_number_of_exercises_attempted_treshold: exercises_attempted_treshold,
+        automatic_completion_number_of_points_treshold: points_treshold,
+        automatic_completion_requires_exam: requires_exam,
+        ects_credits: module.ects_credits,
+        uh_course_code: module.uh_course_code.clone(),
+        certification_enabled: module.certification_enabled,
+        enable_registering_completion_to_uh_open_university: module
+            .enable_registering_completion_to_uh_open_university,
+        enable_credit_registration_via_suotar: module.enable_credit_registration_via_suotar,
+    }
 }
 
 /// Staff contacts in freshness order: static instance fields, then role-based assignments, then
@@ -421,17 +602,15 @@ async fn staff_facet(
     app_config: &ApplicationConfiguration,
     course_id: Uuid,
     modules: &[headless_lms_models::course_modules::CourseModule],
-) -> ChatbotResult<serde_json::Value> {
+) -> ChatbotResult<StaffInfo> {
     let instances = course_instances::get_course_instances_for_course(conn, course_id).await?;
     let static_instance_contacts = instances
         .iter()
-        .map(|i| {
-            json!({
-                "instance_name": i.name,
-                "support_email": i.support_email,
-                "teacher_in_charge_name": i.teacher_in_charge_name,
-                "teacher_in_charge_email": i.teacher_in_charge_email,
-            })
+        .map(|i| StaticInstanceContactInfo {
+            instance_name: i.name.clone(),
+            support_email: i.support_email.clone(),
+            teacher_in_charge_name: i.teacher_in_charge_name.clone(),
+            teacher_in_charge_email: i.teacher_in_charge_email.clone(),
         })
         .collect::<Vec<_>>();
 
@@ -461,12 +640,12 @@ async fn staff_facet(
                 "organization"
             };
             let detail = details.get(&role.user_id);
-            role_based.push(json!({
-                "name": detail.and_then(|d| combined_name(d)),
-                "email": detail.map(|d| d.email.clone()),
-                "role": role.role,
-                "scope": scope,
-            }));
+            role_based.push(RoleBasedStaffContactInfo {
+                name: detail.and_then(|d| combined_name(d)),
+                email: detail.map(|d| d.email.clone()),
+                role: role.role,
+                scope,
+            });
         }
     }
 
@@ -481,11 +660,11 @@ async fn staff_facet(
         None
     };
 
-    Ok(json!({
-        "static_instance_contacts": static_instance_contacts,
-        "role_based_staff": role_based,
-        "sisu_fallback": sisu_fallback,
-    }))
+    Ok(StaffInfo {
+        static_instance_contacts,
+        role_based_staff: role_based,
+        sisu_fallback,
+    })
 }
 
 fn combined_name(detail: &headless_lms_models::user_details::UserDetail) -> Option<String> {
@@ -502,13 +681,13 @@ fn combined_name(detail: &headless_lms_models::user_details::UserDetail) -> Opti
 async fn sisu_lookup(
     app_config: &ApplicationConfiguration,
     uh_course_code: &str,
-) -> serde_json::Value {
+) -> SisuFallbackResult {
     let client = match SisuClient::new(app_config.base_url.clone()) {
         Ok(client) => client,
         Err(e) => {
-            return json!({
-                "error": format!("Sisu lookup failed, look up code {uh_course_code} manually: {e}"),
-            });
+            return SisuFallbackResult::Error {
+                error: format!("Sisu lookup failed, look up code {uh_course_code} manually: {e}"),
+            };
         }
     };
 
@@ -518,18 +697,20 @@ async fn sisu_lookup(
     )
     .await
     {
-        Ok(Ok(contacts)) if !contacts.is_empty() => json!({
-            "course_code": uh_course_code,
-            "contacts": contacts,
-        }),
-        Ok(Ok(_)) => json!({
-            "error": format!("Sisu has no responsible-teacher contact for code {uh_course_code}, look it up manually."),
-        }),
-        Ok(Err(e)) => json!({
-            "error": format!("Sisu lookup failed, look up code {uh_course_code} manually: {e}"),
-        }),
-        Err(_) => json!({
-            "error": format!("Sisu lookup timed out, look up code {uh_course_code} manually."),
-        }),
+        Ok(Ok(contacts)) if !contacts.is_empty() => SisuFallbackResult::Contacts {
+            course_code: uh_course_code.to_string(),
+            contacts,
+        },
+        Ok(Ok(_)) => SisuFallbackResult::Error {
+            error: format!(
+                "Sisu has no responsible-teacher contact for code {uh_course_code}, look it up manually."
+            ),
+        },
+        Ok(Err(e)) => SisuFallbackResult::Error {
+            error: format!("Sisu lookup failed, look up code {uh_course_code} manually: {e}"),
+        },
+        Err(_) => SisuFallbackResult::Error {
+            error: format!("Sisu lookup timed out, look up code {uh_course_code} manually."),
+        },
     }
 }

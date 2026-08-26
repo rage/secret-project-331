@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use chrono::{DateTime, Utc};
 use indexmap::IndexMap;
 use serde::Deserialize;
 use sqlx::PgConnection;
@@ -15,10 +16,11 @@ use headless_lms_models::{
     course_modules, exercise_reset_logs, exercise_slide_submissions,
     exercises::{self, Exercise},
     generated_certificates,
-    library::progressing,
-    peer_review_queue_entries, study_registry_registrars, teacher_grading_decisions, user_details,
-    user_exercise_states,
-    user_exercise_states::ReviewingStage,
+    library::progressing::{self, UserModuleCompletionStatus},
+    peer_review_queue_entries, study_registry_registrars,
+    teacher_grading_decisions::{self, TeacherDecisionType},
+    user_details, user_exercise_states,
+    user_exercise_states::{ReviewingStage, UserCourseProgress},
 };
 use headless_lms_utils::json_schema_types::{
     JSONType, JsonItem, Schema, SchemaPropertyType, string_array_property,
@@ -38,7 +40,27 @@ use crate::{
 pub type UserCourseStateTool = ToolProperties<UserCourseStateState>;
 
 pub struct UserCourseStateState {
-    output: serde_json::Value,
+    output: UserCourseStateOutput,
+}
+
+#[derive(serde::Serialize)]
+struct UserCourseStateOutput {
+    user_email: String,
+    course_name: String,
+    #[serde(flatten)]
+    facets: IndexMap<String, UserCourseStateFacetValue>,
+}
+
+#[derive(serde::Serialize)]
+#[serde(untagged)]
+enum UserCourseStateFacetValue {
+    Progress(Vec<UserCourseProgress>),
+    Completions(CompletionsFacet),
+    Submissions(SubmissionsFacet),
+    Reviews(ReviewsFacet),
+    Resets(ResetsFacet),
+    Certificates(CertificatesFacet),
+    CreditRegistration(CreditRegistrationFacet),
 }
 
 /// The facets `user_course_state` can be asked for. Internal to this tool: the wire form is the
@@ -277,15 +299,7 @@ impl ChatbotTool for UserCourseStateTool {
             }
         }
 
-        let mut output = serde_json::Map::new();
-        output.insert(
-            "user_email".to_string(),
-            serde_json::Value::String(user_detail.email.clone()),
-        );
-        output.insert(
-            "course_name".to_string(),
-            serde_json::Value::String(course.name.clone()),
-        );
+        let mut facets = IndexMap::new();
 
         // Fetched once and shared across facets instead of once per facet, since a single call
         // commonly requests several facets that would otherwise repeat the same query.
@@ -321,19 +335,19 @@ impl ChatbotTool for UserCourseStateTool {
 
         for facet in &arguments.facets {
             let value = match facet {
-                UserCourseStateFacet::Progress => {
-                    progress_facet(conn, arguments.user_id, arguments.course_id).await?
-                }
-                UserCourseStateFacet::Completions => {
+                UserCourseStateFacet::Progress => UserCourseStateFacetValue::Progress(
+                    progress_facet(conn, arguments.user_id, arguments.course_id).await?,
+                ),
+                UserCourseStateFacet::Completions => UserCourseStateFacetValue::Completions(
                     completions_facet(
                         conn,
                         arguments.user_id,
                         arguments.course_id,
                         completions.as_ref().expect("prefetched above"),
                     )
-                    .await?
-                }
-                UserCourseStateFacet::Submissions => {
+                    .await?,
+                ),
+                UserCourseStateFacet::Submissions => UserCourseStateFacetValue::Submissions(
                     submissions_facet(
                         conn,
                         arguments.user_id,
@@ -341,9 +355,9 @@ impl ChatbotTool for UserCourseStateTool {
                         arguments.exercise_id,
                         course_exercises.as_ref().expect("prefetched above"),
                     )
-                    .await?
-                }
-                UserCourseStateFacet::Reviews => {
+                    .await?,
+                ),
+                UserCourseStateFacet::Reviews => UserCourseStateFacetValue::Reviews(
                     reviews_facet(
                         conn,
                         arguments.user_id,
@@ -351,31 +365,40 @@ impl ChatbotTool for UserCourseStateTool {
                         arguments.exercise_id,
                         course_exercises.as_ref().expect("prefetched above"),
                     )
-                    .await?
-                }
-                UserCourseStateFacet::Resets => {
-                    resets_facet(conn, arguments.user_id, arguments.course_id).await?
-                }
-                UserCourseStateFacet::Certificates => {
+                    .await?,
+                ),
+                UserCourseStateFacet::Resets => UserCourseStateFacetValue::Resets(
+                    resets_facet(conn, arguments.user_id, arguments.course_id).await?,
+                ),
+                UserCourseStateFacet::Certificates => UserCourseStateFacetValue::Certificates(
                     certificates_facet(
                         conn,
                         arguments.user_id,
                         arguments.course_id,
                         completions.as_ref().expect("prefetched above"),
                     )
-                    .await?
-                }
+                    .await?,
+                ),
                 UserCourseStateFacet::CreditRegistration => {
-                    credit_registration_facet(conn, completions.as_ref().expect("prefetched above"))
-                        .await?
+                    UserCourseStateFacetValue::CreditRegistration(
+                        credit_registration_facet(
+                            conn,
+                            completions.as_ref().expect("prefetched above"),
+                        )
+                        .await?,
+                    )
                 }
             };
-            output.insert(facet.wire_name().to_string(), value);
+            facets.insert(facet.wire_name().to_string(), value);
         }
 
         Ok(UserCourseStateTool {
             state: UserCourseStateState {
-                output: serde_json::Value::Object(output),
+                output: UserCourseStateOutput {
+                    user_email: user_detail.email.clone(),
+                    course_name: course.name.clone(),
+                    facets,
+                },
             },
         })
     }
@@ -393,10 +416,8 @@ async fn progress_facet(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
-) -> ChatbotResult<serde_json::Value> {
-    let progress =
-        user_exercise_states::get_user_course_progress(conn, course_id, user_id, false).await?;
-    Ok(serde_json::to_value(progress)?)
+) -> ChatbotResult<Vec<UserCourseProgress>> {
+    Ok(user_exercise_states::get_user_course_progress(conn, course_id, user_id, false).await?)
 }
 
 /// Maps exercise id to name, for annotating rows that only carry an exercise id.
@@ -404,34 +425,82 @@ fn exercise_name_index(exercises: &[Exercise]) -> HashMap<Uuid, &str> {
     exercises.iter().map(|e| (e.id, e.name.as_str())).collect()
 }
 
+#[derive(serde::Serialize)]
+struct CompletionsFacet {
+    module_completion_statuses: Vec<UserModuleCompletionStatus>,
+    raw_completions: Vec<RawCompletion>,
+}
+
+#[derive(serde::Serialize)]
+struct RawCompletion {
+    course_module_id: Uuid,
+    completion_date: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    grade: Option<i32>,
+    passed: bool,
+    needs_to_be_reviewed: bool,
+    completion_granter: &'static str,
+    eligible_for_ects: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    completion_registration_attempt_date: Option<DateTime<Utc>>,
+}
+
 async fn completions_facet(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
     raw: &[CourseModuleCompletion],
-) -> ChatbotResult<serde_json::Value> {
-    let statuses =
+) -> ChatbotResult<CompletionsFacet> {
+    let module_completion_statuses =
         progressing::get_user_module_completion_statuses_for_course(conn, user_id, course_id)
             .await?;
-    let raw_json: Vec<serde_json::Value> = raw
+    let raw_completions = raw
         .iter()
-        .map(|c| {
-            serde_json::json!({
-                "course_module_id": c.course_module_id,
-                "completion_date": c.completion_date,
-                "grade": c.grade,
-                "passed": c.passed,
-                "needs_to_be_reviewed": c.needs_to_be_reviewed,
-                "completion_granter": if c.completion_granter_user_id.is_some() { "granted by staff" } else { "automatic" },
-                "eligible_for_ects": c.eligible_for_ects,
-                "completion_registration_attempt_date": c.completion_registration_attempt_date,
-            })
+        .map(|c| RawCompletion {
+            course_module_id: c.course_module_id,
+            completion_date: c.completion_date,
+            grade: c.grade,
+            passed: c.passed,
+            needs_to_be_reviewed: c.needs_to_be_reviewed,
+            completion_granter: if c.completion_granter_user_id.is_some() {
+                "granted by staff"
+            } else {
+                "automatic"
+            },
+            eligible_for_ects: c.eligible_for_ects,
+            completion_registration_attempt_date: c.completion_registration_attempt_date,
         })
         .collect();
-    Ok(serde_json::json!({
-        "module_completion_statuses": statuses,
-        "raw_completions": raw_json,
-    }))
+    Ok(CompletionsFacet {
+        module_completion_statuses,
+        raw_completions,
+    })
+}
+
+#[derive(serde::Serialize)]
+struct SubmissionsFacet {
+    submissions: Vec<SubmissionRow>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    exercise_attempts: Option<ExerciseAttempts>,
+}
+
+#[derive(serde::Serialize)]
+struct SubmissionRow {
+    created_at: DateTime<Utc>,
+    exercise_id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    exercise_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    course_module_id: Option<Uuid>,
+}
+
+#[derive(serde::Serialize)]
+struct ExerciseAttempts {
+    attempt_count: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    max_tries_per_slide: Option<i32>,
+    limit_number_of_tries: bool,
+    out_of_tries: bool,
 }
 
 async fn submissions_facet(
@@ -440,26 +509,24 @@ async fn submissions_facet(
     course_id: Uuid,
     exercise_id: Option<Uuid>,
     course_exercises: &[Exercise],
-) -> ChatbotResult<serde_json::Value> {
+) -> ChatbotResult<SubmissionsFacet> {
     let times =
         exercise_slide_submissions::get_user_course_submission_times(conn, user_id, course_id)
             .await?;
     let exercise_names = exercise_name_index(course_exercises);
 
-    let submissions_json: Vec<serde_json::Value> = times
+    let submissions = times
         .iter()
         .filter(|t| exercise_id.is_none_or(|id| t.exercise_id == id))
-        .map(|t| {
-            serde_json::json!({
-                "created_at": t.created_at,
-                "exercise_id": t.exercise_id,
-                "exercise_name": exercise_names.get(&t.exercise_id),
-                "course_module_id": t.course_module_id,
-            })
+        .map(|t| SubmissionRow {
+            created_at: t.created_at,
+            exercise_id: t.exercise_id,
+            exercise_name: exercise_names.get(&t.exercise_id).map(|s| s.to_string()),
+            course_module_id: t.course_module_id,
         })
         .collect();
 
-    let mut result = serde_json::json!({ "submissions": submissions_json });
+    let mut exercise_attempts = None;
 
     if let Some(exercise_id) = exercise_id
         && let Some(exercise) = course_exercises.iter().find(|e| e.id == exercise_id)
@@ -480,15 +547,57 @@ async fn submissions_facet(
             && exercise
                 .max_tries_per_slide
                 .is_some_and(|max| max_slide_attempt_count >= max as i64);
-        result["exercise_attempts"] = serde_json::json!({
-            "attempt_count": attempt_count,
-            "max_tries_per_slide": exercise.max_tries_per_slide,
-            "limit_number_of_tries": exercise.limit_number_of_tries,
-            "out_of_tries": out_of_tries,
+        exercise_attempts = Some(ExerciseAttempts {
+            attempt_count,
+            max_tries_per_slide: exercise.max_tries_per_slide,
+            limit_number_of_tries: exercise.limit_number_of_tries,
+            out_of_tries,
         });
     }
 
-    Ok(result)
+    Ok(SubmissionsFacet {
+        submissions,
+        exercise_attempts,
+    })
+}
+
+#[derive(serde::Serialize)]
+struct ReviewsFacet {
+    in_review_stages: Vec<InReviewStageRow>,
+    teacher_grading_decisions: Vec<TeacherGradingDecisionRow>,
+    peer_review_queue: Vec<PeerReviewQueueRow>,
+}
+
+#[derive(serde::Serialize)]
+struct InReviewStageRow {
+    exercise_id: Uuid,
+    exercise_name: String,
+    reviewing_stage: ReviewingStage,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    score_given: Option<f32>,
+}
+
+#[derive(serde::Serialize)]
+struct TeacherGradingDecisionRow {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    exercise_id: Option<Uuid>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    exercise_name: Option<String>,
+    teacher_decision: TeacherDecisionType,
+    score_given: f32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    justification: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    hidden: Option<bool>,
+    created_at: DateTime<Utc>,
+}
+
+#[derive(serde::Serialize)]
+struct PeerReviewQueueRow {
+    exercise_id: Uuid,
+    received_enough_peer_reviews: bool,
+    peer_review_priority: i32,
+    created_at: DateTime<Utc>,
 }
 
 async fn reviews_facet(
@@ -497,7 +606,7 @@ async fn reviews_facet(
     course_id: Uuid,
     exercise_id: Option<Uuid>,
     course_exercises: &[Exercise],
-) -> ChatbotResult<serde_json::Value> {
+) -> ChatbotResult<ReviewsFacet> {
     let states = user_exercise_states::get_states_in_reviewing_stages_for_user_and_course(
         conn,
         user_id,
@@ -510,15 +619,13 @@ async fn reviews_facet(
         ],
     )
     .await?;
-    let states_json: Vec<serde_json::Value> = states
+    let in_review_stages = states
         .iter()
-        .map(|s| {
-            serde_json::json!({
-                "exercise_id": s.exercise_id,
-                "exercise_name": s.exercise_name,
-                "reviewing_stage": s.reviewing_stage,
-                "score_given": s.score_given,
-            })
+        .map(|s| InReviewStageRow {
+            exercise_id: s.exercise_id,
+            exercise_name: s.exercise_name.clone(),
+            reviewing_stage: s.reviewing_stage,
+            score_given: s.score_given,
         })
         .collect();
 
@@ -538,21 +645,23 @@ async fn reviews_facet(
         .map(|s| (s.id, s.exercise_id))
         .collect();
     let exercise_names = exercise_name_index(course_exercises);
-    let decisions_json: Vec<serde_json::Value> = decisions
+    let teacher_grading_decisions = decisions
         .iter()
         .map(|d| {
             let exercise_id = exercise_id_by_user_exercise_state_id
                 .get(&d.user_exercise_state_id)
                 .copied();
-            serde_json::json!({
-                "exercise_id": exercise_id,
-                "exercise_name": exercise_id.and_then(|id| exercise_names.get(&id)),
-                "teacher_decision": d.teacher_decision,
-                "score_given": d.score_given,
-                "justification": d.justification,
-                "hidden": d.hidden,
-                "created_at": d.created_at,
-            })
+            TeacherGradingDecisionRow {
+                exercise_id,
+                exercise_name: exercise_id
+                    .and_then(|id| exercise_names.get(&id))
+                    .map(|s| s.to_string()),
+                teacher_decision: d.teacher_decision,
+                score_given: d.score_given,
+                justification: d.justification.clone(),
+                hidden: d.hidden,
+                created_at: d.created_at,
+            }
         })
         .collect();
 
@@ -569,32 +678,45 @@ async fn reviews_facet(
     } else {
         peer_review_queue_entries::get_all_by_user_and_course_id(conn, user_id, course_id).await?
     };
-    let peer_review_json: Vec<serde_json::Value> = peer_review_entries
+    let peer_review_queue = peer_review_entries
         .iter()
-        .map(|e| {
-            serde_json::json!({
-                "exercise_id": e.exercise_id,
-                "received_enough_peer_reviews": e.received_enough_peer_reviews,
-                "peer_review_priority": e.peer_review_priority,
-                "created_at": e.created_at,
-            })
+        .map(|e| PeerReviewQueueRow {
+            exercise_id: e.exercise_id,
+            received_enough_peer_reviews: e.received_enough_peer_reviews,
+            peer_review_priority: e.peer_review_priority,
+            created_at: e.created_at,
         })
         .collect();
 
-    Ok(serde_json::json!({
-        "in_review_stages": states_json,
-        "teacher_grading_decisions": decisions_json,
-        "peer_review_queue": peer_review_json,
-    }))
+    Ok(ReviewsFacet {
+        in_review_stages,
+        teacher_grading_decisions,
+        peer_review_queue,
+    })
+}
+
+#[derive(serde::Serialize)]
+struct ResetsFacet {
+    resets: Vec<ResetRow>,
+}
+
+#[derive(serde::Serialize)]
+struct ResetRow {
+    exercise_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reset_by: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reason: Option<String>,
+    reset_at: DateTime<Utc>,
 }
 
 async fn resets_facet(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
-) -> ChatbotResult<serde_json::Value> {
+) -> ChatbotResult<ResetsFacet> {
     let logs = exercise_reset_logs::get_exercise_reset_logs_for_user(conn, user_id).await?;
-    let resets_json: Vec<serde_json::Value> = logs
+    let resets = logs
         .into_iter()
         .filter(|l| l.course_id == course_id)
         .map(|l| {
@@ -604,15 +726,36 @@ async fn resets_facet(
                 (None, Some(last)) => Some(last),
                 (None, None) => None,
             };
-            serde_json::json!({
-                "exercise_name": l.exercise_name,
-                "reset_by": reset_by,
-                "reason": l.reason,
-                "reset_at": l.reset_at,
-            })
+            ResetRow {
+                exercise_name: l.exercise_name,
+                reset_by,
+                reason: l.reason,
+                reset_at: l.reset_at,
+            }
         })
         .collect();
-    Ok(serde_json::json!({ "resets": resets_json }))
+    Ok(ResetsFacet { resets })
+}
+
+#[derive(serde::Serialize)]
+struct CertificatesFacet {
+    configurations: Vec<CertificateConfigurationRow>,
+    generated_certificates: Vec<GeneratedCertificateRow>,
+}
+
+#[derive(serde::Serialize)]
+struct CertificateConfigurationRow {
+    certificate_configuration_id: Uuid,
+    eligible: bool,
+    missing_module_completions: Vec<String>,
+    modules_blocked_by_pending_review: Vec<String>,
+}
+
+#[derive(serde::Serialize)]
+struct GeneratedCertificateRow {
+    verification_id: String,
+    name_on_certificate: String,
+    created_at: DateTime<Utc>,
 }
 
 async fn certificates_facet(
@@ -620,7 +763,7 @@ async fn certificates_facet(
     user_id: Uuid,
     course_id: Uuid,
     raw_completions: &[CourseModuleCompletion],
-) -> ChatbotResult<serde_json::Value> {
+) -> ChatbotResult<CertificatesFacet> {
     let configurations =
         certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(
             conn, course_id,
@@ -667,38 +810,50 @@ async fn certificates_facet(
                 Some(_) => {}
             }
         }
-        configurations_json.push(serde_json::json!({
-            "certificate_configuration_id": configuration.certificate_configuration.id,
-            "eligible": eligible,
-            "missing_module_completions": missing_module_completions,
-            "modules_blocked_by_pending_review": modules_blocked_by_pending_review,
-        }));
+        configurations_json.push(CertificateConfigurationRow {
+            certificate_configuration_id: configuration.certificate_configuration.id,
+            eligible,
+            missing_module_completions,
+            modules_blocked_by_pending_review,
+        });
     }
 
-    let generated_certificates_json: Vec<serde_json::Value> =
-        generated_certificates::get_all_by_user_id(conn, user_id)
-            .await?
-            .into_iter()
-            .filter(|c| c.course_id == course_id)
-            .map(|c| {
-                serde_json::json!({
-                    "verification_id": c.verification_id,
-                    "name_on_certificate": c.name_on_certificate,
-                    "created_at": c.created_at,
-                })
-            })
-            .collect();
+    let generated_certificates = generated_certificates::get_all_by_user_id(conn, user_id)
+        .await?
+        .into_iter()
+        .filter(|c| c.course_id == course_id)
+        .map(|c| GeneratedCertificateRow {
+            verification_id: c.verification_id,
+            name_on_certificate: c.name_on_certificate,
+            created_at: c.created_at,
+        })
+        .collect();
 
-    Ok(serde_json::json!({
-        "configurations": configurations_json,
-        "generated_certificates": generated_certificates_json,
-    }))
+    Ok(CertificatesFacet {
+        configurations: configurations_json,
+        generated_certificates,
+    })
+}
+
+#[derive(serde::Serialize)]
+struct CreditRegistrationFacet {
+    registrations: Vec<CreditRegistrationRow>,
+}
+
+#[derive(serde::Serialize)]
+struct CreditRegistrationRow {
+    course_module_id: Uuid,
+    registered: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    registered_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    study_registry: Option<String>,
 }
 
 async fn credit_registration_facet(
     conn: &mut PgConnection,
     completions: &[CourseModuleCompletion],
-) -> ChatbotResult<serde_json::Value> {
+) -> ChatbotResult<CreditRegistrationFacet> {
     let completion_ids: Vec<Uuid> = completions.iter().map(|c| c.id).collect();
     let registrations =
         course_module_completion_registered_to_study_registries::get_registrations_by_completion_ids(
@@ -727,13 +882,15 @@ async fn credit_registration_facet(
             None if registration.is_some() => Some("This platform".to_string()),
             None => None,
         };
-        result.push(serde_json::json!({
-            "course_module_id": completion.course_module_id,
-            "registered": registration.is_some(),
-            "registered_at": registration.map(|r| r.created_at),
-            "study_registry": study_registry,
-        }));
+        result.push(CreditRegistrationRow {
+            course_module_id: completion.course_module_id,
+            registered: registration.is_some(),
+            registered_at: registration.map(|r| r.created_at),
+            study_registry,
+        });
     }
 
-    Ok(serde_json::json!({ "registrations": result }))
+    Ok(CreditRegistrationFacet {
+        registrations: result,
+    })
 }

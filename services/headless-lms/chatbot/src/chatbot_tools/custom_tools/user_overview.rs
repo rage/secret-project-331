@@ -1,16 +1,21 @@
 use std::str::FromStr;
 
+use chrono::{DateTime, Utc};
 use indexmap::IndexMap;
-use serde_json::json;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
-    course_instance_enrollments::get_course_enrollments_info_for_user, courses,
-    email_deliveries::get_recent_deliveries_for_user, roles::get_roles,
-    suspected_cheaters::get_suspected_cheater_info_for_user, user_details, users,
+    course_instance_enrollments::get_course_enrollments_info_for_user,
+    courses,
+    email_deliveries::{EmailSendStatus, get_recent_deliveries_for_user},
+    email_templates::EmailTemplateType,
+    roles::{UserRole, get_roles},
+    suspected_cheaters::{SuspectedCheaterStatus, get_suspected_cheater_info_for_user},
+    user_details::{self, EmailVerificationMethod},
+    users,
 };
 use headless_lms_utils::json_schema_types::{
     JSONType, JsonItem, Schema, SchemaPropertyType, string_array_property,
@@ -30,7 +35,94 @@ const EMAIL_DELIVERY_LIMIT: i64 = 20;
 pub type UserOverviewTool = ToolProperties<UserOverviewState>;
 
 pub struct UserOverviewState {
-    facets: IndexMap<String, serde_json::Value>,
+    facets: IndexMap<String, UserOverviewFacetValue>,
+}
+
+#[derive(serde::Serialize)]
+#[serde(untagged)]
+enum UserOverviewFacetValue {
+    Profile(ProfileFacet),
+    Roles(Vec<RoleFacet>),
+    Enrollments(Vec<EnrollmentFacet>),
+    CheatingFlags(Vec<CheatingFlagFacet>),
+    EmailDeliveries(Vec<EmailDeliveryFacet>),
+}
+
+#[derive(serde::Serialize)]
+struct ProfileFacet {
+    user_id: Uuid,
+    email: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    first_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    last_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    country: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    email_communication_consent: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    email_verified_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    email_verified_method: Option<EmailVerificationMethod>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    upstream_id: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    email_domain: Option<String>,
+    created_at: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(serde::Serialize)]
+struct RoleFacet {
+    role: UserRole,
+    is_global: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    organization_id: Option<Uuid>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    course_id: Option<Uuid>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    course_instance_id: Option<Uuid>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    exam_id: Option<Uuid>,
+}
+
+#[derive(serde::Serialize)]
+struct EnrollmentFacet {
+    course_id: Uuid,
+    course_name: String,
+    instance_name: String,
+    first_enrolled_at: DateTime<Utc>,
+    is_current: bool,
+    completed_modules_count: usize,
+    completions_needing_review_count: i32,
+}
+
+#[derive(serde::Serialize)]
+struct CheatingFlagFacet {
+    course_id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    course_name: Option<String>,
+    status: SuspectedCheaterStatus,
+    total_points: i32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    total_duration_seconds: Option<i32>,
+    threshold_seconds: i32,
+    created_at: DateTime<Utc>,
+}
+
+#[derive(serde::Serialize)]
+struct EmailDeliveryFacet {
+    email_template_type: EmailTemplateType,
+    created_at: DateTime<Utc>,
+    status: EmailSendStatus,
+    retry_count: i32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    last_attempt_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    failure_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    failure_is_transient: Option<bool>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -160,42 +252,40 @@ impl ChatbotTool for UserOverviewTool {
             let value = match facet {
                 UserOverviewFacet::Profile => {
                     let user = users::get_by_id(conn, user_id).await?;
-                    json!({
-                        "user_id": user_detail.user_id,
-                        "email": user_detail.email,
-                        "first_name": user_detail.first_name,
-                        "last_name": user_detail.last_name,
-                        "country": user_detail.country,
-                        "email_communication_consent": user_detail.email_communication_consent,
-                        "email_verified_at": user_detail.email_verified_at,
-                        "email_verified_method": user_detail.email_verified_method,
-                        "upstream_id": user.upstream_id,
-                        "email_domain": user.email_domain,
-                        "created_at": user.created_at,
-                        "deleted_at": user.deleted_at,
+                    UserOverviewFacetValue::Profile(ProfileFacet {
+                        user_id: user_detail.user_id,
+                        email: user_detail.email.clone(),
+                        first_name: user_detail.first_name.clone(),
+                        last_name: user_detail.last_name.clone(),
+                        country: user_detail.country.clone(),
+                        email_communication_consent: user_detail.email_communication_consent,
+                        email_verified_at: user_detail.email_verified_at,
+                        email_verified_method: user_detail.email_verified_method,
+                        upstream_id: user.upstream_id,
+                        email_domain: user.email_domain,
+                        created_at: user.created_at,
+                        deleted_at: user.deleted_at,
                     })
                 }
                 UserOverviewFacet::Roles => {
                     let roles = get_roles(conn, user_id).await?;
-                    json!(
+                    UserOverviewFacetValue::Roles(
                         roles
                             .into_iter()
-                            .map(|role| {
-                                json!({
-                                    "role": role.role,
-                                    "is_global": role.is_global,
-                                    "organization_id": role.organization_id,
-                                    "course_id": role.course_id,
-                                    "course_instance_id": role.course_instance_id,
-                                    "exam_id": role.exam_id,
-                                })
+                            .map(|role| RoleFacet {
+                                role: role.role,
+                                is_global: role.is_global,
+                                organization_id: role.organization_id,
+                                course_id: role.course_id,
+                                course_instance_id: role.course_instance_id,
+                                exam_id: role.exam_id,
                             })
-                            .collect::<Vec<_>>()
+                            .collect(),
                     )
                 }
                 UserOverviewFacet::Enrollments => {
                     let enrollments = get_course_enrollments_info_for_user(conn, user_id).await?;
-                    json!(
+                    UserOverviewFacetValue::Enrollments(
                         enrollments
                             .course_enrollments
                             .into_iter()
@@ -211,17 +301,20 @@ impl ChatbotTool for UserOverviewTool {
                                     })
                                     .collect::<Vec<_>>()
                                     .join(", ");
-                                json!({
-                                    "course_id": enrollment.course_id,
-                                    "course_name": enrollment.course.name,
-                                    "instance_name": instance_name,
-                                    "first_enrolled_at": enrollment.first_enrolled_at,
-                                    "is_current": enrollment.is_current,
-                                    "completed_modules_count": enrollment.course_module_completions.len(),
-                                    "completions_needing_review_count": enrollment.course_module_completions_needing_review,
-                                })
+                                EnrollmentFacet {
+                                    course_id: enrollment.course_id,
+                                    course_name: enrollment.course.name,
+                                    instance_name,
+                                    first_enrolled_at: enrollment.first_enrolled_at,
+                                    is_current: enrollment.is_current,
+                                    completed_modules_count: enrollment
+                                        .course_module_completions
+                                        .len(),
+                                    completions_needing_review_count: enrollment
+                                        .course_module_completions_needing_review,
+                                }
                             })
-                            .collect::<Vec<_>>()
+                            .collect(),
                     )
                 }
                 UserOverviewFacet::CheatingFlags => {
@@ -236,36 +329,34 @@ impl ChatbotTool for UserOverviewTool {
                     let mut rows = Vec::with_capacity(flags.len());
                     for flag in flags {
                         let course_name = course_names.get(&flag.course_id).cloned();
-                        rows.push(json!({
-                            "course_id": flag.course_id,
-                            "course_name": course_name,
-                            "status": flag.status,
-                            "total_points": flag.total_points,
-                            "total_duration_seconds": flag.total_duration_seconds,
-                            "threshold_seconds": flag.threshold_seconds,
-                            "created_at": flag.first_flagged_at,
-                        }));
+                        rows.push(CheatingFlagFacet {
+                            course_id: flag.course_id,
+                            course_name,
+                            status: flag.status,
+                            total_points: flag.total_points,
+                            total_duration_seconds: flag.total_duration_seconds,
+                            threshold_seconds: flag.threshold_seconds,
+                            created_at: flag.first_flagged_at,
+                        });
                     }
-                    json!(rows)
+                    UserOverviewFacetValue::CheatingFlags(rows)
                 }
                 UserOverviewFacet::EmailDeliveries => {
                     let deliveries =
                         get_recent_deliveries_for_user(conn, user_id, EMAIL_DELIVERY_LIMIT).await?;
-                    json!(
+                    UserOverviewFacetValue::EmailDeliveries(
                         deliveries
                             .into_iter()
-                            .map(|delivery| {
-                                json!({
-                                    "email_template_type": delivery.email_template_type,
-                                    "created_at": delivery.created_at,
-                                    "status": delivery.status,
-                                    "retry_count": delivery.retry_count,
-                                    "last_attempt_at": delivery.last_attempt_at,
-                                    "failure_code": delivery.failure_code,
-                                    "failure_is_transient": delivery.failure_is_transient,
-                                })
+                            .map(|delivery| EmailDeliveryFacet {
+                                email_template_type: delivery.email_template_type,
+                                created_at: delivery.created_at,
+                                status: delivery.status,
+                                retry_count: delivery.retry_count,
+                                last_attempt_at: delivery.last_attempt_at,
+                                failure_code: delivery.failure_code,
+                                failure_is_transient: delivery.failure_is_transient,
                             })
-                            .collect::<Vec<_>>()
+                            .collect(),
                     )
                 }
             };

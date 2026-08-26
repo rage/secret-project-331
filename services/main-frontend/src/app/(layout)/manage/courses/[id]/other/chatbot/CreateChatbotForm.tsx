@@ -20,6 +20,7 @@ interface CreateChatbotProps {
 
 interface CreateChatbotFields {
   name: string
+  purpose: string
 }
 
 const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
@@ -65,6 +66,18 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
             validate: {
               check: (name) => {
                 return name.trim() ? true : t("name-not-empty")
+              },
+            },
+          })}
+        />
+        <TextField
+          {...omitUndefined({ error: errors.purpose?.message })}
+          label={t("label-purpose")}
+          {...register("purpose", {
+            required: t("required-field"),
+            validate: {
+              check: (purpose) => {
+                return purpose.trim() ? true : t("-not-empty")
               },
             },
           })}

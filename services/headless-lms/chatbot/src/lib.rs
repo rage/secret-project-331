@@ -15,6 +15,7 @@ pub mod conversation_context;
 pub mod course_description_summary;
 pub mod llm_utils;
 pub mod message_suggestion;
+pub mod prompt_creator;
 pub mod search_filter;
 pub mod user_context;
 

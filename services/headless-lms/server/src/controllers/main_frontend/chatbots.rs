@@ -1,6 +1,9 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chatbots/`.
 use crate::prelude::*;
-use headless_lms_models::chatbot_configurations::CreateChatbotRequest;
+use headless_lms_models::{
+    application_task_default_language_models::ApplicationTask,
+    chatbot_configurations::CreateChatbotRequest,
+};
 use utoipa::OpenApi;
 
 use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
@@ -147,16 +150,17 @@ async fn get_all_chatbots(
     tag = "chatbots",
     request_body(
         content = CreateChatbotRequest,
-        description = "JSON object with chatbot name and optional course id, e.g. \"name: Chatbot 1, course_id: null\".",
+        description = "JSON object with chatbot name and optional course id, e.g. \"name: 'Chatbot 1', course_id: null, purpose: 'This chatbot will help students learn.'\".",
         content_type = "application/json"
     ),
     responses(
         (status = 200, description = "Created chatbot", body = ChatbotConfiguration)
     )
 )]
-#[instrument(skip(pool, payload))]
+#[instrument(skip(pool, payload, app_conf))]
 async fn create_chatbot(
     payload: web::Json<CreateChatbotRequest>,
+    app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ChatbotConfiguration>> {
@@ -201,6 +205,21 @@ async fn create_chatbot(
     )
     .await?;
     tx.commit().await?;
+
+    // commit before using Azure LLM so failure there won't ruin the otherwise
+    // valid insert
+    let task_llm = models::application_task_default_language_models::get_for_task(
+        &mut conn,
+        ApplicationTask::MessageSuggestion,
+    )
+    .await?;
+
+    let lol = headless_lms_chatbot::prompt_creator::generate_prompt(
+        app_conf.as_ref(),
+        task_llm,
+        &configuration,
+    )
+    .await?;
     token.authorized_ok(web::Json(configuration))
 }
 

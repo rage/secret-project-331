@@ -106,7 +106,7 @@ pub fn submit_error_outcome(
             // can fix this, and the row heals itself once they link a working one.
             Code::PersonNotFound => Outcome {
                 drop_verified_student_number: true,
-                ..Outcome::to(CreditRegistrationState::PendingStudentNumber).with_code(code)
+                ..Outcome::to(CreditRegistrationState::Pending).with_code(code)
             },
             _ => Outcome::to(CreditRegistrationState::NoUsableEnrolment)
                 .with_code(code)
@@ -315,7 +315,7 @@ mod tests {
             (Code::MalformedRequest, State::FailedRetryable),
             (Code::UnexpectedResponse, State::FailedRetryable),
             (Code::SisuTimeout, State::SubmissionUncertain),
-            (Code::PersonNotFound, State::PendingStudentNumber),
+            (Code::PersonNotFound, State::Pending),
             (Code::EnrolmentNotFound, State::NoUsableEnrolment),
             (Code::EnrolmentNotAccepted, State::NoUsableEnrolment),
             (Code::StudyRightNotValid, State::NoUsableEnrolment),
@@ -389,7 +389,7 @@ mod tests {
     fn a_person_suotar_does_not_know_costs_the_stored_student_number() {
         let outcome = import(Code::PersonNotFound);
         assert!(outcome.drop_verified_student_number);
-        assert_eq!(outcome.to_state, State::PendingStudentNumber);
+        assert_eq!(outcome.to_state, State::Pending);
         for code in CreditRegistrationErrorCode::ALL {
             if code != Code::PersonNotFound {
                 assert!(!import(code).drop_verified_student_number, "{code:?}");

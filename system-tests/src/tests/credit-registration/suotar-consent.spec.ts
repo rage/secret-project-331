@@ -43,7 +43,7 @@ test.describe("A student nobody has asked yet", () => {
     await runVerifyPollTick(page.request, scope)
 
     const row = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
-      "pending_consent",
+      "pending",
     ])
     expect(row.student_facing_status).toBe("needs_consent")
 

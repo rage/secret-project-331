@@ -38,6 +38,8 @@ export interface AdminRegistrationRow {
   id: string
   email: string | null
   state: string
+  /** What a `pending` row waits on, derived per request; null in every other state. */
+  pending_reason: "completion" | "consent" | "student_number" | null
   error_code: string | null
   submit_retry_count: number
   /** Frozen on the row before it was sent, so not always the number the account is linked to now. */

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cmsr.id AS \"id!\",\n  cmsr.course_module_id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  cmsr.course_unit_realisation_id AS \"course_unit_realisation_id!\",\n  cm.uh_course_code AS \"uh_course_code?\",\n  co.language_code AS \"course_language_code!\"\nFROM course_module_suotar_realisations cmsr\n  JOIN course_modules cm ON cm.id = cmsr.course_module_id\n  JOIN courses co ON co.id = cm.course_id\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cmsr.active\n  AND cmsr.deleted_at IS NULL\n  AND cm.enable_credit_registration_via_suotar\n  AND c.paused_at IS NULL\n  AND cm.deleted_at IS NULL\n  AND cm.course_id = $1\nORDER BY cmsr.id\n        ",
+  "query": "\nSELECT cmsr.id AS \"id!\",\n  cmsr.course_module_id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  cmsr.course_unit_realisation_id AS \"course_unit_realisation_id!\",\n  cm.uh_course_code AS \"uh_course_code?\",\n  co.language_code AS \"course_language_code!\"\nFROM course_module_suotar_realisations cmsr\n  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cmsr.course_module_id\n  JOIN course_modules cm ON cm.id = acm.course_module_id\n  JOIN courses co ON co.id = acm.course_id\nWHERE cmsr.active\n  AND cmsr.deleted_at IS NULL\n  AND acm.course_id = $1\nORDER BY cmsr.id\n        ",
   "describe": {
     "columns": [
       {
@@ -84,5 +84,5 @@
       false
     ]
   },
-  "hash": "e1cdda12cc14cbc1ca391a1024541fd293098d38736e4b581c4aeae85accfa31"
+  "hash": "380baff71ba32e1c7d0d5c9fdb954bbb2fd9012146338f690d72da3ebc4e406d"
 }

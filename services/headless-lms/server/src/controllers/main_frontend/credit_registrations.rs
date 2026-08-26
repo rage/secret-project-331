@@ -838,13 +838,9 @@ pub async fn set_my_course_credit_registration_consent(
     let mut conn = pool.acquire().await?;
     let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
 
-    let waiting_before = count_in_state(
-        &mut conn,
-        user.id,
-        *course_id,
-        CreditRegistrationState::PendingConsent,
-    )
-    .await?;
+    let waiting_before =
+        models::credit_registrations::count_waiting_for_consent(&mut conn, user.id, *course_id)
+            .await?;
 
     let mut tx = conn.begin().await?;
     let consent = course_credit_registration_consents::upsert(
@@ -855,13 +851,9 @@ pub async fn set_my_course_credit_registration_consent(
     )
     .await?;
     apply_consent_change(&mut tx, user.id, *course_id).await?;
-    let waiting_after = count_in_state(
-        &mut tx,
-        user.id,
-        *course_id,
-        CreditRegistrationState::PendingConsent,
-    )
-    .await?;
+    let waiting_after =
+        models::credit_registrations::count_waiting_for_consent(&mut tx, user.id, *course_id)
+            .await?;
     tx.commit().await?;
 
     token.authorized_ok(web::Json(SetMyCourseCreditRegistrationConsentResult {
@@ -928,7 +920,10 @@ pub async fn get_my_credit_registration_consents(
                 asked_at: consent.map(|row| row.asked_at),
                 registrable_completion_count: live
                     .clone()
-                    .filter(|row| row.state == CreditRegistrationState::PendingConsent)
+                    .filter(|row| {
+                        StudentFacingCreditRegistrationStatus::of(row.state, row.preconditions())
+                            == StudentFacingCreditRegistrationStatus::NeedsConsent
+                    })
                     .count() as i64,
                 registered_count: live.filter(|row| row.state.is_success()).count() as i64,
             }
@@ -956,7 +951,7 @@ async fn build_my_credit_registrations(
     let mut linking_mails: Option<LinkingMailCache> = None;
     let mut res = Vec::with_capacity(rows.len());
     for row in rows {
-        let status = StudentFacingCreditRegistrationStatus::of(row.state);
+        let status = StudentFacingCreditRegistrationStatus::of(row.state, row.preconditions());
         let enrolment_link = if status == StudentFacingCreditRegistrationStatus::NeedsEnrolment {
             resolve_enrolment_link(conn, &row, &mut enrolment_links).await?
         } else {
@@ -1138,13 +1133,8 @@ async fn build_course_consent(
     let consent =
         course_credit_registration_consents::get_by_user_and_course(conn, user_id, course_id)
             .await?;
-    let registrable_completion_count = count_in_state(
-        conn,
-        user_id,
-        course_id,
-        CreditRegistrationState::PendingConsent,
-    )
-    .await?;
+    let registrable_completion_count =
+        models::credit_registrations::count_waiting_for_consent(conn, user_id, course_id).await?;
 
     Ok(MyCourseCreditRegistrationConsent {
         course_id,
@@ -1157,26 +1147,6 @@ async fn build_course_consent(
         modules,
         registrable_completion_count,
     })
-}
-
-/// Live registrations of one account on one course sitting in a state.
-async fn count_in_state(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    course_id: Uuid,
-    state: CreditRegistrationState,
-) -> Result<i64, ControllerError> {
-    let count = models::credit_registrations::count_admin_facing(
-        conn,
-        &models::credit_registrations::AdminCreditRegistrationFilters {
-            course_id: Some(course_id),
-            user_id: Some(user_id),
-            states: Some(&[state]),
-            ..models::credit_registrations::AdminCreditRegistrationFilters::default()
-        },
-    )
-    .await?;
-    Ok(count)
 }
 
 fn to_my_verified_student_number(link: VerifiedStudentNumber) -> MyVerifiedStudentNumber {

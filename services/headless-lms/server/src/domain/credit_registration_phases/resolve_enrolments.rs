@@ -446,7 +446,7 @@ impl Preflight {
                 event_message: Some(
                     "No verified student number is linked to the account.".to_string(),
                 ),
-                ..Transition::to(CreditRegistrationState::PendingStudentNumber)
+                ..Transition::to(CreditRegistrationState::Pending)
             },
             Self::Config(code) => Transition {
                 error_code: Some(*code),

@@ -9,6 +9,7 @@ use crate::credit_registrations::{
 use crate::prelude::*;
 
 use super::backoff::{SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS};
+use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
 
 /// How many rows one iteration may move.
 pub const PRECONDITIONS_LIMIT: i64 = 500;
@@ -20,6 +21,8 @@ struct PendingMove {
     /// `None` for a row whose backoff has elapsed; where it resumes is decided by [`resume_state`].
     target: Option<CreditRegistrationState>,
     consent_withdrawn: bool,
+    /// Names the blocker in the audit event when the target is `pending`.
+    preconditions: PendingPreconditions,
     has_submitted_attainment: bool,
     has_payload_snapshot: bool,
     frozen_identity_stale: bool,
@@ -129,12 +132,27 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
             event_message: Some("Retried for a week without success.".to_string()),
             ..base
         },
-        // These two arms also key off `pending.state`, not just `target`: the message differs by
-        // where the row came from, unlike every arm above.
-        State::PendingStudentNumber if pending.state != State::PendingConsent => Transition {
-            event_message: Some("No verified student number is linked to the account.".to_string()),
+        // The ledger does not record which precondition a `pending` row waits on, so the event is
+        // where the answer is kept for whoever reads the timeline later.
+        State::Pending => Transition {
+            event_message: pending.preconditions.reason().map(|reason| {
+                match reason {
+                    CreditRegistrationPendingReason::Completion => {
+                        "The completion is not registrable yet."
+                    }
+                    CreditRegistrationPendingReason::Consent => {
+                        "The student has not consented to credit registration."
+                    }
+                    CreditRegistrationPendingReason::StudentNumber => {
+                        "No verified student number is linked to the account."
+                    }
+                }
+                .to_string()
+            }),
             ..base
         },
+        // Keys off `pending.state`, not just `target`: the message is about where the row came
+        // from, unlike every arm above.
         State::ReadyToSubmit if pending.state == State::CheckingEnrolment => Transition {
             event_message: Some(
                 "The linked student number changed after this row's payload was frozen, so the \
@@ -167,40 +185,14 @@ WITH facts AS (
       cr.selected_enrolment_id IS NOT NULL
       AND cr.grade_id IS NOT NULL
     ) AS has_payload_snapshot,
-    cmc.deleted_at IS NOT NULL AS completion_deleted,
-    (
-      cmc.deleted_at IS NULL
-      AND cmc.passed
-      AND cmc.eligible_for_ects
-      AND cmc.prerequisite_modules_completed
-      AND NOT cmc.needs_to_be_reviewed
-    ) AS eligible,
-    consent.consent_given IS TRUE AS consented,
-    -- Declining and withdrawing look the same in the flag; only the timestamp tells them apart,
-    -- and only withdrawal blocks a row. Declining leaves it waiting for a change of mind.
-    (
-      consent.consent_given IS FALSE
-      AND consent.consent_given_at IS NOT NULL
-    ) AS consent_withdrawn,
-    vsn.id IS NOT NULL AS has_student_number,
-    -- True once the account has relinked to a different verified student number since this row's
-    -- payload was frozen for import: vsn is the current link, cr.student_number/sisu_person_id are
-    -- what was frozen. A relink soft-deletes and re-inserts in the same transaction, so
-    -- has_student_number stays true throughout and would otherwise never catch this.
-    (
-      cr.student_number IS NOT NULL
-      AND (
-        vsn.student_number IS DISTINCT FROM cr.student_number
-        OR vsn.sisu_person_id IS DISTINCT FROM cr.sisu_person_id
-      )
-    ) AS frozen_identity_stale
+    p.completion_deleted,
+    p.completion_eligible AS eligible,
+    p.consented,
+    p.consent_withdrawn,
+    p.has_verified_student_number AS has_student_number,
+    p.frozen_identity_stale
   FROM credit_registrations cr
-    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-    LEFT JOIN course_credit_registration_consents consent ON consent.user_id = cr.user_id
-    AND consent.course_id = cr.course_id
-    AND consent.deleted_at IS NULL
-    LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
-    AND vsn.deleted_at IS NULL
+    JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
     LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
     AND conf.deleted_at IS NULL
   WHERE cr.deleted_at IS NULL
@@ -247,20 +239,21 @@ targets AS (
       -- Before the resume arm below, or a retry would carry on past a precondition the student has
       -- since removed and import would send the frozen student_number under a link they gave up.
       WHEN facts.state = 'failed_retryable'
-      AND NOT facts.consented THEN 'pending_consent'
-      WHEN facts.state = 'failed_retryable'
-      AND NOT facts.has_student_number THEN 'pending_student_number'
+      AND (
+        NOT facts.consented
+        OR NOT facts.has_student_number
+      ) THEN 'pending'
       -- Resumed at whichever state matches how far it had got; decided outside this query.
       WHEN facts.state = 'failed_retryable'
       AND facts.next_attempt_at <= now() THEN NULL
       WHEN facts.state = 'failed_retryable' THEN facts.state
       -- Eligibility lost after the row had already moved on is what `blocked` is for; a row still
-      -- waiting on prerequisites is simply where it belongs.
+      -- waiting is simply where it belongs, and the reason it reports changes to say so.
       WHEN NOT facts.eligible
-      AND facts.state <> 'pending_prerequisites' THEN 'blocked'
-      WHEN NOT facts.eligible THEN 'pending_prerequisites'
-      WHEN NOT facts.consented THEN 'pending_consent'
-      WHEN NOT facts.has_student_number THEN 'pending_student_number'
+      AND facts.state <> 'pending' THEN 'blocked'
+      WHEN NOT facts.eligible
+      OR NOT facts.consented
+      OR NOT facts.has_student_number THEN 'pending'
       -- The periodic look for an enrolment that may have appeared since.
       WHEN facts.state = 'no_usable_enrolment'
       AND facts.next_attempt_at > now() THEN facts.state
@@ -282,6 +275,9 @@ SELECT id,
   state AS "state: CreditRegistrationState",
   target AS "target?: CreditRegistrationState",
   consent_withdrawn AS "consent_withdrawn!",
+  eligible AS "eligible!",
+  consented AS "consented!",
+  has_student_number AS "has_student_number!",
   has_submitted_attainment AS "has_submitted_attainment!",
   has_payload_snapshot AS "has_payload_snapshot!",
   frozen_identity_stale AS "frozen_identity_stale!"
@@ -307,6 +303,11 @@ LIMIT $1
             state: row.state,
             target: row.target,
             consent_withdrawn: row.consent_withdrawn,
+            preconditions: PendingPreconditions {
+                completion_eligible: row.eligible,
+                consented: row.consented,
+                has_verified_student_number: row.has_student_number,
+            },
             has_submitted_attainment: row.has_submitted_attainment,
             has_payload_snapshot: row.has_payload_snapshot,
             frozen_identity_stale: row.frozen_identity_stale,
@@ -469,24 +470,22 @@ mod tests {
         get_by_id(conn, fixture.registration).await.unwrap().state
     }
 
+    /// One outstanding precondition looks the same in the ledger as three, so the row is written
+    /// once, when the last of them is met.
     #[tokio::test]
-    async fn an_eligible_completion_walks_the_chain_as_the_student_does_their_part() {
+    async fn an_eligible_completion_moves_on_only_once_the_student_has_done_every_part() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
 
-        assert_eq!(recompute(tx.as_mut(), &fixture).await, 1);
-        assert_eq!(
-            state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::PendingConsent
-        );
+        assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
 
         course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
             .await
             .unwrap();
-        assert_eq!(recompute(tx.as_mut(), &fixture).await, 1);
+        assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::PendingStudentNumber
+            CreditRegistrationState::Pending
         );
 
         link_student_number(tx.as_mut(), user).await;
@@ -496,7 +495,6 @@ mod tests {
             CreditRegistrationState::ReadyToSubmit
         );
 
-        // Nothing left to change means nothing is written, which keeps the audit trail readable.
         assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
     }
 
@@ -511,7 +509,7 @@ mod tests {
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::PendingConsent
+            CreditRegistrationState::Pending
         );
     }
 
@@ -636,10 +634,11 @@ mod tests {
         course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
             .await
             .unwrap();
+        link_student_number(tx.as_mut(), user).await;
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::PendingStudentNumber
+            CreditRegistrationState::ReadyToSubmit
         );
 
         crate::course_module_completions::update_needs_to_be_reviewed(
@@ -665,7 +664,7 @@ mod tests {
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::PendingStudentNumber
+            CreditRegistrationState::ReadyToSubmit
         );
     }
 
@@ -708,7 +707,7 @@ mod tests {
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::PendingStudentNumber
+            CreditRegistrationState::Pending
         );
     }
 
@@ -850,7 +849,7 @@ mod tests {
         assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::PendingPrerequisites
+            CreditRegistrationState::Pending
         );
     }
 
@@ -954,6 +953,10 @@ mod tests {
     async fn a_scoped_recompute_leaves_another_students_row_alone() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let mine = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
+        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
+            .await
+            .unwrap();
+        link_student_number(tx.as_mut(), user).await;
         insert_data!(tx: tx; user: other_user);
         let theirs = fixture(
             tx.as_mut(),
@@ -979,11 +982,11 @@ mod tests {
         );
         assert_eq!(
             state(tx.as_mut(), &mine).await,
-            CreditRegistrationState::PendingConsent
+            CreditRegistrationState::ReadyToSubmit
         );
         assert_eq!(
             state(tx.as_mut(), &theirs).await,
-            CreditRegistrationState::PendingPrerequisites
+            CreditRegistrationState::Pending
         );
     }
 }

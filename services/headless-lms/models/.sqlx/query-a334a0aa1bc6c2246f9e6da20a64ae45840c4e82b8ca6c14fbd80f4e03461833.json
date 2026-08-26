@@ -33,9 +33,7 @@
             "name": "credit_registration_state",
             "kind": {
               "Enum": [
-                "pending_prerequisites",
-                "pending_consent",
-                "pending_student_number",
+                "pending",
                 "ready_to_submit",
                 "resolving_enrolment",
                 "checking_enrolment",

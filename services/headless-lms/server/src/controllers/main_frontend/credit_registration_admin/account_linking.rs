@@ -12,7 +12,6 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registrations;
-use headless_lms_models::credit_registrations::CreditRegistrationState;
 use headless_lms_models::email_deliveries::EmailSendStatus;
 use headless_lms_models::library::credit_registration::account_linking::{
     LINKING_MAIL_QUIET_PERIOD_SECS, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE, retire_capped_mails,
@@ -370,11 +369,9 @@ pub async fn get_account_linking_stats(
     .await?;
     let stale_addresses = build_stale_addresses(&mut conn, stale).await?;
 
-    let waiting_for_student_number_count = credit_registrations::count_by_state(&mut conn)
+    let waiting_for_student_number_count = credit_registrations::count_pending_by_reason(&mut conn)
         .await?
-        .into_iter()
-        .find(|(state, _)| *state == CreditRegistrationState::PendingStudentNumber)
-        .map_or(0, |(_, count)| count);
+        .student_number_count;
 
     let funnel = AccountLinkingFunnel {
         persons_discovered_last_run: sum(|row| row.listed_person_count),

@@ -1,10 +1,10 @@
 //! Creating ledger rows for completions that are allowed to be registered. The same statement is
 //! the backfill: flipping a module on makes every pre-existing eligible completion match, and they
-//! stop at `pending_consent`, because historical completions belong to students nobody ever asked.
+//! stop at `pending`, because historical completions belong to students nobody ever asked.
 
 use crate::credit_registrations::{
     BatchMove, CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
-    mark_improvement_checked, mark_superseded, park_for_successor, transition_batch,
+    mark_improvement_checked, mark_superseded, transition_batch,
 };
 use crate::prelude::*;
 
@@ -17,71 +17,39 @@ pub const MATERIALIZE_LIMIT: i64 = 500;
 /// each of these costs a round trip to the study registry for a credit the student already has.
 pub const GRADE_IMPROVEMENT_LIMIT: i64 = 200;
 
-/// The completions credit registration is responsible for: exactly the rows
-/// [`ensure_registration_rows_for_eligible_completions`] creates a ledger row for, and so exactly
-/// the rows [`get_unmaterialised_eligible_completions`] may accuse it of having missed.
-///
-/// Handed to each query's own macro rather than named as a constant, because the sqlx macros take
-/// string literals only. A database view will replace it. Both queries must name the completion
-/// `cmc` and its module `cm`.
-macro_rules! with_eligible_completions_filter {
-    ($query:ident, $($args:tt)*) => {
-        $query!(
-            r#"cm.enable_credit_registration_via_suotar
-  AND cm.deleted_at IS NULL
-  AND cmc.deleted_at IS NULL
-  -- A hard filter, not a precondition: a failed completion is not waiting for anything, and a row
-  -- for it would inflate every queue depth with something that can never move. A later regrade
-  -- upwards is picked up by the next iteration.
-  AND cmc.passed
-  AND cmc.eligible_for_ects
-  AND NOT EXISTS (
-    SELECT 1
-    FROM credit_registrations cr
-    WHERE cr.course_module_completion_id = cmc.id
-      AND cr.deleted_at IS NULL
-  )
-  -- Already in the registry through the pull path. Materialising these would send a course's whole
-  -- history at Suotar to be told so, one import batch at a time.
-  AND NOT EXISTS (
-    SELECT 1
-    FROM course_module_completion_registered_to_study_registries r
-    WHERE r.course_module_completion_id = cmc.id
-      AND r.deleted_at IS NULL
-  )"#,
-            $($args)*
-        )
-    };
-}
-
-macro_rules! registrable_completions_query {
-    ($eligible:literal, $($args:tt)*) => {
-        sqlx::query_scalar!(
-            r#"
+/// Creates a `pending` row and its `created` event for every registrable completion that has none;
+/// returns the count.
+pub async fn ensure_registration_rows_for_eligible_completions(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<i64> {
+    // The ids are generated in the CTE so request_item_id stays derivable from the row id in both
+    // directions: it is the only handle Suotar's log and ours share on one registration.
+    let created = sqlx::query_scalar!(
+        r#"
 WITH registrable_completion AS (
   SELECT uuid_generate_v4() AS id,
-    cmc.id AS course_module_completion_id,
-    cmc.user_id,
-    cmc.course_id,
-    cmc.course_module_id,
+    c.course_module_completion_id,
+    c.user_id,
+    c.course_id,
+    c.course_module_id,
     enrolment.course_instance_id
-  FROM course_module_completions cmc
-    JOIN course_modules cm ON cm.id = cmc.course_module_id
+  FROM credit_registration_registrable_completions c
     -- The completion does not name an instance, and the ledger row must. An inner join, so a
     -- completion whose enrolment was removed is skipped rather than guessed at.
     JOIN LATERAL (
       SELECT cie.course_instance_id
       FROM course_instance_enrollments cie
-      WHERE cie.user_id = cmc.user_id
-        AND cie.course_id = cmc.course_id
+      WHERE cie.user_id = c.user_id
+        AND cie.course_id = c.course_id
         AND cie.deleted_at IS NULL
       ORDER BY cie.created_at DESC
       LIMIT 1
     ) enrolment ON TRUE
-  WHERE "# + $eligible + r#"
-    AND ($2::uuid IS NULL OR cmc.course_id = $2)
-    AND ($3::uuid IS NULL OR cmc.user_id = $3)
-  ORDER BY cmc.created_at
+  WHERE ($2::uuid IS NULL OR c.course_id = $2)
+    AND ($3::uuid IS NULL OR c.user_id = $3)
+  ORDER BY c.created_at
   LIMIT $1
 ),
 inserted AS (
@@ -108,30 +76,14 @@ events AS (
   INSERT INTO credit_registration_events (credit_registration_id, kind, to_state, message)
   SELECT id,
     'created',
-    'pending_prerequisites',
+    'pending',
     'Created for an eligible completion.'
   FROM inserted
   RETURNING credit_registration_id
 )
 SELECT COUNT(*) AS "created!"
 FROM events
-            "#,
-            $($args)*
-        )
-    };
-}
-
-/// Creates a `pending_prerequisites` row and its `created` event for every eligible completion that
-/// has none; returns the count.
-pub async fn ensure_registration_rows_for_eligible_completions(
-    conn: &mut PgConnection,
-    scope: &RegistrationScope,
-    limit: i64,
-) -> ModelResult<i64> {
-    // The ids are generated in the CTE so request_item_id stays derivable from the row id in both
-    // directions: it is the only handle Suotar's log and ours share on one registration.
-    let created = with_eligible_completions_filter!(
-        registrable_completions_query,
+        "#,
         limit,
         scope.course_id,
         scope.user_id,
@@ -160,47 +112,10 @@ pub struct UnmaterialisedCompletion {
     pub missing_enrolment: bool,
 }
 
-macro_rules! unmaterialised_completions_query {
-    ($eligible:literal, $($args:tt)*) => {
-        sqlx::query_as!(
-            UnmaterialisedCompletion,
-            r#"
-SELECT cmc.id AS course_module_completion_id,
-  cmc.user_id,
-  ud.first_name AS "first_name?",
-  ud.last_name AS "last_name?",
-  ud.email AS "email?",
-  cmc.course_id,
-  c.name AS course_name,
-  cmc.course_module_id,
-  cm.name AS course_module_name,
-  cmc.completion_date,
-  cmc.created_at,
-  NOT EXISTS (
-    SELECT 1
-    FROM course_instance_enrollments cie
-    WHERE cie.user_id = cmc.user_id
-      AND cie.course_id = cmc.course_id
-      AND cie.deleted_at IS NULL
-  ) AS "missing_enrolment!"
-FROM course_module_completions cmc
-  JOIN course_modules cm ON cm.id = cmc.course_module_id
-  JOIN courses c ON c.id = cmc.course_id
-  LEFT JOIN user_details ud ON ud.user_id = cmc.user_id
-WHERE "# + $eligible + r#"
-  AND cmc.created_at < now() - MAKE_INTERVAL(secs => $1::double precision)
-ORDER BY cmc.created_at
-LIMIT $2
-            "#,
-            $($args)*
-        )
-    };
-}
-
 /// Completions [`ensure_registration_rows_for_eligible_completions`] should have picked up at least
 /// `min_age_secs` ago and did not.
 ///
-/// The materialise statement's own predicate, minus its enrolment join, which is reported per row
+/// The materialise statement's own view, minus its enrolment join, which is reported per row
 /// instead: a completion whose enrolment was removed is invisible to materialise and would
 /// otherwise look like a lost row forever. Returns one row over the limit where there are more, so
 /// a caller can say so without a second count.
@@ -209,8 +124,35 @@ pub async fn get_unmaterialised_eligible_completions(
     min_age_secs: i64,
     limit: i64,
 ) -> ModelResult<Vec<UnmaterialisedCompletion>> {
-    let res = with_eligible_completions_filter!(
-        unmaterialised_completions_query,
+    let res = sqlx::query_as!(
+        UnmaterialisedCompletion,
+        r#"
+SELECT rc.course_module_completion_id AS "course_module_completion_id!",
+  rc.user_id AS "user_id!",
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  ud.email AS "email?",
+  rc.course_id AS "course_id!",
+  c.name AS course_name,
+  rc.course_module_id AS "course_module_id!",
+  cm.name AS course_module_name,
+  rc.completion_date AS "completion_date!",
+  rc.created_at AS "created_at!",
+  NOT EXISTS (
+    SELECT 1
+    FROM course_instance_enrollments cie
+    WHERE cie.user_id = rc.user_id
+      AND cie.course_id = rc.course_id
+      AND cie.deleted_at IS NULL
+  ) AS "missing_enrolment!"
+FROM credit_registration_registrable_completions rc
+  JOIN course_modules cm ON cm.id = rc.course_module_id
+  JOIN courses c ON c.id = rc.course_id
+  LEFT JOIN user_details ud ON ud.user_id = rc.user_id
+WHERE rc.created_at < now() - MAKE_INTERVAL(secs => $1::double precision)
+ORDER BY rc.created_at
+LIMIT $2
+        "#,
         min_age_secs as f64,
         limit,
     )
@@ -249,7 +191,10 @@ SELECT cr.id,
   conf.grade_scale_id AS "configured_grade_scale_id?"
 FROM credit_registrations cr
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-  JOIN course_modules cm ON cm.id = cr.course_module_id
+  -- Membership is the whole eligibility check: the view is the module opt-in and the completion
+  -- being live, passed and ECTS-eligible, and fully_eligible the prerequisites and the review.
+  JOIN credit_registration_eligible_completions e ON e.course_module_completion_id = cr.course_module_completion_id
+  AND e.fully_eligible
   LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
   AND conf.deleted_at IS NULL
 WHERE cr.deleted_at IS NULL
@@ -259,13 +204,6 @@ WHERE cr.deleted_at IS NULL
   AND cr.state = ANY($4::credit_registration_state [])
   AND cr.grade_scale_id IS NOT NULL
   AND cr.grade_id IS NOT NULL
-  AND cmc.deleted_at IS NULL
-  AND cmc.passed
-  AND cmc.eligible_for_ects
-  AND cmc.prerequisite_modules_completed
-  AND NOT cmc.needs_to_be_reviewed
-  AND cm.enable_credit_registration_via_suotar
-  AND cm.deleted_at IS NULL
   -- The successor is born claimable, so consent is checked here rather than left to the next
   -- precondition pass: withdrawal stops future submissions, and a registered attempt is the one
   -- case where the student may have withdrawn long after the row went terminal.
@@ -327,13 +265,15 @@ LIMIT $1
             mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;
             continue;
         }
-        // `uq_credit_registrations_completion` allows one live attempt per completion and the
-        // foreign key cannot point at a row that does not exist yet: park the old attempt on
-        // itself, insert the successor, then repoint.
-        park_for_successor(&mut tx, candidate.id).await?;
-        let next = crate::credit_registrations::insert(
+        // `uq_credit_registrations_completion` allows one live attempt per completion, so the old
+        // one has to point away before the successor is inserted. The successor's id is allocated
+        // here rather than by the database because of that order; the deferred foreign key is what
+        // lets the pointer name a row this transaction has not written yet.
+        let next = Uuid::new_v4();
+        mark_superseded(&mut tx, candidate.id, next).await?;
+        crate::credit_registrations::insert(
             &mut tx,
-            PKeyPolicy::Generate,
+            PKeyPolicy::Fixed(next),
             &NewCreditRegistration {
                 course_module_completion_id: candidate.course_module_completion_id,
                 user_id: candidate.user_id,
@@ -349,10 +289,9 @@ LIMIT $1
             )),
         )
         .await?;
-        mark_superseded(&mut tx, candidate.id, next).await?;
-        // Not `pending_prerequisites`: that chain was cleared before the first attempt was
-        // accepted, the query above rechecks consent and eligibility, and a student number
-        // unlinked since sends the row back by itself when the submitter finds none.
+        // Not `pending`: the preconditions were cleared before the first attempt was accepted, the
+        // query above rechecks consent and eligibility, and a student number unlinked since sends
+        // the row back by itself when the submitter finds none.
         starts.push(BatchMove {
             id: next,
             transition: Transition::to(CreditRegistrationState::ReadyToSubmit),
@@ -453,7 +392,7 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(rows.len(), 1);
-        assert_eq!(rows[0].state, CreditRegistrationState::PendingPrerequisites);
+        assert_eq!(rows[0].state, CreditRegistrationState::Pending);
         assert_eq!(rows[0].request_item_id, import_request_item_id(rows[0].id));
 
         let events =

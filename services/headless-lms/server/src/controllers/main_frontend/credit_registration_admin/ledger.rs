@@ -16,6 +16,7 @@ use headless_lms_models::credit_registrations::{
     ResubmissionStrictness, Transition,
 };
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
+use headless_lms_models::library::credit_registration::CreditRegistrationPendingReason;
 use headless_lms_models::library::credit_registration::student_notifications::{
     self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
 };
@@ -48,6 +49,9 @@ pub struct AdminCreditRegistrationRow {
     pub course_module_completion_id: Uuid,
     pub completion_date: DateTime<Utc>,
     pub state: CreditRegistrationState,
+    /// What a `pending` row is waiting on, which the ledger does not store; `null` for every other
+    /// state.
+    pub pending_reason: Option<CreditRegistrationPendingReason>,
     pub state_entered_at: DateTime<Utc>,
     pub error_code: Option<CreditRegistrationErrorCode>,
     pub needs_admin_attention: bool,
@@ -352,11 +356,7 @@ pub async fn list_credit_registrations_for_admin(
     )
     .await?;
     let total_count = rows.first().map_or(0, |row| row.total_count);
-    let consenting = consenting_pairs(&mut conn, &rows).await?;
-    let data = rows
-        .into_iter()
-        .map(|row| to_admin_row(row, &consenting))
-        .collect();
+    let data = rows.into_iter().map(to_admin_row).collect();
 
     token.authorized_ok(web::Json(Page::new(pagination, data, total_count)))
 }
@@ -390,8 +390,6 @@ pub async fn get_credit_registration_for_admin(
     let registration = one_admin_row(&mut conn, id)
         .await?
         .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
-    // Every attempt below is for the same completion, so one row's consent answers for all of them.
-    let consenting = consenting_pairs(&mut conn, std::slice::from_ref(&registration)).await?;
     let attempts = credit_registrations::get_admin_facing(
         &mut conn,
         &AdminCreditRegistrationFilters {
@@ -410,7 +408,7 @@ pub async fn get_credit_registration_for_admin(
     .await?
     .into_iter()
     .filter(|row| row.course_module_completion_id == registration.course_module_completion_id)
-    .map(|row| to_admin_row(row, &consenting))
+    .map(to_admin_row)
     .collect();
 
     let events: Vec<AdminCreditRegistrationEvent> =
@@ -493,7 +491,7 @@ pub async fn get_credit_registration_for_admin(
         models::credit_registration_events::get_not_improved_attainment(&mut conn, id).await?;
 
     token.authorized_ok(web::Json(AdminCreditRegistrationDetails {
-        registration: to_admin_row(registration, &consenting),
+        registration: to_admin_row(registration),
         attempts,
         events,
         suotar_api_calls,
@@ -912,32 +910,14 @@ async fn one_admin_row(
     Ok(rows.into_iter().find(|row| row.id == id))
 }
 
-/// The (user, course) pairs among `rows` that hold standing consent, which each row's refusal needs.
-async fn consenting_pairs(
-    conn: &mut PgConnection,
-    rows: &[AdminCreditRegistration],
-) -> Result<HashSet<(Uuid, Uuid)>, ControllerError> {
-    let user_ids: Vec<Uuid> = rows.iter().map(|row| row.user_id).collect();
-    Ok(
-        course_credit_registration_consents::get_consenting_user_and_course_ids(conn, &user_ids)
-            .await?
-            .into_iter()
-            .collect(),
-    )
-}
-
-/// `consenting` is the (user, course) pairs with standing consent among the rows being rendered;
-/// a pair missing from it is read as no consent.
-fn to_admin_row(
-    row: AdminCreditRegistration,
-    consenting: &HashSet<(Uuid, Uuid)>,
-) -> AdminCreditRegistrationRow {
+fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
     AdminCreditRegistrationRow {
         superseded: row.superseded_by_id.is_some(),
+        pending_reason: row.pending_reason(),
         resubmission_refusal: row.state.admin_transition_refusal(
             CreditRegistrationState::ReadyToSubmit,
             row.superseded_by_id.is_some(),
-            consenting.contains(&(row.user_id, row.course_id)),
+            row.consented,
             ResubmissionStrictness::Any,
         ),
         id: row.id,

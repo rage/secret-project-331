@@ -42,9 +42,7 @@ pub fn withdrawal_target(state: CreditRegistrationState) -> Option<CreditRegistr
         }
         // Nothing was sent yet. Blocked rather than cancelled: consent can come back, and one
         // completion may hold only one live registration.
-        State::PendingPrerequisites
-        | State::PendingConsent
-        | State::PendingStudentNumber
+        State::Pending
         | State::ReadyToSubmit
         | State::ResolvingEnrolment
         | State::CheckingEnrolment

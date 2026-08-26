@@ -162,7 +162,7 @@ test.describe("A student who was never asked for consent", () => {
     await runMaterializeTick(page.request, scope)
     await runPreconditionsTick(page.request, scope)
     const waiting = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
-      "pending_consent",
+      "pending",
     ])
 
     await runStudentNotificationsTick(page.request, scope)

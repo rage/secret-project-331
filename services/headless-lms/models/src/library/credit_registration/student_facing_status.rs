@@ -6,6 +6,8 @@ use utoipa::ToSchema;
 use crate::credit_registrations::CreditRegistrationState;
 use crate::prelude::*;
 
+use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
+
 /// The stage a student sees.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
 #[serde(rename_all = "snake_case")]
@@ -23,12 +25,20 @@ pub enum StudentFacingCreditRegistrationStatus {
 }
 
 impl StudentFacingCreditRegistrationStatus {
-    pub fn of(state: CreditRegistrationState) -> Self {
+    /// `preconditions` is only read for `pending`, whose whole point is that the ledger does not
+    /// record which of them the row is waiting on. Pass [`PendingPreconditions::ALL_MET`] only where
+    /// the row is known not to be pending.
+    pub fn of(state: CreditRegistrationState, preconditions: PendingPreconditions) -> Self {
+        use CreditRegistrationPendingReason as Reason;
         use CreditRegistrationState as State;
         match state {
-            State::PendingPrerequisites => Self::WaitingForCompletion,
-            State::PendingConsent => Self::NeedsConsent,
-            State::PendingStudentNumber => Self::NeedsStudentNumber,
+            State::Pending => match preconditions.reason() {
+                Some(Reason::Completion) => Self::WaitingForCompletion,
+                Some(Reason::Consent) => Self::NeedsConsent,
+                Some(Reason::StudentNumber) => Self::NeedsStudentNumber,
+                // Nothing is outstanding, so the next precondition tick moves the row on.
+                None => Self::InProgress,
+            },
             State::ReadyToSubmit
             | State::ResolvingEnrolment
             | State::CheckingEnrolment
@@ -51,12 +61,6 @@ impl StudentFacingCreditRegistrationStatus {
     }
 }
 
-impl From<CreditRegistrationState> for StudentFacingCreditRegistrationStatus {
-    fn from(state: CreditRegistrationState) -> Self {
-        Self::of(state)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -66,7 +70,28 @@ mod tests {
     /// A row waiting on the student must not keep the page polling; nothing changes until they act.
     #[test]
     fn only_the_states_the_pipeline_still_owns_keep_the_page_polling() {
+        for reason in [
+            PendingPreconditions {
+                completion_eligible: false,
+                ..PendingPreconditions::ALL_MET
+            },
+            PendingPreconditions {
+                consented: false,
+                ..PendingPreconditions::ALL_MET
+            },
+            PendingPreconditions {
+                has_verified_student_number: false,
+                ..PendingPreconditions::ALL_MET
+            },
+        ] {
+            assert!(
+                !Status::of(State::Pending, reason).is_moving(),
+                "{reason:?}"
+            );
+        }
         let moving = [
+            // Nothing outstanding, so the recompute moves it on without the student doing anything.
+            State::Pending,
             State::ReadyToSubmit,
             State::ResolvingEnrolment,
             State::CheckingEnrolment,
@@ -77,7 +102,7 @@ mod tests {
         ];
         for state in CreditRegistrationState::ALL {
             assert_eq!(
-                Status::of(state).is_moving(),
+                Status::of(state, PendingPreconditions::ALL_MET).is_moving(),
                 moving.contains(&state),
                 "{state:?}"
             );
@@ -89,7 +114,11 @@ mod tests {
     fn the_success_set_is_one_stage() {
         for state in CreditRegistrationState::ALL {
             if state.is_success() {
-                assert_eq!(Status::of(state), Status::Registered, "{state:?}");
+                assert_eq!(
+                    Status::of(state, PendingPreconditions::ALL_MET),
+                    Status::Registered,
+                    "{state:?}"
+                );
             }
         }
     }
@@ -98,7 +127,10 @@ mod tests {
     #[test]
     fn an_abandoned_row_is_not_a_failure() {
         assert_eq!(
-            Status::of(State::AbandonedByConsentWithdrawal),
+            Status::of(
+                State::AbandonedByConsentWithdrawal,
+                PendingPreconditions::ALL_MET
+            ),
             Status::NotRegistering
         );
     }

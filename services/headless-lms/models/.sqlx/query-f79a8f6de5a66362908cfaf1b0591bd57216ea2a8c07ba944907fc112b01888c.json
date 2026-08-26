@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT course_module_id,\n  COUNT(*) AS \"total_count!\",\n  COUNT(*) FILTER (\n    WHERE state = ANY($1::credit_registration_state [])\n  ) AS \"success_count!\",\n  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE state IN ('failed_permanent', 'misregistered')\n  ) AS \"failed_count!\",\n  COUNT(*) FILTER (\n    WHERE state = 'abandoned_by_consent_withdrawal'\n  ) AS \"abandoned_count!\",\n  COUNT(*) FILTER (WHERE needs_admin_attention) AS \"needs_admin_attention_count!\",\n  COUNT(*) FILTER (WHERE state = 'pending_consent') AS \"awaiting_consent_count!\",\n  MAX(registered_at) AS \"last_registered_at\",\n  (\n    SELECT inner_cr.error_code\n    FROM credit_registrations inner_cr\n    WHERE inner_cr.course_module_id = cr.course_module_id\n      AND inner_cr.error_code IS NOT NULL\n      AND inner_cr.state <> 'abandoned_by_consent_withdrawal'\n      AND inner_cr.superseded_by_id IS NULL\n      AND inner_cr.deleted_at IS NULL\n    GROUP BY inner_cr.error_code\n    ORDER BY COUNT(*) DESC,\n      inner_cr.error_code\n    LIMIT 1\n  ) AS \"top_error_code?: CreditRegistrationErrorCode\"\nFROM credit_registrations cr\nWHERE superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY course_module_id\n        ",
+  "query": "\nSELECT cr.course_module_id,\n  COUNT(*) AS \"total_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = ANY($1::credit_registration_state [])\n  ) AS \"success_count!\",\n  COUNT(*) FILTER (WHERE cr.terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state IN ('failed_permanent', 'misregistered')\n  ) AS \"failed_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = 'abandoned_by_consent_withdrawal'\n  ) AS \"abandoned_count!\",\n  COUNT(*) FILTER (WHERE cr.needs_admin_attention) AS \"needs_admin_attention_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = 'pending'\n      AND NOT p.consented\n  ) AS \"awaiting_consent_count!\",\n  MAX(cr.registered_at) AS \"last_registered_at\",\n  (\n    SELECT inner_cr.error_code\n    FROM credit_registrations inner_cr\n    WHERE inner_cr.course_module_id = cr.course_module_id\n      AND inner_cr.error_code IS NOT NULL\n      AND inner_cr.state <> 'abandoned_by_consent_withdrawal'\n      AND inner_cr.superseded_by_id IS NULL\n      AND inner_cr.deleted_at IS NULL\n    GROUP BY inner_cr.error_code\n    ORDER BY COUNT(*) DESC,\n      inner_cr.error_code\n    LIMIT 1\n  ) AS \"top_error_code?: CreditRegistrationErrorCode\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY cr.course_module_id\n        ",
   "describe": {
     "columns": [
       {
@@ -110,9 +110,7 @@
                   "name": "credit_registration_state",
                   "kind": {
                     "Enum": [
-                      "pending_prerequisites",
-                      "pending_consent",
-                      "pending_student_number",
+                      "pending",
                       "ready_to_submit",
                       "resolving_enrolment",
                       "checking_enrolment",
@@ -151,5 +149,5 @@
       null
     ]
   },
-  "hash": "a6c5f785099b75eca730e09a5190d0014115c5319fcea822c5293e17b9a73b4c"
+  "hash": "f79a8f6de5a66362908cfaf1b0591bd57216ea2a8c07ba944907fc112b01888c"
 }

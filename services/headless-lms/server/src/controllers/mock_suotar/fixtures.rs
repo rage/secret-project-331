@@ -133,7 +133,7 @@ pub const NOT_CONSENTED: MockPersonFixture = MockPersonFixture {
 /// would let some other spec's unscoped tick resolve and import the row for real before this one ever
 /// arms the `sisuTimeout` fault. Its own spec creates the enrolment atomically with the fault. Keeping
 /// the person seeded matters — without it, that same unscoped tick answers `personNotFound`, which
-/// drops `verified_student_number` and strands the row in `pending_student_number` for good.
+/// drops `verified_student_number` and strands the row in `pending` for good.
 pub const IMPORT_TIMEOUT: MockPersonFixture = MockPersonFixture {
     student_number: "900000402",
     first_names: "Zzyzx",
@@ -373,7 +373,7 @@ pub const EMAILS_NO_ENROLMENT: MockPersonFixture = MockPersonFixture {
     sisu_email: "zzyzx.mailedaction@helsinki.example",
     account_email: Some("credit-registration-emails-no-enrolment@example.com"),
 };
-/// Never asked for consent, so its row sits at `pending_consent`: the negative half of "exactly two
+/// Never asked for consent, so its row sits in `pending`: the negative half of "exactly two
 /// mails exist".
 pub const EMAILS_UNMAILED: MockPersonFixture = MockPersonFixture {
     student_number: "900001303",

@@ -40,7 +40,7 @@ use headless_lms_models::{
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
     verified_student_numbers,
 };
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::credit_registration_phases::PhaseContext;
@@ -895,19 +895,14 @@ pub(crate) async fn build_teacher_registrations(
 ) -> Result<Vec<CourseCreditRegistration>, ControllerError> {
     let waiting: Vec<&TeacherCreditRegistration> = rows
         .iter()
-        .filter(|row| row.state == CreditRegistrationState::PendingStudentNumber)
+        .filter(|row| {
+            StudentFacingCreditRegistrationStatus::of(row.state, row.preconditions())
+                == StudentFacingCreditRegistrationStatus::NeedsStudentNumber
+        })
         .collect();
     let mut statuses = linking_email_statuses(conn, course_id, &waiting).await?;
     let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
     let notification_mails = student_notifications::get_for_registrations(conn, &ids).await?;
-    let consenting: HashSet<Uuid> =
-        models::course_credit_registration_consents::get_consenting_user_ids_for_course(
-            conn, course_id,
-        )
-        .await?
-        .into_iter()
-        .collect();
-
     Ok(rows
         .into_iter()
         .map(|row| {
@@ -915,7 +910,7 @@ pub(crate) async fn build_teacher_registrations(
             // The teacher's own retry strictness, so the row says exactly what that button would do.
             let resubmission_refusal = row.state.resubmission_refusal(
                 row.superseded_by_id.is_some(),
-                consenting.contains(&row.user_id),
+                row.consented,
                 ResubmissionStrictness::OnlyFailedPermanent,
             );
             let base = CourseCreditRegistration::from(row);
@@ -937,7 +932,10 @@ pub(crate) async fn build_teacher_registrations(
 impl From<TeacherCreditRegistration> for CourseCreditRegistration {
     fn from(row: TeacherCreditRegistration) -> Self {
         Self {
-            student_facing_status: StudentFacingCreditRegistrationStatus::of(row.state),
+            student_facing_status: StudentFacingCreditRegistrationStatus::of(
+                row.state,
+                row.preconditions(),
+            ),
             superseded: row.superseded_by_id.is_some(),
             linking_email: None,
             notification_email: None,

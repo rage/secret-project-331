@@ -11,6 +11,7 @@ use headless_lms_models::credit_registrations::{
     self, CreditRegistrationErrorCode, CreditRegistrationErrorCodeCount, CreditRegistrationState,
     OldestNonTerminalRegistration, StuckRegistrationCount,
 };
+use headless_lms_models::library::credit_registration::PendingReasonCounts;
 use headless_lms_models::suotar_api_calls::{
     self, SuotarEndpoint, SuotarEndpointStanding as SuotarEndpointStandingRow,
     SuotarEndpointStatsForWindow,
@@ -120,6 +121,8 @@ pub struct CreditRegistrationPhaseStatus {
 pub struct CreditRegistrationOverview {
     pub health: CreditRegistrationHealth,
     pub counts_by_state: Vec<CreditRegistrationStateTotal>,
+    /// The `pending` depth split by what each row is waiting on, which the ledger does not store.
+    pub pending_by_reason: PendingReasonCounts,
     pub error_codes: Vec<CreditRegistrationErrorCodeTotal>,
     pub needs_admin_attention_count: i64,
     pub oldest_non_terminal: Option<CreditRegistrationOldestNonTerminal>,
@@ -196,6 +199,7 @@ pub async fn get_credit_registration_overview(
         .iter()
         .map(|&(state, count)| CreditRegistrationStateTotal { state, count })
         .collect();
+    let pending_by_reason = credit_registrations::count_pending_by_reason(&mut conn).await?;
     let error_codes = credit_registrations::count_by_error_code(&mut conn)
         .await?
         .into_iter()
@@ -230,6 +234,7 @@ pub async fn get_credit_registration_overview(
     token.authorized_ok(web::Json(CreditRegistrationOverview {
         health,
         counts_by_state,
+        pending_by_reason,
         error_codes,
         needs_admin_attention_count,
         oldest_non_terminal,

@@ -48,9 +48,8 @@ test.describe("The teacher opts the module in", () => {
     await expect(page.getByText("Success").first()).toBeVisible()
 
     await runMaterializeTick(page.request, { courseSlug: BACKFILL_COURSE_SLUG })
-    // Materialize only creates the rows; ticking preconditions ourselves is what moves them out of
-    // `pending_prerequisites` — waiting on the background worker's own schedule instead made this
-    // flaky.
+    // Materialize only creates the rows; ticking preconditions ourselves is what settles them —
+    // waiting on the background worker's own schedule instead made this flaky.
     await runPreconditionsTick(page.request, { courseSlug: BACKFILL_COURSE_SLUG })
 
     const rows = await pollUntil(
@@ -59,8 +58,7 @@ test.describe("The teacher opts the module in", () => {
           course_id: BACKFILL_COURSE_ID,
           limit: 50,
         })
-        const settled = listed.data.every((row) => row.state !== "pending_prerequisites")
-        return listed.total_count > 0 && settled ? listed : null
+        return listed.total_count > 0 ? listed : null
       },
       { description: "the backfill wave to materialise and settle" },
     )
@@ -73,7 +71,8 @@ test.describe("The teacher opts the module in", () => {
     expect(emails).not.toContain(ALREADY_REGISTERED_EMAIL)
     expect(emails).not.toContain(FAILED_COMPLETION_EMAIL)
     // Nobody has been asked yet, so a backfill submits nothing.
-    expect(new Set(rows.data.map((row) => row.state))).toStrictEqual(new Set(["pending_consent"]))
+    expect(new Set(rows.data.map((row) => row.state))).toStrictEqual(new Set(["pending"]))
+    expect(new Set(rows.data.map((row) => row.pending_reason))).toStrictEqual(new Set(["consent"]))
   })
 })
 
@@ -97,12 +96,10 @@ test.describe("A student consenting after the fact", () => {
     const unblocked = await pollUntil(
       async () => {
         const row = await myRegistrationOnCourse(page.request, adminApi, BACKFILL_COURSE_SLUG)
-        return row.state !== "pending_consent" ? row : null
+        return row.student_facing_status !== "needs_consent" ? row : null
       },
-      { description: "the backfilled row to leave pending_consent" },
+      { description: "the backfilled row to stop waiting for consent" },
     )
-    expect(["pending_student_number", "ready_to_submit", "checking_enrolment"]).toContain(
-      unblocked.state,
-    )
+    expect(["pending", "ready_to_submit", "checking_enrolment"]).toContain(unblocked.state)
   })
 })

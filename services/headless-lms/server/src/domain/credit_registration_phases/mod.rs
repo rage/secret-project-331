@@ -174,9 +174,7 @@ impl CreditRegistrationPhase {
     pub fn owned_states(self) -> &'static [CreditRegistrationState] {
         match self {
             Self::Preconditions => &[
-                CreditRegistrationState::PendingPrerequisites,
-                CreditRegistrationState::PendingConsent,
-                CreditRegistrationState::PendingStudentNumber,
+                CreditRegistrationState::Pending,
                 CreditRegistrationState::NoUsableEnrolment,
                 CreditRegistrationState::FailedRetryable,
                 CreditRegistrationState::Blocked,

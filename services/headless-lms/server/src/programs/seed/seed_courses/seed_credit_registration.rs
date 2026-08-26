@@ -34,7 +34,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::http::REQWEST_CLIENT;
 use secrecy::SecretString;
-use sqlx::PgConnection;
+use sqlx::{Connection, PgConnection};
 use tracing::info;
 use uuid::Uuid;
 
@@ -1175,7 +1175,7 @@ async fn link_student_number(
 }
 
 /// A completion the pipeline will pick up. `prerequisite_modules_completed` is the trap: the builder
-/// defaults it to false, and such a completion never leaves `pending_prerequisites`.
+/// defaults it to false, and such a completion never leaves `pending`.
 async fn seed_eligible_completion(
     conn: &mut PgConnection,
     student: &SeededStudent,
@@ -1347,8 +1347,11 @@ async fn seed_superseded_attempt_pair(
     )
     .await?;
 
+    // One transaction: the deferred foreign key lets attempt 1 point at its successor before that
+    // row exists, which is what clears `uq_credit_registrations_completion` for the insert.
+    let mut tx = conn.begin().await?;
     let attempt_1 = insert_registered_attempt(
-        conn,
+        &mut tx,
         SUPERSEDED_ATTEMPT_1_ID,
         completion_id,
         student.user_id,
@@ -1359,12 +1362,9 @@ async fn seed_superseded_attempt_pair(
         "3",
     )
     .await?;
-    // `uq_credit_registrations_completion` allows only one attempt per completion with a NULL
-    // `superseded_by_id`, and the FK cannot point at a row that does not exist yet: park attempt 1
-    // on itself, insert the successor, then repoint.
-    credit_registrations::park_for_successor(conn, attempt_1).await?;
-    let attempt_2 = insert_registered_attempt(
-        conn,
+    credit_registrations::mark_superseded(&mut tx, attempt_1, SUPERSEDED_ATTEMPT_2_ID).await?;
+    insert_registered_attempt(
+        &mut tx,
         SUPERSEDED_ATTEMPT_2_ID,
         completion_id,
         student.user_id,
@@ -1375,7 +1375,7 @@ async fn seed_superseded_attempt_pair(
         "4",
     )
     .await?;
-    credit_registrations::mark_superseded(conn, attempt_1, attempt_2).await?;
+    tx.commit().await?;
     Ok(())
 }
 

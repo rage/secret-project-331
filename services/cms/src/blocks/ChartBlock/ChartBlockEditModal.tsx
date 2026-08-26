@@ -562,13 +562,16 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }
     setExtractedDataUrl(undefined)
     setAttributes({ dataFileUrl: undefined })
-    let parsed: Record<string, unknown>
+    let parsed: unknown
     try {
       parsed = JSON.parse(latestSpecRef.current)
     } catch {
       return
     }
-    const { data: _omitted, ...specWithoutData } = parsed
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return
+    }
+    const { data: _omitted, ...specWithoutData } = parsed as Record<string, unknown>
     updateSpec(JSON.stringify(specWithoutData, null, 2))
   }
 

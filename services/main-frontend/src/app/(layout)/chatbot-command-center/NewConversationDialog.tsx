@@ -77,10 +77,23 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
                     className={css`
                       width: 100%;
                       justify-content: flex-start;
+                      transition: background-color 0.2s;
+
+                      &:hover:not(:disabled):not([aria-disabled="true"]) {
+                        background: var(--color-green-75);
+                        border-color: var(--color-green-300);
+                      }
+                      color: var(--field-fg);
                     `}
                   >
                     <li>
-                      <span>{option.label}</span>
+                      <span
+                        className={css`
+                          font-weight: 400;
+                        `}
+                      >
+                        {option.label}
+                      </span>
                     </li>
                   </Button>
                 ))}

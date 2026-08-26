@@ -133,6 +133,7 @@ const ChatbotCommandCenter = ({ chatbots, courses, conversations }: ChatbotComma
         <Button
           className={css`
             padding-bottom: 1rem;
+            color: var(--field-fg);
           `}
           icon={
             <AddMessage

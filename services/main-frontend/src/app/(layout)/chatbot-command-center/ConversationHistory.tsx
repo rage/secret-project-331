@@ -14,7 +14,7 @@ import { css } from "@emotion/css"
 
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-// transition: background-color 0.2s ease; on focus
+
 const ConversationHistory: React.FC<ConversationHistory> = ({
   setConversationId,
   conversations,
@@ -32,12 +32,21 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
             setConfigurationId(conversation.chatbot_configuration_id)
           }}
           className={css`
-            width: calc(100% - 2rem);
+            width: calc(100%);
             justify-content: flex-start;
             border-top: 1px solid ${baseTheme.colors.gray[75]};
-            padding: 2rem 0;
+            padding: 2rem 1rem;
+            transition: background-color 0.2s;
+
             border-radius: 0;
-            margin: 0 1rem;
+            &:hover:not(:disabled):not([aria-disabled="true"]) {
+              background: var(--color-green-75);
+              color: var(--btn-icon-fg-hover);
+              border-color: var(--color-green-300);
+              box-shadow: var(--btn-icon-shadow-hover);
+              border-radius: 6px;
+            }
+            color: var(--field-fg);
           `}
           key={conversation.id}
         >

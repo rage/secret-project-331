@@ -15,12 +15,14 @@ use crate::{
             find_course::FindCourseTool, find_user::FindUserTool,
             user_course_state::UserCourseStateTool, user_overview::UserOverviewTool,
         },
+        tool_category::EnabledToolCategories,
         tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_utils::json_schema_types::Schema;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
@@ -34,6 +36,7 @@ pub mod client_tools;
 pub mod course_scope;
 pub mod custom_tools;
 pub mod provider_tools;
+pub mod tool_category;
 pub mod tool_permission;
 
 /// What a tool is called and how it is declared to the LLM.
@@ -50,6 +53,10 @@ pub trait ChatbotToolDeclaration {
     /// allowed to do when the call is carried out: a conversation can be resumed by a caller who
     /// has since lost the role that made the tool available.
     const PERMISSION: ToolPermission;
+
+    /// Which configured category of tools this belongs to. A chatbot offers it only if its
+    /// configuration lists this category; the caller must still hold [Self::PERMISSION].
+    const CATEGORY: ToolCategory;
 
     /// The definition sent to the LLM as part of a chat request. Azure rejects it unless `strict`
     /// is true and the parameter schema forbids additional properties.
@@ -80,7 +87,7 @@ pub trait ChatbotTool: ChatbotToolDeclaration {
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
     where
         Self: Sized;
@@ -113,7 +120,7 @@ pub trait ChatbotTool: ChatbotToolDeclaration {
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
         args_string: String,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
     where
         Self: Sized,
@@ -274,6 +281,13 @@ pub struct ChatbotToolCallResult {
     pub citations: Vec<ToolCitation>,
 }
 
+/// The category and permission a client-answered tool requires, returned together because
+/// deciding whether a tool is client-answered at all ([tool_is_answered_by_client]) is one lookup.
+pub struct ToolGate {
+    pub category: ToolCategory,
+    pub permission: ToolPermission,
+}
+
 /// What executing a confirmed (or declining an unconfirmed) action tool call produced.
 pub struct ActionToolOutcome {
     /// The tool output the resumed turn reads.
@@ -325,13 +339,14 @@ macro_rules! chatbot_tool_registry {
         /// roles that decides are fetched at most once for the whole request.
         pub async fn get_permitted_chatbot_tool_definitions(
             conn: &mut PgConnection,
-            user_context: &ChatbotUserContext,
+            user_context: &ChatbotTurnContext,
         ) -> ChatbotResult<Vec<AzureLLMToolDefinition>> {
             let mut definitions = Vec::new();
             $(
-                if <$server_tool as ChatbotToolDeclaration>::PERMISSION
-                    .is_satisfied_by(&mut *conn, user_context)
-                    .await?
+                if user_context.enabled_tool_categories.contains(<$server_tool as ChatbotToolDeclaration>::CATEGORY)
+                    && <$server_tool as ChatbotToolDeclaration>::PERMISSION
+                        .is_satisfied_by(&mut *conn, user_context)
+                        .await?
                 {
                     definitions.push(AzureLLMToolDefinition::Function(
                         <$server_tool as ChatbotToolDeclaration>::get_tool_definition(),
@@ -353,10 +368,16 @@ macro_rules! chatbot_tool_registry {
             app_config: &ApplicationConfiguration,
             fn_name: &str,
             fn_args: &str,
-            user_context: &ChatbotUserContext,
+            user_context: &ChatbotTurnContext,
         ) -> ChatbotResult<ChatbotToolCallResult> {
             $(
                 if fn_name == <$server_tool as ChatbotToolDeclaration>::NAME {
+                    if !user_context.enabled_tool_categories.contains(<$server_tool as ChatbotToolDeclaration>::CATEGORY) {
+                        return Err(chatbot_err!(
+                            ToolUseError,
+                            format!("This chatbot does not offer the tool {fn_name}")
+                        ));
+                    }
                     if !<$server_tool as ChatbotToolDeclaration>::PERMISSION
                         .is_satisfied_by(&mut *conn, user_context)
                         .await?
@@ -386,13 +407,14 @@ macro_rules! chatbot_tool_registry {
         /// roles that decides are fetched at most once for the whole request.
         pub async fn get_client_chatbot_tool_definitions(
             conn: &mut PgConnection,
-            user_context: &ChatbotUserContext,
+            user_context: &ChatbotTurnContext,
         ) -> ChatbotResult<Vec<AzureLLMToolDefinition>> {
             let mut definitions = Vec::new();
             $(
-                if <$client_tool as ChatbotToolDeclaration>::PERMISSION
-                    .is_satisfied_by(&mut *conn, user_context)
-                    .await?
+                if user_context.enabled_tool_categories.contains(<$client_tool as ChatbotToolDeclaration>::CATEGORY)
+                    && <$client_tool as ChatbotToolDeclaration>::PERMISSION
+                        .is_satisfied_by(&mut *conn, user_context)
+                        .await?
                 {
                     definitions.push(AzureLLMToolDefinition::Function(
                         <$client_tool as ChatbotToolDeclaration>::get_tool_definition(),
@@ -400,9 +422,10 @@ macro_rules! chatbot_tool_registry {
                 }
             )*
             $(
-                if <$action_tool as ChatbotToolDeclaration>::PERMISSION
-                    .is_satisfied_by(&mut *conn, user_context)
-                    .await?
+                if user_context.enabled_tool_categories.contains(<$action_tool as ChatbotToolDeclaration>::CATEGORY)
+                    && <$action_tool as ChatbotToolDeclaration>::PERMISSION
+                        .is_satisfied_by(&mut *conn, user_context)
+                        .await?
                 {
                     definitions.push(AzureLLMToolDefinition::Function(
                         <$action_tool as ChatbotToolDeclaration>::get_tool_definition(),
@@ -419,7 +442,7 @@ macro_rules! chatbot_tool_registry {
         /// disagree. A name no client tool claims is left to the server dispatcher, which reports
         /// a hallucinated name to the LLM instead of suspending on it.
         pub fn tool_is_answered_by_client(tool_name: &str) -> bool {
-            client_tool_permission(tool_name).is_some()
+            client_tool_gate(tool_name).is_some()
         }
 
         /// Checks the arguments a client tool was called with, before the turn suspends on the call.
@@ -447,17 +470,23 @@ macro_rules! chatbot_tool_registry {
             ))
         }
 
-        /// The permission a client tool (including an action tool) requires, or `None` when no
-        /// client-answered tool goes by that name.
-        pub fn client_tool_permission(tool_name: &str) -> Option<ToolPermission> {
+        /// The category and permission a client tool (including an action tool) requires, or
+        /// `None` when no client-answered tool goes by that name.
+        pub fn client_tool_gate(tool_name: &str) -> Option<ToolGate> {
             $(
                 if tool_name == <$client_tool as ChatbotToolDeclaration>::NAME {
-                    return Some(<$client_tool as ChatbotToolDeclaration>::PERMISSION);
+                    return Some(ToolGate {
+                        category: <$client_tool as ChatbotToolDeclaration>::CATEGORY,
+                        permission: <$client_tool as ChatbotToolDeclaration>::PERMISSION,
+                    });
                 }
             )*
             $(
                 if tool_name == <$action_tool as ChatbotToolDeclaration>::NAME {
-                    return Some(<$action_tool as ChatbotToolDeclaration>::PERMISSION);
+                    return Some(ToolGate {
+                        category: <$action_tool as ChatbotToolDeclaration>::CATEGORY,
+                        permission: <$action_tool as ChatbotToolDeclaration>::PERMISSION,
+                    });
                 }
             )*
             None
@@ -490,9 +519,16 @@ macro_rules! chatbot_tool_registry {
             tool_call_id: Uuid,
             answer: &ClientToolAnswer,
             acting_user_id: Uuid,
+            enabled_tool_categories: &EnabledToolCategories,
         ) -> ChatbotResult<ActionToolOutcome> {
             $(
                 if tool_name == <$action_tool as ChatbotToolDeclaration>::NAME {
+                    if !enabled_tool_categories.contains(<$action_tool as ChatbotToolDeclaration>::CATEGORY) {
+                        return Err(chatbot_err!(
+                            ToolUseError,
+                            format!("This chatbot does not offer the tool {tool_name}")
+                        ));
+                    }
                     let parsed_arguments =
                         <$action_tool as ConfirmableActionTool>::parse_arguments(arguments)?;
                     let confirm: ConfirmAnswer = client_answer_data(answer)?;
@@ -608,7 +644,9 @@ mod generated_filter_tests {
     };
 
     use super::*;
-    use crate::chatbot_tools::tool_permission::test_helpers::{context, course_role};
+    use crate::chatbot_tools::tool_permission::test_helpers::{
+        context, context_with_categories, course_role,
+    };
 
     struct OpenTool;
     struct TeacherTool;
@@ -626,6 +664,7 @@ mod generated_filter_tests {
     impl ChatbotToolDeclaration for OpenTool {
         const NAME: &'static str = "open_tool";
         const PERMISSION: ToolPermission = ToolPermission::Anyone;
+        const CATEGORY: ToolCategory = ToolCategory::Interaction;
 
         fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
             definition(Self::NAME)
@@ -656,6 +695,7 @@ mod generated_filter_tests {
     impl ChatbotToolDeclaration for TeacherTool {
         const NAME: &'static str = "teacher_tool";
         const PERMISSION: ToolPermission = ToolPermission::TeachesCourse;
+        const CATEGORY: ToolCategory = ToolCategory::Interaction;
 
         fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
             definition(Self::NAME)
@@ -683,13 +723,48 @@ mod generated_filter_tests {
         }
     }
 
+    /// Permission `Anyone`, but in a category distinct from [OpenTool]/[TeacherTool] — proves the
+    /// category filter keeps a permitted tool out on its own, independent of [ToolPermission].
+    struct UncategorizedTool;
+
+    impl ChatbotToolDeclaration for UncategorizedTool {
+        const NAME: &'static str = "uncategorized_tool";
+        const PERMISSION: ToolPermission = ToolPermission::Anyone;
+        const CATEGORY: ToolCategory = ToolCategory::AdminSupportAccounts;
+
+        fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
+            definition(Self::NAME)
+        }
+    }
+
+    impl ClientChatbotTool for UncategorizedTool {
+        type Arguments = ();
+        type Response = ();
+
+        fn parse_arguments(_arguments: &str) -> ChatbotResult<()> {
+            Ok(())
+        }
+
+        fn parse_response(_arguments: &(), _answer: &ClientToolAnswer) -> ChatbotResult<()> {
+            Ok(())
+        }
+
+        fn output(_arguments: &(), _response: &()) -> String {
+            "answered".to_string()
+        }
+
+        fn output_description_instructions() -> Option<String> {
+            None
+        }
+    }
+
     chatbot_tool_registry!(
         server_tools: [],
-        client_tools: [OpenTool, TeacherTool],
+        client_tools: [OpenTool, TeacherTool, UncategorizedTool],
         action_tools: [],
     );
 
-    async fn offered(conn: &mut PgConnection, user_context: &ChatbotUserContext) -> Vec<String> {
+    async fn offered(conn: &mut PgConnection, user_context: &ChatbotTurnContext) -> Vec<String> {
         function_definitions(
             get_client_chatbot_tool_definitions(conn, user_context)
                 .await
@@ -704,7 +779,7 @@ mod generated_filter_tests {
     /// every one of them.
     #[test]
     fn every_mapping_covers_every_tool_in_the_list() {
-        for name in [OpenTool::NAME, TeacherTool::NAME] {
+        for name in [OpenTool::NAME, TeacherTool::NAME, UncategorizedTool::NAME] {
             assert!(tool_is_answered_by_client(name), "{name}");
             check_client_tool_arguments(name, "{}").unwrap_or_else(|e| panic!("{name}: {e:?}"));
         }
@@ -715,14 +790,14 @@ mod generated_filter_tests {
             &ChatbotErrorType::InvalidToolName
         );
         assert_eq!(
-            client_tool_permission(OpenTool::NAME),
+            client_tool_gate(OpenTool::NAME).map(|gate| gate.permission),
             Some(ToolPermission::Anyone)
         );
         assert_eq!(
-            client_tool_permission(TeacherTool::NAME),
+            client_tool_gate(TeacherTool::NAME).map(|gate| gate.permission),
             Some(ToolPermission::TeachesCourse)
         );
-        assert_eq!(client_tool_permission("open_tool_but_misspelled"), None);
+        assert!(client_tool_gate("open_tool_but_misspelled").is_none());
 
         let rendered = client_tool_answer_output(
             OpenTool::NAME,
@@ -742,14 +817,20 @@ mod generated_filter_tests {
         let anonymous = context(None, Some(course), Vec::new());
         assert_eq!(
             offered(tx.as_mut(), &anonymous).await,
-            vec![OpenTool::NAME.to_string()],
+            vec![
+                OpenTool::NAME.to_string(),
+                UncategorizedTool::NAME.to_string()
+            ],
             "an anonymous caller is offered only what needs no privileges"
         );
 
         let learner = context(Some(user), Some(course), Vec::new());
         assert_eq!(
             offered(tx.as_mut(), &learner).await,
-            vec![OpenTool::NAME.to_string()]
+            vec![
+                OpenTool::NAME.to_string(),
+                UncategorizedTool::NAME.to_string()
+            ]
         );
 
         let teacher = context(
@@ -759,7 +840,42 @@ mod generated_filter_tests {
         );
         assert_eq!(
             offered(tx.as_mut(), &teacher).await,
-            vec![OpenTool::NAME.to_string(), TeacherTool::NAME.to_string()]
+            vec![
+                OpenTool::NAME.to_string(),
+                TeacherTool::NAME.to_string(),
+                UncategorizedTool::NAME.to_string()
+            ]
+        );
+    }
+
+    /// The category filter keeps a permitted tool out on its own: [UncategorizedTool] needs only
+    /// [ToolPermission::Anyone], but its category is not in the enabled set.
+    #[tokio::test]
+    async fn a_tool_is_kept_from_a_configuration_that_does_not_enable_its_category() {
+        insert_data!(:tx, :user, :org, :course);
+
+        let interaction_only = context_with_categories(
+            Some(user),
+            Some(course),
+            Vec::new(),
+            &[ToolCategory::Interaction],
+        );
+        assert_eq!(
+            offered(tx.as_mut(), &interaction_only).await,
+            vec![OpenTool::NAME.to_string()],
+            "UncategorizedTool needs AdminSupportAccounts, which is not enabled"
+        );
+
+        let admin_accounts_only = context_with_categories(
+            Some(user),
+            Some(course),
+            Vec::new(),
+            &[ToolCategory::AdminSupportAccounts],
+        );
+        assert_eq!(
+            offered(tx.as_mut(), &admin_accounts_only).await,
+            vec![UncategorizedTool::NAME.to_string()],
+            "OpenTool needs Interaction, which is not enabled here"
         );
     }
 }

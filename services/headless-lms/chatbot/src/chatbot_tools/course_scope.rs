@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     chatbot_tools::tool_permission::ToolPermission,
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 
 /// Shared schema description for the `course_id` argument of every course-material tool
@@ -19,7 +19,7 @@ pub const COURSE_ID_ARGUMENT_DESCRIPTION: &str = "The course whose structure to 
 /// registry; this is the per-argument half it cannot express.
 pub async fn resolve_course_scope(
     conn: &mut PgConnection,
-    user_context: &ChatbotUserContext,
+    user_context: &ChatbotTurnContext,
     requested: Option<Uuid>,
 ) -> ChatbotResult<Uuid> {
     match requested {

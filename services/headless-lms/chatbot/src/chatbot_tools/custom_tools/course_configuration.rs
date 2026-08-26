@@ -7,6 +7,7 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     certificate_configurations, chapters, course_instances,
     course_modules::CompletionPolicy,
@@ -26,7 +27,7 @@ use crate::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 
 /// Long enough for a real Sisu round trip, short enough that a hung upstream cannot stall the
@@ -121,6 +122,8 @@ impl ChatbotToolDeclaration for CourseConfigurationTool {
 
     const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
 
+    const CATEGORY: ToolCategory = ToolCategory::AdminSupportCourses;
+
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
@@ -156,7 +159,7 @@ impl ChatbotTool for CourseConfigurationTool {
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        _user_context: &ChatbotUserContext,
+        _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let course_id = arguments.course_id;
         let course = courses::get_course(conn, course_id).await.map_err(|e| {

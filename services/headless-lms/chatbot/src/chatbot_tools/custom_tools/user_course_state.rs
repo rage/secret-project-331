@@ -7,6 +7,7 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     CourseOrExamId, certificate_configurations,
     course_module_completion_registered_to_study_registries,
@@ -31,7 +32,7 @@ use crate::{
         tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 
 pub type UserCourseStateTool = ToolProperties<UserCourseStateState>;
@@ -174,6 +175,8 @@ impl ChatbotToolDeclaration for UserCourseStateTool {
 
     const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
 
+    const CATEGORY: ToolCategory = ToolCategory::AdminSupportLearningProgress;
+
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
@@ -234,7 +237,7 @@ impl ChatbotTool for UserCourseStateTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        _user_context: &ChatbotUserContext,
+        _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let course = headless_lms_models::courses::get_course(conn, arguments.course_id)
             .await

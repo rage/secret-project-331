@@ -8,9 +8,10 @@ use crate::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
     prelude::ChatbotResult,
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_audiences::get_course_ids_by_audience_vectors,
     course_prerequisites::get_course_ids_by_prerequisite_vectors,
@@ -53,7 +54,7 @@ impl ChatbotTool for CourseFinderTool {
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        _user_context: &ChatbotUserContext,
+        _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let audience_courses = if let Some(audiences) = &arguments.audiences {
             let audience_embeddings = create_embeddings(app_config, audiences.clone())
@@ -131,6 +132,8 @@ impl ChatbotToolDeclaration for CourseFinderTool {
     const NAME: &'static str = "course_finder";
 
     const PERMISSION: ToolPermission = ToolPermission::Anyone;
+
+    const CATEGORY: ToolCategory = ToolCategory::CourseCatalog;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {

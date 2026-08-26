@@ -2,6 +2,7 @@ use indexmap::IndexMap;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::pages;
 use headless_lms_utils::{
     document_schema_processor::get_learning_objectives,
@@ -18,7 +19,7 @@ use crate::{
         tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 
 pub type CourseStructureTool = ToolProperties<CourseStructureState>;
@@ -86,6 +87,8 @@ impl ChatbotToolDeclaration for CourseStructureTool {
 
     const PERMISSION: ToolPermission = ToolPermission::Anyone;
 
+    const CATEGORY: ToolCategory = ToolCategory::CourseInfo;
+
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
@@ -128,7 +131,7 @@ impl ChatbotTool for CourseStructureTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self>
     where
         Self: Sized,

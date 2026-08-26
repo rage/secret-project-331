@@ -12,11 +12,16 @@ import {
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
   getChatbotModelsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type { ChatbotConfiguration, NewChatbotConf } from "@/generated/api/types.generated"
+import type {
+  ChatbotConfiguration,
+  NewChatbotConf,
+  ToolCategory,
+} from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import WarningInfobox from "@/shared-module/common/components/WarningInfobox"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isHtmlButtonElement } from "@/shared-module/common/utils/dom"
@@ -58,7 +63,65 @@ type ConfigureChatbotFields = Omit<
   | "daily_tokens_per_user"
   | "weekly_tokens_per_user"
   | "max_output_tokens"
-> & { suggested_messages: Message[] }
+  | "enabled_tool_categories"
+> & { suggested_messages: Message[]; tool_categories: Record<ToolCategory, boolean> }
+
+type ToolCategoryUiGroup =
+  | "course-assistance"
+  | "course-discovery"
+  | "interaction"
+  | "admin-support"
+
+// oxlint-disable i18next/no-literal-string
+/**
+ * One entry per `ToolCategory` variant -- missing one here is a compile error. `labelKey` is a
+ * literal translation key (checked against the resource type by `satisfies`, not widened to
+ * `string`) so `t(category.labelKey)` type-checks the same as a hand-written `t("...")` call.
+ */
+const TOOL_CATEGORY_META = {
+  course_material: { group: "course-assistance", labelKey: "tool-category-course-material-label" },
+  course_info: { group: "course-assistance", labelKey: "tool-category-course-info-label" },
+  course_catalog: {
+    group: "course-discovery",
+    labelKey: "tool-category-group-course-discovery-label",
+  },
+  interaction: { group: "interaction", labelKey: "tool-category-group-interaction-label" },
+  admin_support_accounts: {
+    group: "admin-support",
+    labelKey: "tool-category-admin-support-accounts-label",
+  },
+  admin_support_courses: {
+    group: "admin-support",
+    labelKey: "tool-category-admin-support-courses-label",
+  },
+  admin_support_learning_progress: {
+    group: "admin-support",
+    labelKey: "tool-category-admin-support-learning-progress-label",
+  },
+  admin_support_academic_integrity: {
+    group: "admin-support",
+    labelKey: "tool-category-admin-support-academic-integrity-label",
+  },
+} as const satisfies Record<ToolCategory, { group: ToolCategoryUiGroup; labelKey: string }>
+
+const TOOL_CATEGORY_GROUP_HEADING_KEY = {
+  "course-assistance": "tool-category-group-course-assistance-heading",
+  "admin-support": "tool-category-group-admin-support-heading",
+} as const
+
+const TOOL_CATEGORY_LEAVES = Object.keys(TOOL_CATEGORY_META) as ToolCategory[]
+
+const TOOL_CATEGORY_GROUP_ORDER: ToolCategoryUiGroup[] = [
+  "course-assistance",
+  "course-discovery",
+  "interaction",
+  "admin-support",
+]
+// oxlint-enable i18next/no-literal-string
+
+function categoriesInGroup(group: ToolCategoryUiGroup): ToolCategory[] {
+  return TOOL_CATEGORY_LEAVES.filter((category) => TOOL_CATEGORY_META[category].group === group)
+}
 
 const itemsContainerCss = css`
   flex: 1;
@@ -103,7 +166,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       verbosity: oldChatbotConf.verbosity,
       reasoning_effort: oldChatbotConf.reasoning_effort,
       use_azure_search: oldChatbotConf.use_azure_search,
-      use_tools: oldChatbotConf.use_tools,
+      tool_categories: Object.fromEntries(
+        TOOL_CATEGORY_LEAVES.map((category) => [
+          category,
+          oldChatbotConf.enabled_tool_categories.includes(category),
+        ]),
+      ) as Record<ToolCategory, boolean>,
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
       suggest_next_messages: oldChatbotConf.suggest_next_messages,
@@ -138,7 +206,19 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const modelFieldValue = watch("model_id")
   const suggestMessagesFieldValue = watch("suggest_next_messages")
   const useAzureSearchFieldValue = watch("use_azure_search")
-  const useToolsFieldValue = watch("use_tools")
+  const toolCategoriesFieldValue = watch("tool_categories")
+  const noToolCategoriesEnabled = TOOL_CATEGORY_LEAVES.every(
+    (category) => !toolCategoriesFieldValue?.[category],
+  )
+
+  const adminToolCategoriesPermission = useAuthorizeMultiple([
+    { action: { type: "administrate" }, resource: { type: "global_permissions" } },
+  ])
+  const canEditAdminToolCategories = adminToolCategoriesPermission.data?.[0] === true
+  // oxlint-disable-next-line i18next/no-literal-string
+  const hasAdminToolCategoriesEnabled = categoriesInGroup("admin-support").some((category) =>
+    oldChatbotConf.enabled_tool_categories.includes(category),
+  )
 
   const configureChatbotMutation = useToastMutationOptions(
     configureChatbotMutationOptions(),
@@ -204,7 +284,9 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         maintain_azure_search_index: data.use_azure_search,
         hide_citations: data.hide_citations,
         use_semantic_reranking: data.use_semantic_reranking,
-        use_tools: data.use_tools,
+        enabled_tool_categories: TOOL_CATEGORY_LEAVES.filter(
+          (category) => data.tool_categories[category],
+        ),
         suggest_next_messages: data.suggest_next_messages,
         initial_suggested_messages: data.suggested_messages.map((v) => v.message),
         publicly_accessible: oldChatbotConf.publicly_accessible, // not editable in this form
@@ -432,13 +514,73 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     >
                       <div className={itemsContainerCss}>
                         <h4>{t("tools-heading")}</h4>
-                        <Checkbox
-                          control={control}
-                          label={t("enable-tool-use")}
-                          name={"use_tools"}
-                        />
-                        {!useToolsFieldValue && (
-                          <WarningInfobox>{t("enable-tool-use-note")}</WarningInfobox>
+                        {TOOL_CATEGORY_GROUP_ORDER.map((group) => {
+                          const categories = categoriesInGroup(group)
+                          if (group === "admin-support" && !canEditAdminToolCategories) {
+                            if (!hasAdminToolCategoriesEnabled) {
+                              return null
+                            }
+                            return (
+                              <div
+                                key={group}
+                                className={css`
+                                  margin-top: 10px;
+                                `}
+                              >
+                                <h5>{t(TOOL_CATEGORY_GROUP_HEADING_KEY[group])}</h5>
+                                <GenericInfobox>
+                                  {t("admin-tools-managed-by-administrators")}
+                                </GenericInfobox>
+                                {categories.map((category) => (
+                                  <Checkbox
+                                    key={category}
+                                    control={control}
+                                    isDisabled
+                                    label={t(TOOL_CATEGORY_META[category].labelKey)}
+                                    name={`tool_categories.${category}` as const}
+                                  />
+                                ))}
+                              </div>
+                            )
+                          }
+                          const [singleCategory] = categories
+                          if (singleCategory !== undefined && categories.length === 1) {
+                            return (
+                              <Checkbox
+                                key={group}
+                                control={control}
+                                label={t(TOOL_CATEGORY_META[singleCategory].labelKey)}
+                                name={`tool_categories.${singleCategory}` as const}
+                              />
+                            )
+                          }
+                          return (
+                            <div
+                              key={group}
+                              className={css`
+                                margin-top: 10px;
+                              `}
+                            >
+                              <h5>
+                                {t(
+                                  TOOL_CATEGORY_GROUP_HEADING_KEY[
+                                    group as "course-assistance" | "admin-support"
+                                  ],
+                                )}
+                              </h5>
+                              {categories.map((category) => (
+                                <Checkbox
+                                  key={category}
+                                  control={control}
+                                  label={t(TOOL_CATEGORY_META[category].labelKey)}
+                                  name={`tool_categories.${category}` as const}
+                                />
+                              ))}
+                            </div>
+                          )
+                        })}
+                        {noToolCategoriesEnabled && (
+                          <WarningInfobox>{t("no-tool-categories-enabled-note")}</WarningInfobox>
                         )}
                       </div>
                       <div className={itemsContainerCss}>

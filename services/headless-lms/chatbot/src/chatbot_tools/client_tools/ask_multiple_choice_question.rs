@@ -2,6 +2,7 @@ use indexmap::IndexMap;
 
 use serde::Deserialize;
 
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_utils::json_schema_types::{
     JSONType, JsonItem, Schema, SchemaPropertyType, string_array_property,
 };
@@ -52,6 +53,8 @@ impl ChatbotToolDeclaration for AskMultipleChoiceQuestionTool {
 
     /// A clarifying question reveals nothing the user did not write themselves.
     const PERMISSION: ToolPermission = ToolPermission::Anyone;
+
+    const CATEGORY: ToolCategory = ToolCategory::Interaction;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {

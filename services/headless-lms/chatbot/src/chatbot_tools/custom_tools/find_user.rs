@@ -5,6 +5,7 @@ use serde_json::json;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{user_details, user_details::UserDetail, users};
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
 use sqlx::PgConnection;
@@ -18,7 +19,7 @@ use crate::{
     prelude::{
         BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, TryToOptional, chatbot_err,
     },
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 
 const MAX_CANDIDATES: usize = 10;
@@ -107,6 +108,8 @@ impl ChatbotToolDeclaration for FindUserTool {
 
     const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
 
+    const CATEGORY: ToolCategory = ToolCategory::AdminSupportAccounts;
+
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
@@ -154,7 +157,7 @@ impl ChatbotTool for FindUserTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        _user_context: &ChatbotUserContext,
+        _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let (matched_as, details) = match arguments.kind {
             FindUserKind::UserId => ("user_id", find_by_user_id(conn, &arguments.query).await?),

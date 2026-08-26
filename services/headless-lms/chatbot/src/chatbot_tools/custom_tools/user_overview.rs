@@ -6,6 +6,7 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_instance_enrollments::get_course_enrollments_info_for_user, courses,
     email_deliveries::get_recent_deliveries_for_user, roles::get_roles,
@@ -21,7 +22,7 @@ use crate::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 
 const EMAIL_DELIVERY_LIMIT: i64 = 20;
@@ -108,6 +109,8 @@ impl ChatbotToolDeclaration for UserOverviewTool {
 
     const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
 
+    const CATEGORY: ToolCategory = ToolCategory::AdminSupportAccounts;
+
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
@@ -143,7 +146,7 @@ impl ChatbotTool for UserOverviewTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        _user_context: &ChatbotUserContext,
+        _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let user_id = arguments.user_id;
         let user_detail = user_details::get_user_details_by_user_id(conn, user_id)

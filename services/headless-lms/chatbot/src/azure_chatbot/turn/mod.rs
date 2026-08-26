@@ -39,7 +39,7 @@ use crate::chatbot_tools::ClientToolAnswer;
 use crate::conversation_context::ChatbotPageContext;
 use crate::llm_utils::{estimate_tokens, summarize_input_for_log};
 use crate::prelude::*;
-use crate::user_context::ChatbotUserContext;
+use crate::user_context::ChatbotTurnContext;
 use cancellation::{GuardedStream, RequestCancelledGuard, save_partial_answer};
 use round::{is_stored_by_round, parse_tool, store_output_item};
 use text_response::parse_text_response;
@@ -56,7 +56,7 @@ pub async fn send_chat_request_and_parse_stream(
     conversation_id: Uuid,
     message: &str,
     page_context: Option<ChatbotPageContext>,
-    user_context: ChatbotUserContext,
+    user_context: ChatbotTurnContext,
 ) -> ChatbotResult<Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>>> {
     begin_turn(
         pool,
@@ -87,7 +87,7 @@ pub async fn answer_tool_call_and_resume_stream(
     conversation_id: Uuid,
     tool_call_id: &str,
     answer: &ClientToolAnswer,
-    user_context: ChatbotUserContext,
+    user_context: ChatbotTurnContext,
 ) -> ChatbotResult<Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>>> {
     begin_turn(
         pool,
@@ -131,7 +131,7 @@ async fn begin_turn(
     pool: PgPool,
     app_configuration: &ApplicationConfiguration,
     conversation_id: Uuid,
-    user_context: ChatbotUserContext,
+    user_context: ChatbotTurnContext,
     start: TurnStart<'_>,
 ) -> ChatbotResult<Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>>> {
     let mut conn = pool.acquire().await?;
@@ -308,7 +308,7 @@ fn stream_turn(
     app_config: ApplicationConfiguration,
     conversation_id: Uuid,
     mut chat_request: LLMRequest,
-    user_context: ChatbotUserContext,
+    user_context: ChatbotTurnContext,
 ) -> Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>> {
     let mut rounds_left = MAX_TOOL_CALL_ROUNDS_PER_TURN;
 

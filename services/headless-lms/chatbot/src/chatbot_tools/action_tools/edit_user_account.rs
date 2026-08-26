@@ -5,6 +5,7 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{user_details, user_details::EmailVerificationMethod, users};
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
 
@@ -51,6 +52,8 @@ impl ChatbotToolDeclaration for EditUserAccountTool {
     const NAME: &'static str = "edit_user_account";
 
     const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+
+    const CATEGORY: ToolCategory = ToolCategory::AdminSupportAccounts;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {

@@ -3,7 +3,7 @@
 
 use headless_lms_authorization::{Action, Resource, is_permitted};
 
-use crate::{prelude::*, user_context::ChatbotUserContext};
+use crate::{prelude::*, user_context::ChatbotTurnContext};
 
 /// The privilege levels a chatbot tool can require.
 ///
@@ -26,7 +26,7 @@ impl ToolPermission {
     pub async fn is_satisfied_by(
         self,
         conn: &mut PgConnection,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<bool> {
         match self {
             Self::Anyone => Ok(true),
@@ -41,7 +41,7 @@ impl ToolPermission {
 /// without a query.
 async fn holds_course_permission(
     conn: &mut PgConnection,
-    user_context: &ChatbotUserContext,
+    user_context: &ChatbotTurnContext,
     action: Action,
 ) -> ChatbotResult<bool> {
     let (Some(_user_id), Some(course_id)) = (user_context.user_id, user_context.course_id) else {
@@ -55,7 +55,7 @@ async fn holds_course_permission(
 /// Whether the caller holds a global admin role. Anonymous callers fail closed without a query.
 async fn holds_global_admin(
     conn: &mut PgConnection,
-    user_context: &ChatbotUserContext,
+    user_context: &ChatbotTurnContext,
 ) -> ChatbotResult<bool> {
     let Some(_user_id) = user_context.user_id else {
         return Ok(false);
@@ -73,19 +73,41 @@ async fn holds_global_admin(
 
 #[cfg(test)]
 pub(crate) mod test_helpers {
-    use headless_lms_models::roles::{Role, UserRole};
+    use headless_lms_models::{
+        chatbot_configurations::ToolCategory,
+        roles::{Role, UserRole},
+    };
     use uuid::Uuid;
 
-    use crate::user_context::ChatbotUserContext;
+    use crate::{
+        chatbot_tools::tool_category::EnabledToolCategories, user_context::ChatbotTurnContext,
+    };
 
     /// A caller whose roles are known already, so that a test does not have to seed them into the
-    /// database.
+    /// database. Every category is enabled, so this is for tests of permissions, not categories.
     pub fn context(
         user_id: Option<Uuid>,
         course_id: Option<Uuid>,
         roles: Vec<Role>,
-    ) -> ChatbotUserContext {
-        ChatbotUserContext::with_roles(user_id, course_id, None, roles)
+    ) -> ChatbotTurnContext {
+        ChatbotTurnContext::with_roles(user_id, course_id, None, roles)
+    }
+
+    /// Like [context], but with a specific enabled-category set instead of everything enabled —
+    /// for tests of the category gate.
+    pub fn context_with_categories(
+        user_id: Option<Uuid>,
+        course_id: Option<Uuid>,
+        roles: Vec<Role>,
+        categories: &[ToolCategory],
+    ) -> ChatbotTurnContext {
+        ChatbotTurnContext::with_roles_and_categories(
+            user_id,
+            course_id,
+            None,
+            roles,
+            EnabledToolCategories::only(categories),
+        )
     }
 
     pub fn course_role(user_id: Uuid, course_id: Uuid, role: UserRole) -> Role {

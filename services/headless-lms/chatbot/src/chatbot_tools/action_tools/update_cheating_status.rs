@@ -4,6 +4,7 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     courses, suspected_cheaters, suspected_cheaters::SuspectedCheaterStatus, user_details, users,
 };
@@ -56,6 +57,8 @@ impl ChatbotToolDeclaration for UpdateCheatingStatusTool {
     const NAME: &'static str = "update_cheating_status";
 
     const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+
+    const CATEGORY: ToolCategory = ToolCategory::AdminSupportAcademicIntegrity;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {

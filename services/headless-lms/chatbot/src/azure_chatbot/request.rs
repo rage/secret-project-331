@@ -16,7 +16,10 @@ use super::client_tool_calls::abort::ToolCallAbortReason;
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::custom_tools::course_structure::CourseStructureTool;
 use crate::chatbot_tools::custom_tools::document_lookup::DocumentLookupTool;
-use crate::chatbot_tools::provider_tools::azure_ai_search::get_azure_ai_search_tool_definition;
+use crate::chatbot_tools::provider_tools::azure_ai_search::{
+    self, get_azure_ai_search_tool_definition,
+};
+use crate::chatbot_tools::tool_category::EnabledToolCategories;
 use crate::chatbot_tools::{
     ChatbotToolDeclaration, get_client_chatbot_tool_definitions,
     get_permitted_chatbot_tool_definitions,
@@ -26,30 +29,31 @@ use crate::conversation_context::{
 };
 use crate::llm_utils::{APIInputMessage, MessageContent, estimate_tokens, get_params_for_model};
 use crate::prelude::*;
-use crate::user_context::ChatbotUserContext;
+use crate::user_context::ChatbotTurnContext;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 
 /// The instruction appended to the system prompt when course-material search is enabled, to
 /// ground answers in retrieved course material.
 ///
-/// The document-lookup and course-structure sentences are included only when `use_tools` is also
-/// on, since those tools are only in the request's tool list then — [`azure_ai_search`] itself is
-/// added whenever search is on, regardless of `use_tools`.
+/// Only called when [`azure_ai_search`] itself is in the request's tool list, so the
+/// document-lookup sentence — [`DocumentLookupTool`] shares [`azure_ai_search`]'s `CourseMaterial`
+/// category — is always included. The course-structure sentence is conditioned separately on
+/// `course_info_enabled`, since [`CourseStructureTool`] belongs to the distinct `CourseInfo`
+/// category and can be offered or withheld independently of search.
 ///
 /// [`azure_ai_search`]: AZURE_AI_SEARCH_TOOL_NAME
-fn search_grounding_instruction(use_tools: bool) -> String {
+fn search_grounding_instruction(course_info_enabled: bool) -> String {
     let mut instruction = format!(
         "\n\nSearch the course material with the {AZURE_AI_SEARCH_TOOL_NAME} tool before answering, and ground your answer in the results with citations. Put only what you want to find in the query; the search is already limited to this course, so don't include the course name. Searching more than once is fine when it helps — to cover distinct sub-questions or angles, to refine when the first results don't answer, or when a follow-up or new instruction needs material you don't already have. When one search already answers, stop there."
     );
-    if use_tools {
-        instruction.push_str(&format!(
-            " If you need more information about a specific document or a topic covered in it, use the {} tool to retrieve the full document.",
-            DocumentLookupTool::NAME
-        ));
-    }
+    instruction.push_str(&format!(
+        " If you need more information about a specific document or a topic covered in it, use the {} tool to retrieve the full document.",
+        DocumentLookupTool::NAME
+    ));
     instruction.push_str(
         " Skip searching only for messages that don't need course material, like greetings or thanks.",
     );
-    if use_tools {
+    if course_info_enabled {
         instruction.push_str(&format!(
             " If you need more information about the course, like what pages and chapters are in it, use the {} tool.",
             CourseStructureTool::NAME
@@ -166,7 +170,7 @@ impl LLMRequest {
         conversation_id: Uuid,
         message: &str,
         page_context: Option<ChatbotPageContext>,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
         app_config: &ApplicationConfiguration,
     ) -> ChatbotResult<Self> {
         let configuration =
@@ -235,11 +239,17 @@ impl LLMRequest {
         conn: &mut PgConnection,
         configuration: &ChatbotConfiguration,
         conversation_id: Uuid,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
         app_config: &ApplicationConfiguration,
     ) -> ChatbotResult<Self> {
         let inputs = TurnInputs::load(conn, configuration, conversation_id, user_context).await?;
-        Self::assemble(configuration, conversation_id, inputs, app_config)
+        Self::assemble(
+            configuration,
+            conversation_id,
+            inputs,
+            app_config,
+            &user_context.enabled_tool_categories,
+        )
     }
 
     /// Assembles the request's shape — grounding instruction, tool list, `tool_choice`, params,
@@ -250,6 +260,7 @@ impl LLMRequest {
         conversation_id: Uuid,
         inputs: TurnInputs,
         app_config: &ApplicationConfiguration,
+        enabled_tool_categories: &EnabledToolCategories,
     ) -> ChatbotResult<Self> {
         let TurnInputs {
             model,
@@ -257,9 +268,15 @@ impl LLMRequest {
             mut tools,
         } = inputs;
 
+        let offers_tools = !tools.is_empty();
+        let offers_search = configuration.use_azure_search
+            && enabled_tool_categories.contains(azure_ai_search::CATEGORY);
+
         let mut system_prompt = configuration.prompt.clone();
-        if configuration.use_azure_search {
-            system_prompt.push_str(&search_grounding_instruction(configuration.use_tools));
+        if offers_search {
+            system_prompt.push_str(&search_grounding_instruction(
+                enabled_tool_categories.contains(ToolCategory::CourseInfo),
+            ));
             tools.push(AzureLLMToolDefinition::Search(
                 get_azure_ai_search_tool_definition(
                     app_config,
@@ -271,7 +288,7 @@ impl LLMRequest {
             ));
         }
 
-        let tool_choice = if configuration.use_azure_search || configuration.use_tools {
+        let tool_choice = if offers_tools || offers_search {
             Some(LLMToolChoice::Auto)
         } else {
             None
@@ -321,7 +338,7 @@ impl TurnInputs {
         conn: &mut PgConnection,
         configuration: &ChatbotConfiguration,
         conversation_id: Uuid,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
             conn,
@@ -333,13 +350,8 @@ impl TurnInputs {
             models::chatbot_conversation_messages::get_by_conversation_id(conn, conversation_id)
                 .await?;
 
-        let tools = if configuration.use_tools {
-            let mut tools = get_permitted_chatbot_tool_definitions(conn, user_context).await?;
-            tools.extend(get_client_chatbot_tool_definitions(conn, user_context).await?);
-            tools
-        } else {
-            Vec::new()
-        };
+        let mut tools = get_permitted_chatbot_tool_definitions(conn, user_context).await?;
+        tools.extend(get_client_chatbot_tool_definitions(conn, user_context).await?);
 
         Ok(Self {
             model,

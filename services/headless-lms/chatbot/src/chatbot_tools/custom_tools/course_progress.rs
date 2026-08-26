@@ -6,11 +6,12 @@ use crate::{
         tool_permission::ToolPermission,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 use headless_lms_base::{
     config::ApplicationConfiguration, prelude_base_and_re_exports::BackendError,
 };
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_modules::{CompletionPolicy, CourseModule},
     user_exercise_states::UserCourseProgress,
@@ -23,6 +24,8 @@ impl ChatbotToolDeclaration for CourseProgressTool {
     const NAME: &'static str = "course_progress";
 
     const PERMISSION: ToolPermission = ToolPermission::Anyone;
+
+    const CATEGORY: ToolCategory = ToolCategory::CourseInfo;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -49,7 +52,7 @@ impl ChatbotTool for CourseProgressTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         _arguments: Self::Arguments,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let Some(user_id) = user_context.user_id else {
             return Err(chatbot_err!(

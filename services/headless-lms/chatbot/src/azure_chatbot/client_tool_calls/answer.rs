@@ -5,15 +5,16 @@ use headless_lms_models::chatbot_conversation_message_tool_calls::{
     self, ChatbotConversationMessageToolCall,
 };
 
-use super::abort::permission_revoked_output;
+use super::abort::{category_disabled_output, permission_revoked_output};
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::tool_permission::ToolPermission;
 use crate::chatbot_tools::{
-    ClientToolAnswer, client_tool_answer_output, client_tool_permission, execute_action_tool,
+    ClientToolAnswer, client_tool_answer_output, client_tool_gate, execute_action_tool,
     tool_is_confirmable_action,
 };
 use crate::prelude::*;
-use crate::user_context::ChatbotUserContext;
+use crate::user_context::ChatbotTurnContext;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 
 /// What a client's answer to a suspended call amounts to once it is applied.
 pub(crate) struct AnsweredClientToolCall {
@@ -44,7 +45,7 @@ pub(crate) async fn client_tool_output_for_answer(
     unanswered: &[ChatbotConversationMessageToolCall],
     tool_call_id: &str,
     answer: &ClientToolAnswer,
-    user_context: &ChatbotUserContext,
+    user_context: &ChatbotTurnContext,
 ) -> ChatbotResult<AnsweredClientToolCall> {
     let Some(tool_call) = unanswered
         .iter()
@@ -53,7 +54,7 @@ pub(crate) async fn client_tool_output_for_answer(
         return Err(missing_tool_call_error(conn, conversation_id, tool_call_id).await?);
     };
 
-    let Some(permission) = client_tool_permission(&tool_call.tool_name) else {
+    let Some(gate) = client_tool_gate(&tool_call.tool_name) else {
         return Err(chatbot_err!(
             InvalidToolAnswer,
             format!("Tool call {tool_call_id} is not one a client answers")
@@ -64,7 +65,8 @@ pub(crate) async fn client_tool_output_for_answer(
         conn,
         app_config,
         tool_call,
-        permission,
+        gate.category,
+        gate.permission,
         answer,
         user_context,
     )
@@ -110,10 +112,19 @@ async fn apply_client_tool_answer(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     tool_call: &ChatbotConversationMessageToolCall,
+    category: ToolCategory,
     permission: ToolPermission,
     answer: &ClientToolAnswer,
-    user_context: &ChatbotUserContext,
+    user_context: &ChatbotTurnContext,
 ) -> ChatbotResult<AnsweredClientToolCall> {
+    if let Some(output) = category_disabled_output(user_context, category, &tool_call.tool_name) {
+        return Ok(AnsweredClientToolCall {
+            output: output.to_string(),
+            client_answer: None,
+            execution_payload: None,
+        });
+    }
+
     if let Some(output) =
         permission_revoked_output(conn, user_context, permission, &tool_call.tool_name).await?
     {
@@ -147,6 +158,7 @@ async fn apply_client_tool_answer(
             tool_call.id,
             answer,
             acting_user_id,
+            &user_context.enabled_tool_categories,
         )
         .await?;
         let ClientToolAnswer::Data { result } = answer;
@@ -231,6 +243,7 @@ mod tests {
             tx.as_mut(),
             &app_config,
             &recorded_question(),
+            ToolCategory::Interaction,
             ToolPermission::TeachesCourse,
             &picked_the_second_choice(),
             &revoked,
@@ -259,6 +272,7 @@ mod tests {
             tx.as_mut(),
             &app_config,
             &recorded_question(),
+            ToolCategory::Interaction,
             ToolPermission::TeachesCourse,
             &picked_the_second_choice(),
             &teacher,

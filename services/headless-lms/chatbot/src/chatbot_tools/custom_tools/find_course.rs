@@ -3,6 +3,7 @@ use std::str::FromStr;
 use indexmap::IndexMap;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_instances::{self, CourseInstance},
     courses::{self, Course},
@@ -20,7 +21,7 @@ use crate::{
     prelude::{
         BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, TryToOptional, chatbot_err,
     },
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 
 pub type FindCourseTool = ToolProperties<FindCourseState>;
@@ -46,6 +47,8 @@ impl ChatbotToolDeclaration for FindCourseTool {
     const NAME: &'static str = "find_course";
 
     const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+
+    const CATEGORY: ToolCategory = ToolCategory::AdminSupportCourses;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -94,7 +97,7 @@ impl ChatbotTool for FindCourseTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        _user_context: &ChatbotUserContext,
+        _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let query = arguments.query;
 

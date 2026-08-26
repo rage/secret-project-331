@@ -9,12 +9,18 @@ use crate::{
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::prelude_base_and_re_exports::BackendError;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use url::Url;
 use uuid::Uuid;
 
 /// Separates the content fields Azure concatenates into one chunk. Baked into the format the
 /// search index was written with, so changing it silently breaks every indexed document.
 pub const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
+
+/// This platform tool has no [crate::chatbot_tools::ChatbotToolDeclaration] impl — it is pushed
+/// directly by `AzureRequest::assemble` rather than dispatched through the tool registry — so it
+/// carries its category as a standalone constant instead.
+pub const CATEGORY: ToolCategory = ToolCategory::CourseMaterial;
 
 pub fn get_azure_ai_search_tool_definition(
     app_config: &ApplicationConfiguration,

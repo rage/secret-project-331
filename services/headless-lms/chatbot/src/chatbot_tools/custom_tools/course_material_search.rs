@@ -6,6 +6,7 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     chatbot_conversation_messages_citations, courses, organizations,
     pages::{self, PageSearchResult, SearchRequest},
@@ -22,7 +23,7 @@ use crate::{
         course_scope::resolve_course_scope, tool_permission::ToolPermission,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 
 pub type CourseMaterialSearchTool = ToolProperties<CourseMaterialSearchState>;
@@ -109,6 +110,8 @@ impl ChatbotToolDeclaration for CourseMaterialSearchTool {
 
     const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
 
+    const CATEGORY: ToolCategory = ToolCategory::CourseMaterial;
+
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
@@ -162,7 +165,7 @@ impl ChatbotTool for CourseMaterialSearchTool {
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let course_id = resolve_course_scope(conn, user_context, Some(arguments.course_id)).await?;
         let course = courses::get_course(conn, course_id).await.map_err(|e| {

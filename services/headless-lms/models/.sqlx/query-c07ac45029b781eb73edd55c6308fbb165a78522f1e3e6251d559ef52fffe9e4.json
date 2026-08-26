@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_configurations (\n    id,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    hide_citations,\n    frequency_penalty,\n    presence_penalty,\n    max_output_tokens,\n    verbosity,\n    reasoning_effort,\n    use_azure_search,\n    use_tools,\n    maintain_azure_search_index,\n    default_chatbot,\n    suggest_next_messages,\n    initial_suggested_messages,\n    publicly_accessible\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)\nRETURNING *\n        ",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    use_azure_search,\n    maintain_azure_search_index,\n    use_semantic_reranking,\n    hide_citations,\n    default_chatbot,\n    model_id,\n    verbosity,\n    reasoning_effort,\n    suggest_next_messages,\n    initial_suggested_messages,\n    max_output_tokens,\n    publicly_accessible,\n    enabled_tool_categories AS \"enabled_tool_categories: Vec<ToolCategory>\"\nFROM chatbot_configurations\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -283,17 +283,6 @@
       },
       {
         "ordinal": 23,
-        "name": "use_tools",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "chatbot_configurations",
-            "name": "use_tools"
-          }
-        }
-      },
-      {
-        "ordinal": 24,
         "name": "suggest_next_messages",
         "type_info": "Bool",
         "origin": {
@@ -304,7 +293,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 24,
         "name": "initial_suggested_messages",
         "type_info": "VarcharArray",
         "origin": {
@@ -315,7 +304,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 25,
         "name": "max_output_tokens",
         "type_info": "Int4",
         "origin": {
@@ -326,7 +315,7 @@
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 26,
         "name": "publicly_accessible",
         "type_info": "Bool",
         "origin": {
@@ -335,59 +324,45 @@
             "name": "publicly_accessible"
           }
         }
+      },
+      {
+        "ordinal": 27,
+        "name": "enabled_tool_categories: Vec<ToolCategory>",
+        "type_info": {
+          "Custom": {
+            "name": "chatbot_tool_category[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "chatbot_tool_category",
+                  "kind": {
+                    "Enum": [
+                      "course_material",
+                      "course_info",
+                      "course_catalog",
+                      "interaction",
+                      "admin_support_accounts",
+                      "admin_support_courses",
+                      "admin_support_learning_progress",
+                      "admin_support_academic_integrity"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "enabled_tool_categories"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Uuid",
-        "Bool",
-        "Varchar",
-        "Uuid",
-        "Varchar",
-        "Varchar",
-        "Int4",
-        "Int4",
-        "Float4",
-        "Float4",
-        "Bool",
-        "Float4",
-        "Float4",
-        "Int4",
-        {
-          "Custom": {
-            "name": "verbosity_level",
-            "kind": {
-              "Enum": [
-                "low",
-                "medium",
-                "high"
-              ]
-            }
-          }
-        },
-        {
-          "Custom": {
-            "name": "reasoning_effort_level",
-            "kind": {
-              "Enum": [
-                "none",
-                "minimal",
-                "low",
-                "medium",
-                "high",
-                "xhigh"
-              ]
-            }
-          }
-        },
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
-        "VarcharArray",
-        "Bool"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -415,11 +390,11 @@
       false,
       false,
       false,
-      false,
       true,
+      false,
       false,
       false
     ]
   },
-  "hash": "a22be60ea4c97739c30c35d4226cac83a8c0104345d4031bf03558d49308c468"
+  "hash": "c07ac45029b781eb73edd55c6308fbb165a78522f1e3e6251d559ef52fffe9e4"
 }

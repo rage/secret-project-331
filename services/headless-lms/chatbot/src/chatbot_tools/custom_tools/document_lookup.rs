@@ -1,6 +1,7 @@
 use indexmap::IndexMap;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{ModelErrorType, course_page_markdown_content, pages};
 use headless_lms_utils::{
     document_schema_processor::remove_sensitive_attributes,
@@ -21,7 +22,7 @@ use crate::{
     citations::parse_document_filepath,
     llm_utils::estimate_tokens,
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
-    user_context::ChatbotUserContext,
+    user_context::ChatbotTurnContext,
 };
 
 pub type DocumentLookupTool = ToolProperties<DocumentLookupState>;
@@ -63,6 +64,8 @@ impl ChatbotToolDeclaration for DocumentLookupTool {
     const NAME: &'static str = "document_lookup";
 
     const PERMISSION: ToolPermission = ToolPermission::Anyone;
+
+    const CATEGORY: ToolCategory = ToolCategory::CourseMaterial;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -122,7 +125,7 @@ impl ChatbotTool for DocumentLookupTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let course_id = resolve_course_scope(conn, user_context, arguments.course_id).await?;
 

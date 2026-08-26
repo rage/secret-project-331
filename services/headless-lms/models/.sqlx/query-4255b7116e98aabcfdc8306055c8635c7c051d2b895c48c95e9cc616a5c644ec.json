@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM chatbot_configurations\nWHERE course_id = $1\nAND default_chatbot IS false\nAND enabled_to_students IS true\nAND deleted_at IS NULL\n",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    use_azure_search,\n    maintain_azure_search_index,\n    use_semantic_reranking,\n    hide_citations,\n    default_chatbot,\n    model_id,\n    verbosity,\n    reasoning_effort,\n    suggest_next_messages,\n    initial_suggested_messages,\n    max_output_tokens,\n    publicly_accessible,\n    enabled_tool_categories AS \"enabled_tool_categories: Vec<ToolCategory>\"\nFROM chatbot_configurations\nWHERE id = $1\nAND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -283,17 +283,6 @@
       },
       {
         "ordinal": 23,
-        "name": "use_tools",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "chatbot_configurations",
-            "name": "use_tools"
-          }
-        }
-      },
-      {
-        "ordinal": 24,
         "name": "suggest_next_messages",
         "type_info": "Bool",
         "origin": {
@@ -304,7 +293,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 24,
         "name": "initial_suggested_messages",
         "type_info": "VarcharArray",
         "origin": {
@@ -315,7 +304,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 25,
         "name": "max_output_tokens",
         "type_info": "Int4",
         "origin": {
@@ -326,13 +315,47 @@
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 26,
         "name": "publicly_accessible",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "chatbot_configurations",
             "name": "publicly_accessible"
+          }
+        }
+      },
+      {
+        "ordinal": 27,
+        "name": "enabled_tool_categories: Vec<ToolCategory>",
+        "type_info": {
+          "Custom": {
+            "name": "chatbot_tool_category[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "chatbot_tool_category",
+                  "kind": {
+                    "Enum": [
+                      "course_material",
+                      "course_info",
+                      "course_catalog",
+                      "interaction",
+                      "admin_support_accounts",
+                      "admin_support_courses",
+                      "admin_support_learning_progress",
+                      "admin_support_academic_integrity"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "enabled_tool_categories"
           }
         }
       }
@@ -367,11 +390,11 @@
       false,
       false,
       false,
-      false,
       true,
+      false,
       false,
       false
     ]
   },
-  "hash": "a35b9fc9a41aa183e5418fc5314e72be9a48b0f8785b2f60bc8888d7b4f2b466"
+  "hash": "4255b7116e98aabcfdc8306055c8635c7c051d2b895c48c95e9cc616a5c644ec"
 }

@@ -19,17 +19,19 @@ use crate::azure_chatbot::azure::protocol::{
 };
 use crate::azure_chatbot::azure::sse::{AzureStreamEvent, ParsedResponseLine};
 use crate::azure_chatbot::azure::transport::ResponseLinesStream;
-use crate::azure_chatbot::client_tool_calls::abort::permission_revoked_output;
+use crate::azure_chatbot::client_tool_calls::abort::{
+    category_disabled_output, permission_revoked_output,
+};
 use crate::azure_chatbot::events::{StreamItem, TurnEvent};
 use crate::azure_chatbot::request::replayable_input_message;
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::{
-    ChatbotToolCallResult, call_chatbot_tool, check_client_tool_arguments, client_tool_permission,
+    ChatbotToolCallResult, call_chatbot_tool, check_client_tool_arguments, client_tool_gate,
 };
 use crate::citations::chatbot_cited_documents_to_citations;
 use crate::llm_utils::{APIInputMessage, APIOutputMessage, MessageContent};
 use crate::prelude::*;
-use crate::user_context::ChatbotUserContext;
+use crate::user_context::ChatbotTurnContext;
 
 /// How a round item that isn't a text `Message` or `FunctionCall` gets persisted, decided without
 /// a database connection or Azure configuration: a plain insert, or an insert followed by
@@ -305,15 +307,18 @@ enum PlannedToolCall {
 /// [`recover_or_terminate`].
 async fn plan_tool_call(
     conn: &mut PgConnection,
-    user_context: &ChatbotUserContext,
+    user_context: &ChatbotTurnContext,
     tool_name: &str,
     arguments: &str,
 ) -> ChatbotResult<PlannedToolCall> {
-    let Some(permission) = client_tool_permission(tool_name) else {
+    let Some(gate) = client_tool_gate(tool_name) else {
         return Ok(PlannedToolCall::Run);
     };
+    if let Some(output) = category_disabled_output(user_context, gate.category, tool_name) {
+        return Ok(PlannedToolCall::Refuse(output.to_string()));
+    }
     if let Some(output) =
-        permission_revoked_output(conn, user_context, permission, tool_name).await?
+        permission_revoked_output(conn, user_context, gate.permission, tool_name).await?
     {
         return Ok(PlannedToolCall::Refuse(output.to_string()));
     }
@@ -438,7 +443,7 @@ pub(super) async fn parse_tool<'a, C>(
     mut lines: ResponseLinesStream<'a>,
     conversation_id: Uuid,
     response_id: String,
-    user_context: &'a ChatbotUserContext,
+    user_context: &'a ChatbotTurnContext,
     calls_from_classification: Vec<OutputItem>,
 ) -> BoxStream<'a, ChatbotResult<TurnEvent>>
 where

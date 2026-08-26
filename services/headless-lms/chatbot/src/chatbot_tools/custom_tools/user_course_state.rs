@@ -342,54 +342,88 @@ impl ChatbotTool for UserCourseStateTool {
                 UserCourseStateFacet::Progress => UserCourseStateFacetValue::Progress(
                     progress_facet(conn, arguments.user_id, arguments.course_id).await?,
                 ),
-                UserCourseStateFacet::Completions => UserCourseStateFacetValue::Completions(
-                    completions_facet(
-                        conn,
-                        arguments.user_id,
-                        arguments.course_id,
-                        completions.as_ref().expect("prefetched above"),
+                UserCourseStateFacet::Completions => {
+                    let completions = completions.as_ref().ok_or_else(|| {
+                        chatbot_err!(
+                            ToolUseError,
+                            "expected completions to have been prefetched".to_string()
+                        )
+                    })?;
+                    UserCourseStateFacetValue::Completions(
+                        completions_facet(
+                            conn,
+                            arguments.user_id,
+                            arguments.course_id,
+                            completions,
+                        )
+                        .await?,
                     )
-                    .await?,
-                ),
-                UserCourseStateFacet::Submissions => UserCourseStateFacetValue::Submissions(
-                    submissions_facet(
-                        conn,
-                        arguments.user_id,
-                        arguments.course_id,
-                        arguments.exercise_id,
-                        course_exercises.as_ref().expect("prefetched above"),
+                }
+                UserCourseStateFacet::Submissions => {
+                    let course_exercises = course_exercises.as_ref().ok_or_else(|| {
+                        chatbot_err!(
+                            ToolUseError,
+                            "expected course_exercises to have been prefetched".to_string()
+                        )
+                    })?;
+                    UserCourseStateFacetValue::Submissions(
+                        submissions_facet(
+                            conn,
+                            arguments.user_id,
+                            arguments.course_id,
+                            arguments.exercise_id,
+                            course_exercises,
+                        )
+                        .await?,
                     )
-                    .await?,
-                ),
-                UserCourseStateFacet::Reviews => UserCourseStateFacetValue::Reviews(
-                    reviews_facet(
-                        conn,
-                        arguments.user_id,
-                        arguments.course_id,
-                        arguments.exercise_id,
-                        course_exercises.as_ref().expect("prefetched above"),
+                }
+                UserCourseStateFacet::Reviews => {
+                    let course_exercises = course_exercises.as_ref().ok_or_else(|| {
+                        chatbot_err!(
+                            ToolUseError,
+                            "expected course_exercises to have been prefetched".to_string()
+                        )
+                    })?;
+                    UserCourseStateFacetValue::Reviews(
+                        reviews_facet(
+                            conn,
+                            arguments.user_id,
+                            arguments.course_id,
+                            arguments.exercise_id,
+                            course_exercises,
+                        )
+                        .await?,
                     )
-                    .await?,
-                ),
+                }
                 UserCourseStateFacet::Resets => UserCourseStateFacetValue::Resets(
                     resets_facet(conn, arguments.user_id, arguments.course_id).await?,
                 ),
-                UserCourseStateFacet::Certificates => UserCourseStateFacetValue::Certificates(
-                    certificates_facet(
-                        conn,
-                        arguments.user_id,
-                        arguments.course_id,
-                        completions.as_ref().expect("prefetched above"),
-                    )
-                    .await?,
-                ),
-                UserCourseStateFacet::CreditRegistration => {
-                    UserCourseStateFacetValue::CreditRegistration(
-                        credit_registration_facet(
+                UserCourseStateFacet::Certificates => {
+                    let completions = completions.as_ref().ok_or_else(|| {
+                        chatbot_err!(
+                            ToolUseError,
+                            "expected completions to have been prefetched".to_string()
+                        )
+                    })?;
+                    UserCourseStateFacetValue::Certificates(
+                        certificates_facet(
                             conn,
-                            completions.as_ref().expect("prefetched above"),
+                            arguments.user_id,
+                            arguments.course_id,
+                            completions,
                         )
                         .await?,
+                    )
+                }
+                UserCourseStateFacet::CreditRegistration => {
+                    let completions = completions.as_ref().ok_or_else(|| {
+                        chatbot_err!(
+                            ToolUseError,
+                            "expected completions to have been prefetched".to_string()
+                        )
+                    })?;
+                    UserCourseStateFacetValue::CreditRegistration(
+                        credit_registration_facet(conn, completions).await?,
                     )
                 }
             };

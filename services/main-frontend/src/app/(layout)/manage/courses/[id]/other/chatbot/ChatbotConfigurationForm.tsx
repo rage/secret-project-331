@@ -72,7 +72,6 @@ type ToolCategoryUiGroup =
   | "interaction"
   | "admin-support"
 
-// oxlint-disable i18next/no-literal-string
 /**
  * One entry per `ToolCategory` variant -- missing one here is a compile error. `labelKey` is a
  * literal translation key (checked against the resource type by `satisfies`, not widened to
@@ -117,7 +116,6 @@ const TOOL_CATEGORY_GROUP_ORDER: ToolCategoryUiGroup[] = [
   "interaction",
   "admin-support",
 ]
-// oxlint-enable i18next/no-literal-string
 
 function categoriesInGroup(group: ToolCategoryUiGroup): ToolCategory[] {
   return TOOL_CATEGORY_LEAVES.filter((category) => TOOL_CATEGORY_META[category].group === group)

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM users\nWHERE id = ANY($1)\n        ",
+  "query": "\nSELECT *\nFROM users\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -84,5 +84,5 @@
       true
     ]
   },
-  "hash": "9ba13d10cec80c8399ce18fd579fd652f844aadad0e2208bca7a23ab2c11f45d"
+  "hash": "3bc90b8b8537594da1b3c4fd3479dd44f5ca2f63c0ea22c84a557a31428e3b7c"
 }

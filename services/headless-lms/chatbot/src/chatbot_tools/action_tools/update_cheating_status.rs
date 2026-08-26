@@ -99,7 +99,7 @@ impl ChatbotToolDeclaration for UpdateCheatingStatusTool {
                         "decision".to_string(),
                         SchemaPropertyType::Item(JsonItem {
                             type_field: JSONType::String,
-                            description: Some("Either 'confirm' (the student cheated; their completions in the course are failed) or 'dismiss' (the flag was a false alarm; any prior confirmation is undone).".to_string()),
+                            description: Some("Either 'confirm' (the student cheated; their completions in the course are failed) or 'dismiss' (the flag was a false alarm; the case is closed with no penalty). Only a case that is still flagged can be decided.".to_string()),
                         }),
                     ),
                 ]),

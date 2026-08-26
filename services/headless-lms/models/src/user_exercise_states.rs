@@ -1398,7 +1398,7 @@ pub async fn get_states_in_reviewing_stages_for_user_and_course(
         r#"
 SELECT e.id AS exercise_id,
   e.name AS exercise_name,
-  ues.reviewing_stage AS "reviewing_stage: ReviewingStage",
+  ues.reviewing_stage,
   ues.score_given
 FROM user_exercise_states ues
   JOIN exercises e ON e.id = ues.exercise_id

@@ -68,6 +68,7 @@ pub struct SisuPerson {
 pub struct SisuCourseContact {
     pub name: String,
     pub role_urn: String,
+    pub email: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -371,9 +372,11 @@ impl SisuClient {
                         .join(" ");
                     (!full_name.is_empty()).then_some(full_name)
                 })?;
+                let email = info.person.as_ref().and_then(|person| person.email.clone());
                 Some(SisuCourseContact {
                     name,
                     role_urn: info.role_urn,
+                    email,
                 })
             })
             .collect();

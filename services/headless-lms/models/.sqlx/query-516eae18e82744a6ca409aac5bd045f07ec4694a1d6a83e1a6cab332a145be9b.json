@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT et.email_template_type AS \"email_template_type: EmailTemplateType\",\n  ed.created_at,\n  ed.sent,\n  ed.retryable,\n  ed.retry_count,\n  ed.next_retry_at,\n  ed.first_failed_at,\n  ed.last_attempt_at,\n  latest_error.error_code,\n  latest_error.is_transient AS \"is_transient?\"\nFROM email_deliveries ed\n  JOIN email_templates et ON et.id = ed.email_template_id\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nWHERE ed.user_id = $1\n  AND ed.deleted_at IS NULL\nORDER BY ed.created_at DESC\nLIMIT $2\n        ",
+  "query": "\nSELECT et.email_template_type,\n  ed.created_at,\n  ed.sent,\n  ed.retryable,\n  ed.retry_count,\n  ed.next_retry_at,\n  ed.first_failed_at,\n  ed.last_attempt_at,\n  latest_error.error_code,\n  latest_error.is_transient AS \"is_transient?\"\nFROM email_deliveries ed\n  JOIN email_templates et ON et.id = ed.email_template_id\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nWHERE ed.user_id = $1\n  AND ed.deleted_at IS NULL\nORDER BY ed.created_at DESC\nLIMIT $2\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "email_template_type: EmailTemplateType",
+        "name": "email_template_type",
         "type_info": {
           "Custom": {
             "name": "email_template_type",
@@ -150,5 +150,5 @@
       false
     ]
   },
-  "hash": "0415b0bd844db7fc35d03abe0a3935e1b7c4e82071428bbc42712f64e5b664a4"
+  "hash": "516eae18e82744a6ca409aac5bd045f07ec4694a1d6a83e1a6cab332a145be9b"
 }

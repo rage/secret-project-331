@@ -260,35 +260,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Chatbot
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    use_azure_search,
-    maintain_azure_search_index,
-    use_semantic_reranking,
-    hide_citations,
-    default_chatbot,
-    model_id,
-    verbosity,
-    reasoning_effort,
-    suggest_next_messages,
-    initial_suggested_messages,
-    max_output_tokens,
-    publicly_accessible,
-    enabled_tool_categories AS "enabled_tool_categories: Vec<ToolCategory>"
+SELECT *
 FROM chatbot_configurations
 WHERE id = $1
 AND deleted_at IS NULL
@@ -339,35 +311,7 @@ INSERT INTO chatbot_configurations (
     publicly_accessible
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    use_azure_search,
-    maintain_azure_search_index,
-    use_semantic_reranking,
-    hide_citations,
-    default_chatbot,
-    model_id,
-    verbosity,
-    reasoning_effort,
-    suggest_next_messages,
-    initial_suggested_messages,
-    max_output_tokens,
-    publicly_accessible,
-    enabled_tool_categories AS "enabled_tool_categories: Vec<ToolCategory>"
+RETURNING *
         "#,
         pkey_policy.into_uuid(),
         input.course_id,
@@ -440,35 +384,7 @@ SET
     publicly_accessible = $23
 WHERE id = $24
     AND deleted_at IS NULL
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    use_azure_search,
-    maintain_azure_search_index,
-    use_semantic_reranking,
-    hide_citations,
-    default_chatbot,
-    model_id,
-    verbosity,
-    reasoning_effort,
-    suggest_next_messages,
-    initial_suggested_messages,
-    max_output_tokens,
-    publicly_accessible,
-    enabled_tool_categories AS "enabled_tool_categories: Vec<ToolCategory>"
+RETURNING *
 "#,
         input.enabled_to_students,
         input.chatbot_name,
@@ -522,35 +438,7 @@ pub async fn get_for_course(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    use_azure_search,
-    maintain_azure_search_index,
-    use_semantic_reranking,
-    hide_citations,
-    default_chatbot,
-    model_id,
-    verbosity,
-    reasoning_effort,
-    suggest_next_messages,
-    initial_suggested_messages,
-    max_output_tokens,
-    publicly_accessible,
-    enabled_tool_categories AS "enabled_tool_categories: Vec<ToolCategory>"
+SELECT *
 FROM chatbot_configurations
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -569,35 +457,7 @@ pub async fn get_enabled_nondefault_for_course(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    use_azure_search,
-    maintain_azure_search_index,
-    use_semantic_reranking,
-    hide_citations,
-    default_chatbot,
-    model_id,
-    verbosity,
-    reasoning_effort,
-    suggest_next_messages,
-    initial_suggested_messages,
-    max_output_tokens,
-    publicly_accessible,
-    enabled_tool_categories AS "enabled_tool_categories: Vec<ToolCategory>"
+SELECT *
 FROM chatbot_configurations
 WHERE course_id = $1
 AND default_chatbot IS false
@@ -617,35 +477,7 @@ pub async fn get_for_azure_search_maintenance(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    use_azure_search,
-    maintain_azure_search_index,
-    use_semantic_reranking,
-    hide_citations,
-    default_chatbot,
-    model_id,
-    verbosity,
-    reasoning_effort,
-    suggest_next_messages,
-    initial_suggested_messages,
-    max_output_tokens,
-    publicly_accessible,
-    enabled_tool_categories AS "enabled_tool_categories: Vec<ToolCategory>"
+SELECT *
 FROM chatbot_configurations
 WHERE maintain_azure_search_index = true
 AND deleted_at IS NULL
@@ -686,35 +518,7 @@ UPDATE chatbot_configurations
 SET default_chatbot = TRUE
 WHERE id = $1
   AND deleted_at IS NULL
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    use_azure_search,
-    maintain_azure_search_index,
-    use_semantic_reranking,
-    hide_citations,
-    default_chatbot,
-    model_id,
-    verbosity,
-    reasoning_effort,
-    suggest_next_messages,
-    initial_suggested_messages,
-    max_output_tokens,
-    publicly_accessible,
-    enabled_tool_categories AS "enabled_tool_categories: Vec<ToolCategory>"
+RETURNING *
 "#,
         chatbot_configuration_id,
     )
@@ -727,35 +531,7 @@ pub async fn get_all_chatbots(conn: &mut PgConnection) -> ModelResult<Vec<Chatbo
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-    SELECT
-        id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    use_azure_search,
-    maintain_azure_search_index,
-    use_semantic_reranking,
-    hide_citations,
-    default_chatbot,
-    model_id,
-    verbosity,
-    reasoning_effort,
-    suggest_next_messages,
-    initial_suggested_messages,
-    max_output_tokens,
-    publicly_accessible,
-    enabled_tool_categories AS "enabled_tool_categories: Vec<ToolCategory>"
+    SELECT *
     FROM chatbot_configurations
     WHERE deleted_at IS NULL
     "#,

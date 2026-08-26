@@ -193,6 +193,20 @@ async fn begin_turn(
                 trace!(
                     "Tool call {tool_call_id} answered, the turn is still waiting for another answer"
                 );
+                // Another client tool call is still open, so there's no resumed turn to ride the
+                // payload ahead of -- emit it here or it's lost, and the browser never sees it.
+                if let Some(payload) = answered.execution_payload {
+                    let event = ChatbotChatStreamEvent::ActionExecuted {
+                        tool_call_id: tool_call_id.to_string(),
+                        payload,
+                    };
+                    let action_line = ndjson_line(&event)?;
+                    let suspended_line = ndjson_line(&ChatbotChatStreamEvent::Suspended)?;
+                    return Ok(Box::pin(futures::stream::iter([
+                        Ok(action_line),
+                        Ok(suspended_line),
+                    ])));
+                }
                 return single_event_stream(ChatbotChatStreamEvent::Suspended);
             }
 

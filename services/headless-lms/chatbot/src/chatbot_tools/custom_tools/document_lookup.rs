@@ -176,7 +176,7 @@ impl ChatbotTool for DocumentLookupTool {
             // them, instead of reporting the document not found.
             Err(e) if e.error_type() == &ModelErrorType::RecordNotFound => {
                 match pages::get_page(conn, page_id).await {
-                    Ok(page) if page.course_id == Some(course_id) => {
+                    Ok(page) if page.course_id == Some(course_id) && page.deleted_at.is_none() => {
                         let blocks = remove_sensitive_attributes(page.blocks_cloned()?);
                         let base = "No converted markdown exists for this course; this is raw block JSON:\n\n".to_string();
                         let s = shorten_page_content(serde_json::to_string(&blocks)?);

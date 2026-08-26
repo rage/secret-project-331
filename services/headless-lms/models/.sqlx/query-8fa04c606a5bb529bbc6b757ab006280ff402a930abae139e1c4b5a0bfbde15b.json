@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  title\nFROM pages\nWHERE id = ANY($1)\n        ",
+  "query": "\nSELECT id,\n  title\nFROM pages\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -36,5 +36,5 @@
       false
     ]
   },
-  "hash": "dbe3dac363963b63666a6d9391233d5e194e94df46fc62fd3463d8b6161273f5"
+  "hash": "8fa04c606a5bb529bbc6b757ab006280ff402a930abae139e1c4b5a0bfbde15b"
 }

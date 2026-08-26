@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_configurations (\n    id,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    hide_citations,\n    frequency_penalty,\n    presence_penalty,\n    max_output_tokens,\n    verbosity,\n    reasoning_effort,\n    use_azure_search,\n    enabled_tool_categories,\n    maintain_azure_search_index,\n    default_chatbot,\n    suggest_next_messages,\n    initial_suggested_messages,\n    publicly_accessible\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    use_azure_search,\n    maintain_azure_search_index,\n    use_semantic_reranking,\n    hide_citations,\n    default_chatbot,\n    model_id,\n    verbosity,\n    reasoning_effort,\n    suggest_next_messages,\n    initial_suggested_messages,\n    max_output_tokens,\n    publicly_accessible,\n    enabled_tool_categories AS \"enabled_tool_categories: Vec<ToolCategory>\"\n        ",
+  "query": "\nSELECT *\nFROM chatbot_configurations\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -327,7 +327,7 @@
       },
       {
         "ordinal": 27,
-        "name": "enabled_tool_categories: Vec<ToolCategory>",
+        "name": "enabled_tool_categories",
         "type_info": {
           "Custom": {
             "name": "chatbot_tool_category[]",
@@ -362,78 +362,7 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Uuid",
-        "Bool",
-        "Varchar",
-        "Uuid",
-        "Varchar",
-        "Varchar",
-        "Int4",
-        "Int4",
-        "Float4",
-        "Float4",
-        "Bool",
-        "Float4",
-        "Float4",
-        "Int4",
-        {
-          "Custom": {
-            "name": "verbosity_level",
-            "kind": {
-              "Enum": [
-                "low",
-                "medium",
-                "high"
-              ]
-            }
-          }
-        },
-        {
-          "Custom": {
-            "name": "reasoning_effort_level",
-            "kind": {
-              "Enum": [
-                "none",
-                "minimal",
-                "low",
-                "medium",
-                "high",
-                "xhigh"
-              ]
-            }
-          }
-        },
-        "Bool",
-        {
-          "Custom": {
-            "name": "chatbot_tool_category[]",
-            "kind": {
-              "Array": {
-                "Custom": {
-                  "name": "chatbot_tool_category",
-                  "kind": {
-                    "Enum": [
-                      "course_material",
-                      "course_info",
-                      "course_catalog",
-                      "interaction",
-                      "admin_support_accounts",
-                      "admin_support_courses",
-                      "admin_support_learning_progress",
-                      "admin_support_academic_integrity"
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        "Bool",
-        "Bool",
-        "Bool",
-        "VarcharArray",
-        "Bool"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -467,5 +396,5 @@
       false
     ]
   },
-  "hash": "e748a2c1c765260584aac1e8064843e8ae4207fd87be941869598c9ca33752ac"
+  "hash": "c8fa6bed9490754a77bc41ff09bcb7036e84e38fe18bacaccde9050a9aa36e46"
 }

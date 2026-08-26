@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    use_azure_search,\n    maintain_azure_search_index,\n    use_semantic_reranking,\n    hide_citations,\n    default_chatbot,\n    model_id,\n    verbosity,\n    reasoning_effort,\n    suggest_next_messages,\n    initial_suggested_messages,\n    max_output_tokens,\n    publicly_accessible,\n    enabled_tool_categories AS \"enabled_tool_categories: Vec<ToolCategory>\"\nFROM chatbot_configurations\nWHERE id = $1\nAND deleted_at IS NULL\n        ",
+  "query": "\nUPDATE chatbot_configurations\nSET default_chatbot = TRUE\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -327,7 +327,7 @@
       },
       {
         "ordinal": 27,
-        "name": "enabled_tool_categories: Vec<ToolCategory>",
+        "name": "enabled_tool_categories",
         "type_info": {
           "Custom": {
             "name": "chatbot_tool_category[]",
@@ -396,5 +396,5 @@
       false
     ]
   },
-  "hash": "4255b7116e98aabcfdc8306055c8635c7c051d2b895c48c95e9cc616a5c644ec"
+  "hash": "c86c033b9a43f14c7b4ae69e80f15b190576fbcc84bcaccf3670b8cf4033bba1"
 }

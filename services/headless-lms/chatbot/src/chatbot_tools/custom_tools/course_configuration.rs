@@ -362,7 +362,12 @@ impl ChatbotTool for CourseConfigurationTool {
         for facet in &arguments.facets {
             let value = match facet {
                 CourseConfigurationFacet::Modules => {
-                    let modules = modules.as_ref().expect("prefetched above");
+                    let modules = modules.as_ref().ok_or_else(|| {
+                        chatbot_err!(
+                            ToolUseError,
+                            "expected modules to have been prefetched".to_string()
+                        )
+                    })?;
                     CourseConfigurationFacetValue::Modules(
                         modules.iter().map(module_to_info).collect(),
                     )
@@ -373,7 +378,12 @@ impl ChatbotTool for CourseConfigurationTool {
                             conn, course_id,
                         )
                         .await?;
-                    let modules = modules.as_ref().expect("prefetched above");
+                    let modules = modules.as_ref().ok_or_else(|| {
+                        chatbot_err!(
+                            ToolUseError,
+                            "expected modules to have been prefetched".to_string()
+                        )
+                    })?;
                     let infos = configurations
                         .iter()
                         .map(|c| {
@@ -406,7 +416,12 @@ impl ChatbotTool for CourseConfigurationTool {
                 }
                 CourseConfigurationFacet::Exams => {
                     let course_exams = exams::get_exams_for_course(conn, course_id).await?;
-                    let modules = modules.as_ref().expect("prefetched above");
+                    let modules = modules.as_ref().ok_or_else(|| {
+                        chatbot_err!(
+                            ToolUseError,
+                            "expected modules to have been prefetched".to_string()
+                        )
+                    })?;
                     let exam_ids: Vec<Uuid> = course_exams.iter().map(|e| e.id).collect();
                     let exams_by_id: std::collections::HashMap<Uuid, exams::ExamSummary> =
                         exams::get_summaries_by_ids(conn, &exam_ids)
@@ -530,15 +545,17 @@ impl ChatbotTool for CourseConfigurationTool {
                         ask_marketing_consent: course.ask_marketing_consent,
                     })
                 }
-                CourseConfigurationFacet::Staff => CourseConfigurationFacetValue::Staff(
-                    staff_facet(
-                        conn,
-                        app_config,
-                        course_id,
-                        modules.as_ref().expect("prefetched above"),
+                CourseConfigurationFacet::Staff => {
+                    let modules = modules.as_ref().ok_or_else(|| {
+                        chatbot_err!(
+                            ToolUseError,
+                            "expected modules to have been prefetched".to_string()
+                        )
+                    })?;
+                    CourseConfigurationFacetValue::Staff(
+                        staff_facet(conn, app_config, course_id, modules).await?,
                     )
-                    .await?,
-                ),
+                }
             };
             facets.insert(facet.wire_name().to_string(), value);
         }

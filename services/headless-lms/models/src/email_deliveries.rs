@@ -577,7 +577,7 @@ pub async fn get_recent_deliveries_for_user(
 ) -> ModelResult<Vec<UserEmailDeliverySummary>> {
     let rows = sqlx::query!(
         r#"
-SELECT et.email_template_type AS "email_template_type: EmailTemplateType",
+SELECT et.email_template_type,
   ed.created_at,
   ed.sent,
   ed.retryable,

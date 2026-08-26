@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT e.id AS exercise_id,\n  e.name AS exercise_name,\n  ues.reviewing_stage AS \"reviewing_stage: ReviewingStage\",\n  ues.score_given\nFROM user_exercise_states ues\n  JOIN exercises e ON e.id = ues.exercise_id\nWHERE ues.user_id = $1\n  AND ues.course_id = $2\n  AND ues.reviewing_stage = ANY($3::reviewing_stage[])\n  AND ues.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n        ",
+  "query": "\nSELECT e.id AS exercise_id,\n  e.name AS exercise_name,\n  ues.reviewing_stage,\n  ues.score_given\nFROM user_exercise_states ues\n  JOIN exercises e ON e.id = ues.exercise_id\nWHERE ues.user_id = $1\n  AND ues.course_id = $2\n  AND ues.reviewing_stage = ANY($3::reviewing_stage[])\n  AND ues.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "reviewing_stage: ReviewingStage",
+        "name": "reviewing_stage",
         "type_info": {
           "Custom": {
             "name": "reviewing_stage",
@@ -101,5 +101,5 @@
       true
     ]
   },
-  "hash": "3c77cc3dd0b61c756699c1da2409682b210ddc052109bf65b31469a0a05df031"
+  "hash": "97258a67399fac881978330e83689a5ce7451709983606004d0c2d9803061910"
 }

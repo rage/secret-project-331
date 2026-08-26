@@ -280,11 +280,12 @@ pub async fn lock_unanswered_for_execution(
 ) -> ModelResult<()> {
     let call = sqlx::query!(
         r#"
-SELECT id, tool_call_id
-FROM chatbot_conversation_message_tool_calls
-WHERE id = $1
-  AND deleted_at IS NULL
-FOR UPDATE
+SELECT ccmtc.id, ccmtc.tool_call_id, ccm.conversation_id
+FROM chatbot_conversation_message_tool_calls AS ccmtc
+  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmtc.chatbot_conversation_message_id
+WHERE ccmtc.id = $1
+  AND ccmtc.deleted_at IS NULL
+FOR UPDATE OF ccmtc
         "#,
         tool_call_id
     )
@@ -297,14 +298,20 @@ FOR UPDATE
         )
     })?;
 
+    // tool_call_id is a provider string, not unique across conversations, so the check must be
+    // scoped to this call's conversation.
     let already_answered = sqlx::query!(
         r#"
-SELECT id
-FROM chatbot_conversation_message_tool_outputs
-WHERE tool_call_id = $1
-  AND deleted_at IS NULL
+SELECT ccmto.id
+FROM chatbot_conversation_message_tool_outputs AS ccmto
+  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmto.chatbot_conversation_message_id
+WHERE ccmto.tool_call_id = $1
+  AND ccm.conversation_id = $2
+  AND ccmto.deleted_at IS NULL
+  AND ccm.deleted_at IS NULL
         "#,
-        call.tool_call_id
+        call.tool_call_id,
+        call.conversation_id
     )
     .fetch_optional(conn)
     .await?

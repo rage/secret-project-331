@@ -138,6 +138,7 @@ pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Ve
 SELECT *
 FROM users
 WHERE id = ANY($1)
+  AND deleted_at IS NULL
         ",
         ids
     )

@@ -944,6 +944,7 @@ SELECT id,
   title
 FROM pages
 WHERE id = ANY($1)
+  AND deleted_at IS NULL
         ",
         page_ids,
     )

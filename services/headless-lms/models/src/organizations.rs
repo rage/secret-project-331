@@ -123,6 +123,7 @@ pub async fn get_by_ids(
 SELECT *
 FROM organizations
 WHERE id = ANY($1)
+  AND deleted_at IS NULL
         ",
         organization_ids,
     )

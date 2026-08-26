@@ -42,7 +42,6 @@ use headless_lms_models::library::credit_registration::outcomes::{
 use headless_lms_models::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
-use headless_lms_models::suotar_api_calls::SuotarEndpoint as SuotarApiEndpoint;
 use headless_lms_models::{credit_registration_phase_state, credit_registrations};
 use headless_lms_models::{
     credit_registration_phase_state::PhaseRunOutcome, verified_student_numbers,
@@ -50,7 +49,7 @@ use headless_lms_models::{
 use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError, UtilErrorType};
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
-    ListedPerson, SuotarBatchResponse, SuotarClient, SuotarItemStatus,
+    ListedPerson, SuotarBatchResponse, SuotarClient, SuotarEndpoint, SuotarItemStatus,
 };
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::{BTreeSet, HashMap};
@@ -699,7 +698,7 @@ pub(crate) fn every_item_failed_transiently<R>(response: &SuotarBatchResponse<R>
 /// `rows` was collected before that transition's effect and is stale by the time this runs.
 pub(crate) async fn request_level_failure(
     ctx: &PhaseContext<'_>,
-    endpoint: SuotarApiEndpoint,
+    endpoint: SuotarEndpoint,
     error: &UtilError,
     rows: &[CreditRegistration],
     requests: &[serde_json::Value],

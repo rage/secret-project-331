@@ -35,7 +35,6 @@ use headless_lms_models::library::credit_registration::payload::{
 use headless_lms_models::library::credit_registration::submission_context::{
     SubmissionContext, get_submission_contexts,
 };
-use headless_lms_models::suotar_api_calls::SuotarEndpoint as AuditEndpoint;
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     EnrolmentResolutionResult, ResolveEnrolmentRequestItem, SuotarCallContext, SuotarEndpoint,
@@ -137,7 +136,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         Err(error) => {
             return request_level_failure(
                 ctx,
-                AuditEndpoint::ResolveEnrolments,
+                SuotarEndpoint::ResolveEnrolments,
                 &error,
                 &rows.iter().map(|(row, _)| row.clone()).collect::<Vec<_>>(),
                 &requests,
@@ -202,7 +201,7 @@ async fn apply_answer(
     match item {
         None => {
             let outcome =
-                unanswered_item_outcome(AuditEndpoint::ResolveEnrolments, row.state, &facts);
+                unanswered_item_outcome(SuotarEndpoint::ResolveEnrolments, row.state, &facts);
             apply_outcome(
                 conn,
                 row,
@@ -217,9 +216,9 @@ async fn apply_answer(
             Ok(counts_as_failed(&outcome))
         }
         Some(item) if item.status == SuotarItemStatus::Error => {
-            let code = map_code(AuditEndpoint::ResolveEnrolments, &item.code)
+            let code = map_code(SuotarEndpoint::ResolveEnrolments, &item.code)
                 .unwrap_or(CreditRegistrationErrorCode::Unknown);
-            let outcome = submit_error_outcome(AuditEndpoint::ResolveEnrolments, code, &facts);
+            let outcome = submit_error_outcome(SuotarEndpoint::ResolveEnrolments, code, &facts);
             apply_outcome(
                 conn,
                 row,
@@ -333,7 +332,7 @@ async fn choose(
             let outcome = headless_lms_models::library::credit_registration::outcomes::Outcome {
                 error_code: Some(reason.error_code()),
                 ..submit_error_outcome(
-                    AuditEndpoint::ResolveEnrolments,
+                    SuotarEndpoint::ResolveEnrolments,
                     reason.error_code(),
                     &row_facts(row),
                 )
@@ -370,7 +369,7 @@ async fn choose(
             apply_outcome(
                 conn,
                 row,
-                &submit_error_outcome(AuditEndpoint::ResolveEnrolments, code, &row_facts(row)),
+                &submit_error_outcome(SuotarEndpoint::ResolveEnrolments, code, &row_facts(row)),
                 event,
                 Some(CreditRegistrationState::ResolvingEnrolment),
             )

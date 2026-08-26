@@ -4,9 +4,13 @@
 //! insert; `credit_registration_ids` replaces the removed identifiers for drill-down.
 use async_trait::async_trait;
 use headless_lms_utils::services::suotar::{
-    SuotarCallAudit, SuotarCallFinished, SuotarCallStarted, SuotarEndpoint as ClientEndpoint,
+    SuotarCallAudit, SuotarCallFinished, SuotarCallStarted,
 };
 use utoipa::ToSchema;
+
+/// Re-exported so row readers keep one import path; the enum lives with the client that calls the
+/// endpoints, which also stores it in the `suotar_endpoint` postgres enum.
+pub use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use crate::credit_registration_events::{scrub_suotar_body, scrub_text};
 use crate::prelude::*;
@@ -22,31 +26,6 @@ pub const SAMPLED_BODY_ITEM_COUNT: usize = 5;
 
 /// Hard cap on a stored body, applied after sampling.
 pub const BODY_SAMPLE_MAX_BYTES: usize = 64 * 1024;
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
-#[sqlx(type_name = "suotar_endpoint", rename_all = "snake_case")]
-#[serde(rename_all = "snake_case")]
-pub enum SuotarEndpoint {
-    ResolvePersons,
-    ResolveEnrolments,
-    ImportAttainments,
-    VerifyAttainments,
-    ProductAccessTokens,
-    ListByCourse,
-}
-
-impl From<ClientEndpoint> for SuotarEndpoint {
-    fn from(endpoint: ClientEndpoint) -> Self {
-        match endpoint {
-            ClientEndpoint::ResolvePersons => Self::ResolvePersons,
-            ClientEndpoint::ResolveEnrolments => Self::ResolveEnrolments,
-            ClientEndpoint::ImportAttainments => Self::ImportAttainments,
-            ClientEndpoint::VerifyAttainments => Self::VerifyAttainments,
-            ClientEndpoint::ProductAccessTokens => Self::ProductAccessTokens,
-            ClientEndpoint::ListByCourse => Self::ListByCourse,
-        }
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct SuotarApiCall {
@@ -234,7 +213,7 @@ impl PgSuotarCallAudit {
 impl SuotarCallAudit for PgSuotarCallAudit {
     async fn started(&self, started: SuotarCallStarted) -> Option<Uuid> {
         let new = NewSuotarApiCall {
-            endpoint: started.endpoint.into(),
+            endpoint: started.endpoint,
             request_item_count: started.request_item_count.try_into().unwrap_or(i32::MAX),
             http_status: None,
             duration_ms: None,

@@ -18,7 +18,6 @@ use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, import_success_state, submission_uncertain, submit_error_outcome,
     unanswered_item_outcome,
 };
-use headless_lms_models::suotar_api_calls::SuotarEndpoint as AuditEndpoint;
 use headless_lms_utils::services::suotar::{
     ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarCallContext,
     SuotarEndpoint, SuotarItemStatus,
@@ -124,7 +123,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         Err(error) => {
             return request_level_failure(
                 ctx,
-                AuditEndpoint::ImportAttainments,
+                SuotarEndpoint::ImportAttainments,
                 &error,
                 &rows,
                 &requests,
@@ -191,7 +190,7 @@ async fn apply_answer(
             apply_outcome(
                 conn,
                 row,
-                &unanswered_item_outcome(AuditEndpoint::ImportAttainments, row.state, &facts),
+                &unanswered_item_outcome(SuotarEndpoint::ImportAttainments, row.state, &facts),
                 OutcomeEvent {
                     message: Some(
                         "The study registry did not answer for this item, so whether the \
@@ -205,9 +204,9 @@ async fn apply_answer(
             Ok(true)
         }
         Some(item) if item.status == SuotarItemStatus::Error => {
-            let code = map_code(AuditEndpoint::ImportAttainments, &item.code)
+            let code = map_code(SuotarEndpoint::ImportAttainments, &item.code)
                 .unwrap_or(CreditRegistrationErrorCode::Unknown);
-            let outcome = submit_error_outcome(AuditEndpoint::ImportAttainments, code, &facts);
+            let outcome = submit_error_outcome(SuotarEndpoint::ImportAttainments, code, &facts);
             if outcome.to_state == CreditRegistrationState::SubmissionUncertain
                 && let Some(disclosed) = item
                     .error

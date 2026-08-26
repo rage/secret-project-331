@@ -22,7 +22,6 @@ use headless_lms_models::library::credit_registration::outcomes::{
     verify_not_registered_outcome,
 };
 use headless_lms_models::library::credit_registration::submission_context::get_submission_contexts;
-use headless_lms_models::suotar_api_calls::SuotarEndpoint as AuditEndpoint;
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
@@ -192,7 +191,7 @@ async fn poll(
         // Everything else keeps the row where it is: `notRegistered` is a normal polling answer,
         // and any other answer is one we will not act on blindly.
         let outcome = item
-            .and_then(|item| map_code(AuditEndpoint::VerifyAttainments, &item.code))
+            .and_then(|item| map_code(SuotarEndpoint::VerifyAttainments, &item.code))
             .map(|code| verify_error_outcome(row.state, code, &facts))
             .unwrap_or_else(|| verify_not_registered_outcome(row.state, &facts));
         apply_outcome(

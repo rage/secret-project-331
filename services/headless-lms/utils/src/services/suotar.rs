@@ -3,6 +3,9 @@
 //! Every endpoint is a batch. Per-item outcomes arrive as HTTP 200 and are read from each item's
 //! `status` and `code`; only request-level failures are 4xx/5xx and `Err`. Items are matched back
 //! by `requestItemId`, never by position.
+//!
+//! The mock study registry serializes these same types, so `skip_serializing_if` here is what keeps
+//! its bodies byte-identical to Suotar's.
 
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -16,6 +19,7 @@ use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use serde::de::DeserializeOwned;
+use utoipa::ToSchema;
 
 use crate::{error::util_error::SuotarErrorVariant, prelude::*};
 
@@ -32,7 +36,8 @@ pub const MAX_REQUEST_BODY_BYTES: usize = 2 * 1024 * 1024;
 /// The only code the contract classifies as "transient, retry me".
 pub const TRANSIENT_ITEM_CODE: &str = "sisuTemporarilyUnavailable";
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type, ToSchema)]
+#[sqlx(type_name = "suotar_endpoint", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum SuotarEndpoint {
     ResolvePersons,
@@ -101,7 +106,7 @@ macro_rules! request_item {
     };
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResolvePersonRequestItem {
     pub request_item_id: String,
@@ -109,7 +114,7 @@ pub struct ResolvePersonRequestItem {
 }
 request_item!(ResolvePersonRequestItem);
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResolveEnrolmentRequestItem {
     pub request_item_id: String,
@@ -118,7 +123,7 @@ pub struct ResolveEnrolmentRequestItem {
 }
 request_item!(ResolveEnrolmentRequestItem);
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportAttainmentRequestItem {
     pub request_item_id: String,
@@ -133,7 +138,7 @@ pub struct ImportAttainmentRequestItem {
 }
 request_item!(ImportAttainmentRequestItem);
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VerifyAttainmentRequestItem {
     pub request_item_id: String,
@@ -141,7 +146,7 @@ pub struct VerifyAttainmentRequestItem {
 }
 request_item!(VerifyAttainmentRequestItem);
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProductAccessTokenRequestItem {
     pub request_item_id: String,
@@ -149,7 +154,7 @@ pub struct ProductAccessTokenRequestItem {
 }
 request_item!(ProductAccessTokenRequestItem);
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListByCourseRequestItem {
     pub request_item_id: String,
@@ -172,6 +177,12 @@ pub struct LocalizedName {
 pub struct DatePeriod {
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
+}
+
+impl DatePeriod {
+    pub fn contains(&self, date: NaiveDate) -> bool {
+        self.start_date <= date && date <= self.end_date
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -242,21 +253,30 @@ pub struct SuotarAttainment {
     pub id: String,
     #[serde(rename = "type")]
     pub attainment_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub attainment_date: Option<NaiveDate>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub registration_date: Option<NaiveDate>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub grade_scale_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub grade_id: Option<String>,
 }
 
 /// One shape for import's four success codes: `sent` fills the submitted pair, `registered` and
 /// `duplicateAttainment` fill `attainment`, `notImprovedAttainment` fills `previous_attainment`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportAttainmentResult {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub submitted_attainment_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub submitted_attainment_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub attainment: Option<SuotarAttainment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub previous_attainment: Option<SuotarAttainment>,
 }
 
@@ -292,6 +312,8 @@ pub struct ListedPerson {
     pub first_names: String,
     pub last_name: String,
     pub primary_email: String,
+    /// Omitted rather than null when Sisu holds none.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub secondary_email: Option<String>,
     pub enrolment: ListedEnrolment,
 }
@@ -314,10 +336,11 @@ pub enum SuotarItemStatus {
 pub struct SuotarItemError {
     pub message: String,
     /// Present only on a disclosed `sisuTimeout`: the id the client may verify instead of retrying.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub submitted_attainment_id: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SuotarResponseItem<R> {
     pub request_item_id: String,
@@ -325,7 +348,9 @@ pub struct SuotarResponseItem<R> {
     /// A string, not an enum: Suotar may add codes, and a strict enum would take the pipeline down
     /// the day it does.
     pub code: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<R>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<SuotarItemError>,
 }
 

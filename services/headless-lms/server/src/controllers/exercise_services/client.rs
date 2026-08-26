@@ -1954,7 +1954,7 @@ mod upload_tests {
         )
         .await
         .expect("binding");
-        models::test_support::soft_delete_answer_upload(tx.as_mut(), file_id)
+        models::exercise_answer_uploads::delete_by_file_upload_id(tx.as_mut(), file_id)
             .await
             .expect("soft delete");
 
@@ -2453,9 +2453,13 @@ mod route_tests {
         let mut conn = PgConnection::connect(&test_database_url())
             .await
             .expect("connection");
-        models::test_support::expire_exercise_deadline(&mut conn, exercise)
-            .await
-            .expect("deadline");
+        models::exercises::set_deadline(
+            &mut conn,
+            exercise,
+            Some(Utc::now() - ChronoDuration::days(1)),
+        )
+        .await
+        .expect("deadline");
     }
 
     #[actix_web::test]
@@ -2673,7 +2677,7 @@ mod route_tests {
 
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        models::test_support::soft_delete_answer_upload(tx.as_mut(), ids[0])
+        models::exercise_answer_uploads::delete_by_file_upload_id(tx.as_mut(), ids[0])
             .await
             .expect("retire");
         tx.commit().await;
@@ -2883,22 +2887,26 @@ mod route_tests {
             .collect()
     }
 
-    async fn slide_submission_count(exercise: Uuid, user: Uuid) -> i64 {
+    async fn slide_submission_count(exercise: Uuid, user: Uuid) -> u32 {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let count = models::test_support::slide_submission_count(tx.as_mut(), exercise, user)
+        let count = models::exercise_slide_submissions::exercise_slide_submission_count_with_exercise_and_user_ids(tx.as_mut(), exercise, user)
             .await
             .expect("count");
         tx.rollback().await;
         count
     }
 
-    async fn rejected_submission_count(slide: Uuid, user: Uuid) -> i64 {
+    async fn rejected_submission_count(slide: Uuid, user: Uuid) -> u32 {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let count = models::test_support::rejected_slide_submission_count(tx.as_mut(), slide, user)
-            .await
-            .expect("count");
+        let count = models::rejected_exercise_slide_submissions::count_with_slide_and_user_ids(
+            tx.as_mut(),
+            slide,
+            user,
+        )
+        .await
+        .expect("count");
         tx.rollback().await;
         count
     }

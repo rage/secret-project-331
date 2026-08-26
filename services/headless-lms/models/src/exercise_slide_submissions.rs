@@ -1112,6 +1112,39 @@ AND deleted_at IS NULL
     Ok(())
 }
 
+/// How many live slide submissions a user has made to an exercise.
+pub async fn exercise_slide_submission_count_with_exercise_and_user_ids(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<u32> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT count(*) AS "count!"
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+"#,
+        exercise_id,
+        user_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count.try_into()?)
+}
+
+/// Soft-deletes one slide submission, leaving its task submissions alone.
+pub async fn delete_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE exercise_slide_submissions SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL",
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

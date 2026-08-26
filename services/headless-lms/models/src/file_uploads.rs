@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use chrono::Duration;
 
 /// Records a stored object. `size_bytes` is the byte count measured while receiving it; `None`
 /// where the upload path does not count bytes.
@@ -83,4 +84,19 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(res.path)
+}
+
+/// Moves an upload's creation time `age` into the past, to bring it within a retention window.
+///
+/// Shifts the row rather than the clock because the retention filters compare against Postgres
+/// `now()`, which no Rust-side clock reaches.
+pub async fn backdate(conn: &mut PgConnection, id: Uuid, age: Duration) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE file_uploads SET created_at = now() - $2::interval WHERE id = $1",
+        id,
+        age as Duration
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

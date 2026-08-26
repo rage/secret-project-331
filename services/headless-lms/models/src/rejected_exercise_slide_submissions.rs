@@ -125,3 +125,25 @@ FROM UNNEST($2::uuid []) WITH ORDINALITY AS t(file_upload_id, ordinality)
     .await?;
     Ok(())
 }
+
+/// How many live rejections a user has collected on a slide.
+pub async fn count_with_slide_and_user_ids(
+    conn: &mut PgConnection,
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<u32> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT count(*) AS "count!"
+FROM rejected_exercise_slide_submissions
+WHERE exercise_slide_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+"#,
+        exercise_slide_id,
+        user_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count.try_into()?)
+}

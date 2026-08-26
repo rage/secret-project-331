@@ -573,32 +573,34 @@ mod tests {
         .await
     }
 
-    async fn slide_submission_count(conn: &mut PgConnection, exercise: Uuid, user: Uuid) -> i64 {
-        models::test_support::slide_submission_count(conn, exercise, user)
+    async fn slide_submission_count(conn: &mut PgConnection, exercise: Uuid, user: Uuid) -> u32 {
+        models::exercise_slide_submissions::exercise_slide_submission_count_with_exercise_and_user_ids(conn, exercise, user)
             .await
             .expect("count")
     }
 
     async fn answer_kind_of(conn: &mut PgConnection, submission: Uuid) -> AnswerKind {
-        models::test_support::answer_kind(conn, submission)
+        models::exercise_task_submissions::get_answer_kind(conn, submission)
             .await
             .expect("answer kind")
     }
 
     async fn recorded_files(conn: &mut PgConnection, submission: Uuid) -> Vec<(Uuid, i32)> {
-        models::test_support::submission_file_positions(conn, submission)
-            .await
-            .expect("submission files")
+        models::exercise_task_submission_files::get_positions_by_task_submission_id(
+            conn, submission,
+        )
+        .await
+        .expect("submission files")
     }
 
     async fn binding_id_of(conn: &mut PgConnection, file_upload_id: Uuid) -> Uuid {
-        models::test_support::answer_upload_id(conn, file_upload_id)
+        models::exercise_answer_uploads::get_id_by_file_upload_id(conn, file_upload_id)
             .await
             .expect("binding id")
     }
 
     async fn reap(conn: &mut PgConnection, file_upload_id: Uuid) {
-        models::test_support::soft_delete_answer_upload(conn, file_upload_id)
+        models::exercise_answer_uploads::delete_by_file_upload_id(conn, file_upload_id)
             .await
             .expect("reap");
     }

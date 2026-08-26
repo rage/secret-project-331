@@ -507,8 +507,9 @@ mod answer_upload_tests {
     use actix_web::cookie::{Cookie, Key, SameSite};
     use actix_web::http::StatusCode;
     use actix_web::{App, test};
+    use chrono::{Duration, Utc};
+    use models::exercise_answer_uploads::AnswerUploadBinding;
     use models::exercise_answer_uploads::AnswerUploadOrigin;
-    use models::test_support::AnswerUploadBinding;
     use std::sync::Arc;
 
     const BOUNDARY: &str = "answeruploadboundary";
@@ -709,9 +710,13 @@ mod answer_upload_tests {
     async fn expire_deadline(exercise: Uuid) {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        models::test_support::expire_exercise_deadline(&mut **tx.as_mut(), exercise)
-            .await
-            .expect("the deadline update");
+        models::exercises::set_deadline(
+            &mut **tx.as_mut(),
+            exercise,
+            Some(Utc::now() - Duration::days(1)),
+        )
+        .await
+        .expect("the deadline update");
         tx.commit().await;
     }
 
@@ -719,7 +724,7 @@ mod answer_upload_tests {
     async fn exhaust_tries(exercise: Uuid) {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        models::test_support::exhaust_exercise_tries(&mut **tx.as_mut(), exercise)
+        models::exercises::set_try_limit(&mut **tx.as_mut(), exercise, true, Some(0))
             .await
             .expect("the try limit update");
         tx.commit().await;
@@ -818,9 +823,10 @@ mod answer_upload_tests {
             .collect();
         assert_eq!(names, vec!["a.tar.zst", "b.txt"]);
 
-        let bindings = models::test_support::answer_upload_bindings(&mut **check.as_mut(), &ids)
-            .await
-            .expect("the bindings");
+        let bindings =
+            models::exercise_answer_uploads::get_by_file_upload_ids(&mut **check.as_mut(), &ids)
+                .await
+                .expect("the bindings");
         assert_eq!(bindings.len(), 2);
         for AnswerUploadBinding {
             file_upload_id,

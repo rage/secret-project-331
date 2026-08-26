@@ -162,6 +162,55 @@ SELECT EXISTS (
     Ok(res.exists)
 }
 
+/// The files a submission recorded, paired with their positions, in stored order.
+///
+/// Reports the link rows as they stand; [`get_by_task_submission_ids`] instead joins `file_uploads`
+/// and so omits files whose upload row was deleted.
+pub async fn get_positions_by_task_submission_id(
+    conn: &mut PgConnection,
+    task_submission_id: Uuid,
+) -> ModelResult<Vec<(Uuid, i32)>> {
+    let rows = sqlx::query!(
+        "
+SELECT file_upload_id,
+  order_number
+FROM exercise_task_submission_files
+WHERE exercise_task_submission_id = $1
+  AND deleted_at IS NULL
+ORDER BY order_number
+",
+        task_submission_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.file_upload_id, row.order_number))
+        .collect())
+}
+
+/// Soft-deletes one submission-to-file link, leaving both the submission and the upload alone.
+pub async fn delete_by_task_submission_and_file_upload_ids(
+    conn: &mut PgConnection,
+    task_submission_id: Uuid,
+    file_upload_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exercise_task_submission_files
+SET deleted_at = now()
+WHERE exercise_task_submission_id = $1
+  AND file_upload_id = $2
+  AND deleted_at IS NULL
+",
+        task_submission_id,
+        file_upload_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -263,7 +312,7 @@ mod test {
     /// Every submission in one test transaction shares `now()`, so submission time has to be set
     /// explicitly for the ordering to be observable at all.
     async fn set_submitted_at(tx: &mut PgConnection, submission_id: Uuid, seconds: i64) {
-        crate::test_support::shift_submission_created_at(
+        crate::exercise_task_submissions::shift_created_at(
             tx,
             submission_id,
             chrono::Duration::seconds(seconds),
@@ -438,7 +487,7 @@ mod test {
             task_id,
         )
         .await;
-        crate::test_support::soft_delete_task_submission(tx.as_mut(), doomed)
+        crate::exercise_task_submissions::delete_by_id(tx.as_mut(), doomed)
             .await
             .unwrap();
 
@@ -461,7 +510,7 @@ mod test {
             task_id,
         )
         .await;
-        crate::test_support::soft_delete_slide_submission(tx.as_mut(), doomed_slide_submission)
+        crate::exercise_slide_submissions::delete_by_id(tx.as_mut(), doomed_slide_submission)
             .await
             .unwrap();
 
@@ -476,9 +525,13 @@ mod test {
         submission_id: Uuid,
         file_upload_id: Uuid,
     ) {
-        crate::test_support::soft_delete_submission_file(tx, submission_id, file_upload_id)
-            .await
-            .unwrap();
+        crate::exercise_task_submission_files::delete_by_task_submission_and_file_upload_ids(
+            tx,
+            submission_id,
+            file_upload_id,
+        )
+        .await
+        .unwrap();
     }
 
     #[tokio::test]

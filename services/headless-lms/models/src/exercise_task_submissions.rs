@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
+use chrono::Duration;
 use futures::{Stream, StreamExt, future::BoxFuture};
 use url::Url;
 use utoipa::ToSchema;
@@ -1203,6 +1204,54 @@ WHERE exercise_slide_submission_id IN (SELECT id
     .fetch_all(conn)
     .await?;
     Ok(res.iter().map(|x| x.id).collect())
+}
+
+/// Which representation holds a submission's answer.
+///
+/// Cheaper than [`get_by_id`] when only the discriminant matters, and unlike the resolved
+/// [`AnswerData`] it reports the stored column rather than what the rows resolve to.
+pub async fn get_answer_kind(conn: &mut PgConnection, id: Uuid) -> ModelResult<AnswerKind> {
+    let kind = sqlx::query_scalar!(
+        "SELECT answer_kind FROM exercise_task_submissions WHERE id = $1",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(kind)
+}
+
+/// Moves a submission's creation time by `offset`, which may be negative.
+///
+/// Every row a transaction inserts shares one Postgres `now()`, so submission order is otherwise
+/// unobservable within it.
+pub async fn shift_created_at(
+    conn: &mut PgConnection,
+    id: Uuid,
+    offset: Duration,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exercise_task_submissions
+SET created_at = now() + $2::interval
+WHERE id = $1
+",
+        id,
+        offset as Duration
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Soft-deletes one task submission, leaving its slide submission alone.
+pub async fn delete_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE exercise_task_submissions SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL",
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 #[cfg(test)]

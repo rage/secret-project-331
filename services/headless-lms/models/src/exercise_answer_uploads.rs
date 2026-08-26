@@ -8,6 +8,7 @@
 //! distinction being structural.
 
 use crate::prelude::*;
+use chrono::Duration;
 
 /// Cap on one reaper run's listing, bounding its object-store fan-out and its runtime under the
 /// CronJob deadline. A backlog is worked off over successive runs.
@@ -245,6 +246,97 @@ RETURNING u.id
     Ok(retired.is_some())
 }
 
+/// Soft-deletes the binding rows for an uploaded file, whatever their state.
+///
+/// Unconditional by design: [`mark_reaped`] is the reaper's form, which locks the row and declines
+/// while a live submission file still references it.
+pub async fn delete_by_file_upload_id(
+    conn: &mut PgConnection,
+    file_upload_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exercise_answer_uploads
+SET deleted_at = now()
+WHERE file_upload_id = $1
+  AND deleted_at IS NULL
+",
+        file_upload_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// The binding row's own id for an uploaded file.
+///
+/// Errors when no binding exists; [`mark_reaped`] is what consumes this id.
+pub async fn get_id_by_file_upload_id(
+    conn: &mut PgConnection,
+    file_upload_id: Uuid,
+) -> ModelResult<Uuid> {
+    let id = sqlx::query_scalar!(
+        "SELECT id FROM exercise_answer_uploads WHERE file_upload_id = $1",
+        file_upload_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(id)
+}
+
+/// What an upload route recorded for one uploaded file.
+pub struct AnswerUploadBinding {
+    pub file_upload_id: Uuid,
+    pub exercise_id: Uuid,
+    pub user_id: Uuid,
+    pub origin: AnswerUploadOrigin,
+}
+
+/// The live bindings for the given uploaded files, in no particular order.
+///
+/// Unlike [`get_for_exercise_and_user`] this looks up by file rather than by owner, and reports the
+/// exercise and user each file was bound to.
+pub async fn get_by_file_upload_ids(
+    conn: &mut PgConnection,
+    file_upload_ids: &[Uuid],
+) -> ModelResult<Vec<AnswerUploadBinding>> {
+    let bindings = sqlx::query_as!(
+        AnswerUploadBinding,
+        "
+SELECT file_upload_id,
+  exercise_id,
+  user_id,
+  origin
+FROM exercise_answer_uploads
+WHERE file_upload_id = ANY($1)
+  AND deleted_at IS NULL
+",
+        file_upload_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(bindings)
+}
+
+/// Moves a binding's creation time `age` into the past, to bring it within a retention window.
+///
+/// Shifts the row rather than the clock because [`get_reapable`] compares against Postgres `now()`,
+/// which no Rust-side clock reaches.
+pub async fn backdate(
+    conn: &mut PgConnection,
+    file_upload_id: Uuid,
+    age: Duration,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE exercise_answer_uploads SET created_at = now() - $2::interval WHERE file_upload_id = $1",
+        file_upload_id,
+        age as Duration
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -266,7 +358,7 @@ mod test {
     }
 
     async fn soft_delete(tx: &mut PgConnection, file_upload_id: Uuid) {
-        crate::test_support::soft_delete_answer_upload(tx, file_upload_id)
+        crate::exercise_answer_uploads::delete_by_file_upload_id(tx, file_upload_id)
             .await
             .unwrap();
     }
@@ -280,14 +372,14 @@ mod test {
     /// Backdates both the binding and the file, so that a query widened to `file_uploads` cannot
     /// pass the negative test by accidentally tripping the age filter.
     async fn backdate_file(tx: &mut PgConnection, file_upload_id: Uuid, age: Duration) {
-        crate::test_support::backdate_file_upload(tx, file_upload_id, age)
+        crate::file_uploads::backdate(tx, file_upload_id, age)
             .await
             .unwrap();
     }
 
     async fn backdate(tx: &mut PgConnection, file_upload_id: Uuid, age: Duration) {
         backdate_file(&mut *tx, file_upload_id, age).await;
-        crate::test_support::backdate_answer_upload(tx, file_upload_id, age)
+        crate::exercise_answer_uploads::backdate(tx, file_upload_id, age)
             .await
             .unwrap();
     }

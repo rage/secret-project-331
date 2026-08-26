@@ -1478,6 +1478,51 @@ WHERE user_id = $1
     Ok(successful_resets)
 }
 
+/// Sets the exercise's own deadline, or clears it with `None`.
+///
+/// Clearing does not necessarily leave the exercise open: an exercise without a deadline inherits
+/// its chapter's, which [`get_course_material_exercise`] resolves.
+pub async fn set_deadline(
+    conn: &mut PgConnection,
+    id: Uuid,
+    deadline: Option<DateTime<Utc>>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE exercises SET deadline = $2 WHERE id = $1",
+        id,
+        deadline
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Sets how many tries an exercise allows per slide.
+///
+/// `max_tries_per_slide` is enforced only while `limit_number_of_tries` is set; otherwise it just
+/// remembers what the teacher last typed, so clearing the flag does not discard the number.
+pub async fn set_try_limit(
+    conn: &mut PgConnection,
+    id: Uuid,
+    limit_number_of_tries: bool,
+    max_tries_per_slide: Option<i32>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exercises
+SET limit_number_of_tries = $2,
+  max_tries_per_slide = $3
+WHERE id = $1
+",
+        id,
+        limit_number_of_tries,
+        max_tries_per_slide
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

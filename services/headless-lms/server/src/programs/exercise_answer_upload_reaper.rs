@@ -639,13 +639,13 @@ mod tests {
     }
 
     async fn binding_id_of(conn: &mut PgConnection, file_upload_id: uuid::Uuid) -> uuid::Uuid {
-        models::test_support::answer_upload_id(conn, file_upload_id)
+        models::exercise_answer_uploads::get_id_by_file_upload_id(conn, file_upload_id)
             .await
             .expect("binding id")
     }
 
     async fn backdate(conn: &mut PgConnection, file_upload_id: uuid::Uuid, age: Duration) {
-        models::test_support::backdate_answer_upload(conn, file_upload_id, age)
+        models::exercise_answer_uploads::backdate(conn, file_upload_id, age)
             .await
             .expect("backdate");
     }

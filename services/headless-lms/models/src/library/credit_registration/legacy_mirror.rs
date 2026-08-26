@@ -240,7 +240,7 @@ mod tests {
         )
         .await
         .unwrap();
-        crate::credit_registrations::transition(conn, id, &Transition::to(state))
+        crate::credit_registrations::transition(conn, id, &Transition::planted(state))
             .await
             .unwrap();
         id

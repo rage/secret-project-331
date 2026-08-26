@@ -639,18 +639,13 @@ pub(crate) async fn apply_outcome(
             suotar_api_call_id: event.suotar_api_call_id,
             event_details: Some(suotar_exchange_details(event.request, event.response)),
             expected_from_state,
+            next_attempt_at: outcome
+                .delay_secs
+                .map(|delay_secs| next_attempt_at(Utc::now(), delay_secs)),
             ..Transition::to(outcome.to_state)
         },
     )
     .await?;
-    if let Some(delay_secs) = outcome.delay_secs {
-        credit_registrations::schedule_next_attempt(
-            conn,
-            registration.id,
-            next_attempt_at(Utc::now(), delay_secs),
-        )
-        .await?;
-    }
     Ok(())
 }
 

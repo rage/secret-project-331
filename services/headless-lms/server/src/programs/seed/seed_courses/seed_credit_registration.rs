@@ -1409,7 +1409,7 @@ async fn seed_frozen_registration(
         &Transition {
             error_code,
             needs_admin_attention: error_code.map(|_| true),
-            ..Transition::to(state)
+            ..Transition::planted(state)
         },
     )
     .await?;
@@ -1780,7 +1780,7 @@ async fn seed_superseded_attempt_pair(
     // `uq_credit_registrations_completion` allows only one attempt per completion with a NULL
     // `superseded_by_id`, and the FK cannot point at a row that does not exist yet: park attempt 1
     // on itself, insert the successor, then repoint.
-    credit_registrations::mark_superseded(conn, attempt_1, attempt_1).await?;
+    credit_registrations::park_for_successor(conn, attempt_1).await?;
     let attempt_2 = insert_registered_attempt(
         conn,
         SUPERSEDED_ATTEMPT_2_ID,
@@ -1844,7 +1844,7 @@ async fn insert_registered_attempt(
     credit_registrations::transition(
         conn,
         id,
-        &Transition::to(CreditRegistrationState::Registered),
+        &Transition::planted(CreditRegistrationState::Registered),
     )
     .await?;
     Ok(id)

@@ -569,7 +569,7 @@ mod tests {
         transition(
             tx.as_mut(),
             fixture.registration,
-            &Transition::to(CreditRegistrationState::AwaitingVerification),
+            &Transition::planted(CreditRegistrationState::AwaitingVerification),
         )
         .await
         .unwrap();
@@ -594,7 +594,7 @@ mod tests {
         transition(
             tx.as_mut(),
             fixture.registration,
-            &Transition::to(CreditRegistrationState::Submitting),
+            &Transition::planted(CreditRegistrationState::Submitting),
         )
         .await
         .unwrap();
@@ -625,7 +625,7 @@ mod tests {
         transition(
             tx.as_mut(),
             fixture.registration,
-            &Transition::to(CreditRegistrationState::SubmissionUncertain),
+            &Transition::planted(CreditRegistrationState::SubmissionUncertain),
         )
         .await
         .unwrap();
@@ -731,7 +731,7 @@ mod tests {
         transition(
             tx.as_mut(),
             fixture.registration,
-            &Transition::to(CreditRegistrationState::FailedRetryable),
+            &Transition::planted(CreditRegistrationState::FailedRetryable),
         )
         .await
         .unwrap();
@@ -770,7 +770,7 @@ mod tests {
         transition(
             tx.as_mut(),
             fixture.registration,
-            &Transition::to(CreditRegistrationState::FailedRetryable),
+            &Transition::planted(CreditRegistrationState::FailedRetryable),
         )
         .await
         .unwrap();
@@ -797,7 +797,7 @@ mod tests {
         transition(
             tx.as_mut(),
             fixture.registration,
-            &Transition::to(CreditRegistrationState::NoUsableEnrolment),
+            &Transition::planted(CreditRegistrationState::NoUsableEnrolment),
         )
         .await
         .unwrap();
@@ -837,7 +837,7 @@ mod tests {
         transition(
             tx.as_mut(),
             fixture.registration,
-            &Transition::to(CreditRegistrationState::CheckingEnrolment),
+            &Transition::planted(CreditRegistrationState::CheckingEnrolment),
         )
         .await
         .unwrap();
@@ -869,7 +869,7 @@ mod tests {
         transition(
             tx.as_mut(),
             fixture.registration,
-            &Transition::to(CreditRegistrationState::Registered),
+            &Transition::planted(CreditRegistrationState::Registered),
         )
         .await
         .unwrap();
@@ -888,7 +888,7 @@ mod tests {
         transition(
             tx.as_mut(),
             fixture.registration,
-            &Transition::to(CreditRegistrationState::Misregistered),
+            &Transition::planted(CreditRegistrationState::Misregistered),
         )
         .await
         .unwrap();
@@ -912,9 +912,13 @@ mod tests {
                 .await
                 .unwrap();
             link_student_number(tx.as_mut(), student).await;
-            transition(tx.as_mut(), fixture.registration, &Transition::to(state))
-                .await
-                .unwrap();
+            transition(
+                tx.as_mut(),
+                fixture.registration,
+                &Transition::planted(state),
+            )
+            .await
+            .unwrap();
             course_credit_registration_consents::upsert(tx.as_mut(), student, course, false)
                 .await
                 .unwrap();

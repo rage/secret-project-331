@@ -1,8 +1,9 @@
 //! The credit registration ledger.
 //!
 //! [`transition`] is the only writer of `state`, stamping `state_entered_at`, the lifecycle
-//! timestamps and the audit event in one transaction. Which transition to make is the state
-//! machine's decision, not this module's.
+//! timestamps and the audit event in one transaction. Which transition to make is the caller's
+//! decision; whether it is one the machine has is decided here, from
+//! [`CreditRegistrationState::allowed_targets`].
 use chrono::NaiveDate;
 use utoipa::ToSchema;
 
@@ -90,13 +91,136 @@ impl CreditRegistrationState {
     /// kept in `is_success`'s own order for readability.
     pub const SUCCESS_STATES: [Self; 3] = [Self::Registered, Self::Duplicate, Self::NotImproved];
 
+    /// The states the pipeline itself may move a row from `self` to, staying put excluded.
+    ///
+    /// The one place the shape of the machine is written down: every edge here is one a phase, the
+    /// precondition recompute or the grade-improvement materialiser actually takes, and
+    /// [`transition`] refuses anything else. A hand transition also gets [`ADMIN_ONLY_TARGETS`],
+    /// which is why they are not in here: an edge only a human may take must stay out of reach of a
+    /// phase that gets its target wrong.
+    pub fn allowed_targets(self) -> &'static [Self] {
+        use CreditRegistrationState as S;
+        match self {
+            // The precondition chain, plus the materialiser starting a fresh attempt.
+            S::PendingPrerequisites => &[
+                S::PendingConsent,
+                S::PendingStudentNumber,
+                S::ReadyToSubmit,
+                S::Blocked,
+                S::Cancelled,
+            ],
+            S::PendingConsent => &[
+                S::PendingStudentNumber,
+                S::ReadyToSubmit,
+                S::Blocked,
+                S::Cancelled,
+            ],
+            S::PendingStudentNumber => &[
+                S::PendingConsent,
+                S::ReadyToSubmit,
+                S::Blocked,
+                S::Cancelled,
+            ],
+            // `resolving_enrolment` is resolve-enrolments claiming it; the rest is that phase's
+            // preflight and the preconditions.
+            S::ReadyToSubmit => &[
+                S::PendingConsent,
+                S::PendingStudentNumber,
+                S::ResolvingEnrolment,
+                S::FailedPermanent,
+                S::Blocked,
+                S::Cancelled,
+            ],
+            // No `ready_to_submit`: a resolve call is out, and only that phase's own commit may
+            // move the row, or import could claim it before the enrolment is resolved.
+            S::ResolvingEnrolment => &[
+                S::PendingConsent,
+                S::PendingStudentNumber,
+                S::CheckingEnrolment,
+                S::NoUsableEnrolment,
+                S::Duplicate,
+                S::FailedRetryable,
+                S::FailedPermanent,
+                S::Blocked,
+                S::Cancelled,
+            ],
+            // `submitting` is import's, and the only edge into it.
+            S::CheckingEnrolment => &[
+                S::PendingConsent,
+                S::PendingStudentNumber,
+                S::ReadyToSubmit,
+                S::Submitting,
+                S::Duplicate,
+                S::FailedPermanent,
+                S::Blocked,
+                S::Cancelled,
+            ],
+            S::NoUsableEnrolment => &[
+                S::PendingConsent,
+                S::PendingStudentNumber,
+                S::ReadyToSubmit,
+                S::Blocked,
+                S::Cancelled,
+            ],
+            // A request is in flight: every edge out is an answer to it, or withdrawal giving up on
+            // one. Nothing leads back to a state import claims.
+            S::Submitting => &[
+                S::PendingStudentNumber,
+                S::NoUsableEnrolment,
+                S::AwaitingVerification,
+                S::SubmissionUncertain,
+                S::Registered,
+                S::Duplicate,
+                S::NotImproved,
+                S::FailedRetryable,
+                S::FailedPermanent,
+                S::AbandonedByConsentWithdrawal,
+            ],
+            // Both poller states: verify is the only path to `registered`, and neither may reach a
+            // state that leads back to import.
+            S::AwaitingVerification | S::SubmissionUncertain => &[
+                S::Registered,
+                S::Duplicate,
+                S::Misregistered,
+                S::AbandonedByConsentWithdrawal,
+            ],
+            // The backoff elapsing resumes the row at whichever state matches how far it had got.
+            S::FailedRetryable => &[
+                S::PendingConsent,
+                S::PendingStudentNumber,
+                S::ReadyToSubmit,
+                S::CheckingEnrolment,
+                S::AwaitingVerification,
+                S::FailedPermanent,
+                S::Blocked,
+                S::Cancelled,
+            ],
+            S::Blocked => &[
+                S::PendingConsent,
+                S::PendingStudentNumber,
+                S::ReadyToSubmit,
+                S::Cancelled,
+            ],
+            // Terminal, and `misregistered` waits for a human: the pipeline leaves all of these
+            // where they are.
+            S::Registered
+            | S::Duplicate
+            | S::NotImproved
+            | S::Misregistered
+            | S::FailedPermanent
+            | S::Cancelled
+            | S::AbandonedByConsentWithdrawal => &[],
+        }
+    }
+
     /// Whether a row in `self` may move back to `ready_to_submit`, and why not if it may not.
     ///
     /// One precedence shared by the teacher-facing retry and the admin ledger's hand transitions,
     /// which otherwise refuse the same rows for the same reasons in three independently maintained
     /// copies. `strictness` is the one real difference between the callers: how far outside a
     /// failure a row may still be moved from. Superseded is checked first regardless, since acting
-    /// on a replaced attempt is never right; consent is checked last, since it is cheapest to be
+    /// on a replaced attempt is never right, and an outcome the registry already holds next, since
+    /// no strictness may resubmit over one; consent is checked last, since it is cheapest to be
     /// wrong about first (every other check is a fact about `self`, not a lookup).
     pub fn resubmission_refusal(
         self,
@@ -106,6 +230,9 @@ impl CreditRegistrationState {
     ) -> Option<ResubmissionRefusal> {
         if superseded {
             return Some(ResubmissionRefusal::Superseded);
+        }
+        if self.is_success() {
+            return Some(ResubmissionRefusal::AlreadySucceeded);
         }
         if strictness != ResubmissionStrictness::Any && self == Self::SubmissionUncertain {
             return Some(ResubmissionRefusal::SubmissionUncertain);
@@ -124,7 +251,63 @@ impl CreditRegistrationState {
         }
         None
     }
+
+    /// Why a hand transition of this row to `target` is refused, or `None` if it may go ahead.
+    ///
+    /// The safety half of the admin path, next to the structural half in [`ADMIN_ONLY_TARGETS`]:
+    /// the edge table says the move exists, this says whether this row may take it. A row whose
+    /// outcome the study registry already holds is refused whatever the target, because `cancelled`
+    /// is a legal step on to `ready_to_submit` and would otherwise launder a second submission for
+    /// a credit Sisu has. `consented` is the account's standing consent for this row's course;
+    /// `strictness` is how the caller treats `submission_uncertain`.
+    pub fn admin_transition_refusal(
+        self,
+        target: Self,
+        superseded: bool,
+        consented: bool,
+        strictness: ResubmissionStrictness,
+    ) -> Option<ResubmissionRefusal> {
+        if superseded {
+            return Some(ResubmissionRefusal::Superseded);
+        }
+        if self.is_success() {
+            return Some(ResubmissionRefusal::AlreadySucceeded);
+        }
+        if target != Self::ReadyToSubmit {
+            return None;
+        }
+        self.resubmission_refusal(false, consented, strictness)
+    }
+
+    /// How long a row entering this state waits before the pipeline may claim it again, when the
+    /// caller of [`transition`] names no time of its own. Zero leaves it claimable at once.
+    ///
+    /// Only the states a claim query reads, or a precondition arm holds a row in, need a nonzero
+    /// one: a phase that forgot to defer would otherwise spin on the row, since `claim_due` orders
+    /// by `next_attempt_at`. A caller with a real backoff to apply passes it and overrides this.
+    fn default_attempt_delay_secs(self) -> i64 {
+        use crate::library::credit_registration::backoff::{
+            NO_USABLE_ENROLMENT_RECHECK_SECS, SUBMIT_BASE_BACKOFF_SECS, UNCERTAIN_RECHECK_SECS,
+            VERIFY_FIRST_DELAY_SECS,
+        };
+        match self {
+            Self::AwaitingVerification => VERIFY_FIRST_DELAY_SECS,
+            Self::SubmissionUncertain => UNCERTAIN_RECHECK_SECS,
+            Self::NoUsableEnrolment => NO_USABLE_ENROLMENT_RECHECK_SECS,
+            Self::FailedRetryable => SUBMIT_BASE_BACKOFF_SECS,
+            _ => 0,
+        }
+    }
 }
+
+/// The edges only a hand transition may take, from any state [`admin_transition_refusal`] does not
+/// refuse: putting a row back on the pipeline, and writing one off.
+///
+/// Kept out of [`CreditRegistrationState::allowed_targets`] so no phase can take one by mistake.
+pub const ADMIN_ONLY_TARGETS: [CreditRegistrationState; 2] = [
+    CreditRegistrationState::ReadyToSubmit,
+    CreditRegistrationState::Cancelled,
+];
 
 /// How far outside a failure [`CreditRegistrationState::resubmission_refusal`] will still allow a
 /// row to move back to `ready_to_submit`.
@@ -143,10 +326,17 @@ pub enum ResubmissionStrictness {
 }
 
 /// Why [`CreditRegistrationState::resubmission_refusal`] would not move a row.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///
+/// Rendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it
+/// travels to them as it is rather than being re-mapped per surface.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
+#[serde(rename_all = "snake_case")]
 pub enum ResubmissionRefusal {
     /// A later attempt replaced this one; act on that.
     Superseded,
+    /// The study registry already holds an outcome for this attempt, so there is nothing to submit
+    /// again.
+    AlreadySucceeded,
     /// The submission may have landed, so only a human looking at this one row may move it.
     SubmissionUncertain,
     /// The student withdrew consent while the registration was in flight.
@@ -396,6 +586,35 @@ pub struct Transition {
     /// have moved the row on. `None` skips the check, for callers writing from a snapshot taken
     /// under the same transaction's lock.
     pub expected_from_state: Option<CreditRegistrationState>,
+    /// Which (from → to) edges this write may take; see [`TransitionPolicy`].
+    pub policy: TransitionPolicy,
+    /// When the pipeline may claim the row next. `None` takes the target state's default cadence,
+    /// which is what keeps a caller that forgets from leaving the row spinning.
+    pub next_attempt_at: Option<DateTime<Utc>>,
+}
+
+/// Which (from → to) edges [`transition`] will write.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TransitionPolicy {
+    /// [`CreditRegistrationState::allowed_targets`] only: what the phases and the precondition
+    /// recompute may take.
+    Pipeline,
+    /// Also [`ADMIN_ONLY_TARGETS`], for a teacher's retry or an admin's hand transition. Whether
+    /// this particular row may take the edge is [`admin_transition_refusal`]'s question.
+    Admin,
+    /// No edge check. Fixtures only: seeds and tests plant a row in a state the pipeline could not
+    /// have reached from where it stands in one move.
+    Planted,
+}
+
+impl TransitionPolicy {
+    fn allows(self, from: CreditRegistrationState, to: CreditRegistrationState) -> bool {
+        match self {
+            Self::Pipeline => from.allowed_targets().contains(&to),
+            Self::Admin => from.allowed_targets().contains(&to) || ADMIN_ONLY_TARGETS.contains(&to),
+            Self::Planted => true,
+        }
+    }
 }
 
 impl Transition {
@@ -411,15 +630,39 @@ impl Transition {
             suotar_api_call_id: None,
             event_details: None,
             expected_from_state: None,
+            policy: TransitionPolicy::Pipeline,
+            next_attempt_at: None,
+        }
+    }
+
+    /// A move a human asked for, which may also take the [`ADMIN_ONLY_TARGETS`] edges.
+    pub fn by_hand(to_state: CreditRegistrationState) -> Self {
+        Self {
+            policy: TransitionPolicy::Admin,
+            ..Self::to(to_state)
+        }
+    }
+
+    /// A fixture planting a row in a state directly; see [`TransitionPolicy::Planted`].
+    pub fn planted(to_state: CreditRegistrationState) -> Self {
+        Self {
+            policy: TransitionPolicy::Planted,
+            ..Self::to(to_state)
         }
     }
 }
 
 /// Moves a ledger row to a new state and appends the matching audit event, atomically.
 ///
+/// The only writer of `state`, and the one place (from → to) legality is decided: an edge outside
+/// the transition's [`TransitionPolicy`] is refused as `InvalidRequest` rather than written.
+/// Deliberately not `PreconditionFailed`, which the phases read as "another writer got here first"
+/// and skip over.
+///
 /// Owns the lifecycle stamps, so callers must not touch them: `state_entered_at`, `terminal_at`,
-/// `first_failed_at`, `registered_at`, `submitted_at`, `enrolment_checked_at`, and
-/// `enrolment_banner_dismissed_at`, which entering `no_usable_enrolment` clears.
+/// `first_failed_at`, `registered_at`, `submitted_at`, `enrolment_checked_at`,
+/// `enrolment_banner_dismissed_at`, which entering `no_usable_enrolment` clears, and
+/// `next_attempt_at`, which takes the target state's default cadence unless the caller names a time.
 pub async fn transition(
     conn: &mut PgConnection,
     id: Uuid,
@@ -454,6 +697,17 @@ FOR UPDATE
     }
 
     let to_state = transition.to_state;
+    // Staying put is not a move: the verify poller rewrites its own state on every poll.
+    if before.state != to_state && !transition.policy.allows(before.state, to_state) {
+        return Err(model_err!(
+            InvalidRequest,
+            format!(
+                "Credit registration {id} may not move from {:?} to {to_state:?} under {:?}.",
+                before.state, transition.policy
+            )
+        ));
+    }
+
     let after = sqlx::query_as!(
         CreditRegistration,
         r#"
@@ -490,7 +744,11 @@ SET state = $2::credit_registration_state,
   enrolment_banner_dismissed_at = CASE
     WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL
     ELSE enrolment_banner_dismissed_at
-  END
+  END,
+  next_attempt_at = COALESCE(
+    $8::timestamptz,
+    now() + ($9::bigint * INTERVAL '1 second')
+  )
 WHERE id = $1
   AND deleted_at IS NULL
 RETURNING *
@@ -502,6 +760,8 @@ RETURNING *
         transition.needs_admin_attention,
         to_state.is_terminal(),
         to_state.is_failure(),
+        transition.next_attempt_at,
+        to_state.default_attempt_delay_secs(),
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -1176,7 +1436,35 @@ WHERE id = $1
 
 /// Points an old attempt at the newer one that replaced it. The old row keeps its state and
 /// `terminal_at`: it really was registered.
+///
+/// Refuses to point a row at itself, which reads everywhere as "replaced" and would hide the row
+/// from every live-attempt query with no successor to send anyone to. The one place that has to
+/// write it is [`park_for_successor`].
 pub async fn mark_superseded(
+    conn: &mut PgConnection,
+    id: Uuid,
+    superseded_by_id: Uuid,
+) -> ModelResult<()> {
+    if id == superseded_by_id {
+        return Err(model_err!(
+            InvalidRequest,
+            format!("Credit registration {id} cannot supersede itself.")
+        ));
+    }
+    set_superseded_by(conn, id, superseded_by_id).await
+}
+
+/// Points a row at itself to take it out of `uq_credit_registrations_completion`, so its successor
+/// can be inserted for the same completion.
+///
+/// The caller must repoint it at that successor with [`mark_superseded`] in the same transaction:
+/// the foreign key cannot name a row that does not exist yet, which is the only reason this step
+/// exists.
+pub async fn park_for_successor(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    set_superseded_by(conn, id, id).await
+}
+
+async fn set_superseded_by(
     conn: &mut PgConnection,
     id: Uuid,
     superseded_by_id: Uuid,
@@ -1288,22 +1576,17 @@ LIMIT $2
 }
 
 /// How many of a course's live rows a bulk retry has to refuse, by reason.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct UnretryableCounts {
-    /// Re-importing one could put a second attainment on a real transcript, so only an admin
-    /// transition may move it.
-    pub submission_uncertain: i64,
-    /// Failed for good, but nothing may be submitted for the student any more.
-    pub without_consent: i64,
-}
-
+///
 /// Counts the whole course, not a capped window: these are the rows
 /// [`get_retryable_ids_by_course_id`] leaves out, and a teacher clicking again will never work
-/// through them.
+/// through them. Each count is one verdict of
+/// [`CreditRegistrationState::resubmission_refusal`], reproduced in SQL because asking it per row
+/// would mean walking every registration of the course; the two are kept in step only by
+/// `tests::the_unretryable_counts_match_the_resubmission_verdicts`.
 pub async fn count_unretryable_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<UnretryableCounts> {
+) -> ModelResult<Vec<(ResubmissionRefusal, i64)>> {
     let row = sqlx::query!(
         r#"
 SELECT COUNT(*) FILTER (
@@ -1333,10 +1616,16 @@ WHERE cr.course_id = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok(UnretryableCounts {
-        submission_uncertain: row.submission_uncertain,
-        without_consent: row.without_consent,
-    })
+    Ok([
+        (
+            ResubmissionRefusal::SubmissionUncertain,
+            row.submission_uncertain,
+        ),
+        (ResubmissionRefusal::WithoutConsent, row.without_consent),
+    ]
+    .into_iter()
+    .filter(|(_, count)| *count > 0)
+    .collect())
 }
 
 /// Live rows per state, for the dashboard funnel. Superseded attempts are excluded, as in the
@@ -2446,6 +2735,80 @@ mod tests {
     use crate::credit_registration_events::CreditRegistrationEventKind;
     use crate::test_helper::*;
 
+    /// Checked over every pair the table allows rather than read off each arm: these are the
+    /// properties the pipeline is built on, and an edge added in the wrong arm breaks one of them
+    /// while still looking plausible where it was written.
+    #[test]
+    fn the_edge_table_keeps_the_machines_invariants() {
+        use CreditRegistrationState as State;
+        let import_claims = [State::CheckingEnrolment, State::Submitting];
+        for from in State::ALL {
+            if from.is_terminal() || from == State::Misregistered {
+                assert!(
+                    from.allowed_targets().is_empty(),
+                    "{from:?} is not the pipeline's to move"
+                );
+            }
+            for &to in from.allowed_targets() {
+                assert_ne!(from, to, "{from:?}: staying put is not an edge");
+                if matches!(
+                    from,
+                    State::Submitting | State::SubmissionUncertain | State::AwaitingVerification
+                ) {
+                    assert!(
+                        !import_claims.contains(&to),
+                        "{from:?} -> {to:?} would let a second request out for a submission the \
+                         study registry may already hold"
+                    );
+                }
+                if to == State::Submitting {
+                    assert_eq!(from, State::CheckingEnrolment, "only import may submit");
+                }
+                if to == State::Registered {
+                    assert!(
+                        matches!(
+                            from,
+                            State::Submitting
+                                | State::AwaitingVerification
+                                | State::SubmissionUncertain
+                        ),
+                        "{from:?} -> registered: only an answer about a sent submission registers a \
+                         row"
+                    );
+                }
+            }
+        }
+    }
+
+    /// The two `FILTER`s of [`count_unretryable_by_course_id`], asked of the shared precedence
+    /// instead: the SQL counts rows a retry refuses, and this is what it must agree with.
+    #[test]
+    fn the_unretryable_counts_match_the_resubmission_verdicts() {
+        let verdict = |state: CreditRegistrationState, consented| {
+            state.resubmission_refusal(
+                false,
+                consented,
+                ResubmissionStrictness::OnlyFailedPermanent,
+            )
+        };
+        for consented in [true, false] {
+            assert_eq!(
+                verdict(CreditRegistrationState::SubmissionUncertain, consented),
+                Some(ResubmissionRefusal::SubmissionUncertain),
+                "counted whatever the consent"
+            );
+        }
+        assert_eq!(
+            verdict(CreditRegistrationState::FailedPermanent, false),
+            Some(ResubmissionRefusal::WithoutConsent)
+        );
+        // Retryable, so counted by neither filter: this is what the batch query picks up instead.
+        assert_eq!(
+            verdict(CreditRegistrationState::FailedPermanent, true),
+            None
+        );
+    }
+
     #[test]
     fn success_states_const_matches_is_success() {
         let from_const: Vec<CreditRegistrationState> =
@@ -2511,7 +2874,7 @@ mod tests {
         let after = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::PendingConsent),
+            &Transition::planted(CreditRegistrationState::PendingConsent),
         )
         .await
         .unwrap();
@@ -2545,14 +2908,14 @@ mod tests {
         let first = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::PendingConsent),
+            &Transition::planted(CreditRegistrationState::PendingConsent),
         )
         .await
         .unwrap();
         let second = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::PendingStudentNumber),
+            &Transition::planted(CreditRegistrationState::PendingStudentNumber),
         )
         .await
         .unwrap();
@@ -2568,7 +2931,7 @@ mod tests {
         let checking = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::CheckingEnrolment),
+            &Transition::planted(CreditRegistrationState::CheckingEnrolment),
         )
         .await
         .unwrap();
@@ -2580,7 +2943,7 @@ mod tests {
         let submitting = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::Submitting),
+            &Transition::planted(CreditRegistrationState::Submitting),
         )
         .await
         .unwrap();
@@ -2592,7 +2955,7 @@ mod tests {
         let registered = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::Registered),
+            &Transition::planted(CreditRegistrationState::Registered),
         )
         .await
         .unwrap();
@@ -2614,7 +2977,7 @@ mod tests {
         let first = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::Cancelled),
+            &Transition::planted(CreditRegistrationState::Cancelled),
         )
         .await
         .unwrap();
@@ -2623,7 +2986,7 @@ mod tests {
         let second = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::FailedPermanent),
+            &Transition::planted(CreditRegistrationState::FailedPermanent),
         )
         .await
         .unwrap();
@@ -2632,7 +2995,7 @@ mod tests {
         let retried = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::ReadyToSubmit),
+            &Transition::planted(CreditRegistrationState::ReadyToSubmit),
         )
         .await
         .unwrap();
@@ -2648,7 +3011,7 @@ mod tests {
         transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::NoUsableEnrolment),
+            &Transition::planted(CreditRegistrationState::NoUsableEnrolment),
         )
         .await
         .unwrap();
@@ -2666,7 +3029,7 @@ mod tests {
         transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::ReadyToSubmit),
+            &Transition::planted(CreditRegistrationState::ReadyToSubmit),
         )
         .await
         .unwrap();
@@ -2682,7 +3045,7 @@ mod tests {
         let back = transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::NoUsableEnrolment),
+            &Transition::planted(CreditRegistrationState::NoUsableEnrolment),
         )
         .await
         .unwrap();
@@ -2704,7 +3067,7 @@ mod tests {
             &Transition {
                 error_code: Some(CreditRegistrationErrorCode::EnrolmentNotFound),
                 error_message: Some("no accepted enrolment".to_string()),
-                ..Transition::to(CreditRegistrationState::FailedPermanent)
+                ..Transition::planted(CreditRegistrationState::FailedPermanent)
             },
         )
         .await
@@ -2720,7 +3083,7 @@ mod tests {
             id,
             &Transition {
                 needs_admin_attention: Some(false),
-                ..Transition::to(CreditRegistrationState::ReadyToSubmit)
+                ..Transition::planted(CreditRegistrationState::ReadyToSubmit)
             },
         )
         .await
@@ -2738,7 +3101,7 @@ mod tests {
         transition(
             tx.as_mut(),
             id,
-            &Transition::to(CreditRegistrationState::Blocked),
+            &Transition::planted(CreditRegistrationState::Blocked),
         )
         .await
         .unwrap();
@@ -2750,7 +3113,7 @@ mod tests {
             id,
             &Transition {
                 expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
-                ..Transition::to(CreditRegistrationState::CheckingEnrolment)
+                ..Transition::planted(CreditRegistrationState::CheckingEnrolment)
             },
         )
         .await;

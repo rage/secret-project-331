@@ -27,8 +27,8 @@ use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, NotImprovedAttainment,
 };
 use headless_lms_models::credit_registrations::{
-    CreditRegistrationErrorCode, CreditRegistrationState, TeacherCreditRegistration,
-    TeacherCreditRegistrationFilters,
+    CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionRefusal,
+    ResubmissionStrictness, TeacherCreditRegistration, TeacherCreditRegistrationFilters,
 };
 use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::StudentFacingCreditRegistrationStatus;
@@ -40,7 +40,7 @@ use headless_lms_models::{
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
     verified_student_numbers,
 };
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::credit_registration_phases::PhaseContext;
@@ -143,6 +143,9 @@ pub struct CourseCreditRegistration {
     pub credits: Option<f32>,
     pub attempt_number: i32,
     pub superseded: bool,
+    /// Why a teacher's retry would refuse this row, or `null` if it would put it back on the
+    /// pipeline: what the row's retry control renders from.
+    pub resubmission_refusal: Option<ResubmissionRefusal>,
     /// In full: a masked number cannot be checked against a student card.
     pub student_number: Option<String>,
     pub student_number_verified_at: Option<DateTime<Utc>>,
@@ -897,11 +900,24 @@ pub(crate) async fn build_teacher_registrations(
     let mut statuses = linking_email_statuses(conn, course_id, &waiting).await?;
     let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
     let notification_mails = student_notifications::get_for_registrations(conn, &ids).await?;
+    let consenting: HashSet<Uuid> =
+        models::course_credit_registration_consents::get_consenting_user_ids_for_course(
+            conn, course_id,
+        )
+        .await?
+        .into_iter()
+        .collect();
 
     Ok(rows
         .into_iter()
         .map(|row| {
             let linking_email = statuses.remove(&row.id);
+            // The teacher's own retry strictness, so the row says exactly what that button would do.
+            let resubmission_refusal = row.state.resubmission_refusal(
+                row.superseded_by_id.is_some(),
+                consenting.contains(&row.user_id),
+                ResubmissionStrictness::OnlyFailedPermanent,
+            );
             let base = CourseCreditRegistration::from(row);
             let notification_email = NotificationEmailStatus::for_status(
                 base.student_facing_status,
@@ -911,6 +927,7 @@ pub(crate) async fn build_teacher_registrations(
             CourseCreditRegistration {
                 linking_email,
                 notification_email,
+                resubmission_refusal,
                 ..base
             }
         })
@@ -924,6 +941,7 @@ impl From<TeacherCreditRegistration> for CourseCreditRegistration {
             superseded: row.superseded_by_id.is_some(),
             linking_email: None,
             notification_email: None,
+            resubmission_refusal: None,
             id: row.id,
             user_id: row.user_id,
             first_name: row.first_name,

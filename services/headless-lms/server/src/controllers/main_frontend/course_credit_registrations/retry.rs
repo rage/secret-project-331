@@ -18,38 +18,6 @@ use crate::prelude::*;
 /// `more_rows_remaining` and is retried by clicking again.
 const MAX_ROWS_PER_BULK_RETRY: i64 = 500;
 
-/// What a retry did to one row. Every refusal is its own value, because the answer a teacher needs
-/// ("wait for an admin" vs "the student withdrew consent") differs in each case.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum RetryCreditRegistrationOutcome {
-    /// Back in `ready_to_submit` and due now.
-    Retried,
-    /// The submission may have landed in the study registry, so re-importing it could put a second
-    /// attainment on a real transcript. Only an admin transition may move one of these.
-    RefusedSubmissionUncertain,
-    /// The student withdrew consent while the registration was in flight.
-    RefusedConsentWithdrawn,
-    /// The student has no standing consent for this course, so nothing may be submitted for them.
-    RefusedWithoutConsent,
-    /// Nothing failed: the row is somewhere the pipeline still owns.
-    RefusedNotFailed,
-    /// A later attempt replaced this one; act on that.
-    RefusedSuperseded,
-}
-
-impl From<ResubmissionRefusal> for RetryCreditRegistrationOutcome {
-    fn from(refusal: ResubmissionRefusal) -> Self {
-        match refusal {
-            ResubmissionRefusal::Superseded => Self::RefusedSuperseded,
-            ResubmissionRefusal::SubmissionUncertain => Self::RefusedSubmissionUncertain,
-            ResubmissionRefusal::ConsentWithdrawn => Self::RefusedConsentWithdrawn,
-            ResubmissionRefusal::NotFailedPermanent => Self::RefusedNotFailed,
-            ResubmissionRefusal::WithoutConsent => Self::RefusedWithoutConsent,
-        }
-    }
-}
-
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct RetryCreditRegistrationPayload {
     pub reason: Option<String>,
@@ -57,14 +25,15 @@ pub struct RetryCreditRegistrationPayload {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct RetryCreditRegistrationResult {
-    pub outcome: RetryCreditRegistrationOutcome,
-    /// Where the row stands after the attempt, whatever the outcome.
+    /// Why the row was left alone, or `null` when it went back on the pipeline.
+    pub refusal: Option<ResubmissionRefusal>,
+    /// Where the row stands after the attempt, whatever the answer.
     pub state: CreditRegistrationState,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct RetryCreditRegistrationSkip {
-    pub outcome: RetryCreditRegistrationOutcome,
+    pub refusal: ResubmissionRefusal,
     pub count: i64,
 }
 
@@ -123,20 +92,16 @@ pub async fn retry_credit_registration(
     )
     .await?
     .is_some_and(|consent| consent.consent_given);
-    let outcome = row
-        .state
-        .resubmission_refusal(
-            row.superseded_by_id.is_some(),
-            consented,
-            ResubmissionStrictness::OnlyFailedPermanent,
-        )
-        .map_or(RetryCreditRegistrationOutcome::Retried, Into::into);
+    let refusal = row.state.resubmission_refusal(
+        row.superseded_by_id.is_some(),
+        consented,
+        ResubmissionStrictness::OnlyFailedPermanent,
+    );
 
     let mut tx = conn.begin().await?;
-    let state = if outcome == RetryCreditRegistrationOutcome::Retried {
-        requeue(&mut tx, id, row.state, user.id, reason).await?
-    } else {
-        row.state
+    let state = match refusal {
+        None => requeue(&mut tx, id, row.state, user.id, reason).await?,
+        Some(_) => row.state,
     };
     models::credit_registration_admin_actions::record(
         &mut tx,
@@ -146,10 +111,8 @@ pub async fn retry_credit_registration(
             reason: reason.map(str::to_string),
             before_state: Some(row.state),
             after_state: Some(state),
-            details: Some(serde_json::json!({ "outcome": outcome })),
-            affected_row_count: Some(i32::from(
-                outcome == RetryCreditRegistrationOutcome::Retried,
-            )),
+            details: Some(serde_json::json!({ "refusal": refusal })),
+            affected_row_count: Some(i32::from(refusal.is_none())),
             ..NewCreditRegistrationAdminAction::new(
                 CreditRegistrationAdminAction::RetryItem,
                 CreditRegistrationAdminActionTarget::CreditRegistration,
@@ -161,7 +124,7 @@ pub async fn retry_credit_registration(
     .await?;
     tx.commit().await?;
 
-    token.authorized_ok(web::Json(RetryCreditRegistrationResult { outcome, state }))
+    token.authorized_ok(web::Json(RetryCreditRegistrationResult { refusal, state }))
 }
 
 /**
@@ -211,19 +174,7 @@ pub async fn retry_failed_credit_registrations_for_course(
         models::credit_registrations::count_unretryable_by_course_id(&mut conn, *course_id).await?;
 
     let mut retried_count = 0;
-    let mut skipped: HashMap<RetryCreditRegistrationOutcome, i64> = HashMap::new();
-    if unretryable.submission_uncertain > 0 {
-        skipped.insert(
-            RetryCreditRegistrationOutcome::RefusedSubmissionUncertain,
-            unretryable.submission_uncertain,
-        );
-    }
-    if unretryable.without_consent > 0 {
-        skipped.insert(
-            RetryCreditRegistrationOutcome::RefusedWithoutConsent,
-            unretryable.without_consent,
-        );
-    }
+    let mut skipped: HashMap<ResubmissionRefusal, i64> = unretryable.into_iter().collect();
 
     let mut tx = conn.begin().await?;
     // Locked, and read inside the transaction: each row's refusal is judged here and acted on below,
@@ -249,7 +200,7 @@ pub async fn retry_failed_credit_registrations_for_course(
             ResubmissionStrictness::OnlyFailedPermanent,
         );
         match refusal {
-            Some(refusal) => *skipped.entry(refusal.into()).or_insert(0) += 1,
+            Some(refusal) => *skipped.entry(refusal).or_insert(0) += 1,
             None => {
                 transition_to_ready_to_submit(&mut tx, row.id, row.state, user.id, reason).await?;
                 retried_ids.push(row.id);
@@ -262,7 +213,7 @@ pub async fn retry_failed_credit_registrations_for_course(
     credit_registrations::make_due_now_batch(&mut tx, &retried_ids).await?;
     let mut skipped: Vec<RetryCreditRegistrationSkip> = skipped
         .into_iter()
-        .map(|(outcome, count)| RetryCreditRegistrationSkip { outcome, count })
+        .map(|(refusal, count)| RetryCreditRegistrationSkip { refusal, count })
         .collect();
     skipped.sort_by_key(|skip| std::cmp::Reverse(skip.count));
 
@@ -320,7 +271,7 @@ async fn transition_to_ready_to_submit(
             ),
             actor_user_id: Some(actor_user_id),
             expected_from_state: Some(from_state),
-            ..Transition::to(CreditRegistrationState::ReadyToSubmit)
+            ..Transition::by_hand(CreditRegistrationState::ReadyToSubmit)
         },
     )
     .await?;

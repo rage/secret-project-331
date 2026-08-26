@@ -4,7 +4,7 @@
 
 use crate::credit_registrations::{
     CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
-    mark_improvement_checked, mark_superseded, transition,
+    mark_improvement_checked, mark_superseded, park_for_successor, transition,
 };
 use crate::prelude::*;
 
@@ -312,7 +312,7 @@ LIMIT $1
         // `uq_credit_registrations_completion` allows one live attempt per completion and the
         // foreign key cannot point at a row that does not exist yet: park the old attempt on
         // itself, insert the successor, then repoint.
-        mark_superseded(&mut tx, candidate.id, candidate.id).await?;
+        park_for_successor(&mut tx, candidate.id).await?;
         let next = crate::credit_registrations::insert(
             &mut tx,
             PKeyPolicy::Generate,

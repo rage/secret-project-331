@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT file_upload_id,\n  exercise_id,\n  user_id,\n  origin::text AS \"origin!\"\nFROM exercise_answer_uploads\nWHERE file_upload_id = ANY($1)\n  AND deleted_at IS NULL\n",
+  "query": "\nSELECT file_upload_id,\n  exercise_id,\n  user_id,\n  origin\nFROM exercise_answer_uploads\nWHERE file_upload_id = ANY($1)\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -38,9 +38,24 @@
       },
       {
         "ordinal": 3,
-        "name": "origin!",
-        "type_info": "Text",
-        "origin": "Expression"
+        "name": "origin",
+        "type_info": {
+          "Custom": {
+            "name": "answer_upload_origin",
+            "kind": {
+              "Enum": [
+                "native_client",
+                "iframe"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_uploads",
+            "name": "origin"
+          }
+        }
       }
     ],
     "parameters": {
@@ -52,8 +67,8 @@
       false,
       false,
       false,
-      null
+      false
     ]
   },
-  "hash": "444320be921932db28ba9f0254579dc5715d4825ba46dc23c9f75f8909b526b4"
+  "hash": "47ba508f75c0b4c699988cdfea71520fbc981f62a64927603fa56ed3dd22dbd4"
 }

@@ -411,7 +411,7 @@ mod tests {
     use crate::test_helper::*;
     use models::exercise_answer_uploads::AnswerUploadOrigin;
     use models::exercise_task_gradings::ExerciseTaskGradingResult;
-    use models::exercise_task_submissions::{AnswerData, AnswerFile};
+    use models::exercise_task_submissions::{AnswerData, AnswerFile, AnswerKind};
     use models::exercises::GradingProgress;
     use models::library::grading::StudentExerciseTaskSubmission;
     use sqlx::Connection;
@@ -579,8 +579,8 @@ mod tests {
             .expect("count")
     }
 
-    async fn answer_kind_of(conn: &mut PgConnection, submission: Uuid) -> String {
-        models::test_support::answer_kind_text(conn, submission)
+    async fn answer_kind_of(conn: &mut PgConnection, submission: Uuid) -> AnswerKind {
+        models::test_support::answer_kind(conn, submission)
             .await
             .expect("answer kind")
     }
@@ -881,7 +881,10 @@ mod tests {
             .next()
             .expect("one task submission")
             .submission;
-        assert_eq!(answer_kind_of(tx.as_mut(), submission.id).await, "file");
+        assert_eq!(
+            answer_kind_of(tx.as_mut(), submission.id).await,
+            AnswerKind::File
+        );
         assert_eq!(
             recorded_files(tx.as_mut(), submission.id).await,
             vec![(second, 0), (first, 1)]

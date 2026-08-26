@@ -7,10 +7,21 @@
 //!
 //! Nothing outside tests may call these: they exist to force fixture state that no production code
 //! path is allowed to produce.
+//!
+//! The backdating helpers move rows rather than the clock because the columns and the filters that
+//! read them are both Postgres `now()`, which is frozen for a whole transaction: no Rust-side clock
+//! reaches them.
 
-use crate::prelude::*;
+use crate::{
+    exercise_answer_uploads::AnswerUploadOrigin, exercise_task_submissions::AnswerKind, prelude::*,
+};
+use chrono::Duration;
 
-/// Retires an answer upload the way the reaper does, so a test can observe the expired-upload paths.
+/// Retires an answer upload unconditionally, so a test can observe the expired-upload paths.
+///
+/// Deliberately not [`crate::exercise_answer_uploads::mark_reaped`], which the reaper uses: that one
+/// locks the row and declines while a live submission file still references it, which is exactly the
+/// state these tests need to force past.
 pub async fn soft_delete_answer_upload(
     conn: &mut PgConnection,
     file_upload_id: Uuid,
@@ -47,25 +58,25 @@ pub async fn slide_submission_count(
     user_id: Uuid,
 ) -> ModelResult<i64> {
     let count = sqlx::query_scalar!(
-        "
-SELECT count(*)
+        r#"
+SELECT count(*) AS "count!"
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
-",
+"#,
         exercise_id,
         user_id
     )
     .fetch_one(conn)
     .await?;
-    Ok(count.unwrap_or(0))
+    Ok(count)
 }
 
-/// A submission's stored answer kind, as the database spells it.
-pub async fn answer_kind_text(conn: &mut PgConnection, submission_id: Uuid) -> ModelResult<String> {
+/// A submission's stored answer kind.
+pub async fn answer_kind(conn: &mut PgConnection, submission_id: Uuid) -> ModelResult<AnswerKind> {
     let kind = sqlx::query_scalar!(
-        r#"SELECT answer_kind::text AS "kind!" FROM exercise_task_submissions WHERE id = $1"#,
+        "SELECT answer_kind FROM exercise_task_submissions WHERE id = $1",
         submission_id
     )
     .fetch_one(conn)
@@ -102,16 +113,16 @@ ORDER BY order_number
 pub async fn shift_submission_created_at(
     conn: &mut PgConnection,
     submission_id: Uuid,
-    seconds: f64,
+    offset: Duration,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE exercise_task_submissions
-SET created_at = now() + make_interval(secs => $2)
+SET created_at = now() + $2::interval
 WHERE id = $1
 ",
         submission_id,
-        seconds
+        offset as Duration
     )
     .execute(conn)
     .await?;
@@ -192,12 +203,12 @@ WHERE id = $1
     Ok(())
 }
 
-/// One live answer-upload binding, for asserting what a upload route recorded.
+/// One live answer-upload binding, for asserting what an upload route recorded.
 pub struct AnswerUploadBinding {
     pub file_upload_id: Uuid,
     pub exercise_id: Uuid,
     pub user_id: Uuid,
-    pub origin: String,
+    pub origin: AnswerUploadOrigin,
 }
 
 /// The live bindings for the given uploaded files.
@@ -205,48 +216,34 @@ pub async fn answer_upload_bindings(
     conn: &mut PgConnection,
     file_upload_ids: &[Uuid],
 ) -> ModelResult<Vec<AnswerUploadBinding>> {
-    let rows = sqlx::query!(
-        r#"
+    let bindings = sqlx::query_as!(
+        AnswerUploadBinding,
+        "
 SELECT file_upload_id,
   exercise_id,
   user_id,
-  origin::text AS "origin!"
+  origin
 FROM exercise_answer_uploads
 WHERE file_upload_id = ANY($1)
   AND deleted_at IS NULL
-"#,
+",
         file_upload_ids
     )
     .fetch_all(conn)
     .await?;
-    Ok(rows
-        .into_iter()
-        .map(|row| AnswerUploadBinding {
-            file_upload_id: row.file_upload_id,
-            exercise_id: row.exercise_id,
-            user_id: row.user_id,
-            origin: row.origin,
-        })
-        .collect())
-}
-
-/// `chrono` durations do not bind directly, and the conversion only fails for a span far larger
-/// than any test uses.
-fn as_interval(age: chrono::Duration) -> ModelResult<sqlx::postgres::types::PgInterval> {
-    sqlx::postgres::types::PgInterval::try_from(age)
-        .map_err(|err| model_err!(Generic, format!("Unrepresentable interval: {err}")))
+    Ok(bindings)
 }
 
 /// Backdates an uploaded file, so an age filter can be exercised.
 pub async fn backdate_file_upload(
     conn: &mut PgConnection,
     file_upload_id: Uuid,
-    age: chrono::Duration,
+    age: Duration,
 ) -> ModelResult<()> {
     sqlx::query!(
         "UPDATE file_uploads SET created_at = now() - $2::interval WHERE id = $1",
         file_upload_id,
-        as_interval(age)?
+        age as Duration
     )
     .execute(conn)
     .await?;
@@ -257,12 +254,12 @@ pub async fn backdate_file_upload(
 pub async fn backdate_answer_upload(
     conn: &mut PgConnection,
     file_upload_id: Uuid,
-    age: chrono::Duration,
+    age: Duration,
 ) -> ModelResult<()> {
     sqlx::query!(
         "UPDATE exercise_answer_uploads SET created_at = now() - $2::interval WHERE file_upload_id = $1",
         file_upload_id,
-        as_interval(age)?
+        age as Duration
     )
     .execute(conn)
     .await?;
@@ -276,17 +273,17 @@ pub async fn rejected_slide_submission_count(
     user_id: Uuid,
 ) -> ModelResult<i64> {
     let count = sqlx::query_scalar!(
-        "
-SELECT count(*)
+        r#"
+SELECT count(*) AS "count!"
 FROM rejected_exercise_slide_submissions
 WHERE exercise_slide_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
-",
+"#,
         exercise_slide_id,
         user_id
     )
     .fetch_one(conn)
     .await?;
-    Ok(count.unwrap_or(0))
+    Ok(count)
 }

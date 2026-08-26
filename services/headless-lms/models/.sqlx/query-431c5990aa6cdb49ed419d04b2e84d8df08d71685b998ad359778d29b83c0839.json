@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT count(*)\nFROM rejected_exercise_slide_submissions\nWHERE exercise_slide_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n",
+  "query": "\nSELECT count(*) AS \"count!\"\nFROM rejected_exercise_slide_submissions\nWHERE exercise_slide_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "count",
+        "name": "count!",
         "type_info": "Int8",
         "origin": "Expression"
       }
@@ -20,5 +20,5 @@
       null
     ]
   },
-  "hash": "7a1dba73fa2d2d7d3636dff9b483e87766669ab8b15c302e46623efa72719e2e"
+  "hash": "431c5990aa6cdb49ed419d04b2e84d8df08d71685b998ad359778d29b83c0839"
 }

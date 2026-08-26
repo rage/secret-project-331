@@ -507,6 +507,8 @@ mod answer_upload_tests {
     use actix_web::cookie::{Cookie, Key, SameSite};
     use actix_web::http::StatusCode;
     use actix_web::{App, test};
+    use models::exercise_answer_uploads::AnswerUploadOrigin;
+    use models::test_support::AnswerUploadBinding;
     use std::sync::Arc;
 
     const BOUNDARY: &str = "answeruploadboundary";
@@ -820,7 +822,7 @@ mod answer_upload_tests {
             .await
             .expect("the bindings");
         assert_eq!(bindings.len(), 2);
-        for models::test_support::AnswerUploadBinding {
+        for AnswerUploadBinding {
             file_upload_id,
             exercise_id,
             user_id,
@@ -830,7 +832,7 @@ mod answer_upload_tests {
             assert!(ids.contains(&file_upload_id));
             assert_eq!(exercise_id, exercise);
             assert_eq!(user_id, user);
-            assert_eq!(origin, "iframe");
+            assert_eq!(origin, AnswerUploadOrigin::Iframe);
         }
         check.rollback().await;
     }

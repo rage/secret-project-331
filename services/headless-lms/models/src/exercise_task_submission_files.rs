@@ -263,21 +263,13 @@ mod test {
     /// Every submission in one test transaction shares `now()`, so submission time has to be set
     /// explicitly for the ordering to be observable at all.
     async fn set_submitted_at(tx: &mut PgConnection, submission_id: Uuid, seconds: i64) {
-        crate::test_support::shift_submission_created_at(tx, submission_id, seconds as f64)
-            .await
-            .unwrap();
-    }
-
-    async fn soft_delete_task_submission(tx: &mut PgConnection, id: Uuid) {
-        crate::test_support::soft_delete_task_submission(tx, id)
-            .await
-            .unwrap();
-    }
-
-    async fn soft_delete_slide_submission(tx: &mut PgConnection, id: Uuid) {
-        crate::test_support::soft_delete_slide_submission(tx, id)
-            .await
-            .unwrap();
+        crate::test_support::shift_submission_created_at(
+            tx,
+            submission_id,
+            chrono::Duration::seconds(seconds),
+        )
+        .await
+        .unwrap();
     }
 
     #[tokio::test]
@@ -446,7 +438,9 @@ mod test {
             task_id,
         )
         .await;
-        soft_delete_task_submission(tx.as_mut(), doomed).await;
+        crate::test_support::soft_delete_task_submission(tx.as_mut(), doomed)
+            .await
+            .unwrap();
 
         assert_eq!(
             returned_submission_ids(tx.as_mut(), exercise_id).await,
@@ -467,7 +461,9 @@ mod test {
             task_id,
         )
         .await;
-        soft_delete_slide_submission(tx.as_mut(), doomed_slide_submission).await;
+        crate::test_support::soft_delete_slide_submission(tx.as_mut(), doomed_slide_submission)
+            .await
+            .unwrap();
 
         let returned = returned_submission_ids(tx.as_mut(), exercise_id).await;
         assert_eq!(returned, vec![surviving]);

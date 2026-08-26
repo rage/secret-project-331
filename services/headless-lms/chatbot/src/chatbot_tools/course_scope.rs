@@ -1,13 +1,8 @@
 //! Shared course resolution for tools that can act on a course other than the one the chatbot
 //! is on.
 
-use sqlx::PgConnection;
-use uuid::Uuid;
-
 use crate::{
-    chatbot_tools::tool_permission::ToolPermission,
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
-    user_context::ChatbotTurnContext,
+    chatbot_tools::tool_permission::ToolPermission, prelude::*, user_context::ChatbotTurnContext,
 };
 
 /// Shared schema description for the `course_id` argument of every course-material tool

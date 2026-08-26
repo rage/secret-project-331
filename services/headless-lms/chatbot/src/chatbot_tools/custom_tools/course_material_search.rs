@@ -1,11 +1,7 @@
 use std::str::FromStr;
 
 use indexmap::IndexMap;
-use serde::Deserialize;
-use sqlx::PgConnection;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     chatbot_conversation_messages_citations, courses, organizations,
@@ -22,7 +18,7 @@ use crate::{
         ChatbotTool, ChatbotToolDeclaration, ToolCitation, ToolProperties,
         course_scope::resolve_course_scope, tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
 
@@ -38,14 +34,14 @@ struct SearchHit {
     citation_number: i32,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct OutputCourse<'a> {
     id: Uuid,
     name: &'a str,
     slug: &'a str,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct OutputResult<'a> {
     page_id: Uuid,
     title: &'a str,
@@ -59,7 +55,7 @@ struct OutputResult<'a> {
     citation_number: i32,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct Output<'a> {
     course: OutputCourse<'a>,
     results: Vec<OutputResult<'a>>,

@@ -1,9 +1,5 @@
 use indexmap::IndexMap;
-use serde::Deserialize;
-use sqlx::PgConnection;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     courses, suspected_cheaters, suspected_cheaters::SuspectedCheaterStatus, user_details, users,
@@ -20,9 +16,7 @@ use crate::{
         argument_parsing::parse_required_uuid,
         tool_permission::ToolPermission,
     },
-    prelude::{
-        BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, TryToOptional, chatbot_err,
-    },
+    prelude::*,
 };
 
 /// Confirms or dismisses a `Flagged` suspected-cheater row. Only a `Flagged` row is actionable:

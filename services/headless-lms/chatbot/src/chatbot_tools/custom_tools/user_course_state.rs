@@ -1,17 +1,11 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use chrono::{DateTime, Utc};
 use indexmap::IndexMap;
-use serde::Deserialize;
-use sqlx::PgConnection;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
-    CourseOrExamId, certificate_configurations,
-    course_module_completion_registered_to_study_registries,
+    certificate_configurations, course_module_completion_registered_to_study_registries,
     course_module_completions::{self, CourseModuleCompletion},
     course_modules, exercise_reset_logs, exercise_slide_submissions,
     exercises::{self, Exercise},
@@ -33,7 +27,7 @@ use crate::{
         argument_parsing::deserialize_to_optional_uuid_and_errors_to_none,
         tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
 
@@ -46,7 +40,7 @@ pub struct UserCourseStateState {
     course_id: Uuid,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct UserCourseStateOutput {
     user_email: String,
     course_name: String,
@@ -54,7 +48,7 @@ struct UserCourseStateOutput {
     facets: IndexMap<String, UserCourseStateFacetValue>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 #[serde(untagged)]
 enum UserCourseStateFacetValue {
     Progress(Vec<UserCourseProgress>),
@@ -606,11 +600,17 @@ impl ChatbotTool for UserCourseStateTool {
                 now. verification_id both verifies and grants access to the certificate image - only share it with \
                 the certificate's owner.".to_string(),
             );
+            let certificates_search_url = search_url(
+                base_url,
+                &format!(
+                    "/manage/courses/{}/students/certificates",
+                    self.state.course_id
+                ),
+                &self.state.output.user_email,
+            );
             notes.push(format!(
-                "{base_url}/manage/courses/{}/students/certificates?search={} lists this student's generated \
-                certificates (issued date, verification URL, certificate image) for cross-checking \
-                generated_certificates.",
-                self.state.course_id, self.state.output.user_email,
+                "{certificates_search_url} lists this student's generated certificates (issued date, \
+                verification URL, certificate image) for cross-checking generated_certificates.",
             ));
             if certificates
                 .configurations
@@ -634,12 +634,20 @@ impl ChatbotTool for UserCourseStateTool {
                 attainment itself, not that an external registry accepted it. registered_at is the row's own \
                 created_at, not the registration date shown to the student in the registry.".to_string(),
             );
+            let completions_search_url = search_url(
+                base_url,
+                &format!(
+                    "/manage/courses/{}/students/completions",
+                    self.state.course_id
+                ),
+                &self.state.output.user_email,
+            );
             notes.push(format!(
-                "{base_url}/manage/courses/{}/students/completions?search={} shows per-module grade and \
-                registration status for cross-checking, and \
+                "{completions_search_url} shows per-module grade and registration status for \
+                cross-checking, and \
                 {base_url}/manage/credit-registration/registrations?user_id={} is the richer per-user view \
                 (attempt chain, event timeline, API calls, attainment ids).",
-                self.state.course_id, self.state.output.user_email, self.state.user_id,
+                self.state.user_id,
             ));
         }
 
@@ -663,13 +671,25 @@ fn exercise_name_index(exercises: &[Exercise]) -> HashMap<Uuid, &str> {
     exercises.iter().map(|e| (e.id, e.name.as_str())).collect()
 }
 
-#[derive(serde::Serialize)]
+/// An absolute `{base_url}{path}` URL with a single percent-encoded `search` query parameter.
+/// `search` can contain characters (e.g. a `+` in an email's local part) that are not safe to
+/// interpolate into a query string directly.
+fn search_url(base_url: &str, path: &str, search: &str) -> String {
+    url::Url::parse(&format!("{base_url}{path}"))
+        .map(|mut url| {
+            url.query_pairs_mut().append_pair("search", search);
+            url.to_string()
+        })
+        .unwrap_or_else(|_| format!("{base_url}{path}"))
+}
+
+#[derive(Serialize)]
 struct CompletionsFacet {
     module_completion_statuses: Vec<UserModuleCompletionStatus>,
     raw_completions: Vec<RawCompletion>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct RawCompletion {
     course_module_id: Uuid,
     completion_date: DateTime<Utc>,
@@ -715,14 +735,14 @@ async fn completions_facet(
     })
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct SubmissionsFacet {
     submissions: Vec<SubmissionRow>,
     #[serde(skip_serializing_if = "Option::is_none")]
     exercise_attempts: Option<ExerciseAttempts>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct SubmissionRow {
     created_at: DateTime<Utc>,
     exercise_id: Uuid,
@@ -732,7 +752,7 @@ struct SubmissionRow {
     course_module_id: Option<Uuid>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ExerciseAttempts {
     attempt_count: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -799,14 +819,14 @@ async fn submissions_facet(
     })
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ReviewsFacet {
     in_review_stages: Vec<InReviewStageRow>,
     teacher_grading_decisions: Vec<TeacherGradingDecisionRow>,
     peer_review_queue: Vec<PeerReviewQueueRow>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct InReviewStageRow {
     exercise_id: Uuid,
     exercise_name: String,
@@ -815,7 +835,7 @@ struct InReviewStageRow {
     score_given: Option<f32>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct TeacherGradingDecisionRow {
     #[serde(skip_serializing_if = "Option::is_none")]
     exercise_id: Option<Uuid>,
@@ -830,7 +850,7 @@ struct TeacherGradingDecisionRow {
     created_at: DateTime<Utc>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct PeerReviewQueueRow {
     exercise_id: Uuid,
     received_enough_peer_reviews: bool,
@@ -933,12 +953,12 @@ async fn reviews_facet(
     })
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ResetsFacet {
     resets: Vec<ResetRow>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ResetRow {
     exercise_name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -975,13 +995,13 @@ async fn resets_facet(
     Ok(ResetsFacet { resets })
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct CertificatesFacet {
     configurations: Vec<CertificateConfigurationRow>,
     generated_certificates: Vec<GeneratedCertificateRow>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct CertificateConfigurationRow {
     certificate_configuration_id: Uuid,
     eligible: bool,
@@ -989,7 +1009,7 @@ struct CertificateConfigurationRow {
     modules_blocked_by_pending_review: Vec<String>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct GeneratedCertificateRow {
     verification_id: String,
     name_on_certificate: String,
@@ -1073,12 +1093,12 @@ async fn certificates_facet(
     })
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct CreditRegistrationFacet {
     registrations: Vec<CreditRegistrationRow>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct CreditRegistrationRow {
     course_module_id: Uuid,
     registered: bool,

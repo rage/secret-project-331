@@ -1,10 +1,6 @@
 use indexmap::IndexMap;
-use serde::Deserialize;
 use serde_json::json;
-use sqlx::PgConnection;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{user_details, user_passwords, users};
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
@@ -19,7 +15,7 @@ use crate::{
         argument_parsing::parse_required_uuid,
         tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
 };
 
 /// Generates a one-time password reset link for a user, shown to the admin only in the browser.

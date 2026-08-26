@@ -1,15 +1,12 @@
 use indexmap::IndexMap;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
-use headless_lms_models::{ModelErrorType, course_page_markdown_content, pages};
+use headless_lms_models::{course_page_markdown_content, pages};
 use headless_lms_utils::{
     document_schema_processor::remove_sensitive_attributes,
     json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType},
     strings::truncate_utf8_at_boundary,
 };
-use sqlx::PgConnection;
-use uuid::Uuid;
 
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
@@ -21,7 +18,7 @@ use crate::{
     },
     citations::parse_document_filepath,
     llm_utils::estimate_tokens,
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
 
@@ -31,7 +28,7 @@ pub struct DocumentLookupState {
     document: Option<String>,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 pub struct DocumentLookupArguments {
     /// Required by the tool's schema, but the lookup resolves the document by id or filepath and
     /// never reads this back; kept only so a call missing it fails to deserialize.

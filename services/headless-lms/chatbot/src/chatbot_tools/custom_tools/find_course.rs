@@ -2,7 +2,6 @@ use std::str::FromStr;
 
 use indexmap::IndexMap;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_instances::{self, CourseInstance},
@@ -10,17 +9,13 @@ use headless_lms_models::{
     organizations,
 };
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
-use sqlx::PgConnection;
-use uuid::Uuid;
 
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
-    prelude::{
-        BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, TryToOptional, chatbot_err,
-    },
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
 
@@ -37,7 +32,7 @@ struct CourseCandidate {
     organization_name: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct CourseCandidateOutput {
     course_id: Uuid,
     name: String,
@@ -55,7 +50,7 @@ struct CourseCandidateOutput {
     instances: Vec<CourseInstanceOutput>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct CourseInstanceOutput {
     course_instance_id: Uuid,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -66,8 +61,6 @@ struct CourseInstanceOutput {
     ends_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     support_email: Option<String>,
-    teacher_in_charge_name: String,
-    teacher_in_charge_email: String,
 }
 
 impl From<&CourseInstance> for CourseInstanceOutput {
@@ -78,8 +71,6 @@ impl From<&CourseInstance> for CourseInstanceOutput {
             starts_at: instance.starts_at,
             ends_at: instance.ends_at,
             support_email: instance.support_email.clone(),
-            teacher_in_charge_name: instance.teacher_in_charge_name.clone(),
-            teacher_in_charge_email: instance.teacher_in_charge_email.clone(),
         }
     }
 }
@@ -107,7 +98,7 @@ impl From<&CourseCandidate> for CourseCandidateOutput {
     }
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 pub struct FindCourseArguments {
     query: String,
 }

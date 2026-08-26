@@ -1,22 +1,17 @@
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
-    chatbot_error::chatbot_err,
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, no_parameters,
         tool_permission::ToolPermission,
     },
-    prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
+    prelude::*,
     user_context::ChatbotTurnContext,
-};
-use headless_lms_base::{
-    config::ApplicationConfiguration, prelude_base_and_re_exports::BackendError,
 };
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_modules::{CompletionPolicy, CourseModule},
     user_exercise_states::UserCourseProgress,
 };
-use sqlx::PgConnection;
 
 pub type CourseProgressTool = ToolProperties<CourseProgressState>;
 
@@ -162,7 +157,7 @@ impl ChatbotTool for CourseProgressTool {
     }
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 pub struct CourseProgressArguments {}
 
 pub struct CourseProgressState {

@@ -1,11 +1,7 @@
 use std::str::FromStr;
 
-use chrono::{DateTime, Utc};
 use indexmap::IndexMap;
-use sqlx::PgConnection;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_instance_enrollments::get_course_enrollments_info_for_user,
@@ -26,7 +22,7 @@ use crate::{
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
 
@@ -40,7 +36,7 @@ pub struct UserOverviewState {
     user_id: Uuid,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 #[serde(untagged)]
 enum UserOverviewFacetValue {
     Profile(ProfileFacet),
@@ -50,7 +46,7 @@ enum UserOverviewFacetValue {
     EmailDeliveries(Vec<EmailDeliveryFacet>),
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ProfileFacet {
     user_id: Uuid,
     email: String,
@@ -75,12 +71,11 @@ struct ProfileFacet {
     deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(serde::Serialize)]
+/// Only course-, course-instance-, or exam-scoped roles: global and organization-scoped roles
+/// are filtered out before this is built, so those fields would never be anything but absent.
+#[derive(Serialize)]
 struct RoleFacet {
     role: UserRole,
-    is_global: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    organization_id: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
     course_id: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -89,7 +84,7 @@ struct RoleFacet {
     exam_id: Option<Uuid>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct EnrollmentFacet {
     course_id: Uuid,
     course_name: String,
@@ -100,7 +95,7 @@ struct EnrollmentFacet {
     completions_needing_review_count: i32,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct CheatingFlagFacet {
     course_id: Uuid,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -113,7 +108,7 @@ struct CheatingFlagFacet {
     created_at: DateTime<Utc>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct EmailDeliveryFacet {
     email_template_type: EmailTemplateType,
     created_at: DateTime<Utc>,
@@ -169,7 +164,7 @@ impl<'de> serde::Deserialize<'de> for UserOverviewArguments {
     where
         D: serde::Deserializer<'de>,
     {
-        #[derive(serde::Deserialize)]
+        #[derive(Deserialize)]
         struct Raw {
             user_id: String,
             facets: Vec<String>,
@@ -275,10 +270,9 @@ impl ChatbotTool for UserOverviewTool {
                     UserOverviewFacetValue::Roles(
                         roles
                             .into_iter()
+                            .filter(|role| !role.is_global && role.organization_id.is_none())
                             .map(|role| RoleFacet {
                                 role: role.role,
-                                is_global: role.is_global,
-                                organization_id: role.organization_id,
                                 course_id: role.course_id,
                                 course_instance_id: role.course_instance_id,
                                 exam_id: role.exam_id,
@@ -479,14 +473,12 @@ impl ChatbotTool for UserOverviewTool {
                 let role_links = roles
                     .iter()
                     .map(|role| {
-                        if let Some(organization_id) = role.organization_id {
-                            format!("{base_url}/manage/organizations/{organization_id}/permissions")
-                        } else if let Some(course_id) = role.course_id {
-                            format!("{base_url}/manage/courses/{course_id}/permissions")
-                        } else if let Some(course_instance_id) = role.course_instance_id {
+                        if let Some(course_instance_id) = role.course_instance_id {
                             format!(
                                 "{base_url}/manage/course-instances/{course_instance_id}/permissions"
                             )
+                        } else if let Some(course_id) = role.course_id {
+                            format!("{base_url}/manage/courses/{course_id}/permissions")
                         } else if let Some(exam_id) = role.exam_id {
                             format!("{base_url}/manage/exams/{exam_id}/permissions")
                         } else {
@@ -496,7 +488,8 @@ impl ChatbotTool for UserOverviewTool {
                     .collect::<Vec<_>>()
                     .join(", ");
                 notes.push(format!(
-                    "roles.is_global true with no scope ids is a platform-wide role. UserRole \
+                    "roles only lists course-, course-instance-, or exam-scoped roles for this \
+                     user \u{2014} organization-wide and platform-wide roles are left out. UserRole \
                      values are distinct capabilities, not a seniority hierarchy. A role on the \
                      course in question means this person is staff there, not a student. Verify \
                      each row's scope at: {role_links} (built from that row's own scope id) \u{2014} \

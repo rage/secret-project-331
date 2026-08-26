@@ -1,12 +1,8 @@
 use std::str::FromStr;
 use std::time::Duration;
 
-use chrono::{DateTime, Utc};
 use indexmap::IndexMap;
-use sqlx::PgConnection;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     certificate_configurations, chapters, course_instances,
@@ -28,7 +24,7 @@ use crate::{
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
 
@@ -44,7 +40,7 @@ pub struct CourseConfigurationState {
     course_id: Uuid,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 #[serde(untagged)]
 enum CourseConfigurationFacetValue {
     Modules(Vec<ModuleInfo>),
@@ -56,7 +52,7 @@ enum CourseConfigurationFacetValue {
     Staff(StaffInfo),
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ModuleInfo {
     course_module_id: Uuid,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -78,7 +74,7 @@ struct ModuleInfo {
     enable_credit_registration_via_suotar: bool,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct CertificateConfigurationInfo {
     certificate_configuration_id: Uuid,
     is_default_certificate_configuration: bool,
@@ -86,7 +82,7 @@ struct CertificateConfigurationInfo {
     required_course_module_names: Vec<String>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ExamInfo {
     exam_id: Uuid,
     name: String,
@@ -100,14 +96,14 @@ struct ExamInfo {
     modules_that_require_this_exam_for_automatic_completion: Vec<String>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ScheduleInfo {
     chapter_locking_enabled: bool,
     chapters: Vec<ChapterScheduleInfo>,
     course_instances: Vec<CourseInstanceScheduleInfo>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ChapterScheduleInfo {
     chapter_number: i32,
     name: String,
@@ -119,7 +115,7 @@ struct ChapterScheduleInfo {
     per_exercise_deadline_overrides: Option<ChapterDeadlineOverrideSummary>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ChapterDeadlineOverrideSummary {
     #[serde(skip_serializing_if = "Option::is_none")]
     earliest_exercise_deadline_override: Option<DateTime<Utc>>,
@@ -127,7 +123,7 @@ struct ChapterDeadlineOverrideSummary {
     exercise_deadline_override_distinct_count: i64,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct CourseInstanceScheduleInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
@@ -137,7 +133,7 @@ struct CourseInstanceScheduleInfo {
     ends_at: Option<DateTime<Utc>>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct ReviewPolicyInfo {
     peer_reviews_to_give: i32,
     peer_reviews_to_receive: i32,
@@ -152,7 +148,7 @@ struct ReviewPolicyInfo {
     note: &'static str,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct PoliciesInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     closed_at: Option<DateTime<Utc>>,
@@ -171,25 +167,14 @@ struct PoliciesInfo {
     ask_marketing_consent: bool,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct StaffInfo {
-    static_instance_contacts: Vec<StaticInstanceContactInfo>,
     role_based_staff: Vec<RoleBasedStaffContactInfo>,
     #[serde(skip_serializing_if = "Option::is_none")]
     sisu_fallback: Option<SisuFallbackResult>,
 }
 
-#[derive(serde::Serialize)]
-struct StaticInstanceContactInfo {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    instance_name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    support_email: Option<String>,
-    teacher_in_charge_name: String,
-    teacher_in_charge_email: String,
-}
-
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct RoleBasedStaffContactInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
@@ -199,7 +184,7 @@ struct RoleBasedStaffContactInfo {
     scope: &'static str,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 #[serde(untagged)]
 enum SisuFallbackResult {
     Contacts {
@@ -259,7 +244,7 @@ impl<'de> serde::Deserialize<'de> for CourseConfigurationArguments {
     where
         D: serde::Deserializer<'de>,
     {
-        #[derive(serde::Deserialize)]
+        #[derive(Deserialize)]
         struct Raw {
             course_id: String,
             facets: Vec<String>,
@@ -814,17 +799,15 @@ impl ChatbotTool for CourseConfigurationTool {
 
         if let Some(CourseConfigurationFacetValue::Staff(staff)) = facets.get("staff") {
             notes.push(
-                "When the admin needs a human to contact, prefer role_based_staff over \
-                 static_instance_contacts and say which source a contact came from. \
-                 role_based_staff.scope (\"course\" / \"course_instance\" / \"organization\") is \
+                "role_based_staff.scope (\"course\" / \"course_instance\" / \"organization\") is \
                  the only way to tell someone who teaches this course from someone who just \
                  runs its organization — the role list intentionally includes org-scoped roles."
                     .to_string(),
             );
             if staff.sisu_fallback.is_some() {
                 notes.push(
-                    "sisu_fallback is present only when both other contact lists are empty; its \
-                     Error variant is a note to look the code up by hand, not a failed tool call."
+                    "sisu_fallback is present only when role_based_staff is empty; its Error \
+                     variant is a note to look the code up by hand, not a failed tool call."
                         .to_string(),
                 );
             }
@@ -894,25 +877,15 @@ fn module_to_info(module: &headless_lms_models::course_modules::CourseModule) ->
     }
 }
 
-/// Staff contacts in freshness order: static instance fields, then role-based assignments, then
-/// (only when both are empty and a Sisu code exists) a best-effort Sisu lookup.
+/// Staff contacts from role-based assignments, falling back to a best-effort Sisu lookup only
+/// when there are none and a Sisu code exists. Course instances also carry a static
+/// teacher-in-charge contact, but that field goes stale and is not surfaced here.
 async fn staff_facet(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     course_id: Uuid,
     modules: &[headless_lms_models::course_modules::CourseModule],
 ) -> ChatbotResult<StaffInfo> {
-    let instances = course_instances::get_course_instances_for_course(conn, course_id).await?;
-    let static_instance_contacts = instances
-        .iter()
-        .map(|i| StaticInstanceContactInfo {
-            instance_name: i.name.clone(),
-            support_email: i.support_email.clone(),
-            teacher_in_charge_name: i.teacher_in_charge_name.clone(),
-            teacher_in_charge_email: i.teacher_in_charge_email.clone(),
-        })
-        .collect::<Vec<_>>();
-
     let related_roles = get_course_related_roles(conn, course_id).await?;
     let role_based_roles: Vec<Role> = related_roles
         .into_iter()
@@ -950,8 +923,7 @@ async fn staff_facet(
 
     let sisu_course_code = modules.iter().find_map(|m| m.uh_course_code.clone());
 
-    let sisu_fallback = if static_instance_contacts.is_empty()
-        && role_based.is_empty()
+    let sisu_fallback = if role_based.is_empty()
         && let Some(code) = sisu_course_code
     {
         Some(sisu_lookup(app_config, &code).await)
@@ -960,7 +932,6 @@ async fn staff_facet(
     };
 
     Ok(StaffInfo {
-        static_instance_contacts,
         role_based_staff: role_based,
         sisu_fallback,
     })

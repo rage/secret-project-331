@@ -1,8 +1,5 @@
 use indexmap::IndexMap;
-use sqlx::PgConnection;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{courses, exercises, user_details, users};
 use headless_lms_utils::json_schema_types::{
@@ -20,7 +17,7 @@ use crate::{
         argument_parsing::parse_required_uuid,
         tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
 };
 
 /// Resets a user's progress on selected exercises (or the whole course) after admin
@@ -37,7 +34,7 @@ pub struct ResetExercisesArguments {
     pub reason: String,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 struct RawArguments {
     user_id: String,
     course_id: String,

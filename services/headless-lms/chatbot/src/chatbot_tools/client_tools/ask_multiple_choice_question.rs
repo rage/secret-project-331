@@ -1,7 +1,5 @@
 use indexmap::IndexMap;
 
-use serde::Deserialize;
-
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_utils::json_schema_types::{
     JSONType, JsonItem, Schema, SchemaPropertyType, string_array_property,
@@ -14,7 +12,7 @@ use crate::{
         ChatbotToolDeclaration, ClientChatbotTool, ClientToolName, client_answer_data,
         tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
 };
 
 /// Fewer than two choices is not a question. Both bounds are enforced in

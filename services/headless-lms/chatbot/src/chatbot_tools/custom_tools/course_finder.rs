@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 
 use indexmap::IndexMap;
+use serde::Deserializer;
 
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
     },
-    prelude::ChatbotResult,
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_audiences::get_course_ids_by_audience_vectors,
@@ -21,9 +21,6 @@ use headless_lms_utils::{
     azure_embedding::create_embeddings,
     json_schema_types::{Schema, string_array_property},
 };
-use serde::{Deserialize, Deserializer, Serialize};
-use sqlx::PgConnection;
-use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct CourseFinderState {

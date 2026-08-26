@@ -291,7 +291,7 @@ pub async fn update_email_for_user(
     .fetch_one(&mut *tx)
     .await?;
 
-    apply_email_update(&mut *tx, user.id, &new_email).await?;
+    apply_email_update(&mut tx, user.id, &new_email).await?;
 
     tx.commit().await?;
 
@@ -307,7 +307,7 @@ pub async fn update_email_for_user_by_id(
     new_email: &str,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
-    apply_email_update(&mut *tx, user_id, new_email).await?;
+    apply_email_update(&mut tx, user_id, new_email).await?;
     tx.commit().await?;
     Ok(())
 }

@@ -1,6 +1,5 @@
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, AzureLLMToolDefinition},
-    chatbot_error::chatbot_err,
     chatbot_tools::{
         action_tools::{
             ConfirmAnswer, ConfirmableActionTool, edit_user_account::EditUserAccountTool,
@@ -18,17 +17,14 @@ use crate::{
         tool_category::EnabledToolCategories,
         tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_utils::json_schema_types::Schema;
 use indexmap::IndexMap;
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use sqlx::PgConnection;
+use serde::de::DeserializeOwned;
 use utoipa::ToSchema;
-use uuid::Uuid;
 
 pub mod action_tools;
 pub mod argument_parsing;

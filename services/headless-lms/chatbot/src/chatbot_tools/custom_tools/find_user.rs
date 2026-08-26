@@ -1,15 +1,11 @@
 use std::str::FromStr;
 
-use chrono::{DateTime, Utc};
 use indexmap::IndexMap;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::user_details::EmailVerificationMethod;
 use headless_lms_models::{user_details, user_details::UserDetail, users};
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
-use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
@@ -17,9 +13,7 @@ use crate::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, argument_parsing::parse_required_uuid,
         tool_permission::ToolPermission,
     },
-    prelude::{
-        BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, TryToOptional, chatbot_err,
-    },
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
 
@@ -35,7 +29,7 @@ pub struct FindUserState {
     query: String,
 }
 
-#[derive(Clone, serde::Serialize)]
+#[derive(Clone, Serialize)]
 struct UserCandidateOutput {
     user_id: Uuid,
     email: String,
@@ -54,7 +48,7 @@ struct UserCandidateOutput {
     deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct FindUserOutput {
     matched_as: &'static str,
     candidates: Vec<UserCandidateOutput>,
@@ -75,7 +69,7 @@ pub struct FindUserArguments {
     kind: FindUserKind,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 struct RawFindUserArguments {
     query: String,
     kind: String,

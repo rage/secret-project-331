@@ -1,10 +1,5 @@
-use chrono::Utc;
 use indexmap::IndexMap;
-use serde::Deserialize;
-use sqlx::PgConnection;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{user_details, user_details::EmailVerificationMethod, users};
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
@@ -19,7 +14,7 @@ use crate::{
         argument_parsing::parse_required_uuid,
         tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
 };
 
 /// Corrects a user's email and/or its verification state, after the admin confirms.

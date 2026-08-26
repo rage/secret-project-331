@@ -1,14 +1,11 @@
 use indexmap::IndexMap;
-use uuid::Uuid;
 
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::pages;
 use headless_lms_utils::{
     document_schema_processor::get_learning_objectives,
     json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType},
 };
-use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
@@ -18,7 +15,7 @@ use crate::{
         course_scope::{COURSE_ID_ARGUMENT_DESCRIPTION, resolve_course_scope},
         tool_permission::ToolPermission,
     },
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
+    prelude::*,
     user_context::ChatbotTurnContext,
 };
 
@@ -32,7 +29,7 @@ pub struct CourseStructureState {
     course_id_from_argument: bool,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum PageType {
     CourseFrontPage,
@@ -60,7 +57,7 @@ impl PageType {
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PageDocumentInfo {
     pub page_id: Uuid,
     pub url_path: String,
@@ -76,7 +73,7 @@ pub struct PageDocumentInfo {
     pub learning_objectives: Option<String>,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 pub struct CourseStructureArguments {
     #[serde(deserialize_with = "deserialize_to_optional_uuid_and_errors_to_none")]
     course_id: Option<Uuid>,

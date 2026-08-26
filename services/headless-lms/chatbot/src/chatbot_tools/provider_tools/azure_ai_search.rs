@@ -2,16 +2,11 @@ use crate::{
     azure_chatbot::azure::tools::{
         AzureAISearch, AzureAISearchToolDefinition, EmbeddingDependency, FieldsMapping, SearchIndex,
     },
-    chatbot_error::chatbot_err,
     llm_utils::azure_search_configuration,
-    prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
+    prelude::*,
     search_filter::SearchFilter,
 };
-use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_base::prelude_base_and_re_exports::BackendError;
 use headless_lms_models::chatbot_configurations::ToolCategory;
-use url::Url;
-use uuid::Uuid;
 
 /// Separates the content fields Azure concatenates into one chunk. Baked into the format the
 /// search index was written with, so changing it silently breaks every indexed document.

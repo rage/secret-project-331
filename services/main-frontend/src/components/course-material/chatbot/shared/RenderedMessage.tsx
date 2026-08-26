@@ -6,8 +6,9 @@ import type { DOMAttributes, ReactPortal } from "react"
 import React, { memo, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
+import "highlight.js/styles/atom-one-dark.css"
+
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
-import { defaultFontSizePx } from "@/shared-module/common/styles/constants"
 import { planCitationPortals } from "@/utils/course-material/chatbotCitationPortals"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
 import { getRemarkable } from "@/utils/course-material/getRemarkable"
@@ -52,7 +53,7 @@ const messageStyle = css`
     /*the pre element corresponds to md raw text, this property
     will force long strings in it to wrap and not overflow */
     white-space: pre-wrap;
-    ${getPreStyles(defaultFontSizePx, false)}
+    ${getPreStyles(14, false)}
     padding: 0;
     border-radius: 0.4rem;
   }
@@ -133,17 +134,6 @@ interface MessageWithPortalsComponentProps {
   msg: string
   isPending: boolean
 }
-
-/* const MemoMessageWithInnerHTML: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
-  // this span is the parent to the portal containers. memo it so that it won't be
-   re-rendered when the portals are created
-  return (
-    <span
-      className={messageStyle}
-      dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}
-    ></span>
-  )
-}) */
 
 const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(
   ({ msg, isPending }) => {
@@ -232,15 +222,16 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     readyForPortal,
   ])
 
-  useMemo(() => {
-    if (!readyForCode) {
-      return
-    }
+  if (readyForCode) {
     const codeNodes = Array.from(thisNode.current?.querySelectorAll<Element>("code") ?? [])
     codeNodes.forEach((node) => {
+      delete (node as HTMLElement).dataset.highlighted
+      if (!node.className.includes(codeBlockStyles)) {
+        node.className = codeBlockStyles + " " + node.className
+      }
       hljs.highlightElement(node as HTMLElement)
     })
-  }, [thisNode, readyForCode])
+  }
 
   let renderedMessage = useMemo(() => {
     switch (renderOption) {
@@ -262,6 +253,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   if (renderOption === MessageRenderType.ChatbotNoCitations) {
     return (
       <span
+        ref={thisNode}
         className={cx(messageStyle, isPending && lastLineInlineStyle)}
         dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(renderedMessage) }}
       ></span>

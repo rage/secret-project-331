@@ -258,6 +258,9 @@ impl LLMRequest {
         } = inputs;
 
         let mut system_prompt = configuration.prompt.clone();
+        system_prompt.push_str(
+            "All code you generate should be indented with 2 spaces, regardless of the language.\n",
+        );
         if configuration.use_azure_search {
             system_prompt.push_str(&search_grounding_instruction(configuration.use_tools));
             tools.push(AzureLLMToolDefinition::Search(

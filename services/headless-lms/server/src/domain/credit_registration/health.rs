@@ -187,6 +187,22 @@ pub fn stuck_thresholds() -> StuckThresholds {
     STUCK_THRESHOLDS
 }
 
+/// A phase counts as late once more than [`PHASE_HEARTBEAT_INTERVAL_MULTIPLIER`] of its own
+/// interval has passed since its last heartbeat. A paused phase is never late: it is not expected
+/// to be heartbeating at all.
+pub(crate) fn is_heartbeat_late(
+    last_heartbeat_at: Option<DateTime<Utc>>,
+    expected_interval_secs: i32,
+    paused_at: Option<DateTime<Utc>>,
+    now: DateTime<Utc>,
+) -> bool {
+    paused_at.is_none()
+        && last_heartbeat_at.is_some_and(|at| {
+            (now - at).num_seconds()
+                > i64::from(expected_interval_secs) * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
+        })
+}
+
 /// Runs every rule and ranks what it found.
 ///
 /// `stuck` and `depths` are passed in because the caller already reads both aggregates, the two
@@ -410,10 +426,12 @@ async fn phase_alerts(
             continue;
         }
         let interval = i64::from(phase.expected_interval_secs);
-        if let Some(last_heartbeat_at) = phase.last_heartbeat_at
-            && (now - last_heartbeat_at).num_seconds()
-                > interval * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
-        {
+        if is_heartbeat_late(
+            phase.last_heartbeat_at,
+            phase.expected_interval_secs,
+            None,
+            now,
+        ) {
             stale.push(&phase.phase);
         }
         let owns_work =

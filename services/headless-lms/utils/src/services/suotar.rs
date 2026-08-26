@@ -4,7 +4,7 @@
 //! `status` and `code`; only request-level failures are 4xx/5xx and `Err`. Items are matched back
 //! by `requestItemId`, never by position.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
@@ -14,6 +14,7 @@ use chrono::NaiveDate;
 use headless_lms_base::config::{MOCK_SUOTAR_TOKEN, SUOTAR_AUTH_SCHEME, SuotarConfiguration};
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use secrecy::{ExposeSecret, SecretString};
+use serde::Deserialize;
 use serde::de::DeserializeOwned;
 
 use crate::{error::util_error::SuotarErrorVariant, prelude::*};
@@ -351,13 +352,6 @@ impl<R> SuotarBatchResponse<R> {
         self.items
             .iter()
             .find(|item| item.request_item_id == request_item_id)
-    }
-
-    pub fn into_items_by_id(self) -> HashMap<String, SuotarResponseItem<R>> {
-        self.items
-            .into_iter()
-            .map(|item| (item.request_item_id.clone(), item))
-            .collect()
     }
 }
 
@@ -727,7 +721,7 @@ impl SuotarClient {
         // dropped ids as missing, which is what an item we cannot read amounts to.
         let items: Vec<SuotarResponseItem<R>> = array
             .iter()
-            .filter_map(|item| match serde_json::from_value(item.clone()) {
+            .filter_map(|item| match SuotarResponseItem::<R>::deserialize(item) {
                 Ok(parsed) => Some(parsed),
                 Err(error) => {
                     error!(

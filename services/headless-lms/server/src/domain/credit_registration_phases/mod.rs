@@ -292,9 +292,27 @@ pub struct PhaseContext<'a> {
     pub suotar_conf: &'a headless_lms_base::config::SuotarConfiguration,
 }
 
-impl PhaseContext<'_> {
+impl<'a> PhaseContext<'a> {
     pub(crate) fn worker_name(&self, phase: CreditRegistrationPhase) -> String {
         worker_name(self.caller, phase)
+    }
+
+    /// Builds a context from the application configuration, the shape every construction site
+    /// starts from.
+    pub fn from_app(
+        pool: &'a PgPool,
+        suotar_client: &'a SuotarClient,
+        app_conf: &'a headless_lms_base::config::ApplicationConfiguration,
+        caller: &'a str,
+    ) -> Self {
+        Self {
+            pool,
+            suotar_client,
+            test_mode: app_conf.test_mode,
+            caller,
+            base_url: &app_conf.base_url,
+            suotar_conf: &app_conf.suotar_configuration,
+        }
     }
 }
 
@@ -472,6 +490,9 @@ impl TemplateCache {
 /// shapes; [`run_mail_queue_phase`] is the loop they share.
 pub(crate) trait MailQueuePhase {
     type Item;
+    /// Per-run state [`queue`](Self::queue) may want across items, the way [`TemplateCache`] is
+    /// kept across items already. `()` for a phase that needs none.
+    type Cache: Default;
 
     async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>>;
 
@@ -485,6 +506,7 @@ pub(crate) trait MailQueuePhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
+        cache: &mut Self::Cache,
     ) -> anyhow::Result<()>;
 
     /// One entry of the missing-templates report, e.g. the language alone or a type-and-language
@@ -506,6 +528,7 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
     let mut tx = conn.begin().await?;
     let claimed = P::claim(&mut tx, scope).await?;
     let mut templates = TemplateCache::default();
+    let mut cache = P::Cache::default();
     let mut missing_templates: BTreeSet<String> = BTreeSet::new();
     let mut skipped = 0;
     for item in &claimed {
@@ -516,7 +539,7 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
             skipped += 1;
             continue;
         };
-        P::queue(ctx, &mut tx, item, template_id).await?;
+        P::queue(ctx, &mut tx, item, template_id, &mut cache).await?;
     }
     tx.commit().await?;
 

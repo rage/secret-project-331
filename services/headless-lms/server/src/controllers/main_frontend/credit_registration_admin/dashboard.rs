@@ -18,7 +18,7 @@ use headless_lms_models::suotar_api_calls::{
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::{
-    CreditRegistrationHealth, PHASE_HEARTBEAT_INTERVAL_MULTIPLIER, evaluate, stuck_thresholds,
+    CreditRegistrationHealth, evaluate, is_heartbeat_late, stuck_thresholds,
 };
 use crate::domain::credit_registration_phases::CreditRegistrationPhase;
 use crate::domain::credit_registration_phases::breaker::{
@@ -470,11 +470,12 @@ fn to_phase_status(
     now: DateTime<Utc>,
 ) -> CreditRegistrationPhaseStatus {
     let seconds_since_heartbeat = row.last_heartbeat_at.map(|at| (now - at).num_seconds());
-    let heartbeat_late = row.paused_at.is_none()
-        && seconds_since_heartbeat.is_some_and(|secs| {
-            secs > i64::from(row.expected_interval_secs)
-                * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
-        });
+    let heartbeat_late = is_heartbeat_late(
+        row.last_heartbeat_at,
+        row.expected_interval_secs,
+        row.paused_at,
+        now,
+    );
     CreditRegistrationPhaseStatus {
         implemented: CreditRegistrationPhase::from_phase_name(&row.phase).is_some(),
         phase: row.phase,

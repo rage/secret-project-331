@@ -44,9 +44,8 @@ pub struct SuotarApiCallRow {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct SuotarApiCallsPage {
-    pub data: Vec<SuotarApiCallRow>,
-    pub total_count: i64,
-    pub total_pages: u32,
+    #[serde(flatten)]
+    pub page: Page<SuotarApiCallRow>,
     /// The `worker_name` values in the log, for the filter.
     pub worker_names: Vec<String>,
 }
@@ -142,17 +141,11 @@ pub async fn list_suotar_api_calls(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(50))
-        .map_err(|e| controller_err!(BadRequest, e.to_string()))?;
+    let pagination = parse_pagination(query.page, query.limit, 50)?;
     let filters = SuotarApiCallFilters {
         endpoint: query.endpoint,
         succeeded: query.succeeded,
-        worker_name: query
-            .worker_name
-            .as_deref()
-            .map(str::trim)
-            .filter(|name| !name.is_empty())
-            .map(str::to_string),
+        worker_name: non_empty(query.worker_name.as_deref()).map(str::to_string),
         started_after: query.started_after,
         started_before: query.started_before,
         credit_registration_id: query.credit_registration_id,
@@ -164,9 +157,13 @@ pub async fn list_suotar_api_calls(
     let worker_names = suotar_api_calls::get_worker_names(&mut conn).await?;
 
     token.authorized_ok(web::Json(SuotarApiCallsPage {
-        data: rows.into_iter().map(|row| to_call_row(row.call)).collect(),
-        total_count,
-        total_pages: pagination.total_pages(u32::try_from(total_count).unwrap_or(u32::MAX)),
+        page: Page::new(
+            pagination,
+            rows.into_iter()
+                .map(|row| to_call_row(row.into()))
+                .collect(),
+            total_count,
+        ),
         worker_names,
     }))
 }

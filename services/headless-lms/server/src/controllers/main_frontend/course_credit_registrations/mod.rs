@@ -45,13 +45,30 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::credit_registration_phases::PhaseContext;
 use crate::domain::credit_registration_phases::linking_mail_resend::{
-    LinkingMailResendOutcome, ResendDecision, resend_linking_mail_for_target,
+    ResendOutcome, resend_linking_mail_for_target,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::services::suotar::SuotarClient;
 
 use super::credit_registrations::{NotificationEmailStatus, mask_email};
+
+/// Every handler here that names a student gates on this; see the module doc for why
+/// `ViewAndManageCreditRegistrations` and not a broader course permission.
+pub(crate) async fn authorize_credit_registration_teacher(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> Result<crate::domain::authorization::AuthorizationToken, ControllerError> {
+    authorize(
+        conn,
+        Act::ViewAndManageCreditRegistrations,
+        Some(user_id),
+        Res::Course(course_id),
+    )
+    .await
+    .map_err(Into::into)
+}
 
 /// A fat-finger guard on top of the per-person caps, which this endpoint cannot relax.
 const MAX_TEACHER_RESENDS_PER_HOUR: i64 = 20;
@@ -225,26 +242,9 @@ pub struct ResendLinkingEmailPayload {
     pub reason: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum ResendLinkingEmailOutcome {
-    /// A mail is owed and will be handed to the sender on the next run.
-    Queued,
-    AlreadyMailedToEveryKnownAddress,
-    /// A cap refused it. Not overridable here; an admin can.
-    RefusedByRateCap,
-    NoAddressInStudyRegistry,
-    NotOnTheCourseRoster,
-    /// This account has never had a student number, so there is nothing to look up.
-    NoStudentNumberKnown,
-    /// The number is already linked to an account, so no linking mail is owed.
-    AlreadyLinked,
-    StudyRegistryUnavailable,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct ResendLinkingEmailResult {
-    pub outcome: ResendLinkingEmailOutcome,
+    pub outcome: ResendOutcome,
     /// The latest mail for this person and course after the attempt, whatever the outcome.
     pub linking_email: Option<TeacherLinkingEmailStatus>,
     pub mails_sent_for_this_course: i64,
@@ -313,13 +313,7 @@ pub async fn get_course_credit_registration_summary(
     course_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<CourseCreditRegistrationSummary>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
     let configs =
         models::course_modules::get_credit_registration_configs_by_course_id(&mut conn, *course_id)
@@ -413,13 +407,7 @@ pub async fn get_course_credit_registrations_for_users(
     payload: web::Json<CourseCreditRegistrationUserIdsPayload>,
 ) -> ControllerResult<web::Json<Vec<CourseCreditRegistration>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
     if payload.user_ids.len() > MAX_USER_IDS_PER_REQUEST {
         return Err(controller_err!(
@@ -476,21 +464,10 @@ pub async fn get_course_credit_registrations(
     query: web::Query<GetCourseCreditRegistrationsQuery>,
 ) -> ControllerResult<web::Json<CourseCreditRegistrationsPage>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
-    let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(100))
-        .map_err(|e| controller_err!(BadRequest, e.to_string()))?;
-    let search = query
-        .search
-        .as_deref()
-        .map(str::trim)
-        .filter(|search| !search.is_empty());
+    let pagination = parse_pagination(query.page, query.limit, 100)?;
+    let search = non_empty(query.search.as_deref());
     let filters = TeacherCreditRegistrationFilters {
         state: query.state,
         search,
@@ -546,13 +523,7 @@ pub async fn get_credit_registration_details(
         models::credit_registrations::get_teacher_facing_by_id(&mut conn, *credit_registration_id)
             .await?
             .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(row.course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, row.course_id).await?;
 
     let course = models::courses::get_course(&mut conn, row.course_id).await?;
     let registration_id = row.id;
@@ -631,13 +602,7 @@ pub async fn resend_course_credit_registration_linking_email(
     suotar_client: web::Data<SuotarClient>,
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
     let enabled_module_ids =
         models::course_modules::get_credit_registration_enabled_ids_for_course(
@@ -673,20 +638,13 @@ pub async fn resend_course_credit_registration_linking_email(
             *course_id,
             &payload,
             None,
-            ResendLinkingEmailOutcome::NoStudentNumberKnown,
+            ResendOutcome::NoStudentNumberKnown,
             token,
         )
         .await;
     };
 
-    let ctx = PhaseContext {
-        pool: &pool,
-        suotar_client: &suotar_client,
-        test_mode: app_conf.test_mode,
-        caller: RESEND_CALLER,
-        base_url: &app_conf.base_url,
-        suotar_conf: &app_conf.suotar_configuration,
-    };
+    let ctx = PhaseContext::from_app(&pool, &suotar_client, &app_conf, RESEND_CALLER);
     // Released first: the call below takes connections of its own and can hold the request for the
     // whole Suotar timeout, so keeping this one would tie up three of the pool per resend.
     drop(conn);
@@ -698,27 +656,7 @@ pub async fn resend_course_credit_registration_linking_email(
     )
     .await?;
     let mut conn = pool.acquire().await?;
-    let outcome = match attempt.decision {
-        ResendDecision::AlreadyLinked => ResendLinkingEmailOutcome::AlreadyLinked,
-        ResendDecision::Attempted(LinkingMailResendOutcome::Claimed) => {
-            ResendLinkingEmailOutcome::Queued
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress) => {
-            ResendLinkingEmailOutcome::AlreadyMailedToEveryKnownAddress
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::RefusedByRateCap) => {
-            ResendLinkingEmailOutcome::RefusedByRateCap
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::NoAddressInStudyRegistry) => {
-            ResendLinkingEmailOutcome::NoAddressInStudyRegistry
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::NotOnTheCourseRoster) => {
-            ResendLinkingEmailOutcome::NotOnTheCourseRoster
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::StudyRegistryUnavailable) => {
-            ResendLinkingEmailOutcome::StudyRegistryUnavailable
-        }
-    };
+    let outcome = ResendOutcome::from(attempt.decision);
 
     finish_resend(
         &mut conn,
@@ -743,12 +681,7 @@ async fn resolve_resend_target(
     course_id: Uuid,
     payload: &ResendLinkingEmailPayload,
 ) -> Result<Option<String>, ControllerError> {
-    if let Some(student_number) = payload
-        .student_number
-        .as_deref()
-        .map(str::trim)
-        .filter(|number| !number.is_empty())
-    {
+    if let Some(student_number) = non_empty(payload.student_number.as_deref()) {
         return Ok(Some(student_number.to_string()));
     }
     let Some(user_id) = payload.user_id else {
@@ -779,7 +712,7 @@ async fn finish_resend(
     course_id: Uuid,
     payload: &ResendLinkingEmailPayload,
     student_number: Option<&str>,
-    outcome: ResendLinkingEmailOutcome,
+    outcome: ResendOutcome,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(

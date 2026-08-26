@@ -346,7 +346,7 @@ fn student_number_settings_url(base_url: &str) -> String {
     )
 }
 
-fn listable_course_code(realisation: &RealisationToList) -> Option<String> {
+pub(super) fn listable_course_code(realisation: &RealisationToList) -> Option<String> {
     realisation
         .uh_course_code
         .clone()

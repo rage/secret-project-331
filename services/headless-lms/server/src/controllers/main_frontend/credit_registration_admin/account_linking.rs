@@ -25,8 +25,7 @@ use utoipa::ToSchema;
 use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
 use crate::domain::credit_registration_phases::PhaseContext;
 use crate::domain::credit_registration_phases::linking_mail_resend::{
-    LinkingMailResendOutcome, ResendDecision, ResolvedPerson, resend_linking_mail_for_target,
-    resolve_person,
+    ResendOutcome, ResolvedPerson, resend_linking_mail_for_target, resolve_person,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
@@ -51,14 +50,7 @@ fn phase_context<'a>(
     app_conf: &'a ApplicationConfiguration,
     caller: &'a str,
 ) -> PhaseContext<'a> {
-    PhaseContext {
-        pool,
-        suotar_client,
-        test_mode: app_conf.test_mode,
-        caller,
-        base_url: &app_conf.base_url,
-        suotar_conf: &app_conf.suotar_configuration,
-    }
+    PhaseContext::from_app(pool, suotar_client, app_conf, caller)
 }
 
 /// The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
@@ -185,24 +177,9 @@ pub struct AdminResendAccountLinkingEmailPayload {
     pub reason: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum AdminResendOutcome {
-    /// A mail is owed and the sender is handed it on the next run.
-    Queued,
-    AlreadyMailedToEveryKnownAddress,
-    /// A cap refused it. Overridable here, and nowhere else.
-    RefusedByRateCap,
-    NoAddressInStudyRegistry,
-    NotOnTheCourseRoster,
-    /// A link already exists, so no mail is owed.
-    AlreadyLinked,
-    StudyRegistryUnavailable,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminResendAccountLinkingEmailResult {
-    pub outcome: AdminResendOutcome,
+    pub outcome: ResendOutcome,
     /// Mails retired to get past a cap. Always zero without an override.
     pub retired_mail_count: i64,
     pub linking_emails: Vec<AdminLinkingEmail>,
@@ -518,25 +495,7 @@ pub async fn admin_resend_account_linking_email(
     let attempt =
         resend_linking_mail_for_target(&ctx, payload.course_id, student_number, before_send)
             .await?;
-    let outcome = match attempt.decision {
-        ResendDecision::AlreadyLinked => AdminResendOutcome::AlreadyLinked,
-        ResendDecision::Attempted(LinkingMailResendOutcome::Claimed) => AdminResendOutcome::Queued,
-        ResendDecision::Attempted(LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress) => {
-            AdminResendOutcome::AlreadyMailedToEveryKnownAddress
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::RefusedByRateCap) => {
-            AdminResendOutcome::RefusedByRateCap
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::NoAddressInStudyRegistry) => {
-            AdminResendOutcome::NoAddressInStudyRegistry
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::NotOnTheCourseRoster) => {
-            AdminResendOutcome::NotOnTheCourseRoster
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::StudyRegistryUnavailable) => {
-            AdminResendOutcome::StudyRegistryUnavailable
-        }
-    };
+    let outcome = ResendOutcome::from(attempt.decision);
 
     finish_resend(
         &mut conn,
@@ -651,7 +610,7 @@ pub async fn admin_resolve_student_number_for_linking(
             ..shared
         },
         Ok(None) => AdminResolveStudentNumberResult { ..shared },
-        Err(()) => AdminResolveStudentNumberResult {
+        Err(_) => AdminResolveStudentNumberResult {
             study_registry_unavailable: true,
             ..shared
         },
@@ -717,7 +676,7 @@ pub async fn admin_manually_link_student_number(
                 AdminManualLinkOutcome::StudentNumberNotFound,
             )));
         }
-        Err(()) => {
+        Err(_) => {
             return token.authorized_ok(web::Json(refused(
                 AdminManualLinkOutcome::StudyRegistryUnavailable,
             )));
@@ -838,7 +797,7 @@ async fn finish_resend(
     user: &AuthUser,
     payload: &AdminResendAccountLinkingEmailPayload,
     student_number: &str,
-    outcome: AdminResendOutcome,
+    outcome: ResendOutcome,
     retired_mail_count: i64,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {

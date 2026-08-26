@@ -500,7 +500,7 @@ pub async fn request_credit_registration_enrolment_recheck(
         },
     )
     .await?;
-    models::credit_registrations::make_due_now(&mut tx, registration.id).await?;
+    models::credit_registrations::make_due_now_batch(&mut tx, &[registration.id]).await?;
     recompute_preconditions(
         &mut tx,
         &RegistrationScope {

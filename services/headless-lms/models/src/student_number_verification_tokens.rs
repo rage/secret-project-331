@@ -73,6 +73,54 @@ RETURNING id
     Ok((res.id, token))
 }
 
+/// Batch form of [`insert`]: mints one token per row in a single `INSERT`, at the caller-chosen
+/// ids, in order. Each row still gets its own random plaintext token.
+pub async fn insert_batch(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+    news: &[NewStudentNumberVerificationToken],
+) -> ModelResult<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
+    let tokens: Vec<String> = (0..news.len())
+        .map(|_| Alphanumeric.sample_string(&mut rand::rng(), TOKEN_LENGTH))
+        .collect();
+    let student_numbers: Vec<String> = news.iter().map(|n| n.student_number.clone()).collect();
+    let sisu_person_ids: Vec<String> = news.iter().map(|n| n.sisu_person_id.clone()).collect();
+    let first_names: Vec<Option<String>> = news.iter().map(|n| n.first_names.clone()).collect();
+    let last_names: Vec<Option<String>> = news.iter().map(|n| n.last_name.clone()).collect();
+    let emailed_tos: Vec<String> = news.iter().map(|n| n.emailed_to.clone()).collect();
+    let course_ids: Vec<Option<Uuid>> = news.iter().map(|n| n.course_id).collect();
+
+    sqlx::query!(
+        r#"
+INSERT INTO student_number_verification_tokens (
+    id,
+    token,
+    student_number,
+    sisu_person_id,
+    first_names,
+    last_name,
+    emailed_to,
+    course_id
+  )
+SELECT * FROM UNNEST($1::uuid [], $2::text [], $3::text [], $4::text [], $5::text [], $6::text [], $7::text [], $8::uuid [])
+        "#,
+        ids,
+        &tokens,
+        &student_numbers,
+        &sisu_person_ids,
+        &first_names as &[Option<String>],
+        &last_names as &[Option<String>],
+        &emailed_tos,
+        &course_ids as &[Option<Uuid>],
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// A token row with everything pinned, for the seed only.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SeedStudentNumberVerificationToken {

@@ -80,13 +80,6 @@ pub struct AdminCreditRegistrationRow {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct AdminCreditRegistrationsPage {
-    pub data: Vec<AdminCreditRegistrationRow>,
-    pub total_count: i64,
-    pub total_pages: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminCreditRegistrationEvent {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -195,6 +188,9 @@ pub struct AdminTransitionCreditRegistrationResult {
 /// A fat-finger bound on one selection; a bigger one is taken in several passes.
 const MAX_ROWS_PER_BULK_TRANSITION: i64 = 500;
 const MAX_ROWS_PER_REQUEUE: i64 = 5_000;
+/// A detail view's related-rows lookups (other attempts, calls, actions) never paginate; this just
+/// bounds them against a pathological completion.
+const MAX_RELATED_ROWS: i64 = u8::MAX as i64;
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminBulkTransitionPayload {
@@ -290,29 +286,20 @@ and sorted.
         ("sort" = Option<String>, Query, description = "last_activity, created, time_in_state or attempts")
     ),
     responses(
-        (status = 200, description = "A page of the ledger", body = AdminCreditRegistrationsPage)
+        (status = 200, description = "A page of the ledger", body = Page<AdminCreditRegistrationRow>)
     )
 )]
 pub async fn list_credit_registrations_for_admin(
     user: AuthUser,
     pool: web::Data<PgPool>,
     query: web::Query<ListCreditRegistrationsQuery>,
-) -> ControllerResult<web::Json<AdminCreditRegistrationsPage>> {
+) -> ControllerResult<web::Json<Page<AdminCreditRegistrationRow>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(50))
-        .map_err(|e| controller_err!(BadRequest, e.to_string()))?;
-    let search = query
-        .search
-        .as_deref()
-        .map(str::trim)
-        .filter(|search| !search.is_empty());
-    let student_number = query
-        .student_number
-        .as_deref()
-        .map(str::trim)
-        .filter(|number| !number.is_empty());
+    let pagination = parse_pagination(query.page, query.limit, 50)?;
+    let search = non_empty(query.search.as_deref());
+    let student_number = non_empty(query.student_number.as_deref());
     let filters = AdminCreditRegistrationFilters {
         states: query.state.as_deref(),
         error_codes: query.error_code.as_deref(),
@@ -346,11 +333,7 @@ pub async fn list_credit_registrations_for_admin(
     let total_count = rows.first().map_or(0, |row| row.total_count);
     let data = rows.into_iter().map(to_admin_row).collect();
 
-    token.authorized_ok(web::Json(AdminCreditRegistrationsPage {
-        data,
-        total_count,
-        total_pages: pagination.total_pages(u32::try_from(total_count).unwrap_or(u32::MAX)),
-    }))
+    token.authorized_ok(web::Json(Page::new(pagination, data, total_count)))
 }
 
 /**
@@ -394,7 +377,7 @@ pub async fn get_credit_registration_for_admin(
             ..AdminCreditRegistrationFilters::default()
         },
         AdminCreditRegistrationSort::Created,
-        i64::from(u8::MAX),
+        MAX_RELATED_ROWS,
         0,
     )
     .await?
@@ -421,7 +404,7 @@ pub async fn get_credit_registration_for_admin(
             })
             .collect();
     let suotar_api_calls =
-        suotar_api_calls::get_by_credit_registration_id(&mut conn, id, i64::from(u8::MAX))
+        suotar_api_calls::get_by_credit_registration_id(&mut conn, id, MAX_RELATED_ROWS)
             .await?
             .into_iter()
             .map(to_admin_api_call)
@@ -433,7 +416,7 @@ pub async fn get_credit_registration_for_admin(
             target_id: Some(id),
             ..Default::default()
         },
-        i64::from(u8::MAX),
+        MAX_RELATED_ROWS,
         0,
     )
     .await?
@@ -567,7 +550,7 @@ pub async fn admin_transition_credit_registration(
     let (outcome, after_state, needs_admin_attention, needs_due_now) =
         apply_transition(&mut tx, &row, payload.to_state, user.id, reason).await?;
     if needs_due_now {
-        credit_registrations::make_due_now(&mut tx, id).await?;
+        credit_registrations::make_due_now_batch(&mut tx, &[id]).await?;
     }
     models::credit_registration_admin_actions::record(
         &mut tx,
@@ -916,7 +899,7 @@ async fn one_admin_row(
             ..AdminCreditRegistrationFilters::default()
         },
         AdminCreditRegistrationSort::default(),
-        i64::from(u8::MAX),
+        MAX_RELATED_ROWS,
         0,
     )
     .await?;

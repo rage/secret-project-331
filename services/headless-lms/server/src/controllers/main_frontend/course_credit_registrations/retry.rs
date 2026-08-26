@@ -112,19 +112,10 @@ pub async fn retry_credit_registration(
     let row = models::credit_registrations::get_teacher_facing_by_id(&mut conn, id)
         .await?
         .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(row.course_id),
-    )
-    .await?;
+    let token =
+        super::authorize_credit_registration_teacher(&mut conn, user.id, row.course_id).await?;
 
-    let reason = payload
-        .reason
-        .as_deref()
-        .map(str::trim)
-        .filter(|reason| !reason.is_empty());
+    let reason = non_empty(payload.reason.as_deref());
     let consented = course_credit_registration_consents::get_by_user_and_course(
         &mut conn,
         row.user_id,
@@ -201,19 +192,10 @@ pub async fn retry_failed_credit_registrations_for_course(
     payload: web::Json<RetryCreditRegistrationPayload>,
 ) -> ControllerResult<web::Json<RetryFailedCreditRegistrationsResult>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token =
+        super::authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
-    let reason = payload
-        .reason
-        .as_deref()
-        .map(str::trim)
-        .filter(|reason| !reason.is_empty());
+    let reason = non_empty(payload.reason.as_deref());
     // One over the cap, so "there is more" is answered without a second count query.
     let mut candidate_ids = models::credit_registrations::get_retryable_ids_by_course_id(
         &mut conn,
@@ -356,7 +338,7 @@ async fn requeue(
     let state = transition_to_ready_to_submit(tx, id, from_state, actor_user_id, reason).await?;
     // Nothing else brings the row forward, so without this the retry sits out whatever backoff the
     // last failure set.
-    credit_registrations::make_due_now(tx, id).await?;
+    credit_registrations::make_due_now_batch(tx, &[id]).await?;
     Ok(state)
 }
 

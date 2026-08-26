@@ -744,49 +744,6 @@ ORDER BY id FOR UPDATE
     Ok(res)
 }
 
-/// The live (non-superseded) row for a completion.
-pub async fn get_live_by_completion_id(
-    conn: &mut PgConnection,
-    course_module_completion_id: Uuid,
-) -> ModelResult<Option<CreditRegistration>> {
-    let res = sqlx::query_as!(
-        CreditRegistration,
-        r#"
-SELECT *
-FROM credit_registrations
-WHERE course_module_completion_id = $1
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
-        "#,
-        course_module_completion_id
-    )
-    .fetch_optional(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Every attempt for a completion, newest first. Superseded rows included: if Sisu ended up holding
-/// both attainments the student must see both.
-pub async fn get_all_attempts_by_completion_id(
-    conn: &mut PgConnection,
-    course_module_completion_id: Uuid,
-) -> ModelResult<Vec<CreditRegistration>> {
-    let res = sqlx::query_as!(
-        CreditRegistration,
-        r#"
-SELECT *
-FROM credit_registrations
-WHERE course_module_completion_id = $1
-  AND deleted_at IS NULL
-ORDER BY attempt_number DESC
-        "#,
-        course_module_completion_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
 pub async fn get_by_user_id(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -807,6 +764,7 @@ ORDER BY created_at DESC
     Ok(res)
 }
 
+#[cfg(test)]
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -1092,29 +1050,10 @@ WHERE id = $1
     Ok(())
 }
 
-/// Makes one row claimable again now, whatever backoff parked it.
+/// Makes rows claimable again now, whatever backoff parked them.
 ///
 /// Uses the database clock: an app-clock value sampled after `BEGIN` is still in the future when
 /// the same transaction compares it against `now()`.
-pub async fn make_due_now(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    sqlx::query!(
-        r#"
-UPDATE credit_registrations
-SET next_attempt_at = now()
-WHERE id = $1
-  AND next_attempt_at > now()
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
-        "#,
-        id,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-/// The batch form of [`make_due_now`], for a bulk retry/transition applying it to many rows in one
-/// round trip instead of one `UPDATE` per row.
 pub async fn make_due_now_batch(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -1490,6 +1429,8 @@ pub struct TeacherCreditRegistration {
     /// Needed to find the account's linking mails, which are keyed on the Sisu person.
     pub sisu_person_id: Option<String>,
     pub enrolment_realisation_name: Option<String>,
+    /// The page's total row count, so a caller can read it off the first row instead of a second query.
+    pub total_count: i64,
 }
 
 /// The optional narrowings a teacher surface applies, all of them in SQL.
@@ -1505,105 +1446,6 @@ pub struct TeacherCreditRegistrationFilters<'a> {
     pub course_module_completion_id: Option<Uuid>,
 }
 
-/// A row with the page's total attached, so a page and its count can only come from one query.
-struct TeacherFacingRow {
-    id: Uuid,
-    user_id: Uuid,
-    first_name: Option<String>,
-    last_name: Option<String>,
-    email: Option<String>,
-    course_id: Uuid,
-    course_module_id: Uuid,
-    course_module_name: Option<String>,
-    course_instance_id: Uuid,
-    course_module_completion_id: Uuid,
-    completion_date: DateTime<Utc>,
-    state: CreditRegistrationState,
-    state_entered_at: DateTime<Utc>,
-    error_code: Option<CreditRegistrationErrorCode>,
-    needs_admin_attention: bool,
-    next_attempt_at: DateTime<Utc>,
-    registered_at: Option<DateTime<Utc>>,
-    sisu_attainment_id: Option<String>,
-    grade_id: Option<String>,
-    credits: Option<f32>,
-    attempt_number: i32,
-    superseded_by_id: Option<Uuid>,
-    student_number: Option<String>,
-    student_number_verified_at: Option<DateTime<Utc>>,
-    student_number_verified_via: Option<StudentNumberVerificationMethod>,
-    sisu_person_id: Option<String>,
-    enrolment_realisation_name: Option<String>,
-    total_count: i64,
-}
-
-impl From<TeacherFacingRow> for TeacherCreditRegistration {
-    // Destructured field-by-field with no `..`, on purpose: a column added to `TeacherFacingRow`
-    // without also adding it here (and to `TeacherCreditRegistration`) is a compile error instead of
-    // being silently dropped.
-    fn from(row: TeacherFacingRow) -> Self {
-        let TeacherFacingRow {
-            id,
-            user_id,
-            first_name,
-            last_name,
-            email,
-            course_id,
-            course_module_id,
-            course_module_name,
-            course_instance_id,
-            course_module_completion_id,
-            completion_date,
-            state,
-            state_entered_at,
-            error_code,
-            needs_admin_attention,
-            next_attempt_at,
-            registered_at,
-            sisu_attainment_id,
-            grade_id,
-            credits,
-            attempt_number,
-            superseded_by_id,
-            student_number,
-            student_number_verified_at,
-            student_number_verified_via,
-            sisu_person_id,
-            enrolment_realisation_name,
-            total_count: _,
-        } = row;
-        Self {
-            id,
-            user_id,
-            first_name,
-            last_name,
-            email,
-            course_id,
-            course_module_id,
-            course_module_name,
-            course_instance_id,
-            course_module_completion_id,
-            completion_date,
-            state,
-            state_entered_at,
-            error_code,
-            needs_admin_attention,
-            next_attempt_at,
-            registered_at,
-            sisu_attainment_id,
-            grade_id,
-            credits,
-            attempt_number,
-            superseded_by_id,
-            student_number,
-            student_number_verified_at,
-            student_number_verified_via,
-            sisu_person_id,
-            enrolment_realisation_name,
-        }
-    }
-}
-
 /// The one query behind every teacher-facing read, so a filter wired into a page cannot be missed
 /// in its count. `total_count` is computed before the limit, which is why the count reads it with
 /// `limit = 1`.
@@ -1613,10 +1455,10 @@ async fn teacher_facing_page(
     filters: &TeacherCreditRegistrationFilters<'_>,
     limit: i64,
     offset: i64,
-) -> ModelResult<Vec<TeacherFacingRow>> {
+) -> ModelResult<Vec<TeacherCreditRegistration>> {
     let search_pattern = filters.search.map(search_pattern_of);
     let res = sqlx::query_as!(
-        TeacherFacingRow,
+        TeacherCreditRegistration,
         r#"
 SELECT cr.id,
   cr.user_id,
@@ -1699,13 +1541,7 @@ pub async fn get_teacher_facing_by_course_id(
     limit: i64,
     offset: i64,
 ) -> ModelResult<Vec<TeacherCreditRegistration>> {
-    Ok(
-        teacher_facing_page(conn, Some(course_id), filters, limit, offset)
-            .await?
-            .into_iter()
-            .map(TeacherCreditRegistration::from)
-            .collect(),
-    )
+    teacher_facing_page(conn, Some(course_id), filters, limit, offset).await
 }
 
 /// How many rows [`get_teacher_facing_by_course_id`] would return without a page limit.
@@ -1739,7 +1575,7 @@ pub async fn get_teacher_facing_by_id(
         0,
     )
     .await?;
-    Ok(rows.into_iter().next().map(TeacherCreditRegistration::from))
+    Ok(rows.into_iter().next())
 }
 
 /// Every attempt for the same completion as `row`, that one included, newest attempt first.
@@ -1859,142 +1695,6 @@ pub struct AdminCreditRegistrationFilters<'a> {
     pub include_superseded: bool,
 }
 
-/// A row with the page's total attached, so a page and its count can only come from one query.
-struct AdminFacingRow {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    user_id: Uuid,
-    first_name: Option<String>,
-    last_name: Option<String>,
-    email: Option<String>,
-    course_id: Uuid,
-    course_name: String,
-    course_module_id: Uuid,
-    course_module_name: Option<String>,
-    course_instance_id: Uuid,
-    course_module_completion_id: Uuid,
-    completion_date: DateTime<Utc>,
-    state: CreditRegistrationState,
-    state_entered_at: DateTime<Utc>,
-    error_code: Option<CreditRegistrationErrorCode>,
-    needs_admin_attention: bool,
-    next_attempt_at: DateTime<Utc>,
-    last_attempt_at: Option<DateTime<Utc>>,
-    submitted_at: Option<DateTime<Utc>>,
-    registered_at: Option<DateTime<Utc>>,
-    terminal_at: Option<DateTime<Utc>>,
-    student_number: Option<String>,
-    sisu_person_id: Option<String>,
-    uh_course_code: Option<String>,
-    selected_enrolment_id: Option<String>,
-    grade_scale_id: Option<String>,
-    grade_id: Option<String>,
-    credits: Option<f32>,
-    request_item_id: String,
-    submitted_attainment_id: Option<String>,
-    sisu_attainment_id: Option<String>,
-    submit_retry_count: i32,
-    verify_attempt_count: i32,
-    attempt_number: i32,
-    superseded_by_id: Option<Uuid>,
-    verified_student_number: Option<String>,
-    verified_student_number_at: Option<DateTime<Utc>>,
-    verified_student_number_via: Option<StudentNumberVerificationMethod>,
-    total_count: i64,
-}
-
-impl From<AdminFacingRow> for AdminCreditRegistration {
-    // Destructured field-by-field with no `..`, on purpose: a column added to `AdminFacingRow`
-    // without also adding it here (and to `AdminCreditRegistration`) is a compile error instead of
-    // being silently dropped.
-    fn from(row: AdminFacingRow) -> Self {
-        let AdminFacingRow {
-            id,
-            created_at,
-            user_id,
-            first_name,
-            last_name,
-            email,
-            course_id,
-            course_name,
-            course_module_id,
-            course_module_name,
-            course_instance_id,
-            course_module_completion_id,
-            completion_date,
-            state,
-            state_entered_at,
-            error_code,
-            needs_admin_attention,
-            next_attempt_at,
-            last_attempt_at,
-            submitted_at,
-            registered_at,
-            terminal_at,
-            student_number,
-            sisu_person_id,
-            uh_course_code,
-            selected_enrolment_id,
-            grade_scale_id,
-            grade_id,
-            credits,
-            request_item_id,
-            submitted_attainment_id,
-            sisu_attainment_id,
-            submit_retry_count,
-            verify_attempt_count,
-            attempt_number,
-            superseded_by_id,
-            verified_student_number,
-            verified_student_number_at,
-            verified_student_number_via,
-            total_count,
-        } = row;
-        Self {
-            id,
-            created_at,
-            user_id,
-            first_name,
-            last_name,
-            email,
-            course_id,
-            course_name,
-            course_module_id,
-            course_module_name,
-            course_instance_id,
-            course_module_completion_id,
-            completion_date,
-            state,
-            state_entered_at,
-            error_code,
-            needs_admin_attention,
-            next_attempt_at,
-            last_attempt_at,
-            submitted_at,
-            registered_at,
-            terminal_at,
-            student_number,
-            sisu_person_id,
-            uh_course_code,
-            selected_enrolment_id,
-            grade_scale_id,
-            grade_id,
-            credits,
-            request_item_id,
-            submitted_attainment_id,
-            sisu_attainment_id,
-            submit_retry_count,
-            verify_attempt_count,
-            attempt_number,
-            superseded_by_id,
-            verified_student_number,
-            verified_student_number_at,
-            verified_student_number_via,
-            total_count,
-        }
-    }
-}
-
 /// The one query behind both [`get_admin_facing`] and [`count_admin_facing`], so a filter wired
 /// into one cannot be missed in the other. `total_count` is computed before the limit, which is why
 /// `count_admin_facing` reads it with `limit = 1`.
@@ -2004,10 +1704,10 @@ async fn admin_facing_page(
     sort: AdminCreditRegistrationSort,
     limit: i64,
     offset: i64,
-) -> ModelResult<Vec<AdminFacingRow>> {
+) -> ModelResult<Vec<AdminCreditRegistration>> {
     let search_pattern = filters.search.map(search_pattern_of);
     let res = sqlx::query_as!(
-        AdminFacingRow,
+        AdminCreditRegistration,
         r#"
 SELECT cr.id,
   cr.created_at,
@@ -2138,11 +1838,7 @@ pub async fn get_admin_facing(
     limit: i64,
     offset: i64,
 ) -> ModelResult<Vec<AdminCreditRegistration>> {
-    Ok(admin_facing_page(conn, filters, sort, limit, offset)
-        .await?
-        .into_iter()
-        .map(AdminCreditRegistration::from)
-        .collect())
+    admin_facing_page(conn, filters, sort, limit, offset).await
 }
 
 /// How many rows [`get_admin_facing`] would return without a page limit.

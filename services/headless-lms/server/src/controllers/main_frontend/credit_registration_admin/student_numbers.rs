@@ -35,13 +35,6 @@ pub struct AdminVerifiedStudentNumberRow {
     pub live_registration_count: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct AdminVerifiedStudentNumbersPage {
-    pub data: Vec<AdminVerifiedStudentNumberRow>,
-    pub total_count: i64,
-    pub total_pages: u32,
-}
-
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminUnlinkStudentNumberPayload {
     pub reason: String,
@@ -78,19 +71,18 @@ spot-checking and support.
         ("search" = Option<String>, Query, description = "Student number, name or email")
     ),
     responses(
-        (status = 200, description = "A page of the live links", body = AdminVerifiedStudentNumbersPage)
+        (status = 200, description = "A page of the live links", body = Page<AdminVerifiedStudentNumberRow>)
     )
 )]
 pub async fn list_verified_student_numbers_for_admin(
     user: AuthUser,
     pool: web::Data<PgPool>,
     query: web::Query<ListVerifiedStudentNumbersQuery>,
-) -> ControllerResult<web::Json<AdminVerifiedStudentNumbersPage>> {
+) -> ControllerResult<web::Json<Page<AdminVerifiedStudentNumberRow>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(50))
-        .map_err(|e| controller_err!(BadRequest, e.to_string()))?;
+    let pagination = parse_pagination(query.page, query.limit, 50)?;
     let (rows, total_count) = verified_student_numbers::get_admin_page(
         &mut conn,
         query.verified_via,
@@ -101,11 +93,7 @@ pub async fn list_verified_student_numbers_for_admin(
     .await?;
     let data = rows.into_iter().map(to_admin_student_number).collect();
 
-    token.authorized_ok(web::Json(AdminVerifiedStudentNumbersPage {
-        data,
-        total_count,
-        total_pages: pagination.total_pages(u32::try_from(total_count).unwrap_or(u32::MAX)),
-    }))
+    token.authorized_ok(web::Json(Page::new(pagination, data, total_count)))
 }
 
 /**

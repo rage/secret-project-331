@@ -2,6 +2,8 @@ import { z } from "zod"
 
 import type { ClientToolName } from "@/generated/course-material-api/types.generated"
 
+import { parseJsonWithSchema } from "./parseJsonWithSchema"
+
 /**
  * The client tool this UI answers, matching `EditUserAccountTool::NAME` in
  * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/edit_user_account.rs`.
@@ -37,26 +39,20 @@ export const parseEditUserAccountCall = (
   toolCallId: string,
   toolArguments: string,
 ): EditUserAccountCall | null => {
-  let parsedArguments: unknown
-  try {
-    parsedArguments = JSON.parse(toolArguments)
-  } catch {
+  const args = parseJsonWithSchema(toolArguments, rawArguments)
+  if (!args) {
     return null
   }
-  const args = rawArguments.safeParse(parsedArguments)
-  if (!args.success) {
-    return null
-  }
-  const currentEmail = args.data.current_email.trim()
+  const currentEmail = args.current_email.trim()
   if (currentEmail.length === 0) {
     return null
   }
   return {
     toolCallId,
-    userId: args.data.user_id,
+    userId: args.user_id,
     currentEmail,
-    newEmail: args.data.new_email.trim(),
-    markEmailVerified: args.data.mark_email_verified,
+    newEmail: args.new_email.trim(),
+    markEmailVerified: args.mark_email_verified,
   }
 }
 

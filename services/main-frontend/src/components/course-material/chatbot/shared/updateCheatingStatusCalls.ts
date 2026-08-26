@@ -2,6 +2,8 @@ import { z } from "zod"
 
 import type { ClientToolName } from "@/generated/course-material-api/types.generated"
 
+import { parseJsonWithSchema } from "./parseJsonWithSchema"
+
 /**
  * The client tool this UI answers, matching `UpdateCheatingStatusTool::NAME` in
  * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/update_cheating_status.rs`.
@@ -38,28 +40,22 @@ export const parseUpdateCheatingStatusCall = (
   toolCallId: string,
   toolArguments: string,
 ): UpdateCheatingStatusCall | null => {
-  let parsedArguments: unknown
-  try {
-    parsedArguments = JSON.parse(toolArguments)
-  } catch {
+  const args = parseJsonWithSchema(toolArguments, rawArguments)
+  if (!args) {
     return null
   }
-  const args = rawArguments.safeParse(parsedArguments)
-  if (!args.success) {
-    return null
-  }
-  const userEmail = args.data.user_email.trim()
-  const courseName = args.data.course_name.trim()
+  const userEmail = args.user_email.trim()
+  const courseName = args.course_name.trim()
   if (userEmail.length === 0 || courseName.length === 0) {
     return null
   }
   return {
     toolCallId,
-    userId: args.data.user_id,
-    courseId: args.data.course_id,
+    userId: args.user_id,
+    courseId: args.course_id,
     userEmail,
     courseName,
-    decision: args.data.decision,
+    decision: args.decision,
   }
 }
 

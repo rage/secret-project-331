@@ -2,6 +2,8 @@ import { z } from "zod"
 
 import type { ClientToolName } from "@/generated/course-material-api/types.generated"
 
+import { parseJsonWithSchema } from "./parseJsonWithSchema"
+
 /**
  * The client tool this UI answers, matching `ResetExercisesTool::NAME` in
  * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/reset_exercises.rs`.
@@ -38,33 +40,27 @@ export const parseResetExercisesCall = (
   toolCallId: string,
   toolArguments: string,
 ): ResetExercisesCall | null => {
-  let parsedArguments: unknown
-  try {
-    parsedArguments = JSON.parse(toolArguments)
-  } catch {
+  const args = parseJsonWithSchema(toolArguments, rawArguments)
+  if (!args) {
     return null
   }
-  const args = rawArguments.safeParse(parsedArguments)
-  if (!args.success) {
+  if (args.exercise_ids.length !== args.exercise_names.length) {
     return null
   }
-  if (args.data.exercise_ids.length !== args.data.exercise_names.length) {
-    return null
-  }
-  const userEmail = args.data.user_email.trim()
-  const courseName = args.data.course_name.trim()
-  const reason = args.data.reason.trim()
+  const userEmail = args.user_email.trim()
+  const courseName = args.course_name.trim()
+  const reason = args.reason.trim()
   if (userEmail.length === 0 || courseName.length === 0 || reason.length === 0) {
     return null
   }
   return {
     toolCallId,
-    userId: args.data.user_id,
-    courseId: args.data.course_id,
+    userId: args.user_id,
+    courseId: args.course_id,
     userEmail,
     courseName,
-    exerciseIds: args.data.exercise_ids,
-    exerciseNames: args.data.exercise_names,
+    exerciseIds: args.exercise_ids,
+    exerciseNames: args.exercise_names,
     reason,
   }
 }

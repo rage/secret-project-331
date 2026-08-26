@@ -2,6 +2,8 @@ import { z } from "zod"
 
 import type { ClientToolName } from "@/generated/course-material-api/types.generated"
 
+import { parseJsonWithSchema } from "./parseJsonWithSchema"
+
 /**
  * The client tool this UI answers, matching `GeneratePasswordResetLinkTool::NAME` in
  * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/generate_password_reset_link.rs`.
@@ -43,18 +45,12 @@ export const parsePasswordResetLinkCall = (
   toolCallId: string,
   toolArguments: string,
 ): PasswordResetLinkCall | null => {
-  let parsedArguments: unknown
-  try {
-    parsedArguments = JSON.parse(toolArguments)
-  } catch {
+  const args = parseJsonWithSchema(toolArguments, rawArguments)
+  if (!args) {
     return null
   }
-  const args = rawArguments.safeParse(parsedArguments)
-  if (!args.success) {
-    return null
-  }
-  const userId = args.data.user_id.trim()
-  const userEmail = args.data.user_email.trim()
+  const userId = args.user_id.trim()
+  const userEmail = args.user_email.trim()
   if (userId.length === 0 || userEmail.length === 0) {
     return null
   }

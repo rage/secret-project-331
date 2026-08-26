@@ -4,9 +4,10 @@ import { css, cx } from "@emotion/css"
 import hljs from "highlight.js"
 import type { DOMAttributes, ReactPortal } from "react"
 import React, { memo, useLayoutEffect, useMemo, useRef, useState } from "react"
-import { createPortal } from "react-dom"
 
 import "highlight.js/styles/atom-one-dark.css"
+
+import { createPortal } from "react-dom"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { planCitationPortals } from "@/utils/course-material/chatbotCitationPortals"
@@ -59,6 +60,7 @@ const messageStyle = css`
   }
   code {
     ${codeBlockStyles}
+    font-size: 14px;
     border-radius: 0.4rem;
   }
   button {
@@ -130,24 +132,38 @@ interface RenderedMessageProps {
   isPending: boolean
 }
 
-interface MessageWithPortalsComponentProps {
+interface MemoMessageWithPortalsOrCodeHighlightProps {
   msg: string
   isPending: boolean
 }
 
-const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(
-  ({ msg, isPending }) => {
+const MemoMessageWithPortalsOrCodeHighlight: React.FC<MemoMessageWithPortalsOrCodeHighlightProps> =
+  memo(({ msg, isPending }) => {
     /* Parent to the portal containers — memoized so portal creation elsewhere doesn't remount it. */
+    const thisNode = useRef<HTMLElement>(null)
+
+    useLayoutEffect(() => {
+      if (msg.length === 0) {
+        return
+      }
+      // highlight code elements inside LayoutEffect to make sure the nodes
+      // exist before modifications
+      const codeNodes = Array.from(thisNode.current?.querySelectorAll<Element>("code") ?? [])
+      codeNodes.forEach((node) => {
+        hljs.highlightElement(node as HTMLElement)
+      })
+    }, [msg])
+
     return (
       <span
+        ref={thisNode}
         className={cx(messageStyle, isPending && lastLineInlineStyle)}
         dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}
       ></span>
     )
-  },
-)
+  })
 
-MessageWithPortalsComponent.displayName = "MessageWithPortalsComponent"
+MemoMessageWithPortalsOrCodeHighlight.displayName = "MemoMessageWithPortalsOrCodeHighlight"
 
 const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
@@ -166,18 +182,12 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   const [readyForPortal, setReadyForPortal] = useState(false)
   // the message needs to be rendered before we can style the code blocks, same as
   // readyForPortal
-  const [readyForCode, setReadyForCode] = useState(false)
 
   useLayoutEffect(() => {
     if (renderOption === MessageRenderType.ChatbotWithCitations) {
       setReadyForPortal(true)
     } else {
       setReadyForPortal(false)
-    }
-    if (Array.from(thisNode.current?.querySelectorAll<Element>("code") ?? []).length > 0) {
-      setReadyForCode(true)
-    } else {
-      setReadyForCode(false)
     }
   }, [renderOption, thisNode])
 
@@ -222,17 +232,6 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     readyForPortal,
   ])
 
-  if (readyForCode) {
-    const codeNodes = Array.from(thisNode.current?.querySelectorAll<Element>("code") ?? [])
-    codeNodes.forEach((node) => {
-      delete (node as HTMLElement).dataset.highlighted
-      if (!node.className.includes(codeBlockStyles)) {
-        node.className = codeBlockStyles + " " + node.className
-      }
-      hljs.highlightElement(node as HTMLElement)
-    })
-  }
-
   let renderedMessage = useMemo(() => {
     switch (renderOption) {
       case MessageRenderType.User:
@@ -250,19 +249,9 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     return <span className={messageStyle}>{renderedMessage}</span>
   }
 
-  if (renderOption === MessageRenderType.ChatbotNoCitations) {
-    return (
-      <span
-        ref={thisNode}
-        className={cx(messageStyle, isPending && lastLineInlineStyle)}
-        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(renderedMessage) }}
-      ></span>
-    )
-  }
-
   return (
     <span ref={thisNode}>
-      <MessageWithPortalsComponent msg={renderedMessage} isPending={isPending} />
+      <MemoMessageWithPortalsOrCodeHighlight msg={renderedMessage} isPending={isPending} />
       {readyForPortal && portals}
     </span>
   )

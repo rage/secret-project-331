@@ -228,8 +228,8 @@ pub async fn verify_user_can_answer_exercise(
     verify_any_slide_has_tries_left(conn, user_id, exercise, course_or_exam_id).await
 }
 
-/// Rejects a user who has used up the try limit on every slide of the exercise, and so cannot
-/// submit to it at all. A slide nobody has submitted to has all its tries left.
+/// Rejects a user who has used up the try limit on every slide of the exercise. A slide nobody has
+/// submitted to has all its tries left.
 async fn verify_any_slide_has_tries_left(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -262,11 +262,17 @@ async fn verify_any_slide_has_tries_left(
         max_tries_per_slide = %max_tries_per_slide,
         "User has run out of tries on every slide of the exercise"
     );
-    Err(ControllerError::new(
+    Err(out_of_tries_error())
+}
+
+/// The rejection both try-limit checks report, kept in one place because the message reaches the
+/// student verbatim.
+fn out_of_tries_error() -> ControllerError {
+    ControllerError::new(
         ControllerErrorType::BadRequest,
         "You've ran out of tries.".to_string(),
         None,
-    ))
+    )
 }
 
 /// The per-slide try limit, or `None` when the exercise does not limit tries.
@@ -392,11 +398,7 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
                 limit_number_of_tries = %exercise.limit_number_of_tries,
                 "User has run out of tries for exercise slide submission"
             );
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "You've ran out of tries.".to_string(),
-                None,
-            ));
+            return Err(out_of_tries_error());
         }
         if count + 1 >= max_tries_per_slide {
             last_try = true;

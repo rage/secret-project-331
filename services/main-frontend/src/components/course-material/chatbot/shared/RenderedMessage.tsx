@@ -150,7 +150,9 @@ const MemoMessageWithPortalsOrCodeHighlight: React.FC<MemoMessageWithPortalsOrCo
       // exist before modifications
       const codeNodes = Array.from(thisNode.current?.querySelectorAll<Element>("code") ?? [])
       codeNodes.forEach((node) => {
-        hljs.highlightElement(node as HTMLElement)
+        if (!(node as HTMLElement).dataset.highlighted) {
+          hljs.highlightElement(node as HTMLElement)
+        }
       })
     }, [msg])
 

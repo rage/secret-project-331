@@ -24,7 +24,7 @@ import type {
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import type { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 import type { PlaygroundUploadedFiles } from "@/utils/playgroundUploadedFiles"
-import { playgroundSubmissionFiles } from "@/utils/playgroundUploadedFiles"
+import { playgroundSubmissionFiles, recordPlaygroundUploads } from "@/utils/playgroundUploadedFiles"
 
 import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
@@ -262,7 +262,9 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                       disableSandbox={disableSandbox}
                       userInformation={userInformation}
                       userAnswer={answerExerciseViewSendPreviousSubmission ? userAnswer : null}
-                      setUploadedFiles={setUploadedFiles}
+                      onFilesUploaded={(files, entries) =>
+                        setUploadedFiles((known) => recordPlaygroundUploads(known, files, entries))
+                      }
                     />
                     <Button
                       variant={"primary"}

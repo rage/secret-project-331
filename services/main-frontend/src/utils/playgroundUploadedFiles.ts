@@ -19,6 +19,8 @@ export function recordPlaygroundUploads(
 ): PlaygroundUploadedFiles {
   const recorded: PlaygroundUploadedFiles = { ...known }
   entries.forEach((entry, index) => {
+    // `validateUploadResponse` has already asserted one entry per file, in request order, so this
+    // only satisfies noUncheckedIndexedAccess.
     const file = files[index]
     if (!file) {
       return

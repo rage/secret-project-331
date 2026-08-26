@@ -10,12 +10,11 @@ import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageCh
 import type {
   CurrentStateMessage,
   ExerciseIframeState,
+  FileUploadResultEntry,
   MessageToIframe,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import type { PlaygroundUploadedFiles } from "@/utils/playgroundUploadedFiles"
-import { recordPlaygroundUploads } from "@/utils/playgroundUploadedFiles"
 import { uploadFilesFromExerciseServiceIframe } from "@/utils/uploadFilesFromExerciseIframe"
 
 interface PlaygroundExerciseIframeProps {
@@ -28,7 +27,8 @@ interface PlaygroundExerciseIframeProps {
   showIframeBorders: boolean
   disableSandbox: boolean
   userInformation: UserInformation
-  setUploadedFiles: React.Dispatch<React.SetStateAction<PlaygroundUploadedFiles>>
+  /** Both lists are in request order, so the host can pair each result with the file it came from. */
+  onFilesUploaded: (files: readonly File[], entries: FileUploadResultEntry[]) => void
 }
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -44,7 +44,7 @@ const PlaygroundExerciseIframe: React.FC<
   disableSandbox,
   userInformation,
   userAnswer,
-  setUploadedFiles,
+  onFilesUploaded,
 }) => {
   const { t } = useTranslation()
   const dialog = useDialog()
@@ -88,7 +88,7 @@ const PlaygroundExerciseIframe: React.FC<
               let response: MessageToIframe
               try {
                 const files = await uploadFilesFromExerciseServiceIframe("playground", msg.files)
-                setUploadedFiles((known) => recordPlaygroundUploads(known, msg.files, files))
+                onFilesUploaded(msg.files, files)
                 response = {
                   // oxlint-disable-next-line i18next/no-literal-string
                   message: "upload-result",

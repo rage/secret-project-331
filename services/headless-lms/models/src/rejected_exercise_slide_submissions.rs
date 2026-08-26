@@ -82,7 +82,7 @@ RETURNING id
         ",
         exercise_slide_submission_id,
         answer_json,
-        answer_kind as AnswerKind,
+        answer_kind,
     )
     .fetch_one(&mut *conn)
     .await?;

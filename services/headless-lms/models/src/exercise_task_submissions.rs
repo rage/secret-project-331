@@ -374,7 +374,7 @@ SELECT id,
   exercise_task_id,
   exercise_slide_id,
   data_json,
-  answer_kind AS "answer_kind: AnswerKind",
+  answer_kind,
   exercise_task_grading_id,
   metadata
 FROM exercise_task_submissions
@@ -435,7 +435,7 @@ INSERT INTO exercise_task_submissions (
         exercise_slide_id,
         exercise_task_id,
         columns.data_json,
-        columns.answer_kind as AnswerKind,
+        columns.answer_kind,
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -463,7 +463,7 @@ SELECT id,
   exercise_task_id,
   exercise_slide_id,
   data_json,
-  answer_kind AS "answer_kind: AnswerKind",
+  answer_kind,
   exercise_task_grading_id,
   metadata
 FROM exercise_task_submissions
@@ -493,7 +493,7 @@ SELECT id,
   exercise_task_id,
   exercise_slide_id,
   data_json,
-  answer_kind AS "answer_kind: AnswerKind",
+  answer_kind,
   exercise_task_grading_id,
   metadata
 FROM exercise_task_submissions
@@ -565,7 +565,7 @@ SELECT ets.exercise_slide_submission_id,
   ess.user_id,
   ets.created_at AS submitted_at,
   ets.data_json,
-  ets.answer_kind AS "answer_kind: AnswerKind"
+  ets.answer_kind
 FROM exercise_task_submissions ets
   JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
 WHERE ess.exercise_id = $1
@@ -610,7 +610,7 @@ SELECT ets.exercise_slide_submission_id,
   ess.user_id,
   ets.created_at AS submitted_at,
   ets.data_json,
-  ets.answer_kind AS "answer_kind: AnswerKind"
+  ets.answer_kind
 FROM exercise_task_submissions ets
 JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
 JOIN latest ON latest.exercise_task_submission_id = ets.id
@@ -654,7 +654,7 @@ SELECT id,
   exercise_task_id,
   exercise_slide_id,
   data_json,
-  answer_kind AS "answer_kind: AnswerKind",
+  answer_kind,
   exercise_task_grading_id,
   metadata
 FROM exercise_task_submissions
@@ -809,7 +809,7 @@ SELECT exercise_task_submissions.id,
   exercise_task_submissions.exercise_task_id,
   exercise_task_gradings.score_given,
   exercise_task_submissions.data_json,
-  exercise_task_submissions.answer_kind AS "answer_kind: AnswerKind",
+  exercise_task_submissions.answer_kind,
   answer_files.files AS "files!: serde_json::Value"
 FROM exercise_task_submissions
   JOIN exercise_slide_submissions ON exercise_task_submissions.exercise_slide_submission_id = exercise_slide_submissions.id
@@ -881,7 +881,7 @@ SELECT exercise_task_submissions.exercise_slide_submission_id,
   exercise_task_submissions.exercise_task_id,
   exercise_task_gradings.score_given,
   exercise_task_submissions.data_json,
-  exercise_task_submissions.answer_kind AS "answer_kind: AnswerKind",
+  exercise_task_submissions.answer_kind,
   answer_files.files AS "files!: serde_json::Value"
 FROM exercise_task_submissions
   JOIN exercise_slide_submissions ON exercise_task_submissions.exercise_slide_submission_id = exercise_slide_submissions.id
@@ -1112,7 +1112,7 @@ pub async fn get_user_latest_exercise_task_submissions_by_course_module_and_exer
         g.exercise_task_id,
         g.exercise_task_grading_id,
         g.data_json,
-        g.answer_kind AS "answer_kind: AnswerKind"
+        g.answer_kind
       FROM exercise_task_submissions g
         JOIN exercise_tasks et ON et.id = g.exercise_task_id
         JOIN exercise_slide_submissions ess ON ess.id = g.exercise_slide_submission_id

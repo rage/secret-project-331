@@ -9,3 +9,5 @@ ALTER TABLE chatbot_configurations
 DROP COLUMN enabled_tool_categories;
 
 DROP TYPE chatbot_tool_category;
+
+DROP TABLE chatbot_action_logs;

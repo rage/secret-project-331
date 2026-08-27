@@ -1,1 +1,0 @@
-ALTER TABLE exercise_service_info DROP COLUMN produces_file_answers;

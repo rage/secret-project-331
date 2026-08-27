@@ -1,8 +1,0 @@
-DELETE FROM rejected_exercise_task_submissions
-WHERE data_json IS NULL;
-
-ALTER TABLE rejected_exercise_task_submissions
-DROP CONSTRAINT rejected_exercise_task_submissions_json_answer_has_data;
-
-ALTER TABLE rejected_exercise_task_submissions
-ALTER COLUMN data_json SET NOT NULL;

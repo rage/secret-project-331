@@ -158,6 +158,38 @@ impl Default for NewChatbotConf {
     }
 }
 
+impl From<ChatbotConfiguration> for NewChatbotConf {
+    fn from(v: ChatbotConfiguration) -> Self {
+        Self {
+            course_id: v.course_id,
+            enabled_to_students: v.enabled_to_students,
+            chatbot_name: v.chatbot_name,
+            model_id: v.model_id,
+            prompt: v.prompt,
+            initial_message: v.initial_message,
+            weekly_tokens_per_user: v.weekly_tokens_per_user,
+            daily_tokens_per_user: v.daily_tokens_per_user,
+            temperature: v.temperature,
+            top_p: v.top_p,
+            frequency_penalty: v.frequency_penalty,
+            presence_penalty: v.presence_penalty,
+            max_output_tokens: v.max_output_tokens,
+            verbosity: v.verbosity,
+            reasoning_effort: v.reasoning_effort,
+            use_azure_search: v.use_azure_search,
+            maintain_azure_search_index: v.maintain_azure_search_index,
+            hide_citations: v.hide_citations,
+            use_semantic_reranking: v.use_semantic_reranking,
+            use_tools: v.use_tools,
+            default_chatbot: v.default_chatbot,
+            chatbotconf_id: Some(v.id),
+            suggest_next_messages: v.suggest_next_messages,
+            initial_suggested_messages: v.initial_suggested_messages,
+            publicly_accessible: v.publicly_accessible,
+        }
+    }
+}
+
 /// Minimum `max_output_tokens` allowed for a configuration. Too small a budget cannot produce a
 /// usable response — and with reasoning models the hidden reasoning tokens are spent from the same
 /// budget, so the floor needs to leave room for the actual answer either way.

@@ -54,7 +54,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
       <form
         onSubmit={handleSubmit((data) => {
           chatbotCreationMutation.mutate({
-            body: { name: data.name.trim(), course_id: courseId },
+            body: { name: data.name.trim(), course_id: courseId, purpose: data.purpose.trim() },
           })
         })}
       >

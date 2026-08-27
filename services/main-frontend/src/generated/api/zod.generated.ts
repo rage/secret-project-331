@@ -1251,6 +1251,7 @@ export const zCourseUpdate = z.object({
 export const zCreateChatbotRequest = z.object({
   course_id: z.uuid().nullish(),
   name: z.string(),
+  purpose: z.string(),
 })
 
 export const zCreateCourseDesignerPlanRequest = z.object({
@@ -6206,7 +6207,7 @@ export const zGetChatbotModelResponse = zChatbotConfigurationModel
 export const zGetAllChatbotsResponse = z.array(zChatbotConfiguration)
 
 /**
- * JSON object with chatbot name and optional course id, e.g. "name: Chatbot 1, course_id: null".
+ * JSON object with chatbot name and optional course id, e.g. "name: 'Chatbot 1', course_id: null, purpose: 'This chatbot will help students learn.'".
  */
 export const zCreateChatbotBody = zCreateChatbotRequest
 

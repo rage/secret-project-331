@@ -166,7 +166,7 @@ async fn create_chatbot(
 ) -> ControllerResult<web::Json<ChatbotConfiguration>> {
     let mut conn = pool.acquire().await?;
     let course_id = payload.course_id;
-    let token = if let Some(course_id) = course_id {
+    let (token, course) = if let Some(course_id) = course_id {
         let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
         let course = models::courses::get_course(&mut conn, course_id).await?;
 
@@ -176,9 +176,12 @@ async fn create_chatbot(
                 "Course doesn't allow creating chatbots.".to_string()
             ));
         }
-        token
+        (token, Some(course))
     } else {
-        authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?
+        (
+            authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?,
+            None,
+        )
     };
     let mut tx = conn.begin().await?;
 
@@ -214,13 +217,31 @@ async fn create_chatbot(
     )
     .await?;
 
-    let lol = headless_lms_chatbot::prompt_creator::generate_prompt(
+    let prompt_res = headless_lms_chatbot::prompt_creator::generate_prompt(
         app_conf.as_ref(),
         task_llm,
-        &configuration,
+        &course,
+        &payload.purpose,
     )
     .await?;
-    token.authorized_ok(web::Json(configuration))
+
+    let new = NewChatbotConf {
+        prompt: prompt_res.prompt,
+        initial_message: prompt_res.first_message,
+        ..NewChatbotConf::from(configuration.clone())
+    };
+
+    let res = match models::chatbot_configurations::edit(&mut conn, new, configuration.id.clone())
+        .await
+    {
+        Ok(conf) => conf,
+        Err(e) => {
+            error!("e"); // todo!
+            configuration
+        }
+    };
+
+    token.authorized_ok(web::Json(res))
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

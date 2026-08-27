@@ -3,6 +3,8 @@ use crate::prelude::*;
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     chatbot_configurations::CreateChatbotRequest,
+    chatbot_conversation_message_messages::MessageRole,
+    chatbot_conversation_messages::ChatbotConversationMessage,
 };
 use utoipa::OpenApi;
 
@@ -217,17 +219,52 @@ async fn create_chatbot(
     )
     .await?;
 
+    let (course_name, course_desc) = if let Some(c) = course {
+        (c.name, c.description)
+    } else {
+        ("".to_string(), None)
+    };
+
+    // todo what to do if these azure stuff fail?
     let prompt_res = headless_lms_chatbot::prompt_creator::generate_prompt(
         app_conf.as_ref(),
-        task_llm,
-        &course,
+        task_llm.clone(),
+        &course_name,
+        course_desc.to_owned(),
         &payload.purpose,
     )
     .await?;
 
+    let sm_res = match headless_lms_chatbot::message_suggestion::generate_suggested_messages(
+        app_conf.as_ref(),
+        task_llm,
+        &[ChatbotConversationMessage::text(
+            Uuid::nil(),
+            MessageRole::Assistant,
+            configuration.initial_message.clone(),
+            0,
+            None,
+        )],
+        None,
+        &course_name,
+        course_desc,
+    )
+    .await
+    {
+        Ok(res) => Some(res),
+        Err(e) => {
+            error!(
+                "Couldn't generate suggested messages for new chatbot: {}",
+                e
+            );
+            None
+        }
+    };
+
     let new = NewChatbotConf {
         prompt: prompt_res.prompt,
         initial_message: prompt_res.first_message,
+        initial_suggested_messages: sm_res,
         ..NewChatbotConf::from(configuration.clone())
     };
 
@@ -236,7 +273,7 @@ async fn create_chatbot(
     {
         Ok(conf) => conf,
         Err(e) => {
-            error!("e"); // todo!
+            error!("Error: {}", e);
             configuration
         }
     };

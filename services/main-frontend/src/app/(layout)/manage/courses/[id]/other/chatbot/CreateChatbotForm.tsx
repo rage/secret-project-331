@@ -7,10 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import { createChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button, TextArea, TextField } from "@/shared-module/components"
 
 interface CreateChatbotProps {
   courseId: string | null
@@ -30,6 +29,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
 }) => {
   const { t } = useTranslation()
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
@@ -59,6 +59,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
         })}
       >
         <TextField
+          control={control}
           {...omitUndefined({ error: errors.name?.message })}
           label={t("label-name")}
           {...register("name", {
@@ -70,14 +71,16 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
             },
           })}
         />
-        <TextField
+        <TextArea
+          control={control}
+          autoResize={true}
           {...omitUndefined({ error: errors.purpose?.message })}
           label={t("label-purpose")}
           {...register("purpose", {
             required: t("required-field"),
             validate: {
               check: (purpose) => {
-                return purpose.trim() ? true : t("-not-empty")
+                return purpose.trim() ? true : t("field-cannot-be-empty")
               },
             },
           })}

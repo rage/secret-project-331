@@ -16,6 +16,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
 
 import ConversationHistory from "./ConversationHistory"
+import { Disclosure } from "./Disclosure"
 import NewConversationDialog from "./NewConversationDialog"
 
 interface ChatbotCommandCenterProps {
@@ -26,22 +27,21 @@ interface ChatbotCommandCenterProps {
 
 const gridContainer = css`
   display: grid;
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns: auto 1fr;
   margin: 0 1rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
   gap: 0.5rem;
-  grid-auto-rows: min-content;
 `
 
 const sideBarContainer = css`
   border-radius: 10px;
-  box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
   margin: 0;
   padding: 0;
-  padding-top: 1rem;
+  padding-top: 0.5rem;
   overflow-y: auto;
-  contain: size;
+  box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+  max-width: 400px;
 `
 
 const chatbotPlaceHolder = css`
@@ -130,33 +130,36 @@ const ChatbotCommandCenter = ({ chatbots, courses, conversations }: ChatbotComma
   return (
     <div className={gridContainer}>
       <div className={sideBarContainer}>
-        <Button
-          className={css`
-            padding-bottom: 1rem;
-            color: var(--field-fg);
-          `}
-          icon={
-            <AddMessage
-              className={css`
-                color: ${baseTheme.colors.green[700]};
-              `}
-            />
-          }
-          // oxlint-disable-next-line i18next/no-literal-string
-          iconPosition="start"
-          size="medium"
-          variant="icon"
-          onClick={() => setChatbotDialog(true)}
-        >
-          {t("new-conversation")}
-        </Button>
-        <ConversationHistory
-          conversations={conversations}
-          setConversationId={setConversationId}
-          setConfigurationId={setConfigurationId}
-          chatbots={chatbots}
-        />
+        <Disclosure defaultExpanded={true}>
+          <Button
+            className={css`
+              padding-bottom: 1rem;
+              color: var(--field-fg);
+            `}
+            icon={
+              <AddMessage
+                className={css`
+                  color: ${baseTheme.colors.green[700]};
+                `}
+              />
+            }
+            // oxlint-disable-next-line i18next/no-literal-string
+            iconPosition="start"
+            size="medium"
+            variant="icon"
+            onClick={() => setChatbotDialog(true)}
+          >
+            {t("new-conversation")}
+          </Button>
+          <ConversationHistory
+            conversations={conversations}
+            setConversationId={setConversationId}
+            setConfigurationId={setConfigurationId}
+            chatbots={chatbots}
+          />
+        </Disclosure>
       </div>
+
       <div
         className={css`
           height: 85vh;

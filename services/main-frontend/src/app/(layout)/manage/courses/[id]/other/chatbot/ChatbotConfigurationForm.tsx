@@ -40,6 +40,7 @@ import {
 } from "@/shared-module/components"
 
 import ChatbotPreviewModal from "./ChatbotPreviewModal"
+import { itemsContainerCss } from "./styles"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -60,15 +61,6 @@ type ConfigureChatbotFields = Omit<
   | "max_output_tokens"
 > & { suggested_messages: Message[] }
 
-const itemsContainerCss = css`
-  flex: 1;
-  ${respondToOrLarger.sm} {
-    flex: 0 45%;
-  }
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
 const textFieldCss = css`
   width: auto;
 `

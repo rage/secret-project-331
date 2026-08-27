@@ -11,6 +11,8 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { Button, TextArea, TextField } from "@/shared-module/components"
 
+import { itemsContainerCss } from "./styles"
+
 interface CreateChatbotProps {
   courseId: string | null
   getChatbotsList: UseQueryResult<ChatbotConfiguration[], unknown>
@@ -52,6 +54,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
   return (
     <div>
       <form
+        className={itemsContainerCss}
         onSubmit={handleSubmit((data) => {
           chatbotCreationMutation.mutate({
             body: { name: data.name.trim(), course_id: courseId, purpose: data.purpose.trim() },

@@ -6,4 +6,4 @@ BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FILE_PATH="$BASEDIR/../services/headless-lms/Cargo.toml"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
 
-run_command cargo fmt --manifest-path "$RELATIVE_PATH" --all -- --files-with-diff "$@"
+run_command "$(cargo_subcommand_path fmt)" fmt --manifest-path "$RELATIVE_PATH" --all -- --files-with-diff "$@"

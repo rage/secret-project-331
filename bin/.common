@@ -45,6 +45,21 @@ function ensure_common_programs_in_path() {
   ensure_program_in_path sponge
 }
 
+# Prints the absolute path of a cargo subcommand binary belonging to the same
+# toolchain as the cargo in $PATH. Cargo searches $CARGO_HOME/bin before $PATH,
+# so a plain `cargo clippy` runs rustup's shim even inside the Nix shell, and
+# rustup's rustc then cannot load proc macros the Nix toolchain built.
+function cargo_subcommand_path() {
+  SUBCOMMAND="$1"
+  ensure_program_in_path cargo
+  CARGO_BIN_DIR="$(dirname "$(command -v cargo)")"
+  if [ ! -x "$CARGO_BIN_DIR/cargo-$SUBCOMMAND" ]; then
+    echo "cargo-$SUBCOMMAND was not found next to $(command -v cargo). Aborting."
+    exit 1
+  fi
+  echo "$CARGO_BIN_DIR/cargo-$SUBCOMMAND"
+}
+
 # Verifies git-lfs is installed and working; runs git lfs install --local inside this project's work tree.
 function ensure_git_lfs_installed() {
   if ! command -v git-lfs &> /dev/null; then

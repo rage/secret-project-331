@@ -86,6 +86,7 @@ const useChatbotStateAndData = (
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
   const [messageState, dispatch] = useReducer(chatbotReducer, {
     messages: [],
+    executionPayloadByToolCallId: {},
   })
 
   const turnAbortControllerRef = useRef<AbortController | null>(null)

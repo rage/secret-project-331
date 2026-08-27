@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use headless_lms_utils::services::sisu::{
-    Additional, CourseUnitSearchResults, Credits, Name, SearchResult, SisuCourseInfoElement,
-    SisuCourseInfoValidityPeriod,
+    Additional, CourseUnitSearchResults, Credits, Name, ResponsibilityInfo, SearchResult,
+    SisuCourseInfoElement, SisuCourseInfoValidityPeriod, SisuPerson,
 };
 use serde_json;
 
@@ -135,6 +135,15 @@ async fn mock_sisu_course_info(
                 organisations: vec![],
                 possible_attainment_languages: vec![],
                 part_of_degree: None,
+                responsibility_infos: Some(vec![ResponsibilityInfo {
+                    role_urn: "urn:code:module-responsibility-type:responsible-teacher".to_string(),
+                    person: Some(SisuPerson {
+                        first_names: Some("Mock".to_string()),
+                        last_name: Some("Teacher".to_string()),
+                        email: Some("mock.teacher@example.com".to_string()),
+                    }),
+                    text: None,
+                }]),
             }),
         ),
         "mock-id-2-1" => serde_json::to_string(
@@ -193,6 +202,15 @@ async fn mock_sisu_course_info(
                 organisations: vec![],
                 possible_attainment_languages: vec![],
                 part_of_degree: None,
+                responsibility_infos: Some(vec![ResponsibilityInfo {
+                    role_urn: "urn:code:module-responsibility-type:responsible-teacher".to_string(),
+                    person: Some(SisuPerson {
+                        first_names: Some("Mock".to_string()),
+                        last_name: Some("Teacher".to_string()),
+                        email: Some("mock.teacher@example.com".to_string()),
+                    }),
+                    text: None,
+                }]),
             }),
         ),
         "mock-id-3-1" => serde_json::to_string(
@@ -251,6 +269,15 @@ async fn mock_sisu_course_info(
                 organisations: vec![],
                 possible_attainment_languages: vec![],
                 part_of_degree: None,
+                responsibility_infos: Some(vec![ResponsibilityInfo {
+                    role_urn: "urn:code:module-responsibility-type:responsible-teacher".to_string(),
+                    person: Some(SisuPerson {
+                        first_names: Some("Mock".to_string()),
+                        last_name: Some("Teacher".to_string()),
+                        email: Some("mock.teacher@example.com".to_string()),
+                    }),
+                    text: None,
+                }]),
             }),
         ),
 

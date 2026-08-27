@@ -1,24 +1,27 @@
 use indexmap::IndexMap;
-use std::str::FromStr;
 
-use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
+use headless_lms_models::{course_page_markdown_content, pages};
 use headless_lms_utils::{
+    document_schema_processor::remove_sensitive_attributes,
     json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType},
     strings::truncate_utf8_at_boundary,
 };
-use serde::{Deserialize, Deserializer};
-use sqlx::PgConnection;
-use uuid::Uuid;
 
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties,
+        argument_parsing::deserialize_to_optional_uuid_and_errors_to_none,
+        course_scope::{
+            COURSE_ID_ARGUMENT_DESCRIPTION, material_requirements, resolve_course_scope,
+        },
+        tool_authorization::ToolRequirement,
     },
     citations::parse_document_filepath,
     llm_utils::estimate_tokens,
-    prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err},
-    user_context::ChatbotUserContext,
+    prelude::*,
+    user_context::ChatbotTurnContext,
 };
 
 pub type DocumentLookupTool = ToolProperties<DocumentLookupState>;
@@ -27,7 +30,7 @@ pub struct DocumentLookupState {
     document: Option<String>,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 pub struct DocumentLookupArguments {
     /// Required by the tool's schema, but the lookup resolves the document by id or filepath and
     /// never reads this back; kept only so a call missing it fails to deserialize.
@@ -37,23 +40,8 @@ pub struct DocumentLookupArguments {
     #[serde(deserialize_with = "deserialize_to_optional_uuid_and_errors_to_none")]
     page_id: Option<Uuid>,
     format: String,
-}
-
-/// Deserializes an optional string field and parses it into an Uuid, doing this
-/// optionally without failure. If an error occurs, a None is returned. This is
-/// desired for the page_id field in DocumentLookupArguments, which is generated
-/// by an LLM and can be None or a non-Uuid string in some cases. If any errors
-/// should occur, they are emitted in ChatbotTools's from_db_and_arguments.
-fn deserialize_to_optional_uuid_and_errors_to_none<'de, D>(
-    deserializer: D,
-) -> Result<Option<Uuid>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let res = String::deserialize(deserializer)
-        .ok()
-        .and_then(|s| Uuid::from_str(&s).ok());
-    Ok(res)
+    #[serde(deserialize_with = "deserialize_to_optional_uuid_and_errors_to_none")]
+    course_id: Option<Uuid>,
 }
 
 /// Truncates page content until its estimated token count fits the budget we are willing to hand
@@ -74,7 +62,11 @@ fn shorten_page_content(mut content: String) -> String {
 impl ChatbotToolDeclaration for DocumentLookupTool {
     const NAME: &'static str = "document_lookup";
 
-    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+    fn offer_requirements(user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        material_requirements(user_context.course_id)
+    }
+
+    const CATEGORY: ToolCategory = ToolCategory::CourseMaterial;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -110,6 +102,13 @@ impl ChatbotToolDeclaration for DocumentLookupTool {
                             type_field: JSONType::String,
                             description: Some("The format of the document. Optional. Valid values are 'json' and 'markdown'. Markdown content is human readable, but might have errors. ".to_string()),
                         }),
+                    ),
+                    (
+                        "course_id".to_string(),
+                        SchemaPropertyType::Item(JsonItem {
+                            type_field: JSONType::String,
+                            description: Some(COURSE_ID_ARGUMENT_DESCRIPTION.to_string()),
+                        }),
                     )
                 ]),
                 None,
@@ -123,18 +122,20 @@ impl ChatbotToolDeclaration for DocumentLookupTool {
 impl ChatbotTool for DocumentLookupTool {
     type Arguments = DocumentLookupArguments;
 
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        material_requirements(resolve_course_scope(user_context, arguments.course_id).ok())
+    }
+
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
-        let Some(course_id) = user_context.course_id else {
-            return Err(chatbot_err!(
-                ToolUseError,
-                "Course id is missing.".to_string()
-            ));
-        };
+        let course_id = resolve_course_scope(user_context, arguments.course_id)?;
 
         let page_id = if let Some(id) = &arguments.page_id {
             id.to_owned()
@@ -156,33 +157,44 @@ impl ChatbotTool for DocumentLookupTool {
                 )
             ));
         };
-        let page_content =
-            headless_lms_models::course_page_markdown_content::get_course_page_content_by_page_id(
-                conn, page_id,
-            )
-            .await?;
-
-        let document =
-            // A page of another course is not the learner's to read, so it reads as not found.
-            if page_content.course_id == course_id {
+        let document = match course_page_markdown_content::get_course_page_content_by_page_id(
+            conn, page_id,
+        )
+        .await
+        {
+            // A page of another course is not the caller's to read, so it reads as not found.
+            Ok(page_content) if page_content.course_id == course_id => {
                 if arguments.format == "json" {
-                    let s = shorten_page_content(serde_json::to_string(&page_content.json_content)?);
+                    let s =
+                        shorten_page_content(serde_json::to_string(&page_content.json_content)?);
                     Some(s)
-                } else {
-                // use markdown content if there is any. else use json as string
-                if let Some(content) = page_content.markdown_content {
+                } else if let Some(content) = page_content.markdown_content {
                     let s = shorten_page_content(content);
                     Some(s)
                 } else {
                     let base = "Markdown content not found. Page JSON content:\n\n".to_string();
-                    let s = shorten_page_content(serde_json::to_string(&page_content.json_content)?);
+                    let s =
+                        shorten_page_content(serde_json::to_string(&page_content.json_content)?);
                     Some(base + &s)
                 }
+            }
+            Ok(_) => None,
+            // No chatbot has ever synced this course's markdown, which covers most courses: fall
+            // back to the page's own blocks, sanitized the way the syncer would before indexing
+            // them, instead of reporting the document not found.
+            Err(e) if e.error_type() == &ModelErrorType::RecordNotFound => {
+                match pages::get_page(conn, page_id).await {
+                    Ok(page) if page.course_id == Some(course_id) && page.deleted_at.is_none() => {
+                        let blocks = remove_sensitive_attributes(page.blocks_cloned()?);
+                        let base = "No converted markdown exists for this course; this is raw block JSON:\n\n".to_string();
+                        let s = shorten_page_content(serde_json::to_string(&blocks)?);
+                        Some(base + &s)
+                    }
+                    _ => None,
                 }
-
-            } else {
-                None
-            };
+            }
+            Err(e) => return Err(ChatbotError::from(e)),
+        };
 
         Ok(DocumentLookupTool {
             state: DocumentLookupState { document },
@@ -198,7 +210,7 @@ impl ChatbotTool for DocumentLookupTool {
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("Do not return the whole document to the user. Use the document as a source of more information for answering the user etc. If you need to cite the content of this document, cite the Azure search result of the document.".to_string())
+        Some("Do not return the whole document to the user. Use the document as a source of more information for answering the user etc. Cite the course_material_search result the page came from; document_lookup itself produces no citation.".to_string())
     }
 }
 

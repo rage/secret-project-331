@@ -55,6 +55,7 @@ interface ClientToolCallRow {
   call: unknown
   isOpen: boolean
   closedAnswer: ClosedClientToolAnswer
+  executionPayload: unknown
 }
 
 /// One row of the conversation list, with the tool call and reasoning `items` that precede its
@@ -347,6 +348,7 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
           // stored yet and answering it would be refused.
           isTurnInFlight,
           closedAnswer: row.call.closedAnswer,
+          executionPayload: row.call.executionPayload,
           onAnswer,
         })}
       </li>
@@ -596,8 +598,9 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
       closedAnswer: closedAnswerByToolCallId.has(toolCallId)
         ? { value: closedAnswerByToolCallId.get(toolCallId) }
         : undefined,
+      executionPayload: messageState.executionPayloadByToolCallId[toolCallId],
     }),
-    [openToolCallIds, closedAnswerByToolCallId],
+    [openToolCallIds, closedAnswerByToolCallId, messageState.executionPayloadByToolCallId],
   )
 
   const rows = useMemo(

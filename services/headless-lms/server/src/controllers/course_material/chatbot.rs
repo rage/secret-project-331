@@ -5,7 +5,7 @@ use headless_lms_chatbot::azure_chatbot::turn::{
 use headless_lms_chatbot::chatbot_tools::{ClientToolAnswer, ClientToolName};
 use headless_lms_chatbot::conversation_context::ChatbotPageContext;
 use headless_lms_chatbot::llm_utils::estimate_tokens;
-use headless_lms_chatbot::user_context::ChatbotUserContext;
+use headless_lms_chatbot::user_context::ChatbotTurnContext;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
 use headless_lms_models::chatbot_conversation_message_tool_calls;
@@ -166,7 +166,7 @@ async fn authorize_access_to_conversation(
     conversation_id: Uuid,
     user: Option<AuthUser>,
     req: HttpRequest,
-) -> Result<(AuthorizationToken, ChatbotUserContext), ControllerError> {
+) -> Result<(AuthorizationToken, ChatbotTurnContext), ControllerError> {
     let chatbot_configuration =
         chatbot_configurations::get_by_id(conn, chatbot_configuration_id).await?;
 
@@ -195,10 +195,12 @@ async fn authorize_access_to_conversation(
         None
     };
 
-    let chatbot_user = ChatbotUserContext::new(
+    let chatbot_user = ChatbotTurnContext::new(
         user.map(|u| u.id),
         chatbot_configuration.course_id,
         course_name,
+        conversation_id,
+        &chatbot_configuration,
     );
 
     Ok((token, chatbot_user))

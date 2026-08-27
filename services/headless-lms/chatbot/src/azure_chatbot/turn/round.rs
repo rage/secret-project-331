@@ -7,6 +7,9 @@ use futures::StreamExt;
 use futures::stream::BoxStream;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_conversation_messages::{self, ChatbotConversationMessage};
+use headless_lms_models::chatbot_conversation_messages_citations::{
+    self, ChatbotConversationMessageCitation,
+};
 use tracing::trace;
 use url::Url;
 
@@ -16,17 +19,17 @@ use crate::azure_chatbot::azure::protocol::{
 };
 use crate::azure_chatbot::azure::sse::{AzureStreamEvent, ParsedResponseLine};
 use crate::azure_chatbot::azure::transport::ResponseLinesStream;
-use crate::azure_chatbot::client_tool_calls::abort::permission_revoked_output;
+use crate::azure_chatbot::client_tool_calls::abort::refused_call_output;
 use crate::azure_chatbot::events::{StreamItem, TurnEvent};
 use crate::azure_chatbot::request::replayable_input_message;
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::{
-    ChatbotToolCallResult, call_chatbot_tool, check_client_tool_arguments, client_tool_permission,
+    ChatbotToolCallResult, call_chatbot_tool, check_client_tool_call, tool_is_answered_by_client,
 };
 use crate::citations::chatbot_cited_documents_to_citations;
 use crate::llm_utils::{APIInputMessage, APIOutputMessage, MessageContent};
 use crate::prelude::*;
-use crate::user_context::ChatbotUserContext;
+use crate::user_context::ChatbotTurnContext;
 
 /// How a round item that isn't a text `Message` or `FunctionCall` gets persisted, decided without
 /// a database connection or Azure configuration: a plain insert, or an insert followed by
@@ -295,27 +298,25 @@ enum PlannedToolCall {
 
 /// Decides who answers a call the model made, before anything about it is stored.
 ///
-/// A client tool's permission and arguments are both checked here, not when an answer arrives:
+/// A client tool's authorization and arguments are both checked here, not when an answer arrives:
 /// nothing can answer a call the tool would reject or the caller may not make, so it has to fail
 /// while the turn can still hand the LLM a failure output. The server tools are checked the same
 /// way inside [`call_chatbot_tool`]. Errors on a rejection the turn cannot survive — see
 /// [`recover_or_terminate`].
 async fn plan_tool_call(
     conn: &mut PgConnection,
-    user_context: &ChatbotUserContext,
+    user_context: &ChatbotTurnContext,
     tool_name: &str,
     arguments: &str,
 ) -> ChatbotResult<PlannedToolCall> {
-    let Some(permission) = client_tool_permission(tool_name) else {
+    if !tool_is_answered_by_client(tool_name) {
         return Ok(PlannedToolCall::Run);
-    };
-    if let Some(output) =
-        permission_revoked_output(conn, user_context, permission, tool_name).await?
-    {
-        return Ok(PlannedToolCall::Refuse(output.to_string()));
     }
-    match check_client_tool_arguments(tool_name, arguments) {
-        Ok(()) => Ok(PlannedToolCall::Suspend),
+    match check_client_tool_call(conn, user_context, tool_name, arguments).await {
+        Ok(Ok(())) => Ok(PlannedToolCall::Suspend),
+        Ok(Err(refusal)) => Ok(PlannedToolCall::Refuse(
+            refused_call_output(refusal, tool_name).to_string(),
+        )),
         Err(error) => Ok(PlannedToolCall::Refuse(recover_or_terminate(
             error,
             tool_name,
@@ -337,6 +338,7 @@ async fn record_tool_call(
     tool_name: &str,
     result: ChatbotToolCallResult,
 ) -> ChatbotResult<Vec<APIInputMessage>> {
+    let citations = result.citations;
     let tool_call_message = APIOutputMessage {
         message_type: OutputItem::FunctionCall {
             response_id: response_id.to_owned(),
@@ -364,6 +366,28 @@ async fn record_tool_call(
         output_message.to_chatbot_conversation_message(conversation_id)?,
     )
     .await?;
+
+    if !citations.is_empty() {
+        let (rows, page_ids) = citations
+            .into_iter()
+            .map(|citation| {
+                (
+                    ChatbotConversationMessageCitation {
+                        conversation_message_id: stored_output.id,
+                        conversation_id,
+                        title: citation.title,
+                        content: citation.snippet,
+                        document_url: citation.document_url,
+                        citation_number: citation.citation_number,
+                        ..Default::default()
+                    },
+                    Some(citation.page_id),
+                )
+            })
+            .unzip();
+        chatbot_conversation_messages_citations::insert_batch(&mut tx, rows, page_ids).await?;
+    }
+
     tx.commit().await?;
 
     Ok(vec![
@@ -412,7 +436,7 @@ pub(super) async fn parse_tool<'a, C>(
     mut lines: ResponseLinesStream<'a>,
     conversation_id: Uuid,
     response_id: String,
-    user_context: &'a ChatbotUserContext,
+    user_context: &'a ChatbotTurnContext,
     calls_from_classification: Vec<OutputItem>,
 ) -> BoxStream<'a, ChatbotResult<TurnEvent>>
 where
@@ -519,7 +543,11 @@ where
                 };
 
                 let tool_result = if let Some(output) = refused_client_call {
-                    ChatbotToolCallResult { arguments: args, output }
+                    ChatbotToolCallResult {
+                        arguments: args,
+                        output,
+                        citations: Vec::new(),
+                    }
                 } else {
                     // The tool runs outside the transaction so a failure cannot leave a
                     // function call without its output. `args` is only borrowed here, so it is
@@ -535,6 +563,7 @@ where
                                 "Chatbot tool call failed, reporting the failure to the LLM.",
                             )?,
                             arguments: args,
+                            citations: Vec::new(),
                         },
                     }
                 };
@@ -669,7 +698,7 @@ mod tests {
     use super::*;
     use crate::azure_chatbot::azure::protocol::InputItem;
     use crate::azure_chatbot::test_helpers::{azure_response_stream, shape};
-    use crate::chatbot_tools::tool_permission::test_helpers::context;
+    use crate::chatbot_tools::tool_authorization::test_helpers::context;
 
     /// Azure sends an item as `added` before it sends it as `done`, and only the `done` copy is
     /// whole or stored. Carrying both into the next round would send the item twice, and with

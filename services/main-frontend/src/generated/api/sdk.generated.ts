@@ -75,6 +75,7 @@ import type {
   ClaimStudentNumberVerificationTokenErrors,
   ClaimStudentNumberVerificationTokenResponses,
   ConfigureChatbotData,
+  ConfigureChatbotErrors,
   ConfigureChatbotResponses,
   ConfirmCourseSuspectedCheaterData,
   ConfirmCourseSuspectedCheaterResponses,
@@ -1545,8 +1546,13 @@ export const getChatbotConfiguration = <ThrowOnError extends boolean = true>(
  */
 export const configureChatbot = <ThrowOnError extends boolean = true>(
   options: Options<ConfigureChatbotData, ThrowOnError>,
-): RequestResult<ConfigureChatbotResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<ConfigureChatbotResponses, unknown, ThrowOnError, "data">({
+): RequestResult<ConfigureChatbotResponses, ConfigureChatbotErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    ConfigureChatbotResponses,
+    ConfigureChatbotErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseValidator: async (data) => await zConfigureChatbotResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}",

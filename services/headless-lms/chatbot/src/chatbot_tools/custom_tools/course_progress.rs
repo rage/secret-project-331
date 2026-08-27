@@ -1,28 +1,28 @@
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
-    chatbot_error::chatbot_err,
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, no_parameters,
-        tool_permission::ToolPermission,
+        tool_authorization::ToolRequirement,
     },
-    prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
-    user_context::ChatbotUserContext,
+    prelude::*,
+    user_context::ChatbotTurnContext,
 };
-use headless_lms_base::{
-    config::ApplicationConfiguration, prelude_base_and_re_exports::BackendError,
-};
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_modules::{CompletionPolicy, CourseModule},
     user_exercise_states::UserCourseProgress,
 };
-use sqlx::PgConnection;
 
 pub type CourseProgressTool = ToolProperties<CourseProgressState>;
 
 impl ChatbotToolDeclaration for CourseProgressTool {
     const NAME: &'static str = "course_progress";
 
-    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
+
+    const CATEGORY: ToolCategory = ToolCategory::CourseInfo;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -38,6 +38,13 @@ impl ChatbotToolDeclaration for CourseProgressTool {
 impl ChatbotTool for CourseProgressTool {
     type Arguments = CourseProgressArguments;
 
+    fn call_requirements(
+        _arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
+
     /// The LLM calls this tool without arguments, so whatever it emitted is ignored rather than
     /// deserialized: an empty argument string is not valid JSON.
     fn parse_arguments(_args_string: String) -> ChatbotResult<Self::Arguments> {
@@ -49,7 +56,7 @@ impl ChatbotTool for CourseProgressTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         _arguments: Self::Arguments,
-        user_context: &ChatbotUserContext,
+        user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let Some(user_id) = user_context.user_id else {
             return Err(chatbot_err!(
@@ -159,7 +166,7 @@ impl ChatbotTool for CourseProgressTool {
     }
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 pub struct CourseProgressArguments {}
 
 pub struct CourseProgressState {

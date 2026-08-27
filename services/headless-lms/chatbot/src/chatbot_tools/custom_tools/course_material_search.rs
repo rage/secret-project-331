@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
@@ -16,7 +17,7 @@ use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolCitation, ToolProperties,
-        course_scope::resolve_course_scope, tool_permission::ToolPermission,
+        course_scope::resolve_course_scope, tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -133,7 +134,12 @@ fn strip_headline_marks(headline: Option<String>) -> Option<String> {
 impl ChatbotToolDeclaration for CourseMaterialSearchTool {
     const NAME: &'static str = "course_material_search";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_turn(
+            Action::ViewInternalCourseStructure,
+            user_context,
+        )]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::CourseMaterial;
 
@@ -175,6 +181,16 @@ impl ChatbotToolDeclaration for CourseMaterialSearchTool {
 impl ChatbotTool for CourseMaterialSearchTool {
     type Arguments = CourseMaterialSearchArguments;
 
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_course(
+            Action::ViewInternalCourseStructure,
+            arguments.course_id,
+        )]
+    }
+
     fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(&args_string).map_err(|e| {
             chatbot_err!(
@@ -192,7 +208,7 @@ impl ChatbotTool for CourseMaterialSearchTool {
         arguments: Self::Arguments,
         user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
-        let course_id = resolve_course_scope(conn, user_context, Some(arguments.course_id)).await?;
+        let course_id = resolve_course_scope(user_context, Some(arguments.course_id))?;
         let course = courses::get_course(conn, course_id).await.map_err(|e| {
             chatbot_err!(
                 InvalidToolArguments,

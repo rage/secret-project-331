@@ -3,7 +3,7 @@
 //!
 //! [ClientChatbotTool](crate::chatbot_tools::ClientChatbotTool) cannot carry this: its
 //! `parse_response`/`output` are synchronous and get no [PgConnection], no
-//! [ApplicationConfiguration] and no acting-user id. [ConfirmableActionTool] is the one place that
+//! [ApplicationConfiguration] and no proof of who is acting. [ConfirmableActionTool] is the one place that
 //! threads those in, so every action tool gets the same confirm-parsing, exactly-once guard,
 //! transaction handling and audit write instead of a hand-rolled copy each.
 
@@ -16,8 +16,9 @@ pub mod reset_exercises;
 use headless_lms_base::config::ApplicationConfiguration;
 
 use crate::chatbot_tools::ChatbotToolDeclaration;
-use crate::chatbot_tools::tool_permission::ToolAuthorization;
+use crate::chatbot_tools::tool_authorization::{ToolAuthorization, ToolRequirement};
 use crate::prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err};
+use crate::user_context::ChatbotTurnContext;
 
 pub mod edit_user_account;
 pub mod generate_password_reset_link;
@@ -66,12 +67,19 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments>;
 
+    /// What the caller must be allowed to do against what this call actually targets. Checked
+    /// before the turn suspends on the call and again immediately before the mutation runs.
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement>;
+
     /// Performs the mutation. Must re-verify every model-supplied display field against the
     /// database (case-insensitively for emails) and refuse with a descriptive error rather than
     /// mutate on a mismatch, so a wrong or stale display can never mutate a row it doesn't
     /// describe. `authorization` both proves the confirming admin was checked against
-    /// [ChatbotToolDeclaration::PERMISSION] and names them, so the mutation cannot run ahead of
-    /// the check and the audit row cannot credit anyone else.
+    /// this call's own requirements and names them, so the mutation cannot run ahead of the
+    /// check and the audit row cannot credit anyone else.
     fn execute(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,

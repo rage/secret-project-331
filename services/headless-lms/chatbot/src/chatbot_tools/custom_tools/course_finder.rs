@@ -6,7 +6,7 @@ use serde::Deserializer;
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -46,6 +46,13 @@ pub type CourseFinderTool = ToolProperties<CourseFinderState>;
 
 impl ChatbotTool for CourseFinderTool {
     type Arguments = CourseFinderArguments;
+
+    fn call_requirements(
+        _arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
@@ -128,7 +135,9 @@ impl ChatbotTool for CourseFinderTool {
 impl ChatbotToolDeclaration for CourseFinderTool {
     const NAME: &'static str = "course_finder";
 
-    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::CourseCatalog;
 

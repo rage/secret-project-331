@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
@@ -12,9 +13,10 @@ use crate::{
             ActionAuditFields, ConfirmableActionTool, ExecutedAction, verify_display_field,
         },
         argument_parsing::parse_required_uuid,
-        tool_permission::{ToolAuthorization, ToolPermission},
+        tool_authorization::{ToolAuthorization, ToolRequirement},
     },
     prelude::*,
+    user_context::ChatbotTurnContext,
 };
 
 /// Corrects a user's email and/or its verification state, after the admin confirms.
@@ -46,7 +48,9 @@ struct RawArguments {
 impl ChatbotToolDeclaration for EditUserAccountTool {
     const NAME: &'static str = "edit_user_account";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::global(Action::AdministrateUserAccount)]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::AdminSupportAccounts;
 
@@ -104,6 +108,16 @@ impl ChatbotToolDeclaration for EditUserAccountTool {
 impl ConfirmableActionTool for EditUserAccountTool {
     type Arguments = EditUserAccountArguments;
     type Facts = ();
+
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_user(
+            Action::AdministrateUserAccount,
+            arguments.user_id,
+        )]
+    }
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(arguments).map_err(|e| {

@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
@@ -20,7 +21,7 @@ use headless_lms_utils::json_schema_types::{
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -196,7 +197,9 @@ impl<'de> serde::Deserialize<'de> for UserOverviewArguments {
 impl ChatbotToolDeclaration for UserOverviewTool {
     const NAME: &'static str = "user_overview";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::global(Action::ViewUserProgressOrDetails)]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::AdminSupportAccounts;
 
@@ -230,6 +233,16 @@ impl ChatbotToolDeclaration for UserOverviewTool {
 
 impl ChatbotTool for UserOverviewTool {
     type Arguments = UserOverviewArguments;
+
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_user(
+            Action::ViewUserProgressOrDetails,
+            arguments.user_id,
+        )]
+    }
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,

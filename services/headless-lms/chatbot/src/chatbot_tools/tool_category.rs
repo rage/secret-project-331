@@ -1,5 +1,5 @@
 //! Which categories of tools a chatbot configuration offers the LLM, independent of
-//! [crate::chatbot_tools::tool_permission::ToolPermission]: a category answers "does this
+//! [crate::chatbot_tools::tool_authorization::ToolRequirement]: a category answers "does this
 //! chatbot offer this kind of tool", not "may this caller use it".
 
 use headless_lms_models::chatbot_configurations::{ChatbotConfiguration, ToolCategory};

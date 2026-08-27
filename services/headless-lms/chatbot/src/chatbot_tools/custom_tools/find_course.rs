@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
@@ -13,7 +14,7 @@ use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPr
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -108,7 +109,9 @@ const MAX_CANDIDATES: i64 = 5;
 impl ChatbotToolDeclaration for FindCourseTool {
     const NAME: &'static str = "find_course";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::global(Action::Administrate)]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::AdminSupportCourses;
 
@@ -136,6 +139,13 @@ impl ChatbotToolDeclaration for FindCourseTool {
 
 impl ChatbotTool for FindCourseTool {
     type Arguments = FindCourseArguments;
+
+    fn call_requirements(
+        _arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::global(Action::Administrate)]
+    }
 
     fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments> {
         let mut arguments: Self::Arguments = serde_json::from_str(&args_string).map_err(|e| {

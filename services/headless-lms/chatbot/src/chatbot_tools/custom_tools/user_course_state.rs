@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use std::collections::HashMap;
 use std::str::FromStr;
 
@@ -25,7 +26,7 @@ use crate::{
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties,
         argument_parsing::deserialize_to_optional_uuid_and_errors_to_none,
-        tool_permission::ToolPermission,
+        tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -192,7 +193,12 @@ fn build_arguments(raw: RawArguments) -> ChatbotResult<UserCourseStateArguments>
 impl ChatbotToolDeclaration for UserCourseStateTool {
     const NAME: &'static str = "user_course_state";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_turn(
+            Action::ViewUserProgressOrDetails,
+            user_context,
+        )]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::AdminSupportLearningProgress;
 
@@ -240,6 +246,16 @@ impl ChatbotToolDeclaration for UserCourseStateTool {
 
 impl ChatbotTool for UserCourseStateTool {
     type Arguments = UserCourseStateArguments;
+
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_course(
+            Action::ViewUserProgressOrDetails,
+            arguments.course_id,
+        )]
+    }
 
     fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(&args_string).map_err(|e| {

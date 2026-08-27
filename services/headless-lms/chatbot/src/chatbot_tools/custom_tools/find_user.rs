@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
@@ -11,7 +12,7 @@ use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, argument_parsing::parse_required_uuid,
-        tool_permission::ToolPermission,
+        tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -130,7 +131,9 @@ fn build_arguments(raw: RawFindUserArguments) -> ChatbotResult<FindUserArguments
 impl ChatbotToolDeclaration for FindUserTool {
     const NAME: &'static str = "find_user";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::global(Action::ViewUserProgressOrDetails)]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::AdminSupportAccounts;
 
@@ -165,6 +168,13 @@ impl ChatbotToolDeclaration for FindUserTool {
 
 impl ChatbotTool for FindUserTool {
     type Arguments = FindUserArguments;
+
+    fn call_requirements(
+        _arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::global(Action::ViewUserProgressOrDetails)]
+    }
 
     fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments> {
         let raw: RawFindUserArguments = serde_json::from_str(&args_string).map_err(|e| {

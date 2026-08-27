@@ -12,8 +12,10 @@ use crate::{
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties,
         argument_parsing::deserialize_to_optional_uuid_and_errors_to_none,
-        course_scope::{COURSE_ID_ARGUMENT_DESCRIPTION, resolve_course_scope},
-        tool_permission::ToolPermission,
+        course_scope::{
+            COURSE_ID_ARGUMENT_DESCRIPTION, material_requirements, resolve_course_scope,
+        },
+        tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -82,7 +84,9 @@ pub struct CourseStructureArguments {
 impl ChatbotToolDeclaration for CourseStructureTool {
     const NAME: &'static str = "course_structure";
 
-    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+    fn offer_requirements(user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        material_requirements(user_context.course_id)
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::CourseInfo;
 
@@ -109,6 +113,13 @@ impl ChatbotToolDeclaration for CourseStructureTool {
 impl ChatbotTool for CourseStructureTool {
     type Arguments = CourseStructureArguments;
 
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        material_requirements(resolve_course_scope(user_context, arguments.course_id).ok())
+    }
+
     /// A model that treats this tool as parameterless sends an empty argument string, which is
     /// not valid JSON, so that keeps working alongside `course_id`.
     fn parse_arguments(args_string: String) -> ChatbotResult<Self::Arguments> {
@@ -134,7 +145,7 @@ impl ChatbotTool for CourseStructureTool {
         Self: Sized,
     {
         let course_id_from_argument = arguments.course_id.is_some();
-        let course_id = resolve_course_scope(conn, user_context, arguments.course_id).await?;
+        let course_id = resolve_course_scope(user_context, arguments.course_id)?;
 
         let mut pages_info = pages::get_page_info_special_for_course(conn, course_id).await?;
         pages_info.sort_by_key(|x| {

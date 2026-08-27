@@ -13,8 +13,10 @@ use crate::{
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties,
         argument_parsing::deserialize_to_optional_uuid_and_errors_to_none,
-        course_scope::{COURSE_ID_ARGUMENT_DESCRIPTION, resolve_course_scope},
-        tool_permission::ToolPermission,
+        course_scope::{
+            COURSE_ID_ARGUMENT_DESCRIPTION, material_requirements, resolve_course_scope,
+        },
+        tool_authorization::ToolRequirement,
     },
     citations::parse_document_filepath,
     llm_utils::estimate_tokens,
@@ -60,7 +62,9 @@ fn shorten_page_content(mut content: String) -> String {
 impl ChatbotToolDeclaration for DocumentLookupTool {
     const NAME: &'static str = "document_lookup";
 
-    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+    fn offer_requirements(user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        material_requirements(user_context.course_id)
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::CourseMaterial;
 
@@ -118,13 +122,20 @@ impl ChatbotToolDeclaration for DocumentLookupTool {
 impl ChatbotTool for DocumentLookupTool {
     type Arguments = DocumentLookupArguments;
 
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        material_requirements(resolve_course_scope(user_context, arguments.course_id).ok())
+    }
+
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
         user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
-        let course_id = resolve_course_scope(conn, user_context, arguments.course_id).await?;
+        let course_id = resolve_course_scope(user_context, arguments.course_id)?;
 
         let page_id = if let Some(id) = &arguments.page_id {
             id.to_owned()

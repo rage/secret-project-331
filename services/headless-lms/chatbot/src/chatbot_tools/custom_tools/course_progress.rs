@@ -2,7 +2,7 @@ use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties, no_parameters,
-        tool_permission::ToolPermission,
+        tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -18,7 +18,9 @@ pub type CourseProgressTool = ToolProperties<CourseProgressState>;
 impl ChatbotToolDeclaration for CourseProgressTool {
     const NAME: &'static str = "course_progress";
 
-    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::CourseInfo;
 
@@ -35,6 +37,13 @@ impl ChatbotToolDeclaration for CourseProgressTool {
 
 impl ChatbotTool for CourseProgressTool {
     type Arguments = CourseProgressArguments;
+
+    fn call_requirements(
+        _arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
 
     /// The LLM calls this tool without arguments, so whatever it emitted is ignored rather than
     /// deserialized: an empty argument string is not valid JSON.

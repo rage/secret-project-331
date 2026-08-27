@@ -10,9 +10,10 @@ use crate::{
     chatbot_tools::ClientToolAnswer,
     chatbot_tools::{
         ChatbotToolDeclaration, ClientChatbotTool, ClientToolName, client_answer_data,
-        tool_permission::ToolPermission,
+        tool_authorization::ToolRequirement,
     },
     prelude::*,
+    user_context::ChatbotTurnContext,
 };
 
 /// Fewer than two choices is not a question. Both bounds are enforced in
@@ -50,7 +51,9 @@ impl ChatbotToolDeclaration for AskMultipleChoiceQuestionTool {
     const NAME: &'static str = ClientToolName::AskMultipleChoiceQuestion.as_str();
 
     /// A clarifying question reveals nothing the user did not write themselves.
-    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::Interaction;
 
@@ -87,6 +90,13 @@ impl ChatbotToolDeclaration for AskMultipleChoiceQuestionTool {
 impl ClientChatbotTool for AskMultipleChoiceQuestionTool {
     type Arguments = AskMultipleChoiceQuestionArguments;
     type Response = String;
+
+    fn call_requirements(
+        _arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let parsed: RawArguments = serde_json::from_str(arguments).map_err(|e| {

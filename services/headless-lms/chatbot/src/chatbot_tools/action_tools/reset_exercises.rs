@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
@@ -15,9 +16,10 @@ use crate::{
             verify_display_field,
         },
         argument_parsing::parse_required_uuid,
-        tool_permission::{ToolAuthorization, ToolPermission},
+        tool_authorization::{ToolAuthorization, ToolRequirement},
     },
     prelude::*,
+    user_context::ChatbotTurnContext,
 };
 
 /// Resets a user's progress on selected exercises (or the whole course) after admin
@@ -48,7 +50,9 @@ struct RawArguments {
 impl ChatbotToolDeclaration for ResetExercisesTool {
     const NAME: &'static str = "reset_exercises";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_turn(Action::Teach, user_context)]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::AdminSupportLearningProgress;
 
@@ -124,6 +128,16 @@ pub struct ResetExercisesFacts {
 impl ConfirmableActionTool for ResetExercisesTool {
     type Arguments = ResetExercisesArguments;
     type Facts = ResetExercisesFacts;
+
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_course(
+            Action::Teach,
+            arguments.course_id,
+        )]
+    }
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(arguments).map_err(|e| {

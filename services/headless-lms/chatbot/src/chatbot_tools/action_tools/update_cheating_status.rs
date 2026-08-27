@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
@@ -14,9 +15,10 @@ use crate::{
             ActionAuditFields, ConfirmableActionTool, ExecutedAction, verify_display_field,
         },
         argument_parsing::parse_required_uuid,
-        tool_permission::{ToolAuthorization, ToolPermission},
+        tool_authorization::{ToolAuthorization, ToolRequirement},
     },
     prelude::*,
+    user_context::ChatbotTurnContext,
 };
 
 /// Confirms or dismisses a `Flagged` suspected-cheater row. Only a `Flagged` row is actionable:
@@ -50,7 +52,9 @@ struct RawArguments {
 impl ChatbotToolDeclaration for UpdateCheatingStatusTool {
     const NAME: &'static str = "update_cheating_status";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_turn(Action::Teach, user_context)]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::AdminSupportAcademicIntegrity;
 
@@ -107,6 +111,16 @@ impl ChatbotToolDeclaration for UpdateCheatingStatusTool {
 impl ConfirmableActionTool for UpdateCheatingStatusTool {
     type Arguments = UpdateCheatingStatusArguments;
     type Facts = ();
+
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_course(
+            Action::Teach,
+            arguments.course_id,
+        )]
+    }
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(arguments).map_err(|e| {

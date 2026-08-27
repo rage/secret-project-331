@@ -45,7 +45,7 @@ export type Resource =
   | { type: "study_registry"; id: string }
   | { type: "any_course" }
   | { type: "role" }
-  | { type: "user" }
+  | { type: "user"; id: string }
   | { type: "playground_example" }
   | { type: "exercise_service" }
 

@@ -1,4 +1,4 @@
-use headless_lms_authorization::fetch_user_roles;
+use headless_lms_authorization::{Resource, fetch_user_roles};
 use headless_lms_models::chatbot_configurations::ChatbotConfiguration;
 use headless_lms_models::roles::Role;
 use tokio::sync::OnceCell;
@@ -42,10 +42,19 @@ impl ChatbotTurnContext {
         }
     }
 
-    /// The caller's roles, fetched the first time a tool permission needs them.
+    /// The resource an offer-time check runs against, before any call has named a target: the
+    /// course this chatbot belongs to, or global permissions for a chatbot that belongs to none.
+    pub fn turn_resource(&self) -> Resource {
+        match self.course_id {
+            Some(course_id) => Resource::Course(course_id),
+            None => Resource::GlobalPermissions,
+        }
+    }
+
+    /// The caller's roles, fetched the first time an authorization check needs them.
     ///
-    /// One roles query per request however many tool permissions ask for them, and none at all
-    /// for a request whose tools need no role.
+    /// One roles query per request however many authorization checks ask for them, and none at
+    /// all for a request whose tools need no role.
     pub(crate) async fn roles(&self, conn: &mut PgConnection) -> ChatbotResult<&[Role]> {
         let roles = self
             .roles
@@ -75,7 +84,7 @@ impl ChatbotTurnContext {
     }
 
     /// Like [Self::with_roles], but with a specific enabled-category set instead of everything
-    /// enabled — for tests of the category gate itself rather than of a permission.
+    /// enabled — for tests of the category gate itself rather than of authorization.
     #[cfg(test)]
     pub(crate) fn with_roles_and_categories(
         user_id: Option<Uuid>,

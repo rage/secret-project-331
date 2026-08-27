@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use std::str::FromStr;
 use std::time::Duration;
 
@@ -22,7 +23,7 @@ use headless_lms_utils::{
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -276,7 +277,9 @@ impl<'de> serde::Deserialize<'de> for CourseConfigurationArguments {
 impl ChatbotToolDeclaration for CourseConfigurationTool {
     const NAME: &'static str = "course_configuration";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_turn(Action::Teach, user_context)]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::AdminSupportCourses;
 
@@ -310,6 +313,16 @@ impl ChatbotToolDeclaration for CourseConfigurationTool {
 
 impl ChatbotTool for CourseConfigurationTool {
     type Arguments = CourseConfigurationArguments;
+
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_course(
+            Action::Teach,
+            arguments.course_id,
+        )]
+    }
 
     async fn from_db_and_arguments(
         conn: &mut PgConnection,

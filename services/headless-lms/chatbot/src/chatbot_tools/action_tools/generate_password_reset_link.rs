@@ -1,3 +1,4 @@
+use headless_lms_authorization::Action;
 use indexmap::IndexMap;
 use serde_json::json;
 
@@ -13,9 +14,10 @@ use crate::{
             ActionAuditFields, ConfirmableActionTool, ExecutedAction, verify_display_field,
         },
         argument_parsing::parse_required_uuid,
-        tool_permission::{ToolAuthorization, ToolPermission},
+        tool_authorization::{ToolAuthorization, ToolRequirement},
     },
     prelude::*,
+    user_context::ChatbotTurnContext,
 };
 
 /// Generates a one-time password reset link for a user, shown to the admin only in the browser.
@@ -37,7 +39,9 @@ struct RawArguments {
 impl ChatbotToolDeclaration for GeneratePasswordResetLinkTool {
     const NAME: &'static str = "generate_password_reset_link";
 
-    const PERMISSION: ToolPermission = ToolPermission::GlobalAdmin;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::global(Action::AdministrateUserAccount)]
+    }
 
     const CATEGORY: ToolCategory = ToolCategory::AdminSupportAccounts;
 
@@ -83,6 +87,16 @@ pub struct GeneratePasswordResetLinkFacts {
 impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
     type Arguments = GeneratePasswordResetLinkArguments;
     type Facts = GeneratePasswordResetLinkFacts;
+
+    fn call_requirements(
+        arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        vec![ToolRequirement::on_user(
+            Action::AdministrateUserAccount,
+            arguments.user_id,
+        )]
+    }
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = serde_json::from_str(arguments).map_err(|e| {

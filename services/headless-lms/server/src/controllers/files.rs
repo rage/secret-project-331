@@ -711,7 +711,7 @@ mod answer_upload_tests {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
         models::exercises::set_deadline(
-            &mut **tx.as_mut(),
+            tx.as_mut(),
             exercise,
             Some(Utc::now() - Duration::days(1)),
         )
@@ -724,7 +724,7 @@ mod answer_upload_tests {
     async fn exhaust_tries(exercise: Uuid) {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        models::exercises::set_try_limit(&mut **tx.as_mut(), exercise, true, Some(0))
+        models::exercises::set_try_limit(tx.as_mut(), exercise, true, Some(0))
             .await
             .expect("the try limit update");
         tx.commit().await;
@@ -824,7 +824,7 @@ mod answer_upload_tests {
         assert_eq!(names, vec!["a.tar.zst", "b.txt"]);
 
         let bindings =
-            models::exercise_answer_uploads::get_by_file_upload_ids(&mut **check.as_mut(), &ids)
+            models::exercise_answer_uploads::get_by_file_upload_ids(check.as_mut(), &ids)
                 .await
                 .expect("the bindings");
         assert_eq!(bindings.len(), 2);

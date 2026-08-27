@@ -1,9 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useOverlayTriggerState } from "@react-stately/overlays"
 import { useQuery } from "@tanstack/react-query"
 import { AddMessage } from "@vectopus/atlas-icons-react"
 import { useMemo, useState } from "react"
+import { OverlayContainer } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
@@ -17,6 +19,7 @@ import { Button } from "@/shared-module/components"
 
 import ConversationHistory from "./ConversationHistory"
 import { Disclosure } from "./Disclosure"
+import MobileDisclosureOverlay from "./MobileDisclosureOverlay"
 import NewConversationDialog from "./NewConversationDialog"
 
 interface ChatbotCommandCenterProps {
@@ -42,6 +45,7 @@ const sideBarContainer = css`
   overflow-y: auto;
   box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
   max-width: 400px;
+  height: 85vh;
 `
 
 const chatbotPlaceHolder = css`
@@ -126,10 +130,39 @@ const ChatbotCommandCenter = ({ chatbots, courses, conversations }: ChatbotComma
     })
     return groupedSorted
   }, [chatbots, courses, t])
+  const menuState = useOverlayTriggerState({})
 
   return (
     <div className={gridContainer}>
       <div className={sideBarContainer}>
+        <MobileDisclosureOverlay state={menuState} onClose={menuState.close}>
+          <Button
+            className={css`
+              padding-bottom: 1rem;
+              color: var(--field-fg);
+            `}
+            icon={
+              <AddMessage
+                className={css`
+                  color: ${baseTheme.colors.green[700]};
+                `}
+              />
+            }
+            // oxlint-disable-next-line i18next/no-literal-string
+            iconPosition="start"
+            size="medium"
+            variant="icon"
+            onClick={() => setChatbotDialog(true)}
+          >
+            {t("new-conversation")}
+          </Button>
+          <ConversationHistory
+            conversations={conversations}
+            setConversationId={setConversationId}
+            setConfigurationId={setConfigurationId}
+            chatbots={chatbots}
+          />
+        </MobileDisclosureOverlay>
         <Disclosure defaultExpanded={true}>
           <Button
             className={css`

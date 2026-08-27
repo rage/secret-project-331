@@ -32,6 +32,13 @@ spec:
           envFrom:
             - secretRef:
                 name: headless-lms-secrets
+          volumeMounts:
+            - name: cache-volume
+              mountPath: /cache
+      volumes:
+        - name: cache-volume
+          emptyDir:
+            sizeLimit: 2000Mi
       initContainers:
         - name: headless-lms-wait-for-db
           image: headless-lms

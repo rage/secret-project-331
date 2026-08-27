@@ -21,6 +21,11 @@ patches:
       version: v1
       kind: Deployment
       name: "headless-lms"
+  - path: "headless-lms/patch-file-storage-reaper.yml"
+    target:
+      version: v1
+      kind: CronJob
+      name: "exercise-answer-upload-reaper"
   - path: patch-tmc-service-account.yml
     target:
       version: v1

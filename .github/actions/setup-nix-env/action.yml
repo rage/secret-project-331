@@ -37,6 +37,7 @@ runs:
           echo "OPENSSL_INCLUDE_DIR=$OPENSSL_INCLUDE_DIR"
           echo "OPENSSL_LIB_DIR=$OPENSSL_LIB_DIR"
           echo "LIBCLANG_PATH=$LIBCLANG_PATH"
+          echo "RUSTUP_TOOLCHAIN=$RUSTUP_TOOLCHAIN"
           echo "TILT_DISABLE_ANALYTICS=$TILT_DISABLE_ANALYTICS"
           if [ -n "${RUSTFLAGS:-}" ]; then echo "RUSTFLAGS=$RUSTFLAGS"; fi
           if [ -n "${SKAFFOLD_PLATFORM:-}" ]; then echo "SKAFFOLD_PLATFORM=$SKAFFOLD_PLATFORM"; fi

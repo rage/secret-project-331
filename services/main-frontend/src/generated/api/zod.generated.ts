@@ -5505,6 +5505,22 @@ export const zThresholdData = z.object({
 
 export const zTimeGranularity = z.enum(["Year", "Month", "Day"])
 
+/**
+ * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
+ * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
+ * this kind of tool", not "may this caller use it".
+ */
+export const zToolCategory = z.enum([
+  "course_material",
+  "course_info",
+  "course_catalog",
+  "interaction",
+  "admin_support_accounts",
+  "admin_support_courses",
+  "admin_support_learning_progress",
+  "admin_support_academic_integrity",
+])
+
 export const zUnlinkMyStudentNumberResult = z.object({
   affected_registration_count: z.coerce
     .bigint()
@@ -5930,6 +5946,7 @@ export const zChatbotConfiguration = z.object({
   default_chatbot: z.boolean(),
   deleted_at: z.iso.datetime().nullish(),
   enabled_to_students: z.boolean(),
+  enabled_tool_categories: z.array(zToolCategory),
   frequency_penalty: z.number(),
   hide_citations: z.boolean(),
   id: z.uuid(),
@@ -5951,7 +5968,6 @@ export const zChatbotConfiguration = z.object({
   updated_at: z.iso.datetime(),
   use_azure_search: z.boolean(),
   use_semantic_reranking: z.boolean(),
-  use_tools: z.boolean(),
   verbosity: zVerbosityLevel,
   weekly_tokens_per_user: z
     .int()
@@ -5969,6 +5985,7 @@ export const zNewChatbotConf = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   default_chatbot: z.boolean(),
   enabled_to_students: z.boolean(),
+  enabled_tool_categories: z.array(zToolCategory),
   frequency_penalty: z.number(),
   hide_citations: z.boolean(),
   initial_message: z.string(),
@@ -5988,7 +6005,6 @@ export const zNewChatbotConf = z.object({
   top_p: z.number(),
   use_azure_search: z.boolean(),
   use_semantic_reranking: z.boolean(),
-  use_tools: z.boolean(),
   verbosity: zVerbosityLevel,
   weekly_tokens_per_user: z
     .int()

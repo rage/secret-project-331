@@ -699,6 +699,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Enabling or disabling admin-support tool categories requires global admin permissions"
           }
         }
       },
@@ -15882,7 +15885,7 @@
           "maintain_azure_search_index",
           "hide_citations",
           "use_semantic_reranking",
-          "use_tools",
+          "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
           "publicly_accessible"
@@ -15912,6 +15915,12 @@
           },
           "enabled_to_students": {
             "type": "boolean"
+          },
+          "enabled_tool_categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolCategory"
+            }
           },
           "frequency_penalty": {
             "type": "number",
@@ -15976,9 +15985,6 @@
             "type": "boolean"
           },
           "use_semantic_reranking": {
-            "type": "boolean"
-          },
-          "use_tools": {
             "type": "boolean"
           },
           "verbosity": {
@@ -23269,7 +23275,7 @@
           "maintain_azure_search_index",
           "hide_citations",
           "use_semantic_reranking",
-          "use_tools",
+          "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
           "publicly_accessible"
@@ -23295,6 +23301,12 @@
           },
           "enabled_to_students": {
             "type": "boolean"
+          },
+          "enabled_tool_categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolCategory"
+            }
           },
           "frequency_penalty": {
             "type": "number",
@@ -23351,9 +23363,6 @@
             "type": "boolean"
           },
           "use_semantic_reranking": {
-            "type": "boolean"
-          },
-          "use_tools": {
             "type": "boolean"
           },
           "verbosity": {
@@ -26308,6 +26317,20 @@
       "TimeGranularity": {
         "type": "string",
         "enum": ["Year", "Month", "Day"]
+      },
+      "ToolCategory": {
+        "type": "string",
+        "description": "A category of chatbot tools a configuration can choose to offer the LLM. Independent of the\nchatbot crate's per-tool `ToolPermission` check: a category answers \"does this chatbot offer\nthis kind of tool\", not \"may this caller use it\".",
+        "enum": [
+          "course_material",
+          "course_info",
+          "course_catalog",
+          "interaction",
+          "admin_support_accounts",
+          "admin_support_courses",
+          "admin_support_learning_progress",
+          "admin_support_academic_integrity"
+        ]
       },
       "UnlinkMyStudentNumberResult": {
         "type": "object",

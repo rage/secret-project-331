@@ -1330,6 +1330,34 @@ WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
     Ok(courses)
 }
 
+/// Finds courses by slug or (fuzzy) name for the support chatbot's `find_course` tool. Exact
+/// slug matches rank first, then substring name matches, then trigram similarity to `name`.
+pub async fn search_courses_by_slug_or_name(
+    conn: &mut PgConnection,
+    query: &str,
+    limit: i64,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT *
+FROM courses
+WHERE deleted_at IS NULL
+  AND (LOWER(slug) = LOWER($1) OR name ILIKE '%' || $1 || '%' OR similarity(name, $1) > 0.1)
+ORDER BY
+  LOWER(slug) = LOWER($1) DESC,
+  name ILIKE '%' || $1 || '%' DESC,
+  similarity(name, $1) DESC
+LIMIT $2
+        "#,
+        query,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
 pub async fn get_by_organization_id(
     conn: &mut PgConnection,
     organization_id: Uuid,

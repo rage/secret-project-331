@@ -1,13 +1,18 @@
 //! Turning a client's answer to a suspended tool call into the output that resumes the turn.
 
-use headless_lms_models::chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall;
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_conversation_message_tool_calls::{
+    self, ChatbotConversationMessageToolCall,
+};
 
-use super::abort::permission_revoked_output;
+use super::abort::refused_call_output;
 use crate::chatbot_error::ChatbotResult;
-use crate::chatbot_tools::tool_permission::ToolPermission;
-use crate::chatbot_tools::{ClientToolAnswer, client_tool_answer_output, client_tool_permission};
+use crate::chatbot_tools::{
+    ClientToolAnswer, check_client_tool_call, client_tool_answer_output, execute_action_tool,
+    tool_is_answered_by_client, tool_is_confirmable_action,
+};
 use crate::prelude::*;
-use crate::user_context::ChatbotUserContext;
+use crate::user_context::ChatbotTurnContext;
 
 /// What a client's answer to a suspended call amounts to once it is applied.
 pub(crate) struct AnsweredClientToolCall {
@@ -15,6 +20,9 @@ pub(crate) struct AnsweredClientToolCall {
     pub(crate) output: String,
     /// The payload the client sent, or None when the call was aborted instead of answered.
     pub(crate) client_answer: Option<serde_json::Value>,
+    /// Data for the confirming admin's browser only, from a confirmed action tool's execution.
+    /// Never persisted; carried out of band as an `ActionExecuted` stream event.
+    pub(crate) execution_payload: Option<serde_json::Value>,
 }
 
 /// Turns a client's answer to a suspended call into the tool output that resumes the turn.
@@ -30,11 +38,12 @@ pub(crate) struct AnsweredClientToolCall {
 /// client got wrong.
 pub(crate) async fn client_tool_output_for_answer(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     conversation_id: Uuid,
     unanswered: &[ChatbotConversationMessageToolCall],
     tool_call_id: &str,
     answer: &ClientToolAnswer,
-    user_context: &ChatbotUserContext,
+    user_context: &ChatbotTurnContext,
 ) -> ChatbotResult<AnsweredClientToolCall> {
     let Some(tool_call) = unanswered
         .iter()
@@ -43,14 +52,14 @@ pub(crate) async fn client_tool_output_for_answer(
         return Err(missing_tool_call_error(conn, conversation_id, tool_call_id).await?);
     };
 
-    let Some(permission) = client_tool_permission(&tool_call.tool_name) else {
+    if !tool_is_answered_by_client(&tool_call.tool_name) {
         return Err(chatbot_err!(
             InvalidToolAnswer,
             format!("Tool call {tool_call_id} is not one a client answers")
         ));
-    };
+    }
 
-    apply_client_tool_answer(conn, tool_call, permission, answer, user_context).await
+    apply_client_tool_answer(conn, app_config, tool_call, answer, user_context).await
 }
 
 /// Why a call the client wants to answer is not among the conversation's unanswered ones: it
@@ -81,26 +90,47 @@ async fn missing_tool_call_error(
     })
 }
 
-/// The tool output a client's answer to `tool_call` amounts to, given `permission`, the permission
-/// the tool requires.
+/// The tool output a client's answer to `tool_call` amounts to.
 ///
-/// The permission is checked again here rather than trusted from the moment the call was offered:
-/// nothing bounds how long a call waits, so a role can be revoked while it does. One that no
-/// longer holds aborts the call with an explanation for the model instead of applying the answer,
-/// because the turn stays stuck until its call has some output.
+/// The call is authorized again here rather than trusted from the moment it was offered: nothing
+/// bounds how long a call waits, so a role or the configuration can change while it does. A call
+/// the caller may no longer make is aborted with an explanation for the model instead of having
+/// its answer applied, because the turn stays stuck until its call has some output.
 async fn apply_client_tool_answer(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     tool_call: &ChatbotConversationMessageToolCall,
-    permission: ToolPermission,
     answer: &ClientToolAnswer,
-    user_context: &ChatbotUserContext,
+    user_context: &ChatbotTurnContext,
 ) -> ChatbotResult<AnsweredClientToolCall> {
-    if let Some(output) =
-        permission_revoked_output(conn, user_context, permission, &tool_call.tool_name).await?
+    if let Err(refusal) = check_client_tool_call(
+        conn,
+        user_context,
+        &tool_call.tool_name,
+        &tool_call.arguments_json(),
+    )
+    .await?
     {
         return Ok(AnsweredClientToolCall {
-            output: output.to_string(),
+            output: refused_call_output(refusal, &tool_call.tool_name).to_string(),
             client_answer: None,
+            execution_payload: None,
+        });
+    }
+
+    if tool_is_confirmable_action(&tool_call.tool_name) {
+        // Exactly-once guard: locks the call row for the rest of this transaction and refuses if
+        // it was already answered, so two concurrent confirms cannot both execute the mutation.
+        chatbot_conversation_message_tool_calls::lock_unanswered_for_execution(conn, tool_call.id)
+            .await?;
+
+        let outcome =
+            execute_action_tool(conn, app_config, tool_call, answer, user_context).await?;
+        let ClientToolAnswer::Data { result } = answer;
+        return Ok(AnsweredClientToolCall {
+            output: outcome.output,
+            client_answer: Some(result.clone()),
+            execution_payload: outcome.client_payload,
         });
     }
 
@@ -110,6 +140,7 @@ async fn apply_client_tool_answer(
     Ok(AnsweredClientToolCall {
         output,
         client_answer: Some(result.clone()),
+        execution_payload: None,
     })
 }
 
@@ -130,7 +161,6 @@ mod tests {
     use headless_lms_models::{
         chatbot_conversation_message_tool_calls::ToolKind,
         insert_data,
-        roles::UserRole,
         test_helper::{Conn, init_app_conf},
     };
 
@@ -139,7 +169,7 @@ mod tests {
     use crate::chatbot_tools::{
         ChatbotToolDeclaration,
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
-        tool_permission::test_helpers::{context, course_role},
+        tool_authorization::test_helpers::{context, context_with_categories},
     };
 
     /// A recorded call to the multiple choice tool, as the suspending turn wrote it: with the
@@ -163,47 +193,44 @@ mod tests {
         }
     }
 
-    /// Exercises `apply_client_tool_answer`'s abort branch directly with `TeachesCourse`, a
-    /// permission stronger than the one this tool actually declares: today's only registered
-    /// client tool requires `Anyone`, which can never fail this check through the real call path,
-    /// so this only proves the mechanism works for a future tool that requires more.
+    /// The abort branch: a call whose category the configuration no longer offers is closed with
+    /// an explanation for the model instead of having its answer applied. The only registered
+    /// client tool requires nothing of its caller, so the category is what this can vary.
     #[tokio::test]
-    async fn apply_client_tool_answer_aborts_when_the_permission_is_not_satisfied() {
+    async fn apply_client_tool_answer_aborts_a_call_the_caller_can_no_longer_make() {
         insert_data!(:tx, :user, :org, :course);
-        let revoked = context(Some(user), Some(course), Vec::new());
+        let no_categories = context_with_categories(Some(user), Some(course), Vec::new(), &[]);
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
 
         let aborted = apply_client_tool_answer(
             tx.as_mut(),
+            &app_config,
             &recorded_question(),
-            ToolPermission::TeachesCourse,
             &picked_the_second_choice(),
-            &revoked,
+            &no_categories,
         )
         .await
         .expect("the call is aborted rather than failed");
 
         assert_eq!(
             aborted.output,
-            ToolCallAbortReason::PermissionRevoked.model_output()
+            ToolCallAbortReason::CategoryDisabled.model_output()
         );
         assert_eq!(aborted.client_answer, None);
     }
 
     #[tokio::test]
-    async fn an_answer_from_a_caller_who_still_holds_the_permission_is_applied() {
+    async fn an_answer_from_a_caller_who_may_still_make_the_call_is_applied() {
         insert_data!(:tx, :user, :org, :course);
-        let teacher = context(
-            Some(user),
-            Some(course),
-            vec![course_role(user, course, UserRole::Teacher)],
-        );
+        let learner = context(Some(user), Some(course), Vec::new());
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
 
         let applied = apply_client_tool_answer(
             tx.as_mut(),
+            &app_config,
             &recorded_question(),
-            ToolPermission::TeachesCourse,
             &picked_the_second_choice(),
-            &teacher,
+            &learner,
         )
         .await
         .expect("the answer is applied");

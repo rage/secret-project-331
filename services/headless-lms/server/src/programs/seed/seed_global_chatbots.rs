@@ -1,6 +1,6 @@
 use headless_lms_models::{
     PKeyPolicy,
-    chatbot_configurations::{self, NewChatbotConf},
+    chatbot_configurations::{self, NewChatbotConf, ToolCategory},
     chatbot_configurations_models,
 };
 
@@ -8,6 +8,7 @@ use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
 const GLOBAL_CHATBOT_CONFIGURATION_ID_TEST: &str = "16feef52-67ba-405a-97f8-effd0653df00";
+const GLOBAL_CHATBOT_CONFIGURATION_ID_ADMIN_SUPPORT: &str = "16feef52-67ba-405a-97f8-effd0653df01";
 
 pub async fn seed_global_chatbots(db_pool: Pool<Postgres>) -> anyhow::Result<()> {
     info!("inserting global chatbots");
@@ -71,7 +72,22 @@ Deliver every deranged line with the unshakeable poise of a woman who once stare
             initial_message: "Ah, there you are, my dear old bean. Shall we begin?".to_string(),
             model_id: llm.id,
             publicly_accessible: true,
-            use_tools: true,
+            ..Default::default()
+        },
+    )
+    .await?;
+
+    chatbot_configurations::insert(
+        &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(GLOBAL_CHATBOT_CONFIGURATION_ID_ADMIN_SUPPORT).unwrap()),
+        NewChatbotConf {
+            course_id: None,
+            chatbot_name: "Admin support bot".to_string(),
+            prompt: "You are a support assistant for site administrators: look up users and courses, inspect a user's progress and account, and perform account/exercise/cheating-status actions an admin confirms.".to_string(),
+            initial_message: "Hi, I'm here to help with admin support tasks. Who or what course are we looking at?".to_string(),
+            model_id: llm.id,
+            publicly_accessible: true,
+            enabled_tool_categories: ToolCategory::ALL.to_vec(),
             ..Default::default()
         },
     )

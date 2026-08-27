@@ -43,7 +43,11 @@ export function Popover({
 }: PopoverProps) {
   const localPopoverRef = React.useRef<HTMLDivElement>(null)
   const resolvedPopoverRef = popoverRef ?? localPopoverRef
-  const { popoverProps: overlayProps, underlayProps } = usePopover(
+  const {
+    popoverProps: overlayProps,
+    underlayProps,
+    placement: resolvedPlacement,
+  } = usePopover(
     {
       popoverRef: resolvedPopoverRef,
       triggerRef,
@@ -53,6 +57,11 @@ export function Popover({
     },
     state,
   )
+
+  // Until react-aria has measured the trigger, the surface sits at the viewport's top left
+  // corner. Listbox options select on pointer up even when the pointer went down elsewhere, so
+  // a click on the trigger would otherwise release over an option that is not really there yet.
+  const isPositioned = resolvedPlacement !== null
 
   const triggerWidth =
     triggerRef.current instanceof HTMLElement ? triggerRef.current.offsetWidth : undefined
@@ -68,6 +77,14 @@ export function Popover({
       <div {...underlayProps} className={popoverUnderlayCss}>
         <div
           {...mergeProps(overlayProps, surfaceProps)}
+          // react-aria computes the overlay's position per render; pointerEvents must be
+          // layered onto that, not a static class
+          // oxlint-disable-next-line react/forbid-dom-props
+          style={{
+            ...overlayProps.style,
+            ...surfaceProps?.style,
+            ...(isPositioned ? null : { pointerEvents: "none" }),
+          }}
           ref={resolvedPopoverRef}
           className={cx(
             popoverCss,

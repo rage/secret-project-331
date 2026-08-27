@@ -39,7 +39,7 @@ use crate::chatbot_tools::ClientToolAnswer;
 use crate::conversation_context::ChatbotPageContext;
 use crate::llm_utils::{estimate_tokens, summarize_input_for_log};
 use crate::prelude::*;
-use crate::user_context::ChatbotUserContext;
+use crate::user_context::ChatbotTurnContext;
 use cancellation::{GuardedStream, RequestCancelledGuard, save_partial_answer};
 use round::{is_stored_by_round, parse_tool, store_output_item};
 use text_response::parse_text_response;
@@ -56,7 +56,7 @@ pub async fn send_chat_request_and_parse_stream(
     conversation_id: Uuid,
     message: &str,
     page_context: Option<ChatbotPageContext>,
-    user_context: ChatbotUserContext,
+    user_context: ChatbotTurnContext,
 ) -> ChatbotResult<Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>>> {
     begin_turn(
         pool,
@@ -87,7 +87,7 @@ pub async fn answer_tool_call_and_resume_stream(
     conversation_id: Uuid,
     tool_call_id: &str,
     answer: &ClientToolAnswer,
-    user_context: ChatbotUserContext,
+    user_context: ChatbotTurnContext,
 ) -> ChatbotResult<Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>>> {
     begin_turn(
         pool,
@@ -131,7 +131,7 @@ async fn begin_turn(
     pool: PgPool,
     app_configuration: &ApplicationConfiguration,
     conversation_id: Uuid,
-    user_context: ChatbotUserContext,
+    user_context: ChatbotTurnContext,
     start: TurnStart<'_>,
 ) -> ChatbotResult<Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>>> {
     let mut conn = pool.acquire().await?;
@@ -160,8 +160,15 @@ async fn begin_turn(
             tool_call_id,
             answer,
         } => {
+            // One transaction for the answer path: a confirmed action tool's mutation, its audit
+            // row (both inside `client_tool_output_for_answer`), and the recorded tool output
+            // below commit or roll back together, so the transcript can never claim an effect the
+            // database does not have.
+            let mut tx = conn.begin().await?;
+
             let answered = client_tool_output_for_answer(
-                &mut conn,
+                &mut tx,
+                &app_config,
                 conversation_id,
                 &unanswered,
                 tool_call_id,
@@ -171,7 +178,7 @@ async fn begin_turn(
             .await?;
 
             let outcome = models::chatbot_conversation_messages::answer_client_tool_call(
-                &mut conn,
+                &mut tx,
                 conversation_id,
                 tool_call_id,
                 answered.output,
@@ -180,24 +187,62 @@ async fn begin_turn(
             .await
             .map_err(rejected_tool_answer_error)?;
 
+            tx.commit().await?;
+
             if !outcome.turn_can_resume {
                 trace!(
                     "Tool call {tool_call_id} answered, the turn is still waiting for another answer"
                 );
+                // Another client tool call is still open, so there's no resumed turn to ride the
+                // payload ahead of -- emit it here or it's lost, and the browser never sees it.
+                if let Some(payload) = answered.execution_payload {
+                    let event = ChatbotChatStreamEvent::ActionExecuted {
+                        tool_call_id: tool_call_id.to_string(),
+                        payload,
+                    };
+                    let action_line = ndjson_line(&event)?;
+                    let suspended_line = ndjson_line(&ChatbotChatStreamEvent::Suspended)?;
+                    return Ok(Box::pin(futures::stream::iter([
+                        Ok(action_line),
+                        Ok(suspended_line),
+                    ])));
+                }
                 return single_event_stream(ChatbotChatStreamEvent::Suspended);
             }
 
             let configuration =
                 models::chatbot_configurations::get_by_id(&mut conn, chatbot_configuration_id)
                     .await?;
-            LLMRequest::build_from_conversation(
+            let chat_request = LLMRequest::build_from_conversation(
                 &mut conn,
                 &configuration,
                 conversation_id,
                 &user_context,
                 &app_config,
             )
-            .await?
+            .await?;
+
+            // The reset link (or similar) an executed action tool produced is for this browser
+            // only and is never persisted, so it can only reach the client by riding ahead of the
+            // resumed turn's own stream.
+            if let Some(payload) = answered.execution_payload {
+                let event = ChatbotChatStreamEvent::ActionExecuted {
+                    tool_call_id: tool_call_id.to_string(),
+                    payload,
+                };
+                let line = ndjson_line(&event)?;
+                return Ok(Box::pin(
+                    futures::stream::once(async move { Ok(line) }).chain(stream_turn(
+                        pool,
+                        app_config,
+                        conversation_id,
+                        chat_request,
+                        user_context,
+                    )),
+                ));
+            }
+
+            chat_request
         }
     };
 
@@ -277,7 +322,7 @@ fn stream_turn(
     app_config: ApplicationConfiguration,
     conversation_id: Uuid,
     mut chat_request: LLMRequest,
-    user_context: ChatbotUserContext,
+    user_context: ChatbotTurnContext,
 ) -> Pin<Box<dyn Stream<Item = ChatbotResult<Bytes>> + Send>> {
     let mut rounds_left = MAX_TOOL_CALL_ROUNDS_PER_TURN;
 

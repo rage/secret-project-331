@@ -913,7 +913,7 @@ fn chart_spec_payload() -> String {
     let spec = json!({
         "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
         "description": "Mock AI generated bar chart",
-        "data": {"url": "/chart-block-example-data.json", "format": {"type": "json"}},
+        "data": {"url": "http://project-331.local/api/v0/files/uploads/jsons/chart-example-data.json", "format": {"type": "json"}},
         "mark": "bar",
         "encoding": {
             "x": {"field": "category", "type": "nominal"},

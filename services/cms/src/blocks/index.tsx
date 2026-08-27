@@ -9,7 +9,7 @@ import AsideWithImage from "./AsideWithImage"
 import Author from "./Author"
 import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"
-import ChartBlock from "./ChartBlock"
+import Chart from "./Chart"
 import ChatbotBlock from "./Chatbot"
 import CodeGiveaway from "./CodeGiveaway"
 import ConditionalBlock from "./ConditionalBlock"
@@ -57,7 +57,7 @@ import UnsupportedBlock from "./UnsupportedBlock"
  */
 export const blockTypeMapForPages = [
   ["moocfi/aside", Aside],
-  ["moocfi/chart-block", ChartBlock],
+  ["moocfi/chart", Chart],
   ["moocfi/chapter-progress", ChapterProgress],
   ["moocfi/congratulations", Congratulations],
   ["moocfi/lock-chapter", LockChapter],

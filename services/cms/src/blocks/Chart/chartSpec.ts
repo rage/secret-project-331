@@ -220,6 +220,16 @@ export const dataUrlFromSpec = (specString: string): string | undefined => {
   }
 }
 
+/** Whether the spec parses as JSON at all; false while it is mid-edit in an invalid state. */
+export const specIsValidJson = (specString: string): boolean => {
+  try {
+    JSON.parse(specString)
+    return true
+  } catch {
+    return false
+  }
+}
+
 /**
  * Whether the spec has no data source anywhere, leaving an attached file unreferenced. An empty
  * spec counts; invalid JSON does not, since mid-edit text says nothing about the finished spec.

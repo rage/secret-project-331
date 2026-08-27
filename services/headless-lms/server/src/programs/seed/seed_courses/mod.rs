@@ -2755,24 +2755,30 @@ pub async fn seed_cs_course_material(
     }
 
     // /chapter-2/chart-rendering
-    let chart_with_data_spec = r#"{
-  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
-  "description": "A simple bar chart",
-  "data": { "url": "/chart-block-example-data.json", "format": { "type": "json" } },
-  "mark": "bar",
-  "encoding": {
-    "x": { "field": "category", "type": "nominal", "axis": { "labelAngle": 0 } },
-    "y": { "field": "value", "type": "quantitative" }
-  }
-}"#;
-    let chart_without_data_spec = r#"{
-  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
-  "mark": "bar",
-  "encoding": {
-    "x": { "field": "category", "type": "nominal" },
-    "y": { "field": "value", "type": "quantitative" }
-  }
-}"#;
+    let vega_lite_schema_url = "https://vega.github.io/schema/vega-lite/v6.json";
+    let chart_data_url =
+        "http://project-331.local/api/v0/files/uploads/jsons/chart-example-data.json";
+    let chart_with_data_spec = serde_json::json!({
+        "$schema": vega_lite_schema_url,
+        "description": "A simple bar chart",
+        "data": { "url": chart_data_url, "format": { "type": "json" } },
+        "mark": "bar",
+        "encoding": {
+            "x": { "field": "category", "type": "nominal", "axis": { "labelAngle": 0 } },
+            "y": { "field": "value", "type": "quantitative" }
+        }
+    })
+    .to_string();
+    let chart_without_data_spec = serde_json::json!({
+        "$schema": vega_lite_schema_url,
+        "mark": "bar",
+        "encoding": {
+            "x": { "field": "category", "type": "nominal" },
+            "y": { "field": "value", "type": "quantitative" }
+        }
+    })
+    .to_string();
+    // Malformed on purpose, to seed the chart block's invalid-specification state.
     let chart_invalid_spec = "{ this is not valid json";
     create_page(
         &mut conn,
@@ -2788,15 +2794,15 @@ pub async fn seed_cs_course_material(
                 ),
                 chart_block(
                     Uuid::new_v5(&course.id, b"d2b6e9a4-7c3f-4b8d-8a1e-2f9c0d3e4b55"),
-                    chart_with_data_spec,
+                    &chart_with_data_spec,
                     "Figure 1: a simple bar chart rendered from an external data file.",
                     300,
                     true,
-                    Some("/chart-block-example-data.json"),
+                    Some(chart_data_url),
                 ),
                 chart_block(
                     Uuid::new_v5(&course.id, b"e7c8f1b2-5d4a-4c6e-9f0b-3a1d7e2c8f66"),
-                    chart_without_data_spec,
+                    &chart_without_data_spec,
                     "",
                     300,
                     true,

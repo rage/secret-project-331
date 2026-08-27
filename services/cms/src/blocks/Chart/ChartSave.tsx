@@ -2,7 +2,7 @@
 
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const ChartBlockSave: React.FC<unknown> = () => {
+const ChartSave: React.FC<unknown> = () => {
   return (
     <div>
       <InnerBlocks.Content />
@@ -10,4 +10,4 @@ const ChartBlockSave: React.FC<unknown> = () => {
   )
 }
 
-export default ChartBlockSave
+export default ChartSave

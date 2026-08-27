@@ -7,11 +7,12 @@ import {
   resolveChartLayout,
   specDefinesView,
   specHasData,
+  specIsValidJson,
   specLacksDataSource,
   specWithDataUrl,
   VEGA_LITE_SCHEMA_URL,
   wouldSideScrollOnMobile,
-} from "../../../src/blocks/ChartBlock/chartSpec"
+} from "../../../src/blocks/Chart/chartSpec"
 
 const specWith = (data: unknown): string => JSON.stringify({ mark: "bar", data })
 
@@ -257,6 +258,23 @@ describe("dataUrlFromSpec", () => {
 
   it("returns undefined for unparseable JSON", () => {
     expect(dataUrlFromSpec("{ not json")).toBeUndefined()
+  })
+})
+
+describe("specIsValidJson", () => {
+  it("accepts any parseable JSON, including values that aren't specs", () => {
+    expect(specIsValidJson(JSON.stringify({ mark: "bar" }))).toBe(true)
+    expect(specIsValidJson("[]")).toBe(true)
+    expect(specIsValidJson("null")).toBe(true)
+  })
+
+  it("rejects text that is being typed into an invalid state", () => {
+    expect(specIsValidJson("{ not json")).toBe(false)
+    expect(specIsValidJson('{ "mark": ')).toBe(false)
+  })
+
+  it("rejects an empty spec, which is not JSON either", () => {
+    expect(specIsValidJson("")).toBe(false)
   })
 })
 

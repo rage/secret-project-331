@@ -336,11 +336,11 @@ mod tests {
 
     #[test]
     fn accepts_a_valid_spec() {
-        // Mirrors the spec the mock LLM endpoint returns.
+        // The shape the mock LLM endpoint answers with.
         let spec = serde_json::json!({
             "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
             "description": "Mock AI generated bar chart",
-            "data": {"url": "/chart-block-example-data.json", "format": {"type": "json"}},
+            "data": {"url": "/data.json", "format": {"type": "json"}},
             "mark": "bar",
             "encoding": {
                 "x": {"field": "category", "type": "nominal"},

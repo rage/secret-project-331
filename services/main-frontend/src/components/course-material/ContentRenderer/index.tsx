@@ -143,7 +143,7 @@ export const blockToRendererMap: Record<string, any> = {
 
   // moocfi
   "moocfi/aside": AsideBlock,
-  "moocfi/chart-block": ChartBlock,
+  "moocfi/chart": ChartBlock,
   "moocfi/chapter-progress": ChapterProgressBlock,
   "moocfi/chatbot": ChatbotBlock,
   "moocfi/conditional-block": ConditionalBlock,

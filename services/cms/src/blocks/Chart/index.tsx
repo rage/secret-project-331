@@ -5,11 +5,11 @@ import { image as icon } from "@wordpress/icons"
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
-import ChartBlockEditor from "./ChartBlockEditor"
-import ChartBlockSave from "./ChartBlockSave"
+import ChartEditor from "./ChartEditor"
+import ChartSave from "./ChartSave"
 import { DEFAULT_CHART_HEIGHT } from "./chartSpec"
 
-export interface ChartBlockAttributes {
+export interface ChartAttributes {
   spec: string
   caption: string
   /** Chart height in pixels; width is responsive. */
@@ -24,7 +24,7 @@ export interface ChartBlockAttributes {
 
 export { DEFAULT_CHART_HEIGHT }
 
-const ChartBlockConfiguration: BlockConfiguration<ChartBlockAttributes> = {
+const ChartConfiguration: BlockConfiguration<ChartAttributes> = {
   apiVersion: 3,
   title: "Chart",
   description: "Renders a Vega-Lite chart from a JSON specification",
@@ -55,8 +55,8 @@ const ChartBlockConfiguration: BlockConfiguration<ChartBlockAttributes> = {
     },
   },
   icon,
-  edit: ChartBlockEditor,
-  save: ChartBlockSave,
+  edit: ChartEditor,
+  save: ChartSave,
 }
 
-export default ChartBlockConfiguration
+export default ChartConfiguration

@@ -907,13 +907,14 @@ const MESSAGE_SUGGESTION_PAYLOAD: &str =
 /// The rewrites the CMS offers for a paragraph.
 const CMS_SUGGESTION_PAYLOAD: &str = r#"{"suggestions":["Mock suggestion 1: The paragraph has been improved.","Mock suggestion 2: Here is an alternative version of the paragraph.","Mock suggestion 3: A third distinct rewrite of the paragraph."]}"#;
 
-/// The Vega-Lite specification the CMS chart block offers. The specification is itself a JSON
-/// string inside the answer, so this is built with serde_json rather than hand-escaped.
+/// The Vega-Lite specification the CMS chart block offers. It carries no data of its own, as a
+/// generated specification must not: the teacher's data file is attached to it afterwards. The
+/// specification is itself a JSON string inside the answer, so this is built with serde_json rather
+/// than hand-escaped.
 fn chart_spec_payload() -> String {
     let spec = json!({
         "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
         "description": "Mock AI generated bar chart",
-        "data": {"url": "http://project-331.local/api/v0/files/uploads/jsons/chart-example-data.json", "format": {"type": "json"}},
         "mark": "bar",
         "encoding": {
             "x": {"field": "category", "type": "nominal"},

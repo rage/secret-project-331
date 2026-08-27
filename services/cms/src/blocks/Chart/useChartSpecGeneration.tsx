@@ -72,7 +72,8 @@ export const useChartSpecGeneration = ({
         page_id: pageId ?? null,
       },
     })
-    // Keep the teacher's data file bound even if the model changed or dropped the URL.
+    // The generator answers with the data file already bound; binding it again keeps the block's
+    // own attribute the authority on which file the chart reads.
     const rebound = dataFileUrl ? specWithDataUrl(response.spec, dataFileUrl) : null
     return rebound ? JSON.stringify(rebound, null, 2) : response.spec
   }

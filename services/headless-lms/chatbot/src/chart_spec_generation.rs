@@ -46,8 +46,7 @@ Your task is to produce a single, complete, valid Vega-Lite specification based 
 
 Rules:
 - Set "$schema" to "https://vega.github.io/schema/vega-lite/v6.json".
-- If a data file URL is provided, reference it exactly as given via "data": {"url": "<the url>", "format": {"type": "<the format>"}}. Never inline data values in that case and never invent a different URL.
-- If no data file is provided, include small, plausible inline example data via "data": {"values": [...]} so the chart renders.
+- Never include a "data" or "datasets" property anywhere in the specification, and never use a data generator such as "sequence", "graticule" or "sphere". The teacher's data file is attached to your specification afterwards, so a chart that carried data of its own would be showing invented numbers as course material.
 - When a data sample is provided, use the field names exactly as they appear in the sample and pick encoding types (quantitative, nominal, ordinal, temporal) that match the sampled values.
 - Include a concise "description" field that describes the chart for screen readers.
 - Write every human-readable piece of text in the chart in the target language given below: the "description", the chart "title", and every axis, legend, and encoding "title". Keep field names and other data values unchanged. If no target language is given, use the language of the teacher's request.
@@ -157,21 +156,113 @@ fn vega_lite_validator() -> ChatbotResult<&'static jsonschema::Validator> {
         })
 }
 
-/// Parses one LLM answer and validates the spec against the Vega-Lite schema. The error
-/// string describes the failure in a form suitable for feeding back to the model.
+/// Names the first data source anywhere in the spec, or None when it carries none.
+///
+/// The model is not allowed to supply data at all -- [attach_data_file] adds the teacher's file
+/// afterwards -- so any data source here is one the model produced. Enforced in code rather than
+/// left to the prompt, because a chart is read as fact in course material and numbers invented to
+/// satisfy the request would be misinformation. Recursive because Vega-Lite allows `data` on any
+/// view and inside transforms, so a layered or concatenated chart can carry it far from the top
+/// level.
+fn find_data_source(value: &serde_json::Value) -> Option<&'static str> {
+    match value {
+        serde_json::Value::Object(fields) => {
+            if fields.contains_key("datasets") {
+                return Some("a \"datasets\" section");
+            }
+            if fields.contains_key("data") {
+                return Some("a \"data\" property");
+            }
+            fields.values().find_map(find_data_source)
+        }
+        serde_json::Value::Array(items) => items.iter().find_map(find_data_source),
+        _ => None,
+    }
+}
+
+/// The data file a chart reads, as the request named it.
+#[derive(Clone, Copy)]
+pub struct DataFile<'a> {
+    pub url: &'a str,
+    pub format: Option<&'a str>,
+}
+
+/// Stands in for the teacher's file while a spec that has none is validated. The Vega-Lite schema
+/// requires a data source on a top-level view, so a chart still waiting for its file could not be
+/// checked at all otherwise. Never leaves [parse_and_validate_spec].
+const PLACEHOLDER_DATA_FILE: DataFile<'static> = DataFile {
+    url: "chart-data",
+    format: None,
+};
+
+/// The spec with every data source taken out, or None when it isn't parseable JSON.
+///
+/// The model is asked to return no data, so the specification it edits is sent without any: it then
+/// has nothing to copy forward, and an inline dataset in the teacher's spec does not eat the
+/// context window either.
+fn without_data(spec_string: &str) -> Option<String> {
+    let mut spec: serde_json::Value = serde_json::from_str(spec_string).ok()?;
+    remove_data_sources(&mut spec);
+    serde_json::to_string_pretty(&spec).ok()
+}
+
+fn remove_data_sources(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Object(fields) => {
+            fields.remove("data");
+            fields.remove("datasets");
+            fields.values_mut().for_each(remove_data_sources);
+        }
+        serde_json::Value::Array(items) => items.iter_mut().for_each(remove_data_sources),
+        _ => {}
+    }
+}
+
+/// Points the spec at the data file the request named.
+///
+/// The chart then reads exactly the file the teacher attached, whether the model wrote the spec
+/// from scratch or repaired one that had drifted. Sub-views inherit a top-level data source, so
+/// this reaches every view of a layered or concatenated chart too.
+fn attach_data_file(spec: &mut serde_json::Value, url: &str, format: Option<&str>) {
+    let Some(fields) = spec.as_object_mut() else {
+        return;
+    };
+    let mut data = serde_json::Map::new();
+    data.insert(
+        "url".to_string(),
+        serde_json::Value::String(url.to_string()),
+    );
+    if let Some(format) = format {
+        data.insert("format".to_string(), serde_json::json!({ "type": format }));
+    }
+    fields.insert("data".to_string(), serde_json::Value::Object(data));
+}
+
+/// Parses one LLM answer, rejects any data the model supplied, attaches `data_file` and validates
+/// the result against the Vega-Lite schema. The error string describes the failure in a form
+/// suitable for feeding back to the model.
 fn parse_and_validate_spec(
     completion_content: &str,
     validator: &jsonschema::Validator,
+    data_file: Option<DataFile<'_>>,
 ) -> Result<serde_json::Value, String> {
     let response: ChartSpecGenerationResponse =
         serde_json::from_str(completion_content).map_err(|_| {
             r#"The response did not follow the required {"spec": "..."} JSON format."#.to_string()
         })?;
-    let spec: serde_json::Value = serde_json::from_str(&response.spec)
+    let mut spec: serde_json::Value = serde_json::from_str(&response.spec)
         .map_err(|e| format!("The specification is not valid JSON: {e}"))?;
     if !spec.is_object() {
         return Err("The specification must be a JSON object.".to_string());
     }
+    if let Some(offence) = find_data_source(&spec) {
+        return Err(format!(
+            "The specification must not contain any data, but it has {offence}. Leave the data out \
+             entirely; the teacher's data file is attached to the specification afterwards."
+        ));
+    }
+    let attached = data_file.unwrap_or(PLACEHOLDER_DATA_FILE);
+    attach_data_file(&mut spec, attached.url, attached.format);
     let errors: Vec<String> = validator
         .iter_errors(&spec)
         .take(MAX_REPORTED_VALIDATION_ERRORS)
@@ -188,14 +279,17 @@ fn parse_and_validate_spec(
             .collect()
         })
         .collect();
-    if errors.is_empty() {
-        Ok(spec)
-    } else {
-        Err(format!(
+    if !errors.is_empty() {
+        return Err(format!(
             "The specification does not conform to the Vega-Lite v6 JSON Schema: {}",
             errors.join("; ")
-        ))
+        ));
     }
+    if data_file.is_none() {
+        // Leave a chart that has no file yet without one, so the block can say so.
+        spec.as_object_mut().map(|fields| fields.remove("data"));
+    }
+    Ok(spec)
 }
 
 fn text_message(role: MessageRole, content: String) -> APIInputMessage {
@@ -217,6 +311,10 @@ pub async fn generate_chart_spec(
     input: &ChartSpecGenerationInput,
 ) -> ChatbotResult<String> {
     let validator = vega_lite_validator()?;
+    let data_file = input.data_url.as_deref().map(|url| DataFile {
+        url,
+        format: input.data_format.as_deref(),
+    });
 
     let mut user_message_content = format!(
         "{USER_PROMPT_PREFIX}\n\nRequest:\n{prompt}",
@@ -227,13 +325,9 @@ pub async fn generate_chart_spec(
             .push_str("\n\nTarget language for all human-readable chart text (BCP 47 code): ");
         user_message_content.push_str(language);
     }
-    if let Some(data_url) = &input.data_url {
-        user_message_content.push_str("\n\nData file URL: ");
-        user_message_content.push_str(data_url);
-        if let Some(format) = &input.data_format {
-            user_message_content.push_str("\nData file format: ");
-            user_message_content.push_str(format);
-        }
+    if let Some(format) = &input.data_format {
+        user_message_content.push_str("\n\nFormat of the data file that will be attached: ");
+        user_message_content.push_str(format);
     }
     if let Some(sample) = &input.data_sample {
         user_message_content.push_str("\n\nSample of the data file contents:\n");
@@ -241,7 +335,9 @@ pub async fn generate_chart_spec(
     }
     if let Some(current_spec) = &input.current_spec {
         user_message_content.push_str("\n\nExisting specification to edit:\n");
-        user_message_content.push_str(current_spec);
+        // A specification too broken to parse is sent as it stands: repairing it is the request.
+        user_message_content
+            .push_str(&without_data(current_spec).unwrap_or_else(|| current_spec.clone()));
     }
 
     let mut estimated_tokens =
@@ -292,7 +388,7 @@ pub async fn generate_chart_spec(
         let completion = make_blocking_llm_request(chat_request, app_config).await?;
         let completion_content = parse_text_completion(completion)?;
 
-        match parse_and_validate_spec(&completion_content, validator) {
+        match parse_and_validate_spec(&completion_content, validator, data_file) {
             Ok(spec) => {
                 return serde_json::to_string_pretty(&spec).map_err(|e| {
                     chatbot_err!(
@@ -360,7 +456,8 @@ mod tests {
     fn validation_errors_do_not_echo_the_spec() {
         let spec = serde_json::json!({"mark": 123, "sentinel": "sentinel-value-xyz"});
         let content = serde_json::json!({ "spec": spec.to_string() }).to_string();
-        let err = parse_and_validate_spec(&content, validator()).expect_err("should be rejected");
+        let err = parse_and_validate_spec(&content, validator(), Some(DATA_FILE))
+            .expect_err("should be rejected");
         assert!(
             !err.contains("sentinel-value-xyz"),
             "error echoed the spec: {err}"
@@ -370,7 +467,7 @@ mod tests {
     #[test]
     fn parse_and_validate_reports_a_non_json_spec() {
         let content = serde_json::json!({"spec": "this is not json"}).to_string();
-        let result = parse_and_validate_spec(&content, validator());
+        let result = parse_and_validate_spec(&content, validator(), Some(DATA_FILE));
         assert!(result.is_err());
         assert!(
             result
@@ -379,11 +476,185 @@ mod tests {
         );
     }
 
+    const DATA_FILE: DataFile<'static> = DataFile {
+        url: "/uploads/data.csv",
+        format: Some("csv"),
+    };
+
+    /// A chart as the model must now produce it: no data of any kind.
+    fn dataless_spec() -> serde_json::Value {
+        serde_json::json!({
+            "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+            "mark": "bar",
+            "encoding": {"x": {"field": "a", "type": "quantitative"}}
+        })
+    }
+
+    #[test]
+    fn accepts_a_specification_that_carries_no_data() {
+        assert_eq!(find_data_source(&dataless_spec()), None);
+    }
+
+    #[test]
+    fn accepts_multiple_views_that_carry_no_data() {
+        let spec = serde_json::json!({ "hconcat": [dataless_spec(), dataless_spec()] });
+        assert_eq!(find_data_source(&spec), None);
+    }
+
+    #[test]
+    fn rejects_inline_data_values() {
+        let spec = serde_json::json!({"data": {"values": [{"a": 1}]}, "mark": "bar"});
+        assert!(find_data_source(&spec).is_some());
+    }
+
+    #[test]
+    fn rejects_a_data_file_the_model_chose_itself() {
+        let spec =
+            serde_json::json!({"data": {"url": "http://example.com/data.csv"}, "mark": "bar"});
+        assert!(find_data_source(&spec).is_some());
+    }
+
+    #[test]
+    fn rejects_data_hidden_in_a_layer() {
+        let spec = serde_json::json!({
+            "layer": [dataless_spec(), {"data": {"values": [{"a": 1}]}, "mark": "line"}]
+        });
+        assert!(find_data_source(&spec).is_some());
+    }
+
+    #[test]
+    fn rejects_data_hidden_in_a_transform() {
+        let spec = serde_json::json!({
+            "transform": [{
+                "lookup": "a",
+                "from": {"data": {"values": [{"a": 1, "b": 2}]}, "key": "a", "fields": ["b"]}
+            }],
+            "mark": "bar"
+        });
+        assert!(find_data_source(&spec).is_some());
+    }
+
+    #[test]
+    fn rejects_a_datasets_section() {
+        let spec = serde_json::json!({
+            "datasets": {"invented": [{"a": 1}]},
+            "data": {"name": "invented"},
+            "mark": "bar"
+        });
+        assert!(find_data_source(&spec).is_some());
+    }
+
+    #[test]
+    fn rejects_generated_data() {
+        for generator in ["sequence", "graticule", "sphere"] {
+            let spec = serde_json::json!({ "data": { generator: {} }, "mark": "bar" });
+            assert!(find_data_source(&spec).is_some(), "{generator} was allowed");
+        }
+    }
+
+    #[test]
+    fn parse_and_validate_rejects_an_answer_that_brings_its_own_data() {
+        let spec = serde_json::json!({
+            "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+            "data": {"values": [{"a": 1}]},
+            "mark": "bar",
+            "encoding": {"x": {"field": "a", "type": "quantitative"}}
+        });
+        let content = serde_json::json!({ "spec": spec.to_string() }).to_string();
+
+        let err = parse_and_validate_spec(&content, validator(), Some(DATA_FILE))
+            .expect_err("should be rejected");
+
+        assert!(err.contains("must not contain any data"), "{err}");
+    }
+
+    #[test]
+    fn attaches_the_data_file_with_its_format() {
+        let mut spec = dataless_spec();
+
+        attach_data_file(&mut spec, "/uploads/data.csv", Some("csv"));
+
+        assert_eq!(
+            spec["data"],
+            serde_json::json!({"url": "/uploads/data.csv", "format": {"type": "csv"}})
+        );
+    }
+
+    #[test]
+    fn attaches_a_data_file_of_unknown_format() {
+        let mut spec = dataless_spec();
+
+        attach_data_file(&mut spec, "/uploads/data", None);
+
+        assert_eq!(spec["data"], serde_json::json!({"url": "/uploads/data"}));
+    }
+
+    #[test]
+    fn attaching_replaces_whatever_data_was_there() {
+        let mut spec = serde_json::json!({"data": {"values": [{"a": 1}]}, "mark": "bar"});
+
+        attach_data_file(&mut spec, "/uploads/data.csv", Some("csv"));
+
+        assert_eq!(
+            spec["data"],
+            serde_json::json!({"url": "/uploads/data.csv", "format": {"type": "csv"}})
+        );
+    }
+
+    #[test]
+    fn strips_every_data_source_from_the_specification_being_edited() {
+        let spec = serde_json::json!({
+            "data": {"url": "/uploads/data.csv"},
+            "datasets": {"named": [{"a": 1}]},
+            "layer": [{"data": {"values": [{"a": 1}]}, "mark": "bar"}],
+            "mark": "line"
+        });
+
+        let stripped = without_data(&spec.to_string()).expect("should be parseable");
+
+        assert_eq!(
+            find_data_source(&serde_json::from_str(&stripped).unwrap()),
+            None
+        );
+        assert!(
+            stripped.contains("line"),
+            "the chart itself was lost: {stripped}"
+        );
+    }
+
+    #[test]
+    fn leaves_an_unparseable_specification_to_be_sent_as_it_stands() {
+        assert_eq!(without_data("{ not json"), None);
+    }
+
+    #[test]
+    fn parse_and_validate_attaches_the_teacher_s_data_file() {
+        let content = serde_json::json!({ "spec": dataless_spec().to_string() }).to_string();
+
+        let spec = parse_and_validate_spec(&content, validator(), Some(DATA_FILE))
+            .expect("should be accepted");
+
+        assert_eq!(
+            spec["data"],
+            serde_json::json!({"url": "/uploads/data.csv", "format": {"type": "csv"}})
+        );
+    }
+
+    #[test]
+    fn parse_and_validate_leaves_a_chart_with_no_file_yet_without_data() {
+        let content = serde_json::json!({ "spec": dataless_spec().to_string() }).to_string();
+
+        let spec =
+            parse_and_validate_spec(&content, validator(), None).expect("should be accepted");
+
+        assert_eq!(spec.get("data"), None, "the placeholder leaked out: {spec}");
+    }
+
     #[test]
     fn parse_and_validate_accepts_a_valid_answer() {
-        let spec = r#"{"$schema":"https://vega.github.io/schema/vega-lite/v6.json","data":{"values":[{"a":1}]},"mark":"bar","encoding":{"x":{"field":"a","type":"quantitative"}}}"#;
+        let spec = r#"{"$schema":"https://vega.github.io/schema/vega-lite/v6.json","mark":"bar","encoding":{"x":{"field":"a","type":"quantitative"}}}"#;
         let content = serde_json::json!({ "spec": spec }).to_string();
-        let result = parse_and_validate_spec(&content, validator());
+        let result = parse_and_validate_spec(&content, validator(), Some(DATA_FILE));
         assert!(result.is_ok(), "expected valid, got: {result:?}");
     }
 }

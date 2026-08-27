@@ -16,6 +16,7 @@ pub mod reset_exercises;
 use headless_lms_base::config::ApplicationConfiguration;
 
 use crate::chatbot_tools::ChatbotToolDeclaration;
+use crate::chatbot_tools::tool_permission::ToolAuthorization;
 use crate::prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult, chatbot_err};
 
 pub mod edit_user_account;
@@ -68,13 +69,17 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
     /// Performs the mutation. Must re-verify every model-supplied display field against the
     /// database (case-insensitively for emails) and refuse with a descriptive error rather than
     /// mutate on a mismatch, so a wrong or stale display can never mutate a row it doesn't
-    /// describe. `acting_user_id` is the confirming admin.
+    /// describe. `authorization` both proves the confirming admin was checked against
+    /// [ChatbotToolDeclaration::PERMISSION] and names them, so the mutation cannot run ahead of
+    /// the check and the audit row cannot credit anyone else.
     fn execute(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
         arguments: &Self::Arguments,
-        acting_user_id: Uuid,
-    ) -> impl std::future::Future<Output = ChatbotResult<(ExecutedAction, Self::Facts)>> + Send;
+        authorization: &ToolAuthorization<Self>,
+    ) -> impl std::future::Future<Output = ChatbotResult<(ExecutedAction, Self::Facts)>> + Send
+    where
+        Self: Sized;
 
     fn declined_output(_arguments: &Self::Arguments) -> String {
         "The admin declined the action. Nothing was changed. Do not retry unless asked to."

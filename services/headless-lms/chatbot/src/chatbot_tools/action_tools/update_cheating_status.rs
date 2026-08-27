@@ -14,7 +14,7 @@ use crate::{
             ActionAuditFields, ConfirmableActionTool, ExecutedAction, verify_display_field,
         },
         argument_parsing::parse_required_uuid,
-        tool_permission::ToolPermission,
+        tool_permission::{ToolAuthorization, ToolPermission},
     },
     prelude::*,
 };
@@ -159,7 +159,7 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: &Self::Arguments,
-        _acting_user_id: Uuid,
+        _authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let user = users::get_active_by_id(conn, arguments.user_id)
             .await

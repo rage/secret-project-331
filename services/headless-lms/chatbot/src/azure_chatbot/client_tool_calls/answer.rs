@@ -136,29 +136,13 @@ async fn apply_client_tool_answer(
     }
 
     if tool_is_confirmable_action(&tool_call.tool_name) {
-        // `GlobalAdmin` (the only permission an action tool can require) implies a user id; the
-        // permission check above already re-verified the caller still holds it.
-        let acting_user_id = user_context.user_id.ok_or_else(|| {
-            chatbot_err!(
-                ToolUseError,
-                "An action tool was confirmed by a caller with no user id.".to_string()
-            )
-        })?;
-
         // Exactly-once guard: locks the call row for the rest of this transaction and refuses if
         // it was already answered, so two concurrent confirms cannot both execute the mutation.
         chatbot_conversation_message_tool_calls::lock_unanswered_for_execution(conn, tool_call.id)
             .await?;
 
-        let outcome = execute_action_tool(
-            conn,
-            app_config,
-            tool_call,
-            answer,
-            acting_user_id,
-            &user_context.enabled_tool_categories,
-        )
-        .await?;
+        let outcome =
+            execute_action_tool(conn, app_config, tool_call, answer, user_context).await?;
         let ClientToolAnswer::Data { result } = answer;
         return Ok(AnsweredClientToolCall {
             output: outcome.output,

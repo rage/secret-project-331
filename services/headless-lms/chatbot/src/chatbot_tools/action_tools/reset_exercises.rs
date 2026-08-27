@@ -15,7 +15,7 @@ use crate::{
             verify_display_field,
         },
         argument_parsing::parse_required_uuid,
-        tool_permission::ToolPermission,
+        tool_permission::{ToolAuthorization, ToolPermission},
     },
     prelude::*,
 };
@@ -194,7 +194,7 @@ impl ConfirmableActionTool for ResetExercisesTool {
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
         arguments: &Self::Arguments,
-        acting_user_id: Uuid,
+        authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let user = users::get_active_by_id(conn, arguments.user_id)
             .await
@@ -293,7 +293,7 @@ impl ConfirmableActionTool for ResetExercisesTool {
         let reset_results = exercises::reset_exercises_for_selected_users(
             conn,
             &pairs,
-            Some(acting_user_id),
+            Some(authorization.acting_user_id()),
             course.id,
             Some(format!("reset-by-support-chatbot: {}", arguments.reason)),
         )

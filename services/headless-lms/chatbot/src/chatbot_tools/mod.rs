@@ -14,8 +14,7 @@ use crate::{
             find_course::FindCourseTool, find_user::FindUserTool,
             user_course_state::UserCourseStateTool, user_overview::UserOverviewTool,
         },
-        tool_category::EnabledToolCategories,
-        tool_permission::ToolPermission,
+        tool_permission::{ToolPermission, authorize_tool},
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -503,24 +502,28 @@ macro_rules! chatbot_tool_registry {
         /// Runs the confirmed (or records the declined) action tool call the LLM asked for.
         ///
         /// `tool_call`'s row id is stored on the audit row so it traces back to the conversation.
+        /// The tool's category and permission are both re-checked here, immediately before the
+        /// mutation, rather than trusted from whatever offered or planned the call: the proof
+        /// [ConfirmableActionTool::execute] requires can only be minted by that check.
+        ///
         /// Fails with [ChatbotErrorType::InvalidToolAnswer] when `answer` is not a
-        /// [ConfirmAnswer], and with [ChatbotErrorType::InvalidToolName] when no action tool goes
-        /// by `tool_call`'s name. A declined answer never touches the database beyond what the
-        /// caller writes for the closed call itself.
+        /// [ConfirmAnswer], with [ChatbotErrorType::ToolUseError] when the caller may no longer
+        /// use the tool, and with [ChatbotErrorType::InvalidToolName] when no action tool goes by
+        /// `tool_call`'s name. A declined answer never touches the database beyond what the
+        /// caller writes for the closed call itself, and needs no authorization of its own.
         pub async fn execute_action_tool(
             conn: &mut PgConnection,
             app_config: &ApplicationConfiguration,
             tool_call: &headless_lms_models::chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
             answer: &ClientToolAnswer,
-            acting_user_id: Uuid,
-            enabled_tool_categories: &EnabledToolCategories,
+            user_context: &ChatbotTurnContext,
         ) -> ChatbotResult<ActionToolOutcome> {
             let tool_name = tool_call.tool_name.as_str();
             let arguments = &tool_call.arguments_json();
             let tool_call_id = tool_call.id;
             $(
                 if tool_name == <$action_tool as ChatbotToolDeclaration>::NAME {
-                    if !enabled_tool_categories.contains(<$action_tool as ChatbotToolDeclaration>::CATEGORY) {
+                    if !user_context.enabled_tool_categories.contains(<$action_tool as ChatbotToolDeclaration>::CATEGORY) {
                         return Err(chatbot_err!(
                             ToolUseError,
                             format!("This chatbot does not offer the tool {tool_name}")
@@ -545,11 +548,21 @@ macro_rules! chatbot_tool_registry {
                         });
                     }
 
+                    let Some(authorization) =
+                        authorize_tool::<$action_tool>(&mut *conn, user_context).await?
+                    else {
+                        return Err(chatbot_err!(
+                            ToolUseError,
+                            format!("The caller is not allowed to use the tool {tool_name}")
+                        ));
+                    };
+                    let acting_user_id = authorization.acting_user_id();
+
                     let (executed, facts) = <$action_tool as ConfirmableActionTool>::execute(
                         &mut *conn,
                         app_config,
                         &parsed_arguments,
-                        acting_user_id,
+                        &authorization,
                     )
                     .await?;
                     let instructions = <$action_tool as ConfirmableActionTool>::output_description_instructions(

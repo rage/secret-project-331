@@ -31,6 +31,12 @@ import {
   isResetExercisesCall,
   parseResetExercisesCall,
 } from "./resetExercisesCalls"
+import UpdateCertificateBubble from "./UpdateCertificateBubble"
+import {
+  UPDATE_CERTIFICATE_TOOL,
+  isUpdateCertificateCall,
+  parseUpdateCertificateCall,
+} from "./updateCertificateCalls"
 import UpdateCheatingStatusBubble from "./UpdateCheatingStatusBubble"
 import {
   UPDATE_CHEATING_STATUS_TOOL,
@@ -103,6 +109,15 @@ export const CLIENT_TOOL_REGISTRY: Record<string, ClientToolRegistryEntry> = {
         return null
       }
       return <ResetExercisesBubble {...props} call={props.call} />
+    },
+  },
+  [UPDATE_CERTIFICATE_TOOL]: {
+    parseCall: parseUpdateCertificateCall,
+    renderBubble: (props) => {
+      if (!isUpdateCertificateCall(props.call)) {
+        return null
+      }
+      return <UpdateCertificateBubble {...props} call={props.call} />
     },
   },
   [UPDATE_CHEATING_STATUS_TOOL]: {

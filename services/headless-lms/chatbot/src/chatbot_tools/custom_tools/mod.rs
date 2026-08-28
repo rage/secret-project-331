@@ -1,3 +1,4 @@
+pub mod certificate_lookup;
 pub mod course_configuration;
 pub mod course_finder;
 pub mod course_material_search;

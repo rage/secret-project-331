@@ -325,6 +325,58 @@ async fn plan_tool_call(
     }
 }
 
+/// What is stored for a call whose real output could not be written. Short by construction: an
+/// output too large for its column is the way that write fails.
+const UNSTORABLE_OUTPUT_PLACEHOLDER: &str = "The tool ran, but its result could not be stored and \
+is no longer available. Tell the user the lookup did not come back, or try again with a narrower \
+call.";
+
+/// [record_tool_call], falling back to a placeholder output when the real one cannot be written.
+///
+/// Both rows die with the transaction on a failed write, so without this the turn ends and the log
+/// cannot even name the tool that killed it -- the call row was never committed. Storing a short
+/// output instead keeps the conversation answerable and leaves the model something to say.
+async fn record_tool_call_with_fallback(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    response_id: &str,
+    call_id: &str,
+    tool_name: &str,
+    result: ChatbotToolCallResult,
+) -> ChatbotResult<Vec<APIInputMessage>> {
+    let arguments = result.arguments.clone();
+    let output_bytes = result.output.len();
+    let error = match record_tool_call(
+        conn,
+        conversation_id,
+        response_id,
+        call_id,
+        tool_name,
+        result,
+    )
+    .await
+    {
+        Ok(recorded) => return Ok(recorded),
+        Err(error) => error,
+    };
+    error!(
+        "Could not store the output of {tool_name} ({output_bytes} bytes). Storing a placeholder output instead. Error: {error:?}"
+    );
+    record_tool_call(
+        conn,
+        conversation_id,
+        response_id,
+        call_id,
+        tool_name,
+        ChatbotToolCallResult {
+            arguments,
+            output: UNSTORABLE_OUTPUT_PLACEHOLDER.to_string(),
+            citations: Vec::new(),
+        },
+    )
+    .await
+}
+
 /// Stores a finished tool call beside its output, and converts both rows back into the items the
 /// next round is sent.
 ///
@@ -568,7 +620,7 @@ where
                     }
                 };
 
-                let recorded = record_tool_call(
+                let recorded = record_tool_call_with_fallback(
                     &mut conn,
                     conversation_id,
                     &response_id,

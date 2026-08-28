@@ -279,6 +279,18 @@ async fn recover_from_round_error(
         "Stream ended unexpectedly. Response id: {} Error: {}", response_id.unwrap_or("not received"), error
     );
     let mut conn = pool.acquire().await?;
+    report_stream_failure(
+        &mut conn,
+        error.message().to_string(),
+        Some(format!("{error:?}")),
+        stream_failure_details(
+            &format!("{:?}", error.error_type()),
+            conversation_id,
+            response_id,
+            input_summary,
+        ),
+    )
+    .await;
     if let Err(e2) = answer_unfinished_tool_calls(&mut conn, conversation_id, response_ids).await {
         error!(
             "Error in chatbot streaming and couldn't answer unfinished tool calls: {e2}. Response id: {}",
@@ -289,6 +301,53 @@ async fn recover_from_round_error(
         return Err(error);
     }
     error_event_from_error(&error)
+}
+
+/// Records a failure that killed a turn in `error_variants`/`error_occurrences`.
+///
+/// A streaming response has already sent its headers by the time a round can fail, so actix never
+/// calls `ResponseError::error_response` for it and the backend's usual reporting path sees none
+/// of these -- without this they exist only as a log line. Best effort: the turn is already being
+/// torn down, so a failure to report is logged and otherwise ignored.
+async fn report_stream_failure(
+    conn: &mut PgConnection,
+    message: String,
+    stack_trace: Option<String>,
+    details: serde_json::Value,
+) {
+    let report = models::errors::NewErrorReport {
+        service: "headless-lms".to_string(),
+        error_source: Some(models::errors::ErrorSource::Backend),
+        message,
+        stack_trace,
+        path: None,
+        app_version: None,
+        details: Some(details),
+    };
+    if let Err(e) = models::errors::insert(conn, None, &report).await {
+        warn!("Could not record the chatbot stream failure: {e}");
+    }
+}
+
+/// What every chatbot stream failure records beyond its message, so one query finds them all and
+/// each row says which turn it belongs to.
+///
+/// `input` is the item chain the failed round was sent. It is the only thing that names the tool
+/// call a failure belongs to once that call's row has died with the transaction that failed to
+/// store it.
+fn stream_failure_details(
+    kind: &str,
+    conversation_id: Uuid,
+    response_id: Option<&str>,
+    input_summary: &str,
+) -> serde_json::Value {
+    serde_json::json!({
+        "kind": "chatbot_stream_error",
+        "chatbot_error_type": kind,
+        "conversation_id": conversation_id,
+        "response_id": response_id,
+        "input": input_summary,
+    })
 }
 
 /// Builds the wire event for a round-ending error, folding in the input summary and response ids
@@ -345,7 +404,24 @@ fn stream_turn(
     let response_stream = async_stream::try_stream! {
         'outer: loop {
             if rounds_left == 0 {
-                error!("Maximum tool call iterations exceeded");
+                const ROUND_LIMIT_MESSAGE: &str = "Maximum tool call iterations exceeded";
+                error!("{ROUND_LIMIT_MESSAGE}");
+                // Not a ChatbotError, but it ends a turn as thoroughly as one and is just as
+                // invisible outside the logs, so it is recorded the same way.
+                if let Ok(mut conn) = pool.acquire().await {
+                    report_stream_failure(
+                        &mut conn,
+                        ROUND_LIMIT_MESSAGE.to_string(),
+                        None,
+                        stream_failure_details(
+                            "RoundLimitExceeded",
+                            conversation_id,
+                            response_ids.lock().await.last().map(String::as_str),
+                            &summarize_input_for_log(&chat_request.input),
+                        ),
+                    )
+                    .await;
+                }
                 yield error_event_from_text("Maximum tool call iterations exceeded. The LLM may be stuck in a loop.")?;
                 done.store(true, atomic::Ordering::Relaxed);
                 break 'outer;

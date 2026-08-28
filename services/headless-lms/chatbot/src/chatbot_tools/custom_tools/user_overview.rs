@@ -21,7 +21,8 @@ use headless_lms_utils::json_schema_types::{
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_authorization::ToolRequirement,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, output_limits::CappedList,
+        tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -41,11 +42,15 @@ pub struct UserOverviewState {
 #[serde(untagged)]
 enum UserOverviewFacetValue {
     Profile(ProfileFacet),
-    Roles(Vec<RoleFacet>),
-    Enrollments(Vec<EnrollmentFacet>),
-    CheatingFlags(Vec<CheatingFlagFacet>),
+    Roles(CappedList<RoleFacet>),
+    Enrollments(CappedList<EnrollmentFacet>),
+    CheatingFlags(CappedList<CheatingFlagFacet>),
     EmailDeliveries(Vec<EmailDeliveryFacet>),
 }
+
+/// The most rows a per-user list reports. One row per course the account has ever touched, which
+/// stays small for a student and does not for a staff account or a long-lived test account.
+const MAX_USER_OVERVIEW_ROWS: usize = 200;
 
 #[derive(Serialize)]
 struct ProfileFacet {
@@ -280,7 +285,7 @@ impl ChatbotTool for UserOverviewTool {
                 }
                 UserOverviewFacet::Roles => {
                     let roles = get_roles(conn, user_id).await?;
-                    UserOverviewFacetValue::Roles(
+                    UserOverviewFacetValue::Roles(CappedList::new(
                         roles
                             .into_iter()
                             .filter(|role| !role.is_global && role.organization_id.is_none())
@@ -291,11 +296,12 @@ impl ChatbotTool for UserOverviewTool {
                                 exam_id: role.exam_id,
                             })
                             .collect(),
-                    )
+                        MAX_USER_OVERVIEW_ROWS,
+                    ))
                 }
                 UserOverviewFacet::Enrollments => {
                     let enrollments = get_course_enrollments_info_for_user(conn, user_id).await?;
-                    UserOverviewFacetValue::Enrollments(
+                    UserOverviewFacetValue::Enrollments(CappedList::new(
                         enrollments
                             .course_enrollments
                             .into_iter()
@@ -325,7 +331,8 @@ impl ChatbotTool for UserOverviewTool {
                                 }
                             })
                             .collect(),
-                    )
+                        MAX_USER_OVERVIEW_ROWS,
+                    ))
                 }
                 UserOverviewFacet::CheatingFlags => {
                     let flags = get_suspected_cheater_info_for_user(conn, user_id).await?;
@@ -349,7 +356,10 @@ impl ChatbotTool for UserOverviewTool {
                             created_at: flag.first_flagged_at,
                         });
                     }
-                    UserOverviewFacetValue::CheatingFlags(rows)
+                    UserOverviewFacetValue::CheatingFlags(CappedList::new(
+                        rows,
+                        MAX_USER_OVERVIEW_ROWS,
+                    ))
                 }
                 UserOverviewFacet::EmailDeliveries => {
                     let deliveries =

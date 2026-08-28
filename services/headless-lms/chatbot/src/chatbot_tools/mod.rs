@@ -4,16 +4,19 @@ use crate::{
         action_tools::{
             ConfirmAnswer, ConfirmableActionTool, edit_user_account::EditUserAccountTool,
             generate_password_reset_link::GeneratePasswordResetLinkTool,
-            reset_exercises::ResetExercisesTool, update_cheating_status::UpdateCheatingStatusTool,
+            reset_exercises::ResetExercisesTool, update_certificate::UpdateCertificateTool,
+            update_cheating_status::UpdateCheatingStatusTool,
         },
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
         custom_tools::{
+            certificate_lookup::CertificateLookupTool,
             course_configuration::CourseConfigurationTool, course_finder::CourseFinderTool,
             course_material_search::CourseMaterialSearchTool, course_progress::CourseProgressTool,
             course_structure::CourseStructureTool, document_lookup::DocumentLookupTool,
             find_course::FindCourseTool, find_user::FindUserTool,
             user_course_state::UserCourseStateTool, user_overview::UserOverviewTool,
         },
+        output_limits::truncate_tool_output,
         tool_authorization::{ToolRequirement, authorize_tool_call, requirements_are_satisfied},
     },
     prelude::*,
@@ -30,6 +33,7 @@ pub mod argument_parsing;
 pub mod client_tools;
 pub mod course_scope;
 pub mod custom_tools;
+pub mod output_limits;
 pub mod provider_tools;
 pub mod tool_authorization;
 pub mod tool_category;
@@ -117,12 +121,10 @@ pub trait ChatbotTool: ChatbotToolDeclaration {
 
     /// Get and format tool output and instructions for LLM
     fn get_tool_output(&self) -> String {
-        let output = self.output();
-
-        match self.output_description_instructions() {
-            Some(instructions) => delimited_tool_output(&output, Some(&instructions)),
-            None => output,
-        }
+        delimited_tool_output(
+            &self.output(),
+            self.output_description_instructions().as_deref(),
+        )
     }
 }
 
@@ -158,6 +160,7 @@ pub enum ClientToolName {
     ResetExercises,
     UpdateCheatingStatus,
     EditUserAccount,
+    UpdateCertificate,
 }
 
 impl ClientToolName {
@@ -169,6 +172,7 @@ impl ClientToolName {
             Self::ResetExercises => "reset_exercises",
             Self::UpdateCheatingStatus => "update_cheating_status",
             Self::EditUserAccount => "edit_user_account",
+            Self::UpdateCertificate => "update_certificate",
         }
     }
 }
@@ -239,15 +243,46 @@ pub fn client_answer_data<T: DeserializeOwned>(answer: &ClientToolAnswer) -> Cha
 }
 
 /// Wraps tool output for the LLM so that data from outside the conversation cannot be read as
-/// instructions about it.
+/// instructions about it, and enforces the one size limit every tool output has to respect.
+///
+/// The limit lives here rather than in each tool because an output the conversation cannot store
+/// ends the whole turn, so no tool may be trusted to opt in. A tool that would rather shape its
+/// own result than be cut off should bound its lists with
+/// [CappedList](output_limits::CappedList) instead of relying on this.
 fn delimited_tool_output(output: &str, instructions: Option<&str>) -> String {
+    let (output, truncation) = truncate_tool_output(output);
     let mut formatted = format!("Result: [output]{output}[/output]");
+    let instructions = match (instructions, truncation) {
+        (Some(instructions), Some(truncation)) => Some(format!("{truncation} {instructions}")),
+        (Some(instructions), None) => Some(instructions.to_string()),
+        (None, Some(truncation)) => Some(truncation.to_string()),
+        (None, None) => None,
+    };
     if let Some(instructions) = instructions {
         formatted.push_str(&format!(
             "\n\nInstructions for describing the output: [instructions]{instructions}[/instructions]"
         ));
     }
     formatted
+}
+
+/// An absolute `{base_url}{path}` URL with a single percent-encoded `search` query parameter.
+/// `search` can contain characters (e.g. a `+` in an email's local part) that are not safe to
+/// interpolate into a query string directly.
+pub(crate) fn search_url(base_url: &str, path: &str, search: &str) -> String {
+    url::Url::parse(&format!("{base_url}{path}"))
+        .map(|mut url| {
+            url.query_pairs_mut().append_pair("search", search);
+            url.to_string()
+        })
+        .unwrap_or_else(|_| format!("{base_url}{path}"))
+}
+
+/// The public page a certificate's verification id addresses, which is also where its image is
+/// viewed. Kept in sync by hand with `certificateValidateRoute` in
+/// `shared-module/packages/common/src/utils/routes.ts`.
+pub(crate) fn certificate_validation_url(base_url: &str, verification_id: &str) -> String {
+    format!("{base_url}/certificates/validate/{verification_id}")
 }
 
 /// The parameter schema of a tool the LLM calls without arguments. Azure still requires a strict
@@ -688,6 +723,7 @@ chatbot_tool_registry!(
         UserCourseStateTool,
         CourseConfigurationTool,
         CourseMaterialSearchTool,
+        CertificateLookupTool,
     ],
     client_tools: [AskMultipleChoiceQuestionTool],
     action_tools: [
@@ -695,6 +731,7 @@ chatbot_tool_registry!(
         ResetExercisesTool,
         UpdateCheatingStatusTool,
         EditUserAccountTool,
+        UpdateCertificateTool,
     ],
 );
 
@@ -1022,6 +1059,7 @@ mod tests {
             <ResetExercisesTool as ChatbotToolDeclaration>::get_tool_definition(),
             <UpdateCheatingStatusTool as ChatbotToolDeclaration>::get_tool_definition(),
             <EditUserAccountTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <UpdateCertificateTool as ChatbotToolDeclaration>::get_tool_definition(),
         ];
         definitions.extend(function_definitions(get_chatbot_tool_definitions()));
         definitions

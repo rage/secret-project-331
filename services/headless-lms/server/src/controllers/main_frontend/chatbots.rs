@@ -191,6 +191,14 @@ async fn create_chatbot(
 ) -> ControllerResult<web::Json<ChatbotConfiguration>> {
     let mut conn = pool.acquire().await?;
     let course_id = payload.course_id;
+    let purpose = &payload.purpose;
+    let name = &payload.name;
+    if purpose.trim().is_empty() || name.trim().is_empty() {
+        return Err(controller_err!(
+            BadRequest,
+            "Chatbot configuration name or purpose cannot be empty"
+        ));
+    }
     let (token, course) = if let Some(course_id) = course_id {
         let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
         let course = models::courses::get_course(&mut conn, course_id).await?;
@@ -224,7 +232,7 @@ async fn create_chatbot(
         &mut tx,
         PKeyPolicy::Generate,
         NewChatbotConf {
-            chatbot_name: payload.name.clone(),
+            chatbot_name: name.to_owned(),
             course_id,
             model_id: model.id,
             publicly_accessible: course_id.is_none(),
@@ -254,7 +262,7 @@ async fn create_chatbot(
         task_llm.clone(),
         &course_name,
         course_desc.to_owned(),
-        &payload.purpose,
+        &purpose,
     )
     .await?;
 
@@ -264,7 +272,7 @@ async fn create_chatbot(
         &[ChatbotConversationMessage::text(
             Uuid::nil(),
             MessageRole::Assistant,
-            configuration.initial_message.clone(),
+            prompt_res.first_message.clone(),
             0,
             None,
         )],

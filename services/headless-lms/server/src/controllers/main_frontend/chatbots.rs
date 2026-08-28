@@ -291,9 +291,7 @@ async fn create_chatbot(
         ..NewChatbotConf::from(configuration.clone())
     };
 
-    let res = match models::chatbot_configurations::edit(&mut conn, new, configuration.id.clone())
-        .await
-    {
+    let res = match models::chatbot_configurations::edit(&mut conn, new, configuration.id).await {
         Ok(conf) => conf,
         Err(e) => {
             error!("Error: {}", e);

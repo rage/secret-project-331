@@ -197,14 +197,34 @@ impl ConfirmableActionTool for UpdateCertificateTool {
             "certificate_lookup",
         )?;
 
+        // parse_arguments can only reject a no-op name, since the current date is not one of the
+        // model-supplied display fields; the date it asks for may already be the one on the row.
         let date_issued = arguments.new_date_issued.unwrap_or(certificate.created_at);
+        let date_changed = date_issued != certificate.created_at;
+        if arguments.new_name_on_certificate.is_none() && !date_changed {
+            return Err(chatbot_err!(
+                InvalidToolArguments,
+                format!(
+                    "Nothing to do: the certificate is already dated {} and the name is unchanged.",
+                    date_issued.date_naive()
+                )
+            ));
+        }
+
         let updated = generated_certificates::update_certificate(
             conn,
             arguments.certificate_id,
             date_issued,
             arguments.new_name_on_certificate.clone(),
+            Some(certificate.updated_at),
         )
-        .await?;
+        .await?
+        .ok_or_else(|| {
+            chatbot_err!(
+                ToolUseError,
+                "The certificate was changed by someone else while this was waiting for confirmation. Re-run certificate_lookup and ask again.".to_string()
+            )
+        })?;
 
         let mut changes = Vec::new();
         if let Some(new_name) = &arguments.new_name_on_certificate {
@@ -213,7 +233,7 @@ impl ConfirmableActionTool for UpdateCertificateTool {
                 arguments.current_name_on_certificate
             ));
         }
-        if arguments.new_date_issued.is_some() {
+        if date_changed {
             changes.push(format!(
                 "the issue date was changed to {}",
                 date_issued.date_naive()
@@ -240,7 +260,7 @@ impl ConfirmableActionTool for UpdateCertificateTool {
             },
             UpdateCertificateFacts {
                 name_changed: arguments.new_name_on_certificate.is_some(),
-                date_changed: arguments.new_date_issued.is_some(),
+                date_changed,
                 verification_id: updated.verification_id,
             },
         ))

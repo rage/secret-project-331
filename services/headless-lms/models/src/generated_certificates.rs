@@ -134,48 +134,45 @@ pub struct CertificateUpdateRequest {
     pub name_on_certificate: Option<String>,
 }
 
+/// Rewrites what an issued certificate prints: its holder-facing name and the date it is dated.
+///
+/// The issue date is `created_at`, which is the column the certificate and every listing of it
+/// read, so `date_issued` is written unconditionally; pass the row's current value to leave it be.
+/// `name_on_certificate` of `None` leaves the name as it is.
+///
+/// `expected_updated_at` makes this a compare-and-swap: pass the `updated_at` of the row the
+/// caller read and the write lands only if nothing has touched the row since, returning `None`
+/// when something has. `None` skips the check, for a caller with no earlier read to protect.
+/// Without it a name-only update silently restores the date another admin had just corrected.
 pub async fn update_certificate(
     conn: &mut PgConnection,
     certificate_id: Uuid,
     date_issued: DateTime<Utc>,
     name_on_certificate: Option<String>,
-) -> ModelResult<GeneratedCertificate> {
-    let updated = if let Some(name) = name_on_certificate {
-        sqlx::query_as!(
-            GeneratedCertificate,
-            r#"
-            UPDATE generated_certificates
-            SET created_at = $1,
-                name_on_certificate = $2,
-                updated_at = NOW()
-            WHERE id = $3
-              AND deleted_at IS NULL
-            RETURNING *
-            "#,
-            date_issued,
-            name,
-            certificate_id
-        )
-        .fetch_one(conn)
-        .await?
-    } else {
-        sqlx::query_as!(
-            GeneratedCertificate,
-            r#"
-            UPDATE generated_certificates
-            SET created_at = $1,
-                updated_at = NOW()
-            WHERE id = $2
-              AND deleted_at IS NULL
-            RETURNING *
-            "#,
-            date_issued,
-            certificate_id
-        )
-        .fetch_one(conn)
-        .await?
-    };
-
+    expected_updated_at: Option<DateTime<Utc>>,
+) -> ModelResult<Option<GeneratedCertificate>> {
+    let updated = sqlx::query_as!(
+        GeneratedCertificate,
+        r#"
+UPDATE generated_certificates
+SET created_at = $2,
+  name_on_certificate = COALESCE($3, name_on_certificate),
+  updated_at = NOW()
+WHERE id = $1
+  AND deleted_at IS NULL
+  AND (
+    $4::timestamptz IS NULL
+    OR updated_at = $4
+  )
+RETURNING *
+        "#,
+        certificate_id,
+        date_issued,
+        name_on_certificate,
+        expected_updated_at
+    )
+    .fetch_optional(conn)
+    .await?;
     Ok(updated)
 }
 

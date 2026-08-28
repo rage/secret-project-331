@@ -455,10 +455,10 @@ mod tests {
         );
     }
 
-    /// A page with no objectives block has to be distinguishable from one whose objectives are
-    /// empty, since the caller omits the field entirely for the former.
+    /// A block that declares no objectives counts as no objectives, the same as no block at all:
+    /// the caller omits the field either way rather than printing an empty one.
     #[test]
-    fn a_page_without_an_objectives_block_has_no_objectives() {
+    fn a_page_without_objectives_has_none_whether_or_not_the_block_is_there() {
         assert_eq!(
             get_learning_objectives(&[GutenbergBlock::paragraph("Just prose")]),
             None

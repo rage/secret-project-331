@@ -10,6 +10,8 @@ use serde_json::{Map, Value};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
+use crate::strings::strip_html_tags;
+
 /// Blocks that are not allowed in top-level pages (pages without chapter_id).
 /// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
 static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
@@ -364,47 +366,105 @@ fn validate_unique_client_ids_inner(
     Ok(input)
 }
 
-/// Get the content of each block and of all its inner blocks as a String.
-fn get_blocks_content_recursive(blocks: Vec<GutenbergBlock>) -> Result<String, serde_json::Error> {
-    let content = blocks
-        .iter()
-        .map(|b| {
-            let c = b.attributes.get("content");
-            let c2 = if let Some(v) = c {
-                serde_json::to_string(v)?
-            } else {
-                "".to_string()
-            };
-            let inner = b.inner_blocks.to_owned();
-            let c3 = get_blocks_content_recursive(inner)?;
-            Ok(c2 + &c3)
-        })
-        .collect::<Result<Vec<String>, serde_json::Error>>()?;
-
-    Ok(content.join(""))
+/// The text a block and everything nested inside it carries, one entry per block that has any.
+///
+/// Blocks hold their text as HTML in a `content` attribute, which is stripped here: callers render
+/// this as plain text, and the markup is several times the size of the words in it. A block with
+/// no text of its own (a layout wrapper, an image) contributes only what its children do.
+fn blocks_text_content(blocks: &[GutenbergBlock], texts: &mut Vec<String>) {
+    for block in blocks {
+        if let Some(content) = block.attributes.get("content").and_then(Value::as_str) {
+            let text = strip_html_tags(content);
+            let text = text.trim();
+            if !text.is_empty() {
+                texts.push(text.to_string());
+            }
+        }
+        blocks_text_content(&block.inner_blocks, texts);
+    }
 }
 
-/// Get learning objectives from a vec of Gutenberg blocks. Works recursively and
-/// inspects the inner blocks. Returns an empty string if no objectives are found.
-/// Returns the objectives of the whole Vec argument, joined together into a String.
-pub fn get_learning_objectives(blocks: Vec<GutenbergBlock>) -> Result<String, serde_json::Error> {
-    let objectives = blocks
-        .iter()
-        .map(|x| {
-            if x.name == "moocfi/learning-objectives" || x.name == "moocfi/course-objective-section"
-            {
-                get_blocks_content_recursive(vec![x.to_owned()])
-            } else {
-                get_learning_objectives(x.inner_blocks.to_owned())
-            }
-        })
-        .collect::<Result<Vec<String>, serde_json::Error>>()?;
-    Ok(objectives.join(""))
+/// The learning objectives declared anywhere in `blocks`, one per line, or `None` when the page
+/// declares none.
+///
+/// Objectives are authored as list items inside a learning-objectives block, so the lines are the
+/// objectives themselves. Whether they cover the page, the chapter or the course depends on which
+/// page the blocks came from, which is the caller's to know.
+pub fn get_learning_objectives(blocks: &[GutenbergBlock]) -> Option<String> {
+    let mut objectives = Vec::new();
+    collect_learning_objectives(blocks, &mut objectives);
+    (!objectives.is_empty()).then(|| objectives.join("\n"))
+}
+
+fn collect_learning_objectives(blocks: &[GutenbergBlock], objectives: &mut Vec<String>) {
+    for block in blocks {
+        if block.name == "moocfi/learning-objectives"
+            || block.name == "moocfi/course-objective-section"
+        {
+            blocks_text_content(std::slice::from_ref(block), objectives);
+        } else {
+            collect_learning_objectives(&block.inner_blocks, objectives);
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A learning-objectives block whose items are the list items authors actually write.
+    fn objectives_block(items: &[&str]) -> GutenbergBlock {
+        GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/learning-objectives",
+            attributes! {"title": "Learning objectives"},
+            vec![GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                "core/list",
+                attributes! {},
+                items
+                    .iter()
+                    .map(|item| {
+                        GutenbergBlock::block_with_name_and_attributes(
+                            "core/list-item",
+                            attributes! {"content": *item},
+                        )
+                    })
+                    .collect(),
+            )],
+        )
+    }
+
+    /// Objectives are authored as HTML and shown to a reader as text, and the block sits several
+    /// levels down from the page's top-level blocks.
+    #[test]
+    fn learning_objectives_come_back_as_one_plain_text_line_each() {
+        let page = vec![
+            GutenbergBlock::paragraph("Intro"),
+            GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                "core/columns",
+                attributes! {},
+                vec![objectives_block(&[
+                    "Ymmärrät mitä <strong>muuttuja</strong> tarkoittaa",
+                    "Osaat <em>tulostaa</em> tekstiä",
+                ])],
+            ),
+        ];
+
+        assert_eq!(
+            get_learning_objectives(&page).as_deref(),
+            Some("Ymmärrät mitä muuttuja tarkoittaa\nOsaat tulostaa tekstiä")
+        );
+    }
+
+    /// A page with no objectives block has to be distinguishable from one whose objectives are
+    /// empty, since the caller omits the field entirely for the former.
+    #[test]
+    fn a_page_without_an_objectives_block_has_no_objectives() {
+        assert_eq!(
+            get_learning_objectives(&[GutenbergBlock::paragraph("Just prose")]),
+            None
+        );
+        assert_eq!(get_learning_objectives(&[objectives_block(&[])]), None);
+    }
 
     fn collect_ids(blocks: &Vec<GutenbergBlock>, ids: &mut Vec<Uuid>) {
         for block in blocks {

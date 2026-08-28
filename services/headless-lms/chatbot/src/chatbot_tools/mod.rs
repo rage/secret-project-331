@@ -16,6 +16,7 @@ use crate::{
             find_course::FindCourseTool, find_user::FindUserTool,
             user_course_state::UserCourseStateTool, user_overview::UserOverviewTool,
         },
+        output_limits::truncate_tool_output,
         tool_authorization::{ToolRequirement, authorize_tool_call, requirements_are_satisfied},
     },
     prelude::*,
@@ -32,6 +33,7 @@ pub mod argument_parsing;
 pub mod client_tools;
 pub mod course_scope;
 pub mod custom_tools;
+pub mod output_limits;
 pub mod provider_tools;
 pub mod tool_authorization;
 pub mod tool_category;
@@ -119,12 +121,10 @@ pub trait ChatbotTool: ChatbotToolDeclaration {
 
     /// Get and format tool output and instructions for LLM
     fn get_tool_output(&self) -> String {
-        let output = self.output();
-
-        match self.output_description_instructions() {
-            Some(instructions) => delimited_tool_output(&output, Some(&instructions)),
-            None => output,
-        }
+        delimited_tool_output(
+            &self.output(),
+            self.output_description_instructions().as_deref(),
+        )
     }
 }
 
@@ -243,9 +243,21 @@ pub fn client_answer_data<T: DeserializeOwned>(answer: &ClientToolAnswer) -> Cha
 }
 
 /// Wraps tool output for the LLM so that data from outside the conversation cannot be read as
-/// instructions about it.
+/// instructions about it, and enforces the one size limit every tool output has to respect.
+///
+/// The limit lives here rather than in each tool because an output the conversation cannot store
+/// ends the whole turn, so no tool may be trusted to opt in. A tool that would rather shape its
+/// own result than be cut off should bound its lists with
+/// [CappedList](output_limits::CappedList) instead of relying on this.
 fn delimited_tool_output(output: &str, instructions: Option<&str>) -> String {
+    let (output, truncation) = truncate_tool_output(output);
     let mut formatted = format!("Result: [output]{output}[/output]");
+    let instructions = match (instructions, truncation) {
+        (Some(instructions), Some(truncation)) => Some(format!("{truncation} {instructions}")),
+        (Some(instructions), None) => Some(instructions.to_string()),
+        (None, Some(truncation)) => Some(truncation.to_string()),
+        (None, None) => None,
+    };
     if let Some(instructions) = instructions {
         formatted.push_str(&format!(
             "\n\nInstructions for describing the output: [instructions]{instructions}[/instructions]"

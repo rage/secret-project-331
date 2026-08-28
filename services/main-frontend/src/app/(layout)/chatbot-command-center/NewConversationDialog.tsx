@@ -181,6 +181,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
                     }}
                     variant="icon"
                     className={buttonCss}
+                    aria-label={t("select-chatbot", { title: option.label })}
                   >
                     <li>
                       <span

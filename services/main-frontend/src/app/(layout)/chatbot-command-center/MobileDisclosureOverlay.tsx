@@ -21,7 +21,7 @@ const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlay> = ({
   onClose,
   children,
 }) => {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const overlayRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
 
@@ -108,7 +108,47 @@ const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlay> = ({
           >
             {t("navigation-menu")}
           </h2>
+          <button
+            className={css`
+              background: none;
+              border: none;
+              padding: 0.5rem;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 50%;
+              transition:
+                background-color 0.2s ease,
+                box-shadow 0.2s ease;
+              font-size: 24px;
+              line-height: 1;
+              width: 40px;
+              height: 40px;
+              color: #000;
 
+              &:active {
+                background: #d1d5db;
+              }
+
+              &:focus-visible {
+                outline: none;
+                box-shadow: 0 0 0 2px #111827;
+              }
+            `}
+            onClick={handleClose}
+          >
+            <span
+              className={css`
+                font-size: 20px;
+                line-height: 1;
+              `}
+              aria-hidden="true"
+            >
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
+              {"×"}
+            </span>
+          </button>
           <div>{children}</div>
 
           {/* Helps screen reader users dismiss easily when tabbing */}

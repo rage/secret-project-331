@@ -214,6 +214,58 @@ fn attach_data_file(spec: &mut serde_json::Value, url: &str, format: Option<&str
     fields.insert("data".to_string(), serde_json::Value::Object(data));
 }
 
+/// How many levels of union to follow when explaining why a specification was rejected.
+const MAX_UNION_DEPTH: usize = 4;
+
+/// The branch errors of a union keyword, if this failure is one.
+fn union_branches<'a>(
+    error: &'a jsonschema::ValidationError<'_>,
+) -> Option<&'a Vec<Vec<jsonschema::ValidationError<'static>>>> {
+    match error.kind() {
+        jsonschema::error::ValidationErrorKind::AnyOf { context }
+        | jsonschema::error::ValidationErrorKind::OneOfNotValid { context } => Some(context),
+        _ => None,
+    }
+}
+
+/// Describes a validation failure in terms a model can act on, into `out`.
+///
+/// The Vega-Lite schema is one union of every kind of chart, so any mistake anywhere is reported at
+/// the root as "not valid under any of the schemas listed in the 'anyOf' keyword", naming neither
+/// the property nor its location. The branch that produced the fewest errors is the kind of chart
+/// the specification was trying to be, so following it -- and any union nested inside it -- reaches
+/// the property that is actually wrong.
+fn describe_validation_error(
+    error: &jsonschema::ValidationError<'_>,
+    depth: usize,
+    out: &mut Vec<String>,
+) {
+    let closest = union_branches(error).and_then(|branches| {
+        branches
+            .iter()
+            .filter(|branch| !branch.is_empty())
+            .min_by_key(|branch| branch.len())
+    });
+    if let (true, Some(closest)) = (depth < MAX_UNION_DEPTH, closest) {
+        for branch_error in closest {
+            describe_validation_error(branch_error, depth + 1, out);
+        }
+        return;
+    }
+    out.push(
+        // `masked()` omits the failing instance from the message; the raw Display would start with
+        // the whole (possibly huge) spec and truncate the reason away.
+        format!(
+            "{} (at instance path \"{}\")",
+            error.masked(),
+            error.instance_path()
+        )
+        .chars()
+        .take(MAX_VALIDATION_ERROR_CHARS)
+        .collect(),
+    );
+}
+
 /// Parses one LLM answer, rejects any data the model supplied, attaches `data_file` and validates
 /// the result against the Vega-Lite schema. The error string describes the failure in a form
 /// suitable for feeding back to the model.
@@ -241,22 +293,14 @@ fn parse_and_validate_spec(
     }
     let attached = data_file.unwrap_or(PLACEHOLDER_DATA_FILE);
     attach_data_file(&mut spec, attached.url, attached.format);
-    let errors: Vec<String> = validator
-        .iter_errors(&spec)
-        .take(MAX_REPORTED_VALIDATION_ERRORS)
-        .map(|error| {
-            // `masked()` omits the failing instance from the message; the raw Display
-            // would start with the whole (possibly huge) spec and truncate the reason away.
-            format!(
-                "{} (at instance path \"{}\")",
-                error.masked(),
-                error.instance_path()
-            )
-            .chars()
-            .take(MAX_VALIDATION_ERROR_CHARS)
-            .collect()
-        })
-        .collect();
+    let mut errors: Vec<String> = Vec::new();
+    for error in validator.iter_errors(&spec) {
+        describe_validation_error(&error, 0, &mut errors);
+        if errors.len() >= MAX_REPORTED_VALIDATION_ERRORS {
+            break;
+        }
+    }
+    errors.truncate(MAX_REPORTED_VALIDATION_ERRORS);
     if !errors.is_empty() {
         return Err(format!(
             "The specification does not conform to the Vega-Lite v6 JSON Schema: {}",
@@ -416,6 +460,37 @@ mod tests {
             serde_json::to_value(response_format()).expect("The response format serializes");
 
         assert_eq!(serialized, serde_json::json!({"type": "json_object"}));
+    }
+
+    /// The schema is one union of every kind of chart, so without following the closest branch the
+    /// only thing reported is a failure of the root `anyOf`, which names neither the property nor
+    /// where it is. A model cannot repair that, and the wasted round doubles how long the teacher
+    /// waits.
+    #[test]
+    fn a_rejected_specification_names_the_property_that_is_wrong() {
+        // `legend` belongs to a field encoding; this colour channel is a value with a condition.
+        let spec = serde_json::json!({
+            "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+            "mark": "bar",
+            "encoding": {
+                "y": {"field": "category", "type": "nominal", "sort": "-x"},
+                "x": {"field": "value", "type": "quantitative"},
+                "color": {
+                    "condition": {"test": "datum.value > 50", "value": "#e45756"},
+                    "value": "#4c78a8",
+                    "legend": null
+                }
+            }
+        });
+
+        let err = parse_and_validate_spec(&spec.to_string(), validator(), Some(DATA_FILE))
+            .expect_err("the legend on a value encoding is invalid");
+
+        assert!(err.contains("/encoding/color"), "{err}");
+        assert!(
+            !err.contains("instance path \"\""),
+            "reported at the root: {err}"
+        );
     }
 
     #[test]

@@ -103,9 +103,6 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
         {row.needs_admin_attention && (
           <Badge tone={TONE.WARNING}>{t("label-credit-registration-needs-attention")}</Badge>
         )}
-        {details.consent_given === false && (
-          <Badge tone={TONE.WARNING}>{t("credit-registration-admin-no-consent")}</Badge>
-        )}
       </div>
       {row.error_code && (
         <Infobox tone={TONE.INFO} heading={<code>{row.error_code}</code>}>

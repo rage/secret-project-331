@@ -90,7 +90,6 @@ const StateSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ over
           <p className={noteCss}>
             {t("credit-registration-admin-pending-by-reason", {
               completion: overview.pending_by_reason.completion_count,
-              consent: overview.pending_by_reason.consent_count,
               studentNumber: overview.pending_by_reason.student_number_count,
             })}
           </p>

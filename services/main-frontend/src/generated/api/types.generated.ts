@@ -125,7 +125,7 @@ export type AccountLinkingStats = {
   send_status_totals: AccountLinkingSendStatusTotals
   stale_addresses: Array<AccountLinkingStaleAddress>
   /**
-   * Accounts with a consented completion still waiting for a number.
+   * Accounts with an eligible completion still waiting for a student number.
    */
   waiting_for_student_number_count: number
   window_secs: number
@@ -189,8 +189,6 @@ export type AdminCreditRegistrationDetails = {
    * Every attempt for the same completion, newest first, this one included.
    */
   attempts: Array<AdminCreditRegistrationRow>
-  consent_given?: boolean | null
-  consent_withdrawn_at?: string | null
   events: Array<AdminCreditRegistrationEvent>
   /**
    * Every mail addressed to this person, on any course.
@@ -1198,21 +1196,6 @@ export type CourseCreditRegistrationAction = {
 }
 
 /**
- * Why the course's enrolled students are not going to get credits. Neither count includes a student
- * who has both consented and linked a number.
- */
-export type CourseCreditRegistrationBlockedStudentCounts = {
-  /**
-   * Never asked or declined.
-   */
-  no_consent_student_count: number
-  /**
-   * Consented, but we hold no student number for them.
-   */
-  unlinked_consented_student_count: number
-}
-
-/**
  * One event of the item timeline, without the stored request and response bodies: those are the
  * admin dashboard's, and the study registry's own wording is never rendered.
  */
@@ -1259,12 +1242,15 @@ export type CourseCreditRegistrationModuleSummary = {
 }
 
 export type CourseCreditRegistrationSummary = {
-  blocked_students: CourseCreditRegistrationBlockedStudentCounts
   /**
-   * Of the unlinked consented students, the ones whose linking mail we never managed to hand over.
+   * Of the unlinked enrolled students, the ones whose linking mail we never managed to hand over.
    */
   linking_emails_failed_to_send_count: number
   modules: Array<CourseCreditRegistrationModuleSummary>
+  /**
+   * Enrolled students we hold no student number for.
+   */
+  unlinked_enrolled_student_count: number
 }
 
 /**
@@ -1981,13 +1967,6 @@ export type CreditRegistrationCircuitBreakerState = {
   trips_after_consecutive_failures: number
 }
 
-export type CreditRegistrationConsentModule = {
-  ects_credits?: number | null
-  id: string
-  name?: string | null
-  uh_course_code?: string | null
-}
-
 /**
  * What the configuration check concluded about one module, freshly derived from the same facts and
  * the same rule the `config-validation` phase uses.
@@ -2005,12 +1984,7 @@ export type CreditRegistrationCourseConfigCheck = {
 }
 
 export type CreditRegistrationCourseStats = {
-  /**
-   * Neither a success nor a failure, and shown separately so it is never read as one.
-   */
-  abandoned_count: number
   active_realisation_count: number
-  awaiting_consent_count: number
   /**
    * What the current facts say. Recomputed on read, so a configuration fixed a minute ago no
    * longer shows as broken.
@@ -2225,7 +2199,7 @@ export type CreditRegistrationOverview = {
 /**
  * What a `pending` row is waiting for.
  */
-export type CreditRegistrationPendingReason = "completion" | "consent" | "student_number"
+export type CreditRegistrationPendingReason = "completion" | "student_number"
 
 export type CreditRegistrationPhaseList = {
   consecutive_failure_limit: number
@@ -2330,8 +2304,7 @@ export type CreditRegistrationPhaseStatus = {
 
 export type CreditRegistrationReconciliation = {
   /**
-   * The five detector counts, which is the tab badge. The consent-withdrawal bucket is
-   * deliberately outside it.
+   * The four detector counts, which is the tab badge.
    */
   finding_count: number
   legacy_divergence_count: number
@@ -2355,14 +2328,6 @@ export type CreditRegistrationReconciliation = {
    */
   outcome_uncertain: Array<ReconciliationRegistration>
   outcome_uncertain_count: number
-  /**
-   * **Not an error list and not a work queue.** These students withdrew consent while a
-   * registration was in flight, so we stopped polling and do not know what the registry did. It
-   * is here so the number is never mistaken for a failure; it is in no count above and in no
-   * alert.
-   */
-  outcome_unknown_consent_withdrawn: Array<ReconciliationRegistration>
-  outcome_unknown_consent_withdrawn_count: number
   /**
    * Rows whose answers named more than one submitted attainment id, which is what a double
    * submission would look like.
@@ -2391,7 +2356,6 @@ export type CreditRegistrationState =
   | "failed_permanent"
   | "blocked"
   | "cancelled"
-  | "abandoned_by_consent_withdrawal"
 
 export type CreditRegistrationStateCount = {
   count: number
@@ -2419,17 +2383,16 @@ export type CreditRegistrationStuckTotal = {
 }
 
 /**
- * The verdicts an operator needs beside the errors to rule them out. `not_improved` and
- * `abandoned_by_consent_withdrawal` are not failures and are never in the error table above.
+ * The verdicts an operator needs beside the errors to rule them out. `not_improved` is not a
+ * failure and is never in the error table above.
  */
 export type CreditRegistrationTerminalVerdicts = {
-  abandoned_by_consent_withdrawal_count: number
   cancelled_count: number
   duplicate_and_not_improved_count: number
   failed_permanent_count: number
   registered_count: number
   /**
-   * Everything but the abandoned: the denominator of the success rate.
+   * The denominator of the success rate.
    */
   total_count: number
 }
@@ -3207,38 +3170,10 @@ export type MyCourse = Course & {
   can_hide: boolean
 }
 
-export type MyCourseCreditRegistrationConsent = {
-  /**
-   * False means never asked, which is not the same as asked and declined.
-   */
-  asked: boolean
-  consent_given?: boolean | null
-  consent_given_at?: string | null
-  consent_withdrawn_at?: string | null
-  course_id: string
-  course_name: string
-  credit_registration_enabled_for_course: boolean
-  modules: Array<CreditRegistrationConsentModule>
-  /**
-   * Completions already waiting on consent, so the dialog can say how many one click registers.
-   */
-  registrable_completion_count: number
-}
-
 export type MyCreditRegistration = {
   attempt_number: number
   can_request_enrolment_recheck: boolean
   completion_date: string
-  /**
-   * The one thing the page needs beyond the status: the outcome of an import that was already in
-   * flight is unknown, so it gets its own copy.
-   *
-   * The ledger state itself is deliberately not on the wire. Eligibility includes
-   * `NOT needs_to_be_reviewed`, so `blocked` would tell a student they have been flagged as a
-   * suspected cheater — which `users.rs` hides from them for that exact reason. Every cause of
-   * `not_registering` has to stay indistinguishable here.
-   */
-  consent_withdrawn_while_in_flight: boolean
   course_id: string
   course_module_id: string
   course_module_name?: string | null
@@ -3278,17 +3213,6 @@ export type MyCreditRegistration = {
   student_facing_status: StudentFacingCreditRegistrationStatus
   superseded: boolean
   uh_course_code?: string | null
-}
-
-export type MyCreditRegistrationConsent = {
-  asked_at?: string | null
-  consent_given?: boolean | null
-  consent_given_at?: string | null
-  consent_withdrawn_at?: string | null
-  course_id: string
-  course_name: string
-  registered_count: number
-  registrable_completion_count: number
 }
 
 /**
@@ -4033,7 +3957,6 @@ export type PeerReviewWithQuestionsAndAnswers = {
  */
 export type PendingReasonCounts = {
   completion_count: number
-  consent_count: number
   student_number_count: number
 }
 
@@ -4254,9 +4177,7 @@ export type ResubmissionRefusal =
   | "superseded"
   | "already_succeeded"
   | "submission_uncertain"
-  | "consent_withdrawn"
   | "not_failed_permanent"
-  | "without_consent"
 
 export type RetryCreditRegistrationPayload = {
   reason?: string | null
@@ -4385,17 +4306,6 @@ export type ServicePortInfo = {
   target_port?: string | null
 }
 
-export type SetMyCourseCreditRegistrationConsentPayload = {
-  consent_given: boolean
-}
-
-export type SetMyCourseCreditRegistrationConsentResult = {
-  consent_given: boolean
-  consent_given_at?: string | null
-  consent_withdrawn_at?: string | null
-  newly_unblocked_registration_count: number
-}
-
 export type SisuDescriptionResponse = {
   audience: Array<string>
   course_description: string
@@ -4420,7 +4330,6 @@ export type StuckThresholds = {
  */
 export type StudentFacingCreditRegistrationStatus =
   | "waiting_for_completion"
-  | "needs_consent"
   | "needs_student_number"
   | "in_progress"
   | "needs_enrolment"
@@ -10017,50 +9926,6 @@ export type GetCreditRegistrationThresholdsResponses = {
 export type GetCreditRegistrationThresholdsResponse =
   GetCreditRegistrationThresholdsResponses[keyof GetCreditRegistrationThresholdsResponses]
 
-export type GetMyCourseCreditRegistrationConsentData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent"
-}
-
-export type GetMyCourseCreditRegistrationConsentResponses = {
-  /**
-   * The caller's consent for the course
-   */
-  200: MyCourseCreditRegistrationConsent
-}
-
-export type GetMyCourseCreditRegistrationConsentResponse =
-  GetMyCourseCreditRegistrationConsentResponses[keyof GetMyCourseCreditRegistrationConsentResponses]
-
-export type SetMyCourseCreditRegistrationConsentData = {
-  body: SetMyCourseCreditRegistrationConsentPayload
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent"
-}
-
-export type SetMyCourseCreditRegistrationConsentResponses = {
-  /**
-   * The recorded answer and what it unblocked
-   */
-  200: SetMyCourseCreditRegistrationConsentResult
-}
-
-export type SetMyCourseCreditRegistrationConsentResponse =
-  SetMyCourseCreditRegistrationConsentResponses[keyof SetMyCourseCreditRegistrationConsentResponses]
-
 export type GetMyCreditRegistrationsData = {
   body?: never
   path?: never
@@ -10099,23 +9964,6 @@ export type GetMyCreditRegistrationForCourseModuleResponses = {
 
 export type GetMyCreditRegistrationForCourseModuleResponse =
   GetMyCreditRegistrationForCourseModuleResponses[keyof GetMyCreditRegistrationForCourseModuleResponses]
-
-export type GetMyCreditRegistrationConsentsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/consents"
-}
-
-export type GetMyCreditRegistrationConsentsResponses = {
-  /**
-   * The caller's per-course consents
-   */
-  200: Array<MyCreditRegistrationConsent>
-}
-
-export type GetMyCreditRegistrationConsentsResponse =
-  GetMyCreditRegistrationConsentsResponses[keyof GetMyCreditRegistrationConsentsResponses]
 
 export type GetMyCreditRegistrationEnrolmentBannersData = {
   body?: never

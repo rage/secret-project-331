@@ -21,7 +21,6 @@ export {
   studentNumberVerificationLabel as verificationMethodLabel,
 } from "../teacherCreditRegistrations"
 
-/** `abandoned_by_consent_withdrawal` is `upcoming`, not `failed`: neither failure nor success. */
 const STATE_TONES = {
   pending: "upcoming",
   ready_to_submit: "current",
@@ -39,13 +38,11 @@ const STATE_TONES = {
   failed_permanent: "failed",
   blocked: "upcoming",
   cancelled: "upcoming",
-  abandoned_by_consent_withdrawal: "upcoming",
 } as const satisfies Record<CreditRegistrationState, RegistrationStatusState>
 
 /** A `pending` row waiting on the student is the admin's problem; one waiting on a completion is not. */
 const PENDING_REASON_TONES = {
   completion: "upcoming",
-  consent: "action-needed",
   student_number: "action-needed",
 } as const satisfies Record<CreditRegistrationPendingReason, RegistrationStatusState>
 

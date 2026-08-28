@@ -466,12 +466,8 @@ import type {
   GetFirstExerciseSubmissionsHistoryResponses,
   GetMyCertificatesData,
   GetMyCertificatesResponses,
-  GetMyCourseCreditRegistrationConsentData,
-  GetMyCourseCreditRegistrationConsentResponses,
   GetMyCoursesData,
   GetMyCoursesResponses,
-  GetMyCreditRegistrationConsentsData,
-  GetMyCreditRegistrationConsentsResponses,
   GetMyCreditRegistrationEnrolmentBannersData,
   GetMyCreditRegistrationEnrolmentBannersResponses,
   GetMyCreditRegistrationForCourseModuleData,
@@ -736,8 +732,6 @@ import type {
   SetCourseModuleCertificateGenerationResponses,
   SetExamCourseData,
   SetExamCourseResponses,
-  SetMyCourseCreditRegistrationConsentData,
-  SetMyCourseCreditRegistrationConsentResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
   TeacherLockStudentChapterData,
@@ -989,9 +983,7 @@ import {
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
   zGetMyCertificatesResponse,
-  zGetMyCourseCreditRegistrationConsentResponse,
   zGetMyCoursesResponse,
-  zGetMyCreditRegistrationConsentsResponse,
   zGetMyCreditRegistrationEnrolmentBannersResponse,
   zGetMyCreditRegistrationForCourseModuleResponse,
   zGetMyCreditRegistrationsResponse,
@@ -1104,7 +1096,6 @@ import {
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
-  zSetMyCourseCreditRegistrationConsentResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
@@ -4900,8 +4891,7 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
  * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
  * wants a human to look at, with the detectors that picked each.
  *
- * Superseded attempts and rows abandoned by a consent withdrawal are outside every detector: neither
- * is something a person can act on.
+ * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
  */
 export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationAttentionItemsData, ThrowOnError>,
@@ -5354,8 +5344,7 @@ export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = tru
  * - Moves one row by hand.
  *
  * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
- * re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because
- * a `misregistered` row sits outside the automatic machinery that would otherwise have checked it.
+ * re-importing could put a second attainment on a real transcript.
  */
 export const adminTransitionCreditRegistration = <ThrowOnError extends boolean = true>(
   options: Options<AdminTransitionCreditRegistrationData, ThrowOnError>,
@@ -5513,52 +5502,6 @@ export const getCreditRegistrationThresholds = <ThrowOnError extends boolean = t
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - The signed-in
- * account's credit registration consent for one course.
- */
-export const getMyCourseCreditRegistrationConsent = <ThrowOnError extends boolean = true>(
-  options: Options<GetMyCourseCreditRegistrationConsentData, ThrowOnError>,
-): RequestResult<GetMyCourseCreditRegistrationConsentResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<
-    GetMyCourseCreditRegistrationConsentResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zGetMyCourseCreditRegistrationConsentResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent",
-    ...options,
-  })
-
-/**
- *
- * PUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in
- * account's answer and applies it to that course's registrations at once.
- */
-export const setMyCourseCreditRegistrationConsent = <ThrowOnError extends boolean = true>(
-  options: Options<SetMyCourseCreditRegistrationConsentData, ThrowOnError>,
-): RequestResult<SetMyCourseCreditRegistrationConsentResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<
-    SetMyCourseCreditRegistrationConsentResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zSetMyCourseCreditRegistrationConsentResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my` - Every credit registration of the signed-in
  * account, newest completion first.
  */
@@ -5593,27 +5536,6 @@ export const getMyCreditRegistrationForCourseModule = <ThrowOnError extends bool
       await zGetMyCreditRegistrationForCourseModuleResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}",
-    ...options,
-  })
-
-/**
- *
- * GET `/api/v0/main-frontend/credit-registrations/my/consents` - One row per course the signed-in
- * account is enrolled on that offers credit registration, asked or not.
- */
-export const getMyCreditRegistrationConsents = <ThrowOnError extends boolean = true>(
-  options?: Options<GetMyCreditRegistrationConsentsData, ThrowOnError>,
-): RequestResult<GetMyCreditRegistrationConsentsResponses, unknown, ThrowOnError, "data"> =>
-  (options?.client ?? client).get<
-    GetMyCreditRegistrationConsentsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zGetMyCreditRegistrationConsentsResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/credit-registrations/my/consents",
     ...options,
   })
 

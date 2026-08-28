@@ -830,29 +830,6 @@ export const zCourseCount = z.object({
 })
 
 /**
- * Why the course's enrolled students are not going to get credits. Neither count includes a student
- * who has both consented and linked a number.
- */
-export const zCourseCreditRegistrationBlockedStudentCounts = z.object({
-  no_consent_student_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  unlinked_consented_student_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-})
-
-/**
  * Body for the students-tab batch: the users of the current identity-list page.
  */
 export const zCourseCreditRegistrationUserIdsPayload = z.object({
@@ -1347,13 +1324,6 @@ export const zCreditRegistrationCircuitBreakerState = z.object({
     }),
 })
 
-export const zCreditRegistrationConsentModule = z.object({
-  ects_credits: z.number().nullish(),
-  id: z.uuid(),
-  name: z.string().nullish(),
-  uh_course_code: z.string().nullish(),
-})
-
 /**
  * What the configuration check concluded about one module, freshly derived from the same facts and
  * the same rule the `config-validation` phase uses.
@@ -1569,23 +1539,7 @@ export const zCourseCreditRegistrationModuleConfigs = z.object({
 })
 
 export const zCreditRegistrationCourseStats = z.object({
-  abandoned_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
   active_realisation_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  awaiting_consent_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
       error: "Invalid value: Expected int64 to be >= -9223372036854775808",
@@ -1698,7 +1652,7 @@ export const zCreditRegistrationNotificationKind = z.enum(["action_needed", "reg
 /**
  * What a `pending` row is waiting for.
  */
-export const zCreditRegistrationPendingReason = z.enum(["completion", "consent", "student_number"])
+export const zCreditRegistrationPendingReason = z.enum(["completion", "student_number"])
 
 /**
  * One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
@@ -1763,7 +1717,6 @@ export const zCreditRegistrationState = z.enum([
   "failed_permanent",
   "blocked",
   "cancelled",
-  "abandoned_by_consent_withdrawal",
 ])
 
 export const zAdminCreditRegistrationEvent = z.object({
@@ -2080,7 +2033,6 @@ export const zCourseCreditRegistrationModuleSummary = z.object({
 })
 
 export const zCourseCreditRegistrationSummary = z.object({
-  blocked_students: zCourseCreditRegistrationBlockedStudentCounts,
   linking_emails_failed_to_send_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -2090,6 +2042,14 @@ export const zCourseCreditRegistrationSummary = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
   modules: z.array(zCourseCreditRegistrationModuleSummary),
+  unlinked_enrolled_student_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
 })
 
 export const zCreditRegistrationStateTotal = z.object({
@@ -2138,18 +2098,10 @@ export const zCreditRegistrationStuckTotal = z.object({
 })
 
 /**
- * The verdicts an operator needs beside the errors to rule them out. `not_improved` and
- * `abandoned_by_consent_withdrawal` are not failures and are never in the error table above.
+ * The verdicts an operator needs beside the errors to rule them out. `not_improved` is not a
+ * failure and is never in the error table above.
  */
 export const zCreditRegistrationTerminalVerdicts = z.object({
-  abandoned_by_consent_withdrawal_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
   cancelled_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -3260,50 +3212,6 @@ export const zMyCourse = zCourse.and(
   }),
 )
 
-export const zMyCourseCreditRegistrationConsent = z.object({
-  asked: z.boolean(),
-  consent_given: z.boolean().nullish(),
-  consent_given_at: z.iso.datetime().nullish(),
-  consent_withdrawn_at: z.iso.datetime().nullish(),
-  course_id: z.uuid(),
-  course_name: z.string(),
-  credit_registration_enabled_for_course: z.boolean(),
-  modules: z.array(zCreditRegistrationConsentModule),
-  registrable_completion_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-})
-
-export const zMyCreditRegistrationConsent = z.object({
-  asked_at: z.iso.datetime().nullish(),
-  consent_given: z.boolean().nullish(),
-  consent_given_at: z.iso.datetime().nullish(),
-  consent_withdrawn_at: z.iso.datetime().nullish(),
-  course_id: z.uuid(),
-  course_name: z.string(),
-  registered_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  registrable_completion_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-})
-
 /**
  * A completion as the student may see it. `needs_to_be_reviewed` ones are excluded so a student
  * cannot infer that they are under suspicion.
@@ -4013,14 +3921,6 @@ export const zPendingReasonCounts = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
-  consent_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
   student_number_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -4229,15 +4129,6 @@ export const zCreditRegistrationReconciliation = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
-  outcome_unknown_consent_withdrawn: z.array(zReconciliationRegistration),
-  outcome_unknown_consent_withdrawn_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
   several_submitted_attainments: z.array(zReconciliationRegistration),
   several_submitted_attainments_count: z.coerce
     .bigint()
@@ -4410,9 +4301,7 @@ export const zResubmissionRefusal = z.enum([
   "superseded",
   "already_succeeded",
   "submission_uncertain",
-  "consent_withdrawn",
   "not_failed_permanent",
-  "without_consent",
 ])
 
 export const zAdminBulkTransitionSkipCount = z.object({
@@ -4586,24 +4475,6 @@ export const zServiceInfo = z.object({
   ports: z.array(zServicePortInfo),
 })
 
-export const zSetMyCourseCreditRegistrationConsentPayload = z.object({
-  consent_given: z.boolean(),
-})
-
-export const zSetMyCourseCreditRegistrationConsentResult = z.object({
-  consent_given: z.boolean(),
-  consent_given_at: z.iso.datetime().nullish(),
-  consent_withdrawn_at: z.iso.datetime().nullish(),
-  newly_unblocked_registration_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-})
-
 export const zSisuDescriptionResponse = z.object({
   audience: z.array(z.string()),
   course_description: z.string(),
@@ -4662,7 +4533,6 @@ export const zCreditRegistrationHealth = z.object({
  */
 export const zStudentFacingCreditRegistrationStatus = z.enum([
   "waiting_for_completion",
-  "needs_consent",
   "needs_student_number",
   "in_progress",
   "needs_enrolment",
@@ -4679,7 +4549,6 @@ export const zMyCreditRegistration = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   can_request_enrolment_recheck: z.boolean(),
   completion_date: z.iso.datetime(),
-  consent_withdrawn_while_in_flight: z.boolean(),
   course_id: z.uuid(),
   course_module_id: z.uuid(),
   course_module_name: z.string().nullish(),
@@ -5063,8 +4932,6 @@ export const zAdminSuotarApiCall = z.object({
 export const zAdminCreditRegistrationDetails = z.object({
   actions: z.array(zCreditRegistrationAdminActionRecord),
   attempts: z.array(zAdminCreditRegistrationRow),
-  consent_given: z.boolean().nullish(),
-  consent_withdrawn_at: z.iso.datetime().nullish(),
   events: z.array(zAdminCreditRegistrationEvent),
   linking_emails: z.array(zAdminLinkingEmail),
   not_improved_attainment: zNotImprovedAttainment.nullish(),
@@ -8208,28 +8075,6 @@ export const zGetSuotarHealthResponse = zSuotarHealth
  */
 export const zGetCreditRegistrationThresholdsResponse = zStuckThresholds
 
-export const zGetMyCourseCreditRegistrationConsentPath = z.object({
-  course_id: z.uuid(),
-})
-
-/**
- * The caller's consent for the course
- */
-export const zGetMyCourseCreditRegistrationConsentResponse = zMyCourseCreditRegistrationConsent
-
-export const zSetMyCourseCreditRegistrationConsentBody =
-  zSetMyCourseCreditRegistrationConsentPayload
-
-export const zSetMyCourseCreditRegistrationConsentPath = z.object({
-  course_id: z.uuid(),
-})
-
-/**
- * The recorded answer and what it unblocked
- */
-export const zSetMyCourseCreditRegistrationConsentResponse =
-  zSetMyCourseCreditRegistrationConsentResult
-
 /**
  * The caller's credit registrations
  */
@@ -8244,11 +8089,6 @@ export const zGetMyCreditRegistrationForCourseModulePath = z.object({
  */
 export const zGetMyCreditRegistrationForCourseModuleResponse =
   zMyCreditRegistrationForCourseModule.nullable()
-
-/**
- * The caller's per-course consents
- */
-export const zGetMyCreditRegistrationConsentsResponse = z.array(zMyCreditRegistrationConsent)
 
 export const zGetMyCreditRegistrationEnrolmentBannersPath = z.object({
   course_id: z.uuid(),

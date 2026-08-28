@@ -145,14 +145,10 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
                 aria-label={t("button-text-list-students-waiting-for-a-student-number")}
               >
                 <StatTile
-                  label={t("label-credit-registration-unlinked-consented-students")}
-                  value={summary.blocked_students.unlinked_consented_student_count}
+                  label={t("label-credit-registration-unlinked-enrolled-students")}
+                  value={summary.unlinked_enrolled_student_count}
                 />
               </button>
-              <StatTile
-                label={t("label-credit-registration-students-without-consent")}
-                value={summary.blocked_students.no_consent_student_count}
-              />
               <StatTile
                 label={t("label-credit-registration-emails-we-could-not-send")}
                 value={summary.linking_emails_failed_to_send_count}
@@ -170,7 +166,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
               <BlockedStudentsDialog
                 courseId={courseId}
                 status={WAITING_FOR_STUDENT_NUMBER}
-                title={t("label-credit-registration-unlinked-consented-students")}
+                title={t("label-credit-registration-unlinked-enrolled-students")}
                 open={showBlocked}
                 onClose={() => setShowBlocked(false)}
               />

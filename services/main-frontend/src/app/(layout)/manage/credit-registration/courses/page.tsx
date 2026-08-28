@@ -195,10 +195,6 @@ const CoursesPage: React.FC = () => {
                     ),
                   },
                   {
-                    header: t("credit-registration-admin-column-awaiting-consent"),
-                    cell: (row) => row.awaiting_consent_count,
-                  },
-                  {
                     header: t("credit-registration-admin-column-in-flight"),
                     cell: (row) => row.in_flight_count,
                   },
@@ -225,10 +221,6 @@ const CoursesPage: React.FC = () => {
                             : TONE.NEUTRAL
                       return <Badge tone={tone}>{`${Math.round(rate)} %`}</Badge>
                     },
-                  },
-                  {
-                    header: t("credit-registration-admin-column-abandoned"),
-                    cell: (row) => row.abandoned_count,
                   },
                   {
                     header: t("credit-registration-admin-column-needs-attention"),
@@ -261,7 +253,6 @@ const CoursesPage: React.FC = () => {
                 ]}
               />
             )}
-            <p className={noteCss}>{t("credit-registration-admin-abandoned-not-a-failure-note")}</p>
           </div>
         )
       }}

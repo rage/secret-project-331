@@ -318,12 +318,6 @@ const ReconciliationPage: React.FC = () => {
             rows={reconciliation.misregistered}
           />
           <LegacySection reconciliation={reconciliation} />
-          <DetectorSection
-            heading={t("credit-registration-heading-consent-withdrawn")}
-            explanation={t("credit-registration-admin-consent-withdrawn-explanation")}
-            emptyText={t("credit-registration-admin-no-consent-withdrawn")}
-            rows={reconciliation.outcome_unknown_consent_withdrawn}
-          />
         </div>
       )}
     </QueryResult>

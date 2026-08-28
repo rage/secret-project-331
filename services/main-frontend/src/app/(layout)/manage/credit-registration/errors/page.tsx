@@ -105,10 +105,6 @@ const VerdictSection: React.FC<{ windowSecs: number }> = ({ windowSecs }) => {
                   value={verdicts.cancelled_count}
                 />
                 <StatTile
-                  label={t("credit-registration-admin-column-abandoned")}
-                  value={verdicts.abandoned_by_consent_withdrawal_count}
-                />
-                <StatTile
                   label={t("credit-registration-admin-success-rate")}
                   value={
                     verdicts.total_count === 0

@@ -53,7 +53,6 @@ const IS_QUEUE_STATE = {
   failed_permanent: false,
   blocked: true,
   cancelled: false,
-  abandoned_by_consent_withdrawal: false,
 } satisfies Record<CreditRegistrationState, boolean>
 
 const QUEUE_STATES = (Object.keys(IS_QUEUE_STATE) as CreditRegistrationState[]).filter(

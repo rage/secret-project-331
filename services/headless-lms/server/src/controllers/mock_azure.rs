@@ -1,8 +1,11 @@
 use crate::controllers::mock_document_storage::{MOCK_DOCUMENTS, MockDocument};
 use crate::prelude::*;
 use headless_lms_chatbot::{
-    azure_chatbot::azure::{protocol::InputItem, tools::AzureLLMToolDefinition},
-    chart_spec_generation::RESPONSE_FORMAT_NAME as CHART_SPEC_FORMAT,
+    azure_chatbot::azure::{
+        protocol::{InputItem, LLMRequestResponseFormatParam},
+        tools::AzureLLMToolDefinition,
+    },
+    chart_spec_generation::USER_PROMPT_PREFIX as CHART_SPEC_REQUEST,
     chatbot_tools::{
         ChatbotToolDeclaration,
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
@@ -92,8 +95,13 @@ struct MockRequest {
     /// The text of the last input message, or `None` when the request ends in a tool output
     /// instead. The other two endings never reach here.
     message: Option<String>,
-    /// The structured output schema the answer has to parse as, `None` for a chat request.
+    /// Every message in the request, for recognising a round of a conversation whose latest
+    /// message says nothing about which feature it belongs to.
+    conversation: Vec<String>,
+    /// The structured output schema the answer has to parse as, `None` when none was named.
     format_name: Option<String>,
+    /// Whether the caller asked for any valid JSON object instead of a named schema.
+    wants_json_object: bool,
     /// Whether the caller reads the answer as a Server-Sent Events stream or as one JSON object.
     stream: bool,
 }
@@ -103,7 +111,9 @@ impl MockRequest {
     fn chat(message: &str) -> Self {
         MockRequest {
             message: Some(message.to_string()),
+            conversation: vec![message.to_string()],
             format_name: None,
+            wants_json_object: false,
             stream: true,
         }
     }
@@ -113,7 +123,9 @@ impl MockRequest {
     fn after_tool_run() -> Self {
         MockRequest {
             message: None,
+            conversation: Vec::new(),
             format_name: None,
+            wants_json_object: false,
             stream: true,
         }
     }
@@ -123,7 +135,20 @@ impl MockRequest {
     fn structured_output(format_name: &str) -> Self {
         MockRequest {
             message: Some(TOOL_CALL_TRIGGER.to_string()),
+            conversation: vec![TOOL_CALL_TRIGGER.to_string()],
             format_name: Some(format_name.to_string()),
+            wants_json_object: false,
+            stream: false,
+        }
+    }
+
+    /// A request for any valid JSON object, whose conversation contains `request_text`.
+    fn json_object(request_text: &str) -> Self {
+        MockRequest {
+            message: Some(request_text.to_string()),
+            conversation: vec![request_text.to_string()],
+            format_name: None,
+            wants_json_object: true,
             stream: false,
         }
     }
@@ -133,6 +158,19 @@ impl MockRequest {
     /// a streaming caller cannot read.
     fn wants_format(&self, format_name: &str) -> bool {
         !self.stream && self.format_name.as_deref() == Some(format_name)
+    }
+
+    /// Whether this asks for a JSON object and is part of a conversation that opened with
+    /// `request_text`. A JSON-mode request names no schema, so the feature it belongs to can only
+    /// be told from its prompt -- and not from the latest message alone, which on a repair round is
+    /// the correction rather than the request.
+    fn wants_json_object_for(&self, request_text: &str) -> bool {
+        !self.stream
+            && self.wants_json_object
+            && self
+                .conversation
+                .iter()
+                .any(|message| message.contains(request_text))
     }
 
     /// The tool call a streamed chat message asks the mock to make, if any.
@@ -196,9 +234,9 @@ const SCENARIOS: &[Scenario] = &[
     },
     Scenario {
         name: "the chart block specification",
-        matches: |request| request.wants_format(CHART_SPEC_FORMAT),
+        matches: |request| request.wants_json_object_for(CHART_SPEC_REQUEST),
         respond: |_, _| blocking_response(&chart_spec_payload()),
-        example: || MockRequest::structured_output(CHART_SPEC_FORMAT),
+        example: || MockRequest::json_object(CHART_SPEC_REQUEST),
     },
     Scenario {
         name: "the client tool call round",
@@ -315,14 +353,30 @@ async fn mock_azure_chat_responses(
         }
     };
 
+    let requested_format = payload
+        .base
+        .text
+        .as_ref()
+        .and_then(|text| text.format.as_ref());
     let request = MockRequest {
         message,
-        format_name: payload
+        conversation: payload
             .base
-            .text
-            .as_ref()
-            .and_then(|text| text.format.as_ref())
-            .map(|format| format.name.clone()),
+            .input
+            .iter()
+            .filter_map(|item| match &item.message_type {
+                InputItem::Message { content, .. } => Some(content.clone().get_content_text()),
+                _ => None,
+            })
+            .collect(),
+        format_name: match requested_format {
+            Some(LLMRequestResponseFormatParam::JsonSchema { name, .. }) => Some(name.clone()),
+            _ => None,
+        },
+        wants_json_object: matches!(
+            requested_format,
+            Some(LLMRequestResponseFormatParam::JsonObject)
+        ),
         stream: payload.stream,
     };
     let scenario = pick_scenario(&request).ok_or_else(|| {
@@ -907,12 +961,11 @@ const MESSAGE_SUGGESTION_PAYLOAD: &str =
 /// The rewrites the CMS offers for a paragraph.
 const CMS_SUGGESTION_PAYLOAD: &str = r#"{"suggestions":["Mock suggestion 1: The paragraph has been improved.","Mock suggestion 2: Here is an alternative version of the paragraph.","Mock suggestion 3: A third distinct rewrite of the paragraph."]}"#;
 
-/// The Vega-Lite specification the CMS chart block offers. It carries no data of its own, as a
-/// generated specification must not: the teacher's data file is attached to it afterwards. The
-/// specification is itself a JSON string inside the answer, so this is built with serde_json rather
-/// than hand-escaped.
+/// The Vega-Lite specification the CMS chart block offers, which is the whole answer. It carries no
+/// data of its own, as a generated specification must not: the teacher's data file is attached to it
+/// afterwards.
 fn chart_spec_payload() -> String {
-    let spec = json!({
+    json!({
         "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
         "description": "Mock AI generated bar chart",
         "mark": "bar",
@@ -920,8 +973,8 @@ fn chart_spec_payload() -> String {
             "x": {"field": "category", "type": "nominal"},
             "y": {"field": "value", "type": "quantitative"}
         }
-    });
-    json!({ "spec": spec.to_string() }).to_string()
+    })
+    .to_string()
 }
 
 /// The course description summary, in the shape Sisu expects it in.
@@ -1156,6 +1209,17 @@ mod tests {
             let content = parse_text_completion(completion).expect("the response has text content");
             assert_eq!(content, payload);
         }
+    }
+
+    /// The chart generator rejects any specification that carries data of its own, so an answer
+    /// offering one would fail every generation in development and in the system tests.
+    #[test]
+    fn the_mock_chart_specification_carries_no_data() {
+        let spec: Value = serde_json::from_str(&chart_spec_payload())
+            .expect("the chart specification is the whole answer, so it must be JSON");
+
+        assert!(spec.get("data").is_none(), "{spec}");
+        assert!(spec.get("datasets").is_none(), "{spec}");
     }
 
     /// The chatbot classifies the round from the function call item it announces and hands the

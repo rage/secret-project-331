@@ -26,7 +26,7 @@ use headless_lms_models::{
     chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
     chatbot_conversation_messages::{ChatbotConversationMessage, Message},
 };
-use headless_lms_utils::json_schema_types::{JSONType, Schema, string_array_property};
+use headless_lms_utils::json_schema_types::{Schema, string_array_property};
 use indexmap::IndexMap;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
@@ -608,8 +608,7 @@ pub struct LLMResponse {
 /// `name` is what Azure, and the test-mode mock Azure API, identify the format by, so it has to
 /// name the feature rather than the shape. `property` is the single key the list arrives under.
 pub fn string_list_response_format(name: &str, property: &str) -> LLMRequestResponseFormatParam {
-    LLMRequestResponseFormatParam {
-        format_type: JSONType::JsonSchema,
+    LLMRequestResponseFormatParam::JsonSchema {
         name: name.to_string(),
         schema: Schema::strict_object(
             IndexMap::from([(property.to_string(), string_array_property(None))]),

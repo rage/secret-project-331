@@ -19,14 +19,6 @@ use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole,
 };
-use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
-use indexmap::IndexMap;
-
-/// Structured LLM response for chart spec generation.
-#[derive(serde::Deserialize)]
-struct ChartSpecGenerationResponse {
-    spec: String,
-}
 
 /// Vendored copy of https://vega.github.io/schema/vega-lite/v6.json, used to validate
 /// generated specs without network access. All of its `$ref`s are internal.
@@ -54,36 +46,20 @@ Rules:
 - If an existing specification is provided, treat the request as an edit to it: change only what the request requires and preserve the rest.
 - Prefer simple, readable charts over decorative complexity.
 
-Your output must follow the JSON schema exactly:
-{
-  "spec": "<the complete Vega-Lite specification serialized as a JSON string>"
-}"#;
+Your whole answer must be the Vega-Lite specification as a JSON object, with no wrapper object, no explanation and no code fences."#;
 
-/// User prompt prefix.
-pub const USER_PROMPT_PREFIX: &str = "Create or edit a Vega-Lite chart specification according to the request below. Return JSON only.";
+/// User prompt prefix. Also how the test-mode mock Azure API recognises a request from this
+/// feature, since a JSON-mode request carries no schema name to identify it by.
+pub const USER_PROMPT_PREFIX: &str = "Create or edit a Vega-Lite chart specification according to the request below. Return the specification itself as JSON and nothing else.";
 
-/// Names this feature's structured output to Azure. The test-mode mock Azure API picks its canned
-/// answer for this feature by this name.
-pub const RESPONSE_FORMAT_NAME: &str = "ChartSpecGenerationResponse";
-
-/// The structured output format the chart spec LLM is asked to answer in. Must stay in sync with
-/// [ChartSpecGenerationResponse].
+/// The format the chart spec LLM is asked to answer in.
+///
+/// A plain JSON object rather than a named schema: Azure's structured output accepts only a
+/// restricted subset of JSON Schema, which cannot describe a Vega-Lite specification. Handing the
+/// specification back as the whole answer means the model writes it in the shape it is written in
+/// everywhere else, and that the answer is guaranteed to parse.
 fn response_format() -> LLMRequestResponseFormatParam {
-    LLMRequestResponseFormatParam {
-        format_type: JSONType::JsonSchema,
-        name: RESPONSE_FORMAT_NAME.to_string(),
-        schema: Schema::strict_object(
-            IndexMap::from([(
-                "spec".to_string(),
-                SchemaPropertyType::Item(JsonItem {
-                    type_field: JSONType::String,
-                    description: None,
-                }),
-            )]),
-            None,
-        ),
-        strict: true,
-    }
+    LLMRequestResponseFormatParam::JsonObject
 }
 
 /// Input payload for chart spec generation.
@@ -246,14 +222,16 @@ fn parse_and_validate_spec(
     validator: &jsonschema::Validator,
     data_file: Option<DataFile<'_>>,
 ) -> Result<serde_json::Value, String> {
-    let response: ChartSpecGenerationResponse =
-        serde_json::from_str(completion_content).map_err(|_| {
-            r#"The response did not follow the required {"spec": "..."} JSON format."#.to_string()
-        })?;
-    let mut spec: serde_json::Value = serde_json::from_str(&response.spec)
+    let mut spec: serde_json::Value = serde_json::from_str(completion_content)
         .map_err(|e| format!("The specification is not valid JSON: {e}"))?;
     if !spec.is_object() {
         return Err("The specification must be a JSON object.".to_string());
+    }
+    if spec.get("spec").is_some_and(serde_json::Value::is_object) {
+        return Err(
+            "The answer must be the Vega-Lite specification itself, not an object wrapping it."
+                .to_string(),
+        );
     }
     if let Some(offence) = find_data_source(&spec) {
         return Err(format!(
@@ -430,6 +408,16 @@ mod tests {
         vega_lite_validator().expect("the vendored Vega-Lite schema should compile")
     }
 
+    /// The wire shape is the contract with Azure: JSON mode takes no name and no schema, and a
+    /// schema smuggled back in would be rejected by the API rather than ignored.
+    #[test]
+    fn the_response_format_asks_only_for_a_json_object() {
+        let serialized =
+            serde_json::to_value(response_format()).expect("The response format serializes");
+
+        assert_eq!(serialized, serde_json::json!({"type": "json_object"}));
+    }
+
     #[test]
     fn accepts_a_valid_spec() {
         // The shape the mock LLM endpoint answers with.
@@ -454,8 +442,8 @@ mod tests {
 
     #[test]
     fn validation_errors_do_not_echo_the_spec() {
-        let spec = serde_json::json!({"mark": 123, "sentinel": "sentinel-value-xyz"});
-        let content = serde_json::json!({ "spec": spec.to_string() }).to_string();
+        let content =
+            serde_json::json!({"mark": 123, "sentinel": "sentinel-value-xyz"}).to_string();
         let err = parse_and_validate_spec(&content, validator(), Some(DATA_FILE))
             .expect_err("should be rejected");
         assert!(
@@ -466,8 +454,7 @@ mod tests {
 
     #[test]
     fn parse_and_validate_reports_a_non_json_spec() {
-        let content = serde_json::json!({"spec": "this is not json"}).to_string();
-        let result = parse_and_validate_spec(&content, validator(), Some(DATA_FILE));
+        let result = parse_and_validate_spec("this is not json", validator(), Some(DATA_FILE));
         assert!(result.is_err());
         assert!(
             result
@@ -560,9 +547,7 @@ mod tests {
             "mark": "bar",
             "encoding": {"x": {"field": "a", "type": "quantitative"}}
         });
-        let content = serde_json::json!({ "spec": spec.to_string() }).to_string();
-
-        let err = parse_and_validate_spec(&content, validator(), Some(DATA_FILE))
+        let err = parse_and_validate_spec(&spec.to_string(), validator(), Some(DATA_FILE))
             .expect_err("should be rejected");
 
         assert!(err.contains("must not contain any data"), "{err}");
@@ -629,10 +614,9 @@ mod tests {
 
     #[test]
     fn parse_and_validate_attaches_the_teacher_s_data_file() {
-        let content = serde_json::json!({ "spec": dataless_spec().to_string() }).to_string();
-
-        let spec = parse_and_validate_spec(&content, validator(), Some(DATA_FILE))
-            .expect("should be accepted");
+        let spec =
+            parse_and_validate_spec(&dataless_spec().to_string(), validator(), Some(DATA_FILE))
+                .expect("should be accepted");
 
         assert_eq!(
             spec["data"],
@@ -642,10 +626,8 @@ mod tests {
 
     #[test]
     fn parse_and_validate_leaves_a_chart_with_no_file_yet_without_data() {
-        let content = serde_json::json!({ "spec": dataless_spec().to_string() }).to_string();
-
-        let spec =
-            parse_and_validate_spec(&content, validator(), None).expect("should be accepted");
+        let spec = parse_and_validate_spec(&dataless_spec().to_string(), validator(), None)
+            .expect("should be accepted");
 
         assert_eq!(spec.get("data"), None, "the placeholder leaked out: {spec}");
     }
@@ -653,8 +635,25 @@ mod tests {
     #[test]
     fn parse_and_validate_accepts_a_valid_answer() {
         let spec = r#"{"$schema":"https://vega.github.io/schema/vega-lite/v6.json","mark":"bar","encoding":{"x":{"field":"a","type":"quantitative"}}}"#;
-        let content = serde_json::json!({ "spec": spec }).to_string();
-        let result = parse_and_validate_spec(&content, validator(), Some(DATA_FILE));
+        let result = parse_and_validate_spec(spec, validator(), Some(DATA_FILE));
         assert!(result.is_ok(), "expected valid, got: {result:?}");
+    }
+
+    #[test]
+    fn parse_and_validate_rejects_an_answer_that_wraps_the_specification() {
+        let wrapped = serde_json::json!({ "spec": dataless_spec() }).to_string();
+
+        let err = parse_and_validate_spec(&wrapped, validator(), Some(DATA_FILE))
+            .expect_err("should be rejected");
+
+        assert!(err.contains("not an object wrapping it"), "{err}");
+    }
+
+    #[test]
+    fn parse_and_validate_rejects_an_answer_that_is_not_an_object() {
+        let err = parse_and_validate_spec("[1, 2]", validator(), Some(DATA_FILE))
+            .expect_err("should be rejected");
+
+        assert!(err.contains("must be a JSON object"), "{err}");
     }
 }

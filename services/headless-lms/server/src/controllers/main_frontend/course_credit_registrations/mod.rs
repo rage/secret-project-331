@@ -36,7 +36,6 @@ use headless_lms_models::library::credit_registration::account_linking::MAX_LINK
 use headless_lms_models::library::credit_registration::student_notifications;
 use headless_lms_models::verified_student_numbers::StudentNumberVerificationMethod;
 use headless_lms_models::{
-    course_credit_registration_consents::CourseCreditRegistrationBlockedStudentCounts,
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
     verified_student_numbers,
 };
@@ -184,8 +183,9 @@ pub struct CreditRegistrationStateCount {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistrationSummary {
     pub modules: Vec<CourseCreditRegistrationModuleSummary>,
-    pub blocked_students: CourseCreditRegistrationBlockedStudentCounts,
-    /// Of the unlinked consented students, the ones whose linking mail we never managed to hand over.
+    /// Enrolled students we hold no student number for.
+    pub unlinked_enrolled_student_count: i64,
+    /// Of the unlinked enrolled students, the ones whose linking mail we never managed to hand over.
     pub linking_emails_failed_to_send_count: i64,
 }
 
@@ -375,16 +375,17 @@ pub async fn get_course_credit_registration_summary(
         })
         .collect();
 
-    let blocked = models::course_credit_registration_consents::count_blocked_students_for_course(
-        &mut conn, *course_id,
-    )
-    .await?;
+    let unlinked_enrolled_student_count =
+        verified_student_numbers::count_unlinked_enrolled_students_for_course(
+            &mut conn, *course_id,
+        )
+        .await?;
     let linking_emails_failed_to_send_count =
         count_failed_linking_emails(&mut conn, *course_id).await?;
 
     token.authorized_ok(web::Json(CourseCreditRegistrationSummary {
         modules,
-        blocked_students: blocked,
+        unlinked_enrolled_student_count,
         linking_emails_failed_to_send_count,
     }))
 }
@@ -921,7 +922,6 @@ pub(crate) async fn build_teacher_registrations(
             // The teacher's own retry strictness, so the row says exactly what that button would do.
             let resubmission_refusal = row.state.resubmission_refusal(
                 row.superseded_by_id.is_some(),
-                row.consented,
                 ResubmissionStrictness::OnlyFailedPermanent,
             );
             let state = row.state;

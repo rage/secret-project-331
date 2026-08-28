@@ -162,7 +162,7 @@ pub struct AccountLinkingStats {
     pub stale_addresses: Vec<AccountLinkingStaleAddress>,
     pub links_total_by_method: Vec<VerifiedStudentNumberMethodTotal>,
     pub links_in_window_by_method: Vec<VerifiedStudentNumberMethodTotal>,
-    /// Accounts with a consented completion still waiting for a number.
+    /// Accounts with an eligible completion still waiting for a student number.
     pub waiting_for_student_number_count: i64,
     pub max_mails_per_person_and_course: i64,
     pub quiet_period_secs: i64,

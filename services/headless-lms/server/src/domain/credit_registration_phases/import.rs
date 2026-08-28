@@ -456,7 +456,7 @@ mod tests {
             CreditRegistrationState::SubmissionUncertain,
             CreditRegistrationState::AwaitingVerification,
             CreditRegistrationState::Registered,
-            CreditRegistrationState::AbandonedByConsentWithdrawal,
+            CreditRegistrationState::Cancelled,
             CreditRegistrationState::ResolvingEnrolment,
         ] {
             assert!(!CLAIMED_STATES.contains(&state), "{state:?}");

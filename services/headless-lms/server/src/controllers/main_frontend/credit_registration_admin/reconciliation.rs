@@ -100,20 +100,13 @@ pub struct CreditRegistrationReconciliation {
     /// Attainments the study registry reversed after we had recorded them as registered.
     pub misregistered: Vec<ReconciliationRegistration>,
     pub legacy_divergences: Vec<LegacyLedgerDivergenceRow>,
-    /// **Not an error list and not a work queue.** These students withdrew consent while a
-    /// registration was in flight, so we stopped polling and do not know what the registry did. It
-    /// is here so the number is never mistaken for a failure; it is in no count above and in no
-    /// alert.
-    pub outcome_unknown_consent_withdrawn: Vec<ReconciliationRegistration>,
     /// The detectors' counts, in the same order as the lists, capped at `max_rows_per_detector`.
     pub never_entered_count: i64,
     pub outcome_uncertain_count: i64,
     pub several_submitted_attainments_count: i64,
     pub misregistered_count: i64,
     pub legacy_divergence_count: i64,
-    pub outcome_unknown_consent_withdrawn_count: i64,
-    /// The five detector counts, which is the tab badge. The consent-withdrawal bucket is
-    /// deliberately outside it.
+    /// The four detector counts, which is the tab badge.
     pub finding_count: i64,
     pub max_rows_per_detector: i64,
 }
@@ -149,8 +142,7 @@ pub async fn get_credit_registration_reconciliation(
     .map(to_never_entered)
     .collect();
 
-    let (outcome_uncertain, misregistered, outcome_unknown_consent_withdrawn) =
-        rows_in_states(&mut conn).await?;
+    let (outcome_uncertain, misregistered) = rows_in_states(&mut conn).await?;
 
     let several_ids = credit_registration_events::get_ids_with_several_submitted_attainments(
         &mut conn,
@@ -174,7 +166,6 @@ pub async fn get_credit_registration_reconciliation(
     let legacy_divergence_count = legacy_divergences.len() as i64;
 
     token.authorized_ok(web::Json(CreditRegistrationReconciliation {
-        outcome_unknown_consent_withdrawn_count: outcome_unknown_consent_withdrawn.len() as i64,
         finding_count: never_entered_count
             + outcome_uncertain_count
             + several_submitted_attainments_count
@@ -185,7 +176,6 @@ pub async fn get_credit_registration_reconciliation(
         several_submitted_attainments,
         misregistered,
         legacy_divergences,
-        outcome_unknown_consent_withdrawn,
         never_entered_count,
         outcome_uncertain_count,
         several_submitted_attainments_count,
@@ -202,34 +192,25 @@ pub async fn get_credit_registration_reconciliation(
 enum LiveStateDetector {
     OutcomeUncertain,
     Misregistered,
-    OutcomeUnknownConsentWithdrawn,
 }
 
 impl LiveStateDetector {
-    const ALL: [Self; 3] = [
-        Self::OutcomeUncertain,
-        Self::Misregistered,
-        Self::OutcomeUnknownConsentWithdrawn,
-    ];
+    const ALL: [Self; 2] = [Self::OutcomeUncertain, Self::Misregistered];
 
     fn state(self) -> CreditRegistrationState {
         match self {
             Self::OutcomeUncertain => CreditRegistrationState::SubmissionUncertain,
             Self::Misregistered => CreditRegistrationState::Misregistered,
-            Self::OutcomeUnknownConsentWithdrawn => {
-                CreditRegistrationState::AbandonedByConsentWithdrawal
-            }
         }
     }
 }
 
-/// The three detectors that each just read one live state, in one `IN`-list query and one
-/// admin-projection lookup shared across all three.
+/// The two detectors that each just read one live state, in one `IN`-list query and one
+/// admin-projection lookup shared across both.
 async fn rows_in_states(
     conn: &mut PgConnection,
 ) -> Result<
     (
-        Vec<ReconciliationRegistration>,
         Vec<ReconciliationRegistration>,
         Vec<ReconciliationRegistration>,
     ),
@@ -251,16 +232,8 @@ async fn rows_in_states(
             .expect("row was fetched by one of these states");
         by_detector[index].push(row);
     }
-    let [
-        outcome_uncertain,
-        misregistered,
-        outcome_unknown_consent_withdrawn,
-    ] = by_detector;
-    Ok((
-        outcome_uncertain,
-        misregistered,
-        outcome_unknown_consent_withdrawn,
-    ))
+    let [outcome_uncertain, misregistered] = by_detector;
+    Ok((outcome_uncertain, misregistered))
 }
 
 /// Reads the same admin projection the explorer uses, so a name, a course and a student number are

@@ -1,6 +1,5 @@
 //! Putting a course's failed registrations back on the pipeline, one row or a whole course at a time.
 
-use headless_lms_models::course_credit_registration_consents;
 use headless_lms_models::credit_registration_admin_actions::{
     COURSE_TEACHER_ROLE, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
     NewCreditRegistrationAdminAction,
@@ -9,7 +8,7 @@ use headless_lms_models::credit_registration_events::CreditRegistrationEventKind
 use headless_lms_models::credit_registrations::{
     self, CreditRegistrationState, ResubmissionRefusal, ResubmissionStrictness, Transition,
 };
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use utoipa::ToSchema;
 
 use crate::prelude::*;
@@ -85,16 +84,8 @@ pub async fn retry_credit_registration(
         super::authorize_credit_registration_teacher(&mut conn, user.id, row.course_id).await?;
 
     let reason = non_empty(payload.reason.as_deref());
-    let consented = course_credit_registration_consents::get_by_user_and_course(
-        &mut conn,
-        row.user_id,
-        row.course_id,
-    )
-    .await?
-    .is_some_and(|consent| consent.consent_given);
     let refusal = row.state.resubmission_refusal(
         row.superseded_by_id.is_some(),
-        consented,
         ResubmissionStrictness::OnlyFailedPermanent,
     );
 
@@ -170,33 +161,35 @@ pub async fn retry_failed_credit_registrations_for_course(
     candidate_ids.truncate(MAX_ROWS_PER_BULK_RETRY as usize);
     // The permanent refusals are counted over the whole course rather than walked: they are the rows
     // the query above leaves out, so clicking again will never reach them either.
-    let unretryable =
-        models::credit_registrations::count_unretryable_by_course_id(&mut conn, *course_id).await?;
+    let submission_uncertain_count =
+        models::credit_registrations::count_submission_uncertain_by_course_id(
+            &mut conn, *course_id,
+        )
+        .await?;
 
     let mut retried_count = 0;
-    let mut skipped: HashMap<ResubmissionRefusal, i64> = unretryable.into_iter().collect();
+    let mut skipped: HashMap<ResubmissionRefusal, i64> = if submission_uncertain_count > 0 {
+        HashMap::from([(
+            ResubmissionRefusal::SubmissionUncertain,
+            submission_uncertain_count,
+        )])
+    } else {
+        HashMap::new()
+    };
 
     let mut tx = conn.begin().await?;
     // Locked, and read inside the transaction: each row's refusal is judged here and acted on below,
-    // so a row the pipeline moves in between would make `requeue` refuse it and roll back every row
+    // so a row the pipeline moves on in between would make `requeue` refuse it and roll back every row
     // already retried, which is what two teachers clicking at once would otherwise do to each other.
     let candidates =
         models::credit_registrations::get_by_ids_for_update(&mut tx, &candidate_ids).await?;
-    let consenting: HashSet<Uuid> =
-        course_credit_registration_consents::get_consenting_user_ids_for_course(
-            &mut tx, *course_id,
-        )
-        .await?
-        .into_iter()
-        .collect();
     let mut retried_ids = Vec::new();
     for row in &candidates {
-        // Re-judged rather than trusted from the query above, which ran before the lock: consent can
-        // be withdrawn and the row moved on in between, and both are ordinary refusals. Same
-        // precedence as the single-row endpoint, so one row gets one answer whichever way it is asked.
+        // Re-judged rather than trusted from the query above, which ran before the lock: the row may
+        // have moved on in between. Same precedence as the single-row endpoint, so one row gets one
+        // answer whichever way it is asked.
         let refusal = row.state.resubmission_refusal(
             row.superseded_by_id.is_some(),
-            consenting.contains(&row.user_id),
             ResubmissionStrictness::OnlyFailedPermanent,
         );
         match refusal {

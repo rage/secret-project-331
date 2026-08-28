@@ -7128,7 +7128,7 @@
     "/api/v0/main-frontend/credit-registration-admin/attention": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector\nwants a human to look at, with the detectors that picked each.\n\nSuperseded attempts and rows abandoned by a consent withdrawal are outside every detector: neither\nis something a person can act on.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector\nwants a human to look at, with the detectors that picked each.\n\nSuperseded attempts are outside every detector: acting on a replaced attempt is never right.",
         "operationId": "getCreditRegistrationAttentionItems",
         "responses": {
           "200": {
@@ -7909,7 +7909,7 @@
     "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`\n- Moves one row by hand.\n\nThe escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because\nre-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because\na `misregistered` row sits outside the automatic machinery that would otherwise have checked it.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`\n- Moves one row by hand.\n\nThe escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because\nre-importing could put a second attainment on a real transcript.",
         "operationId": "adminTransitionCreditRegistration",
         "parameters": [
           {
@@ -8233,76 +8233,6 @@
         }
       }
     },
-    "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent": {
-      "get": {
-        "tags": ["credit-registrations"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - The signed-in\naccount's credit registration consent for one course.",
-        "operationId": "getMyCourseCreditRegistrationConsent",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The caller's consent for the course",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyCourseCreditRegistrationConsent"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": ["credit-registrations"],
-        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in\naccount's answer and applies it to that course's registrations at once.",
-        "operationId": "setMyCourseCreditRegistrationConsent",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetMyCourseCreditRegistrationConsentPayload"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "The recorded answer and what it unblocked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SetMyCourseCreditRegistrationConsentResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/credit-registrations/my": {
       "get": {
         "tags": ["credit-registrations"],
@@ -8356,28 +8286,6 @@
                       "$ref": "#/components/schemas/MyCreditRegistrationForCourseModule"
                     }
                   ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/credit-registrations/my/consents": {
-      "get": {
-        "tags": ["credit-registrations"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my/consents` - One row per course the signed-in\naccount is enrolled on that offers credit registration, asked or not.",
-        "operationId": "getMyCreditRegistrationConsents",
-        "responses": {
-          "200": {
-            "description": "The caller's per-course consents",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MyCreditRegistrationConsent"
-                  }
                 }
               }
             }
@@ -13996,7 +13904,7 @@
           "waiting_for_student_number_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Accounts with a consented completion still waiting for a number."
+            "description": "Accounts with an eligible completion still waiting for a student number."
           },
           "window_secs": {
             "type": "integer",
@@ -14141,13 +14049,6 @@
               "$ref": "#/components/schemas/AdminCreditRegistrationRow"
             },
             "description": "Every attempt for the same completion, newest first, this one included."
-          },
-          "consent_given": {
-            "type": ["boolean", "null"]
-          },
-          "consent_withdrawn_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
           },
           "events": {
             "type": "array",
@@ -17292,23 +17193,6 @@
           }
         }
       },
-      "CourseCreditRegistrationBlockedStudentCounts": {
-        "type": "object",
-        "description": "Why the course's enrolled students are not going to get credits. Neither count includes a student\nwho has both consented and linked a number.",
-        "required": ["unlinked_consented_student_count", "no_consent_student_count"],
-        "properties": {
-          "no_consent_student_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Never asked or declined."
-          },
-          "unlinked_consented_student_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Consented, but we hold no student number for them."
-          }
-        }
-      },
       "CourseCreditRegistrationEvent": {
         "type": "object",
         "description": "One event of the item timeline, without the stored request and response bodies: those are the\nadmin dashboard's, and the study registry's own wording is never rendered.",
@@ -17434,21 +17318,27 @@
       },
       "CourseCreditRegistrationSummary": {
         "type": "object",
-        "required": ["modules", "blocked_students", "linking_emails_failed_to_send_count"],
+        "required": [
+          "modules",
+          "unlinked_enrolled_student_count",
+          "linking_emails_failed_to_send_count"
+        ],
         "properties": {
-          "blocked_students": {
-            "$ref": "#/components/schemas/CourseCreditRegistrationBlockedStudentCounts"
-          },
           "linking_emails_failed_to_send_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Of the unlinked consented students, the ones whose linking mail we never managed to hand over."
+            "description": "Of the unlinked enrolled students, the ones whose linking mail we never managed to hand over."
           },
           "modules": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CourseCreditRegistrationModuleSummary"
             }
+          },
+          "unlinked_enrolled_student_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Enrolled students we hold no student number for."
           }
         }
       },
@@ -19294,26 +19184,6 @@
           }
         }
       },
-      "CreditRegistrationConsentModule": {
-        "type": "object",
-        "required": ["id"],
-        "properties": {
-          "ects_credits": {
-            "type": ["number", "null"],
-            "format": "float"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": ["string", "null"]
-          },
-          "uh_course_code": {
-            "type": ["string", "null"]
-          }
-        }
-      },
       "CreditRegistrationCourseConfigCheck": {
         "type": "object",
         "description": "What the configuration check concluded about one module, freshly derived from the same facts and\nthe same rule the `config-validation` phase uses.\n\n`course_code_resolves` is `None` while no listing has been attempted: never checked is not the\nsame as checked and failed, and the two must not render alike.",
@@ -19344,21 +19214,10 @@
           "success_count",
           "in_flight_count",
           "failed_count",
-          "abandoned_count",
-          "needs_admin_attention_count",
-          "awaiting_consent_count"
+          "needs_admin_attention_count"
         ],
         "properties": {
-          "abandoned_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Neither a success nor a failure, and shown separately so it is never read as one."
-          },
           "active_realisation_count": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "awaiting_consent_count": {
             "type": "integer",
             "format": "int64"
           },
@@ -19823,7 +19682,7 @@
       "CreditRegistrationPendingReason": {
         "type": "string",
         "description": "What a `pending` row is waiting for.",
-        "enum": ["completion", "consent", "student_number"]
+        "enum": ["completion", "student_number"]
       },
       "CreditRegistrationPhaseList": {
         "type": "object",
@@ -20037,13 +19896,11 @@
           "several_submitted_attainments",
           "misregistered",
           "legacy_divergences",
-          "outcome_unknown_consent_withdrawn",
           "never_entered_count",
           "outcome_uncertain_count",
           "several_submitted_attainments_count",
           "misregistered_count",
           "legacy_divergence_count",
-          "outcome_unknown_consent_withdrawn_count",
           "finding_count",
           "max_rows_per_detector"
         ],
@@ -20051,7 +19908,7 @@
           "finding_count": {
             "type": "integer",
             "format": "int64",
-            "description": "The five detector counts, which is the tab badge. The consent-withdrawal bucket is\ndeliberately outside it."
+            "description": "The four detector counts, which is the tab badge."
           },
           "legacy_divergence_count": {
             "type": "integer",
@@ -20101,17 +19958,6 @@
             "type": "integer",
             "format": "int64"
           },
-          "outcome_unknown_consent_withdrawn": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ReconciliationRegistration"
-            },
-            "description": "**Not an error list and not a work queue.** These students withdrew consent while a\nregistration was in flight, so we stopped polling and do not know what the registry did. It\nis here so the number is never mistaken for a failure; it is in no count above and in no\nalert."
-          },
-          "outcome_unknown_consent_withdrawn_count": {
-            "type": "integer",
-            "format": "int64"
-          },
           "several_submitted_attainments": {
             "type": "array",
             "items": {
@@ -20144,8 +19990,7 @@
           "failed_retryable",
           "failed_permanent",
           "blocked",
-          "cancelled",
-          "abandoned_by_consent_withdrawal"
+          "cancelled"
         ]
       },
       "CreditRegistrationStateCount": {
@@ -20214,20 +20059,15 @@
       },
       "CreditRegistrationTerminalVerdicts": {
         "type": "object",
-        "description": "The verdicts an operator needs beside the errors to rule them out. `not_improved` and\n`abandoned_by_consent_withdrawal` are not failures and are never in the error table above.",
+        "description": "The verdicts an operator needs beside the errors to rule them out. `not_improved` is not a\nfailure and is never in the error table above.",
         "required": [
           "registered_count",
           "duplicate_and_not_improved_count",
           "failed_permanent_count",
           "cancelled_count",
-          "abandoned_by_consent_withdrawal_count",
           "total_count"
         ],
         "properties": {
-          "abandoned_by_consent_withdrawal_count": {
-            "type": "integer",
-            "format": "int64"
-          },
           "cancelled_count": {
             "type": "integer",
             "format": "int64"
@@ -20247,7 +20087,7 @@
           "total_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Everything but the abandoned: the denominator of the success rate."
+            "description": "The denominator of the success rate."
           }
         }
       },
@@ -22575,55 +22415,6 @@
           }
         ]
       },
-      "MyCourseCreditRegistrationConsent": {
-        "type": "object",
-        "required": [
-          "course_id",
-          "course_name",
-          "asked",
-          "credit_registration_enabled_for_course",
-          "modules",
-          "registrable_completion_count"
-        ],
-        "properties": {
-          "asked": {
-            "type": "boolean",
-            "description": "False means never asked, which is not the same as asked and declined."
-          },
-          "consent_given": {
-            "type": ["boolean", "null"]
-          },
-          "consent_given_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "consent_withdrawn_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_name": {
-            "type": "string"
-          },
-          "credit_registration_enabled_for_course": {
-            "type": "boolean"
-          },
-          "modules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreditRegistrationConsentModule"
-            }
-          },
-          "registrable_completion_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Completions already waiting on consent, so the dialog can say how many one click registers."
-          }
-        }
-      },
       "MyCreditRegistration": {
         "type": "object",
         "required": [
@@ -22634,7 +22425,6 @@
           "course_module_id",
           "completion_date",
           "student_facing_status",
-          "consent_withdrawn_while_in_flight",
           "registry_already_held_equal_or_better",
           "status_is_moving",
           "next_attempt_at",
@@ -22653,10 +22443,6 @@
           "completion_date": {
             "type": "string",
             "format": "date-time"
-          },
-          "consent_withdrawn_while_in_flight": {
-            "type": "boolean",
-            "description": "The one thing the page needs beyond the status: the outcome of an import that was already in\nflight is unknown, so it gets its own copy.\n\nThe ledger state itself is deliberately not on the wire. Eligibility includes\n`NOT needs_to_be_reviewed`, so `blocked` would tell a student they have been flagged as a\nsuspected cheater — which `users.rs` hides from them for that exact reason. Every cause of\n`not_registering` has to stay indistinguishable here."
           },
           "course_id": {
             "type": "string",
@@ -22760,47 +22546,6 @@
           },
           "uh_course_code": {
             "type": ["string", "null"]
-          }
-        }
-      },
-      "MyCreditRegistrationConsent": {
-        "type": "object",
-        "required": [
-          "course_id",
-          "course_name",
-          "registrable_completion_count",
-          "registered_count"
-        ],
-        "properties": {
-          "asked_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "consent_given": {
-            "type": ["boolean", "null"]
-          },
-          "consent_given_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "consent_withdrawn_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_name": {
-            "type": "string"
-          },
-          "registered_count": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "registrable_completion_count": {
-            "type": "integer",
-            "format": "int64"
           }
         }
       },
@@ -25010,13 +24755,9 @@
       "PendingReasonCounts": {
         "type": "object",
         "description": "Live `pending` rows per blocker, for the surfaces that used to read the three states off the\nledger.",
-        "required": ["completion_count", "consent_count", "student_number_count"],
+        "required": ["completion_count", "student_number_count"],
         "properties": {
           "completion_count": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "consent_count": {
             "type": "integer",
             "format": "int64"
           },
@@ -25630,14 +25371,7 @@
       "ResubmissionRefusal": {
         "type": "string",
         "description": "Why [`CreditRegistrationState::resubmission_refusal`] would not move a row.\n\nRendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it\ntravels to them as it is rather than being re-mapped per surface.",
-        "enum": [
-          "superseded",
-          "already_succeeded",
-          "submission_uncertain",
-          "consent_withdrawn",
-          "not_failed_permanent",
-          "without_consent"
-        ]
+        "enum": ["superseded", "already_succeeded", "submission_uncertain", "not_failed_permanent"]
       },
       "RetryCreditRegistrationPayload": {
         "type": "object",
@@ -25942,36 +25676,6 @@
           }
         }
       },
-      "SetMyCourseCreditRegistrationConsentPayload": {
-        "type": "object",
-        "required": ["consent_given"],
-        "properties": {
-          "consent_given": {
-            "type": "boolean"
-          }
-        }
-      },
-      "SetMyCourseCreditRegistrationConsentResult": {
-        "type": "object",
-        "required": ["consent_given", "newly_unblocked_registration_count"],
-        "properties": {
-          "consent_given": {
-            "type": "boolean"
-          },
-          "consent_given_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "consent_withdrawn_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "newly_unblocked_registration_count": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
       "SisuDescriptionResponse": {
         "type": "object",
         "required": ["course_description", "audience", "modules"],
@@ -26026,7 +25730,6 @@
         "description": "The stage a student sees.",
         "enum": [
           "waiting_for_completion",
-          "needs_consent",
           "needs_student_number",
           "in_progress",
           "needs_enrolment",

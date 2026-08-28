@@ -279,8 +279,8 @@ async fn sisu_outage_alert(
     }))
 }
 
-/// Rows the pipeline should have moved on by now. `abandoned_by_consent_withdrawal` is terminal, so
-/// it is outside this by construction rather than by a filter that could be forgotten.
+/// Rows the pipeline should have moved on by now. Terminal states are outside this by construction
+/// rather than by a filter that could be forgotten.
 fn stuck_alert(stuck: &[StuckRegistrationCount]) -> Option<CreditRegistrationAlert> {
     let total: i64 = stuck.iter().map(|row| row.count).sum();
     if total == 0 {

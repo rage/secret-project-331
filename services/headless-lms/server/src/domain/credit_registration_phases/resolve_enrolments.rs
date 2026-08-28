@@ -307,8 +307,8 @@ async fn choose(
                 ),
                 suotar_api_call_id: event.suotar_api_call_id,
                 event_details: Some(details),
-                // The row spent the Suotar round trip unlocked, so consent withdrawal or an admin
-                // action may have already moved it out of `resolving_enrolment`.
+                // The row spent the Suotar round trip unlocked, so an admin action may have already
+                // moved it out of `resolving_enrolment`.
                 expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
                 ..Transition::to(CreditRegistrationState::Duplicate)
             },

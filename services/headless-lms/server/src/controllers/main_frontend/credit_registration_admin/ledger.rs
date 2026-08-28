@@ -1,6 +1,5 @@
 //! Viewing and hand-transitioning rows of the credit registration ledger.
 
-use headless_lms_models::course_credit_registration_consents;
 use headless_lms_models::credit_registration_account_linking_emails;
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionFilters,
@@ -151,8 +150,6 @@ pub struct AdminCreditRegistrationDetails {
     /// The grade the registry already held, for a row it declined as no improvement. The row's own
     /// grade is what we sent.
     pub not_improved_attainment: Option<NotImprovedAttainment>,
-    pub consent_given: Option<bool>,
-    pub consent_withdrawn_at: Option<DateTime<Utc>>,
 }
 
 /// The states an admin may move a row to; everything else is the pipeline's to decide.
@@ -465,12 +462,6 @@ pub async fn get_credit_registration_for_admin(
         }
         None => Vec::new(),
     };
-    let consent = course_credit_registration_consents::get_by_user_and_course(
-        &mut conn,
-        registration.user_id,
-        registration.course_id,
-    )
-    .await?;
 
     let notification_emails = student_notifications::get_for_registrations(&mut conn, &[id])
         .await?
@@ -496,8 +487,6 @@ pub async fn get_credit_registration_for_admin(
         linking_emails,
         notification_emails,
         not_improved_attainment,
-        consent_given: consent.as_ref().map(|row| row.consent_given),
-        consent_withdrawn_at: consent.and_then(|row| row.consent_withdrawn_at),
     }))
 }
 
@@ -506,8 +495,7 @@ POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_regi
 - Moves one row by hand.
 
 The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
-re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because
-a `misregistered` row sits outside the automatic machinery that would otherwise have checked it.
+re-importing could put a second attainment on a real transcript.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -543,21 +531,11 @@ pub async fn admin_transition_credit_registration(
     }
 
     if let Some(state_move) = payload.action.state_move() {
-        let consent = course_credit_registration_consents::get_by_user_and_course(
-            &mut conn,
-            row.user_id,
-            row.course_id,
-        )
-        .await?;
-        // consent_withdrawn_at survives a later consent as an audit trail, so consent_given alone is
-        // what counts as consented, here and in the precondition engine.
-        let consented = consent.is_some_and(|c| c.consent_given);
         // `Any`: a human is already looking at this one row, so unlike the bulk transition below it
         // is not refused for being `submission_uncertain`.
         if let Some(refusal) = row.state.admin_transition_refusal(
             state_move.to_state(),
             row.superseded_by_id.is_some(),
-            consented,
             ResubmissionStrictness::Any,
         ) {
             return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
@@ -657,17 +635,6 @@ pub async fn admin_bulk_transition_credit_registrations(
     // row already applied down with it.
     let rows = credit_registrations::get_by_ids_for_update(&mut tx, &ids).await?;
     let state_move = payload.action.state_move();
-    let consenting: HashSet<(Uuid, Uuid)> = if state_move.is_some() {
-        course_credit_registration_consents::get_consenting_user_and_course_ids(
-            &mut tx,
-            &rows.iter().map(|row| row.user_id).collect::<Vec<_>>(),
-        )
-        .await?
-        .into_iter()
-        .collect()
-    } else {
-        HashSet::new()
-    };
 
     let mut applied_count = 0;
     let mut due_now_ids = Vec::new();
@@ -677,7 +644,6 @@ pub async fn admin_bulk_transition_credit_registrations(
             Some(state_move) => row.state.admin_transition_refusal(
                 state_move.to_state(),
                 row.superseded_by_id.is_some(),
-                consenting.contains(&(row.user_id, row.course_id)),
                 ResubmissionStrictness::AnyExceptSubmissionUncertain,
             ),
             // Even clearing a flag on a replaced attempt is an admin acting on the wrong row.
@@ -914,7 +880,6 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
         resubmission_refusal: row.state.admin_transition_refusal(
             CreditRegistrationState::ReadyToSubmit,
             row.superseded_by_id.is_some(),
-            row.consented,
             ResubmissionStrictness::Any,
         ),
         id: row.id,

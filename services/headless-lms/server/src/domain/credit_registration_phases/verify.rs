@@ -522,10 +522,7 @@ mod tests {
         assert!(CLAIMED_STATES.contains(&CreditRegistrationState::AwaitingVerification));
         assert!(CLAIMED_STATES.contains(&CreditRegistrationState::SubmissionUncertain));
         assert!(!CLAIMED_STATES.contains(&CreditRegistrationState::Submitting));
-        assert!(
-            !CLAIMED_STATES.contains(&CreditRegistrationState::AbandonedByConsentWithdrawal),
-            "withdrawal has to stop the polling"
-        );
+        assert!(!CLAIMED_STATES.contains(&CreditRegistrationState::Cancelled));
     }
 
     /// A registry log line has to name one call, not one row: two polls of a row, and a recovery

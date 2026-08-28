@@ -66,10 +66,7 @@ pub struct CreditRegistrationCourseStats {
     pub success_count: i64,
     pub in_flight_count: i64,
     pub failed_count: i64,
-    /// Neither a success nor a failure, and shown separately so it is never read as one.
-    pub abandoned_count: i64,
     pub needs_admin_attention_count: i64,
-    pub awaiting_consent_count: i64,
     pub last_registered_at: Option<DateTime<Utc>>,
     pub top_error_code: Option<CreditRegistrationErrorCode>,
 }
@@ -330,11 +327,9 @@ fn to_course_stats(
         success_count: totals.as_ref().map_or(0, |row| row.success_count),
         in_flight_count: totals.as_ref().map_or(0, |row| row.in_flight_count),
         failed_count: totals.as_ref().map_or(0, |row| row.failed_count),
-        abandoned_count: totals.as_ref().map_or(0, |row| row.abandoned_count),
         needs_admin_attention_count: totals
             .as_ref()
             .map_or(0, |row| row.needs_admin_attention_count),
-        awaiting_consent_count: totals.as_ref().map_or(0, |row| row.awaiting_consent_count),
         last_registered_at: totals.as_ref().and_then(|row| row.last_registered_at),
         top_error_code: totals.and_then(|row| row.top_error_code),
     }

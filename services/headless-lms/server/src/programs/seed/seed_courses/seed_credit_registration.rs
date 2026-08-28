@@ -13,7 +13,7 @@ use headless_lms_base::config::{
     ApplicationConfiguration, SuotarConfiguration, bool_env_false_by_default,
 };
 use headless_lms_models::{
-    PKeyPolicy, course_credit_registration_consents, course_instance_enrollments,
+    PKeyPolicy, course_instance_enrollments,
     course_module_completions::{self, NewCourseModuleCompletionSeed},
     credit_registration_account_linking_emails::{self, NewAccountLinkingEmail},
     credit_registration_admin_actions::{
@@ -253,7 +253,7 @@ pub async fn seed_credit_registration(
         .await?;
     }
 
-    // Consented, linked and completed; the mock's enrolments decide which of them gets stuck where.
+    // Linked and completed; the mock's enrolments decide which of them gets stuck where.
     for fixture in [
         &IMPORT_TIMEOUT,
         &SISU_OUTAGE,
@@ -266,6 +266,8 @@ pub async fn seed_credit_registration(
         &EMAILS_NO_ENROLMENT,
         &BANNER_STUCK,
         &BANNER_REENROLS,
+        &CONSENT_WITHHELD,
+        &EMAILS_UNMAILED,
     ] {
         let student = seed_spec_student(
             &mut conn,
@@ -273,42 +275,10 @@ pub async fn seed_credit_registration(
             fixture,
             suotar_course.id,
             suotar_instance.id,
-            true,
         )
         .await?;
         seed_eligible_completion(&mut conn, &student, suotar_course.id, None).await?;
     }
-    for fixture in [&CONSENT_WITHHELD, &EMAILS_UNMAILED] {
-        let student = seed_spec_student(
-            &mut conn,
-            &cx,
-            fixture,
-            suotar_course.id,
-            suotar_instance.id,
-            false,
-        )
-        .await?;
-        seed_eligible_completion(&mut conn, &student, suotar_course.id, None).await?;
-    }
-
-    // `not_consented` gets no row at all: a missing row is what makes the course-start dialog
-    // appear, while `consent_given = false` means asked and declined.
-    for student in [&consented_linked, &consented_unlinked, &verified_email] {
-        course_credit_registration_consents::upsert(
-            &mut conn,
-            student.user_id,
-            suotar_course.id,
-            true,
-        )
-        .await?;
-    }
-    course_credit_registration_consents::upsert(
-        &mut conn,
-        superseded_student.user_id,
-        suotar_course.id,
-        true,
-    )
-    .await?;
 
     verified_student_numbers::insert(
         &mut conn,
@@ -379,9 +349,7 @@ pub async fn seed_credit_registration(
     )
     .await?;
 
-    // The happy-path actor answers the consent dialog itself, so its completion has to wait here.
     seed_eligible_completion(&mut conn, &not_consented, suotar_course.id, None).await?;
-    // Consented and complete already: the fast track has to unblock this row with no click at all.
     seed_eligible_completion(&mut conn, &verified_email, suotar_course.id, None).await?;
 
     info!("inserting credit registration fast track near misses");
@@ -741,10 +709,9 @@ async fn seed_admin_course(
         .seed(conn, app_config, &cx)
         .await?;
 
-    let unlinked =
-        seed_spec_account(conn, &cx, &ADMIN_UNLINKED, course.id, instance.id, true).await?;
+    let unlinked = seed_spec_account(conn, &cx, &ADMIN_UNLINKED, course.id, instance.id).await?;
     seed_eligible_completion(conn, &unlinked, course.id, None).await?;
-    let linked = seed_spec_student(conn, &cx, &ADMIN_LINKED, course.id, instance.id, true).await?;
+    let linked = seed_spec_student(conn, &cx, &ADMIN_LINKED, course.id, instance.id).await?;
     seed_eligible_completion(conn, &linked, course.id, None).await?;
 
     for fixture in [&ADMIN_STALE, &TEACHER_RESEND_CAPPED] {
@@ -882,11 +849,7 @@ async fn seed_retry_course(
         (80, "Retry01", CreditRegistrationState::FailedPermanent),
         (81, "Retry02", CreditRegistrationState::FailedPermanent),
         (82, "Retry03", CreditRegistrationState::SubmissionUncertain),
-        (
-            83,
-            "Retry04",
-            CreditRegistrationState::AbandonedByConsentWithdrawal,
-        ),
+        (83, "Retry04", CreditRegistrationState::Cancelled),
     ] {
         seed_frozen_registration(
             conn,
@@ -934,7 +897,6 @@ async fn seed_frozen_registration(
     .await?;
     course_instance_enrollments::insert(conn, student.user_id, course_id, course_instance_id)
         .await?;
-    course_credit_registration_consents::upsert(conn, student.user_id, course_id, true).await?;
     let verified_via = match person {
         1 => Some(StudentNumberVerificationMethod::EmailedLink),
         2 => Some(StudentNumberVerificationMethod::AdminManual),
@@ -1030,8 +992,7 @@ async fn seed_import_outcomes_course(
         course = course.module(module);
     }
     let (course, instance, _) = course.seed(conn, app_config, &cx).await?;
-    let student =
-        seed_spec_student(conn, &cx, &IMPORT_OUTCOMES, course.id, instance.id, true).await?;
+    let student = seed_spec_student(conn, &cx, &IMPORT_OUTCOMES, course.id, instance.id).await?;
     for module in headless_lms_models::course_modules::get_by_course_id(conn, course.id).await? {
         course_module_completions::insert_seed_row(
             conn,
@@ -1081,26 +1042,20 @@ async fn seed_grade_improvement_course(
     )
     .seed(conn, app_config, &cx)
     .await?;
-    let student =
-        seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id, true).await?;
+    let student = seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id).await?;
     seed_eligible_completion(conn, &student, course.id, Some(3)).await?;
     Ok(())
 }
 
-/// A user, an enrolment, a verified student number and optionally a consent for one spec's actor.
-///
-/// `consented = false` leaves the consent row out rather than writing a declined one: a missing row
-/// is what makes the course-start dialog appear, a declined one means asked.
+/// A user, an enrolment and a verified student number for one spec's actor.
 async fn seed_spec_student(
     conn: &mut PgConnection,
     cx: &SeedContext,
     fixture: &MockPersonFixture,
     course_id: Uuid,
     course_instance_id: Uuid,
-    consented: bool,
 ) -> Result<SeededStudent> {
-    let student =
-        seed_spec_account(conn, cx, fixture, course_id, course_instance_id, consented).await?;
+    let student = seed_spec_account(conn, cx, fixture, course_id, course_instance_id).await?;
     link_student_number(
         conn,
         cx,
@@ -1120,7 +1075,6 @@ async fn seed_spec_account(
     fixture: &MockPersonFixture,
     course_id: Uuid,
     course_instance_id: Uuid,
-    consented: bool,
 ) -> Result<SeededStudent> {
     let account_email = fixture
         .account_email
@@ -1135,9 +1089,6 @@ async fn seed_spec_account(
     .await?;
     course_instance_enrollments::insert(conn, student.user_id, course_id, course_instance_id)
         .await?;
-    if consented {
-        course_credit_registration_consents::upsert(conn, student.user_id, course_id, true).await?;
-    }
     Ok(student)
 }
 

@@ -20,9 +20,8 @@ import MobileDisclosureOverlay from "./MobileDisclosureOverlay"
 interface SideBarProps {
   setChatbotDialog: React.Dispatch<boolean>
   conversations: ChatbotConversation[]
-  setConversationId: React.Dispatch<string>
-  setConfigurationId: React.Dispatch<string>
   chatbots: ChatbotConfiguration[]
+  handleConversationSelection
 }
 
 const sideBarContainer = css`
@@ -37,7 +36,7 @@ const sideBarContainer = css`
 `
 
 const SideBar: React.FC<SideBarProps> = (props) => {
-  const { setChatbotDialog, conversations, setConversationId, setConfigurationId, chatbots } = props
+  const { setChatbotDialog, conversations, handleConversationSelection, chatbots } = props
   const menuState = useOverlayTriggerState({})
   const { t } = useTranslation()
   return (
@@ -69,9 +68,8 @@ const SideBar: React.FC<SideBarProps> = (props) => {
             <ConversationHistory
               menuState={menuState}
               conversations={conversations}
-              setConversationId={setConversationId}
-              setConfigurationId={setConfigurationId}
               chatbots={chatbots}
+              handleConversationSelection={handleConversationSelection}
             />
           </MobileDisclosureOverlay>
         </OverlayContainer>
@@ -99,9 +97,8 @@ const SideBar: React.FC<SideBarProps> = (props) => {
         </Button>
         <ConversationHistory
           conversations={conversations}
-          setConversationId={setConversationId}
-          setConfigurationId={setConfigurationId}
           chatbots={chatbots}
+          handleConversationSelection={handleConversationSelection}
         />
       </Disclosure>
     </div>

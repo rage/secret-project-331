@@ -114,14 +114,18 @@ const ChatbotCommandCenter = ({ chatbots, courses, conversations }: ChatbotComma
     return groupedSorted
   }, [chatbots, courses, t])
 
+  const handleConversationSelection = (conversationId, configurationId) => {
+    setConversationId(conversationId)
+    setConfigurationId(configurationId)
+  }
+
   return (
     <div className={gridContainer}>
       <SideBar
         setChatbotDialog={setChatbotDialog}
         conversations={conversations}
-        setConversationId={setConversationId}
-        setConfigurationId={setConfigurationId}
         chatbots={chatbots}
+        handleConversationSelection={handleConversationSelection}
       />
       <div
         className={css`

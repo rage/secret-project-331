@@ -10,11 +10,10 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
 
 interface ConversationHistory {
-  setConversationId: React.Dispatch<string>
   conversations: ChatbotConversation[]
-  setConfigurationId: React.Dispatch<string>
   chatbots: ChatbotConfiguration[]
   menuState?: OverlayTriggerState
+  handleConversationSelection
 }
 
 const buttonCss = css`
@@ -50,24 +49,21 @@ const chatbotLabelCss = css`
 `
 
 const ConversationHistory: React.FC<ConversationHistory> = ({
-  setConversationId,
   conversations,
-  setConfigurationId,
   chatbots,
   menuState,
+  handleConversationSelection,
 }) => {
   const { t } = useTranslation()
 
   return (
     <>
-      {/*             aria-label={t("unhide-course", { title: course.course_name })} */}
       {conversations.map((conversation) => (
         <Button
           size="medium"
           variant="icon"
           onClick={() => {
-            setConversationId(conversation.id)
-            setConfigurationId(conversation.chatbot_configuration_id)
+            handleConversationSelection(conversation.id, conversation.chatbot_configuration_id)
             if (menuState) {
               menuState.close()
             }

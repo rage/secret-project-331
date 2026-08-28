@@ -28,8 +28,13 @@ const disclosureButton = css`
   border: none;
   box-shadow: none;
   text-shadow: none;
-  padding: 0 12px;
-  padding-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  transition: background 120ms ease;
+  &[data-hovered] {
+    background: #f3f4f6;
+    cursor: pointer;
+  }
 `
 
 const reactAriaDisclosurePanel = css`

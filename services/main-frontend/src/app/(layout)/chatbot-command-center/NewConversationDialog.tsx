@@ -88,7 +88,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   open,
   onClose,
 }) => {
-  const { t } = useTranslation("shared-module")
+  const { t } = useTranslation()
   const [filterValue, setFilterValue] = useState("")
   const searchRef = useRef<HTMLInputElement>(null)
   const listRef = useRef(null)
@@ -136,7 +136,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
       isDismissable
       open={open}
       onClose={onClose}
-      title={"Chatbot selection"}
+      title={t("new-conversation-dialog-title")}
     >
       <div
         className={css`
@@ -159,6 +159,8 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
       <ul
         className={css`
           padding: 0;
+          max-height: 400px;
+          overflow: auto;
         `}
       >
         {chatbotOptionsFiltered.length === 0 ? (

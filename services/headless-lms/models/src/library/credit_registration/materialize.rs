@@ -199,22 +199,10 @@ FROM credit_registrations cr
   AND conf.deleted_at IS NULL
 WHERE cr.deleted_at IS NULL
   AND cr.superseded_by_id IS NULL
-  -- The success set only. A row whose outcome we do not know must not gain a successor, and one
-  -- abandoned by a consent withdrawal is in neither set.
+  -- The success set only: a row whose outcome we do not know must not gain a successor.
   AND cr.state = ANY($4::credit_registration_state [])
   AND cr.grade_scale_id IS NOT NULL
   AND cr.grade_id IS NOT NULL
-  -- The successor is born claimable, so consent is checked here rather than left to the next
-  -- precondition pass: withdrawal stops future submissions, and a registered attempt is the one
-  -- case where the student may have withdrawn long after the row went terminal.
-  AND EXISTS (
-    SELECT 1
-    FROM course_credit_registration_consents consent
-    WHERE consent.user_id = cr.user_id
-      AND consent.course_id = cr.course_id
-      AND consent.consent_given
-      AND consent.deleted_at IS NULL
-  )
   -- Two halves of one cheap pre-filter. A completion untouched since the attempt was created cannot
   -- have been regraded after that attempt froze its grade; but one touched for any other reason
   -- passes that test forever, and only the grade comparison below can tell the two apart, which is
@@ -290,8 +278,8 @@ LIMIT $1
         )
         .await?;
         // Not `pending`: the preconditions were cleared before the first attempt was accepted, the
-        // query above rechecks consent and eligibility, and a student number unlinked since sends
-        // the row back by itself when the submitter finds none.
+        // query above rechecks eligibility, and a student number unlinked since sends the row back
+        // by itself when the submitter finds none.
         starts.push(BatchMove {
             id: next,
             transition: Transition::to(CreditRegistrationState::ReadyToSubmit),

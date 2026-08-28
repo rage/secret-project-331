@@ -62,8 +62,7 @@ CREATE TYPE credit_registration_state AS ENUM (
   'failed_retryable',
   'failed_permanent',
   'blocked',
-  'cancelled',
-  'abandoned_by_consent_withdrawal'
+  'cancelled'
 );
 
 ALTER TABLE credit_registrations
@@ -128,7 +127,7 @@ ALTER TABLE credit_registrations
 ALTER COLUMN state
 SET DEFAULT 'pending';
 
-COMMENT ON TYPE credit_registration_state IS 'Lifecycle state of one credit registration. pending covers every precondition a submission waits on; which one a row is actually waiting for is derived at read time from the completion, the consent row and the verified student number, so the ledger holds no cache of it. The success set for reporting and for the double-registration guard is exactly {registered, duplicate, not_improved}. abandoned_by_consent_withdrawal is in neither the success nor the failure set: the Sisu-side outcome is permanently unknown to us, so every count, alert and stuck query must exclude it.';
+COMMENT ON TYPE credit_registration_state IS 'Lifecycle state of one credit registration. pending covers every precondition a submission waits on; which one a row is actually waiting for is derived at read time from the completion and the verified student number, so the ledger holds no cache of it. The success set for reporting and for the double-registration guard is exactly {registered, duplicate, not_improved}.';
 
 CREATE UNIQUE INDEX uq_credit_registrations_person_module ON credit_registrations (sisu_person_id, course_module_id)
 WHERE sisu_person_id IS NOT NULL
@@ -256,9 +255,6 @@ SELECT cr.id AS credit_registration_id,
   AND cmc.eligible_for_ects
   AND cmc.prerequisite_modules_completed
   AND NOT cmc.needs_to_be_reviewed AS completion_eligible,
-  consent.consent_given IS TRUE AS consented,
-  consent.consent_given IS FALSE
-  AND consent.consent_given_at IS NOT NULL AS consent_withdrawn,
   vsn.id IS NOT NULL AS has_verified_student_number,
   cr.student_number IS NOT NULL
   AND (
@@ -267,15 +263,10 @@ SELECT cr.id AS credit_registration_id,
   ) AS frozen_identity_stale
 FROM credit_registrations cr
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-  LEFT JOIN course_credit_registration_consents consent ON consent.user_id = cr.user_id
-  AND consent.course_id = cr.course_id
-  AND consent.deleted_at IS NULL
   LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
   AND vsn.deleted_at IS NULL;
 
 COMMENT ON VIEW credit_registration_preconditions IS 'The things one ledger row waits on, as they stand right now. The ledger records only that a row is pending, so this is where every surface that names the blocker, and the precondition recompute that acts on it, read the same answer.';
-
-COMMENT ON COLUMN credit_registration_preconditions.consent_withdrawn IS 'Consent given and then taken back, which blocks a row. Declining without ever having given it looks the same in the flag and does not: it leaves the row waiting for a change of mind.';
 
 COMMENT ON COLUMN credit_registration_preconditions.frozen_identity_stale IS 'The account has relinked to a different verified student number since this row froze its payload for import. A relink soft-deletes and re-inserts in one transaction, so has_verified_student_number stays true throughout and catches none of it.';
 
@@ -290,3 +281,5 @@ WHERE cm.enable_credit_registration_via_suotar
   AND conf.paused_at IS NULL;
 
 COMMENT ON VIEW credit_registration_active_course_modules IS 'Modules whose credit registration is switched on and not paused. The gate every phase that spends work on a module shares; both ways out of it freeze what is in flight rather than cancelling it, so a query filtering on membership must leave the rows it stops seeing alone.';
+
+DROP TABLE course_credit_registration_consents;

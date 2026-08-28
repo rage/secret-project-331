@@ -1,6 +1,5 @@
 //! Moving a row along, or out of, the chain of things that must be true before we submit. Decided
-//! from the database alone, so it keeps running during a Suotar outage and the consent endpoint can
-//! call it inside the transaction that writes the consent.
+//! from the database alone, so it keeps running during a Suotar outage.
 
 use crate::credit_registrations::{
     BatchMove, CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope, Transition,
@@ -20,7 +19,6 @@ struct PendingMove {
     state: CreditRegistrationState,
     /// `None` for a row whose backoff has elapsed; where it resumes is decided by [`resume_state`].
     target: Option<CreditRegistrationState>,
-    consent_withdrawn: bool,
     /// Names the blocker in the audit event when the target is `pending`.
     preconditions: PendingPreconditions,
     has_submitted_attainment: bool,
@@ -99,16 +97,6 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
             ),
             ..base
         },
-        State::AbandonedByConsentWithdrawal => Transition {
-            // Not a failure: no admin is asked to look, and no count may treat it as one.
-            needs_admin_attention: Some(false),
-            event_message: Some(
-                "Consent was withdrawn while this was in flight. Polling stopped, and whether the \
-                 study registry recorded it is unknown."
-                    .to_string(),
-            ),
-            ..base
-        },
         State::Cancelled => Transition {
             event_message: Some(
                 "The completion no longer exists and nothing had been submitted.".to_string(),
@@ -117,12 +105,7 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
         },
         State::Blocked => Transition {
             event_message: Some(
-                if pending.consent_withdrawn {
-                    "Consent was withdrawn before anything was submitted."
-                } else {
-                    "The completion is no longer eligible for registration."
-                }
-                .to_string(),
+                "The completion is no longer eligible for registration.".to_string(),
             ),
             ..base
         },
@@ -139,9 +122,6 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
                 match reason {
                     CreditRegistrationPendingReason::Completion => {
                         "The completion is not registrable yet."
-                    }
-                    CreditRegistrationPendingReason::Consent => {
-                        "The student has not consented to credit registration."
                     }
                     CreditRegistrationPendingReason::StudentNumber => {
                         "No verified student number is linked to the account."
@@ -187,8 +167,6 @@ WITH facts AS (
     ) AS has_payload_snapshot,
     p.completion_deleted,
     p.completion_eligible AS eligible,
-    p.consented,
-    p.consent_withdrawn,
     p.has_verified_student_number AS has_student_number,
     p.frozen_identity_stale
   FROM credit_registrations cr
@@ -211,16 +189,6 @@ WITH facts AS (
 targets AS (
   SELECT facts.*,
     CASE
-      -- Withdrawal of something already sent. The request is out of our hands, so we stop asking.
-      -- This WHEN and the `consent_withdrawn THEN 'blocked'` one below reimplement
-      -- withdrawal::withdrawal_target() in SQL; kept in sync only by
-      -- preconditions::tests::withdrawal_does_what_the_rule_says_from_every_state.
-      WHEN facts.state IN (
-        'submitting',
-        'submission_uncertain',
-        'awaiting_verification'
-      )
-      AND facts.consent_withdrawn THEN 'abandoned_by_consent_withdrawal'
       -- A worker committed `submitting` and never came back with an answer. There is no way to
       -- know whether the request landed, so the row is never imported again.
       WHEN facts.state = 'submitting'
@@ -231,7 +199,6 @@ targets AS (
         'awaiting_verification'
       ) THEN facts.state
       WHEN facts.completion_deleted THEN 'cancelled'
-      WHEN facts.consent_withdrawn THEN 'blocked'
       WHEN facts.state = 'failed_retryable'
       AND NOT facts.eligible THEN 'blocked'
       WHEN facts.state = 'failed_retryable'
@@ -239,10 +206,7 @@ targets AS (
       -- Before the resume arm below, or a retry would carry on past a precondition the student has
       -- since removed and import would send the frozen student_number under a link they gave up.
       WHEN facts.state = 'failed_retryable'
-      AND (
-        NOT facts.consented
-        OR NOT facts.has_student_number
-      ) THEN 'pending'
+      AND NOT facts.has_student_number THEN 'pending'
       -- Resumed at whichever state matches how far it had got; decided outside this query.
       WHEN facts.state = 'failed_retryable'
       AND facts.next_attempt_at <= now() THEN NULL
@@ -252,7 +216,6 @@ targets AS (
       WHEN NOT facts.eligible
       AND facts.state <> 'pending' THEN 'blocked'
       WHEN NOT facts.eligible
-      OR NOT facts.consented
       OR NOT facts.has_student_number THEN 'pending'
       -- The periodic look for an enrolment that may have appeared since.
       WHEN facts.state = 'no_usable_enrolment'
@@ -274,9 +237,7 @@ targets AS (
 SELECT id,
   state AS "state: CreditRegistrationState",
   target AS "target?: CreditRegistrationState",
-  consent_withdrawn AS "consent_withdrawn!",
   eligible AS "eligible!",
-  consented AS "consented!",
   has_student_number AS "has_student_number!",
   has_submitted_attainment AS "has_submitted_attainment!",
   has_payload_snapshot AS "has_payload_snapshot!",
@@ -302,10 +263,8 @@ LIMIT $1
             id: row.id,
             state: row.state,
             target: row.target,
-            consent_withdrawn: row.consent_withdrawn,
             preconditions: PendingPreconditions {
                 completion_eligible: row.eligible,
-                consented: row.consented,
                 has_verified_student_number: row.has_student_number,
             },
             has_submitted_attainment: row.has_submitted_attainment,
@@ -318,7 +277,6 @@ LIMIT $1
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::course_credit_registration_consents;
     use crate::course_module_completions::{
         CourseModuleCompletionGranter, NewCourseModuleCompletion,
     };
@@ -470,18 +428,11 @@ mod tests {
         get_by_id(conn, fixture.registration).await.unwrap().state
     }
 
-    /// One outstanding precondition looks the same in the ledger as three, so the row is written
-    /// once, when the last of them is met.
     #[tokio::test]
-    async fn an_eligible_completion_moves_on_only_once_the_student_has_done_every_part() {
+    async fn an_eligible_completion_waits_for_a_linked_student_number() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
 
-        assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
-
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
         assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
@@ -496,85 +447,6 @@ mod tests {
         );
 
         assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
-    }
-
-    #[tokio::test]
-    async fn declining_consent_leaves_the_row_waiting_rather_than_blocked() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, false)
-            .await
-            .unwrap();
-
-        recompute(tx.as_mut(), &fixture).await;
-        assert_eq!(
-            state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::Pending
-        );
-    }
-
-    #[tokio::test]
-    async fn withdrawing_consent_before_anything_is_sent_blocks_the_row() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
-        link_student_number(tx.as_mut(), user).await;
-        recompute(tx.as_mut(), &fixture).await;
-        assert_eq!(
-            state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
-        );
-
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, false)
-            .await
-            .unwrap();
-        recompute(tx.as_mut(), &fixture).await;
-        assert_eq!(
-            state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::Blocked
-        );
-
-        // Consenting again only puts it back in the queue because withdrawal blocked rather than
-        // cancelled.
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
-        recompute(tx.as_mut(), &fixture).await;
-        assert_eq!(
-            state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
-        );
-    }
-
-    #[tokio::test]
-    async fn withdrawing_consent_on_an_item_in_flight_abandons_it() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
-        link_student_number(tx.as_mut(), user).await;
-        transition(
-            tx.as_mut(),
-            fixture.registration,
-            &Transition::planted(CreditRegistrationState::AwaitingVerification),
-        )
-        .await
-        .unwrap();
-
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, false)
-            .await
-            .unwrap();
-        recompute(tx.as_mut(), &fixture).await;
-        let row = get_by_id(tx.as_mut(), fixture.registration).await.unwrap();
-        assert_eq!(
-            row.state,
-            CreditRegistrationState::AbandonedByConsentWithdrawal
-        );
-        assert!(row.terminal_at.is_some());
-        assert!(!row.needs_admin_attention);
     }
 
     #[tokio::test]
@@ -608,9 +480,6 @@ mod tests {
     async fn an_uncertain_row_is_never_moved_back_towards_import() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
         link_student_number(tx.as_mut(), user).await;
         transition(
             tx.as_mut(),
@@ -631,9 +500,6 @@ mod tests {
     async fn losing_eligibility_blocks_a_row_and_regaining_it_unblocks_it() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
         link_student_number(tx.as_mut(), user).await;
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
@@ -687,9 +553,6 @@ mod tests {
     async fn unlinking_the_student_number_sends_a_queued_row_back_to_wait_for_one() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
         link_student_number(tx.as_mut(), user).await;
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
@@ -715,9 +578,6 @@ mod tests {
     async fn a_retryable_row_resumes_where_it_had_got_to_once_its_backoff_elapses() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
         link_student_number(tx.as_mut(), user).await;
         transition(
             tx.as_mut(),
@@ -754,9 +614,6 @@ mod tests {
     async fn a_row_that_kept_failing_for_a_week_becomes_a_support_case() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
         link_student_number(tx.as_mut(), user).await;
         transition(
             tx.as_mut(),
@@ -781,9 +638,6 @@ mod tests {
     async fn a_row_with_no_usable_enrolment_is_looked_at_again_when_its_recheck_falls_due() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
         link_student_number(tx.as_mut(), user).await;
         transition(
             tx.as_mut(),
@@ -821,9 +675,6 @@ mod tests {
     async fn a_row_queued_for_import_is_left_where_it_is() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
         link_student_number(tx.as_mut(), user).await;
         transition(
             tx.as_mut(),
@@ -891,39 +742,6 @@ mod tests {
         );
     }
 
-    /// The query decides withdrawal itself, so it has to be checked against `withdrawal_target`.
-    #[tokio::test]
-    async fn withdrawal_does_what_the_rule_says_from_every_state() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        for state in CreditRegistrationState::ALL {
-            insert_data!(tx: tx; user: student);
-            let fixture =
-                fixture(tx.as_mut(), student, course, instance.id, course_module.id).await;
-            course_credit_registration_consents::upsert(tx.as_mut(), student, course, true)
-                .await
-                .unwrap();
-            link_student_number(tx.as_mut(), student).await;
-            transition(
-                tx.as_mut(),
-                fixture.registration,
-                &Transition::planted(state),
-            )
-            .await
-            .unwrap();
-            course_credit_registration_consents::upsert(tx.as_mut(), student, course, false)
-                .await
-                .unwrap();
-
-            recompute(tx.as_mut(), &fixture).await;
-            let expected = super::super::withdrawal::withdrawal_target(state).unwrap_or(state);
-            assert_eq!(
-                self::state(tx.as_mut(), &fixture).await,
-                expected,
-                "withdrawal from {state:?}"
-            );
-        }
-    }
-
     #[test]
     fn a_retry_resumes_where_the_row_had_got_to() {
         assert_eq!(
@@ -953,9 +771,6 @@ mod tests {
     async fn a_scoped_recompute_leaves_another_students_row_alone() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let mine = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
-        course_credit_registration_consents::upsert(tx.as_mut(), user, course, true)
-            .await
-            .unwrap();
         link_student_number(tx.as_mut(), user).await;
         insert_data!(tx: tx; user: other_user);
         let theirs = fixture(

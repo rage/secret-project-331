@@ -54,8 +54,7 @@
                 "failed_retryable",
                 "failed_permanent",
                 "blocked",
-                "cancelled",
-                "abandoned_by_consent_withdrawal"
+                "cancelled"
               ]
             }
           }
@@ -80,8 +79,7 @@
                 "failed_retryable",
                 "failed_permanent",
                 "blocked",
-                "cancelled",
-                "abandoned_by_consent_withdrawal"
+                "cancelled"
               ]
             }
           }

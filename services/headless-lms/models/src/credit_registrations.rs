@@ -22,8 +22,8 @@ use crate::verified_student_numbers::StudentNumberVerificationMethod;
 #[sqlx(type_name = "credit_registration_state", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum CreditRegistrationState {
-    /// Waiting on a precondition: the completion, the student's consent or a linked student number.
-    /// Which one is derived at read time, never stored.
+    /// Waiting on a precondition: the completion or a linked student number. Which one is derived
+    /// at read time, never stored.
     Pending,
     ReadyToSubmit,
     ResolvingEnrolment,
@@ -40,12 +40,11 @@ pub enum CreditRegistrationState {
     FailedPermanent,
     Blocked,
     Cancelled,
-    AbandonedByConsentWithdrawal,
 }
 
 impl CreditRegistrationState {
     /// Every state, so a classification can be proven exhaustive at runtime too.
-    pub const ALL: [Self; 17] = [
+    pub const ALL: [Self; 16] = [
         Self::Pending,
         Self::ReadyToSubmit,
         Self::ResolvingEnrolment,
@@ -62,7 +61,6 @@ impl CreditRegistrationState {
         Self::FailedPermanent,
         Self::Blocked,
         Self::Cancelled,
-        Self::AbandonedByConsentWithdrawal,
     ];
 
     /// States the pipeline never leaves on its own. `terminal_at` tracks membership, cleared on
@@ -75,7 +73,6 @@ impl CreditRegistrationState {
                 | Self::NotImproved
                 | Self::FailedPermanent
                 | Self::Cancelled
-                | Self::AbandonedByConsentWithdrawal
         )
     }
 
@@ -111,8 +108,8 @@ impl CreditRegistrationState {
     pub fn allowed_targets(self) -> &'static [Self] {
         use CreditRegistrationState as S;
         match self {
-            // The way out of the wait is every precondition being met; the other two edges are the
-            // consent or the completion going away.
+            // The way out of the wait is every precondition being met; the other two edges are
+            // eligibility or the completion going away.
             S::Pending => &[S::ReadyToSubmit, S::Blocked, S::Cancelled],
             // `resolving_enrolment` is resolve-enrolments claiming the row and `failed_retryable`
             // is it finding nothing to ask about; the rest is that phase's preflight and the
@@ -148,8 +145,8 @@ impl CreditRegistrationState {
                 S::Cancelled,
             ],
             S::NoUsableEnrolment => &[S::Pending, S::ReadyToSubmit, S::Blocked, S::Cancelled],
-            // A request is in flight: every edge out is an answer to it, or withdrawal giving up on
-            // one. Nothing leads back to a state import claims.
+            // A request is in flight: every edge out is an answer to it. Nothing leads back to a
+            // state import claims.
             S::Submitting => &[
                 S::Pending,
                 S::NoUsableEnrolment,
@@ -160,16 +157,12 @@ impl CreditRegistrationState {
                 S::NotImproved,
                 S::FailedRetryable,
                 S::FailedPermanent,
-                S::AbandonedByConsentWithdrawal,
             ],
             // Both poller states: verify is the only path to `registered`, and neither may reach a
             // state that leads back to import.
-            S::AwaitingVerification | S::SubmissionUncertain => &[
-                S::Registered,
-                S::Duplicate,
-                S::Misregistered,
-                S::AbandonedByConsentWithdrawal,
-            ],
+            S::AwaitingVerification | S::SubmissionUncertain => {
+                &[S::Registered, S::Duplicate, S::Misregistered]
+            }
             // The backoff elapsing resumes the row at whichever state matches how far it had got.
             S::FailedRetryable => &[
                 S::Pending,
@@ -188,8 +181,7 @@ impl CreditRegistrationState {
             | S::NotImproved
             | S::Misregistered
             | S::FailedPermanent
-            | S::Cancelled
-            | S::AbandonedByConsentWithdrawal => &[],
+            | S::Cancelled => &[],
         }
     }
 
@@ -200,12 +192,10 @@ impl CreditRegistrationState {
     /// copies. `strictness` is the one real difference between the callers: how far outside a
     /// failure a row may still be moved from. Superseded is checked first regardless, since acting
     /// on a replaced attempt is never right, and an outcome the registry already holds next, since
-    /// no strictness may resubmit over one; consent is checked last, since it is cheapest to be
-    /// wrong about first (every other check is a fact about `self`, not a lookup).
+    /// no strictness may resubmit over one.
     pub fn resubmission_refusal(
         self,
         superseded: bool,
-        consented: bool,
         strictness: ResubmissionStrictness,
     ) -> Option<ResubmissionRefusal> {
         if superseded {
@@ -217,17 +207,10 @@ impl CreditRegistrationState {
         if strictness != ResubmissionStrictness::Any && self == Self::SubmissionUncertain {
             return Some(ResubmissionRefusal::SubmissionUncertain);
         }
-        if strictness == ResubmissionStrictness::OnlyFailedPermanent {
-            match self {
-                Self::FailedPermanent => {}
-                Self::AbandonedByConsentWithdrawal => {
-                    return Some(ResubmissionRefusal::ConsentWithdrawn);
-                }
-                _ => return Some(ResubmissionRefusal::NotFailedPermanent),
-            }
-        }
-        if !consented {
-            return Some(ResubmissionRefusal::WithoutConsent);
+        if strictness == ResubmissionStrictness::OnlyFailedPermanent
+            && self != Self::FailedPermanent
+        {
+            return Some(ResubmissionRefusal::NotFailedPermanent);
         }
         None
     }
@@ -238,13 +221,11 @@ impl CreditRegistrationState {
     /// the edge table says the move exists, this says whether this row may take it. A row whose
     /// outcome the study registry already holds is refused whatever the target, because `cancelled`
     /// is a legal step on to `ready_to_submit` and would otherwise launder a second submission for
-    /// a credit Sisu has. `consented` is the account's standing consent for this row's course;
-    /// `strictness` is how the caller treats `submission_uncertain`.
+    /// a credit Sisu has. `strictness` is how the caller treats `submission_uncertain`.
     pub fn admin_transition_refusal(
         self,
         target: Self,
         superseded: bool,
-        consented: bool,
         strictness: ResubmissionStrictness,
     ) -> Option<ResubmissionRefusal> {
         if superseded {
@@ -256,7 +237,7 @@ impl CreditRegistrationState {
         if target != Self::ReadyToSubmit {
             return None;
         }
-        self.resubmission_refusal(false, consented, strictness)
+        self.resubmission_refusal(false, strictness)
     }
 
     /// How long a row entering this state waits before the pipeline may claim it again, when the
@@ -319,12 +300,8 @@ pub enum ResubmissionRefusal {
     AlreadySucceeded,
     /// The submission may have landed, so only a human looking at this one row may move it.
     SubmissionUncertain,
-    /// The student withdrew consent while the registration was in flight.
-    ConsentWithdrawn,
     /// Not a failure at all: [`ResubmissionStrictness::OnlyFailedPermanent`] only.
     NotFailedPermanent,
-    /// The student has no standing consent for this course.
-    WithoutConsent,
 }
 
 /// Why a ledger row is where it is; `state` says what happens to it next.
@@ -1232,7 +1209,6 @@ pub struct StudentCreditRegistration {
     /// Needed to build the enrolment link a student with no usable enrolment is sent to.
     pub open_university_product_id: Option<String>,
     pub completion_eligible: bool,
-    pub consented: bool,
     pub has_verified_student_number: bool,
 }
 
@@ -1241,7 +1217,6 @@ impl StudentCreditRegistration {
     pub fn preconditions(&self) -> PendingPreconditions {
         PendingPreconditions {
             completion_eligible: self.completion_eligible,
-            consented: self.consented,
             has_verified_student_number: self.has_verified_student_number,
         }
     }
@@ -1292,7 +1267,6 @@ SELECT cr.id,
   r.label AS "enrolment_realisation_name?",
   conf.open_university_product_id AS "open_university_product_id?",
   p.completion_eligible AS "completion_eligible!",
-  p.consented AS "consented!",
   p.has_verified_student_number AS "has_verified_student_number!"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
@@ -1716,12 +1690,13 @@ WHERE id = $1
     Ok(())
 }
 
-/// The course's live rows a bulk retry can actually move: failed for good, and with a standing
-/// consent. Oldest first, capped by `limit`.
+/// The course's live rows a bulk retry can actually move: failed for good. Oldest first, capped by
+/// `limit`.
 ///
 /// Deliberately only these. A row a retry always refuses keeps matching for as long as it exists, so
 /// letting one into the batch would spend a slot of the cap on it forever: a course holding `limit`
-/// of them could never retry anything again. [`count_unretryable_by_course_id`] is what reports them.
+/// of them could never retry anything again. [`count_submission_uncertain_by_course_id`] is what
+/// reports them.
 pub async fn get_retryable_ids_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -1735,14 +1710,6 @@ WHERE cr.course_id = $1
   AND cr.state = 'failed_permanent'
   AND cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
-  AND EXISTS (
-    SELECT 1
-    FROM course_credit_registration_consents consent
-    WHERE consent.user_id = cr.user_id
-      AND consent.course_id = cr.course_id
-      AND consent.consent_given
-      AND consent.deleted_at IS NULL
-  )
 ORDER BY cr.state_entered_at
 LIMIT $2
         "#,
@@ -1754,57 +1721,30 @@ LIMIT $2
     Ok(res)
 }
 
-/// How many of a course's live rows a bulk retry has to refuse, by reason.
+/// How many of a course's live rows a bulk retry has to refuse, all for the one remaining reason:
+/// the submission may have landed, so only a human may move that row.
 ///
 /// Counts the whole course, not a capped window: these are the rows
 /// [`get_retryable_ids_by_course_id`] leaves out, and a teacher clicking again will never work
-/// through them. Each count is one verdict of
-/// [`CreditRegistrationState::resubmission_refusal`], reproduced in SQL because asking it per row
-/// would mean walking every registration of the course; the two are kept in step only by
-/// `tests::the_unretryable_counts_match_the_resubmission_verdicts`.
-pub async fn count_unretryable_by_course_id(
+/// through them.
+pub async fn count_submission_uncertain_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<(ResubmissionRefusal, i64)>> {
-    let row = sqlx::query!(
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
         r#"
-SELECT COUNT(*) FILTER (
-    WHERE cr.state = 'submission_uncertain'
-  ) AS "submission_uncertain!",
-  COUNT(*) FILTER (
-    WHERE cr.state = 'failed_permanent'
-  ) AS "without_consent!"
+SELECT COUNT(*) AS "count!"
 FROM credit_registrations cr
 WHERE cr.course_id = $1
-  AND cr.state IN ('failed_permanent', 'submission_uncertain')
+  AND cr.state = 'submission_uncertain'
   AND cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
-  AND (
-    cr.state = 'submission_uncertain'
-    OR NOT EXISTS (
-      SELECT 1
-      FROM course_credit_registration_consents consent
-      WHERE consent.user_id = cr.user_id
-        AND consent.course_id = cr.course_id
-        AND consent.consent_given
-        AND consent.deleted_at IS NULL
-    )
-  )
         "#,
         course_id,
     )
     .fetch_one(conn)
     .await?;
-    Ok([
-        (
-            ResubmissionRefusal::SubmissionUncertain,
-            row.submission_uncertain,
-        ),
-        (ResubmissionRefusal::WithoutConsent, row.without_consent),
-    ]
-    .into_iter()
-    .filter(|(_, count)| *count > 0)
-    .collect())
+    Ok(count)
 }
 
 /// Live rows per state, for the dashboard funnel. Superseded attempts are excluded, as in the
@@ -1838,11 +1778,6 @@ SELECT COUNT(*) FILTER (
   ) AS "completion_count!",
   COUNT(*) FILTER (
     WHERE p.completion_eligible
-      AND NOT p.consented
-  ) AS "consent_count!",
-  COUNT(*) FILTER (
-    WHERE p.completion_eligible
-      AND p.consented
       AND NOT p.has_verified_student_number
   ) AS "student_number_count!"
 FROM credit_registrations cr
@@ -1856,37 +1791,8 @@ WHERE cr.state = 'pending'
     .await?;
     Ok(PendingReasonCounts {
         completion_count: row.completion_count,
-        consent_count: row.consent_count,
         student_number_count: row.student_number_count,
     })
-}
-
-/// This account's live rows on this course that consent is the thing holding up. What the consent
-/// screen counts before and after the answer, so the difference is what consenting unblocked.
-pub async fn count_waiting_for_consent(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    course_id: Uuid,
-) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
-        r#"
-SELECT COUNT(*) AS "count!"
-FROM credit_registrations cr
-  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
-WHERE cr.user_id = $1
-  AND cr.course_id = $2
-  AND cr.state = 'pending'
-  AND p.completion_eligible
-  AND NOT p.consented
-  AND cr.superseded_by_id IS NULL
-  AND cr.deleted_at IS NULL
-        "#,
-        user_id,
-        course_id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(count)
 }
 
 /// Live rows of one course per module and state, for the teacher's per-module summary, with how many
@@ -1960,7 +1866,6 @@ pub struct TeacherCreditRegistration {
     pub sisu_person_id: Option<String>,
     pub enrolment_realisation_name: Option<String>,
     pub completion_eligible: bool,
-    pub consented: bool,
     /// The page's total row count, so a caller can read it off the first row instead of a second query.
     pub total_count: i64,
 }
@@ -1971,7 +1876,6 @@ impl TeacherCreditRegistration {
     pub fn preconditions(&self) -> PendingPreconditions {
         PendingPreconditions {
             completion_eligible: self.completion_eligible,
-            consented: self.consented,
             has_verified_student_number: self.student_number.is_some(),
         }
     }
@@ -2032,7 +1936,6 @@ SELECT cr.id,
   vsn.sisu_person_id AS "sisu_person_id?",
   r.label AS "enrolment_realisation_name?",
   p.completion_eligible AS "completion_eligible!",
-  p.consented AS "consented!",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
   JOIN course_modules cm ON cm.id = cr.course_module_id
@@ -2194,7 +2097,6 @@ pub struct AdminCreditRegistration {
     pub verified_student_number_at: Option<DateTime<Utc>>,
     pub verified_student_number_via: Option<StudentNumberVerificationMethod>,
     pub completion_eligible: bool,
-    pub consented: bool,
     pub has_verified_student_number: bool,
     /// The page's total row count, so a caller can read it off the first row instead of a second query.
     pub total_count: i64,
@@ -2208,7 +2110,6 @@ impl AdminCreditRegistration {
             .then(|| {
                 PendingPreconditions {
                     completion_eligible: self.completion_eligible,
-                    consented: self.consented,
                     has_verified_student_number: self.has_verified_student_number,
                 }
                 .reason()
@@ -2322,7 +2223,6 @@ SELECT cr.id,
   vsn.verified_at AS "verified_student_number_at?",
   vsn.verified_via AS "verified_student_number_via?",
   p.completion_eligible AS "completion_eligible!",
-  p.consented AS "consented!",
   p.has_verified_student_number AS "has_verified_student_number!",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
@@ -2443,8 +2343,7 @@ pub struct CreditRegistrationErrorCodeCount {
     pub terminal_failure_count: i64,
 }
 
-/// The error-code breakdown the Overview shows. A row abandoned by a consent withdrawal carries no
-/// failure of ours, so it is in neither column.
+/// The error-code breakdown the Overview shows.
 pub async fn count_by_error_code(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<CreditRegistrationErrorCodeCount>> {
@@ -2457,7 +2356,6 @@ SELECT error_code AS "error_code!",
   ) AS "terminal_failure_count!"
 FROM credit_registrations
 WHERE error_code IS NOT NULL
-  AND state <> 'abandoned_by_consent_withdrawal'
   AND superseded_by_id IS NULL
   AND deleted_at IS NULL
 GROUP BY error_code
@@ -2561,8 +2459,7 @@ ORDER BY 1
     Ok(rows)
 }
 
-/// What the pipeline finished in a window. Rows abandoned by a consent withdrawal are in no column
-/// and in no total: they are neither a success nor a failure of ours.
+/// What the pipeline finished in a window.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct TerminalOutcomeTotals {
     /// `registered`, `duplicate` and `not_improved`.
@@ -2571,8 +2468,7 @@ pub struct TerminalOutcomeTotals {
     pub registered_count: i64,
     pub failed_permanent_count: i64,
     pub cancelled_count: i64,
-    pub abandoned_count: i64,
-    /// The denominator of the success rate: everything above except the abandoned.
+    /// The denominator of the success rate.
     pub total_count: i64,
 }
 
@@ -2589,12 +2485,7 @@ SELECT COUNT(*) FILTER (
   COUNT(*) FILTER (WHERE state = 'registered') AS "registered_count!",
   COUNT(*) FILTER (WHERE state = 'failed_permanent') AS "failed_permanent_count!",
   COUNT(*) FILTER (WHERE state = 'cancelled') AS "cancelled_count!",
-  COUNT(*) FILTER (
-    WHERE state = 'abandoned_by_consent_withdrawal'
-  ) AS "abandoned_count!",
-  COUNT(*) FILTER (
-    WHERE state <> 'abandoned_by_consent_withdrawal'
-  ) AS "total_count!"
+  COUNT(*) AS "total_count!"
 FROM credit_registrations
 WHERE terminal_at >= $1
   AND superseded_by_id IS NULL
@@ -2709,16 +2600,14 @@ pub struct ModuleRegistrationTotals {
     pub success_count: i64,
     pub in_flight_count: i64,
     pub failed_count: i64,
-    pub abandoned_count: i64,
     pub needs_admin_attention_count: i64,
-    pub awaiting_consent_count: i64,
     pub last_registered_at: Option<DateTime<Utc>>,
     /// The code most of the module's failing rows carry, which is usually the whole diagnosis.
     pub top_error_code: Option<CreditRegistrationErrorCode>,
 }
 
-/// `failed_count` is `failed_permanent` and `misregistered` only; a withdrawal is in neither that
-/// column nor the success one, so both are shown and the two never add up to the total by design.
+/// `failed_count` is `failed_permanent` and `misregistered` only, so the columns do not add up to
+/// the total by design.
 pub async fn count_by_module(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<ModuleRegistrationTotals>> {
@@ -2734,21 +2623,13 @@ SELECT cr.course_module_id,
   COUNT(*) FILTER (
     WHERE cr.state = ANY($2::credit_registration_state [])
   ) AS "failed_count!",
-  COUNT(*) FILTER (
-    WHERE cr.state = 'abandoned_by_consent_withdrawal'
-  ) AS "abandoned_count!",
   COUNT(*) FILTER (WHERE cr.needs_admin_attention) AS "needs_admin_attention_count!",
-  COUNT(*) FILTER (
-    WHERE cr.state = 'pending'
-      AND NOT p.consented
-  ) AS "awaiting_consent_count!",
   MAX(cr.registered_at) AS "last_registered_at",
   (
     SELECT inner_cr.error_code
     FROM credit_registrations inner_cr
     WHERE inner_cr.course_module_id = cr.course_module_id
       AND inner_cr.error_code IS NOT NULL
-      AND inner_cr.state <> 'abandoned_by_consent_withdrawal'
       AND inner_cr.superseded_by_id IS NULL
       AND inner_cr.deleted_at IS NULL
     GROUP BY inner_cr.error_code
@@ -2757,7 +2638,6 @@ SELECT cr.course_module_id,
     LIMIT 1
   ) AS "top_error_code?: CreditRegistrationErrorCode"
 FROM credit_registrations cr
-  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
 WHERE superseded_by_id IS NULL
   AND deleted_at IS NULL
 GROUP BY cr.course_module_id
@@ -2800,8 +2680,8 @@ pub struct AttentionRegistration {
 
 /// Rows at least one attention detector picked, worst-waiting first.
 ///
-/// Superseded rows and `abandoned_by_consent_withdrawal` are excluded in the query rather than left
-/// to a predicate elsewhere: a false positive here costs an operator's attention directly.
+/// Superseded rows are excluded in the query rather than left to a predicate elsewhere: a false
+/// positive here costs an operator's attention directly.
 /// `thresholds` are the same seconds [`count_stuck`] uses, so the table and the alert cannot
 /// disagree about what stuck means.
 pub async fn get_attention_items(
@@ -2863,7 +2743,6 @@ FROM credit_registrations cr
   ) d
 WHERE cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
-  AND cr.state <> 'abandoned_by_consent_withdrawal'
   AND (
     d.stuck_in_state
     OR d.permanent_error
@@ -3092,35 +2971,6 @@ mod tests {
                 }
             }
         }
-    }
-
-    /// The two `FILTER`s of [`count_unretryable_by_course_id`], asked of the shared precedence
-    /// instead: the SQL counts rows a retry refuses, and this is what it must agree with.
-    #[test]
-    fn the_unretryable_counts_match_the_resubmission_verdicts() {
-        let verdict = |state: CreditRegistrationState, consented| {
-            state.resubmission_refusal(
-                false,
-                consented,
-                ResubmissionStrictness::OnlyFailedPermanent,
-            )
-        };
-        for consented in [true, false] {
-            assert_eq!(
-                verdict(CreditRegistrationState::SubmissionUncertain, consented),
-                Some(ResubmissionRefusal::SubmissionUncertain),
-                "counted whatever the consent"
-            );
-        }
-        assert_eq!(
-            verdict(CreditRegistrationState::FailedPermanent, false),
-            Some(ResubmissionRefusal::WithoutConsent)
-        );
-        // Retryable, so counted by neither filter: this is what the batch query picks up instead.
-        assert_eq!(
-            verdict(CreditRegistrationState::FailedPermanent, true),
-            None
-        );
     }
 
     #[test]

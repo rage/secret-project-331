@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT error_code AS \"error_code!\",\n  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE state = ANY($1::credit_registration_state [])\n  ) AS \"terminal_failure_count!\"\nFROM credit_registrations\nWHERE error_code IS NOT NULL\n  AND state <> 'abandoned_by_consent_withdrawal'\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY error_code\nORDER BY COUNT(*) DESC\n        ",
+  "query": "\nSELECT error_code AS \"error_code!\",\n  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE state = ANY($1::credit_registration_state [])\n  ) AS \"terminal_failure_count!\"\nFROM credit_registrations\nWHERE error_code IS NOT NULL\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY error_code\nORDER BY COUNT(*) DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -83,8 +83,7 @@
                       "failed_retryable",
                       "failed_permanent",
                       "blocked",
-                      "cancelled",
-                      "abandoned_by_consent_withdrawal"
+                      "cancelled"
                     ]
                   }
                 }
@@ -100,5 +99,5 @@
       null
     ]
   },
-  "hash": "ee0abb3702d4d065bdb768a3745b3536bc6e3521e3417e0855c6ef97c30321a5"
+  "hash": "cc06ec29981642a013d6ca2df20d802a6237a56bd389735c95c710cf10f5fe2e"
 }

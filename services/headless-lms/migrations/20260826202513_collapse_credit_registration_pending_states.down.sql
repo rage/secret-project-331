@@ -1,3 +1,50 @@
+CREATE TABLE course_credit_registration_consents (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id),
+  course_id UUID NOT NULL REFERENCES courses(id),
+  consent_given BOOLEAN NOT NULL,
+  consent_given_at TIMESTAMP WITH TIME ZONE,
+  consent_withdrawn_at TIMESTAMP WITH TIME ZONE,
+  asked_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  -- Without this, "when did this student consent?" can answer NULL on a consent record.
+  CONSTRAINT course_credit_registration_consents_flag_timestamp CHECK (
+    CASE
+      WHEN consent_given THEN consent_given_at IS NOT NULL
+      ELSE consent_withdrawn_at IS NOT NULL
+    END
+  )
+);
+
+CREATE UNIQUE INDEX uq_course_credit_registration_consents_user_course ON course_credit_registration_consents (user_id, course_id, deleted_at) NULLS NOT DISTINCT;
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON course_credit_registration_consents FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE course_credit_registration_consents IS 'Per (user, course) consent to register completions into the study registry. One consent covers every module of the course. No row means never asked, which is what makes the course-start dialog appear; consent_given = false means asked and declined, which must not re-ask on every page load.';
+
+COMMENT ON COLUMN course_credit_registration_consents.id IS 'A unique, stable identifier for the record.';
+
+COMMENT ON COLUMN course_credit_registration_consents.user_id IS 'The student who was asked.';
+
+COMMENT ON COLUMN course_credit_registration_consents.course_id IS 'The course the consent covers, including all of its modules.';
+
+COMMENT ON COLUMN course_credit_registration_consents.consent_given IS 'The current answer. Flipping it stamps the corresponding timestamp and leaves the other one intact, so gave-then-withdrew history survives in the row.';
+
+COMMENT ON COLUMN course_credit_registration_consents.consent_given_at IS 'When consent was last given.';
+
+COMMENT ON COLUMN course_credit_registration_consents.consent_withdrawn_at IS 'When consent was last withdrawn. Withdrawal stops future submissions and abandons in-flight ones; it cannot un-register anything already in Sisu.';
+
+COMMENT ON COLUMN course_credit_registration_consents.asked_at IS 'When the student was first asked.';
+
+COMMENT ON COLUMN course_credit_registration_consents.created_at IS 'Timestamp when the record was created.';
+
+COMMENT ON COLUMN course_credit_registration_consents.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+
+COMMENT ON COLUMN course_credit_registration_consents.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+
 DROP VIEW IF EXISTS credit_registration_active_course_modules;
 
 DROP VIEW IF EXISTS credit_registration_preconditions;

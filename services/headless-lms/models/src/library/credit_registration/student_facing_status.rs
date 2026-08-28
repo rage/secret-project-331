@@ -13,7 +13,6 @@ use super::pending_reason::{CreditRegistrationPendingReason, PendingPrecondition
 #[serde(rename_all = "snake_case")]
 pub enum StudentFacingCreditRegistrationStatus {
     WaitingForCompletion,
-    NeedsConsent,
     NeedsStudentNumber,
     InProgress,
     NeedsEnrolment,
@@ -34,7 +33,6 @@ impl StudentFacingCreditRegistrationStatus {
         match state {
             State::Pending => match preconditions.reason() {
                 Some(Reason::Completion) => Self::WaitingForCompletion,
-                Some(Reason::Consent) => Self::NeedsConsent,
                 Some(Reason::StudentNumber) => Self::NeedsStudentNumber,
                 // Nothing is outstanding, so the next precondition tick moves the row on.
                 None => Self::InProgress,
@@ -49,9 +47,7 @@ impl StudentFacingCreditRegistrationStatus {
             // not_improved means Sisu holds an equal or better attainment, so the credit exists.
             State::Registered | State::Duplicate | State::NotImproved => Self::Registered,
             State::Misregistered | State::FailedPermanent => Self::Failed,
-            State::Blocked | State::Cancelled | State::AbandonedByConsentWithdrawal => {
-                Self::NotRegistering
-            }
+            State::Blocked | State::Cancelled => Self::NotRegistering,
         }
     }
 
@@ -73,10 +69,6 @@ mod tests {
         for reason in [
             PendingPreconditions {
                 completion_eligible: false,
-                ..PendingPreconditions::ALL_MET
-            },
-            PendingPreconditions {
-                consented: false,
                 ..PendingPreconditions::ALL_MET
             },
             PendingPreconditions {
@@ -121,18 +113,6 @@ mod tests {
                 );
             }
         }
-    }
-
-    /// Sisu may well hold the registration, so telling the student it failed would be a lie.
-    #[test]
-    fn an_abandoned_row_is_not_a_failure() {
-        assert_eq!(
-            Status::of(
-                State::AbandonedByConsentWithdrawal,
-                PendingPreconditions::ALL_MET
-            ),
-            Status::NotRegistering
-        );
     }
 
     #[test]

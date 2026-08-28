@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.state,\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?\",\n  cr.submit_retry_count + cr.verify_attempt_count AS \"attempt_count!\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.student_number,\n  d.stuck_in_state AS \"stuck_in_state!\",\n  d.permanent_error AS \"permanent_error!\",\n  d.retry_window_expired AS \"retry_window_expired!\",\n  d.misregistered AS \"misregistered!\",\n  d.too_many_attempts AS \"too_many_attempts!\",\n  d.outcome_uncertain AS \"outcome_uncertain!\",\n  d.flagged_by_pipeline AS \"flagged_by_pipeline!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN LATERAL (\n    SELECT u.threshold_secs\n    FROM UNNEST($1::credit_registration_state [], $2::double precision []) AS u(state, threshold_secs)\n    WHERE u.state = cr.state\n  ) t ON TRUE\n  CROSS JOIN LATERAL (\n    SELECT cr.terminal_at IS NULL\n      AND t.threshold_secs IS NOT NULL\n      AND now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs) AS stuck_in_state,\n      cr.state = 'failed_permanent'\n      AND cr.needs_admin_attention AS permanent_error,\n      -- Coalesced because error_code is nullable and this is selected into a plain `bool`: a row\n      -- another detector picked while holding no error code would otherwise fail to decode and take\n      -- the whole table down with it.\n      COALESCE(cr.error_code = 'retry_window_expired', FALSE) AS retry_window_expired,\n      cr.state = 'misregistered' AS misregistered,\n      cr.submit_retry_count + cr.verify_attempt_count >= $3 AS too_many_attempts,\n      cr.state = 'submission_uncertain' AS outcome_uncertain,\n      cr.needs_admin_attention AS flagged_by_pipeline\n  ) d\nWHERE cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND cr.state <> 'abandoned_by_consent_withdrawal'\n  AND (\n    d.stuck_in_state\n    OR d.permanent_error\n    OR d.retry_window_expired\n    OR d.misregistered\n    OR d.too_many_attempts\n    OR d.outcome_uncertain\n    OR d.flagged_by_pipeline\n  )\nORDER BY cr.state_entered_at\nLIMIT $4\n        ",
+  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.state,\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?\",\n  cr.submit_retry_count + cr.verify_attempt_count AS \"attempt_count!\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.student_number,\n  d.stuck_in_state AS \"stuck_in_state!\",\n  d.permanent_error AS \"permanent_error!\",\n  d.retry_window_expired AS \"retry_window_expired!\",\n  d.misregistered AS \"misregistered!\",\n  d.too_many_attempts AS \"too_many_attempts!\",\n  d.outcome_uncertain AS \"outcome_uncertain!\",\n  d.flagged_by_pipeline AS \"flagged_by_pipeline!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN LATERAL (\n    SELECT u.threshold_secs\n    FROM UNNEST($1::credit_registration_state [], $2::double precision []) AS u(state, threshold_secs)\n    WHERE u.state = cr.state\n  ) t ON TRUE\n  CROSS JOIN LATERAL (\n    SELECT cr.terminal_at IS NULL\n      AND t.threshold_secs IS NOT NULL\n      AND now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs) AS stuck_in_state,\n      cr.state = 'failed_permanent'\n      AND cr.needs_admin_attention AS permanent_error,\n      -- Coalesced because error_code is nullable and this is selected into a plain `bool`: a row\n      -- another detector picked while holding no error code would otherwise fail to decode and take\n      -- the whole table down with it.\n      COALESCE(cr.error_code = 'retry_window_expired', FALSE) AS retry_window_expired,\n      cr.state = 'misregistered' AS misregistered,\n      cr.submit_retry_count + cr.verify_attempt_count >= $3 AS too_many_attempts,\n      cr.state = 'submission_uncertain' AS outcome_uncertain,\n      cr.needs_admin_attention AS flagged_by_pipeline\n  ) d\nWHERE cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND (\n    d.stuck_in_state\n    OR d.permanent_error\n    OR d.retry_window_expired\n    OR d.misregistered\n    OR d.too_many_attempts\n    OR d.outcome_uncertain\n    OR d.flagged_by_pipeline\n  )\nORDER BY cr.state_entered_at\nLIMIT $4\n        ",
   "describe": {
     "columns": [
       {
@@ -125,8 +125,7 @@
                 "failed_retryable",
                 "failed_permanent",
                 "blocked",
-                "cancelled",
-                "abandoned_by_consent_withdrawal"
+                "cancelled"
               ]
             }
           }
@@ -303,8 +302,7 @@
                       "failed_retryable",
                       "failed_permanent",
                       "blocked",
-                      "cancelled",
-                      "abandoned_by_consent_withdrawal"
+                      "cancelled"
                     ]
                   }
                 }
@@ -343,5 +341,5 @@
       false
     ]
   },
-  "hash": "87d0ab20c34b121af48f8ecef02463ebdd21fd69e4a305dced96a2b9dea2ec8c"
+  "hash": "9ae88a4f9f0906cf942db686ed538b14e0aed52ba752171d7a85e0e1c367bb28"
 }

@@ -64,8 +64,8 @@ pub struct StudentNotificationToQueue {
 }
 
 /// Claims the rows owed a mail, locking them until the caller's transaction ends, so callers must
-/// pass a transaction. Never claims `abandoned_by_consent_withdrawal`, `cancelled`, `blocked` or
-/// any failure state: those get nothing.
+/// pass a transaction. Never claims `cancelled`, `blocked` or any failure state: those get
+/// nothing.
 pub async fn claim_unnotified(
     conn: &mut PgConnection,
     scope: &RegistrationScope,

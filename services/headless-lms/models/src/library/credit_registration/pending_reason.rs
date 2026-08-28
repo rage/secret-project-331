@@ -1,7 +1,7 @@
 //! Why a `pending` ledger row is still pending.
 //!
 //! The ledger records only that a row is waiting, never what for: the answer changes the moment the
-//! student consents or links a number, and a stored copy would be a cache to keep true. Every
+//! student links a number, and a stored copy would be a cache to keep true. Every
 //! surface that names the blocker derives it here, from the same facts
 //! `preconditions::pending_moves` decides the row's next state from.
 
@@ -15,7 +15,6 @@ use crate::prelude::*;
 pub enum CreditRegistrationPendingReason {
     /// The completion is not registrable yet: a prerequisite module, or a suspected-cheating review.
     Completion,
-    Consent,
     StudentNumber,
 }
 
@@ -23,7 +22,6 @@ pub enum CreditRegistrationPendingReason {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PendingPreconditions {
     pub completion_eligible: bool,
-    pub consented: bool,
     pub has_verified_student_number: bool,
 }
 
@@ -31,7 +29,6 @@ impl PendingPreconditions {
     /// Nothing outstanding, which is what a row about to leave `pending` looks like.
     pub const ALL_MET: Self = Self {
         completion_eligible: true,
-        consented: true,
         has_verified_student_number: true,
     };
 
@@ -39,12 +36,11 @@ impl PendingPreconditions {
     /// tick moves the row on.
     ///
     /// The order is the recompute's own: it is what decides which single thing a student is asked
-    /// for, and asking for consent before the completion is even registrable would be asking early.
+    /// for, and asking for a student number before the completion is even registrable would be
+    /// asking early.
     pub fn reason(self) -> Option<CreditRegistrationPendingReason> {
         if !self.completion_eligible {
             Some(CreditRegistrationPendingReason::Completion)
-        } else if !self.consented {
-            Some(CreditRegistrationPendingReason::Consent)
         } else if !self.has_verified_student_number {
             Some(CreditRegistrationPendingReason::StudentNumber)
         } else {
@@ -58,7 +54,6 @@ impl PendingPreconditions {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, ToSchema)]
 pub struct PendingReasonCounts {
     pub completion_count: i64,
-    pub consent_count: i64,
     pub student_number_count: i64,
 }
 
@@ -74,19 +69,10 @@ mod tests {
         assert_eq!(
             PendingPreconditions {
                 completion_eligible: false,
-                consented: false,
                 has_verified_student_number: false,
             }
             .reason(),
             Some(Reason::Completion)
-        );
-        assert_eq!(
-            PendingPreconditions {
-                consented: false,
-                ..PendingPreconditions::ALL_MET
-            }
-            .reason(),
-            Some(Reason::Consent)
         );
         assert_eq!(
             PendingPreconditions {

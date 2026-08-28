@@ -24,6 +24,8 @@ pub struct PromptCreationResponse {
     pub first_message: String,
 }
 
+pub const RESPONSE_FORMAT_NAME: &str = "PromptCreationResponse";
+
 /// The structured output format the description LLM is asked to answer in. Must stay in
 /// sync with [PromptCreationResponse].
 fn response_format() -> LLMRequestResponseFormatParam {

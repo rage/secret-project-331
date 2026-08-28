@@ -249,7 +249,7 @@ async fn create_chatbot(
     };
 
     // todo what to do if these azure stuff fail?
-    let prompt_res = headless_lms_chatbot::prompt_creator::generate_prompt(
+    let prompt_res = headless_lms_chatbot::prompt_creation::generate_prompt(
         app_conf.as_ref(),
         task_llm.clone(),
         &course_name,

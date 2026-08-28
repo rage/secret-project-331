@@ -199,10 +199,11 @@ pub async fn get_by_id(
     Ok(res)
 }
 
-/// A certificate as its holder's own profile lists it: what it is for, and how to open it.
+/// A certificate with the course it was earned on, as a profile listing or support tooling needs it.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct UserCertificate {
     pub id: Uuid,
+    pub user_id: Uuid,
     pub name_on_certificate: String,
     /// Addresses the public validation page, which is also how the holder views the image.
     pub verification_id: String,
@@ -226,6 +227,7 @@ pub async fn get_all_by_user_id(
         UserCertificate,
         r#"
 SELECT DISTINCT ON (gc.id) gc.id,
+  gc.user_id,
   gc.name_on_certificate,
   gc.verification_id,
   gc.created_at,
@@ -251,6 +253,44 @@ ORDER BY gc.id,
     // `DISTINCT ON` dictates the query's own ordering, so the newest-first order is applied here.
     let mut res = res;
     res.sort_by_key(|certificate| std::cmp::Reverse(certificate.created_at));
+    Ok(res)
+}
+
+/// The certificate a verification id addresses, or `None` when no active certificate has that id.
+///
+/// Unlike [get_certificate_by_verification_id] this carries the owning course, which is what an
+/// admin acting on a certificate has to be authorized against.
+pub async fn get_by_verification_id(
+    conn: &mut PgConnection,
+    verification_id: &str,
+) -> ModelResult<Option<UserCertificate>> {
+    let res = sqlx::query_as!(
+        UserCertificate,
+        r#"
+SELECT DISTINCT ON (gc.id) gc.id,
+  gc.user_id,
+  gc.name_on_certificate,
+  gc.verification_id,
+  gc.created_at,
+  c.id AS course_id,
+  c.name AS course_name,
+  cm.name AS course_module_name
+FROM generated_certificates gc
+  JOIN certificate_configuration_to_requirements cctr ON cctr.certificate_configuration_id = gc.certificate_configuration_id
+  AND cctr.deleted_at IS NULL
+  JOIN course_modules cm ON cm.id = cctr.course_module_id
+  AND cm.deleted_at IS NULL
+  JOIN courses c ON c.id = cm.course_id
+  AND c.deleted_at IS NULL
+WHERE gc.verification_id = $1
+  AND gc.deleted_at IS NULL
+ORDER BY gc.id,
+  cm.order_number
+        "#,
+        verification_id
+    )
+    .fetch_optional(conn)
+    .await?;
     Ok(res)
 }
 

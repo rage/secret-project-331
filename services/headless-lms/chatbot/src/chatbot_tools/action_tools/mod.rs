@@ -22,6 +22,7 @@ use crate::user_context::ChatbotTurnContext;
 
 pub mod edit_user_account;
 pub mod generate_password_reset_link;
+pub mod update_certificate;
 pub mod update_cheating_status;
 
 /// The one answer shape every action tool accepts.

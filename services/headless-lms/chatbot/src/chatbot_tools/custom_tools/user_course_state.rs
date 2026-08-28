@@ -26,7 +26,7 @@ use crate::{
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties,
         argument_parsing::deserialize_to_optional_uuid_and_errors_to_none,
-        tool_authorization::ToolRequirement,
+        certificate_validation_url, search_url, tool_authorization::ToolRequirement,
     },
     prelude::*,
     user_context::ChatbotTurnContext,
@@ -421,6 +421,7 @@ impl ChatbotTool for UserCourseStateTool {
                             arguments.user_id,
                             arguments.course_id,
                             completions,
+                            &base_url,
                         )
                         .await?,
                     )
@@ -614,7 +615,9 @@ impl ChatbotTool for UserCourseStateTool {
                 not mean generation failed - certificates are only created when the student explicitly clicks \
                 generate, nothing generates them automatically; empty plus eligible: true means they can download it \
                 now. verification_id both verifies and grants access to the certificate image - only share it with \
-                the certificate's owner.".to_string(),
+                the certificate's owner or an admin acting for them. Whenever you mention a generated certificate, \
+                link it: render its validation_url as a markdown link on the certificate itself instead of pasting \
+                the URL as text. That page both proves the certificate is genuine and shows its image.".to_string(),
             );
             let certificates_search_url = search_url(
                 base_url,
@@ -685,18 +688,6 @@ async fn progress_facet(
 /// Maps exercise id to name, for annotating rows that only carry an exercise id.
 fn exercise_name_index(exercises: &[Exercise]) -> HashMap<Uuid, &str> {
     exercises.iter().map(|e| (e.id, e.name.as_str())).collect()
-}
-
-/// An absolute `{base_url}{path}` URL with a single percent-encoded `search` query parameter.
-/// `search` can contain characters (e.g. a `+` in an email's local part) that are not safe to
-/// interpolate into a query string directly.
-fn search_url(base_url: &str, path: &str, search: &str) -> String {
-    url::Url::parse(&format!("{base_url}{path}"))
-        .map(|mut url| {
-            url.query_pairs_mut().append_pair("search", search);
-            url.to_string()
-        })
-        .unwrap_or_else(|_| format!("{base_url}{path}"))
 }
 
 #[derive(Serialize)]
@@ -1027,9 +1018,11 @@ struct CertificateConfigurationRow {
 
 #[derive(Serialize)]
 struct GeneratedCertificateRow {
+    certificate_id: Uuid,
     verification_id: String,
     name_on_certificate: String,
     created_at: DateTime<Utc>,
+    validation_url: String,
 }
 
 async fn certificates_facet(
@@ -1037,6 +1030,7 @@ async fn certificates_facet(
     user_id: Uuid,
     course_id: Uuid,
     raw_completions: &[CourseModuleCompletion],
+    base_url: &str,
 ) -> ChatbotResult<CertificatesFacet> {
     let configurations =
         certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(
@@ -1097,6 +1091,8 @@ async fn certificates_facet(
         .into_iter()
         .filter(|c| c.course_id == course_id)
         .map(|c| GeneratedCertificateRow {
+            certificate_id: c.id,
+            validation_url: certificate_validation_url(base_url, &c.verification_id),
             verification_id: c.verification_id,
             name_on_certificate: c.name_on_certificate,
             created_at: c.created_at,

@@ -4,10 +4,12 @@ use crate::{
         action_tools::{
             ConfirmAnswer, ConfirmableActionTool, edit_user_account::EditUserAccountTool,
             generate_password_reset_link::GeneratePasswordResetLinkTool,
-            reset_exercises::ResetExercisesTool, update_cheating_status::UpdateCheatingStatusTool,
+            reset_exercises::ResetExercisesTool, update_certificate::UpdateCertificateTool,
+            update_cheating_status::UpdateCheatingStatusTool,
         },
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
         custom_tools::{
+            certificate_lookup::CertificateLookupTool,
             course_configuration::CourseConfigurationTool, course_finder::CourseFinderTool,
             course_material_search::CourseMaterialSearchTool, course_progress::CourseProgressTool,
             course_structure::CourseStructureTool, document_lookup::DocumentLookupTool,
@@ -158,6 +160,7 @@ pub enum ClientToolName {
     ResetExercises,
     UpdateCheatingStatus,
     EditUserAccount,
+    UpdateCertificate,
 }
 
 impl ClientToolName {
@@ -169,6 +172,7 @@ impl ClientToolName {
             Self::ResetExercises => "reset_exercises",
             Self::UpdateCheatingStatus => "update_cheating_status",
             Self::EditUserAccount => "edit_user_account",
+            Self::UpdateCertificate => "update_certificate",
         }
     }
 }
@@ -248,6 +252,25 @@ fn delimited_tool_output(output: &str, instructions: Option<&str>) -> String {
         ));
     }
     formatted
+}
+
+/// An absolute `{base_url}{path}` URL with a single percent-encoded `search` query parameter.
+/// `search` can contain characters (e.g. a `+` in an email's local part) that are not safe to
+/// interpolate into a query string directly.
+pub(crate) fn search_url(base_url: &str, path: &str, search: &str) -> String {
+    url::Url::parse(&format!("{base_url}{path}"))
+        .map(|mut url| {
+            url.query_pairs_mut().append_pair("search", search);
+            url.to_string()
+        })
+        .unwrap_or_else(|_| format!("{base_url}{path}"))
+}
+
+/// The public page a certificate's verification id addresses, which is also where its image is
+/// viewed. Kept in sync by hand with `certificateValidateRoute` in
+/// `shared-module/packages/common/src/utils/routes.ts`.
+pub(crate) fn certificate_validation_url(base_url: &str, verification_id: &str) -> String {
+    format!("{base_url}/certificates/validate/{verification_id}")
 }
 
 /// The parameter schema of a tool the LLM calls without arguments. Azure still requires a strict
@@ -688,6 +711,7 @@ chatbot_tool_registry!(
         UserCourseStateTool,
         CourseConfigurationTool,
         CourseMaterialSearchTool,
+        CertificateLookupTool,
     ],
     client_tools: [AskMultipleChoiceQuestionTool],
     action_tools: [
@@ -695,6 +719,7 @@ chatbot_tool_registry!(
         ResetExercisesTool,
         UpdateCheatingStatusTool,
         EditUserAccountTool,
+        UpdateCertificateTool,
     ],
 );
 
@@ -1022,6 +1047,7 @@ mod tests {
             <ResetExercisesTool as ChatbotToolDeclaration>::get_tool_definition(),
             <UpdateCheatingStatusTool as ChatbotToolDeclaration>::get_tool_definition(),
             <EditUserAccountTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <UpdateCertificateTool as ChatbotToolDeclaration>::get_tool_definition(),
         ];
         definitions.extend(function_definitions(get_chatbot_tool_definitions()));
         definitions

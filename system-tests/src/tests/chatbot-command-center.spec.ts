@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
-test.describe.only("Chatbot command center testing", () => {
+test.describe("Chatbot command center testing", () => {
   test.use({
     storageState: "src/states/admin@example.com.json",
   })

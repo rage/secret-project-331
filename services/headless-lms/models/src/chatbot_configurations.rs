@@ -247,7 +247,7 @@ impl From<ChatbotConfiguration> for NewChatbotConf {
             maintain_azure_search_index: v.maintain_azure_search_index,
             hide_citations: v.hide_citations,
             use_semantic_reranking: v.use_semantic_reranking,
-            use_tools: v.use_tools,
+            enabled_tool_categories: v.enabled_tool_categories,
             default_chatbot: v.default_chatbot,
             chatbotconf_id: Some(v.id),
             suggest_next_messages: v.suggest_next_messages,

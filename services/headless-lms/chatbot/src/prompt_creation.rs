@@ -56,7 +56,7 @@ fn response_format() -> LLMRequestResponseFormatParam {
 }
 
 fn prompt_if_course(course_name: &str, course_desc: Option<String>) -> String {
-    if course_name.len() == 0 {
+    if course_name.is_empty() {
         return "".to_string();
     };
     let mut course_info = format!(

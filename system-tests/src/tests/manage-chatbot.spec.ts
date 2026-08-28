@@ -21,10 +21,19 @@ test.describe("Chatbot settings testing", () => {
     await page.getByRole("button", { name: "Create a new chatbot" }).click()
     await page.getByRole("textbox", { name: "Name" }).click()
     await page.getByRole("textbox", { name: "Name" }).fill("Chatbot 1")
+    await page.getByRole("textbox", { name: "Overview of the chatbot's" }).click()
+    await page.getByRole("textbox", { name: "Overview of the chatbot's" }).fill("Helpful assistant")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
     await expect(page.getByText("Advanced settings")).toBeVisible()
+    await expect(page.getByRole("textbox", { name: "Prompt" })).toHaveValue(
+      /You are a helpful, clear, and concise chatbot for a course\..?/,
+    )
+    await expect(page.getByRole("textbox", { name: "Initial message" })).toHaveValue(
+      "Hi! I’m here to help you. Ask me about anything you’d like!",
+    )
+
     await page.getByRole("textbox", { name: "Prompt" }).fill("Chatbot 1 prompt")
     await page.getByRole("textbox", { name: "Initial message" }).fill("Chatbot 1 initial message")
     await waitForSuccessNotification(page, async () => {

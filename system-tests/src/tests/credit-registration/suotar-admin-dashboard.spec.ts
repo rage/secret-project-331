@@ -79,7 +79,7 @@ const STALE_ADDRESS_EXACT = new RegExp(
   `^${STALE_ADDRESS.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
 )
 
-/** Consented and linked from seed time, so it is the one row on this course a tick can register. */
+/** Linked from seed time, so it is the one row on this course a tick can register. */
 const ADMIN_LINKED_EMAIL = "credit-registration-admin-linked@example.com"
 const ADMIN_LINKED_STUDENT_NUMBER = "900000904"
 const ADMIN_LINKED_LAST_NAME = "Alreadylinked"
@@ -443,12 +443,6 @@ test("The errors tab shows the window's verdicts and what needs a human", async 
   await test.step("A bulk move needs a selection", async () => {
     await expect(page.getByRole("button", { name: /Move 0 selected/ })).toBeDisabled()
   })
-
-  await test.step("Withdrawn consent is ruled out rather than counted as a failure", async () => {
-    await expect(
-      page.getByText("Withdrawn consent is neither a success nor a failure", { exact: false }),
-    ).toBeVisible()
-  })
 })
 
 test("The courses tab reports each enabled module's configuration", async ({ page }) => {
@@ -503,7 +497,7 @@ test("The workers tab groups the phases under the process that runs them", async
   await expect(page.getByText("Paused is our own flag", { exact: false })).toBeVisible()
 })
 
-test("Reconciliation keeps the consent-withdrawal bucket out of its findings", async ({ page }) => {
+test("The reconciliation badge is the sum of its detectors", async ({ page }) => {
   const reconciliation = await creditRegistrationReconciliation(page.request)
   expect(reconciliation.finding_count).toBe(
     reconciliation.never_entered_count +
@@ -514,14 +508,7 @@ test("Reconciliation keeps the consent-withdrawal bucket out of its findings", a
   )
 
   await page.goto(`${DASHBOARD_URL}/reconciliation`)
-  await expect(
-    page.getByRole("heading", { name: "Outcome unknown, consent withdrawn" }),
-  ).toBeVisible()
-  await expect(
-    page.getByText("this list exists so the number is never mistaken for a failure", {
-      exact: false,
-    }),
-  ).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Never entered the pipeline" })).toBeVisible()
 })
 
 test("The audit tab tells the two actor kinds apart", async ({ page }) => {

@@ -34,7 +34,6 @@ import {
 const REGISTERED_EMAIL = "credit-registration-emails-registered@example.com"
 const REGISTERED_STUDENT_NUMBER = "900001301"
 const NO_ENROLMENT_EMAIL = "credit-registration-emails-no-enrolment@example.com"
-const UNMAILED_EMAIL = "credit-registration-emails-unmailed@example.com"
 
 /**
  * Every value `email_send_status` may take. We can see our own queue, not the recipient's inbox, so
@@ -148,25 +147,5 @@ test.describe("A student the study registry has no enrolment for", () => {
     expect(mailIdentities(afterSecond.notification_emails)).toStrictEqual(
       mailIdentities(queued.notification_emails),
     )
-  })
-})
-
-test.describe("A student who was never asked for consent", () => {
-  test.use({ storageState: seededStudentStorageState(UNMAILED_EMAIL) })
-
-  test("A row that is in neither the success nor the enrolment state is mailed nothing", async ({
-    page,
-    adminApi,
-  }) => {
-    const scope = { userEmail: UNMAILED_EMAIL }
-    await runMaterializeTick(page.request, scope)
-    await runPreconditionsTick(page.request, scope)
-    const waiting = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
-      "pending",
-    ])
-
-    await runStudentNotificationsTick(page.request, scope)
-    const details = await adminRegistrationDetails(adminApi, waiting.id)
-    expect(details.notification_emails).toStrictEqual([])
   })
 })

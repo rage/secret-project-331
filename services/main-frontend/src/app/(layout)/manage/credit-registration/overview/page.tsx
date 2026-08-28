@@ -219,7 +219,6 @@ const ThroughputSection: React.FC<{ overview: CreditRegistrationOverview }> = ({
           />
         </Disclosure>
       )}
-      <p className={noteCss}>{t("credit-registration-admin-withdrawn-not-counted")}</p>
     </section>
   )
 }

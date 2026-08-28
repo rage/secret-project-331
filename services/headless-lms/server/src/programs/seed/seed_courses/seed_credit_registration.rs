@@ -168,28 +168,20 @@ pub async fn seed_credit_registration(
 
     info!("inserting credit registration students");
 
-    let consented_linked = insert_student(
+    let linked_student = insert_student(
         &mut conn,
-        cx.v5(b"user:consented-linked"),
-        "credit-registration-consented-linked@example.com",
+        cx.v5(b"user:linked-student"),
+        "credit-registration-linked-student@example.com",
         "Zzyzx",
-        "Happypath",
+        "Numberlinked",
     )
     .await?;
-    let consented_unlinked = insert_student(
+    let unlinked_student = insert_student(
         &mut conn,
-        cx.v5(b"user:consented-unlinked"),
-        "credit-registration-consented-unlinked@example.com",
+        cx.v5(b"user:unlinked-student"),
+        "credit-registration-unlinked-student@example.com",
         "Zzyzx",
         "Linkpending",
-    )
-    .await?;
-    let not_consented = insert_student(
-        &mut conn,
-        cx.v5(b"user:not-consented"),
-        "credit-registration-not-consented@example.com",
-        "Zzyzx",
-        "Noconsent",
     )
     .await?;
     let verified_email = insert_student(
@@ -235,9 +227,8 @@ pub async fn seed_credit_registration(
     .await?;
 
     for student in [
-        &consented_linked,
-        &consented_unlinked,
-        &not_consented,
+        &linked_student,
+        &unlinked_student,
         &verified_email,
         &unverified_twin,
         &superseded_student,
@@ -261,13 +252,10 @@ pub async fn seed_credit_registration(
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
-        &CONSENT_WITHDRAWN,
         &EMAILS_REGISTERED,
         &EMAILS_NO_ENROLMENT,
         &BANNER_STUCK,
         &BANNER_REENROLS,
-        &CONSENT_WITHHELD,
-        &EMAILS_UNMAILED,
     ] {
         let student = seed_spec_student(
             &mut conn,
@@ -282,34 +270,15 @@ pub async fn seed_credit_registration(
 
     verified_student_numbers::insert(
         &mut conn,
-        PKeyPolicy::Fixed(cx.v5(b"verified-student-number:consented-linked")),
+        PKeyPolicy::Fixed(cx.v5(b"verified-student-number:linked-student")),
         &NewVerifiedStudentNumber {
-            user_id: consented_linked.user_id,
-            student_number: CONSENTED_LINKED.student_number.to_string(),
-            sisu_person_id: CONSENTED_LINKED.sisu_person_id(),
-            first_names: Some(CONSENTED_LINKED.first_names.to_string()),
-            last_name: Some(CONSENTED_LINKED.last_name.to_string()),
+            user_id: linked_student.user_id,
+            student_number: LINKED_STUDENT.student_number.to_string(),
+            sisu_person_id: LINKED_STUDENT.sisu_person_id(),
+            first_names: Some(LINKED_STUDENT.first_names.to_string()),
+            last_name: Some(LINKED_STUDENT.last_name.to_string()),
             verified_via: StudentNumberVerificationMethod::EmailedLink,
-            verified_via_email: Some(CONSENTED_LINKED.sisu_email.to_string()),
-            verified_via_email_match_field: None,
-            account_email_verified_at: None,
-            linked_by_user_id: None,
-            link_reason: None,
-            verified_from_course_id: Some(suotar_course.id),
-        },
-    )
-    .await?;
-    verified_student_numbers::insert(
-        &mut conn,
-        PKeyPolicy::Fixed(cx.v5(b"verified-student-number:not-consented")),
-        &NewVerifiedStudentNumber {
-            user_id: not_consented.user_id,
-            student_number: NOT_CONSENTED.student_number.to_string(),
-            sisu_person_id: NOT_CONSENTED.sisu_person_id(),
-            first_names: Some(NOT_CONSENTED.first_names.to_string()),
-            last_name: Some(NOT_CONSENTED.last_name.to_string()),
-            verified_via: StudentNumberVerificationMethod::EmailedLink,
-            verified_via_email: Some(NOT_CONSENTED.sisu_email.to_string()),
+            verified_via_email: Some(LINKED_STUDENT.sisu_email.to_string()),
             verified_via_email_match_field: None,
             account_email_verified_at: None,
             linked_by_user_id: None,
@@ -349,7 +318,6 @@ pub async fn seed_credit_registration(
     )
     .await?;
 
-    seed_eligible_completion(&mut conn, &not_consented, suotar_course.id, None).await?;
     seed_eligible_completion(&mut conn, &verified_email, suotar_course.id, None).await?;
 
     info!("inserting credit registration fast track near misses");
@@ -668,8 +636,6 @@ async fn seed_backfill_course(
     .seed(conn, app_config, &cx)
     .await?;
 
-    // Nobody here is asked for consent: the point of the backfill is that its rows wait until one of
-    // these students answers from their profile.
     for index in 1..=4 {
         let user_id = cx.v5(format!("user:backfill:{index}").as_bytes());
         course_instance_enrollments::insert(conn, user_id, course.id, instance.id).await?;
@@ -845,6 +811,8 @@ async fn seed_retry_course(
         .seed(conn, app_config, &cx)
         .await?;
 
+    // `Retry04` is not a failure, so no retry of any shape moves it: `suotar-teacher-views.spec.ts`
+    // reads it both as the refusal and as the row whose state it asserts is unchanged.
     for (person, last_name, state) in [
         (80, "Retry01", CreditRegistrationState::FailedPermanent),
         (81, "Retry02", CreditRegistrationState::FailedPermanent),
@@ -1253,11 +1221,11 @@ async fn seed_linking_tokens(
         PKeyPolicy::Fixed(cx.v5(b"linking-token:conflict")),
         &SeedStudentNumberVerificationToken {
             token: LINKING_TOKEN_CONFLICT.to_string(),
-            student_number: CONSENTED_LINKED.student_number.to_string(),
-            sisu_person_id: CONSENTED_LINKED.sisu_person_id(),
-            first_names: Some(CONSENTED_LINKED.first_names.to_string()),
-            last_name: Some(CONSENTED_LINKED.last_name.to_string()),
-            emailed_to: CONSENTED_LINKED.sisu_email.to_string(),
+            student_number: LINKED_STUDENT.student_number.to_string(),
+            sisu_person_id: LINKED_STUDENT.sisu_person_id(),
+            first_names: Some(LINKED_STUDENT.first_names.to_string()),
+            last_name: Some(LINKED_STUDENT.last_name.to_string()),
+            emailed_to: LINKED_STUDENT.sisu_email.to_string(),
             course_id: Some(course_id),
             expires_at: now + Duration::days(14),
             used_at: None,

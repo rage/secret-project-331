@@ -39,7 +39,7 @@ export interface AdminRegistrationRow {
   email: string | null
   state: string
   /** What a `pending` row waits on, derived per request; null in every other state. */
-  pending_reason: "completion" | "consent" | "student_number" | null
+  pending_reason: "completion" | "student_number" | null
   error_code: string | null
   submit_retry_count: number
   /** Frozen on the row before it was sent, so not always the number the account is linked to now. */
@@ -258,11 +258,9 @@ export interface AdminReconciliation {
   several_submitted_attainments_count: number
   misregistered_count: number
   legacy_divergence_count: number
-  outcome_unknown_consent_withdrawn_count: number
-  outcome_unknown_consent_withdrawn: { credit_registration_id: string; state: string }[]
 }
 
-/** The drift detectors. The consent-withdrawal bucket is deliberately outside `finding_count`. */
+/** The drift detectors, whose counts add up to `finding_count`. */
 export const creditRegistrationReconciliation = (
   request: APIRequestContext,
 ): Promise<AdminReconciliation> =>

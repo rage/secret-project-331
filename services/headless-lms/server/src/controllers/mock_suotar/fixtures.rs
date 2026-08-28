@@ -10,13 +10,13 @@
 //! Account linking and worker ticks are both global — one spec's tick advances every eligible row in
 //! the shared database — so two specs sharing a student number would see each other's registration
 //! attempts. Each spec under `system-tests/src/tests/credit-registration/` owns one `SS`, and the
-//! mock Suotar's persons must reuse the same numbers: 01 `suotar-happy-path`,
-//! 02 `suotar-account-linking`, 03 `suotar-enrolment-problems`, 04 `suotar-import-outcomes`,
-//! 05 `suotar-verify-outcomes`, 06 `suotar-sisu-outage`, 07 `suotar-consent`,
-//! 08 `suotar-teacher-views`, 09 `suotar-admin-dashboard`, 10 `suotar-old-flow-coexistence`,
-//! 11 `suotar-backfill-and-late-consent`, 12 `suotar-grade-improvement`,
+//! mock Suotar's persons must reuse the same numbers: 02 `suotar-account-linking`,
+//! 03 `suotar-enrolment-problems`, 04 `suotar-import-outcomes`, 05 `suotar-verify-outcomes`,
+//! 06 `suotar-sisu-outage`, 08 `suotar-teacher-views`, 09 `suotar-admin-dashboard`,
+//! 10 `suotar-old-flow-coexistence`, 11 `suotar-backfill`, 12 `suotar-grade-improvement`,
 //! 13 `suotar-student-emails`, 14 `suotar-fast-track-linking`, 15 `suotar-in-course-banner`,
-//! 16 `suotar-student-profile`.
+//! 16 `suotar-student-profile`. `01` belongs to no single spec: it holds the linked and unlinked
+//! students that read-only specs share. `07` is unused.
 //!
 //! Names and emails are unlikely strings (`Zzyzx …`) because a spec asserts their absence from the
 //! scrubbed Suotar API log.
@@ -43,7 +43,7 @@ pub const IMPORT_OUTCOMES_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0004_4a5e
 /// Owned by `suotar-grade-improvement.spec.ts`, and the only graded module here.
 pub const GRADE_IMPROVEMENT_COURSE_ID: Uuid =
     Uuid::from_u128(0xc5ed17ea_0005_4a5e_9e6e_c0de00000005);
-/// Owned outright by `suotar-backfill-and-late-consent.spec.ts`, which flips the Suotar flag on.
+/// Owned outright by `suotar-backfill.spec.ts`, which flips the Suotar flag on.
 pub const BACKFILL_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0003_4a5e_9e6e_c0de00000003);
 /// Owned exclusively by `suotar-admin-dashboard.spec.ts`: discovery and the linking mails tick by
 /// course, so the spec that ticks them needs a course no other spec has students on.
@@ -104,27 +104,22 @@ impl MockPersonFixture {
     }
 }
 
-pub const CONSENTED_LINKED: MockPersonFixture = MockPersonFixture {
+/// Linked to its student number from seed time: `suotar-student-profile.spec.ts` reads its linked
+/// card.
+pub const LINKED_STUDENT: MockPersonFixture = MockPersonFixture {
     student_number: "900000101",
     first_names: "Zzyzx",
-    last_name: "Happypath",
-    sisu_email: "zzyzx.happypath@helsinki.example",
-    account_email: Some("credit-registration-consented-linked@example.com"),
+    last_name: "Numberlinked",
+    sisu_email: "zzyzx.numberlinked@helsinki.example",
+    account_email: Some("credit-registration-linked-student@example.com"),
 };
-pub const CONSENTED_UNLINKED: MockPersonFixture = MockPersonFixture {
+/// The twin with no student number linked, enrolled and nothing more.
+pub const UNLINKED_STUDENT: MockPersonFixture = MockPersonFixture {
     student_number: "900000102",
     first_names: "Zzyzx",
     last_name: "Linkpending",
     sisu_email: "zzyzx.linkpending@helsinki.example",
-    account_email: Some("credit-registration-consented-unlinked@example.com"),
-};
-/// Never asked for consent, which is what makes the course-start dialog appear.
-pub const NOT_CONSENTED: MockPersonFixture = MockPersonFixture {
-    student_number: "900000103",
-    first_names: "Zzyzx",
-    last_name: "Noconsent",
-    sisu_email: "zzyzx.noconsent@helsinki.example",
-    account_email: Some("credit-registration-not-consented@example.com"),
+    account_email: Some("credit-registration-unlinked-student@example.com"),
 };
 /// The import that times out. Its own person, so the fault keyed on this student number cannot reach
 /// another spec's row on the shared course.
@@ -185,21 +180,6 @@ pub const VERIFY_MISREGISTERED: MockPersonFixture = MockPersonFixture {
     last_name: "Reversed",
     sisu_email: "zzyzx.reversed@helsinki.example",
     account_email: Some("credit-registration-verify-misregistered@example.com"),
-};
-/// Never asked, but eligible otherwise: its row would move the moment consent arrived.
-pub const CONSENT_WITHHELD: MockPersonFixture = MockPersonFixture {
-    student_number: "900000701",
-    first_names: "Zzyzx",
-    last_name: "Unasked",
-    sisu_email: "zzyzx.unasked@helsinki.example",
-    account_email: Some("credit-registration-consent-withheld@example.com"),
-};
-pub const CONSENT_WITHDRAWN: MockPersonFixture = MockPersonFixture {
-    student_number: "900000702",
-    first_names: "Zzyzx",
-    last_name: "Withdrawn",
-    sisu_email: "zzyzx.withdrawn@helsinki.example",
-    account_email: Some("credit-registration-consent-withdrawn@example.com"),
 };
 pub const ADMIN_UNLINKED: MockPersonFixture = MockPersonFixture {
     student_number: "900000902",
@@ -373,15 +353,6 @@ pub const EMAILS_NO_ENROLMENT: MockPersonFixture = MockPersonFixture {
     sisu_email: "zzyzx.mailedaction@helsinki.example",
     account_email: Some("credit-registration-emails-no-enrolment@example.com"),
 };
-/// Never asked for consent, so its row sits in `pending`: the negative half of "exactly two
-/// mails exist".
-pub const EMAILS_UNMAILED: MockPersonFixture = MockPersonFixture {
-    student_number: "900001303",
-    first_names: "Zzyzx",
-    last_name: "Nevermailed",
-    sisu_email: "zzyzx.nevermailed@helsinki.example",
-    account_email: Some("credit-registration-emails-unmailed@example.com"),
-};
 
 pub const IMPORT_OUTCOMES: MockPersonFixture = MockPersonFixture {
     student_number: "900000401",
@@ -445,9 +416,8 @@ pub fn mock_suotar_world() -> WorldPush {
     };
 
     let on_crs_101 = [
-        &CONSENTED_LINKED,
-        &CONSENTED_UNLINKED,
-        &NOT_CONSENTED,
+        &LINKED_STUDENT,
+        &UNLINKED_STUDENT,
         &LINK_VALID,
         &LINK_EXPIRED,
         &LINK_USED,
@@ -464,10 +434,7 @@ pub fn mock_suotar_world() -> WorldPush {
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
-        &CONSENT_WITHHELD,
-        &CONSENT_WITHDRAWN,
         &EMAILS_REGISTERED,
-        &EMAILS_UNMAILED,
     ];
     let on_crs_admin_101 = [
         &ADMIN_UNLINKED,

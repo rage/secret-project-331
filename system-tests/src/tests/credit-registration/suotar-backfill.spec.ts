@@ -1,11 +1,4 @@
-import {
-  BACKFILL_COURSE_ID,
-  BACKFILL_COURSE_SLUG,
-  myRegistrationOnCourse,
-  ORIGIN,
-  PROFILE_CREDIT_REGISTRATION_URL,
-  seededStudentStorageState,
-} from "@/utils/creditRegistration"
+import { BACKFILL_COURSE_ID, BACKFILL_COURSE_SLUG, ORIGIN } from "@/utils/creditRegistration"
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { runMaterializeTick, runPreconditionsTick } from "@/utils/suotarControl"
@@ -14,18 +7,16 @@ import { pollUntil } from "@/utils/waitingUtils"
 /**
  * Owns the `credit-registration-backfill` course outright and student numbers `9000011xx`. Turning the
  * flag on is a one-way, run-wide change that materialises a row for every student on the course, so
- * this file is serial and no other spec may touch that course or assert on the resulting wave.
- * `retries: 0` follows: a retry replays the group from the test that flips the flag, which by then is
- * already on, so retrying only turns one failure into three.
+ * no other spec may touch that course or assert on the resulting wave. `retries: 0` follows: on a
+ * retry the flag is already on, so retrying only turns one failure into three.
  */
-test.describe.configure({ mode: "serial", retries: 0 })
+test.describe.configure({ retries: 0 })
 
 const MODULES_URL = `${ORIGIN}/manage/courses/${BACKFILL_COURSE_ID}/modules`
 const REALISATION_ID = "hy-opt-cur-crs-backfill-101-degree"
 
 /** Four passed completions, one of them already in the legacy ledger, plus one that failed. */
 const ALREADY_REGISTERED_EMAIL = "credit-registration-backfill-1@example.com"
-const LATE_CONSENT_EMAIL = "credit-registration-backfill-2@example.com"
 const FAILED_COMPLETION_EMAIL = "credit-registration-backfill-failed@example.com"
 
 test.describe("The teacher opts the module in", () => {
@@ -70,36 +61,10 @@ test.describe("The teacher opts the module in", () => {
     const emails = rows.data.map((row) => row.email)
     expect(emails).not.toContain(ALREADY_REGISTERED_EMAIL)
     expect(emails).not.toContain(FAILED_COMPLETION_EMAIL)
-    // Nobody has been asked yet, so a backfill submits nothing.
+    // None of them has linked a student number, so a backfill submits nothing.
     expect(new Set(rows.data.map((row) => row.state))).toStrictEqual(new Set(["pending"]))
-    expect(new Set(rows.data.map((row) => row.pending_reason))).toStrictEqual(new Set(["consent"]))
-  })
-})
-
-test.describe("A student consenting after the fact", () => {
-  test.use({ storageState: seededStudentStorageState(LATE_CONSENT_EMAIL) })
-
-  test("Late consent from the profile page unblocks the backfilled rows", async ({
-    page,
-    adminApi,
-  }) => {
-    await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
-
-    const allow = page.getByRole("button", { name: /^Allow/ })
-    await expect(allow).toBeVisible()
-    await allow.click()
-
-    // The count is the whole point of asking late: the student is told what consenting will do.
-    await expect(page.getByTestId("credit-registration-newly-unblocked")).toBeVisible()
-
-    await runPreconditionsTick(page.request, { userEmail: LATE_CONSENT_EMAIL })
-    const unblocked = await pollUntil(
-      async () => {
-        const row = await myRegistrationOnCourse(page.request, adminApi, BACKFILL_COURSE_SLUG)
-        return row.student_facing_status !== "needs_consent" ? row : null
-      },
-      { description: "the backfilled row to stop waiting for consent" },
+    expect(new Set(rows.data.map((row) => row.pending_reason))).toStrictEqual(
+      new Set(["student_number"]),
     )
-    expect(["pending", "ready_to_submit", "checking_enrolment"]).toContain(unblocked.state)
   })
 })

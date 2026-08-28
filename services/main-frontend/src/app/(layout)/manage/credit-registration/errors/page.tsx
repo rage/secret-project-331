@@ -113,7 +113,6 @@ const VerdictSection: React.FC<{ windowSecs: number }> = ({ windowSecs }) => {
                   }
                 />
               </div>
-              <p className={noteCss}>{t("credit-registration-admin-verdicts-note")}</p>
             </section>
             <section className={sectionCss}>
               <h2 className={headingCss}>{t("credit-registration-heading-error-codes")}</h2>

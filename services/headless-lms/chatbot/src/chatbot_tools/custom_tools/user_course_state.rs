@@ -656,7 +656,9 @@ impl ChatbotTool for UserCourseStateTool {
             }
         }
 
-        if facets.contains_key(UserCourseStateFacet::CreditRegistration.wire_name()) {
+        if let Some(UserCourseStateFacetValue::CreditRegistration(credit_registration)) =
+            facets.get(UserCourseStateFacet::CreditRegistration.wire_name())
+        {
             notes.push(
                 "credit_registration has one row per completion, keyed by course_module_id - a module with no \
                 completion produces no row at all, so an empty array can mean \"nothing completed yet\" rather than \
@@ -679,6 +681,21 @@ impl ChatbotTool for UserCourseStateTool {
                 (attempt chain, event timeline, API calls, attainment ids).",
                 self.state.user_id,
             ));
+            if credit_registration
+                .registrations
+                .iter()
+                .any(|r| r.registered)
+            {
+                notes.push(
+                    "registered: true only says this platform recorded the attainment as sent, so a student can \
+                    still report not seeing it in Sisu. The usual cause is a Sisu-side state where the assessment \
+                    item is sufficient but not attained, which nothing on this platform can fix and re-registering \
+                    will not clear. A Sisu support person resolves it: in Sisu, open the Studies tab, search for \
+                    courses by the course code, pick the right one, and open Assessment - when this is the cause \
+                    the student is listed there and the attainment can be granted to them. Offer this as the next \
+                    step, addressed to whoever can act in Sisu, instead of telling the student to wait.".to_string(),
+                );
+            }
         }
 
         if notes.is_empty() {

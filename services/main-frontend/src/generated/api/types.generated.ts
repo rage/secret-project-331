@@ -2190,7 +2190,6 @@ export type CreditRegistrationOverview = {
    * The `pending` depth split by what each row is waiting on, which the ledger does not store.
    */
   pending_by_reason: PendingReasonCounts
-  phases: Array<CreditRegistrationPhaseStatus>
   stuck: Array<CreditRegistrationStuckTotal>
   throughput: Array<CreditRegistrationThroughputBucket>
   throughput_days: number
@@ -2217,8 +2216,8 @@ export type CreditRegistrationPhaseList = {
 /**
  * One phase as the Workers tab renders it.
  *
- * Wider than the Overview strip's `CreditRegistrationPhaseStatus`: this one carries the last error,
- * the run window and the queue, which the Overview deliberately leaves out.
+ * Wider than `CreditRegistrationPhaseStatus`, which the pause/resume/run-now responses return: this
+ * one also carries the last error, the run window and the queue.
  */
 export type CreditRegistrationPhaseRow = {
   consecutive_failures: number
@@ -2272,7 +2271,8 @@ export type CreditRegistrationPhaseRow = {
 
 /**
  * One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
- * narrowed one.
+ * narrowed one. Returned by the pause/resume/run-now actions; the Workers tab lists
+ * `CreditRegistrationPhaseRow` instead, which is wider.
  */
 export type CreditRegistrationPhaseStatus = {
   consecutive_failures: number

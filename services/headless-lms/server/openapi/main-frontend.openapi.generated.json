@@ -19609,8 +19609,7 @@
           "throughput_days",
           "stuck",
           "endpoints",
-          "circuit_breaker",
-          "phases"
+          "circuit_breaker"
         ],
         "properties": {
           "circuit_breaker": {
@@ -19654,12 +19653,6 @@
           "pending_by_reason": {
             "$ref": "#/components/schemas/PendingReasonCounts",
             "description": "The `pending` depth split by what each row is waiting on, which the ledger does not store."
-          },
-          "phases": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreditRegistrationPhaseStatus"
-            }
           },
           "stuck": {
             "type": "array",
@@ -19716,7 +19709,7 @@
       },
       "CreditRegistrationPhaseRow": {
         "type": "object",
-        "description": "One phase as the Workers tab renders it.\n\nWider than the Overview strip's `CreditRegistrationPhaseStatus`: this one carries the last error,\nthe run window and the queue, which the Overview deliberately leaves out.",
+        "description": "One phase as the Workers tab renders it.\n\nWider than `CreditRegistrationPhaseStatus`, which the pause/resume/run-now responses return: this\none also carries the last error, the run window and the queue.",
         "required": [
           "phase",
           "process_name",
@@ -19822,7 +19815,7 @@
       },
       "CreditRegistrationPhaseStatus": {
         "type": "object",
-        "description": "One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a\nnarrowed one.",
+        "description": "One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a\nnarrowed one. Returned by the pause/resume/run-now actions; the Workers tab lists\n`CreditRegistrationPhaseRow` instead, which is wider.",
         "required": [
           "phase",
           "process_name",

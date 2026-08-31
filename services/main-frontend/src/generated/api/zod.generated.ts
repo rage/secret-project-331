@@ -1656,7 +1656,8 @@ export const zCreditRegistrationPendingReason = z.enum(["completion", "student_n
 
 /**
  * One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
- * narrowed one.
+ * narrowed one. Returned by the pause/resume/run-now actions; the Workers tab lists
+ * `CreditRegistrationPhaseRow` instead, which is wider.
  */
 export const zCreditRegistrationPhaseStatus = z.object({
   consecutive_failures: z
@@ -1909,8 +1910,8 @@ export const zCreditRegistrationOldestNonTerminal = z.object({
 /**
  * One phase as the Workers tab renders it.
  *
- * Wider than the Overview strip's `CreditRegistrationPhaseStatus`: this one carries the last error,
- * the run window and the queue, which the Overview deliberately leaves out.
+ * Wider than `CreditRegistrationPhaseStatus`, which the pause/resume/run-now responses return: this
+ * one also carries the last error, the run window and the queue.
  */
 export const zCreditRegistrationPhaseRow = z.object({
   consecutive_failures: z
@@ -5124,7 +5125,6 @@ export const zCreditRegistrationOverview = z.object({
     }),
   oldest_non_terminal: zCreditRegistrationOldestNonTerminal.nullish(),
   pending_by_reason: zPendingReasonCounts,
-  phases: z.array(zCreditRegistrationPhaseStatus),
   stuck: z.array(zCreditRegistrationStuckTotal),
   throughput: z.array(zCreditRegistrationThroughputBucket),
   throughput_days: z.coerce

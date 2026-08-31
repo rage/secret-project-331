@@ -22,8 +22,8 @@ use super::authorize_credit_registration_admin;
 
 /// One phase as the Workers tab renders it.
 ///
-/// Wider than the Overview strip's `CreditRegistrationPhaseStatus`: this one carries the last error,
-/// the run window and the queue, which the Overview deliberately leaves out.
+/// Wider than `CreditRegistrationPhaseStatus`, which the pause/resume/run-now responses return: this
+/// one also carries the last error, the run window and the queue.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationPhaseRow {
     pub phase: String,

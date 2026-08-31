@@ -10,9 +10,7 @@ import {
   useCreditRegistrationOverview,
   useSuotarHealth,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import AdminPhaseActions from "@/components/credit-registration/admin/AdminPhaseActions"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
-import { phaseHealth } from "@/components/credit-registration/admin/phaseStatus"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import Sparkline from "@/components/credit-registration/admin/Sparkline"
 import { TONE } from "@/components/credit-registration/constants"
@@ -23,11 +21,7 @@ import {
   sectionsCss,
   tilesCss,
 } from "@/components/credit-registration/styles"
-import type {
-  CreditRegistrationOverview,
-  CreditRegistrationPhaseStatus,
-  SuotarHealth,
-} from "@/generated/api/types.generated"
+import type { CreditRegistrationOverview, SuotarHealth } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
 import { Badge, Disclosure, Link, QueryResult, StatTile, Table } from "@/shared-module/components"
@@ -323,82 +317,6 @@ const StudyRegistrySection: React.FC<{
   )
 }
 
-/** Branches on the shared `phaseHealth` so this can't disagree with the Workers tab's status column. */
-const PhaseHeartbeat: React.FC<{ phase: CreditRegistrationPhaseStatus }> = ({ phase }) => {
-  const { t } = useTranslation()
-  const health = phaseHealth(phase)
-  switch (health) {
-    case "paused":
-      return <Badge tone={TONE.WARNING}>{t("credit-registration-admin-phase-paused")}</Badge>
-    case "not_built":
-      return <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-phase-not-built")}</Badge>
-    case "never_reported":
-      return (
-        <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-phase-never-reported")}</Badge>
-      )
-    case "failing":
-    case "heartbeat_late":
-    case "running":
-      return (
-        <Badge tone={health === "running" ? TONE.SUCCESS : TONE.WARNING}>
-          {/* `last_heartbeat_at` is set here: `failing`/`heartbeat_late`/`running` all require it. */}
-          <RelativeTime at={phase.last_heartbeat_at ?? null} />
-        </Badge>
-      )
-  }
-}
-
-const PhaseSection: React.FC<{ phases: CreditRegistrationPhaseStatus[] }> = ({ phases }) => {
-  const { t } = useTranslation()
-  return (
-    <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-phases")}</h2>
-      <p className={noteCss}>{t("credit-registration-admin-phase-heartbeat-note")}</p>
-      <Table
-        caption={t("credit-registration-heading-phases")}
-        rowKey={(row) => row.phase}
-        rows={phases}
-        columns={[
-          { header: t("label-phase"), cell: (row) => <code>{row.phase}</code> },
-          { header: t("label-process"), cell: (row) => <code>{row.process_name}</code> },
-          {
-            header: t("label-credit-registration-heartbeat"),
-            cell: (row) => <PhaseHeartbeat phase={row} />,
-          },
-          {
-            header: t("label-credit-registration-last-success"),
-            cell: (row) => <RelativeTime at={row.last_success_at} />,
-          },
-          {
-            header: t("label-credit-registration-last-run"),
-            cell: (row) =>
-              row.items_processed_last_run === null
-                ? ABSENT
-                : t("credit-registration-admin-items-processed-failed", {
-                    processed: row.items_processed_last_run,
-                    failed: row.items_failed_last_run ?? 0,
-                  }),
-          },
-          {
-            header: t("label-credit-registration-consecutive-failures"),
-            cell: (row) => row.consecutive_failures,
-          },
-          {
-            header: t("label-actions"),
-            cell: (row) => (
-              <AdminPhaseActions
-                phase={row.phase}
-                paused={row.paused_at !== null}
-                implemented={row.implemented}
-              />
-            ),
-          },
-        ]}
-      />
-    </section>
-  )
-}
-
 const OverviewPage: React.FC = () => {
   const overviewQuery = useCreditRegistrationOverview()
   const suotarHealthQuery = useSuotarHealth()
@@ -412,7 +330,6 @@ const OverviewPage: React.FC = () => {
           <ThroughputSection overview={overview} />
           <ErrorCodeSection overview={overview} />
           <StudyRegistrySection overview={overview} health={suotarHealthQuery.data} />
-          <PhaseSection phases={overview.phases} />
         </div>
       )}
     </QueryResult>

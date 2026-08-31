@@ -96,7 +96,8 @@ pub struct CreditRegistrationCircuitBreakerState {
 }
 
 /// One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
-/// narrowed one.
+/// narrowed one. Returned by the pause/resume/run-now actions; the Workers tab lists
+/// `CreditRegistrationPhaseRow` instead, which is wider.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationPhaseStatus {
     pub phase: String,
@@ -134,7 +135,6 @@ pub struct CreditRegistrationOverview {
     pub stuck: Vec<CreditRegistrationStuckTotal>,
     pub endpoints: Vec<SuotarEndpointStanding>,
     pub circuit_breaker: CreditRegistrationCircuitBreakerState,
-    pub phases: Vec<CreditRegistrationPhaseStatus>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -232,7 +232,6 @@ pub async fn get_credit_registration_overview(
         .into_iter()
         .map(to_endpoint_standing)
         .collect();
-    let phases = phase_statuses(&mut conn).await?;
 
     token.authorized_ok(web::Json(CreditRegistrationOverview {
         health,
@@ -246,7 +245,6 @@ pub async fn get_credit_registration_overview(
         stuck,
         endpoints,
         circuit_breaker: circuit_breaker_state(),
-        phases,
     }))
 }
 
@@ -451,17 +449,6 @@ fn require_known_phase(phase: &str) -> Result<&'static str, ControllerError> {
                 "Not one of the canonical phase names.".to_string()
             )
         })
-}
-
-async fn phase_statuses(
-    conn: &mut PgConnection,
-) -> Result<Vec<CreditRegistrationPhaseStatus>, ControllerError> {
-    let now = Utc::now();
-    Ok(credit_registration_phase_state::get_all(conn)
-        .await?
-        .into_iter()
-        .map(|row| to_phase_status(row, now))
-        .collect())
 }
 
 /// One phase's status, so a pause/resume/run-now response shows the effect without a second request.

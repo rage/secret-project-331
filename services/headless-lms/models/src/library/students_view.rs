@@ -3,7 +3,6 @@ use crate::chapters::{self, ChapterAvailability, DatabaseChapter, UserChapterPro
 use crate::prelude::*;
 use crate::user_chapter_locking_statuses::UserChapterLockingStatus;
 use chrono::{DateTime, Utc};
-use sqlx::AssertSqlSafe;
 use utoipa::ToSchema;
 
 /// One row of the paginated student identity list (one row per distinct enrolled user).
@@ -31,19 +30,35 @@ pub struct StudentsListPage {
 
 /// Escapes the `LIKE`/`ILIKE` metacharacters `\`, `%` and `_` so a search string is matched
 /// literally (used together with `ESCAPE '\'` in the query).
-fn escape_like_pattern(input: &str) -> String {
+pub fn escape_like_pattern(input: &str) -> String {
     input
         .replace('\\', "\\\\")
         .replace('%', "\\%")
         .replace('_', "\\_")
 }
 
+/// Grade filter values accepted by [`get_course_students_page`], beyond a literal numeric grade
+/// string (the sis-0-5 scale, `"0"`..`"5"`).
+pub const GRADE_FILTER_NOT_COMPLETED: &str = "not_completed";
+pub const GRADE_FILTER_PASSED: &str = "passed";
+pub const GRADE_FILTER_FAILED: &str = "failed";
+
 /// Returns a filtered, sorted, paginated page of the course's enrolled users (identity only).
 ///
-/// `sort_column` (`last_name` | `first_name` | `email`) and `sort_direction` map to fixed SQL
-/// fragments, never interpolated from raw input. `search` matches name/email substrings via the
-/// trigram `name_search_helper` / `email_search_helper` columns, plus an exact user-id match when it
-/// parses as a UUID. `course_instance_id` narrows to a single instance.
+/// `sort_column` (`last_name` | `first_name` | `email` | `total_points`) and `sort_direction` are
+/// narrowed to fixed literals and bound as parameters, never interpolated from raw input. `search`
+/// matches name/email substrings via the trigram `name_search_helper` / `email_search_helper`
+/// columns, plus an exact user-id match when it parses as a UUID. `course_instance_id` narrows to a
+/// single instance.
+///
+/// `module_id` + `grade` together narrow to students whose *latest* completion of that module matches:
+/// a numeric grade string (sis-0-5 scale), [`GRADE_FILTER_PASSED`]/[`GRADE_FILTER_FAILED`] (the
+/// sis-hyv-hyl scale, i.e. `grade IS NULL`), or [`GRADE_FILTER_NOT_COMPLETED`] (no completion row at
+/// all). A numerically graded module's completions never match `passed`/`failed` -- those only ever
+/// apply to modules that use the pass/fail scale, mirroring how `CompletionsTab` renders the grade
+/// column (a numeric grade takes precedence over passed/failed). `grade` is ignored unless `module_id`
+/// is also set.
+#[allow(clippy::too_many_arguments)]
 pub async fn get_course_students_page(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -52,6 +67,8 @@ pub async fn get_course_students_page(
     sort_column: Option<&str>,
     sort_direction: Option<&str>,
     course_instance_id: Option<Uuid>,
+    module_id: Option<Uuid>,
+    grade: Option<&str>,
 ) -> ModelResult<StudentsListPage> {
     // Empty/blank search behaves like no search.
     let search = search.map(str::trim).filter(|s| !s.is_empty());
@@ -59,8 +76,24 @@ pub async fn get_course_students_page(
     // The helper columns are lowercased generated columns, so lowercase the term and escape the LIKE
     // metacharacters (matched literally via `ESCAPE '\'`). The GiST trigram indexes serve LIKE.
     let search_pattern = search.map(|s| escape_like_pattern(&s.to_lowercase()));
+    // A `grade` without a `module_id` has nothing to scope it to, so it is dropped rather than
+    // matched against every module.
+    let grade_filter = module_id.and(grade);
 
-    let total_count = sqlx::query!(
+    // Both the sort column and the direction are narrowed to a fixed literal here, so the query can
+    // bind them and stay one offline-checked shape instead of being built by string formatting.
+    let sort_column = match sort_column {
+        Some("first_name") => "first_name",
+        Some("email") => "email",
+        Some("total_points") => "total_points",
+        _ => "last_name",
+    };
+    let sort_direction = match sort_direction {
+        Some("desc") | Some("DESC") => "desc",
+        _ => "asc",
+    };
+
+    let total_count = sqlx::query_scalar!(
         r#"
 SELECT COUNT(*) AS "count!"
 FROM (
@@ -68,6 +101,16 @@ FROM (
   FROM course_instance_enrollments cie
     JOIN users u ON u.id = cie.user_id
     LEFT JOIN user_details ud ON ud.user_id = u.id
+    LEFT JOIN LATERAL (
+      SELECT cmc.grade, cmc.passed
+      FROM course_module_completions cmc
+      WHERE cmc.user_id = u.id
+        AND cmc.course_id = $1
+        AND cmc.course_module_id = $5
+        AND cmc.deleted_at IS NULL
+      ORDER BY cmc.completion_date DESC
+      LIMIT 1
+    ) gm ON $5::uuid IS NOT NULL
   WHERE cie.course_id = $1
     AND cie.deleted_at IS NULL
     AND u.deleted_at IS NULL
@@ -78,57 +121,69 @@ FROM (
       OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
       OR ($4::uuid IS NOT NULL AND u.id = $4)
     )
+    AND (
+      $6::text IS NULL
+      OR ($6 = 'not_completed' AND gm.grade IS NULL AND gm.passed IS NULL)
+      OR ($6 = 'passed' AND gm.grade IS NULL AND gm.passed = true)
+      OR ($6 = 'failed' AND gm.grade IS NULL AND gm.passed = false)
+      OR ($6 ~ '^[0-9]+$' AND gm.grade = $6::int)
+    )
   GROUP BY u.id
 ) t
         "#,
         course_id,
         course_instance_id,
         search_pattern.as_deref(),
-        user_id_exact
+        user_id_exact,
+        module_id,
+        grade_filter,
     )
     .fetch_one(&mut *conn)
-    .await?
-    .count;
+    .await?;
 
-    // Sort column and direction are matched to fixed literals; only bound params carry user data.
-    let dir = match sort_direction {
-        Some("desc") | Some("DESC") => "DESC",
-        _ => "ASC",
-    };
-    // `u.id` breaks ties so paging over equal sort keys (duplicate/NULL names, duplicate emails) is
-    // deterministic and never skips or repeats a student.
-    let order_by = match sort_column {
-        Some("first_name") => {
-            format!(
-                "LOWER(TRIM(ud.first_name)) {dir} NULLS LAST, LOWER(TRIM(ud.last_name)) ASC NULLS LAST, u.id ASC"
-            )
-        }
-        Some("email") => format!("LOWER(ud.email) {dir} NULLS LAST, u.id ASC"),
-        _ => {
-            format!(
-                "LOWER(TRIM(ud.last_name)) {dir} NULLS LAST, LOWER(TRIM(ud.first_name)) ASC NULLS LAST, u.id ASC"
-            )
-        }
-    };
-
-    let page_sql = format!(
+    // Each sort key appears twice, once per direction, and yields NULL in every row that the bound
+    // column and direction do not select -- an all-NULL key orders nothing, which is what lets one
+    // fixed ORDER BY stand in for the eight column/direction combinations. `u.id` breaks ties so
+    // paging over equal sort keys (duplicate/NULL names, duplicate emails) never skips or repeats a
+    // student.
+    let data = sqlx::query_as!(
+        CourseStudentListRow,
         r#"
 SELECT
-  u.id AS user_id,
-  ud.first_name AS first_name,
-  ud.last_name AS last_name,
-  ud.email AS email,
+  u.id AS "user_id!",
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  ud.email AS "email?",
   COALESCE(
     array_agg(DISTINCT ci.name) FILTER (WHERE ci.name IS NOT NULL),
     ARRAY[]::text[]
-  ) AS course_instances,
-  COALESCE(bool_or(ci.id IS NOT NULL), false) AS has_active_instance
+  ) AS "course_instances!: Vec<String>",
+  COALESCE(bool_or(ci.id IS NOT NULL), false) AS "has_active_instance!"
 FROM course_instance_enrollments cie
   JOIN users u ON u.id = cie.user_id
   LEFT JOIN user_details ud ON ud.user_id = u.id
   LEFT JOIN course_instances ci
     ON ci.id = cie.course_instance_id
    AND ci.deleted_at IS NULL
+  LEFT JOIN LATERAL (
+    SELECT cmc.grade, cmc.passed
+    FROM course_module_completions cmc
+    WHERE cmc.user_id = u.id
+      AND cmc.course_id = $1
+      AND cmc.course_module_id = $7
+      AND cmc.deleted_at IS NULL
+    ORDER BY cmc.completion_date DESC
+    LIMIT 1
+  ) gm ON $7::uuid IS NOT NULL
+  LEFT JOIN (
+    SELECT ues.user_id, COALESCE(SUM(ues.score_given), 0)::double precision AS total_points
+    FROM user_exercise_states ues
+      JOIN exercises ex ON ex.id = ues.exercise_id
+    WHERE ues.course_id = $1
+      AND ues.deleted_at IS NULL
+      AND ex.deleted_at IS NULL
+    GROUP BY ues.user_id
+  ) points ON points.user_id = u.id
 WHERE cie.course_id = $1
   AND cie.deleted_at IS NULL
   AND u.deleted_at IS NULL
@@ -139,21 +194,53 @@ WHERE cie.course_id = $1
     OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
     OR ($3::uuid IS NOT NULL AND u.id = $3)
   )
+  AND (
+    $8::text IS NULL
+    OR ($8 = 'not_completed' AND gm.grade IS NULL AND gm.passed IS NULL)
+    OR ($8 = 'passed' AND gm.grade IS NULL AND gm.passed = true)
+    OR ($8 = 'failed' AND gm.grade IS NULL AND gm.passed = false)
+    OR ($8 ~ '^[0-9]+$' AND gm.grade = $8::int)
+  )
 GROUP BY u.id, ud.first_name, ud.last_name, ud.email
-ORDER BY {order_by}
+ORDER BY
+  CASE
+    WHEN $9 = 'total_points' AND $10 = 'asc' THEN COALESCE(MAX(points.total_points), 0)
+  END ASC NULLS LAST,
+  CASE
+    WHEN $9 = 'total_points' AND $10 = 'desc' THEN COALESCE(MAX(points.total_points), 0)
+  END DESC NULLS LAST,
+  CASE
+    WHEN $10 <> 'asc' THEN NULL
+    WHEN $9 = 'first_name' THEN LOWER(TRIM(ud.first_name))
+    WHEN $9 = 'email' THEN LOWER(ud.email)
+    WHEN $9 = 'last_name' THEN LOWER(TRIM(ud.last_name))
+  END ASC NULLS LAST,
+  CASE
+    WHEN $10 <> 'desc' THEN NULL
+    WHEN $9 = 'first_name' THEN LOWER(TRIM(ud.first_name))
+    WHEN $9 = 'email' THEN LOWER(ud.email)
+    WHEN $9 = 'last_name' THEN LOWER(TRIM(ud.last_name))
+  END DESC NULLS LAST,
+  CASE
+    WHEN $9 = 'first_name' THEN LOWER(TRIM(ud.last_name))
+    WHEN $9 = 'last_name' THEN LOWER(TRIM(ud.first_name))
+  END ASC NULLS LAST,
+  u.id ASC
 LIMIT $5 OFFSET $6
-        "#
-    );
-
-    let data = sqlx::query_as::<_, CourseStudentListRow>(AssertSqlSafe(page_sql))
-        .bind(course_id)
-        .bind(search_pattern.as_deref())
-        .bind(user_id_exact)
-        .bind(course_instance_id)
-        .bind(pagination.limit())
-        .bind(pagination.offset())
-        .fetch_all(&mut *conn)
-        .await?;
+        "#,
+        course_id,
+        search_pattern.as_deref(),
+        user_id_exact,
+        course_instance_id,
+        pagination.limit(),
+        pagination.offset(),
+        module_id,
+        grade_filter,
+        sort_column,
+        sort_direction,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
 
     Ok(StudentsListPage {
         data,

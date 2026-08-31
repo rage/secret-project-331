@@ -14,6 +14,7 @@ export interface AsideWithImageBlockAttributes {
 }
 
 const AsideWithImageConfiguration: BlockConfiguration<AsideWithImageBlockAttributes> = {
+  apiVersion: 3,
   title: "Aside with Image",
   description: "An aside block with custom image",
   category: MOOCFI_CATEGORY_SLUG,

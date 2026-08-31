@@ -4,7 +4,7 @@ use crate::config::server_runtime_config;
 use crate::prelude::*;
 use actix_http::Payload;
 use actix_web::{FromRequest, HttpRequest};
-use chrono::{DateTime, Duration, Utc};
+use chrono::{Duration, Utc};
 use futures::{
     FutureExt,
     future::{BoxFuture, Ready, ready},
@@ -19,9 +19,7 @@ use headless_lms_models::{
 use secrecy::{ExposeSecret, SecretString};
 
 use headless_lms_base::error::backend_error::BackendError;
-use jsonwebtoken::{
-    Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode, errors::ErrorKind,
-};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use models::SpecFetcher;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -66,12 +64,6 @@ pub struct UploadClaim {
     iat: usize,
 }
 
-#[derive(Debug, Deserialize)]
-struct LegacyUploadClaim {
-    exercise_service_slug: String,
-    expiration_time: DateTime<Utc>,
-}
-
 impl UploadClaim {
     pub fn exercise_service_slug(&self) -> &str {
         self.exercise_service_slug.as_ref()
@@ -92,7 +84,7 @@ impl UploadClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_upload_claim_with_legacy_fallback(token, key).map_err(|err| {
+        validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid jwt key: {}", err),
@@ -149,12 +141,6 @@ pub struct GradingUpdateClaim {
     iat: usize,
 }
 
-#[derive(Debug, Deserialize)]
-struct LegacyGradingUpdateClaim {
-    submission_id: Uuid,
-    expiration_time: DateTime<Utc>,
-}
-
 impl GradingUpdateClaim {
     pub fn submission_id(&self) -> Uuid {
         self.submission_id
@@ -175,7 +161,7 @@ impl GradingUpdateClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_grading_update_claim_with_legacy_fallback(token, key).map_err(|err| {
+        validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid jwt key: {}", err),
@@ -306,6 +292,163 @@ pub struct SpecRequest<'a> {
 #[derive(Debug, Serialize)]
 pub struct ExerciseServiceCsvExportRequest<'a, T: Serialize> {
     pub items: &'a [T],
+}
+
+/// A file the host stored for a client, as an exercise service sees it.
+#[derive(Debug, Serialize)]
+pub struct UploadedFileRef {
+    pub id: Uuid,
+    pub name: String,
+    pub url: String,
+}
+
+/// Asks an exercise service to turn host-stored files into its own `UserAnswer`. Sent to the
+/// service's `build_user_answer_endpoint_path`.
+#[derive(Debug, Serialize)]
+pub struct BuildUserAnswerRequest<'a> {
+    pub request_id: Uuid,
+    /// The task's public spec, so the service can shape the answer to the exercise.
+    pub public_spec: Option<&'a serde_json::Value>,
+    pub uploaded_files: Vec<UploadedFileRef>,
+}
+
+/// The service's answer. Opaque to the host, which only stores and forwards it.
+#[derive(Debug, Deserialize)]
+pub struct BuildUserAnswerResponse {
+    pub answer: serde_json::Value,
+}
+
+/// Timeout for the build-user-answer hop. Deliberately far shorter than the 120 s spec and CSV
+/// timeouts: this one sits inside a user's submit request, and no host-side fallback exists — a
+/// fallback would mean the host guessing the service's answer shape, which is the coupling this
+/// endpoint removes.
+const BUILD_USER_ANSWER_TIMEOUT_SECS: u64 = 10;
+
+/// Posts `body` to an exercise service and parses its JSON response, wrapping an unsuccessful
+/// status in a `ModelError::HttpRequest`. `log_phrase` fills "...while {log_phrase}" in the log
+/// line, and `error_verb_phrase` fills "{error_verb_phrase} failed with status: ..." in the error.
+async fn post_exercise_service_json<Req, Resp>(
+    url: Url,
+    timeout: std::time::Duration,
+    body: &Req,
+    log_phrase: &str,
+    error_verb_phrase: &str,
+) -> ModelResult<Resp>
+where
+    Req: Serialize,
+    Resp: serde::de::DeserializeOwned,
+{
+    let client = reqwest::Client::new();
+    let response = client
+        .post(url.clone())
+        .timeout(timeout)
+        .json(body)
+        .send()
+        .await
+        .map_err(ModelError::from)?;
+
+    let status = response.status();
+    if !status.is_success() {
+        let status_code = status.as_u16();
+        let response_body = response.text().await.unwrap_or_default();
+        error!(
+            ?url,
+            ?response_body,
+            status_code = %status_code,
+            "Exercise service returned an unsuccessful status code while {}",
+            log_phrase
+        );
+        return Err(ModelError::new(
+            ModelErrorType::HttpRequest {
+                status_code,
+                response_body: response_body.clone(),
+            },
+            format!(
+                "{error_verb_phrase} failed with status: {status_code} response: {response_body}"
+            ),
+            None,
+        ));
+    }
+
+    parse_response_json(response).await
+}
+
+/// Asks the exercise service at `url` to build a `UserAnswer` from the given uploaded files.
+pub async fn post_build_user_answer_request(
+    url: Url,
+    public_spec: Option<&serde_json::Value>,
+    uploaded_files: Vec<UploadedFileRef>,
+) -> ModelResult<serde_json::Value> {
+    let response: BuildUserAnswerResponse = post_exercise_service_json(
+        url,
+        std::time::Duration::from_secs(BUILD_USER_ANSWER_TIMEOUT_SECS),
+        &BuildUserAnswerRequest {
+            request_id: Uuid::new_v4(),
+            public_spec,
+            uploaded_files,
+        },
+        "building a user answer",
+        "Building the user answer",
+    )
+    .await?;
+    Ok(response.answer)
+}
+
+/// Asks an exercise service which files one of its answers consists of. Sent to the service's
+/// `answer_files_endpoint_path`.
+#[derive(Debug, Serialize)]
+pub struct AnswerFilesRequest<'a> {
+    pub request_id: Uuid,
+    /// The task's public spec, so the service can name the files the way the exercise defines them.
+    pub public_spec: Option<&'a serde_json::Value>,
+    /// The answer to enumerate. Opaque to the host; only the service reads it.
+    pub answer: &'a serde_json::Value,
+}
+
+/// One file of an answer, as the service reports it.
+#[derive(Debug, Deserialize)]
+pub struct AnswerFile {
+    /// The file's name as the student sees it, e.g. `src/main.rs`.
+    pub name: String,
+    /// The file's bytes, base64-encoded, because an answer's files need not be text.
+    pub data: String,
+    /// Defaults to `application/octet-stream`, which is also what the client upload path records
+    /// for a part whose multipart headers name no type.
+    #[serde(default)]
+    pub mime: Option<String>,
+}
+
+/// The service's listing of an answer's files, for the host to download and store.
+#[derive(Debug, Deserialize)]
+pub struct AnswerFilesResponse {
+    /// In the order the student's files should be restored in; the host records it verbatim.
+    pub files: Vec<AnswerFile>,
+}
+
+/// Timeout for the answer-files hop. Longer than the build-user-answer hop's 10 s because a service
+/// may have to pack the answer's files into an archive to report them, which the build direction
+/// never does. Still well inside a user's submit request, and there is no host-side fallback.
+const ANSWER_FILES_TIMEOUT_SECS: u64 = 30;
+
+/// Asks the exercise service at `url` which files the given answer consists of.
+pub async fn post_answer_files_request(
+    url: Url,
+    public_spec: Option<&serde_json::Value>,
+    answer: &serde_json::Value,
+) -> ModelResult<Vec<AnswerFile>> {
+    let response: AnswerFilesResponse = post_exercise_service_json(
+        url,
+        std::time::Duration::from_secs(ANSWER_FILES_TIMEOUT_SECS),
+        &AnswerFilesRequest {
+            request_id: Uuid::new_v4(),
+            public_spec,
+            answer,
+        },
+        "listing an answer's files",
+        "Listing the answer's files",
+    )
+    .await?;
+    Ok(response.files)
 }
 
 /// Column definition for exercise service CSV export; callers must use scalar-only cell values.
@@ -558,13 +701,6 @@ pub struct GivePeerReviewClaim {
     iat: usize,
 }
 
-#[derive(Debug, Deserialize)]
-struct LegacyGivePeerReviewClaim {
-    exercise_slide_submission_id: Uuid,
-    peer_or_self_review_config_id: Uuid,
-    expiration_time: DateTime<Utc>,
-}
-
 impl GivePeerReviewClaim {
     pub fn expiring_in_1_day(
         exercise_slide_submission_id: Uuid,
@@ -585,7 +721,7 @@ impl GivePeerReviewClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_peer_review_claim_with_legacy_fallback(token, key).map_err(|err| {
+        validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid claim: {}", err),
@@ -615,101 +751,6 @@ fn validate_hs256_claim<T: serde::de::DeserializeOwned>(
     let validation = Validation::new(Algorithm::HS256);
     decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
         .map(|token_data| token_data.claims)
-}
-
-/// Decodes claims in compatibility mode and validates legacy `expiration_time` manually.
-fn validate_hs256_legacy_claim<T: serde::de::DeserializeOwned>(
-    token: &str,
-    key: &JwtKey,
-) -> Result<T, jsonwebtoken::errors::Error> {
-    let mut validation = Validation::new(Algorithm::HS256);
-    validation.required_spec_claims = std::collections::HashSet::new();
-    validation.validate_exp = false;
-    decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
-        .map(|token_data| token_data.claims)
-}
-
-fn legacy_timestamp_to_claim_number(
-    timestamp: DateTime<Utc>,
-) -> Result<usize, jsonwebtoken::errors::Error> {
-    usize::try_from(timestamp.timestamp())
-        .map_err(|_| jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))
-}
-
-/// Validates upload claim using modern JWT fields, with temporary fallback to legacy claims.
-fn validate_upload_claim_with_legacy_fallback(
-    token: &str,
-    key: &JwtKey,
-) -> Result<UploadClaim, jsonwebtoken::errors::Error> {
-    match validate_hs256_claim::<UploadClaim>(token, key) {
-        Ok(claim) => Ok(claim),
-        Err(err) if matches!(err.kind(), ErrorKind::MissingRequiredClaim(claim) if claim == "exp") =>
-        {
-            let legacy: LegacyUploadClaim = validate_hs256_legacy_claim(token, key)?;
-            if legacy.expiration_time < Utc::now() {
-                return Err(jsonwebtoken::errors::Error::from(
-                    ErrorKind::ExpiredSignature,
-                ));
-            }
-            Ok(UploadClaim {
-                exercise_service_slug: legacy.exercise_service_slug,
-                exp: legacy_timestamp_to_claim_number(legacy.expiration_time)?,
-                iat: 0,
-            })
-        }
-        Err(err) => Err(err),
-    }
-}
-
-/// Validates grading update claim using modern JWT fields, with temporary fallback to legacy claims.
-fn validate_grading_update_claim_with_legacy_fallback(
-    token: &str,
-    key: &JwtKey,
-) -> Result<GradingUpdateClaim, jsonwebtoken::errors::Error> {
-    match validate_hs256_claim::<GradingUpdateClaim>(token, key) {
-        Ok(claim) => Ok(claim),
-        Err(err) if matches!(err.kind(), ErrorKind::MissingRequiredClaim(claim) if claim == "exp") =>
-        {
-            let legacy: LegacyGradingUpdateClaim = validate_hs256_legacy_claim(token, key)?;
-            if legacy.expiration_time < Utc::now() {
-                return Err(jsonwebtoken::errors::Error::from(
-                    ErrorKind::ExpiredSignature,
-                ));
-            }
-            Ok(GradingUpdateClaim {
-                submission_id: legacy.submission_id,
-                exp: legacy_timestamp_to_claim_number(legacy.expiration_time)?,
-                iat: 0,
-            })
-        }
-        Err(err) => Err(err),
-    }
-}
-
-/// Validates peer review claim using modern JWT fields, with temporary fallback to legacy claims.
-fn validate_peer_review_claim_with_legacy_fallback(
-    token: &str,
-    key: &JwtKey,
-) -> Result<GivePeerReviewClaim, jsonwebtoken::errors::Error> {
-    match validate_hs256_claim::<GivePeerReviewClaim>(token, key) {
-        Ok(claim) => Ok(claim),
-        Err(err) if matches!(err.kind(), ErrorKind::MissingRequiredClaim(claim) if claim == "exp") =>
-        {
-            let legacy: LegacyGivePeerReviewClaim = validate_hs256_legacy_claim(token, key)?;
-            if legacy.expiration_time < Utc::now() {
-                return Err(jsonwebtoken::errors::Error::from(
-                    ErrorKind::ExpiredSignature,
-                ));
-            }
-            Ok(GivePeerReviewClaim {
-                exercise_slide_submission_id: legacy.exercise_slide_submission_id,
-                peer_or_self_review_config_id: legacy.peer_or_self_review_config_id,
-                exp: legacy_timestamp_to_claim_number(legacy.expiration_time)?,
-                iat: 0,
-            })
-        }
-        Err(err) => Err(err),
-    }
 }
 
 /// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same
@@ -793,4 +834,331 @@ where
             None,
         )
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::ResponseError;
+    use actix_web::http::StatusCode;
+    use actix_web::http::header::{HeaderName, HeaderValue};
+    use actix_web::test::TestRequest;
+    use base64::Engine;
+    use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+    use serde_json::json;
+
+    fn other_key() -> JwtKey {
+        JwtKey::new(&SecretString::new(
+            "a-completely-different-jwt-secret-0123456789"
+                .to_string()
+                .into(),
+        ))
+        .expect("test key")
+    }
+
+    /// Signs an arbitrary JSON payload with the same HS256 helper the production claims use, so
+    /// tests can produce claims (expired, wrong shape, legacy) the public constructors can't.
+    fn sign_json(payload: serde_json::Value, key: &JwtKey) -> String {
+        sign_hs256_claim(&payload, key).expect("signing should succeed")
+    }
+
+    fn past_timestamp(seconds_ago: i64) -> i64 {
+        (Utc::now() - Duration::seconds(seconds_ago)).timestamp()
+    }
+
+    fn future_timestamp(seconds_ahead: i64) -> i64 {
+        (Utc::now() + Duration::seconds(seconds_ahead)).timestamp()
+    }
+
+    #[test]
+    fn grading_update_claim_round_trips() {
+        let key = JwtKey::test_key();
+        let submission_id = Uuid::new_v4();
+        let token = GradingUpdateClaim::expiring_in_1_day(submission_id)
+            .sign(&key)
+            .expect("signing should succeed");
+        let claim = GradingUpdateClaim::validate(&token, &key).expect("the claim should validate");
+        assert_eq!(claim.submission_id(), submission_id);
+    }
+
+    /// An expired claim must not keep authorizing grading updates.
+    #[test]
+    fn expired_grading_update_claim_is_rejected() {
+        let key = JwtKey::test_key();
+        // Well past the default 60s leeway jsonwebtoken allows for clock skew.
+        let token = sign_json(
+            json!({
+                "submission_id": Uuid::new_v4(),
+                "exp": past_timestamp(3600),
+                "iat": past_timestamp(7200),
+            }),
+            &key,
+        );
+        let err = GradingUpdateClaim::validate(&token, &key)
+            .expect_err("an expired claim must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// A claim signed with some other secret must not validate: this is the only thing standing
+    /// between an unauthenticated caller and writing grading results.
+    #[test]
+    fn grading_update_claim_signed_with_another_key_is_rejected() {
+        let token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&other_key())
+            .expect("signing should succeed");
+        GradingUpdateClaim::validate(&token, &JwtKey::test_key())
+            .expect_err("a claim signed with a foreign key must be rejected");
+    }
+
+    /// Rewriting the payload of a validly signed claim (e.g. to point at another submission)
+    /// must invalidate the signature.
+    #[test]
+    fn tampered_grading_update_claim_is_rejected() {
+        let key = JwtKey::test_key();
+        let token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&key)
+            .expect("signing should succeed");
+        let mut parts = token.split('.');
+        let header = parts.next().expect("header");
+        let _original_payload = parts.next().expect("payload");
+        let signature = parts.next().expect("signature");
+        // Swap in a payload naming a different submission, keeping the original signature.
+        let forged_payload = URL_SAFE_NO_PAD.encode(
+            serde_json::to_vec(&json!({
+                "submission_id": Uuid::new_v4(),
+                "exp": future_timestamp(3600),
+                "iat": Utc::now().timestamp(),
+            }))
+            .expect("json"),
+        );
+        let tampered = format!("{header}.{forged_payload}.{signature}");
+        GradingUpdateClaim::validate(&tampered, &key)
+            .expect_err("a tampered claim must be rejected");
+    }
+
+    /// The classic JWT bypass: an unsigned token declaring `alg: none` must not be accepted.
+    #[test]
+    fn unsigned_grading_update_claim_is_rejected() {
+        let header = URL_SAFE_NO_PAD.encode(br#"{"alg":"none","typ":"JWT"}"#);
+        let payload = URL_SAFE_NO_PAD.encode(
+            serde_json::to_vec(&json!({
+                "submission_id": Uuid::new_v4(),
+                "exp": future_timestamp(3600),
+                "iat": Utc::now().timestamp(),
+            }))
+            .expect("json"),
+        );
+        let token = format!("{header}.{payload}.");
+        GradingUpdateClaim::validate(&token, &JwtKey::test_key())
+            .expect_err("an unsigned (alg=none) claim must be rejected");
+    }
+
+    /// The claim types share one signing key, so a token minted for one purpose must not be
+    /// usable for another. An upload claim carries no `submission_id`, so it must not deserialize
+    /// into a grading update claim (and vice versa).
+    #[test]
+    fn claims_do_not_cross_validate_between_types() {
+        let key = JwtKey::test_key();
+        let upload_token = UploadClaim::expiring_in_1_day("tmc")
+            .sign(&key)
+            .expect("signing should succeed");
+        GradingUpdateClaim::validate(&upload_token, &key)
+            .expect_err("an upload claim must not validate as a grading update claim");
+
+        let grading_token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&key)
+            .expect("signing should succeed");
+        UploadClaim::validate(&grading_token, &key)
+            .expect_err("a grading update claim must not validate as an upload claim");
+    }
+
+    /// A legacy-shaped claim, carrying `expiration_time` instead of `exp`, is rejected whether or
+    /// not that timestamp has passed. Pinned so that accepting the old shape again has to be
+    /// deliberate.
+    #[test]
+    fn legacy_grading_update_claim_shape_is_rejected() {
+        let key = JwtKey::test_key();
+        let submission_id = Uuid::new_v4();
+
+        let unexpired = sign_json(
+            json!({
+                "submission_id": submission_id,
+                "expiration_time": Utc::now() + Duration::hours(1),
+            }),
+            &key,
+        );
+        let err = GradingUpdateClaim::validate(&unexpired, &key)
+            .expect_err("a claim without `exp` must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+
+        let expired = sign_json(
+            json!({
+                "submission_id": submission_id,
+                "expiration_time": Utc::now() - Duration::hours(1),
+            }),
+            &key,
+        );
+        GradingUpdateClaim::validate(&expired, &key)
+            .expect_err("an expired legacy claim must be rejected");
+    }
+
+    /// A claim missing `exp` entirely must never be treated as non-expiring.
+    #[test]
+    fn grading_update_claim_without_an_expiry_is_rejected() {
+        let key = JwtKey::test_key();
+        let token = sign_json(
+            json!({ "submission_id": Uuid::new_v4(), "iat": Utc::now().timestamp() }),
+            &key,
+        );
+        GradingUpdateClaim::validate(&token, &key)
+            .expect_err("a claim without an expiry must be rejected");
+    }
+
+    fn extract_grading_update_claim(
+        req: actix_web::HttpRequest,
+        mut payload: Payload,
+    ) -> Result<GradingUpdateClaim, ControllerError> {
+        GradingUpdateClaim::from_request(&req, &mut payload)
+            .now_or_never()
+            .expect("the extractor resolves immediately")
+    }
+
+    #[test]
+    fn extractor_accepts_a_valid_claim_header() {
+        let key = JwtKey::test_key();
+        let submission_id = Uuid::new_v4();
+        let token = GradingUpdateClaim::expiring_in_1_day(submission_id)
+            .sign(&key)
+            .expect("signing should succeed");
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(key))
+            .insert_header((EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER, token.as_str()))
+            .to_http_parts();
+        let claim = extract_grading_update_claim(req, payload).expect("should extract");
+        assert_eq!(claim.submission_id(), submission_id);
+    }
+
+    #[test]
+    fn extractor_rejects_a_missing_claim_header() {
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(JwtKey::test_key()))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a request without the claim header must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// A non-UTF-8 header value must be a client error, not a panic.
+    #[test]
+    fn extractor_rejects_an_invalid_utf8_claim_header() {
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(JwtKey::test_key()))
+            .insert_header((
+                HeaderName::from_static(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER),
+                HeaderValue::from_bytes(&[0xff, 0xfe, 0x80]).expect("header value"),
+            ))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a non-UTF-8 claim header must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// Without the signing key in app data the server cannot verify anything; that is a server
+    /// misconfiguration (500), and must never be mistaken for a valid claim.
+    #[test]
+    fn extractor_reports_a_missing_jwt_key_as_a_server_error() {
+        let token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&JwtKey::test_key())
+            .expect("signing should succeed");
+        let (req, payload) = TestRequest::default()
+            .insert_header((EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER, token.as_str()))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a missing JwtKey must not yield a claim");
+        assert_eq!(err.status_code(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    /// A request carrying a garbage header value must be rejected before any DB work.
+    #[test]
+    fn extractor_rejects_a_non_jwt_claim_header() {
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(JwtKey::test_key()))
+            .insert_header((EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER, "not-a-jwt"))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a non-JWT claim header must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// The exercise service sees only this JSON, so its shape is a contract. In particular the
+    /// host sends no answer of its own: `uploaded_files` plus the public spec is all a service
+    /// gets, and whatever it returns under `answer` is stored verbatim.
+    #[test]
+    fn build_user_answer_request_serializes_to_the_documented_shape() {
+        let request_id = Uuid::new_v4();
+        let file_id = Uuid::new_v4();
+        let public_spec = json!({ "type": "editor" });
+        let value = serde_json::to_value(BuildUserAnswerRequest {
+            request_id,
+            public_spec: Some(&public_spec),
+            uploaded_files: vec![UploadedFileRef {
+                id: file_id,
+                name: "submission.tar.zst".to_string(),
+                url: "http://project-331.local/api/v0/files/tmc/abc".to_string(),
+            }],
+        })
+        .expect("serializes");
+        assert_eq!(
+            value,
+            json!({
+                "request_id": request_id,
+                "public_spec": { "type": "editor" },
+                "uploaded_files": [{
+                    "id": file_id,
+                    "name": "submission.tar.zst",
+                    "url": "http://project-331.local/api/v0/files/tmc/abc",
+                }],
+            })
+        );
+    }
+
+    /// A task with no public spec must still produce a valid request, and a service whose answer
+    /// needs no files must be reachable with an empty list.
+    #[test]
+    fn build_user_answer_request_allows_no_public_spec_and_no_files() {
+        let value = serde_json::to_value(BuildUserAnswerRequest {
+            request_id: Uuid::nil(),
+            public_spec: None,
+            uploaded_files: Vec::new(),
+        })
+        .expect("serializes");
+        assert_eq!(value["public_spec"], json!(null));
+        assert_eq!(value["uploaded_files"], json!([]));
+    }
+
+    /// The answer is opaque: any JSON value a service returns must round-trip untouched.
+    #[test]
+    fn build_user_answer_response_keeps_the_answer_opaque() {
+        for answer in [
+            json!({ "type": "editor", "archive_file_id": "x", "archive_download_url": "u" }),
+            json!({ "some": { "nested": ["shape", 1, true] } }),
+            json!("a bare string"),
+        ] {
+            let parsed: BuildUserAnswerResponse =
+                serde_json::from_value(json!({ "answer": answer.clone() })).expect("deserializes");
+            assert_eq!(parsed.answer, answer);
+        }
+    }
+
+    /// A service that answers 200 with the wrong body must fail rather than have the host invent
+    /// an answer, which is exactly the coupling this endpoint exists to remove.
+    #[test]
+    fn build_user_answer_response_rejects_a_body_without_an_answer() {
+        assert!(
+            serde_json::from_value::<BuildUserAnswerResponse>(json!({ "result": "editor" }))
+                .is_err()
+        );
+        assert!(serde_json::from_value::<BuildUserAnswerResponse>(json!({})).is_err());
+        assert!(serde_json::from_value::<BuildUserAnswerResponse>(json!([])).is_err());
+    }
 }

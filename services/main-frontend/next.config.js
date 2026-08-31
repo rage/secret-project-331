@@ -18,6 +18,12 @@ const config = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    // Next's CLI type-check mode requires typescript/bin/tsc, which our `typescript` ->
+    // @typescript/typescript6 alias does not provide (it ships bin/tsc6). Its API mode
+    // resolves the alias fine, and the build skips type-checking anyway.
+    useTypeScriptCli: false,
+  },
   output: "standalone",
   outputFileTracingRoot: ".",
   // oxlint-disable-next-line require-await -- Next.js config expects headers() to return a Promise
@@ -61,10 +67,22 @@ const config = {
         as: "*.js",
       },
     },
+    resolveAlias: {
+      // @citation-js/core statically imports node-fetch, which requires node:fs/node:net
+      // (via fetch-blob) even though citation-js only calls it outside the browser. Turbopack
+      // refuses to bundle those for the client, so alias it to a fetch()-based shim there.
+      "node-fetch": { browser: "./src/shims/browserNodeFetch.js" },
+    },
   },
   compiler: {
     emotion: {
-      autoLabel: "always",
+      // Must stay "never" while any `css` template interpolates another @emotion/css class name
+      // (~25 sites). Emotion inlines the interpolated class's raw registered string, label marker
+      // included, so autoLabel injects `label:foo` into the middle of the CSS. Next <=16.2 emitted
+      // a bare `foo`, which parsed as an unknown element selector and was harmless; 16.3 emits
+      // `label:foo`, an unknown pseudo-class that invalidates the whole selector list and silently
+      // drops the rule — which cost us the global `html, body` font-family and the css reset.
+      autoLabel: "never",
       // https://github.com/vercel/next.js/issues/40091
       // labelFormat: "[dirname]--[filename]--[local]",
     },

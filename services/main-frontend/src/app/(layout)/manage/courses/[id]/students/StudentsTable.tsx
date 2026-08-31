@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
+import { flexRender, useTable } from "@tanstack/react-table"
 import type { ColumnDef, OnChangeFn, SortingState } from "@tanstack/react-table"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 import { colorPairs } from "./studentsTableColors"
+import { studentsTableFeatures, type StudentsTableFeatures } from "./studentsTableFeatures"
 import {
   floatingHeaderInnerCss,
   floatingHeaderShellCss,
@@ -33,8 +34,10 @@ interface ColMeta {
   minWidth?: number
 }
 
-function getMeta<T extends object>(colDef: ColumnDef<T, unknown> | undefined): ColMeta | undefined {
-  return (colDef as ColumnDef<T, unknown> & { meta?: ColMeta })?.meta
+function getMeta<T extends object>(
+  colDef: ColumnDef<StudentsTableFeatures, T, unknown> | undefined,
+): ColMeta | undefined {
+  return (colDef as ColumnDef<StudentsTableFeatures, T, unknown> & { meta?: ColMeta })?.meta
 }
 
 // Estimated row height (px) used by the virtualizer before real rows are measured.
@@ -49,7 +52,7 @@ const spacerCellStyle = (height: number): React.CSSProperties => ({
 })
 
 interface StudentsTableProps<T extends object> {
-  columns: ColumnDef<T, unknown>[]
+  columns: ColumnDef<StudentsTableFeatures, T, unknown>[]
   data: T[]
   colorHeaders?: boolean
   colorColumns?: boolean
@@ -83,7 +86,8 @@ export function StudentsTable<T extends object>({
   const chapterHeaderStart = progressMode ? 2 : 1 // upper headers (groups) start index
   const subHeaderStart = progressMode ? 3 : 1 // lower headers / leaf cells start index
 
-  const table = useReactTable({
+  const table = useTable({
+    features: studentsTableFeatures,
     columns,
     data,
     state: { sorting: sorting ?? [] },
@@ -91,7 +95,6 @@ export function StudentsTable<T extends object>({
     ...(onSortingChange ? { onSortingChange } : {}),
     manualSorting: true,
     enableSortingRemoval: false,
-    getCoreRowModel: getCoreRowModel(),
   })
 
   const rows = table.getRowModel().rows
@@ -127,6 +130,14 @@ export function StudentsTable<T extends object>({
   })
 
   const virtualItems = rowVirtualizer.getVirtualItems()
+  // Identifies which rows are actually mounted right now. Column widths are decided by their real
+  // (`table-layout: auto`) content, so a different virtualized window can change them even though
+  // `data`/`columns` did not -- this re-measures the header whenever that window moves (below),
+  // keeping the floating clone's frozen widths in sync with the real table.
+  const firstVirtualIndex = virtualItems[0]?.index
+  const lastVirtualIndex = virtualItems[virtualItems.length - 1]?.index
+  // oxlint-disable-next-line i18next/no-literal-string -- not user-facing, a React dependency key
+  const virtualRangeKey = `${firstVirtualIndex}:${lastVirtualIndex}`
   const scrollMargin = rowVirtualizer.options.scrollMargin
   const paddingTop = (virtualItems[0]?.start ?? 0) - scrollMargin
   const lastVirtualItem = virtualItems[virtualItems.length - 1]
@@ -194,12 +205,15 @@ export function StudentsTable<T extends object>({
     setShowFloatingHeader(rect.top < 0 && rect.bottom > headerHeight)
   }, [])
 
-  // Re-measure header cell widths whenever the rendered content could change column widths, and
-  // re-check pin state since a shorter/taller page can push the table above/below the threshold.
+  // Re-measure header cell widths whenever the rendered content could change column widths -- either
+  // because data/columns changed outright, or because virtualization mounted a different window of
+  // rows (`virtualRangeKey`) whose cell content naturally sizes the columns differently under
+  // `table-layout: auto`. Also re-check pin state since a shorter/taller page can push the table
+  // above/below the threshold.
   useLayoutEffect(() => {
     measureHeader()
     updateShowFloatingHeader()
-  }, [data, columns, measureHeader, updateShowFloatingHeader])
+  }, [data, columns, virtualRangeKey, measureHeader, updateShowFloatingHeader])
 
   // The floating header's inner wrapper is a fresh DOM node each time it mounts (it only exists
   // while showFloatingHeader is true), so it starts untransformed -- sync it to the current

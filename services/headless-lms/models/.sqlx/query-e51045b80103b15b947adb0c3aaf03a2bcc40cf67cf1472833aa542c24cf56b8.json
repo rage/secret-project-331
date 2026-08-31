@@ -89,7 +89,8 @@
             "kind": {
               "Enum": [
                 "function",
-                "azure-ai-search"
+                "azure-ai-search",
+                "client-tool"
               ]
             }
           }
@@ -111,6 +112,17 @@
             "name": "response_id"
           }
         }
+      },
+      {
+        "ordinal": 9,
+        "name": "client_answer",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "client_answer"
+          }
+        }
       }
     ],
     "parameters": {
@@ -127,7 +139,8 @@
       false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "e51045b80103b15b947adb0c3aaf03a2bcc40cf67cf1472833aa542c24cf56b8"

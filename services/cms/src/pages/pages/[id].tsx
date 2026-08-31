@@ -7,6 +7,7 @@ import type { CmsPageUpdate, Page } from "@/generated/api"
 import {
   getCmsCourseOptions,
   getCmsPageOptions,
+  getCmsPageQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsPage } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -100,9 +101,10 @@ const Pages = ({ query }: PagesProps) => {
     },
     {
       onSuccess: (newData) => {
-        // Refetch, setQueryData or invalidateQueries?
-        // oxlint-disable-next-line i18next/no-literal-string
-        queryClient.setQueryData([`page-${id}`], newData)
+        // The response is the saved page, so seeding the cache is enough and no refetch is needed.
+        // The key has to come from the generated helper: a hand-written one belongs to no query, so
+        // PageEditor keeps comparing against the pre-save page and never reports the page as saved.
+        queryClient.setQueryData(getCmsPageQueryKey({ path: { page_id: id } }), newData)
       },
     },
   )

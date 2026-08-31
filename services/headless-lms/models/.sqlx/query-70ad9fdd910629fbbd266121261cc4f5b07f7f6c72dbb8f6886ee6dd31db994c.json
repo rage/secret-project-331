@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT sisu_person_id,\n  course_id,\n  emailed_to,\n  sent_at\nFROM credit_registration_account_linking_emails\nWHERE sisu_person_id = ANY($1::text [])\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sisu_person_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sisu_person_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "emailed_to",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "emailed_to"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "sent_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sent_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "70ad9fdd910629fbbd266121261cc4f5b07f7f6c72dbb8f6886ee6dd31db994c"
+}

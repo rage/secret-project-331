@@ -3,11 +3,11 @@
 import { css } from "@emotion/css"
 import type { Instance as PopperInstance } from "@popperjs/core"
 import { createPopper } from "@popperjs/core"
+import type { SpringValue } from "@react-spring/web"
+import { animated, useTransition } from "@react-spring/web"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import type { SpringValue } from "react-spring"
-import { animated, useTransition } from "react-spring"
 
 import CopyIcon from "@/img/course-material/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"

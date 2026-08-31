@@ -1,58 +1,21 @@
 use crate::{
-    azure_chatbot::CONTENT_FIELD_SEPARATOR,
-    chatbot_error::chatbot_err,
-    prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
+    azure_chatbot::azure::tools::{
+        AzureAISearch, AzureAISearchToolDefinition, EmbeddingDependency, FieldsMapping, SearchIndex,
+    },
+    llm_utils::azure_search_configuration,
+    prelude::*,
     search_filter::SearchFilter,
 };
-use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_base::prelude_base_and_re_exports::BackendError;
-use serde::{Deserialize, Serialize};
-use url::Url;
-use uuid::Uuid;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct AzureAISearchToolDefinition {
-    #[serde(rename = "type")]
-    pub data_type: String,
-    pub azure_ai_search: AzureAISearch,
-}
+/// Separates the content fields Azure concatenates into one chunk. Baked into the format the
+/// search index was written with, so changing it silently breaks every indexed document.
+pub const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct AzureAISearch {
-    pub indexes: Vec<SearchIndex>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SearchIndex {
-    pub project_connection_id: String,
-    pub index_name: String,
-    pub query_type: String,
-    pub top_k: i32,
-    pub embedding_dependency: EmbeddingDependency,
-    pub in_scope: bool,
-    pub strictness: i32,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub filter: Option<String>,
-    pub fields_mapping: FieldsMapping,
-    pub semantic_configuration: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct FieldsMapping {
-    pub content_fields_separator: String,
-    pub content_fields: Vec<String>,
-    pub filepath_field: String,
-    pub title_field: String,
-    pub url_field: String,
-    pub vector_fields: Vec<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct EmbeddingDependency {
-    #[serde(rename = "type")]
-    pub dep_type: String,
-    pub deployment_name: String,
-}
+/// This platform tool has no [crate::chatbot_tools::ChatbotToolDeclaration] impl — it is pushed
+/// directly by `AzureRequest::assemble` rather than dispatched through the tool registry — so it
+/// carries its category as a standalone constant instead.
+pub const CATEGORY: ToolCategory = ToolCategory::CourseMaterial;
 
 pub fn get_azure_ai_search_tool_definition(
     app_config: &ApplicationConfiguration,
@@ -68,19 +31,7 @@ pub fn get_azure_ai_search_tool_definition(
             )
         })?
         .replace(".", "-");
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure search configuration is missing from the Azure configuration"
-        )
-    })?;
+    let search_config = azure_search_configuration(app_config)?;
 
     let query_type = if use_semantic_reranking {
         "vector_semantic_hybrid"

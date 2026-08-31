@@ -7,6 +7,11 @@ use crate::{prelude::*, users::User};
 
 const MIN_FUZZY_SEARCH_TERM_LENGTH: usize = 3;
 
+/// Trigram distance floor for [`search_for_user_details_by_email`] and
+/// [`search_for_user_details_fuzzy_match`] (`pg_trgm`'s `<<->` returns 0 for an identical string,
+/// larger for a less similar one). Loose enough that a real typo still matches.
+pub const FUZZY_MATCH_SIMILARITY_THRESHOLD: f32 = 0.7;
+
 /// How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "email_verification_method", rename_all = "snake_case")]
@@ -131,6 +136,24 @@ WHERE ues.course_id = $1
     .fetch(conn)
 }
 
+/// None when no active user has this email. Case-insensitive, matching the users_email unique index.
+pub async fn get_active_user_id_by_email_case_insensitive(
+    conn: &mut PgConnection,
+    email: &str,
+) -> ModelResult<Option<Uuid>> {
+    let id = sqlx::query_scalar!(
+        "SELECT ud.user_id
+         FROM user_details ud
+         JOIN users u ON u.id = ud.user_id
+         WHERE LOWER(ud.email) = LOWER($1)
+           AND u.deleted_at IS NULL",
+        email
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(id)
+}
+
 pub async fn search_for_user_details_by_email(
     conn: &mut PgConnection,
     email: &str,
@@ -172,9 +195,10 @@ FROM (
     ORDER BY dist
     LIMIT 100
   ) search
-WHERE dist < 0.7;
+WHERE dist < $2;
 ",
         email,
+        FUZZY_MATCH_SIMILARITY_THRESHOLD,
     )
     .fetch_all(conn)
     .await?;
@@ -259,9 +283,10 @@ FROM (
     ORDER BY dist
     LIMIT 100
   ) search
-WHERE dist < 0.7;
+WHERE dist < $2;
 ",
         search,
+        FUZZY_MATCH_SIMILARITY_THRESHOLD,
     )
     .fetch_all(conn)
     .await?;
@@ -282,175 +307,6 @@ fn is_fuzzy_search_term_long_enough(search: &str) -> bool {
 
 fn parse_exact_user_id_search_term(search: &str) -> Option<Uuid> {
     search.trim().parse().ok()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn normalizes_name_search_term() {
-        assert_eq!(normalize_name_search_term("  alice@example.com  "), "alice");
-        assert_eq!(normalize_name_search_term("  alice  "), "alice");
-    }
-
-    #[test]
-    fn normalizes_email_search_term_without_removing_domain() {
-        assert_eq!(
-            normalize_email_search_term("  alice@example.com  "),
-            "alice@example.com"
-        );
-    }
-
-    #[test]
-    fn rejects_short_fuzzy_search_terms() {
-        assert!(!is_fuzzy_search_term_long_enough("al"));
-        assert!(is_fuzzy_search_term_long_enough("ali"));
-    }
-
-    #[test]
-    fn parses_exact_user_id_search_term() {
-        let user_id = Uuid::parse_str("5b177cc9-fbc3-43b5-8108-63481ff0b0e4").unwrap();
-
-        assert_eq!(
-            parse_exact_user_id_search_term("  5b177cc9-fbc3-43b5-8108-63481ff0b0e4  "),
-            Some(user_id)
-        );
-        assert_eq!(parse_exact_user_id_search_term("not-a-user-id"), None);
-    }
-
-    // One test per writer of user_details.email. No call site clears the verification flag itself,
-    // so these are what notices if the clear_email_verification trigger is ever dropped. Writers A
-    // and B both go through update_user_info, so they differ only in the payload sent.
-    mod email_verification_trigger {
-        use super::*;
-        use crate::test_helper::*;
-
-        async fn verify_now(tx: &mut PgConnection, user_id: Uuid) {
-            set_email_verified(
-                tx,
-                user_id,
-                EmailVerificationMethod::EmailedCode,
-                Utc::now(),
-            )
-            .await
-            .unwrap();
-        }
-
-        #[tokio::test]
-        async fn writer_a_user_settings_edit_clears_the_flag() {
-            insert_data!(:tx, :user);
-            verify_now(tx.as_mut(), user).await;
-
-            let updated = update_user_info(
-                tx.as_mut(),
-                user,
-                "writer-a-changed@example.com",
-                "Changed",
-                "Name",
-                "FI",
-                true,
-            )
-            .await
-            .unwrap();
-
-            assert_eq!(updated.email, "writer-a-changed@example.com");
-            assert_eq!(updated.email_verified_at, None);
-            assert_eq!(updated.email_verified_method, None);
-        }
-
-        #[tokio::test]
-        async fn writer_b_course_material_edit_clears_the_flag() {
-            insert_data!(:tx, :user);
-            let before = update_user_info(
-                tx.as_mut(),
-                user,
-                "writer-b@example.com",
-                "Course",
-                "Material",
-                "FI",
-                true,
-            )
-            .await
-            .unwrap();
-            verify_now(tx.as_mut(), user).await;
-
-            // The course-material form resubmits the whole profile, so only the address differs.
-            let updated = update_user_info(
-                tx.as_mut(),
-                user,
-                "writer-b-changed@example.com",
-                before.first_name.as_deref().unwrap(),
-                before.last_name.as_deref().unwrap(),
-                before.country.as_deref().unwrap(),
-                before.email_communication_consent.unwrap(),
-            )
-            .await
-            .unwrap();
-
-            assert_eq!(updated.email_verified_at, None);
-            assert_eq!(updated.email_verified_method, None);
-        }
-
-        #[tokio::test]
-        async fn writer_c_tmc_sync_clears_the_flag() {
-            insert_data!(:tx);
-            let upstream_id = 90_112_233;
-            let user = crate::users::insert_with_upstream_id_and_moocfi_id(
-                tx.as_mut(),
-                "writer-c@example.com",
-                None,
-                None,
-                upstream_id,
-                Uuid::new_v4(),
-            )
-            .await
-            .unwrap();
-            verify_now(tx.as_mut(), user.id).await;
-
-            crate::users::update_email_for_user(
-                tx.as_mut(),
-                &upstream_id,
-                "writer-c-changed@example.com".to_string(),
-            )
-            .await
-            .unwrap();
-
-            assert!(
-                get_email_verification(tx.as_mut(), user.id)
-                    .await
-                    .unwrap()
-                    .is_none()
-            );
-        }
-
-        #[tokio::test]
-        async fn an_edit_that_leaves_the_address_alone_keeps_the_flag() {
-            insert_data!(:tx, :user);
-            let before = get_user_details_by_user_id(tx.as_mut(), user)
-                .await
-                .unwrap();
-            verify_now(tx.as_mut(), user).await;
-
-            let updated = update_user_info(
-                tx.as_mut(),
-                user,
-                &before.email,
-                "Renamed",
-                "Person",
-                "SE",
-                false,
-            )
-            .await
-            .unwrap();
-
-            assert!(updated.email_verified_at.is_some());
-            assert_eq!(
-                updated.email_verified_method,
-                Some(EmailVerificationMethod::EmailedCode)
-            );
-        }
-    }
 }
 
 /// Retrieves all users enrolled in a specific course
@@ -745,4 +601,173 @@ WHERE user_id = $1
     .fetch_one(conn)
     .await?;
     Ok(row.email_verified_at.zip(row.email_verified_method))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normalizes_name_search_term() {
+        assert_eq!(normalize_name_search_term("  alice@example.com  "), "alice");
+        assert_eq!(normalize_name_search_term("  alice  "), "alice");
+    }
+
+    #[test]
+    fn normalizes_email_search_term_without_removing_domain() {
+        assert_eq!(
+            normalize_email_search_term("  alice@example.com  "),
+            "alice@example.com"
+        );
+    }
+
+    #[test]
+    fn rejects_short_fuzzy_search_terms() {
+        assert!(!is_fuzzy_search_term_long_enough("al"));
+        assert!(is_fuzzy_search_term_long_enough("ali"));
+    }
+
+    #[test]
+    fn parses_exact_user_id_search_term() {
+        let user_id = Uuid::parse_str("5b177cc9-fbc3-43b5-8108-63481ff0b0e4").unwrap();
+
+        assert_eq!(
+            parse_exact_user_id_search_term("  5b177cc9-fbc3-43b5-8108-63481ff0b0e4  "),
+            Some(user_id)
+        );
+        assert_eq!(parse_exact_user_id_search_term("not-a-user-id"), None);
+    }
+
+    // One test per writer of user_details.email. No call site clears the verification flag itself,
+    // so these are what notices if the clear_email_verification trigger is ever dropped. Writers A
+    // and B both go through update_user_info, so they differ only in the payload sent.
+    mod email_verification_trigger {
+        use super::*;
+        use crate::test_helper::*;
+
+        async fn verify_now(tx: &mut PgConnection, user_id: Uuid) {
+            set_email_verified(
+                tx,
+                user_id,
+                EmailVerificationMethod::EmailedCode,
+                Utc::now(),
+            )
+            .await
+            .unwrap();
+        }
+
+        #[tokio::test]
+        async fn writer_a_user_settings_edit_clears_the_flag() {
+            insert_data!(:tx, :user);
+            verify_now(tx.as_mut(), user).await;
+
+            let updated = update_user_info(
+                tx.as_mut(),
+                user,
+                "writer-a-changed@example.com",
+                "Changed",
+                "Name",
+                "FI",
+                true,
+            )
+            .await
+            .unwrap();
+
+            assert_eq!(updated.email, "writer-a-changed@example.com");
+            assert_eq!(updated.email_verified_at, None);
+            assert_eq!(updated.email_verified_method, None);
+        }
+
+        #[tokio::test]
+        async fn writer_b_course_material_edit_clears_the_flag() {
+            insert_data!(:tx, :user);
+            let before = update_user_info(
+                tx.as_mut(),
+                user,
+                "writer-b@example.com",
+                "Course",
+                "Material",
+                "FI",
+                true,
+            )
+            .await
+            .unwrap();
+            verify_now(tx.as_mut(), user).await;
+
+            // The course-material form resubmits the whole profile, so only the address differs.
+            let updated = update_user_info(
+                tx.as_mut(),
+                user,
+                "writer-b-changed@example.com",
+                before.first_name.as_deref().unwrap(),
+                before.last_name.as_deref().unwrap(),
+                before.country.as_deref().unwrap(),
+                before.email_communication_consent.unwrap(),
+            )
+            .await
+            .unwrap();
+
+            assert_eq!(updated.email_verified_at, None);
+            assert_eq!(updated.email_verified_method, None);
+        }
+
+        #[tokio::test]
+        async fn writer_c_tmc_sync_clears_the_flag() {
+            insert_data!(:tx);
+            let upstream_id = 90_112_233;
+            let user = crate::users::insert_with_upstream_id_and_moocfi_id(
+                tx.as_mut(),
+                "writer-c@example.com",
+                None,
+                None,
+                upstream_id,
+                Uuid::new_v4(),
+            )
+            .await
+            .unwrap();
+            verify_now(tx.as_mut(), user.id).await;
+
+            crate::users::update_email_for_user(
+                tx.as_mut(),
+                &upstream_id,
+                "writer-c-changed@example.com".to_string(),
+            )
+            .await
+            .unwrap();
+
+            assert!(
+                get_email_verification(tx.as_mut(), user.id)
+                    .await
+                    .unwrap()
+                    .is_none()
+            );
+        }
+
+        #[tokio::test]
+        async fn an_edit_that_leaves_the_address_alone_keeps_the_flag() {
+            insert_data!(:tx, :user);
+            let before = get_user_details_by_user_id(tx.as_mut(), user)
+                .await
+                .unwrap();
+            verify_now(tx.as_mut(), user).await;
+
+            let updated = update_user_info(
+                tx.as_mut(),
+                user,
+                &before.email,
+                "Renamed",
+                "Person",
+                "SE",
+                false,
+            )
+            .await
+            .unwrap();
+
+            assert!(updated.email_verified_at.is_some());
+            assert_eq!(
+                updated.email_verified_method,
+                Some(EmailVerificationMethod::EmailedCode)
+            );
+        }
+    }
 }

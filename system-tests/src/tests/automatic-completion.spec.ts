@@ -67,7 +67,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("link", { name: "Manage course 'Automatic Completions'" }).click()
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f",
+    "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f/overview",
   )
 
   await page.getByRole("tab", { name: "Modules" }).click()

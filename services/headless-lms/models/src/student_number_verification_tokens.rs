@@ -1,4 +1,5 @@
-use rand::RngExt;
+use std::collections::HashMap;
+
 use rand::distr::{Alphanumeric, SampleString};
 use secrecy::ExposeSecret;
 
@@ -33,35 +34,6 @@ pub struct NewStudentNumberVerificationToken {
     pub last_name: Option<String>,
     pub emailed_to: String,
     pub course_id: Option<Uuid>,
-}
-
-pub fn is_valid(token: &StudentNumberVerificationToken) -> bool {
-    let now = Utc::now();
-    token.expires_at > now && token.used_at.is_none() && token.deleted_at.is_none()
-}
-
-/// Probabilistic cleanup instead of a cron.
-///
-/// Soft-delete, not DELETE: `credit_registration_account_linking_emails` references these rows, and
-/// this runs on the click path, so a foreign key violation here would 500 a student opening a valid
-/// link.
-pub async fn maybe_cleanup_expired(conn: &mut PgConnection) -> ModelResult<()> {
-    let random_num = rand::rng().random_range(1..=10);
-    if random_num == 1 {
-        info!("Cleaning up expired student number verification tokens");
-        sqlx::query!(
-            r#"
-UPDATE student_number_verification_tokens
-SET deleted_at = now()
-WHERE expires_at < now()
-  AND used_at IS NULL
-  AND deleted_at IS NULL
-            "#,
-        )
-        .execute(conn)
-        .await?;
-    }
-    Ok(())
 }
 
 /// Mints a token for a Sisu person, bound to no account: the click while logged in creates the
@@ -160,22 +132,17 @@ RETURNING id
     Ok(res.id)
 }
 
-/// Looks up an unused, unexpired token without claiming it; claiming is a separate explicit `POST`.
-pub async fn get_unclaimed_by_token(
+/// Looks up a token in any state, so the landing page can tell an expired link from a spent one.
+pub async fn get_by_token_any_state(
     conn: &mut PgConnection,
     token: &DbSecret,
 ) -> ModelResult<Option<StudentNumberVerificationToken>> {
-    maybe_cleanup_expired(conn).await?;
-
     let res = sqlx::query_as!(
         StudentNumberVerificationToken,
         r#"
 SELECT *
 FROM student_number_verification_tokens
 WHERE token = $1
-  AND expires_at > now()
-  AND used_at IS NULL
-  AND deleted_at IS NULL
         "#,
         token.expose_secret()
     )
@@ -184,23 +151,24 @@ WHERE token = $1
     Ok(res)
 }
 
-pub async fn get_by_id(
+/// The live tokens of these ids, keyed by id.
+pub async fn get_by_ids(
     conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<StudentNumberVerificationToken> {
+    ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, StudentNumberVerificationToken>> {
     let res = sqlx::query_as!(
         StudentNumberVerificationToken,
         r#"
 SELECT *
 FROM student_number_verification_tokens
-WHERE id = $1
+WHERE id = ANY($1::uuid [])
   AND deleted_at IS NULL
         "#,
-        id
+        ids
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(res)
+    Ok(res.into_iter().map(|row| (row.id, row)).collect())
 }
 
 /// Marks the token claimed by the account. Returns false if another claim already won the race.
@@ -226,6 +194,32 @@ RETURNING id
     .fetch_optional(conn)
     .await?;
     Ok(claimed.is_some())
+}
+
+/// Retires tokens whose link has expired unused, oldest first.
+///
+/// Soft delete, not a delete: `credit_registration_account_linking_emails` references these rows,
+/// and the dedup ledger has to keep saying which token a mail carried.
+pub async fn soft_delete_expired(conn: &mut PgConnection, limit: i64) -> ModelResult<u64> {
+    let res = sqlx::query!(
+        r#"
+UPDATE student_number_verification_tokens
+SET deleted_at = now()
+WHERE id IN (
+    SELECT id
+    FROM student_number_verification_tokens
+    WHERE used_at IS NULL
+      AND deleted_at IS NULL
+      AND expires_at < now()
+    ORDER BY expires_at
+    LIMIT $1
+  )
+        "#,
+        limit
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected())
 }
 
 /// Retires outstanding tokens for a student number, once the link was established some other way.

@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use serde_json::Value;
 
+use crate::ModelResult;
 use crate::course_instances;
 use crate::course_instances::NewCourseInstance;
 use crate::course_language_groups;
@@ -14,8 +15,6 @@ use crate::exams::Exam;
 use crate::exams::NewExam;
 use crate::pages;
 use crate::prelude::*;
-
-use crate::ModelResult;
 
 pub async fn copy_course(
     conn: &mut PgConnection,
@@ -1187,7 +1186,7 @@ INSERT INTO chatbot_configurations (
     default_chatbot,
     enabled_to_students,
     model_id,
-    use_tools
+    enabled_tool_categories
   )
 SELECT
   uuid_generate_v5($1, id::text),
@@ -1209,7 +1208,7 @@ SELECT
   default_chatbot,
   enabled_to_students,
   model_id,
-  use_tools
+  enabled_tool_categories
 FROM chatbot_configurations
 WHERE course_id = $2
   AND deleted_at IS NULL;

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET next_attempt_at = now()\nWHERE id = ANY($1)\n  AND next_attempt_at > now()\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "48b66331a82e588e46f6b2898e430516cb1794867f91af629f9b5307ae25ffb3"
+}

@@ -1,7 +1,9 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React from "react"
+import { useRouter } from "next/navigation"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -10,15 +12,22 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { allUserConversationsOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResults } from "@/shared-module/components"
+import { QueryResults, Button } from "@/shared-module/components"
 
+import CreateChatbotDialog from "../manage/courses/[id]/other/chatbot/CreateChatbotDialog"
 import ChatbotCommandCenter from "./ChatbotCommandCenter"
 
 const ChatbotCommandCenterPage: React.FC = () => {
   const { t } = useTranslation()
+  const router = useRouter()
+
   usePageTitle(t("link-text-chatbot-command-center"))
+
+  const [createChatbotVisible, setCreateChatbotVisible] = useState(false)
 
   const chatbotsQuery = useQuery({
     ...getAllChatbotsOptions(),
@@ -32,8 +41,43 @@ const ChatbotCommandCenterPage: React.FC = () => {
     ...allUserConversationsOptions(),
   })
 
+  const closeDialogOpenEdit = (id: string) => {
+    setCreateChatbotVisible(false)
+    router.push(manageChatbotRoute(id))
+  }
+  const closeDialog = () => {
+    setCreateChatbotVisible(false)
+  }
+
   return (
     <BreakFromCentered sidebar={false}>
+      <div
+        className={css`
+          display: flex;
+        `}
+      >
+        <h1>{t("link-text-chatbot-command-center")}</h1>
+        <div
+          className={css`
+            margin-left: auto;
+            padding: 1.5rem;
+          `}
+        >
+          <OnlyRenderIfPermissions
+            action={{ type: "edit" }}
+            resource={{ type: "global_permissions" }}
+          >
+            <Button
+              size="medium"
+              onClick={() => {
+                setCreateChatbotVisible(true)
+              }}
+            >
+              {t("create-global-chatbot")}
+            </Button>
+          </OnlyRenderIfPermissions>
+        </div>
+      </div>
       <QueryResults
         queries={[chatbotsQuery, coursesQuery, conversationsQuery] as const}
         renderData={([chatbotsData, coursesData, conversationsData]) => (
@@ -43,6 +87,13 @@ const ChatbotCommandCenterPage: React.FC = () => {
             conversations={conversationsData}
           />
         )}
+      />
+      <CreateChatbotDialog
+        courseId={null}
+        getChatbotsList={chatbotsQuery}
+        open={createChatbotVisible}
+        close={closeDialog}
+        closeEdit={closeDialogOpenEdit}
       />
     </BreakFromCentered>
   )

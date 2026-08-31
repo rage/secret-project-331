@@ -2,9 +2,7 @@ use crate::{
     config::{ServerConfig, ServerConfigBuilder},
     setup_tracing,
 };
-use headless_lms_base::config::{
-    ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
-};
+use headless_lms_base::config::ApplicationConfiguration;
 
 use headless_lms_utils::{
     file_store::local_file_store::LocalFileStore, services::sisu::SisuClient,
@@ -32,6 +30,11 @@ fn default_database_url_for_tests() -> String {
     }
 }
 
+pub fn init_app_conf() -> anyhow::Result<ApplicationConfiguration> {
+    let app_config = ApplicationConfiguration::mock_conf()?;
+    Ok(app_config)
+}
+
 pub async fn test_config() -> ServerConfig {
     let database_url = env::var("DATABASE_URL_TEST")
         .or_else(|_| env::var("DATABASE_URL"))
@@ -47,30 +50,9 @@ pub async fn test_config() -> ServerConfig {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
                 .expect("Failed to initialize test file store"),
         ),
-        app_conf: ApplicationConfiguration {
-            test_mode: true,
-            base_url: "http://project-331.local".to_string(),
-            development_uuid_login: false,
-            enable_admin_email_verification: false,
-            enable_email_ownership_verification: false,
-            azure_configuration: None,
-            test_chatbot: false,
-            test_sisu: false,
-            test_suotar: false,
-            suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
-                .expect("Failed to build the mock Suotar configuration"),
-            tmc_account_creation_origin: None,
-            tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
-            oauth_server_configuration: OAuthServerConfiguration {
-                rsa_public_key: "temp-change-when-needed".into(),
-                rsa_private_key: SecretString::new("test-change".into()),
-                oauth_token_hmac_key: SecretString::new("pippuri".into()),
-                dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
-                    "test-key".into(),
-                ))),
-            },
-        },
+        app_conf: init_app_conf().expect("Failed to initialize mock app configuration"),
         redis_url: SecretString::new("redis://example.com".into()),
+        mock_suotar_redis_db_index: 2,
         jwt_password: SecretString::new(
             "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
         ),
@@ -80,6 +62,21 @@ pub async fn test_config() -> ServerConfig {
     .build()
     .await
     .unwrap()
+}
+
+/// The Redis URL for tests that need a real Redis, or `None` when it isn't configured (such tests
+/// no-op instead of failing). Lives here because `env_guard::env_var_reads_are_centralized` only
+/// permits direct env reads in the central config modules and in this test helper.
+pub fn test_redis_url() -> Option<String> {
+    env::var("REDIS_URL").ok()
+}
+
+/// Database URL for tests that need a pool of their own rather than a single connection, resolved
+/// the same way `Conn::init` resolves it so both see the same fixtures.
+pub fn test_database_url() -> String {
+    dotenvy::dotenv().ok();
+    env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://headless-lms@localhost:54328/headless_lms_dev".to_string())
 }
 
 // tried storing PgPool here but that caused strange errors
@@ -132,6 +129,18 @@ impl Tx<'_> {
 
     pub async fn rollback(self) {
         self.0.rollback().await.unwrap()
+    }
+
+    /// Commits, which this wrapper otherwise deliberately prevents.
+    ///
+    /// Only for tests whose subject *is* cross-connection behaviour — row locks and blocking — since
+    /// a second connection cannot see uncommitted fixtures. Such a test owns whatever it leaves
+    /// behind. `DATABASE_URL` is recreated from scratch per CI run, and fixtures use random
+    /// identifiers so repeats do not collide — but committed rows are visible to every other test
+    /// in the run, so a committing test must not leave behind anything an unfiltered query could
+    /// pick up (a reapable client upload, for one).
+    pub async fn commit(self) {
+        self.0.commit().await.unwrap()
     }
 }
 
@@ -222,8 +231,10 @@ macro_rules! insert_data {
             &mut ::rand::rng(),
             8,
         );
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let $course = headless_lms_models::library::content_management::create_new_course(
             $tx.as_mut(),
+            &app_config,
             headless_lms_models::PKeyPolicy::Generate,
             headless_lms_models::courses::NewCourse {
                 name: rs.clone(),

@@ -1,10 +1,12 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { useAtomValue } from "jotai"
 import React from "react"
 
 import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { QueryResult } from "@/shared-module/components"
+import { currentPageIdAtom } from "@/state/course-material/selectors"
 
 import ChatbotChat from "../shared/ChatbotChat"
 
@@ -20,6 +22,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
       },
     }),
   )
+  const pageId = useAtomValue(currentPageIdAtom)
+
   return (
     <QueryResult query={currentConversationIdQuery}>
       {(conversationId) => (
@@ -27,6 +31,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
           conversationId={conversationId}
           chatbotConfigurationId={chatbotConfigurationId}
           isCourseMaterialBlock={false}
+          pageId={pageId}
         />
       )}
     </QueryResult>

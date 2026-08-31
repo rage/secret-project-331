@@ -33,9 +33,17 @@ function DialogHarness(props: { isDismissable?: boolean; onClose?: () => void })
   )
 }
 
+/**
+ * react-aria dismisses via document-level listeners on the modal ref, not handlers on the underlay
+ * element, and binds either pointerdown+click or mousedown+mouseup depending on whether the
+ * environment has `PointerEvent` (jsdom does not). Only one pair is ever bound, so firing both
+ * still dismisses exactly once, and the test does not depend on which branch jsdom takes.
+ */
 function clickUnderlay() {
   const underlay = screen.getByRole("dialog").parentElement!
   fireEvent.pointerDown(underlay)
+  fireEvent.mouseDown(underlay)
+  fireEvent.mouseUp(underlay)
   fireEvent.click(underlay)
 }
 
@@ -165,5 +173,50 @@ describe("Dialog", () => {
     expect(dialog).toHaveAttribute("lang", "fi")
     expect(dialog).toHaveAttribute("role", "dialog")
     expect(screen.getByRole("button", { name: "Tallenna" })).toBeInTheDocument()
+  })
+
+  test("renders every action", () => {
+    renderUi(
+      <Dialog
+        open
+        onClose={jest.fn()}
+        title="Confirm deletion"
+        actions={[{ label: "Cancel", variant: "secondary" }, { label: "Delete" }]}
+      >
+        <p>Content</p>
+      </Dialog>,
+    )
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument()
+  })
+
+  test("calls the handler of the pressed action only", () => {
+    const onCancel = jest.fn()
+    const onDelete = jest.fn()
+    renderUi(
+      <Dialog
+        open
+        onClose={jest.fn()}
+        title="Confirm deletion"
+        actions={[
+          { label: "Cancel", onPress: onCancel },
+          { label: "Delete", onPress: onDelete },
+        ]}
+      >
+        <p>Content</p>
+      </Dialog>,
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }))
+    expect(onDelete).toHaveBeenCalledTimes(1)
+    expect(onCancel).not.toHaveBeenCalled()
+  })
+
+  test("disables an action", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Save" actions={[{ label: "Save", disabled: true }]}>
+        <p>Content</p>
+      </Dialog>,
+    )
+    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
   })
 })

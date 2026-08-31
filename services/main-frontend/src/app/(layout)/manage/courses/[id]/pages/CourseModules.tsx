@@ -2,21 +2,31 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { isEqual } from "lodash"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import BottomPanel from "@/components/BottomPanel"
-import { getCourseStructureOptions } from "@/generated/api/@tanstack/react-query.generated"
+import CreditRegistrationConfigCallout from "@/components/credit-registration/CreditRegistrationConfigCallout"
+import {
+  getCourseCreditRegistrationModuleConfigsOptions,
+  getCourseStructureOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { updateCourseModules } from "@/generated/api/sdk.generated"
 import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResults } from "@/shared-module/components"
 
+import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
+import {
+  creditRegistrationFieldsOf,
+  EMPTY_CREDIT_REGISTRATION_FIELDS,
+  toCreditRegistrationEdit,
+} from "./creditRegistrationModuleFields"
 import type { EditCourseModuleFormFields } from "./EditCourseModuleForm"
 import EditCourseModuleForm from "./EditCourseModuleForm"
 import type { Fields } from "./NewCourseModuleForm"
@@ -44,6 +54,7 @@ export interface ModuleView {
   automatic_completion_requires_exam: boolean
   completion_registration_link_override: string | null
   enable_registering_completion_to_uh_open_university: boolean
+  credit_registration: CreditRegistrationModuleFields
 }
 
 interface ChapterView {
@@ -168,6 +179,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
 
   // queries and mutations
+  const creditRegistrationConfigsQuery = useQuery(
+    getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: courseId } }),
+  )
+  const creditRegistrationConfigs = creditRegistrationConfigsQuery.data
   const courseStructureQuery = useQuery({
     ...getCourseStructureOptions({
       path: {
@@ -212,6 +227,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 m.completion_registration_link_override ?? null,
               enable_registering_completion_to_uh_open_university:
                 m.enable_registering_completion_to_uh_open_university,
+              credit_registration: creditRegistrationFieldsOf(creditRegistrationConfigs, m.id),
             }
           }
           return {
@@ -230,6 +246,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             completion_registration_link_override: m.completion_registration_link_override ?? null,
             enable_registering_completion_to_uh_open_university:
               m.enable_registering_completion_to_uh_open_university,
+            credit_registration: creditRegistrationFieldsOf(creditRegistrationConfigs, m.id),
           }
         })
         const error = validateModuleList(modules, chapters)
@@ -244,13 +261,14 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   })
   const initialModuleList = courseStructureQuery.data?.initialModuleList
   useEffect(() => {
-    if (!courseStructureQuery.data) {
+    // Waits for the configuration too, or the staged list would save credit registration off.
+    if (!courseStructureQuery.data || !creditRegistrationConfigs) {
       return
     }
     if (moduleList === null) {
       setModuleList(courseStructureQuery.data.moduleList)
     }
-  }, [courseStructureQuery.data, moduleList])
+  }, [courseStructureQuery.data, creditRegistrationConfigs, moduleList])
 
   const moduleUpdatesMutation = useToastMutation(
     () => {
@@ -286,6 +304,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               courseModule.completion_registration_link_override,
             enable_registering_completion_to_uh_open_university:
               courseModule.enable_registering_completion_to_uh_open_university,
+            enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
+            credit_registration: toCreditRegistrationEdit(courseModule.credit_registration),
           })
         } else if (
           initialModule !== undefined &&
@@ -304,7 +324,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             courseModule.completion_registration_link_override !==
               initialModule.completion_registration_link_override ||
             courseModule.enable_registering_completion_to_uh_open_university !==
-              initialModule.enable_registering_completion_to_uh_open_university)
+              initialModule.enable_registering_completion_to_uh_open_university ||
+            !isEqual(courseModule.credit_registration, initialModule.credit_registration))
         ) {
           modifiedModules.push({
             id: courseModule.id,
@@ -317,6 +338,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               courseModule.completion_registration_link_override,
             enable_registering_completion_to_uh_open_university:
               courseModule.enable_registering_completion_to_uh_open_university,
+            enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
+            credit_registration: toCreditRegistrationEdit(courseModule.credit_registration),
           })
         }
       }
@@ -369,6 +392,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       onSuccess: () => {
         setEdited(false)
         courseStructureQuery.refetch()
+        creditRegistrationConfigsQuery.refetch()
       },
     },
   )
@@ -389,6 +413,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       completion_registration_link_override,
       override_completion_link,
       enable_registering_completion_to_uh_open_university,
+      credit_registration,
     }: EditCourseModuleFormFields,
   ) => {
     setEdited(true)
@@ -426,6 +451,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           lastChapter,
           isNew: m.isNew,
           enable_registering_completion_to_uh_open_university,
+          credit_registration,
         } satisfies ModuleView
       })
       return {
@@ -513,6 +539,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             ? completion_registration_link_override
             : null,
           enable_registering_completion_to_uh_open_university,
+          credit_registration: EMPTY_CREDIT_REGISTRATION_FIELDS,
         },
       ]
       modules.forEach((m) => {
@@ -530,17 +557,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
 
   return (
-    <QueryResult
-      query={courseStructureQuery}
-      emptyFallback={
-        <DataLoadError
-          onRetry={() => {
-            void courseStructureQuery.refetch()
-          }}
-        />
-      }
-    >
-      {(data) => (
+    <QueryResults
+      queries={[courseStructureQuery, creditRegistrationConfigsQuery] as const}
+      treatEmptyAsData
+      renderData={([data]) => (
         <>
           <div
             className={css`
@@ -572,6 +592,11 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                   `}
                   key={module.id}
                 >
+                  <CreditRegistrationConfigCallout
+                    config={creditRegistrationConfigs?.modules.find(
+                      (config) => config.course_module_id === module.id,
+                    )}
+                  />
                   <EditCourseModuleForm
                     module={module}
                     chapters={data.chapterNumbers}
@@ -630,7 +655,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           <NewCourseModuleForm chapters={data.chapterNumbers} onSubmitForm={onSaveNewModule} />
         </>
       )}
-    </QueryResult>
+    />
   )
 }
 

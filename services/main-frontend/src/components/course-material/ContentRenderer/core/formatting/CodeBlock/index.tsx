@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import type { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { monospaceFont } from "@/shared-module/common/styles"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -15,6 +14,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { BlockRendererProps } from "../../.."
 import { CopyButton } from "./CopyButton"
 import { parseHighlightedCode } from "./highlightParser"
+import { getPreStyles } from "./styles"
 import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
 
 const SyntaxHighlightedContainer = dynamicImport(() => import("./SyntaxHighlightedContainer"))
@@ -23,21 +23,6 @@ const containerStyles = css`
   position: relative;
   max-width: 1000px;
   margin: 0 auto;
-`
-
-const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
-  margin-top: 0;
-  font-size: ${fontSizePx}px;
-  font-family: ${monospaceFont} !important;
-  line-height: 1.75rem;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  padding: 16px;
-  ${allowFullWidth &&
-  `
-    margin-top: -1.5rem;
-    margin-bottom: -1.5rem;
-  `}
 `
 
 /**

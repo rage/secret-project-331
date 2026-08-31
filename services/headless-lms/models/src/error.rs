@@ -198,6 +198,7 @@ pub enum ModelErrorType {
         status_code: Option<u16>,
         response_body: Option<String>,
     },
+    ForeignKeyViolation,
 }
 
 /// Types of HTTP errors that can occur
@@ -230,7 +231,9 @@ impl From<sqlx::Error> for ModelError {
                 Some(err.into()),
             ),
             sqlx::Error::Database(db_err) => {
-                if let Some(constraint) = db_err.constraint() {
+                if db_err.is_foreign_key_violation() {
+                    model_err!(ForeignKeyViolation, err.to_string(), err)
+                } else if let Some(constraint) = db_err.constraint() {
                     match constraint {
                         "email_templates_subject_check" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {
@@ -273,6 +276,14 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             err
                         ),
+                        "uq_oauth_device_codes_user_code_pending" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "A pending device authorization already uses this user_code.",
+                            },
+                            err.to_string(),
+                            err
+                        ),
                         "unique_chatbot_names_within_course" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {
                                 constraint: constraint.to_string(),
@@ -280,6 +291,14 @@ impl From<sqlx::Error> for ModelError {
                             },
                             err.to_string(),
                             Some(err.into()),
+                        ),
+                        "uq_credit_registrations_sisu_attainment" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "This Sisu attainment is already claimed by another credit registration.",
+                            },
+                            err.to_string(),
+                            err
                         ),
                         _ => ModelError::new(
                             ModelErrorType::Database,

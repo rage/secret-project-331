@@ -14,6 +14,8 @@ export interface IntrospectResponse {
   iss?: string
   jti?: string
   token_type?: string
+  /** Non-standard claim: the token owner's legacy TMC upstream_id (consumed by tmc-server). */
+  upstream_id?: number
 }
 
 export interface IntrospectOptions {

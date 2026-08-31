@@ -68,6 +68,22 @@
             "name": "audience"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "embedding",
+        "type_info": {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_audiences",
+            "name": "embedding"
+          }
+        }
       }
     ],
     "parameters": {
@@ -81,7 +97,8 @@
       false,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "a48a69f4365bb0c0bebf932baab753d226c671971814cfca6a4089c8eabe900f"

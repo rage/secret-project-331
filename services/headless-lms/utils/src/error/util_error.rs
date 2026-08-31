@@ -27,9 +27,17 @@ pub enum UtilErrorType {
     Other,
     Unavailable,
     DeserializationError,
+    /// The request to TMC never completed (connection error, timeout): a transport
+    /// failure with no upstream HTTP status.
     TmcHttpError,
+    /// TMC responded with a non-success HTTP status. Carries the status so callers can
+    /// tell an upstream auth rejection (401/403) from an upstream server error (5xx).
+    TmcHttpStatusError(u16),
     TmcErrorResponse,
+    EmbeddingRequestBuildError,
+    ReqwestError,
     SisuClientError(SisuErrorVariant),
+    SuotarClientError(SuotarErrorVariant),
 }
 #[derive(Debug)]
 
@@ -37,6 +45,45 @@ pub enum SisuErrorVariant {
     GenericSisuError,
     InvalidCourseCode,
     SisuResourceNotFound,
+}
+
+/// How a call to Suotar failed at the request level. Per-item failures are not errors: they come
+/// back inside a successful batch response.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SuotarErrorVariant {
+    /// Our credentials. Loud, and never attributed to the rows in the batch.
+    Unauthorized,
+    /// Our request. Loud, and never attributed to the rows in the batch.
+    MalformedRequest,
+    /// Another 4xx carrying the documented `{ error: { code, message } }` body.
+    RequestLevelError,
+    ServerError,
+    /// The connection itself failed, so the request provably never arrived.
+    TransportNotDelivered,
+    /// The request left and the answer did not arrive. A timeout is this, not the above.
+    TransportUnknown,
+    /// Suotar answered, and the answer was not a batch response.
+    Deserialization,
+}
+
+impl SuotarErrorVariant {
+    /// Whether Suotar may have acted on the request. An import that may have landed must be
+    /// verified rather than re-sent, or a transcript gets a second attainment.
+    ///
+    /// A 4xx (`Unauthorized`, `MalformedRequest`, `RequestLevelError`) never reached Suotar's
+    /// business logic, so it is as resendable as a connection that never opened
+    /// (`TransportNotDelivered`); a genuine 5xx (`ServerError`), a response that never arrived
+    /// (`TransportUnknown`), or one that arrived malformed (`Deserialization`) all leave the
+    /// outcome unknown.
+    pub fn outcome_may_have_landed(self) -> bool {
+        !matches!(
+            self,
+            Self::Unauthorized
+                | Self::MalformedRequest
+                | Self::RequestLevelError
+                | Self::TransportNotDelivered
+        )
+    }
 }
 
 /**
@@ -182,6 +229,16 @@ impl From<walkdir::Error> for UtilError {
             UtilErrorType::Walkdir,
             source.to_string(),
             Some(source.into()),
+        )
+    }
+}
+
+impl From<reqwest::Error> for UtilError {
+    fn from(err: reqwest::Error) -> UtilError {
+        Self::new(
+            UtilErrorType::ReqwestError,
+            err.to_string(),
+            Some(err.into()),
         )
     }
 }

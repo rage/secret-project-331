@@ -550,6 +550,13 @@ describe("parseText", () => {
       expect(parsedText).toContain('title="See algorithm definition"')
     })
 
+    test("does not replace glossary term inside link visible text", () => {
+      const input = 'See <a href="https://example.com/cite">algorithm</a> for details.'
+      const { parsedText } = parseText(input, [term])
+      expect(parsedText).not.toContain("data-glossary-id")
+      expect(parsedText).toContain(">algorithm</a>")
+    })
+
     test("does not replace glossary term inside abbr title attribute", () => {
       const input = 'An <abbr title="algorithm">algo</abbr> is a procedure.'
       const { parsedText } = parseText(input, [term])

@@ -43,7 +43,7 @@ describe("date and time fields", () => {
     expect(container.querySelector('input[type="hidden"]')).toHaveValue("2026-03-12")
   })
 
-  test.skip("TimeField renders segmented controls and keeps a synchronized hidden value", () => {
+  test("TimeField renders segmented controls and keeps a synchronized hidden value", () => {
     const { container } = renderWithForm<{ t: string }>(
       (control) => <TimeField name="t" control={control} label="Time" />,
       { defaultValues: { t: "12:30" } },
@@ -91,7 +91,7 @@ describe("date and time fields", () => {
     expect(screen.getByRole("button", { name: "Next week" })).toBeInTheDocument()
   })
 
-  test.skip("lets users change the visible month from the inline month and year pickers", () => {
+  test("lets users change the visible month from the inline month and year pickers", () => {
     renderWithForm<{ d: string }>(
       (control) => <DateField name="d" control={control} label="Date" />,
       { defaultValues: { d: "2026-03-11" } },
@@ -101,18 +101,21 @@ describe("date and time fields", () => {
     fireEvent.click(screen.getByRole("button", { name: /Choose month and year: 2026/ }))
 
     expect(screen.queryByRole("grid")).not.toBeInTheDocument()
-    expect(screen.getByRole("group", { name: "Year" })).toBeInTheDocument()
+    expect(screen.getByText("Choose year")).toBeInTheDocument()
 
+    // Picking a year hands over to the month grid; the calendar comes back only once a month is set.
     fireEvent.click(screen.getByRole("button", { name: "2027" }))
-    expect(screen.getByRole("grid")).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole("button", { name: /Choose month and year: March/ }))
     expect(screen.queryByRole("grid")).not.toBeInTheDocument()
+    expect(screen.getByText("Choose month")).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole("button", { name: "April" }))
     expect(screen.getByRole("grid")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Choose month and year: April/ })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Choose month and year: 2027/ })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: /Choose month and year: April/ }))
+    expect(screen.queryByRole("grid")).not.toBeInTheDocument()
+    expect(screen.getByText("Choose month")).toBeInTheDocument()
   })
 
   test("supports description and invalid wiring", () => {

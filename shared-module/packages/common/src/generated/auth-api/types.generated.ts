@@ -58,6 +58,12 @@ export type Action =
       type: "view_stats"
     }
   | {
+      type: "view_and_manage_credit_registrations"
+    }
+  | {
+      type: "administrate_user_account"
+    }
+  | {
       type: "administrate"
     }
 
@@ -160,6 +166,12 @@ export type Resource =
       type: "role"
     }
   | {
+      /**
+       * A specific user account. Only a global role can hold anything on it: [is_permitted] has no
+       * per-user rule, so the id names the target for the audit trail and for a future scoping rule
+       * rather than widening who passes.
+       */
+      id: string
       type: "user"
     }
   | {

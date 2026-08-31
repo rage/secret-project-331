@@ -23,7 +23,7 @@ pub struct ChatbotConversation {
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
-/** Should contain all information required to display the chatbot to the user. */
+/// Everything needed to display the chatbot to the user.
 pub struct ChatbotConversationInfo {
     pub current_conversation: Option<ChatbotConversation>,
     pub current_conversation_messages: Option<Vec<ChatbotConversationMessage>>,
@@ -31,6 +31,10 @@ pub struct ChatbotConversationInfo {
     pub chatbot_name: String,
     pub course_name: Option<String>,
     pub hide_citations: bool,
+    /// What to offer the learner as their next message. Absent when nothing should be offered: the
+    /// configuration has suggestions off, or the conversation is at a point where a suggestion does
+    /// not belong, such as a turn suspended on a question to the learner. Empty means suggestions
+    /// are wanted but none have been generated yet, which is what makes the endpoint generate them.
     pub suggested_messages: Option<Vec<ChatbotConversationSuggestedMessage>>,
 }
 
@@ -76,6 +80,28 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+/// Soft deletes a conversation, after which it accepts no further messages.
+///
+/// Deleting one that is already deleted is not an error, so a caller does not have to check first.
+/// See [crate::chatbot_configurations::delete] for removing the configuration a conversation
+/// belongs to.
+///
+/// Nothing in production deletes a conversation; this exists for tests.
+pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE chatbot_conversations
+SET deleted_at = now()
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn create_for_user_and_configuration(
@@ -124,10 +150,9 @@ pub async fn get_latest_conversation_for_user(
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversation> {
     if let (Some(_user_id), Some(_anonymous_token)) = (&user_id, &anonymous_token) {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "User ID and anonymous token cannot cannot both be present",
-            None,
+        return Err(model_err!(
+            InvalidRequest,
+            "User ID and anonymous token cannot both be present".to_string()
         ));
     }
     let res = sqlx::query_as!(
@@ -234,24 +259,26 @@ pub async fn get_current_conversation_info(
         get_latest_conversation_for_user(tx, user_id, anonymous_token, chatbot_configuration_id)
             .await
             .optional()?;
+    let current_conversation_id = current_conversation.as_ref().map(|c| c.id);
     // the messages are sorted by response_order_number
-    let current_conversation_messages = OptionFuture::from(
-        current_conversation
-            .clone()
-            .map(|c| crate::chatbot_conversation_messages::get_by_conversation_id(tx, c.id)),
-    )
+    let current_conversation_messages = OptionFuture::from(current_conversation_id.map(|id| {
+        crate::chatbot_conversation_messages::get_by_conversation_id_for_display(tx, id)
+    }))
     .await
     .transpose()?;
 
     let current_conversation_message_citations =
-        OptionFuture::from(current_conversation.clone().map(|c| {
-            crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, c.id)
+        OptionFuture::from(current_conversation_id.map(|id| {
+            crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, id)
         }))
         .await
         .transpose()?;
 
     let suggested_messages = if chatbot_configuration.suggest_next_messages
         && let Some(ccm) = &current_conversation_messages
+        // A suspended turn is waiting for the learner to answer the chatbot's own question, which
+        // is not a moment to suggest asking something else.
+        && !crate::chatbot_conversation_messages::turn_is_suspended(ccm)
         && let Some(last_ccm) = ccm.last()
     {
         let sm = crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(

@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 // Backend also enforces this
 const MAX_LIMIT = 10_000
@@ -51,6 +51,16 @@ function usePaginationInfo(defaultLimit: number = DEFAULT_LIMIT): PaginationInfo
 
   const [page, setPage] = useState(initialPage)
   const [limit, setLimit] = useState(initialLimit)
+
+  // The query string is the source of truth, and these are soft navigations: seeding the state at
+  // mount alone would keep asking for the old page after a caller narrows its filters and drops
+  // `page`, or after the browser's Back button rewinds the URL.
+  useEffect(() => {
+    setPage(initialPage)
+  }, [initialPage])
+  useEffect(() => {
+    setLimit(initialLimit)
+  }, [initialLimit])
 
   return {
     page: Math.max(1, page),

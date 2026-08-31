@@ -4,7 +4,8 @@ use crate::prelude::*;
 use headless_lms_models::chapter_lock_action_logs;
 use headless_lms_models::library::students_view::{
     CertificateGridRow, CompletionGridRow, CourseStudentsProgressStructure,
-    CourseStudentsProgressUsers, StudentsListPage,
+    CourseStudentsProgressUsers, GRADE_FILTER_FAILED, GRADE_FILTER_NOT_COMPLETED,
+    GRADE_FILTER_PASSED, StudentsListPage,
 };
 use headless_lms_models::user_chapter_locking_statuses::{
     ChapterLockingStatus, UserChapterLockingStatus,
@@ -47,6 +48,28 @@ struct GetStudentsQuery {
     sort_column: Option<String>,
     sort_direction: Option<String>,
     course_instance_id: Option<Uuid>,
+    /// Scopes `grade` to one of this module's completions. Ignored (no filtering) when `grade` is
+    /// absent.
+    module_id: Option<Uuid>,
+    /// A numeric grade (the sis-0-5 scale, `"0"`..`"5"`), or `"passed"`/`"failed"` (the sis-hyv-hyl
+    /// scale), or `"not_completed"`. Requires `module_id`.
+    grade: Option<String>,
+}
+
+const VALID_GRADE_FILTERS: [&str; 3] = [
+    GRADE_FILTER_NOT_COMPLETED,
+    GRADE_FILTER_PASSED,
+    GRADE_FILTER_FAILED,
+];
+
+fn validate_grade_filter(grade: &str) -> Result<(), ControllerError> {
+    if VALID_GRADE_FILTERS.contains(&grade) || matches!(grade, "0" | "1" | "2" | "3" | "4" | "5") {
+        return Ok(());
+    }
+    Err(controller_err!(
+        BadRequest,
+        format!("Invalid grade filter: {grade}")
+    ))
 }
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`
@@ -180,9 +203,11 @@ async fn get_user_chapter_locking_statuses(
         ("page" = Option<u32>, Query, description = "Page number (1-based)"),
         ("limit" = Option<u32>, Query, description = "Page size (1-10000)"),
         ("search" = Option<String>, Query, description = "Filter by name/email substring or exact user id"),
-        ("sort_column" = Option<String>, Query, description = "last_name | first_name | email"),
+        ("sort_column" = Option<String>, Query, description = "last_name | first_name | email | total_points"),
         ("sort_direction" = Option<String>, Query, description = "asc | desc"),
-        ("course_instance_id" = Option<Uuid>, Query, description = "Filter to a single course instance")
+        ("course_instance_id" = Option<Uuid>, Query, description = "Filter to a single course instance"),
+        ("module_id" = Option<Uuid>, Query, description = "Scopes `grade` to this module's completions"),
+        ("grade" = Option<String>, Query, description = "A sis-0-5 grade (\"0\"..\"5\"), \"passed\"/\"failed\", or \"not_completed\"; requires module_id")
     ),
     responses(
         (status = 200, description = "A page of enrolled students", body = StudentsListPage)
@@ -205,6 +230,23 @@ async fn get_course_users(
     .await?;
     let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(100))
         .map_err(|e| controller_err!(BadRequest, e.to_string()))?;
+
+    if let Some(module_id) = query.module_id {
+        let module = models::course_modules::get_by_id(&mut conn, module_id).await?;
+        if module.course_id != *course_id {
+            return Err(controller_err!(
+                BadRequest,
+                "Module does not belong to the course."
+            ));
+        }
+    }
+    if let Some(grade) = query.grade.as_deref() {
+        if query.module_id.is_none() {
+            return Err(controller_err!(BadRequest, "`grade` requires `module_id`."));
+        }
+        validate_grade_filter(grade)?;
+    }
+
     let res = headless_lms_models::library::students_view::get_course_students_page(
         &mut conn,
         *course_id,
@@ -213,6 +255,8 @@ async fn get_course_users(
         query.sort_column.as_deref(),
         query.sort_direction.as_deref(),
         query.course_instance_id,
+        query.module_id,
+        query.grade.as_deref(),
     )
     .await?;
 

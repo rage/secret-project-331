@@ -2,7 +2,7 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
-import { v4, v5 } from "uuid"
+import { v5 } from "uuid"
 
 import type {
   CmsPageExercise,
@@ -177,6 +177,10 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
  * Converts backend-normalized page data to nested Gutenberg blocks.
  *
  * The function `normalizeDocument` reverses this. e.g `normalizeDocument(denormalizeDocument(doc)) === doc`
+ *
+ * Must stay a pure function of `input`, client ids included: callers run it inside a react-query
+ * `select`, which re-runs on every render, and the editor decides whether a page has unsaved changes
+ * by deep-comparing its live blocks against the result.
  */
 export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument {
   const contentBlocks = (input.content as BlockInstance[]).map((block) => {
@@ -195,8 +199,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     const slidesInnerBlocks = slides.map((slide) => {
       const tasks = input.exercise_tasks.filter((x) => x.exercise_slide_id === slide.id)
       const denormalizedSlide: BlockInstance<ExerciseSlideAttributes> = {
-        // Using slide id in tests ensures that this operation is reversible
-        clientId: process.env.NODE_ENV === "test" ? slide.id : v4(),
+        clientId: slide.id,
         name: "moocfi/exercise-slide",
         attributes: {
           id: slide.id,
@@ -207,8 +210,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
           .toSorted((a, b) => a.order_number - b.order_number)
           .map((task) => {
             const denormalizedTask: BlockInstance<ExerciseTaskAttributes> = {
-              // Using task id in tests ensures that this operation is reversible
-              clientId: process.env.NODE_ENV === "test" ? task.id : v4(),
+              clientId: task.id,
               name: "moocfi/exercise-task",
               attributes: {
                 id: task.id,

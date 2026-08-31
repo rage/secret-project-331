@@ -5,9 +5,20 @@
  */
 import "@wordpress/components/build-style/style.css"
 import "@wordpress/block-editor/build-style/style.css"
+// Reverts the host page's global CSS inside the canvas so course-material styling starts from
+// browser defaults. Must precede block-library's style.css, which is built to override it, and only
+// works paired with the typography in editorContentStyles — on its own it leaves the canvas serif.
+import "@wordpress/block-library/build-style/reset.css"
 import "@wordpress/block-library/build-style/style.css"
+// Canvas styles, as opposed to the editor chrome in block-editor's style.css. Carries the focus
+// ring resets, the rich text placeholder text, and the positioning contexts the appenders and
+// insertion points rely on. Load order follows WordPress's own wp-edit-blocks dependency chain.
+import "@wordpress/block-editor/build-style/content.css"
 import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
+// Styles the link, colour and language format popovers. Resolves only through the alias in
+// next.config.js, because format-library's package exports do not expose build-style.
+import "@wordpress/format-library/build-style/style.css"
 import { css } from "@emotion/css"
 import {
   BlockEditorKeyboardShortcuts,
@@ -17,6 +28,7 @@ import {
   BlockList,
   BlockTools,
   ButtonBlockAppender,
+  __unstableEditorStyles as EditorStyles,
   __experimentalListView as ListView,
   ObserveTyping,
   __unstableUseBlockSelectionClearer as useBlockSelectionClearer,
@@ -34,7 +46,6 @@ import { toast } from "react-hot-toast"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { primaryFont } from "@/shared-module/common/styles"
 import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -45,15 +56,15 @@ import {
   ensureStandaloneGutenbergBootstrap,
   getDefaultAllowedBlockTypes,
 } from "../../utils/Gutenberg/bootstrapStandaloneGutenberg"
+import { editorContentStyles } from "../../utils/Gutenberg/editorContentStyles"
 import {
   createEditorHistoryEntry,
   getCurrentEditorHistoryEntry,
   type GutenbergEditorSelection,
   initializeEditorHistory,
-  pushEditorHistoryEntry,
+  recordEditorHistoryChange,
   redoEditorHistory,
   undoEditorHistory,
-  updateCurrentEditorHistoryEntry,
 } from "../../utils/Gutenberg/editorHistory"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
@@ -65,6 +76,18 @@ import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
 
 // oxlint-disable-next-line typescript/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
+
+/** One entry of `settings.styles`: canvas CSS that only reaches the DOM through `EditorStyles`. */
+interface EditorContentStyle {
+  css: string
+}
+
+// Hoisted because EditorStyles is memoized: a new object on each render would defeat that.
+const EDITOR_STYLE_TRANSFORM_OPTIONS = {
+  ignoredSelectors: [/\.editor-styles-wrapper/gi],
+}
+// oxlint-disable-next-line i18next/no-literal-string
+const EDITOR_STYLES_SCOPE = ":where(.editor-styles-wrapper)"
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
@@ -85,6 +108,41 @@ interface GutenbergEditorProps {
 
 interface GutenbergEditorChangeOptions {
   selection?: GutenbergEditorSelection
+  /** Set by Gutenberg for changes that must not become an undo level. */
+  undoIgnore?: boolean
+}
+
+interface EditorCanvasProps {
+  contentRef: React.RefObject<HTMLDivElement | null>
+}
+
+/**
+ * The editable block canvas.
+ *
+ * Must render inside `BlockEditorProvider`: the provider runs on a private data sub-registry, and the
+ * selection clearer only sees blocks when it resolves the block editor store against that registry.
+ */
+const EditorCanvas: React.FC<React.PropsWithChildren<EditorCanvasProps>> = ({
+  contentRef,
+  children,
+}) => {
+  const clearerRef = useBlockSelectionClearer()
+  const mergedContentRef = useMergeRefs([clearerRef, contentRef])
+
+  return (
+    <WritingFlow
+      ref={mergedContentRef}
+      className="editor-styles-wrapper"
+      tabIndex={-1}
+      // oxlint-disable-next-line react/forbid-component-props
+      style={{
+        height: "100%",
+        width: "100%",
+      }}
+    >
+      {children}
+    </WritingFlow>
+  )
 }
 
 const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> = ({
@@ -101,11 +159,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
 }: GutenbergEditorProps) => {
   const { t } = useTranslation()
   useDisableBrowserDefaultDragFileBehavior()
-  const clearerRef = useBlockSelectionClearer()
   const localRef = useRef<HTMLDivElement>(null)
-  const contentRef = useMergeRefs([clearerRef, localRef])
 
   const [isGutenbergBootstrapped, setIsGutenbergBootstrapped] = useState(false)
+  const [isEditorMounted, setIsEditorMounted] = useState(false)
   const historyRef = useRef(initializeEditorHistory(content))
   const selectionRef = useRef<GutenbergEditorSelection | undefined>(undefined)
   const localContentUpdateRef = useRef<BlockInstance[] | null>(null)
@@ -133,12 +190,16 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [allowedBlocks, customBlocks, isGutenbergBootstrapped])
 
   const editorSettings = useMemo<
-    Partial<{ mediaUpload: (props: MediaUploadProps) => void; [key: string]: unknown }>
+    Partial<{
+      mediaUpload: (props: MediaUploadProps) => void
+      styles: readonly EditorContentStyle[]
+      [key: string]: unknown
+    }>
   >(
     () => ({
       disableCustomColors: false,
-      disableCustomEditorFontSizes: false,
-      styles: [],
+      disableCustomFontSizes: false,
+      styles: editorContentStyles,
       codeEditingEnabled: false,
       mediaUpload,
       allowedBlockTypes,
@@ -174,9 +235,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     const nextSelection = options?.selection ?? selectionRef.current
 
     setSelectionState(nextSelection)
-    historyRef.current = pushEditorHistoryEntry(
+    historyRef.current = recordEditorHistoryChange(
       historyRef.current,
       createEditorHistoryEntry(newContent, nextSelection),
+      { persistent: true, undoIgnore: options?.undoIgnore },
     )
     dispatchContentChange(newContent)
   }
@@ -188,9 +250,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     const nextSelection = options?.selection ?? selectionRef.current
 
     setSelectionState(nextSelection)
-    historyRef.current = updateCurrentEditorHistoryEntry(
+    historyRef.current = recordEditorHistoryChange(
       historyRef.current,
       createEditorHistoryEntry(newContent, nextSelection),
+      { persistent: false, undoIgnore: options?.undoIgnore },
     )
     dispatchContentChange(newContent)
   }
@@ -307,7 +370,20 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     t,
   ])
 
-  if (!isGutenbergBootstrapped || needToRunMigrationsAndValidations) {
+  // Only the first migration pass may keep the editor unmounted. Later passes run with it mounted: a
+  // remount rebuilds BlockEditorProvider's data sub-registry, losing the selection, the caret position,
+  // the generated style overrides, and the persistence flags that decide whether the next edit arrives
+  // as onChange, as onInput or as undo-ignored.
+  const showEditor =
+    isGutenbergBootstrapped && (isEditorMounted || !needToRunMigrationsAndValidations)
+
+  useEffect(() => {
+    if (showEditor) {
+      setIsEditorMounted(true)
+    }
+  }, [showEditor])
+
+  if (!showEditor) {
     return <Spinner variant="large" />
   }
 
@@ -387,9 +463,6 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                           .block-editor-inserter__main-area {
                             overflow-x: hidden;
                           }
-                          .components-search-control {
-                            font-family: ${primaryFont} !important;
-                          }
                           /** We don't have a use for other tabs than the default tab **/
                           .block-editor-tabbed-sidebar__tablist-and-close-button {
                             display: none;
@@ -436,26 +509,20 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
             )}
             <div className="editor__content">
               <BlockTools __unstableContentRef={localRef}>
-                <div className="editor-styles-wrapper">
-                  <BlockEditorKeyboardShortcuts.Register />
-                  <CommonKeyboardShortcuts onUndo={handleUndo} onRedo={handleRedo} />
-                  <WritingFlow
-                    ref={contentRef}
-                    className="editor-styles-wrapper"
-                    tabIndex={-1}
-                    // oxlint-disable-next-line react/forbid-component-props
-                    style={{
-                      height: "100%",
-                      width: "100%",
-                    }}
-                  >
-                    <ObserveTyping>
-                      <BlockList />
+                <BlockEditorKeyboardShortcuts.Register />
+                <CommonKeyboardShortcuts onUndo={handleUndo} onRedo={handleRedo} />
+                <EditorStyles
+                  styles={editorSettings.styles}
+                  scope={EDITOR_STYLES_SCOPE}
+                  transformOptions={EDITOR_STYLE_TRANSFORM_OPTIONS}
+                />
+                <EditorCanvas contentRef={localRef}>
+                  <ObserveTyping>
+                    <BlockList />
 
-                      {content.length > 0 && <ButtonBlockAppender rootClientId={undefined} />}
-                    </ObserveTyping>
-                  </WritingFlow>
-                </div>
+                    {content.length > 0 && <ButtonBlockAppender rootClientId={undefined} />}
+                  </ObserveTyping>
+                </EditorCanvas>
               </BlockTools>
             </div>
             <Popover.Slot />

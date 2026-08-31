@@ -69,6 +69,8 @@ pub struct PageInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PageInfoSpecial {
+    pub page_id: Uuid,
+    pub url_path: String,
     pub page_title: String,
     pub order_number: i32,
     pub chapter_title: Option<String>,
@@ -931,6 +933,26 @@ WHERE chapter_id = $1
     Ok(res)
 }
 
+/// Titles for a set of pages, for annotating rows that only carry a page id.
+pub async fn get_titles_by_ids(
+    conn: &mut PgConnection,
+    page_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, String>> {
+    let rows = sqlx::query!(
+        "
+SELECT id,
+  title
+FROM pages
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        page_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows.into_iter().map(|r| (r.id, r.title)).collect())
+}
+
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
     let page = sqlx::query_as!(
         Page,
@@ -951,6 +973,46 @@ SELECT id,
   page_language_group_id
 FROM pages
 WHERE id = $1;
+",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(page)
+}
+
+/// The fields the chatbot needs to describe a page: enough to build the page-context message,
+/// none of the Gutenberg `content` JSONB.
+pub struct PageChatbotContext {
+    pub id: Uuid,
+    pub title: String,
+    pub chapter_name: Option<String>,
+    pub course_id: Option<Uuid>,
+    pub hidden: bool,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+/// Like [get_page], but projects only the columns the chatbot needs and folds in the chapter name,
+/// so the caller does not also have to fetch the whole page (including `content`) or the chapter.
+///
+/// `chapter_name` is `None` when the page has no chapter or when its chapter has been deleted, the
+/// same as looking up the chapter separately and discarding a `NotFound` error would give.
+pub async fn get_page_chatbot_context(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<PageChatbotContext> {
+    let page = sqlx::query_as!(
+        PageChatbotContext,
+        "
+SELECT pages.id,
+  pages.title,
+  chapters.name AS chapter_name,
+  pages.course_id,
+  pages.hidden,
+  pages.deleted_at
+FROM pages
+LEFT JOIN chapters ON chapters.id = pages.chapter_id AND chapters.deleted_at IS NULL
+WHERE pages.id = $1;
 ",
         page_id
     )
@@ -998,16 +1060,16 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
         PageInfo,
         r#"
     SELECT
-        p.id as page_id,
-        p.title as page_title,
-        c.id as "course_id",
-        c.name as "course_name",
-        c.slug as "course_slug",
-        o.slug as "organization_slug"
+        p.id as "page_id!",
+        p.title as "page_title!",
+        c.id as "course_id?",
+        c.name as "course_name?",
+        c.slug as "course_slug?",
+        o.slug as "organization_slug?"
     FROM pages p
-    JOIN courses c
+    LEFT JOIN courses c
         on c.id = p.course_id
-    JOIN organizations o
+    LEFT JOIN organizations o
         on o.id = c.organization_id
     WHERE p.id = $1;
         "#,
@@ -1029,6 +1091,8 @@ pub async fn get_page_info_special_for_course(
         PageInfoSpecial,
         r#"
     SELECT
+        p.id AS page_id,
+        p.url_path AS "url_path!",
         p.title AS page_title,
         p.order_number,
         p.content,
@@ -3553,6 +3617,34 @@ WHERE p.chapter_id = $1
     Ok(pages)
 }
 
+pub struct PageIdAndUrlPath {
+    pub id: Uuid,
+    pub url_path: String,
+}
+
+/// Like [get_chapter_pages], projected down to `id` and `url_path` for callers that only rewrite
+/// paths and would otherwise pull every page's `content` JSONB for nothing.
+pub async fn get_chapter_page_paths(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Vec<PageIdAndUrlPath>> {
+    let pages = sqlx::query_as!(
+        PageIdAndUrlPath,
+        "
+SELECT id,
+  url_path
+FROM pages
+WHERE chapter_id = $1
+  AND deleted_at IS NULL;
+    ",
+        chapter_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(pages)
+}
+
 pub async fn get_chapters_visible_pages_exclude_main_frontpage(
     conn: &mut PgConnection,
     chapter_id: Uuid,
@@ -4260,6 +4352,36 @@ WHERE course_id = $1
     Ok(())
 }
 
+/// Writes pages' url paths as given, without normalizing them or adding redirections.
+///
+/// [reorder_chapters] rewrites paths in two passes and creates the redirections itself, so neither
+/// belongs here. Use [insert_page] or [update_page] for a path that comes from a user, since those
+/// canonicalize it.
+///
+/// Does not filter on `deleted_at`: a deleted page's path is written too.
+async fn set_url_paths(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+    url_paths: &[String],
+) -> ModelResult<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        "
+UPDATE pages
+SET url_path = v.path
+FROM unnest($1::uuid[], $2::text[]) AS v(id, path)
+WHERE pages.id = v.id
+",
+        ids,
+        url_paths
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn reorder_chapters(
     conn: &mut PgConnection,
     chapters: &[Chapter],
@@ -4293,25 +4415,20 @@ pub async fn reorder_chapters(
                 get_chapter(&mut tx, matching_db_chapter.id).await?;
             let random_chapter_number = chapter_with_randomized_chapter_number.chapter_number;
             let pages =
-                get_chapter_pages(&mut tx, chapter_with_randomized_chapter_number.id).await?;
+                get_chapter_page_paths(&mut tx, chapter_with_randomized_chapter_number.id).await?;
 
+            let mut ids = Vec::with_capacity(pages.len());
+            let mut new_paths = Vec::with_capacity(pages.len());
             for page in pages {
-                let old_path = &page.url_path;
-                let new_path = old_path.replacen(
+                let new_path = page.url_path.replacen(
                     &old_chapter.chapter_number.to_string(),
                     &random_chapter_number.to_string(),
                     1,
                 );
-
-                // update each page path associated with a random chapter number
-                sqlx::query!(
-                    "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                    page.id,
-                    new_path
-                )
-                .execute(&mut *tx)
-                .await?;
+                ids.push(page.id);
+                new_paths.push(new_path);
             }
+            set_url_paths(&mut tx, &ids, &new_paths).await?;
         }
     }
 
@@ -4334,34 +4451,34 @@ pub async fn reorder_chapters(
                 .await?;
 
                 // update all pages url in the modified chapter
-                let pages = get_chapter_pages(&mut tx, chapter.id).await?;
+                let pages = get_chapter_page_paths(&mut tx, chapter.id).await?;
 
+                let mut ids = Vec::with_capacity(pages.len());
+                let mut new_paths = Vec::with_capacity(pages.len());
+                let mut old_paths = Vec::with_capacity(pages.len());
                 for page in pages {
-                    let path_with_temp_random_number = &page.url_path;
-                    let new_path = path_with_temp_random_number.replacen(
+                    let new_path = page.url_path.replacen(
                         &randomized_chapter_number.to_string(),
                         &new_chapter_number.to_string(),
                         1,
                     );
-                    let old_path = path_with_temp_random_number.replacen(
+                    let old_path = page.url_path.replacen(
                         &randomized_chapter_number.to_string(),
                         &chapter.chapter_number.to_string(),
                         1,
                     );
-                    // update each page path associated with the modified chapter
-                    sqlx::query!(
-                        "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                        page.id,
-                        new_path
-                    )
-                    .execute(&mut *tx)
-                    .await?;
+                    ids.push(page.id);
+                    new_paths.push(new_path);
+                    old_paths.push(old_path);
+                }
+                set_url_paths(&mut tx, &ids, &new_paths).await?;
 
+                for (page_id, old_path) in ids.iter().zip(old_paths.iter()) {
                     crate::url_redirections::upsert(
                         &mut tx,
                         PKeyPolicy::Generate,
-                        page.id,
-                        &old_path,
+                        *page_id,
+                        old_path,
                         course_id,
                     )
                     .await?;
@@ -4657,17 +4774,13 @@ mod test {
         )
         .await
         .unwrap();
-        {
-            let conn: &mut sqlx::PgConnection = tx.as_mut();
-            sqlx::query!(
-                "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                legacy_page.id,
-                "/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82"
-            )
-            .execute(conn)
-            .await
-            .unwrap();
-        }
+        set_url_paths(
+            tx.as_mut(),
+            &[legacy_page.id],
+            &["/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82".to_string()],
+        )
+        .await
+        .unwrap();
 
         // Looks the page up through the same helper the production lookup uses, so a
         // regression in the candidate matching is caught here.
@@ -4856,9 +4969,11 @@ mod test {
         course_id: Uuid,
         chapter_locking_enabled: bool,
     ) {
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let course_before_update = courses::get_course(tx, course_id).await.unwrap();
         courses::update_course(
             tx,
+            &app_config,
             course_id,
             courses::CourseUpdate {
                 chapter_locking_enabled,

@@ -31,6 +31,7 @@ use crate::{
 
 use futures::try_join;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::futures::run_parallelly;
 use sqlx::{Pool, Postgres, migrate::MigrateDatabase, postgres::PgPoolOptions};
 use tracing::info;
@@ -38,6 +39,7 @@ use tracing::info;
 pub async fn main() -> anyhow::Result<()> {
     let base_url = ProgramConfig::required("BASE_URL")?;
     let db_pool = setup_seed_environment().await?;
+    let app_config = ApplicationConfiguration::mock_conf()?;
     let jwt_password = secrecy::SecretString::new(ProgramConfig::required("JWT_PASSWORD")?.into());
     let jwt_key = Arc::new(JwtKey::new(&jwt_password).expect("Failed to create JwtKey"));
 
@@ -63,6 +65,7 @@ pub async fn main() -> anyhow::Result<()> {
     let (uh_cs_organization_result, _uh_mathstat_organization_id, _no_users_organization_id) = try_join!(
         run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
             db_pool.clone(),
+            app_config.clone(),
             seed_users_result,
             base_url.clone(),
             Arc::clone(&jwt_key),
@@ -71,6 +74,7 @@ pub async fn main() -> anyhow::Result<()> {
         run_parallelly(
             seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
                 db_pool.clone(),
+                app_config.clone(),
                 seed_users_result,
                 seed_llms_result,
                 base_url.clone(),
@@ -82,6 +86,18 @@ pub async fn main() -> anyhow::Result<()> {
             db_pool.clone()
         ))
     )?;
+
+    // Sequential rather than in the group above: it shares the default study registry registrar with
+    // the graded course, and get-or-create is not atomic.
+    seed_organizations::credit_registration::seed_organization_credit_registration(
+        db_pool.clone(),
+        &app_config,
+        seed_users_result,
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+        seed_file_storage_result.clone(),
+    )
+    .await?;
 
     try_join!(
         run_parallelly(seed_roles::seed_roles(

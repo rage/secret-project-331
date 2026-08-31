@@ -37,6 +37,7 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
     chatbotConfigurationId,
     undefined,
     conversationId,
+    null,
   )
   const { currentConversationInfo, newConversationMutation } = chatbotStateAndData
   const hasStartedFreshConversation = useRef(false)

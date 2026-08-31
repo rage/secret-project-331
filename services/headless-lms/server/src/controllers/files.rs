@@ -244,12 +244,12 @@ async fn upload_from_exercise_service(
         payload,
         file_store.as_ref(),
         &mut uploaded_paths,
-        user,
+        user.map(|user| user.id),
         &app_conf.base_url,
     )
     .await
     {
-        Ok(paths) => paths,
+        Ok(uploads) => uploads.into_iter().map(|upload| upload.entry).collect(),
         Err(outer_err) => {
             // something went wrong while uploading the files, try to delete leftovers
             for uploaded in uploaded_paths {

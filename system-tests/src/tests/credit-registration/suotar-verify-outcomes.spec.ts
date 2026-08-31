@@ -1,14 +1,108 @@
-import { test } from "@playwright/test"
+import {
+  countMockCallsForStudent,
+  CRS_101,
+  myRegistrationOnCourse,
+  seededStudentStorageState,
+  SUOTAR_COURSE_SLUG,
+  waitForRegistrationState,
+} from "@/utils/creditRegistration"
+import { makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
+import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
+import { runPhasesUpToSubmission, runVerifyPollTick } from "@/utils/suotarControl"
 
 /**
  * Needs the single-phase `verify` tick so verification runs twice without re-running the import.
  * Owns student numbers `9000005xx`.
  */
-test.fixme("Polling stays in waiting until Sisu confirms, then flips to registered", () => {
-  // Waiting on the verify phase.
+const POLLING_EMAIL = "credit-registration-verify-polling@example.com"
+const POLLING_STUDENT_NUMBER = "900000501"
+const MISREGISTERED_EMAIL = "credit-registration-verify-misregistered@example.com"
+const MISREGISTERED_STUDENT_NUMBER = "900000502"
+
+test.describe("A submission the study registry has not answered yet", () => {
+  test.use({ storageState: seededStudentStorageState(POLLING_EMAIL) })
+
+  test("Polling stays in waiting until Sisu confirms, then flips to registered", async ({
+    page,
+    adminApi,
+  }) => {
+    const scope = { userEmail: POLLING_EMAIL }
+    await runPhasesUpToSubmission(page.request, scope)
+    const submitted = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+      "awaiting_verification",
+    ])
+
+    await makeRegistrationDueNow(adminApi, submitted.id)
+    await runVerifyPollTick(page.request, scope)
+    await makeRegistrationDueNow(adminApi, submitted.id)
+    await runVerifyPollTick(page.request, scope)
+    // Nothing ripens a mock submission on its own, so no worker or spec could have moved this.
+    expect((await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)).state).toBe(
+      "awaiting_verification",
+    )
+
+    await transitionMockSuotarSubmissionsFor(
+      page.request,
+      POLLING_STUDENT_NUMBER,
+      "registered",
+      CRS_101,
+    )
+    await makeRegistrationDueNow(adminApi, submitted.id)
+    await runVerifyPollTick(page.request, scope)
+    const registered = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+      "registered",
+    ])
+    expect(registered.student_facing_status).toBe("registered")
+  })
 })
 
-test.fixme("Duplicate, not-improved and misregistered each reach their own terminal state", () => {
-  // Waiting on the verify phase. Duplicate and not-improved count as successes; misregistered does
-  // not.
+test.describe("A submission the study registry reversed after accepting it", () => {
+  test.use({ storageState: seededStudentStorageState(MISREGISTERED_EMAIL) })
+
+  test("A reversal in Sisu is its own failure, not a silent return to waiting", async ({
+    page,
+    adminApi,
+  }) => {
+    const scope = { userEmail: MISREGISTERED_EMAIL }
+    await runPhasesUpToSubmission(page.request, scope)
+    const submitted = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+      "awaiting_verification",
+    ])
+
+    await transitionMockSuotarSubmissionsFor(
+      page.request,
+      MISREGISTERED_STUDENT_NUMBER,
+      "misregistered",
+      CRS_101,
+    )
+    await makeRegistrationDueNow(adminApi, submitted.id)
+    await runVerifyPollTick(page.request, scope)
+    const reversed = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+      "misregistered",
+    ])
+    expect(reversed.student_facing_status).toBe("failed")
+    expect(reversed.error_code).toBe("misregistered")
+
+    await test.step("A reversed row is not polled again", async () => {
+      const before = await countMockCallsForStudent(
+        page.request,
+        MISREGISTERED_STUDENT_NUMBER,
+        "verify_attainments",
+      )
+      // Due, so what stops the polling is the state the row is in rather than a backoff.
+      await makeRegistrationDueNow(adminApi, submitted.id)
+      await runVerifyPollTick(page.request, scope)
+      await runVerifyPollTick(page.request, scope)
+      // Only a human moves a row the study registry reversed, so a poller that keeps
+      // asking fails silently.
+      expect(
+        await countMockCallsForStudent(
+          page.request,
+          MISREGISTERED_STUDENT_NUMBER,
+          "verify_attainments",
+        ),
+      ).toBe(before)
+    })
+  })
 })

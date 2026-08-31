@@ -26,6 +26,9 @@ pub enum TeacherDecisionType {
     CustomPoints,
     SuspectedPlagiarism,
     RejectAndReset,
+    UnauthorizedAiUse,
+    BadAnswer,
+    Other,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -37,6 +40,10 @@ pub struct NewTeacherGradingDecision {
     pub manual_points: Option<f32>,
     pub justification: Option<String>,
     pub hidden: bool,
+    /// Resets the student's progress on the exercise so they can answer it again. Independent of
+    /// `action`, so a decision can record why the answer was rejected and still reopen it.
+    /// Requires the exercise to belong to a course.
+    pub reset_exercise: bool,
 }
 
 pub async fn add_teacher_grading_decision(
@@ -140,6 +147,63 @@ ORDER BY created_at DESC
 LIMIT 1
       "#,
         user_exercise_state_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The student's latest grading decision that still describes where they stand.
+///
+/// Unlike [`try_to_get_latest_grading_decision_by_user_exercise_state_id`], this looks the decision
+/// up by student and exercise, so it survives a reset replacing the user_exercise_state it was made
+/// against. A decision stops applying once the student answers again, or once anyone resets the
+/// exercise after it -- a later reset means the decision no longer describes the student's
+/// situation, while a reset made just before it is the one the decision itself ordered.
+pub async fn try_to_get_latest_grading_decision_still_addressed_to_student(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Option<TeacherGradingDecision>> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+SELECT tgd.id,
+  tgd.user_exercise_state_id,
+  tgd.user_id,
+  tgd.created_at,
+  tgd.updated_at,
+  tgd.deleted_at,
+  tgd.score_given,
+  tgd.teacher_decision AS "teacher_decision: _",
+  tgd.justification,
+  tgd.hidden
+FROM teacher_grading_decisions tgd
+  JOIN user_exercise_states ues ON ues.id = tgd.user_exercise_state_id
+WHERE ues.user_id = $1
+  AND ues.exercise_id = $2
+  AND tgd.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM exercise_slide_submissions ess
+    WHERE ess.user_id = $1
+      AND ess.exercise_id = $2
+      AND ess.deleted_at IS NULL
+      AND ess.created_at > tgd.created_at
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM exercise_reset_logs erl
+    WHERE erl.reset_for = $1
+      AND erl.exercise_id = $2
+      AND erl.deleted_at IS NULL
+      AND erl.reset_at > tgd.created_at
+  )
+ORDER BY tgd.created_at DESC
+LIMIT 1
+      "#,
+        user_id,
+        exercise_id,
     )
     .fetch_optional(conn)
     .await?;

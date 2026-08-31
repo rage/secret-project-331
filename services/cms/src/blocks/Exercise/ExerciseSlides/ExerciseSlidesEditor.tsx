@@ -1,6 +1,6 @@
 "use client"
 
-import { InnerBlocks } from "@wordpress/block-editor"
+import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 
 import type { TemplateArray } from "@/utils/Gutenberg/types"
 
@@ -11,8 +11,10 @@ const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
 const INNER_BLOCKS_TEMPLATE: TemplateArray = [["moocfi/exercise-slide", {}]]
 
 const ExerciseSlidesEditor = () => {
+  const blockProps = useBlockProps({ className: gutenbergControlsHidden })
+
   return (
-    <div className={gutenbergControlsHidden}>
+    <div {...blockProps}>
       <InnerBlocks
         allowedBlocks={ALLOWED_NESTED_BLOCKS}
         template={INNER_BLOCKS_TEMPLATE}

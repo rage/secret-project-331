@@ -23,6 +23,34 @@ RETURNING *
     Ok(res.id)
 }
 
+/// A stored file's name and object-store path.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FileUploadRef {
+    pub id: Uuid,
+    pub name: String,
+    pub path: String,
+}
+
+/// The named files, in unspecified order and omitting deleted ones. Callers that need a
+/// particular order must impose it themselves.
+pub async fn get_many(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<FileUploadRef>> {
+    let res = sqlx::query_as!(
+        FileUploadRef,
+        "
+SELECT id,
+  name,
+  path
+FROM file_uploads
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+",
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_filename(conn: &mut PgConnection, path: &str) -> ModelResult<String> {
     let res = sqlx::query!(
         r#"

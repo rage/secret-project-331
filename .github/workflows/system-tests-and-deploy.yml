@@ -28,11 +28,13 @@ jobs:
     permissions:
       contents: read
     runs-on: ubicloud-standard-30-ubuntu-2404
+    timeout-minutes: 45
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           lfs: true
+          persist-credentials: false
 
       - name: Verify system-test snapshots are hydrated
         run: |
@@ -42,223 +44,68 @@ jobs:
             exit 1
           fi
 
-      - name: System Information Report
+      - name: Worker diagnostics
         run: |
           set -euo pipefail
-
-          echo "╔══════════════════════════════════════════════════════════════════════════════════════╗"
-          echo "║                                🖥️  SYSTEM INFORMATION REPORT                          ║"
-          echo "╚══════════════════════════════════════════════════════════════════════════════════════╝"
-          echo
-
-          # CPU Information
-          echo "🔧 CPU INFORMATION"
-          echo "────────────────────────────────────────────────────────────────────────────────────────"
-          CPU_CORES=$(nproc)
-          CPU_THREADS=$(nproc --all)
-          CPU_MODEL=$(lscpu | grep 'Model name' | cut -d ':' -f2 | xargs)
-          CPU_ARCH=$(lscpu | grep 'Architecture' | cut -d ':' -f2 | xargs)
-          CPU_MHz=$(lscpu | grep 'CPU MHz' | cut -d ':' -f2 | xargs || echo "N/A")
-
-          printf "  %-20s %s\n" "CPU Cores:" "$CPU_CORES"
-          printf "  %-20s %s\n" "CPU Threads:" "$CPU_THREADS"
-          printf "  %-20s %s\n" "CPU Model:" "$CPU_MODEL"
-          printf "  %-20s %s\n" "Architecture:" "$CPU_ARCH"
-          printf "  %-20s %s MHz\n" "Current Speed:" "$CPU_MHz"
-          echo
-
-          # Memory Information
-          echo "💾 MEMORY INFORMATION"
-          echo "────────────────────────────────────────────────────────────────────────────────────────"
-          TOTAL_RAM=$(free -h | awk 'NR==2{print $2}')
-          USED_RAM=$(free -h | awk 'NR==2{print $3}')
-          FREE_RAM=$(free -h | awk 'NR==2{print $4}')
-          AVAILABLE_RAM=$(free -h | awk 'NR==2{print $7}')
-          TOTAL_RAM_KB=$(free | awk 'NR==2{print $2}')
-          USED_RAM_KB=$(free | awk 'NR==2{print $3}')
-          USAGE_PERCENT=$(awk "BEGIN {printf \"%.1f\", ($USED_RAM_KB/$TOTAL_RAM_KB)*100}")
-
-          printf "  %-20s %s\n" "Total RAM:" "$TOTAL_RAM"
-          printf "  %-20s %s (%s%%)\n" "Used RAM:" "$USED_RAM" "$USAGE_PERCENT"
-          printf "  %-20s %s\n" "Free RAM:" "$FREE_RAM"
-          printf "  %-20s %s\n" "Available RAM:" "$AVAILABLE_RAM"
-          echo
-
-          # Disk Information
-          echo "💿 DISK INFORMATION"
-          echo "────────────────────────────────────────────────────────────────────────────────────────"
-          df -h --output=source,size,used,avail,pcent,target | grep -E '^(/dev/|tmpfs)' | while read -r line; do
-            echo "  $line"
-          done
-          echo
-
-          ROOT_TOTAL=$(df -h / | awk 'NR==2{print $2}')
-          ROOT_USED=$(df -h / | awk 'NR==2{print $3}')
-          ROOT_AVAIL=$(df -h / | awk 'NR==2{print $4}')
-          ROOT_PERCENT=$(df -h / | awk 'NR==2{print $5}')
-
-          printf "  %-20s %s\n" "Root Total:" "$ROOT_TOTAL"
-          printf "  %-20s %s (%s)\n" "Root Used:" "$ROOT_USED" "$ROOT_PERCENT"
-          printf "  %-20s %s\n" "Root Available:" "$ROOT_AVAIL"
-          echo
-
-          # System Load and Uptime
-          echo "⚡ SYSTEM PERFORMANCE"
-          echo "────────────────────────────────────────────────────────────────────────────────────────"
-          LOAD_AVG=$(uptime | awk -F'load average:' '{print $2}' | xargs)
-          UPTIME_INFO=$(uptime -p)
-
-          printf "  %-20s %s\n" "Load Average:" "$LOAD_AVG"
-          printf "  %-20s %s\n" "Uptime:" "$UPTIME_INFO"
-          echo
-
-          # Additional System Info
-          echo "🔍 ADDITIONAL SYSTEM INFO"
-          echo "────────────────────────────────────────────────────────────────────────────────────────"
-          if command -v lsb_release >/dev/null 2>&1; then
-            OS_NAME="$(lsb_release -d | cut -d: -f2 | xargs)"
-          else
-            OS_NAME="$(grep '^PRETTY_NAME=' /etc/os-release | cut -d'=' -f2- | tr -d '\"')"
-          fi
-          KERNEL_VERSION=$(uname -r)
-          HOSTNAME=$(hostname)
-
-          printf "  %-20s %s\n" "OS:" "$OS_NAME"
-          printf "  %-20s %s\n" "Kernel:" "$KERNEL_VERSION"
-          printf "  %-20s %s\n" "Hostname:" "$HOSTNAME"
-          echo
-
-          # Process Information
-          echo "📈 TOP PROCESSES BY MEMORY"
-          echo "────────────────────────────────────────────────────────────────────────────────────────"
-          ps aux --sort=-%mem --no-headers | head -5 | awk '{printf "  %-15s %5s%% %8s %s\n", $1, $4, $6"K", $11}'
-          echo
-
-          # Network Information
-          echo "🌐 NETWORK INTERFACES"
-          echo "────────────────────────────────────────────────────────────────────────────────────────"
-          ip -4 addr show | grep inet | awk '{print "  " $NF ": " $2}' | grep -v 127.0.0.1
-
-      - name: Worker fingerprint & fast sanity check
-        run: |
-          set -euo pipefail
-          echo "== Worker/Kernel =="
+          echo "== Kernel/OS =="
           uname -a || true
-          echo
-          echo "== OS Release =="
           cat /etc/os-release || true
+          (ldd --version 2>&1 | head -1) || true
           echo
-          echo "== CPU detail =="
+          echo "== CPU =="
+          echo "cores: $(nproc) / threads: $(nproc --all) / load:$(uptime | sed 's/.*load average://')"
           lscpu || true
           echo
-          echo "== GLIBC =="
-          (ldd --version 2>&1 | head -1) || true
+          echo "== Memory =="
+          free -h || true
+          grep -E "(MemTotal|MemAvailable|MemFree|Buffers|Cached|Shmem)" /proc/meminfo || true
+          echo
+          echo "== Top processes by memory =="
+          ps aux --sort=-%mem --no-headers | head -5 | awk '{printf "%-15s %5s%% %8s %s\n", $1, $4, $6"K", $11}'
+          echo
+          echo "== Disk =="
+          df -h || true
           echo
           echo "== Ulimits =="
           ulimit -a || true
           echo
           echo "== CGroup limits =="
-          cat /sys/fs/cgroup/memory.max 2>/dev/null || echo "no memory.max"
-          cat /sys/fs/cgroup/memory.current 2>/dev/null || echo "no memory.current"
-          cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo "no cpu.max"
-          cat /sys/fs/cgroup/pids.max 2>/dev/null || echo "no pids.max"
-          echo
-          echo "== Docker service memory limits =="
+          for f in memory.max memory.current cpu.max pids.max; do
+            echo "$f: $(cat "/sys/fs/cgroup/$f" 2>/dev/null || echo n/a)"
+          done
           systemctl show docker -p MemoryMax 2>/dev/null || echo "no MemoryMax"
           echo
-          echo "== Memory usage breakdown =="
-          grep -E "(MemTotal|MemAvailable|MemFree|Buffers|Cached|Shmem)" /proc/meminfo || true
+          echo "== PSI =="
+          for f in cpu memory io; do echo "[$f]"; cat /proc/pressure/$f || true; done
           echo
-          echo "== PSI (pressure stall info) =="
-          for f in cpu memory io; do echo "[$f]"; cat /proc/pressure/$f || true; echo; done
+          echo "== Network =="
+          ip -4 addr show | awk '/inet /{print $NF": "$2}' | grep -v 127.0.0.1 || true
           echo
-          echo "== Free/DF =="
-          free -h || true
-          df -h || true
-          echo
-          echo "== Docker info (brief) =="
+          echo "== Docker =="
           docker --version || true
           (docker info 2>/dev/null | grep -E 'Server Version|Cgroup Driver|Cgroup Version|Docker Root Dir|Kernel Version' || true)
           echo
-          echo "== dmesg scan (early) =="
+          echo "== dmesg: hardware/OOM errors =="
           (dmesg -T 2>/dev/null | grep -iE 'mce|hardware error|memory error|ecc|segfault|general protection|oom' || true)
 
       - name: Make sure we have no focused system-tests
-        run: |
-          test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
+        run: bin/check-no-test-only-in-system-tests
 
       - name: Free up disk space
-        run: |
-          echo "Space before:"
-          df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          echo "Space after:"
-          df -h
+        uses: ./.github/actions/free-disk-space
 
       - name: Configure Docker to use tmpfs for better performance
-        run: |
-          set -euo pipefail
-          echo "Configuring Docker to use tmpfs (RAM) for data storage..."
-
-          sudo systemctl stop docker
-
-          sudo mkdir -p /mnt/docker-tmpfs
-          sudo mount -t tmpfs -o size=50g tmpfs /mnt/docker-tmpfs
-          sudo mkdir -p /etc/docker
-
-          echo '{
-            "data-root": "/mnt/docker-tmpfs",
-            "storage-driver": "overlay2"
-          }' | sudo tee /etc/docker/daemon.json
-
-          # Check Docker service memory limits
-          echo "Checking Docker service memory limits..."
-          echo "Current Docker service memory limit:"
-          MEMORY_LIMIT=$(systemctl show docker -p MemoryMax --value 2>/dev/null)
-          if [ -z "$MEMORY_LIMIT" ] || [ "$MEMORY_LIMIT" = "infinity" ] || [ "$MEMORY_LIMIT" = "0" ]; then
-            echo "  No memory limit set (unlimited)"
-          else
-            echo "  MemoryMax=$MEMORY_LIMIT"
-          fi
-          sudo systemctl start docker
-
-          sudo systemctl status docker --no-pager
-          docker info | grep "Docker Root Dir"
-
-          echo "Docker configured to use tmpfs. All container operations will use RAM."
-
-          # Create cleanup script
-          cat <<'EOS' | sudo tee /usr/local/bin/_cleanup_docker_tmpfs
-          #!/usr/bin/env bash
-          set -e
-          sudo systemctl stop docker || true
-          sudo rm -f /etc/docker/daemon.json || true
-          sudo systemctl start docker || true
-          sudo umount /mnt/docker-tmpfs || true
-          sudo rmdir /mnt/docker-tmpfs || true
-          EOS
-          sudo chmod +x /usr/local/bin/_cleanup_docker_tmpfs
+        run: bin/ci/docker-tmpfs-configure
         shell: bash
-      - name: Cleanup docker tmpfs
-        if: always()
-        run: sudo /usr/local/bin/_cleanup_docker_tmpfs
 
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
 
-      - name: Install kustomize, kubectl & skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.11.1
-        with:
-          kubectl: "1.30.3"
-          kustomize: "5.4.1"
-          skaffold: "2.13.1"
+      - name: Setup Nix environment
+        uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
 
-      - uses: ./.github/actions/setup-node-pnpm
       - name: Run pnpm install --frozen-lockfile so that shared module gets copied
         run: pnpm install --frozen-lockfile
 
@@ -275,21 +122,24 @@ jobs:
           # F0719 17:18:25.711251       1 server.go:489] open /proc/sys/net/netfilter/nf_conntrack_max: permission denied
           sudo sysctl net/netfilter/nf_conntrack_max=131072
 
-      - name: Install, start & configure minikube
-        uses: manusa/actions-setup-minikube@v2.13.0
-        with:
-          minikube version: "v1.33.1"
-          kubernetes version: "v1.30.0"
-          start args: "--addons ingress --memory 60g"
-          driver: "docker"
-          github token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Start minikube
+        # Using kubectl's own client version here (instead of a hardcoded one) seemed
+        # appealing, but the Nix-pinned kubectl can run ahead of what this minikube release
+        # has actually been tested with; minikube then falls back to cri-dockerd's exec
+        # streaming, which can serve plain HTTP while the kubelet's redirect expects HTTPS,
+        # breaking `kubectl exec` with "server gave HTTP response to HTTPS client". Ask
+        # minikube for its own newest validated version instead, so a flake.lock bump to
+        # either tool can't silently drift them into an untested combination.
+        run: minikube start --addons ingress --memory 60g --driver docker --kubernetes-version "$(minikube config defaults kubernetes-version | head -n 1 | tr -d '* ')"
+        timeout-minutes: 10
 
       - name: Build
         id: build
         run: bin/skaffold-build-test-env-and-serialize-output
+        timeout-minutes: 25
 
       - name: Store skaffold output json
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: skaffold-build-output
           path: ./skaffold-build-output.json
@@ -304,20 +154,19 @@ jobs:
         env:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
         run: |
-          echo Authenticating to Google Cloud
           echo "$GCLOUD_SERVICE_KEY" | python -m base64 -d > /tmp/key.json
           gcloud auth activate-service-account --key-file=/tmp/key.json
-          if gcloud auth configure-docker -q; then
-              echo "Authenticated to Google Cloud..."
-          else
-              echo "Authentication to Google Cloud failed. Exiting..."
-              exit 1
-          fi
+          gcloud auth configure-docker -q
         if: ${{ github.ref == 'refs/heads/master' }}
 
       - name: Enable snippet directives
+        # allow-snippet-annotations alone stopped being enough once ingress-nginx started
+        # classifying ConfigurationSnippet/ServerSnippet as "Critical" risk while defaulting
+        # the risk-level gate to "High" — without raising it here, our Ingress (which needs
+        # the l5d-dst-override header and the oembed/wp redirects) gets silently dropped and
+        # every request 404s against nginx's own default backend instead of the app.
         run: |
-          kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
+          kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}' -n ingress-nginx --type merge
 
       - name: Remove ingress nginx admission webhook
         run: |
@@ -344,6 +193,7 @@ jobs:
       - name: Deploy to local minikube
         id: deploy_local
         run: skaffold deploy --force --filename ./skaffold.production.yaml --build-artifacts=./skaffold-build-output.json
+        timeout-minutes: 10
 
       - name: Dump migration logs on failure
         if: failure()
@@ -363,31 +213,52 @@ jobs:
       - name: Configure ingress
         run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
 
+      - name: Wait for ingress to route requests
+        # ingress-nginx syncs its routing rules asynchronously after the Deployments it fronts
+        # report ready, so a request made right away can still hit nginx's default backend (a
+        # 404 with an html body, not the app's own 404) before the real route is wired up — this
+        # broke the system-test seed step's call to the mock Suotar endpoint.
+        run: |
+          for i in $(seq 1 60); do
+            status=$(curl -s -o /dev/null -w '%{http_code}' http://project-331.local/api/v0/health/up || true)
+            if [ "$status" = "200" ]; then
+              echo "Ingress is routing requests."
+              exit 0
+            fi
+            echo "Waiting for ingress to route requests (got status ${status:-none}, attempt $i/60)..."
+            sleep 2
+          done
+          echo "::error::Ingress never started routing requests to project-331.local" >&2
+          echo "=== ingress-nginx pods ==="
+          kubectl get pods -n ingress-nginx -o wide
+          echo "=== ingress-nginx controller logs (last 200 lines) ==="
+          kubectl logs -n ingress-nginx deployment/ingress-nginx-controller --tail=200
+          echo "=== Ingress resources ==="
+          kubectl get ingress -A -o yaml
+          echo "=== Final curl -v ==="
+          curl -v http://project-331.local/api/v0/health/up || true
+          exit 1
+        timeout-minutes: 5
+
       - name: Setup system test environment
         run: pnpm install --frozen-lockfile
         working-directory: ./system-tests/
 
       - name: Install Playwright browsers
         run: bin/playwright-install --with-deps
+        timeout-minutes: 10
 
       - name: Run system tests
         run: pnpm run test
         working-directory: ./system-tests/
-      - name: System Test Summary
-        if: always()
-        run: |
-          {
-            echo "## 🧪 System Tests"
-            echo "- **Status**: ${{ job.status }}"
-            echo "- **Environment**: Minikube with Docker tmpfs"
-            echo "- **Memory**: 60GB allocated"
-          } >> "$GITHUB_STEP_SUMMARY"
+        timeout-minutes: 20
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
         run: pnpm run test
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
+        timeout-minutes: 20
 
       # upload logs for all the services on failure
       - name: Dump kernel and system diagnostics (failure only)
@@ -435,7 +306,7 @@ jobs:
             | tee -a ./_failure_debug/docker-info.txt
 
       - name: Upload failure diagnostics
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() }}
         with:
           name: worker-failure-diagnostics
@@ -455,7 +326,7 @@ jobs:
           kubectl logs 'deployment/main-frontend' > ./logs/main-frontend.log
           kubectl logs 'deployment/quizzes' > ./logs/quizzes.log
       - name: Upload logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
           name: service-logs
@@ -465,20 +336,16 @@ jobs:
       - name: Print pods information
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         run: |
-          echo "> kubectl get pods"
           kubectl get pods
-          echo
-          echo "----------------------------------------------------------"
           for POD in $(kubectl get pods -o custom-columns=NAME:.metadata.name --no-headers=true)
           do
               echo
-              echo "----------------------------------------------------------"
-              echo "> kubectl describe pod $POD"
+              echo "== kubectl describe pod $POD =="
               kubectl describe pod "$POD"
           done
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
           name: test-results
@@ -487,7 +354,7 @@ jobs:
           retention-days: 7
 
       - name: Upload playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
           name: playwright-html-report
@@ -503,73 +370,12 @@ jobs:
         run: skaffold build -p push-images,latest-tag --filename ./skaffold.production.yaml
         if: ${{ github.ref == 'refs/heads/master' }}
       - name: Push images tagged with sha if master
-        run: |
-          echo "=== Starting image push process ==="
-
-          # Point Docker CLI to minikube's Docker daemon since images are built there
-          echo "> Setting up Docker environment for minikube..."
-          eval "$(minikube -p minikube docker-env --shell bash)"
-          echo "> Docker environment configured"
-
-          echo "> Authenticating with Google Cloud Docker registry..."
-          gcloud auth configure-docker -q
-          echo "> Authentication completed"
-
-          # Check if the skaffold output file exists and show its contents
-          echo "> Checking skaffold-build-output.json file..."
-          if [ ! -f "skaffold-build-output.json" ]; then
-            echo "ERROR: skaffold-build-output.json file not found!"
-            exit 1
-          fi
-
-          echo "> File size: $(wc -c < skaffold-build-output.json) bytes"
-          echo "> File contents (formatted):"
-          python -m json.tool skaffold-build-output.json
-          echo ""
-
-          # Extract and display all image tags
-          echo "> Extracting image tags from skaffold output..."
-          TAGS=$(jq --raw-output '.builds[].tag' < skaffold-build-output.json)
-          echo "> Found tags:"
-          echo "$TAGS"
-          echo ""
-
-          # Count the number of tags
-          TAG_COUNT=$(echo "$TAGS" | wc -l)
-          echo "> Total number of tags to push: $TAG_COUNT"
-
-          if [ "$TAG_COUNT" -eq 0 ]; then
-            echo "ERROR: No image tags found in skaffold output!"
-            exit 1
-          fi
-
-          # Push each image with detailed logging
-          echo "> Starting to push images..."
-          echo "$TAGS" | while IFS= read -r tag; do
-            if [ -n "$tag" ]; then
-              echo ""
-              echo "=== Pushing image: $tag ==="
-              echo "> Checking if image exists locally..."
-              if docker image inspect "$tag" >/dev/null 2>&1; then
-                echo "> Image found locally, pushing..."
-                if docker push "$tag"; then
-                  echo "> SUCCESS: Pushed $tag"
-                else
-                  echo "> ERROR: Failed to push $tag"
-                  exit 1
-                fi
-              else
-                echo "> ERROR: Image $tag not found locally!"
-                echo "> Available images:"
-                docker images
-                exit 1
-              fi
-            fi
-          done
-
-          echo ""
-          echo "=== Image push process completed successfully ==="
+        run: bin/ci/push-skaffold-images
         if: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Cleanup docker tmpfs
+        if: always()
+        run: bin/ci/docker-tmpfs-cleanup
 
   deploy:
     needs: build-and-system-tests
@@ -577,37 +383,37 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     environment:
       name: production
       url: https://courses.mooc.fi
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Download skaffold build output artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: skaffold-build-output
           path: skaffold-build-output
 
-      - name: Install kustomize, kubectl & skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.7.1
-        with:
-          kubectl: "1.30.3"
-          kustomize: "5.4.1"
-          skaffold: "2.13.1"
+      - name: Setup Nix environment
+        uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
 
       - id: "auth"
-        uses: "google-github-actions/auth@v2"
+        uses: "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093" # v3.0.0
         with:
           credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}"
 
       - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v3"
+        uses: "google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db" # v3.0.1
         with:
           project_id: ${{ secrets.GKE_PROJECT }}
 
-      - uses: google-github-actions/get-gke-credentials@v2
+      - uses: google-github-actions/get-gke-credentials@3da1e46a907576cefaa90c484278bb5b259dd395 # v3.0.0
         with:
           cluster_name: ${{ secrets.GKE_CLUSTER }}
           location: ${{ secrets.GKE_ZONE }}
@@ -629,11 +435,15 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: ./.github/actions/setup-node-pnpm
+      - uses: ./.github/actions/setup-nix-env
+        timeout-minutes: 5
       - name: Run pnpm install --frozen-lockfile in repo root
         run: pnpm install --frozen-lockfile
 

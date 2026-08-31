@@ -51,8 +51,7 @@ test.beforeAll(async () => {
           const port = event.ports[0]
           port.start()
           document.querySelector("#upload").addEventListener("change", (changeEvent) => {
-            const files = new Map()
-            for (const file of changeEvent.currentTarget.files) files.set(file.name, file)
+            const files = [...changeEvent.currentTarget.files]
             port.postMessage({ message: "file-upload", requestId: "nested-upload", files })
           })
         })
@@ -93,10 +92,10 @@ test("preserves File metadata and bytes across a sandboxed distinct-origin ifram
   const upload = await host.waitForFileUpload()
   expect(upload).toMatchObject({
     requestId: "nested-upload",
-    filesKind: "map",
+    filesKind: "array",
     entries: [
       {
-        key: "boundary.bin",
+        key: "0",
         kind: "file",
         name: "boundary.bin",
         type: "application/octet-stream",

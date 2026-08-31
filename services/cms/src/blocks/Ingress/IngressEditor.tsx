@@ -13,11 +13,11 @@ import BlockWrapper from "../BlockWrapper"
 
 const IngressEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<InstructionBoxAttributes>>
-> = ({ clientId, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { title, subtitle } = attributes
 
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <div
         className={css`
           background: #fafbfb;

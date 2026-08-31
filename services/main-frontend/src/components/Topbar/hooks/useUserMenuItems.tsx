@@ -9,7 +9,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useLogout from "@/shared-module/common/hooks/useLogout"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import "@/shared-module/common/init/registerAuthApiClients"
-import { profileStudiesRoute, userSettingsRoute } from "@/shared-module/common/utils/routes"
+import { userSettingsRoute } from "@/shared-module/common/utils/routes"
 
 export interface UserMenuItem {
   id: string
@@ -105,7 +105,6 @@ export function useUserMenuItems({
   }
 
   const defaultUserMenuItems = [
-    { type: "link" as const, href: profileStudiesRoute(), label: t("profile") },
     { type: "link" as const, href: userSettingsRoute(), label: t("user-settings") },
     {
       type: "action" as const,

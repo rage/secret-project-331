@@ -1,7 +1,9 @@
 use anyhow::{Context, Result};
 
+use headless_lms_models::course_module_suotar_configurations::{self, SuotarPause};
 use headless_lms_models::course_modules::{
-    self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
+    self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule,
+    CourseModuleCreditRegistrationEdit, CourseModuleSuotarRealisationEdit, NewCourseModule,
 };
 use sqlx::PgConnection;
 
@@ -145,9 +147,13 @@ impl CompletionBuilder {
         let completion_id = course_module_completions::insert_seed_row(conn, &seed).await?;
 
         // Mark registration attempt (seed always sets this)
-        course_module_completions::update_registration_attempt(conn, completion_id)
-            .await
-            .ok();
+        course_module_completions::update_completion_registration_attempt_date(
+            conn,
+            completion_id,
+            Utc::now(),
+        )
+        .await
+        .ok();
 
         if let Some(r) = &self.register {
             let registrar_id = if let Some(id) = r.registrar_id {
@@ -159,14 +165,16 @@ impl CompletionBuilder {
             };
 
             if let Some(student_number) = &r.real_student_number {
-                course_module_completion_registered_to_study_registries::insert_record(
+                course_module_completion_registered_to_study_registries::insert_or_ignore(
                     conn,
-                    course_id,
-                    completion_id,
-                    course_module_id,
-                    registrar_id,
-                    self.user_id,
-                    student_number,
+                    &course_module_completion_registered_to_study_registries::NewCourseModuleCompletionRegisteredToStudyRegistry {
+                        course_id,
+                        course_module_completion_id: completion_id,
+                        course_module_id,
+                        study_registry_registrar_id: registrar_id,
+                        user_id: self.user_id,
+                        real_student_number: student_number.clone(),
+                    },
                 )
                 .await
                 .context("insert registry record")?;
@@ -175,6 +183,20 @@ impl CompletionBuilder {
 
         Ok(())
     }
+}
+
+/// Turns `enable_credit_registration_via_suotar` on and writes the module's Suotar configuration.
+/// The realisation ids must be the ones the mock answers `list-by-course` for, so derive them as it
+/// does.
+#[derive(Debug, Clone, Default)]
+pub struct CreditRegistrationSeed {
+    pub open_university_product_id: Option<String>,
+    /// `None` derives the scale from the completion.
+    pub grade_scale_id: Option<String>,
+    pub active_realisation_ids: Vec<String>,
+    /// Pauses the module, which every phase's claim query skips: without it the workers running in
+    /// the test deployment walk read-only fixtures onwards.
+    pub paused_reason: Option<String>,
 }
 
 /// Builder for course modules that group chapters with ECTS credits and Open University registration.
@@ -189,6 +211,7 @@ pub struct ModuleBuilder {
     pub completions: Vec<CompletionBuilder>,
     pub default_registrar_id: Option<Uuid>,
     pub uh_course_code: Option<String>,
+    pub credit_registration: Option<CreditRegistrationSeed>,
 }
 
 impl Default for ModuleBuilder {
@@ -209,7 +232,12 @@ impl ModuleBuilder {
             completions: vec![],
             default_registrar_id: None,
             uh_course_code: None,
+            credit_registration: None,
         }
+    }
+    pub fn credit_registration(mut self, seed: CreditRegistrationSeed) -> Self {
+        self.credit_registration = Some(seed);
+        self
     }
     pub fn default_registrar(mut self, id: Uuid) -> Self {
         self.default_registrar_id = Some(id);
@@ -292,7 +320,8 @@ impl ModuleBuilder {
             &NewCourseModule::new(course_id, self.name, order)
                 .set_ects_credits(self.ects)
                 .set_completion_policy(self.completion_policy.clone())
-                .set_uh_course_code(self.uh_course_code),
+                .set_uh_course_code(self.uh_course_code)
+                .set_enable_credit_registration_via_suotar(self.credit_registration.is_some()),
         )
         .await
         .with_context(|| format!("inserting module (order {:?})", order))?;
@@ -304,6 +333,43 @@ impl ModuleBuilder {
             course_modules::update_automatic_completion_status(conn, module.id, &updated_policy)
                 .await
                 .context("updating automatic completion policy")?;
+        }
+
+        if let Some(credit_registration) = &self.credit_registration {
+            course_modules::set_credit_registration_config(
+                conn,
+                module.id,
+                &CourseModuleCreditRegistrationEdit {
+                    open_university_product_id: credit_registration
+                        .open_university_product_id
+                        .clone(),
+                    grade_scale_id: credit_registration.grade_scale_id.clone(),
+                    realisations: credit_registration
+                        .active_realisation_ids
+                        .iter()
+                        .map(|id| CourseModuleSuotarRealisationEdit {
+                            course_unit_realisation_id: id.clone(),
+                            label: None,
+                            active: true,
+                        })
+                        .collect(),
+                },
+            )
+            .await
+            .context("writing the module's credit registration configuration")?;
+            if let Some(reason) = &credit_registration.paused_reason {
+                course_module_suotar_configurations::set_paused(
+                    conn,
+                    module.id,
+                    Some(SuotarPause {
+                        paused_at: Utc::now(),
+                        paused_by_user_id: cx.teacher,
+                        reason: Some(reason),
+                    }),
+                )
+                .await
+                .context("pausing the module's credit registration")?;
+            }
         }
 
         if self.register_to_open_university {

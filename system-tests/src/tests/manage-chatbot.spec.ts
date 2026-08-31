@@ -51,8 +51,6 @@ test.describe("Chatbot settings testing", () => {
     await page.getByRole("textbox", { name: "Initial message" }).fill("Hi! :)")
     await page.getByRole("checkbox", { name: "Enabled to students" }).click()
     await page.getByRole("heading", { name: "Advanced settings" }).click()
-    await page.getByRole("spinbutton", { name: "Frequency penalty" }).click()
-    await page.getByRole("spinbutton", { name: "Frequency penalty" }).fill("0.2")
     await page
       .getByRole("checkbox", { name: "Use course material search and cite sources" })
       .click()

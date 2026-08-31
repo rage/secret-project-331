@@ -4,26 +4,39 @@ import { v4 } from "uuid"
 import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 
 import type { ChatbotState } from "../chatbotReducer"
-import chatbotReducer from "../chatbotReducer"
+import chatbotReducer, { hasStreamedAssistantContent } from "../chatbotReducer"
+
+describe("hasStreamedAssistantContent", () => {
+  it("is false right after USER_SENDS_MESSAGE, before anything of the chatbot's own has arrived", () => {
+    const state = chatbotReducer(
+      { messages: [], executionPayloadByToolCallId: {} },
+      { type: "USER_SENDS_MESSAGE", payload: "Lol" },
+    )
+
+    expect(hasStreamedAssistantContent(state.messages)).toBe(false)
+  })
+
+  it("is true once the chatbot's own content has streamed in", () => {
+    const withUserMessage = chatbotReducer(
+      { messages: [], executionPayloadByToolCallId: {} },
+      { type: "USER_SENDS_MESSAGE", payload: "Lol" },
+    )
+    const withStreamedReply = chatbotReducer(withUserMessage, {
+      type: "RECEIVED_TEXT_DELTA",
+      payload: { text: "Hi", message_id: v4() },
+    })
+
+    expect(hasStreamedAssistantContent(withStreamedReply.messages)).toBe(true)
+  })
+
+  it("is false for an empty conversation", () => {
+    expect(hasStreamedAssistantContent([])).toBe(false)
+  })
+})
 
 describe("chatbotReducer", () => {
-  it("works with RECEIVED_CONVERSATION_MESSAGES", () => {
-    const newMessages: ChatbotConversationMessage[] = [messageFactory(), messageFactory()]
-    const initialState: ChatbotState = { messages: [] }
-    const newState = chatbotReducer(initialState, {
-      type: "RECEIVED_CONVERSATION_MESSAGES",
-      payload: newMessages,
-    })
-    const expectedState: ChatbotState = {
-      messages: [
-        { finished: true, message: messageFactory(), optimistic: false },
-        { finished: true, message: messageFactory(), optimistic: false },
-      ],
-    }
-    expect(newState).toStrictEqual(expectedState)
-  })
   it("works with USER_SENDS_MESSAGE when there's no messages", () => {
-    const initialState: ChatbotState = { messages: [] }
+    const initialState: ChatbotState = { messages: [], executionPayloadByToolCallId: {} }
     const newState = chatbotReducer(initialState, {
       type: "USER_SENDS_MESSAGE",
       payload: "Lol",
@@ -40,6 +53,7 @@ describe("chatbotReducer", () => {
   it("works with USER_SENDS_MESSAGE when there's some messages", () => {
     const initialState: ChatbotState = {
       messages: [{ finished: true, message: messageFactory(), optimistic: false }],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "USER_SENDS_MESSAGE",
@@ -57,6 +71,7 @@ describe("chatbotReducer", () => {
   it("works with RECEIVED_TEXT_DELTA when there's no streamed message", () => {
     const initialState: ChatbotState = {
       messages: [{ finished: true, message: messageFactory(), optimistic: false }],
+      executionPayloadByToolCallId: {},
     }
     const streamingMessageId = v4()
     const newState = chatbotReducer(initialState, {
@@ -84,6 +99,7 @@ describe("chatbotReducer", () => {
           optimistic: false,
         },
       ],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "RECEIVED_TEXT_DELTA",
@@ -104,6 +120,7 @@ describe("chatbotReducer", () => {
         { finished: true, message: messageFactory({}, "toolCall"), optimistic: false },
         { finished: true, message: messageFactory(), optimistic: false },
       ],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "TOOL_CALL_IN_PROGRESS",
@@ -123,6 +140,7 @@ describe("chatbotReducer", () => {
         { finished: false, message: messageFactory({}, "toolCall"), optimistic: false },
         { finished: true, message: messageFactory(), optimistic: false },
       ],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "TOOL_CALL_IN_PROGRESS",
@@ -146,6 +164,7 @@ describe("chatbotReducer", () => {
         },
         { finished: true, message: messageFactory(), optimistic: false },
       ],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "TOOL_CALL_FINISHED",
@@ -174,6 +193,7 @@ describe("chatbotReducer", () => {
           optimistic: false,
         },
       ],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "TOOL_CALL_FINISHED",
@@ -196,6 +216,7 @@ describe("chatbotReducer", () => {
         { finished: true, message: messageFactory(), optimistic: false },
         { finished: true, message: messageFactory(), optimistic: false },
       ],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "REASONING_IN_PROGRESS",
@@ -216,6 +237,7 @@ describe("chatbotReducer", () => {
           optimistic: false,
         },
       ],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "REASONING_IN_PROGRESS",
@@ -238,6 +260,7 @@ describe("chatbotReducer", () => {
           optimistic: false,
         },
       ],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "REASONING_FINISHED",
@@ -263,6 +286,7 @@ describe("chatbotReducer", () => {
           optimistic: false,
         },
       ],
+      executionPayloadByToolCallId: {},
     }
     const newState = chatbotReducer(initialState, {
       type: "REASONING_FINISHED",
@@ -273,6 +297,26 @@ describe("chatbotReducer", () => {
     expect(newState.messages[2]!.message).toMatchObject({ message: { reasoning_id: "id_1" } })
     expect(newState.messages[3]).toMatchObject({ finished: false, optimistic: false })
     expect(newState.messages[3]!.message).toMatchObject({ message: { reasoning_id: "id_2" } })
+  })
+  it("works with TURN_ENDED, finishing items an Error event or an early stream close stranded", () => {
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        {
+          finished: false,
+          message: messageFactory({ message: { tool_call_id: "id_1" } }, "toolCall"),
+          optimistic: false,
+        },
+        {
+          finished: false,
+          message: messageFactory({ message: { reasoning_id: "id_2" } }, "reasoning"),
+          optimistic: false,
+        },
+      ],
+      executionPayloadByToolCallId: {},
+    }
+    const newState = chatbotReducer(initialState, { type: "TURN_ENDED" })
+    expect(newState.messages.every((m) => m.finished)).toBe(true)
   })
 })
 

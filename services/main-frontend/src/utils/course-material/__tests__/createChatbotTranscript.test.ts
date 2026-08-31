@@ -1,4 +1,7 @@
-import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
+import type {
+  ChatbotConversationInfo,
+  ChatbotConversationMessage,
+} from "@/generated/course-material-api/types.generated"
 
 import { createChatbotTranscript } from "../createChatbotTranscript"
 
@@ -768,6 +771,130 @@ References
 [doc4] Abacus materials: Typical materials, https://example.com/abc
 [doc5] Generic article, https://example.com/article`,
     )
+  })
+
+  describe("clarifying questions", () => {
+    const TIMESTAMPS = {
+      created_at: "2026-05-11T06:11:08.867Z",
+      updated_at: "2026-05-11T06:11:08.867Z",
+      deleted_at: null,
+    }
+
+    const textMessage = (
+      id: string,
+      order_number: number,
+      message_role: "user" | "assistant",
+      text: string,
+    ): ChatbotConversationMessage => ({
+      id,
+      ...TIMESTAMPS,
+      conversation_id: "",
+      order_number,
+      message: {
+        id,
+        ...TIMESTAMPS,
+        chatbot_conversation_message_id: id,
+        text,
+        message_role,
+        message_is_complete: true,
+        used_tokens: 0,
+      },
+    })
+
+    const questionMessage = (
+      id: string,
+      order_number: number,
+      toolArguments: string,
+    ): ChatbotConversationMessage => ({
+      id,
+      ...TIMESTAMPS,
+      conversation_id: "",
+      order_number,
+      message: {
+        id,
+        ...TIMESTAMPS,
+        chatbot_conversation_message_id: id,
+        response_id: "",
+        tool_name: "ask_multiple_choice_question",
+        tool_arguments: toolArguments,
+        tool_call_id: "call-1",
+        tool_kind: "client_tool",
+      },
+    })
+
+    const infoWith = (messages: ChatbotConversationMessage[]): ChatbotConversationInfo => ({
+      chatbot_name: "Test bot",
+      hide_citations: true,
+      current_conversation: {
+        id: "cd58525f-b7b8-496e-8cc5-1e998968acff",
+        ...TIMESTAMPS,
+        course_id: "",
+        user_id: "",
+        chatbot_configuration_id: "",
+      },
+      current_conversation_messages: messages,
+      current_conversation_message_citations: [],
+    })
+
+    it("records the question and its choices between the surrounding messages", () => {
+      const transcript = createChatbotTranscript(
+        infoWith([
+          textMessage("11111111-1111-4111-8111-111111111111", 1, "user", "How do I loop?"),
+          questionMessage(
+            "22222222-2222-4222-8222-222222222222",
+            2,
+            JSON.stringify({
+              question: "Which language do you mean?",
+              choices: ["Rust", "TypeScript"],
+            }),
+          ),
+          textMessage(
+            "33333333-3333-4333-8333-333333333333",
+            3,
+            "assistant",
+            "In Rust, use a for loop.",
+          ),
+        ]),
+      )
+
+      expect(transcript).toStrictEqual(`[You said:]
+How do I loop?
+
+[Test bot asked:]
+Which language do you mean?
+- Rust
+- TypeScript
+
+[Test bot said:]
+In Rust, use a for loop.`)
+    })
+
+    it("leaves out a question the learner could not have answered", () => {
+      // One choice is below the tool's minimum, so `questionOf` returns null and the branch must
+      // fall through to the same empty string every other non-text message produces.
+      const transcript = createChatbotTranscript(
+        infoWith([
+          textMessage("11111111-1111-4111-8111-111111111111", 1, "user", "How do I loop?"),
+          questionMessage(
+            "22222222-2222-4222-8222-222222222222",
+            2,
+            JSON.stringify({ question: "Which language?", choices: ["Rust"] }),
+          ),
+          textMessage(
+            "33333333-3333-4333-8333-333333333333",
+            3,
+            "assistant",
+            "In Rust, use a for loop.",
+          ),
+        ]),
+      )
+
+      expect(transcript).toStrictEqual(`[You said:]
+How do I loop?
+
+[Test bot said:]
+In Rust, use a for loop.`)
+    })
   })
 
   it("works when show citations but there are no citations", () => {

@@ -22,6 +22,73 @@ pub enum VerbosityLevel {
     High,
 }
 
+/// The UI/authorization grouping a [`ToolCategory`] belongs to. Derived from the leaf, never
+/// stored: the database and the wire format only ever carry [`ToolCategory`] values.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ToolCategoryGroup {
+    CourseAssistance,
+    CourseDiscovery,
+    Interaction,
+    AdminSupport,
+}
+
+/// A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
+/// chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
+/// this kind of tool", not "may this caller use it".
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
+#[sqlx(type_name = "chatbot_tool_category", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+pub enum ToolCategory {
+    CourseMaterial,
+    CourseInfo,
+    CourseCatalog,
+    Interaction,
+    AdminSupportAccounts,
+    AdminSupportCourses,
+    AdminSupportLearningProgress,
+    AdminSupportAcademicIntegrity,
+}
+
+impl ToolCategory {
+    /// Canonical order for the UI, seeds, and normalization -- keep in sync with the enum
+    /// definition above and with the `chatbot_tool_category` Postgres enum's value order.
+    pub const ALL: [ToolCategory; 8] = [
+        ToolCategory::CourseMaterial,
+        ToolCategory::CourseInfo,
+        ToolCategory::CourseCatalog,
+        ToolCategory::Interaction,
+        ToolCategory::AdminSupportAccounts,
+        ToolCategory::AdminSupportCourses,
+        ToolCategory::AdminSupportLearningProgress,
+        ToolCategory::AdminSupportAcademicIntegrity,
+    ];
+
+    pub const fn group(self) -> ToolCategoryGroup {
+        match self {
+            ToolCategory::CourseMaterial | ToolCategory::CourseInfo => {
+                ToolCategoryGroup::CourseAssistance
+            }
+            ToolCategory::CourseCatalog => ToolCategoryGroup::CourseDiscovery,
+            ToolCategory::Interaction => ToolCategoryGroup::Interaction,
+            ToolCategory::AdminSupportAccounts
+            | ToolCategory::AdminSupportCourses
+            | ToolCategory::AdminSupportLearningProgress
+            | ToolCategory::AdminSupportAcademicIntegrity => ToolCategoryGroup::AdminSupport,
+        }
+    }
+
+    pub const fn requires_global_admin(self) -> bool {
+        matches!(self.group(), ToolCategoryGroup::AdminSupport)
+    }
+}
+
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
+pub struct CreateChatbotRequest {
+    pub name: String,
+    pub course_id: Option<Uuid>,
+}
+
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct ChatbotConfiguration {
     pub id: Uuid,
@@ -47,7 +114,7 @@ pub struct ChatbotConfiguration {
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
     pub use_semantic_reranking: bool,
-    pub use_tools: bool,
+    pub enabled_tool_categories: Vec<ToolCategory>,
     pub default_chatbot: bool,
     pub suggest_next_messages: bool,
     pub initial_suggested_messages: Option<Vec<String>>,
@@ -74,15 +141,20 @@ impl Default for ChatbotConfiguration {
             top_p: 1.0,
             frequency_penalty: 0.0,
             presence_penalty: 0.0,
-            reasoning_effort: ReasoningEffortLevel::Minimal,
+            reasoning_effort: ReasoningEffortLevel::Medium,
             verbosity: VerbosityLevel::Medium,
-            use_azure_search: false,
-            maintain_azure_search_index: false,
+            use_azure_search: true,
+            maintain_azure_search_index: true,
             hide_citations: false,
             use_semantic_reranking: false,
-            use_tools: false,
+            enabled_tool_categories: vec![
+                ToolCategory::CourseMaterial,
+                ToolCategory::CourseInfo,
+                ToolCategory::CourseCatalog,
+                ToolCategory::Interaction,
+            ],
             default_chatbot: false,
-            suggest_next_messages: false,
+            suggest_next_messages: true,
             initial_suggested_messages: None,
             publicly_accessible: false,
         }
@@ -111,7 +183,7 @@ pub struct NewChatbotConf {
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
     pub use_semantic_reranking: bool,
-    pub use_tools: bool,
+    pub enabled_tool_categories: Vec<ToolCategory>,
     pub default_chatbot: bool,
     pub chatbotconf_id: Option<Uuid>,
     pub suggest_next_messages: bool,
@@ -142,7 +214,7 @@ impl Default for NewChatbotConf {
             maintain_azure_search_index: chatbot_conf.maintain_azure_search_index,
             hide_citations: chatbot_conf.hide_citations,
             use_semantic_reranking: chatbot_conf.use_semantic_reranking,
-            use_tools: chatbot_conf.use_tools,
+            enabled_tool_categories: chatbot_conf.enabled_tool_categories,
             default_chatbot: chatbot_conf.default_chatbot,
             chatbotconf_id: None,
             suggest_next_messages: chatbot_conf.suggest_next_messages,
@@ -168,6 +240,22 @@ fn validate_max_output_tokens(input: &NewChatbotConf) -> ModelResult<()> {
     Ok(())
 }
 
+/// Whether the configuration may use Azure search, which needs a course: the search index it
+/// queries is built per course, so a configuration without one has nothing to search.
+fn azure_search_allowed(input: &NewChatbotConf, course_id: Option<Uuid>) -> bool {
+    input.use_azure_search && course_id.is_some()
+}
+
+/// Dedupes and sorts into [`ToolCategory::ALL`] order, so the stored array is canonical and two
+/// equal sets (e.g. compared by the `edit_chatbot` controller) compare equal regardless of the
+/// order the caller submitted them in.
+pub fn normalized_tool_categories(input: &[ToolCategory]) -> Vec<ToolCategory> {
+    ToolCategory::ALL
+        .into_iter()
+        .filter(|category| input.contains(category))
+        .collect()
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {
     let res = sqlx::query_as!(
         ChatbotConfiguration,
@@ -190,7 +278,9 @@ pub async fn insert(
     input: NewChatbotConf,
 ) -> ModelResult<ChatbotConfiguration> {
     validate_max_output_tokens(&input)?;
-    let maintain_azure_search_index = input.use_azure_search;
+    let use_azure_search = azure_search_allowed(&input, input.course_id);
+    let maintain_azure_search_index = use_azure_search;
+    let enabled_tool_categories = normalized_tool_categories(&input.enabled_tool_categories);
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
@@ -213,7 +303,7 @@ INSERT INTO chatbot_configurations (
     verbosity,
     reasoning_effort,
     use_azure_search,
-    use_tools,
+    enabled_tool_categories,
     maintain_azure_search_index,
     default_chatbot,
     suggest_next_messages,
@@ -240,8 +330,8 @@ RETURNING *
         input.max_output_tokens,
         input.verbosity as VerbosityLevel,
         input.reasoning_effort as ReasoningEffortLevel,
-        input.use_azure_search,
-        input.use_tools,
+        use_azure_search,
+        &enabled_tool_categories as &[ToolCategory],
         maintain_azure_search_index,
         input.default_chatbot,
         input.suggest_next_messages,
@@ -259,6 +349,11 @@ pub async fn edit(
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConfiguration> {
     validate_max_output_tokens(&input)?;
+    // The course the configuration is already attached to, not the one the caller sent: `edit`
+    // never moves a configuration between courses.
+    let course_id = get_by_id(conn, chatbot_configuration_id).await?.course_id;
+    let use_azure_search = azure_search_allowed(&input, course_id);
+    let enabled_tool_categories = normalized_tool_categories(&input.enabled_tool_categories);
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
@@ -283,7 +378,7 @@ SET
     model_id = $17,
     verbosity = $18,
     reasoning_effort = $19,
-    use_tools = $20,
+    enabled_tool_categories = $20,
     suggest_next_messages = $21,
     initial_suggested_messages = $22,
     publicly_accessible = $23
@@ -302,15 +397,15 @@ RETURNING *
         input.frequency_penalty,
         input.presence_penalty,
         input.max_output_tokens,
-        input.use_azure_search,
-        input.maintain_azure_search_index,
+        use_azure_search,
+        use_azure_search,
         input.hide_citations,
         input.use_semantic_reranking,
         input.default_chatbot,
         input.model_id,
         input.verbosity as VerbosityLevel,
         input.reasoning_effort as ReasoningEffortLevel,
-        input.use_tools,
+        &enabled_tool_categories as &[ToolCategory],
         input.suggest_next_messages,
         input.initial_suggested_messages.as_deref(),
         input.publicly_accessible,

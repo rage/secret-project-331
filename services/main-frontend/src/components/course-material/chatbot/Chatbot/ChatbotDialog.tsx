@@ -73,6 +73,11 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
         buttonRef.current?.focus()
       }
     },
+    // The dialog is anchored to the button, so OverlayTriggerState's cursor position goes unused.
+    point: null,
+    setPoint: () => {
+      // no operation
+    },
   }
   let { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, buttonRef)
   let { popoverProps } = usePopover(

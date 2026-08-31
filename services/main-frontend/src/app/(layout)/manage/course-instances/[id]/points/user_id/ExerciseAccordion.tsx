@@ -5,9 +5,12 @@ import Link from "next/link"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import CustomPointsPopup from "@/app/(layout)/manage/exercises/[id]/submissions/CustomPointsPopup"
+import { GradingDecisionDialog } from "@/components/grading/GradingDecisionDialog"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
-import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
+import type {
+  ExerciseStatusSummaryForUser,
+  NewTeacherGradingDecision,
+} from "@/generated/api/types.generated"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -43,24 +46,14 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
     },
   )
 
-  const handleCustomPoints = useCallback(
-    (points: number) => {
+  const handleGradingDecision = useCallback(
+    async (decision: NewTeacherGradingDecision) => {
       if (!userExerciseState) {
         throw new Error("User exercise state not found")
       }
-      submitMutation.mutate({
-        body: {
-          user_exercise_state_id: userExerciseState.id,
-          exercise_id: exerciseStatus.exercise.id,
-          // oxlint-disable-next-line i18next/no-literal-string
-          action: "CustomPoints",
-          manual_points: points,
-          justification: null,
-          hidden: false,
-        },
-      })
+      await submitMutation.mutateAsync({ body: decision })
     },
-    [exerciseStatus.exercise.id, submitMutation, userExerciseState],
+    [submitMutation, userExerciseState],
   )
 
   return (
@@ -75,15 +68,19 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
         transition:
           border-color 0.2s ease,
           box-shadow 0.2s ease;
-        ${isExpanded &&
-        `
+        ${
+          isExpanded &&
+          `
           border-color: ${baseTheme.colors.green[400]};
           box-shadow: 0 4px 12px ${baseTheme.colors.clear[400]};
-        `}
-        ${userExerciseState === undefined &&
-        `opacity: 0.5;
+        `
+        }
+        ${
+          userExerciseState === undefined &&
+          `opacity: 0.5;
          cursor: not-allowed;
-        `}
+        `
+        }
       `}
       data-testid={"exercise-status"}
     >
@@ -144,9 +141,9 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
         >
           <div
             className={css`
-              color: ${userExerciseState
-                ? baseTheme.colors.green[700]
-                : baseTheme.colors.gray[500]};
+              color: ${
+                userExerciseState ? baseTheme.colors.green[700] : baseTheme.colors.gray[500]
+              };
               font-size: 1rem;
               font-weight: 600;
               line-height: 1;
@@ -570,10 +567,17 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
               `}
             >
               <DebugModal data={exerciseStatus} />
-              <CustomPointsPopup
-                exerciseMaxPoints={exerciseStatus.exercise.score_maximum || 0}
-                onSubmit={handleCustomPoints}
-                longButtonName
+              <GradingDecisionDialog
+                target={{
+                  userExerciseStateId: userExerciseState.id,
+                  exerciseId: exerciseStatus.exercise.id,
+                  exerciseMaxPoints: exerciseStatus.exercise.score_maximum || 0,
+                }}
+                // This page has no "current submission" concept, so resetting the whole
+                // exercise from here would be too blunt an action to offer.
+                canResetExercise={false}
+                isSubmitting={submitMutation.isPending}
+                onSubmit={handleGradingDecision}
               />
             </div>
           </div>

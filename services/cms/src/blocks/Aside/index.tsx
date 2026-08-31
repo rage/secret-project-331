@@ -14,6 +14,7 @@ export interface AsideComponentProps {
 }
 
 const AsideConfiguration: BlockConfiguration<AsideComponentProps> = {
+  apiVersion: 3,
   title: "Aside",
   description: "Aside with body text and possible heading",
   category: "design",

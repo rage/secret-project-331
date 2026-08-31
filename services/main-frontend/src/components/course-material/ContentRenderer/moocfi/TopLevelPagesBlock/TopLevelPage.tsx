@@ -33,7 +33,7 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
           course_id: courseId,
         },
       }).then((pages) =>
-        pages.filter((x) => x.url_path !== "/").sort((a, b) => a.order_number - b.order_number),
+        pages.filter((x) => x.url_path !== "/").toSorted((a, b) => a.order_number - b.order_number),
       ),
   })
   const params = useParams<{ organizationSlug: string; courseSlug: string }>()

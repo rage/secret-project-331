@@ -64,6 +64,7 @@ const ChatbotCommandCenter = ({ chatbots, courses, conversations }: ChatbotComma
     undefined,
     activeConversationId,
     setConversationId,
+    null,
   )
 
   const chatbotOptions = useMemo(() => {

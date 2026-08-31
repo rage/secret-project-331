@@ -2,8 +2,7 @@
 """
 Update Node and Rust dependencies with resumable package-level reporting.
 
-Requires: git, pnpm, cargo, cargo-edit (for `cargo upgrade`).
-Optionally requires: nix (only when `--update-flake` is passed).
+Requires: git, pnpm, cargo, cargo-edit (for `cargo upgrade`), nix.
 """
 
 from __future__ import annotations
@@ -50,6 +49,7 @@ KNOWN_SUBSTEPS = frozenset(
         "pnpm-install-all",
         "sort-package-json",
         "remove-pnpm-overrides",
+        "sync-package-manager",
         "pnpm-update",
         "pnpm-audit",
         "cargo-upgrade",
@@ -198,6 +198,40 @@ def remove_pnpm_overrides(folder: Path, use_color: bool) -> bool:
     del pnpm["overrides"]
     if not pnpm:
         del data["pnpm"]
+    write_package_json(data, package_json_path)
+    return True
+
+
+def sync_package_manager_field(folder: Path, root_package_manager: str | None, use_color: bool) -> bool:
+    """Copy the workspace root's pinned pnpm version into a service's package.json.
+
+    Docker builds scope each service's context to its own directory, so corepack
+    never sees the root pin and silently fetches its own idea of "latest" pnpm
+    instead of the version already cached in the base image.
+    """
+    if not root_package_manager:
+        return False
+    package_json_path = folder / "package.json"
+    if not package_json_path.exists():
+        return False
+
+    try:
+        data = json.loads(package_json_path.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        print(colorize(f"Error processing {package_json_path}: {exc}", RED, use_color))
+        return False
+
+    if data.get("packageManager") == root_package_manager:
+        return False
+
+    print(
+        colorize(
+            f"Syncing packageManager to {root_package_manager} in {folder.name}/package.json",
+            BLUE,
+            use_color,
+        )
+    )
+    data["packageManager"] = root_package_manager
     write_package_json(data, package_json_path)
     return True
 
@@ -453,7 +487,6 @@ class Step:
     target_name: str
     substeps: list[str]
     setup_workspace: bool = False
-    opt_in: bool = False
     cargo_upgrade_excludes: list[str] = field(default_factory=list)
     cargo_version_pins: list[CargoVersionPin] = field(default_factory=list)
     manual_review_reasons_on_change: list[str] = field(default_factory=list)
@@ -589,6 +622,7 @@ class StepRunner(StepRunnerProtocol):
             "pnpm-install-all": self.substep_pnpm_install_all,
             "sort-package-json": self.substep_sort_package_json,
             "remove-pnpm-overrides": self.substep_remove_pnpm_overrides,
+            "sync-package-manager": self.substep_sync_package_manager,
             "pnpm-update": self.run_pnpm_update,
             "pnpm-audit": self.run_pnpm_audit,
             "cargo-upgrade": self.run_cargo_upgrade,
@@ -1044,6 +1078,28 @@ class StepRunner(StepRunnerProtocol):
                 cwd=step.cwd,
                 add_args=["package.json"],
                 message=f"Remove pnpm.overrides from {step.target_name}",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
+    def read_root_package_manager(self) -> str | None:
+        data = safe_read_json(self.repo_root / "package.json")
+        value = data.get("packageManager")
+        return value if isinstance(value, str) else None
+
+    def substep_sync_package_manager(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        changed = sync_package_manager_field(
+            step.cwd, self.read_root_package_manager(), self.use_color
+        )
+        substep_record["changed"] = changed
+        if changed and git_has_changes_for_paths(step.cwd, ["package.json"]):
+            commit = self.git_commit(
+                cwd=step.cwd,
+                add_args=["package.json"],
+                message=f"Sync packageManager pin in {step.target_name}",
                 step_id=step.id,
                 substep_id=substep_id,
             )
@@ -1866,7 +1922,18 @@ def build_steps(repo_root: Path) -> list[Step]:
         ),
     ]
 
-    steps: list[Step] = []
+    steps: list[Step] = [
+        Step(
+            id="nix:flake",
+            display_name="flake.nix",
+            cwd=repo_root,
+            ecosystem="nix",
+            manager="nix",
+            kind="nix",
+            target_name="flake.nix",
+            substeps=["nix-flake-update"],
+        )
+    ]
     for step_id, cwd, display_name, target_name, setup_workspace in node_targets:
         substeps = []
         if setup_workspace:
@@ -1875,6 +1942,13 @@ def build_steps(repo_root: Path) -> list[Step]:
             [
                 "sort-package-json",
                 "remove-pnpm-overrides",
+            ]
+        )
+        # The repo-root step is where this pin comes from, so it has nothing to sync to.
+        if not setup_workspace:
+            substeps.append("sync-package-manager")
+        substeps.extend(
+            [
                 "pnpm-update",
                 "pnpm-audit",
             ]
@@ -1923,21 +1997,6 @@ def build_steps(repo_root: Path) -> list[Step]:
         )
     )
 
-    steps.append(
-        Step(
-            id="nix:flake",
-            display_name="flake.nix",
-            cwd=repo_root,
-            ecosystem="nix",
-            manager="nix",
-            kind="nix",
-            target_name="flake.nix",
-            substeps=["nix-flake-update"],
-            # Opt-in: only runs when --update-flake is passed or the step is
-            # selected explicitly via --only-step/--from-step/--to-step.
-            opt_in=True,
-        )
-    )
     validate_step_substeps(steps)
     return steps
 
@@ -1950,14 +2009,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--list-steps",
         action="store_true",
         help="Print ordered step ids and exit.",
-    )
-    parser.add_argument(
-        "--update-flake",
-        action="store_true",
-        help=(
-            "Also run `nix flake update` and commit flake.lock (the nix:flake "
-            "step). This step is opt-in and otherwise skipped."
-        ),
     )
     parser.add_argument("--from-step", help="Start at a specific step id.")
     parser.add_argument("--to-step", help="Stop after a specific step id.")
@@ -2061,15 +2112,6 @@ def select_steps(
     if args.from_step and args.to_step and valid_ids.index(args.from_step) > valid_ids.index(args.to_step):
         parser.error("--from-step must come before or equal --to-step")
 
-    # Opt-in steps (e.g. nix:flake) only run when explicitly enabled or named.
-    explicit_ids = {
-        step_id for step_id in (args.from_step, args.to_step) if step_id
-    }
-    selected = [
-        step
-        for step in selected
-        if not step.opt_in or args.update_flake or step.id in explicit_ids
-    ]
     return selected
 
 

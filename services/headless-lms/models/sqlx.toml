@@ -1,10 +1,15 @@
 [macros.type-overrides]
+'vector' = "pgvector::Vector"
+
+
+# Enums
 'activity_progress' = "crate::exercises::ActivityProgress"
 'application_task' = "crate::application_task_default_language_models::ApplicationTask"
 'application_type' = "crate::oauth_client::ApplicationType"
 'certificate_paper_size' = "crate::certificate_configurations::PaperSize"
 'certificate_text_anchor' = "crate::certificate_configurations::CertificateTextAnchor"
 'chapter_locking_status' = "crate::user_chapter_locking_statuses::ChapterLockingStatus"
+'chatbot_tool_category[]' = "Vec<crate::chatbot_configurations::ToolCategory>"
 'course_ai_policy' = "crate::courses::CourseAiPolicy"
 'course_background_question_type' = "crate::course_background_questions::CourseBackgroundQuestionType"
 'course_designer_plan_stage_status' = "crate::course_designer_plans::CourseDesignerPlanStageStatus"
@@ -15,6 +20,7 @@
 'credit_registration_error_code' = "crate::credit_registrations::CreditRegistrationErrorCode"
 'credit_registration_event_kind' = "crate::credit_registration_events::CreditRegistrationEventKind"
 'credit_registration_state' = "crate::credit_registrations::CreditRegistrationState"
+'device_code_status' = "crate::oauth_device_codes::DeviceCodeStatus"
 'email_template_type' = "crate::email_templates::EmailTemplateType"
 'email_verification_method' = "crate::user_details::EmailVerificationMethod"
 'error_source' = "crate::errors::ErrorSource"
@@ -70,6 +76,9 @@
 
 [macros.table-overrides.'oauth_auth_codes']
 'digest' = "crate::library::oauth::Digest"
+
+[macros.table-overrides.'oauth_device_codes']
+'device_code_digest' = "crate::library::oauth::Digest"
 
 [macros.table-overrides.'oauth_access_tokens']
 'digest' = "crate::library::oauth::Digest"

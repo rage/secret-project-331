@@ -7,22 +7,15 @@ import { useLocale } from "react-aria"
 
 import {
   dayPeriodAm,
-  dayPeriodGroupAriaLabel,
   dayPeriodPm,
-  decreaseHourAriaLabel,
-  decreaseMinuteAriaLabel,
-  endOfDayLabel,
-  increaseHourAriaLabel,
-  increaseMinuteAriaLabel,
   minuteTwoDigitPart,
   numericDateTimePart,
   periodAmId,
   periodPmId,
-  plus30Label,
   stepperMinusGlyph,
   stepperPlusGlyph,
-  timePanelLabel,
 } from "./datePickerCalendarConstants"
+import { useDatePickerCalendarLabels } from "./datePickerCalendarLabels"
 import {
   timeControlsRowCss,
   timeInputCss,
@@ -57,6 +50,7 @@ export function HybridTimeSelector({
   timeSelectorProps: DatePickerTimeSelectorProps
 }) {
   const { locale } = useLocale()
+  const labels = useDatePickerCalendarLabels()
   const groupId = useId()
   const inputId = useId()
   const hourCycle = resolveHourCycle(locale, timeSelectorProps.hourCycle)
@@ -110,7 +104,7 @@ export function HybridTimeSelector({
     // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled panel div; a semantic element changes styling
     <div className={timePanelCss} role="group" aria-labelledby={groupId}>
       <span id={groupId} className={timePanelHeadingCss}>
-        {timePanelLabel}
+        {labels.time}
       </span>
       <input
         aria-labelledby={groupId}
@@ -131,7 +125,7 @@ export function HybridTimeSelector({
       <div className={timeControlsRowCss}>
         <div className={timeStepperGroupCss}>
           <button
-            aria-label={decreaseHourAriaLabel}
+            aria-label={labels.decreaseHour}
             className={timeStepperBtnCss}
             disabled={isDisabled}
             type="button"
@@ -143,7 +137,7 @@ export function HybridTimeSelector({
           </button>
           <span className={timeStepperValueCss}>{displayHourLabel}</span>
           <button
-            aria-label={increaseHourAriaLabel}
+            aria-label={labels.increaseHour}
             className={timeStepperBtnCss}
             disabled={isDisabled}
             type="button"
@@ -157,7 +151,7 @@ export function HybridTimeSelector({
         {timeSelectorProps.granularity === "minute" ? (
           <div className={timeStepperGroupCss}>
             <button
-              aria-label={decreaseMinuteAriaLabel}
+              aria-label={labels.decreaseMinute}
               className={timeStepperBtnCss}
               disabled={isDisabled}
               type="button"
@@ -169,7 +163,7 @@ export function HybridTimeSelector({
             </button>
             <span className={timeStepperValueCss}>{displayMinuteLabel}</span>
             <button
-              aria-label={increaseMinuteAriaLabel}
+              aria-label={labels.increaseMinute}
               className={timeStepperBtnCss}
               disabled={isDisabled}
               type="button"
@@ -183,7 +177,7 @@ export function HybridTimeSelector({
         ) : null}
         {showsDayPeriod ? (
           // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled toggle div; a semantic element changes styling
-          <div aria-label={dayPeriodGroupAriaLabel} className={timePeriodToggleCss} role="group">
+          <div aria-label={labels.dayPeriodGroup} className={timePeriodToggleCss} role="group">
             <button
               className={cx(
                 timePeriodSegmentCss,
@@ -225,7 +219,7 @@ export function HybridTimeSelector({
               applyTime(baseTime.add({ minutes: 30 }))
             }}
           >
-            {plus30Label}
+            {labels.plus30Minutes}
           </button>
           <button
             className={timeShortcutButtonCss}
@@ -235,7 +229,7 @@ export function HybridTimeSelector({
               applyTime(new Time(23, 59, 0))
             }}
           >
-            {endOfDayLabel}
+            {labels.endOfDay}
           </button>
         </div>
       ) : null}

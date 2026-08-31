@@ -1,4 +1,4 @@
-import type { BrowserContext, Page } from "@playwright/test"
+import type { BrowserContext, Locator, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
@@ -17,6 +17,19 @@ async function isCitationPopoverOpen(page: Page) {
   }
 
   return true
+}
+
+/**
+ * Expands the reference list of a chatbot answer.
+ *
+ * Citations arrive via a post-stream refetch, not with the streamed answer text, so the toggle
+ * can still be missing after the text appears — wait for the toggle itself rather than relying
+ * on the click's own action timeout.
+ */
+async function showReferences(scope: Page | Locator) {
+  const toggle = scope.getByRole("button", { name: "Show references" })
+  await expect(toggle).toBeVisible({ timeout: 30_000 })
+  await toggle.click()
 }
 
 async function closePopover(page: Page) {
@@ -86,7 +99,7 @@ test.describe("Test chatbot chat box", () => {
     })
 
     await test.step("look at references", async () => {
-      await chatbotDialog.getByRole("button", { name: "Show references" }).click()
+      await showReferences(chatbotDialog)
       await accessibilityCheck(
         student1Page,
         "Default Chatbot Conversation With Citations / View",
@@ -121,6 +134,13 @@ test.describe("Test chatbot chat box", () => {
       await expect(chatbotDialog.getByText("Hello! How can I assist you")).toHaveCount(0, {
         timeout: 10000,
       })
+    })
+
+    await test.step("student can't edit chatbot", async () => {
+      await chatbotDialog.getByRole("button", { name: "Actions", exact: true }).click()
+      await expect(student1Page.getByRole("menuitem", { name: "New conversation" })).toBeVisible()
+      await expect(student1Page.getByRole("menuitem", { name: "Edit chatbot" })).toHaveCount(0)
+      await student1Page.locator("body").click()
     })
 
     await test.step("close the chatbox", async () => {
@@ -160,7 +180,7 @@ test.describe("Test chatbot chat box", () => {
     })
 
     await test.step("look at references", async () => {
-      await student1Page.getByRole("button", { name: "Show references" }).click()
+      await showReferences(student1Page)
       await accessibilityCheck(student1Page, "Block Chatbot Conversation With Citations / View", [])
 
       await student1Page.getByLabel("Citation 1").first().click()
@@ -226,7 +246,7 @@ test.describe("Test chatbot chat box", () => {
       await studentPage
         .getByRole("button", { name: "Nice weather we're having." })
         .scrollIntoViewIfNeeded()
-      await studentPage.getByRole("button", { name: "Show references" }).click()
+      await showReferences(studentPage)
 
       const citation1 = studentPage.getByLabel("Citation 1").first()
       await citation1.waitFor({ state: "visible" })
@@ -303,7 +323,7 @@ test.describe("Test chatbot chat box", () => {
       await studentPage
         .getByRole("button", { name: "Nice weather we're having." })
         .scrollIntoViewIfNeeded()
-      await studentPage.getByRole("button", { name: "Show references" }).click()
+      await showReferences(studentPage)
       // open citation for screenshot
       const citation1 = studentPage.getByLabel("Citation 1").first()
       await citation1.waitFor({ state: "visible" })

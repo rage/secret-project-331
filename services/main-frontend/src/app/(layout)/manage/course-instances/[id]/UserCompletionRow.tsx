@@ -7,6 +7,9 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
+import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
+import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
+import { creditRegistrationKey } from "@/components/credit-registration/teacherCreditRegistrations"
 import { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import type {
   CourseModule,
@@ -16,6 +19,7 @@ import type {
 export interface UserCompletionRowProps {
   sortedCourseModules: CourseModule[]
   user: UserCompletionRowUser
+  creditRegistrations: CreditRegistrationIndex
 }
 
 export interface UserCompletionRowUser {
@@ -27,7 +31,11 @@ export interface UserCompletionRowUser {
   userId: string
 }
 
-const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseModules, user }) => {
+const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({
+  sortedCourseModules,
+  user,
+  creditRegistrations,
+}) => {
   const { t } = useTranslation()
 
   function mapGradeToText(completion: CourseModuleCompletionWithRegistrationInfo): React.ReactNode {
@@ -60,6 +68,13 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
   function mapRegistration(
     completion: CourseModuleCompletionWithRegistrationInfo,
   ): React.ReactNode {
+    // The ledger also says why nothing has happened yet, so it wins over the legacy yes/pending.
+    const registration = creditRegistrations.get(
+      creditRegistrationKey(user.userId, completion.course_module_id),
+    )
+    if (registration) {
+      return <CreditRegistrationStatusCell registration={registration} />
+    }
     if (completion.registered) {
       return <>{t("yes")}</>
     } else if (completion.completion_registration_attempt_date) {

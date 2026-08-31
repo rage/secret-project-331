@@ -105,11 +105,24 @@ pub struct CourseMaterialExercise {
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
     pub user_course_instance_exercise_service_variables: Vec<UserCourseExerciseServiceVariable>,
     pub should_show_reset_message: Option<String>,
+    /// The latest non-FullPoints grading decision addressed to the student, unless the teacher marked it hidden.
+    pub teacher_grading_decision: Option<CourseMaterialTeacherGradingDecision>,
+}
+
+/// What the student is told about a teacher's grading decision.
+///
+/// The decision type is included so the material can explain the decision in the student's own
+/// language; the justification is whatever the teacher wrote on top of that, if anything.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct CourseMaterialTeacherGradingDecision {
+    pub teacher_decision: TeacherDecisionType,
+    pub justification: Option<String>,
 }
 
 impl CourseMaterialExercise {
     pub fn clear_grading_information(&mut self) {
         self.exercise_status = None;
+        self.teacher_grading_decision = None;
         self.current_exercise_slide
             .exercise_tasks
             .iter_mut()
@@ -501,6 +514,25 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
+    let teacher_grading_decision = if let Some(user_id) = user_id {
+        let decision = crate::teacher_grading_decisions::try_to_get_latest_grading_decision_still_addressed_to_student(
+            &mut *conn, user_id, exercise.id,
+        )
+        .await?;
+        decision.and_then(|d| {
+            if d.teacher_decision != TeacherDecisionType::FullPoints && d.hidden != Some(true) {
+                Some(CourseMaterialTeacherGradingDecision {
+                    teacher_decision: d.teacher_decision,
+                    justification: d.justification,
+                })
+            } else {
+                None
+            }
+        })
+    } else {
+        None
+    };
+
     let can_post_submission =
         determine_can_post_submission(&mut *conn, user_id, &exercise, &user_exercise_state).await?;
 
@@ -588,6 +620,7 @@ pub async fn get_course_material_exercise(
         user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
         should_show_reset_message,
+        teacher_grading_decision,
     })
 }
 
@@ -1147,6 +1180,8 @@ WHERE exercise_task_submission_id IN (
         .execute(&mut *tx)
         .await?;
 
+        // Teacher grading decisions are left in place: they hang off the state deleted here, so
+        // they cannot score the next attempt, and they carry what the teacher told the student.
         sqlx::query!(
             r#"
 UPDATE user_exercise_states
@@ -1186,24 +1221,6 @@ WHERE user_exercise_slide_state_id IN (
         sqlx::query!(
             r#"
 UPDATE user_exercise_slide_states
-SET deleted_at = NOW()
-WHERE user_exercise_state_id IN (
-    SELECT id
-    FROM user_exercise_states
-    WHERE user_id = $1
-      AND exercise_id = ANY($2)
-  )
-  AND deleted_at IS NULL
-            "#,
-            user_id,
-            exercise_ids
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        sqlx::query!(
-            r#"
-UPDATE teacher_grading_decisions
 SET deleted_at = NOW()
 WHERE user_exercise_state_id IN (
     SELECT id
@@ -1354,27 +1371,6 @@ WHERE exercise_task_submission_id IN (
 
         sqlx::query!(
             r#"
-UPDATE teacher_grading_decisions
-SET deleted_at = NOW()
-WHERE user_exercise_state_id IN (
-    SELECT id
-    FROM user_exercise_states
-    WHERE user_id = $1
-      AND course_id = $2
-      AND exercise_id = ANY($3)
-      AND deleted_at IS NULL
-  )
-  AND deleted_at IS NULL
-            "#,
-            user_id,
-            course_id,
-            &validated_exercise_ids
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        sqlx::query!(
-            r#"
 UPDATE user_exercise_task_states
 SET deleted_at = NOW()
 WHERE user_exercise_slide_state_id IN (
@@ -1414,6 +1410,8 @@ WHERE user_exercise_state_id IN (
         .execute(&mut *tx)
         .await?;
 
+        // Teacher grading decisions are left in place: they hang off the state deleted here, so
+        // they cannot score the next attempt, and they carry what the teacher told the student.
         sqlx::query!(
             r#"
 UPDATE user_exercise_states
@@ -1496,6 +1494,8 @@ mod test {
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
                 has_custom_view: false,
+                build_user_answer_endpoint_path: None,
+                answer_files_endpoint_path: None,
             },
         )
         .await
@@ -1647,10 +1647,12 @@ mod test {
             slide: _exercise_slide_id,
             task: _exercise_task_id
         );
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
 
         let existing_course = courses::get_course(tx.as_mut(), course_id).await.unwrap();
         courses::update_course(
             tx.as_mut(),
+            &app_config,
             course_id,
             courses::CourseUpdate {
                 name: existing_course.name,

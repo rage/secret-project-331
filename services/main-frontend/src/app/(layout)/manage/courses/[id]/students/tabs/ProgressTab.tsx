@@ -14,13 +14,14 @@ import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import {
-  DETAIL_SORT_COLUMNS,
   formatStudentName,
+  PROGRESS_SORT_COLUMNS,
   useCourseStudentsIdentity,
   useCourseStudentsProgressDetail,
   useCourseStudentsProgressStructure,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { StaleTableWrapper } from "./StaleTableWrapper"
 import { StudentPillCell } from "./StudentPillCell"
 
@@ -41,8 +42,8 @@ const round2 = (n: number) => Math.round(n * 100) / 100
 export const ProgressTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
-  const params = useStudentsListParams()
-  const { sorting, onSortingChange } = useStudentsSorting(DETAIL_SORT_COLUMNS)
+  const params = useStudentsListParams(PROGRESS_SORT_COLUMNS)
+  const { sorting, onSortingChange } = useStudentsSorting(PROGRESS_SORT_COLUMNS)
 
   const identityQuery = useCourseStudentsIdentity(courseId, params)
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
@@ -68,7 +69,7 @@ export const ProgressTabContent: React.FC = () => {
     if (!structure || !detail) {
       return {
         allRows: [] as ProgressRow[],
-        dynamicColumns: [] as ColumnDef<ProgressRow, unknown>[],
+        dynamicColumns: [] as ColumnDef<StudentsTableFeatures, ProgressRow, unknown>[],
       }
     }
 
@@ -96,7 +97,7 @@ export const ProgressTabContent: React.FC = () => {
     )
 
     // --- columns: Student | Total | per-chapter with maxima in subheaders
-    const cols: ColumnDef<ProgressRow, unknown>[] = [
+    const cols: ColumnDef<StudentsTableFeatures, ProgressRow, unknown>[] = [
       {
         // oxlint-disable-next-line i18next/no-literal-string
         id: "last_name",
@@ -114,7 +115,7 @@ export const ProgressTabContent: React.FC = () => {
         header: t("total"),
         columns: [
           // oxlint-disable-next-line i18next/no-literal-string
-          { header: t("points"), accessorKey: "total_points", enableSorting: false },
+          { header: t("points"), accessorKey: "total_points" },
           {
             header: t("attempts"),
             // oxlint-disable-next-line i18next/no-literal-string

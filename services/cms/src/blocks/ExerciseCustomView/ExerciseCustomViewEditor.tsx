@@ -15,7 +15,7 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ExerciseCustomViewEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseCustomViewAttributes>>
-> = ({ attributes, clientId, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
 
   const exerciseServicesQuery = useAllExerciseServices()
@@ -23,31 +23,30 @@ const ExerciseCustomViewEditor: React.FC<
   const exerciseType = attributes.exercise_type
 
   return (
-    <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
-      {(exerciseServices) => {
-        const url = exerciseServices.find((o) => o.slug === exerciseType)?.public_iframe_url
+    <BlockPlaceholderWrapper
+      title={t("exercise-custom-view-block")}
+      explanation={t("exercise-custom-view-block-explanation")}
+    >
+      <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
+        {(exerciseServices) => {
+          const url = exerciseServices.find((o) => o.slug === exerciseType)?.public_iframe_url
 
-        if (exerciseType && !url) {
-          return (
-            <>
-              <ErrorBanner
-                variant="readOnly"
-                error={t("error-cannot-render-editor-for-exercise-service-x", {
-                  slug: exerciseType,
-                })}
-              />
-              <DebugModal data={exerciseServices} />
-            </>
-          )
-        }
+          if (exerciseType && !url) {
+            return (
+              <>
+                <ErrorBanner
+                  variant="readOnly"
+                  error={t("error-cannot-render-editor-for-exercise-service-x", {
+                    slug: exerciseType,
+                  })}
+                />
+                <DebugModal data={exerciseServices} />
+              </>
+            )
+          }
 
-        return (
-          <BlockPlaceholderWrapper
-            id={clientId}
-            title={t("exercise-custom-view-block")}
-            explanation={t("exercise-custom-view-block-explanation")}
-          >
-            {!exerciseType ? (
+          if (!exerciseType) {
+            return (
               <div>
                 <h2>{t("please-select-exercise-type")}</h2>
                 <ul
@@ -85,15 +84,17 @@ const ExerciseCustomViewEditor: React.FC<
                   )}
                 </ul>
               </div>
-            ) : (
-              <div>
-                <p>{t("selected-exercise-type", { exerciseType })}</p>
-              </div>
-            )}
-          </BlockPlaceholderWrapper>
-        )
-      }}
-    </QueryResult>
+            )
+          }
+
+          return (
+            <div>
+              <p>{t("selected-exercise-type", { exerciseType })}</p>
+            </div>
+          )
+        }}
+      </QueryResult>
+    </BlockPlaceholderWrapper>
   )
 }
 

@@ -25,6 +25,7 @@ export type ChatbotConfiguration = {
   default_chatbot: boolean
   deleted_at?: string | null
   enabled_to_students: boolean
+  enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
   hide_citations: boolean
   id: string
@@ -43,7 +44,6 @@ export type ChatbotConfiguration = {
   updated_at: string
   use_azure_search: boolean
   use_semantic_reranking: boolean
-  use_tools: boolean
   verbosity: VerbosityLevel
   weekly_tokens_per_user: number
 }
@@ -202,8 +202,8 @@ export type CourseInstance = {
 }
 
 /**
- *
- * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+ * `completion_policy`.
  */
 export type CourseModule = {
   certification_enabled: boolean
@@ -217,6 +217,7 @@ export type CourseModule = {
   created_at: string
   deleted_at?: string | null
   ects_credits?: number | null
+  enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
@@ -472,6 +473,21 @@ export type ResearchFormQuestion = {
   research_consent_form_id: string
   updated_at: string
 }
+
+/**
+ * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
+ * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
+ * this kind of tool", not "may this caller use it".
+ */
+export type ToolCategory =
+  | "course_material"
+  | "course_info"
+  | "course_catalog"
+  | "interaction"
+  | "admin_support_accounts"
+  | "admin_support_courses"
+  | "admin_support_learning_progress"
+  | "admin_support_academic_integrity"
 
 /**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.
@@ -1080,6 +1096,28 @@ export type UpdateCmsPageResponses = {
 }
 
 export type UpdateCmsPageResponse = UpdateCmsPageResponses[keyof UpdateCmsPageResponses]
+
+export type GetExercisesWithSubmissionsData = {
+  body: Array<string>
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/pages/{page_id}/exercises-with-submissions"
+}
+
+export type GetExercisesWithSubmissionsResponses = {
+  /**
+   * Exercise ids, among the given ones, that have submissions
+   */
+  200: Array<string>
+}
+
+export type GetExercisesWithSubmissionsResponse =
+  GetExercisesWithSubmissionsResponses[keyof GetExercisesWithSubmissionsResponses]
 
 export type GetCmsPageInfoData = {
   body?: never

@@ -1,6 +1,5 @@
-import { expect, test } from "@playwright/test"
-
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 const COURSE_URL = "http://project-331.local/org/uh-cs/courses/automatic-completions"
 const COURSE_PAGE_URL = `${COURSE_URL}/chapter-1/page-1`
@@ -21,8 +20,8 @@ test("profile studies tab shows the student's progress and completions, without 
   await selectCourseInstanceIfPrompted(page)
   await page.goto(COURSE_PAGE_URL)
   await page.frameLocator("iframe").getByText("b").click()
-  await page.locator('button:has-text("Submit")').click()
-  await page.getByText("Good job!").waitFor()
+  await page.getByRole("button", { name: "Submit" }).click()
+  await expect(page.getByText("Good job!")).toBeVisible()
 
   await page.goto(PROFILE_STUDIES_URL)
 

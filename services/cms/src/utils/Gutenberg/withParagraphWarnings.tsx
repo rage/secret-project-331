@@ -3,10 +3,11 @@
 import { css } from "@emotion/css"
 import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
-import { Fragment } from "@wordpress/element"
+import { Fragment, useMemo } from "@wordpress/element"
 
 import { useTranslation } from "@/utils/useCmsTranslation"
 
+import { useIsBlockPreviewMode } from "./blockPreviewMode"
 import { shouldWarnAboutParagraphLookingLikeHeading } from "./paragraphHeadingWarning"
 
 interface ParagraphBlockProps {
@@ -26,17 +27,18 @@ const WARNING_NOTICE_STATUS = "warning"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withParagraphWarnings = createHigherOrderComponent((BlockEdit) => {
-  const ParagraphWithWarnings = (props: ParagraphBlockProps) => {
+  const ParagraphWarnings = (props: ParagraphBlockProps) => {
     const { t } = useTranslation()
-
-    if (props.name !== PARAGRAPH_BLOCK_NAME) {
-      return <BlockEdit {...props} />
-    }
+    const isPreviewMode = useIsBlockPreviewMode()
 
     const html = typeof props.attributes?.content === "string" ? props.attributes.content : ""
-    const warningKeys: ParagraphWarningKey[] = shouldWarnAboutParagraphLookingLikeHeading(html)
-      ? [PARAGRAPH_HEADING_WARNING_KEY]
-      : []
+    const warningKeys: ParagraphWarningKey[] = useMemo(
+      () =>
+        !isPreviewMode && shouldWarnAboutParagraphLookingLikeHeading(html)
+          ? [PARAGRAPH_HEADING_WARNING_KEY]
+          : [],
+      [isPreviewMode, html],
+    )
 
     return (
       <Fragment>
@@ -58,8 +60,16 @@ const withParagraphWarnings = createHigherOrderComponent((BlockEdit) => {
     )
   }
 
-  ParagraphWithWarnings.displayName = "ParagraphWarnings"
-  return ParagraphWithWarnings
+  // This dispatcher runs for every block in the document; the hooks and the html analysis stay in
+  // the inner component so that only paragraphs pay for them.
+  const BlockEditWithParagraphWarnings = (props: ParagraphBlockProps) =>
+    props.name === PARAGRAPH_BLOCK_NAME ? (
+      <ParagraphWarnings {...props} />
+    ) : (
+      <BlockEdit {...props} />
+    )
+
+  return BlockEditWithParagraphWarnings
   // oxlint-disable-next-line i18next/no-literal-string
 }, "withParagraphWarnings")
 

@@ -10,6 +10,7 @@ import { QueryResult } from "@/shared-module/components"
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import { USERS_SORT_COLUMNS, useCourseStudentsIdentity } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { StaleTableWrapper } from "./StaleTableWrapper"
 import { StudentPillCell } from "./StudentPillCell"
 
@@ -18,7 +19,7 @@ const EM_DASH = "—"
 export const UserTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
-  const params = useStudentsListParams()
+  const params = useStudentsListParams(USERS_SORT_COLUMNS)
   const { sorting, onSortingChange } = useStudentsSorting(USERS_SORT_COLUMNS)
 
   const query = useCourseStudentsIdentity(courseId, params)
@@ -26,7 +27,7 @@ export const UserTabContent: React.FC = () => {
   const isStale = deferredData !== query.data
   const rows = useMemo(() => deferredData?.data ?? [], [deferredData])
 
-  const columns = useMemo<ColumnDef<CourseStudentListRow, unknown>[]>(
+  const columns = useMemo<ColumnDef<StudentsTableFeatures, CourseStudentListRow, unknown>[]>(
     () => [
       {
         // id drives the shared `last_name` sort key; the pill shows the name and opens the details popover.

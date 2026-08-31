@@ -7,7 +7,14 @@ import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
-import type { CompletionGridRow } from "@/generated/api/types.generated"
+import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
+import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
+import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
+import {
+  creditRegistrationKey,
+  useTeacherCreditRegistrations,
+} from "@/components/credit-registration/teacherCreditRegistrations"
+import type { CompletionGridRow, CourseCreditRegistration } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
@@ -19,11 +26,15 @@ import {
   useCourseStudentsIdentity,
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
+import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
 import { StaleTableWrapper } from "./StaleTableWrapper"
 import { StudentPillCell } from "./StudentPillCell"
 
 const PLACEHOLDER = "-"
+
+/** Stable identity so the column memo does not rebuild on every render before the fetch lands. */
+const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 type CompletionRow = Record<string, unknown> & {
   user_id: string
@@ -107,15 +118,18 @@ const statusCellClass = css`
   gap: 0.25rem;
 `
 
-const StatusCell: React.FC<{ registered: boolean; needsReview: boolean }> = ({
-  registered,
-  needsReview,
-}) => {
+const StatusCell: React.FC<{
+  registered: boolean
+  needsReview: boolean
+  creditRegistration: CourseCreditRegistration | undefined
+}> = ({ registered, needsReview, creditRegistration }) => {
   const { t } = useTranslation()
   const status = registered ? t("registered") : PLACEHOLDER
-  const showStatus = registered || !needsReview
+  // The ledger also says why nothing has happened yet, so its badge wins over the legacy yes/no.
+  const showStatus = !creditRegistration && (registered || !needsReview)
   return (
     <div className={statusCellClass}>
+      {creditRegistration && <CreditRegistrationStatusCell registration={creditRegistration} />}
       {showStatus && <span>{status}</span>}
       {needsReview && <CourseModuleCompletionNeedsReviewBadge />}
     </div>
@@ -125,8 +139,9 @@ const StatusCell: React.FC<{ registered: boolean; needsReview: boolean }> = ({
 const buildColumns = (
   modulesInOrder: ModuleColumn[],
   t: TFunction,
-): ColumnDef<CompletionRow, unknown>[] => {
-  const columns: ColumnDef<CompletionRow, unknown>[] = [
+  creditRegistrations: CreditRegistrationIndex,
+): ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] => {
+  const columns: ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] = [
     {
       // oxlint-disable-next-line i18next/no-literal-string
       id: "last_name",
@@ -168,6 +183,9 @@ const buildColumns = (
             <StatusCell
               registered={Boolean(row.original[registeredKeyOf(moduleId)])}
               needsReview={Boolean(row.original[needsReviewKeyOf(moduleId)])}
+              creditRegistration={creditRegistrations.get(
+                creditRegistrationKey(row.original.user_id, moduleId),
+              )}
             />
           ),
         },
@@ -181,13 +199,15 @@ const buildColumns = (
 export const CompletionsTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
-  const params = useStudentsListParams()
+  const params = useStudentsListParams(DETAIL_SORT_COLUMNS)
   const { sorting, onSortingChange } = useStudentsSorting(DETAIL_SORT_COLUMNS)
 
   const identityQuery = useCourseStudentsIdentity(courseId, params)
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
+  const { data: creditRegistrationsData, isAuthorized: canSeeCreditRegistrations } =
+    useTeacherCreditRegistrations(courseId, userIds)
 
   // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
   // detail request promptly -- only the expensive pivot below is deprioritized.
@@ -199,7 +219,11 @@ export const CompletionsTabContent: React.FC = () => {
     () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], t),
     [deferredIdentityRows, deferredDetailData, t],
   )
-  const columns = useMemo(() => buildColumns(modulesInOrder, t), [modulesInOrder, t])
+  const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
+  const columns = useMemo(
+    () => buildColumns(modulesInOrder, t, creditRegistrations),
+    [modulesInOrder, t, creditRegistrations],
+  )
 
   if (identityQuery.isError) {
     return <ErrorBanner error={identityQuery.error} />
@@ -212,16 +236,19 @@ export const CompletionsTabContent: React.FC = () => {
   }
 
   return (
-    <StaleTableWrapper isStale={isStale}>
-      <StudentsTable
-        columns={columns}
-        data={data}
-        colorHeaders
-        colorColumns
-        colorHeaderUnderline
-        sorting={sorting}
-        onSortingChange={onSortingChange}
-      />
-    </StaleTableWrapper>
+    <>
+      {canSeeCreditRegistrations && <CourseCreditRegistrationSummaryPanel courseId={courseId} />}
+      <StaleTableWrapper isStale={isStale}>
+        <StudentsTable
+          columns={columns}
+          data={data}
+          colorHeaders
+          colorColumns
+          colorHeaderUnderline
+          sorting={sorting}
+          onSortingChange={onSortingChange}
+        />
+      </StaleTableWrapper>
+    </>
   )
 }

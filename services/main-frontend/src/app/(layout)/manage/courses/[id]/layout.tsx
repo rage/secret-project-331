@@ -51,10 +51,12 @@ export default function CourseManagementLayout({ children }: { children: React.R
   const courseId = params.id
   const { t } = useTranslation()
 
-  const isGlobalAdminQuery = useAuthorizeMultiple([
+  const canViewStudentsQuery = useAuthorizeMultiple([
     { action: { type: "administrate" }, resource: { type: "global_permissions" } },
+    { action: { type: "teach" }, resource: { type: "course", id: courseId } },
   ])
-  const isGlobalAdmin = (isGlobalAdminQuery.isSuccess && isGlobalAdminQuery.data?.[0]) ?? false
+  const canViewStudents =
+    (canViewStudentsQuery.isSuccess && canViewStudentsQuery.data?.some(Boolean)) ?? false
 
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
@@ -131,7 +133,7 @@ export default function CourseManagementLayout({ children }: { children: React.R
         href: manageCourseInstancesRoute(courseId),
       },
     ]
-    if (isGlobalAdmin) {
+    if (canViewStudents) {
       base.push({
         key: KEY_STUDENTS,
         title: t("label-students"),
@@ -168,7 +170,7 @@ export default function CourseManagementLayout({ children }: { children: React.R
   }, [
     courseId,
     t,
-    isGlobalAdmin,
+    canViewStudents,
     feedbackCountHook,
     changeRequestCountHook,
     answersCountHook,

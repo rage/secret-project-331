@@ -2,6 +2,41 @@ use secrecy::ExposeSecret;
 
 use crate::prelude::*;
 
+/// The same base the scraped registration links used, so a student sees the page they saw before
+/// this pipeline existed.
+const OPEN_UNIVERSITY_ENROLMENT_BASE_URL: &str =
+    "https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=";
+
+/// The enrolment page a student with no usable enrolment is sent to, or `None` for a product whose
+/// refresh has never succeeded. The token is exposed here on purpose and nowhere else: it must not
+/// reach a log line or a stored response body.
+pub fn enrolment_url(token: &OpenUniversityProductAccessToken) -> Option<String> {
+    let access_token = token.access_token.as_ref()?;
+    Some(format!(
+        "{OPEN_UNIVERSITY_ENROLMENT_BASE_URL}{}",
+        access_token.expose_secret()
+    ))
+}
+
+/// The enrolment page for a module's configured product, following the whole fallback chain:
+/// no product configured, or no refresh has ever succeeded for it, means `None` and the caller
+/// degrades to generic "enrol in Sisu" copy.
+///
+/// Every surface that offers a student a way back into an enrolment goes through this, so the mail,
+/// the status page and the profile cannot disagree about whether a link exists.
+pub async fn enrolment_url_for_product(
+    conn: &mut PgConnection,
+    open_university_product_id: Option<&str>,
+) -> ModelResult<Option<String>> {
+    let Some(product_id) = open_university_product_id else {
+        return Ok(None);
+    };
+    Ok(get_by_product_id(conn, product_id)
+        .await?
+        .as_ref()
+        .and_then(enrolment_url))
+}
+
 #[derive(Debug, Clone)]
 pub struct OpenUniversityProductAccessToken {
     pub id: Uuid,
@@ -9,11 +44,12 @@ pub struct OpenUniversityProductAccessToken {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub open_university_product_id: String,
-    pub access_token: DbSecret,
-    pub state: String,
-    pub document_state: String,
+    /// `None` on a row that only records failures: no refresh has ever succeeded for the product.
+    pub access_token: Option<DbSecret>,
+    pub state: Option<String>,
+    pub document_state: Option<String>,
     pub suotar_token_id: Option<String>,
-    pub last_refreshed_at: DateTime<Utc>,
+    pub last_refreshed_at: Option<DateTime<Utc>>,
     pub last_refresh_failed_at: Option<DateTime<Utc>>,
     pub last_refresh_error: Option<String>,
     pub consecutive_failures: i32,
@@ -40,9 +76,10 @@ INSERT INTO open_university_product_access_tokens (
     access_token,
     state,
     document_state,
-    suotar_token_id
+    suotar_token_id,
+    last_refreshed_at
   )
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (open_university_product_id, deleted_at) DO
+VALUES ($1, $2, $3, $4, $5, now()) ON CONFLICT (open_university_product_id, deleted_at) DO
 UPDATE
 SET access_token = $2,
   state = $3,
@@ -102,6 +139,10 @@ ORDER BY open_university_product_id
 }
 
 /// Records a failed refresh without touching the token: a stale token still beats none.
+///
+/// Creates a token-less row for a product that has never had a successful refresh. An `UPDATE`
+/// would match nothing there, leaving a mistyped product id with no diagnosis and no
+/// `last_refresh_failed_at` to order it behind the products still worth trying.
 pub async fn record_refresh_failure(
     conn: &mut PgConnection,
     open_university_product_id: &str,
@@ -109,12 +150,17 @@ pub async fn record_refresh_failure(
 ) -> ModelResult<()> {
     sqlx::query!(
         r#"
-UPDATE open_university_product_access_tokens
+INSERT INTO open_university_product_access_tokens (
+    open_university_product_id,
+    last_refresh_failed_at,
+    last_refresh_error,
+    consecutive_failures
+  )
+VALUES ($1, now(), $2, 1) ON CONFLICT (open_university_product_id, deleted_at) DO
+UPDATE
 SET last_refresh_failed_at = now(),
   last_refresh_error = $2,
-  consecutive_failures = consecutive_failures + 1
-WHERE open_university_product_id = $1
-  AND deleted_at IS NULL
+  consecutive_failures = open_university_product_access_tokens.consecutive_failures + 1
         "#,
         open_university_product_id,
         error,

@@ -1,0 +1,31 @@
+[package]
+name = "exercise-services-api"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+# Date and time library
+chrono = { version = "0.4.45", features = ["serde"] }
+# An extensible, strongly-typed implementation of OAuth2
+oauth2 = "5.0.0"
+# A generic serialization/deserialization framework
+serde = { version = "1.0.229", features = ["derive"] }
+# A JSON serialization file format
+serde_json = "1.0.151"
+# OpenAPI schema derives; see the `openapi` feature below
+utoipa = { version = "5.5.0", features = ["chrono", "uuid"], optional = true }
+# A library to generate and parse UUIDs.
+uuid = { version = "1.24.1", features = ["serde"] }
+
+[features]
+# Derives `utoipa::ToSchema` on the API types so the server can emit an OpenAPI spec for
+# `/api/v0/exercise-services/client`. Off by default so other consumers of this crate
+# (tmc-langs-rust) do not pull in utoipa.
+openapi = ["dep:utoipa"]
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

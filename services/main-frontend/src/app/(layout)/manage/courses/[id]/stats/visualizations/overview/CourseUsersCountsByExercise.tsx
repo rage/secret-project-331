@@ -6,13 +6,13 @@ import { reverse, sortBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import Echarts from "@/components/charts/Echarts"
 import { getCourseUsersCountsByExerciseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
 import { InstructionBox } from "../../CourseStatsPage"
-import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 export interface CourseUsersCountsByExerciseProps {

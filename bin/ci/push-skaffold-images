@@ -1,0 +1,35 @@
+#!/bin/bash
+source "$(dirname "$0")/../.common"
+
+# Images were built inside minikube's Docker daemon, so push from there.
+eval "$(minikube -p minikube docker-env --shell bash)"
+gcloud auth configure-docker -q
+
+if [ ! -f "skaffold-build-output.json" ]; then
+  echo "ERROR: skaffold-build-output.json not found"
+  exit 1
+fi
+
+TAGS=$(jq --raw-output '.builds[].tag' < skaffold-build-output.json)
+if [ -z "$TAGS" ]; then
+  echo "ERROR: no image tags in skaffold-build-output.json"
+  exit 1
+fi
+
+echo "Pushing $(echo "$TAGS" | wc -l) images:"
+echo "$TAGS"
+
+while IFS= read -r tag; do
+  [ -n "$tag" ] || continue
+  echo
+  echo "Pushing $tag"
+  if ! docker image inspect "$tag" >/dev/null 2>&1; then
+    echo "ERROR: $tag not present in minikube's Docker daemon. Available images:"
+    docker images
+    exit 1
+  fi
+  if ! docker push "$tag"; then
+    echo "ERROR: pushing $tag failed"
+    exit 1
+  fi
+done <<< "$TAGS"

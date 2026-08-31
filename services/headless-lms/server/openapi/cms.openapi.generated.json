@@ -965,6 +965,55 @@
         }
       }
     },
+    "/api/v0/cms/pages/{page_id}/exercises-with-submissions": {
+      "post": {
+        "tags": ["cms_pages"],
+        "summary": "\nPOST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns\nthe subset that has at least one existing submission. Used by the editor to warn the teacher before\nsaving a page edit that would remove one of these exercises, since that soft-deletes it and orphans\nits submissions.",
+        "operationId": "getExercisesWithSubmissions",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Exercise ids, among the given ones, that have submissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/pages/{page_id}/info": {
       "get": {
         "tags": ["cms_pages"],
@@ -1109,7 +1158,7 @@
           "maintain_azure_search_index",
           "hide_citations",
           "use_semantic_reranking",
-          "use_tools",
+          "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
           "publicly_accessible"
@@ -1139,6 +1188,12 @@
           },
           "enabled_to_students": {
             "type": "boolean"
+          },
+          "enabled_tool_categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolCategory"
+            }
           },
           "frequency_penalty": {
             "type": "number",
@@ -1203,9 +1258,6 @@
             "type": "boolean"
           },
           "use_semantic_reranking": {
-            "type": "boolean"
-          },
-          "use_tools": {
             "type": "boolean"
           },
           "verbosity": {
@@ -1791,7 +1843,7 @@
       },
       "CourseModule": {
         "type": "object",
-        "description": "\n * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).",
+        "description": "Like [CourseModulesSchema], but the automatic-completion columns are collapsed into\n`completion_policy`.",
         "required": [
           "id",
           "created_at",
@@ -1800,7 +1852,8 @@
           "order_number",
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
-          "certification_enabled"
+          "certification_enabled",
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "certification_enabled": {
@@ -1832,6 +1885,9 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
@@ -2531,6 +2587,20 @@
             "format": "date-time"
           }
         }
+      },
+      "ToolCategory": {
+        "type": "string",
+        "description": "A category of chatbot tools a configuration can choose to offer the LLM. Independent of the\nchatbot crate's per-tool `ToolPermission` check: a category answers \"does this chatbot offer\nthis kind of tool\", not \"may this caller use it\".",
+        "enum": [
+          "course_material",
+          "course_info",
+          "course_catalog",
+          "interaction",
+          "admin_support_accounts",
+          "admin_support_courses",
+          "admin_support_learning_progress",
+          "admin_support_academic_integrity"
+        ]
       },
       "UploadResult": {
         "type": "object",

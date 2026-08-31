@@ -33,7 +33,7 @@ const Wrapper = styled.div`
 
 const CodeGiveawayBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
-> = ({ attributes, clientId, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
 
@@ -74,11 +74,7 @@ const CodeGiveawayBlockEditor: React.FC<
   }, [codeGivawayQuery.data, t])
 
   return (
-    <BlockPlaceholderWrapper
-      id={clientId}
-      title={title}
-      explanation={t("code-giveaway-explanation")}
-    >
+    <BlockPlaceholderWrapper title={title} explanation={t("code-giveaway-explanation")}>
       <InspectorControls>
         {codeGivawayQuery.data && (
           <Wrapper>

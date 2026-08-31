@@ -13,6 +13,7 @@ export interface ConditionAttributes {
 }
 
 const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
+  apiVersion: 3,
   title: "CodeGiveaway",
   description:
     "Used to place a code giveaway to a page. Make sure to have created a code giveaway in the manage page.",

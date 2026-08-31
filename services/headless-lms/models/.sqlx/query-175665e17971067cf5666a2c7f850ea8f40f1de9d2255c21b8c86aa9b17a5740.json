@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET action_needed_email_delivery_id = CASE\n    WHEN $3 THEN $2\n    ELSE action_needed_email_delivery_id\n  END,\n  registered_email_delivery_id = CASE\n    WHEN $3 THEN registered_email_delivery_id\n    ELSE $2\n  END\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "175665e17971067cf5666a2c7f850ea8f40f1de9d2255c21b8c86aa9b17a5740"
+}

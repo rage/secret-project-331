@@ -20,7 +20,7 @@ const ChatbotEmbed = () => {
 
   const conversationId = currentConversationId.data
 
-  const chatbotStateAndData = useChatbotStateAndData(id, undefined, conversationId)
+  const chatbotStateAndData = useChatbotStateAndData(id, undefined, conversationId, null)
 
   return (
     <div>

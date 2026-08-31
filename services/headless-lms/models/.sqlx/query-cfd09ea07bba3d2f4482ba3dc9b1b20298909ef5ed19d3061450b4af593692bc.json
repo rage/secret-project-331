@@ -81,7 +81,10 @@
                 "zero-points",
                 "custom-points",
                 "suspected-plagiarism",
-                "reject-and-reset"
+                "reject-and-reset",
+                "unauthorized-ai-use",
+                "bad-answer",
+                "other"
               ]
             }
           }
@@ -139,7 +142,10 @@
                 "zero-points",
                 "custom-points",
                 "suspected-plagiarism",
-                "reject-and-reset"
+                "reject-and-reset",
+                "unauthorized-ai-use",
+                "bad-answer",
+                "other"
               ]
             }
           }

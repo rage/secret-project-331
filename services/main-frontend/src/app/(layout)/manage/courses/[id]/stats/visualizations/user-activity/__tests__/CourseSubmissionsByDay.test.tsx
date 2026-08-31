@@ -13,7 +13,7 @@ import CourseSubmissionsByDay from "../CourseSubmissionsByDay"
  */
 const mockEchartsOptions = jest.fn()
 
-jest.mock("../../../Echarts", () => ({
+jest.mock("@/components/charts/Echarts", () => ({
   __esModule: true,
   default: (props: { options: unknown }) => {
     mockEchartsOptions(props.options)

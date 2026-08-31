@@ -1,12 +1,17 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 
 import {
   allUserConversationsQueryKey,
   getCurrentConversationIdQueryKey,
 } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { newChatbotConversation } from "@/generated/course-material-api/sdk.generated"
+import {
+  errorNotificationMessage,
+  showErrorNotification,
+} from "@/shared-module/common/components/Notifications/notificationHelpers"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { saveChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
@@ -17,6 +22,7 @@ const useNewConversationMutation = (
   setConversationId?,
 ) => {
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
   return useToastMutation(
     () =>
       newChatbotConversation({
@@ -42,6 +48,11 @@ const useNewConversationMutation = (
         setNewMessage("")
         setConversationId && setConversationId(null)
         setError(null) // Clear any existing errors when starting a new conversation
+      },
+      // A toast, not the chat's own error area: a conversation started from the text selection
+      // tooltip fails before the chatbot is opened, leaving nothing mounted to show the error in.
+      onError: (error) => {
+        showErrorNotification({ message: errorNotificationMessage(error, t) })
       },
     },
   )

@@ -163,37 +163,281 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
-/// Sets the correct conversation_message_id to citations. The correct id is the
-/// id of the chatbot text message that uses the citations. Update the citations
-/// that currently connected to a conversation_message that contains tool output
-/// and has the same response_id.
-pub async fn update_citation_message_ids(
+/// Points the citations of the conversation's newest turn at `conversation_message_id`, the
+/// message whose text cites them.
+///
+/// A citation is saved attached to the search tool output it was read from, a message the chatbot
+/// ui does not render, so a citation only becomes reachable once it is moved to the answer. The
+/// turn is taken to be every message after the newest message from the user: a turn can search in
+/// one round and answer in another, and the round that answers has a different Azure response id
+/// than the round that searched, both when a tool call was answered on the server and when the
+/// turn suspended and a later request resumed it.
+pub async fn attach_turn_citations_to_message(
     conn: &mut PgConnection,
-    response_id: String,
+    conversation_id: Uuid,
     conversation_message_id: Uuid,
-) -> ModelResult<Vec<ChatbotConversationMessageCitation>> {
-    let res = sqlx::query_as!(
-        ChatbotConversationMessageCitation,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
         r#"
 UPDATE chatbot_conversation_messages_citations
 SET conversation_message_id = $1
-WHERE conversation_message_id IN (
-    SELECT id
-    FROM chatbot_conversation_messages
-    WHERE id IN (
-        SELECT conversation_message_id
-        FROM chatbot_conversation_message_tool_outputs
-        WHERE response_id = $2
-          AND deleted_at IS NULL
+WHERE conversation_id = $2
+  AND deleted_at IS NULL
+  AND conversation_message_id IN (
+    SELECT message.id
+    FROM chatbot_conversation_messages message
+      JOIN chatbot_conversation_message_tool_outputs tool_output ON tool_output.chatbot_conversation_message_id = message.id
+    WHERE message.conversation_id = $2
+      AND message.deleted_at IS NULL
+      AND tool_output.deleted_at IS NULL
+      AND message.order_number > COALESCE(
+        (
+          SELECT MAX(user_message.order_number)
+          FROM chatbot_conversation_messages user_message
+            JOIN chatbot_conversation_message_messages text_message ON text_message.chatbot_conversation_message_id = user_message.id
+          WHERE user_message.conversation_id = $2
+            AND user_message.deleted_at IS NULL
+            AND text_message.deleted_at IS NULL
+            AND text_message.message_role = 'user'
+        ),
+        0
       )
-      AND deleted_at IS NULL
   )
-RETURNING *
+RETURNING id
         "#,
         conversation_message_id,
-        response_id
+        conversation_id
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// The highest citation number already used by a tool call in the turn still in progress, or
+/// `None` if the turn has cited nothing yet. A new search tool numbers its own hits starting
+/// after this rather than from zero, since a whole turn's citations end up on one message (see
+/// [`attach_turn_citations_to_message`]) and would otherwise collide with an earlier search's
+/// numbers. Scoped identically to that function's own subquery.
+pub async fn max_citation_number_in_turn(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+) -> ModelResult<Option<i32>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT MAX(citation.citation_number)
+FROM chatbot_conversation_messages_citations citation
+  JOIN chatbot_conversation_messages message ON message.id = citation.conversation_message_id
+  JOIN chatbot_conversation_message_tool_outputs tool_output ON tool_output.chatbot_conversation_message_id = message.id
+WHERE citation.conversation_id = $1
+  AND citation.deleted_at IS NULL
+  AND message.deleted_at IS NULL
+  AND tool_output.deleted_at IS NULL
+  AND message.order_number > COALESCE(
+    (
+      SELECT MAX(user_message.order_number)
+      FROM chatbot_conversation_messages user_message
+        JOIN chatbot_conversation_message_messages text_message ON text_message.chatbot_conversation_message_id = user_message.id
+      WHERE user_message.conversation_id = $1
+        AND user_message.deleted_at IS NULL
+        AND text_message.deleted_at IS NULL
+        AND text_message.message_role = 'user'
+    ),
+    0
+  )
+        "#,
+        conversation_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        chatbot_conversation_message_messages::MessageRole,
+        chatbot_conversation_message_tool_calls::ToolKind,
+        chatbot_conversation_messages::{self, ChatbotConversationMessage},
+        test_helper::*,
+    };
+
+    async fn insert_text_message(
+        conn: &mut PgConnection,
+        conversation_id: Uuid,
+        role: MessageRole,
+        response_id: Option<&str>,
+    ) -> ChatbotConversationMessage {
+        chatbot_conversation_messages::insert(
+            conn,
+            chatbot_text_message(conversation_id, role, "text", response_id),
+        )
+        .await
+        .unwrap()
+    }
+
+    async fn insert_tool_call(
+        conn: &mut PgConnection,
+        conversation_id: Uuid,
+        tool_call_id: &str,
+        response_id: &str,
+    ) -> ChatbotConversationMessage {
+        chatbot_conversation_messages::insert(
+            conn,
+            chatbot_tool_call_message(
+                conversation_id,
+                tool_call_id,
+                ToolKind::ClientTool,
+                response_id,
+            ),
+        )
+        .await
+        .unwrap()
+    }
+
+    async fn insert_tool_output(
+        conn: &mut PgConnection,
+        conversation_id: Uuid,
+        tool_call_id: &str,
+        response_id: &str,
+    ) -> ChatbotConversationMessage {
+        chatbot_conversation_messages::insert(
+            conn,
+            chatbot_tool_output_message(
+                conversation_id,
+                tool_call_id,
+                ToolKind::ClientTool,
+                response_id,
+            ),
+        )
+        .await
+        .unwrap()
+    }
+
+    fn citation_ids(citations: &[ChatbotConversationMessageCitation]) -> Vec<Uuid> {
+        citations.iter().map(|citation| citation.id).collect()
+    }
+
+    async fn insert_citation(
+        conn: &mut PgConnection,
+        conversation_id: Uuid,
+        conversation_message_id: Uuid,
+    ) -> ChatbotConversationMessageCitation {
+        insert(
+            conn,
+            ChatbotConversationMessageCitation {
+                conversation_id,
+                conversation_message_id,
+                title: "A page".to_string(),
+                content: "Cited content".to_string(),
+                document_url: "https://example.com/page".to_string(),
+                ..Default::default()
+            },
+        )
+        .await
+        .unwrap()
+    }
+
+    /// A turn that suspends on a client tool call answers in a later request, under an Azure
+    /// response id of its own, so the search that produced the citations happened under a
+    /// different one. The learner is shown the citation markers of the answer either way, so a
+    /// citation left behind on the search output is a marker with nothing behind it.
+    #[tokio::test]
+    async fn citations_of_a_suspended_turn_reach_the_message_that_cites_them() {
+        insert_data!(:tx);
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
+        insert_text_message(tx.as_mut(), conversation, MessageRole::User, None).await;
+        let search_output =
+            insert_tool_output(tx.as_mut(), conversation, "call_search", "resp_search").await;
+        let citation = insert_citation(tx.as_mut(), conversation, search_output.id).await;
+        insert_tool_call(tx.as_mut(), conversation, "call_question", "resp_question").await;
+        insert_tool_output(tx.as_mut(), conversation, "call_question", "resp_question").await;
+        let answer = insert_text_message(
+            tx.as_mut(),
+            conversation,
+            MessageRole::Assistant,
+            Some("resp_answer"),
+        )
+        .await;
+
+        attach_turn_citations_to_message(tx.as_mut(), conversation, answer.id)
+            .await
+            .unwrap();
+
+        let reachable = get_by_message_id(tx.as_mut(), answer.id).await.unwrap();
+        assert_eq!(citation_ids(&reachable), vec![citation.id]);
+    }
+
+    /// Citations of a turn that never answered belong to no message the learner reads, and moving
+    /// them to the next turn's answer would credit it with sources it never cited.
+    #[tokio::test]
+    async fn citations_of_an_earlier_turn_are_left_where_they_are() {
+        insert_data!(:tx);
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
+        insert_text_message(tx.as_mut(), conversation, MessageRole::User, None).await;
+        let abandoned_search =
+            insert_tool_output(tx.as_mut(), conversation, "call_search", "resp_search").await;
+        let orphan = insert_citation(tx.as_mut(), conversation, abandoned_search.id).await;
+        insert_text_message(tx.as_mut(), conversation, MessageRole::User, None).await;
+        let answer = insert_text_message(
+            tx.as_mut(),
+            conversation,
+            MessageRole::Assistant,
+            Some("resp_answer"),
+        )
+        .await;
+
+        attach_turn_citations_to_message(tx.as_mut(), conversation, answer.id)
+            .await
+            .unwrap();
+
+        assert!(
+            get_by_message_id(tx.as_mut(), answer.id)
+                .await
+                .unwrap()
+                .is_empty()
+        );
+        let left = get_by_message_id(tx.as_mut(), abandoned_search.id)
+            .await
+            .unwrap();
+        assert_eq!(citation_ids(&left), vec![orphan.id]);
+    }
+
+    /// A citation belongs to one conversation, and nothing outside that conversation may claim it,
+    /// however the ids of a turn happen to repeat elsewhere.
+    #[tokio::test]
+    async fn citations_of_another_conversation_are_not_touched() {
+        insert_data!(:tx);
+        let (_configuration, conversation) = insert_chatbot_conversation(tx.as_mut()).await;
+        let (_other_configuration, other_conversation) =
+            insert_chatbot_conversation(tx.as_mut()).await;
+        insert_text_message(tx.as_mut(), other_conversation, MessageRole::User, None).await;
+        let other_search = insert_tool_output(
+            tx.as_mut(),
+            other_conversation,
+            "call_search",
+            "resp_search",
+        )
+        .await;
+        let other_citation =
+            insert_citation(tx.as_mut(), other_conversation, other_search.id).await;
+        insert_text_message(tx.as_mut(), conversation, MessageRole::User, None).await;
+        let answer = insert_text_message(
+            tx.as_mut(),
+            conversation,
+            MessageRole::Assistant,
+            Some("resp_answer"),
+        )
+        .await;
+
+        let moved = attach_turn_citations_to_message(tx.as_mut(), conversation, answer.id)
+            .await
+            .unwrap();
+
+        assert!(moved.is_empty());
+        let untouched = get_by_message_id(tx.as_mut(), other_search.id)
+            .await
+            .unwrap();
+        assert_eq!(citation_ids(&untouched), vec![other_citation.id]);
+    }
 }

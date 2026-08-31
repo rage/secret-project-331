@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { Account, AddMessage, ArrowDownToBracket } from "@vectopus/atlas-icons-react"
+import { Account, AddMessage, ArrowDownToBracket, Pencil } from "@vectopus/atlas-icons-react"
+import { useRouter } from "next/navigation"
 import type { DOMAttributes } from "react"
 import React from "react"
 import { Button, Heading } from "react-aria-components"
@@ -16,9 +17,11 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
 import { removeSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 import { createChatbotTranscript } from "@/utils/course-material/createChatbotTranscript"
 import { downloadStringAsFile } from "@/utils/course-material/downloadStringAsFile"
@@ -98,7 +101,7 @@ const buttonsWrapper = css`
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
   const { currentConversationInfo, newConversationMutation, isCourseMaterialBlock } = props
-
+  const router = useRouter()
   const createTranscript = useToastMutation(
     // oxlint-disable-next-line require-await -- async for the mutation Promise contract
     async () => {
@@ -128,7 +131,6 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       onAction: () => {
         if (!newConversationMutation.isPending) {
           newConversationMutation.mutate()
-          // oxlint-disable-next-line i18next/no-literal-string
           removeSavedChatbotAnonymousToken()
         }
       },
@@ -169,6 +171,49 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
     })
   }
 
+  const chatbotConversationInfo = currentConversationInfo.data?.current_conversation
+
+  const permissionCheck = useAuthorizeMultiple(
+    chatbotConversationInfo?.course_id
+      ? [
+          {
+            action: { type: "teach" },
+            resource: { type: "course", id: chatbotConversationInfo.course_id },
+          },
+        ]
+      : [
+          {
+            action: { type: "edit" },
+            resource: { type: "global_permissions" },
+          },
+        ],
+  )
+
+  const hasPermission = permissionCheck.isSuccess && permissionCheck.data?.some(Boolean)
+
+  if (hasPermission && chatbotConversationInfo) {
+    items.push({
+      // oxlint-disable-next-line i18next/no-literal-string
+      id: "chatbot-header-menu-edit-chatbot-button",
+      onAction: () => {
+        router.push(manageChatbotRoute(chatbotConversationInfo.chatbot_configuration_id))
+      },
+      icon: (
+        <Pencil
+          className={css`
+            color: ${baseTheme.colors.green[700]};
+            position: relative;
+            height: 22px;
+            width: 22px;
+            top: -0.275rem;
+          `}
+        />
+      ),
+      type: "action",
+
+      label: t("edit-chatbot"),
+    })
+  }
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
   }

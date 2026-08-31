@@ -8,6 +8,8 @@ import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
+import { useTeacherCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
 import FullWidthTable from "@/components/tables/FullWidthTable"
 import {
@@ -25,14 +27,13 @@ import type {
   UserWithModuleCompletions,
 } from "@/generated/api/types.generated"
 import CaretDownIcon from "@/imgs/caret-down.svg"
-import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import ChapterPointsDashboard from "../ChapterPointsDashboard"
 import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
@@ -43,6 +44,8 @@ import CompletionsExportButton from "./CompletionsExportButton"
 const EMAIL = "email"
 const NAME = "name"
 const NUMBER = "number"
+
+const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 interface Sorting {
   type: string
@@ -95,6 +98,16 @@ const CompletionsPage: React.FC = () => {
       }
     },
   })
+
+  const listedUserIds = useMemo(
+    () => getCompletionsList.data?.users.map((user) => user.userId) ?? [],
+    [getCompletionsList.data],
+  )
+  const { data: creditRegistrationsData } = useTeacherCreditRegistrations(
+    courseInstanceQuery.data?.course_id ?? null,
+    listedUserIds,
+  )
+  const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
 
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
@@ -366,6 +379,7 @@ const CompletionsPage: React.FC = () => {
                     key={user.userId}
                     sortedCourseModules={data.sortedCourseModules}
                     user={user}
+                    creditRegistrations={creditRegistrations}
                   />
                 ))}
               </tbody>

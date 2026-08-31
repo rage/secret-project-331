@@ -75,6 +75,9 @@ export interface StringFieldForm {
 export interface BooleanFieldForm {
   f: boolean
 }
+export interface NumberFieldForm {
+  f: number | null
+}
 
 /** Renders a field backed by `{ f: string }` (default `""`). */
 export function renderStringField(
@@ -90,6 +93,14 @@ export function renderBooleanField(
   defaultValue = false,
 ): RenderWithFormResult<BooleanFieldForm> {
   return renderWithForm<BooleanFieldForm>(renderFn, { defaultValues: { f: defaultValue } })
+}
+
+/** Renders a field backed by `{ f: number | null }` (default `null`). */
+export function renderNumberField(
+  renderFn: (control: Control<NumberFieldForm>) => React.ReactElement,
+  defaultValue: number | null = null,
+): RenderWithFormResult<NumberFieldForm> {
+  return renderWithForm<NumberFieldForm>(renderFn, { defaultValues: { f: defaultValue } })
 }
 
 /** DOM `click` for tests that need `onPress`/`onClick` without `@testing-library/user-event` (pointer synthesis can throw on Jest jsdom `PointerEvent.pointerId`). */

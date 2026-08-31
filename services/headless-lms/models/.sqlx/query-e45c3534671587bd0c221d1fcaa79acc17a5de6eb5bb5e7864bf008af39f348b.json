@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  state AS \"state: CreditRegistrationState\"\nFROM credit_registrations\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\nORDER BY id FOR\nUPDATE\n        ",
+  "query": "\nSELECT id,\n  state\nFROM credit_registrations\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\nORDER BY id FOR\nUPDATE\n        ",
   "describe": {
     "columns": [
       {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "state: CreditRegistrationState",
+        "name": "state",
         "type_info": {
           "Custom": {
             "name": "credit_registration_state",
@@ -60,5 +60,5 @@
       false
     ]
   },
-  "hash": "759c2bdeb45710be24f83deca303bddb3e18fde245f7523d9b56f7ff76acc025"
+  "hash": "e45c3534671587bd0c221d1fcaa79acc17a5de6eb5bb5e7864bf008af39f348b"
 }

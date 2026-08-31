@@ -229,7 +229,12 @@ async fn rows_in_states(
         let index = LiveStateDetector::ALL
             .iter()
             .position(|detector| detector.state() == row.state)
-            .expect("row was fetched by one of these states");
+            .ok_or_else(|| {
+                controller_err!(
+                    InternalServerError,
+                    "A reconciliation row carries a state no detector owns.".to_string()
+                )
+            })?;
         by_detector[index].push(row);
     }
     let [outcome_uncertain, misregistered] = by_detector;

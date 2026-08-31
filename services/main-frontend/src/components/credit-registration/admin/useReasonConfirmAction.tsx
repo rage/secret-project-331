@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Button } from "@/shared-module/components"
 
 import { ReasonConfirmDialog } from "./ReasonConfirmDialog"
@@ -57,8 +58,8 @@ export function useReasonConfirmAction({
       open={open}
       onClose={() => setOpen(false)}
       title={dialogTitle}
-      {...(dialogMessage ? { message: dialogMessage } : {})}
-      {...(reasonDescription ? { reasonDescription } : {})}
+      {...includeIf(dialogMessage, { message: dialogMessage })}
+      {...includeIf(reasonDescription, { reasonDescription })}
       isPending={mutation.isPending}
       onConfirm={(reason) => mutation.mutate({ reason })}
     />

@@ -766,7 +766,7 @@ pub async fn transition_batch(conn: &mut PgConnection, moves: &[BatchMove]) -> M
     let locked = sqlx::query!(
         r#"
 SELECT id,
-  state AS "state: CreditRegistrationState"
+  state
 FROM credit_registrations
 WHERE id = ANY($1)
   AND deleted_at IS NULL
@@ -1155,7 +1155,6 @@ ORDER BY created_at DESC
     Ok(res)
 }
 
-#[cfg(test)]
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,

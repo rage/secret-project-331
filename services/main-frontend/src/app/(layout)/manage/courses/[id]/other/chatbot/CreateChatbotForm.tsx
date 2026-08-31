@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next"
 import { createChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { Button, TextArea, TextField } from "@/shared-module/components"
 
 import { itemsContainerCss } from "./styles"
@@ -30,12 +29,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
   closeEdit,
 }) => {
   const { t } = useTranslation()
-  const {
-    control,
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CreateChatbotFields>()
+  const { control, handleSubmit } = useForm<CreateChatbotFields>()
 
   const chatbotCreationMutation = useToastMutationOptions(
     createChatbotMutation(),
@@ -63,30 +57,32 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
       >
         <TextField
           control={control}
-          {...omitUndefined({ error: errors.name?.message })}
           label={t("label-name")}
-          {...register("name", {
-            required: t("required-field"),
+          isRequired
+          name={"name"}
+          rules={{
             validate: {
               check: (name) => {
                 return name.trim() ? true : t("name-not-empty")
               },
             },
-          })}
+            required: t("required-field"),
+          }}
         />
         <TextArea
           control={control}
           autoResize={true}
-          {...omitUndefined({ error: errors.purpose?.message })}
           label={t("label-purpose")}
-          {...register("purpose", {
-            required: t("required-field"),
+          isRequired
+          name={"purpose"}
+          rules={{
             validate: {
               check: (purpose) => {
                 return purpose.trim() ? true : t("field-cannot-be-empty")
               },
             },
-          })}
+            required: t("required-field"),
+          }}
         />
         <Button
           type="submit"

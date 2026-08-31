@@ -9,6 +9,7 @@ import { QueryResult } from "@/shared-module/components"
 import { currentPageIdAtom } from "@/state/course-material/selectors"
 
 import ChatbotChat from "../shared/ChatbotChat"
+import ChatbotDialog from "./ChatbotDialog"
 
 export interface ChatbotProps {
   chatbotConfigurationId: string
@@ -30,9 +31,11 @@ const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
         <ChatbotChat
           conversationId={conversationId}
           chatbotConfigurationId={chatbotConfigurationId}
-          isCourseMaterialBlock={false}
+          isAlwaysOpen={false}
           pageId={pageId}
-        />
+        >
+          <ChatbotDialog />
+        </ChatbotChat>
       )}
     </QueryResult>
   )

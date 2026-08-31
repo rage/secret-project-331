@@ -1,36 +1,31 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 
-import ChatbotChatBox from "../../ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
-import ChatbotDialog from "../Chatbot/ChatbotDialog"
+import ChatbotContext from "./ChatbotContext"
 import useChatbotStateAndData from "./hooks/useChatbotStateAndData"
 import useSynchronizeDefaultChatbotCommunicationChannel from "./hooks/useSynchronizeDefaultChatbotCommunicationChannel"
 
 interface ChatbotChatProps {
   chatbotConfigurationId: string
-  isCourseMaterialBlock: boolean
+  isAlwaysOpen: boolean
   conversationId: string | null
   /** The course material page to send as context with a message, or null where there is none. */
   pageId: string | null
+  children: React.ReactNode
 }
-
+// TODO: document that this component will handle all the necessary setup and data for the chatbot
 const ChatbotChat: React.FC<ChatbotChatProps> = ({
   chatbotConfigurationId,
-  isCourseMaterialBlock,
+  isAlwaysOpen,
   conversationId,
   pageId,
+  children,
 }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const chatbotStateAndData = useChatbotStateAndData(
-    chatbotConfigurationId,
-    isCourseMaterialBlock ? undefined : setIsOpen,
-    conversationId,
-    pageId,
-  )
+  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, conversationId, pageId)
 
   useSynchronizeDefaultChatbotCommunicationChannel(
-    isCourseMaterialBlock,
+    isAlwaysOpen,
     chatbotStateAndData.currentConversationInfo,
     chatbotStateAndData.newMessageMutation.mutateAsync,
     chatbotStateAndData.newConversationMutation.mutateAsync,
@@ -38,18 +33,20 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
     chatbotStateAndData.isTurnInFlight,
   )
 
-  return (
-    <>
-      {isCourseMaterialBlock && <ChatbotChatBox {...chatbotStateAndData} />}
-      {!isCourseMaterialBlock && (
-        <ChatbotDialog
-          chatbotStateAndData={chatbotStateAndData}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-        />
-      )}
-    </>
-  )
+  return <ChatbotContext value={chatbotStateAndData}>{children}</ChatbotContext>
+
+  // return (
+  //   <>
+  //     {isAlwaysOpen && <ChatbotChatBox {...chatbotStateAndData} />}
+  //     {!isAlwaysOpen && (
+  //       <ChatbotDialog
+  //         chatbotStateAndData={chatbotStateAndData}
+  //         isOpen={isOpen}
+  //         setIsOpen={setIsOpen}
+  //       />
+  //     )}
+  //   </>
+  // )
 }
 
 export default ChatbotChat

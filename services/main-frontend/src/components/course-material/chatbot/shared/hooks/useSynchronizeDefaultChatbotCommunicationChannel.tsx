@@ -22,7 +22,7 @@ import type { ChatbotAction } from "../chatbotReducer"
 /// Sets a communication channel so that components outside ChatbotDialog can send
 /// messages to the default chatbot of the course.
 const useSynchronizeDefaultChatbotCommunicationChannel = (
-  isCourseMaterialBlock: boolean,
+  isAlwaysOpen: boolean,
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>,
   mutateNewMessageAsync: (message: string) => Promise<unknown>,
   mutateNewConversationAsync: () => Promise<ChatbotConversation>,
@@ -40,7 +40,7 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
   const refetchConversationInfo = currentConversationInfo.refetch
 
   useEffect(() => {
-    if (isCourseMaterialBlock) {
+    if (isAlwaysOpen) {
       return undefined
     }
     setDefaultChatbotCommunicationChannel({
@@ -73,7 +73,7 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
     })
     return () => setDefaultChatbotCommunicationChannel(null)
   }, [
-    isCourseMaterialBlock,
+    isAlwaysOpen,
     currentConversation,
     refetchConversationInfo,
     setDefaultChatbotCommunicationChannel,
@@ -88,18 +88,18 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
   // tearing it down and letting the next run's set-up re-emit it: that turned every turn start
   // into two announcements (false, then true) to every subscriber.
   useEffect(() => {
-    if (isCourseMaterialBlock) {
+    if (isAlwaysOpen) {
       return undefined
     }
     return () => setDefaultChatbotIsTurnInFlight(false)
-  }, [isCourseMaterialBlock, setDefaultChatbotIsTurnInFlight])
+  }, [isAlwaysOpen, setDefaultChatbotIsTurnInFlight])
 
   useEffect(() => {
-    if (isCourseMaterialBlock) {
+    if (isAlwaysOpen) {
       return
     }
     setDefaultChatbotIsTurnInFlight(isTurnInFlight)
-  }, [isCourseMaterialBlock, isTurnInFlight, setDefaultChatbotIsTurnInFlight])
+  }, [isAlwaysOpen, isTurnInFlight, setDefaultChatbotIsTurnInFlight])
 }
 
 export default useSynchronizeDefaultChatbotCommunicationChannel

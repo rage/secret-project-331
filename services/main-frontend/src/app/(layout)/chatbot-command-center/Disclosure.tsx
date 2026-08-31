@@ -30,7 +30,6 @@ const disclosureButton = css`
   text-shadow: none;
   padding: 8px 10px;
   border-radius: 12px;
-  transition: background 120ms ease;
   &[data-hovered] {
     background: #f3f4f6;
     cursor: pointer;
@@ -40,8 +39,7 @@ const disclosureButton = css`
 
 const reactAriaDisclosurePanel = css`
   width: var(--disclosure-panel-width);
-  transition: width 0.3s;
-  overflow: auto;
+  overflow: hidden;
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }

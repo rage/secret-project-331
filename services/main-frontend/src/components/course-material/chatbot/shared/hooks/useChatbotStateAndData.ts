@@ -1,5 +1,5 @@
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { useCallback, useEffect, useReducer, useRef, useState } from "react"
+import React, { useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { allUserConversationsQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
@@ -66,6 +66,8 @@ export interface ChatbotStateAndData {
   isTurnInFlight: boolean
   /** Ends the turn that is streaming now, without surfacing an error. Does nothing otherwise. */
   stopTurn: () => void
+  setIsOpen: React.Dispatch<boolean>
+  isOpen: boolean
 }
 
 /**
@@ -79,15 +81,16 @@ export interface ChatbotStateAndData {
  */
 const useChatbotStateAndData = (
   chatbotConfigurationId: string,
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>> | undefined,
   conversationId: string | null,
   pageId: string | null,
   setConversationId?: React.Dispatch<string>,
-) => {
+): ChatbotStateAndData => {
   const { t } = useTranslation()
   const [newMessage, setNewMessage] = useState("")
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
+  // TODO: disable this when the chatbot is not openable
+  const [isOpen, setIsOpen] = useState(false)
   const [messageState, dispatch] = useReducer(chatbotReducer, {
     messages: [],
     executionPayloadByToolCallId: {},
@@ -318,6 +321,8 @@ const useChatbotStateAndData = (
     chatbotMessageAnnouncement,
     isTurnInFlight,
     stopTurn,
+    setIsOpen,
+    isOpen,
   }
 }
 

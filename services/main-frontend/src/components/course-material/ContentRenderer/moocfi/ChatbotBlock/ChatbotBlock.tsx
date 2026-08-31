@@ -65,7 +65,7 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
               <ChatbotChat
                 conversationId={currentConversation}
                 chatbotConfigurationId={chatbotConfigurationId}
-                isCourseMaterialBlock={true}
+                isAlwaysOpen={true}
                 pageId={pageId}
               />
             )}
@@ -98,7 +98,7 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
                   <ChatbotChat
                     conversationId={currentConversation}
                     chatbotConfigurationId={chatbotConfigurationId}
-                    isCourseMaterialBlock={true}
+                    isAlwaysOpen={true}
                     pageId={pageId}
                   />
                 )}

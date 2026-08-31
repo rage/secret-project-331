@@ -10,11 +10,17 @@ import { baseTheme } from "@/shared-module/common/styles"
 interface ContentDisplayBoxProps {
   label: string
   content?: ReactNode
+  isVisible?: boolean
 }
 
-const ContentDisplayBox: React.FC<ContentDisplayBoxProps> = ({ label, content }) => {
+const ContentDisplayBox: React.FC<ContentDisplayBoxProps> = ({
+  label,
+  content,
+  isVisible = true,
+}) => {
   const { t } = useTranslation()
-  return (
+
+  return isVisible ? (
     <div
       className={css`
         border-radius: 0.5rem;
@@ -42,10 +48,10 @@ const ContentDisplayBox: React.FC<ContentDisplayBoxProps> = ({ label, content })
           margin: 0.35rem 0;
         `}
       >
-        {content ? content : t("label-null")}
+        {content ?? t("label-null")}
       </div>
     </div>
-  )
+  ) : null
 }
 
 export default ContentDisplayBox

@@ -13,13 +13,13 @@ import type { CourseCreditRegistrationModuleSummary } from "@/generated/api/type
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Badge, Meter, QueryResult, StatTile } from "@/shared-module/components"
 
-import BlockedStudentsDialog from "./BlockedStudentsDialog"
 import { TONE } from "./constants"
 import CourseCreditRegistrationActionsPanel from "./CourseCreditRegistrationActionsPanel"
 import CreditRegistrationConfigCallout from "./CreditRegistrationConfigCallout"
 import CreditRegistrationExportLink from "./CreditRegistrationExportLink"
 import RetryFailedCreditRegistrationsBlock from "./RetryFailedCreditRegistrationsBlock"
 import { tilesCss } from "./styles"
+import UnlinkedStudentsDialog from "./UnlinkedStudentsDialog"
 
 interface Props {
   courseId: string
@@ -51,9 +51,6 @@ const moduleHeaderCss = css`
   gap: 0.5rem;
   align-items: center;
 `
-
-// oxlint-disable-next-line i18next/no-literal-string
-const WAITING_FOR_STUDENT_NUMBER = "needs_student_number" as const
 
 const actionsRowCss = css`
   display: flex;
@@ -163,10 +160,8 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
             </div>
             <CourseCreditRegistrationActionsPanel courseId={courseId} />
             {showBlocked && (
-              <BlockedStudentsDialog
+              <UnlinkedStudentsDialog
                 courseId={courseId}
-                status={WAITING_FOR_STUDENT_NUMBER}
-                title={t("label-credit-registration-unlinked-enrolled-students")}
                 open={showBlocked}
                 onClose={() => setShowBlocked(false)}
               />

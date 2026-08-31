@@ -6,15 +6,12 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import type { StudentFacingCreditRegistrationStatus } from "@/generated/api/types.generated"
 import { Badge, Button, Dialog, QueryResult } from "@/shared-module/components"
 
 import { linkingEmailSentence } from "./teacherCreditRegistrations"
 
 interface Props {
   courseId: string
-  status: StudentFacingCreditRegistrationStatus
-  title: string
   open: boolean
   onClose: () => void
 }
@@ -58,12 +55,14 @@ const pagerCss = css`
 // oxlint-disable-next-line i18next/no-literal-string
 const NUMBER_TONE = "neutral" as const
 
-// One ledger state covers every blocker, so the blocker itself is filtered for here. Paging stays
+// `pending` covers both blockers, so the missing student number is filtered for here. Paging stays
 // the server's, so a page can come back with nothing on it.
 // oxlint-disable-next-line i18next/no-literal-string
 const PENDING = "pending" as const
+// oxlint-disable-next-line i18next/no-literal-string
+const NEEDS_STUDENT_NUMBER = "needs_student_number" as const
 
-const BlockedStudentsDialog: React.FC<Props> = ({ courseId, status, title, open, onClose }) => {
+const UnlinkedStudentsDialog: React.FC<Props> = ({ courseId, open, onClose }) => {
   const { t, i18n } = useTranslation()
   const [page, setPage] = useState(1)
   const listQuery = useQuery({
@@ -75,13 +74,18 @@ const BlockedStudentsDialog: React.FC<Props> = ({ courseId, status, title, open,
   })
 
   return (
-    <Dialog open={open} onClose={onClose} title={title} size="wide">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={t("label-credit-registration-unlinked-enrolled-students")}
+      size="wide"
+    >
       <QueryResult query={listQuery}>
         {(list) => (
           <>
             <ul className={listCss}>
               {list.data
-                .filter((row) => row.student_facing_status === status)
+                .filter((row) => row.student_facing_status === NEEDS_STUDENT_NUMBER)
                 .map((row) => (
                   <li className={rowCss} key={row.id}>
                     <div className={identityCss}>
@@ -133,4 +137,4 @@ const BlockedStudentsDialog: React.FC<Props> = ({ courseId, status, title, open,
   )
 }
 
-export default BlockedStudentsDialog
+export default UnlinkedStudentsDialog

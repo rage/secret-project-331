@@ -252,7 +252,7 @@ async fn create_chatbot(
             task_llm.clone(),
             course_name.to_owned(),
             course_desc.to_owned(),
-            &purpose,
+            purpose,
         )
         .await?;
 

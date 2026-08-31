@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { createChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { Button, TextArea, TextField } from "@/shared-module/components"
 
@@ -29,6 +30,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
   closeEdit,
 }) => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
   const { control, handleSubmit } = useForm<CreateChatbotFields>()
 
   const chatbotCreationMutation = useToastMutationOptions(
@@ -42,6 +44,15 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
         getChatbotsList.refetch()
         closeEdit(data.id)
       },
+      onError: async (error, variables) => {
+        const try_again = await confirm(
+          t("create-chatbot-form-fail-dialog"),
+          t("create-chatbot-form-fail-title"),
+        )
+        chatbotCreationMutation.mutate({
+          body: { ...variables.body, skip_azure_stuff: !try_again },
+        })
+      },
     },
   )
 
@@ -51,7 +62,12 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
         className={itemsContainerCss}
         onSubmit={handleSubmit((data) => {
           chatbotCreationMutation.mutate({
-            body: { name: data.name.trim(), course_id: courseId, purpose: data.purpose.trim() },
+            body: {
+              name: data.name.trim(),
+              course_id: courseId,
+              purpose: data.purpose.trim(),
+              skip_azure_stuff: false,
+            },
           })
         })}
       >

@@ -739,6 +739,8 @@
   "create-an-account": "Create an account",
   "create-certificate-configuration": "Create certificate configuration",
   "create-chatbot": "Create a new chatbot",
+  "create-chatbot-form-fail-dialog": "Failed to automatically generate a draft prompt and initial message for this chatbot. Try to generate them again? The chatbot will be saved in both cases.",
+  "create-chatbot-form-fail-title": "Failed to generate prompt for chatbot",
   "create-configuration": "Create configuration",
   "create-course-duplicate": "Copy content from another course",
   "create-course-duplicate-helper-text": "Tip: You can type part of the course in the field to sort out options",

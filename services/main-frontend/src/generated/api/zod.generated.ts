@@ -1252,6 +1252,7 @@ export const zCreateChatbotRequest = z.object({
   course_id: z.uuid().nullish(),
   name: z.string(),
   purpose: z.string(),
+  skip_azure_stuff: z.boolean(),
 })
 
 export const zCreateCourseDesignerPlanRequest = z.object({

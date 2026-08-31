@@ -4,7 +4,9 @@ use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole,
 };
-use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
+use headless_lms_utils::json_schema_types::{
+    ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType,
+};
 use indexmap::IndexMap;
 use tracing::debug;
 use utoipa::ToSchema;
@@ -22,6 +24,7 @@ use crate::{
 pub struct PromptCreationResponse {
     pub prompt: String,
     pub first_message: String,
+    pub suggested_messages: Vec<String>,
 }
 
 pub const RESPONSE_FORMAT_NAME: &str = "PromptCreationResponse";
@@ -48,6 +51,17 @@ fn response_format() -> LLMRequestResponseFormatParam {
                         description: None,
                     }),
                 ),
+                (
+                    "suggested_messages".to_string(),
+                    SchemaPropertyType::ArrayProperty(ArrayProperty {
+                        type_field: JSONType::Array,
+                        items: ArrayItem::JsonItem(JsonItem {
+                            type_field: JSONType::String,
+                            description: None,
+                        }),
+                        description: None,
+                    }),
+                ),
             ]),
             None,
         ),
@@ -69,7 +83,14 @@ fn prompt_if_course(course_name: Option<String>, course_desc: Option<String>) ->
 }
 
 const SYSTEM_PROMPT_1: &str = r#"
-You are an expert prompt engineer. Generate a high-quality system prompt and a first message for an LLM-based chatbot. The system prompt should be clear and informative. The first message is a message this chatbot sends to the user at the start of a conversation and should be designed to engage the user and help them understand how the chatbot can be useful. The first message should be short and concise. Avoid overwhelming the user with information.
+You are an expert prompt engineer. Generate a high-quality system prompt, a first message, and suggested messages for an LLM-based chatbot. The system prompt should be clear and informative. The first message is a message this chatbot sends to the user at the start of a conversation and should be designed to engage the user and help them understand how the chatbot can be useful. The first message should be short and concise. Avoid overwhelming the user with information. The suggested messages are example messages that the user could send after reading the first message sent by the chatbot. They should help orient the user towards learning and suggest how the user can use and benefit from the chatbot.
+
+Constraints:
+- Create exactly 3 suggested example user messages.
+- Create brief, concise and clear messages. Use as few words and sentences as possible.
+- Maintain a supportive, respectful, and clear tone in the messages.
+- Create an informative and professional prompt.
+- Do not assume specifics about the chatbot's intended purpose. Refer to the provided description of the chatbot.
 
 The chatbot that this prompt will be used on has the following description, including its specified purpose and task:
 
@@ -83,6 +104,7 @@ pub async fn generate_prompt(
     course_desc: Option<String>,
     chatbot_purpose: &str,
 ) -> ChatbotResult<PromptCreationResponse> {
+    return Err(chatbot_err!(FailedAzureResponse, "lolol no prompt"));
     let prompt =
         SYSTEM_PROMPT_1.to_string() + chatbot_purpose + &prompt_if_course(course_name, course_desc);
     debug!("{}", &prompt);

@@ -618,6 +618,8 @@
   "create-an-account": "Luo käyttäjätunnus",
   "create-certificate-configuration": "Luo sertifikaattikonfiguraatio",
   "create-chatbot": "Luo uusi keskustelurobotti",
+  "create-chatbot-form-fail-dialog": "Keskustelurobotin kehotteen ja aloitusviestien automaattinen luonti epäonnistui. Yritetäänkö luomista uudelleen? Keskustelurobotti tallennetaan molemmissa tapauksissa.",
+  "create-chatbot-form-fail-title": "Keskustelurobotin kehotteen luonti epäonnistui",
   "create-configuration": "Luo konfiguraatio",
   "create-course-duplicate": "Kopioi sisältö toisesta kurssista",
   "create-course-duplicate-helper-text": "Vihje: Voit kirjoittaa osan kurssista saadaksesi vaihtoehtoja",

@@ -18828,7 +18828,7 @@
       },
       "CreateChatbotRequest": {
         "type": "object",
-        "required": ["name", "purpose"],
+        "required": ["name", "purpose", "skip_azure_stuff"],
         "properties": {
           "course_id": {
             "type": ["string", "null"],
@@ -18839,6 +18839,9 @@
           },
           "purpose": {
             "type": "string"
+          },
+          "skip_azure_stuff": {
+            "type": "boolean"
           }
         }
       },

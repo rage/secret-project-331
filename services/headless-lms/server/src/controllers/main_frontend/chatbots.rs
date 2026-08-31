@@ -3,8 +3,6 @@ use crate::prelude::*;
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     chatbot_configurations::CreateChatbotRequest,
-    chatbot_conversation_message_messages::MessageRole,
-    chatbot_conversation_messages::ChatbotConversationMessage,
 };
 use utoipa::OpenApi;
 
@@ -216,6 +214,7 @@ async fn create_chatbot(
             None,
         )
     };
+
     let mut tx = conn.begin().await?;
 
     let model = models::chatbot_configurations_models::get_default(&mut tx)
@@ -228,86 +227,49 @@ async fn create_chatbot(
             )
         })?;
 
-    let configuration = models::chatbot_configurations::insert(
-        &mut tx,
-        PKeyPolicy::Generate,
-        NewChatbotConf {
-            chatbot_name: name.to_owned(),
-            course_id,
-            model_id: model.id,
-            publicly_accessible: course_id.is_none(),
-            ..Default::default()
-        },
-    )
-    .await?;
+    let mut chatbot_to_insert = NewChatbotConf {
+        chatbot_name: name.to_owned(),
+        course_id,
+        model_id: model.id,
+        publicly_accessible: course_id.is_none(),
+        ..Default::default()
+    };
+    if !payload.skip_azure_stuff {
+        let task_llm = models::application_task_default_language_models::get_for_task(
+            &mut tx,
+            ApplicationTask::MessageSuggestion,
+        )
+        .await?;
+
+        let (course_name, course_desc) = if let Some(c) = course {
+            (Some(c.name), c.description)
+        } else {
+            (None, None)
+        };
+
+        let prompt_res = headless_lms_chatbot::prompt_creation::generate_prompt(
+            app_conf.as_ref(),
+            task_llm.clone(),
+            course_name.to_owned(),
+            course_desc.to_owned(),
+            &purpose,
+        )
+        .await?;
+
+        chatbot_to_insert = NewChatbotConf {
+            prompt: prompt_res.prompt,
+            initial_message: prompt_res.first_message,
+            initial_suggested_messages: Some(prompt_res.suggested_messages),
+            ..chatbot_to_insert
+        };
+    };
+
+    let configuration =
+        models::chatbot_configurations::insert(&mut tx, PKeyPolicy::Generate, chatbot_to_insert)
+            .await?;
     tx.commit().await?;
 
-    // commit before using Azure LLM so failure there won't ruin the otherwise
-    // valid insert
-    let task_llm = models::application_task_default_language_models::get_for_task(
-        &mut conn,
-        ApplicationTask::MessageSuggestion,
-    )
-    .await?;
-
-    let (course_name, course_desc) = if let Some(c) = course {
-        (Some(c.name), c.description)
-    } else {
-        (None, None)
-    };
-
-    // todo what to do if these azure stuff fail?
-    let prompt_res = headless_lms_chatbot::prompt_creation::generate_prompt(
-        app_conf.as_ref(),
-        task_llm.clone(),
-        course_name.to_owned(),
-        course_desc.to_owned(),
-        &purpose,
-    )
-    .await?;
-
-    let sm_res = match headless_lms_chatbot::message_suggestion::generate_suggested_messages(
-        app_conf.as_ref(),
-        task_llm,
-        &[ChatbotConversationMessage::text(
-            Uuid::nil(),
-            MessageRole::Assistant,
-            prompt_res.first_message.clone(),
-            0,
-            None,
-        )],
-        None,
-        course_name,
-        course_desc,
-    )
-    .await
-    {
-        Ok(res) => Some(res),
-        Err(e) => {
-            error!(
-                "Couldn't generate suggested messages for new chatbot: {}",
-                e
-            );
-            None
-        }
-    };
-
-    let new = NewChatbotConf {
-        prompt: prompt_res.prompt,
-        initial_message: prompt_res.first_message,
-        initial_suggested_messages: sm_res,
-        ..NewChatbotConf::from(configuration.clone())
-    };
-
-    let res = match models::chatbot_configurations::edit(&mut conn, new, configuration.id).await {
-        Ok(conf) => conf,
-        Err(e) => {
-            error!("Error: {}", e);
-            configuration
-        }
-    };
-
-    token.authorized_ok(web::Json(res))
+    token.authorized_ok(web::Json(configuration))
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

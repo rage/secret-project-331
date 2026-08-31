@@ -88,6 +88,7 @@ pub struct CreateChatbotRequest {
     pub name: String,
     pub course_id: Option<Uuid>,
     pub purpose: String,
+    pub skip_azure_stuff: bool,
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]

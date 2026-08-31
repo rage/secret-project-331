@@ -1790,6 +1790,7 @@ export type CreateChatbotRequest = {
   course_id?: string | null
   name: string
   purpose: string
+  skip_azure_stuff: boolean
 }
 
 export type CreateCourseDesignerPlanRequest = {

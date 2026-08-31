@@ -1,3 +1,4 @@
+import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   CREDIT_REGISTRATIONS_API,
   PROFILE_CREDIT_REGISTRATION_URL,
@@ -34,6 +35,8 @@ test.describe("A student whose grade was registered twice", () => {
     // The replaced attempt stays visible as history: a student who saw grade 3 registered should not
     // find that it never happened.
     await expect(registrations.getByText("Earlier attempt 1")).toBeVisible()
+
+    await accessibilityCheck(page, "Profile credit registration tab")
   })
 })
 

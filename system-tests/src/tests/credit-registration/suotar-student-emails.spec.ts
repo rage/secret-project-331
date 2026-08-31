@@ -1,3 +1,4 @@
+import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   completionRegistrationUrl,
   CRS_101,
@@ -109,6 +110,10 @@ test.describe("A student whose credits reach the study registry", () => {
       await page.goto(completionRegistrationUrl(registration.course_module_id))
       await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
       await expect(page.getByText("delivered")).toHaveCount(0)
+    })
+
+    await test.step("The status page is accessible once the row is registered", async () => {
+      await accessibilityCheck(page, "Credit registration status page")
     })
   })
 })

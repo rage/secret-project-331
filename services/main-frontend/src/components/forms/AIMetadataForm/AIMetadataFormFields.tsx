@@ -117,14 +117,12 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
     fields: prereqField,
     append: appendPrereq,
     remove: removePrereq,
-    // oxlint-disable-next-line i18next/no-literal-string
   } = useFieldArray({ control, name: "course_prerequisites" })
 
   const {
     fields: audienceField,
     append: appendAudience,
     remove: removeAudience,
-    // oxlint-disable-next-line i18next/no-literal-string
   } = useFieldArray({ control, name: "course_audiences" })
 
   const submit = handleSubmit((data) => {

@@ -28,7 +28,6 @@ const EditClosedFields = (): React.ReactElement => {
     control,
   } = useFormContext<EditCourseAuditingData>()
 
-  // oxlint-disable-next-line i18next/no-literal-string
   const isClosed = useWatch({ name: "set_course_closed_at", control })
 
   return (

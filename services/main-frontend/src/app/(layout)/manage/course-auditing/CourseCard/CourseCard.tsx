@@ -126,22 +126,18 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData, filterC
   const { control, handleSubmit, reset, getValues } = methods
   const { isDirty } = useFormState({ control })
 
-  // oxlint-disable-next-line i18next/no-literal-string
   const { fields: moduleFields } = useFieldArray({ control, name: "modules" })
 
   const {
     fields: prereqFields,
     append: appendPrereq,
     remove: removePrereq,
-
-    // oxlint-disable-next-line i18next/no-literal-string
   } = useFieldArray({ control, name: "prerequisites" })
 
   const {
     fields: audienceFields,
     append: appendAudience,
     remove: removeAudience,
-    // oxlint-disable-next-line i18next/no-literal-string
   } = useFieldArray({ control, name: "audiences" })
 
   const toggleEdit = () => {

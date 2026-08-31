@@ -129,7 +129,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
   }, [reset, module, chapters])
   const realisations = useFieldArray({
     control,
-    // oxlint-disable-next-line i18next/no-literal-string
     name: "credit_registration.realisations",
   })
 

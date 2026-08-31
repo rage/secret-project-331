@@ -282,6 +282,7 @@ export type ClientToolName =
   | "reset_exercises"
   | "update_cheating_status"
   | "edit_user_account"
+  | "update_certificate"
 
 export type CodeGiveawayStatus =
   | {

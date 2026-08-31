@@ -8,7 +8,8 @@ use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     certificate_configurations, course_module_completion_registered_to_study_registries,
     course_module_completions::{self, CourseModuleCompletion},
-    course_modules, exercise_reset_logs, exercise_slide_submissions,
+    course_modules, exercise_reset_logs,
+    exercise_slide_submissions::{self, UserCourseSubmissionTime},
     exercises::{self, Exercise},
     generated_certificates,
     library::progressing::{self, UserModuleCompletionStatus},
@@ -26,6 +27,7 @@ use crate::{
     chatbot_tools::{
         ChatbotTool, ChatbotToolDeclaration, ToolProperties,
         argument_parsing::deserialize_to_optional_uuid_and_errors_to_none,
+        certificate_validation_url, output_limits::CappedList, search_url,
         tool_authorization::ToolRequirement,
     },
     prelude::*,
@@ -421,6 +423,7 @@ impl ChatbotTool for UserCourseStateTool {
                             arguments.user_id,
                             arguments.course_id,
                             completions,
+                            &base_url,
                         )
                         .await?,
                     )
@@ -531,6 +534,15 @@ impl ChatbotTool for UserCourseStateTool {
                 "Quote submission timestamps exactly when the question is whether an answer saved."
                     .to_string(),
             );
+            notes.push(match &submissions.submissions {
+                SubmissionsView::PerExercise(_) => "submissions.per_exercise gives one row per exercise, with the \
+                    count and the first and latest timestamp. Call this facet again with exercise_id set to that \
+                    exercise to get its individual submission timestamps."
+                    .to_string(),
+                SubmissionsView::Timestamps(_) => "submissions.timestamps lists this exercise's submissions \
+                    individually because the call named an exercise_id."
+                    .to_string(),
+            });
             notes.push(format!(
                 "submissions are timestamps only, with no score or answer content. An absent row can mean nothing \
                 was submitted, or that a reset soft-deleted the submissions it would have come from - cross-check \
@@ -614,7 +626,9 @@ impl ChatbotTool for UserCourseStateTool {
                 not mean generation failed - certificates are only created when the student explicitly clicks \
                 generate, nothing generates them automatically; empty plus eligible: true means they can download it \
                 now. verification_id both verifies and grants access to the certificate image - only share it with \
-                the certificate's owner.".to_string(),
+                the certificate's owner or an admin acting for them. Whenever you mention a generated certificate, \
+                link it: render its validation_url as a markdown link on the certificate itself instead of pasting \
+                the URL as text. That page both proves the certificate is genuine and shows its image.".to_string(),
             );
             let certificates_search_url = search_url(
                 base_url,
@@ -642,7 +656,9 @@ impl ChatbotTool for UserCourseStateTool {
             }
         }
 
-        if facets.contains_key(UserCourseStateFacet::CreditRegistration.wire_name()) {
+        if let Some(UserCourseStateFacetValue::CreditRegistration(credit_registration)) =
+            facets.get(UserCourseStateFacet::CreditRegistration.wire_name())
+        {
             notes.push(
                 "credit_registration has one row per completion, keyed by course_module_id - a module with no \
                 completion produces no row at all, so an empty array can mean \"nothing completed yet\" rather than \
@@ -665,6 +681,21 @@ impl ChatbotTool for UserCourseStateTool {
                 (attempt chain, event timeline, API calls, attainment ids).",
                 self.state.user_id,
             ));
+            if credit_registration
+                .registrations
+                .iter()
+                .any(|r| r.registered)
+            {
+                notes.push(
+                    "registered: true only says this platform recorded the attainment as sent, so a student can \
+                    still report not seeing it in Sisu. The usual cause is a Sisu-side state where the assessment \
+                    item is sufficient but not attained, which nothing on this platform can fix and re-registering \
+                    will not clear. A Sisu support person resolves it: in Sisu, open the Studies tab, search for \
+                    courses by the course code, pick the right one, and open Assessment - when this is the cause \
+                    the student is listed there and the attainment can be granted to them. Offer this as the next \
+                    step, addressed to whoever can act in Sisu, instead of telling the student to wait.".to_string(),
+                );
+            }
         }
 
         if notes.is_empty() {
@@ -685,18 +716,6 @@ async fn progress_facet(
 /// Maps exercise id to name, for annotating rows that only carry an exercise id.
 fn exercise_name_index(exercises: &[Exercise]) -> HashMap<Uuid, &str> {
     exercises.iter().map(|e| (e.id, e.name.as_str())).collect()
-}
-
-/// An absolute `{base_url}{path}` URL with a single percent-encoded `search` query parameter.
-/// `search` can contain characters (e.g. a `+` in an email's local part) that are not safe to
-/// interpolate into a query string directly.
-fn search_url(base_url: &str, path: &str, search: &str) -> String {
-    url::Url::parse(&format!("{base_url}{path}"))
-        .map(|mut url| {
-            url.query_pairs_mut().append_pair("search", search);
-            url.to_string()
-        })
-        .unwrap_or_else(|_| format!("{base_url}{path}"))
 }
 
 #[derive(Serialize)]
@@ -753,9 +772,40 @@ async fn completions_facet(
 
 #[derive(Serialize)]
 struct SubmissionsFacet {
-    submissions: Vec<SubmissionRow>,
+    submissions: SubmissionsView,
     #[serde(skip_serializing_if = "Option::is_none")]
     exercise_attempts: Option<ExerciseAttempts>,
+}
+
+/// How a call's submissions are reported, which follows from whether it named an exercise.
+///
+/// A whole-course call is answered per exercise: the underlying query returns up to 5001 rows,
+/// and one row per submission repeats the exercise on every one of them for an answer that is
+/// almost always a count. The individual timestamps are what a call about one exercise is asking
+/// for, so that is where they are kept.
+#[derive(Serialize)]
+#[serde(rename_all = "snake_case")]
+enum SubmissionsView {
+    PerExercise(CappedList<ExerciseSubmissionSummary>),
+    Timestamps(CappedList<SubmissionRow>),
+}
+
+/// The most exercises a whole-course call reports on, and the most timestamps a call narrowed to
+/// one exercise lists. Both are far above what a real course or a real student reaches; they exist
+/// so a pathological row count cannot crowd the other facets out of the same output.
+const MAX_SUBMISSION_SUMMARIES: usize = 400;
+const MAX_SUBMISSION_TIMESTAMPS: usize = 300;
+
+#[derive(Serialize)]
+struct ExerciseSubmissionSummary {
+    exercise_id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    exercise_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    course_module_id: Option<Uuid>,
+    submission_count: usize,
+    first_submission_at: DateTime<Utc>,
+    latest_submission_at: DateTime<Utc>,
 }
 
 #[derive(Serialize)]
@@ -766,6 +816,38 @@ struct SubmissionRow {
     exercise_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     course_module_id: Option<Uuid>,
+}
+
+/// Collapses submission times into one row per exercise, in the order the exercises were first
+/// submitted to.
+fn summarize_submissions_per_exercise(
+    times: &[UserCourseSubmissionTime],
+    exercise_names: &HashMap<Uuid, &str>,
+) -> Vec<ExerciseSubmissionSummary> {
+    let mut per_exercise: IndexMap<Uuid, ExerciseSubmissionSummary> = IndexMap::new();
+    for time in times {
+        match per_exercise.entry(time.exercise_id) {
+            indexmap::map::Entry::Occupied(mut entry) => {
+                let summary = entry.get_mut();
+                summary.submission_count += 1;
+                summary.first_submission_at = summary.first_submission_at.min(time.created_at);
+                summary.latest_submission_at = summary.latest_submission_at.max(time.created_at);
+            }
+            indexmap::map::Entry::Vacant(entry) => {
+                entry.insert(ExerciseSubmissionSummary {
+                    exercise_id: time.exercise_id,
+                    exercise_name: exercise_names
+                        .get(&time.exercise_id)
+                        .map(|name| name.to_string()),
+                    course_module_id: time.course_module_id,
+                    submission_count: 1,
+                    first_submission_at: time.created_at,
+                    latest_submission_at: time.created_at,
+                });
+            }
+        }
+    }
+    per_exercise.into_values().collect()
 }
 
 #[derive(Serialize)]
@@ -789,16 +871,25 @@ async fn submissions_facet(
             .await?;
     let exercise_names = exercise_name_index(course_exercises);
 
-    let submissions = times
-        .iter()
-        .filter(|t| exercise_id.is_none_or(|id| t.exercise_id == id))
-        .map(|t| SubmissionRow {
-            created_at: t.created_at,
-            exercise_id: t.exercise_id,
-            exercise_name: exercise_names.get(&t.exercise_id).map(|s| s.to_string()),
-            course_module_id: t.course_module_id,
-        })
-        .collect();
+    let submissions = match exercise_id {
+        Some(exercise_id) => SubmissionsView::Timestamps(CappedList::new(
+            times
+                .iter()
+                .filter(|t| t.exercise_id == exercise_id)
+                .map(|t| SubmissionRow {
+                    created_at: t.created_at,
+                    exercise_id: t.exercise_id,
+                    exercise_name: exercise_names.get(&t.exercise_id).map(|s| s.to_string()),
+                    course_module_id: t.course_module_id,
+                })
+                .collect(),
+            MAX_SUBMISSION_TIMESTAMPS,
+        )),
+        None => SubmissionsView::PerExercise(CappedList::new(
+            summarize_submissions_per_exercise(&times, &exercise_names),
+            MAX_SUBMISSION_SUMMARIES,
+        )),
+    };
 
     let mut exercise_attempts = None;
 
@@ -837,10 +928,15 @@ async fn submissions_facet(
 
 #[derive(Serialize)]
 struct ReviewsFacet {
-    in_review_stages: Vec<InReviewStageRow>,
-    teacher_grading_decisions: Vec<TeacherGradingDecisionRow>,
-    peer_review_queue: Vec<PeerReviewQueueRow>,
+    in_review_stages: CappedList<InReviewStageRow>,
+    teacher_grading_decisions: CappedList<TeacherGradingDecisionRow>,
+    peer_review_queue: CappedList<PeerReviewQueueRow>,
 }
+
+/// The most rows any one review or reset list reports. These grow with the exercises of the
+/// course, and a teacher's justification on a grading decision is free text, so the product is
+/// only loosely bounded even though the row count is.
+const MAX_REVIEW_ROWS: usize = 300;
 
 #[derive(Serialize)]
 struct InReviewStageRow {
@@ -893,15 +989,18 @@ async fn reviews_facet(
         ],
     )
     .await?;
-    let in_review_stages = states
-        .iter()
-        .map(|s| InReviewStageRow {
-            exercise_id: s.exercise_id,
-            exercise_name: s.exercise_name.clone(),
-            reviewing_stage: s.reviewing_stage,
-            score_given: s.score_given,
-        })
-        .collect();
+    let in_review_stages = CappedList::new(
+        states
+            .iter()
+            .map(|s| InReviewStageRow {
+                exercise_id: s.exercise_id,
+                exercise_name: s.exercise_name.clone(),
+                reviewing_stage: s.reviewing_stage,
+                score_given: s.score_given,
+            })
+            .collect(),
+        MAX_REVIEW_ROWS,
+    );
 
     let decisions =
         teacher_grading_decisions::get_all_latest_grading_decisions_by_user_id_and_course_id(
@@ -919,25 +1018,28 @@ async fn reviews_facet(
         .map(|s| (s.id, s.exercise_id))
         .collect();
     let exercise_names = exercise_name_index(course_exercises);
-    let teacher_grading_decisions = decisions
-        .iter()
-        .map(|d| {
-            let exercise_id = exercise_id_by_user_exercise_state_id
-                .get(&d.user_exercise_state_id)
-                .copied();
-            TeacherGradingDecisionRow {
-                exercise_id,
-                exercise_name: exercise_id
-                    .and_then(|id| exercise_names.get(&id))
-                    .map(|s| s.to_string()),
-                teacher_decision: d.teacher_decision,
-                score_given: d.score_given,
-                justification: d.justification.clone(),
-                hidden: d.hidden,
-                created_at: d.created_at,
-            }
-        })
-        .collect();
+    let teacher_grading_decisions = CappedList::new(
+        decisions
+            .iter()
+            .map(|d| {
+                let exercise_id = exercise_id_by_user_exercise_state_id
+                    .get(&d.user_exercise_state_id)
+                    .copied();
+                TeacherGradingDecisionRow {
+                    exercise_id,
+                    exercise_name: exercise_id
+                        .and_then(|id| exercise_names.get(&id))
+                        .map(|s| s.to_string()),
+                    teacher_decision: d.teacher_decision,
+                    score_given: d.score_given,
+                    justification: d.justification.clone(),
+                    hidden: d.hidden,
+                    created_at: d.created_at,
+                }
+            })
+            .collect(),
+        MAX_REVIEW_ROWS,
+    );
 
     let peer_review_entries = if let Some(exercise_id) = exercise_id {
         peer_review_queue_entries::try_to_get_by_user_and_exercise_and_course_ids(
@@ -952,15 +1054,18 @@ async fn reviews_facet(
     } else {
         peer_review_queue_entries::get_all_by_user_and_course_id(conn, user_id, course_id).await?
     };
-    let peer_review_queue = peer_review_entries
-        .iter()
-        .map(|e| PeerReviewQueueRow {
-            exercise_id: e.exercise_id,
-            received_enough_peer_reviews: e.received_enough_peer_reviews,
-            peer_review_priority: e.peer_review_priority,
-            created_at: e.created_at,
-        })
-        .collect();
+    let peer_review_queue = CappedList::new(
+        peer_review_entries
+            .iter()
+            .map(|e| PeerReviewQueueRow {
+                exercise_id: e.exercise_id,
+                received_enough_peer_reviews: e.received_enough_peer_reviews,
+                peer_review_priority: e.peer_review_priority,
+                created_at: e.created_at,
+            })
+            .collect(),
+        MAX_REVIEW_ROWS,
+    );
 
     Ok(ReviewsFacet {
         in_review_stages,
@@ -971,7 +1076,7 @@ async fn reviews_facet(
 
 #[derive(Serialize)]
 struct ResetsFacet {
-    resets: Vec<ResetRow>,
+    resets: CappedList<ResetRow>,
 }
 
 #[derive(Serialize)]
@@ -1008,7 +1113,9 @@ async fn resets_facet(
             }
         })
         .collect();
-    Ok(ResetsFacet { resets })
+    Ok(ResetsFacet {
+        resets: CappedList::new(resets, MAX_REVIEW_ROWS),
+    })
 }
 
 #[derive(Serialize)]
@@ -1027,9 +1134,11 @@ struct CertificateConfigurationRow {
 
 #[derive(Serialize)]
 struct GeneratedCertificateRow {
+    certificate_id: Uuid,
     verification_id: String,
     name_on_certificate: String,
     created_at: DateTime<Utc>,
+    validation_url: String,
 }
 
 async fn certificates_facet(
@@ -1037,6 +1146,7 @@ async fn certificates_facet(
     user_id: Uuid,
     course_id: Uuid,
     raw_completions: &[CourseModuleCompletion],
+    base_url: &str,
 ) -> ChatbotResult<CertificatesFacet> {
     let configurations =
         certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(
@@ -1097,6 +1207,8 @@ async fn certificates_facet(
         .into_iter()
         .filter(|c| c.course_id == course_id)
         .map(|c| GeneratedCertificateRow {
+            certificate_id: c.id,
+            validation_url: certificate_validation_url(base_url, &c.verification_id),
             verification_id: c.verification_id,
             name_on_certificate: c.name_on_certificate,
             created_at: c.created_at,
@@ -1167,4 +1279,51 @@ async fn credit_registration_facet(
     Ok(CreditRegistrationFacet {
         registrations: result,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn submission_time(exercise: Uuid, minutes: i64) -> UserCourseSubmissionTime {
+        UserCourseSubmissionTime {
+            created_at: DateTime::from_timestamp(minutes * 60, 0).expect("a valid timestamp"),
+            exercise_id: exercise,
+            course_module_id: None,
+        }
+    }
+
+    /// The whole-course view exists because a student's submissions run to thousands of rows that
+    /// only ever get counted, so the collapse has to preserve the count and the span while
+    /// emitting one row per exercise.
+    #[test]
+    fn submissions_collapse_to_one_row_per_exercise() {
+        let first = Uuid::new_v4();
+        let second = Uuid::new_v4();
+        let names = HashMap::from([(first, "Muuttujat"), (second, "Silmukat")]);
+
+        let summaries = summarize_submissions_per_exercise(
+            &[
+                submission_time(first, 10),
+                submission_time(second, 20),
+                submission_time(first, 30),
+                submission_time(first, 5),
+            ],
+            &names,
+        );
+
+        assert_eq!(summaries.len(), 2);
+        assert_eq!(summaries[0].exercise_id, first);
+        assert_eq!(summaries[0].exercise_name.as_deref(), Some("Muuttujat"));
+        assert_eq!(summaries[0].submission_count, 3);
+        assert_eq!(
+            summaries[0].first_submission_at,
+            submission_time(first, 5).created_at
+        );
+        assert_eq!(
+            summaries[0].latest_submission_at,
+            submission_time(first, 30).created_at
+        );
+        assert_eq!(summaries[1].submission_count, 1);
+    }
 }

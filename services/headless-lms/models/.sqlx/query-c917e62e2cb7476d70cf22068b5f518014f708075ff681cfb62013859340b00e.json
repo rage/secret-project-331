@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT DISTINCT ON (gc.id) gc.id,\n  gc.name_on_certificate,\n  gc.verification_id,\n  gc.created_at,\n  c.id AS course_id,\n  c.name AS course_name,\n  cm.name AS course_module_name\nFROM generated_certificates gc\n  JOIN certificate_configuration_to_requirements cctr ON cctr.certificate_configuration_id = gc.certificate_configuration_id\n  AND cctr.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cctr.course_module_id\n  AND cm.deleted_at IS NULL\n  JOIN courses c ON c.id = cm.course_id\n  AND c.deleted_at IS NULL\nWHERE gc.user_id = $1\n  AND gc.deleted_at IS NULL\nORDER BY gc.id,\n  cm.order_number\n        ",
+  "query": "\nSELECT DISTINCT ON (gc.id) gc.id,\n  gc.user_id,\n  gc.name_on_certificate,\n  gc.verification_id,\n  gc.created_at,\n  c.id AS course_id,\n  c.name AS course_name,\n  cm.name AS course_module_name\nFROM generated_certificates gc\n  JOIN certificate_configuration_to_requirements cctr ON cctr.certificate_configuration_id = gc.certificate_configuration_id\n  AND cctr.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cctr.course_module_id\n  AND cm.deleted_at IS NULL\n  JOIN courses c ON c.id = cm.course_id\n  AND c.deleted_at IS NULL\nWHERE gc.verification_id = $1\n  AND gc.deleted_at IS NULL\nORDER BY gc.id,\n  cm.order_number\n        ",
   "describe": {
     "columns": [
       {
@@ -16,6 +16,17 @@
       },
       {
         "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "generated_certificates",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
         "name": "name_on_certificate",
         "type_info": "Varchar",
         "origin": {
@@ -26,7 +37,7 @@
         }
       },
       {
-        "ordinal": 2,
+        "ordinal": 3,
         "name": "verification_id",
         "type_info": "Varchar",
         "origin": {
@@ -37,7 +48,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -48,7 +59,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "course_id",
         "type_info": "Uuid",
         "origin": {
@@ -59,7 +70,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "course_name",
         "type_info": "Varchar",
         "origin": {
@@ -70,7 +81,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "course_module_name",
         "type_info": "Varchar",
         "origin": {
@@ -83,7 +94,7 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Text"
       ]
     },
     "nullable": [
@@ -93,8 +104,9 @@
       false,
       false,
       false,
+      false,
       true
     ]
   },
-  "hash": "757c809ac80638cd183c0e3dc8a03505c8aa158010b9dbb609b682ce13998206"
+  "hash": "c917e62e2cb7476d70cf22068b5f518014f708075ff681cfb62013859340b00e"
 }

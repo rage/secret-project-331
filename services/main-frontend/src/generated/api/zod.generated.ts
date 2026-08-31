@@ -5559,7 +5559,7 @@ export const zUser = z.object({
 })
 
 /**
- * A certificate as its holder's own profile lists it: what it is for, and how to open it.
+ * A certificate with the course it was earned on, as a profile listing or support tooling needs it.
  */
 export const zUserCertificate = z.object({
   course_id: z.uuid(),
@@ -5568,6 +5568,7 @@ export const zUserCertificate = z.object({
   created_at: z.iso.datetime(),
   id: z.uuid(),
   name_on_certificate: z.string(),
+  user_id: z.uuid(),
   verification_id: z.string(),
 })
 

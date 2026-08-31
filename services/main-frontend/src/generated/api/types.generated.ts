@@ -4607,7 +4607,7 @@ export type User = {
 }
 
 /**
- * A certificate as its holder's own profile lists it: what it is for, and how to open it.
+ * A certificate with the course it was earned on, as a profile listing or support tooling needs it.
  */
 export type UserCertificate = {
   course_id: string
@@ -4619,6 +4619,7 @@ export type UserCertificate = {
   created_at: string
   id: string
   name_on_certificate: string
+  user_id: string
   /**
    * Addresses the public validation page, which is also how the holder views the image.
    */

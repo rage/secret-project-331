@@ -26398,9 +26398,10 @@
       },
       "UserCertificate": {
         "type": "object",
-        "description": "A certificate as its holder's own profile lists it: what it is for, and how to open it.",
+        "description": "A certificate with the course it was earned on, as a profile listing or support tooling needs it.",
         "required": [
           "id",
+          "user_id",
           "name_on_certificate",
           "verification_id",
           "created_at",
@@ -26429,6 +26430,10 @@
           },
           "name_on_certificate": {
             "type": "string"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "verification_id": {
             "type": "string",

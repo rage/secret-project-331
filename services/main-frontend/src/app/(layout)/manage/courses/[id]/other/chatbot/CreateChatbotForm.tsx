@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { createChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { Button, TextArea, TextField } from "@/shared-module/components"
 
@@ -46,7 +47,10 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
       },
       onError: async (error, variables) => {
         const try_again = await confirm(
-          t("create-chatbot-form-fail-dialog"),
+          <>
+            <p>{t("create-chatbot-form-fail-dialog")}</p>
+            <ErrorBanner error={error} />
+          </>,
           t("create-chatbot-form-fail-title"),
         )
         chatbotCreationMutation.mutate({

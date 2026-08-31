@@ -104,7 +104,6 @@ pub async fn generate_prompt(
     course_desc: Option<String>,
     chatbot_purpose: &str,
 ) -> ChatbotResult<PromptCreationResponse> {
-    return Err(chatbot_err!(FailedAzureResponse, "lolol no prompt"));
     let prompt =
         SYSTEM_PROMPT_1.to_string() + chatbot_purpose + &prompt_if_course(course_name, course_desc);
     debug!("{}", &prompt);

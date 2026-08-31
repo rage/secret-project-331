@@ -55,14 +55,11 @@ fn response_format() -> LLMRequestResponseFormatParam {
     }
 }
 
-fn prompt_if_course(course_name: &str, course_desc: Option<String>) -> String {
-    if course_name.is_empty() {
+fn prompt_if_course(course_name: Option<String>, course_desc: Option<String>) -> String {
+    let Some(c_n) = course_name else {
         return "".to_string();
     };
-    let mut course_info = format!(
-        "\n\nThe chatbot appears on a course called {}.",
-        course_name
-    );
+    let mut course_info = format!("\n\nThe chatbot appears on a course called {}.", c_n);
     if let Some(d) = course_desc {
         course_info += &format!("The course has the following description: {d}");
     }
@@ -82,7 +79,7 @@ The chatbot that this prompt will be used on has the following description, incl
 pub async fn generate_prompt(
     app_config: &ApplicationConfiguration,
     task_lm: TaskLMSpec,
-    course_name: &str,
+    course_name: Option<String>,
     course_desc: Option<String>,
     chatbot_purpose: &str,
 ) -> ChatbotResult<PromptCreationResponse> {

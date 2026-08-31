@@ -251,16 +251,16 @@ async fn create_chatbot(
     .await?;
 
     let (course_name, course_desc) = if let Some(c) = course {
-        (c.name, c.description)
+        (Some(c.name), c.description)
     } else {
-        ("".to_string(), None)
+        (None, None)
     };
 
     // todo what to do if these azure stuff fail?
     let prompt_res = headless_lms_chatbot::prompt_creation::generate_prompt(
         app_conf.as_ref(),
         task_llm.clone(),
-        &course_name,
+        course_name.to_owned(),
         course_desc.to_owned(),
         &purpose,
     )
@@ -277,7 +277,7 @@ async fn create_chatbot(
             None,
         )],
         None,
-        &course_name,
+        course_name,
         course_desc,
     )
     .await

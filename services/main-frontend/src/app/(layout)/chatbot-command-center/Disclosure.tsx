@@ -35,6 +35,7 @@ const disclosureButton = css`
     background: #f3f4f6;
     cursor: pointer;
   }
+  margin-left: 2px;
 `
 
 const reactAriaDisclosurePanel = css`

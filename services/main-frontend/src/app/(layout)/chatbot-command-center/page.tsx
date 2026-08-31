@@ -56,7 +56,6 @@ const ChatbotCommandCenterPage: React.FC = () => {
           display: flex;
         `}
       >
-        <h1>{t("link-text-chatbot-command-center")}</h1>
         <div
           className={css`
             margin-left: auto;
@@ -79,6 +78,7 @@ const ChatbotCommandCenterPage: React.FC = () => {
         </div>
       </div>
       <QueryResults
+        treatEmptyAsData
         queries={[chatbotsQuery, coursesQuery, conversationsQuery] as const}
         renderData={([chatbotsData, coursesData, conversationsData]) => (
           <ChatbotCommandCenter

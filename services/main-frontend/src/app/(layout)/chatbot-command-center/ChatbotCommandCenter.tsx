@@ -63,8 +63,8 @@ const ChatbotCommandCenter = ({ chatbots, courses, conversations }: ChatbotComma
     configurationId,
     undefined,
     activeConversationId,
-    setConversationId,
     null,
+    setConversationId,
   )
 
   const chatbotOptions = useMemo(() => {
@@ -119,7 +119,6 @@ const ChatbotCommandCenter = ({ chatbots, courses, conversations }: ChatbotComma
     setConversationId(conversationId)
     setConfigurationId(configurationId)
   }
-
   return (
     <div className={gridContainer}>
       <SideBar

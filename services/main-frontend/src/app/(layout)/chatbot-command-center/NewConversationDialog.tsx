@@ -159,7 +159,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
       <ul
         className={css`
           padding: 0;
-          max-height: 400px;
+          height: 400px;
           overflow: auto;
         `}
       >

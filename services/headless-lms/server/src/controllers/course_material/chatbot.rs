@@ -563,7 +563,7 @@ async fn conversation_info(
     let token =
         authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
 
-    let anonymous_token = handle_anonymous_token(req, user);
+    let anonymous_token = handle_anonymous_token(&req, user);
 
     let res = if let Some(conversation_id) = conversation_id {
         chatbot_conversations::get_conversation_info(
@@ -698,7 +698,7 @@ async fn current_conversation_id(
     let token =
         authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
 
-    let anonymous_token = handle_anonymous_token(req, user);
+    let anonymous_token = handle_anonymous_token(&req, user);
 
     let current_conversation = chatbot_conversations::get_latest_conversation_for_user(
         &mut conn,

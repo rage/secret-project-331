@@ -105,7 +105,7 @@ importers:
         version: 3.17.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@react-stately/disclosure':
         specifier: ^3.1.1
-        version: 3.1.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 3.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@react-stately/list':
         specifier: ^3.14.1
         version: 3.14.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -7289,12 +7289,13 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
       react-stately: 3.49.0(react@19.2.8)
 
-  '@react-stately/disclosure@3.1.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@react-stately/disclosure@3.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@swc/helpers': 0.5.23
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
-      react-stately: 3.48.0(react@19.2.7)
+      react: 19.2.8
+      react-dom: 19.2.8(react@19.2.8)
+      react-stately: 3.49.0(react@19.2.8)
+
   '@react-stately/list@3.14.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@swc/helpers': 0.5.23

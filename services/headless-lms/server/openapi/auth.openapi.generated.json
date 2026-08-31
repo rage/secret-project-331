@@ -455,6 +455,17 @@
           },
           {
             "type": "object",
+            "description": "Editing someone else's account identity or credentials: their email, its verification\nstate, a password reset link minted on their behalf. Separate from `Edit` because `Edit` is\nheld by teachers and assistants on their own courses, and account administration is not a\ncourse-scoped power.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["administrate_user_account"]
+              }
+            }
+          },
+          {
+            "type": "object",
             "required": ["type"],
             "properties": {
               "type": {
@@ -776,8 +787,14 @@
           },
           {
             "type": "object",
-            "required": ["type"],
+            "description": "A specific user account. Only a global role can hold anything on it: [is_permitted] has no\nper-user rule, so the id names the target for the audit trail and for a future scoping rule\nrather than widening who passes.",
+            "required": ["id", "type"],
             "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "A specific user account. Only a global role can hold anything on it: [is_permitted] has no\nper-user rule, so the id names the target for the audit trail and for a future scoping rule\nrather than widening who passes."
+              },
               "type": {
                 "type": "string",
                 "enum": ["user"]

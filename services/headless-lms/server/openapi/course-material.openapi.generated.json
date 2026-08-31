@@ -3161,6 +3161,28 @@
           },
           {
             "type": "object",
+            "description": "A confirmed action tool call executed, carrying data for the confirming admin's browser\nonly (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and\nthe model never sees it either.",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "description": "A confirmed action tool call executed, carrying data for the confirming admin's browser\nonly (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and\nthe model never sees it either.",
+                "required": ["tool_call_id", "payload"],
+                "properties": {
+                  "payload": {},
+                  "tool_call_id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["ActionExecuted"]
+              }
+            }
+          },
+          {
+            "type": "object",
             "required": ["data", "type"],
             "properties": {
               "data": {
@@ -3636,7 +3658,14 @@
       "ClientToolName": {
         "type": "string",
         "description": "The name of a client tool, generated into the frontend as a string union so it names one of\n[ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.\n\nThe bounds a tool enforces on its arguments and the shape of its answer stay hand-written on\nthe frontend: routing those through the OpenAPI schema would need either a schema per tool or\nwidening the argument and answer types this crate uses to serialize them, for a part of the\ncontract that only fails loudly, unlike the name.",
-        "enum": ["ask_multiple_choice_question"]
+        "enum": [
+          "ask_multiple_choice_question",
+          "generate_password_reset_link",
+          "reset_exercises",
+          "update_cheating_status",
+          "edit_user_account",
+          "update_certificate"
+        ]
       },
       "CodeGiveawayStatus": {
         "oneOf": [

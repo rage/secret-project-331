@@ -69,6 +69,8 @@ pub struct PageInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PageInfoSpecial {
+    pub page_id: Uuid,
+    pub url_path: String,
     pub page_title: String,
     pub order_number: i32,
     pub chapter_title: Option<String>,
@@ -931,6 +933,26 @@ WHERE chapter_id = $1
     Ok(res)
 }
 
+/// Titles for a set of pages, for annotating rows that only carry a page id.
+pub async fn get_titles_by_ids(
+    conn: &mut PgConnection,
+    page_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, String>> {
+    let rows = sqlx::query!(
+        "
+SELECT id,
+  title
+FROM pages
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        page_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows.into_iter().map(|r| (r.id, r.title)).collect())
+}
+
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
     let page = sqlx::query_as!(
         Page,
@@ -1069,6 +1091,8 @@ pub async fn get_page_info_special_for_course(
         PageInfoSpecial,
         r#"
     SELECT
+        p.id AS "page_id!",
+        p.url_path AS "url_path!",
         p.title AS "page_title!",
         p.order_number AS "order_number!",
         p.content AS "content!",

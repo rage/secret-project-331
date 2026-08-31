@@ -425,7 +425,6 @@ pub async fn seed_organization_uh_mathstat(
             initial_message: "Oh... It's you.".to_string(),
             use_azure_search: true,
             default_chatbot: true,
-            use_tools: true,
             model_id: seed_llm_result.llm_default_model_id,
             ..Default::default()
         },

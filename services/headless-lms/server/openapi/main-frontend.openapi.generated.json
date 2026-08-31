@@ -699,6 +699,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Enabling or disabling admin-support tool categories requires global admin permissions"
           }
         }
       },
@@ -15803,7 +15806,7 @@
           "maintain_azure_search_index",
           "hide_citations",
           "use_semantic_reranking",
-          "use_tools",
+          "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
           "publicly_accessible"
@@ -15833,6 +15836,12 @@
           },
           "enabled_to_students": {
             "type": "boolean"
+          },
+          "enabled_tool_categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolCategory"
+            }
           },
           "frequency_penalty": {
             "type": "number",
@@ -15897,9 +15906,6 @@
             "type": "boolean"
           },
           "use_semantic_reranking": {
-            "type": "boolean"
-          },
-          "use_tools": {
             "type": "boolean"
           },
           "verbosity": {
@@ -22889,7 +22895,7 @@
           "maintain_azure_search_index",
           "hide_citations",
           "use_semantic_reranking",
-          "use_tools",
+          "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
           "publicly_accessible"
@@ -22915,6 +22921,12 @@
           },
           "enabled_to_students": {
             "type": "boolean"
+          },
+          "enabled_tool_categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolCategory"
+            }
           },
           "frequency_penalty": {
             "type": "number",
@@ -22971,9 +22983,6 @@
             "type": "boolean"
           },
           "use_semantic_reranking": {
-            "type": "boolean"
-          },
-          "use_tools": {
             "type": "boolean"
           },
           "verbosity": {
@@ -26429,6 +26438,20 @@
         "type": "string",
         "enum": ["Year", "Month", "Day"]
       },
+      "ToolCategory": {
+        "type": "string",
+        "description": "A category of chatbot tools a configuration can choose to offer the LLM. Independent of the\nchatbot crate's per-tool `ToolPermission` check: a category answers \"does this chatbot offer\nthis kind of tool\", not \"may this caller use it\".",
+        "enum": [
+          "course_material",
+          "course_info",
+          "course_catalog",
+          "interaction",
+          "admin_support_accounts",
+          "admin_support_courses",
+          "admin_support_learning_progress",
+          "admin_support_academic_integrity"
+        ]
+      },
       "UnlinkMyStudentNumberResult": {
         "type": "object",
         "required": ["affected_registration_count"],
@@ -26495,9 +26518,10 @@
       },
       "UserCertificate": {
         "type": "object",
-        "description": "A certificate as its holder's own profile lists it: what it is for, and how to open it.",
+        "description": "A certificate with the course it was earned on, as a profile listing or support tooling needs it.",
         "required": [
           "id",
+          "user_id",
           "name_on_certificate",
           "verification_id",
           "created_at",
@@ -26526,6 +26550,10 @@
           },
           "name_on_certificate": {
             "type": "string"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "verification_id": {
             "type": "string",

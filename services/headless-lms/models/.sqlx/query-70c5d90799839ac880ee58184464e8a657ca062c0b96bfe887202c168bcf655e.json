@@ -1,10 +1,32 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n    SELECT\n        p.title AS \"page_title!\",\n        p.order_number AS \"order_number!\",\n        p.content AS \"content!\",\n        c.name AS \"chapter_title?\",\n        c.chapter_number AS \"chapter_number?\",\n        m.name AS \"module_name?\",\n        m.order_number AS \"module_number?\"\n    FROM pages p\n    LEFT JOIN chapters c\n        ON c.id = p.chapter_id\n    LEFT JOIN course_modules m\n        ON m.id = c.course_module_id\n    WHERE p.course_id = $1\n    AND p.deleted_at IS NULL\n    AND c.deleted_at IS NULL\n    AND m.deleted_at IS NULL\n    AND p.hidden IS DISTINCT FROM $2\n        ",
+  "query": "\n    SELECT\n        p.id AS \"page_id!\",\n        p.url_path AS \"url_path!\",\n        p.title AS \"page_title!\",\n        p.order_number AS \"order_number!\",\n        p.content AS \"content!\",\n        c.name AS \"chapter_title?\",\n        c.chapter_number AS \"chapter_number?\",\n        m.name AS \"module_name?\",\n        m.order_number AS \"module_number?\"\n    FROM pages p\n    LEFT JOIN chapters c\n        ON c.id = p.chapter_id\n    LEFT JOIN course_modules m\n        ON m.id = c.course_module_id\n    WHERE p.course_id = $1\n    AND p.deleted_at IS NULL\n    AND c.deleted_at IS NULL\n    AND m.deleted_at IS NULL\n    AND p.hidden IS DISTINCT FROM $2\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
+        "name": "page_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "url_path!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "url_path"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
         "name": "page_title!",
         "type_info": "Varchar",
         "origin": {
@@ -15,7 +37,7 @@
         }
       },
       {
-        "ordinal": 1,
+        "ordinal": 3,
         "name": "order_number!",
         "type_info": "Int4",
         "origin": {
@@ -26,7 +48,7 @@
         }
       },
       {
-        "ordinal": 2,
+        "ordinal": 4,
         "name": "content!",
         "type_info": "Jsonb",
         "origin": {
@@ -37,7 +59,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 5,
         "name": "chapter_title?",
         "type_info": "Varchar",
         "origin": {
@@ -48,7 +70,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 6,
         "name": "chapter_number?",
         "type_info": "Int4",
         "origin": {
@@ -59,7 +81,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 7,
         "name": "module_name?",
         "type_info": "Varchar",
         "origin": {
@@ -70,7 +92,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 8,
         "name": "module_number?",
         "type_info": "Int4",
         "origin": {
@@ -91,11 +113,13 @@
       false,
       false,
       false,
+      false,
+      false,
       true,
       true,
       true,
       true
     ]
   },
-  "hash": "8fe244690018f275105443c1de72294b4b9cc8d1f2151b4c83c4e37a78a84e49"
+  "hash": "70c5d90799839ac880ee58184464e8a657ca062c0b96bfe887202c168bcf655e"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            UPDATE generated_certificates\n            SET created_at = $1,\n                updated_at = NOW()\n            WHERE id = $2\n              AND deleted_at IS NULL\n            RETURNING *\n            ",
+  "query": "\nSELECT *\nFROM organizations\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -9,105 +9,116 @@
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "generated_certificates",
+            "table": "organizations",
             "name": "id"
           }
         }
       },
       {
         "ordinal": 1,
-        "name": "created_at",
-        "type_info": "Timestamptz",
+        "name": "name",
+        "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "generated_certificates",
-            "name": "created_at"
+            "table": "organizations",
+            "name": "name"
           }
         }
       },
       {
         "ordinal": 2,
-        "name": "updated_at",
+        "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "generated_certificates",
-            "name": "updated_at"
+            "table": "organizations",
+            "name": "created_at"
           }
         }
       },
       {
         "ordinal": 3,
-        "name": "deleted_at",
+        "name": "updated_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "generated_certificates",
-            "name": "deleted_at"
+            "table": "organizations",
+            "name": "updated_at"
           }
         }
       },
       {
         "ordinal": 4,
-        "name": "user_id",
-        "type_info": "Uuid",
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "generated_certificates",
-            "name": "user_id"
+            "table": "organizations",
+            "name": "deleted_at"
           }
         }
       },
       {
         "ordinal": 5,
-        "name": "name_on_certificate",
+        "name": "slug",
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "generated_certificates",
-            "name": "name_on_certificate"
+            "table": "organizations",
+            "name": "slug"
           }
         }
       },
       {
         "ordinal": 6,
-        "name": "verification_id",
+        "name": "organization_image_path",
         "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "generated_certificates",
-            "name": "verification_id"
+            "table": "organizations",
+            "name": "organization_image_path"
           }
         }
       },
       {
         "ordinal": 7,
-        "name": "certificate_configuration_id",
-        "type_info": "Uuid",
+        "name": "description",
+        "type_info": "Varchar",
         "origin": {
           "Table": {
-            "table": "generated_certificates",
-            "name": "certificate_configuration_id"
+            "table": "organizations",
+            "name": "description"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "hidden",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "organizations",
+            "name": "hidden"
           }
         }
       }
     ],
     "parameters": {
       "Left": [
-        "Timestamptz",
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
       false,
       false,
       false,
+      false,
       true,
       false,
-      false,
-      false,
+      true,
+      true,
       false
     ]
   },
-  "hash": "fc23ef3897fd12ebf1f206b6ba73d9a5c30512389d05550bf02caf07e9182175"
+  "hash": "ffd765a1fe7fc81b8cf88a3aec740b2e5519388627d003a909509a858a64c9d8"
 }

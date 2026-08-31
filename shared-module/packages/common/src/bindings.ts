@@ -45,7 +45,7 @@ export type Resource =
   | { type: "study_registry"; id: string }
   | { type: "any_course" }
   | { type: "role" }
-  | { type: "user" }
+  | { type: "user"; id: string }
   | { type: "playground_example" }
   | { type: "exercise_service" }
 
@@ -315,7 +315,7 @@ export interface ChatbotConfiguration {
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
-  use_tools: boolean
+  enabled_tool_categories: ToolCategory[]
   default_chatbot: boolean
   suggest_next_messages: boolean
   initial_suggested_messages: string[] | null
@@ -341,12 +341,22 @@ export interface NewChatbotConf {
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
-  use_tools: boolean
+  enabled_tool_categories: ToolCategory[]
   default_chatbot: boolean
   chatbotconf_id: string | null
   suggest_next_messages: boolean
   initial_suggested_messages: string[] | null
 }
+
+export type ToolCategory =
+  | "course_material"
+  | "course_info"
+  | "course_catalog"
+  | "interaction"
+  | "admin_support_accounts"
+  | "admin_support_courses"
+  | "admin_support_learning_progress"
+  | "admin_support_academic_integrity"
 
 export type VerbosityLevel = "low" | "medium" | "high"
 

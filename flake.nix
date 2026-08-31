@@ -290,6 +290,11 @@
             OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
             OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
             LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];
+            # Cargo resolves subcommands from $CARGO_HOME/bin before $PATH, so rustup's
+            # cargo-clippy shim shadows this toolchain's one. Pointing rustup at the Nix
+            # toolchain stops that shim from swapping in a rustc that cannot load the proc
+            # macros built here.
+            RUSTUP_TOOLCHAIN = "${rustToolchain}";
             TILT_DISABLE_ANALYTICS = "1";
 
             shellHook = ''

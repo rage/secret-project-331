@@ -777,6 +777,7 @@ export type ChatbotConfiguration = {
   default_chatbot: boolean
   deleted_at?: string | null
   enabled_to_students: boolean
+  enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
   hide_citations: boolean
   id: string
@@ -795,7 +796,6 @@ export type ChatbotConfiguration = {
   updated_at: string
   use_azure_search: boolean
   use_semantic_reranking: boolean
-  use_tools: boolean
   verbosity: VerbosityLevel
   weekly_tokens_per_user: number
 }
@@ -3373,6 +3373,7 @@ export type NewChatbotConf = {
   daily_tokens_per_user: number
   default_chatbot: boolean
   enabled_to_students: boolean
+  enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
   hide_citations: boolean
   initial_message: string
@@ -3389,7 +3390,6 @@ export type NewChatbotConf = {
   top_p: number
   use_azure_search: boolean
   use_semantic_reranking: boolean
-  use_tools: boolean
   verbosity: VerbosityLevel
   weekly_tokens_per_user: number
 }
@@ -4614,6 +4614,21 @@ export type ThresholdData = {
 
 export type TimeGranularity = "Year" | "Month" | "Day"
 
+/**
+ * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
+ * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
+ * this kind of tool", not "may this caller use it".
+ */
+export type ToolCategory =
+  | "course_material"
+  | "course_info"
+  | "course_catalog"
+  | "interaction"
+  | "admin_support_accounts"
+  | "admin_support_courses"
+  | "admin_support_learning_progress"
+  | "admin_support_academic_integrity"
+
 export type UnlinkMyStudentNumberResult = {
   /**
    * Registrations that went back to waiting for a student number.
@@ -4644,7 +4659,7 @@ export type User = {
 }
 
 /**
- * A certificate as its holder's own profile lists it: what it is for, and how to open it.
+ * A certificate with the course it was earned on, as a profile listing or support tooling needs it.
  */
 export type UserCertificate = {
   course_id: string
@@ -4656,6 +4671,7 @@ export type UserCertificate = {
   created_at: string
   id: string
   name_on_certificate: string
+  user_id: string
   /**
    * Addresses the public validation page, which is also how the holder views the image.
    */
@@ -5261,6 +5277,13 @@ export type ConfigureChatbotData = {
   }
   query?: never
   url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}"
+}
+
+export type ConfigureChatbotErrors = {
+  /**
+   * Enabling or disabling admin-support tool categories requires global admin permissions
+   */
+  403: unknown
 }
 
 export type ConfigureChatbotResponses = {

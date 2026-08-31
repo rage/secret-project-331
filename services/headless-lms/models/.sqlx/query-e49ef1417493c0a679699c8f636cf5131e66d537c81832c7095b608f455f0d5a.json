@@ -283,17 +283,6 @@
       },
       {
         "ordinal": 23,
-        "name": "use_tools",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "chatbot_configurations",
-            "name": "use_tools"
-          }
-        }
-      },
-      {
-        "ordinal": 24,
         "name": "suggest_next_messages",
         "type_info": "Bool",
         "origin": {
@@ -304,7 +293,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 24,
         "name": "initial_suggested_messages",
         "type_info": "VarcharArray",
         "origin": {
@@ -315,7 +304,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 25,
         "name": "max_output_tokens",
         "type_info": "Int4",
         "origin": {
@@ -326,13 +315,47 @@
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 26,
         "name": "publicly_accessible",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "chatbot_configurations",
             "name": "publicly_accessible"
+          }
+        }
+      },
+      {
+        "ordinal": 27,
+        "name": "enabled_tool_categories",
+        "type_info": {
+          "Custom": {
+            "name": "chatbot_tool_category[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "chatbot_tool_category",
+                  "kind": {
+                    "Enum": [
+                      "course_material",
+                      "course_info",
+                      "course_catalog",
+                      "interaction",
+                      "admin_support_accounts",
+                      "admin_support_courses",
+                      "admin_support_learning_progress",
+                      "admin_support_academic_integrity"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "enabled_tool_categories"
           }
         }
       }
@@ -365,8 +388,8 @@
       false,
       false,
       false,
-      false,
       true,
+      false,
       false,
       false
     ]

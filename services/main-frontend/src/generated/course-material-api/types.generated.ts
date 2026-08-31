@@ -81,6 +81,18 @@ export type ChatbotChatStreamEvent =
       type: "Suspended"
     }
   | {
+      /**
+       * A confirmed action tool call executed, carrying data for the confirming admin's browser
+       * only (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and
+       * the model never sees it either.
+       */
+      data: {
+        payload: unknown
+        tool_call_id: string
+      }
+      type: "ActionExecuted"
+    }
+  | {
       data: StreamEventError
       type: "Error"
     }
@@ -264,7 +276,13 @@ export type ClientToolAnswer = {
  * widening the argument and answer types this crate uses to serialize them, for a part of the
  * contract that only fails loudly, unlike the name.
  */
-export type ClientToolName = "ask_multiple_choice_question"
+export type ClientToolName =
+  | "ask_multiple_choice_question"
+  | "generate_password_reset_link"
+  | "reset_exercises"
+  | "update_cheating_status"
+  | "edit_user_account"
+  | "update_certificate"
 
 export type CodeGiveawayStatus =
   | {

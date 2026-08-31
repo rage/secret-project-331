@@ -146,7 +146,14 @@ export const zClientToolAnswer = z.object({
  * widening the argument and answer types this crate uses to serialize them, for a part of the
  * contract that only fails loudly, unlike the name.
  */
-export const zClientToolName = z.enum(["ask_multiple_choice_question"])
+export const zClientToolName = z.enum([
+  "ask_multiple_choice_question",
+  "generate_password_reset_link",
+  "reset_exercises",
+  "update_cheating_status",
+  "edit_user_account",
+  "update_certificate",
+])
 
 export const zChatbotToolResponse = z.object({
   answer: zClientToolAnswer,
@@ -962,6 +969,13 @@ export const zChatbotChatStreamEvent = z.union([
   }),
   z.object({
     type: z.enum(["Suspended"]),
+  }),
+  z.object({
+    data: z.object({
+      payload: z.unknown(),
+      tool_call_id: z.string(),
+    }),
+    type: z.enum(["ActionExecuted"]),
   }),
   z.object({
     data: zStreamEventError,

@@ -438,7 +438,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/files": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/files\n *\n * Stores files for a later submission to this exercise. Every multipart field name must be a\n * UUID the client picks; the host assigns the ids a submit request then names. Uploads are\n * bound to this exercise and user, and unreferenced ones are reaped, so a client should upload\n * immediately before submitting.",
+        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/files\n *\n * Stores files for a later submission to this exercise. Every multipart field name must be a\n * UUID the client picks; the host assigns the ids a submit request then names. Uploads are\n * bound to this exercise and user, and unreferenced ones are reaped, so a client should upload\n * immediately before submitting.\n *\n * Gated on the caller being able to answer the exercise at all, so stored objects cannot be\n * accumulated past a deadline or a closed exam. The per-slide try limit is only checked across the\n * whole exercise here, because this route is bound to an exercise rather than a slide.",
         "operationId": "uploadClientExerciseFiles",
         "parameters": [
           {
@@ -514,7 +514,7 @@
             }
           },
           "422": {
-            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), or the multipart body violates the field-name, file-count or size rules",
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed or every slide is out of tries, or the multipart body violates the field-name, file-count or size rules",
             "content": {
               "application/json": {
                 "schema": {

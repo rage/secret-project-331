@@ -278,7 +278,6 @@ mod test {
         exercises::{self, GradingProgress},
         library::grading::{
             GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseTaskSubmission,
-            SubmittedAnswer,
         },
         user_exercise_states,
         user_exercise_states::ExerciseWithUserState,
@@ -449,10 +448,10 @@ mod test {
             &mut exercise_with_user_state,
             &StudentExerciseSlideSubmission {
                 exercise_slide_id: ex_slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: et,
-                    answer: SubmittedAnswer::Json { data: Value::Null },
-                }],
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    et,
+                    Value::Null,
+                )],
             },
             GradingPolicy::Fixed(HashMap::from([(
                 et,

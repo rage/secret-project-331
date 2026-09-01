@@ -36,7 +36,7 @@ test("Managing course instances works", async ({ page }) => {
 
   const submissionsCsvContents = await downloadToString(submissionsDownload)
   expect(submissionsCsvContents).toContain(
-    "exercise_slide_submission_id,exercise_task_submission_id,user_id,created_at,course_id,exercise_id,exercise_task_id,score_given,answer",
+    "exercise_slide_submission_id,exercise_task_submission_id,user_id,created_at,course_id,exercise_id,exercise_task_id,score_given,data_json,data_files",
   )
   expect(submissionsCsvContents).toContain("e10557bd-9835-51b4-b0d9-f1d9689ebc8d")
   expect(submissionsCsvContents).toContain(

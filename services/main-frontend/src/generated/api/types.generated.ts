@@ -537,24 +537,6 @@ export type AnalysisWorkspaceV1 = {
 }
 
 /**
- * The answer a submission or grading request carries, as either the raw JSON a plugin produced
- * or the files a plugin's answer consists of.
- */
-export type AnswerData =
-  | {
-      data: unknown
-      kind: "json"
-    }
-  | {
-      files: Array<AnswerFile>
-      kind: "file"
-      /**
-       * The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
-       */
-      metadata?: unknown
-    }
-
-/**
  * One host-stored file that an answer consists of.
  */
 export type AnswerFile = {
@@ -578,9 +560,24 @@ export type AnswerFile = {
   url: string
 }
 
+/**
+ * Which of a submission's two answer representations is the answer: the opaque blob in
+ * `data_json`, or the rows in `exercise_task_submission_files`.
+ */
+export type AnswerKind = "json" | "file"
+
 export type AnswerRequiringAttentionWithTasks = {
-  answer?: null | AnswerData
+  answer_kind: AnswerKind
   created_at: string
+  /**
+   * The files the answer consists of, in grading order. Omitted when it has none.
+   */
+  data_files?: Array<AnswerFile> | null
+  /**
+   * The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+   * files for a `file` one.
+   */
+  data_json?: unknown
   deleted_at?: string | null
   exercise_id: string
   given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
@@ -2974,8 +2971,17 @@ export type ExerciseTaskGradingResult = {
 }
 
 export type ExerciseTaskSubmission = {
-  answer?: null | AnswerData
+  answer_kind: AnswerKind
   created_at: string
+  /**
+   * The files the answer consists of, in grading order. Omitted when it has none.
+   */
+  data_files?: Array<AnswerFile> | null
+  /**
+   * The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+   * files for a `file` one.
+   */
+  data_json?: unknown
   deleted_at?: string | null
   exercise_slide_id: string
   exercise_slide_submission_id: string

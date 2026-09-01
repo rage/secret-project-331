@@ -11,42 +11,39 @@ interface AnswerFileLike {
   size_bytes?: number | null
 }
 
-type AnswerDataLike =
-  | { kind: "json"; data: unknown }
-  | { kind: "file"; files: AnswerFileLike[]; metadata?: unknown }
+/** A submission row as the API returns it: the answer's JSON, and its files beside it. */
+interface StoredAnswerLike {
+  data_json?: unknown
+  data_files?: AnswerFileLike[] | null
+}
 
 interface PluginAnswer {
   data: unknown
   files?: AnswerFileRef[]
 }
 
-function toPluginAnswer(answer: AnswerDataLike | null | undefined): PluginAnswer {
-  if (!answer) {
+function toPluginAnswer(stored: StoredAnswerLike | null | undefined): PluginAnswer {
+  if (!stored) {
     return { data: null }
   }
-  if (answer.kind === "json") {
-    return { data: answer.data }
-  }
   return {
-    data: answer.metadata ?? null,
-    ...omitUndefined({ files: answerDataToAnswerFileRefs(answer) }),
+    data: stored.data_json ?? null,
+    ...omitUndefined({ files: answerFilesToAnswerFileRefs(stored.data_files) }),
   }
 }
 
 /**
- * The file refs of a file-typed answer, or `undefined` for a JSON answer or a missing one.
+ * A stored answer's files as the iframe protocol carries them, or `undefined` when it has none.
  *
- * For a state that carries the files without the answer JSON, such as `custom-view`; see
- * {@link answerDataToViewSubmissionFields} for the states that carry both. The file order is the
- * host's grading order and must not be re-sorted.
+ * The file order is the host's grading order and must not be re-sorted.
  */
-export function answerDataToAnswerFileRefs(
-  answer: AnswerDataLike | null | undefined,
+export function answerFilesToAnswerFileRefs(
+  files: AnswerFileLike[] | null | undefined,
 ): AnswerFileRef[] | undefined {
-  if (!answer || answer.kind !== "file") {
+  if (!files || files.length === 0) {
     return undefined
   }
-  return answer.files.map((file) => ({
+  return files.map((file) => ({
     id: file.id,
     url: file.url,
     name: file.name,
@@ -57,30 +54,30 @@ export function answerDataToAnswerFileRefs(
 }
 
 /**
- * Both answer fields of a `view-submission` iframe state, from the `AnswerData` the API returns.
+ * Both answer fields of a `view-submission` iframe state, from the submission row the API returns.
  *
- * Spread the result into the state's `data` so a file-typed answer cannot reach a plugin with its
- * files dropped. The file order is the host's grading order and must not be re-sorted. See
- * {@link answerDataToAnswerExerciseFields} for the `answer-exercise` view's differently named pair.
+ * Spread the result into the state's `data` so a file answer cannot reach a plugin with its files
+ * dropped. See {@link storedAnswerToAnswerExerciseFields} for the `answer-exercise` view's
+ * differently named pair.
  */
-export function answerDataToViewSubmissionFields(answer: AnswerDataLike | null | undefined): {
+export function storedAnswerToViewSubmissionFields(stored: StoredAnswerLike | null | undefined): {
   user_answer: unknown
   user_answer_files?: AnswerFileRef[]
 } {
-  const { data, files } = toPluginAnswer(answer)
+  const { data, files } = toPluginAnswer(stored)
   return { user_answer: data, ...omitUndefined({ user_answer_files: files }) }
 }
 
 /**
- * Both answer fields of an `answer-exercise` iframe state, from the `AnswerData` the API returns.
+ * Both answer fields of an `answer-exercise` iframe state, from the submission row the API returns.
  *
- * Spread the result into the state's `data`; see {@link answerDataToViewSubmissionFields}.
+ * Spread the result into the state's `data`; see {@link storedAnswerToViewSubmissionFields}.
  */
-export function answerDataToAnswerExerciseFields(answer: AnswerDataLike | null | undefined): {
+export function storedAnswerToAnswerExerciseFields(stored: StoredAnswerLike | null | undefined): {
   previous_submission: unknown
   previous_submission_files?: AnswerFileRef[]
 } {
-  const { data, files } = toPluginAnswer(answer)
+  const { data, files } = toPluginAnswer(stored)
   return { previous_submission: data, ...omitUndefined({ previous_submission_files: files }) }
 }
 
@@ -90,11 +87,11 @@ export function answerDataToAnswerExerciseFields(answer: AnswerDataLike | null |
  *
  * `files` holds host file ids, not the refs the iframe states carry.
  */
-export function answerDataToCapturedAnswerFields(answer: AnswerDataLike | null | undefined): {
+export function storedAnswerToCapturedAnswerFields(stored: StoredAnswerLike | null | undefined): {
   data: unknown
   files?: string[]
 } {
-  const { data, files } = toPluginAnswer(answer)
+  const { data, files } = toPluginAnswer(stored)
   return { data, ...omitUndefined({ files: files?.map((file) => file.id) }) }
 }
 

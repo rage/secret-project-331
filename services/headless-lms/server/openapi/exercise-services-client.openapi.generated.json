@@ -622,7 +622,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/submit": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/submit\n *\n * Accepts an exercise submission from the user. The body names files previously stored through\n * this exercise's `files` endpoint, in the order they are to be graded; those files are the\n * answer.",
+        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/submit\n *\n * Accepts an exercise submission from the user. A `file` answer names files previously stored\n * through this exercise's `files` endpoint, in the order they are to be graded; those files are the\n * answer. An answer that names no files is a JSON answer, carried in `data_json`.",
         "operationId": "submitClientExercise",
         "parameters": [
           {
@@ -646,7 +646,7 @@
           }
         ],
         "requestBody": {
-          "description": "The slide and task being answered, and the ids of the files the answer consists of",
+          "description": "The slide and task being answered, and the answer: its JSON, the ids of the files it consists of, or both",
           "content": {
             "application/json": {
               "schema": {
@@ -698,7 +698,7 @@
             }
           },
           "422": {
-            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, the answer names no files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a `file` answer names no files or a `json` one names files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -983,6 +983,44 @@
   },
   "components": {
     "schemas": {
+      "AnswerFile": {
+        "type": "object",
+        "description": "A file the host stored on a client's behalf. The host assigns `id`; a client never invents\none. Returned by the upload endpoint and echoed back by submission download.",
+        "required": ["id", "name", "mime", "url"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The host's file id. Names this file in a submit request."
+          },
+          "mime": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "The original file name the client sent."
+          },
+          "order_number": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The file's position in the answer it belongs to. `None` for a file that is not part of an\nanswer yet, which is every file the upload endpoint returns."
+          },
+          "size_bytes": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "`None` for a file stored before the size was recorded; never a substitute zero, so a client\ncan tell an unknown size from an empty file."
+          },
+          "url": {
+            "type": "string",
+            "description": "Direct download URL; needs no bearer token."
+          }
+        }
+      },
+      "AnswerKind": {
+        "type": "string",
+        "description": "Which of the two representations an answer is: the JSON in `data_json`, or the files in\n`data_files`. A request that omits it means `Json`.",
+        "enum": ["json", "file"]
+      },
       "ApiErrorIssue": {
         "type": "object",
         "required": ["message"],
@@ -1138,8 +1176,30 @@
       "ExerciseSlideSubmission": {
         "type": "object",
         "description": "Body of `POST exercises/{id}/submit`. Plain JSON — no file parts, no archive: the previously\nuploaded files named here are the answer.",
-        "required": ["exercise_slide_id", "exercise_task_id", "uploaded_file_ids"],
+        "required": ["exercise_slide_id", "exercise_task_id"],
         "properties": {
+          "answer_kind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnswerKind",
+                "description": "Absent means `json`. A client answering with files sends `file`."
+              }
+            ]
+          },
+          "data_files": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Ids from this exercise's `files` endpoint, in the order they are to be graded and\ndisplayed. A `file` answer must name at least one, and every id must have been uploaded by\nthis user for this exercise."
+          },
+          "data_json": {
+            "description": "The exercise service's own JSON: the whole answer for a `json` answer, the service's\nmetadata about the files for a `file` one."
+          },
           "exercise_slide_id": {
             "type": "string",
             "format": "uuid"
@@ -1147,14 +1207,6 @@
           "exercise_task_id": {
             "type": "string",
             "format": "uuid"
-          },
-          "uploaded_file_ids": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "Ids from this exercise's `files` endpoint, in the order they are to be graded and\ndisplayed. Must name at least one file, and every id must have been uploaded by this user\nfor this exercise."
           }
         }
       },
@@ -1289,45 +1341,25 @@
       "SubmissionFiles": {
         "type": "object",
         "description": "Response of `GET submissions/{id}/download`: the files the submission was made from, recovered\nfrom the host's own file records rather than from the service's answer.\n\nThe same shape regardless of where the submission was made. A native client's uploads are\nrecorded as it names them; an answer made in the service's IFrame carries its files inside the\nservice's own answer, so the host asks the service to enumerate them and stores them the same\nway. Empty only when the submission genuinely has no files — an exercise type with none, or a\nservice that declares no way to enumerate its answers' files.",
-        "required": ["files"],
+        "required": ["data_files"],
         "properties": {
-          "files": {
+          "data_files": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UploadedFile"
+              "$ref": "#/components/schemas/AnswerFile"
             }
-          }
-        }
-      },
-      "UploadedFile": {
-        "type": "object",
-        "description": "A file the host stored on a client's behalf. The host assigns `id`; a client never invents\none. Returned by the upload endpoint and echoed back by submission download.",
-        "required": ["id", "name", "download_url"],
-        "properties": {
-          "download_url": {
-            "type": "string",
-            "description": "Direct download URL; needs no bearer token."
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "The host's file id. Names this file in a submit request."
-          },
-          "name": {
-            "type": "string",
-            "description": "The original file name the client sent."
           }
         }
       },
       "UploadedFiles": {
         "type": "object",
         "description": "Response of `POST exercises/{id}/files`, in the same order as the request's parts.",
-        "required": ["files"],
+        "required": ["data_files"],
         "properties": {
-          "files": {
+          "data_files": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UploadedFile"
+              "$ref": "#/components/schemas/AnswerFile"
             }
           }
         }

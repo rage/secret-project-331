@@ -16,8 +16,6 @@ import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { answerDataToAnswerFileRefs } from "@/shared-module/common/utils/typeMappter"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
   CustomViewIframeState,
@@ -146,7 +144,6 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
               task_id: grading.exercise_task_id,
               public_spec: publicSpec,
               user_answer: answer,
-              ...omitUndefined({ user_answer_files: answerDataToAnswerFileRefs(answer?.answer) }),
               grading: grading,
             }
           })

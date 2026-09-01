@@ -15,9 +15,7 @@ use headless_lms_models::{
     exercise_task_gradings::{
         ExerciseTaskGradingRequest, ExerciseTaskGradingResult, GradingRequestFile,
     },
-    exercise_task_submissions::{
-        AnswerData, AnswerFile as SubmittedAnswerFile, ExerciseTaskSubmission,
-    },
+    exercise_task_submissions::{AnswerFile as SubmittedAnswerFile, ExerciseTaskSubmission},
     exercise_tasks::ExerciseTask,
 };
 use secrecy::{ExposeSecret, SecretString};
@@ -458,19 +456,18 @@ fn fetch_service_info_with_timeout(
     .boxed()
 }
 
-/// The grading request's file list for a submission's answer: the answer's files in answer order
-/// for a file-typed answer, empty for a JSON-typed one.
+/// The grading request's file list for a submission's answer: its files in answer order, empty for
+/// an answer that has none.
 ///
 /// Mints a single-file download claim per file, so the service fetches a URL the host chose rather
 /// than one a student supplied.
 fn grading_request_files(
-    answer: Option<&AnswerData>,
+    files: Option<&[SubmittedAnswerFile]>,
     base_url: &str,
     jwt_key: &JwtKey,
 ) -> Result<Vec<GradingRequestFile>, jsonwebtoken::errors::Error> {
-    let files: &[SubmittedAnswerFile] = match answer {
-        Some(AnswerData::File { files, .. }) => files,
-        Some(AnswerData::Json { .. }) | None => return Ok(Vec::new()),
+    let Some(files) = files else {
+        return Ok(Vec::new());
     };
     let mut ordered: Vec<&SubmittedAnswerFile> = files.iter().collect();
     ordered.sort_by_key(|file| file.order_number);
@@ -512,7 +509,7 @@ pub fn make_grading_request_sender(
             submission.id
         );
         let submission_files =
-            match grading_request_files(submission.answer.as_ref(), &base_url, &jwt_key) {
+            match grading_request_files(submission.data_files.as_deref(), &base_url, &jwt_key) {
                 Ok(files) => files,
                 Err(err) => {
                     return async move {
@@ -549,7 +546,7 @@ pub fn make_grading_request_sender(
             .json(&ExerciseTaskGradingRequest {
                 grading_update_url: &grading_update_url,
                 exercise_spec: &exercise_task.private_spec,
-                submission_data: submission.answer.as_ref().and_then(AnswerData::plugin_json),
+                submission_data: submission.data_json.as_ref(),
                 submission_files: &submission_files,
             });
         async move {
@@ -877,15 +874,12 @@ mod tests {
         let key = JwtKey::test_key();
         let first = Uuid::new_v4();
         let second = Uuid::new_v4();
-        let answer = AnswerData::File {
-            files: vec![
-                answer_file(second, "b.txt", 1, None),
-                answer_file(first, "a.tar.zst", 0, Some(12)),
-            ],
-            metadata: Some(json!({ "archive_name": "a.tar.zst" })),
-        };
+        let answer_files = vec![
+            answer_file(second, "b.txt", 1, None),
+            answer_file(first, "a.tar.zst", 0, Some(12)),
+        ];
 
-        let files = grading_request_files(Some(&answer), "http://project-331.local", &key)
+        let files = grading_request_files(Some(&answer_files), "http://project-331.local", &key)
             .expect("the files should be built");
 
         assert_eq!(
@@ -913,18 +907,11 @@ mod tests {
         }
     }
 
+    /// A JSON answer names no files at all, which reaches the request builder as `None`.
     #[test]
     fn a_json_answer_has_no_grading_request_files() {
         let key = JwtKey::test_key();
-        let answer = AnswerData::Json {
-            data: json!({ "answer": 1 }),
-        };
 
-        assert!(
-            grading_request_files(Some(&answer), "http://project-331.local", &key)
-                .expect("the files should be built")
-                .is_empty()
-        );
         assert!(
             grading_request_files(None, "http://project-331.local", &key)
                 .expect("the files should be built")

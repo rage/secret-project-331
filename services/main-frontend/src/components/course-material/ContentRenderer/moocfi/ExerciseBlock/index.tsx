@@ -43,14 +43,14 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
-import { answerDataToCapturedAnswerFields } from "@/shared-module/common/utils/typeMappter"
+import { storedAnswerToCapturedAnswerFields } from "@/shared-module/common/utils/typeMappter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import {
   type CapturedExerciseTaskAnswer,
-  capturedAnswerToSubmittedAnswer,
+  capturedAnswerToTaskSubmission,
 } from "@/utils/course-material/exerciseTaskAnswer"
 
 import type { BlockRendererProps } from "../.."
@@ -298,7 +298,7 @@ const ExerciseBlock: React.FC<
       if (et.previous_submission) {
         a.set(et.id, {
           valid: true,
-          ...answerDataToCapturedAnswerFields(et.previous_submission.answer),
+          ...storedAnswerToCapturedAnswerFields(et.previous_submission),
         })
       }
     })
@@ -382,7 +382,7 @@ const ExerciseBlock: React.FC<
           if (et.previous_submission) {
             a.set(et.id, {
               valid: true,
-              ...answerDataToCapturedAnswerFields(et.previous_submission.answer),
+              ...storedAnswerToCapturedAnswerFields(et.previous_submission),
             })
           }
         })
@@ -868,10 +868,8 @@ const ExerciseBlock: React.FC<
                           exercise_slide_id: courseMaterialExercise.current_exercise_slide.id,
                           exercise_task_submissions:
                             courseMaterialExercise.current_exercise_slide.exercise_tasks.map(
-                              (task) => ({
-                                exercise_task_id: task.id,
-                                answer: capturedAnswerToSubmittedAnswer(answers.get(task.id)),
-                              }),
+                              (task) =>
+                                capturedAnswerToTaskSubmission(task.id, answers.get(task.id)),
                             ),
                         },
                         {

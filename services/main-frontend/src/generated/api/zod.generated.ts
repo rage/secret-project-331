@@ -384,20 +384,10 @@ export const zAnswerFile = z.object({
 })
 
 /**
- * The answer a submission or grading request carries, as either the raw JSON a plugin produced
- * or the files a plugin's answer consists of.
+ * Which of a submission's two answer representations is the answer: the opaque blob in
+ * `data_json`, or the rows in `exercise_task_submission_files`.
  */
-export const zAnswerData = z.union([
-  z.object({
-    data: z.unknown(),
-    kind: z.enum(["json"]),
-  }),
-  z.object({
-    files: z.array(zAnswerFile),
-    kind: z.enum(["file"]),
-    metadata: z.unknown().optional(),
-  }),
-])
+export const zAnswerKind = z.enum(["json", "file"])
 
 export const zAuthorizedClientInfo = z.object({
   client_id: z.uuid(),
@@ -2874,8 +2864,10 @@ export const zExerciseSlideSubmissionShare = z.object({
 })
 
 export const zExerciseTaskSubmission = z.object({
-  answer: zAnswerData.nullish(),
+  answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
+  data_files: z.array(zAnswerFile).nullish(),
+  data_json: z.unknown().optional(),
   deleted_at: z.iso.datetime().nullish(),
   exercise_slide_id: z.uuid(),
   exercise_slide_submission_id: z.uuid(),
@@ -4206,8 +4198,10 @@ export const zFlaggedAnswer = z.object({
 })
 
 export const zAnswerRequiringAttentionWithTasks = z.object({
-  answer: zAnswerData.nullish(),
+  answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
+  data_files: z.array(zAnswerFile).nullish(),
+  data_json: z.unknown().optional(),
   deleted_at: z.iso.datetime().nullish(),
   exercise_id: z.uuid(),
   given_peer_reviews: z.array(zPeerReviewWithQuestionsAndAnswers),

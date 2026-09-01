@@ -21,9 +21,8 @@ use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::UserExerciseState;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
-use models::library::grading::{
-    StudentExerciseSlideSubmission, StudentExerciseTaskSubmission, SubmittedAnswer,
-};
+use models::exercise_task_submissions::AnswerKind;
+use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use std::collections::HashSet;
 use std::future::{Ready, ready};
 use std::path::Path;
@@ -47,7 +46,8 @@ use utoipa::OpenApi;
     components(schemas(
         api::ExerciseSlideSubmission,
         api::ExerciseSlideSubmissionListItem,
-        api::UploadedFile,
+        api::AnswerFile,
+        api::AnswerKind,
         api::UploadedFiles,
         api::SubmissionFiles,
         api::CourseProgress,
@@ -744,15 +744,19 @@ async fn upload_exercise_files(
     };
     cleanup.disarm();
 
-    let files = uploads
+    let data_files = uploads
         .into_iter()
-        .map(|upload| api::UploadedFile {
+        .map(|upload| api::AnswerFile {
             id: upload.entry.id,
             name: upload.name,
-            download_url: upload.entry.url,
+            mime: upload.mime,
+            size_bytes: Some(upload.size_bytes),
+            // These files are not part of an answer yet; a submit decides their order.
+            order_number: None,
+            url: upload.entry.url,
         })
         .collect();
-    token.authorized_ok(web::Json(api::UploadedFiles { files }))
+    token.authorized_ok(web::Json(api::UploadedFiles { data_files }))
 }
 
 /// Stores the multipart parts and binds them to the exercise and user, so that a failure to
@@ -798,9 +802,9 @@ async fn store_client_uploads(
 /**
  * POST /api/v0/exercise-services/client/exercises/:id/submit
  *
- * Accepts an exercise submission from the user. The body names files previously stored through
- * this exercise's `files` endpoint, in the order they are to be graded; those files are the
- * answer.
+ * Accepts an exercise submission from the user. A `file` answer names files previously stored
+ * through this exercise's `files` endpoint, in the order they are to be graded; those files are the
+ * answer. An answer that names no files is a JSON answer, carried in `data_json`.
  */
 #[utoipa::path(
     post,
@@ -812,13 +816,13 @@ async fn store_client_uploads(
         ("id" = Uuid, Path, description = "Exercise id"),
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
-    request_body(content = api::ExerciseSlideSubmission, description = "The slide and task being answered, and the ids of the files the answer consists of"),
+    request_body(content = api::ExerciseSlideSubmission, description = "The slide and task being answered, and the answer: its JSON, the ids of the files it consists of, or both"),
     responses(
         (status = 200, description = "The created submission, identified by both its task and slide submission ids", body = api::ExerciseTaskSubmissionResult),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
-        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, the answer names no files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a `file` answer names no files or a `json` one names files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -877,10 +881,9 @@ async fn submit_exercise(
             exercise_slide_id: submission.exercise_slide_id,
             exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                 exercise_task_id: submission.exercise_task_id,
-                answer: SubmittedAnswer::File {
-                    file_upload_ids: submission.uploaded_file_ids,
-                    metadata: None,
-                },
+                answer_kind: submission.answer_kind.map(model_answer_kind),
+                data_json: submission.data_json,
+                data_files: submission.data_files,
             }],
         },
         jwt_key.into_inner(),
@@ -1116,6 +1119,15 @@ async fn download_submission(
     )))
 }
 
+/// The client API's answer kind as the model's. Two enums rather than one because the client crate
+/// stays free of server-internal dependencies.
+fn model_answer_kind(kind: api::AnswerKind) -> AnswerKind {
+    match kind {
+        api::AnswerKind::Json => AnswerKind::Json,
+        api::AnswerKind::File => AnswerKind::File,
+    }
+}
+
 /// Turns the host's own file records into the download response. Every tracked file is reachable,
 /// not just the first, so a multi-file submission is fully restorable.
 fn submission_files_response(
@@ -1124,12 +1136,15 @@ fn submission_files_response(
     app_conf: &ApplicationConfiguration,
 ) -> api::SubmissionFiles {
     api::SubmissionFiles {
-        files: files
+        data_files: files
             .into_iter()
-            .map(|file| api::UploadedFile {
+            .map(|file| api::AnswerFile {
                 id: file.file_upload_id,
                 name: file.name,
-                download_url: file_store.get_download_url(Path::new(&file.path), app_conf),
+                mime: file.mime,
+                size_bytes: file.size_bytes,
+                order_number: Some(file.order_number),
+                url: file_store.get_download_url(Path::new(&file.path), app_conf),
             })
             .collect(),
     }
@@ -1400,30 +1415,32 @@ mod tests {
 
     /// The submit body is deserialized by `web::Json`, so a malformed one fails at the serde
     /// boundary before the handler runs. Pin that contract: both ids are required and must be
-    /// UUIDs, and the file list is required rather than defaulted, so a client cannot omit it and
-    /// silently submit an answer built from nothing.
+    /// UUIDs. The answer fields are all optional -- a body naming no files is a JSON answer, and a
+    /// `file` answer naming none is rejected by the submit path, not by serde.
     #[test]
     fn malformed_submission_body_fails_to_deserialize() {
         serde_json::from_value::<api::ExerciseSlideSubmission>(serde_json::json!({
             "exercise_slide_id": Uuid::new_v4(),
             "exercise_task_id": Uuid::new_v4(),
-            "uploaded_file_ids": [Uuid::new_v4()],
+            "answer_kind": "file",
+            "data_files": [Uuid::new_v4()],
         }))
         .expect("a well-formed submission body deserializes");
+
+        let json_answer =
+            serde_json::from_value::<api::ExerciseSlideSubmission>(serde_json::json!({
+                "exercise_slide_id": Uuid::new_v4(),
+                "exercise_task_id": Uuid::new_v4(),
+            }))
+            .expect("a body without answer fields deserializes as a json answer");
+        assert!(json_answer.answer_kind.is_none());
+        assert!(json_answer.data_files.is_none());
 
         // Missing exercise_task_id.
         assert!(
             serde_json::from_value::<api::ExerciseSlideSubmission>(serde_json::json!({
                 "exercise_slide_id": Uuid::new_v4(),
-                "uploaded_file_ids": [],
-            }))
-            .is_err()
-        );
-        // Missing uploaded_file_ids.
-        assert!(
-            serde_json::from_value::<api::ExerciseSlideSubmission>(serde_json::json!({
-                "exercise_slide_id": Uuid::new_v4(),
-                "exercise_task_id": Uuid::new_v4(),
+                "data_files": [],
             }))
             .is_err()
         );
@@ -1432,7 +1449,7 @@ mod tests {
             serde_json::from_value::<api::ExerciseSlideSubmission>(serde_json::json!({
                 "exercise_slide_id": "not-a-uuid",
                 "exercise_task_id": Uuid::new_v4(),
-                "uploaded_file_ids": [],
+                "data_files": [],
             }))
             .is_err()
         );
@@ -1440,7 +1457,7 @@ mod tests {
             serde_json::from_value::<api::ExerciseSlideSubmission>(serde_json::json!({
                 "exercise_slide_id": Uuid::new_v4(),
                 "exercise_task_id": Uuid::new_v4(),
-                "uploaded_file_ids": ["not-a-uuid"],
+                "data_files": ["not-a-uuid"],
             }))
             .is_err()
         );
@@ -1672,7 +1689,7 @@ mod upload_tests {
             slide_submission.id,
             slide_id,
             task_id,
-            &SubmittedAnswer::Json {
+            &models::library::grading::SubmittedAnswer::Json {
                 data: serde_json::json!({ "opaque": "plugin owned" }),
             },
         )
@@ -2007,9 +2024,9 @@ mod upload_tests {
 
         assert_eq!(
             response
-                .files
+                .data_files
                 .iter()
-                .map(|f| (f.id, f.name.as_str(), f.download_url.as_str()))
+                .map(|f| (f.id, f.name.as_str(), f.url.as_str()))
                 .collect::<Vec<_>>(),
             vec![
                 (
@@ -2038,7 +2055,7 @@ mod upload_tests {
     fn download_reports_an_empty_list_rather_than_failing() {
         let store = temp_file_store();
         let response = submission_files_response(Vec::new(), &store, &app_conf());
-        assert!(response.files.is_empty());
+        assert!(response.data_files.is_empty());
     }
 
     /// A submission and the record of which files it was made from land in one transaction. This is
@@ -2320,6 +2337,21 @@ mod route_tests {
             .set_payload(multipart_body(parts))
     }
 
+    /// A file answer's submit body, which is the only shape a native client sends today.
+    fn file_submission(
+        exercise_slide_id: Uuid,
+        exercise_task_id: Uuid,
+        data_files: Vec<Uuid>,
+    ) -> api::ExerciseSlideSubmission {
+        api::ExerciseSlideSubmission {
+            exercise_slide_id,
+            exercise_task_id,
+            answer_kind: Some(api::AnswerKind::File),
+            data_json: None,
+            data_files: Some(data_files),
+        }
+    }
+
     fn submit_request(
         exercise: Uuid,
         token: &str,
@@ -2351,7 +2383,7 @@ mod route_tests {
         let response = test::call_service(&app, request).await;
         assert_eq!(response.status(), StatusCode::OK);
         let body: api::UploadedFiles = test::read_body_json(response).await;
-        body.files.into_iter().map(|file| file.id).collect()
+        body.data_files.into_iter().map(|file| file.id).collect()
     }
 
     #[actix_web::test]
@@ -2371,19 +2403,22 @@ mod route_tests {
         let response = test::call_service(&app, request).await;
         assert_eq!(response.status(), StatusCode::OK);
         let body: api::UploadedFiles = test::read_body_json(response).await;
-        let names: Vec<&str> = body.files.iter().map(|file| file.name.as_str()).collect();
+        let names: Vec<&str> = body
+            .data_files
+            .iter()
+            .map(|file| file.name.as_str())
+            .collect();
         assert_eq!(names, vec!["a.tar.zst", "b.txt"]);
         assert!(
-            body.files
+            body.data_files
                 .iter()
-                .all(|file| file.download_url.contains(&file.id.to_string())
-                    || !file.download_url.is_empty())
+                .all(|file| file.url.contains(&file.id.to_string()) || !file.url.is_empty())
         );
 
         // The bindings the later submit validates against must exist for this exercise and user.
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let ids: Vec<Uuid> = body.files.iter().map(|file| file.id).collect();
+        let ids: Vec<Uuid> = body.data_files.iter().map(|file| file.id).collect();
         let recorded = models::exercise_answer_uploads::get_for_exercise_and_user(
             tx.as_mut(),
             fixture.exercise,
@@ -2567,11 +2602,7 @@ mod route_tests {
         let request = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: vec![],
-            },
+            &file_submission(fixture.slide, fixture.task, vec![]),
         )
         .to_request();
 
@@ -2588,11 +2619,7 @@ mod route_tests {
         let request = submit_request(
             Uuid::new_v4(),
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: vec![],
-            },
+            &file_submission(fixture.slide, fixture.task, vec![]),
         )
         .to_request();
 
@@ -2608,11 +2635,7 @@ mod route_tests {
         let request = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: vec![ids[0], ids[0]],
-            },
+            &file_submission(fixture.slide, fixture.task, vec![ids[0], ids[0]]),
         )
         .to_request();
 
@@ -2629,11 +2652,7 @@ mod route_tests {
         let request = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: vec![Uuid::new_v4()],
-            },
+            &file_submission(fixture.slide, fixture.task, vec![Uuid::new_v4()]),
         )
         .to_request();
 
@@ -2654,11 +2673,7 @@ mod route_tests {
         let request = submit_request(
             other.exercise,
             &other.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: other.slide,
-                exercise_task_id: other.task,
-                uploaded_file_ids: vec![ids[0]],
-            },
+            &file_submission(other.slide, other.task, vec![ids[0]]),
         )
         .to_request();
 
@@ -2686,11 +2701,7 @@ mod route_tests {
         let request = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: vec![ids[0]],
-            },
+            &file_submission(fixture.slide, fixture.task, vec![ids[0]]),
         )
         .to_request();
 
@@ -2710,11 +2721,7 @@ mod route_tests {
         let request = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: other.slide,
-                exercise_task_id: other.task,
-                uploaded_file_ids: vec![],
-            },
+            &file_submission(other.slide, other.task, vec![]),
         )
         .to_request();
 
@@ -2734,11 +2741,7 @@ mod route_tests {
         let request = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.unservable_task,
-                uploaded_file_ids: vec![],
-            },
+            &file_submission(fixture.slide, fixture.unservable_task, vec![]),
         )
         .to_request();
 
@@ -2924,11 +2927,7 @@ mod route_tests {
         let request = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: named.clone(),
-            },
+            &file_submission(fixture.slide, fixture.task, named.clone()),
         )
         .to_request();
 
@@ -2950,18 +2949,19 @@ mod route_tests {
         )
         .await
         .expect("task submission");
-        let Some(models::exercise_task_submissions::AnswerData::File { files, metadata }) =
-            submission.answer
-        else {
-            panic!("a client submission must be recorded as a file answer");
-        };
+        assert_eq!(
+            submission.answer_kind,
+            AnswerKind::File,
+            "a client submission must be recorded as a file answer"
+        );
+        let files = submission.data_files.expect("a file answer names files");
         assert_eq!(
             files.iter().map(|file| file.id).collect::<Vec<_>>(),
             named,
             "the client's order is the answer, not ours to sort"
         );
         assert_eq!(
-            metadata, None,
+            submission.data_json, None,
             "a client names files only, so there is no metadata for the host to invent"
         );
         assert_eq!(
@@ -3009,11 +3009,7 @@ mod route_tests {
         let request = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: vec![],
-            },
+            &file_submission(fixture.slide, fixture.task, vec![]),
         )
         .to_request();
 
@@ -3039,11 +3035,7 @@ mod route_tests {
         let request = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: vec![ids[0]],
-            },
+            &file_submission(fixture.slide, fixture.task, vec![ids[0]]),
         )
         .to_request();
 
@@ -3112,7 +3104,7 @@ mod route_tests {
     /// handler calls — and returns the slide submission's id.
     async fn submit_from_the_iframe(
         fixture: &Fixture,
-        answer: SubmittedAnswer,
+        answer: StudentExerciseTaskSubmission,
         store: &dyn FileStore,
     ) -> Uuid {
         let mut conn = PgConnection::connect(&test_database_url())
@@ -3127,10 +3119,7 @@ mod route_tests {
             exercise,
             &StudentExerciseSlideSubmission {
                 exercise_slide_id: fixture.slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: fixture.task,
-                    answer,
-                }],
+                exercise_task_submissions: vec![answer],
             },
             std::sync::Arc::new(JwtKey::test_key()),
             store,
@@ -3165,12 +3154,9 @@ mod route_tests {
         test::read_body_json(response).await
     }
 
-    /// Path of the object a `download_url` names, for reading it back out of the file store.
-    fn object_path(download_url: &str) -> &str {
-        download_url
-            .split_once("/api/v0/files/")
-            .expect("a files URL")
-            .1
+    /// Path of the object a file's `url` names, for reading it back out of the file store.
+    fn object_path(url: &str) -> &str {
+        url.split_once("/api/v0/files/").expect("a files URL").1
     }
 
     /// Replaces the members that name *which stored object* a file is — necessarily a different
@@ -3179,18 +3165,18 @@ mod route_tests {
     /// the names, and their order. Two canonicalised bodies compare equal only if the client cannot
     /// tell the two submissions' downloads apart. The bytes behind the URLs are asserted separately.
     fn canonicalize_download(body: &serde_json::Value) -> serde_json::Value {
-        let files = body["files"].as_array().expect("files");
+        let files = body["data_files"].as_array().expect("data_files");
         serde_json::json!({
-            "files": files
+            "data_files": files
                 .iter()
                 .map(|file| {
                     let object = file.as_object().expect("file object");
                     let mut canonical = object.clone();
                     canonical.insert("id".to_string(), serde_json::json!("<uuid>"));
-                    let url = object["download_url"].as_str().expect("download_url");
+                    let url = object["url"].as_str().expect("url");
                     let served_from = &url[..url.len() - object_path(url).len()];
                     canonical.insert(
-                        "download_url".to_string(),
+                        "url".to_string(),
                         serde_json::json!(format!("{served_from}<object>")),
                     );
                     serde_json::Value::Object(canonical)
@@ -3199,14 +3185,14 @@ mod route_tests {
         })
     }
 
-    /// What a client actually gets when it follows every `download_url`, in order.
+    /// What a client actually gets when it follows every file's `url`, in order.
     async fn served_files(
         store: &dyn FileStore,
         body: &serde_json::Value,
     ) -> Vec<(String, String)> {
         let mut served = Vec::new();
-        for file in body["files"].as_array().expect("files") {
-            let url = file["download_url"].as_str().expect("download_url");
+        for file in body["data_files"].as_array().expect("data_files") {
+            let url = file["url"].as_str().expect("url");
             let bytes = store
                 .download(std::path::Path::new(object_path(url)))
                 .await
@@ -3245,16 +3231,12 @@ mod route_tests {
         let response = test::call_service(&app, upload).await;
         assert_eq!(response.status(), StatusCode::OK);
         let uploaded: api::UploadedFiles = test::read_body_json(response).await;
-        let named: Vec<Uuid> = uploaded.files.iter().map(|file| file.id).collect();
+        let named: Vec<Uuid> = uploaded.data_files.iter().map(|file| file.id).collect();
 
         let submit = submit_request(
             fixture.exercise,
             &fixture.token,
-            &api::ExerciseSlideSubmission {
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                uploaded_file_ids: named,
-            },
+            &file_submission(fixture.slide, fixture.task, named),
         )
         .to_request();
         let response = test::call_service(&app, submit).await;
@@ -3264,10 +3246,11 @@ mod route_tests {
         let from_iframe_ids = upload_from_the_iframe(&fixture, store.as_ref()).await;
         let from_iframe = submit_from_the_iframe(
             &fixture,
-            SubmittedAnswer::File {
-                file_upload_ids: from_iframe_ids,
-                metadata: Some(serde_json::json!({ "plugin": "said so" })),
-            },
+            StudentExerciseTaskSubmission::files(
+                fixture.task,
+                from_iframe_ids,
+                Some(serde_json::json!({ "plugin": "said so" })),
+            ),
             store.as_ref(),
         )
         .await;
@@ -3299,15 +3282,16 @@ mod route_tests {
 
         let from_iframe = submit_from_the_iframe(
             &fixture,
-            SubmittedAnswer::Json {
-                data: serde_json::json!({ "opaque": "plugin owned" }),
-            },
+            StudentExerciseTaskSubmission::json(
+                fixture.task,
+                serde_json::json!({ "opaque": "plugin owned" }),
+            ),
             &temp_file_store(),
         )
         .await;
 
         let app = client_api_app!();
         let body = download(&app, &fixture.token, from_iframe).await;
-        assert_eq!(body, serde_json::json!({ "files": [] }));
+        assert_eq!(body, serde_json::json!({ "data_files": [] }));
     }
 }

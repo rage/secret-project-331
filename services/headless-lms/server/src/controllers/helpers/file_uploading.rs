@@ -36,10 +36,13 @@ pub struct ExerciseServiceUploadResultEntry {
     pub url: String,
 }
 
-/// One stored upload, with the original file name the wire result omits.
+/// One stored upload, with the file details the iframe's wire result omits and the client API's
+/// response carries.
 pub struct ExerciseServiceUpload {
     pub entry: ExerciseServiceUploadResultEntry,
     pub name: String,
+    pub mime: String,
+    pub size_bytes: i64,
 }
 
 /** Tracks uploaded object paths for cleanup when the batch fails. */
@@ -251,6 +254,8 @@ pub async fn record_exercise_service_upload(
                 url: part.url,
             },
             name: part.filename,
+            mime: part.mime_type,
+            size_bytes: part.size_bytes,
         });
     }
     Ok(uploads)

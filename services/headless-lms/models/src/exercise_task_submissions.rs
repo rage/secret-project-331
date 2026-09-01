@@ -29,9 +29,11 @@ pub enum AnswerKind {
     File,
 }
 
-/// The answer a submission or grading request carries, as either the raw JSON a plugin produced
-/// or the files a plugin's answer consists of.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+/// The answer a submission carries, as either the raw JSON a plugin produced or the files a
+/// plugin's answer consists of.
+///
+/// Internal: outbound types spread [`AnswerFields`] instead, so nothing on the wire is tagged.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum AnswerData {
     Json {
@@ -45,9 +47,9 @@ pub enum AnswerData {
 }
 
 impl AnswerData {
-    /// The JSON an exercise service is still handed as the answer: the answer itself for `Json`,
-    /// the plugin's metadata for `File`. A file answer's files are not represented, because the
-    /// exercise service protocol has no field for them yet.
+    /// The JSON to hand an exercise service where the payload has one answer field and no place
+    /// for files, such as the CSV answers export: the answer itself for `Json`, the plugin's
+    /// metadata for `File`.
     pub fn plugin_json(&self) -> Option<&serde_json::Value> {
         match self {
             AnswerData::Json { data } => Some(data),
@@ -74,6 +76,40 @@ pub struct AnswerFile {
     pub url: String,
 }
 
+/// A stored answer as the three fields every outbound type carries it in.
+///
+/// Spread these rather than serializing [`AnswerData`] itself: a consumer written before file
+/// answers existed still finds the answer in `data_json`, where it has always been.
+pub struct AnswerFields {
+    pub answer_kind: AnswerKind,
+    pub data_json: Option<serde_json::Value>,
+    pub data_files: Option<Vec<AnswerFile>>,
+}
+
+impl From<Option<AnswerData>> for AnswerFields {
+    fn from(answer: Option<AnswerData>) -> Self {
+        match answer {
+            Some(AnswerData::Json { data }) => Self {
+                answer_kind: AnswerKind::Json,
+                data_json: Some(data),
+                data_files: None,
+            },
+            Some(AnswerData::File { files, metadata }) => Self {
+                answer_kind: AnswerKind::File,
+                data_json: metadata,
+                data_files: (!files.is_empty()).then_some(files),
+            },
+            // A `json` row whose `data_json` is NULL; only rows predating
+            // `exercise_task_submissions_json_answer_has_data` can be like that.
+            None => Self {
+                answer_kind: AnswerKind::Json,
+                data_json: None,
+                data_files: None,
+            },
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct ExerciseTaskSubmission {
@@ -84,7 +120,13 @@ pub struct ExerciseTaskSubmission {
     pub exercise_slide_submission_id: Uuid,
     pub exercise_task_id: Uuid,
     pub exercise_slide_id: Uuid,
-    pub answer: Option<AnswerData>,
+    pub answer_kind: AnswerKind,
+    /// The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+    /// files for a `file` one.
+    pub data_json: Option<serde_json::Value>,
+    /// The files the answer consists of, in grading order. Omitted when it has none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data_files: Option<Vec<AnswerFile>>,
     pub exercise_task_grading_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
 }
@@ -111,7 +153,7 @@ pub struct StoredAnswer {
     pub data_json: Option<serde_json::Value>,
 }
 
-/// Resolves stored answers into the outbound union in one batch, minting a download URL per file.
+/// Resolves stored answers into [`AnswerData`] in one batch, minting a download URL per file.
 ///
 /// Keyed by submission id. A submission is absent from the map only when its `json` answer has no
 /// `data_json` at all, which is the `None` its DTO carries. Only rows predating
@@ -191,17 +233,22 @@ async fn resolve_rows(
     let mut answers = attach_answer_data(conn, &stored, file_store, app_conf).await?;
     Ok(rows
         .into_iter()
-        .map(|row| ExerciseTaskSubmission {
-            id: row.id,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            deleted_at: row.deleted_at,
-            exercise_slide_submission_id: row.exercise_slide_submission_id,
-            exercise_task_id: row.exercise_task_id,
-            exercise_slide_id: row.exercise_slide_id,
-            answer: answers.remove(&row.id),
-            exercise_task_grading_id: row.exercise_task_grading_id,
-            metadata: row.metadata,
+        .map(|row| {
+            let answer = AnswerFields::from(answers.remove(&row.id));
+            ExerciseTaskSubmission {
+                id: row.id,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                deleted_at: row.deleted_at,
+                exercise_slide_submission_id: row.exercise_slide_submission_id,
+                exercise_task_id: row.exercise_task_id,
+                exercise_slide_id: row.exercise_slide_id,
+                answer_kind: answer.answer_kind,
+                data_json: answer.data_json,
+                data_files: answer.data_files,
+                exercise_task_grading_id: row.exercise_task_grading_id,
+                metadata: row.metadata,
+            }
         })
         .collect())
 }
@@ -1148,14 +1195,19 @@ pub async fn get_user_latest_exercise_task_submissions_by_course_module_and_exer
     let mut answers = attach_answer_data(conn, &stored, file_store, app_conf).await?;
     Ok(rows
         .into_iter()
-        .map(|row| CustomViewExerciseTaskSubmission {
-            id: row.id,
-            created_at: row.created_at,
-            exercise_slide_submission_id: row.exercise_slide_submission_id,
-            exercise_slide_id: row.exercise_slide_id,
-            exercise_task_id: row.exercise_task_id,
-            exercise_task_grading_id: row.exercise_task_grading_id,
-            answer: answers.remove(&row.id),
+        .map(|row| {
+            let answer = AnswerFields::from(answers.remove(&row.id));
+            CustomViewExerciseTaskSubmission {
+                id: row.id,
+                created_at: row.created_at,
+                exercise_slide_submission_id: row.exercise_slide_submission_id,
+                exercise_slide_id: row.exercise_slide_id,
+                exercise_task_id: row.exercise_task_id,
+                exercise_task_grading_id: row.exercise_task_grading_id,
+                answer_kind: answer.answer_kind,
+                data_json: answer.data_json,
+                data_files: answer.data_files,
+            }
         })
         .collect())
 }
@@ -1344,10 +1396,12 @@ mod test {
         let submission = get_by_id(tx.as_mut(), submission_id, &init_file_store(), &app_conf)
             .await
             .unwrap();
-        let AnswerData::File { files, metadata } = submission.answer.unwrap() else {
-            panic!("a file answer must read back as a file answer");
-        };
-        assert_eq!(metadata, Some(serde_json::json!({ "plugin": "owned" })));
+        assert_eq!(submission.answer_kind, AnswerKind::File);
+        assert_eq!(
+            submission.data_json,
+            Some(serde_json::json!({ "plugin": "owned" }))
+        );
+        let files = submission.data_files.expect("a file answer names files");
         assert_eq!(
             files
                 .iter()
@@ -1408,12 +1462,12 @@ mod test {
         let submission = get_by_id(tx.as_mut(), submission_id, &init_file_store(), &app_conf)
             .await
             .unwrap();
+        assert_eq!(submission.answer_kind, AnswerKind::Json);
         assert_eq!(
-            submission.answer,
-            Some(AnswerData::Json {
-                data: serde_json::json!({ "opaque": "plugin owned" })
-            })
+            submission.data_json,
+            Some(serde_json::json!({ "opaque": "plugin owned" }))
         );
+        assert_eq!(submission.data_files, None);
         tx.rollback().await;
     }
 }

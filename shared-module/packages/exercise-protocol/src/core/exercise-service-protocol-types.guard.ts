@@ -482,12 +482,7 @@ export function isCustomViewIframeState(obj: unknown): obj is CustomViewIframeSt
                 (e !== null &&
                     typeof e === "object" ||
                     typeof e === "function") &&
-                typeof e["task_id"] === "string" &&
-                (typeof e["user_answer_files"] === "undefined" ||
-                    Array.isArray(e["user_answer_files"]) &&
-                    e["user_answer_files"].every((e: any) =>
-                        isAnswerFileRef(e) as boolean
-                    ))
+                typeof e["task_id"] === "string"
             )
         )
     )

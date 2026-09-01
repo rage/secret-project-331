@@ -39,6 +39,19 @@ export interface ExerciseTaskGradingResult {
   set_user_variables?: Record<string, unknown>
 }
 
+/** One host-stored file that an answer consists of, as the host's own API returns it. */
+export interface AnswerFile {
+  id: string
+  name: string
+  mime: string
+  /** Absent for a file stored before sizes were recorded; the host cannot back-fill it. */
+  size_bytes?: number
+  /** The file's position in the answer. The order is part of the answer. */
+  order_number: number
+  /** Host download URL. Needs no authentication; do not persist it. */
+  url: string
+}
+
 export interface ExerciseTaskSubmission {
   id: string
   created_at: string
@@ -47,6 +60,14 @@ export interface ExerciseTaskSubmission {
   exercise_slide_submission_id: string
   exercise_task_id: string
   exercise_slide_id: string
+  answer_kind: "json" | "file"
+  /**
+   * The exercise service's own JSON: the whole answer for a `json` answer, the service's metadata
+   * about the files for a `file` one.
+   */
+  data_json: unknown | null
+  /** The files the answer consists of. Absent when it has none. */
+  data_files?: AnswerFile[]
   exercise_task_grading_id: string | null
   metadata: unknown | null
 }

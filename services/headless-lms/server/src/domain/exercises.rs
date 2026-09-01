@@ -68,18 +68,13 @@ fn named_upload_ids(submission: &StudentExerciseSlideSubmission) -> Vec<Uuid> {
     submission
         .exercise_task_submissions
         .iter()
-        .filter_map(|task_submission| match &task_submission.answer {
-            SubmittedAnswer::File {
-                file_upload_ids, ..
-            } => Some(file_upload_ids.iter().copied()),
-            _ => None,
-        })
-        .flatten()
+        .flat_map(|task_submission| task_submission.named_file_ids().iter().copied())
         .collect()
 }
 
 /// Rejects a file-typed answer naming uploads this user did not make for this exercise, naming none
-/// at all, or naming the same upload as another task submission in the same slide submission.
+/// at all, or naming the same upload as another task submission in the same slide submission. Also
+/// rejects a JSON answer that names files, before anything is written.
 ///
 /// Unlocked, so [`lock_and_verify_named_uploads`] must repeat it inside the submission transaction.
 async fn verify_named_uploads(
@@ -91,9 +86,9 @@ async fn verify_named_uploads(
     for task_submission in &submission.exercise_task_submissions {
         if let SubmittedAnswer::File {
             file_upload_ids, ..
-        } = &task_submission.answer
+        } = task_submission.to_submitted_answer()?
         {
-            answer_uploads::verify_answer_names_uploads(file_upload_ids)?;
+            answer_uploads::verify_answer_names_uploads(&file_upload_ids)?;
         }
     }
     let file_upload_ids = named_upload_ids(submission);
@@ -411,7 +406,7 @@ mod tests {
     use crate::test_helper::*;
     use models::exercise_answer_uploads::AnswerUploadOrigin;
     use models::exercise_task_gradings::ExerciseTaskGradingResult;
-    use models::exercise_task_submissions::{AnswerData, AnswerFile, AnswerKind};
+    use models::exercise_task_submissions::{AnswerFile, AnswerKind};
     use models::exercises::GradingProgress;
     use models::library::grading::StudentExerciseTaskSubmission;
     use sqlx::Connection;
@@ -538,17 +533,18 @@ mod tests {
         file_id
     }
 
-    fn file_answer(file_upload_ids: Vec<Uuid>) -> SubmittedAnswer {
-        SubmittedAnswer::File {
-            file_upload_ids,
-            metadata: Some(serde_json::json!({ "plugin": "said so" })),
-        }
+    fn file_answer(exercise_task_id: Uuid, data_files: Vec<Uuid>) -> StudentExerciseTaskSubmission {
+        StudentExerciseTaskSubmission::files(
+            exercise_task_id,
+            data_files,
+            Some(serde_json::json!({ "plugin": "said so" })),
+        )
     }
 
     async fn submit(
         conn: &mut PgConnection,
         fixture: &Fixture,
-        answer: SubmittedAnswer,
+        answer: StudentExerciseTaskSubmission,
         file_store: &dyn FileStore,
     ) -> Result<models::library::grading::StudentExerciseSlideSubmissionResult, ControllerError>
     {
@@ -561,10 +557,7 @@ mod tests {
             exercise,
             &StudentExerciseSlideSubmission {
                 exercise_slide_id: fixture.slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: fixture.task,
-                    answer,
-                }],
+                exercise_task_submissions: vec![answer],
             },
             Arc::new(crate::domain::models_requests::JwtKey::test_key()),
             file_store,
@@ -663,7 +656,7 @@ mod tests {
     async fn assert_rejected_without_a_submission(
         conn: &mut PgConnection,
         fixture: &Fixture,
-        answer: SubmittedAnswer,
+        answer: StudentExerciseTaskSubmission,
         expected_message_key: &str,
     ) {
         let store = temp_file_store();
@@ -719,7 +712,7 @@ mod tests {
         assert_rejected_without_a_submission(
             tx.as_mut(),
             &fixture,
-            file_answer(vec![theirs]),
+            file_answer(fixture.task, vec![theirs]),
             "unknown_upload",
         )
         .await;
@@ -746,7 +739,7 @@ mod tests {
         assert_rejected_without_a_submission(
             tx.as_mut(),
             &fixture,
-            file_answer(vec![elsewhere]),
+            file_answer(fixture.task, vec![elsewhere]),
             "unknown_upload",
         )
         .await;
@@ -761,7 +754,7 @@ mod tests {
         assert_rejected_without_a_submission(
             tx.as_mut(),
             &fixture,
-            file_answer(vec![file, file]),
+            file_answer(fixture.task, vec![file, file]),
             "duplicate_upload",
         )
         .await;
@@ -794,14 +787,8 @@ mod tests {
             &StudentExerciseSlideSubmission {
                 exercise_slide_id: fixture.slide,
                 exercise_task_submissions: vec![
-                    StudentExerciseTaskSubmission {
-                        exercise_task_id: fixture.task,
-                        answer: file_answer(vec![file]),
-                    },
-                    StudentExerciseTaskSubmission {
-                        exercise_task_id: other_task,
-                        answer: file_answer(vec![file]),
-                    },
+                    file_answer(fixture.task, vec![file]),
+                    file_answer(other_task, vec![file]),
                 ],
             },
             Arc::new(crate::domain::models_requests::JwtKey::test_key()),
@@ -831,9 +818,14 @@ mod tests {
         fixture!(tx, fixture, state);
         let store = temp_file_store();
 
-        let error = submit(tx.as_mut(), &fixture, file_answer(vec![]), &store)
-            .await
-            .expect_err("a file answer naming nothing must be refused");
+        let error = submit(
+            tx.as_mut(),
+            &fixture,
+            file_answer(fixture.task, vec![]),
+            &store,
+        )
+        .await
+        .expect_err("a file answer naming nothing must be refused");
         assert_eq!(error.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
         assert_eq!(
             slide_submission_count(tx.as_mut(), fixture.exercise, fixture.user).await,
@@ -855,7 +847,7 @@ mod tests {
         assert_rejected_without_a_submission(
             tx.as_mut(),
             &fixture,
-            file_answer(vec![file]),
+            file_answer(fixture.task, vec![file]),
             "upload_expired",
         )
         .await;
@@ -873,9 +865,14 @@ mod tests {
         let named = vec![second, first];
         let store = temp_file_store();
 
-        let result = submit(tx.as_mut(), &fixture, file_answer(named.clone()), &store)
-            .await
-            .expect("the submit must be accepted");
+        let result = submit(
+            tx.as_mut(),
+            &fixture,
+            file_answer(fixture.task, named.clone()),
+            &store,
+        )
+        .await
+        .expect("the submit must be accepted");
 
         let submission = result
             .exercise_task_submission_results
@@ -891,11 +888,10 @@ mod tests {
             recorded_files(tx.as_mut(), submission.id).await,
             vec![(second, 0), (first, 1)]
         );
-        let AnswerData::File { files, metadata } =
-            submission.answer.expect("the answer must be resolved")
-        else {
-            panic!("a file answer must come back as AnswerData::File");
-        };
+        assert_eq!(submission.answer_kind, AnswerKind::File);
+        let files = submission
+            .data_files
+            .expect("a file answer comes back with its files");
         assert_eq!(
             files.iter().map(|file| file.id).collect::<Vec<_>>(),
             named,
@@ -908,7 +904,10 @@ mod tests {
                 .collect::<Vec<_>>(),
             vec!["second.txt", "first.txt"]
         );
-        assert_eq!(metadata, Some(serde_json::json!({ "plugin": "said so" })));
+        assert_eq!(
+            submission.data_json,
+            Some(serde_json::json!({ "plugin": "said so" }))
+        );
         tx.rollback().await;
     }
 
@@ -950,17 +949,22 @@ mod tests {
                 .await
                 .expect("submit connection");
             let store = temp_file_store();
-            submit(&mut conn, &fixture, file_answer(vec![file]), &store)
-                .await
-                .map(|result| {
-                    result
-                        .exercise_task_submission_results
-                        .into_iter()
-                        .next()
-                        .expect("one task submission")
-                        .submission
-                        .id
-                })
+            submit(
+                &mut conn,
+                &fixture,
+                file_answer(fixture.task, vec![file]),
+                &store,
+            )
+            .await
+            .map(|result| {
+                result
+                    .exercise_task_submission_results
+                    .into_iter()
+                    .next()
+                    .expect("one task submission")
+                    .submission
+                    .id
+            })
         });
 
         // The grading request proves the submit is inside its transaction, past the lock.

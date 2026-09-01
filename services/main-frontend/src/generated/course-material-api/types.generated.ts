@@ -16,24 +16,6 @@ export type ClientOptions = {
 export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submitted" | "Completed"
 
 /**
- * The answer a submission or grading request carries, as either the raw JSON a plugin produced
- * or the files a plugin's answer consists of.
- */
-export type AnswerData =
-  | {
-      data: unknown
-      kind: "json"
-    }
-  | {
-      files: Array<AnswerFile>
-      kind: "file"
-      /**
-       * The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
-       */
-      metadata?: unknown
-    }
-
-/**
  * One host-stored file that an answer consists of.
  */
 export type AnswerFile = {
@@ -56,6 +38,12 @@ export type AnswerFile = {
    */
   url: string
 }
+
+/**
+ * Which of a submission's two answer representations is the answer: the opaque blob in
+ * `data_json`, or the rows in `exercise_task_submission_files`.
+ */
+export type AnswerKind = "json" | "file"
 
 export type ChapterLockPreview = {
   has_unreturned_exercises: boolean
@@ -627,8 +615,18 @@ export type CustomViewExerciseTaskSpec = {
 }
 
 export type CustomViewExerciseTaskSubmission = {
-  answer?: null | AnswerData
+  answer_kind: AnswerKind
   created_at: string
+  /**
+   * The files the answer consists of, in grading order. Omitted when it has none.
+   */
+  data_files?: Array<AnswerFile> | null
+  /**
+   * The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+   * files for a `file` one. A custom view is handed this row as its `user_answer`, so this is
+   * where a plugin reads the answer from.
+   */
+  data_json?: unknown
   exercise_slide_id: string
   exercise_slide_submission_id: string
   exercise_task_grading_id?: string | null
@@ -801,8 +799,17 @@ export type ExerciseTaskGrading = {
 }
 
 export type ExerciseTaskSubmission = {
-  answer?: null | AnswerData
+  answer_kind: AnswerKind
   created_at: string
+  /**
+   * The files the answer consists of, in grading order. Omitted when it has none.
+   */
+  data_files?: Array<AnswerFile> | null
+  /**
+   * The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+   * files for a `file` one.
+   */
+  data_json?: unknown
   deleted_at?: string | null
   exercise_slide_id: string
   exercise_slide_submission_id: string
@@ -1172,7 +1179,17 @@ export type StudentExerciseSlideSubmissionResult = {
 }
 
 export type StudentExerciseTaskSubmission = {
-  answer: SubmittedAnswer
+  answer_kind?: null | AnswerKind
+  /**
+   * The uploads that are the answer, in the order they are to be graded and displayed. Every id
+   * must be an upload this user made for this exercise.
+   */
+  data_files?: Array<string> | null
+  /**
+   * The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+   * files for a `file` one.
+   */
+  data_json?: unknown
   exercise_task_id: string
 }
 
@@ -1182,28 +1199,6 @@ export type StudentExerciseTaskSubmissionResult = {
   model_solution_spec?: unknown
   submission: ExerciseTaskSubmission
 }
-
-/**
- * The answer a student submits for one exercise task, as either JSON or a set of host-stored
- * files.
- */
-export type SubmittedAnswer =
-  | {
-      data: unknown
-      kind: "json"
-    }
-  | {
-      /**
-       * Ordered; the order is part of the answer (exercise-file-submission grades by position).
-       * Every id must be an upload this user made for this exercise.
-       */
-      file_upload_ids: Array<string>
-      kind: "file"
-      /**
-       * The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
-       */
-      metadata?: unknown
-    }
 
 export type TeacherDecisionType =
   | "FullPoints"

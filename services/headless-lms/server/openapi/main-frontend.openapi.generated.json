@@ -15121,41 +15121,6 @@
           }
         }
       },
-      "AnswerData": {
-        "oneOf": [
-          {
-            "type": "object",
-            "required": ["data", "kind"],
-            "properties": {
-              "data": {},
-              "kind": {
-                "type": "string",
-                "enum": ["json"]
-              }
-            }
-          },
-          {
-            "type": "object",
-            "required": ["files", "kind"],
-            "properties": {
-              "files": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/AnswerFile"
-                }
-              },
-              "kind": {
-                "type": "string",
-                "enum": ["file"]
-              },
-              "metadata": {
-                "description": "The plugin's own JSON about the files. `None` for a plugin whose answer is the files."
-              }
-            }
-          }
-        ],
-        "description": "The answer a submission or grading request carries, as either the raw JSON a plugin produced\nor the files a plugin's answer consists of."
-      },
       "AnswerFile": {
         "type": "object",
         "description": "One host-stored file that an answer consists of.",
@@ -15187,6 +15152,11 @@
           }
         }
       },
+      "AnswerKind": {
+        "type": "string",
+        "description": "Which of a submission's two answer representations is the answer: the opaque blob in\n`data_json`, or the rows in `exercise_task_submission_files`.",
+        "enum": ["json", "file"]
+      },
       "AnswerRequiringAttentionWithTasks": {
         "type": "object",
         "required": [
@@ -15194,6 +15164,7 @@
           "user_id",
           "created_at",
           "updated_at",
+          "answer_kind",
           "grading_progress",
           "submission_id",
           "exercise_id",
@@ -15203,19 +15174,22 @@
           "received_peer_review_flagging_reports"
         ],
         "properties": {
-          "answer": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AnswerData"
-              }
-            ]
+          "answer_kind": {
+            "$ref": "#/components/schemas/AnswerKind"
           },
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "data_files": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/AnswerFile"
+            },
+            "description": "The files the answer consists of, in grading order. Omitted when it has none."
+          },
+          "data_json": {
+            "description": "The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the\nfiles for a `file` one."
           },
           "deleted_at": {
             "type": ["string", "null"],
@@ -21838,22 +21812,26 @@
           "updated_at",
           "exercise_slide_submission_id",
           "exercise_task_id",
-          "exercise_slide_id"
+          "exercise_slide_id",
+          "answer_kind"
         ],
         "properties": {
-          "answer": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AnswerData"
-              }
-            ]
+          "answer_kind": {
+            "$ref": "#/components/schemas/AnswerKind"
           },
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "data_files": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/AnswerFile"
+            },
+            "description": "The files the answer consists of, in grading order. Omitted when it has none."
+          },
+          "data_json": {
+            "description": "The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the\nfiles for a `file` one."
           },
           "deleted_at": {
             "type": ["string", "null"],

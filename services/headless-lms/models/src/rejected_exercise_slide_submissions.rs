@@ -63,7 +63,8 @@ async fn insert_rejected_exercise_task_submission(
     rejected_submission: &StudentExerciseTaskSubmission,
     exercise_slide_submission_id: Uuid,
 ) -> ModelResult<Uuid> {
-    let (answer_kind, answer_json, file_upload_ids) = match &rejected_submission.answer {
+    let answer = rejected_submission.to_submitted_answer()?;
+    let (answer_kind, answer_json, file_upload_ids) = match &answer {
         SubmittedAnswer::Json { data } => (AnswerKind::Json, Some(data), None),
         SubmittedAnswer::File {
             metadata,

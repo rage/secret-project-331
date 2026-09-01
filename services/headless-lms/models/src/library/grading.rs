@@ -12,7 +12,9 @@ use crate::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
     },
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
-    exercise_task_submissions::{self, AnswerData, ExerciseTaskSubmission},
+    exercise_task_submissions::{
+        self, AnswerFields, AnswerFile, AnswerKind, ExerciseTaskSubmission,
+    },
     exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{self, Exercise, ExerciseStatus, GradingProgress},
     flagged_answers::{self, FlaggedAnswer},
@@ -70,12 +72,81 @@ impl StudentExerciseSlideSubmissionResult {
 
 pub struct StudentExerciseTaskSubmission {
     pub exercise_task_id: Uuid,
-    pub answer: SubmittedAnswer,
+    /// Absent means `json`, so a client that only ever answers with JSON never sends it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub answer_kind: Option<AnswerKind>,
+    /// The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+    /// files for a `file` one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data_json: Option<serde_json::Value>,
+    /// The uploads that are the answer, in the order they are to be graded and displayed. Every id
+    /// must be an upload this user made for this exercise.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data_files: Option<Vec<Uuid>>,
+}
+
+impl StudentExerciseTaskSubmission {
+    /// A JSON answer, the shape a submit takes when no files are involved.
+    pub fn json(exercise_task_id: Uuid, data: serde_json::Value) -> Self {
+        Self {
+            exercise_task_id,
+            answer_kind: Some(AnswerKind::Json),
+            data_json: Some(data),
+            data_files: None,
+        }
+    }
+
+    /// A file answer naming host-stored uploads, in the order they are to be graded and displayed.
+    pub fn files(
+        exercise_task_id: Uuid,
+        data_files: Vec<Uuid>,
+        data_json: Option<serde_json::Value>,
+    ) -> Self {
+        Self {
+            exercise_task_id,
+            answer_kind: Some(AnswerKind::File),
+            data_json,
+            data_files: Some(data_files),
+        }
+    }
+
+    /// The uploads this answer names, empty unless it is a file answer.
+    pub fn named_file_ids(&self) -> &[Uuid] {
+        match self.answer_kind {
+            Some(AnswerKind::File) => self.data_files.as_deref().unwrap_or_default(),
+            _ => &[],
+        }
+    }
+
+    /// The internal form of the answer, rejecting the one combination the flat fields allow but the
+    /// answer model does not: a JSON answer that also names files, which would silently drop them.
+    pub fn to_submitted_answer(&self) -> ModelResult<SubmittedAnswer> {
+        match self.answer_kind.unwrap_or(AnswerKind::Json) {
+            AnswerKind::Json => {
+                if self.data_files.as_ref().is_some_and(|ids| !ids.is_empty()) {
+                    return Err(model_err!(
+                        InvalidRequest,
+                        "A json answer cannot name uploaded files. Send answer_kind 'file' to submit files.".to_string()
+                    ));
+                }
+                Ok(SubmittedAnswer::Json {
+                    data: self.data_json.clone().unwrap_or(serde_json::Value::Null),
+                })
+            }
+            AnswerKind::File => Ok(SubmittedAnswer::File {
+                file_upload_ids: self.data_files.clone().unwrap_or_default(),
+                metadata: self.data_json.clone(),
+            }),
+        }
+    }
 }
 
 /// The answer a student submits for one exercise task, as either JSON or a set of host-stored
 /// files.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+///
+/// Internal: [`StudentExerciseTaskSubmission`] is what a client sends, and converting it here is
+/// what validates the combination of its flat fields.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum SubmittedAnswer {
     Json {
@@ -177,7 +248,7 @@ pub async fn create_user_exercise_slide_submission(
             exercise_slide_submission.id,
             exercise_task.exercise_slide_id,
             exercise_task.id,
-            &task_submission.answer,
+            &task_submission.to_submitted_answer()?,
         )
         .await?;
         let submission =
@@ -600,7 +671,13 @@ pub struct AnswerRequiringAttentionWithTasks {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub answer: Option<AnswerData>,
+    pub answer_kind: AnswerKind,
+    /// The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+    /// files for a `file` one.
+    pub data_json: Option<serde_json::Value>,
+    /// The files the answer consists of, in grading order. Omitted when it has none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data_files: Option<Vec<AnswerFile>>,
     pub grading_progress: GradingProgress,
     pub score_given: Option<f32>,
     pub submission_id: Uuid,
@@ -660,13 +737,16 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
         let received_peer_review_flagging_reports: Vec<FlaggedAnswer> =
             flagged_answers::get_flagged_answers_by_submission_id(conn, answer.submission_id)
                 .await?;
+        let answer_fields = AnswerFields::from(answer.answer.to_owned());
         let new_answer = AnswerRequiringAttentionWithTasks {
             id: answer.id,
             user_id: answer.user_id,
             created_at: answer.created_at,
             updated_at: answer.updated_at,
             deleted_at: answer.deleted_at,
-            answer: answer.answer.to_owned(),
+            answer_kind: answer_fields.answer_kind,
+            data_json: answer_fields.data_json,
+            data_files: answer_fields.data_files,
             grading_progress: answer.grading_progress,
             score_given: answer.score_given,
             submission_id: answer.submission_id,

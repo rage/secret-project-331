@@ -296,8 +296,11 @@ export interface CustomViewIframeState {
       exercise_tasks: {
         task_id: string
         public_spec: unknown
+        /**
+         * The submission row, not the bare answer: read the answer from its `data_json` and any
+         * files from its `data_files`. Unlike the other views, which carry the two separately.
+         */
         user_answer: unknown
-        user_answer_files?: AnswerFileRef[]
         grading: unknown
       }[]
     }[]

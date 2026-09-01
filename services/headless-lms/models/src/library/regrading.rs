@@ -347,7 +347,7 @@ mod test {
         exercises::{self, GradingProgress},
         library::grading::{
             GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
-            StudentExerciseTaskSubmission, SubmittedAnswer,
+            StudentExerciseTaskSubmission,
         },
         user_exercise_states::{self, ExerciseWithUserState},
     };
@@ -391,10 +391,10 @@ mod test {
             slide,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: task,
-                    answer: SubmittedAnswer::Json { data: Value::Null },
-                }],
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    task,
+                    Value::Null,
+                )],
             },
             HashMap::from([(task, grading_result.clone())]),
         )
@@ -510,10 +510,10 @@ mod test {
             slide,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: task,
-                    answer: SubmittedAnswer::Json { data: Value::Null },
-                }],
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    task,
+                    Value::Null,
+                )],
             },
             HashMap::from([(task, grading_result.clone())]),
         )
@@ -625,10 +625,10 @@ mod test {
             slide_1,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide_1,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: task_1,
-                    answer: SubmittedAnswer::Json { data: Value::Null },
-                }],
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    task_1,
+                    Value::Null,
+                )],
             },
             HashMap::from([(task_1, grading_result.clone())]),
         )
@@ -666,10 +666,10 @@ mod test {
             slide_2,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide_2,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: task_2,
-                    answer: SubmittedAnswer::Json { data: Value::Null },
-                }],
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    task_2,
+                    Value::Null,
+                )],
             },
             HashMap::from([(task_2, grading_result.clone())]),
         )
@@ -796,10 +796,10 @@ mod test {
             slide,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: task,
-                    answer: SubmittedAnswer::Json { data: Value::Null },
-                }],
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    task,
+                    Value::Null,
+                )],
             },
             HashMap::from([(
                 task,
@@ -930,10 +930,10 @@ mod test {
             slide,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: task,
-                    answer: SubmittedAnswer::Json { data: Value::Null },
-                }],
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    task,
+                    Value::Null,
+                )],
             },
             HashMap::from([(task, grading_result.clone())]),
         )

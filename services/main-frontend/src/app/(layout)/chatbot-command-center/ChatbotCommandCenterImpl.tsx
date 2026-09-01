@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
@@ -34,21 +35,21 @@ interface ChatbotCommandCenterImplProps {
   chatbots: ChatbotConfiguration[]
   courses: Course[]
   conversations: ChatbotConversation[]
-  setConfigurationId: React.Dispatch<string>
-  configurationId: null | string
-  setConversationId: React.Dispatch<string>
+  configurationId
+  setConfigurationId
 }
 
 const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
   chatbots,
   courses,
   conversations,
-  setConfigurationId,
   configurationId,
-  setConversationId,
+  setConfigurationId,
 }) => {
   const { t } = useTranslation()
   const [showChatbotDialog, setChatbotDialog] = useState(false)
+
+  const { setConvId } = useChatbotContext()
 
   const chatbotOptions = useMemo(() => {
     const grouped = Object.values(
@@ -99,7 +100,7 @@ const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
   }, [courses, chatbots, t])
 
   const handleConversationSelection = (convId: string, confId: string) => {
-    setConversationId(convId)
+    setConvId(convId)
     setConfigurationId(confId)
   }
   return (

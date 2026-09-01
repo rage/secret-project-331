@@ -650,6 +650,7 @@ const ChatbotChatBody: React.FC = () => {
   const canSubmit = Boolean(newMessage && newMessage.trim().length > 0 && !isTurnInFlight)
 
   const handleSubmit = useCallback(() => {
+    console.log("HEllo")
     newMessageMutation.mutate(newMessage)
   }, [newMessageMutation, newMessage])
 

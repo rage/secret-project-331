@@ -1,8 +1,11 @@
-import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import { useQuery, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { allUserConversationsQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import {
+  allUserConversationsQueryKey,
+  getCurrentConversationIdOptions,
+} from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
   ChatbotConversation,
@@ -15,11 +18,13 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
+import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrentConversationId"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { getSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"
@@ -68,6 +73,8 @@ export interface ChatbotStateAndData {
   stopTurn: () => void
   setIsOpen: React.Dispatch<boolean>
   isOpen: boolean
+  convId: string | null
+  setConvId: React.Dispatch<string>
 }
 
 /**
@@ -81,9 +88,7 @@ export interface ChatbotStateAndData {
  */
 const useChatbotStateAndData = (
   chatbotConfigurationId: string,
-  conversationId: string | null,
   pageId: string | null,
-  setConversationId?: React.Dispatch<string>,
 ): ChatbotStateAndData => {
   const { t } = useTranslation()
   const [newMessage, setNewMessage] = useState("")
@@ -95,6 +100,13 @@ const useChatbotStateAndData = (
     messages: [],
     executionPayloadByToolCallId: {},
   })
+  const [convId, setConvId] = useState<null | string>(null)
+
+  const currentConversationIdQuery = useCurrentConversationId(chatbotConfigurationId)
+
+  const activeConversationId = currentConversationIdQuery.isLoading
+    ? null
+    : (convId ?? currentConversationIdQuery.data)
 
   const turnAbortControllerRef = useRef<AbortController | null>(null)
   // Kept in sync with the ref, at the two points the ref is armed and released.
@@ -125,7 +137,7 @@ const useChatbotStateAndData = (
 
   const currentConversationInfo = useConversationInfo(
     chatbotConfigurationId,
-    conversationId,
+    activeConversationId,
     anonymousToken,
   )
 
@@ -133,7 +145,7 @@ const useChatbotStateAndData = (
     chatbotConfigurationId,
     setNewMessage,
     setError,
-    setConversationId,
+    setConvId,
   )
 
   /**
@@ -323,6 +335,8 @@ const useChatbotStateAndData = (
     stopTurn,
     setIsOpen,
     isOpen,
+    convId,
+    setConvId,
   }
 }
 

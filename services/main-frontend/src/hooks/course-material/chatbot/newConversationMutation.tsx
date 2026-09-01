@@ -19,7 +19,7 @@ const useNewConversationMutation = (
   chatbotConfigurationId: string,
   setNewMessage: React.Dispatch<React.SetStateAction<string>>,
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
-  setConversationId?,
+  setConvId,
 ) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -46,7 +46,7 @@ const useNewConversationMutation = (
           queryKey: allUserConversationsQueryKey(),
         })
         setNewMessage("")
-        setConversationId && setConversationId(null)
+        setConvId(null)
         setError(null) // Clear any existing errors when starting a new conversation
       },
       // A toast, not the chat's own error area: a conversation started from the text selection

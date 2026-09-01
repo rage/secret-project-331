@@ -13,9 +13,9 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
 
 import ConversationHistory from "./ConversationHistory"
-import Disclosure from "./Disclosure"
-import { DisclosureButton } from "./DisclosureButton"
-import MobileDisclosureOverlay from "./MobileDisclosureOverlay"
+import Disclosure from "./disclosure/Disclosure"
+import { DisclosureButton } from "./disclosure/DisclosureButton"
+import MobileDisclosureOverlay from "./disclosure/MobileDisclosureOverlay"
 
 interface SideBarProps {
   setChatbotDialog: React.Dispatch<boolean>

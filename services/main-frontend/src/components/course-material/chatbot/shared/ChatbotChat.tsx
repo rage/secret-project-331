@@ -18,11 +18,10 @@ interface ChatbotChatProps {
 const ChatbotChat: React.FC<ChatbotChatProps> = ({
   chatbotConfigurationId,
   isAlwaysOpen,
-  conversationId,
   pageId,
   children,
 }) => {
-  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, conversationId, pageId)
+  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, pageId)
 
   useSynchronizeDefaultChatbotCommunicationChannel(
     isAlwaysOpen,

@@ -136,11 +136,32 @@ const CourseAuditing = () => {
   ])
 
   const [
+    showDescription,
+    showPrerequisites,
+    showAudiences,
+    showSuggestMetadata,
+    showClosedAt,
+    showClosedCourseSuccessorId,
+    showAdditionalMessage,
     showCompletionRegistrationLink,
     showEnableRegisterinCompletionToUhOpenUniversity,
     showUhCourseCode,
     showEctsCredits,
   ] = courseDataFilterWatch([
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_description",
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_prerequisites",
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_audiences",
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_suggest_metadata",
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_closed_at",
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_closed_course_successor_id",
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_additional_message",
     // oxlint-disable-next-line i18next/no-literal-string
     "show_completion_registration_link",
     // oxlint-disable-next-line i18next/no-literal-string
@@ -151,15 +172,49 @@ const CourseAuditing = () => {
     "show_ects_credits",
   ])
 
-  const allSelected = Boolean(
+  const allSelectedMetadata = Boolean(
+    showDescription && showPrerequisites && showAudiences && showSuggestMetadata,
+  )
+
+  const handleToggleAllMetadata = () => {
+    const next = !allSelectedMetadata
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_description", next, { shouldDirty: true })
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_prerequisites", next, {
+      shouldDirty: true,
+    })
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_audiences", next, { shouldDirty: true })
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_suggest_metadata", next, { shouldDirty: true })
+  }
+
+  const allSelectedClosedAtData = Boolean(
+    showClosedAt && showClosedCourseSuccessorId && showAdditionalMessage,
+  )
+
+  const handleToggleAllClosedAtData = () => {
+    const next = !allSelectedClosedAtData
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_closed_at", next, { shouldDirty: true })
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_closed_course_successor_id", next, {
+      shouldDirty: true,
+    })
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_additional_message", next, { shouldDirty: true })
+  }
+
+  const allSelectedModuleData = Boolean(
     showCompletionRegistrationLink &&
     showEnableRegisterinCompletionToUhOpenUniversity &&
     showUhCourseCode &&
     showEctsCredits,
   )
 
-  const handleToggleAll = () => {
-    const next = !allSelected
+  const handleToggleAllModuleData = () => {
+    const next = !allSelectedModuleData
     // oxlint-disable-next-line i18next/no-literal-string
     courseDataFilterSetValue("show_completion_registration_link", next, { shouldDirty: true })
     // oxlint-disable-next-line i18next/no-literal-string
@@ -315,6 +370,29 @@ const CourseAuditing = () => {
               gap: 0.5rem;
             `}
           >
+            <p
+              className={css`
+                font-weight: 500;
+              `}
+            >
+              {t("course-auditing-filter-metadata-title")}
+            </p>
+            <label
+              className={css`
+                color: ${baseTheme.colors.gray[800]};
+                display: inline-flex;
+                align-items: center;
+                gap: var(--space-2, 0.5rem);
+                cursor: pointer;
+              `}
+            >
+              <input
+                type="checkbox"
+                checked={allSelectedMetadata}
+                onChange={handleToggleAllMetadata}
+              />
+              {t("course-auditing-filter-checkbox-all")}
+            </label>
             <Checkbox
               name="show_description"
               control={courseDataFilterControl}
@@ -335,6 +413,40 @@ const CourseAuditing = () => {
               control={courseDataFilterControl}
               label={t("course-auditing-filter-suggest-metadata-button")}
             />
+          </div>
+
+          <div
+            className={css`
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+              margin: 0.5rem 0;
+              text-align: start;
+              gap: 0.5rem;
+            `}
+          >
+            <p
+              className={css`
+                font-weight: 500;
+              `}
+            >
+              {t("course-auditing-filter-closed-at-data-title")}
+            </p>
+            <label
+              className={css`
+                color: ${baseTheme.colors.gray[800]};
+                display: inline-flex;
+                align-items: center;
+                gap: var(--space-2, 0.5rem);
+                cursor: pointer;
+              `}
+            >
+              <input
+                type="checkbox"
+                checked={allSelectedClosedAtData}
+                onChange={handleToggleAllClosedAtData}
+              />
+              {t("course-auditing-filter-checkbox-all")}
+            </label>
             <Checkbox
               name="show_closed_at"
               control={courseDataFilterControl}
@@ -377,8 +489,12 @@ const CourseAuditing = () => {
                 cursor: pointer;
               `}
             >
-              <input type="checkbox" checked={allSelected} onChange={handleToggleAll} />
-              {t("course-plans-analysis-period-all")}
+              <input
+                type="checkbox"
+                checked={allSelectedModuleData}
+                onChange={handleToggleAllModuleData}
+              />
+              {t("course-auditing-filter-checkbox-all")}
             </label>
             <Checkbox
               name="show_completion_registration_link"

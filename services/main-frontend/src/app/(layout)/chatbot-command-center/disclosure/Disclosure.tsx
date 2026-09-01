@@ -38,10 +38,21 @@ const disclosureButton = css`
 `
 
 const reactAriaDisclosurePanel = css`
-  width: var(--disclosure-panel-width);
+  display: grid;
+  grid-template-columns: 1fr;
+  opacity: 1;
+  visibility: visible;
   overflow: hidden;
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
+
+  transition:
+    grid-template-columns 0.3s ease-in-out,
+    opacity 0.3s ease-in-out,
+    visibility 0.3s ease-in-out allow-discrete;
+
+  &[aria-hidden="true"] {
+    grid-template-columns: 0fr;
+    opacity: 0;
+    visibility: hidden;
   }
 `
 

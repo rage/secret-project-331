@@ -5,6 +5,7 @@
   "keywords": [],
   "license": "Apache-2.0",
   "main": "src/index.ts",
+  "packageManager": "pnpm@11.20.0",
   "private": true,
   "devEngines": {
     "runtime": {
@@ -65,6 +66,5 @@
     "react-hook-form": "^7.86.0",
     "react-i18next": "^17.0.12",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
-  },
-  "packageManager": "pnpm@11.20.0"
+  }
 }

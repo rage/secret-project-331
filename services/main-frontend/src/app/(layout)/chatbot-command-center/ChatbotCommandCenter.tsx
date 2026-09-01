@@ -1,10 +1,14 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import type React from "react"
+import { useState } from "react"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
+import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import ChatbotCommandCenterImpl from "./ChatbotCommandCenterImpl"
 
@@ -19,6 +23,9 @@ const ChatbotCommandCenter: React.FC<ChatbotCommandCenterProps> = ({
   courses,
   conversations,
 }) => {
+  const [configurationId, setConfigurationId] = useState<null | string>(null)
+  const [conversationId, setConversationId] = useState<null | string>(null)
+
   const currentConversationIdQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: configurationId,
@@ -32,17 +39,24 @@ const ChatbotCommandCenter: React.FC<ChatbotCommandCenterProps> = ({
     }),
   )
 
+  const activeConversationId = currentConversationIdQuery.isLoading
+    ? null
+    : (conversationId ?? currentConversationIdQuery.data)
+
   return (
     <ChatbotChat
-      chatbotConfigurationId={null}
+      chatbotConfigurationId={configurationId}
       isAlwaysOpen={true}
-      conversationId={null}
+      conversationId={activeConversationId}
       pageId={null}
     >
       <ChatbotCommandCenterImpl
         chatbots={chatbots}
         courses={courses}
         conversations={conversations}
+        setConfigurationId={setConfigurationId}
+        configurationId={configurationId}
+        setConversationId={setConversationId}
       />
     </ChatbotChat>
   )

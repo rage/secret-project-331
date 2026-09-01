@@ -1,19 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
-import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
-import ConversationIdContext from "@/contexts/course-material/ConversationIdContext"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
-import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import NewConversationDialog from "./NewConversationDialog"
 import SideBar from "./SideBar"
@@ -36,42 +30,25 @@ const chatbotPlaceHolder = css`
   box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
 `
 
-const ChatbotCommandCenterImpl: React.FC = () => {
+interface ChatbotCommandCenterImplProps {
+  chatbots: ChatbotConfiguration[]
+  courses: Course[]
+  conversations: ChatbotConversation[]
+  setConfigurationId: React.Dispatch<string>
+  configurationId: null | string
+  setConversationId: React.Dispatch<string>
+}
+
+const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
+  chatbots,
+  courses,
+  conversations,
+  setConfigurationId,
+  configurationId,
+  setConversationId,
+}) => {
   const { t } = useTranslation()
-  const [configurationId, setConfigurationId] = useState<null | string>(null)
-  const [conversationId, setConversationId] = useState<null | string>(null)
   const [showChatbotDialog, setChatbotDialog] = useState(false)
-
-  const {
-    currentConversationInfo,
-    newConversationMutation,
-    messageState,
-    toolResponseMutation,
-    newMessage,
-    newMessageMutation,
-    isTurnInFlight,
-    error,
-    setNewMessage,
-    stopTurn,
-    chatbotMessageAnnouncement,
-  } = useChatbotContext()
-
-  const currentConversationIdQuery = useQuery(
-    optionalGeneratedQueryOptions({
-      value: configurationId,
-      isReady: (c): c is string => Boolean(c),
-      build: (c) =>
-        getCurrentConversationIdOptions({
-          path: {
-            chatbot_configuration_id: c,
-          },
-        }),
-    }),
-  )
-
-  const activeConversationId = currentConversationIdQuery.isLoading
-    ? null
-    : (conversationId ?? currentConversationIdQuery.data)
 
   const chatbotOptions = useMemo(() => {
     const grouped = Object.values(
@@ -119,11 +96,11 @@ const ChatbotCommandCenterImpl: React.FC = () => {
       return a.label.localeCompare(b.label)
     })
     return groupedSorted
-  }, [t])
+  }, [courses, chatbots, t])
 
-  const handleConversationSelection = (conversationId, configurationId) => {
-    setConversationId(conversationId)
-    setConfigurationId(configurationId)
+  const handleConversationSelection = (convId: string, confId: string) => {
+    setConversationId(convId)
+    setConfigurationId(confId)
   }
   return (
     <div className={gridContainer}>
@@ -141,17 +118,10 @@ const ChatbotCommandCenterImpl: React.FC = () => {
         <NewConversationDialog
           chatbotOptions={chatbotOptions}
           setConfigurationId={setConfigurationId}
-          newConversationMutation={newConversationMutation}
           onClose={() => setChatbotDialog(false)}
           open={showChatbotDialog}
         />
-        {configurationId === null ? (
-          <div className={chatbotPlaceHolder}></div>
-        ) : (
-          <ConversationIdContext.Provider value={setConversationId}>
-            <ChatbotChatBox />
-          </ConversationIdContext.Provider>
-        )}
+        {configurationId === null ? <div className={chatbotPlaceHolder}></div> : <ChatbotChatBox />}
       </div>
     </div>
   )

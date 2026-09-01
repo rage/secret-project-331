@@ -3,13 +3,12 @@
 import { css } from "@emotion/css"
 import { useAutocompleteState } from "@react-stately/autocomplete"
 import { useSearchFieldState } from "@react-stately/searchfield"
-import type { UseMutationResult } from "@tanstack/react-query"
 import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import { useRef, useState } from "react"
 import { useAutocomplete, useFilter, useSearchField } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
+import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { Button } from "@/shared-module/components"
 import { listBoxEmptyStateCss } from "@/shared-module/components/components/primitives/selectStyles"
@@ -26,7 +25,6 @@ interface ChatbotOption {
 interface NewConversationDialogProps {
   chatbotOptions: ChatbotOption[]
   setConfigurationId: React.Dispatch<string>
-  newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   open: boolean
   onClose: () => void
 }
@@ -84,7 +82,6 @@ const buttonCss = css`
 const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   chatbotOptions,
   setConfigurationId,
-  newConversationMutation,
   open,
   onClose,
 }) => {
@@ -92,6 +89,8 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   const [filterValue, setFilterValue] = useState("")
   const searchRef = useRef<HTMLInputElement>(null)
   const listRef = useRef(null)
+
+  const { newConversationMutation } = useChatbotContext()
 
   let { contains } = useFilter({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -125,6 +124,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
 
   // oxlint-disable-next-line i18next/no-literal-string
   const { inputProps } = useSearchField(
+    // oxlint-disable-next-line i18next/no-literal-string
     { ...autoCompleteInputProps, placeholder: "search", "aria-label": "search" },
     searchFieldState,
     searchRef,

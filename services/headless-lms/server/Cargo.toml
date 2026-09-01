@@ -21,11 +21,11 @@ doc-macro = { path = "../doc-macro" }
 rustls.workspace = true
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
-actix-web = "4.14.1"
+actix-web = "4.15.0"
 # Static file serving for Actix Web
-actix-files = "0.6.10"
+actix-files = "0.7.0"
 # Multipart form support for Actix web.
-actix-multipart = "0.8.0"
+actix-multipart = "0.8.1"
 # Base64 encoding, used in oauth access token generation
 base64 = "0.23"
 # Strongly Typed Mimes
@@ -47,7 +47,7 @@ anyhow = "1.0.104"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.24.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # Date and time library for Rust
@@ -65,7 +65,7 @@ bytes = "1.12.1"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.15.0"
 # the BLAKE3 hash function
-blake3 = "1.8.6"
+blake3 = "1.8.7"
 # Recursively walk a directory.
 walkdir = "2.5.0"
 # higher level HTTP client library
@@ -121,7 +121,7 @@ zstd = "0.13.3" # matches the version from actix-http
 # A Rust implementation of a TAR file reader and writer.
 tar = "0.4.46"
 # DEFLATE compression and gzip decompression.
-flate2 = "1.1.9"
+flate2 = "1.1.10"
 # Utilities for random number generation
 rand = "0.10.2"
 # A pure Rust implementation of the RSA public key cryptosystem.
@@ -147,7 +147,7 @@ secrecy.workspace = true
 # Constant-time equality checks for secrets
 subtle = "2.6.1"
 # Password hashing using Argon2id
-argon2 = "0.6.0-rc.8"
+argon2 = "0.6.0"
 # For building an EC public key from JWK {x,y} and encoding to SPKI DER
 p256 = { version = "0.14", features = ["pkcs8"] }
 pkcs8 = "0.11"

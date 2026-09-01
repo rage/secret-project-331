@@ -1,15 +1,15 @@
 import type { TFunction } from "i18next"
 
 import type {
-  AdminBulkTransitionSkip,
   AdminManualLinkOutcome,
-  AdminResendOutcome,
   CreditRegistrationAdminAction,
   CreditRegistrationAdminActionTarget,
   CreditRegistrationAlertId,
   CreditRegistrationAttentionReason,
+  CreditRegistrationPendingReason,
   CreditRegistrationState,
   EmailSendStatus,
+  ResendOutcome,
   Retryability,
 } from "@/generated/api/types.generated"
 import type { RegistrationStatusState } from "@/shared-module/components"
@@ -21,11 +21,8 @@ export {
   studentNumberVerificationLabel as verificationMethodLabel,
 } from "../teacherCreditRegistrations"
 
-/** `abandoned_by_consent_withdrawal` is `upcoming`, not `failed`: neither failure nor success. */
 const STATE_TONES = {
-  pending_prerequisites: "upcoming",
-  pending_consent: "action-needed",
-  pending_student_number: "action-needed",
+  pending: "upcoming",
   ready_to_submit: "current",
   resolving_enrolment: "current",
   checking_enrolment: "current",
@@ -41,11 +38,21 @@ const STATE_TONES = {
   failed_permanent: "failed",
   blocked: "upcoming",
   cancelled: "upcoming",
-  abandoned_by_consent_withdrawal: "upcoming",
 } as const satisfies Record<CreditRegistrationState, RegistrationStatusState>
 
-export const stateTone = (state: CreditRegistrationState): RegistrationStatusState =>
-  widenedLookup(STATE_TONES, state) ?? "upcoming"
+/** A `pending` row waiting on the student is the admin's problem; one waiting on a completion is not. */
+const PENDING_REASON_TONES = {
+  completion: "upcoming",
+  student_number: "action-needed",
+} as const satisfies Record<CreditRegistrationPendingReason, RegistrationStatusState>
+
+export const stateTone = (
+  state: CreditRegistrationState,
+  pendingReason?: CreditRegistrationPendingReason | null,
+): RegistrationStatusState =>
+  (pendingReason ? widenedLookup(PENDING_REASON_TONES, pendingReason) : undefined) ??
+  widenedLookup(STATE_TONES, state) ??
+  "upcoming"
 
 /** The credit exists in the study registry, whoever put it there. */
 export const isSuccessState = (state: CreditRegistrationState): boolean =>
@@ -103,18 +110,6 @@ export const attentionReasonLabel = (
   reason: CreditRegistrationAttentionReason,
 ): string => labelFrom(t, ATTENTION_REASON_KEYS, reason, ATTENTION_REASON_UNKNOWN_KEY)
 
-const BULK_SKIP_KEYS = {
-  superseded: "credit-registration-admin-skip-superseded",
-  submission_uncertain: "credit-registration-admin-skip-submission-uncertain",
-  without_consent: "credit-registration-admin-skip-without-consent",
-} as const satisfies Record<AdminBulkTransitionSkip, string>
-
-const BULK_SKIP_UNKNOWN_KEY = "credit-registration-admin-skip-unknown"
-
-/** Why a selected row was left alone. Never silence these: a skipped row is not a moved row. */
-export const bulkSkipLabel = (t: TFunction, reason: AdminBulkTransitionSkip): string =>
-  labelFrom(t, BULK_SKIP_KEYS, reason, BULK_SKIP_UNKNOWN_KEY)
-
 const RETRYABILITY_KEYS = {
   retryable_transient: "credit-registration-admin-retryability-transient",
   verify_only: "credit-registration-admin-retryability-verify-only",
@@ -129,7 +124,7 @@ const RETRYABILITY_UNKNOWN_KEY = "credit-registration-admin-retryability-unknown
 export const retryabilityLabel = (t: TFunction, retryability: Retryability): string =>
   labelFrom(t, RETRYABILITY_KEYS, retryability, RETRYABILITY_UNKNOWN_KEY)
 
-const ADMIN_ACTION_KEYS = {
+export const ADMIN_ACTION_KEYS = {
   retry_item: "credit-registration-admin-action-retry-item",
   retry_failed_for_course: "credit-registration-admin-action-retry-failed-for-course",
   force_recheck: "credit-registration-admin-action-force-recheck",
@@ -153,7 +148,7 @@ const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"
 export const adminActionLabel = (t: TFunction, action: CreditRegistrationAdminAction): string =>
   labelFrom(t, ADMIN_ACTION_KEYS, action, ADMIN_ACTION_UNKNOWN_KEY)
 
-const ADMIN_TARGET_KEYS = {
+export const ADMIN_TARGET_KEYS = {
   credit_registration: "credit-registration-admin-action-target-registration",
   course_module: "credit-registration-admin-action-target-course-module",
   course: "credit-registration-admin-action-target-course",
@@ -182,6 +177,7 @@ const SEND_STATUS_UNKNOWN_KEY = "credit-registration-admin-send-status-unknown"
 export const sendStatusLabel = (t: TFunction, status: EmailSendStatus): string =>
   labelFrom(t, SEND_STATUS_KEYS, status, SEND_STATUS_UNKNOWN_KEY)
 
+/** `Partial`: `no_student_number_known` is the teacher endpoint's, whose target may never have held one. */
 const RESEND_OUTCOME_KEYS = {
   queued: "credit-registration-admin-resend-queued",
   already_mailed_to_every_known_address: "credit-registration-admin-resend-already-mailed",
@@ -190,12 +186,12 @@ const RESEND_OUTCOME_KEYS = {
   not_on_the_course_roster: "credit-registration-admin-resend-not-on-roster",
   already_linked: "credit-registration-admin-resend-already-linked",
   study_registry_unavailable: "credit-registration-admin-resend-registry-unavailable",
-} as const satisfies Record<AdminResendOutcome, string>
+} as const satisfies Partial<Record<ResendOutcome, string>>
 
 const RESEND_OUTCOME_UNKNOWN_KEY = "credit-registration-admin-resend-unknown-outcome"
 
 /** An unrecognised outcome must not fall back to `queued`: that reads as the resend having worked. */
-export const resendOutcomeLabel = (t: TFunction, outcome: AdminResendOutcome): string =>
+export const resendOutcomeLabel = (t: TFunction, outcome: ResendOutcome): string =>
   labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)
 
 const MANUAL_LINK_OUTCOME_KEYS = {

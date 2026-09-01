@@ -12,7 +12,6 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registrations;
-use headless_lms_models::credit_registrations::CreditRegistrationState;
 use headless_lms_models::email_deliveries::EmailSendStatus;
 use headless_lms_models::library::credit_registration::account_linking::{
     LINKING_MAIL_QUIET_PERIOD_SECS, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE, retire_capped_mails,
@@ -25,8 +24,7 @@ use utoipa::ToSchema;
 use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
 use crate::domain::credit_registration_phases::PhaseContext;
 use crate::domain::credit_registration_phases::linking_mail_resend::{
-    LinkingMailResendOutcome, ResendDecision, ResolvedPerson, resend_linking_mail_for_target,
-    resolve_person,
+    ResendOutcome, ResolvedPerson, resend_linking_mail_for_target, resolve_person,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
@@ -51,14 +49,7 @@ fn phase_context<'a>(
     app_conf: &'a ApplicationConfiguration,
     caller: &'a str,
 ) -> PhaseContext<'a> {
-    PhaseContext {
-        pool,
-        suotar_client,
-        test_mode: app_conf.test_mode,
-        caller,
-        base_url: &app_conf.base_url,
-        suotar_conf: &app_conf.suotar_configuration,
-    }
+    PhaseContext::from_app(pool, suotar_client, app_conf, caller)
 }
 
 /// The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
@@ -134,6 +125,13 @@ pub struct AccountLinkingRealisationCounters {
     pub fast_track_skipped_unlinked_before_count: Option<i32>,
 }
 
+/// One mail attempt: the address it went to and what we can say about its delivery.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingSendOutcome {
+    pub address: String,
+    pub send_status: EmailSendStatus,
+}
+
 /// A person mailed to the cap for one course whose number was never claimed.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingStaleAddress {
@@ -145,8 +143,7 @@ pub struct AccountLinkingStaleAddress {
     pub first_sent_at: DateTime<Utc>,
     pub last_sent_at: DateTime<Utc>,
     /// In full, newest last, one per mail.
-    pub addresses: Vec<String>,
-    pub send_statuses: Vec<EmailSendStatus>,
+    pub sends: Vec<AccountLinkingSendOutcome>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -165,7 +162,7 @@ pub struct AccountLinkingStats {
     pub stale_addresses: Vec<AccountLinkingStaleAddress>,
     pub links_total_by_method: Vec<VerifiedStudentNumberMethodTotal>,
     pub links_in_window_by_method: Vec<VerifiedStudentNumberMethodTotal>,
-    /// Accounts with a consented completion still waiting for a number.
+    /// Accounts with an eligible completion still waiting for a student number.
     pub waiting_for_student_number_count: i64,
     pub max_mails_per_person_and_course: i64,
     pub quiet_period_secs: i64,
@@ -185,24 +182,9 @@ pub struct AdminResendAccountLinkingEmailPayload {
     pub reason: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum AdminResendOutcome {
-    /// A mail is owed and the sender is handed it on the next run.
-    Queued,
-    AlreadyMailedToEveryKnownAddress,
-    /// A cap refused it. Overridable here, and nowhere else.
-    RefusedByRateCap,
-    NoAddressInStudyRegistry,
-    NotOnTheCourseRoster,
-    /// A link already exists, so no mail is owed.
-    AlreadyLinked,
-    StudyRegistryUnavailable,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminResendAccountLinkingEmailResult {
-    pub outcome: AdminResendOutcome,
+    pub outcome: ResendOutcome,
     /// Mails retired to get past a cap. Always zero without an override.
     pub retired_mail_count: i64,
     pub linking_emails: Vec<AdminLinkingEmail>,
@@ -393,11 +375,9 @@ pub async fn get_account_linking_stats(
     .await?;
     let stale_addresses = build_stale_addresses(&mut conn, stale).await?;
 
-    let waiting_for_student_number_count = credit_registrations::count_by_state(&mut conn)
+    let waiting_for_student_number_count = credit_registrations::count_pending_by_reason(&mut conn)
         .await?
-        .into_iter()
-        .find(|(state, _)| *state == CreditRegistrationState::PendingStudentNumber)
-        .map_or(0, |(_, count)| count);
+        .student_number_count;
 
     let funnel = AccountLinkingFunnel {
         persons_discovered_last_run: sum(|row| row.listed_person_count),
@@ -518,25 +498,7 @@ pub async fn admin_resend_account_linking_email(
     let attempt =
         resend_linking_mail_for_target(&ctx, payload.course_id, student_number, before_send)
             .await?;
-    let outcome = match attempt.decision {
-        ResendDecision::AlreadyLinked => AdminResendOutcome::AlreadyLinked,
-        ResendDecision::Attempted(LinkingMailResendOutcome::Claimed) => AdminResendOutcome::Queued,
-        ResendDecision::Attempted(LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress) => {
-            AdminResendOutcome::AlreadyMailedToEveryKnownAddress
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::RefusedByRateCap) => {
-            AdminResendOutcome::RefusedByRateCap
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::NoAddressInStudyRegistry) => {
-            AdminResendOutcome::NoAddressInStudyRegistry
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::NotOnTheCourseRoster) => {
-            AdminResendOutcome::NotOnTheCourseRoster
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::StudyRegistryUnavailable) => {
-            AdminResendOutcome::StudyRegistryUnavailable
-        }
-    };
+    let outcome = ResendOutcome::from(attempt.decision);
 
     finish_resend(
         &mut conn,
@@ -651,7 +613,7 @@ pub async fn admin_resolve_student_number_for_linking(
             ..shared
         },
         Ok(None) => AdminResolveStudentNumberResult { ..shared },
-        Err(()) => AdminResolveStudentNumberResult {
+        Err(_) => AdminResolveStudentNumberResult {
             study_registry_unavailable: true,
             ..shared
         },
@@ -717,7 +679,7 @@ pub async fn admin_manually_link_student_number(
                 AdminManualLinkOutcome::StudentNumberNotFound,
             )));
         }
-        Err(()) => {
+        Err(_) => {
             return token.authorized_ok(web::Json(refused(
                 AdminManualLinkOutcome::StudyRegistryUnavailable,
             )));
@@ -729,6 +691,20 @@ pub async fn admin_manually_link_student_number(
 
     let holder = verified_student_numbers::get_by_student_number(&mut conn, student_number).await?;
     if let Some(holder) = &holder {
+        let outcome = if holder.user_id == payload.user_id {
+            AdminManualLinkOutcome::AlreadyLinkedToThisAccount
+        } else {
+            AdminManualLinkOutcome::AlreadyLinkedToAnotherAccount
+        };
+        return token.authorized_ok(web::Json(refused(outcome)));
+    }
+    // Both unique keys, not just the number: a student who changed programmes keeps their Sisu
+    // person id and gets a new number, so checking the number alone lets this through and then
+    // trips `uq_verified_student_numbers_person` as a bare 500. See `find_conflicting_account` on
+    // the student's own claim path, which this mirrors.
+    let person_holder =
+        verified_student_numbers::get_by_sisu_person_id(&mut conn, &person.sisu_person_id).await?;
+    if let Some(holder) = &person_holder {
         let outcome = if holder.user_id == payload.user_id {
             AdminManualLinkOutcome::AlreadyLinkedToThisAccount
         } else {
@@ -838,7 +814,7 @@ async fn finish_resend(
     user: &AuthUser,
     payload: &AdminResendAccountLinkingEmailPayload,
     student_number: &str,
-    outcome: AdminResendOutcome,
+    outcome: ResendOutcome,
     retired_mail_count: i64,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {
@@ -879,25 +855,29 @@ async fn build_stale_addresses(
         credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
     Ok(rows
         .into_iter()
-        .map(|row| AccountLinkingStaleAddress {
-            send_statuses: row
+        .map(|row| {
+            let sends = row
                 .mail_ids
                 .iter()
-                .map(|id| {
-                    reports
+                .zip(row.addresses)
+                .map(|(id, address)| AccountLinkingSendOutcome {
+                    address,
+                    send_status: reports
                         .get(id)
                         .map(|report| report.email_send_status)
-                        .unwrap_or(EmailSendStatus::Queued)
+                        .unwrap_or(EmailSendStatus::Queued),
                 })
-                .collect(),
-            student_number: row.student_number,
-            sisu_person_id: row.sisu_person_id,
-            course_id: row.course_id,
-            course_name: row.course_name,
-            mail_count: row.mail_count,
-            first_sent_at: row.first_sent_at,
-            last_sent_at: row.last_sent_at,
-            addresses: row.addresses,
+                .collect();
+            AccountLinkingStaleAddress {
+                sends,
+                student_number: row.student_number,
+                sisu_person_id: row.sisu_person_id,
+                course_id: row.course_id,
+                course_name: row.course_name,
+                mail_count: row.mail_count,
+                first_sent_at: row.first_sent_at,
+                last_sent_at: row.last_sent_at,
+            }
         })
         .collect())
 }

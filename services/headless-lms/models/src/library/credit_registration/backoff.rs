@@ -1,7 +1,7 @@
 //! How long the pipeline waits before trying again. Generic scheduling math; which error codes are
 //! even retryable is [`super::classification`].
 
-use rand::RngExt;
+use headless_lms_utils::backoff::{exponential_backoff_secs, window_expired};
 
 use crate::prelude::*;
 
@@ -32,15 +32,8 @@ pub const UNCERTAIN_MAX_CHECKS: i32 = 3;
 /// longer than the client's request timeout, so a live request is never condemned.
 pub const SUBMITTING_RECOVERY_GRACE_SECS: i64 = 120;
 
-fn exponential(base_secs: i64, max_secs: i64, attempt: i32) -> i64 {
-    let shift = attempt.clamp(0, 32) as u32;
-    base_secs
-        .saturating_mul(2_i64.saturating_pow(shift))
-        .min(max_secs)
-}
-
 pub fn submit_backoff_secs(retry_count: i32) -> i64 {
-    exponential(
+    exponential_backoff_secs(
         SUBMIT_BASE_BACKOFF_SECS,
         SUBMIT_MAX_BACKOFF_SECS,
         retry_count,
@@ -49,7 +42,7 @@ pub fn submit_backoff_secs(retry_count: i32) -> i64 {
 
 /// The import phase schedules the first poll, so one prior attempt still means the base delay.
 pub fn verify_backoff_secs(attempt_count: i32) -> i64 {
-    exponential(
+    exponential_backoff_secs(
         VERIFY_BASE_BACKOFF_SECS,
         VERIFY_MAX_BACKOFF_SECS,
         attempt_count.saturating_sub(1),
@@ -58,16 +51,15 @@ pub fn verify_backoff_secs(attempt_count: i32) -> i64 {
 
 /// Spreads a batch that failed together, so it does not come back as one thundering herd.
 pub fn next_attempt_at(now: DateTime<Utc>, delay_secs: i64) -> DateTime<Utc> {
-    let jitter = rand::rng().random_range(0..=JITTER_MAX_SECS);
-    now + chrono::Duration::seconds(delay_secs.saturating_add(jitter))
+    headless_lms_utils::backoff::next_attempt_at(now, delay_secs, JITTER_MAX_SECS)
 }
 
 pub fn submit_window_expired(first_failed_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
-    first_failed_at.is_some_and(|first| (now - first).num_seconds() >= SUBMIT_MAX_RETRY_AGE_SECS)
+    window_expired(first_failed_at, now, SUBMIT_MAX_RETRY_AGE_SECS)
 }
 
 pub fn verify_window_expired(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
-    submitted_at.is_some_and(|submitted| (now - submitted).num_seconds() >= VERIFY_MAX_AGE_SECS)
+    window_expired(submitted_at, now, VERIFY_MAX_AGE_SECS)
 }
 
 #[cfg(test)]

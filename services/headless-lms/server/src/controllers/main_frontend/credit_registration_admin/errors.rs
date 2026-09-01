@@ -94,16 +94,15 @@ pub struct CreditRegistrationErrorCodeWindow {
     pub endpoints: Vec<SuotarEndpoint>,
 }
 
-/// The verdicts an operator needs beside the errors to rule them out. `not_improved` and
-/// `abandoned_by_consent_withdrawal` are not failures and are never in the error table above.
+/// The verdicts an operator needs beside the errors to rule them out. `not_improved` is not a
+/// failure and is never in the error table above.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationTerminalVerdicts {
     pub registered_count: i64,
     pub duplicate_and_not_improved_count: i64,
     pub failed_permanent_count: i64,
     pub cancelled_count: i64,
-    pub abandoned_by_consent_withdrawal_count: i64,
-    /// Everything but the abandoned: the denominator of the success rate.
+    /// The denominator of the success rate.
     pub total_count: i64,
 }
 
@@ -149,8 +148,7 @@ pub async fn get_credit_registration_thresholds(
 GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
 wants a human to look at, with the detectors that picked each.
 
-Superseded attempts and rows abandoned by a consent withdrawal are outside every detector: neither
-is something a person can act on.
+Superseded attempts are outside every detector: acting on a replaced attempt is never right.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -250,7 +248,6 @@ pub async fn get_credit_registration_errors_by_code(
             duplicate_and_not_improved_count: totals.success_count - totals.registered_count,
             failed_permanent_count: totals.failed_permanent_count,
             cancelled_count: totals.cancelled_count,
-            abandoned_by_consent_withdrawal_count: totals.abandoned_count,
             total_count: totals.total_count,
         },
     }))

@@ -82,6 +82,14 @@ export type AccountLinkingRealisationCounters = {
   uh_course_code?: string | null
 }
 
+/**
+ * One mail attempt: the address it went to and what we can say about its delivery.
+ */
+export type AccountLinkingSendOutcome = {
+  address: string
+  send_status: EmailSendStatus
+}
+
 export type AccountLinkingSendStatusTotals = {
   queued: number
   retrying: number
@@ -93,16 +101,15 @@ export type AccountLinkingSendStatusTotals = {
  * A person mailed to the cap for one course whose number was never claimed.
  */
 export type AccountLinkingStaleAddress = {
-  /**
-   * In full, newest last, one per mail.
-   */
-  addresses: Array<string>
   course_id: string
   course_name: string
   first_sent_at: string
   last_sent_at: string
   mail_count: number
-  send_statuses: Array<EmailSendStatus>
+  /**
+   * In full, newest last, one per mail.
+   */
+  sends: Array<AccountLinkingSendOutcome>
   sisu_person_id: string
   student_number: string
 }
@@ -118,7 +125,7 @@ export type AccountLinkingStats = {
   send_status_totals: AccountLinkingSendStatusTotals
   stale_addresses: Array<AccountLinkingStaleAddress>
   /**
-   * Accounts with a consented completion still waiting for a number.
+   * Accounts with an eligible completion still waiting for a student number.
    */
   waiting_for_student_number_count: number
   window_secs: number
@@ -137,9 +144,9 @@ export type AddPlanMemberRequest = {
 }
 
 export type AdminBulkTransitionPayload = {
+  action: AdminCreditRegistrationAction
   credit_registration_ids: Array<string>
   reason: string
-  to_state: AdminCreditRegistrationTransitionTarget
 }
 
 export type AdminBulkTransitionResult = {
@@ -152,15 +159,26 @@ export type AdminBulkTransitionResult = {
   skipped: Array<AdminBulkTransitionSkipCount>
 }
 
-/**
- * Why a selected row was left alone.
- */
-export type AdminBulkTransitionSkip = "superseded" | "submission_uncertain" | "without_consent"
-
 export type AdminBulkTransitionSkipCount = {
   count: number
-  reason: AdminBulkTransitionSkip
+  refusal: ResubmissionRefusal
 }
+
+/**
+ * What one hand action does to a row: either a state move, or something that leaves the state
+ * alone. Kept apart because only the first is a transition, and only the first is refusable.
+ */
+export type AdminCreditRegistrationAction =
+  | {
+      kind: "state_move"
+      to_state: AdminCreditRegistrationStateMove
+    }
+  | {
+      kind: "clear_needs_admin_attention"
+    }
+  | {
+      kind: "check_now"
+    }
 
 export type AdminCreditRegistrationDetails = {
   /**
@@ -171,8 +189,6 @@ export type AdminCreditRegistrationDetails = {
    * Every attempt for the same completion, newest first, this one included.
    */
   attempts: Array<AdminCreditRegistrationRow>
-  consent_given?: boolean | null
-  consent_withdrawn_at?: string | null
   events: Array<AdminCreditRegistrationEvent>
   /**
    * Every mail addressed to this person, on any course.
@@ -235,8 +251,10 @@ export type AdminCreditRegistrationRow = {
   last_name?: string | null
   needs_admin_attention: boolean
   next_attempt_at: string
+  pending_reason?: null | CreditRegistrationPendingReason
   registered_at?: string | null
   request_item_id: string
+  resubmission_refusal?: null | ResubmissionRefusal
   selected_enrolment_id?: string | null
   sisu_attainment_id?: string | null
   sisu_person_id?: string | null
@@ -264,19 +282,9 @@ export type AdminCreditRegistrationRow = {
 }
 
 /**
- * What an admin may move a row to; everything else is the pipeline's to decide.
+ * The states an admin may move a row to; everything else is the pipeline's to decide.
  */
-export type AdminCreditRegistrationTransitionTarget =
-  | "ready_to_submit"
-  | "cancelled"
-  | "clear_needs_admin_attention"
-  | "check_now"
-
-export type AdminCreditRegistrationsPage = {
-  data: Array<AdminCreditRegistrationRow>
-  total_count: number
-  total_pages: number
-}
+export type AdminCreditRegistrationStateMove = "ready_to_submit" | "cancelled"
 
 export type AdminLinkingEmail = {
   claimed_at: string
@@ -382,22 +390,13 @@ export type AdminResendAccountLinkingEmailResult = {
   linking_emails: Array<AdminLinkingEmail>
   mails_sent_for_this_course: number
   max_mails_per_person_and_course: number
-  outcome: AdminResendOutcome
+  outcome: ResendOutcome
   quiet_period_secs: number
   /**
    * Mails retired to get past a cap. Always zero without an override.
    */
   retired_mail_count: number
 }
-
-export type AdminResendOutcome =
-  | "queued"
-  | "already_mailed_to_every_known_address"
-  | "refused_by_rate_cap"
-  | "no_address_in_study_registry"
-  | "not_on_the_course_roster"
-  | "already_linked"
-  | "study_registry_unavailable"
 
 export type AdminResolveStudentNumberPayload = {
   student_number: string
@@ -452,17 +451,18 @@ export type AdminSuotarApiCall = {
 }
 
 export type AdminTransitionCreditRegistrationPayload = {
+  action: AdminCreditRegistrationAction
   reason: string
-  to_state: AdminCreditRegistrationTransitionTarget
 }
 
 export type AdminTransitionCreditRegistrationResult = {
   needs_admin_attention: boolean
   outcome: AdminTransitionOutcome
+  refusal?: null | ResubmissionRefusal
   state: CreditRegistrationState
 }
 
-export type AdminTransitionOutcome = "applied" | "refused_without_consent" | "no_change"
+export type AdminTransitionOutcome = "applied" | "refused" | "no_change"
 
 export type AdminUnlinkStudentNumberPayload = {
   reason: string
@@ -496,12 +496,6 @@ export type AdminVerifiedStudentNumberRow = {
    * The registry-held address the proof rests on, in full. `None` for an admin-established link.
    */
   verified_via_email?: string | null
-}
-
-export type AdminVerifiedStudentNumbersPage = {
-  data: Array<AdminVerifiedStudentNumberRow>
-  total_count: number
-  total_pages: number
 }
 
 export type AnalysisCourseType = "compulsory" | "elective"
@@ -1159,6 +1153,7 @@ export type CourseCreditRegistration = {
   next_attempt_at: string
   notification_email?: null | NotificationEmailStatus
   registered_at?: string | null
+  resubmission_refusal?: null | ResubmissionRefusal
   sisu_attainment_id?: string | null
   state: CreditRegistrationState
   state_entered_at: string
@@ -1198,21 +1193,6 @@ export type CourseCreditRegistrationAction = {
   reason?: string | null
   target_id?: string | null
   target_kind: CreditRegistrationAdminActionTarget
-}
-
-/**
- * Why the course's enrolled students are not going to get credits. Neither count includes a student
- * who has both consented and linked a number.
- */
-export type CourseCreditRegistrationBlockedStudentCounts = {
-  /**
-   * Never asked or declined.
-   */
-  no_consent_student_count: number
-  /**
-   * Consented, but we hold no student number for them.
-   */
-  unlinked_consented_student_count: number
 }
 
 /**
@@ -1262,12 +1242,15 @@ export type CourseCreditRegistrationModuleSummary = {
 }
 
 export type CourseCreditRegistrationSummary = {
-  blocked_students: CourseCreditRegistrationBlockedStudentCounts
   /**
-   * Of the unlinked consented students, the ones whose linking mail we never managed to hand over.
+   * Of the unlinked enrolled students, the ones whose linking mail we never managed to hand over.
    */
   linking_emails_failed_to_send_count: number
   modules: Array<CourseCreditRegistrationModuleSummary>
+  /**
+   * Enrolled students we hold no student number for.
+   */
+  unlinked_enrolled_student_count: number
 }
 
 /**
@@ -1876,12 +1859,6 @@ export type CreditRegistrationAdminActionTarget =
   | "verified_student_number"
   | "student_number_verification_token"
 
-export type CreditRegistrationAdminActionsPage = {
-  data: Array<CreditRegistrationAdminActionRow>
-  total_count: number
-  total_pages: number
-}
-
 export type CreditRegistrationAlert = {
   /**
    * When it last happened, where the rule has an instant to point at.
@@ -1924,38 +1901,6 @@ export type CreditRegistrationAlertId =
   | "pipeline_paused_globally"
 
 export type CreditRegistrationAlertSeverity = "info" | "warning" | "critical"
-
-/**
- * Every number the rules used, so the UI can say "N of M" without holding a copy of M.
- */
-export type CreditRegistrationAlertThresholds = {
-  credential_rejection_window_secs: number
-  fast_track_name_mismatch_count: number
-  idle_queue_depth: number
-  latency_regression_factor: number
-  latency_regression_floor_secs: number
-  latency_window_secs: number
-  linking_mail_hourly_cap: number
-  linking_mail_window_secs: number
-  misregistration_critical_count: number
-  never_entered_min_age_secs: number
-  permanent_failure_count: number
-  permanent_failure_rate_percent: number
-  phase_consecutive_failure_limit: number
-  phase_heartbeat_interval_multiplier: number
-  phase_success_interval_multiplier: number
-  sisu_outage_failure_share_percent: number
-  sisu_outage_min_items: number
-  sisu_outage_window_secs: number
-  stuck_awaiting_verification_secs: number
-  stuck_critical_count: number
-  stuck_failed_retryable_secs: number
-  stuck_ready_to_submit_secs: number
-  stuck_submitting_secs: number
-  terminal_window_secs: number
-  unreachable_consecutive_failures: number
-  unreachable_window_secs: number
-}
 
 export type CreditRegistrationAttentionItem = {
   attempt_count: number
@@ -2022,13 +1967,6 @@ export type CreditRegistrationCircuitBreakerState = {
   trips_after_consecutive_failures: number
 }
 
-export type CreditRegistrationConsentModule = {
-  ects_credits?: number | null
-  id: string
-  name?: string | null
-  uh_course_code?: string | null
-}
-
 /**
  * What the configuration check concluded about one module, freshly derived from the same facts and
  * the same rule the `config-validation` phase uses.
@@ -2046,12 +1984,7 @@ export type CreditRegistrationCourseConfigCheck = {
 }
 
 export type CreditRegistrationCourseStats = {
-  /**
-   * Neither a success nor a failure, and shown separately so it is never read as one.
-   */
-  abandoned_count: number
   active_realisation_count: number
-  awaiting_consent_count: number
   /**
    * What the current facts say. Recomputed on read, so a configuration fixed a minute ago no
    * longer shows as broken.
@@ -2188,7 +2121,7 @@ export type CreditRegistrationHealth = {
    */
   alerts: Array<CreditRegistrationAlert>
   status: HealthStatus
-  thresholds: CreditRegistrationAlertThresholds
+  thresholds: StuckThresholds
 }
 
 export type CreditRegistrationHistory = {
@@ -2236,6 +2169,11 @@ export type CreditRegistrationNotificationKind = "action_needed" | "registered"
 
 export type CreditRegistrationOldestNonTerminal = {
   credit_registration_id: string
+  /**
+   * Computed server-side: a page comparing its own clock against a server timestamp misjudges
+   * this on a skewed client, the same reason `seconds_since_heartbeat` is computed here too.
+   */
+  seconds_in_state: number
   state: CreditRegistrationState
   state_entered_at: string
 }
@@ -2248,11 +2186,19 @@ export type CreditRegistrationOverview = {
   health: CreditRegistrationHealth
   needs_admin_attention_count: number
   oldest_non_terminal?: null | CreditRegistrationOldestNonTerminal
-  phases: Array<CreditRegistrationPhaseStatus>
+  /**
+   * The `pending` depth split by what each row is waiting on, which the ledger does not store.
+   */
+  pending_by_reason: PendingReasonCounts
   stuck: Array<CreditRegistrationStuckTotal>
   throughput: Array<CreditRegistrationThroughputBucket>
   throughput_days: number
 }
+
+/**
+ * What a `pending` row is waiting for.
+ */
+export type CreditRegistrationPendingReason = "completion" | "student_number"
 
 export type CreditRegistrationPhaseList = {
   consecutive_failure_limit: number
@@ -2270,8 +2216,8 @@ export type CreditRegistrationPhaseList = {
 /**
  * One phase as the Workers tab renders it.
  *
- * Wider than the Overview strip's `CreditRegistrationPhaseStatus`: this one carries the last error,
- * the run window and the queue, which the Overview deliberately leaves out.
+ * Wider than `CreditRegistrationPhaseStatus`, which the pause/resume/run-now responses return: this
+ * one also carries the last error, the run window and the queue.
  */
 export type CreditRegistrationPhaseRow = {
   consecutive_failures: number
@@ -2325,7 +2271,8 @@ export type CreditRegistrationPhaseRow = {
 
 /**
  * One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
- * narrowed one.
+ * narrowed one. Returned by the pause/resume/run-now actions; the Workers tab lists
+ * `CreditRegistrationPhaseRow` instead, which is wider.
  */
 export type CreditRegistrationPhaseStatus = {
   consecutive_failures: number
@@ -2357,8 +2304,7 @@ export type CreditRegistrationPhaseStatus = {
 
 export type CreditRegistrationReconciliation = {
   /**
-   * The five detector counts, which is the tab badge. The consent-withdrawal bucket is
-   * deliberately outside it.
+   * The four detector counts, which is the tab badge.
    */
   finding_count: number
   legacy_divergence_count: number
@@ -2383,14 +2329,6 @@ export type CreditRegistrationReconciliation = {
   outcome_uncertain: Array<ReconciliationRegistration>
   outcome_uncertain_count: number
   /**
-   * **Not an error list and not a work queue.** These students withdrew consent while a
-   * registration was in flight, so we stopped polling and do not know what the registry did. It
-   * is here so the number is never mistaken for a failure; it is in no count above and in no
-   * alert.
-   */
-  outcome_unknown_consent_withdrawn: Array<ReconciliationRegistration>
-  outcome_unknown_consent_withdrawn_count: number
-  /**
    * Rows whose answers named more than one submitted attainment id, which is what a double
    * submission would look like.
    */
@@ -2402,9 +2340,7 @@ export type CreditRegistrationReconciliation = {
  * What the pipeline does next with a ledger row.
  */
 export type CreditRegistrationState =
-  | "pending_prerequisites"
-  | "pending_consent"
-  | "pending_student_number"
+  | "pending"
   | "ready_to_submit"
   | "resolving_enrolment"
   | "checking_enrolment"
@@ -2420,7 +2356,6 @@ export type CreditRegistrationState =
   | "failed_permanent"
   | "blocked"
   | "cancelled"
-  | "abandoned_by_consent_withdrawal"
 
 export type CreditRegistrationStateCount = {
   count: number
@@ -2448,17 +2383,16 @@ export type CreditRegistrationStuckTotal = {
 }
 
 /**
- * The verdicts an operator needs beside the errors to rule them out. `not_improved` and
- * `abandoned_by_consent_withdrawal` are not failures and are never in the error table above.
+ * The verdicts an operator needs beside the errors to rule them out. `not_improved` is not a
+ * failure and is never in the error table above.
  */
 export type CreditRegistrationTerminalVerdicts = {
-  abandoned_by_consent_withdrawal_count: number
   cancelled_count: number
   duplicate_and_not_improved_count: number
   failed_permanent_count: number
   registered_count: number
   /**
-   * Everything but the abandoned: the denominator of the success rate.
+   * The denominator of the success rate.
    */
   total_count: number
 }
@@ -3236,38 +3170,10 @@ export type MyCourse = Course & {
   can_hide: boolean
 }
 
-export type MyCourseCreditRegistrationConsent = {
-  /**
-   * False means never asked, which is not the same as asked and declined.
-   */
-  asked: boolean
-  consent_given?: boolean | null
-  consent_given_at?: string | null
-  consent_withdrawn_at?: string | null
-  course_id: string
-  course_name: string
-  credit_registration_enabled_for_course: boolean
-  modules: Array<CreditRegistrationConsentModule>
-  /**
-   * Completions already waiting on consent, so the dialog can say how many one click registers.
-   */
-  registrable_completion_count: number
-}
-
 export type MyCreditRegistration = {
   attempt_number: number
   can_request_enrolment_recheck: boolean
   completion_date: string
-  /**
-   * The one thing the page needs beyond the status: the outcome of an import that was already in
-   * flight is unknown, so it gets its own copy.
-   *
-   * The ledger state itself is deliberately not on the wire. Eligibility includes
-   * `NOT needs_to_be_reviewed`, so `blocked` would tell a student they have been flagged as a
-   * suspected cheater — which `users.rs` hides from them for that exact reason. Every cause of
-   * `not_registering` has to stay indistinguishable here.
-   */
-  consent_withdrawn_while_in_flight: boolean
   course_id: string
   course_module_id: string
   course_module_name?: string | null
@@ -3307,17 +3213,6 @@ export type MyCreditRegistration = {
   student_facing_status: StudentFacingCreditRegistrationStatus
   superseded: boolean
   uh_course_code?: string | null
-}
-
-export type MyCreditRegistrationConsent = {
-  asked_at?: string | null
-  consent_given?: boolean | null
-  consent_given_at?: string | null
-  consent_withdrawn_at?: string | null
-  course_id: string
-  course_name: string
-  registered_count: number
-  registrable_completion_count: number
 }
 
 /**
@@ -3808,6 +3703,152 @@ export type PageVisitDatumSummaryByPages = {
   visit_date: string
 }
 
+export type PageAdminCreditRegistrationRow = {
+  data: Array<{
+    attempt_number: number
+    completion_date: string
+    course_id: string
+    course_instance_id: string
+    course_module_completion_id: string
+    course_module_id: string
+    course_module_name?: string | null
+    course_name: string
+    created_at: string
+    credits?: number | null
+    /**
+     * In full: masking it would leave support unable to answer the question they were asked.
+     */
+    email?: string | null
+    error_code?: null | CreditRegistrationErrorCode
+    first_name?: string | null
+    grade_id?: string | null
+    grade_scale_id?: string | null
+    id: string
+    last_attempt_at?: string | null
+    last_name?: string | null
+    needs_admin_attention: boolean
+    next_attempt_at: string
+    pending_reason?: null | CreditRegistrationPendingReason
+    registered_at?: string | null
+    request_item_id: string
+    resubmission_refusal?: null | ResubmissionRefusal
+    selected_enrolment_id?: string | null
+    sisu_attainment_id?: string | null
+    sisu_person_id?: string | null
+    state: CreditRegistrationState
+    state_entered_at: string
+    /**
+     * Frozen on the row before it was sent, so it is what we actually submitted.
+     */
+    student_number?: string | null
+    submit_retry_count: number
+    submitted_at?: string | null
+    submitted_attainment_id?: string | null
+    superseded: boolean
+    superseded_by_id?: string | null
+    terminal_at?: string | null
+    uh_course_code?: string | null
+    user_id: string
+    /**
+     * The account's link now, which is not always the number frozen on the row.
+     */
+    verified_student_number?: string | null
+    verified_student_number_at?: string | null
+    verified_student_number_via?: null | StudentNumberVerificationMethod
+    verify_attempt_count: number
+  }>
+  total_count: number
+  total_pages: number
+}
+
+export type PageAdminVerifiedStudentNumberRow = {
+  data: Array<{
+    first_name?: string | null
+    id: string
+    last_name?: string | null
+    link_reason?: string | null
+    linked_by_user_id?: string | null
+    live_registration_count: number
+    sisu_person_id: string
+    student_number: string
+    /**
+     * In full.
+     */
+    user_email?: string | null
+    user_id: string
+    verified_at: string
+    verified_from_course_id?: string | null
+    verified_via: StudentNumberVerificationMethod
+    /**
+     * The registry-held address the proof rests on, in full. `None` for an admin-established link.
+     */
+    verified_via_email?: string | null
+  }>
+  total_count: number
+  total_pages: number
+}
+
+export type PageCreditRegistrationAdminActionRow = {
+  data: Array<{
+    action: CreditRegistrationAdminAction
+    /**
+     * The course whose edit permission authorised a teacher action.
+     */
+    actor_course_id?: string | null
+    actor_email?: string | null
+    actor_first_name?: string | null
+    actor_last_name?: string | null
+    /**
+     * `global_admin` or `course_teacher`.
+     */
+    actor_role: string
+    actor_user_id: string
+    affected_row_count?: number | null
+    after_state?: null | CreditRegistrationState
+    before_state?: null | CreditRegistrationState
+    course_name?: string | null
+    created_at: string
+    details?: unknown
+    id: string
+    reason?: string | null
+    /**
+     * `None` for a phase target, which is named by `target_phase`, and for a bulk action over a
+     * selection, whose ids are in `details`.
+     */
+    target_id?: string | null
+    target_kind: CreditRegistrationAdminActionTarget
+    target_phase?: string | null
+  }>
+  total_count: number
+  total_pages: number
+}
+
+export type PageSuotarApiCallRow = {
+  data: Array<{
+    credit_registration_ids: Array<string>
+    duration_ms?: number | null
+    endpoint: SuotarEndpoint
+    error_item_count: number
+    /**
+     * `None` with `succeeded = false` means the request never got an answer: connect, TLS or
+     * timeout.
+     */
+    http_status?: number | null
+    id: string
+    ok_item_count: number
+    request_item_count: number
+    /**
+     * The registry's own request-level code, an identifier rather than prose.
+     */
+    request_level_error_code?: string | null
+    started_at: string
+    succeeded: boolean
+    worker_name: string
+  }>
+  total_count: number
+  total_pages: number
+}
+
 export type PaperSize = "horizontal-a4" | "vertical-a4"
 
 export type PeerOrSelfReviewAnswer =
@@ -3908,6 +3949,15 @@ export type PeerReviewWithQuestionsAndAnswers = {
   peer_or_self_review_submission_id: string
   peer_review_giver_user_id: string
   questions_and_answers: Array<PeerOrSelfReviewQuestionAndAnswer>
+}
+
+/**
+ * Live `pending` rows per blocker, for the surfaces that used to read the three states off the
+ * ledger.
+ */
+export type PendingReasonCounts = {
+  completion_count: number
+  student_number_count: number
 }
 
 export type PendingRole = {
@@ -4069,16 +4119,6 @@ export type ResearchFormQuestionAnswer = {
   user_id: string
 }
 
-export type ResendLinkingEmailOutcome =
-  | "queued"
-  | "already_mailed_to_every_known_address"
-  | "refused_by_rate_cap"
-  | "no_address_in_study_registry"
-  | "not_on_the_course_roster"
-  | "no_student_number_known"
-  | "already_linked"
-  | "study_registry_unavailable"
-
 export type ResendLinkingEmailPayload = {
   reason?: string | null
   student_number?: string | null
@@ -4092,8 +4132,23 @@ export type ResendLinkingEmailResult = {
   linking_email?: null | TeacherLinkingEmailStatus
   mails_sent_for_this_course: number
   max_mails_per_person_and_course: number
-  outcome: ResendLinkingEmailOutcome
+  outcome: ResendOutcome
 }
+
+/**
+ * What a resend endpoint tells its caller. Shared wire shape for the teacher- and admin-facing
+ * resend endpoints; `NoStudentNumberKnown` is only ever emitted by the teacher endpoint, whose
+ * target may be an account that has never held a number.
+ */
+export type ResendOutcome =
+  | "queued"
+  | "already_mailed_to_every_known_address"
+  | "refused_by_rate_cap"
+  | "no_address_in_study_registry"
+  | "not_on_the_course_roster"
+  | "already_linked"
+  | "study_registry_unavailable"
+  | "no_student_number_known"
 
 export type ResetExercisesPayload = {
   exercise_ids: Array<string>
@@ -4113,32 +4168,32 @@ export type ResetPasswordTokenPayload = {
 }
 
 /**
- * What a retry did to one row. Every refusal is its own value, because the answer a teacher needs
- * ("wait for an admin" vs "the student withdrew consent") differs in each case.
+ * Why [`CreditRegistrationState::resubmission_refusal`] would not move a row.
+ *
+ * Rendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it
+ * travels to them as it is rather than being re-mapped per surface.
  */
-export type RetryCreditRegistrationOutcome =
-  | "retried"
-  | "refused_submission_uncertain"
-  | "refused_consent_withdrawn"
-  | "refused_without_consent"
-  | "refused_not_failed"
-  | "refused_superseded"
+export type ResubmissionRefusal =
+  | "superseded"
+  | "already_succeeded"
+  | "submission_uncertain"
+  | "not_failed_permanent"
 
 export type RetryCreditRegistrationPayload = {
   reason?: string | null
 }
 
 export type RetryCreditRegistrationResult = {
-  outcome: RetryCreditRegistrationOutcome
+  refusal?: null | ResubmissionRefusal
   /**
-   * Where the row stands after the attempt, whatever the outcome.
+   * Where the row stands after the attempt, whatever the answer.
    */
   state: CreditRegistrationState
 }
 
 export type RetryCreditRegistrationSkip = {
   count: number
-  outcome: RetryCreditRegistrationOutcome
+  refusal: ResubmissionRefusal
 }
 
 export type RetryFailedCreditRegistrationsResult = {
@@ -4251,17 +4306,6 @@ export type ServicePortInfo = {
   target_port?: string | null
 }
 
-export type SetMyCourseCreditRegistrationConsentPayload = {
-  consent_given: boolean
-}
-
-export type SetMyCourseCreditRegistrationConsentResult = {
-  consent_given: boolean
-  consent_given_at?: string | null
-  consent_withdrawn_at?: string | null
-  newly_unblocked_registration_count: number
-}
-
 export type SisuDescriptionResponse = {
   audience: Array<string>
   course_description: string
@@ -4269,11 +4313,23 @@ export type SisuDescriptionResponse = {
 }
 
 /**
+ * How long a row may sit in one state before it counts as stuck. Seconds, per state.
+ *
+ * Also the wire payload the health endpoint reports as thresholds: field names are the
+ * `stuck_*_secs` keys the frontend reads, so do not rename without updating it.
+ */
+export type StuckThresholds = {
+  stuck_awaiting_verification_secs: number
+  stuck_failed_retryable_secs: number
+  stuck_ready_to_submit_secs: number
+  stuck_submitting_secs: number
+}
+
+/**
  * The stage a student sees.
  */
 export type StudentFacingCreditRegistrationStatus =
   | "waiting_for_completion"
-  | "needs_consent"
   | "needs_student_number"
   | "in_progress"
   | "needs_enrolment"
@@ -4411,10 +4467,7 @@ export type SuotarApiCallRow = {
   worker_name: string
 }
 
-export type SuotarApiCallsPage = {
-  data: Array<SuotarApiCallRow>
-  total_count: number
-  total_pages: number
+export type SuotarApiCallsPage = PageSuotarApiCallRow & {
   /**
    * The `worker_name` values in the log, for the filter.
    */
@@ -9263,7 +9316,7 @@ export type ListCreditRegistrationAdminActionsResponses = {
   /**
    * A page of the action log
    */
-  200: CreditRegistrationAdminActionsPage
+  200: PageCreditRegistrationAdminActionRow
 }
 
 export type ListCreditRegistrationAdminActionsResponse =
@@ -9602,7 +9655,7 @@ export type ListCreditRegistrationsForAdminResponses = {
   /**
    * A page of the ledger
    */
-  200: AdminCreditRegistrationsPage
+  200: PageAdminCreditRegistrationRow
 }
 
 export type ListCreditRegistrationsForAdminResponse =
@@ -9746,7 +9799,7 @@ export type ListVerifiedStudentNumbersForAdminResponses = {
   /**
    * A page of the live links
    */
-  200: AdminVerifiedStudentNumbersPage
+  200: PageAdminVerifiedStudentNumberRow
 }
 
 export type ListVerifiedStudentNumbersForAdminResponse =
@@ -9890,55 +9943,11 @@ export type GetCreditRegistrationThresholdsResponses = {
   /**
    * The thresholds every rule and detector shares
    */
-  200: CreditRegistrationAlertThresholds
+  200: StuckThresholds
 }
 
 export type GetCreditRegistrationThresholdsResponse =
   GetCreditRegistrationThresholdsResponses[keyof GetCreditRegistrationThresholdsResponses]
-
-export type GetMyCourseCreditRegistrationConsentData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent"
-}
-
-export type GetMyCourseCreditRegistrationConsentResponses = {
-  /**
-   * The caller's consent for the course
-   */
-  200: MyCourseCreditRegistrationConsent
-}
-
-export type GetMyCourseCreditRegistrationConsentResponse =
-  GetMyCourseCreditRegistrationConsentResponses[keyof GetMyCourseCreditRegistrationConsentResponses]
-
-export type SetMyCourseCreditRegistrationConsentData = {
-  body: SetMyCourseCreditRegistrationConsentPayload
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent"
-}
-
-export type SetMyCourseCreditRegistrationConsentResponses = {
-  /**
-   * The recorded answer and what it unblocked
-   */
-  200: SetMyCourseCreditRegistrationConsentResult
-}
-
-export type SetMyCourseCreditRegistrationConsentResponse =
-  SetMyCourseCreditRegistrationConsentResponses[keyof SetMyCourseCreditRegistrationConsentResponses]
 
 export type GetMyCreditRegistrationsData = {
   body?: never
@@ -9978,23 +9987,6 @@ export type GetMyCreditRegistrationForCourseModuleResponses = {
 
 export type GetMyCreditRegistrationForCourseModuleResponse =
   GetMyCreditRegistrationForCourseModuleResponses[keyof GetMyCreditRegistrationForCourseModuleResponses]
-
-export type GetMyCreditRegistrationConsentsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/consents"
-}
-
-export type GetMyCreditRegistrationConsentsResponses = {
-  /**
-   * The caller's per-course consents
-   */
-  200: Array<MyCreditRegistrationConsent>
-}
-
-export type GetMyCreditRegistrationConsentsResponse =
-  GetMyCreditRegistrationConsentsResponses[keyof GetMyCreditRegistrationConsentsResponses]
 
 export type GetMyCreditRegistrationEnrolmentBannersData = {
   body?: never

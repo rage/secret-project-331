@@ -11,7 +11,7 @@ import RelativeTime from "@/components/credit-registration/admin/RelativeTime"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import { useFilteredAdminQuery } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
-import { noteCss } from "@/components/credit-registration/styles"
+import { noteCss, stackedCellCss } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationErrorCode,
   CreditRegistrationState,
@@ -115,10 +115,6 @@ const chipCss = css`
   font-size: var(--font-size-1);
   padding: 0.15rem 0.6rem;
   cursor: pointer;
-`
-
-const stackedCellCss = css`
-  display: grid;
 `
 
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
@@ -233,6 +229,7 @@ const RegistrationsPage: React.FC = () => {
                       <Link href={creditRegistrationItemRoute(row.id)} prefetch={false}>
                         <AdminStateBadge
                           state={row.state}
+                          pendingReason={row.pending_reason}
                           superseded={row.superseded}
                           attemptNumber={row.attempt_number}
                         />

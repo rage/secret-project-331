@@ -1,17 +1,16 @@
 //! The world installed when nothing has been pushed, and the marker that says which database it
 //! belongs to.
 //!
-//! It is the seed's own world rather than fixtures of its own: the restore-from-template setup path
-//! runs no seed, and a different world there would hand the two setup paths different fixtures.
+//! Built from the same fixtures the seed writes its database rows from: the restore-from-template
+//! setup path runs no seed, and a world of the mock's own there would hand the two setup paths
+//! different fixtures.
 
 use sqlx::PgPool;
 
 use crate::prelude::*;
-use crate::programs::seed::seed_courses::seed_credit_registration::{
-    SUOTAR_COURSE_ID, mock_suotar_world,
-};
 
 use super::commands::world_from_push;
+use super::fixtures::{SUOTAR_COURSE_ID, mock_suotar_world};
 use super::store::World;
 
 pub fn build() -> World {

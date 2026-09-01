@@ -13,13 +13,13 @@ import type { CourseCreditRegistrationModuleSummary } from "@/generated/api/type
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Badge, Meter, QueryResult, StatTile } from "@/shared-module/components"
 
-import BlockedStudentsDialog from "./BlockedStudentsDialog"
 import { TONE } from "./constants"
 import CourseCreditRegistrationActionsPanel from "./CourseCreditRegistrationActionsPanel"
 import CreditRegistrationConfigCallout from "./CreditRegistrationConfigCallout"
 import CreditRegistrationExportLink from "./CreditRegistrationExportLink"
 import RetryFailedCreditRegistrationsBlock from "./RetryFailedCreditRegistrationsBlock"
 import { tilesCss } from "./styles"
+import UnlinkedStudentsDialog from "./UnlinkedStudentsDialog"
 
 interface Props {
   courseId: string
@@ -51,9 +51,6 @@ const moduleHeaderCss = css`
   gap: 0.5rem;
   align-items: center;
 `
-
-// oxlint-disable-next-line i18next/no-literal-string
-const WAITING_FOR_STUDENT_NUMBER = "pending_student_number" as const
 
 const actionsRowCss = css`
   display: flex;
@@ -145,14 +142,10 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
                 aria-label={t("button-text-list-students-waiting-for-a-student-number")}
               >
                 <StatTile
-                  label={t("label-credit-registration-unlinked-consented-students")}
-                  value={summary.blocked_students.unlinked_consented_student_count}
+                  label={t("label-credit-registration-unlinked-enrolled-students")}
+                  value={summary.unlinked_enrolled_student_count}
                 />
               </button>
-              <StatTile
-                label={t("label-credit-registration-students-without-consent")}
-                value={summary.blocked_students.no_consent_student_count}
-              />
               <StatTile
                 label={t("label-credit-registration-emails-we-could-not-send")}
                 value={summary.linking_emails_failed_to_send_count}
@@ -167,10 +160,8 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
             </div>
             <CourseCreditRegistrationActionsPanel courseId={courseId} />
             {showBlocked && (
-              <BlockedStudentsDialog
+              <UnlinkedStudentsDialog
                 courseId={courseId}
-                state={WAITING_FOR_STUDENT_NUMBER}
-                title={t("label-credit-registration-unlinked-consented-students")}
                 open={showBlocked}
                 onClose={() => setShowBlocked(false)}
               />

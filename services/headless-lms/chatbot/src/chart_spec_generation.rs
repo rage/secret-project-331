@@ -53,6 +53,13 @@ Your whole answer must be the Vega-Lite specification as a JSON object, with no 
 /// feature, since a JSON-mode request carries no schema name to identify it by.
 pub const USER_PROMPT_PREFIX: &str = "Create or edit a Vega-Lite chart specification according to the request below. Return the specification itself as JSON and nothing else.";
 
+/// Introduces the sample of the teacher's data file. Also how the test-mode mock Azure API finds
+/// the sample, which it needs to answer with the field names the teacher's file actually has.
+pub const DATA_SAMPLE_HEADING: &str = "\n\nSample of the data file contents:\n";
+
+/// Introduces the specification being edited, and so also ends [`DATA_SAMPLE_HEADING`]'s section.
+pub const EXISTING_SPEC_HEADING: &str = "\n\nExisting specification to edit:\n";
+
 /// The format the chart spec LLM is asked to answer in.
 ///
 /// A plain JSON object rather than a named schema: Azure's structured output accepts only a
@@ -338,11 +345,11 @@ pub async fn generate_chart_spec(
         user_message_content.push_str(format);
     }
     if let Some(sample) = &input.data_sample {
-        user_message_content.push_str("\n\nSample of the data file contents:\n");
+        user_message_content.push_str(DATA_SAMPLE_HEADING);
         user_message_content.push_str(sample);
     }
     if let Some(current_spec) = &input.current_spec {
-        user_message_content.push_str("\n\nExisting specification to edit:\n");
+        user_message_content.push_str(EXISTING_SPEC_HEADING);
         // A specification too broken to parse is sent as it stands: repairing it is the request.
         user_message_content
             .push_str(&without_data(current_spec).unwrap_or_else(|| current_spec.clone()));

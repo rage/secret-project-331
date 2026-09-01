@@ -354,8 +354,8 @@ test("Chart block can be generated with AI", async ({ page }) => {
   await expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveValue(
     "Mock AI generated bar chart",
   )
-  // The teacher's own data file survives whatever the model returned: the mock model's spec points
-  // at a different file, which the generation step re-binds to the uploaded one.
+  // The teacher's own data file is what the chart reads: the model never supplies data, and the
+  // generation step binds the uploaded file to whatever specification came back.
   await expect(dialog.getByText(/\.csv/)).toBeVisible()
   await expect(dialog.getByRole("button", { name: "Remove" })).toBeVisible()
 

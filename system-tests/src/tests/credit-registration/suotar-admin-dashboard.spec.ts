@@ -8,7 +8,6 @@ import {
 import {
   accountLinkingStats,
   adminAuditLog,
-  adminOverview,
   adminRegistrationDetails,
   adminRegistrationUrl,
   creditRegistrationCourseStats,
@@ -50,6 +49,7 @@ const DASHBOARD_URL = `${ORIGIN}/manage/credit-registration`
 const OVERVIEW_URL = `${DASHBOARD_URL}/overview`
 const REGISTRATIONS_URL = `${DASHBOARD_URL}/registrations`
 const LINKING_URL = `${DASHBOARD_URL}/linking`
+const WORKERS_URL = `${DASHBOARD_URL}/workers`
 
 /** In the order the layout lists them, which is the order an operator reads the shell in. */
 const TAB_NAMES = [
@@ -92,15 +92,13 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
     await expect(page.getByRole("tab", { name })).toBeVisible()
   }
   await expect(page.getByRole("heading", { name: "Where registrations stand" })).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Pipeline phases" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Study registry" })).toBeVisible()
   await accessibilityCheck(page, "Credit registration admin overview")
 
   await test.step("Both worker programs are alive and stamping their phases", async () => {
-    const overview = await adminOverview(page.request)
-    expect(overview.phases).toHaveLength(CREDIT_REGISTRATION_PHASES.length)
+    const { phases } = await listAdminPhases(page.request)
     for (const processName of ["credit-registrar", "suotar-syncer"]) {
-      const owned = overview.phases.filter((phase) => phase.process_name === processName)
+      const owned = phases.filter((phase) => phase.process_name === processName)
       expect(owned.length, `${processName} owns no phases`).toBeGreaterThan(0)
       expect(
         owned.some((phase) => phase.last_heartbeat_at !== null),
@@ -149,8 +147,8 @@ test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ 
       expect(paused.paused_at).not.toBeNull()
       expect(paused.pause_reason).toBe(pauseReason)
 
-      const overview = await adminOverview(page.request)
-      const row = overview.phases.find((candidate) => candidate.phase === phase)
+      const { phases } = await listAdminPhases(page.request)
+      const row = phases.find((candidate) => candidate.phase === phase)
       expect(row?.paused_at).not.toBeNull()
     })
 
@@ -474,6 +472,9 @@ test("There is no item-level pause anywhere", async ({ page }) => {
 })
 
 test("The workers tab groups the phases under the process that runs them", async ({ page }) => {
+  await page.goto(WORKERS_URL)
+  await expect(page.getByRole("heading", { name: "Pipeline phases" })).toBeVisible()
+
   const list = await listAdminPhases(page.request)
   expect(list.phases).toHaveLength(CREDIT_REGISTRATION_PHASES.length)
 

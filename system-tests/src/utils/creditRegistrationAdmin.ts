@@ -30,10 +30,6 @@ export interface AdminPhaseStatus {
   implemented: boolean
 }
 
-export interface AdminOverview {
-  phases: AdminPhaseStatus[]
-}
-
 export interface AdminRegistrationRow {
   id: string
   email: string | null
@@ -110,9 +106,6 @@ export interface AdminRegistrationFilter {
   needs_admin_attention?: boolean
   limit?: number
 }
-
-export const adminOverview = (request: APIRequestContext): Promise<AdminOverview> =>
-  getJson<AdminOverview>(request, `${CREDIT_REGISTRATION_ADMIN_API}/overview`)
 
 export const listAdminRegistrations = (
   request: APIRequestContext,
@@ -213,6 +206,7 @@ export interface AdminPhaseRow {
   phase: string
   process_name: string
   implemented: boolean
+  last_heartbeat_at: string | null
   paused_at: string | null
   heartbeat_late: boolean
   failing: boolean

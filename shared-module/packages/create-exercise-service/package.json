@@ -15,6 +15,7 @@
   ],
   "license": "Apache-2.0",
   "main": "./dist/index.mjs",
+  "packageManager": "pnpm@11.20.0",
   "type": "module",
   "bin": {
     "create-exercise-service": "./dist/index.mjs"
@@ -54,6 +55,5 @@
     "tsdown": "0.22.14",
     "tsx": "^4.23.12",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
-  },
-  "packageManager": "pnpm@11.20.0"
+  }
 }

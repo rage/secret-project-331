@@ -6,6 +6,7 @@
   "keywords": [],
   "license": "Apache-2.0",
   "main": "index.js",
+  "packageManager": "pnpm@11.20.0",
   "devEngines": {
     "runtime": {
       "name": "node",
@@ -69,6 +70,5 @@
     "react-dom": "^19.2.8",
     "storybook": "^10.5.10",
     "vite": "^8.2.2"
-  },
-  "packageManager": "pnpm@11.20.0"
+  }
 }

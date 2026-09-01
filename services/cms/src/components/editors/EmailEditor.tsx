@@ -13,7 +13,7 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder from "../../services/mediaUpload"
+import { mediaUploadBuilder } from "../../services/mediaUpload"
 import type { MediaUploadProps } from "../../services/mediaUpload"
 import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"

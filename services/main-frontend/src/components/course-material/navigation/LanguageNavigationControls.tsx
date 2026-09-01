@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai"
 import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
+import { useLanguageNavigation } from "@/hooks/course-material/language/useLanguageNavigation"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import type { LanguageOption } from "@/shared-module/common/components/LanguageSelection"

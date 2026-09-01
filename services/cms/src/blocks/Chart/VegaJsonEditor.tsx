@@ -91,16 +91,16 @@ const VegaJsonEditor: React.FC<VegaJsonEditorProps> = ({
       <div className={headerStyles}>
         <p className={headerLabelStyles}>{t("vega-lite-json-specification")}</p>
         <div className={headerActionsStyles}>
-          {!isValidJson && (
-            <span
-              className={css`
-                font-size: 0.75rem;
-                color: ${baseTheme.colors.red[600]};
-              `}
-            >
-              {t("invalid-json")}
-            </span>
-          )}
+          {/* Always rendered: a live region has to exist before its text changes to be announced. */}
+          <span
+            role="status"
+            className={css`
+              font-size: 0.75rem;
+              color: ${baseTheme.colors.red[600]};
+            `}
+          >
+            {isValidJson ? "" : t("invalid-json")}
+          </span>
           <Button
             variant="secondary"
             size="small"

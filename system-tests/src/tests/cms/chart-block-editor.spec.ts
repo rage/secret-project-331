@@ -151,7 +151,8 @@ test("Chart block editor works", async ({ page }) => {
   // Invalid JSON is flagged and the preview shows an error rather than crashing. The uploaded data
   // file is remembered even while the spec is broken.
   await setMonacoContent(page, "this is not valid json")
-  await expect(dialog.getByText("Invalid JSON")).toBeVisible()
+  // By role, because the preview's error heading says the same words once the render check has run.
+  await expect(dialog.getByRole("status")).toHaveText("Invalid JSON")
   await expect(
     dialog.getByText("The chart could not be displayed because its specification is invalid."),
   ).toBeVisible()

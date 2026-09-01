@@ -1,7 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react"
 
-import { primaryFont } from "@/shared-module/common/styles"
-
+import { primaryFont } from "../../styles"
 import { useFontLoaded } from "../useFontLoaded"
 
 const originalFonts = Object.getOwnPropertyDescriptor(document, "fonts")

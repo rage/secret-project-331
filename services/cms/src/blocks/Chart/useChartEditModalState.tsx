@@ -1,9 +1,8 @@
 "use client"
 
-import { useSelect } from "@wordpress/data"
 import { useEffect, useRef, useState } from "react"
 
-const BLOCK_EDITOR_STORE = "core/block-editor"
+import { useWasBlockJustInserted } from "@/hooks/useWasBlockJustInserted"
 
 interface ChartEditModal {
   isModalOpen: boolean
@@ -26,16 +25,7 @@ export const useChartEditModalState = ({
 }): ChartEditModal => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const wasJustInserted = useSelect(
-    (select) =>
-      // `wasBlockJustInserted` exists at runtime but is missing from the store's type defs.
-      (
-        select(BLOCK_EDITOR_STORE) as unknown as {
-          wasBlockJustInserted: (clientId: string) => boolean
-        }
-      ).wasBlockJustInserted(clientId),
-    [clientId],
-  )
+  const wasJustInserted = useWasBlockJustInserted(clientId)
 
   const autoOpenedRef = useRef(false)
   useEffect(() => {

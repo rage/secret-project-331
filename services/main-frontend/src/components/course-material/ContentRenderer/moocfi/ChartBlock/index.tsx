@@ -5,8 +5,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { VegaLite } from "react-vega"
 
-import { useDebouncedElementWidth } from "@/hooks/useDebouncedElementWidth"
-import { useFontLoaded } from "@/hooks/useFontLoaded"
+import { useDebouncedElementWidth } from "@/shared-module/common/hooks/useDebouncedElementWidth"
+import { useFontLoaded } from "@/shared-module/common/hooks/useFontLoaded"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

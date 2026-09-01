@@ -19,6 +19,7 @@ use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole,
 };
+use headless_lms_utils::url_encoding::percent_encode_fragment;
 
 /// Vendored copy of https://vega.github.io/schema/vega-lite/v6.json, used to validate
 /// generated specs without network access. All of its `$ref`s are internal.
@@ -73,34 +74,19 @@ pub struct ChartSpecGenerationInput {
     pub language: Option<String>,
 }
 
-/// Percent-encodes characters RFC 3986 forbids in URI fragments. Vega-Lite definition
-/// names (e.g. `MarkPropDef<(Gradient|string|null)>`) contain such characters, and the
-/// validator's meta-schema check rejects `$ref`s pointing at them. Fragments are
-/// percent-decoded before JSON-pointer evaluation, so encoded refs still resolve to the
-/// original definition keys.
-fn percent_encode_ref(reference: &str) -> String {
-    let mut out = String::with_capacity(reference.len());
-    for byte in reference.bytes() {
-        match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' => out.push(byte as char),
-            b'-' | b'.' | b'_' | b'~' | b'!' | b'$' | b'&' | b'\'' | b'(' | b')' | b'*' | b'+'
-            | b',' | b';' | b'=' | b':' | b'@' | b'/' | b'?' | b'#' | b'%' => {
-                out.push(byte as char)
-            }
-            _ => out.push_str(&format!("%{byte:02X}")),
-        }
-    }
-    out
-}
-
-/// Rewrites every `$ref` string in the schema with [`percent_encode_ref`].
+/// Percent-encodes every `$ref` string in the schema.
+///
+/// Vega-Lite definition names (e.g. `MarkPropDef<(Gradient|string|null)>`) contain characters
+/// RFC 3986 forbids in a URI fragment, and the validator's meta-schema check rejects `$ref`s
+/// pointing at them. Fragments are percent-decoded before JSON-pointer evaluation, so encoded
+/// refs still resolve to the original definition keys.
 fn sanitize_refs(value: &mut serde_json::Value) {
     match value {
         serde_json::Value::Object(map) => {
             for (key, entry) in map.iter_mut() {
                 match entry {
                     serde_json::Value::String(reference) if key == "$ref" => {
-                        *reference = percent_encode_ref(reference);
+                        *reference = percent_encode_fragment(reference);
                     }
                     // A `$ref` key whose value isn't a string is an ordinary schema node (e.g. a
                     // property literally named `$ref`), so keep descending into it.

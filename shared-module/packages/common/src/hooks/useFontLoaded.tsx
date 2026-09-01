@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-import { primaryFont } from "@/shared-module/common/styles"
+import { primaryFont } from "../styles"
 
 /**
  * Tracks whether `fontFamily` has finished loading, defaulting to the site's primary font.

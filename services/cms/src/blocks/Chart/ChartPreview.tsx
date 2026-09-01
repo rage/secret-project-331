@@ -4,8 +4,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import { VegaLite } from "react-vega"
 
-import { useDebouncedElementWidth } from "@/hooks/useDebouncedElementWidth"
-import { useFontLoaded } from "@/hooks/useFontLoaded"
+import { useDebouncedElementWidth } from "@/shared-module/common/hooks/useDebouncedElementWidth"
+import { useFontLoaded } from "@/shared-module/common/hooks/useFontLoaded"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

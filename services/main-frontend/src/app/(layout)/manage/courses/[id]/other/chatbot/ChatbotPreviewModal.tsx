@@ -1,45 +1,22 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
+import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
-import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface ChatbotPreviewModalProps {
   open: boolean
   onClose: () => void
-  chatbotConfigurationId: string
 }
 
-const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
-  open,
-  onClose,
-  chatbotConfigurationId,
-}) => {
+const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({ open, onClose }) => {
   const { t } = useTranslation()
 
-  const currentConversationId = useQuery(
-    getCurrentConversationIdOptions({
-      path: {
-        chatbot_configuration_id: chatbotConfigurationId,
-      },
-    }),
-  )
-
-  const conversationId = currentConversationId.data
-
-  const chatbotStateAndData = useChatbotStateAndData(
-    chatbotConfigurationId,
-    undefined,
-    conversationId,
-    null,
-  )
-  const { currentConversationInfo, newConversationMutation } = chatbotStateAndData
+  const { currentConversationInfo, newConversationMutation } = useChatbotContext()
   const hasStartedFreshConversation = useRef(false)
 
   // When the preview opens, start a fresh conversation if one already exists so the preview
@@ -62,7 +39,7 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
             height: 75vh;
           `}
         >
-          <ChatbotChatBox {...chatbotStateAndData} />
+          <ChatbotChatBox />
         </div>
       </StandardDialog>
     </div>

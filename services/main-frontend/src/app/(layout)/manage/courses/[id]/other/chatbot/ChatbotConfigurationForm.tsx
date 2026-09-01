@@ -7,6 +7,7 @@ import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
@@ -783,11 +784,16 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   </Button>
                 </div>
                 {showChatbotPreview && (
-                  <ChatbotPreviewModal
-                    open={showChatbotPreview}
-                    onClose={() => setChatbotPreview(false)}
+                  <ChatbotChat
                     chatbotConfigurationId={oldChatbotConf.id}
-                  />
+                    isAlwaysOpen={true}
+                    pageId={null}
+                  >
+                    <ChatbotPreviewModal
+                      open={showChatbotPreview}
+                      onClose={() => setChatbotPreview(false)}
+                    />
+                  </ChatbotChat>
                 )}
               </div>
             </form>

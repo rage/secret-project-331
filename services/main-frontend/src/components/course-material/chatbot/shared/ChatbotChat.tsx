@@ -9,7 +9,6 @@ import useSynchronizeDefaultChatbotCommunicationChannel from "./hooks/useSynchro
 interface ChatbotChatProps {
   chatbotConfigurationId: string
   isAlwaysOpen: boolean
-  conversationId: string | null
   /** The course material page to send as context with a message, or null where there is none. */
   pageId: string | null
   children: React.ReactNode

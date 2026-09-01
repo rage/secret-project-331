@@ -1,18 +1,10 @@
 {
   "name": "common",
   "version": "1.0.0",
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "private": true,
   "keywords": [],
   "license": "Apache-2.0",
-  "packageManager": "pnpm@11.20.0",
-  "private": true,
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
@@ -108,5 +100,13 @@
     "stylelint-config-recommended": "^18.0.0",
     "ts-jest": "^29.4.12",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
-  }
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.18.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@11.20.0"
 }

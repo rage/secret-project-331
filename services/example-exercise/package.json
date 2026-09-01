@@ -1,15 +1,7 @@
 {
   "name": "example-exercise",
   "version": "1.0.1",
-  "packageManager": "pnpm@11.20.0",
   "type": "module",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
   "scripts": {
     "build": "rsbuild build",
     "dev": "rsbuild dev --port 3002",
@@ -60,5 +52,13 @@
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.11"
-  }
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.18.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@11.20.0"
 }

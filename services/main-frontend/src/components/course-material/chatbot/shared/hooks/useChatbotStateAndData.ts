@@ -1,11 +1,8 @@
-import { useQuery, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  allUserConversationsQueryKey,
-  getCurrentConversationIdOptions,
-} from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { allUserConversationsQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
   ChatbotConversation,
@@ -24,7 +21,6 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { getSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
-import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"

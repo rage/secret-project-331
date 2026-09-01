@@ -69,5 +69,6 @@
     "react-dom": "^19.2.8",
     "storybook": "^10.5.7",
     "vite": "^8.2.1"
-  }
+  },
+  "packageManager": "pnpm@11.20.0"
 }

@@ -32,6 +32,9 @@ export interface CourseFilter {
   short_description: boolean
   no_prerequisites: boolean
   no_audiences: boolean
+}
+
+export interface CourseDataFilter {
   show_description: boolean
   show_prerequisites: boolean
   show_audiences: boolean
@@ -83,6 +86,7 @@ const CourseAuditing = () => {
 
   const courseData = getCoursesForAuditing.data
 
+  //erottele course data filter ja course filter
   const { control, watch, reset } = useForm<CourseFilter>({
     defaultValues: {
       search_course: "",
@@ -91,6 +95,16 @@ const CourseAuditing = () => {
       short_description: false,
       no_prerequisites: false,
       no_audiences: false,
+    },
+  })
+
+  const {
+    control: courseDataFilterControl,
+    watch: courseDataFilterWatch,
+    reset: courseDataFilterReset,
+    setValue: courseDataFilterSetValue,
+  } = useForm<CourseDataFilter>({
+    defaultValues: {
       show_description: true,
       show_prerequisites: true,
       show_audiences: true,
@@ -120,6 +134,43 @@ const CourseAuditing = () => {
     "no_prerequisites",
     "no_audiences",
   ])
+
+  const [
+    showCompletionRegistrationLink,
+    showEnableRegisterinCompletionToUhOpenUniversity,
+    showUhCourseCode,
+    showEctsCredits,
+  ] = courseDataFilterWatch([
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_completion_registration_link",
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_enable_registering_completion_to_uh_open_university",
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_uh_course_code",
+    // oxlint-disable-next-line i18next/no-literal-string
+    "show_ects_credits",
+  ])
+
+  const allSelected = Boolean(
+    showCompletionRegistrationLink &&
+    showEnableRegisterinCompletionToUhOpenUniversity &&
+    showUhCourseCode &&
+    showEctsCredits,
+  )
+
+  const handleToggleAll = () => {
+    const next = !allSelected
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_completion_registration_link", next, { shouldDirty: true })
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_enable_registering_completion_to_uh_open_university", next, {
+      shouldDirty: true,
+    })
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_uh_course_code", next, { shouldDirty: true })
+    // oxlint-disable-next-line i18next/no-literal-string
+    courseDataFilterSetValue("show_ects_credits", next, { shouldDirty: true })
+  }
 
   const deferredSearchCourse = useDeferredValue(searchCourse)
 
@@ -189,8 +240,7 @@ const CourseAuditing = () => {
     >
       <h1>{t("title-course-auditing")}</h1>
       <FieldSet>
-        <Legend>{t("filters")}</Legend>
-        <p className={filterSubsectionTitleStyles}>Filter courses</p>
+        <Legend>{t("course-auditing-filter-courses-title")}</Legend>
         <div className={contentRowStyles}>
           <div
             className={css`
@@ -217,7 +267,6 @@ const CourseAuditing = () => {
         </div>
         <div
           className={css`
-            color: ${baseTheme.colors.gray[500]};
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
             margin: 0.5rem 0;
@@ -251,76 +300,121 @@ const CourseAuditing = () => {
             label={t("course-auditing-filter-audiences-not-set")}
           />
         </div>
-        <p className={filterSubsectionTitleStyles}>Filter data</p>
-        <div
-          className={css`
-            color: ${baseTheme.colors.gray[500]};
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-            margin: 0.5rem 0;
-            text-align: start;
-            gap: 0.5rem;
-          `}
-        >
-          <Checkbox
-            name="show_description"
-            control={control}
-            label={t("course-auditing-filter-show-description")}
-          />
-          <Checkbox
-            name="show_prerequisites"
-            control={control}
-            label={t("course-auditing-filter-show-prerequisites")}
-          />
-          <Checkbox
-            name="show_audiences"
-            control={control}
-            label={t("course-auditing-filter-show-audiences")}
-          />
-          <Checkbox
-            name="show_suggest_metadata"
-            control={control}
-            label={t("course-auditing-filter-show-suggest-metadata")}
-          />
-          <Checkbox
-            name="show_closed_at"
-            control={control}
-            label={t("course-auditing-filter-show-closed-at")}
-          />
-          <Checkbox
-            name="show_closed_course_successor_id"
-            control={control}
-            label={t("course-auditing-filter-show-closed-course-successor-id")}
-          />
-          <Checkbox
-            name="show_additional_message"
-            control={control}
-            label={t("course-auditing-filter-show-additional-message")}
-          />
-          <Checkbox
-            name="show_completion_registration_link"
-            control={control}
-            label={t("course-auditing-filter-show-completion-registration-link")}
-          />
-          <Checkbox
-            name="show_enable_registering_completion_to_uh_open_university"
-            control={control}
-            label={t(
-              "course-auditing-filter-show-enable-registering-completion-to-uh-open-university",
-            )}
-          />
-          <Checkbox
-            name="show_uh_course_code"
-            control={control}
-            label={t("course-auditing-filter-show-uh-course-code")}
-          />
-          <Checkbox
-            name="show_ects_credits"
-            control={control}
-            label={t("course-auditing-filter-show-ects-credits")}
-          />
+      </FieldSet>
+
+      <FieldSet>
+        <Legend>{t("course-auditing-filter-course-data-title")}</Legend>
+
+        <div className={contentRowStyles}>
+          <div
+            className={css`
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+              margin: 0.5rem 0;
+              text-align: start;
+              gap: 0.5rem;
+            `}
+          >
+            <Checkbox
+              name="show_description"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-description")}
+            />
+            <Checkbox
+              name="show_prerequisites"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-prerequisites")}
+            />
+            <Checkbox
+              name="show_audiences"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-audiences")}
+            />
+            <Checkbox
+              name="show_suggest_metadata"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-suggest-metadata-button")}
+            />
+            <Checkbox
+              name="show_closed_at"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-closed-at")}
+            />
+            <Checkbox
+              name="show_closed_course_successor_id"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-closed-course-successor-id")}
+            />
+            <Checkbox
+              name="show_additional_message"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-additional-message")}
+            />
+          </div>
+
+          <div
+            className={css`
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+              margin: 0.5rem 0;
+              text-align: start;
+              gap: 0.5rem;
+            `}
+          >
+            <p
+              className={css`
+                font-weight: 500;
+              `}
+            >
+              {t("course-auditing-filter-module-data-title")}
+            </p>
+            <label
+              className={css`
+                color: ${baseTheme.colors.gray[800]};
+                display: inline-flex;
+                align-items: center;
+                gap: var(--space-2, 0.5rem);
+                cursor: pointer;
+              `}
+            >
+              <input type="checkbox" checked={allSelected} onChange={handleToggleAll} />
+              {t("course-plans-analysis-period-all")}
+            </label>
+            <Checkbox
+              name="show_completion_registration_link"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-completion-registration-link")}
+            />
+            <Checkbox
+              name="show_enable_registering_completion_to_uh_open_university"
+              control={courseDataFilterControl}
+              label={t(
+                "course-auditing-filter-enable-registering-completion-to-uh-open-university",
+              )}
+            />
+            <Checkbox
+              name="show_uh_course_code"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-uh-course-code")}
+            />
+            <Checkbox
+              name="show_ects_credits"
+              control={courseDataFilterControl}
+              label={t("course-auditing-filter-ects-credits")}
+            />
+          </div>
+          <Button
+            type="submit"
+            variant="primary"
+            size="medium"
+            onClick={() => courseDataFilterReset()}
+            aria-label={t("course-auditing-reset-filter-aria")}
+          >
+            {t("button-reset")}
+          </Button>
         </div>
       </FieldSet>
+
       <QueryResult query={getCoursesForAuditing} treatEmptyAsData>
         {() => (
           <div
@@ -336,7 +430,7 @@ const CourseAuditing = () => {
                 key={course.id}
                 id={course.id}
                 courseAuditingData={course}
-                filterControl={control}
+                filterControl={courseDataFilterControl}
               />
             ))}
           </div>

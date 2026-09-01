@@ -37,7 +37,7 @@ import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 import { Button, Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
 
-import { contentRowStyles, FieldSet, Legend, type CourseFilter } from "../page"
+import { contentRowStyles, FieldSet, Legend, type CourseDataFilter } from "../page"
 import ContentDisplayBox from "./ContentDisplayBox"
 import CourseMetadata from "./CourseMetadata"
 import ClosedSectionFields from "./EditClosedFields"
@@ -51,7 +51,7 @@ const linkStyles = css`
 interface CourseCardProps {
   id: string
   courseAuditingData: CourseAuditingData
-  filterControl: Control<CourseFilter>
+  filterControl: Control<CourseDataFilter>
 }
 
 export interface EditModuleData extends CourseAuditingModuleUpdate {
@@ -118,6 +118,12 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData, filterC
       "show_ects_credits",
     ],
   })
+
+  const showModules =
+    showCompletionRegistrationLink ||
+    showEnableRegisterinCompletionToUhOpenUniversity ||
+    showUhCourseCode ||
+    showEctsCredits
 
   const defaultModuleUhCourseCode = courseAuditingData.modules.find(
     (module) => module.order_number === 0,
@@ -616,49 +622,53 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData, filterC
             ) : (
               <ContentDisplayBox label={t("closed-at")} isVisible={showClosedAt} />
             )}
-            <div
-              className={css`
-                font-size: 1.15rem;
-                font-weight: 600;
-                color: ${baseTheme.colors.gray[900]};
-                margin: 0.5rem 0rem;
-              `}
-            >
-              {t("modules")}
-            </div>
-            {courseAuditingData.modules.map((module) => (
-              <FieldSet key={module.id} data-testid="module-display-field-set">
-                <Legend>
-                  {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
-                </Legend>
-                <ContentDisplayBox
-                  label={t("completion-registration-link")}
-                  content={module.completion_registration_link_override}
-                  isVisible={showCompletionRegistrationLink}
-                />
-                <div className={contentRowStyles}>
-                  <ContentDisplayBox
-                    label={t("label-enable-registering-completion-to-uh-open-university")}
-                    content={
-                      module.enable_registering_completion_to_uh_open_university
-                        ? t("label-true")
-                        : t("label-false")
-                    }
-                    isVisible={showEnableRegisterinCompletionToUhOpenUniversity}
-                  />
-                  <ContentDisplayBox
-                    label={t("uh-course-code")}
-                    content={module.uh_course_code}
-                    isVisible={showUhCourseCode}
-                  />
-                  <ContentDisplayBox
-                    label={t("ects-credits")}
-                    content={module.ects_credits}
-                    isVisible={showEctsCredits}
-                  />
+            {showModules ? (
+              <>
+                <div
+                  className={css`
+                    font-size: 1.15rem;
+                    font-weight: 600;
+                    color: ${baseTheme.colors.gray[900]};
+                    margin: 0.5rem 0rem;
+                  `}
+                >
+                  {t("modules")}
                 </div>
-              </FieldSet>
-            ))}
+                {courseAuditingData.modules.map((module) => (
+                  <FieldSet key={module.id} data-testid="module-display-field-set">
+                    <Legend>
+                      {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
+                    </Legend>
+                    <ContentDisplayBox
+                      label={t("completion-registration-link")}
+                      content={module.completion_registration_link_override}
+                      isVisible={showCompletionRegistrationLink}
+                    />
+                    <div className={contentRowStyles}>
+                      <ContentDisplayBox
+                        label={t("label-enable-registering-completion-to-uh-open-university")}
+                        content={
+                          module.enable_registering_completion_to_uh_open_university
+                            ? t("label-true")
+                            : t("label-false")
+                        }
+                        isVisible={showEnableRegisterinCompletionToUhOpenUniversity}
+                      />
+                      <ContentDisplayBox
+                        label={t("uh-course-code")}
+                        content={module.uh_course_code}
+                        isVisible={showUhCourseCode}
+                      />
+                      <ContentDisplayBox
+                        label={t("ects-credits")}
+                        content={module.ects_credits}
+                        isVisible={showEctsCredits}
+                      />
+                    </div>
+                  </FieldSet>
+                ))}
+              </>
+            ) : null}
           </div>
         )}
         <div

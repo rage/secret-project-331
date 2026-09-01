@@ -4,6 +4,7 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "keywords": [],
   "license": "Apache-2.0",
+  "packageManager": "pnpm@11.20.0",
   "private": true,
   "devEngines": {
     "runtime": {
@@ -107,6 +108,5 @@
     "stylelint-config-recommended": "^18.0.0",
     "ts-jest": "^29.4.12",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
-  },
-  "packageManager": "pnpm@11.20.0"
+  }
 }

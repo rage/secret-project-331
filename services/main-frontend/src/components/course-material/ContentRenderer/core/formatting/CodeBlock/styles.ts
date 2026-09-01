@@ -27,7 +27,9 @@ export const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css
 `
 
 export const codeBlockStyles = css`
-  background-color: #1a2333;
+  /* Must track the .hljs background in highlight.js/styles/atom-one-dark.css. Set here too so the
+     colour does not depend on whether emotion or the theme sheet is injected last. */
+  background-color: #282c34;
   border-radius: 4px;
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0;

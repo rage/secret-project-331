@@ -61,9 +61,11 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             services/headless-lms/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          # flake.lock is part of the key because cached build-script binaries hard-code
+          # /nix/store interpreter paths, and a nixpkgs bump makes those paths vanish.
+          key: ${{ runner.os }}-cargo-${{ hashFiles('flake.lock') }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-cargo-${{ hashFiles('flake.lock') }}-
 
       - name: Get service container network
         id: get_network

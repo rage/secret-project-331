@@ -36,9 +36,16 @@ pub fn init_app_conf() -> anyhow::Result<ApplicationConfiguration> {
 }
 
 /// A file store for tests that only need download URLs, not stored bytes.
+///
+/// Built field-wise because `LocalFileStore::new` insists on `HEADLESS_LMS_CACHE_FILES_PATH`, which
+/// no test environment sets; nothing here reaches the cache, and setting the variable from one test
+/// would race every other test in the binary.
 pub fn init_file_store() -> LocalFileStore {
-    LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
-        .expect("Failed to initialize test file store")
+    LocalFileStore {
+        base_path: "uploads".into(),
+        base_url: "http://localhost:3000".to_string(),
+        cache_files_path: env::temp_dir(),
+    }
 }
 
 pub async fn test_config() -> ServerConfig {

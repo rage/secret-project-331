@@ -28,5 +28,6 @@
     "@types/lodash": "^4.17.25",
     "esbuild": "^0.28.2",
     "tsx": "^4.23.12"
-  }
+  },
+  "packageManager": "pnpm@11.20.0"
 }

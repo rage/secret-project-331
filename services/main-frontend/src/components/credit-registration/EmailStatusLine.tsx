@@ -5,6 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type {
+  CreditRegistrationNotificationKind,
   EmailSendStatus,
   LinkingEmailStatus,
   NotificationEmailStatus,
@@ -81,17 +82,26 @@ export const LinkingEmailLine: React.FC<LinkingEmailLineProps> = ({ linkingEmail
 )
 
 // oxlint-disable-next-line i18next/no-literal-string
-const DEFAULT_NOTIFICATION_KIND = "registered"
+const ACTION_NEEDED_KIND = "action_needed"
+// oxlint-disable-next-line i18next/no-literal-string
+const REGISTERED_KIND = "registered"
 
+// `satisfies` keeps this exhaustive over the kind enum, so a new backend variant fails the build
+// here instead of silently telling a student their credits were registered.
 const NOTIFICATION_SENT_KEYS = {
-  action_needed: "credit-registration-action-needed-email-sent",
-  [DEFAULT_NOTIFICATION_KIND]: "credit-registration-registered-email-sent",
-}
+  [ACTION_NEEDED_KIND]: "credit-registration-action-needed-email-sent",
+  [REGISTERED_KIND]: "credit-registration-registered-email-sent",
+} satisfies Record<CreditRegistrationNotificationKind, string>
 
 const NOTIFICATION_SEND_FAILED_KEYS = {
-  action_needed: "credit-registration-action-needed-email-send-failed",
-  [DEFAULT_NOTIFICATION_KIND]: "credit-registration-registered-email-send-failed",
-}
+  [ACTION_NEEDED_KIND]: "credit-registration-action-needed-email-send-failed",
+  [REGISTERED_KIND]: "credit-registration-registered-email-send-failed",
+} satisfies Record<CreditRegistrationNotificationKind, string>
+
+// A kind outside the known enum (an old client against a newer backend) falls back to the
+// action-needed copy, never the registered one, so it can't misreport credits as registered.
+const UNKNOWN_KIND_SENT_FALLBACK = NOTIFICATION_SENT_KEYS[ACTION_NEEDED_KIND]
+const UNKNOWN_KIND_SEND_FAILED_FALLBACK = NOTIFICATION_SEND_FAILED_KEYS[ACTION_NEEDED_KIND]
 
 export interface NotificationEmailLineProps {
   notificationEmail: NotificationEmailStatus | null | undefined
@@ -102,10 +112,10 @@ export const NotificationEmailLine: React.FC<NotificationEmailLineProps> = ({
 }) => (
   <EmailStatusLine
     status={notificationEmail}
-    kind={notificationEmail?.kind ?? DEFAULT_NOTIFICATION_KIND}
+    kind={notificationEmail?.kind ?? ACTION_NEEDED_KIND}
     sentKeys={NOTIFICATION_SENT_KEYS}
-    sentFallbackKey={NOTIFICATION_SENT_KEYS[DEFAULT_NOTIFICATION_KIND]}
+    sentFallbackKey={UNKNOWN_KIND_SENT_FALLBACK}
     sendFailedKeys={NOTIFICATION_SEND_FAILED_KEYS}
-    sendFailedFallbackKey={NOTIFICATION_SEND_FAILED_KEYS[DEFAULT_NOTIFICATION_KIND]}
+    sendFailedFallbackKey={UNKNOWN_KIND_SEND_FAILED_FALLBACK}
   />
 )

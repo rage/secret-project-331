@@ -125,7 +125,7 @@ export const makeChatBodyProps = ({
     newMessage,
     setNewMessage: jest.fn(),
     error: null,
-    messageState: { messages: streamedMessages },
+    messageState: { messages: streamedMessages, executionPayloadByToolCallId: {} },
     dispatch: jest.fn(),
     chatbotMessageAnnouncement: "",
     newMessageMutation,

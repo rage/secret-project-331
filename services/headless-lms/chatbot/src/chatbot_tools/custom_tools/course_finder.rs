@@ -1,16 +1,17 @@
 use std::collections::HashMap;
 
 use indexmap::IndexMap;
+use serde::Deserializer;
 
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
-        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_permission::ToolPermission,
+        ChatbotTool, ChatbotToolDeclaration, ToolProperties, tool_authorization::ToolRequirement,
     },
-    prelude::ChatbotResult,
-    user_context::ChatbotUserContext,
+    prelude::*,
+    user_context::ChatbotTurnContext,
 };
-use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     course_audiences::get_course_ids_by_audience_vectors,
     course_prerequisites::get_course_ids_by_prerequisite_vectors,
@@ -20,9 +21,6 @@ use headless_lms_utils::{
     azure_embedding::create_embeddings,
     json_schema_types::{Schema, string_array_property},
 };
-use serde::{Deserialize, Deserializer, Serialize};
-use sqlx::PgConnection;
-use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct CourseFinderState {
@@ -49,11 +47,18 @@ pub type CourseFinderTool = ToolProperties<CourseFinderState>;
 impl ChatbotTool for CourseFinderTool {
     type Arguments = CourseFinderArguments;
 
+    fn call_requirements(
+        _arguments: &Self::Arguments,
+        _user_context: &ChatbotTurnContext,
+    ) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
+
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
         arguments: Self::Arguments,
-        _user_context: &ChatbotUserContext,
+        _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
         let audience_courses = if let Some(audiences) = &arguments.audiences {
             let audience_embeddings = create_embeddings(app_config, audiences.clone())
@@ -130,7 +135,11 @@ impl ChatbotTool for CourseFinderTool {
 impl ChatbotToolDeclaration for CourseFinderTool {
     const NAME: &'static str = "course_finder";
 
-    const PERMISSION: ToolPermission = ToolPermission::Anyone;
+    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
+        Vec::new()
+    }
+
+    const CATEGORY: ToolCategory = ToolCategory::CourseCatalog;
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {

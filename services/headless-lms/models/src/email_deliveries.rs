@@ -553,6 +553,92 @@ pub async fn get_send_status(
     Ok(statuses.remove(&email_delivery_id))
 }
 
+/// One delivery attempt, as summarized for a support-facing view of a user's mail history.
+///
+/// Deliberately excludes the message content and the recipient address (which may be purged by
+/// [`maybe_purge_expired_recipient_addresses`] anyway): this exists so support tooling can see
+/// whether mail reached a user, not what was in it.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct UserEmailDeliverySummary {
+    pub email_template_type: EmailTemplateType,
+    pub created_at: DateTime<Utc>,
+    pub status: EmailSendStatus,
+    pub retry_count: i32,
+    pub last_attempt_at: Option<DateTime<Utc>>,
+    pub failure_code: Option<String>,
+    pub failure_is_transient: Option<bool>,
+}
+
+/// A user's most recent email deliveries, newest first, for support tooling.
+pub async fn get_recent_deliveries_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    limit: i64,
+) -> ModelResult<Vec<UserEmailDeliverySummary>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT et.email_template_type,
+  ed.created_at,
+  ed.sent,
+  ed.retryable,
+  ed.retry_count,
+  ed.next_retry_at,
+  ed.first_failed_at,
+  ed.last_attempt_at,
+  latest_error.error_code,
+  latest_error.is_transient AS "is_transient?"
+FROM email_deliveries ed
+  JOIN email_templates et ON et.id = ed.email_template_id
+  LEFT JOIN LATERAL (
+    SELECT ede.error_code,
+      ede.is_transient
+    FROM email_delivery_errors ede
+    WHERE ede.email_delivery_id = ed.id
+      AND ede.deleted_at IS NULL
+    ORDER BY ede.attempt DESC,
+      ede.created_at DESC
+    LIMIT 1
+  ) latest_error ON TRUE
+WHERE ed.user_id = $1
+  AND ed.deleted_at IS NULL
+ORDER BY ed.created_at DESC
+LIMIT $2
+        "#,
+        user_id,
+        limit
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let now = Utc::now();
+    let summaries = rows
+        .into_iter()
+        .map(|row| {
+            let facts = EmailSendStatusFacts {
+                sent: row.sent,
+                retryable: row.retryable,
+                retry_count: row.retry_count,
+                next_retry_at: row.next_retry_at,
+                first_failed_at: row.first_failed_at,
+                last_attempt_at: row.last_attempt_at,
+                failure_code: row.error_code,
+                failure_is_transient: row.is_transient,
+            };
+            let report = derive_email_send_status(&facts, now);
+            UserEmailDeliverySummary {
+                email_template_type: row.email_template_type,
+                created_at: row.created_at,
+                status: report.email_send_status,
+                retry_count: report.retry_count,
+                last_attempt_at: report.last_attempt_at,
+                failure_code: report.failure_code,
+                failure_is_transient: report.failure_is_transient,
+            }
+        })
+        .collect();
+    Ok(summaries)
+}
+
 /// Soft-deletes unsent, still-retryable email deliveries for a user. Call when soft-deleting the user so pending deliveries are not retried.
 pub async fn soft_delete_unsent_retryable_deliveries_for_user(
     conn: &mut PgConnection,

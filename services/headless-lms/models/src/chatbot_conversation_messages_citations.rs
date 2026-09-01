@@ -213,6 +213,45 @@ RETURNING id
     Ok(res)
 }
 
+/// The highest citation number already used by a tool call in the turn still in progress, or
+/// `None` if the turn has cited nothing yet. A new search tool numbers its own hits starting
+/// after this rather than from zero, since a whole turn's citations end up on one message (see
+/// [`attach_turn_citations_to_message`]) and would otherwise collide with an earlier search's
+/// numbers. Scoped identically to that function's own subquery.
+pub async fn max_citation_number_in_turn(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+) -> ModelResult<Option<i32>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT MAX(citation.citation_number)
+FROM chatbot_conversation_messages_citations citation
+  JOIN chatbot_conversation_messages message ON message.id = citation.conversation_message_id
+  JOIN chatbot_conversation_message_tool_outputs tool_output ON tool_output.chatbot_conversation_message_id = message.id
+WHERE citation.conversation_id = $1
+  AND citation.deleted_at IS NULL
+  AND message.deleted_at IS NULL
+  AND tool_output.deleted_at IS NULL
+  AND message.order_number > COALESCE(
+    (
+      SELECT MAX(user_message.order_number)
+      FROM chatbot_conversation_messages user_message
+        JOIN chatbot_conversation_message_messages text_message ON text_message.chatbot_conversation_message_id = user_message.id
+      WHERE user_message.conversation_id = $1
+        AND user_message.deleted_at IS NULL
+        AND text_message.deleted_at IS NULL
+        AND text_message.message_role = 'user'
+    ),
+    0
+  )
+        "#,
+        conversation_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

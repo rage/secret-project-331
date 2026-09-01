@@ -17,7 +17,7 @@ use crate::credit_registration_admin_actions::{
 };
 use crate::prelude::*;
 use crate::student_number_verification_tokens::{
-    NewStudentNumberVerificationToken, insert as insert_token,
+    NewStudentNumberVerificationToken, insert_batch as insert_tokens_batch,
 };
 
 /// Both the mailed URL and the frontend route that serves it are built from this one value.
@@ -132,25 +132,21 @@ pub async fn claim_linking_mails_batch(
     }
 
     // Tokens are minted before any slot is claimed: the random value cannot come from SQL.
+    let mut new_tokens = Vec::with_capacity(to_claim.len());
     let mut new_slots = Vec::with_capacity(to_claim.len());
     let mut token_ids = Vec::with_capacity(to_claim.len());
     let mut token_owner: HashMap<Uuid, usize> = HashMap::new();
     for (person_index, address) in &to_claim {
         let person = &people[*person_index];
         let token_id = Uuid::new_v4();
-        insert_token(
-            conn,
-            PKeyPolicy::Fixed(token_id),
-            &NewStudentNumberVerificationToken {
-                student_number: person.student_number.clone(),
-                sisu_person_id: person.sisu_person_id.clone(),
-                first_names: person.first_names.clone(),
-                last_name: person.last_name.clone(),
-                emailed_to: address.clone(),
-                course_id: Some(person.course_id),
-            },
-        )
-        .await?;
+        new_tokens.push(NewStudentNumberVerificationToken {
+            student_number: person.student_number.clone(),
+            sisu_person_id: person.sisu_person_id.clone(),
+            first_names: person.first_names.clone(),
+            last_name: person.last_name.clone(),
+            emailed_to: address.clone(),
+            course_id: Some(person.course_id),
+        });
         token_owner.insert(token_id, *person_index);
         token_ids.push(token_id);
         new_slots.push(NewAccountLinkingEmail {
@@ -162,6 +158,7 @@ pub async fn claim_linking_mails_batch(
             email_delivery_id: None,
         });
     }
+    insert_tokens_batch(conn, &token_ids, &new_tokens).await?;
 
     let claimed_token_ids = claim_send_slots(conn, &new_slots, &token_ids).await?;
     let lost_token_ids: Vec<Uuid> = token_owner
@@ -211,9 +208,7 @@ pub async fn retire_capped_mails(
     }
 
     let mut tx = conn.begin().await?;
-    for id in &retired {
-        credit_registration_account_linking_emails::soft_delete(&mut tx, *id).await?;
-    }
+    credit_registration_account_linking_emails::soft_delete_batch(&mut tx, &retired).await?;
     crate::credit_registration_admin_actions::record(
         &mut tx,
         &NewCreditRegistrationAdminAction {

@@ -1,0 +1,206 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id,\n  cr.attempt_number,\n  cr.course_module_completion_id,\n  cr.user_id,\n  cr.course_id,\n  cr.course_module_id,\n  cr.course_instance_id,\n  cr.grade_scale_id AS \"registered_grade_scale_id!\",\n  cr.grade_id AS \"registered_grade_id!\",\n  cmc.passed,\n  cmc.grade,\n  cmc.updated_at AS completion_updated_at,\n  conf.grade_scale_id AS \"configured_grade_scale_id?\"\nFROM credit_registrations cr\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  -- Membership is the whole eligibility check: the view is the module opt-in and the completion\n  -- being live, passed and ECTS-eligible, and fully_eligible the prerequisites and the review.\n  JOIN credit_registration_eligible_completions e ON e.course_module_completion_id = cr.course_module_completion_id\n  AND e.fully_eligible\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  -- The success set only: a row whose outcome we do not know must not gain a successor.\n  AND cr.state = ANY($4::credit_registration_state [])\n  AND cr.grade_scale_id IS NOT NULL\n  AND cr.grade_id IS NOT NULL\n  -- Two halves of one cheap pre-filter. A completion untouched since the attempt was created cannot\n  -- have been regraded after that attempt froze its grade; but one touched for any other reason\n  -- passes that test forever, and only the grade comparison below can tell the two apart, which is\n  -- why the loop stamps the watermark on every candidate it declines. Without the second half the\n  -- limit keeps spending itself on the same rows while a real regrade waits behind them.\n  AND cmc.updated_at > cr.created_at\n  AND (\n    cr.improvement_checked_completion_updated_at IS NULL\n    OR cmc.updated_at > cr.improvement_checked_completion_updated_at\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\nORDER BY cmc.updated_at FOR\nUPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "attempt_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "attempt_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_instance_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "registered_grade_scale_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "grade_scale_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "registered_grade_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "grade_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "passed",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "passed"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "grade",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "grade"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "completion_updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "configured_grade_scale_id?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "grade_scale_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "e3043b9728e6cf27ff47660d0f16d6a46eef755bdba5b94ed6b3654c4b6366c2"
+}

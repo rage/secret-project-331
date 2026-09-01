@@ -30,14 +30,12 @@ export interface AdminPhaseStatus {
   implemented: boolean
 }
 
-export interface AdminOverview {
-  phases: AdminPhaseStatus[]
-}
-
 export interface AdminRegistrationRow {
   id: string
   email: string | null
   state: string
+  /** What a `pending` row waits on, derived per request; null in every other state. */
+  pending_reason: "completion" | "student_number" | null
   error_code: string | null
   submit_retry_count: number
   /** Frozen on the row before it was sent, so not always the number the account is linked to now. */
@@ -108,9 +106,6 @@ export interface AdminRegistrationFilter {
   needs_admin_attention?: boolean
   limit?: number
 }
-
-export const adminOverview = (request: APIRequestContext): Promise<AdminOverview> =>
-  getJson<AdminOverview>(request, `${CREDIT_REGISTRATION_ADMIN_API}/overview`)
 
 export const listAdminRegistrations = (
   request: APIRequestContext,
@@ -211,6 +206,7 @@ export interface AdminPhaseRow {
   phase: string
   process_name: string
   implemented: boolean
+  last_heartbeat_at: string | null
   paused_at: string | null
   heartbeat_late: boolean
   failing: boolean
@@ -256,11 +252,9 @@ export interface AdminReconciliation {
   several_submitted_attainments_count: number
   misregistered_count: number
   legacy_divergence_count: number
-  outcome_unknown_consent_withdrawn_count: number
-  outcome_unknown_consent_withdrawn: { credit_registration_id: string; state: string }[]
 }
 
-/** The drift detectors. The consent-withdrawal bucket is deliberately outside `finding_count`. */
+/** The drift detectors, whose counts add up to `finding_count`. */
 export const creditRegistrationReconciliation = (
   request: APIRequestContext,
 ): Promise<AdminReconciliation> =>
@@ -394,7 +388,10 @@ export const makeRegistrationDueNow = async (
 ): Promise<void> => {
   const url = adminRegistrationTransitionUrl(registrationId)
   const response = await request.post(url, {
-    data: { to_state: "check_now", reason: "System test: check without waiting out the backoff." },
+    data: {
+      action: { kind: "check_now" },
+      reason: "System test: check without waiting out the backoff.",
+    },
   })
   if (!response.ok()) {
     throw new Error(`POST ${url} answered ${response.status()}: ${await response.text()}`)

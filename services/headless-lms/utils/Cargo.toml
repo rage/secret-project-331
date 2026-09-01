@@ -87,6 +87,9 @@ redis = { version = "1.6.0", features = ["aio", "tokio-comp", "connection-manage
 secrecy.workspace = true
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa.workspace = true
+# 🧰 The Rust SQL Toolkit. Only the derive macro: this crate owns no queries, but its endpoint enum
+# is stored in a postgres enum column by the models crate.
+sqlx = { version = "0.9.0", default-features = false, features = ["derive", "postgres"] }
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

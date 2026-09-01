@@ -7,6 +7,11 @@ use crate::{prelude::*, users::User};
 
 const MIN_FUZZY_SEARCH_TERM_LENGTH: usize = 3;
 
+/// Trigram distance floor for [`search_for_user_details_by_email`] and
+/// [`search_for_user_details_fuzzy_match`] (`pg_trgm`'s `<<->` returns 0 for an identical string,
+/// larger for a less similar one). Loose enough that a real typo still matches.
+pub const FUZZY_MATCH_SIMILARITY_THRESHOLD: f32 = 0.7;
+
 /// How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "email_verification_method", rename_all = "snake_case")]
@@ -190,9 +195,10 @@ FROM (
     ORDER BY dist
     LIMIT 100
   ) search
-WHERE dist < 0.7;
+WHERE dist < $2;
 ",
         email,
+        FUZZY_MATCH_SIMILARITY_THRESHOLD,
     )
     .fetch_all(conn)
     .await?;
@@ -277,9 +283,10 @@ FROM (
     ORDER BY dist
     LIMIT 100
   ) search
-WHERE dist < 0.7;
+WHERE dist < $2;
 ",
         search,
+        FUZZY_MATCH_SIMILARITY_THRESHOLD,
     )
     .fetch_all(conn)
     .await?;

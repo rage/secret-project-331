@@ -4,9 +4,13 @@
 //! insert; `credit_registration_ids` replaces the removed identifiers for drill-down.
 use async_trait::async_trait;
 use headless_lms_utils::services::suotar::{
-    SuotarCallAudit, SuotarCallFinished, SuotarCallStarted, SuotarEndpoint as ClientEndpoint,
+    SuotarCallAudit, SuotarCallFinished, SuotarCallStarted,
 };
 use utoipa::ToSchema;
+
+/// Re-exported so row readers keep one import path; the enum lives with the client that calls the
+/// endpoints, which also stores it in the `suotar_endpoint` postgres enum.
+pub use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use crate::credit_registration_events::{scrub_suotar_body, scrub_text};
 use crate::prelude::*;
@@ -22,31 +26,6 @@ pub const SAMPLED_BODY_ITEM_COUNT: usize = 5;
 
 /// Hard cap on a stored body, applied after sampling.
 pub const BODY_SAMPLE_MAX_BYTES: usize = 64 * 1024;
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
-#[sqlx(type_name = "suotar_endpoint", rename_all = "snake_case")]
-#[serde(rename_all = "snake_case")]
-pub enum SuotarEndpoint {
-    ResolvePersons,
-    ResolveEnrolments,
-    ImportAttainments,
-    VerifyAttainments,
-    ProductAccessTokens,
-    ListByCourse,
-}
-
-impl From<ClientEndpoint> for SuotarEndpoint {
-    fn from(endpoint: ClientEndpoint) -> Self {
-        match endpoint {
-            ClientEndpoint::ResolvePersons => Self::ResolvePersons,
-            ClientEndpoint::ResolveEnrolments => Self::ResolveEnrolments,
-            ClientEndpoint::ImportAttainments => Self::ImportAttainments,
-            ClientEndpoint::VerifyAttainments => Self::VerifyAttainments,
-            ClientEndpoint::ProductAccessTokens => Self::ProductAccessTokens,
-            ClientEndpoint::ListByCourse => Self::ListByCourse,
-        }
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct SuotarApiCall {
@@ -234,7 +213,7 @@ impl PgSuotarCallAudit {
 impl SuotarCallAudit for PgSuotarCallAudit {
     async fn started(&self, started: SuotarCallStarted) -> Option<Uuid> {
         let new = NewSuotarApiCall {
-            endpoint: started.endpoint.into(),
+            endpoint: started.endpoint,
             request_item_count: started.request_item_count.try_into().unwrap_or(i32::MAX),
             http_status: None,
             duration_ms: None,
@@ -309,67 +288,6 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_recent(conn: &mut PgConnection, limit: i64) -> ModelResult<Vec<SuotarApiCall>> {
-    let res = sqlx::query_as!(
-        SuotarApiCall,
-        r#"
-SELECT *
-FROM suotar_api_calls
-WHERE deleted_at IS NULL
-ORDER BY started_at DESC
-LIMIT $1
-        "#,
-        limit
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_recent_by_endpoint(
-    conn: &mut PgConnection,
-    endpoint: SuotarEndpoint,
-    limit: i64,
-) -> ModelResult<Vec<SuotarApiCall>> {
-    let res = sqlx::query_as!(
-        SuotarApiCall,
-        r#"
-SELECT *
-FROM suotar_api_calls
-WHERE endpoint = $1
-  AND deleted_at IS NULL
-ORDER BY started_at DESC
-LIMIT $2
-        "#,
-        endpoint as SuotarEndpoint,
-        limit,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_recent_failures(
-    conn: &mut PgConnection,
-    limit: i64,
-) -> ModelResult<Vec<SuotarApiCall>> {
-    let res = sqlx::query_as!(
-        SuotarApiCall,
-        r#"
-SELECT *
-FROM suotar_api_calls
-WHERE NOT succeeded
-  AND deleted_at IS NULL
-ORDER BY started_at DESC
-LIMIT $1
-        "#,
-        limit
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
 /// Calls that mention a ledger row, for the per-item drill-down.
 ///
 /// Containment, not `= ANY`: only `@>` can use the GIN index on `credit_registration_ids`.
@@ -411,24 +329,37 @@ pub struct SuotarApiCallFilters {
 }
 
 /// A call with the page's total attached, so a page and its count cannot come from two queries.
+///
+/// No body columns: the list this feeds never renders a body, only the detail view
+/// ([`get_by_id`]) does, so the listing query does not drag up to 64KB per row across the wire for
+/// nothing.
 pub struct SuotarApiCallPageRow {
-    pub call: SuotarApiCall,
+    pub id: Uuid,
+    pub endpoint: SuotarEndpoint,
+    pub request_item_count: i32,
+    pub http_status: Option<i32>,
+    pub duration_ms: Option<i32>,
+    pub succeeded: bool,
+    pub ok_item_count: i32,
+    pub error_item_count: i32,
+    pub request_level_error_code: Option<String>,
+    pub credit_registration_ids: Vec<Uuid>,
+    pub worker_name: String,
+    pub started_at: DateTime<Utc>,
     pub total_count: i64,
 }
 
-/// A page of the call log, newest first. Bodies come back exactly as stored, which is scrubbed.
+/// A page of the call log, newest first, without bodies. See [`get_by_id`] for a call's bodies.
 pub async fn get_page(
     conn: &mut PgConnection,
     filters: &SuotarApiCallFilters,
     limit: i64,
     offset: i64,
 ) -> ModelResult<Vec<SuotarApiCallPageRow>> {
-    let rows = sqlx::query!(
+    let res = sqlx::query_as!(
+        SuotarApiCallPageRow,
         r#"
 SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
   endpoint AS "endpoint!: SuotarEndpoint",
   request_item_count,
   http_status,
@@ -437,9 +368,6 @@ SELECT id,
   ok_item_count,
   error_item_count,
   request_level_error_code,
-  error_message,
-  request_body_sample,
-  response_body_sample,
   credit_registration_ids,
   worker_name,
   started_at,
@@ -473,32 +401,7 @@ LIMIT $7 OFFSET $8
     )
     .fetch_all(conn)
     .await?;
-    Ok(rows
-        .into_iter()
-        .map(|row| SuotarApiCallPageRow {
-            total_count: row.total_count,
-            call: SuotarApiCall {
-                id: row.id,
-                created_at: row.created_at,
-                updated_at: row.updated_at,
-                deleted_at: row.deleted_at,
-                endpoint: row.endpoint,
-                request_item_count: row.request_item_count,
-                http_status: row.http_status,
-                duration_ms: row.duration_ms,
-                succeeded: row.succeeded,
-                ok_item_count: row.ok_item_count,
-                error_item_count: row.error_item_count,
-                request_level_error_code: row.request_level_error_code,
-                error_message: row.error_message,
-                request_body_sample: row.request_body_sample,
-                response_body_sample: row.response_body_sample,
-                credit_registration_ids: row.credit_registration_ids,
-                worker_name: row.worker_name,
-                started_at: row.started_at,
-            },
-        })
-        .collect())
+    Ok(res)
 }
 
 /// The distinct `worker_name` values in the log, so the filter offers what exists rather than a

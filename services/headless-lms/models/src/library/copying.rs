@@ -1186,7 +1186,7 @@ INSERT INTO chatbot_configurations (
     default_chatbot,
     enabled_to_students,
     model_id,
-    use_tools
+    enabled_tool_categories
   )
 SELECT
   uuid_generate_v5($1, id::text),
@@ -1208,7 +1208,7 @@ SELECT
   default_chatbot,
   enabled_to_students,
   model_id,
-  use_tools
+  enabled_tool_categories
 FROM chatbot_configurations
 WHERE course_id = $2
   AND deleted_at IS NULL;

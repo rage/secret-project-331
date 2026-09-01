@@ -3,7 +3,9 @@ use crate::prelude::*;
 use headless_lms_models::chatbot_configurations::CreateChatbotRequest;
 use utoipa::OpenApi;
 
-use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
+use models::chatbot_configurations::{
+    ChatbotConfiguration, NewChatbotConf, normalized_tool_categories,
+};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -58,7 +60,8 @@ async fn get_chatbot(
     ),
     request_body = NewChatbotConf,
     responses(
-        (status = 200, description = "Updated chatbot configuration", body = ChatbotConfiguration)
+        (status = 200, description = "Updated chatbot configuration", body = ChatbotConfiguration),
+        (status = 403, description = "Enabling or disabling admin-support tool categories requires global admin permissions")
     )
 )]
 #[instrument(skip(pool, payload))]
@@ -76,6 +79,26 @@ async fn edit_chatbot(
     } else {
         authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?
     };
+
+    let stored_admin_categories: Vec<_> =
+        normalized_tool_categories(&chatbot.enabled_tool_categories)
+            .into_iter()
+            .filter(|category| category.requires_global_admin())
+            .collect();
+    let requested_admin_categories: Vec<_> =
+        normalized_tool_categories(&payload.enabled_tool_categories)
+            .into_iter()
+            .filter(|category| category.requires_global_admin())
+            .collect();
+    if stored_admin_categories != requested_admin_categories {
+        authorize(
+            &mut conn,
+            Act::Administrate,
+            Some(user.id),
+            Res::GlobalPermissions,
+        )
+        .await?;
+    }
 
     let configuration: ChatbotConfiguration = models::chatbot_configurations::edit(
         &mut conn,

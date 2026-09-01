@@ -76,6 +76,9 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "default-peer-review-editor",
     waitForTheseToBeVisibleAndStable: [page1.locator('text="Configure review answers option"')],
+    // Gutenberg 16.2's ghost block puts aria-multiline/aria-readonly on a role="document"
+    // element, which that role disallows. Upstream bug in @wordpress/block-editor.
+    axeSkip: ["aria-allowed-attr"],
   })
 
   await page1.locator('input[type="number"]').first().click()

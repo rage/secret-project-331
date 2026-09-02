@@ -13,10 +13,9 @@ import { useTranslation } from "react-i18next"
 
 import type { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-import Accordion from "@/shared-module/common/components/Accordion"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Disclosure, QueryResult } from "@/shared-module/components"
 
 import { InstructionBox } from "../../CourseStatsPage"
 import StatsHeader from "../../StatsHeader"
@@ -140,43 +139,41 @@ const DailyVisitCountsGroupedByUtm: React.FC<
             !aggregatedData || aggregatedData.length === 0 ? (
               <NoDataMessage />
             ) : (
-              <Accordion
+              <Disclosure
                 className={css`
                   width: 100%;
                   margin-bottom: 0.5rem;
                 `}
+                title={t("header-grouped-by-utm-tags")}
               >
-                <details>
-                  <summary>{t("header-grouped-by-utm-tags")}</summary>
-                  <div className={tableStyles}>
-                    <table>
-                      <thead>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                          <tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                              <th key={header.id}>
-                                {!header.isPlaceholder &&
-                                  flexRender(header.column.columnDef.header, header.getContext())}
-                              </th>
-                            ))}
-                          </tr>
-                        ))}
-                      </thead>
-                      <tbody>
-                        {table.getRowModel().rows.map((row) => (
-                          <tr key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                              <td key={cell.id}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </details>
-              </Accordion>
+                <div className={tableStyles}>
+                  <table>
+                    <thead>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <tr key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => (
+                            <th key={header.id}>
+                              {!header.isPlaceholder &&
+                                flexRender(header.column.columnDef.header, header.getContext())}
+                            </th>
+                          ))}
+                        </tr>
+                      ))}
+                    </thead>
+                    <tbody>
+                      {table.getRowModel().rows.map((row) => (
+                        <tr key={row.id}>
+                          {row.getVisibleCells().map((cell) => (
+                            <td key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Disclosure>
             )
           }
         </QueryResult>

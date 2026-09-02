@@ -27,8 +27,13 @@ interface Identity {
   email?: string | null | undefined
 }
 
-/** Badge text ("First Last", else email, else userId) and avatar initial from an identity. */
-function computeLabel(
+/**
+ * Badge text ("First Last", else email, else userId) and avatar initial from an identity.
+ *
+ * Exported so callers that need the badge's width without rendering it (the students table measures
+ * its columns off-DOM) derive the label from the same rule the badge uses.
+ */
+export function computeLabel(
   identity: Identity,
   userId: string,
 ): { displayText: string; initial: string } {
@@ -95,6 +100,9 @@ const badgeStyle = css`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  /* Lets the badge shrink inside a fixed-width table cell instead of forcing the column wider. */
+  max-width: 100%;
+  min-width: 0;
   padding: 0.25rem 0.5rem;
   border-radius: 9999px;
   background: ${baseTheme.colors.clear[200]};
@@ -170,6 +178,7 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId, prefetchedI
             justify-content: center;
             width: 1.5rem;
             height: 1.5rem;
+            flex-shrink: 0;
             border-radius: 50%;
             background: ${baseTheme.colors.green[200]};
             font-size: 0.8rem;
@@ -180,7 +189,15 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId, prefetchedI
         >
           {initial}
         </span>
-        {displayText}
+        <span
+          className={css`
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          `}
+        >
+          {displayText}
+        </span>
       </button>
       {state.isOpen && (
         <UserDetailsPopover

@@ -33,7 +33,7 @@ import {
 import { StudentsTable } from "../StudentsTable"
 import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { StaleTableWrapper } from "./StaleTableWrapper"
-import { StudentPillCell } from "./StudentPillCell"
+import { STUDENT_PILL_CHROME_PX, StudentPillCell, studentPillText } from "./StudentPillCell"
 
 const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"
@@ -185,6 +185,7 @@ export const CertificatesTabContent: React.FC = () => {
             email={row.original.email}
           />
         ),
+        meta: { measureValue: studentPillText, measureExtraPx: STUDENT_PILL_CHROME_PX },
       },
       {
         // oxlint-disable-next-line i18next/no-literal-string
@@ -219,6 +220,8 @@ export const CertificatesTabContent: React.FC = () => {
         id: "actions",
         size: 80,
         enableSorting: false,
+        // Its width is pinned by CSS in StudentsTable, so a drag handle would only fight that.
+        enableResizing: false,
         cell: ({ row }) => {
           const { verification_id, certificate_id, name_on_certificate, date_issued } = row.original
           // Only certificates that actually exist can be viewed / edited.

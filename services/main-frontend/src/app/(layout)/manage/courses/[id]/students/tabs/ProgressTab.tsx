@@ -23,7 +23,7 @@ import {
 import { StudentsTable } from "../StudentsTable"
 import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { StaleTableWrapper } from "./StaleTableWrapper"
-import { StudentPillCell } from "./StudentPillCell"
+import { STUDENT_PILL_CHROME_PX, StudentPillCell, studentPillText } from "./StudentPillCell"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
@@ -132,6 +132,7 @@ export const ProgressTabContent: React.FC = () => {
             email={row.original.email}
           />
         ),
+        meta: { measureValue: studentPillText, measureExtraPx: STUDENT_PILL_CHROME_PX },
       },
       {
         header: t("total"),
@@ -164,6 +165,16 @@ export const ProgressTabContent: React.FC = () => {
               header: `${t("attempts")} /${attMax ?? "0"}`,
               accessorKey: attemptsKey,
               enableSorting: false,
+              meta: {
+                measureValue: (row: ProgressRow) => {
+                  const attempts = row[attemptsKey] ?? 0
+                  if (chapter_locking_enabled !== true) {
+                    return String(attempts)
+                  }
+                  const status = lockStatusByUserChapter[row.user_id]?.[ch.id]
+                  return `${attempts} (${getTeacherChapterLockLabel(t, status)})`
+                },
+              },
               cell: ({ row }) => {
                 const attempts = row.original[attemptsKey] ?? 0
                 if (chapter_locking_enabled !== true) {

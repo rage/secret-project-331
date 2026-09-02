@@ -10,14 +10,13 @@ import { VerificationForm } from "@/app/(layout)/login/VerificationForm"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { useLoginFlow } from "@/hooks/useLoginFlow"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Dialog } from "@/shared-module/components"
+import { Dialog, LoadingRegion } from "@/shared-module/components"
 
 const Login: React.FC = () => {
   const { t } = useTranslation()
@@ -84,33 +83,11 @@ const Login: React.FC = () => {
         />
       </Dialog>
 
-      {step.step === "awaiting_consent_check" && (
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-            padding: 3rem 0rem;
-            align-items: center;
-          `}
-        >
-          <Spinner variant={"medium"} />
-        </div>
-      )}
+      {step.step === "awaiting_consent_check" && <LoadingRegion />}
 
       {step.step === "consent_form" && <ResearchOnCoursesForm afterSubmit={onConsentSubmitted} />}
 
-      {step.step === "complete" && (
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-            padding: 3rem 0rem;
-            align-items: center;
-          `}
-        >
-          <Spinner variant={"medium"} />
-        </div>
-      )}
+      {step.step === "complete" && <LoadingRegion />}
     </div>
   )
 }

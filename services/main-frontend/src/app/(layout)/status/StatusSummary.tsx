@@ -12,8 +12,8 @@ import { useStatusPodDisruptionBudgets } from "@/hooks/useStatusPodDisruptionBud
 import { useStatusPods } from "@/hooks/useStatusPods"
 import { useSystemHealthDetailed } from "@/hooks/useSystemHealthDetailed"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion } from "@/shared-module/components"
 
 const StatusSummary: React.FC = () => {
   const { t } = useTranslation()
@@ -175,7 +175,7 @@ const StatusSummary: React.FC = () => {
     pdbsLoading ||
     systemHealthDetailedLoading
   ) {
-    return <Spinner />
+    return <LoadingRegion />
   }
 
   if (podsError || deploymentsError || eventsError || pdbsError || systemHealthDetailedError) {

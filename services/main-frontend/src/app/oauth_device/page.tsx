@@ -11,13 +11,12 @@ import {
   approveOauthDeviceVerification,
   denyOauthDeviceVerification,
 } from "@/generated/api/sdk.generated"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Infobox, TextField } from "@/shared-module/components"
+import { Button, Infobox, LoadingRegion, TextField } from "@/shared-module/components"
 import { getOauthScopeDescriptions } from "@/utils/oauthScopeDescriptions"
 
 interface DeviceCodeFields {
@@ -120,7 +119,7 @@ const DeviceVerificationPage: React.FC = () => {
         </form>
       )}
 
-      {userCode.length > 0 && verification.isPending && <Spinner variant="medium" />}
+      {userCode.length > 0 && verification.isPending && <LoadingRegion />}
 
       {verification.isSuccess && (
         <>

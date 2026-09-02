@@ -19,7 +19,6 @@ import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hook
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
@@ -29,7 +28,13 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Breadcrumbs, type BreadcrumbItem, Infobox, QueryResult } from "@/shared-module/components"
+import {
+  Breadcrumbs,
+  type BreadcrumbItem,
+  Infobox,
+  LoadingRegion,
+  QueryResult,
+} from "@/shared-module/components"
 
 const Submission: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -129,7 +134,7 @@ const Submission: React.FC = () => {
             </h1>
 
             {/* User Information Section */}
-            {userDetails.isLoading && <Spinner variant="medium" />}
+            {userDetails.isLoading && <LoadingRegion />}
             {userDetails.isSuccess && (
               <KeyValueCard
                 sections={[

@@ -22,7 +22,6 @@ import type {
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -32,7 +31,7 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { useDialog } from "@/shared-module/components"
+import { LoadingRegion, useDialog } from "@/shared-module/components"
 
 const ModuleCertificate: React.FC = () => {
   const { t } = useTranslation()
@@ -141,7 +140,7 @@ const ModuleCertificate: React.FC = () => {
       )}
       {userGrade.isError && <ErrorBanner error={userGrade.error} variant={"readOnly"} />}
       {(userInfo.isLoading || courseAndModule.isLoading || userGrade.isLoading) && (
-        <Spinner variant={"medium"} />
+        <LoadingRegion />
       )}
       {courseAndModule.isSuccess && (
         <>

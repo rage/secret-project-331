@@ -59,7 +59,7 @@ const ChatbotCommandCenterPage: React.FC = () => {
         <div
           className={css`
             margin-left: auto;
-            padding: 1.5rem;
+            padding: 1rem;
           `}
         >
           <OnlyRenderIfPermissions

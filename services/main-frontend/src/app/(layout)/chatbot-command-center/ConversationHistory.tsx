@@ -2,8 +2,10 @@
 
 import { css } from "@emotion/css"
 import type { OverlayTriggerState } from "@react-stately/overlays"
+import type React from "react"
 import { useTranslation } from "react-i18next"
 
+import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -13,7 +15,7 @@ interface ConversationHistory {
   conversations: ChatbotConversation[]
   chatbots: ChatbotConfiguration[]
   menuState?: OverlayTriggerState
-  handleConversationSelection
+  setConfigurationId: React.Dispatch<string>
 }
 
 const buttonCss = css`
@@ -52,9 +54,11 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
   conversations,
   chatbots,
   menuState,
-  handleConversationSelection,
+  setConfigurationId,
 }) => {
   const { t } = useTranslation()
+
+  const { setConvId } = useChatbotContext()
 
   return (
     <>
@@ -63,7 +67,8 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
           size="medium"
           variant="icon"
           onClick={() => {
-            handleConversationSelection(conversation.id, conversation.chatbot_configuration_id)
+            setConfigurationId(conversation.chatbot_configuration_id)
+            setConvId(conversation.id)
             if (menuState) {
               menuState.close()
             }

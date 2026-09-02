@@ -56,7 +56,7 @@ const reactAriaDisclosurePanel = css`
   }
 `
 
-const Disclosure: React.FC<DisclosureProps> = (props) => {
+const SideBarDisclosure: React.FC<DisclosureProps> = (props) => {
   let state = useDisclosureState(props)
   let panelRef = useRef<HTMLDivElement>(null)
   let buttonRef = useRef<HTMLButtonElement>(null)
@@ -87,4 +87,4 @@ const Disclosure: React.FC<DisclosureProps> = (props) => {
   )
 }
 
-export default Disclosure
+export default SideBarDisclosure

@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
+import type { OverlayTriggerState } from "@react-stately/overlays"
 import { AddMessage } from "@vectopus/atlas-icons-react"
 import type React from "react"
 import { OverlayContainer } from "react-aria"
@@ -13,15 +14,19 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
 
 import ConversationHistory from "./ConversationHistory"
-import Disclosure from "./disclosure/Disclosure"
 import { DisclosureButton } from "./disclosure/DisclosureButton"
 import MobileDisclosureOverlay from "./disclosure/MobileDisclosureOverlay"
+import SideBarDisclosure from "./disclosure/SidebarDisclosure"
 
 interface SideBarProps {
   setChatbotDialog: React.Dispatch<boolean>
   conversations: ChatbotConversation[]
   chatbots: ChatbotConfiguration[]
-  handleConversationSelection
+  setConfigurationId: React.Dispatch<string>
+}
+
+interface SideBarContentProps extends SideBarProps {
+  menuState: OverlayTriggerState
 }
 
 const sideBarContainer = css`
@@ -35,72 +40,75 @@ const sideBarContainer = css`
   height: 85vh;
 `
 
-const SideBar: React.FC<SideBarProps> = (props) => {
-  const { setChatbotDialog, conversations, handleConversationSelection, chatbots } = props
-  const menuState = useOverlayTriggerState({})
+const SideBarContent: React.FC<SideBarContentProps> = ({
+  setChatbotDialog,
+  menuState,
+  conversations,
+  chatbots,
+  setConfigurationId,
+}) => {
   const { t } = useTranslation()
+
+  return (
+    <>
+      <Button
+        className={css`
+          padding-bottom: 1rem;
+          color: var(--field-fg);
+        `}
+        icon={
+          <AddMessage
+            className={css`
+              color: ${baseTheme.colors.green[700]};
+            `}
+          />
+        }
+        // oxlint-disable-next-line i18next/no-literal-string
+        iconPosition="start"
+        size="medium"
+        variant="icon"
+        onClick={() => setChatbotDialog(true)}
+      >
+        {t("new-conversation")}
+      </Button>
+      <ConversationHistory
+        menuState={menuState}
+        conversations={conversations}
+        chatbots={chatbots}
+        setConfigurationId={setConfigurationId}
+      />
+    </>
+  )
+}
+
+const SideBar: React.FC<SideBarProps> = (props) => {
+  const { setChatbotDialog, conversations, setConfigurationId, chatbots } = props
+  const menuState = useOverlayTriggerState({})
   return (
     <div className={sideBarContainer}>
       <DisclosureButton state={menuState} />
       {menuState.isOpen && (
         <OverlayContainer>
           <MobileDisclosureOverlay state={menuState} onClose={menuState.close}>
-            <Button
-              className={css`
-                padding-bottom: 1rem;
-                color: var(--field-fg);
-              `}
-              icon={
-                <AddMessage
-                  className={css`
-                    color: ${baseTheme.colors.green[700]};
-                  `}
-                />
-              }
-              // oxlint-disable-next-line i18next/no-literal-string
-              iconPosition="start"
-              size="medium"
-              variant="icon"
-              onClick={() => setChatbotDialog(true)}
-            >
-              {t("new-conversation")}
-            </Button>
-            <ConversationHistory
+            <SideBarContent
+              setChatbotDialog={setChatbotDialog}
               menuState={menuState}
               conversations={conversations}
               chatbots={chatbots}
-              handleConversationSelection={handleConversationSelection}
+              setConfigurationId={setConfigurationId}
             />
           </MobileDisclosureOverlay>
         </OverlayContainer>
       )}
-      <Disclosure defaultExpanded={true}>
-        <Button
-          className={css`
-            padding-bottom: 1rem;
-            color: var(--field-fg);
-          `}
-          icon={
-            <AddMessage
-              className={css`
-                color: ${baseTheme.colors.green[700]};
-              `}
-            />
-          }
-          // oxlint-disable-next-line i18next/no-literal-string
-          iconPosition="start"
-          size="medium"
-          variant="icon"
-          onClick={() => setChatbotDialog(true)}
-        >
-          {t("new-conversation")}
-        </Button>
-        <ConversationHistory
+      <SideBarDisclosure defaultExpanded={true}>
+        <SideBarContent
+          setChatbotDialog={setChatbotDialog}
+          menuState={menuState}
           conversations={conversations}
           chatbots={chatbots}
-          handleConversationSelection={handleConversationSelection}
+          setConfigurationId={setConfigurationId}
         />
-      </Disclosure>
+      </SideBarDisclosure>
     </div>
   )
 }

@@ -32,19 +32,6 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
   )
 
   return <ChatbotContext value={chatbotStateAndData}>{children}</ChatbotContext>
-
-  // return (
-  //   <>
-  //     {isAlwaysOpen && <ChatbotChatBox {...chatbotStateAndData} />}
-  //     {!isAlwaysOpen && (
-  //       <ChatbotDialog
-  //         chatbotStateAndData={chatbotStateAndData}
-  //         isOpen={isOpen}
-  //         setIsOpen={setIsOpen}
-  //       />
-  //     )}
-  //   </>
-  // )
 }
 
 export default ChatbotChat

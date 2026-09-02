@@ -4,26 +4,19 @@ import { css } from "@emotion/css"
 import { useAutocompleteState } from "@react-stately/autocomplete"
 import { useSearchFieldState } from "@react-stately/searchfield"
 import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
-import { useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useAutocomplete, useFilter, useSearchField } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
+import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { Button } from "@/shared-module/components"
 import { listBoxEmptyStateCss } from "@/shared-module/components/components/primitives/selectStyles"
 
-interface ChatbotOption {
-  label: string
-  courseId: string | null | undefined
-  options: {
-    label: string
-    value: string
-  }[]
-}
-
 interface NewConversationDialogProps {
-  chatbotOptions: ChatbotOption[]
+  chatbots: ChatbotConfiguration[]
+  courses: Course[]
   setConfigurationId: React.Dispatch<string>
   open: boolean
   onClose: () => void
@@ -80,7 +73,8 @@ const buttonCss = css`
 `
 
 const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
-  chatbotOptions,
+  chatbots,
+  courses,
   setConfigurationId,
   open,
   onClose,
@@ -96,6 +90,54 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
     // oxlint-disable-next-line i18next/no-literal-string
     sensitivity: "base",
   })
+
+  const chatbotOptions = useMemo(() => {
+    const grouped = Object.values(
+      chatbots.reduce(
+        (acc, chatbot) => {
+          const matched = courses.find((course) => course.id === chatbot.course_id)
+          const courseName =
+            matched !== undefined ? matched.name : t("select-chatbot-globals-title")
+
+          // oxlint-disable-next-line i18next/no-literal-string
+          const groupId = chatbot.course_id ?? "globals"
+
+          if (!acc[groupId]) {
+            acc[groupId] = {
+              label: courseName,
+              courseId: chatbot.course_id,
+              options: [],
+            }
+          }
+          acc[groupId].options.push({
+            label: chatbot.chatbot_name,
+            value: chatbot.id,
+          })
+
+          return acc
+        },
+        {} as Record<
+          string,
+          {
+            label: string
+            courseId: string | null | undefined
+            options: { label: string; value: string }[]
+          }
+        >,
+      ),
+    )
+
+    const groupedSorted = grouped.toSorted((a, b) => {
+      if (!a.courseId && b.courseId) {
+        return -1
+      }
+      if (a.courseId && !b.courseId) {
+        return 1
+      }
+      return a.label.localeCompare(b.label)
+    })
+    return groupedSorted
+  }, [courses, chatbots, t])
 
   const chatbotOptionsFiltered =
     searchRef.current === document.activeElement
@@ -178,7 +220,6 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
                     onClick={() => {
                       setConfigurationId(option.value)
                       newConversationMutation.mutate()
-
                       onClose()
                     }}
                     variant="icon"

@@ -1,10 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
+import React, { useState } from "react"
 
-import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
@@ -17,7 +15,6 @@ const gridContainer = css`
   display: grid;
   grid-template-columns: auto 1fr;
   margin: 0 1rem;
-  margin-top: 1rem;
   margin-bottom: 1rem;
   gap: 0.5rem;
 `
@@ -35,8 +32,8 @@ interface ChatbotCommandCenterImplProps {
   chatbots: ChatbotConfiguration[]
   courses: Course[]
   conversations: ChatbotConversation[]
-  configurationId
-  setConfigurationId
+  configurationId: string | null
+  setConfigurationId: React.Dispatch<string | null>
 }
 
 const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
@@ -46,70 +43,15 @@ const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
   configurationId,
   setConfigurationId,
 }) => {
-  const { t } = useTranslation()
   const [showChatbotDialog, setChatbotDialog] = useState(false)
 
-  const { setConvId } = useChatbotContext()
-
-  const chatbotOptions = useMemo(() => {
-    const grouped = Object.values(
-      chatbots.reduce(
-        (acc, chatbot) => {
-          const matched = courses.find((course) => course.id === chatbot.course_id)
-          const courseName =
-            matched !== undefined ? matched.name : t("select-chatbot-globals-title")
-
-          // oxlint-disable-next-line i18next/no-literal-string
-          const groupId = chatbot.course_id ?? "globals"
-
-          if (!acc[groupId]) {
-            acc[groupId] = {
-              label: courseName,
-              courseId: chatbot.course_id,
-              options: [],
-            }
-          }
-          acc[groupId].options.push({
-            label: chatbot.chatbot_name,
-            value: chatbot.id,
-          })
-
-          return acc
-        },
-        {} as Record<
-          string,
-          {
-            label: string
-            courseId: string | null | undefined
-            options: { label: string; value: string }[]
-          }
-        >,
-      ),
-    )
-
-    const groupedSorted = grouped.toSorted((a, b) => {
-      if (!a.courseId && b.courseId) {
-        return -1
-      }
-      if (a.courseId && !b.courseId) {
-        return 1
-      }
-      return a.label.localeCompare(b.label)
-    })
-    return groupedSorted
-  }, [courses, chatbots, t])
-
-  const handleConversationSelection = (convId: string, confId: string) => {
-    setConvId(convId)
-    setConfigurationId(confId)
-  }
   return (
     <div className={gridContainer}>
       <SideBar
         setChatbotDialog={setChatbotDialog}
         conversations={conversations}
         chatbots={chatbots}
-        handleConversationSelection={handleConversationSelection}
+        setConfigurationId={setConfigurationId}
       />
       <div
         className={css`
@@ -117,7 +59,8 @@ const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
         `}
       >
         <NewConversationDialog
-          chatbotOptions={chatbotOptions}
+          chatbots={chatbots}
+          courses={courses}
           setConfigurationId={setConfigurationId}
           onClose={() => setChatbotDialog(false)}
           open={showChatbotDialog}

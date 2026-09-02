@@ -18,7 +18,6 @@ import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -27,7 +26,7 @@ import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styl
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Infobox, QueryResult } from "@/shared-module/components"
 
 const GradingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -305,9 +304,7 @@ const GradingPage: React.FC = () => {
           `}
         >
           {checkPublishable() !== 0 && (
-            <GenericInfobox>
-              {t("unpublishable-grading-results", { amount: checkPublishable() })}
-            </GenericInfobox>
+            <Infobox>{t("unpublishable-grading-results", { amount: checkPublishable() })}</Infobox>
           )}
         </div>
       )}

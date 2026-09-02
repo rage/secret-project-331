@@ -12,9 +12,8 @@ import type {
   CourseAuditingData,
   CourseMetadata as CourseMetadataData,
 } from "@/generated/api/types.generated"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { undefinedToNull } from "@/shared-module/common/utils/nullability"
-import { Button } from "@/shared-module/components"
+import { Button, Infobox } from "@/shared-module/components"
 
 import { buildFormValues, type EditCourseAuditingData } from "./CourseCard"
 
@@ -70,7 +69,7 @@ const CourseMetadata: React.FC<Props> = ({
           {t("generate-ai-metadata")}
         </Button>
         {!defaultModuleUhCourseCode && (
-          <GenericInfobox>{t("missing-uh-course-code-notification")}</GenericInfobox>
+          <Infobox>{t("missing-uh-course-code-notification")}</Infobox>
         )}
       </div>
 

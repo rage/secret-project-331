@@ -11,14 +11,13 @@ import {
   approveOauthDeviceVerification,
   denyOauthDeviceVerification,
 } from "@/generated/api/sdk.generated"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, TextField } from "@/shared-module/components"
+import { Button, Infobox, TextField } from "@/shared-module/components"
 import { getOauthScopeDescriptions } from "@/utils/oauthScopeDescriptions"
 
 interface DeviceCodeFields {
@@ -114,9 +113,7 @@ const DeviceVerificationPage: React.FC = () => {
               description={t("oauth-device-enter-code")}
             />
           </div>
-          {verification.isError && (
-            <GenericInfobox>{t("oauth-device-code-not-found")}</GenericInfobox>
-          )}
+          {verification.isError && <Infobox>{t("oauth-device-code-not-found")}</Infobox>}
           <Button variant="primary" size="large" type="submit" disabled={!inputValue.trim()}>
             {t("button-text-submit")}
           </Button>

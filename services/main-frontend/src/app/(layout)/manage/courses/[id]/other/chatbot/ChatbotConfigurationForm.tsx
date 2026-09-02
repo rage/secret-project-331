@@ -19,7 +19,6 @@ import type {
 } from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import WarningInfobox from "@/shared-module/common/components/WarningInfobox"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -38,6 +37,7 @@ import {
 import {
   Button,
   Checkbox,
+  Infobox,
   QueryResult,
   Select,
   TextArea,
@@ -416,7 +416,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   label={t("suggest-next-messages")}
                   name={"suggest_next_messages"}
                 />
-                <GenericInfobox>{t("recommend-message-suggesting")}</GenericInfobox>
+                <Infobox>{t("recommend-message-suggesting")}</Infobox>
                 {suggestMessagesFieldValue && fields.length === 0 && (
                   <div
                     className={css`
@@ -518,9 +518,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                                 `}
                               >
                                 <h5>{t(TOOL_CATEGORY_GROUP_HEADING_KEY[group])}</h5>
-                                <GenericInfobox>
-                                  {t("admin-tools-managed-by-administrators")}
-                                </GenericInfobox>
+                                <Infobox>{t("admin-tools-managed-by-administrators")}</Infobox>
                                 {categories.map((category) => (
                                   <Checkbox
                                     key={category}

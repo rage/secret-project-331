@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next"
 import Collapsible from "@/components/Collapsible"
 import type { ManualCompletionPreview } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import { Infobox } from "@/shared-module/components"
 
 import PreviewUserList from "./PreviewUserList"
 
@@ -34,7 +34,7 @@ const CompletionRegistrationPreview: React.FC<CompletionRegistrationPreviewProps
         margin: 1rem 0;
       `}
     >
-      <GenericInfobox>
+      <Infobox>
         <p>{t("please-check-the-following-preview-results-before-submitting")}</p>
         <div
           className={css`
@@ -98,7 +98,7 @@ const CompletionRegistrationPreview: React.FC<CompletionRegistrationPreviewProps
         >
           {t("button-text-submit")}
         </Button>
-      </GenericInfobox>
+      </Infobox>
     </div>
   )
 }

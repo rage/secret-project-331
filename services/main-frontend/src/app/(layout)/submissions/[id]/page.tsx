@@ -20,7 +20,6 @@ import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -31,7 +30,7 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Infobox, QueryResult } from "@/shared-module/components"
 
 const Submission: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -119,7 +118,7 @@ const Submission: React.FC = () => {
           <>
             {breadcrumbPieces.length > 0 && <Breadcrumbs pieces={breadcrumbPieces} />}
             {submissionInfo.tasks.some((task) => task.deleted_at !== null) && (
-              <GenericInfobox>{t("message-this-task-has-been-deleted")}</GenericInfobox>
+              <Infobox>{t("message-this-task-has-been-deleted")}</Infobox>
             )}
 
             <h1

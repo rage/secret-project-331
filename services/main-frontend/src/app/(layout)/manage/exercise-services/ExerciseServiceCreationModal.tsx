@@ -40,7 +40,6 @@ const ExerciseServiceCreationModal: React.FC<
       open={open}
       onClose={handleClose}
       aria-label={t("button-text-create")}
-      // oxlint-disable-next-line i18next/no-literal-string -- padding is a layout enum, not user-facing text
       padding="none"
     >
       <div

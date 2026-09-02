@@ -342,7 +342,6 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
       >
         <MagnifyingGlass size={16} weight="bold" />
       </Button>
-      {/* oxlint-disable-next-line i18next/no-literal-string -- padding is a layout enum, not user-facing text */}
       <Dialog open={open} onClose={closeModal} padding="none" aria-label={t("title-search-dialog")}>
         <SearchContainer $hasContent={hasContent}>
           {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status; <output> drops the styling */}

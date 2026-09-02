@@ -73,7 +73,6 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
         open={researchConsentFormOpen}
         // Consent must be an explicit choice: no close button, and closing on Escape is a no-op.
         onClose={() => {}}
-        // oxlint-disable-next-line i18next/no-literal-string -- padding is a layout enum, not user-facing text
         padding="none"
         showCloseButton={false}
         aria-label={t("title-reseach-consent-form")}

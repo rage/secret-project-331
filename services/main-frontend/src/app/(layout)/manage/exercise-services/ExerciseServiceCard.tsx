@@ -323,7 +323,6 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
       <Dialog
         open={deleteDialogOpen}
         onClose={handleCloseDeleteDialog}
-        // oxlint-disable-next-line i18next/no-literal-string -- padding is a layout enum, not user-facing text
         padding="none"
         aria-label={t("button-text-delete")}
       >

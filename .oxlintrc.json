@@ -591,6 +591,7 @@
                 "height",
                 "variant",
                 "size",
+                "padding",
                 "href",
                 "severity",
                 "navVariant",

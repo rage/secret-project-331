@@ -237,7 +237,7 @@ async fn create_chatbot(
     if !payload.skip_azure_stuff {
         let task_llm = models::application_task_default_language_models::get_for_task(
             &mut tx,
-            ApplicationTask::MessageSuggestion,
+            ApplicationTask::PromptCreation,
         )
         .await?;
 

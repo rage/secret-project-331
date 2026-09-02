@@ -45,6 +45,7 @@ import {
 } from "@/shared-module/components"
 
 import ChatbotPreviewModal from "./ChatbotPreviewModal"
+import { itemsContainerCss } from "./styles"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -121,15 +122,6 @@ function categoriesInGroup(group: ToolCategoryUiGroup): ToolCategory[] {
   return TOOL_CATEGORY_LEAVES.filter((category) => TOOL_CATEGORY_META[category].group === group)
 }
 
-const itemsContainerCss = css`
-  flex: 1;
-  ${respondToOrLarger.sm} {
-    flex: 0 45%;
-  }
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
 const textFieldCss = css`
   width: auto;
 `

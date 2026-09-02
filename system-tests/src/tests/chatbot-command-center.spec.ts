@@ -133,6 +133,8 @@ test.describe("Chatbot command center testing", () => {
     await page.getByRole("button", { name: "Create a new global chatbot" }).click()
     await page.getByRole("textbox", { name: "Name" }).click()
     await page.getByRole("textbox", { name: "Name" }).fill("new global chatbot")
+    await page.getByRole("textbox", { name: "Overview of the chatbot's" }).click()
+    await page.getByRole("textbox", { name: "Overview of the chatbot's" }).fill("test chatbot")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })

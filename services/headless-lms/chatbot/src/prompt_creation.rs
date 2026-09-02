@@ -137,7 +137,12 @@ pub async fn generate_prompt(
         max_output_tokens,
         response_format(),
         app_config,
-        || chatbot_err!(Other, "todo"),
+        || {
+            chatbot_err!(
+                FailedAzureResponse,
+                "Invalidly structured response from Azure"
+            )
+        },
     )
     .await?;
 

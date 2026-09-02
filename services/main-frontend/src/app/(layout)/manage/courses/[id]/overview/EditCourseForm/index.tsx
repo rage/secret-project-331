@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next"
 
 import { updateCourse } from "@/generated/api/sdk.generated"
 import type { Course, UpdateCourseData } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -16,6 +15,7 @@ import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRende
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { Dialog } from "@/shared-module/components"
 
 import AiPolicyFields from "./AiPolicyFields"
 import ClosedSectionFields from "./ClosedSectionFields"
@@ -131,14 +131,14 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
 
   return (
     <FormProvider {...methods}>
-      <StandardDialog
+      <Dialog
         open={open}
         onClose={onClose}
         title={t("edit-course")}
-        buttons={[
+        actions={[
           {
             onClick: onSubmit,
-            children: t("button-text-update"),
+            label: t("button-text-update"),
             variant: "primary",
             disabled: updateCourseMutation.isPending,
           },
@@ -220,7 +220,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
 
           <ClosedSectionFields />
         </div>
-      </StandardDialog>
+      </Dialog>
     </FormProvider>
   )
 }

@@ -6,9 +6,8 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, Select } from "@/shared-module/components"
+import { Button, Dialog, Select } from "@/shared-module/components"
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 import { useAdjustScheduleDialogState } from "../hooks/useAdjustScheduleDialogState"
@@ -468,12 +467,11 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   }
 
   return (
-    <StandardDialog
+    <Dialog
       open={isOpen}
       onClose={onClose}
       title={t("course-plans-overview-title", { plan: planName })}
-      width="wide"
-      leftAlignTitle
+      size="wide"
       isDismissable
     >
       <div className={overviewContentWrapperStyles}>
@@ -614,12 +612,11 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
       </div>
 
       {canAdjustSchedule && (
-        <StandardDialog
+        <Dialog
           open={isAdjustDialogOpen}
           onClose={() => setIsAdjustDialogOpen(false)}
           title={t("course-plans-adjust-schedule-title")}
           isDismissable
-          leftAlignTitle
         >
           <div className={adjustDialogContentStyles}>
             <p className={adjustDescriptionStyles}>
@@ -681,9 +678,9 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
               </Button>
             </div>
           </div>
-        </StandardDialog>
+        </Dialog>
       )}
-    </StandardDialog>
+    </Dialog>
   )
 }
 

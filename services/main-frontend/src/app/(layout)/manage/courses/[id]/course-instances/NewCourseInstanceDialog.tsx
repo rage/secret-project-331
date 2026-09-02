@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import { createCourseInstance } from "@/generated/api/sdk.generated"
 import type { CourseInstanceForm } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { Dialog } from "@/shared-module/components"
 
 import NewCourseInstanceForm from "./NewCourseInstanceForm"
 
@@ -42,7 +42,7 @@ const NewCourseInstanceDialog: React.FC<
   )
 
   return (
-    <StandardDialog open={showDialog} onClose={onClose} title={t("new-course-instance")}>
+    <Dialog open={showDialog} onClose={onClose} title={t("new-course-instance")}>
       {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
       <NewCourseInstanceForm
         initialData={null}
@@ -51,7 +51,7 @@ const NewCourseInstanceDialog: React.FC<
         }}
         onCancel={onClose}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

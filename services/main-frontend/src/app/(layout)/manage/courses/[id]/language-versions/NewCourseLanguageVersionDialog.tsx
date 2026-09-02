@@ -3,7 +3,7 @@
 import { useTranslation } from "react-i18next"
 
 import NewCourseForm from "@/components/NewCourseForm"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Dialog } from "@/shared-module/components"
 
 interface NewCourseLanguageVersionDialogProps {
   showNewLanguageVersionForm: boolean
@@ -19,7 +19,7 @@ const NewCourseLanguageVersionDialog: React.FC<
 > = ({ showNewLanguageVersionForm, courseName, onSuccess, onClose, organizationId, courseId }) => {
   const { t } = useTranslation()
   return (
-    <StandardDialog
+    <Dialog
       open={showNewLanguageVersionForm}
       onClose={onClose}
       title={t("create-new-language-version-of", { "course-name": courseName })}
@@ -30,7 +30,7 @@ const NewCourseLanguageVersionDialog: React.FC<
         isLanguageVersion={true}
         onSuccess={onSuccess}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

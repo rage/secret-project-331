@@ -8,11 +8,10 @@ import { useTranslation } from "react-i18next"
 
 import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { QueryResult, Spinner } from "@/shared-module/components"
+import { Dialog, QueryResult, Spinner } from "@/shared-module/components"
 import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 import {
   defaultTeacherChapterLockStatus,
@@ -250,28 +249,24 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                 })}
             </div>
             {chapterLockingEnabled && (
-              <StandardDialog
+              <Dialog
                 open={editorChapterId !== null}
                 onClose={closeStatusEditor}
                 title={t("teacher-chapter-status-editor-title")}
-                buttons={[
+                actions={[
                   {
                     variant: "secondary",
                     onClick: closeStatusEditor,
                     disabled: isSavingEditorStatus,
-                    children: t("button-text-cancel"),
+                    label: t("button-text-cancel"),
                   },
                   {
                     variant: "primary",
                     onClick: () => {
                       void saveEditedStatus()
                     },
-                    disabled: isSavingEditorStatus,
-                    children: isSavingEditorStatus ? (
-                      <Spinner size="sm" delayMs={0} />
-                    ) : (
-                      t("button-text-save")
-                    ),
+                    isLoading: isSavingEditorStatus,
+                    label: t("button-text-save"),
                   },
                 ]}
               >
@@ -313,7 +308,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                     `}
                   />
                 </div>
-              </StandardDialog>
+              </Dialog>
             )}
           </Section>
         )

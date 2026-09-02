@@ -13,6 +13,7 @@ import { useHover } from "react-aria/useHover"
 import { useTranslation } from "react-i18next"
 
 import DropdownMenu, { type DropdownMenuItem } from "@/components/DropdownMenu"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
 
@@ -21,22 +22,8 @@ interface DisclosureProps extends AriaDisclosureProps {
   children?: ReactNode
   defaultExpanded?: boolean
   setChatbotDialog: React.Dispatch<boolean>
-  setCreateChatbotVisible
+  setCreateChatbotVisible: React.Dispatch<boolean>
 }
-
-// <OnlyRenderIfPermissions
-//   action={{ type: "edit" }}
-//   resource={{ type: "global_permissions" }}
-// >
-//   <Button
-//     size="medium"
-//     onClick={() => {
-//       setCreateChatbotVisible(true)
-//     }}
-//   >
-//     {t("create-global-chatbot")}
-//   </Button>
-// </OnlyRenderIfPermissions>
 
 const reactAriaDisclosure = css`
   @media (max-width: 767.98px) {
@@ -135,43 +122,48 @@ const SideBarDisclosure: React.FC<DisclosureProps> = (props) => {
             align-items: center;
           `}
         >
-          <DropdownMenu
-            // oxlint-disable-next-line i18next/no-literal-string
-            menuTestId="chatbot-header-menu"
-            // oxlint-disable-next-line i18next/no-literal-string
-            menuButtonTestId="chatbot-header-menu-button"
-            controlButtonClassName={buttonStyle}
-            controlButtonIconColor={`${baseTheme.colors.green[700]}`}
-            controlButtonAriaLabel={t("label-actions")}
-            controlButtonTooltipText={t("label-actions")}
-            controlButtonIconWidth={16}
-            items={items}
-          />
-          <Button
-            className={css`
-              color: var(--field-fg);
-              text-wrap: nowrap;
-              padding: 0;
-              // Hide button text when disclosure collapsed
-              & span[id~="_r_n_"] {
-                display: ${!state.isExpanded ? "none" : "block"};
-              }
-            `}
-            icon={
-              <AddMessage
-                className={css`
-                  color: ${baseTheme.colors.green[700]};
-                `}
-              />
-            }
-            // oxlint-disable-next-line i18next/no-literal-string
-            iconPosition="start"
-            size="medium"
-            variant="icon"
-            onClick={() => props.setChatbotDialog(true)}
+          <OnlyRenderIfPermissions
+            action={{ type: "edit" }}
+            resource={{ type: "global_permissions" }}
           >
-            New conversation
-          </Button>
+            <DropdownMenu
+              // oxlint-disable-next-line i18next/no-literal-string
+              menuTestId="chatbot-header-menu"
+              // oxlint-disable-next-line i18next/no-literal-string
+              menuButtonTestId="chatbot-header-menu-button"
+              controlButtonClassName={buttonStyle}
+              controlButtonIconColor={`${baseTheme.colors.green[700]}`}
+              controlButtonAriaLabel={t("label-actions")}
+              controlButtonTooltipText={t("label-actions")}
+              controlButtonIconWidth={16}
+              items={items}
+            />
+            <Button
+              className={css`
+                color: var(--field-fg);
+                text-wrap: nowrap;
+                padding: 0;
+                // Hide button text when disclosure collapsed
+                & span[id]:last-of-type {
+                  display: ${!state.isExpanded ? "none" : "block"};
+                }
+              `}
+              icon={
+                <AddMessage
+                  className={css`
+                    color: ${baseTheme.colors.green[700]};
+                  `}
+                />
+              }
+              // oxlint-disable-next-line i18next/no-literal-string
+              iconPosition="start"
+              size="medium"
+              variant="icon"
+              onClick={() => props.setChatbotDialog(true)}
+            >
+              New conversation
+            </Button>
+          </OnlyRenderIfPermissions>
         </div>
         <button
           {...mergeProps(pressProps, hoverProps, focusProps)}

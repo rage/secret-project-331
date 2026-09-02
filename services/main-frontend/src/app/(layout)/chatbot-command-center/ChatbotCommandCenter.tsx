@@ -13,7 +13,7 @@ interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
   courses: Course[]
   conversations: ChatbotConversation[]
-  setCreateChatbotVisible
+  setCreateChatbotVisible: React.Dispatch<boolean>
 }
 
 const ChatbotCommandCenter: React.FC<ChatbotCommandCenterProps> = ({

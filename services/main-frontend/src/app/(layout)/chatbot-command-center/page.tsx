@@ -12,11 +12,10 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { allUserConversationsOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResults, Button } from "@/shared-module/components"
+import { QueryResults } from "@/shared-module/components"
 
 import CreateChatbotDialog from "../manage/courses/[id]/other/chatbot/CreateChatbotDialog"
 import ChatbotCommandCenter from "./ChatbotCommandCenter"

@@ -19,7 +19,7 @@ interface SideBarProps {
   conversations: ChatbotConversation[]
   chatbots: ChatbotConfiguration[]
   setConfigurationId: React.Dispatch<string>
-  setCreateChatbotVisible
+  setCreateChatbotVisible: React.Dispatch<boolean>
 }
 
 const sideBarContainer = css`

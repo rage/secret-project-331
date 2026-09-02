@@ -4,8 +4,7 @@ import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import { Dialog } from "@/shared-module/components"
 
 export interface ExamTimeOverModalProps {
   disabled: boolean
@@ -37,23 +36,13 @@ const ExamTimeOverModal: React.FC<React.PropsWithChildren<ExamTimeOverModalProps
   }
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleClose} aria-label={t("exam-timer-has-run-out")}>
       <div
         className={css`
           margin: 1rem;
         `}
       >
         <p>{t("exam-timer-has-run-out")}</p>
-        <div
-          className={css`
-            display: flex;
-            justify-content: center;
-          `}
-        >
-          <Button size="medium" variant="primary" onClick={handleClose}>
-            {t("close")}
-          </Button>
-        </div>
       </div>
     </Dialog>
   )

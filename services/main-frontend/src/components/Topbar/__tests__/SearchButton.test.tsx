@@ -36,9 +36,8 @@ jest.mock("next/link", () => ({
   ),
 }))
 
-jest.mock("@/shared-module/common/components/dialogs/Dialog", () => ({
-  __esModule: true,
-  default: ({ open, children }: { open: boolean; children: React.ReactNode }) =>
+jest.mock("@/shared-module/components", () => ({
+  Dialog: ({ open, children }: { open: boolean; children: React.ReactNode }) =>
     open ? <div role="dialog">{children}</div> : null,
 }))
 

@@ -5,9 +5,9 @@ import { useTranslation } from "react-i18next"
 
 import { addCodeGiveawayCodesMutation as addCodeGiveawayCodesMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { Dialog } from "@/shared-module/components"
 
 interface ImportCodesFormProps {
   codeGiveawayId: string
@@ -56,8 +56,7 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
     return null
   }
   return (
-    <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-      <h1>{t("heading-add-codes")}</h1>
+    <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} title={t("heading-add-codes")}>
       <TextAreaField
         label={t("label-codes-one-per-line")}
         value={input}
@@ -79,9 +78,6 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
           disabled={!valid || importCodesMutation.isPending}
         >
           {t("button-text-create")}
-        </Button>
-        <Button size="medium" variant="secondary" onClick={() => setDialogOpen(false)}>
-          {t("button-text-close")}
         </Button>
       </div>
     </Dialog>

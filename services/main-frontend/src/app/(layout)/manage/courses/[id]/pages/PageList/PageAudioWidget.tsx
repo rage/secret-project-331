@@ -11,11 +11,10 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { createPageAudioFile } from "@/generated/api/sdk.generated"
 import TrashIcon from "@/imgs/trash.svg"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult } from "@/shared-module/components"
 
 const ACCEPTABLE_MIME_TYPES = [
   "audio/mpeg",
@@ -228,6 +227,10 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
   )
 }
 
+const audioDialogCss = css`
+  background: #ecf3f2;
+`
+
 const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> = ({
   id,
   open,
@@ -236,15 +239,9 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
   const { t } = useTranslation()
 
   return (
-    <StandardDialog
-      open={open}
-      onClose={onClose}
-      title={t("audio-upload")}
-      width="normal"
-      backgroundColor="#ecf3f2"
-    >
+    <Dialog open={open} onClose={onClose} title={t("audio-upload")} className={audioDialogCss}>
       {id ? <PageAudioWidgetContent pageId={id} /> : null}
-    </StandardDialog>
+    </Dialog>
   )
 }
 

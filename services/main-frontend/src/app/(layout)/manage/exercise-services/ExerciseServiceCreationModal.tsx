@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next"
 
 import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
+import { Dialog } from "@/shared-module/components"
 
 import ContentArea from "./ContentArea"
 
@@ -39,9 +39,8 @@ const ExerciseServiceCreationModal: React.FC<
       `}
       open={open}
       onClose={handleClose}
-      aria-labelledby="simple-modal-title"
-      aria-describedby="simple-modal-description"
-      noPadding
+      aria-label={t("button-text-create")}
+      padding="none"
     >
       <div
         className={css`

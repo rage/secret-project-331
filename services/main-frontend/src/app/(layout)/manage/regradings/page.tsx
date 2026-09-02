@@ -21,7 +21,6 @@ import type {
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import PaginationControls from "@/shared-module/common/components/PaginationControls"
@@ -34,7 +33,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isUuid } from "@/shared-module/common/utils/fetching"
 import { manageRegradingRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult } from "@/shared-module/components"
 
 interface Fields {
   ids: string
@@ -167,9 +166,11 @@ const RegradingsPage: React.FC = () => {
       >
         {t("button-text-new-regrading")}
       </Button>
-      <Dialog open={newRegradingDialogOpen} onClose={() => setNewRegradingDialogOpen(false)}>
-        <h1>{t("button-text-new-regrading")}</h1>
-
+      <Dialog
+        open={newRegradingDialogOpen}
+        onClose={() => setNewRegradingDialogOpen(false)}
+        title={t("button-text-new-regrading")}
+      >
         <SelectField
           id={"id-type"}
           label={t("label-id-type")}

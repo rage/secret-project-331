@@ -20,12 +20,12 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseService, ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
+import { Dialog } from "@/shared-module/components"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
@@ -320,7 +320,12 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
           />
         </div>
       </div>
-      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog} noPadding>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        padding="none"
+        aria-label={t("button-text-delete")}
+      >
         <div
           className={css`
             display: flex;

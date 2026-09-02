@@ -10,11 +10,11 @@ import { createUserResearchConsent } from "@/generated/api/sdk.generated"
 import type { UserResearchConsent } from "@/generated/api/types.generated"
 import { refetchUserResearchConsent } from "@/hooks/useUserResearchConsentQuery"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { Dialog } from "@/shared-module/components"
 
 interface ResearchOnCoursesFormProps {
   afterSubmit?: () => void
@@ -71,8 +71,10 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
     <div>
       <Dialog
         open={researchConsentFormOpen}
-        noPadding={true}
-        closeable={false}
+        // Consent must be an explicit choice: no close button, and closing on Escape is a no-op.
+        onClose={() => {}}
+        padding="none"
+        showCloseButton={false}
         aria-label={t("title-reseach-consent-form")}
         data-testid="research-consent-dialog"
       >

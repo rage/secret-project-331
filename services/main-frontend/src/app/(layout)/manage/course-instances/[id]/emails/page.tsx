@@ -12,10 +12,9 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { createCourseInstanceEmailTemplate } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult } from "@/shared-module/components"
 
 import NewEmailTemplateForm from "./NewEmailTemplateForm"
 
@@ -70,15 +69,12 @@ const CourseInstanceEmailTemplates: React.FC = () => {
         {t("button-text-create")}
       </Button>
 
-      <Dialog open={showForm}>
+      <Dialog open={showForm} onClose={() => setShowForm(false)} title={t("button-text-create")}>
         <div
           className={css`
             margin: 1rem;
           `}
         >
-          <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
-            {t("button-text-close")}
-          </Button>
           <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
         </div>
       </Dialog>

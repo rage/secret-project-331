@@ -15,7 +15,6 @@ import {
 import type { ExerciseCsvExportTaskOption } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -27,7 +26,7 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { fontWeights } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResults } from "@/shared-module/components"
+import { Dialog, QueryResults } from "@/shared-module/components"
 
 import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
@@ -223,12 +222,15 @@ const SubmissionsPage: React.FC = () => {
           ) : null
         }
       />
-      <Dialog open={isExportDialogOpen} onClose={closeExportDialog}>
-        <h1>
-          {exportMode === "definitions"
+      <Dialog
+        open={isExportDialogOpen}
+        onClose={closeExportDialog}
+        title={
+          exportMode === "definitions"
             ? t("title-export-definitions-csv")
-            : t("title-export-answers-csv")}
-        </h1>
+            : t("title-export-answers-csv")
+        }
+      >
         <SelectField
           id="csv-export-task-select"
           label={t("label-csv-export-task")}

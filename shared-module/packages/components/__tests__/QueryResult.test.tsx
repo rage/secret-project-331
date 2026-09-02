@@ -2,7 +2,9 @@
 
 import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
-import { act, fireEvent, screen } from "@testing-library/react"
+import { act, fireEvent, render, screen } from "@testing-library/react"
+import { createInstance } from "i18next"
+import { I18nextProvider } from "react-i18next"
 
 import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { QueryResult } from "../src/components/queryResult/QueryResult"
@@ -56,6 +58,44 @@ test("blocking error shows alert and retry calls refetch", () => {
   expect(screen.getByText("failed")).toBeInTheDocument()
   domClick(screen.getByRole("button", { name: "Retry" }))
   expect(refetch).toHaveBeenCalledTimes(1)
+})
+
+test("retry label resolves from the shared-module namespace even when the default namespace shadows the key", async () => {
+  // No `.use(initReactI18next)`: that plugin registers its instance as react-i18next's global
+  // fallback, which would leak into every other test in this file that renders without a Provider.
+  const scopedI18n = createInstance()
+  await scopedI18n.init({
+    lng: "en",
+    fallbackLng: "en",
+    ns: ["translation", "shared-module"],
+    defaultNS: "translation",
+    interpolation: { escapeValue: false },
+    resources: {
+      en: {
+        translation: { "queryResult.retry": "Shadowed" },
+        "shared-module": { "queryResult.retry": "Retry" },
+      },
+    },
+  })
+
+  render(
+    <I18nextProvider i18n={scopedI18n}>
+      <QueryResult
+        query={makeQuery({
+          data: undefined,
+          isPending: false,
+          isError: true,
+          error: new Error("failed"),
+        })}
+        themeMode="light"
+      >
+        {() => null}
+      </QueryResult>
+    </I18nextProvider>,
+  )
+
+  expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument()
+  expect(screen.queryByRole("button", { name: "Shadowed" })).not.toBeInTheDocument()
 })
 
 test("stale error keeps content visible", () => {

@@ -107,7 +107,7 @@ export interface AnimatedQueryFrameProps<E> {
 
 /** Default blocking-error UI with retry. */
 export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation("shared-module")
   return (
     <div className={blockingErrorCss} role="alert">
       <div className={errorStackCss}>
@@ -122,7 +122,7 @@ export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
 
 /** Inline stale-error notice with retry (content still renders below). */
 export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation("shared-module")
   return (
     <div className={errorStackCss}>
       {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> changes styling */}
@@ -151,7 +151,7 @@ export function AnimatedQueryFrame<E>({
   renderBlockingError,
   renderStaleError,
 }: AnimatedQueryFrameProps<E>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation("shared-module")
   const shouldReduceMotion = !!useReducedMotion()
   const showDelayedSpinner = useLoadingAffordance(initialLoading, {
     delayMs: loadingDelayMs,

@@ -28,6 +28,18 @@ if (globalThis.TextDecoder === undefined) {
   globalThis.TextDecoder = require("util").TextDecoder
 }
 
+// jsdom has neither, so anything rendering a virtualized list throws on mount.
+if (globalThis.ResizeObserver === undefined) {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+}
+if (typeof window !== "undefined" && typeof window.scrollTo !== "function") {
+  window.scrollTo = () => {}
+}
+
 jest.mock("next/dynamic", () => ({
   __esModule: true,
   default: (...props) => {

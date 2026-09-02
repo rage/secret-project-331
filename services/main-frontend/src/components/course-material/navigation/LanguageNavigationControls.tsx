@@ -8,8 +8,7 @@ import { useLanguageNavigation } from "@/hooks/course-material/language/useLangu
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import type { LanguageOption } from "@/shared-module/common/components/LanguageSelection"
 import LanguageSelection from "@/shared-module/common/components/LanguageSelection"
-import Spinner from "@/shared-module/common/components/Spinner"
-import { useDialog } from "@/shared-module/components"
+import { LoadingRegion, useDialog } from "@/shared-module/components"
 import {
   currentCourseIdAtom,
   currentPageDataAtom,
@@ -63,7 +62,7 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   }
 
   if (isLoading) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion minHeight={40} />
   }
 
   if (languageOptions.length > 1) {

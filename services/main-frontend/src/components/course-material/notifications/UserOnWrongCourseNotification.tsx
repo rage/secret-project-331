@@ -13,10 +13,10 @@ import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 export interface CourseData {
@@ -71,7 +71,7 @@ const UserOnWrongCourseNotification: React.FC<
   }
 
   if (getCourseById.isLoading || languageNavLoading) {
-    return <Spinner variant={variant === "compact" ? "small" : "medium"} />
+    return <LoadingRegion size={variant === "compact" ? "sm" : "md"} />
   }
 
   if (!getCourseById.data) {

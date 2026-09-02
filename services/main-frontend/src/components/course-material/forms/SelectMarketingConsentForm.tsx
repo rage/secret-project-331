@@ -10,8 +10,8 @@ import {
 } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { LoadingRegion } from "@/shared-module/components"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 interface SelectMarketingConsentFormProps {
@@ -126,7 +126,7 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
   ])
 
   if (initialMarketingConsentQuery.isLoading || customPrivacyPolicyCheckboxTextsQuery.isLoading) {
-    return <Spinner variant="small" />
+    return <LoadingRegion />
   }
   if (initialMarketingConsentQuery.isError || customPrivacyPolicyCheckboxTextsQuery.isError) {
     return (

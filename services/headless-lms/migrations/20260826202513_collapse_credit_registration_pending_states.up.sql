@@ -35,6 +35,37 @@ WHERE s.id = totals.survivor_id;
 DELETE FROM credit_registration_daily_snapshots
 WHERE state IN ('pending_consent', 'pending_student_number');
 
+-- Consent is gone from the model, so a row abandoned by a withdrawal is simply cancelled. Same
+-- snapshot collision as above: the day can already hold a cancelled row.
+WITH totals AS (
+  SELECT snapshot_date,
+    deleted_at,
+    (
+      ARRAY_AGG(
+        id
+        ORDER BY (state = 'cancelled') DESC,
+          id
+      )
+    ) [1] AS survivor_id,
+    SUM(count)::int AS count,
+    SUM(entered_count)::int AS entered_count,
+    SUM(left_count)::int AS left_count
+  FROM credit_registration_daily_snapshots
+  WHERE state IN ('cancelled', 'abandoned_by_consent_withdrawal')
+  GROUP BY snapshot_date,
+    deleted_at
+)
+UPDATE credit_registration_daily_snapshots s
+SET state = 'cancelled',
+  count = totals.count,
+  entered_count = totals.entered_count,
+  left_count = totals.left_count
+FROM totals
+WHERE s.id = totals.survivor_id;
+
+DELETE FROM credit_registration_daily_snapshots
+WHERE state = 'abandoned_by_consent_withdrawal';
+
 -- Their predicates name enum literals, which an ALTER of the column type cannot rewrite.
 DROP INDEX uq_credit_registrations_person_module;
 
@@ -72,6 +103,7 @@ ALTER COLUMN state TYPE credit_registration_state USING CASE
       'pending_consent',
       'pending_student_number'
     ) THEN 'pending'
+    WHEN state::text = 'abandoned_by_consent_withdrawal' THEN 'cancelled'
     ELSE state::text
   END::credit_registration_state;
 
@@ -82,6 +114,7 @@ ALTER COLUMN from_state TYPE credit_registration_state USING CASE
       'pending_consent',
       'pending_student_number'
     ) THEN 'pending'
+    WHEN from_state::text = 'abandoned_by_consent_withdrawal' THEN 'cancelled'
     ELSE from_state::text
   END::credit_registration_state,
   ALTER COLUMN to_state TYPE credit_registration_state USING CASE
@@ -90,6 +123,7 @@ ALTER COLUMN from_state TYPE credit_registration_state USING CASE
       'pending_consent',
       'pending_student_number'
     ) THEN 'pending'
+    WHEN to_state::text = 'abandoned_by_consent_withdrawal' THEN 'cancelled'
     ELSE to_state::text
   END::credit_registration_state;
 
@@ -100,6 +134,7 @@ ALTER COLUMN before_state TYPE credit_registration_state USING CASE
       'pending_consent',
       'pending_student_number'
     ) THEN 'pending'
+    WHEN before_state::text = 'abandoned_by_consent_withdrawal' THEN 'cancelled'
     ELSE before_state::text
   END::credit_registration_state,
   ALTER COLUMN after_state TYPE credit_registration_state USING CASE
@@ -108,6 +143,7 @@ ALTER COLUMN before_state TYPE credit_registration_state USING CASE
       'pending_consent',
       'pending_student_number'
     ) THEN 'pending'
+    WHEN after_state::text = 'abandoned_by_consent_withdrawal' THEN 'cancelled'
     ELSE after_state::text
   END::credit_registration_state;
 
@@ -118,6 +154,7 @@ ALTER COLUMN state TYPE credit_registration_state USING CASE
       'pending_consent',
       'pending_student_number'
     ) THEN 'pending'
+    WHEN state::text = 'abandoned_by_consent_withdrawal' THEN 'cancelled'
     ELSE state::text
   END::credit_registration_state;
 

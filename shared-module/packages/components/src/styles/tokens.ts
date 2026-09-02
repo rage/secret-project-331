@@ -1,10 +1,12 @@
 import { injectGlobal } from "@emotion/css"
 
+import { DURATION_MS, EASING, LOOP_DURATION_MS } from "./motion"
+
 export const tokensGlobal = injectGlobal`
   :root {
     /* sizing */
     --control-gap: var(--space-3);
-    --control-radius: var(--space-2);
+    --control-radius: var(--radius-2);
 
     --control-height-sm: var(--space-5);
     --control-height-md: var(--space-6);
@@ -35,6 +37,36 @@ export const tokensGlobal = injectGlobal`
     --font-size-4: 24px;
     --font-size-5: 32px;
 
+    /* radii — controls sharpen, surfaces soften, the modal is the softest thing on screen */
+    --radius-0: 0px;
+    --radius-1: 4px;
+    --radius-2: 6px;
+    --radius-3: 8px;
+    --radius-4: 12px;
+    --radius-5: 16px;
+    --radius-full: 9999px;
+
+    /* elevation — one neutral shadow colour; each step layers a tight contact shadow with a
+       wide ambient one. Never brand-tinted: a shadow is a light model, not a colour choice. */
+    --shadow-rgb: 10 15 23;
+
+    --elevation-0: none;
+    --elevation-1:
+      0 1px 2px rgb(var(--shadow-rgb) / 0.06),
+      0 1px 3px rgb(var(--shadow-rgb) / 0.1);
+    --elevation-2:
+      0 2px 4px rgb(var(--shadow-rgb) / 0.06),
+      0 4px 10px rgb(var(--shadow-rgb) / 0.1);
+    --elevation-3:
+      0 4px 8px rgb(var(--shadow-rgb) / 0.07),
+      0 12px 24px rgb(var(--shadow-rgb) / 0.14);
+    --elevation-4:
+      0 8px 16px rgb(var(--shadow-rgb) / 0.08),
+      0 24px 48px rgb(var(--shadow-rgb) / 0.18);
+    --elevation-inset-pressed: inset 0 2px 4px rgb(var(--shadow-rgb) / 0.1);
+
+    --scrim: rgb(var(--shadow-rgb) / 0.55);
+
     /* layering — every portalled overlay (dialog, popover, menu, listbox, tooltip) shares
        --layer-overlay; open order is DOM order, so the last-opened overlay paints on top
        without a token per overlay type. */
@@ -44,6 +76,43 @@ export const tokensGlobal = injectGlobal`
     --layer-sticky: 100;
     --layer-overlay: 1000;
     --layer-toast: 1100;
+
+    /* motion — durations and easings live in motion.ts; nothing here moves longer than
+       --duration-deliberate, and only the modal layer gets that */
+    --duration-instant: ${DURATION_MS.instant}ms;
+    --duration-fast: ${DURATION_MS.fast}ms;
+    --duration-base: ${DURATION_MS.base}ms;
+    --duration-slow: ${DURATION_MS.slow}ms;
+    --duration-deliberate: ${DURATION_MS.deliberate}ms;
+
+    --duration-exit: calc(var(--duration-base) * 0.7);
+    --duration-exit-slow: calc(var(--duration-slow) * 0.7);
+    --duration-exit-deliberate: calc(var(--duration-deliberate) * 0.7);
+
+    --duration-spin: ${LOOP_DURATION_MS.spin}ms;
+    --duration-shimmer: ${LOOP_DURATION_MS.shimmer}ms;
+    --duration-progress-beam: ${LOOP_DURATION_MS.progressBeam}ms;
+
+    --ease-standard: ${EASING.standard};
+    --ease-entrance: ${EASING.entrance};
+    --ease-exit: ${EASING.exit};
+    --ease-linear: ${EASING.linear};
+
+    /* type families — declared here; the host app loads the actual font files. Every portalled
+       surface must set font-family explicitly, since a portal to document.body escapes any
+       styling scoped to the host's app container. Values mirror common's typography.ts;
+       components cannot import that package directly. */
+    --font-sans:
+      "Inter Variable", Inter, system-ui, -apple-system, Cantarell, Ubuntu, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-heading:
+      Raleway, system-ui, -apple-system, Cantarell, Ubuntu, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono:
+      "Space Mono", ui-monospace, "Source Code Pro", "Ubuntu Mono", SFMono-Regular, Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
 
     /* focus ring */
     --focus-ring-width: 2px;

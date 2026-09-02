@@ -7,6 +7,7 @@ import { mergeProps, Overlay, useDialog, useModalOverlay } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { omitUndefined } from "../lib/utils/nullability"
+import { below } from "../styles/breakpoints"
 import { Button, type ButtonProps } from "./Button"
 
 export type DialogSize = "normal" | "wide"
@@ -170,7 +171,7 @@ const footerCss = css`
   gap: var(--space-3);
   padding: 0 clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2rem);
 
-  @media (max-width: 480px) {
+  ${below("xs")} {
     flex-direction: column;
 
     & > * {

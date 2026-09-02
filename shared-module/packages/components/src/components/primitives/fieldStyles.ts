@@ -1,6 +1,7 @@
 import { css, cx } from "@emotion/css"
 
 import { assertNever } from "../../lib/utils/assertNever"
+import { below } from "../../styles/breakpoints"
 
 export type FieldSize = "sm" | "md" | "lg"
 
@@ -280,7 +281,7 @@ const labelBaseCss = css`
 
   /* The flat 1rem margin eats a much bigger share of the label box on narrow
      phones, where long labels already truncate hard; claw some of it back. */
-  @media (max-width: 480px) {
+  ${below("xs")} {
     max-width: calc(100% - 0.25rem);
   }
 
@@ -368,7 +369,7 @@ const selectLabelChevronRoomCss = css`
     max-width: calc(100% - 2.5rem);
   }
 
-  @media (max-width: 480px) {
+  ${below("xs")} {
     [data-field-control][data-floated="false"] & {
       max-width: calc(100% - 2.25rem);
     }

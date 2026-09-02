@@ -113,5 +113,14 @@ export type {
   SuccessData,
 } from "./components/queryResult/queryResultState"
 
+export { LoadingRegion } from "./components/LoadingRegion"
+export type { LoadingRegionProps } from "./components/LoadingRegion"
+export { Spinner } from "./components/Spinner"
+export type { SpinnerProps } from "./components/Spinner"
+export { spinnerGlyphCss } from "./components/primitives/spinnerStyles"
+export type { SpinnerSize, SpinnerTone } from "./components/primitives/spinnerStyles"
+export { useLoadingAffordance } from "./lib/utils/loading"
+export type { UseLoadingAffordanceOptions } from "./lib/utils/loading"
+
 export { Breadcrumbs } from "./components/Breadcrumbs"
 export type { BreadcrumbItem, BreadcrumbsProps } from "./components/Breadcrumbs"

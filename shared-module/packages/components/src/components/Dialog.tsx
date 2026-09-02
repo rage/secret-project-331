@@ -2,17 +2,20 @@
 
 import { css, cx } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import React from "react"
 import { mergeProps, Overlay, useDialog, useModalOverlay } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { omitUndefined } from "../lib/utils/nullability"
 import { below } from "../styles/breakpoints"
+import { DURATION_MS } from "../styles/motion"
 import { Button, type ButtonProps } from "./Button"
 
 export type DialogSize = "normal" | "wide"
 export type DialogPadding = "normal" | "none"
 export type DialogRole = "dialog" | "alertdialog"
+export type DialogExit = "fade" | "handoff"
 
 type DialogLabelling =
   | {
@@ -65,6 +68,12 @@ export type DialogProps = DialogLabelling &
      * for a short interrupting message, not for a surface the user has to work through.
      */
     role?: DialogRole
+    /**
+     * How the surface and scrim animate on close. `"handoff"` drops the scrim immediately
+     * instead of fading it, so it never doubles up with an incoming dialog's own scrim while
+     * both are mid-transition. Leave it unset unless another dialog is about to replace this one.
+     */
+    exit?: DialogExit
     /** Whether clicking the underlay closes the dialog. */
     isDismissable?: boolean
     /** Hides the visible close button in the top corner. */
@@ -77,11 +86,26 @@ export type DialogProps = DialogLabelling &
 
 const CLOSE_SYMBOL = "×"
 
+// motion/react's `ease` takes bezier control points, not the CSS strings in styles/motion.ts.
+const EASE_ENTRANCE = [0.05, 0.7, 0.1, 1] as const
+const EASE_EXIT = [0.3, 0, 0.8, 0.15] as const
+const EASE_STANDARD = [0.2, 0, 0, 1] as const
+
+// motion.div/AnimatePresence aren't recognized as native DOM elements by the i18next lint
+// rule, so even these non-user-facing literal prop values need named constants to pass it.
+const ANIMATE_PRESENCE_MODE = "sync"
+const ARIA_MODAL_VALUE = "true"
+
+const enterTransition = { duration: DURATION_MS.deliberate / 1000, ease: EASE_ENTRANCE }
+// Mirrors tokens.ts's --duration-exit-deliberate: 70% of the entrance duration.
+const exitTransition = { duration: (DURATION_MS.deliberate * 0.7) / 1000, ease: EASE_EXIT }
+const reducedTransition = { duration: DURATION_MS.instant / 1000, ease: EASE_STANDARD }
+
 const underlayCss = css`
   position: fixed;
   inset: 0;
   z-index: var(--layer-overlay);
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,19 +239,20 @@ const actionCss = css`
  *
  * Focus is trapped inside while open and restored to the trigger on close, the
  * background is scroll locked and hidden from assistive technology, and Escape
- * closes. Reflows without horizontal overflow down to 320px viewports.
+ * closes. Reflows without horizontal overflow down to 320px viewports. The surface and
+ * scrim animate open and closed, cross-fading instead of moving under `prefers-reduced-motion`.
  *
  * The footer is either arbitrary `footer` content or an `actions` row of buttons described as
  * data, which share the footer width evenly.
  */
-export const Dialog: React.FC<DialogProps> = (props) => {
-  // The overlay stack (focus trap, scroll lock, focus-on-mount) must mount and
-  // unmount with the open state, so the hooks live in an inner component.
-  if (!props.open) {
-    return null
-  }
-  return <OpenDialog {...props} />
-}
+export const Dialog: React.FC<DialogProps> = (props) => (
+  // AnimatePresence keeps the outgoing dialog mounted through its exit animation, which is why
+  // the overlay stack (focus trap, scroll lock, focus-on-mount) lives in a keyed inner component
+  // rather than an early `return null`.
+  <AnimatePresence mode={ANIMATE_PRESENCE_MODE}>
+    {props.open && <OpenDialog key="dialog" {...props} />}
+  </AnimatePresence>
+)
 
 const OpenDialog: React.FC<DialogProps> = ({
   title,
@@ -237,6 +262,7 @@ const OpenDialog: React.FC<DialogProps> = ({
   size = "normal",
   padding = "normal",
   role = "dialog",
+  exit = "fade",
   isDismissable = false,
   showCloseButton = true,
   footer,
@@ -249,6 +275,7 @@ const OpenDialog: React.FC<DialogProps> = ({
   const ref = React.useRef<HTMLDivElement>(null)
   const titleId = React.useId()
   const hasTitle = title !== undefined
+  const shouldReduceMotion = !!useReducedMotion()
 
   const state = useOverlayTriggerState({
     isOpen: true,
@@ -266,19 +293,62 @@ const OpenDialog: React.FC<DialogProps> = ({
     ref,
   )
 
+  const underlayTransition = shouldReduceMotion ? reducedTransition : exitTransition
+
+  // react-aria types these as generic DOMAttributes, which declares style and
+  // onAnimationStart/onDrag* with shapes that motion/react's motion.div rejects (it redefines
+  // the handlers for its own gesture API, and disallows an explicitly optional style). None of
+  // these hooks ever actually set any of the four.
+  const {
+    style: _underlayStyle,
+    onAnimationStart: _underlayOnAnimationStart,
+    onDrag: _underlayOnDrag,
+    onDragStart: _underlayOnDragStart,
+    onDragEnd: _underlayOnDragEnd,
+    ...motionSafeUnderlayProps
+  } = underlayProps
+  const {
+    style: _surfaceStyle,
+    onAnimationStart: _surfaceOnAnimationStart,
+    onDrag: _surfaceOnDrag,
+    onDragStart: _surfaceOnDragStart,
+    onDragEnd: _surfaceOnDragEnd,
+    ...motionSafeSurfaceProps
+  } = mergeProps(modalProps, dialogProps)
+
   return (
     <Overlay>
-      <div {...underlayProps} className={underlayCss}>
-        <div
-          {...mergeProps(modalProps, dialogProps)}
+      <motion.div
+        {...motionSafeUnderlayProps}
+        className={underlayCss}
+        initial={shouldReduceMotion ? false : { opacity: 0 }}
+        animate={{
+          opacity: 1,
+          transition: shouldReduceMotion ? reducedTransition : enterTransition,
+        }}
+        exit={{ opacity: 0, transition: exit === "handoff" ? { duration: 0 } : underlayTransition }}
+      >
+        <motion.div
+          {...motionSafeSurfaceProps}
           // react-aria omits aria-modal because of a Safari-in-iframe focus
           // bug; we target regular browsing contexts where it improves screen
           // reader modality announcements.
-          aria-modal="true"
+          aria-modal={ARIA_MODAL_VALUE}
           ref={ref}
           lang={lang}
           data-testid={dataTestId}
           className={cx(surfaceCss, sizeCss[size], paddingCss[padding], className)}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 8, scale: 0.98 }}
+          animate={
+            shouldReduceMotion
+              ? { opacity: 1, transition: reducedTransition }
+              : { opacity: 1, y: 0, scale: 1, transition: enterTransition }
+          }
+          exit={
+            shouldReduceMotion
+              ? { opacity: 0, transition: reducedTransition }
+              : { opacity: 0, y: 4, scale: 0.98, transition: exitTransition }
+          }
         >
           {(hasTitle || showCloseButton) && (
             <div className={headerCss} data-has-title={hasTitle}>
@@ -312,8 +382,8 @@ const OpenDialog: React.FC<DialogProps> = ({
             </div>
           )}
           {footer !== undefined && <div className={footerCss}>{footer}</div>}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </Overlay>
   )
 }

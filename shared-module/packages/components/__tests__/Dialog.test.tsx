@@ -100,8 +100,8 @@ describe("Dialog", () => {
     await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true))
 
     domClick(screen.getByRole("button", { name: "Close" }))
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
-    // Focus restore also runs a frame after unmount
+    // The dialog stays mounted through its exit animation before actually unmounting.
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     await waitFor(() => expect(trigger).toHaveFocus())
   })
 

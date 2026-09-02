@@ -47,6 +47,7 @@ export type { DescriptionListItem, DescriptionListProps } from "./components/Des
 export { Dialog } from "./components/Dialog"
 export type {
   DialogAction,
+  DialogExit,
   DialogPadding,
   DialogProps,
   DialogRole,

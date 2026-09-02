@@ -3,11 +3,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import type { UseMutationResult } from "@tanstack/react-query"
-import React, { createRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { LabelButton } from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/components"
+import { FileField, useDialog } from "@/shared-module/components"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -18,17 +18,32 @@ export interface UploadImageFormProps {
   hasExistingImage?: boolean
 }
 
+interface UploadImageFields {
+  image: File[]
+}
+
+const IMAGE_FIELD_NAME = "image"
+
 const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> = ({
   mutation,
   hasExistingImage,
 }) => {
   const { t } = useTranslation()
   const { confirm } = useDialog()
-  const fileInput = createRef<HTMLInputElement>()
+  const { control, setValue } = useForm<UploadImageFields>({ defaultValues: { image: [] } })
+  const selectedFile = useWatch({ control, name: IMAGE_FIELD_NAME })?.[0]
+  const processedFileRef = useRef<File | null>(null)
+  // Remounting FileField clears its native <input>, so the browser fires a change event
+  // if the user declines the confirm dialog and then reselects the very same file.
+  const [resetKey, setResetKey] = useState(0)
 
-  const handleFileChange = async () => {
-    const file = fileInput.current?.files?.[0]
-    if (file) {
+  useEffect(() => {
+    if (!selectedFile || selectedFile === processedFileRef.current) {
+      return
+    }
+    processedFileRef.current = selectedFile
+
+    const handleSelectedFile = async () => {
       if (hasExistingImage) {
         const confirmed = await confirm({
           message: t("confirm-replace-existing-image"),
@@ -36,16 +51,20 @@ const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> =
           isDestructive: true,
         })
         if (!confirmed) {
-          // Reset the file input if user cancels
-          if (fileInput.current) {
-            fileInput.current.value = ""
-          }
+          processedFileRef.current = null
+          setValue(IMAGE_FIELD_NAME, [])
+          setResetKey((key) => key + 1)
           return
         }
       }
-      await mutation.mutateAsync(file)
+      try {
+        await mutation.mutateAsync(selectedFile)
+      } catch {
+        // Surfaced through mutation.isError by the caller; nothing to do here.
+      }
     }
-  }
+    handleSelectedFile()
+  }, [selectedFile, hasExistingImage, confirm, mutation, setValue, t])
 
   return (
     <div
@@ -54,19 +73,12 @@ const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> =
       `}
     >
       <FieldContainer>
-        <LabelButton variant="blue" size="medium" htmlFor="image-upload">
-          {t("button-text-select-image")}
-        </LabelButton>
-        <input
-          className={css`
-            opacity: 0;
-          `}
-          id="image-upload"
-          accept="image"
-          ref={fileInput}
-          type="file"
-          onChange={handleFileChange}
-          disabled={mutation.isPending}
+        <FileField
+          key={resetKey}
+          control={control}
+          name={IMAGE_FIELD_NAME}
+          label={t("button-text-select-image")}
+          isDisabled={mutation.isPending}
         />
       </FieldContainer>
     </div>

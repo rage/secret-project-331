@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "motion/react"
 import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useLoadingAffordance } from "../../lib/utils/loading"
 import { Button } from "../Button"
 import { spinnerGlyphCss } from "../primitives/spinnerStyles"
 import type { RetryFn } from "./queryResultState"
@@ -48,22 +49,6 @@ const skeletonPresets = [
 ] as const
 
 const contentEntranceEase = [0.2, 0, 0, 1] as const
-
-/** Delays showing an affordance (e.g. centered spinner) to avoid flashes on fast requests. */
-export function useDelayedFlag(active: boolean, delayMs: number): boolean {
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    if (!active) {
-      setVisible(false)
-      return
-    }
-    const t = setTimeout(() => setVisible(true), delayMs)
-    return () => clearTimeout(t)
-  }, [active, delayMs])
-
-  return visible
-}
 
 /**
  * Clears the settling state when `transitionend` never fires (jsdom, or a refetch so fast the
@@ -168,7 +153,10 @@ export function AnimatedQueryFrame<E>({
 }: AnimatedQueryFrameProps<E>) {
   const { t } = useTranslation()
   const shouldReduceMotion = !!useReducedMotion()
-  const showDelayedSpinner = useDelayedFlag(initialLoading, loadingDelayMs)
+  const showDelayedSpinner = useLoadingAffordance(initialLoading, {
+    delayMs: loadingDelayMs,
+    minVisibleMs: 0,
+  })
   const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(refreshing)
   const surfaceThemeCss =
     themeMode === "dark" ? initialLoadingSurfaceDarkCss : initialLoadingSurfaceLightCss

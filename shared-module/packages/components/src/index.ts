@@ -93,7 +93,6 @@ export {
   AnimatedQueryFrame,
   DefaultBlockingError,
   DefaultStaleError,
-  useDelayedFlag,
 } from "./components/queryResult/AnimatedQueryFrame"
 export type {
   AnimatedQueryFrameProps,

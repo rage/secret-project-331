@@ -10,13 +10,13 @@ import {
   updateChapterMutation as updateChapterMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Chapter, NewChapter } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import CheckboxFieldWrapper from "@/shared-module/common/components/InputFields/CheckboxFieldWrapper"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
+import { Button } from "@/shared-module/components"
 
 interface NewChapterFormProps {
   courseId: string
@@ -188,8 +188,10 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         <Button
           variant="primary"
           size="medium"
-          fullWidth
           disabled={!isValid || isSubmitting || isPending}
+          className={css`
+            width: 100%;
+          `}
         >
           {newRecord ? t("button-text-create") : t("button-text-update")}
         </Button>

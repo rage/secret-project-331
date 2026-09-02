@@ -13,11 +13,11 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import useAdditionalQuestions from "@/hooks/course-material/useAdditionalQuestions"
 import useCourse from "@/hooks/course-material/useCourse"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components"
 
 import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
@@ -239,11 +239,11 @@ const SelectCourseInstanceForm: React.FC<
           size="medium"
           variant="primary"
           onClick={enrollOnCourse}
-          disabled={
+          disabled={Boolean(
             !selectedInstanceId ||
             additionalQuestionsQuery.isLoading ||
-            (getCourse.data?.ask_marketing_consent && !isEmailSubscriptionConsentChecked)
-          }
+            (getCourse.data?.ask_marketing_consent && !isEmailSubscriptionConsentChecked),
+          )}
           data-testid="select-course-instance-continue-button"
         >
           {t("continue")}

@@ -13,7 +13,6 @@ import {
   releaseExamGradesMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -26,6 +25,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   Breadcrumbs,
   type BreadcrumbItem,
+  Button,
   Infobox,
   QueryResult,
   useDialog,
@@ -269,7 +269,6 @@ const GradingPage: React.FC = () => {
                   <Button
                     variant={"primary"}
                     size={"small"}
-                    transform="none"
                     onClick={() => {
                       router.push(exerciseExamSubmissionsRoute(exercise.id))
                     }}
@@ -280,7 +279,6 @@ const GradingPage: React.FC = () => {
                   <Button
                     variant={"primary"}
                     size={"small"}
-                    transform="none"
                     onClick={() => {
                       router.push(exerciseExamSubmissionsRoute(exercise.id))
                     }}

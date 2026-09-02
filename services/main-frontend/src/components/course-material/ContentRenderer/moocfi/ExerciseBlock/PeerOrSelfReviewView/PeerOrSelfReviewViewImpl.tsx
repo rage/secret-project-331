@@ -19,7 +19,6 @@ import type {
   ReportReason,
 } from "@/generated/course-material-api/types.generated"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PeerReviewProgress from "@/shared-module/common/components/PeerReview/PeerReviewProgress"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
@@ -27,7 +26,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
-import { LoadingRegion } from "@/shared-module/components"
+import { Button, LoadingRegion } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import type { Block } from "@/types/courseMaterialBlock"
 
@@ -429,7 +428,6 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           gap: 6px;
         `}
         variant={"icon"}
-        transform="capitalize"
         size={"small"}
         onClick={() => setIsReportDialogOpen(true)}
       >

@@ -8,10 +8,10 @@ import { useTranslation } from "react-i18next"
 
 import type { NewCourse } from "@/generated/api/types.generated"
 import { useCreateCourse } from "@/hooks/useCreateCourse"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 
 import BasicCourseInfo from "./BasicCourseInfo"
 import DuplicateOptions from "./DuplicateOptions"
@@ -141,7 +141,9 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
           variant="primary"
           size="medium"
           disabled={createCourseMutation.isPending}
-          fullWidth
+          className={css`
+            width: 100%;
+          `}
         >
           {t("button-text-create")}
         </Button>

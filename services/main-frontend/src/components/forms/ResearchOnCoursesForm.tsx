@@ -9,12 +9,11 @@ import { useTranslation } from "react-i18next"
 import { createUserResearchConsent } from "@/generated/api/sdk.generated"
 import type { UserResearchConsent } from "@/generated/api/types.generated"
 import { refetchUserResearchConsent } from "@/hooks/useUserResearchConsentQuery"
-import Button from "@/shared-module/common/components/Button"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import { Dialog } from "@/shared-module/components"
+import { Button, Dialog } from "@/shared-module/components"
 
 interface ResearchOnCoursesFormProps {
   afterSubmit?: () => void
@@ -202,9 +201,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             variant="tertiary"
             size="medium"
             type="submit"
-            transform="capitalize"
             onClick={handleOnSubmit}
-            value={t("button-text-save")}
             disabled={!optionSelected}
           >
             {t("button-text-save")}

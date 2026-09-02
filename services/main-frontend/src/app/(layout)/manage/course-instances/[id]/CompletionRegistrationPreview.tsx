@@ -6,9 +6,8 @@ import { useTranslation } from "react-i18next"
 
 import Collapsible from "@/components/Collapsible"
 import type { ManualCompletionPreview } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import { Infobox } from "@/shared-module/components"
+import { Button, Infobox } from "@/shared-module/components"
 
 import PreviewUserList from "./PreviewUserList"
 
@@ -93,7 +92,6 @@ const CompletionRegistrationPreview: React.FC<CompletionRegistrationPreviewProps
           variant="primary"
           size="medium"
           type="button"
-          value={t("button-text-submit")}
           onClick={() => onSubmit({ skipDuplicateCompletions })}
         >
           {t("button-text-submit")}

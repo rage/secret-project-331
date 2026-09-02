@@ -5,8 +5,8 @@ import { ExclamationMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components"
 
 interface Props {
   title: string
@@ -25,10 +25,10 @@ const BottomPanel: React.FC<Props> = ({
   show,
   error,
   leftButtonText,
-  leftButtonDisabled,
+  leftButtonDisabled = false,
   onClickLeft,
   rightButtonText,
-  rightButtonDisabled,
+  rightButtonDisabled = false,
   onClickRight,
 }) => {
   const { t } = useTranslation()
@@ -91,7 +91,7 @@ const BottomPanel: React.FC<Props> = ({
           justify-content: center;
         `}
       >
-        <Button variant="blue" size="medium" onClick={onClickLeft} disabled={leftButtonDisabled}>
+        <Button variant="primary" size="medium" onClick={onClickLeft} disabled={leftButtonDisabled}>
           {leftButtonText}
         </Button>
         <Button

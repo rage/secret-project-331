@@ -8,12 +8,12 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { Exam, NewExam } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { Button } from "@/shared-module/components"
 
 interface EditExamFormProps {
   initialData: Exam
@@ -129,8 +129,9 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
           variant="primary"
           size="medium"
           type="submit"
-          value={t("button-text-submit")}
-          fullWidth
+          className={css`
+            width: 100%;
+          `}
         >
           {t("button-text-submit")}
         </Button>

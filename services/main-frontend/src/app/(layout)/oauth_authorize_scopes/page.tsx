@@ -5,8 +5,8 @@ import { useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 import { approveOauthConsent, denyOauthConsent } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { Button } from "@/shared-module/components"
 import { getOauthScopeDescriptions } from "@/utils/oauthScopeDescriptions"
 
 export default function ConsentPage() {
@@ -99,7 +99,7 @@ export default function ConsentPage() {
         </Button>
         <Button
           onClick={onDeny}
-          variant="reject"
+          variant="danger"
           size="large"
           aria-label={t("button-text-cancel")}
           data-testid="oauth-consent-deny-button"

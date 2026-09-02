@@ -17,13 +17,13 @@ import type {
   NewTeacherGradingDecision,
 } from "@/generated/api/types.generated"
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
-import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { assertNotNullOrUndefined, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
+import { Button } from "@/shared-module/components"
 
 interface GradeExamAnswerProps {
   submissionId: string
@@ -206,7 +206,6 @@ const LoadedGradeExamAnswerForm: React.FC<{
           <Button
             variant={"primary"}
             size={"medium"}
-            transform="none"
             type="button"
             onClick={handleSubmit(handleSubmitForm)}
           >
@@ -215,9 +214,8 @@ const LoadedGradeExamAnswerForm: React.FC<{
         </div>
         <div>
           <Button
-            variant={"blue"}
+            variant={"secondary"}
             size={"medium"}
-            transform="none"
             type="button"
             disabled={nextSubmissionId === "lastAnswer"}
             onClick={handleSubmit(handleSubmitAndNext)}

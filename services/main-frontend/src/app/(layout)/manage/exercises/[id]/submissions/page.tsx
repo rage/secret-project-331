@@ -13,7 +13,6 @@ import {
   getExerciseSubmissionsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseCsvExportTaskOption } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -26,7 +25,7 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { fontWeights } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Dialog, QueryResults } from "@/shared-module/components"
+import { Button, Dialog, QueryResults } from "@/shared-module/components"
 
 import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
@@ -255,7 +254,7 @@ const SubmissionsPage: React.FC = () => {
             justify-content: flex-end;
           `}
         >
-          <Button variant="white" size="small" onClick={closeExportDialog}>
+          <Button variant="secondary" size="small" onClick={closeExportDialog}>
             {t("button-text-cancel")}
           </Button>
           <a

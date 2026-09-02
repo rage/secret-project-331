@@ -7,12 +7,12 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { CourseModule, TeacherManualCompletionRequest } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import DatePicker from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { makeDateStringTimezoneErrorsLessLikely } from "@/shared-module/common/utils/dateUtil"
+import { Button } from "@/shared-module/components"
 
 const FormatInstructions = styled.div`
   margin-top: 1.5rem;
@@ -235,7 +235,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         autoResize
         {...register("completions", { required: t("required-field") })}
       />
-      <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
+      <Button variant="primary" size="medium" type="submit">
         {submitText ?? t("button-text-submit")}
       </Button>
     </form>

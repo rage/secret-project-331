@@ -6,10 +6,10 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { CourseInstance, CourseInstanceForm } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import TimePicker from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 
 interface FormProps {
   initialData: CourseInstance | null
@@ -109,9 +109,10 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <Button
         variant="primary"
         size="medium"
-        fullWidth
         type="submit"
-        value={t("button-text-submit")}
+        className={css`
+          width: 100%;
+        `}
       >
         {t("button-text-submit")}
       </Button>

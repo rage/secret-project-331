@@ -10,11 +10,11 @@ import {
   updateShowExerciseAnswers,
 } from "@/generated/course-material-api/sdk.generated"
 import type { ExamData } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { Button } from "@/shared-module/components"
 
 export interface TestExamTeacherToolsProps {
   examId: string
@@ -111,7 +111,6 @@ export default function TestExamTeacherTools({ examId, examData }: TestExamTeach
         `}
         variant="primary"
         size="medium"
-        transform="capitalize"
         onClick={handleResetProgress}
       >
         {t("button-text-reset-exam-progress")}

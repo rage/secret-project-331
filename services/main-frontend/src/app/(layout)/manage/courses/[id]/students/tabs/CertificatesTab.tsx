@@ -12,14 +12,13 @@ import type {
   CertificateUpdateRequest,
   GetCertificateByVerificationIdData,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
-import { Dialog, LoadingRegion } from "@/shared-module/components"
+import { Button, Dialog, LoadingRegion } from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
@@ -432,9 +431,11 @@ export const CertificatesTabContent: React.FC = () => {
             `}
           >
             <Button
-              fullWidth
               size="medium"
               variant="primary"
+              className={css`
+                width: 100%;
+              `}
               disabled={!editDateValid || updateCertificateMutation.isPending}
               onClick={() => {
                 if (!editData || !parsedEditDate || !editDateValid) {
@@ -455,7 +456,14 @@ export const CertificatesTabContent: React.FC = () => {
               {t("button-text-update")}
             </Button>
 
-            <Button fullWidth size="medium" variant="secondary" onClick={() => setEditData(null)}>
+            <Button
+              size="medium"
+              variant="secondary"
+              className={css`
+                width: 100%;
+              `}
+              onClick={() => setEditData(null)}
+            >
               {t("button-text-cancel")}
             </Button>
           </div>

@@ -9,14 +9,13 @@ import { Trans, useTranslation } from "react-i18next"
 
 import { useLanguageNavigation } from "@/hooks/course-material/language/useLanguageNavigation"
 import { useCourseData } from "@/hooks/course-material/useCourseData"
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { LoadingRegion } from "@/shared-module/components"
+import { Button, LoadingRegion } from "@/shared-module/components"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 export interface CourseData {
@@ -155,7 +154,7 @@ const UserOnWrongCourseNotification: React.FC<
           >
             {targetLanguageAvailable ? (
               <Link href={targetUrl} hrefLang={courseData.language_code}>
-                <Button variant="primary" size="medium" transform="none">
+                <Button variant="primary" size="medium">
                   <Trans
                     i18nKey="go-to-your-language-version"
                     values={{
@@ -168,7 +167,7 @@ const UserOnWrongCourseNotification: React.FC<
                 </Button>
               </Link>
             ) : (
-              <Button variant="primary" size="medium" transform="none" disabled={true}>
+              <Button variant="primary" size="medium" disabled={true}>
                 <Trans
                   i18nKey="go-to-your-language-version"
                   values={{
@@ -256,7 +255,7 @@ const UserOnWrongCourseNotification: React.FC<
         </div>
         {targetLanguageAvailable ? (
           <Link href={targetUrl} hrefLang={courseData.language_code}>
-            <Button variant="primary" size="large" transform="none">
+            <Button variant="primary" size="large">
               <Trans
                 i18nKey="go-to-your-language-version"
                 values={{
@@ -269,7 +268,7 @@ const UserOnWrongCourseNotification: React.FC<
             </Button>
           </Link>
         ) : (
-          <Button variant="primary" size="large" transform="none" disabled={true}>
+          <Button variant="primary" size="large" disabled={true}>
             <Trans
               i18nKey="go-to-your-language-version"
               values={{

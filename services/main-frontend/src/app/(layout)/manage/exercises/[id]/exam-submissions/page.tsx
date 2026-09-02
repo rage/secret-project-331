@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next"
 
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import PaginationControls from "@/shared-module/common/components/PaginationControls"
 import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
@@ -21,7 +20,7 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Breadcrumbs, type BreadcrumbItem, QueryResult } from "@/shared-module/components"
+import { Breadcrumbs, type BreadcrumbItem, Button, QueryResult } from "@/shared-module/components"
 
 const GradingPage: React.FC = () => {
   const { t } = useTranslation()
@@ -122,7 +121,6 @@ const GradingPage: React.FC = () => {
                             <Button
                               variant={"secondary"}
                               size={"small"}
-                              transform="none"
                               onClick={() => {
                                 router.push(
                                   submissionGradingRoute(submission.exercise_slide_submission.id),
@@ -135,7 +133,6 @@ const GradingPage: React.FC = () => {
                             <Button
                               variant={"primary"}
                               size={"small"}
-                              transform="none"
                               onClick={() => {
                                 router.push(
                                   submissionGradingRoute(submission.exercise_slide_submission.id),
@@ -149,7 +146,6 @@ const GradingPage: React.FC = () => {
                           <Button
                             variant={"secondary"}
                             size={"small"}
-                            transform="none"
                             onClick={() => {
                               router.push(
                                 submissionGradingRoute(submission.exercise_slide_submission.id),

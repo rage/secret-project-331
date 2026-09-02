@@ -11,10 +11,9 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { DatabaseChapter, Exercise, Page } from "@/generated/api/types.generated"
 import { useExercises } from "@/hooks/useExercises"
-import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
-import { QueryResults } from "@/shared-module/components"
+import { Button, QueryResults } from "@/shared-module/components"
 
 interface Props {
   courseId: string
@@ -120,34 +119,19 @@ const ExerciseList: React.FC<Props> = ({
             gap: 8px;
           `}
         >
-          <Button onClick={selectAll} variant={"green"} size={"small"} transform={"capitalize"}>
+          <Button onClick={selectAll} variant="secondary" size={"small"}>
             {t("button-select-all")}
           </Button>
-          <Button onClick={selectNone} variant={"green"} size={"small"} transform={"capitalize"}>
+          <Button onClick={selectNone} variant="secondary" size={"small"}>
             {t("button-select-none")}
           </Button>
-          <Button
-            onClick={invertSelection}
-            variant={"green"}
-            size={"small"}
-            transform={"capitalize"}
-          >
+          <Button onClick={invertSelection} variant="secondary" size={"small"}>
             {t("button-invert-selection")}
           </Button>
-          <Button
-            onClick={selectPeerReview}
-            variant={"green"}
-            size={"small"}
-            transform={"capitalize"}
-          >
+          <Button onClick={selectPeerReview} variant="secondary" size={"small"}>
             {t("button-exercises-with-peer-review")}
           </Button>
-          <Button
-            onClick={selectSelfReview}
-            variant={"green"}
-            size={"small"}
-            transform={"capitalize"}
-          >
+          <Button onClick={selectSelfReview} variant="secondary" size={"small"}>
             {t("button-exercises-with-self-review")}
           </Button>
         </div>

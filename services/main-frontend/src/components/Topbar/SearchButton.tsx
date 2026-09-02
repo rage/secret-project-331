@@ -14,13 +14,12 @@ import {
   searchPagesWithWords,
 } from "@/generated/course-material-api/sdk.generated"
 import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { coursePageRoute } from "@/shared-module/common/utils/routes"
-import { Dialog, Spinner } from "@/shared-module/components"
+import { Button, Dialog, Spinner } from "@/shared-module/components"
 
 import useSearchPagesLiveRegion from "./useSearchPagesLiveRegion"
 
@@ -184,6 +183,8 @@ const KEYS = {
   SHORTCUT: "k",
 }
 
+const SEARCH_BUTTON_ID = "search-for-pages-button"
+
 export interface SearchButtonProps {
   courseId?: string | null
   organizationSlug?: string | null
@@ -331,11 +332,9 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
   return (
     <>
       <Button
-        tabIndex={0}
-        id="search-for-pages-button"
+        domProps={{ tabIndex: 0, id: SEARCH_BUTTON_ID, "aria-hidden": false }}
         className={StyledIcon}
         aria-label={t("button-label-search-for-pages")}
-        aria-hidden={false}
         size="small"
         variant="icon"
         onClick={openModal}

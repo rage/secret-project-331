@@ -5,9 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import type { DomainCompletionStats } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 interface DomainCompletionStatsTableProps {
   query: UseQueryResult<DomainCompletionStats[]>
@@ -55,7 +54,6 @@ const DomainCompletionStatsTable: React.FC<DomainCompletionStatsTableProps> = ({
                 variant="secondary"
                 size="small"
                 onClick={() => onDomainSelect(domain.email_domain)}
-                transform="none"
               >
                 {t("view-courses")}
               </Button>

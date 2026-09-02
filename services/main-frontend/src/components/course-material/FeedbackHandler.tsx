@@ -2,12 +2,11 @@
 
 import { css } from "@emotion/css"
 import { useAtom } from "jotai"
-import React, { useCallback, useEffect, useRef } from "react"
-import { useButton } from "react-aria"
+import React, { useCallback, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -38,7 +37,6 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection] = useAtom(selectionAtom)
-  const feedbackButtonRef = useRef<HTMLButtonElement>(null)
 
   const handleGiveFeedbackClick = () => {
     // oxlint-disable-next-line i18next/no-literal-string
@@ -71,14 +69,6 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
     }
   }, [focusDialog])
 
-  const { buttonProps } = useButton(
-    {
-      onPress: handleGiveFeedbackClick,
-      "aria-label": t("give-feedback"),
-    },
-    feedbackButtonRef,
-  )
-
   const showFeedbackButton = type === null && !selection.text
 
   return (
@@ -93,7 +83,7 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
             z-index: 1100;
           `}
         >
-          <Button ref={feedbackButtonRef} variant="primary" size="medium" {...buttonProps}>
+          <Button variant="primary" size="medium" onPress={handleGiveFeedbackClick}>
             {t("give-feedback")}
           </Button>
         </div>

@@ -13,13 +13,12 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseModule, CourseModuleThresholdInfo } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { QueryResult, QueryResults } from "@/shared-module/components"
+import { Button, QueryResult, QueryResults } from "@/shared-module/components"
 
 interface CheatersThresholdConfigProps {
   courseId: string
@@ -372,7 +371,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                   </td>
                   <td>
                     <Button
-                      variant={isSaved ? "secondary" : isRemoving ? "reject" : "primary"}
+                      variant={isSaved ? "secondary" : isRemoving ? "danger" : "primary"}
                       size="medium"
                       disabled={
                         (!hasValue && !hasConfiguredValue) ||

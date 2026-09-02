@@ -8,10 +8,10 @@ import {
   useCompletionStatsByEmailDomainQuery,
   useCourseCompletionStatsForEmailDomainQuery,
 } from "@/hooks/globalStats"
-import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button } from "@/shared-module/components"
 
 import CourseCompletionStatsTable from "./CourseCompletionStatsTable"
 import DomainCompletionStatsTable from "./DomainCompletionStatsTable"
@@ -69,7 +69,6 @@ const DomainStatsPage = () => {
               variant="tertiary"
               size="small"
               onClick={handleBackToAllDomains}
-              transform="none"
               className={css`
                 margin-right: 1rem;
               `}

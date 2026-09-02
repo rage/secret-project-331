@@ -14,12 +14,11 @@ import {
   searchPagesWithWords,
 } from "@/generated/course-material-api/sdk.generated"
 import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Dialog, LoadingRegion } from "@/shared-module/components"
+import { Button, Dialog, LoadingRegion } from "@/shared-module/components"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
@@ -147,6 +146,8 @@ const SearchIcon = styled(MagnifyingGlass)`
   color: ${baseTheme.colors.gray[400]};
   transition: color 0.2s ease;
 `
+
+const SEARCH_BUTTON_ID = "search-for-pages-button"
 
 const StyledIcon = css`
   right: -8px;
@@ -293,11 +294,9 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
   return (
     <>
       <Button
-        tabIndex={0}
-        id="search-for-pages-button"
+        domProps={{ tabIndex: 0, id: SEARCH_BUTTON_ID, "aria-hidden": false }}
         className={StyledIcon}
         aria-label={t("button-label-search-for-pages")}
-        aria-hidden={false}
         size="small"
         variant="icon"
         onClick={openModal}

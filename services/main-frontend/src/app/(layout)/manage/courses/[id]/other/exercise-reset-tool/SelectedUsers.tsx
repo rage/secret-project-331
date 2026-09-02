@@ -5,9 +5,9 @@ import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 
 import UserSearch from "./UserSearch"
 
@@ -124,7 +124,6 @@ const SelectedUsers: React.FC<Props> = ({
                       onClick={() => removeUser(user.user_id)}
                       variant={"secondary"}
                       size={"small"}
-                      transform={"capitalize"}
                     >
                       {t("button-remove")}
                     </Button>

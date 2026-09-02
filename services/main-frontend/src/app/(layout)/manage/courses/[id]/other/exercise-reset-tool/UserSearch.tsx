@@ -5,11 +5,10 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import TextFieldWithIcon from "@/shared-module/common/components/InputFields/TextFieldWithIcon"
 import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
-import { Dialog, LoadingRegion } from "@/shared-module/components"
+import { Button, Dialog, LoadingRegion } from "@/shared-module/components"
 
 interface Props {
   users?: UserDetail[]
@@ -59,12 +58,7 @@ const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers
       `}
     >
       <div>
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          variant="primary"
-          size={"small"}
-          transform={"capitalize"}
-        >
+        <Button onClick={() => setIsModalOpen(true)} variant="primary" size={"small"}>
           {t("button-add-students")}
         </Button>
       </div>
@@ -150,7 +144,6 @@ const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers
                           variant={"secondary"}
                           size={"small"}
                           data-testid={`add-user-button-${user.user_id}`}
-                          transform={"capitalize"}
                         >
                           {t(isAdded(user) ? "button-remove" : "button-add")}
                         </Button>

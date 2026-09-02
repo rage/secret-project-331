@@ -12,6 +12,8 @@ void i18next.use(initReactI18next).init({
   resources: {
     en: {
       "shared-module": {
+        "breadcrumbs.label": "Breadcrumb",
+        "breadcrumbs.loading": "Loading",
         "button.loading": "Loading",
         "checkbox.setField": "Set {{fieldName}}",
         "comboBox.toggleOptions": "Toggle options",

@@ -112,3 +112,6 @@ export type {
   SingleQueryState,
   SuccessData,
 } from "./components/queryResult/queryResultState"
+
+export { Breadcrumbs } from "./components/Breadcrumbs"
+export type { BreadcrumbItem, BreadcrumbsProps } from "./components/Breadcrumbs"

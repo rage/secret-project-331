@@ -28,7 +28,7 @@ if (globalThis.TextDecoder === undefined) {
   globalThis.TextDecoder = require("util").TextDecoder
 }
 
-// jsdom has neither, so anything rendering a virtualized list throws on mount.
+// jsdom has no ResizeObserver at all, so anything rendering a virtualized list throws on mount.
 if (globalThis.ResizeObserver === undefined) {
   globalThis.ResizeObserver = class {
     observe() {}
@@ -36,7 +36,9 @@ if (globalThis.ResizeObserver === undefined) {
     disconnect() {}
   }
 }
-if (typeof window !== "undefined" && typeof window.scrollTo !== "function") {
+// jsdom does define scrollTo, but as a stub that logs "Not implemented" on every call, so this
+// replaces it rather than filling a gap.
+if (typeof window !== "undefined") {
   window.scrollTo = () => {}
 }
 

@@ -3,6 +3,7 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Button } from "../src/components/Button"
+import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { pressEnter, pressSpace, renderUi } from "./testUtils"
 
 type Variant = "primary" | "secondary" | "tertiary" | "icon" | "danger"
@@ -42,6 +43,21 @@ describe("Button", () => {
     const loadingId = loadingText.getAttribute("id")
     expect(typeof loadingId).toBe("string")
     expect(loadingId && describedBy ? describedBy.split(" ").includes(loadingId) : false).toBe(true)
+  })
+
+  test("loading glyph is the shared spinnerGlyphCss ring, shown with no delay", () => {
+    jest.useFakeTimers()
+    try {
+      renderUi(<Button isLoading>Save</Button>)
+
+      const button = screen.getByRole("button", { name: "Save" })
+      const glyph = button.querySelectorAll(`.${spinnerGlyphCss("sm", "current")}`)[0]
+
+      expect(glyph).toBeInTheDocument()
+      expect(glyph?.closest('[aria-hidden="true"]')).toBeInTheDocument()
+    } finally {
+      jest.useRealTimers()
+    }
   })
 
   test("merges user aria-describedby with loading reason", () => {
@@ -211,5 +227,25 @@ describe("Button variants and sizes", () => {
     fireEvent.keyDown(button, { key: " " })
     expect(button).toHaveAttribute("data-pressed", "true")
     expect(getComputedStyle(button).transform).toBe("none")
+  })
+
+  test.each(variants)("loading glyph renders for variant %s, including danger", (variant) => {
+    renderUi(
+      <Button variant={variant} isLoading>
+        Label
+      </Button>,
+    )
+    const button = screen.getByRole("button", { name: "Label" })
+    expect(button.querySelectorAll(`.${spinnerGlyphCss("sm", "current")}`).length).toBe(1)
+  })
+
+  test.each(sizes)("loading glyph renders for size %s", (size) => {
+    renderUi(
+      <Button size={size} isLoading>
+        Label
+      </Button>,
+    )
+    const button = screen.getByRole("button", { name: "Label" })
+    expect(button.querySelectorAll(`.${spinnerGlyphCss("sm", "current")}`).length).toBe(1)
   })
 })

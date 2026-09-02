@@ -3,6 +3,7 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Link } from "../src/components/Link"
+import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { pressEnter, renderUi } from "./testUtils"
 
 jest.mock("next/link")
@@ -58,6 +59,20 @@ describe("Link", () => {
     const loadingId = loadingText.getAttribute("id")
     expect(typeof loadingId).toBe("string")
     expect(loadingId && describedBy ? describedBy.split(" ").includes(loadingId) : false).toBe(true)
+  })
+
+  test("loading glyph is the shared spinnerGlyphCss ring", () => {
+    renderUi(
+      <Link href="/billing" styledAsButton isLoading loadingLabel="Loading billing page">
+        Billing
+      </Link>,
+    )
+
+    const link = screen.getByRole("link", { name: "Billing" })
+    const glyph = link.querySelectorAll(`.${spinnerGlyphCss("sm", "current")}`)[0]
+
+    expect(glyph).toBeInTheDocument()
+    expect(glyph?.closest('[aria-hidden="true"]')).toBeInTheDocument()
   })
 
   test("merges user aria-describedby with loading reason", () => {

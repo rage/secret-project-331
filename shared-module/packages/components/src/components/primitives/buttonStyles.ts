@@ -1,4 +1,4 @@
-import { css, cx, keyframes } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import type { PressEvent } from "react-aria"
 
 export type ButtonSize = "small" | "medium" | "large"
@@ -18,10 +18,6 @@ interface ResolveStylesInput {
   size: ButtonSize
   variant: ButtonVariant
 }
-
-const spin = keyframes`
-  to { transform: rotate(360deg); }
-`
 
 /** Used for non-React/CSS-only screen-reader text; prefer `VisuallyHidden` in components. */
 export const srOnlyCss = css`
@@ -127,15 +123,6 @@ export const spinnerOverlayCss = css`
   display: grid;
   place-items: center;
   pointer-events: none;
-`
-
-export const spinnerCss = css`
-  width: 1em;
-  height: 1em;
-  border-radius: 9999px;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  animation: ${spin} 0.8s linear infinite;
 `
 
 const sizeSmCss = css`

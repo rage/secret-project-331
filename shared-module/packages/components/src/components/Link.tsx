@@ -17,9 +17,9 @@ import {
   iconSlotCss,
   type PressHandlers,
   resolveButtonRootCss,
-  spinnerCss,
   spinnerOverlayCss,
 } from "./primitives/buttonStyles"
+import { spinnerGlyphCss } from "./primitives/spinnerStyles"
 
 type CommonLinkExtras = PressHandlers & {
   isDisabled?: boolean
@@ -189,7 +189,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
             {isLoading ? (
               <>
                 <span className={spinnerOverlayCss} aria-hidden="true">
-                  <span className={spinnerCss} />
+                  <span className={spinnerGlyphCss("sm", "current")} />
                 </span>
                 <VisuallyHidden id={loadingDescId}>{loadingLabel}</VisuallyHidden>
               </>

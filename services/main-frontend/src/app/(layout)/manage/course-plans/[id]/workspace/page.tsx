@@ -16,14 +16,13 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCoursePlanPermissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, useDialog } from "@/shared-module/components"
 
 import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
 import AnalysisWorkspaceForm from "./components/AnalysisWorkspaceForm"
@@ -514,7 +513,7 @@ function CoursePlanWorkspacePage() {
   const params = useParams<{ id: string }>()
   const planId = params.id ?? ""
   const queryClient = useQueryClient()
-  const { alert: showDialogAlert } = useDialog()
+  const { alert: showDialogAlert, confirm } = useDialog()
   const planQuery = useQuery(
     getCourseDesignerPlanOptions({
       path: {
@@ -569,6 +568,7 @@ function CoursePlanWorkspacePage() {
     welcomeDialogGoalItemStyles,
     welcomeDialogHintStyles,
     showDialogAlert,
+    confirmDiscardUnsavedAnalysis: (message) => confirm({ message, isDestructive: true }),
     advanceStage: () => advanceMutation.mutateAsync({ path: { plan_id: planId } }),
   })
 

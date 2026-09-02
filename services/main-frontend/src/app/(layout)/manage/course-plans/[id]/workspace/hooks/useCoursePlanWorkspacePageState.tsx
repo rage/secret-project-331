@@ -38,7 +38,8 @@ interface UseCoursePlanWorkspacePageStateOptions {
   welcomeDialogGoalsListStyles: string
   welcomeDialogGoalItemStyles: string
   welcomeDialogHintStyles: string
-  showDialogAlert: (body: ReactNode, title: string) => Promise<void>
+  showDialogAlert: (request: { message: ReactNode; title: string }) => Promise<void>
+  confirmDiscardUnsavedAnalysis: (message: string) => Promise<boolean>
   advanceStage: () => Promise<{ plan: { active_stage?: CourseDesignerStage | null } }>
 }
 
@@ -56,6 +57,7 @@ export function useCoursePlanWorkspacePageState({
   welcomeDialogGoalItemStyles,
   welcomeDialogHintStyles,
   showDialogAlert,
+  confirmDiscardUnsavedAnalysis,
   advanceStage,
 }: UseCoursePlanWorkspacePageStateOptions) {
   const [isOverviewOpen, setIsOverviewOpen] = useState(false)
@@ -65,18 +67,18 @@ export function useCoursePlanWorkspacePageState({
   const welcomedStageRef = useRef<string | null>(null)
 
   const handleSelectedStageChange = useCallback(
-    (stage: CourseDesignerStage) => {
-      if (
-        analysisWorkspaceDirty &&
-        viewedStage === "Analysis" &&
-        stage !== viewedStage &&
-        !window.confirm(t("course-plans-analysis-unsaved-confirm"))
-      ) {
-        return
+    async (stage: CourseDesignerStage) => {
+      if (analysisWorkspaceDirty && viewedStage === "Analysis" && stage !== viewedStage) {
+        const discardUnsaved = await confirmDiscardUnsavedAnalysis(
+          t("course-plans-analysis-unsaved-confirm"),
+        )
+        if (!discardUnsaved) {
+          return
+        }
       }
       setViewedStage(stage)
     },
-    [analysisWorkspaceDirty, viewedStage, t],
+    [analysisWorkspaceDirty, viewedStage, confirmDiscardUnsavedAnalysis, t],
   )
 
   const handleAdvanceStage = useCallback(async () => {
@@ -133,10 +135,10 @@ export function useCoursePlanWorkspacePageState({
           </p>
         </div>
       )
-      await showDialogAlert(
-        dialogBody,
-        t("course-plans-welcome-dialog-title", { stage: stageName }),
-      )
+      await showDialogAlert({
+        message: dialogBody,
+        title: t("course-plans-welcome-dialog-title", { stage: stageName }),
+      })
       return
     }
 
@@ -146,7 +148,10 @@ export function useCoursePlanWorkspacePageState({
         <p className={welcomeDialogBriefStyles}>{t("course-plans-welcome-dialog-final-body")}</p>
       </div>
     )
-    await showDialogAlert(dialogBody, t("course-plans-welcome-dialog-final-title"))
+    await showDialogAlert({
+      message: dialogBody,
+      title: t("course-plans-welcome-dialog-final-title"),
+    })
   }, [
     advanceStage,
     buildStageDescriptionItems,

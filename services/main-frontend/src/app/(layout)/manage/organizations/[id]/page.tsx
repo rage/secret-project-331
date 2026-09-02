@@ -36,7 +36,7 @@ import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, useDialog } from "@/shared-module/components"
 import {
   actionButtonStyle,
   containerBase,
@@ -59,6 +59,7 @@ type TabKey = typeof GENERAL_TAB | typeof PERMISSIONS_TAB
 
 const ManageOrganization: React.FC = () => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
   const [activeTab, setActiveTab] = React.useState<TabKey>(DEFAULT_TAB)
   const [showAddUserPopup, setShowAddUserPopup] = React.useState(false)
   const [editMode, setEditMode] = React.useState(false)
@@ -134,21 +135,25 @@ const ManageOrganization: React.FC = () => {
     },
   )
 
-  const handleDelete = (userToDelete: NamedRoleUser) => {
-    if (window.confirm(t("confirm-delete-user", { email: userToDelete.email }))) {
-      removeRoleFromApi({
+  const handleDelete = async (userToDelete: NamedRoleUser) => {
+    const confirmed = await confirm({
+      message: t("confirm-delete-user", { email: userToDelete.email }),
+      isDestructive: true,
+    })
+    if (!confirmed) {
+      return
+    }
+    try {
+      await removeRoleFromApi({
         body: {
           email: userToDelete.email,
           role: userToDelete.role,
           domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
         },
       })
-        .then(() => {
-          roleQuery.refetch()
-        })
-        .catch((error) => {
-          console.error("Failed to delete user role:", error)
-        })
+      roleQuery.refetch()
+    } catch (error) {
+      console.error("Failed to delete user role:", error)
     }
   }
 

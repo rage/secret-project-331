@@ -10,9 +10,8 @@ import { chevronRight } from "@wordpress/icons"
 import { useContext } from "react"
 import { toast } from "react-hot-toast"
 
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { type PromptControls, useDialog } from "@/shared-module/components"
+import { LoadingRegion, type PromptControls, useDialog } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PageContext from "../../contexts/PageContext"
@@ -345,26 +344,15 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
 
     if (suggestions === null && !error) {
       return (
-        <div
+        <LoadingRegion
+          label={t("ai-loading")}
+          showLabel
+          minHeight={100}
+          size="sm"
           className={css`
             min-width: 220px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1.5rem;
           `}
-        >
-          <Spinner variant="small" disableMargin />
-          <span
-            className={css`
-              margin-top: 0.5rem;
-              font-size: 0.8rem;
-              color: ${TEXT_COLOR};
-            `}
-          >
-            {t("ai-loading")}
-          </span>
-        </div>
+        />
       )
     }
 

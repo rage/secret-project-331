@@ -45,7 +45,7 @@ import { toast } from "react-hot-toast"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { LoadingRegion } from "@/shared-module/components"
 import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -384,7 +384,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [showEditor])
 
   if (!showEditor) {
-    return <Spinner variant="large" />
+    return <LoadingRegion size="lg" />
   }
 
   return (

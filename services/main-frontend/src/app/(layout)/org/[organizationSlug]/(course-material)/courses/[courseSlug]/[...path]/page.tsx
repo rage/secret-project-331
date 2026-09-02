@@ -13,10 +13,10 @@ import { useLanguageNavigation } from "@/hooks/course-material/language/useLangu
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import NoIndexMeta from "@/shared-module/common/components/NoIndexMeta"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import {
@@ -186,7 +186,7 @@ const PagePage: React.FC = () => {
   }
 
   if (courseMaterialState.status === "loading") {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   return (

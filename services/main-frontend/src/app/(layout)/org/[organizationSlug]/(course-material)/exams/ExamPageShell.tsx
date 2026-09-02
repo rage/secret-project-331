@@ -12,11 +12,11 @@ import type { ExamData, ExamEnrollmentData } from "@/generated/course-material-a
 import useTime from "@/hooks/course-material/useTime"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
+import { LoadingRegion } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import { refetchViewAtom } from "@/state/course-material/selectors"
@@ -120,7 +120,7 @@ export default function ExamPageShell({
     return <ErrorBanner variant="readOnly" error={courseMaterialState.error} />
   }
   if (courseMaterialState.status === "loading" || !courseMaterialState.examData) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   const examData = courseMaterialState.examData
@@ -233,7 +233,7 @@ export default function ExamPageShell({
   }
 
   if (enrollmentTag !== "EnrolledAndStarted") {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   return (

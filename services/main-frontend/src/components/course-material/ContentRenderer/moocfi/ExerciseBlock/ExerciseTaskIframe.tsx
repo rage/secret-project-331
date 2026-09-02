@@ -3,13 +3,13 @@
 import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import {
   ThrottledChildRenderer,
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { useDialog } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
   ExerciseIframeState,

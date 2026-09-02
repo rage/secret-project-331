@@ -6,7 +6,6 @@ import { v5 } from "uuid"
 
 import PageContext from "@/contexts/PageContext"
 import { getCmsRepositoryExercisesForCourse } from "@/generated/api/sdk.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useMedia from "@/shared-module/common/hooks/useMedia"
@@ -15,7 +14,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
-import { LoadingRegion } from "@/shared-module/components"
+import { LoadingRegion, useDialog } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
   ExerciseIframeState,

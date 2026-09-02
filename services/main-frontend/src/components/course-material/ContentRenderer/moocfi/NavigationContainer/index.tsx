@@ -4,8 +4,8 @@ import { useAtomValue } from "jotai"
 import { useParams } from "next/navigation"
 import React from "react"
 
-import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 import {
   currentChapterIdAtom,
   currentPageIdAtom,
@@ -24,11 +24,11 @@ const NavigationContainer: React.FC<React.PropsWithChildren> = () => {
   const courseSlug = params?.courseSlug
 
   if (viewStatus !== "ready") {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   if (!organizationSlug || !courseSlug || !pageId) {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   return (

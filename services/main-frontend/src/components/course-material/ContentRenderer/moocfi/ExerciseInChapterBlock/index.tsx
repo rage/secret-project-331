@@ -4,10 +4,10 @@ import styled from "@emotion/styled"
 import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
-import Spinner from "@/shared-module/common/components/Spinner"
 import AccordionIcon from "@/shared-module/common/img/accordion-arrow.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
@@ -74,7 +74,7 @@ const ExerciseInChapterBlock: React.FC<
   const pageData = useAtomValue(currentPageDataAtom)
 
   if (courseMaterialState.status !== "ready") {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   const chapterId = pageData?.chapter_id

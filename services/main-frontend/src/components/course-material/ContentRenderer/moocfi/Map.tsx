@@ -13,10 +13,10 @@ import {
   postCourseMaterialStudentCountry,
 } from "@/generated/course-material-api/sdk.generated"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
@@ -251,7 +251,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   let countryTableData
 
   if (getCountry.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   if (getCountry.isSuccess && getCountry.data) {

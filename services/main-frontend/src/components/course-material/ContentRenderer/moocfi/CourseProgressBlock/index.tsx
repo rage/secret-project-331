@@ -7,11 +7,10 @@ import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialUserCourseProgress } from "@/generated/course-material-api/sdk.generated"
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Infobox, QueryResult } from "@/shared-module/components"
+import { Infobox, LoadingRegion, QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 
 import type { BlockRendererProps } from "../.."
@@ -34,7 +33,7 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   })
 
   if (courseMaterialState.status !== "ready" || loginStateContext.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
   if (!loginStateContext.signedIn) {
     return <Infobox>{t("please-log-in-to-see-your-progress")}</Infobox>

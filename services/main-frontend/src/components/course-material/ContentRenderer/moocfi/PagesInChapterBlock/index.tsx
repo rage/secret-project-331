@@ -6,8 +6,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 import { currentPageDataAtom, viewStatusAtom } from "@/state/course-material/selectors"
 
 import type { BlockRendererProps } from "../.."
@@ -22,7 +22,7 @@ const PagesInChapterBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const organizationSlug = params?.organizationSlug
 
   if (viewStatus !== "ready") {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
   const chapterId = pageData?.chapter_id
 
@@ -31,7 +31,7 @@ const PagesInChapterBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   }
 
   if (!courseSlug || !organizationSlug) {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   return (

@@ -5,8 +5,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
@@ -18,7 +18,7 @@ const GlossaryBlock: React.FC = () => {
   const pageData = useAtomValue(currentPageDataAtom)
 
   if (courseMaterialState.status !== "ready") {
-    return <Spinner variant="small" />
+    return <LoadingRegion />
   }
 
   if (pageData?.course_id === null || pageData?.course_id === undefined) {

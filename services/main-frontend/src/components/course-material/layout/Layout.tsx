@@ -124,7 +124,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
                 </NavItem>
               </NavItems>
             </NavContainer>
-            <Suspense fallback={<LoadingRegion size="lg" minHeight={40} />}>
+            <Suspense fallback={<LoadingRegion minHeight={40} />}>
               <UserNavigationControls currentPagePath={pathname} />
             </Suspense>
           </NavBar>

@@ -124,3 +124,6 @@ export type { UseLoadingAffordanceOptions } from "./lib/utils/loading"
 
 export { Breadcrumbs } from "./components/Breadcrumbs"
 export type { BreadcrumbItem, BreadcrumbsProps } from "./components/Breadcrumbs"
+
+export { Pagination } from "./components/Pagination"
+export type { PaginationProps } from "./components/Pagination"

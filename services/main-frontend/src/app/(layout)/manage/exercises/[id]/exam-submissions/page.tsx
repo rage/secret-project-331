@@ -9,11 +9,10 @@ import { useTranslation } from "react-i18next"
 
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
-import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
+import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -22,7 +21,7 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Breadcrumbs, type BreadcrumbItem, QueryResult } from "@/shared-module/components"
 
 const GradingPage: React.FC = () => {
   const { t } = useTranslation()
@@ -47,21 +46,21 @@ const GradingPage: React.FC = () => {
 
   usePageTitle(joinTitleSegments([t("header-submissions"), getExam.data?.name]), { order: 10 })
 
-  const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const breadcrumbPieces = [
+  const items: BreadcrumbItem[] = useMemo(
+    () => [
       // oxlint-disable-next-line i18next/no-literal-string
-      { text: t("link-manage"), url: `/manage/exams/${examId}` },
+      { label: t("link-manage"), href: `/manage/exams/${examId}` },
       // oxlint-disable-next-line i18next/no-literal-string
-      { text: t("questions"), url: `/manage/exams/${examId}/questions` },
-      { text: t("header-submissions"), url: "" },
-    ]
-    return breadcrumbPieces
-  }, [examId, t])
+      { label: t("questions"), href: `/manage/exams/${examId}/questions` },
+      { label: t("header-submissions") },
+    ],
+    [examId, t],
+  )
 
   return (
     <div>
       <BreakFromCentered sidebar={false}>
-        <Breadcrumbs pieces={pieces} />
+        <Breadcrumbs items={items} />
       </BreakFromCentered>
       <QueryResult query={getSubmissions}>
         {(getSubmissionsData) =>
@@ -233,10 +232,11 @@ const GradingPage: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-              <Pagination
+              <PaginationControls
                 totalPages={getSubmissionsData.total_pages}
                 paginationInfo={paginationInfo}
               />
+              <PaginationItemsPerPage paginationInfo={paginationInfo} />
             </>
           )
         }

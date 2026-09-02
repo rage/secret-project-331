@@ -16,7 +16,8 @@ import type {
   CreditRegistrationErrorCode,
   CreditRegistrationState,
 } from "@/generated/api/types.generated"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
+import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import { Button, Checkbox, QueryResult, Table, TextField } from "@/shared-module/components"
@@ -284,7 +285,8 @@ const RegistrationsPage: React.FC = () => {
               <p className={noteCss}>
                 {t("credit-registration-admin-row-count", { count: page.total_count })}
               </p>
-              <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
+              <PaginationControls paginationInfo={paginationInfo} totalPages={page.total_pages} />
+              <PaginationItemsPerPage paginationInfo={paginationInfo} />
             </>
           )
         }

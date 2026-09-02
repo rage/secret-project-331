@@ -10,8 +10,8 @@ import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBrea
 import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
-import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
+import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -123,20 +123,19 @@ const SubmissionsPage: React.FC = () => {
 
       <QueryResult query={answersQuery}>
         {(answers) => (
-          // AccordionProvider here allows us to collapse/expand all accordions in this subtree
-          <AccordionProvider>
+          <>
             <AnswersRequiringAttentionList
               answersRequiringAttention={answers.data}
               exercise_max_points={answers.exercise_max_points}
               courseId={exerciseQuery.data?.course_id ?? null}
               refetch={answersQuery.refetch}
             />
-            <Pagination
-              totalPages={answers.total_pages}
+            <PaginationControls totalPages={answers.total_pages} paginationInfo={paginationInfo} />
+            <PaginationItemsPerPage
               paginationInfo={paginationInfo}
               itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
             />
-          </AccordionProvider>
+          </>
         )}
       </QueryResult>
     </div>

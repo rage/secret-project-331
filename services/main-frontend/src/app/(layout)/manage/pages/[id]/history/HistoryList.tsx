@@ -8,7 +8,7 @@ import {
   restorePageHistoryMutation as restorePageHistoryMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PageHistory } from "@/generated/api/types.generated"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
 
@@ -78,11 +78,7 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
             onCompare={compare}
             onRestore={restore}
           />
-          <Pagination
-            totalPages={pageHistoryCount / 1}
-            paginationInfo={{ ...paginationInfo, limit: 1 }}
-            disableItemsPerPage
-          />
+          <PaginationControls totalPages={pageHistoryCount / 1} paginationInfo={paginationInfo} />
         </>
       )}
     </QueryResult>

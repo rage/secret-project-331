@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { getCourseFeedbackCountOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
+import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
 
@@ -44,7 +45,8 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
               paginationInfo={paginationInfo}
               onChange={getFeedbackCount.refetch}
             />
-            <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
+            <PaginationControls totalPages={pageCount} paginationInfo={paginationInfo} />
+            <PaginationItemsPerPage paginationInfo={paginationInfo} />
           </div>
         )
       }}

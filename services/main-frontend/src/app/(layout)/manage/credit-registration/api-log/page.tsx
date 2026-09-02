@@ -26,7 +26,8 @@ import {
   sectionsCss,
 } from "@/components/credit-registration/styles"
 import type { SuotarEndpoint } from "@/generated/api/types.generated"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
+import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Badge, QueryResult, Select, Table, TextField } from "@/shared-module/components"
 
@@ -306,7 +307,8 @@ const ApiLogPage: React.FC = () => {
                 <p className={noteCss}>
                   {t("credit-registration-admin-call-count", { count: page.total_count })}
                 </p>
-                <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
+                <PaginationControls paginationInfo={paginationInfo} totalPages={page.total_pages} />
+                <PaginationItemsPerPage paginationInfo={paginationInfo} />
               </>
             )
           }

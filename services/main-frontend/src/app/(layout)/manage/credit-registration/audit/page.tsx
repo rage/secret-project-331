@@ -36,7 +36,8 @@ import type {
   CreditRegistrationAdminActionRow,
   CreditRegistrationAdminActionTarget,
 } from "@/generated/api/types.generated"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
+import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import { Badge, DateField, QueryResult, Select, Table } from "@/shared-module/components"
@@ -328,7 +329,8 @@ const AuditPage: React.FC = () => {
                 <p className={noteCss}>
                   {t("credit-registration-admin-action-count", { count: page.total_count })}
                 </p>
-                <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
+                <PaginationControls paginationInfo={paginationInfo} totalPages={page.total_pages} />
+                <PaginationItemsPerPage paginationInfo={paginationInfo} />
               </>
             )
           }

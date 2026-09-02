@@ -19,7 +19,8 @@ import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
+import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -213,10 +214,11 @@ const SubmissionsPage: React.FC = () => {
                 exerciseSubmissions={exerciseSubmissions.data}
                 courseId={exercise.course_id}
               />
-              <Pagination
+              <PaginationControls
                 totalPages={exerciseSubmissions.total_pages}
                 paginationInfo={paginationInfo}
               />
+              <PaginationItemsPerPage paginationInfo={paginationInfo} />
             </>
           ) : null
         }

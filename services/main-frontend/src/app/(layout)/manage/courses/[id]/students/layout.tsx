@@ -14,7 +14,8 @@ import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
+import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -129,6 +130,8 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   const totalPages = identityQuery.data?.total_pages ?? 0
   // Owned here (single instance) so the next-page prefetch is scheduled once, not once per subtab.
   useCourseStudentsPrefetchNextPage(ctxCourseId, listParams, totalPages)
+
+  const paginationInfo = { page, setPage, limit, setLimit }
 
   const searchParams = useSearchParams()
   // Subtab links carry the current query string so the shared (URL-synced) search and page survive
@@ -269,9 +272,9 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
           {children}
         </div>
 
-        <Pagination
-          totalPages={totalPages}
-          paginationInfo={{ page, setPage, limit, setLimit }}
+        <PaginationControls totalPages={totalPages} paginationInfo={paginationInfo} />
+        <PaginationItemsPerPage
+          paginationInfo={paginationInfo}
           itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
         />
       </div>

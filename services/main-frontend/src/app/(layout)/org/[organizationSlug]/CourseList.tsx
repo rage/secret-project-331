@@ -8,7 +8,8 @@ import { useOrganizationCourseCount } from "@/hooks/useOrganizationCourseCount"
 import { useOrganizationCourses } from "@/hooks/useOrganizationCourses"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import Pagination from "@/shared-module/common/components/Pagination"
+import PaginationControls from "@/shared-module/common/components/PaginationControls"
+import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -56,11 +57,12 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
             justify-content: center;
           `}
         >
-          <Pagination
+          <PaginationControls
             totalPages={Math.ceil(Math.max(courseCount, 1) / paginationInfo.limit)}
             paginationInfo={paginationInfo}
           />
         </div>
+        <PaginationItemsPerPage paginationInfo={paginationInfo} />
 
         <NewCourseDialog
           open={newCourseFormOpen}

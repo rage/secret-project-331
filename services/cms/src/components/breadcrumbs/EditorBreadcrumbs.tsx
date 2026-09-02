@@ -3,8 +3,8 @@
 import { useRouter } from "next/router"
 import React from "react"
 
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { Breadcrumbs, type BreadcrumbItem } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 
 import usePageInfo from "../../hooks/usePageInfo"
@@ -36,22 +36,22 @@ const EditorBreadcrumbs: React.FC = () => {
         if (!courseId || !courseName) {
           return null
         }
-        /* oxlint-disable i18next/no-literal-string */
-        const pieces = [
+
+        const items: BreadcrumbItem[] = [
           {
-            text: courseName,
-            url: `/manage/courses/${courseId}/pages`,
-            externalLink: true,
+            label: courseName,
+            // oxlint-disable-next-line i18next/no-literal-string -- route, not user-visible text
+            href: `/manage/courses/${courseId}/pages`,
+            isExternal: true,
           },
           {
-            text: pageTitle,
-            url: "#",
+            label: pageTitle,
           },
         ]
 
         return (
           <BreakFromCentered {...breakFromCenteredProps}>
-            <Breadcrumbs pieces={pieces} />
+            <Breadcrumbs items={items} />
           </BreakFromCentered>
         )
       }}

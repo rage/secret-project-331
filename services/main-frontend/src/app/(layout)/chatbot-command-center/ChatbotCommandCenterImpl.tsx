@@ -15,8 +15,9 @@ const gridContainer = css`
   display: grid;
   grid-template-columns: auto 1fr;
   margin: 0 1rem;
-  margin-bottom: 1rem;
   gap: 0.5rem;
+  // remove navbar height and add 1rem of space to top and bottom
+  height: calc(100vh - calc(64.8px + 2rem));
 `
 
 const chatbotPlaceHolder = css`
@@ -58,7 +59,7 @@ const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
       />
       <div
         className={css`
-          height: 85vh;
+          height: inherit;
         `}
       >
         <NewConversationDialog

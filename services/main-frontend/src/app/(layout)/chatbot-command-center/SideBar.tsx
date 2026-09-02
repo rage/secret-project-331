@@ -30,7 +30,6 @@ const sideBarContainer = css`
   overflow-y: auto;
   box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
   max-width: 400px;
-  height: 85vh;
 `
 
 const SideBar: React.FC<SideBarProps> = (props) => {

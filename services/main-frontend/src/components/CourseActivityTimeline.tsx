@@ -18,10 +18,9 @@ import {
   getUserCourseSubmissionTimesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Disclosure } from "@/shared-module/components"
+import { Disclosure, LoadingRegion } from "@/shared-module/components"
 import { computeModuleRows, formatDuration } from "@/utils/moduleTimeline"
 import {
   colorAt,
@@ -70,7 +69,7 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
   )
 
   if (enrollmentsQuery.isPending || submissionsQuery.isPending) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   if (enrollmentsQuery.isError || submissionsQuery.isError) {

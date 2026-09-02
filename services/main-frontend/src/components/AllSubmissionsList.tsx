@@ -6,11 +6,11 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import { dateToString } from "@/shared-module/common/utils/time"
+import { LoadingRegion } from "@/shared-module/components"
 
 interface Submission {
   id: string
@@ -52,7 +52,7 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
         {t("all-submissions-by-user")}
       </h2>
 
-      {isLoading && <Spinner variant="medium" />}
+      {isLoading && <LoadingRegion />}
       {isError && <ErrorBanner variant="readOnly" error={error} />}
       {submissions && (
         <div

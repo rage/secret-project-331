@@ -9,10 +9,10 @@ import { useTranslation } from "react-i18next"
 import type { PlaygroundSettings } from "@/app/(layout)/playground-tabs/page"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 
 export interface PlaygroundSpecsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>
@@ -108,9 +108,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
           {publicSpecQuery.isError && (
             <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
           )}
-          {publicSpecQuery.isLoading && publicSpecQuery.isFetching && (
-            <Spinner variant={"medium"} />
-          )}
+          {publicSpecQuery.isLoading && publicSpecQuery.isFetching && <LoadingRegion />}
           {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
             <p>{t("error-cannot-load-with-the-given-inputs")}</p>
           )}
@@ -136,7 +134,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
             <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
           )}
           {modelSolutionSpecQuery.isLoading && modelSolutionSpecQuery.isFetching && (
-            <Spinner variant={"medium"} />
+            <LoadingRegion />
           )}
           {modelSolutionSpecQuery.isLoading && !modelSolutionSpecQuery.isFetching && (
             <p>{t("error-cannot-load-with-the-given-inputs")}</p>

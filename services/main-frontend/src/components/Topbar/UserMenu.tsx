@@ -5,10 +5,10 @@ import { css } from "@emotion/css"
 import React, { useContext, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { LoadingRegion } from "@/shared-module/components"
 
 import { useUserMenuItems } from "./hooks/useUserMenuItems"
 import TopBarMenuButton from "./TopBarMenuButton"
@@ -66,7 +66,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
     })
 
   if (loginStateContext.isLoading) {
-    return <Spinner variant="large" />
+    return <LoadingRegion minHeight={40} />
   }
 
   if (!shouldShow) {

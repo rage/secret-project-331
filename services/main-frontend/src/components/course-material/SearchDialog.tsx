@@ -15,12 +15,11 @@ import {
 } from "@/generated/course-material-api/sdk.generated"
 import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Dialog } from "@/shared-module/components"
+import { Dialog, LoadingRegion } from "@/shared-module/components"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
@@ -60,12 +59,6 @@ const ResultsContainer = styled.div<{ $hasResults: boolean }>`
   padding: 4px 1rem;
   overflow-y: auto;
   max-height: calc(90vh - 90px);
-`
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 2rem 0;
 `
 
 const EmptyState = styled.div`
@@ -346,11 +339,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
               </div>
             )}
 
-            {isLoading && (
-              <LoadingContainer>
-                <Spinner variant="medium" />
-              </LoadingContainer>
-            )}
+            {isLoading && <LoadingRegion />}
 
             {hasNoResults && (
               <EmptyState>

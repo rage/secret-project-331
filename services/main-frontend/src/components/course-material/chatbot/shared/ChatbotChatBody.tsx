@@ -16,8 +16,8 @@ import StopIcon from "@/imgs/stop.svg"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion } from "@/shared-module/components"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
@@ -667,7 +667,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         {chatbotMessageAnnouncement}
       </VisuallyHidden>
       {currentConversationInfo.isLoading ? (
-        <Spinner variant="medium" />
+        <LoadingRegion />
       ) : currentConversationInfo.isError ? (
         <div className={errorWrapperStyle}>
           <ErrorBanner

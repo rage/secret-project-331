@@ -9,10 +9,9 @@ import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import useOrganization from "@/hooks/course-material/useOrganization"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
-import { Dialog } from "@/shared-module/components"
+import { Dialog, LoadingRegion } from "@/shared-module/components"
 import { materialCourseAtom } from "@/state/course-material/selectors"
 
 const ClosedCourseWarningDialog = () => {
@@ -88,13 +87,12 @@ const ClosedCourseWarningDialog = () => {
         )}
 
         {(successorCourse.isLoading || organization.isLoading) && (
-          <div
+          <LoadingRegion
+            minHeight={56}
             className={css`
               margin: 1rem 0;
             `}
-          >
-            <Spinner />
-          </div>
+          />
         )}
 
         {successorCourse.data && organization.data && (

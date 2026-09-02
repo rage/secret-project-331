@@ -8,8 +8,8 @@ import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import { getCourseMaterialMentimeterOembed } from "@/generated/course-material-api/sdk.generated"
 import type { CourseMaterialOEmbedResponse } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion } from "@/shared-module/components"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
@@ -35,7 +35,7 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
 
   return (
     <>
-      {fetching && <Spinner variant="medium" />}
+      {fetching && <LoadingRegion />}
       {embedHtml && !fetching && (
         <figure
           className={css`

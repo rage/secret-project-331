@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next"
 import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles/theme"
+import { LoadingRegion } from "@/shared-module/components"
 import aspectRatioFromClassName from "@/utils/course-material/aspectRatioFromClassName"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
@@ -45,7 +45,7 @@ export const VimeoEmbedBlock: React.FC<
 
   return (
     <>
-      {fetching && <Spinner variant="medium" />}
+      {fetching && <LoadingRegion />}
       {embedHtml && !fetching && (
         <BreakFromCentered sidebar={false}>
           <figure

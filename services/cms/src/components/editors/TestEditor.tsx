@@ -6,8 +6,8 @@ import React, { useReducer, useState } from "react"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { useDialog } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -69,7 +69,10 @@ const TestEditor: React.FC = () => {
             pointer-events: auto;
           `}
           onClick={async () => {
-            const res = await confirm(t("are-you-sure-you-want-to-discard-changes"))
+            const res = await confirm({
+              message: t("are-you-sure-you-want-to-discard-changes"),
+              isDestructive: true,
+            })
             if (res) {
               contentDispatch({ type: "setContent", payload: savedContent })
             }

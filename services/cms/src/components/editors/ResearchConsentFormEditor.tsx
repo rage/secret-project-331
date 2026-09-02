@@ -6,9 +6,9 @@ import React, { useContext, useState } from "react"
 import type { NewResearchForm, ResearchForm } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { useDialog } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -112,7 +112,10 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
             pointer-events: auto;
           `}
           onClick={async () => {
-            const res = await confirm(t("are-you-sure-you-want-to-discard-changes"))
+            const res = await confirm({
+              message: t("are-you-sure-you-want-to-discard-changes"),
+              isDestructive: true,
+            })
             if (res) {
               setContent(currentContent)
             }

@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 
 import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import { useDialog } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -101,10 +101,10 @@ const HeadingHierarchyButton: React.FC<HeadingHierarchyButtonProps> = ({ content
         margin-bottom: 1rem;
       `}
       onClick={() => {
-        void alert(
-          <HeadingHierarchyDialogContent entries={entries} />,
-          t("dialog-title-heading-hierarchy"),
-        )
+        void alert({
+          message: <HeadingHierarchyDialogContent entries={entries} />,
+          title: t("dialog-title-heading-hierarchy"),
+        })
       }}
     >
       {t("button-heading-hierarchy")}

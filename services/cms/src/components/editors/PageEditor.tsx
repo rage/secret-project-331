@@ -16,7 +16,6 @@ import { getExercisesWithSubmissions } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -25,6 +24,7 @@ import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { pageRoute } from "@/shared-module/common/utils/routes"
+import { useDialog } from "@/shared-module/components"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
@@ -169,11 +169,12 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         return
       }
       if (exerciseIdsWithSubmissions.length > 0) {
-        const confirmed = await confirm(
-          t("confirm-remove-exercise-with-submissions", {
+        const confirmed = await confirm({
+          message: t("confirm-remove-exercise-with-submissions", {
             count: exerciseIdsWithSubmissions.length,
           }),
-        )
+          isDestructive: true,
+        })
         if (!confirmed) {
           setCurrentlySaving(false)
           return
@@ -305,7 +306,10 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             pointer-events: auto;
           `}
           onClick={async () => {
-            const res = await confirm(t("are-you-sure-you-want-to-discard-changes"))
+            const res = await confirm({
+              message: t("are-you-sure-you-want-to-discard-changes"),
+              isDestructive: true,
+            })
             if (res) {
               contentDispatch({ type: "setContent", payload: savedContent })
             }

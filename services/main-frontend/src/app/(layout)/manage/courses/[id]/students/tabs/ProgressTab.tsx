@@ -7,8 +7,8 @@ import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion } from "@/shared-module/components"
 import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
 
@@ -269,7 +269,7 @@ export const ProgressTabContent: React.FC = () => {
     structureQuery.isPending ||
     (userIds.length > 0 && detailQuery.isLoading)
   ) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   return (

@@ -17,10 +17,10 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
+import { LoadingRegion } from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
@@ -274,7 +274,7 @@ export const CertificatesTabContent: React.FC = () => {
     return <ErrorBanner error={detailQuery.error} />
   }
   if (identityQuery.isPending || (userIds.length > 0 && detailQuery.isLoading)) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   return (
@@ -313,19 +313,13 @@ export const CertificatesTabContent: React.FC = () => {
               `}
             >
               {!imageLoaded && (
-                <div
+                <LoadingRegion
+                  minHeight={0}
                   className={css`
                     position: absolute;
                     inset: 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #999;
-                    font-size: 14px;
                   `}
-                >
-                  <Spinner variant="medium" />
-                </div>
+                />
               )}
               <img
                 src={popupUrl}

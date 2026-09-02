@@ -16,7 +16,7 @@ import {
 } from "@/components/credit-registration/teacherCreditRegistrations"
 import type { CompletionGridRow, CourseCreditRegistration } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { LoadingRegion } from "@/shared-module/components"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import {
@@ -237,7 +237,7 @@ export const CompletionsTabContent: React.FC = () => {
     return <ErrorBanner error={detailQuery.error} />
   }
   if (identityQuery.isPending || (userIds.length > 0 && detailQuery.isLoading)) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   return (

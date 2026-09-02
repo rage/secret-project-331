@@ -16,10 +16,10 @@ import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import PaginationControls from "@/shared-module/common/components/PaginationControls"
 import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
+import { Spinner } from "@/shared-module/components"
 
 import {
   StudentsContextProvider,
@@ -207,8 +207,8 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
               />
               <span className={styles.searchIcon} aria-hidden="true" />
               {isSearchPending && (
-                <span className={styles.searchPendingSpinner} aria-hidden="true">
-                  <Spinner variant="small" disableMargin />
+                <span className={styles.searchPendingSpinner}>
+                  <Spinner size="sm" />
                 </span>
               )}
             </div>

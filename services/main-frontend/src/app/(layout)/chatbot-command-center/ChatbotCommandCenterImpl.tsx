@@ -34,6 +34,7 @@ interface ChatbotCommandCenterImplProps {
   conversations: ChatbotConversation[]
   configurationId: string | null
   setConfigurationId: React.Dispatch<string | null>
+  setCreateChatbotVisible
 }
 
 const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
@@ -42,6 +43,7 @@ const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
   conversations,
   configurationId,
   setConfigurationId,
+  setCreateChatbotVisible,
 }) => {
   const [showChatbotDialog, setChatbotDialog] = useState(false)
 
@@ -52,6 +54,7 @@ const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
         conversations={conversations}
         chatbots={chatbots}
         setConfigurationId={setConfigurationId}
+        setCreateChatbotVisible={setCreateChatbotVisible}
       />
       <div
         className={css`

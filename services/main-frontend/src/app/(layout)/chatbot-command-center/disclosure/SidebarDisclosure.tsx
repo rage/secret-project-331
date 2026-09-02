@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useDisclosureState } from "@react-stately/disclosure"
-import { LayoutVertical } from "@vectopus/atlas-icons-react"
+import { AddMessage, LayoutVertical, PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useRef } from "react"
 import type { ReactNode } from "react"
 import { mergeProps } from "react-aria/mergeProps"
@@ -10,12 +10,33 @@ import { useButton } from "react-aria/useButton"
 import { useDisclosure, type AriaDisclosureProps } from "react-aria/useDisclosure"
 import { useFocusRing } from "react-aria/useFocusRing"
 import { useHover } from "react-aria/useHover"
+import { useTranslation } from "react-i18next"
+
+import DropdownMenu, { type DropdownMenuItem } from "@/components/DropdownMenu"
+import { baseTheme } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components"
 
 interface DisclosureProps extends AriaDisclosureProps {
   title?: ReactNode
   children?: ReactNode
   defaultExpanded?: boolean
+  setChatbotDialog: React.Dispatch<boolean>
+  setCreateChatbotVisible
 }
+
+// <OnlyRenderIfPermissions
+//   action={{ type: "edit" }}
+//   resource={{ type: "global_permissions" }}
+// >
+//   <Button
+//     size="medium"
+//     onClick={() => {
+//       setCreateChatbotVisible(true)
+//     }}
+//   >
+//     {t("create-global-chatbot")}
+//   </Button>
+// </OnlyRenderIfPermissions>
 
 const reactAriaDisclosure = css`
   @media (max-width: 767.98px) {
@@ -34,7 +55,6 @@ const disclosureButton = css`
     background: #f3f4f6;
     cursor: pointer;
   }
-  margin-left: 2px;
 `
 
 const reactAriaDisclosurePanel = css`
@@ -43,7 +63,6 @@ const reactAriaDisclosurePanel = css`
   opacity: 1;
   visibility: visible;
   overflow: hidden;
-
   transition:
     grid-template-columns 0.3s ease-in-out,
     opacity 0.3s ease-in-out,
@@ -65,21 +84,110 @@ const SideBarDisclosure: React.FC<DisclosureProps> = (props) => {
   let { hoverProps, isHovered } = useHover({})
   let { focusProps, isFocusVisible } = useFocusRing()
 
+  const { t } = useTranslation()
+
+  const buttonStyle = css`
+    background: none;
+    border-width: medium;
+    border-style: none;
+    border-color: currentcolor;
+    border-image: none;
+    box-shadow: none;
+    text-shadow: none;
+  `
+
+  let items: DropdownMenuItem[] = [
+    {
+      // oxlint-disable-next-line i18next/no-literal-string
+      id: "chatbot-header-menu-new-conversation-button",
+      onAction: () => {
+        props.setCreateChatbotVisible(true)
+      },
+      icon: (
+        <PlusCircle
+          className={css`
+            color: ${baseTheme.colors.green[700]};
+            position: relative;
+            top: -0.25rem;
+          `}
+        />
+      ),
+      type: "action",
+      label: t("create-global-chatbot"),
+    },
+  ]
+
   return (
     <div className={reactAriaDisclosure} data-expanded={state.isExpanded || undefined}>
-      <button
-        {...mergeProps(pressProps, hoverProps, focusProps)}
-        ref={buttonRef}
-        slot="trigger"
-        className={disclosureButton}
-        data-pressed={isPressed || undefined}
-        data-hovered={isHovered || undefined}
-        data-focus-visible={isFocusVisible || undefined}
-        data-disabled={props.isDisabled || undefined}
+      <div
+        className={css`
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+
+          flex-direction: ${!state.isExpanded ? "column-reverse" : "row"};
+        `}
       >
-        <LayoutVertical weight="medium" size={16} />
-        <span>{props.title}</span>
-      </button>
+        <div
+          className={css`
+            display: flex;
+            flex-direction: ${!state.isExpanded ? "column" : "row"};
+            align-items: center;
+          `}
+        >
+          <DropdownMenu
+            // oxlint-disable-next-line i18next/no-literal-string
+            menuTestId="chatbot-header-menu"
+            // oxlint-disable-next-line i18next/no-literal-string
+            menuButtonTestId="chatbot-header-menu-button"
+            controlButtonClassName={buttonStyle}
+            controlButtonIconColor={`${baseTheme.colors.green[700]}`}
+            controlButtonAriaLabel={t("label-actions")}
+            controlButtonTooltipText={t("label-actions")}
+            controlButtonIconWidth={16}
+            items={items}
+          />
+          <Button
+            className={css`
+              color: var(--field-fg);
+              text-wrap: nowrap;
+              padding: 0;
+              // Hide button text when disclosure collapsed
+              & span[id~="_r_n_"] {
+                display: ${!state.isExpanded ? "none" : "block"};
+              }
+            `}
+            icon={
+              <AddMessage
+                className={css`
+                  color: ${baseTheme.colors.green[700]};
+                `}
+              />
+            }
+            // oxlint-disable-next-line i18next/no-literal-string
+            iconPosition="start"
+            size="medium"
+            variant="icon"
+            onClick={() => props.setChatbotDialog(true)}
+          >
+            New conversation
+          </Button>
+        </div>
+        <button
+          {...mergeProps(pressProps, hoverProps, focusProps)}
+          ref={buttonRef}
+          slot="trigger"
+          className={disclosureButton}
+          data-pressed={isPressed || undefined}
+          data-hovered={isHovered || undefined}
+          data-focus-visible={isFocusVisible || undefined}
+          data-disabled={props.isDisabled || undefined}
+        >
+          <LayoutVertical weight="medium" size={16} />
+          <span>{props.title}</span>
+        </button>
+      </div>
+
       <div {...panelProps} ref={panelRef} className={reactAriaDisclosurePanel}>
         <div>{props.children}</div>
       </div>

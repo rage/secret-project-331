@@ -13,12 +13,14 @@ interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
   courses: Course[]
   conversations: ChatbotConversation[]
+  setCreateChatbotVisible
 }
 
 const ChatbotCommandCenter: React.FC<ChatbotCommandCenterProps> = ({
   chatbots,
   courses,
   conversations,
+  setCreateChatbotVisible,
 }) => {
   const [configurationId, setConfigurationId] = useState<null | string>(null)
 
@@ -30,6 +32,7 @@ const ChatbotCommandCenter: React.FC<ChatbotCommandCenterProps> = ({
         conversations={conversations}
         configurationId={configurationId}
         setConfigurationId={setConfigurationId}
+        setCreateChatbotVisible={setCreateChatbotVisible}
       />
     </ChatbotChat>
   )

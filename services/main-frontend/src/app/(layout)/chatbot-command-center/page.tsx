@@ -53,30 +53,10 @@ const ChatbotCommandCenterPage: React.FC = () => {
     <BreakFromCentered sidebar={false}>
       <div
         className={css`
+          margin-top: 1rem;
           display: flex;
         `}
-      >
-        <div
-          className={css`
-            margin-left: auto;
-            padding: 1rem;
-          `}
-        >
-          <OnlyRenderIfPermissions
-            action={{ type: "edit" }}
-            resource={{ type: "global_permissions" }}
-          >
-            <Button
-              size="medium"
-              onClick={() => {
-                setCreateChatbotVisible(true)
-              }}
-            >
-              {t("create-global-chatbot")}
-            </Button>
-          </OnlyRenderIfPermissions>
-        </div>
-      </div>
+      ></div>
       <QueryResults
         treatEmptyAsData
         queries={[chatbotsQuery, coursesQuery, conversationsQuery] as const}
@@ -85,6 +65,7 @@ const ChatbotCommandCenterPage: React.FC = () => {
             chatbots={chatbotsData}
             courses={coursesData}
             conversations={conversationsData}
+            setCreateChatbotVisible={setCreateChatbotVisible}
           />
         )}
       />

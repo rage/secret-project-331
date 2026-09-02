@@ -9,12 +9,12 @@ import { useTranslation } from "react-i18next"
 
 import type { PlaygroundSettings } from "@/app/(layout)/playground-tabs/page"
 import { DEFAULT_SERVICE_INFO_URL } from "@/constants/playground"
-import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button } from "@/shared-module/components"
 import type { ExerciseServiceInfoApi } from "@/utils/playgroundSchemas"
 
 interface PlayGroundSettingsProps {

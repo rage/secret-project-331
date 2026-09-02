@@ -14,7 +14,6 @@ import {
   unsetExamCourseMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { getOrganization } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -28,7 +27,7 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import EditExamDialog from "../EditExamDialog"
 

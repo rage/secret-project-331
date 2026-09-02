@@ -5,9 +5,9 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components"
 
 interface VerifyPasswordFormProps {
   onSubmit: (password: string) => void

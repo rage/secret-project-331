@@ -6,10 +6,10 @@ import { useTranslation } from "react-i18next"
 
 import { updateExerciseRepositoryMutation as updateExerciseRepositoryMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseRepository } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 
 interface Props {
   exerciseRepository: ExerciseRepository

@@ -11,9 +11,8 @@ import {
   getExerciseRepositoriesForExamOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseRepository } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import AddExerciseRepositoryForm from "./AddExerciseRepositoryForm"
 import EditExerciseRepositoryForm from "./EditExerciseRepositoryForm"

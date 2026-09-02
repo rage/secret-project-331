@@ -5,10 +5,10 @@ import { Envelope } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button } from "@/shared-module/components"
 
 const EmailVerifiedPage: React.FC = () => {
   const { t } = useTranslation()

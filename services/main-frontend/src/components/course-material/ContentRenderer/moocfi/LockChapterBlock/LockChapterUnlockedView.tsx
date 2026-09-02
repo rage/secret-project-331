@@ -5,9 +5,9 @@ import { Padlock } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components"
 
 interface LockChapterUnlockedViewProps {
   onLock: () => void

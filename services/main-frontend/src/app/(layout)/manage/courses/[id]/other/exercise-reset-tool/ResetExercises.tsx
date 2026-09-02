@@ -8,11 +8,10 @@ import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[
 import { resetExercisesForSelectedUsers } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { useUsers } from "@/hooks/useUsers"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Dialog } from "@/shared-module/components"
+import { Button, Dialog } from "@/shared-module/components"
 
 import ExerciseList from "./ExerciseList"
 import ResetFilter from "./ResetFilter"

@@ -18,7 +18,6 @@ import {
   updateCertificateConfiguration,
 } from "@/generated/api/sdk.generated"
 import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -26,7 +25,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { LoadingRegion, useDialog } from "@/shared-module/components"
+import { Button, LoadingRegion, useDialog } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"

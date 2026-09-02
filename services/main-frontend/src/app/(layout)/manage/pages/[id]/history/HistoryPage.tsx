@@ -8,8 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import { getPageHistoryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { PageHistory } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 interface Props {
   pageId: string

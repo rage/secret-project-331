@@ -21,7 +21,6 @@ import type { Chapter, CourseStructure } from "@/generated/api/types.generated"
 import managePageOrderReducer, {
   managePageOrderInitialState,
 } from "@/reducers/managePageOrderReducer"
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -29,7 +28,7 @@ import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { useDialog } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 
 import ChapterFormDialog from "./ChapterFormDialog"
 import ChapterImageDialog from "./ChapterImageDialog"

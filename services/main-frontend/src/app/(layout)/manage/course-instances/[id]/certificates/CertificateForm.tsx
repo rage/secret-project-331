@@ -10,7 +10,6 @@ import type {
   CertificateTextAnchor,
   PaperSize,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import FileField from "@/shared-module/common/components/InputFields/FileField"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -19,6 +18,7 @@ import MaskOverThisInSystemTests from "@/shared-module/common/components/system-
 import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 
 interface Props {
   generatingCertificatesEnabled: boolean

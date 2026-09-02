@@ -15,11 +15,10 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { LoadingRegion, Spinner } from "@/shared-module/components"
+import { Button, LoadingRegion, Spinner } from "@/shared-module/components"
 
 export interface SearchUsersResultsProps {
   searchByEmailQuery: UseQueryResult<UserDetail[], unknown>

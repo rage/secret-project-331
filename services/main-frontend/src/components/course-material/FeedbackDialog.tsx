@@ -9,11 +9,11 @@ import { useTranslation } from "react-i18next"
 
 import { postFeedback } from "@/generated/course-material-api/sdk.generated"
 import type { FeedbackBlock } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { Button } from "@/shared-module/components"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,

@@ -4,10 +4,9 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { addCodeGiveawayCodesMutation as addCodeGiveawayCodesMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Dialog } from "@/shared-module/components"
+import { Button, Dialog } from "@/shared-module/components"
 
 interface ImportCodesFormProps {
   codeGiveawayId: string

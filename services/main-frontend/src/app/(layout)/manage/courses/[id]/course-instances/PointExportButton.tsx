@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
+import { Button } from "@/shared-module/components"
 
 const PointExportButton: React.FC<
   React.PropsWithChildren<{ courseInstanceId: string; courseInstanceName: string }>

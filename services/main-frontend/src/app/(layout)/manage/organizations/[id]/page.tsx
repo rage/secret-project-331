@@ -27,7 +27,6 @@ import type {
   UpdateOrganizationData,
   UserRole,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -36,7 +35,7 @@ import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult, useDialog } from "@/shared-module/components"
+import { Button, QueryResult, useDialog } from "@/shared-module/components"
 import {
   actionButtonStyle,
   containerBase,

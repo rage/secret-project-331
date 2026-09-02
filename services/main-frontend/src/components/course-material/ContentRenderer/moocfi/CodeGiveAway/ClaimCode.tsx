@@ -3,9 +3,9 @@
 import { useTranslation } from "react-i18next"
 
 import { claimCodeFromCodeGiveaway } from "@/generated/course-material-api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { Button } from "@/shared-module/components"
 
 interface ClaimCodeProps {
   codeGiveawayId: string

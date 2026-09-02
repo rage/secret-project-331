@@ -11,11 +11,10 @@ import { useTranslation } from "react-i18next"
 
 import { fetchPeerReviewDataReceivedByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { PeerOrSelfReviewsReceived as PeerOrSelfReviewsReceivedData } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
 

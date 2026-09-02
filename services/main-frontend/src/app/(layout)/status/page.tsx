@@ -4,10 +4,10 @@ import { css } from "@emotion/css"
 import React, { useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+import { Button } from "@/shared-module/components"
 
 import { useFavicon } from "../../../hooks/useFavicon"
 import { useLocalNotifications } from "../../../hooks/useLocalNotifications"

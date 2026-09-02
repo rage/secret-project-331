@@ -22,7 +22,6 @@ import {
   removeRole as removeRoleFromApi,
 } from "@/generated/api/sdk.generated"
 import type { GetRolesData, RoleDomain, RoleUser, UserRole } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -30,7 +29,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 

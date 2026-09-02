@@ -5,10 +5,9 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
-import { Dialog } from "@/shared-module/components"
+import { Button, Dialog } from "@/shared-module/components"
 
 import ContentArea from "./ContentArea"
 

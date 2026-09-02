@@ -11,10 +11,9 @@ import {
   getCourseInstanceEmailTemplatesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { createCourseInstanceEmailTemplate } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Dialog, QueryResult } from "@/shared-module/components"
+import { Button, Dialog, QueryResult } from "@/shared-module/components"
 
 import NewEmailTemplateForm from "./NewEmailTemplateForm"
 

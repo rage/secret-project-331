@@ -5,8 +5,8 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { Button } from "@/shared-module/components"
 
 const StyledTextField = styled(TextField)`
   margin: 0.3rem;

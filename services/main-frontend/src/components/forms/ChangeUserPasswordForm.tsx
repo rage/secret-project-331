@@ -6,11 +6,11 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { changeUserPassword } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface ChangePasswordFormFields {

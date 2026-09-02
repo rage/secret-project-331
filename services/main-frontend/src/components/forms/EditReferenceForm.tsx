@@ -9,10 +9,10 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button } from "@/shared-module/components"
 
 import {
   areCitationsValid,

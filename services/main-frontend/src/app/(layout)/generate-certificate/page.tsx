@@ -19,7 +19,6 @@ import type {
   GeneratedCertificate,
   CourseModule as GeneratedCourseModule,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -31,7 +30,7 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { LoadingRegion, useDialog } from "@/shared-module/components"
+import { Button, LoadingRegion, useDialog } from "@/shared-module/components"
 
 const ModuleCertificate: React.FC = () => {
   const { t } = useTranslation()

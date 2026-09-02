@@ -16,7 +16,6 @@ import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack
 import { useExerciseSubmissionsForUser } from "@/hooks/useExerciseSubmissionsForUser"
 import { useUserCourseSettings } from "@/hooks/useUserCourseSettings"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
-import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -31,6 +30,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   Breadcrumbs,
   type BreadcrumbItem,
+  Button,
   Infobox,
   LoadingRegion,
   QueryResult,

@@ -5,9 +5,8 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { ExamEnrollmentData } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"
-import { useDialog } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 
 export interface ExamInstructionsProps {
   onStart: () => Promise<void>

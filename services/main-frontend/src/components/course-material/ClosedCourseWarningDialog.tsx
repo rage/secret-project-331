@@ -7,11 +7,10 @@ import { useTranslation } from "react-i18next"
 
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import useOrganization from "@/hooks/course-material/useOrganization"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
-import { Dialog, LoadingRegion } from "@/shared-module/components"
+import { Button, Dialog, LoadingRegion } from "@/shared-module/components"
 import { materialCourseAtom } from "@/state/course-material/selectors"
 
 const ClosedCourseWarningDialog = () => {

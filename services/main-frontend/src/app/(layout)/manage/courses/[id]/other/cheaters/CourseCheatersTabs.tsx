@@ -16,11 +16,10 @@ import {
   dismissCourseSuspectedCheater,
 } from "@/generated/api/sdk.generated"
 import type { SuspectedCheaterStatus } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
-import { QueryResult, useDialog } from "@/shared-module/components"
+import { Button, QueryResult, useDialog } from "@/shared-module/components"
 
 interface CourseCheatersProps {
   courseId: string

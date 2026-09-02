@@ -13,7 +13,6 @@ import {
   updatePlaygroundExampleMutation as updatePlaygroundExampleMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PlaygroundExample } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -21,7 +20,7 @@ import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { QueryResult, useDialog } from "@/shared-module/components"
+import { Button, QueryResult, useDialog } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"

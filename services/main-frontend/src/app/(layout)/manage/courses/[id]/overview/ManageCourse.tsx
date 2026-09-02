@@ -18,12 +18,11 @@ import {
 } from "@/generated/api/sdk.generated"
 import type { Course } from "@/generated/api/types.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
-import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
-import { useDialog } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 
 import CourseMetadata from "./CourseMetadata"
 import EditCourseForm from "./EditCourseForm"

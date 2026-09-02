@@ -11,10 +11,9 @@ import {
   getCodeGiveawayByIdOptions,
   getCodeGiveawayCodesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
-import { QueryResults } from "@/shared-module/components"
+import { Button, QueryResults } from "@/shared-module/components"
 
 import CodeGiveawayCode from "./CodeGiveawayCode"
 import ImportCodesForm from "./ImportCodesForm"

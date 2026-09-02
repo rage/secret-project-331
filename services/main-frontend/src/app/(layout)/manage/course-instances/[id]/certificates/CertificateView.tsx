@@ -5,10 +5,10 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import type { CertificateConfigurationAndRequirements } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components"
 
 interface Props {
   configurationAndRequirements: CertificateConfigurationAndRequirements

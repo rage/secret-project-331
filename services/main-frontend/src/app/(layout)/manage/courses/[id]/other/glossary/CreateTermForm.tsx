@@ -5,11 +5,11 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { createCourseGlossaryTermMutation } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 
 interface NewTermForm {
   newTerm: string

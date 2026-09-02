@@ -7,9 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import { useStatusPodLogs } from "@/hooks/useStatusPodLogs"
 import { useStatusPods } from "@/hooks/useStatusPods"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
-import { Dialog, QueryResult } from "@/shared-module/components"
+import { Button, Dialog, QueryResult } from "@/shared-module/components"
 import { parseAnsiToReact } from "@/utils/parseAnsiToReact"
 
 const StatusPods: React.FC = () => {

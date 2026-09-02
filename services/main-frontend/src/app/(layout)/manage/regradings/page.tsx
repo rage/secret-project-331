@@ -19,7 +19,6 @@ import type {
   Regrading,
   UserPointsUpdateStrategy,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -33,7 +32,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isUuid } from "@/shared-module/common/utils/fetching"
 import { manageRegradingRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Dialog, QueryResult } from "@/shared-module/components"
+import { Button, Dialog, QueryResult } from "@/shared-module/components"
 
 interface Fields {
   ids: string

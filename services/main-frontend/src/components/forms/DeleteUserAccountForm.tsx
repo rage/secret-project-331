@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import {
@@ -16,7 +15,7 @@ import {
 } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
-import { Dialog } from "@/shared-module/components"
+import { Button, Dialog } from "@/shared-module/components"
 
 import OneTimeCodeForm from "./OneTimeCodeForm"
 import "@/shared-module/common/init/registerAuthApiClients"

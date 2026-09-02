@@ -10,7 +10,6 @@ import {
   getCourseByJoinCodeOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { joinCourseWithJoinCode } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -18,7 +17,7 @@ import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const JoinCoursePage: React.FC = () => {

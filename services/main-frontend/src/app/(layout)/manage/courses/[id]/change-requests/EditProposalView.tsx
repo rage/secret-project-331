@@ -14,7 +14,6 @@ import type {
   PageProposal,
 } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import Button from "@/shared-module/common/components/Button"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -23,6 +22,7 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
+import { Button } from "@/shared-module/components"
 
 const ImportantText = styled.div`
   white-space: pre-wrap;

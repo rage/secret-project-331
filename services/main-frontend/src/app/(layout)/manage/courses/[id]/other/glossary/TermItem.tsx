@@ -9,11 +9,11 @@ import {
   updateGlossaryTermMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 
 interface UpdateTermForm {
   updatedTerm: string

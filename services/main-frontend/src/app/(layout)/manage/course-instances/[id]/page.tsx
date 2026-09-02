@@ -11,13 +11,12 @@ import NewCourseInstanceForm from "@/app/(layout)/manage/courses/[id]/course-ins
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { deleteCourseInstance, editCourseInstance } from "@/generated/api/sdk.generated"
 import type { CourseInstanceForm } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 const ManageCourseInstances: React.FC = () => {
   const { t } = useTranslation()

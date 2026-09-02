@@ -8,10 +8,9 @@ import { mergeProps, useButton, useOverlayTrigger } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { extractUserDetail, useUserDetails } from "@/hooks/useUserDetails"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import { CourseProgressSection } from "./CourseProgressSection"
 import { UserDetailsContent } from "./UserDetailsContent"

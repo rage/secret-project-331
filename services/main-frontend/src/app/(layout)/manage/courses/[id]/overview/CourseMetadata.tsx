@@ -12,8 +12,7 @@ import { useTranslation } from "react-i18next"
 import AIMetadataForm from "@/components/forms/AIMetadataForm"
 import type { Course } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import Button from "@/shared-module/common/components/Button"
-import { Infobox } from "@/shared-module/components"
+import { Button, Infobox } from "@/shared-module/components"
 
 interface Props {
   courseId: string

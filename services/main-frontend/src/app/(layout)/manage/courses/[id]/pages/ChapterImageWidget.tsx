@@ -6,10 +6,9 @@ import { useTranslation } from "react-i18next"
 import UploadImageForm from "@/components/forms/UploadImageForm"
 import { deleteChapterImage, updateChapterImage } from "@/generated/api/sdk.generated"
 import type { Chapter } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { validateFile } from "@/shared-module/common/utils/files"
-import { useDialog } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 
 export interface ChapterImageControlsProps {
   chapter: Chapter

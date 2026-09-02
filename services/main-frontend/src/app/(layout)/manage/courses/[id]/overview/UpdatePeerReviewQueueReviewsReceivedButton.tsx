@@ -5,11 +5,10 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { updateCoursePeerReviewQueueReviewsReceived } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
-import { useDialog } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface ModuleCompletionReprocessButtonProps {

@@ -3,9 +3,8 @@
 import { useTranslation } from "react-i18next"
 
 import { endExamTime } from "@/generated/course-material-api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { useDialog } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 
 export interface EndExamButtonProps {
   examId: string

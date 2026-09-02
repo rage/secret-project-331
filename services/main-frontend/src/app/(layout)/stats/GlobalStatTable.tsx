@@ -13,10 +13,9 @@ import type {
   GlobalStatEntry,
   TimeGranularity,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { courseStatsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 interface RegularStatTableProps {
   query: UseQueryResult<GlobalStatEntry[]>

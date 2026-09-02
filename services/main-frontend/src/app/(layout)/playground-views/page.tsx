@@ -14,7 +14,6 @@ import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -27,7 +26,7 @@ import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 import type {
   CurrentStateMessage,
   IframeViewType,

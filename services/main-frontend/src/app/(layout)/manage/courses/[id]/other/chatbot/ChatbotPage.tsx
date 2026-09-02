@@ -12,11 +12,10 @@ import {
   setCourseChatbotAsDefaultMutation,
   setCourseChatbotAsNonDefaultMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 import { CardList, CardListItem } from "@/styles/styles"
 
 import CreateChatbotDialog from "./CreateChatbotDialog"

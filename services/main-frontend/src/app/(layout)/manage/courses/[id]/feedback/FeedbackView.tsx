@@ -9,13 +9,12 @@ import { useTranslation } from "react-i18next"
 import { markFeedbackAsReadMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import Button from "@/shared-module/common/components/Button"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
-import { Disclosure } from "@/shared-module/components"
+import { Button, Disclosure } from "@/shared-module/components"
 
 export interface FeedbackViewProps {
   feedback: Feedback

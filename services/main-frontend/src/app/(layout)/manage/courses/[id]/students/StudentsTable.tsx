@@ -167,6 +167,8 @@ export function StudentsTable<T extends object>({
 
   const [showFloatingHeader, setShowFloatingHeader] = useState(false)
   const [floatingRect, setFloatingRect] = useState({ left: 0, width: 0 })
+  // Mirrors floatingRect for the rAF-driven horizontal sync, which runs outside React.
+  const floatingRectRef = useRef({ left: 0, width: 0 })
   // Unpinning mid-drag would unmount the very handle being dragged, so pinning is frozen until the
   // gesture ends.
   const isResizingRef = useRef(false)
@@ -176,8 +178,36 @@ export function StudentsTable<T extends object>({
     if (!wrapper) {
       return
     }
-    const rect = wrapper.getBoundingClientRect()
-    setFloatingRect({ left: rect.left, width: rect.width })
+    const scroller = horizontalScrollElRef.current
+    let next: { left: number; width: number }
+    if (scroller && scroller.scrollWidth > scroller.clientWidth) {
+      // The wrapper is width: 100% of the scroller's *content* box, but a table wider than that
+      // paints out through the scroller's padding. Sized from the wrapper the header would stop
+      // one padding-width short of the columns at each edge.
+      const scrollerRect = scroller.getBoundingClientRect()
+      next = { left: scrollerRect.left + scroller.clientLeft, width: scroller.clientWidth }
+    } else {
+      // While the table fits, the wrapper is its box -- and the scroller would stretch the header
+      // strip past the wrapper's rounded border.
+      const rect = wrapper.getBoundingClientRect()
+      next = { left: rect.left, width: rect.width }
+    }
+    floatingRectRef.current = next
+    setFloatingRect((previous) =>
+      previous.left === next.left && previous.width === next.width ? previous : next,
+    )
+  }, [])
+
+  // Aligns the clone with the real table by their actual positions rather than by scrollLeft: the
+  // shell starts at the scroller's client edge, which is one padding-width left of the table.
+  const applyHorizontalTransform = useCallback(() => {
+    const inner = floatingInnerRef.current
+    const realTable = realTableRef.current
+    if (!inner || !realTable) {
+      return
+    }
+    const offset = realTable.getBoundingClientRect().left - floatingRectRef.current.left
+    inner.style.transform = `translateX(${offset}px)`
   }, [])
 
   const updateShowFloatingHeader = useCallback(() => {
@@ -201,20 +231,20 @@ export function StudentsTable<T extends object>({
   // horizontal scroll position immediately, otherwise it renders misaligned until the next
   // horizontal scroll event.
   useLayoutEffect(() => {
-    if (showFloatingHeader && floatingInnerRef.current) {
-      const x = horizontalScrollElRef.current?.scrollLeft ?? 0
-      floatingInnerRef.current.style.transform = `translateX(-${x}px)`
+    if (showFloatingHeader) {
+      applyHorizontalTransform()
     }
-  }, [showFloatingHeader])
+  }, [showFloatingHeader, applyHorizontalTransform])
 
   useEffect(() => {
+    const wrapper = tableWrapperRef.current
+    // Resolved before the first measurement, which needs the scroller to know whether the table
+    // overflows.
+    horizontalScrollElRef.current =
+      wrapper?.closest<HTMLElement>("[data-students-horizontal-scroll]") ?? null
     // Pin state is already resolved before paint by the useLayoutEffect above (on mount and on
     // every data/columns change); only the floating rect is measured here.
     measureFloatingRect()
-
-    const wrapper = tableWrapperRef.current
-    horizontalScrollElRef.current =
-      wrapper?.closest<HTMLElement>("[data-students-horizontal-scroll]") ?? null
 
     // rAF-throttle the pin check so a scroll burst does at most one pair of layout reads per frame,
     // matching the horizontal-scroll handler below.
@@ -242,24 +272,24 @@ export function StudentsTable<T extends object>({
     if (wrapper) {
       ro.observe(wrapper)
     }
-
-    const applyHorizontalTransform = (x: number) => {
-      if (floatingInnerRef.current) {
-        floatingInnerRef.current.style.transform = `translateX(-${x}px)`
-      }
+    // The table too: whether it overflows the scroller decides which box the header is sized from,
+    // and the wrapper's own size never reflects that.
+    if (realTableRef.current) {
+      ro.observe(realTableRef.current)
     }
+
     const onHorizontalScroll = () => {
       if (horizontalRafRef.current !== null) {
         return
       }
       horizontalRafRef.current = requestAnimationFrame(() => {
         horizontalRafRef.current = null
-        applyHorizontalTransform(horizontalScrollElRef.current?.scrollLeft ?? 0)
+        applyHorizontalTransform()
       })
     }
     const horizontalScrollEl = horizontalScrollElRef.current
     horizontalScrollEl?.addEventListener("scroll", onHorizontalScroll, { passive: true })
-    applyHorizontalTransform(horizontalScrollEl?.scrollLeft ?? 0)
+    applyHorizontalTransform()
 
     return () => {
       window.removeEventListener("scroll", onWindowScroll)
@@ -273,7 +303,7 @@ export function StudentsTable<T extends object>({
         cancelAnimationFrame(showHeaderRafRef.current)
       }
     }
-  }, [measureFloatingRect, measureScrollMargin, updateShowFloatingHeader])
+  }, [applyHorizontalTransform, measureFloatingRect, measureScrollMargin, updateShowFloatingHeader])
 
   // Plain-text stand-in for a cell, so widths can be measured without mounting 1000 rows. Columns
   // whose cell renders elements supply it through meta.measureValue.
@@ -562,7 +592,6 @@ export function StudentsTable<T extends object>({
               return (
                 <th
                   key={header.id}
-                  data-header-id={header.id}
                   aria-sort={
                     sortDirection === "asc"
                       ? "ascending"

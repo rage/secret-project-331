@@ -382,6 +382,5 @@ export const tokensGlobal = injectGlobal`
     --query-border-width: 1px;
     --query-shimmer-duration: 1.6s;
     --query-progress-beam-duration: 1.1s;
-    --query-spinner-duration: 0.8s;
   }
 `

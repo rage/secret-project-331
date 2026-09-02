@@ -210,20 +210,3 @@ export const staleStatusCss = css`
   font-size: var(--font-size-1);
   color: var(--field-message-color-invalid);
 `
-
-const querySpin = keyframes`
-  to { transform: rotate(360deg); }
-`
-
-export const queryLoadingSpinnerCss = css`
-  width: var(--space-5);
-  height: var(--space-5);
-  border-radius: 50%;
-  border: var(--space-1) solid var(--color-green-600);
-  border-right-color: transparent;
-  animation: ${querySpin} var(--query-spinner-duration) linear infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-`

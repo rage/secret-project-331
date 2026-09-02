@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "../Button"
+import { spinnerGlyphCss } from "../primitives/spinnerStyles"
 import type { RetryFn } from "./queryResultState"
 import { getErrorMessage } from "./queryResultState"
 import {
@@ -21,7 +22,6 @@ import {
   initialLoadingSurfaceDarkCss,
   initialLoadingSurfaceLightCss,
   loadingSurfaceMinHeightCss,
-  queryLoadingSpinnerCss,
   skeletonBlockBaseCss,
   skeletonBlockDarkCss,
   skeletonBlockDimsCss,
@@ -219,7 +219,7 @@ export function AnimatedQueryFrame<E>({
               transition={{ duration: 0.2 }}
             >
               <div
-                className={queryLoadingSpinnerCss}
+                className={spinnerGlyphCss("lg", "accent")}
                 data-testid="query-loading-spinner"
                 aria-hidden
               />

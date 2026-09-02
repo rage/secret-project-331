@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
 import { act, fireEvent, screen } from "@testing-library/react"
 
+import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { QueryResult } from "../src/components/queryResult/QueryResult"
 import { domClick, renderUi } from "./testUtils"
 
@@ -125,7 +126,9 @@ test("initial loading delays centered spinner until loadingDelayMs", () => {
     act(() => {
       jest.advanceTimersByTime(400)
     })
-    expect(screen.getByTestId("query-loading-spinner")).toBeInTheDocument()
+    const spinner = screen.getByTestId("query-loading-spinner")
+    expect(spinner).toBeInTheDocument()
+    expect(spinner).toHaveClass(spinnerGlyphCss("lg", "accent"))
   } finally {
     jest.useRealTimers()
   }

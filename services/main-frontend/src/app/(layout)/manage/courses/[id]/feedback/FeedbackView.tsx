@@ -9,13 +9,13 @@ import { useTranslation } from "react-i18next"
 import { markFeedbackAsReadMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
+import { Disclosure } from "@/shared-module/components"
 
 export interface FeedbackViewProps {
   feedback: Feedback
@@ -127,26 +127,23 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
         `}
       >
         {feedback.blocks.length > 0 && (
-          <Accordion>
-            <details>
-              <summary>{t("text-visible-when-feedback-given")}</summary>
-              <div>
-                {[...feedback.blocks]
-                  .toSorted((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
-                  .toSorted((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0))
-                  .map((b) => (
-                    <p
-                      className={css`
-                        margin-bottom: 0.5rem;
-                      `}
-                      key={b.id}
-                    >
-                      {b.text}
-                    </p>
-                  ))}
-              </div>
-            </details>
-          </Accordion>
+          <Disclosure title={t("text-visible-when-feedback-given")}>
+            <div>
+              {[...feedback.blocks]
+                .toSorted((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
+                .toSorted((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0))
+                .map((b) => (
+                  <p
+                    className={css`
+                      margin-bottom: 0.5rem;
+                    `}
+                    key={b.id}
+                  >
+                    {b.text}
+                  </p>
+                ))}
+            </div>
+          </Disclosure>
         )}
       </div>
       <Button

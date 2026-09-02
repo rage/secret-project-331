@@ -2,25 +2,30 @@
 //!
 //! The caller resolves faults ahead of this, so per item the order is first matching fault, then here.
 
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use crate::prelude::*;
 
 use super::ids;
-use super::wire::{self, ResponseItem};
+use super::wire::{
+    self, ImportAttainmentResult, SuotarAttainment, SuotarResponseItem, error_item, ok_item,
+};
 use super::world::{
     AttainmentState, DuplicateDetection, EnrolmentState, MockAttainment, MockCourseUnit,
     MockEnrolment, MockRealisation, MockSubmission, Ripeness, SubmissionLifecycle, WorkingSet,
     WorldWrite, person_course_key,
 };
 
-pub fn resolve_person_item(item: &wire::ResolvePersonsItem, working: &WorkingSet) -> ResponseItem {
+pub fn resolve_person_item(
+    item: &wire::ResolvePersonRequestItem,
+    working: &WorkingSet,
+) -> SuotarResponseItem<wire::PersonResult> {
     let endpoint = SuotarEndpoint::ResolvePersons;
     match working.persons.get(&item.student_number) {
-        Some(person) => ok(
+        Some(person) => ok_item(
             &item.request_item_id,
             "personFound",
-            &wire::PersonResult {
+            wire::PersonResult {
                 // Echoed verbatim rather than re-derived, so a client that mismatches numbers shows.
                 student_number: item.student_number.clone(),
                 person_id: person.person_id.clone(),
@@ -28,22 +33,22 @@ pub fn resolve_person_item(item: &wire::ResolvePersonsItem, working: &WorkingSet
                 last_name: person.last_name.clone(),
             },
         ),
-        None => ResponseItem::error(endpoint, &item.request_item_id, "personNotFound"),
+        None => error_item(endpoint, &item.request_item_id, "personNotFound"),
     }
 }
 
 pub fn resolve_enrolments_item(
-    item: &wire::ResolveEnrolmentsItem,
+    item: &wire::ResolveEnrolmentRequestItem,
     working: &mut WorkingSet,
     now: DateTime<Utc>,
-) -> ResponseItem {
+) -> SuotarResponseItem<wire::EnrolmentResolutionResult> {
     let endpoint = SuotarEndpoint::ResolveEnrolments;
     let id = &item.request_item_id;
     if !working.persons.contains_key(&item.student_number) {
-        return ResponseItem::error(endpoint, id, "personNotFound");
+        return error_item(endpoint, id, "personNotFound");
     }
     let Some(course_unit) = working.course_units.get(&item.course_code).cloned() else {
-        return ResponseItem::error(endpoint, id, "courseCodeNotFound");
+        return error_item(endpoint, id, "courseCodeNotFound");
     };
     // Ripening here as well as in verify keeps the two reads from contradicting each other.
     ripen_person_course(working, &item.student_number, &item.course_code, now);
@@ -51,13 +56,13 @@ pub fn resolve_enrolments_item(
     let matching: Vec<MockEnrolment> =
         enrolments_for(working, &item.student_number, &item.course_code);
     if matching.is_empty() {
-        return ResponseItem::error(endpoint, id, "enrolmentNotFound");
+        return error_item(endpoint, id, "enrolmentNotFound");
     }
     if !matching
         .iter()
         .any(|enrolment| enrolment.state == EnrolmentState::Enrolled)
     {
-        return ResponseItem::error(endpoint, id, "enrolmentNotAccepted");
+        return error_item(endpoint, id, "enrolmentNotAccepted");
     }
 
     let mut listed: Vec<&MockEnrolment> = matching
@@ -78,10 +83,10 @@ pub fn resolve_enrolments_item(
         })
         .collect();
 
-    ok(
+    ok_item(
         id,
         "enrolmentFound",
-        &wire::EnrolmentsResult {
+        wire::EnrolmentResolutionResult {
             enrolments,
             existing_attainments: existing_attainments(
                 working,
@@ -93,18 +98,18 @@ pub fn resolve_enrolments_item(
 }
 
 pub fn import_item(
-    item: &wire::ImportItem,
+    item: &wire::ImportAttainmentRequestItem,
     working: &mut WorkingSet,
     now: DateTime<Utc>,
-) -> ResponseItem {
+) -> SuotarResponseItem<ImportAttainmentResult> {
     let endpoint = SuotarEndpoint::ImportAttainments;
     let id = &item.request_item_id;
     let Some(person) = working.persons.get(&item.student_number).cloned() else {
-        return ResponseItem::error(endpoint, id, "personNotFound");
+        return error_item(endpoint, id, "personNotFound");
     };
     // Import's error list has no `courseCodeNotFound`, so an unknown course code degrades here.
     let Some(course_unit) = working.course_units.get(&item.course_code).cloned() else {
-        return ResponseItem::error(endpoint, id, "enrolmentNotFound");
+        return error_item(endpoint, id, "enrolmentNotFound");
     };
     let enrolment = working
         .enrolments
@@ -116,13 +121,13 @@ pub fn import_item(
         })
         .cloned();
     let Some(enrolment) = enrolment else {
-        return ResponseItem::error(endpoint, id, "enrolmentNotFound");
+        return error_item(endpoint, id, "enrolmentNotFound");
     };
     if !course_unit.behaviour.import_allowed {
-        return ResponseItem::error(endpoint, id, "courseNotAllowed");
+        return error_item(endpoint, id, "courseNotAllowed");
     }
     let Some(realisation) = course_unit.realisation(&enrolment.realisation_id).cloned() else {
-        return ResponseItem::error(endpoint, id, "enrolmentNotFound");
+        return error_item(endpoint, id, "enrolmentNotFound");
     };
 
     let scale = working.defaults.scale(&realisation.grade_scale_id);
@@ -133,22 +138,22 @@ pub fn import_item(
         .is_some_and(|(requested, expected)| requested.id == expected.id);
     let grade = scale.and_then(|scale| scale.grade(&item.grade_id));
     if !grade_matches_scale || grade.is_none() {
-        return ResponseItem::error(endpoint, id, "invalidGradeForGradeScale");
+        return error_item(endpoint, id, "invalidGradeForGradeScale");
     }
     if item.credits < realisation.credits.min || item.credits > realisation.credits.max {
-        return ResponseItem::error(endpoint, id, "invalidCredits");
+        return error_item(endpoint, id, "invalidCredits");
     }
     if !enrolment
         .study_right_validity_period
         .contains(item.attainment_date)
     {
-        return ResponseItem::error(endpoint, id, "studyRightNotValid");
+        return error_item(endpoint, id, "studyRightNotValid");
     }
     if realisation.acceptor_person_id.is_none() {
-        return ResponseItem::error(endpoint, id, "acceptorNotFound");
+        return error_item(endpoint, id, "acceptorNotFound");
     }
     if !realisation.activity_period.contains(item.attainment_date) {
-        return ResponseItem::error(endpoint, id, "sisuValidationFailed");
+        return error_item(endpoint, id, "sisuValidationFailed");
     }
 
     ripen_person_course(working, &item.student_number, &item.course_code, now);
@@ -203,39 +208,38 @@ pub fn import_item(
             .get(&submitted_attainment_id)
             .map(|submission| submission.lifecycle.clone())
     {
-        return ok(
+        return ok_item(
             id,
             "registered",
-            &wire::RegisteredResult {
-                attainment: wire::AttainmentRef {
-                    id: attainment_id,
-                    attainment_type: "CourseUnitAttainment".to_string(),
-                },
+            ImportAttainmentResult {
+                attainment: Some(attainment_reference(attainment_id)),
+                ..Default::default()
             },
         );
     }
 
-    ok(
+    ok_item(
         id,
         "sent",
-        &wire::SentResult {
-            submitted_attainment_id,
-            submitted_attainment_type: "AssessmentItemAttainment".to_string(),
+        ImportAttainmentResult {
+            submitted_attainment_id: Some(submitted_attainment_id),
+            submitted_attainment_type: Some("AssessmentItemAttainment".to_string()),
+            ..Default::default()
         },
     )
 }
 
 pub fn verify_item(
-    item: &wire::VerifyItem,
+    item: &wire::VerifyAttainmentRequestItem,
     working: &mut WorkingSet,
     now: DateTime<Utc>,
-) -> ResponseItem {
+) -> SuotarResponseItem<wire::VerifyAttainmentResult> {
     let endpoint = SuotarEndpoint::VerifyAttainments;
     let id = &item.request_item_id;
     // An unknown id is the "no registration evidence" case: anything else would let a client tell a
     // typo from a not-yet, which real Sisu cannot.
     let Some(submission) = working.submissions.get_mut(&item.submitted_attainment_id) else {
-        return ResponseItem::error(endpoint, id, "notRegistered");
+        return error_item(endpoint, id, "notRegistered");
     };
     submission.verify_calls += 1;
     working.writes.push(WorldWrite::UpsertSubmission(
@@ -245,45 +249,40 @@ pub fn verify_item(
     ripen(working, &item.submitted_attainment_id, now);
 
     let Some(submission) = working.submissions.get(&item.submitted_attainment_id) else {
-        return ResponseItem::error(endpoint, id, "notRegistered");
+        return error_item(endpoint, id, "notRegistered");
     };
     match &submission.lifecycle {
-        SubmissionLifecycle::Registered { attainment_id, .. } => ok(
+        SubmissionLifecycle::Registered { attainment_id, .. } => ok_item(
             id,
             "registered",
-            &wire::RegisteredResult {
-                attainment: wire::AttainmentRef {
-                    id: attainment_id.clone(),
-                    attainment_type: "CourseUnitAttainment".to_string(),
-                },
+            wire::VerifyAttainmentResult {
+                attainment: attainment_reference(attainment_id.clone()),
             },
         ),
-        SubmissionLifecycle::Misregistered { .. } => {
-            ResponseItem::error(endpoint, id, "misregistered")
-        }
-        _ => ResponseItem::error(endpoint, id, "notRegistered"),
+        SubmissionLifecycle::Misregistered { .. } => error_item(endpoint, id, "misregistered"),
+        _ => error_item(endpoint, id, "notRegistered"),
     }
 }
 
 pub fn product_access_token_item(
-    item: &wire::ProductAccessTokenItem,
+    item: &wire::ProductAccessTokenRequestItem,
     working: &WorkingSet,
-) -> ResponseItem {
+) -> SuotarResponseItem<wire::ProductAccessTokenResult> {
     let endpoint = SuotarEndpoint::ProductAccessTokens;
     match working.product_tokens.get(&item.open_university_product_id) {
         // A disabled or draft token is still `found`: refusing to build an enrolment link from one
         // is our side's job, not Suotar's.
-        Some(token) => ok(
+        Some(token) => ok_item(
             &item.request_item_id,
             "found",
-            &wire::ProductAccessTokenResult {
+            wire::ProductAccessTokenResult {
                 id: token.id.clone(),
                 access_token: token.access_token.clone(),
                 state: serde_plain(&token.state),
                 document_state: serde_plain(&token.document_state),
             },
         ),
-        None => ResponseItem::error(
+        None => error_item(
             endpoint,
             &item.request_item_id,
             "productAccessTokenNotFound",
@@ -291,17 +290,20 @@ pub fn product_access_token_item(
     }
 }
 
-pub fn list_by_course_item(item: &wire::ListByCourseItem, working: &WorkingSet) -> ResponseItem {
+pub fn list_by_course_item(
+    item: &wire::ListByCourseRequestItem,
+    working: &WorkingSet,
+) -> SuotarResponseItem<wire::EnrolmentsListedResult> {
     let endpoint = SuotarEndpoint::ListByCourse;
     let id = &item.request_item_id;
     let Some(course_unit) = working.course_units.get(&item.course_code) else {
-        return ResponseItem::error(endpoint, id, "courseCodeNotFound");
+        return error_item(endpoint, id, "courseCodeNotFound");
     };
     // There is no `realisationNotFound` code, so a realisation of another course folds into this one.
     let realisation_ids: Vec<String> = match &item.course_unit_realisation_id {
         Some(realisation_id) => {
             if course_unit.realisation(realisation_id).is_none() {
-                return ResponseItem::error(endpoint, id, "courseCodeNotFound");
+                return error_item(endpoint, id, "courseCodeNotFound");
             }
             vec![realisation_id.clone()]
         }
@@ -338,7 +340,11 @@ pub fn list_by_course_item(item: &wire::ListByCourseItem, working: &WorkingSet) 
         .collect();
     people.sort_by(|a, b| a.student_number.cmp(&b.student_number));
 
-    ok(id, "enrolmentsListed", &wire::PeopleResult { people })
+    ok_item(
+        id,
+        "enrolmentsListed",
+        wire::EnrolmentsListedResult { people },
+    )
 }
 
 /// Moves every ripe submission of this person and course. Persisted wherever it is evaluated, or the
@@ -441,10 +447,10 @@ pub fn record_submission(working: &mut WorkingSet, submission: MockSubmission) {
 }
 
 fn duplicate_outcome(
-    item: &wire::ImportItem,
+    item: &wire::ImportAttainmentRequestItem,
     working: &WorkingSet,
     realisation: &MockRealisation,
-) -> Option<ResponseItem> {
+) -> Option<SuotarResponseItem<ImportAttainmentResult>> {
     let scale = working.defaults.scale(&realisation.grade_scale_id)?;
     let incoming_rank = scale.grade(&item.grade_id)?.rank;
     for attainment in attained(working, &item.student_number, &item.course_code) {
@@ -455,11 +461,12 @@ fn duplicate_outcome(
         if attainment.grade_id == item.grade_id
             && attainment.attainment_date == item.attainment_date
         {
-            return Some(ok(
+            return Some(ok_item(
                 &item.request_item_id,
                 "duplicateAttainment",
-                &wire::DuplicateResult {
-                    attainment: attainment_summary(attainment),
+                ImportAttainmentResult {
+                    attainment: Some(attainment_summary(attainment)),
+                    ..Default::default()
                 },
             ));
         }
@@ -467,11 +474,12 @@ fn duplicate_outcome(
             .grade(&attainment.grade_id)
             .map_or(0, |grade| grade.rank);
         if existing_rank >= incoming_rank {
-            return Some(ok(
+            return Some(ok_item(
                 &item.request_item_id,
                 "notImprovedAttainment",
-                &wire::NotImprovedResult {
-                    previous_attainment: attainment_summary(attainment),
+                ImportAttainmentResult {
+                    previous_attainment: Some(attainment_summary(attainment)),
+                    ..Default::default()
                 },
             ));
         }
@@ -504,10 +512,10 @@ fn existing_attainments(
     working: &WorkingSet,
     student_number: &str,
     course_code: &str,
-) -> Vec<wire::ExistingAttainmentDto> {
+) -> Vec<wire::ExistingAttainment> {
     attained(working, student_number, course_code)
         .into_iter()
-        .map(|attainment| wire::ExistingAttainmentDto {
+        .map(|attainment| wire::ExistingAttainment {
             id: attainment.id.clone(),
             attainment_type: attainment.attainment_type.clone(),
             state: "ATTAINED".to_string(),
@@ -524,15 +532,28 @@ fn existing_attainments(
         .collect()
 }
 
-fn attainment_summary(attainment: &MockAttainment) -> wire::AttainmentSummary {
-    wire::AttainmentSummary {
+/// The bare `{id, type}` body that both `registered` answers carry.
+fn attainment_reference(id: String) -> SuotarAttainment {
+    SuotarAttainment {
+        id,
+        attainment_type: "CourseUnitAttainment".to_string(),
+        state: None,
+        attainment_date: None,
+        registration_date: None,
+        grade_scale_id: None,
+        grade_id: None,
+    }
+}
+
+fn attainment_summary(attainment: &MockAttainment) -> SuotarAttainment {
+    SuotarAttainment {
         id: attainment.id.clone(),
         attainment_type: attainment.attainment_type.clone(),
-        state: "ATTAINED".to_string(),
-        attainment_date: attainment.attainment_date,
-        registration_date: attainment.registration_date,
-        grade_scale_id: attainment.grade_scale_id.clone(),
-        grade_id: attainment.grade_id.clone(),
+        state: Some("ATTAINED".to_string()),
+        attainment_date: Some(attainment.attainment_date),
+        registration_date: Some(attainment.registration_date),
+        grade_scale_id: Some(attainment.grade_scale_id.clone()),
+        grade_id: Some(attainment.grade_id.clone()),
     }
 }
 
@@ -556,8 +577,8 @@ fn enrolment_dto(
     course_unit: &MockCourseUnit,
     enrolment: &MockEnrolment,
     realisation: &MockRealisation,
-) -> wire::EnrolmentDto {
-    wire::EnrolmentDto {
+) -> wire::SuotarEnrolment {
+    wire::SuotarEnrolment {
         id: enrolment.id.clone(),
         state: serde_plain(&enrolment.state),
         kind: realisation.kind.as_str().to_string(),
@@ -572,14 +593,6 @@ fn enrolment_dto(
         study_right_validity_period: enrolment.study_right_validity_period.clone(),
         enrolment_date_time: enrolment.enrolment_date_time,
     }
-}
-
-fn ok<T: Serialize>(request_item_id: &str, code: &str, result: &T) -> ResponseItem {
-    ResponseItem::ok(
-        request_item_id,
-        code,
-        serde_json::to_value(result).unwrap_or(serde_json::Value::Null),
-    )
 }
 
 /// Renders a wire-shaped enum through its serde spelling rather than duplicating the strings.
@@ -675,8 +688,8 @@ mod tests {
         }
     }
 
-    fn import(working: &mut WorkingSet) -> ResponseItem {
-        let item = wire::ImportItem {
+    fn import(working: &mut WorkingSet) -> SuotarResponseItem<ImportAttainmentResult> {
+        let item = wire::ImportAttainmentRequestItem {
             request_item_id: "cr-1".to_string(),
             student_number: STUDENT_NUMBER.to_string(),
             course_code: COURSE_CODE.to_string(),
@@ -690,21 +703,22 @@ mod tests {
         import_item(&item, working, Utc::now())
     }
 
-    fn verify(working: &mut WorkingSet, submitted_attainment_id: &str) -> ResponseItem {
-        let item = wire::VerifyItem {
+    fn verify(
+        working: &mut WorkingSet,
+        submitted_attainment_id: &str,
+    ) -> SuotarResponseItem<wire::VerifyAttainmentResult> {
+        let item = wire::VerifyAttainmentRequestItem {
             request_item_id: "vf-1".to_string(),
             submitted_attainment_id: submitted_attainment_id.to_string(),
         };
         verify_item(&item, working, Utc::now())
     }
 
-    fn submitted_id(item: &ResponseItem) -> String {
+    fn submitted_id(item: &SuotarResponseItem<ImportAttainmentResult>) -> String {
         item.result
             .as_ref()
-            .and_then(|result| result.get("submittedAttainmentId"))
-            .and_then(|value| value.as_str())
+            .and_then(|result| result.submitted_attainment_id.clone())
             .expect("a sent import answers with the submitted attainment id")
-            .to_string()
     }
 
     /// The write is queued before the response is shaped, which is what makes "timed out, but it

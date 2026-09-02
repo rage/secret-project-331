@@ -41,13 +41,6 @@ pub struct CreditRegistrationAdminActionRow {
     pub affected_row_count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CreditRegistrationAdminActionsPage {
-    pub data: Vec<CreditRegistrationAdminActionRow>,
-    pub total_count: i64,
-    pub total_pages: u32,
-}
-
 #[derive(Debug, Deserialize)]
 pub struct ListAdminActionsQuery {
     page: Option<u32>,
@@ -91,29 +84,20 @@ module, a course, a phase, a student-number link or its token.
         ("to" = Option<DateTime<Utc>>, Query, description = "Taken at or before")
     ),
     responses(
-        (status = 200, description = "A page of the action log", body = CreditRegistrationAdminActionsPage)
+        (status = 200, description = "A page of the action log", body = Page<CreditRegistrationAdminActionRow>)
     )
 )]
 pub async fn list_credit_registration_admin_actions(
     user: AuthUser,
     pool: web::Data<PgPool>,
     query: web::Query<ListAdminActionsQuery>,
-) -> ControllerResult<web::Json<CreditRegistrationAdminActionsPage>> {
+) -> ControllerResult<web::Json<Page<CreditRegistrationAdminActionRow>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(50))
-        .map_err(|e| controller_err!(BadRequest, e.to_string()))?;
-    let actor_role = query
-        .actor_role
-        .as_deref()
-        .map(str::trim)
-        .filter(|role| !role.is_empty());
-    let target_phase = query
-        .target_phase
-        .as_deref()
-        .map(str::trim)
-        .filter(|phase| !phase.is_empty());
+    let pagination = parse_pagination(query.page, query.limit, 50)?;
+    let actor_role = non_empty(query.actor_role.as_deref());
+    let target_phase = non_empty(query.target_phase.as_deref());
     let filters = CreditRegistrationAdminActionFilters {
         actions: query.action.as_deref(),
         actor_user_id: query.actor_user_id,
@@ -134,11 +118,11 @@ pub async fn list_credit_registration_admin_actions(
     .await?;
     let total_count = rows.first().map_or(0, |row| row.total_count);
 
-    token.authorized_ok(web::Json(CreditRegistrationAdminActionsPage {
-        data: rows.into_iter().map(to_action_row).collect(),
+    token.authorized_ok(web::Json(Page::new(
+        pagination,
+        rows.into_iter().map(to_action_row).collect(),
         total_count,
-        total_pages: pagination.total_pages(u32::try_from(total_count).unwrap_or(u32::MAX)),
-    }))
+    )))
 }
 
 fn to_action_row(row: CreditRegistrationAdminActionListRow) -> CreditRegistrationAdminActionRow {

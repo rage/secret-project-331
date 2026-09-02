@@ -529,3 +529,29 @@ pub async fn replace_verified_student_number(
             .await?;
     Ok((verified_student_number_id, affected_registration_count))
 }
+
+/// Enrolled students of the course who hold no live student number link, and so cannot have credits
+/// registered for them until they link one.
+pub async fn count_unlinked_enrolled_students_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM (
+    SELECT DISTINCT cie.user_id
+    FROM course_instance_enrollments cie
+    WHERE cie.course_id = $1
+      AND cie.deleted_at IS NULL
+  ) enrolled
+  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = enrolled.user_id
+  AND vsn.deleted_at IS NULL
+WHERE vsn.id IS NULL
+        "#,
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}

@@ -39,15 +39,12 @@ pub async fn get_stalest_product_ids_for_enabled_modules(
         r#"
 SELECT c.open_university_product_id AS "open_university_product_id!"
 FROM course_module_suotar_configurations c
-  JOIN course_modules cm ON cm.id = c.course_module_id
+  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = c.course_module_id
   LEFT JOIN open_university_product_access_tokens t ON t.open_university_product_id = c.open_university_product_id
   AND t.deleted_at IS NULL
 WHERE c.open_university_product_id IS NOT NULL
-  AND c.paused_at IS NULL
   AND c.deleted_at IS NULL
-  AND cm.enable_credit_registration_via_suotar
-  AND cm.deleted_at IS NULL
-  AND ($2::uuid IS NULL OR cm.course_id = $2)
+  AND ($2::uuid IS NULL OR acm.course_id = $2)
 GROUP BY c.open_university_product_id,
   t.last_refreshed_at,
   t.last_refresh_failed_at
@@ -232,6 +229,7 @@ pub struct SuotarModuleOverview {
 /// Every Suotar-enabled module, one row each, ordered by course then module order.
 pub async fn get_module_overviews(
     conn: &mut PgConnection,
+    limit: i64,
 ) -> ModelResult<Vec<SuotarModuleOverview>> {
     let res = sqlx::query_as!(
         SuotarModuleOverview,
@@ -277,7 +275,9 @@ WHERE cm.enable_credit_registration_via_suotar
   AND cm.deleted_at IS NULL
 ORDER BY c.name,
   cm.order_number
+LIMIT $1
         "#,
+        limit,
     )
     .fetch_all(conn)
     .await?;

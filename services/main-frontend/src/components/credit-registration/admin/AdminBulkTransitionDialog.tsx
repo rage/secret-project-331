@@ -4,18 +4,17 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { adminBulkTransitionCreditRegistrations } from "@/generated/api/sdk.generated"
-import type {
-  AdminBulkTransitionResult,
-  AdminCreditRegistrationTransitionTarget,
-} from "@/generated/api/types.generated"
-import { Infobox, Select } from "@/shared-module/components"
+import type { AdminBulkTransitionResult } from "@/generated/api/types.generated"
+import { Infobox } from "@/shared-module/components"
 
 import { TONE } from "../constants"
+import { refusalSentence } from "../resubmissionRefusal"
 import { noteCss } from "../styles"
 import { AdminActionDialog } from "./AdminActionDialog"
-import { bulkSkipLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAttentionItems } from "./adminCreditRegistrationHooks"
 import { ReasonField } from "./ReasonConfirmDialog"
+import type { TransitionChoice } from "./TransitionTargetSelect"
+import { READY_TO_SUBMIT, transitionAction, TransitionTargetSelect } from "./TransitionTargetSelect"
 
 interface Props {
   selectedIds: string[]
@@ -23,18 +22,9 @@ interface Props {
 }
 
 interface Fields {
-  to_state: AdminCreditRegistrationTransitionTarget
+  action: TransitionChoice
   reason: string
 }
-
-// oxlint-disable-next-line i18next/no-literal-string
-const READY_TO_SUBMIT = "ready_to_submit" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const CANCELLED = "cancelled" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const CLEAR_ATTENTION = "clear_needs_admin_attention" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const CHECK_NOW = "check_now" as const
 
 /**
  * Moves every selected live row to one state. The server refuses rows whose submission outcome is
@@ -53,11 +43,11 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedIds, onApplied }) 
       dialogTitle={t("credit-registration-admin-bulk-transition-title", {
         count: selectedIds.length,
       })}
-      defaultValues={{ to_state: READY_TO_SUBMIT, reason: "" }}
+      defaultValues={{ action: READY_TO_SUBMIT, reason: "" }}
       mutationFn={(fields) =>
         adminBulkTransitionCreditRegistrations({
           body: {
-            to_state: fields.to_state,
+            action: transitionAction(fields.action),
             credit_registration_ids: selectedIds,
             reason: fields.reason,
           },
@@ -70,20 +60,7 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedIds, onApplied }) 
       renderFields={(control) => (
         <>
           <p className={noteCss}>{t("credit-registration-admin-bulk-uncertain-note")}</p>
-          <Select
-            name="to_state"
-            control={control}
-            label={t("label-credit-registration-transition-target")}
-            options={[
-              { value: READY_TO_SUBMIT, label: t("credit-registration-admin-target-resubmit") },
-              { value: CANCELLED, label: t("credit-registration-admin-target-cancel") },
-              {
-                value: CLEAR_ATTENTION,
-                label: t("credit-registration-admin-target-clear-attention"),
-              },
-              { value: CHECK_NOW, label: t("credit-registration-admin-target-check-now") },
-            ]}
-          />
+          <TransitionTargetSelect control={control} />
           <ReasonField
             control={control}
             description={t("description-credit-registration-transition-reason")}
@@ -96,10 +73,10 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedIds, onApplied }) 
         >
           <p>{t("credit-registration-admin-bulk-applied", { count: result.applied_count })}</p>
           {result.skipped.map((skip) => (
-            <p key={skip.reason}>
+            <p key={skip.refusal}>
               {t("credit-registration-admin-bulk-skipped", {
                 count: skip.count,
-                reason: bulkSkipLabel(t, skip.reason),
+                reason: refusalSentence(t, skip.refusal),
               })}
             </p>
           ))}

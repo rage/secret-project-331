@@ -26,13 +26,8 @@ pub async fn export_course_credit_registrations(
     course_id: web::Path<Uuid>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token =
+        super::authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     general_export(

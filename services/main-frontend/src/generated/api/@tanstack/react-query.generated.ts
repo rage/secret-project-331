@@ -228,9 +228,7 @@ import {
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
   getMyCertificates,
-  getMyCourseCreditRegistrationConsent,
   getMyCourses,
-  getMyCreditRegistrationConsents,
   getMyCreditRegistrationEnrolmentBanners,
   getMyCreditRegistrationForCourseModule,
   getMyCreditRegistrations,
@@ -359,7 +357,6 @@ import {
   setCourseJoinCode,
   setCourseModuleCertificateGeneration,
   setExamCourse,
-  setMyCourseCreditRegistrationConsent,
   softDeleteOrganization,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
@@ -791,12 +788,8 @@ import type {
   GetFirstExerciseSubmissionsHistoryResponse,
   GetMyCertificatesData,
   GetMyCertificatesResponse,
-  GetMyCourseCreditRegistrationConsentData,
-  GetMyCourseCreditRegistrationConsentResponse,
   GetMyCoursesData,
   GetMyCoursesResponse,
-  GetMyCreditRegistrationConsentsData,
-  GetMyCreditRegistrationConsentsResponse,
   GetMyCreditRegistrationEnrolmentBannersData,
   GetMyCreditRegistrationEnrolmentBannersResponse,
   GetMyCreditRegistrationForCourseModuleData,
@@ -1036,8 +1029,6 @@ import type {
   SetCourseModuleCertificateGenerationData,
   SetCourseModuleCertificateGenerationResponse,
   SetExamCourseData,
-  SetMyCourseCreditRegistrationConsentData,
-  SetMyCourseCreditRegistrationConsentResponse,
   SoftDeleteOrganizationData,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
@@ -6212,8 +6203,7 @@ export const getCreditRegistrationAttentionItemsQueryKey = (
  * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
  * wants a human to look at, with the detectors that picked each.
  *
- * Superseded attempts and rows abandoned by a consent withdrawal are outside every detector: neither
- * is something a person can act on.
+ * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
  */
 export const getCreditRegistrationAttentionItemsOptions = (
   options?: Options<GetCreditRegistrationAttentionItemsData>,
@@ -6828,8 +6818,7 @@ export const getCreditRegistrationForAdminOptions = (
  * - Moves one row by hand.
  *
  * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
- * re-importing could put a second attainment on a real transcript. Resubmitting re-checks consent, because
- * a `misregistered` row sits outside the automatic machinery that would otherwise have checked it.
+ * re-importing could put a second attainment on a real transcript.
  */
 export const adminTransitionCreditRegistrationMutation = (
   options?: Partial<Options<AdminTransitionCreditRegistrationData>>,
@@ -7122,61 +7111,6 @@ export const getCreditRegistrationThresholdsOptions = (
     queryKey: getCreditRegistrationThresholdsQueryKey(options),
   })
 
-export const getMyCourseCreditRegistrationConsentQueryKey = (
-  options: Options<GetMyCourseCreditRegistrationConsentData>,
-) => createQueryKey("getMyCourseCreditRegistrationConsent", options)
-
-/**
- *
- * GET `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - The signed-in
- * account's credit registration consent for one course.
- */
-export const getMyCourseCreditRegistrationConsentOptions = (
-  options: Options<GetMyCourseCreditRegistrationConsentData>,
-) =>
-  queryOptions<
-    GetMyCourseCreditRegistrationConsentResponse,
-    DefaultError,
-    GetMyCourseCreditRegistrationConsentResponse,
-    ReturnType<typeof getMyCourseCreditRegistrationConsentQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getMyCourseCreditRegistrationConsent({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getMyCourseCreditRegistrationConsentQueryKey(options),
-  })
-
-/**
- *
- * PUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in
- * account's answer and applies it to that course's registrations at once.
- */
-export const setMyCourseCreditRegistrationConsentMutation = (
-  options?: Partial<Options<SetMyCourseCreditRegistrationConsentData>>,
-): UseMutationOptions<
-  SetMyCourseCreditRegistrationConsentResponse,
-  DefaultError,
-  Options<SetMyCourseCreditRegistrationConsentData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SetMyCourseCreditRegistrationConsentResponse,
-    DefaultError,
-    Options<SetMyCourseCreditRegistrationConsentData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await setMyCourseCreditRegistrationConsent({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
 export const getMyCreditRegistrationsQueryKey = (options?: Options<GetMyCreditRegistrationsData>) =>
   createQueryKey("getMyCreditRegistrations", options)
 
@@ -7229,34 +7163,6 @@ export const getMyCreditRegistrationForCourseModuleOptions = (
         throwOnError: true,
       }),
     queryKey: getMyCreditRegistrationForCourseModuleQueryKey(options),
-  })
-
-export const getMyCreditRegistrationConsentsQueryKey = (
-  options?: Options<GetMyCreditRegistrationConsentsData>,
-) => createQueryKey("getMyCreditRegistrationConsents", options)
-
-/**
- *
- * GET `/api/v0/main-frontend/credit-registrations/my/consents` - One row per course the signed-in
- * account is enrolled on that offers credit registration, asked or not.
- */
-export const getMyCreditRegistrationConsentsOptions = (
-  options?: Options<GetMyCreditRegistrationConsentsData>,
-) =>
-  queryOptions<
-    GetMyCreditRegistrationConsentsResponse,
-    DefaultError,
-    GetMyCreditRegistrationConsentsResponse,
-    ReturnType<typeof getMyCreditRegistrationConsentsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getMyCreditRegistrationConsents({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getMyCreditRegistrationConsentsQueryKey(options),
   })
 
 export const getMyCreditRegistrationEnrolmentBannersQueryKey = (

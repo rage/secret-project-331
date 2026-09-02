@@ -1,0 +1,90 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations cr\nSET state = move.to_state,\n  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in\n  -- one transaction would share an instant and the timeline would lose their order.\n  state_entered_at = clock_timestamp(),\n  error_code = move.error_code,\n  error_message = move.error_message,\n  needs_admin_attention = COALESCE(move.needs_admin_attention, cr.needs_admin_attention),\n  -- ELSE NULL: without it an admin retry stays invisible to every terminal_at IS NULL query.\n  terminal_at = CASE\n    WHEN move.terminal THEN COALESCE(cr.terminal_at, now())\n    ELSE NULL\n  END,\n  first_failed_at = CASE\n    WHEN move.failure THEN COALESCE(cr.first_failed_at, now())\n    ELSE cr.first_failed_at\n  END,\n  registered_at = CASE\n    WHEN move.to_state = 'registered' THEN COALESCE(cr.registered_at, now())\n    ELSE cr.registered_at\n  END,\n  submitted_at = CASE\n    WHEN move.to_state = 'submitting' THEN now()\n    ELSE cr.submitted_at\n  END,\n  enrolment_checked_at = CASE\n    WHEN cr.state = 'checking_enrolment'\n    AND move.to_state <> 'checking_enrolment' THEN now()\n    ELSE cr.enrolment_checked_at\n  END,\n  enrolment_banner_dismissed_at = CASE\n    WHEN move.to_state = 'no_usable_enrolment' THEN NULL\n    ELSE cr.enrolment_banner_dismissed_at\n  END,\n  next_attempt_at = COALESCE(\n    move.next_attempt_at,\n    now() + (move.default_delay_secs * INTERVAL '1 second')\n  )\nFROM UNNEST(\n    $1::uuid [],\n    $2::credit_registration_state [],\n    $3::credit_registration_error_code [],\n    $4::text [],\n    $5::boolean [],\n    $6::boolean [],\n    $7::boolean [],\n    $8::timestamptz [],\n    $9::bigint []\n  ) AS move(\n    id,\n    to_state,\n    error_code,\n    error_message,\n    needs_admin_attention,\n    terminal,\n    failure,\n    next_attempt_at,\n    default_delay_secs\n  )\nWHERE cr.id = move.id\n  AND cr.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_error_code[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_error_code",
+                  "kind": {
+                    "Enum": [
+                      "person_not_found",
+                      "course_code_not_found",
+                      "enrolment_not_found",
+                      "enrolment_not_accepted",
+                      "invalid_grade_for_grade_scale",
+                      "course_not_allowed",
+                      "invalid_credits",
+                      "study_right_not_valid",
+                      "acceptor_not_found",
+                      "sisu_validation_failed",
+                      "sisu_timeout",
+                      "sisu_temporarily_unavailable",
+                      "misregistered",
+                      "unauthorized",
+                      "malformed_request",
+                      "transport_error",
+                      "unexpected_response",
+                      "no_grade_scale_mapping",
+                      "missing_uh_course_code",
+                      "missing_ects_credits",
+                      "retry_window_expired",
+                      "unknown"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TextArray",
+        "BoolArray",
+        "BoolArray",
+        "BoolArray",
+        "TimestamptzArray",
+        "Int8Array"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "893118814796f252eda25c0e1844daf62319b99fc2fcc16d842acbd713a79abd"
+}

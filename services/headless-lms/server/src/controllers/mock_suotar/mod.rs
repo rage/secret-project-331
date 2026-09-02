@@ -12,6 +12,7 @@ pub mod commands;
 pub mod control;
 pub mod default_world;
 pub mod faults;
+pub mod fixtures;
 pub mod ids;
 pub mod logic;
 pub mod scenarios;

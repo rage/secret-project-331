@@ -1003,17 +1003,17 @@ pub async fn get_page_chatbot_context(
 ) -> ModelResult<PageChatbotContext> {
     let page = sqlx::query_as!(
         PageChatbotContext,
-        "
-SELECT pages.id,
-  pages.title,
-  chapters.name AS chapter_name,
+        r#"
+SELECT pages.id AS "id!",
+  pages.title AS "title!",
+  chapters.name AS "chapter_name?",
   pages.course_id,
-  pages.hidden,
+  pages.hidden AS "hidden!",
   pages.deleted_at
 FROM pages
 LEFT JOIN chapters ON chapters.id = pages.chapter_id AND chapters.deleted_at IS NULL
 WHERE pages.id = $1;
-",
+"#,
         page_id
     )
     .fetch_one(conn)
@@ -1091,15 +1091,15 @@ pub async fn get_page_info_special_for_course(
         PageInfoSpecial,
         r#"
     SELECT
-        p.id AS page_id,
+        p.id AS "page_id!",
         p.url_path AS "url_path!",
-        p.title AS page_title,
-        p.order_number,
-        p.content,
-        c.name AS chapter_title,
-        c.chapter_number,
-        m.name AS module_name,
-        m.order_number AS module_number
+        p.title AS "page_title!",
+        p.order_number AS "order_number!",
+        p.content AS "content!",
+        c.name AS "chapter_title?",
+        c.chapter_number AS "chapter_number?",
+        m.name AS "module_name?",
+        m.order_number AS "module_number?"
     FROM pages p
     LEFT JOIN chapters c
         ON c.id = p.chapter_id

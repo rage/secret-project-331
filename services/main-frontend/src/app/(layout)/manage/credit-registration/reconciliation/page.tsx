@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import type { TFunction } from "i18next"
 import Link from "next/link"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -11,14 +11,15 @@ import {
   useInvalidateReconciliation,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
-import { ReasonConfirmDialog } from "@/components/credit-registration/admin/ReasonConfirmDialog"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
+import { useReasonConfirmAction } from "@/components/credit-registration/admin/useReasonConfirmAction"
 import { TONE } from "@/components/credit-registration/constants"
 import {
   headingCss,
   noteCss,
   sectionCss,
   sectionsCss,
+  stackedCellCss,
   tilesCss,
 } from "@/components/credit-registration/styles"
 import { adminMaterializeCreditRegistrations } from "@/generated/api/sdk.generated"
@@ -26,21 +27,9 @@ import type {
   CreditRegistrationReconciliation,
   ReconciliationRegistration,
 } from "@/generated/api/types.generated"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import {
-  Badge,
-  Button,
-  QueryResult,
-  StatTile,
-  Table,
-  type TableColumn,
-} from "@/shared-module/components"
-
-const stackedCellCss = css`
-  display: grid;
-`
+import { Badge, QueryResult, StatTile, Table, type TableColumn } from "@/shared-module/components"
 
 const badgesCss = css`
   display: flex;
@@ -132,32 +121,21 @@ const DetectorSection: React.FC<{
 
 const MaterializeButton: React.FC = () => {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
   const invalidateReconciliation = useInvalidateReconciliation()
-  const mutation = useToastMutation(
-    (fields: { reason: string }) =>
+  const { button, dialog } = useReasonConfirmAction({
+    mutationFn: (fields) =>
       adminMaterializeCreditRegistrations({ body: { reason: fields.reason } }),
-    { notify: true, method: "POST" },
-    {
-      onSuccess: () => {
-        setOpen(false)
-        void invalidateReconciliation()
-      },
-    },
-  )
+    invalidate: () => void invalidateReconciliation(),
+    buttonLabel: t("button-text-credit-registration-materialize"),
+    dialogTitle: t("button-text-credit-registration-materialize"),
+    dialogMessage: t("credit-registration-admin-materialize-note"),
+    // oxlint-disable-next-line i18next/no-literal-string
+    buttonVariant: "secondary",
+  })
   return (
     <div>
-      <Button variant="secondary" size="medium" onClick={() => setOpen(true)}>
-        {t("button-text-credit-registration-materialize")}
-      </Button>
-      <ReasonConfirmDialog
-        open={open}
-        onClose={() => setOpen(false)}
-        title={t("button-text-credit-registration-materialize")}
-        message={t("credit-registration-admin-materialize-note")}
-        isPending={mutation.isPending}
-        onConfirm={(reason) => mutation.mutate({ reason })}
-      />
+      {button}
+      {dialog}
     </div>
   )
 }
@@ -340,12 +318,6 @@ const ReconciliationPage: React.FC = () => {
             rows={reconciliation.misregistered}
           />
           <LegacySection reconciliation={reconciliation} />
-          <DetectorSection
-            heading={t("credit-registration-heading-consent-withdrawn")}
-            explanation={t("credit-registration-admin-consent-withdrawn-explanation")}
-            emptyText={t("credit-registration-admin-no-consent-withdrawn")}
-            rows={reconciliation.outcome_unknown_consent_withdrawn}
-          />
         </div>
       )}
     </QueryResult>

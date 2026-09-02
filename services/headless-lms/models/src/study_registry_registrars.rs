@@ -47,6 +47,25 @@ WHERE id = $1
     Ok(res)
 }
 
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<StudyRegistryRegistrar>> {
+    let res = sqlx::query_as!(
+        StudyRegistryRegistrar,
+        "
+SELECT *
+FROM study_registry_registrars
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_secret_key(
     conn: &mut PgConnection,
     secret_key: &str,

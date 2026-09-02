@@ -8,6 +8,9 @@
 use std::future::Future;
 use std::pin::Pin;
 
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
+
 use headless_lms_models::course_module_suotar_realisations::{
     get_active_for_course, listing_request_item_id,
 };
@@ -50,17 +53,13 @@ pub async fn resend_linking_mail(
 
     let mut items = Vec::new();
     for realisation in &realisations {
-        let Some(course_code) = realisation
-            .uh_course_code
-            .as_deref()
-            .map(str::trim)
-            .filter(|code| !code.is_empty())
+        let Some(course_code) = super::enrolment_discovery::listable_course_code(realisation)
         else {
             continue;
         };
         items.push(ListByCourseRequestItem {
             request_item_id: listing_request_item_id(realisation.id),
-            course_code: course_code.to_string(),
+            course_code,
             course_unit_realisation_id: Some(realisation.course_unit_realisation_id.clone()),
         });
     }
@@ -144,6 +143,50 @@ pub struct ResendAttempt {
     pub retired_mail_count: i64,
 }
 
+/// What a resend endpoint tells its caller. Shared wire shape for the teacher- and admin-facing
+/// resend endpoints; `NoStudentNumberKnown` is only ever emitted by the teacher endpoint, whose
+/// target may be an account that has never held a number.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ResendOutcome {
+    /// A mail is owed and will be handed to the sender on the next run.
+    Queued,
+    AlreadyMailedToEveryKnownAddress,
+    /// A cap refused it.
+    RefusedByRateCap,
+    NoAddressInStudyRegistry,
+    NotOnTheCourseRoster,
+    /// The number is already linked to an account, so no linking mail is owed.
+    AlreadyLinked,
+    StudyRegistryUnavailable,
+    /// This account has never had a student number, so there is nothing to look up.
+    NoStudentNumberKnown,
+}
+
+impl From<ResendDecision> for ResendOutcome {
+    fn from(decision: ResendDecision) -> Self {
+        match decision {
+            ResendDecision::AlreadyLinked => Self::AlreadyLinked,
+            ResendDecision::Attempted(LinkingMailResendOutcome::Claimed) => Self::Queued,
+            ResendDecision::Attempted(
+                LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress,
+            ) => Self::AlreadyMailedToEveryKnownAddress,
+            ResendDecision::Attempted(LinkingMailResendOutcome::RefusedByRateCap) => {
+                Self::RefusedByRateCap
+            }
+            ResendDecision::Attempted(LinkingMailResendOutcome::NoAddressInStudyRegistry) => {
+                Self::NoAddressInStudyRegistry
+            }
+            ResendDecision::Attempted(LinkingMailResendOutcome::NotOnTheCourseRoster) => {
+                Self::NotOnTheCourseRoster
+            }
+            ResendDecision::Attempted(LinkingMailResendOutcome::StudyRegistryUnavailable) => {
+                Self::StudyRegistryUnavailable
+            }
+        }
+    }
+}
+
 /// Shared by the teacher- and admin-facing resend endpoints: refuses a target that is already linked,
 /// otherwise runs `before_send` (the admin path's rate-cap override; the teacher path passes a no-op)
 /// and reruns the send path exactly as the worker would.
@@ -185,6 +228,16 @@ pub struct ResolvedPerson {
     pub code: String,
 }
 
+/// Why [`resolve_person`] could not say whether the number exists. Both cases read the same to a
+/// caller: the registry could not be asked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResolvePersonError {
+    /// The request itself failed: network, auth, or a request-level error from the registry.
+    StudyRegistryUnavailable,
+    /// The registry answered but its response did not include this item.
+    ItemMissingFromResponse,
+}
+
 /// Looks one student number up in the study registry without changing anything: no ledger row, no
 /// claimed mail slot, just the call log row every study registry call writes.
 ///
@@ -192,7 +245,7 @@ pub struct ResolvedPerson {
 pub async fn resolve_person(
     ctx: &PhaseContext<'_>,
     student_number: &str,
-) -> Result<Option<ResolvedPerson>, ()> {
+) -> Result<Option<ResolvedPerson>, ResolvePersonError> {
     let request_item_id = format!("admin-{student_number}");
     let response = ctx
         .suotar_client
@@ -204,9 +257,9 @@ pub async fn resolve_person(
             }],
         )
         .await
-        .map_err(|_| ())?;
+        .map_err(|_| ResolvePersonError::StudyRegistryUnavailable)?;
     let Some(item) = response.item(&request_item_id) else {
-        return Err(());
+        return Err(ResolvePersonError::ItemMissingFromResponse);
     };
     let Some(result) = item.result.as_ref() else {
         return Ok(None);

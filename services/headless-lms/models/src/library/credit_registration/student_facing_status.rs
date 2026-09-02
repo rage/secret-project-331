@@ -6,12 +6,13 @@ use utoipa::ToSchema;
 use crate::credit_registrations::CreditRegistrationState;
 use crate::prelude::*;
 
+use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
+
 /// The stage a student sees.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum StudentFacingCreditRegistrationStatus {
     WaitingForCompletion,
-    NeedsConsent,
     NeedsStudentNumber,
     InProgress,
     NeedsEnrolment,
@@ -23,12 +24,19 @@ pub enum StudentFacingCreditRegistrationStatus {
 }
 
 impl StudentFacingCreditRegistrationStatus {
-    pub fn of(state: CreditRegistrationState) -> Self {
+    /// `preconditions` is only read for `pending`, whose whole point is that the ledger does not
+    /// record which of them the row is waiting on. Pass [`PendingPreconditions::ALL_MET`] only where
+    /// the row is known not to be pending.
+    pub fn of(state: CreditRegistrationState, preconditions: PendingPreconditions) -> Self {
+        use CreditRegistrationPendingReason as Reason;
         use CreditRegistrationState as State;
         match state {
-            State::PendingPrerequisites => Self::WaitingForCompletion,
-            State::PendingConsent => Self::NeedsConsent,
-            State::PendingStudentNumber => Self::NeedsStudentNumber,
+            State::Pending => match preconditions.reason() {
+                Some(Reason::Completion) => Self::WaitingForCompletion,
+                Some(Reason::StudentNumber) => Self::NeedsStudentNumber,
+                // Nothing is outstanding, so the next precondition tick moves the row on.
+                None => Self::InProgress,
+            },
             State::ReadyToSubmit
             | State::ResolvingEnrolment
             | State::CheckingEnrolment
@@ -39,21 +47,13 @@ impl StudentFacingCreditRegistrationStatus {
             // not_improved means Sisu holds an equal or better attainment, so the credit exists.
             State::Registered | State::Duplicate | State::NotImproved => Self::Registered,
             State::Misregistered | State::FailedPermanent => Self::Failed,
-            State::Blocked | State::Cancelled | State::AbandonedByConsentWithdrawal => {
-                Self::NotRegistering
-            }
+            State::Blocked | State::Cancelled => Self::NotRegistering,
         }
     }
 
     /// Whether the pipeline still moves this row on its own; the status page polls while it does.
     pub fn is_moving(self) -> bool {
         matches!(self, Self::InProgress | Self::WaitingForSisu)
-    }
-}
-
-impl From<CreditRegistrationState> for StudentFacingCreditRegistrationStatus {
-    fn from(state: CreditRegistrationState) -> Self {
-        Self::of(state)
     }
 }
 
@@ -66,7 +66,24 @@ mod tests {
     /// A row waiting on the student must not keep the page polling; nothing changes until they act.
     #[test]
     fn only_the_states_the_pipeline_still_owns_keep_the_page_polling() {
+        for reason in [
+            PendingPreconditions {
+                completion_eligible: false,
+                ..PendingPreconditions::ALL_MET
+            },
+            PendingPreconditions {
+                has_verified_student_number: false,
+                ..PendingPreconditions::ALL_MET
+            },
+        ] {
+            assert!(
+                !Status::of(State::Pending, reason).is_moving(),
+                "{reason:?}"
+            );
+        }
         let moving = [
+            // Nothing outstanding, so the recompute moves it on without the student doing anything.
+            State::Pending,
             State::ReadyToSubmit,
             State::ResolvingEnrolment,
             State::CheckingEnrolment,
@@ -77,7 +94,7 @@ mod tests {
         ];
         for state in CreditRegistrationState::ALL {
             assert_eq!(
-                Status::of(state).is_moving(),
+                Status::of(state, PendingPreconditions::ALL_MET).is_moving(),
                 moving.contains(&state),
                 "{state:?}"
             );
@@ -89,18 +106,13 @@ mod tests {
     fn the_success_set_is_one_stage() {
         for state in CreditRegistrationState::ALL {
             if state.is_success() {
-                assert_eq!(Status::of(state), Status::Registered, "{state:?}");
+                assert_eq!(
+                    Status::of(state, PendingPreconditions::ALL_MET),
+                    Status::Registered,
+                    "{state:?}"
+                );
             }
         }
-    }
-
-    /// Sisu may well hold the registration, so telling the student it failed would be a lie.
-    #[test]
-    fn an_abandoned_row_is_not_a_failure() {
-        assert_eq!(
-            Status::of(State::AbandonedByConsentWithdrawal),
-            Status::NotRegistering
-        );
     }
 
     #[test]

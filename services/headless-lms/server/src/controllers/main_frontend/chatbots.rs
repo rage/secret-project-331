@@ -1,9 +1,14 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chatbots/`.
 use crate::prelude::*;
-use headless_lms_models::chatbot_configurations::CreateChatbotRequest;
+use headless_lms_models::{
+    application_task_default_language_models::ApplicationTask,
+    chatbot_configurations::CreateChatbotRequest,
+};
 use utoipa::OpenApi;
 
-use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
+use models::chatbot_configurations::{
+    ChatbotConfiguration, NewChatbotConf, normalized_tool_categories,
+};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -58,7 +63,8 @@ async fn get_chatbot(
     ),
     request_body = NewChatbotConf,
     responses(
-        (status = 200, description = "Updated chatbot configuration", body = ChatbotConfiguration)
+        (status = 200, description = "Updated chatbot configuration", body = ChatbotConfiguration),
+        (status = 403, description = "Enabling or disabling admin-support tool categories requires global admin permissions")
     )
 )]
 #[instrument(skip(pool, payload))]
@@ -76,6 +82,26 @@ async fn edit_chatbot(
     } else {
         authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?
     };
+
+    let stored_admin_categories: Vec<_> =
+        normalized_tool_categories(&chatbot.enabled_tool_categories)
+            .into_iter()
+            .filter(|category| category.requires_global_admin())
+            .collect();
+    let requested_admin_categories: Vec<_> =
+        normalized_tool_categories(&payload.enabled_tool_categories)
+            .into_iter()
+            .filter(|category| category.requires_global_admin())
+            .collect();
+    if stored_admin_categories != requested_admin_categories {
+        authorize(
+            &mut conn,
+            Act::Administrate,
+            Some(user.id),
+            Res::GlobalPermissions,
+        )
+        .await?;
+    }
 
     let configuration: ChatbotConfiguration = models::chatbot_configurations::edit(
         &mut conn,
@@ -147,22 +173,31 @@ async fn get_all_chatbots(
     tag = "chatbots",
     request_body(
         content = CreateChatbotRequest,
-        description = "JSON object with chatbot name and optional course id, e.g. \"name: Chatbot 1, course_id: null\".",
+        description = "JSON object with chatbot name and optional course id, e.g. \"name: 'Chatbot 1', course_id: null, purpose: 'This chatbot will help students learn.'\".",
         content_type = "application/json"
     ),
     responses(
         (status = 200, description = "Created chatbot", body = ChatbotConfiguration)
     )
 )]
-#[instrument(skip(pool, payload))]
+#[instrument(skip(pool, payload, app_conf))]
 async fn create_chatbot(
     payload: web::Json<CreateChatbotRequest>,
+    app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ChatbotConfiguration>> {
     let mut conn = pool.acquire().await?;
     let course_id = payload.course_id;
-    let token = if let Some(course_id) = course_id {
+    let purpose = &payload.purpose;
+    let name = &payload.name;
+    if purpose.trim().is_empty() || name.trim().is_empty() {
+        return Err(controller_err!(
+            BadRequest,
+            "Chatbot configuration name or purpose cannot be empty"
+        ));
+    }
+    let (token, course) = if let Some(course_id) = course_id {
         let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
         let course = models::courses::get_course(&mut conn, course_id).await?;
 
@@ -172,10 +207,14 @@ async fn create_chatbot(
                 "Course doesn't allow creating chatbots.".to_string()
             ));
         }
-        token
+        (token, Some(course))
     } else {
-        authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?
+        (
+            authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?,
+            None,
+        )
     };
+
     let mut tx = conn.begin().await?;
 
     let model = models::chatbot_configurations_models::get_default(&mut tx)
@@ -188,19 +227,48 @@ async fn create_chatbot(
             )
         })?;
 
-    let configuration = models::chatbot_configurations::insert(
-        &mut tx,
-        PKeyPolicy::Generate,
-        NewChatbotConf {
-            chatbot_name: payload.name.clone(),
-            course_id,
-            model_id: model.id,
-            publicly_accessible: course_id.is_none(),
-            ..Default::default()
-        },
-    )
-    .await?;
+    let mut chatbot_to_insert = NewChatbotConf {
+        chatbot_name: name.to_owned(),
+        course_id,
+        model_id: model.id,
+        publicly_accessible: course_id.is_none(),
+        ..Default::default()
+    };
+    if !payload.skip_azure_stuff {
+        let task_llm = models::application_task_default_language_models::get_for_task(
+            &mut tx,
+            ApplicationTask::PromptCreation,
+        )
+        .await?;
+
+        let (course_name, course_desc) = if let Some(c) = course {
+            (Some(c.name), c.description)
+        } else {
+            (None, None)
+        };
+
+        let prompt_res = headless_lms_chatbot::prompt_creation::generate_prompt(
+            app_conf.as_ref(),
+            task_llm.clone(),
+            course_name.to_owned(),
+            course_desc.to_owned(),
+            purpose,
+        )
+        .await?;
+
+        chatbot_to_insert = NewChatbotConf {
+            prompt: prompt_res.prompt,
+            initial_message: prompt_res.first_message,
+            initial_suggested_messages: Some(prompt_res.suggested_messages),
+            ..chatbot_to_insert
+        };
+    };
+
+    let configuration =
+        models::chatbot_configurations::insert(&mut tx, PKeyPolicy::Generate, chatbot_to_insert)
+            .await?;
     tx.commit().await?;
+
     token.authorized_ok(web::Json(configuration))
 }
 

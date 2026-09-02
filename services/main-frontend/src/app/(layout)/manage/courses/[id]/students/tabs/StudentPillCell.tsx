@@ -2,9 +2,26 @@
 
 import React from "react"
 
-import { UserDisplay } from "@/components/UserDisplay"
+import { computeLabel, UserDisplay } from "@/components/UserDisplay"
 
 import { useStudentsContext } from "../StudentsContext"
+
+/** Avatar, gap, padding and border of the pill, none of which text measurement can see. */
+export const STUDENT_PILL_CHROME_PX = 50
+
+interface StudentIdentityRow {
+  user_id: string
+  first_name?: string | null | undefined
+  last_name?: string | null | undefined
+  email?: string | null | undefined
+}
+
+/** The pill's text, from the same rule the badge itself uses, for off-DOM width measurement. */
+export const studentPillText = (row: StudentIdentityRow): string =>
+  computeLabel(
+    { firstName: row.first_name, lastName: row.last_name, email: row.email },
+    row.user_id,
+  ).displayText
 
 export interface StudentPillCellProps {
   userId: string

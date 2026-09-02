@@ -1,8 +1,12 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import hljs from "highlight.js"
 import type { DOMAttributes, ReactPortal } from "react"
 import React, { memo, useLayoutEffect, useMemo, useRef, useState } from "react"
+
+import "highlight.js/styles/atom-one-dark.css"
+
 import { createPortal } from "react-dom"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
@@ -11,6 +15,10 @@ import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationR
 import { getRemarkable } from "@/utils/course-material/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
+import {
+  codeBlockStyles,
+  getPreStyles,
+} from "../../ContentRenderer/core/formatting/CodeBlock/styles"
 import CitationButton from "./CitationButton"
 
 const PORTAL_PLACEHOLDER_QUERY_SELECTOR = "[data-chatbot-citation='true']"
@@ -46,6 +54,14 @@ const messageStyle = css`
     /*the pre element corresponds to md raw text, this property
     will force long strings in it to wrap and not overflow */
     white-space: pre-wrap;
+    ${getPreStyles(14, false)}
+    padding: 0;
+    border-radius: 0.4rem;
+  }
+  code {
+    ${codeBlockStyles}
+    font-size: 14px;
+    border-radius: 0.4rem;
   }
   button {
     /*Citations are inside button tags, it's assumed button tags wouldn't
@@ -81,6 +97,13 @@ const messageStyle = css`
   h6 {
     font-size: 0.6rem;
   }
+  ul,
+  ol {
+    padding-left: 1.75rem;
+  }
+  li {
+    padding-bottom: 0.25rem;
+  }
 `
 
 export enum MessageRenderType {
@@ -109,24 +132,40 @@ interface RenderedMessageProps {
   isPending: boolean
 }
 
-interface MessageWithPortalsComponentProps {
+interface MemoMessageWithPortalsOrCodeHighlightProps {
   msg: string
   isPending: boolean
 }
 
-const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(
-  ({ msg, isPending }) => {
+const MemoMessageWithPortalsOrCodeHighlight: React.FC<MemoMessageWithPortalsOrCodeHighlightProps> =
+  memo(({ msg, isPending }) => {
     /* Parent to the portal containers — memoized so portal creation elsewhere doesn't remount it. */
+    const thisNode = useRef<HTMLElement>(null)
+
+    useLayoutEffect(() => {
+      if (msg.length === 0) {
+        return
+      }
+      // highlight code elements inside LayoutEffect to make sure the nodes
+      // exist before modifications
+      const codeNodes = Array.from(thisNode.current?.querySelectorAll<Element>("code") ?? [])
+      codeNodes.forEach((node) => {
+        if (!(node as HTMLElement).dataset.highlighted) {
+          hljs.highlightElement(node as HTMLElement)
+        }
+      })
+    }, [msg])
+
     return (
       <span
+        ref={thisNode}
         className={cx(messageStyle, isPending && lastLineInlineStyle)}
         dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}
       ></span>
     )
-  },
-)
+  })
 
-MessageWithPortalsComponent.displayName = "MessageWithPortalsComponent"
+MemoMessageWithPortalsOrCodeHighlight.displayName = "MemoMessageWithPortalsOrCodeHighlight"
 
 const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
@@ -143,6 +182,8 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   // the message needs to be rendered before we can put portals in it, so this state is
   // set as true only when the initial render is complete and citations should be shown
   const [readyForPortal, setReadyForPortal] = useState(false)
+  // the message needs to be rendered before we can style the code blocks, same as
+  // readyForPortal
 
   useLayoutEffect(() => {
     if (renderOption === MessageRenderType.ChatbotWithCitations) {
@@ -150,7 +191,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     } else {
       setReadyForPortal(false)
     }
-  }, [renderOption])
+  }, [renderOption, thisNode])
 
   let portals: ReactPortal[] | null = useMemo(() => {
     if (!readyForPortal) {
@@ -210,18 +251,9 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     return <span className={messageStyle}>{renderedMessage}</span>
   }
 
-  if (renderOption === MessageRenderType.ChatbotNoCitations) {
-    return (
-      <span
-        className={cx(messageStyle, isPending && lastLineInlineStyle)}
-        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(renderedMessage) }}
-      ></span>
-    )
-  }
-
   return (
     <span ref={thisNode}>
-      <MessageWithPortalsComponent msg={renderedMessage} isPending={isPending} />
+      <MemoMessageWithPortalsOrCodeHighlight msg={renderedMessage} isPending={isPending} />
       {readyForPortal && portals}
     </span>
   )

@@ -7,7 +7,7 @@ import { getCmsCoursePages, getCmsPage, getCmsPageInfo } from "@/generated/api/s
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
-import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"

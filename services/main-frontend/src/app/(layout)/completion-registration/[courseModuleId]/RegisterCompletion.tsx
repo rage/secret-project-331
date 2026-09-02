@@ -6,9 +6,8 @@ import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import type { UserCompletionInformation } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { baseTheme, typography } from "@/shared-module/common/styles"
+import { Button, Infobox } from "@/shared-module/components"
 
 const MY_STUDYINFO = "https://opintopolku.fi/oma-opintopolku/"
 
@@ -52,9 +51,9 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
         </h2>
         {data.ects_credits && <p>{t("credits-n-ects", { n: data.ects_credits })}</p>}
       </div>
-      <GenericInfobox>
+      <Infobox>
         {t("use-this-email-address-on-the-registration-form")}: {data.email}
-      </GenericInfobox>
+      </Infobox>
       <p
         className={css`
           margin: 1.5rem 0;

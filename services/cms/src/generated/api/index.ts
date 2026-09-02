@@ -157,6 +157,7 @@ export type {
   RequestParagraphSuggestionsResponses,
   ResearchForm,
   ResearchFormQuestion,
+  ToolCategory,
   UpdateCmsCourseDefaultPeerReviewData,
   UpdateCmsCourseDefaultPeerReviewResponse,
   UpdateCmsCourseDefaultPeerReviewResponses,

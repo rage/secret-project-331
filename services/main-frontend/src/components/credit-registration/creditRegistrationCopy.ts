@@ -9,7 +9,6 @@ import type { RegistrationStatusState, RegistrationStatusStep } from "@/shared-m
 import { labelFrom, widenedLookup } from "./labelFrom"
 
 const STAGE_KEYS = [
-  "credit-registration-stage-consent",
   "credit-registration-stage-student-number",
   "credit-registration-stage-enrolment",
   "credit-registration-stage-registered",
@@ -19,20 +18,18 @@ type StageStates = readonly [
   RegistrationStatusState,
   RegistrationStatusState,
   RegistrationStatusState,
-  RegistrationStatusState,
 ]
 
 /** One row per status, each in `STAGE_KEYS` order. */
 const STAGE_STATES = {
-  waiting_for_completion: ["upcoming", "upcoming", "upcoming", "upcoming"],
-  needs_consent: ["action-needed", "upcoming", "upcoming", "upcoming"],
-  needs_student_number: ["done", "action-needed", "upcoming", "upcoming"],
-  in_progress: ["done", "done", "current", "upcoming"],
-  needs_enrolment: ["done", "done", "action-needed", "upcoming"],
-  waiting_for_sisu: ["done", "done", "done", "current"],
-  registered: ["done", "done", "done", "done"],
-  failed: ["done", "done", "done", "failed"],
-  not_registering: ["upcoming", "upcoming", "upcoming", "upcoming"],
+  waiting_for_completion: ["upcoming", "upcoming", "upcoming"],
+  needs_student_number: ["action-needed", "upcoming", "upcoming"],
+  in_progress: ["done", "current", "upcoming"],
+  needs_enrolment: ["done", "action-needed", "upcoming"],
+  waiting_for_sisu: ["done", "done", "current"],
+  registered: ["done", "done", "done"],
+  failed: ["done", "done", "failed"],
+  not_registering: ["upcoming", "upcoming", "upcoming"],
 } as const satisfies Record<StudentFacingCreditRegistrationStatus, StageStates>
 
 const STATE_LABEL_KEYS = {
@@ -45,7 +42,6 @@ const STATE_LABEL_KEYS = {
 
 const STATUS_LABEL_KEYS = {
   waiting_for_completion: "credit-registration-status-waiting-for-completion",
-  needs_consent: "credit-registration-status-needs-consent",
   needs_student_number: "credit-registration-status-needs-student-number",
   in_progress: "credit-registration-status-in-progress",
   needs_enrolment: "credit-registration-status-needs-enrolment",
@@ -59,7 +55,6 @@ const STATUS_LABEL_UNKNOWN_KEY = "credit-registration-status-unknown"
 
 const STATUS_EXPLANATION_KEYS = {
   waiting_for_completion: "credit-registration-explanation-waiting-for-completion",
-  needs_consent: "credit-registration-explanation-needs-consent",
   needs_student_number: "credit-registration-explanation-needs-student-number",
   in_progress: "credit-registration-explanation-in-progress",
   needs_enrolment: "credit-registration-explanation-needs-enrolment",
@@ -96,8 +91,6 @@ const ERROR_CODE_KEYS = {
 } as const satisfies Record<CreditRegistrationErrorCode, string>
 
 const GENERIC_ERROR_KEY = "credit-registration-error-generic"
-
-const WITHDRAWN_WHILE_IN_FLIGHT_KEY = "credit-registration-explanation-consent-withdrawn-in-flight"
 
 export const registrationStatusLabel = (
   t: TFunction,
@@ -136,21 +129,11 @@ export const registrationStepperSteps = (
   })
 }
 
-/**
- * A withdrawal that caught an already-sent import has its own copy: the outcome is unknown.
- *
- * Takes the one distinction as a flag rather than the ledger state, because the student-facing
- * payload deliberately does not carry the state — it would say which of the `not_registering`
- * causes applies, including being flagged as a suspected cheater.
- */
 export const registrationExplanation = (
   t: TFunction,
   status: StudentFacingCreditRegistrationStatus,
-  withdrawnWhileInFlight: boolean,
 ): string =>
-  withdrawnWhileInFlight
-    ? t(WITHDRAWN_WHILE_IN_FLIGHT_KEY)
-    : labelFrom(t, STATUS_EXPLANATION_KEYS, status, STATUS_EXPLANATION_KEYS.waiting_for_completion)
+  labelFrom(t, STATUS_EXPLANATION_KEYS, status, STATUS_EXPLANATION_KEYS.waiting_for_completion)
 
 /** Matches `grade_mapping.rs`: both spellings of the pass/fail scale are in circulation. */
 const PASS_FAIL_GRADE_SCALE_IDS = ["sis-hyl-hyv", "sis-hyv-hyl"]

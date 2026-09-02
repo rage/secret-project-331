@@ -36,11 +36,11 @@ serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
 # Hash map that keeps insertion order, so serialized tool and response schemas are byte-stable and
 # Azure's prompt cache can match on them.
-indexmap = { version = "2.14.0", features = ["serde"] }
+indexmap = { version = "2.14.1", features = ["serde"] }
 # Application-level tracing for Rust.
 tracing = "0.1.44"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.24.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.104"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries

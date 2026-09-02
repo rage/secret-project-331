@@ -100,6 +100,7 @@ export const zResource = z.union([
     type: z.enum(["role"]),
   }),
   z.object({
+    id: z.uuid(),
     type: z.enum(["user"]),
   }),
   z.object({
@@ -199,6 +200,9 @@ export const zAction = z.union([
   }),
   z.object({
     type: z.enum(["view_and_manage_credit_registrations"]),
+  }),
+  z.object({
+    type: z.enum(["administrate_user_account"]),
   }),
   z.object({
     type: z.enum(["administrate"]),

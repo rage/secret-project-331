@@ -12,7 +12,7 @@ import { USERS_SORT_COLUMNS, useCourseStudentsIdentity } from "../studentsQuerie
 import { StudentsTable } from "../StudentsTable"
 import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { StaleTableWrapper } from "./StaleTableWrapper"
-import { StudentPillCell } from "./StudentPillCell"
+import { STUDENT_PILL_CHROME_PX, StudentPillCell, studentPillText } from "./StudentPillCell"
 
 const EM_DASH = "—"
 
@@ -42,6 +42,7 @@ export const UserTabContent: React.FC = () => {
             email={row.original.email}
           />
         ),
+        meta: { measureValue: studentPillText, measureExtraPx: STUDENT_PILL_CHROME_PX },
       },
       {
         header: t("label-email"),

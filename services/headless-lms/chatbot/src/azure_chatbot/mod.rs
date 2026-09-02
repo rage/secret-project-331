@@ -16,6 +16,7 @@ pub mod azure;
 mod client_tool_calls;
 pub mod events;
 mod request;
+mod search_grounding;
 #[cfg(test)]
 mod test_helpers;
 pub mod turn;

@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
-import GlossaryTriggerNPopover from "./GlossaryTriggerNPopover"
+import { GlossaryTriggerNPopover } from "./GlossaryTriggerNPopover"
 import { TooltipBox } from "./TooltipBox"
 import { TooltipNTriggerAnchor } from "./TooltipNTriggerAnchor"
 

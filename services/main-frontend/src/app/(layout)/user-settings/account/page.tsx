@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import EmailVerificationSection from "@/components/EmailVerificationSection"
 import ChangeUserPasswordForm from "@/components/forms/ChangeUserPasswordForm"
-import EditUserInformationForm from "@/components/forms/EditUserInformationForm"
+import { EditUserInformationForm } from "@/components/forms/EditUserInformationForm"
 import { useUserDetailsForUserQuery } from "@/hooks/useUserDetailsForUserQuery"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"

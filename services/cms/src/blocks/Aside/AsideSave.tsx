@@ -1,6 +1,7 @@
 "use client"
 
 import { InnerBlocks } from "@wordpress/block-editor"
+import type { JSX } from "react"
 
 import type { BlockSaveProps } from "@/utils/Gutenberg/types"
 

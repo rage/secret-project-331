@@ -52,6 +52,11 @@ pub enum Action {
     /// student number, which is their key in the national study registry, and an assistant on a
     /// course is often another student on it.
     ViewAndManageCreditRegistrations,
+    /// Editing someone else's account identity or credentials: their email, its verification
+    /// state, a password reset link minted on their behalf. Separate from `Edit` because `Edit` is
+    /// held by teachers and assistants on their own courses, and account administration is not a
+    /// course-scoped power.
+    AdministrateUserAccount,
     Administrate,
 }
 
@@ -74,7 +79,10 @@ pub enum Resource {
     StudyRegistry(String),
     AnyCourse,
     Role,
-    User,
+    /// A specific user account. Only a global role can hold anything on it: [is_permitted] has no
+    /// per-user rule, so the id names the target for the audit trail and for a future scoping rule
+    /// rather than widening who passes.
+    User(Uuid),
     PlaygroundExample,
     ExerciseService,
 }
@@ -493,7 +501,7 @@ pub async fn is_permitted(
         }
         Resource::Exam(exam_id) => check_exam_permission(conn, user_roles, action, exam_id).await,
         Resource::Role
-        | Resource::User
+        | Resource::User(_)
         | Resource::AnyCourse
         | Resource::PlaygroundExample
         | Resource::ExerciseService

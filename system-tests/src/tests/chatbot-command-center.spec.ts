@@ -133,10 +133,15 @@ test.describe("Chatbot command center testing", () => {
     await page.getByRole("button", { name: "Create a new global chatbot" }).click()
     await page.getByRole("textbox", { name: "Name" }).click()
     await page.getByRole("textbox", { name: "Name" }).fill("new global chatbot")
+    await page.getByRole("textbox", { name: "Overview of the chatbot's" }).click()
+    await page.getByRole("textbox", { name: "Overview of the chatbot's" }).fill("test chatbot")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
     await page.getByRole("link", { name: "Chatbot command center" }).click()
+    await waitForSpinnersToDisappear(page)
+    // oxlint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(100)
     await page.getByRole("button", { name: "Chatbot to test" }).click()
     await expect(
       page
@@ -159,6 +164,8 @@ test.describe("Chatbot command center testing", () => {
     })
     await page.getByRole("link", { name: "Chatbot command center" }).click()
     await waitForSpinnersToDisappear(page)
+    // oxlint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(100)
     await page.getByText("Chatbot to test").waitFor()
     await page.getByRole("button", { name: "Chatbot to test" }).click({ delay: 50 })
     await expect(

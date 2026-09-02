@@ -8,7 +8,7 @@ export const containerStyles = css`
   margin: 0 auto;
 `
 
-export const preStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
+export const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
   margin-top: 0;
   font-size: ${fontSizePx}px;
   font-family: ${monospaceFont} !important;
@@ -17,11 +17,30 @@ export const preStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
   overflow-wrap: break-word;
   padding: 16px;
   ${
-    allowFullWidth &&
-    `
+    allowFullWidth
+      ? `
     margin-top: -1.5rem;
     margin-bottom: -1.5rem;
   `
+      : ""
+  }
+`
+
+export const codeBlockStyles = css`
+  /* Must track the .hljs background in highlight.js/styles/atom-one-dark.css. Set here too so the
+     colour does not depend on whether emotion or the theme sheet is injected last. */
+  background-color: #282c34;
+  border-radius: 4px;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0;
+  .code-line {
+    display: block;
+  }
+  .highlighted-line {
+    background-color: rgba(255, 255, 100, 0.1);
+    margin: 0 -16px;
+    padding: 0 16px 0 13px;
+    border-left: 3px solid #ffd700;
   }
 `
 

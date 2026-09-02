@@ -32,7 +32,9 @@ describe("Thinking indicator stays on the streamed text's line", () => {
     // they would still wrap onto their own line regardless of the paragraph's own display.
     const thinkingIndicator = container.querySelector('[aria-hidden="true"]')
     expect(thinkingIndicator).not.toBeNull()
-    expect(lastParagraph.closest("span")!.nextElementSibling).toBe(thinkingIndicator)
+    // the last paragraph is two levels deeper than the thinking indicator
+    // so its second parent's next sibling should be the thinking indicator
+    expect(lastParagraph.parentElement!.parentElement!.nextElementSibling).toBe(thinkingIndicator)
   })
 
   it("leaves the message's normal paragraph layout alone once the turn is no longer pending", () => {

@@ -13,6 +13,9 @@ import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
 
 export interface ChatbotState {
   messages: ChatbotConversationMessageWithStatus[]
+  /** Data an executed action tool call sent back for this browser only, keyed by `tool_call_id`.
+   * In-memory only: never persisted, and lost on reload like the rest of a live stream's state. */
+  executionPayloadByToolCallId: Record<string, unknown>
 }
 
 // todo: accpt chat stream events?
@@ -35,6 +38,7 @@ export type ChatbotAction =
       }
     }
   | { type: "TOOL_CALL_FINISHED"; payload: { tool_call_id: string } }
+  | { type: "ACTION_EXECUTED"; payload: { tool_call_id: string; payload: unknown } }
   | { type: "REASONING_IN_PROGRESS"; payload: { reasoning_id: string } }
   | { type: "REASONING_FINISHED"; payload: { reasoning_id: string } }
   | { type: "RESPONSE_COMPLETED" }
@@ -189,6 +193,9 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         console.warn("Received a tool call finished event but in progress tool call was not found")
         return
       }
+    }
+    if (action.type === "ACTION_EXECUTED") {
+      draftState.executionPayloadByToolCallId[action.payload.tool_call_id] = action.payload.payload
     }
     if (action.type === "REASONING_IN_PROGRESS") {
       const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)

@@ -6,11 +6,11 @@ import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import { useContext } from "react"
 
 import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Accordion from "@/shared-module/common/components/Accordion"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { Disclosure } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -140,28 +140,25 @@ const ExerciseSettingsEditor = () => {
         />
       )}
       {courseId && (
-        <Accordion>
-          <details>
-            <summary>{t("peer-and-self-review-configuration")}</summary>
-            <PeerReviewEditor
-              attributes={attributes}
-              setAttributes={setAttributes}
-              exerciseId={attributes.id}
-              courseId={courseId}
-              courseGlobalEditor={false}
-              instructionsEditor={
-                <div
-                  className={css`
-                    border: 1px solid ${baseTheme.colors.gray[100]};
-                    padding: 1rem;
-                  `}
-                >
-                  <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} templateLock={false} />
-                </div>
-              }
-            />
-          </details>
-        </Accordion>
+        <Disclosure title={t("peer-and-self-review-configuration")}>
+          <PeerReviewEditor
+            attributes={attributes}
+            setAttributes={setAttributes}
+            exerciseId={attributes.id}
+            courseId={courseId}
+            courseGlobalEditor={false}
+            instructionsEditor={
+              <div
+                className={css`
+                  border: 1px solid ${baseTheme.colors.gray[100]};
+                  padding: 1rem;
+                `}
+              >
+                <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} templateLock={false} />
+              </div>
+            }
+          />
+        </Disclosure>
       )}
     </div>
   )

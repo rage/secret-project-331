@@ -127,6 +127,11 @@ const surfaceCss = css`
   color: var(--color-gray-700);
   border-radius: 8px;
   outline: none;
+
+  /* The scrim is dropped in high contrast mode, so without an edge the surface merges into the page. */
+  @media (forced-colors: active) {
+    border: 1px solid CanvasText;
+  }
 `
 
 const sizeCss: Record<DialogSize, string> = {

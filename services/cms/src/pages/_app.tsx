@@ -7,7 +7,6 @@ import type { AppProps } from "next/app"
 import Script from "next/script"
 import React, { useEffect, useState } from "react"
 
-import { DialogProvider } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
 import { installGlobalErrorReporting } from "@/shared-module/common/errors/installGlobalErrorReporting"
 import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage.pages"
@@ -18,6 +17,7 @@ import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebV
 import initI18n from "@/shared-module/common/utils/initI18n"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { DialogProvider } from "@/shared-module/components"
 
 import Layout from "../components/Layout"
 import LocalStyles from "../styles/LocalStyles"

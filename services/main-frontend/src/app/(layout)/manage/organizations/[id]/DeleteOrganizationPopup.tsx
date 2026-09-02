@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Dialog } from "@/shared-module/components"
 
 interface Props {
   show: boolean
@@ -17,32 +17,30 @@ const DeleteOrganizationPopup: React.FC<Props> = ({ show, setShow, handleDelete 
   const [confirmText, setConfirmText] = useState("")
 
   return (
-    <StandardDialog
+    <Dialog
       open={show}
       onClose={() => {
         setShow(false)
         setConfirmText("")
       }}
       title={t("delete-organization")}
-      buttons={[
+      actions={[
         {
-          children: t("confirm"),
+          label: t("confirm"),
           onClick: () => {
             handleDelete()
             setShow(false)
             setConfirmText("")
           },
-
           variant: "primary",
           disabled: confirmText !== "delete",
         },
         {
-          children: t("button-text-cancel"),
+          label: t("button-text-cancel"),
           onClick: () => {
             setShow(false)
             setConfirmText("")
           },
-
           variant: "secondary",
         },
       ]}
@@ -68,7 +66,7 @@ const DeleteOrganizationPopup: React.FC<Props> = ({ show, setShow, handleDelete 
           width: 100%;
         `}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

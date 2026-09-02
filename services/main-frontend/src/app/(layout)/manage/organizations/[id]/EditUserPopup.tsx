@@ -5,7 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { USER_ROLES } from "@/constants/roles"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Dialog } from "@/shared-module/components"
 
 interface EditUserPopupProps {
   show: boolean
@@ -29,21 +29,19 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
   const { t } = useTranslation()
 
   return (
-    <StandardDialog
+    <Dialog
       open={show}
       onClose={() => setShow(false)}
       title={t("edit-user-role")}
-      buttons={[
+      actions={[
         {
-          children: t("save"),
+          label: t("save"),
           onClick: handleSave,
-
           variant: "primary",
         },
         {
-          children: t("button-text-cancel"),
+          label: t("button-text-cancel"),
           onClick: () => setShow(false),
-
           variant: "secondary",
         },
       ]}
@@ -155,7 +153,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
           </select>
         </div>
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

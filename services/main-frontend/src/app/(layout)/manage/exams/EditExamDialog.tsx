@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next"
 import EditExamForm from "@/components/forms/EditExamForm"
 import { editExamMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { Exam, NewExam } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { Dialog } from "@/shared-module/components"
 
 interface ExamDialogProps {
   initialData: Exam
@@ -46,7 +46,7 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   }
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("edit-exam")}>
+    <Dialog open={open} onClose={onClose} title={t("edit-exam")}>
       {createExamMutation.isError && (
         <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
       )}
@@ -63,7 +63,7 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
           })
         }
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

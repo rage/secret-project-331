@@ -5,10 +5,10 @@ import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Dialog } from "@/shared-module/components"
 
 interface CreateOrganizationForm {
   name: string
@@ -56,18 +56,18 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
   })
 
   return (
-    <StandardDialog
+    <Dialog
       open={show}
       onClose={onClose}
       title={t("create-organization-title")}
-      buttons={[
+      actions={[
         {
-          children: t("create"),
+          label: t("create"),
           onClick: submitForm,
           variant: "primary",
         },
         {
-          children: t("button-text-cancel"),
+          label: t("button-text-cancel"),
           onClick: onClose,
           variant: "secondary",
         },
@@ -107,7 +107,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
           {...includeIf(errors.slug, { error: t("validation-required") })}
         />
       </form>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

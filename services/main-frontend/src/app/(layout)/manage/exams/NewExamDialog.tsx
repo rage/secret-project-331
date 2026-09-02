@@ -10,10 +10,9 @@ import {
   duplicateExamMutation as duplicateExamMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { NewExam, OrgExam } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult } from "@/shared-module/components"
 
 interface ExamDialogProps {
   organizationId: string
@@ -91,7 +90,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   )
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("new-exam")}>
+    <Dialog open={open} onClose={onClose} title={t("new-exam")}>
       {createExamMutation.isError && (
         <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
       )}
@@ -101,7 +100,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
       <QueryResult query={getOrgExams} treatEmptyAsData>
         {(exams) => renderForm(exams)}
       </QueryResult>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

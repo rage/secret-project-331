@@ -6,11 +6,11 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { USER_ROLES } from "@/constants/roles"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Dialog } from "@/shared-module/components"
 
 type RoleValue = (typeof USER_ROLES)[number]["value"]
 
@@ -52,18 +52,18 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
   })
 
   return (
-    <StandardDialog
+    <Dialog
       open={show}
       onClose={onClose}
       title={t("add-user-title")}
-      buttons={[
+      actions={[
         {
-          children: t("save"),
+          label: t("save"),
           onClick: submitForm,
           variant: "primary",
         },
         {
-          children: t("button-text-cancel"),
+          label: t("button-text-cancel"),
           onClick: onClose,
           variant: "secondary",
         },
@@ -126,7 +126,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
           />
         </div>
       </form>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

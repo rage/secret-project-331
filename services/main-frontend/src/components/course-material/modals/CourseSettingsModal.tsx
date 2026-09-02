@@ -13,14 +13,13 @@ import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
 import { refetchUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import useUserMarketingConsent from "@/hooks/course-material/useUserMarketingConsent"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult } from "@/shared-module/components"
 import { invalidateCourseMaterialStateQueries } from "@/state/course-material/queries"
 import {
   currentCourseIdAtom,
@@ -166,13 +165,13 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     return null
   }
   return (
-    <StandardDialog
+    <Dialog
       open={open}
+      // Settings must be completed explicitly: no close button, and closing on Escape is a no-op.
+      onClose={() => {}}
       title={t("title-course-settings")}
-      noPadding
-      leftAlignTitle={true}
+      padding="none"
       showCloseButton={false}
-      closeable={false}
       lang={dialogLanguage}
     >
       <div
@@ -238,7 +237,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           </p>
         </div>
       )}
-    </StandardDialog>
+    </Dialog>
   )
 }
 

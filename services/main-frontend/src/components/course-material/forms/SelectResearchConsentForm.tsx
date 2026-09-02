@@ -15,10 +15,10 @@ import type {
   ResearchFormQuestion,
   ResearchFormQuestionAnswer,
 } from "@/generated/course-material-api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { Dialog } from "@/shared-module/components"
 import { currentCourseIdAtom, materialCourseAtom } from "@/state/course-material/selectors"
 import type { Block } from "@/types/courseMaterialBlock"
 
@@ -112,28 +112,28 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
     onClose()
   }
   return (
-    <StandardDialog
+    <Dialog
       open={shouldAnswerResearchForm || editForm}
+      // Consent must be an explicit choice: no close button, and closing on Escape is a no-op.
+      onClose={() => {}}
       title={
         courseName
           ? t("research-consent-for-course", { courseName })
           : t("title-research-consent-form")
       }
       showCloseButton={false}
-      closeable={false}
-      buttons={[
+      actions={[
         {
-          children: t("save"),
+          label: t("save"),
           onClick: handleOnSubmit,
           variant: "tertiary",
-          transform: "capitalize",
         },
       ]}
     >
       <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
         <ContentRenderer data={(researchForm.content as Block<unknown>[]) ?? []} isExam={false} />
       </CheckboxContext.Provider>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

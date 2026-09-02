@@ -8,13 +8,13 @@ import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialCountryFromIpOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { updateCourseMaterialUserInfo } from "@/generated/course-material-api/sdk.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Dialog } from "@/shared-module/components"
 
 interface SelectUserInfoFormFields {
   email: string
@@ -121,22 +121,17 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   }
 
   return (
-    <StandardDialog
+    <Dialog
       showCloseButton={false}
-      closeable={false}
       open={shouldAnswerMissingInfoForm}
       onClose={() => setShouldAnswerMissingInfoForm(false)}
-      aria-label={t("enter-country-question")}
       title={t("title-fill-missing-information")}
-      buttons={[
+      actions={[
         {
           type: "submit",
           disabled: postUserCountryMutation.isPending || !isValid,
-          // oxlint-disable-next-line i18next/no-literal-string
-          className: "primary-button",
-
           variant: "primary",
-          children: t("save"),
+          label: t("save"),
           onClick: handleSubmit((data) => postUserCountryMutation.mutate(data)),
         },
       ]}
@@ -190,7 +185,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           {...register("emailCommunicationConsent")}
         ></CheckBox>
       </form>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

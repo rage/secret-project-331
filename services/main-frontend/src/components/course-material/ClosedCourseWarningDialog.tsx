@@ -8,11 +8,11 @@ import { useTranslation } from "react-i18next"
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import useOrganization from "@/hooks/course-material/useOrganization"
 import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
+import { Dialog } from "@/shared-module/components"
 import { materialCourseAtom } from "@/state/course-material/selectors"
 
 const ClosedCourseWarningDialog = () => {
@@ -33,13 +33,7 @@ const ClosedCourseWarningDialog = () => {
   }
 
   return (
-    <StandardDialog
-      open={open}
-      closeable
-      showCloseButton
-      title={t("course-closed-warning-title")}
-      onClose={() => setOpen(false)}
-    >
+    <Dialog open={open} title={t("course-closed-warning-title")} onClose={() => setOpen(false)}>
       <div
         className={css`
           display: flex;
@@ -116,7 +110,7 @@ const ClosedCourseWarningDialog = () => {
           </a>
         )}
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

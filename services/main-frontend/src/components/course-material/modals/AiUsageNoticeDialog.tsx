@@ -10,12 +10,11 @@ import { getAiUsageNoticeAcknowledgementQueryKey } from "@/generated/course-mate
 import { acknowledgeAiUsageNotice } from "@/generated/course-material-api/sdk.generated"
 import type { CourseAiPolicy } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Checkbox } from "@/shared-module/components"
+import { Checkbox, Dialog } from "@/shared-module/components"
 
 // The University of Helsinki guidelines on using AI to support learning.
 // Only fi/sv/en versions are published; other languages fall back to the English page.
@@ -121,12 +120,12 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   )
 
   return (
-    <StandardDialog
+    <Dialog
       open={true}
+      // Must be explicitly acknowledged: no close button, and closing on Escape is a no-op.
+      onClose={() => {}}
       title={t("ai-usage-notice-title")}
-      leftAlignTitle={true}
       showCloseButton={false}
-      closeable={false}
     >
       <div
         className={css`
@@ -206,7 +205,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
           </Button>
         </div>
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

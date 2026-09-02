@@ -6,8 +6,8 @@ import React, { useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Dialog } from "@/shared-module/components"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -74,12 +74,7 @@ const FeedbackTypeDialog: React.FC = () => {
   )
 
   return (
-    <StandardDialog
-      open={type === "select-type"}
-      onClose={handleClose}
-      title={t("select-feedback-type")}
-      width="normal"
-    >
+    <Dialog open={type === "select-type"} onClose={handleClose} title={t("select-feedback-type")}>
       <div
         className={css`
           display: flex;
@@ -242,7 +237,7 @@ const FeedbackTypeDialog: React.FC = () => {
           </div>
         </button>
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

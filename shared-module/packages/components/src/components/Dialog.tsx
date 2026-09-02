@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
-import { AnimatePresence, motion, useReducedMotion } from "motion/react"
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "motion/react"
 import React from "react"
 import { mergeProps, Overlay, useDialog, useModalOverlay } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -17,7 +17,7 @@ export type DialogPadding = "normal" | "none"
 export type DialogRole = "dialog" | "alertdialog"
 export type DialogExit = "fade" | "handoff"
 
-type DialogLabelling =
+export type DialogLabelling =
   | {
       /** Heading rendered at the top of the dialog; also names the dialog via `aria-labelledby`. */
       title: React.ReactNode
@@ -74,6 +74,11 @@ export type DialogProps = DialogLabelling &
      * both are mid-transition. Leave it unset unless another dialog is about to replace this one.
      */
     exit?: DialogExit
+    /**
+     * Runs once the closed dialog has finished animating out and unmounted, so a caller that
+     * keeps the element rendered for the exit can drop it at the right moment.
+     */
+    onExitComplete?: () => void
     /** Whether clicking the underlay closes the dialog. */
     isDismissable?: boolean
     /** Hides the visible close button in the top corner. */
@@ -249,7 +254,10 @@ export const Dialog: React.FC<DialogProps> = (props) => (
   // AnimatePresence keeps the outgoing dialog mounted through its exit animation, which is why
   // the overlay stack (focus trap, scroll lock, focus-on-mount) lives in a keyed inner component
   // rather than an early `return null`.
-  <AnimatePresence mode={ANIMATE_PRESENCE_MODE}>
+  <AnimatePresence
+    mode={ANIMATE_PRESENCE_MODE}
+    {...omitUndefined({ onExitComplete: props.onExitComplete })}
+  >
     {props.open && <OpenDialog key="dialog" {...props} />}
   </AnimatePresence>
 )
@@ -276,6 +284,9 @@ const OpenDialog: React.FC<DialogProps> = ({
   const titleId = React.useId()
   const hasTitle = title !== undefined
   const shouldReduceMotion = !!useReducedMotion()
+  // Releases react-aria's focus containment for the duration of the exit animation, so a dialog
+  // that replaces this one can take focus while both are briefly mounted. Restoration stays armed.
+  const isExiting = !useIsPresent()
 
   const state = useOverlayTriggerState({
     isOpen: true,
@@ -317,7 +328,7 @@ const OpenDialog: React.FC<DialogProps> = ({
   } = mergeProps(modalProps, dialogProps)
 
   return (
-    <Overlay>
+    <Overlay isExiting={isExiting}>
       <motion.div
         {...motionSafeUnderlayProps}
         className={underlayCss}

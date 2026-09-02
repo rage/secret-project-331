@@ -302,24 +302,26 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         )
         if (dialogType === "confirm") {
           void dialog
-            .confirm(dialogBody, dialogTitle, {
+            .confirm({
+              title: dialogTitle,
+              message: dialogBody,
               ...(confirmButtonLabel !== null && confirmButtonLabel !== undefined
-                ? { yesButtonLabel: confirmButtonLabel }
+                ? { confirmLabel: confirmButtonLabel }
                 : {}),
               ...(cancelButtonLabel !== null && cancelButtonLabel !== undefined
-                ? { noButtonLabel: cancelButtonLabel }
+                ? { cancelLabel: cancelButtonLabel }
                 : {}),
             })
             .then(respond)
         } else {
           void dialog
-            .alert(
-              dialogBody,
-              dialogTitle,
-              confirmButtonLabel !== null && confirmButtonLabel !== undefined
-                ? { okButtonLabel: confirmButtonLabel }
-                : {},
-            )
+            .alert({
+              title: dialogTitle,
+              message: dialogBody,
+              ...(confirmButtonLabel !== null && confirmButtonLabel !== undefined
+                ? { acknowledgeLabel: confirmButtonLabel }
+                : {}),
+            })
             .then(() => respond(true))
         }
       } else if (isMessageFromIframe(data)) {

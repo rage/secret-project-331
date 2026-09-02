@@ -9,8 +9,8 @@ import MessageChannelIFrame from "../../src/MessageChannelIFrame"
 import i18nTest from "../testing/i18nTest"
 import { createMockMessageChannel, createMockMessageEvent } from "../utils/iframeTestUtils"
 
-// MessageChannelIFrame now takes its dialog controller via prop (the host injects
-// common's useDialog()); no test exercises the open-dialog path, so a stub suffices.
+// MessageChannelIFrame takes its dialog controller via prop (the host injects
+// components' useDialog()); no test exercises the open-dialog path, so a stub suffices.
 const mockDialog = {
   alert: jest.fn(() => Promise.resolve()),
   confirm: jest.fn(() => Promise.resolve(true)),
@@ -1501,9 +1501,10 @@ describe("MessageChannelIFrame", () => {
         )
       })
       expect(dialog.confirm).toHaveBeenCalledWith(
-        expect.anything(),
-        "exercise-wants-to-open-a-link-title",
-        expect.objectContaining({ yesButtonLabel: "open-link-confirm-button" }),
+        expect.objectContaining({
+          title: "exercise-wants-to-open-a-link-title",
+          confirmLabel: "open-link-confirm-button",
+        }),
       )
     })
 
@@ -1525,10 +1526,10 @@ describe("MessageChannelIFrame", () => {
       sendFromIframe({ message: "open-link", data: "https://example.com/docs" })
 
       await waitFor(() => {
-        expect(dialog.alert).toHaveBeenCalledWith(
-          "opening-the-link-was-blocked-explanation",
-          "opening-the-link-was-blocked-title",
-        )
+        expect(dialog.alert).toHaveBeenCalledWith({
+          message: "opening-the-link-was-blocked-explanation",
+          title: "opening-the-link-was-blocked-title",
+        })
       })
     })
 
@@ -1560,9 +1561,10 @@ describe("MessageChannelIFrame", () => {
         ])
       })
       expect(dialog.confirm).toHaveBeenCalledWith(
-        expect.anything(),
-        "exercise-wants-to-download-a-file-title",
-        expect.objectContaining({ yesButtonLabel: "download-file-confirm-button" }),
+        expect.objectContaining({
+          title: "exercise-wants-to-download-a-file-title",
+          confirmLabel: "download-file-confirm-button",
+        }),
       )
     })
 

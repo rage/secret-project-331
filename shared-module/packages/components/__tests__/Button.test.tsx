@@ -5,7 +5,7 @@ import { fireEvent, screen } from "@testing-library/react"
 import { Button } from "../src/components/Button"
 import { pressEnter, pressSpace, renderUi } from "./testUtils"
 
-type Variant = "primary" | "secondary" | "tertiary" | "icon"
+type Variant = "primary" | "secondary" | "tertiary" | "icon" | "danger"
 type Size = "small" | "medium" | "large"
 
 describe("Button", () => {
@@ -138,7 +138,7 @@ describe("Button", () => {
 })
 
 describe("Button variants and sizes", () => {
-  const variants: Variant[] = ["primary", "secondary", "tertiary", "icon"]
+  const variants: Variant[] = ["primary", "secondary", "tertiary", "icon", "danger"]
   const sizes: Size[] = ["small", "medium", "large"]
 
   test.each(variants)("variant renders without crashing: %s", (variant) => {
@@ -194,5 +194,22 @@ describe("Button variants and sizes", () => {
     expect(button).toBeInTheDocument()
     expect(button).toHaveAttribute("data-pressed", "false")
     expect(screen.getByTestId("icon-only")).toBeInTheDocument()
+  })
+
+  test("danger variant renders the crimson fill token with an accessible name", () => {
+    renderUi(<Button variant="danger">Delete course</Button>)
+
+    const button = screen.getByRole("button", { name: "Delete course" })
+    expect(button).toBeInTheDocument()
+    expect(getComputedStyle(button).background).toContain("var(--btn-danger-bg)")
+  })
+
+  test("danger variant darkens on press and drops the shared press translate", () => {
+    renderUi(<Button variant="danger">Delete course</Button>)
+
+    const button = screen.getByRole("button", { name: "Delete course" })
+    fireEvent.keyDown(button, { key: " " })
+    expect(button).toHaveAttribute("data-pressed", "true")
+    expect(getComputedStyle(button).transform).toBe("none")
   })
 })

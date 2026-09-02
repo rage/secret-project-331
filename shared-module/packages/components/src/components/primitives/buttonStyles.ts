@@ -4,7 +4,7 @@ import type { PressEvent } from "react-aria"
 export type ButtonSize = "small" | "medium" | "large"
 export type IconPosition = "start" | "end"
 
-export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon"
+export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon" | "danger"
 
 export interface PressHandlers {
   onPress?: (e: PressEvent) => void
@@ -255,6 +255,25 @@ const tertiaryCss = css`
   }
 `
 
+const dangerCss = css`
+  background: var(--btn-danger-bg);
+  color: var(--btn-danger-fg);
+  border-color: var(--btn-danger-border);
+
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--btn-danger-bg-hover);
+    border-color: var(--btn-danger-bg-hover);
+  }
+
+  /* Danger communicates pressed state by fill weight alone: cancels rootBaseCss's press translate. */
+  &[data-pressed="true"] {
+    background: var(--btn-danger-bg-pressed);
+    border-color: var(--btn-danger-bg-pressed);
+    box-shadow: var(--btn-pressed-shadow);
+    transform: none;
+  }
+`
+
 const iconCss = css`
   background: var(--btn-icon-bg);
   color: var(--btn-icon-fg);
@@ -292,6 +311,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary: secondaryCss,
   tertiary: tertiaryCss,
   icon: iconCss,
+  danger: dangerCss,
 }
 
 const iconSizeStyles: Record<ButtonSize, string> = {

@@ -300,6 +300,13 @@ export const tokensGlobal = injectGlobal`
     --btn-icon-padding-x-md: calc(var(--space-4) - (var(--space-1) * 2));
     --btn-icon-padding-x-lg: var(--space-4);
 
+    /* danger */
+    --btn-danger-bg: var(--color-crimson-700);
+    --btn-danger-fg: var(--color-clear-50);
+    --btn-danger-border: var(--color-crimson-700);
+    --btn-danger-bg-hover: var(--color-crimson-800);
+    --btn-danger-bg-pressed: var(--color-crimson-900);
+
     /* field */
     --field-bg: #ffffff;
     --field-bg-disabled: var(--color-gray-50);

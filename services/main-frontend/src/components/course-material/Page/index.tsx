@@ -20,12 +20,12 @@ import useResearchConsentFormAnswers from "@/hooks/course-material/useResearchCo
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import AudioSpeaker from "@/img/course-material/audio-player/audio-speaker.svg"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import {
   isMaterialPageAtom,
@@ -213,7 +213,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const glossary = useGlossary(courseId, courseMaterialState.examData, isMaterialPage)
 
   if (glossary.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   if (glossary.isError) {
@@ -222,7 +222,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const glossaryState: GlossaryState = { terms: glossary.data ?? [] }
 
   if (getPageAudioFiles.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   if (getPageAudioFiles.isError) {

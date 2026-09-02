@@ -21,11 +21,11 @@ import {
   NavItem,
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
 
 import LanguageNavigationControls from "../navigation/LanguageNavigationControls"
@@ -101,7 +101,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
     }
   }, [courseId, organizationSlug])
   return (
-    <Suspense fallback={<Spinner variant="large" />}>
+    <Suspense fallback={<LoadingRegion size="lg" />}>
       <div
         // Push footer to bottom of page, e.g. on empty body
         className={css`
@@ -124,7 +124,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
                 </NavItem>
               </NavItems>
             </NavContainer>
-            <Suspense fallback={<Spinner variant="large" />}>
+            <Suspense fallback={<LoadingRegion size="lg" minHeight={40} />}>
               <UserNavigationControls currentPagePath={pathname} />
             </Suspense>
           </NavBar>

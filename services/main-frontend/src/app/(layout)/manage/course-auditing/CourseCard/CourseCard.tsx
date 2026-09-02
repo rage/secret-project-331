@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { FloppyDiskSave, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
-import { useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import {
   FormProvider,
   useFieldArray,
@@ -711,4 +711,4 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData, filterC
   )
 }
 
-export default CourseCard
+export default React.memo(CourseCard)

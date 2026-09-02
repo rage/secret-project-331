@@ -86,7 +86,6 @@ const CourseAuditing = () => {
 
   const courseData = getCoursesForAuditing.data
 
-  //erottele course data filter ja course filter
   const { control, watch, reset } = useForm<CourseFilter>({
     defaultValues: {
       search_course: "",

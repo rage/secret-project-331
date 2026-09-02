@@ -35,6 +35,16 @@ export const tokensGlobal = injectGlobal`
     --font-size-4: 24px;
     --font-size-5: 32px;
 
+    /* layering — every portalled overlay (dialog, popover, menu, listbox, tooltip) shares
+       --layer-overlay; open order is DOM order, so the last-opened overlay paints on top
+       without a token per overlay type. */
+    --layer-below: -1;
+    --layer-base: 0;
+    --layer-raised: 1;
+    --layer-sticky: 100;
+    --layer-overlay: 1000;
+    --layer-toast: 1100;
+
     /* focus ring */
     --focus-ring-width: 2px;
     --focus-ring-offset: 2px;

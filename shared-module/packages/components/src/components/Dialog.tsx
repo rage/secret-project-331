@@ -66,7 +66,7 @@ const CLOSE_SYMBOL = "×"
 const underlayCss = css`
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: var(--layer-overlay);
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;

@@ -13,7 +13,6 @@ import {
   getCmsPageNavigationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { getExercisesWithSubmissions } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -24,7 +23,7 @@ import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { pageRoute } from "@/shared-module/common/utils/routes"
-import { useDialog } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
@@ -267,7 +266,6 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
           <Button
             variant={"secondary"}
             size={"medium"}
-            transform="none"
             className={css`
               width: 100%;
             `}

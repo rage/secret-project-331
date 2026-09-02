@@ -3,10 +3,9 @@
 import { serialize } from "@wordpress/blocks"
 import React, { useState } from "react"
 
-import Button from "@/shared-module/common/components/Button"
 import MonacoEditor from "@/shared-module/common/components/monaco/MonacoEditor"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Dialog } from "@/shared-module/components"
+import { Button, Dialog } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

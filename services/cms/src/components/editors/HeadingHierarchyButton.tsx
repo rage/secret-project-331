@@ -3,8 +3,7 @@
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 
-import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

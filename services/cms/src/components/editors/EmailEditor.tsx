@@ -5,9 +5,9 @@ import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 import type { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { Button } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

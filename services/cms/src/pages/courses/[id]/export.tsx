@@ -4,12 +4,12 @@ import { TarBuilder } from "@bytedance/tar-wasm"
 import React, { useState } from "react"
 
 import { getCmsCoursePages, getCmsPage, getCmsPageInfo } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { dateToString } from "@/shared-module/common/utils/time"
+import { Button } from "@/shared-module/components"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

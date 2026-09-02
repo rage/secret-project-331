@@ -6,8 +6,8 @@ import { Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React, { useState } from "react"
 
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { Button } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface MediaObject {

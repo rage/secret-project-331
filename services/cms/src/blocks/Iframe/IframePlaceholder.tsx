@@ -4,9 +4,9 @@
 import { css } from "@emotion/css"
 import { useState } from "react"
 
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import { Button } from "@/shared-module/components"
 
 export interface IFramePlaceHolderProps {
   setUrl: (url: string) => void

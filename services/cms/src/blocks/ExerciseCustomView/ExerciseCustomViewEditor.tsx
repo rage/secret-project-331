@@ -2,9 +2,9 @@
 
 import { css } from "@emotion/css"
 
-import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { Button } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -74,7 +74,7 @@ const ExerciseCustomViewEditor: React.FC<
                                 exercise_iframe_url: exercise_service.public_iframe_url,
                               })
                             }}
-                            variant="outlined"
+                            variant="secondary"
                             size="medium"
                           >
                             {exercise_service.name}

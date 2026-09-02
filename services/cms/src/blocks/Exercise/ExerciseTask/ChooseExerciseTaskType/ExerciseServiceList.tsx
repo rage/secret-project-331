@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 
 import type { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
-import Button from "@/shared-module/common/components/Button"
+import { Button } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -43,7 +43,7 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
                     }
                     onChooseItem(exercise_service)
                   }}
-                  variant="outlined"
+                  variant="secondary"
                   size="medium"
                 >
                   {exercise_service.name}

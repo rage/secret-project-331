@@ -6,8 +6,8 @@ import { InspectorControls } from "@wordpress/block-editor"
 import { PanelBody } from "@wordpress/components"
 import React, { useState } from "react"
 
-import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { Button } from "@/shared-module/components"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next"
 import EditReferenceForm from "@/components/forms/EditReferenceForm"
 import { deleteCourseReference, updateCourseReference } from "@/generated/api/sdk.generated"
 import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { Dialog } from "@/shared-module/components"
 
 interface EditReferenceDialogProps {
   getCourseReferences: UseQueryResult<MaterialReference[], Error>
@@ -77,7 +77,7 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
   )
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("edit-reference")}>
+    <Dialog open={open} onClose={onClose} title={t("edit-reference")}>
       <EditReferenceForm
         onCancel={onClose}
         onDelete={(deleteCourseId, id) =>
@@ -93,7 +93,7 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
         reference={reference}
         courseId={courseId}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

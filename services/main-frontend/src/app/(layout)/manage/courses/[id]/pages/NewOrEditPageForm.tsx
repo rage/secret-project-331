@@ -10,9 +10,9 @@ import {
   updatePageDetailsMutation as updatePageDetailsMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CreatePageData, Page } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { Dialog } from "@/shared-module/components"
 import { cleanUrlPath, normalizePath } from "@/utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
@@ -121,19 +121,18 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
   }
 
   return (
-    <StandardDialog
+    <Dialog
       open={open}
       onClose={onClose}
       title={isUpdate ? t("heading-edit-page") : t("heading-new-page")}
-      buttons={[
+      actions={[
         {
           disabled: isPending,
-
           variant: "primary",
           onClick: () => {
             void handleSubmit()
           },
-          children: isUpdate ? t("button-text-update") : t("button-text-create"),
+          label: isUpdate ? t("button-text-update") : t("button-text-create"),
         },
       ]}
     >
@@ -190,7 +189,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
           </FieldContainer>
         </div>
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

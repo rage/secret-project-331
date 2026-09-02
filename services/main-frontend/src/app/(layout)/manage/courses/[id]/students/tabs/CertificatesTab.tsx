@@ -13,14 +13,13 @@ import type {
   GetCertificateByVerificationIdData,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
-import { LoadingRegion } from "@/shared-module/components"
+import { Dialog, LoadingRegion } from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
@@ -280,13 +279,11 @@ export const CertificatesTabContent: React.FC = () => {
   return (
     <>
       {popupUrl && verificationId && (
-        <StandardDialog
+        <Dialog
           open={true}
           onClose={closePopup}
           title={t("view_certificate")}
-          showCloseButton={true}
           isDismissable={true}
-          noPadding={false}
           className={css`
             width: auto !important;
             max-width: 95vw !important;
@@ -392,17 +389,15 @@ export const CertificatesTabContent: React.FC = () => {
               </div>
             </div>
           </div>
-        </StandardDialog>
+        </Dialog>
       )}
 
       {editData && (
-        <StandardDialog
+        <Dialog
           open={true}
           onClose={() => setEditData(null)}
           title={t("edit-certificate")}
-          showCloseButton={true}
           isDismissable={true}
-          noPadding={false}
           className={css`
             width: 360px !important;
             max-width: 90vw !important;
@@ -464,7 +459,7 @@ export const CertificatesTabContent: React.FC = () => {
               {t("button-text-cancel")}
             </Button>
           </div>
-        </StandardDialog>
+        </Dialog>
       )}
 
       <StaleTableWrapper isStale={isStale}>

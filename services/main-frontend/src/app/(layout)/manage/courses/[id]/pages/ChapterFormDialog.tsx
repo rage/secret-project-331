@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { Chapter } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Dialog } from "@/shared-module/components"
 
 import NewChapterForm from "./NewChapterForm"
 
@@ -30,7 +30,7 @@ const ChapterFormDialog: React.FC<ChapterFormDialogProps> = ({
   const { t } = useTranslation()
 
   return (
-    <StandardDialog
+    <Dialog
       open={open}
       onClose={onClose}
       title={newRecord ? t("button-text-new-chapter") : t("edit-chapter")}
@@ -45,7 +45,7 @@ const ChapterFormDialog: React.FC<ChapterFormDialogProps> = ({
         initialData={initialData}
         newRecord={newRecord}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

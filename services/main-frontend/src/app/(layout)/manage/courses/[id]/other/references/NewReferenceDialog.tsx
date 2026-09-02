@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next"
 import NewReferenceForm from "@/components/forms/NewReferenceForm"
 import { createCourseReferences } from "@/generated/api/sdk.generated"
 import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { Dialog } from "@/shared-module/components"
 
 interface NewReferenceModalProps {
   onClose: () => void
@@ -45,12 +45,12 @@ const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProp
   )
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("new-reference")}>
+    <Dialog open={open} onClose={onClose} title={t("new-reference")}>
       <NewReferenceForm
         onCancel={onClose}
         onCreateNewReference={(newReference) => createReferenceMutation.mutate(newReference)}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

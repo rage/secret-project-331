@@ -13,7 +13,23 @@ interface ChatbotChatProps {
   pageId: string | null
   children: React.ReactNode
 }
-// TODO: document that this component will handle all the necessary setup and data for the chatbot
+
+/**
+ * Handles all the necessary setup and data for the chatbot.
+ *
+ * Passess chatbot state and data down to its children using ChatbotContext. Children
+ * can access the context using the useChatbotContext hook.
+ *
+ * @example
+ * <ChatbotChat chatbotConfigurationId="123" isAlwaysOpen={true} pageId={null}>
+ *   <ChatbotChatBox />
+ * </ChatbotChat>
+ *
+ * @example
+ * <ChatbotChat chatbotConfigurationId="123" isAlwaysOpen={false} pageId="page123">
+ *   <ChatbotDialog />
+ * </ChatbotChat>
+ */
 const ChatbotChat: React.FC<ChatbotChatProps> = ({
   chatbotConfigurationId,
   isAlwaysOpen,

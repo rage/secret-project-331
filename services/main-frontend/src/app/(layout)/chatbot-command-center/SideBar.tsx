@@ -55,6 +55,7 @@ const SideBarContent: React.FC<SideBarContentProps> = ({
         className={css`
           padding-bottom: 1rem;
           color: var(--field-fg);
+          text-wrap: nowrap;
         `}
         icon={
           <AddMessage

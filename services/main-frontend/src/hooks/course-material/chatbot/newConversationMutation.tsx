@@ -1,6 +1,7 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
+import type React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -19,7 +20,7 @@ const useNewConversationMutation = (
   chatbotConfigurationId: string,
   setNewMessage: React.Dispatch<React.SetStateAction<string>>,
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
-  setConvId,
+  setConvId: React.Dispatch<string | null>,
 ) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()

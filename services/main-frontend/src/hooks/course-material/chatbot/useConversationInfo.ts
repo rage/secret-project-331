@@ -5,7 +5,7 @@ import { includeIf } from "@/shared-module/common/utils/nullability"
 
 const useConversationInfo = (
   chatbotConfigurationId: string,
-  conversationId: string | null,
+  conversationId: string | null | undefined,
   anonymousToken: string | null,
 ) => {
   return useQuery(
@@ -14,7 +14,7 @@ const useConversationInfo = (
         chatbot_configuration_id: chatbotConfigurationId,
       },
       query: {
-        ...includeIf(conversationId !== null, {
+        ...includeIf(conversationId !== null && conversationId !== undefined, {
           conversation_id: conversationId,
         }),
       },

@@ -7,7 +7,8 @@ import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated
 import type { StudentExerciseTaskSubmissionResult } from "@/generated/course-material-api/types.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import ThrottledChildRenderer, {
+import {
+  ThrottledChildRenderer,
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"

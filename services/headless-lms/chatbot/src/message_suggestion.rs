@@ -80,11 +80,11 @@ pub async fn generate_suggested_messages(
     task_lm: TaskLMSpec,
     conversation_messages: &[ChatbotConversationMessage],
     initial_suggested_messages: Option<Vec<String>>,
-    course_name: &str,
+    course_name: Option<String>,
     course_desc: Option<String>,
 ) -> ChatbotResult<Vec<String>> {
     let prompt = SYSTEM_PROMPT.to_owned()
-        + &format!("The course is: {}\n\n", course_name)
+        + &course_name.map_or("".to_string(), |c| format!("The course is: {}\n\n", c))
         // Taken in order rather than sampled: a random subset here varies a prompt prefix that is
         // otherwise identical for every learner on the course, which costs a prompt cache hit and
         // buys nothing, since the model is being shown examples rather than choosing between them.

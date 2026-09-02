@@ -5,7 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import ThrottledChildRenderer, {
+import {
+  ThrottledChildRenderer,
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"

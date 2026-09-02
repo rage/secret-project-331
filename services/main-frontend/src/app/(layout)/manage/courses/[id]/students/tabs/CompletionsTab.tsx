@@ -29,7 +29,7 @@ import { StudentsTable } from "../StudentsTable"
 import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
 import { StaleTableWrapper } from "./StaleTableWrapper"
-import { StudentPillCell } from "./StudentPillCell"
+import { STUDENT_PILL_CHROME_PX, StudentPillCell, studentPillText } from "./StudentPillCell"
 
 const PLACEHOLDER = "-"
 
@@ -111,10 +111,14 @@ const gradeLabel = (grade: unknown, passed: unknown, t: TFunction): string => {
   return PLACEHOLDER
 }
 
+// Single line so every row is the same height, which is what keeps the virtualized body from
+// shifting as it scrolls.
 const statusCellClass = css`
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: 0;
   gap: 0.25rem;
 `
 
@@ -146,7 +150,7 @@ const buildColumns = (
       // oxlint-disable-next-line i18next/no-literal-string
       id: "last_name",
       header: t("label-student"),
-      meta: { minWidth: 80 },
+      minSize: 80,
       cell: ({ row }) => (
         <StudentPillCell
           userId={row.original.user_id}
@@ -155,6 +159,7 @@ const buildColumns = (
           email={row.original.email}
         />
       ),
+      meta: { measureValue: studentPillText, measureExtraPx: STUDENT_PILL_CHROME_PX },
     },
   ]
 
@@ -169,7 +174,7 @@ const buildColumns = (
           header: t("grade"),
           accessorKey: gradeKeyOf(moduleId),
           enableSorting: false,
-          meta: { minWidth: COMPLETIONS_LEAF_MIN_WIDTH },
+          minSize: COMPLETIONS_LEAF_MIN_WIDTH,
           cell: ({ row }) =>
             gradeLabel(row.original[gradeKeyOf(moduleId)], row.original[passedKeyOf(moduleId)], t),
         },
@@ -178,7 +183,7 @@ const buildColumns = (
           id: `${moduleId}__status`,
           header: t("status"),
           enableSorting: false,
-          meta: { minWidth: COMPLETIONS_LEAF_MIN_WIDTH },
+          minSize: COMPLETIONS_LEAF_MIN_WIDTH,
           cell: ({ row }) => (
             <StatusCell
               registered={Boolean(row.original[registeredKeyOf(moduleId)])}

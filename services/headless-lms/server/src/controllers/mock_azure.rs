@@ -12,6 +12,7 @@ use headless_lms_chatbot::{
     course_description_summary::RESPONSE_FORMAT_NAME as COURSE_DESCRIPTION_FORMAT,
     llm_utils::AzureCompletionRequest,
     message_suggestion::RESPONSE_FORMAT_NAME as MESSAGE_SUGGESTION_FORMAT,
+    prompt_creation::RESPONSE_FORMAT_NAME as PROMPT_CREATION_FORMAT,
 };
 use headless_lms_utils::azure_embedding::{
     Embedding, EmbeddingRequest, EmbeddingResponse, EmbeddingResponseUsage,
@@ -233,6 +234,12 @@ const SCENARIOS: &[Scenario] = &[
         matches: |request| request.stream && request.message.is_none(),
         respond: |_, _| tool_answer_round(),
         example: MockRequest::after_tool_run,
+    },
+    Scenario {
+        name: "the prompt and first message generation",
+        matches: |request| request.wants_format(PROMPT_CREATION_FORMAT),
+        respond: |_, _| blocking_response(PROMPT_CREATION_PAYLOAD),
+        example: || MockRequest::structured_output(PROMPT_CREATION_FORMAT),
     },
     Scenario {
         name: "an answer cut short by the token limit",
@@ -902,6 +909,8 @@ const CMS_SUGGESTION_PAYLOAD: &str = r#"{"suggestions":["Mock suggestion 1: The 
 
 /// The course description summary, in the shape Sisu expects it in.
 const COURSE_DESCRIPTION_PAYLOAD: &str = r#"{"modules":[{"description":"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly. No hard prerequisites; Linux operating systems and web development experience are useful.","prerequisites":["No hard prerequisites","Linux operating systems and web development experience are useful"],"course_code":"TKT21036"}],"audience":["everyone"],"course_description":"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly."}"#;
+
+const PROMPT_CREATION_PAYLOAD: &str = r#"{"prompt":"You are a helpful, clear, and concise chatbot for a course. Your purpose is to help learners understand and navigate the course, answer questions about its content when information is available, explain chatbot-related concepts at an appropriate level, and support learning with examples or step-by-step guidance. Do not invent course details, lessons, assignments, policies, or resources that have not been provided. If a question cannot be answered from the available information, say so plainly and ask the learner to provide more context or consult the course materials. Be friendly, professional, and focused. Keep responses relevant and avoid overwhelming the learner. When appropriate, suggest a practical next step or ask a clarifying question.","first_message":"Hi! I’m here to help you. Ask me about anything you’d like!","suggested_messages":["Can you pls help me?","Nice weather we're having.","Hello?"]}"#;
 
 // GET /api/v0/mock_azure/openai/v1/embeddings
 // POST /api/v0/mock_azure/openai/v1/embeddings

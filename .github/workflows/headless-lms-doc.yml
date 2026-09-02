@@ -61,9 +61,11 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             services/headless-lms/target/
-          key: ${{ runner.os }}-headless-lms-docs-cargo-${{ hashFiles('services/headless-lms/Cargo.lock', 'rust-toolchain.toml') }}
+          # flake.lock is part of the key because cached build-script binaries hard-code
+          # /nix/store interpreter paths, and a nixpkgs bump makes those paths vanish.
+          key: ${{ runner.os }}-headless-lms-docs-cargo-${{ hashFiles('flake.lock') }}-${{ hashFiles('services/headless-lms/Cargo.lock', 'rust-toolchain.toml') }}
           restore-keys: |
-            ${{ runner.os }}-headless-lms-docs-cargo-
+            ${{ runner.os }}-headless-lms-docs-cargo-${{ hashFiles('flake.lock') }}-
 
       - uses: ./.github/actions/setup-nix-env
         timeout-minutes: 5

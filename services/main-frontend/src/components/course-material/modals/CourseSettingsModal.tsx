@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import { saveCourseMaterialCourseSettings } from "@/generated/course-material-api/sdk.generated"
 import type { NewCourseBackgroundQuestionAnswer } from "@/generated/course-material-api/types.generated"
-import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
+import { useLanguageNavigation } from "@/hooks/course-material/language/useLanguageNavigation"
 import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
 import { refetchUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"

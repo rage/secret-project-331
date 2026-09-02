@@ -87,7 +87,9 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
 
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
 
-  await page.getByText("Type / to choose a block").click()
+  // Gutenberg 16.2's empty state is a ghost block whose placeholder is CSS-generated content,
+  // which getByText cannot match. Match the block by role instead.
+  await page.getByRole("document", { name: "Add default block" }).click()
 
   await page.keyboard.type("Please select the most correct alternative.")
 

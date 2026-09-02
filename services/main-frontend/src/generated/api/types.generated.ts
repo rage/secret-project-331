@@ -1811,6 +1811,8 @@ export type CourseUpdate = {
 export type CreateChatbotRequest = {
   course_id?: string | null
   name: string
+  purpose: string
+  skip_azure_stuff: boolean
 }
 
 export type CreateCourseDesignerPlanRequest = {
@@ -5286,7 +5288,7 @@ export type GetAllChatbotsResponse = GetAllChatbotsResponses[keyof GetAllChatbot
 
 export type CreateChatbotData = {
   /**
-   * JSON object with chatbot name and optional course id, e.g. "name: Chatbot 1, course_id: null".
+   * JSON object with chatbot name and optional course id, e.g. "name: 'Chatbot 1', course_id: null, purpose: 'This chatbot will help students learn.'".
    */
   body: CreateChatbotRequest
   path?: never

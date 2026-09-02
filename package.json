@@ -28,19 +28,19 @@
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "0.99.0",
-    "@tanstack/eslint-plugin-query": "5.101.4",
-    "@types/node": "^26.2.0",
+    "@tanstack/eslint-plugin-query": "5.102.3",
+    "@types/node": "^26.3.0",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "concurrently": "^10.0.4",
+    "concurrently": "^10.0.5",
     "esbuild": "^0.28.2",
     "eslint-plugin-explicit-use-directives": "0.0.3",
     "eslint-plugin-i18next": "6.1.5",
     "eslint-plugin-playwright": "2.11.0",
-    "eslint-plugin-storybook": "10.5.7",
+    "eslint-plugin-storybook": "10.5.10",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
-    "oxfmt": "0.63.0",
-    "oxlint": "1.78.0",
+    "oxfmt": "0.65.0",
+    "oxlint": "1.80.0",
     "postcss": "^8.5.26",
     "postcss-styled-syntax": "^0.7.2",
     "postcss-syntax": "^0.36.2",
@@ -53,8 +53,8 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "onFail": "download",
-      "version": "24.19.0"
+      "version": "24.19.0",
+      "onFail": "download"
     }
   },
   "packageManager": "pnpm@11.20.0"

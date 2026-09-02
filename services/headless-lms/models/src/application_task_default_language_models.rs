@@ -7,6 +7,7 @@ pub enum ApplicationTask {
     MessageSuggestion,
     CmsParagraphSuggestion,
     SisuDescriptionSummary,
+    PromptCreation,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -34,6 +35,7 @@ impl Default for ApplicationTaskDefaultLanguageModel {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct TaskLMSpec {
     pub id: Uuid,
     pub task: ApplicationTask,

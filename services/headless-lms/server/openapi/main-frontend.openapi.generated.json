@@ -660,7 +660,7 @@
         "summary": "POST `/api/v0/main-frontend/chatbots/create`",
         "operationId": "createChatbot",
         "requestBody": {
-          "description": "JSON object with chatbot name and optional course id, e.g. \"name: Chatbot 1, course_id: null\".",
+          "description": "JSON object with chatbot name and optional course id, e.g. \"name: 'Chatbot 1', course_id: null, purpose: 'This chatbot will help students learn.'\".",
           "content": {
             "application/json": {
               "schema": {
@@ -18911,7 +18911,7 @@
       },
       "CreateChatbotRequest": {
         "type": "object",
-        "required": ["name"],
+        "required": ["name", "purpose", "skip_azure_stuff"],
         "properties": {
           "course_id": {
             "type": ["string", "null"],
@@ -18919,6 +18919,12 @@
           },
           "name": {
             "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "skip_azure_stuff": {
+            "type": "boolean"
           }
         }
       },

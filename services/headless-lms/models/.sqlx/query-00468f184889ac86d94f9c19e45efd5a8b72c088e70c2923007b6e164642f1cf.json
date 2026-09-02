@@ -70,7 +70,7 @@
                 "content-cleaning",
                 "message-suggestion",
                 "sisu-description-summary",
-                "prompt_creation"
+                "prompt-creation"
               ]
             }
           }
@@ -106,7 +106,7 @@
                 "content-cleaning",
                 "message-suggestion",
                 "sisu-description-summary",
-                "prompt_creation"
+                "prompt-creation"
               ]
             }
           }

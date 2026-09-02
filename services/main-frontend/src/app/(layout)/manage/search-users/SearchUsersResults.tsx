@@ -17,9 +17,9 @@ import { useTranslation } from "react-i18next"
 import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion, Spinner } from "@/shared-module/components"
 
 export interface SearchUsersResultsProps {
   searchByEmailQuery: UseQueryResult<UserDetail[], unknown>
@@ -108,7 +108,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
       `}
     >
       <span>{t("search-users-progress", { completed: completedSearchCount })}</span>
-      <Spinner variant="small" disableMargin />
+      <Spinner size="sm" />
     </div>
   ) : null
 
@@ -117,7 +117,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
       <div>
         {errorBanner}
         {progressIndicator}
-        {isAnyFetching ? <Spinner variant="medium" /> : <p>{t("text-no-results")}</p>}
+        {isAnyFetching ? <LoadingRegion /> : <p>{t("text-no-results")}</p>}
       </div>
     )
   }

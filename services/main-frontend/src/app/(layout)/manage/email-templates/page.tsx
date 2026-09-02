@@ -10,11 +10,11 @@ import { getEmailTemplatesOptions } from "@/generated/api/@tanstack/react-query.
 import { getCourse as getCourseFromApi } from "@/generated/api/sdk.generated"
 import type { Course, EmailTemplate, EmailTemplateType } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 
 interface GroupedTemplates {
   templateType: EmailTemplateType
@@ -192,11 +192,11 @@ const EmailTemplatesList: React.FC = () => {
   }
 
   if (templatesQuery.isLoading) {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   if (coursesQueries.isLoading && uniqueCourseIds.length > 0) {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   if (coursesQueries.isError) {

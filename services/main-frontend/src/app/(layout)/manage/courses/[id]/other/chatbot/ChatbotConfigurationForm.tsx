@@ -19,7 +19,6 @@ import type {
 } from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import WarningInfobox from "@/shared-module/common/components/WarningInfobox"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -423,7 +422,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                       margin-top: 10px;
                     `}
                   >
-                    <WarningInfobox>{t("no-suggested-messages-warning")}</WarningInfobox>
+                    <Infobox
+                      // oxlint-disable-next-line i18next/no-literal-string
+                      tone="warning"
+                    >
+                      {t("no-suggested-messages-warning")}
+                    </Infobox>
                   </div>
                 )}
                 {suggestMessagesFieldValue && (
@@ -568,7 +572,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           )
                         })}
                         {noToolCategoriesEnabled && (
-                          <WarningInfobox>{t("no-tool-categories-enabled-note")}</WarningInfobox>
+                          <Infobox
+                            // oxlint-disable-next-line i18next/no-literal-string
+                            tone="warning"
+                          >
+                            {t("no-tool-categories-enabled-note")}
+                          </Infobox>
                         )}
                       </div>
                       <div className={itemsContainerCss}>

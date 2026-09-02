@@ -6,7 +6,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { Badge, Button, Dialog, QueryResult } from "@/shared-module/components"
+import { Badge, Dialog, Pagination, QueryResult } from "@/shared-module/components"
 
 import { linkingEmailSentence } from "./teacherCreditRegistrations"
 
@@ -46,9 +46,6 @@ const secondaryCss = css`
 `
 
 const pagerCss = css`
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
   margin-top: 1rem;
 `
 
@@ -109,27 +106,12 @@ const UnlinkedStudentsDialog: React.FC<Props> = ({ courseId, open, onClose }) =>
                   </li>
                 ))}
             </ul>
-            <div className={pagerCss}>
-              <Button
-                variant="secondary"
-                size="small"
-                disabled={page <= 1}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                {t("button-text-previous-page")}
-              </Button>
-              <span className={secondaryCss}>
-                {t("page-of-total-pages", { page, pages: Math.max(list.total_pages, 1) })}
-              </span>
-              <Button
-                variant="secondary"
-                size="small"
-                disabled={page >= list.total_pages}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                {t("button-text-next-page")}
-              </Button>
-            </div>
+            <Pagination
+              page={page}
+              totalPages={list.total_pages}
+              onPageChange={setPage}
+              className={pagerCss}
+            />
           </>
         )}
       </QueryResult>

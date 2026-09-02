@@ -27,6 +27,7 @@ export {
   getCmsRepositoryExercisesForCourse,
   getExercisesWithSubmissions,
   type Options,
+  requestChartSpecGeneration,
   requestParagraphSuggestions,
   updateCmsCourseDefaultPeerReview,
   updateCmsEmailTemplate,
@@ -40,6 +41,8 @@ export {
 } from "./sdk.generated"
 export type {
   AutomaticCompletionRequirements,
+  ChartSpecGenerationRequest,
+  ChartSpecGenerationResponse,
   ChatbotConfiguration,
   ClientOptions,
   CmsPageExercise,
@@ -146,6 +149,9 @@ export type {
   PeerReviewProcessingStrategy,
   ReasoningEffortLevel,
   RepositoryExercise,
+  RequestChartSpecGenerationData,
+  RequestChartSpecGenerationResponse,
+  RequestChartSpecGenerationResponses,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponse,
   RequestParagraphSuggestionsResponses,

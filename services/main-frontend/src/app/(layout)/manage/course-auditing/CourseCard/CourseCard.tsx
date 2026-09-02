@@ -271,7 +271,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
             >
               <Button
                 aria-label={t("button-text-save")}
-                onClick={onSubmit}
+                onClick={() => void onSubmit()}
                 variant={"icon"}
                 size={"small"}
               >

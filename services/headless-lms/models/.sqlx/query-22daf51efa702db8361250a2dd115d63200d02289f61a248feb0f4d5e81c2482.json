@@ -22,10 +22,11 @@
             "name": "application_task",
             "kind": {
               "Enum": [
-                "cms-paragraph-suggestion",
                 "content-cleaning",
                 "message-suggestion",
+                "cms-paragraph-suggestion",
                 "sisu-description-summary",
+                "chart-spec-generation",
                 "prompt-creation"
               ]
             }
@@ -102,10 +103,11 @@
             "name": "application_task",
             "kind": {
               "Enum": [
-                "cms-paragraph-suggestion",
                 "content-cleaning",
                 "message-suggestion",
+                "cms-paragraph-suggestion",
                 "sisu-description-summary",
+                "chart-spec-generation",
                 "prompt-creation"
               ]
             }

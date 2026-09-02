@@ -1,7 +1,13 @@
 use crate::controllers::mock_document_storage::{MOCK_DOCUMENTS, MockDocument};
 use crate::prelude::*;
 use headless_lms_chatbot::{
-    azure_chatbot::azure::{protocol::InputItem, tools::AzureLLMToolDefinition},
+    azure_chatbot::azure::{
+        protocol::{InputItem, LLMRequestResponseFormatParam},
+        tools::AzureLLMToolDefinition,
+    },
+    chart_spec_generation::{
+        DATA_SAMPLE_HEADING, EXISTING_SPEC_HEADING, USER_PROMPT_PREFIX as CHART_SPEC_REQUEST,
+    },
     chatbot_tools::{
         ChatbotToolDeclaration,
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
@@ -92,8 +98,13 @@ struct MockRequest {
     /// The text of the last input message, or `None` when the request ends in a tool output
     /// instead. The other two endings never reach here.
     message: Option<String>,
-    /// The structured output schema the answer has to parse as, `None` for a chat request.
+    /// Every message in the request, for recognising a round of a conversation whose latest
+    /// message says nothing about which feature it belongs to.
+    conversation: Vec<String>,
+    /// The structured output schema the answer has to parse as, `None` when none was named.
     format_name: Option<String>,
+    /// Whether the caller asked for any valid JSON object instead of a named schema.
+    wants_json_object: bool,
     /// Whether the caller reads the answer as a Server-Sent Events stream or as one JSON object.
     stream: bool,
 }
@@ -103,7 +114,9 @@ impl MockRequest {
     fn chat(message: &str) -> Self {
         MockRequest {
             message: Some(message.to_string()),
+            conversation: vec![message.to_string()],
             format_name: None,
+            wants_json_object: false,
             stream: true,
         }
     }
@@ -113,7 +126,9 @@ impl MockRequest {
     fn after_tool_run() -> Self {
         MockRequest {
             message: None,
+            conversation: Vec::new(),
             format_name: None,
+            wants_json_object: false,
             stream: true,
         }
     }
@@ -123,7 +138,20 @@ impl MockRequest {
     fn structured_output(format_name: &str) -> Self {
         MockRequest {
             message: Some(TOOL_CALL_TRIGGER.to_string()),
+            conversation: vec![TOOL_CALL_TRIGGER.to_string()],
             format_name: Some(format_name.to_string()),
+            wants_json_object: false,
+            stream: false,
+        }
+    }
+
+    /// A request for any valid JSON object, whose conversation contains `request_text`.
+    fn json_object(request_text: &str) -> Self {
+        MockRequest {
+            message: Some(request_text.to_string()),
+            conversation: vec![request_text.to_string()],
+            format_name: None,
+            wants_json_object: true,
             stream: false,
         }
     }
@@ -133,6 +161,32 @@ impl MockRequest {
     /// a streaming caller cannot read.
     fn wants_format(&self, format_name: &str) -> bool {
         !self.stream && self.format_name.as_deref() == Some(format_name)
+    }
+
+    /// Whether this asks for a JSON object and is part of a conversation that opened with
+    /// `request_text`. A JSON-mode request names no schema, so the feature it belongs to can only
+    /// be told from its prompt -- and not from the latest message alone, which on a repair round is
+    /// the correction rather than the request.
+    fn wants_json_object_for(&self, request_text: &str) -> bool {
+        !self.stream
+            && self.wants_json_object
+            && self
+                .conversation
+                .iter()
+                .any(|message| message.contains(request_text))
+    }
+
+    /// The part of the prompt that `heading` introduces, ending where `next_heading` begins or at
+    /// the end of the message. None when no message in the conversation carries `heading`.
+    ///
+    /// Reads the first message that has it: on a repair round the latest message is the correction
+    /// rather than the request the headings belong to.
+    fn prompt_section(&self, heading: &str, next_heading: &str) -> Option<&str> {
+        let (_, after) = self
+            .conversation
+            .iter()
+            .find_map(|message| message.split_once(heading))?;
+        Some(after.split(next_heading).next().unwrap_or(after))
     }
 
     /// The tool call a streamed chat message asks the mock to make, if any.
@@ -193,6 +247,12 @@ const SCENARIOS: &[Scenario] = &[
         matches: |request| request.wants_format(COURSE_DESCRIPTION_FORMAT),
         respond: |_, _| blocking_response(COURSE_DESCRIPTION_PAYLOAD),
         example: || MockRequest::structured_output(COURSE_DESCRIPTION_FORMAT),
+    },
+    Scenario {
+        name: "the chart block specification",
+        matches: |request| request.wants_json_object_for(CHART_SPEC_REQUEST),
+        respond: |request, _| blocking_response(&chart_spec_payload(request)),
+        example: || MockRequest::json_object(CHART_SPEC_REQUEST),
     },
     Scenario {
         name: "the client tool call round",
@@ -315,14 +375,30 @@ async fn mock_azure_chat_responses(
         }
     };
 
+    let requested_format = payload
+        .base
+        .text
+        .as_ref()
+        .and_then(|text| text.format.as_ref());
     let request = MockRequest {
         message,
-        format_name: payload
+        conversation: payload
             .base
-            .text
-            .as_ref()
-            .and_then(|text| text.format.as_ref())
-            .map(|format| format.name.clone()),
+            .input
+            .iter()
+            .filter_map(|item| match &item.message_type {
+                InputItem::Message { content, .. } => Some(content.clone().get_content_text()),
+                _ => None,
+            })
+            .collect(),
+        format_name: match requested_format {
+            Some(LLMRequestResponseFormatParam::JsonSchema { name, .. }) => Some(name.clone()),
+            _ => None,
+        },
+        wants_json_object: matches!(
+            requested_format,
+            Some(LLMRequestResponseFormatParam::JsonObject)
+        ),
         stream: payload.stream,
     };
     let scenario = pick_scenario(&request).ok_or_else(|| {
@@ -907,6 +983,139 @@ const MESSAGE_SUGGESTION_PAYLOAD: &str =
 /// The rewrites the CMS offers for a paragraph.
 const CMS_SUGGESTION_PAYLOAD: &str = r#"{"suggestions":["Mock suggestion 1: The paragraph has been improved.","Mock suggestion 2: Here is an alternative version of the paragraph.","Mock suggestion 3: A third distinct rewrite of the paragraph."]}"#;
 
+/// A field of the teacher's data file, as the mock reads it out of the sample in the prompt.
+struct SampledField {
+    name: String,
+    /// The Vega-Lite type the sampled value calls for.
+    field_type: &'static str,
+}
+
+/// What the chart encodes when the request carries no sample to read fields out of.
+fn placeholder_fields() -> (SampledField, SampledField) {
+    (
+        SampledField {
+            name: "category".to_string(),
+            field_type: "nominal",
+        },
+        SampledField {
+            name: "value".to_string(),
+            field_type: "quantitative",
+        },
+    )
+}
+
+/// Splits on the commas that separate an object's members or a CSV line's cells, which is every
+/// comma outside a quoted string.
+fn split_unquoted_commas(text: &str) -> Vec<&str> {
+    let mut cells = Vec::new();
+    let mut start = 0;
+    let mut in_string = false;
+    let mut escaped = false;
+    for (i, character) in text.char_indices() {
+        match character {
+            _ if escaped => escaped = false,
+            '\\' if in_string => escaped = true,
+            '"' => in_string = !in_string,
+            ',' if !in_string => {
+                cells.push(&text[start..i]);
+                start = i + character.len_utf8();
+            }
+            _ => {}
+        }
+    }
+    cells.push(&text[start..]);
+    cells
+}
+
+fn unquote(cell: &str) -> &str {
+    cell.trim().trim_matches('"').trim()
+}
+
+/// The fields of the first row of a JSON array sample, in the order they are written there.
+///
+/// Read out of the text rather than through serde_json, whose maps sort an object's keys and would
+/// so hand the chart its axes in alphabetical order. A quoted value is a string however numeric it
+/// looks, which is what tells a year apart from a label.
+fn json_sample_fields(sample: &str) -> Vec<SampledField> {
+    let Some(open) = sample.find('{') else {
+        return Vec::new();
+    };
+    let Some(close) = sample[open..].find('}') else {
+        return Vec::new();
+    };
+    split_unquoted_commas(&sample[open + 1..open + close])
+        .into_iter()
+        .filter_map(|member| {
+            let (key, value) = member.split_once(':')?;
+            let name = unquote(key).to_string();
+            let numeric = !value.trim().starts_with('"') && value.trim().parse::<f64>().is_ok();
+            (!name.is_empty()).then_some(SampledField {
+                name,
+                field_type: if numeric { "quantitative" } else { "nominal" },
+            })
+        })
+        .collect()
+}
+
+/// The columns of a CSV sample, typed from the first row of values under the header.
+fn csv_sample_fields(sample: &str) -> Vec<SampledField> {
+    let mut rows = sample.lines().filter(|line| !line.trim().is_empty());
+    let header = rows.next().unwrap_or_default();
+    let first_row = split_unquoted_commas(rows.next().unwrap_or_default());
+    split_unquoted_commas(header)
+        .into_iter()
+        .enumerate()
+        .filter_map(|(column, name)| {
+            let name = unquote(name).to_string();
+            let numeric = first_row
+                .get(column)
+                .is_some_and(|value| unquote(value).parse::<f64>().is_ok());
+            (!name.is_empty()).then_some(SampledField {
+                name,
+                field_type: if numeric { "quantitative" } else { "nominal" },
+            })
+        })
+        .collect()
+}
+
+/// The first two fields of the teacher's data file, or [`placeholder_fields`] when the request
+/// carries no sample or the sample has fewer than two fields to chart.
+///
+/// A real model is told to encode the fields the sample shows it, and a chart of fields the file
+/// does not have draws nothing at all.
+fn charted_fields(request: &MockRequest) -> (SampledField, SampledField) {
+    let Some(sample) = request.prompt_section(DATA_SAMPLE_HEADING, EXISTING_SPEC_HEADING) else {
+        return placeholder_fields();
+    };
+    let fields = if sample.trim_start().starts_with(['[', '{']) {
+        json_sample_fields(sample)
+    } else {
+        csv_sample_fields(sample)
+    };
+    let mut fields = fields.into_iter();
+    match (fields.next(), fields.next()) {
+        (Some(x), Some(y)) => (x, y),
+        _ => placeholder_fields(),
+    }
+}
+
+/// The Vega-Lite specification the CMS chart block offers, which is the whole answer. It carries no
+/// data of its own, as a generated specification must not: the teacher's data file is attached to it
+/// afterwards.
+fn chart_spec_payload(request: &MockRequest) -> String {
+    let (x, y) = charted_fields(request);
+    json!({
+        "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+        "description": "Mock AI generated bar chart",
+        "mark": "bar",
+        "encoding": {
+            "x": {"field": x.name, "type": x.field_type},
+            "y": {"field": y.name, "type": y.field_type}
+        }
+    })
+    .to_string()
+}
+
 /// The course description summary, in the shape Sisu expects it in.
 const COURSE_DESCRIPTION_PAYLOAD: &str = r#"{"modules":[{"description":"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly. No hard prerequisites; Linux operating systems and web development experience are useful.","prerequisites":["No hard prerequisites","Linux operating systems and web development experience are useful"],"course_code":"TKT21036"}],"audience":["everyone"],"course_description":"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly."}"#;
 
@@ -1141,6 +1350,123 @@ mod tests {
             let content = parse_text_completion(completion).expect("the response has text content");
             assert_eq!(content, payload);
         }
+    }
+
+    /// A chart spec request whose prompt carries `sample` as the teacher's data file.
+    fn chart_request_sampling(sample: &str) -> MockRequest {
+        MockRequest::json_object(&format!(
+            "{CHART_SPEC_REQUEST}\n\nRequest:\nA bar chart{DATA_SAMPLE_HEADING}{sample}"
+        ))
+    }
+
+    /// The fields the answer to `request` encodes, as (x, y) pairs of field name and type.
+    fn charted_encoding(request: &MockRequest) -> ((String, String), (String, String)) {
+        let spec: Value = serde_json::from_str(&chart_spec_payload(request))
+            .expect("the chart specification is the whole answer, so it must be JSON");
+        let channel = |name: &str| {
+            let channel = &spec["encoding"][name];
+            (
+                channel["field"]
+                    .as_str()
+                    .expect("the channel names a field")
+                    .to_string(),
+                channel["type"]
+                    .as_str()
+                    .expect("the channel gives a type")
+                    .to_string(),
+            )
+        };
+        (channel("x"), channel("y"))
+    }
+
+    /// The chart generator rejects any specification that carries data of its own, so an answer
+    /// offering one would fail every generation in development and in the system tests.
+    #[test]
+    fn the_mock_chart_specification_carries_no_data() {
+        let spec: Value = serde_json::from_str(&chart_spec_payload(&MockRequest::json_object(
+            CHART_SPEC_REQUEST,
+        )))
+        .expect("the chart specification is the whole answer, so it must be JSON");
+
+        assert!(spec.get("data").is_none(), "{spec}");
+        assert!(spec.get("datasets").is_none(), "{spec}");
+    }
+
+    #[test]
+    fn the_mock_chart_falls_back_to_placeholder_fields_without_a_sample() {
+        let (x, y) = charted_encoding(&MockRequest::json_object(CHART_SPEC_REQUEST));
+
+        assert_eq!(x, ("category".to_string(), "nominal".to_string()));
+        assert_eq!(y, ("value".to_string(), "quantitative".to_string()));
+    }
+
+    #[test]
+    fn the_mock_chart_encodes_the_fields_of_a_json_sample() {
+        let request = chart_request_sampling(
+            "[\n  { \"maara\": 0, \"hinta\": 8 },\n  { \"maara\": 50, \"hinta\": 7 }\n]",
+        );
+
+        let (x, y) = charted_encoding(&request);
+
+        assert_eq!(x, ("maara".to_string(), "quantitative".to_string()));
+        assert_eq!(y, ("hinta".to_string(), "quantitative".to_string()));
+    }
+
+    /// serde_json sorts an object's keys, so reading the sample through it would put `apple` on x.
+    #[test]
+    fn the_mock_chart_keeps_the_field_order_of_the_sample() {
+        let request = chart_request_sampling("[{ \"zebra\": \"A\", \"apple\": 1 }]");
+
+        let (x, y) = charted_encoding(&request);
+
+        assert_eq!(x.0, "zebra");
+        assert_eq!(y.0, "apple");
+    }
+
+    #[test]
+    fn the_mock_chart_encodes_the_columns_of_a_csv_sample() {
+        let request = chart_request_sampling("category,value\nA,28\nB,55\n");
+
+        let (x, y) = charted_encoding(&request);
+
+        assert_eq!(x, ("category".to_string(), "nominal".to_string()));
+        assert_eq!(y, ("value".to_string(), "quantitative".to_string()));
+    }
+
+    /// The CMS cuts the sample off at a fixed length, so it can end anywhere in the file.
+    #[test]
+    fn the_mock_chart_reads_a_sample_cut_off_mid_row() {
+        let request =
+            chart_request_sampling("[{ \"year\": \"2024\", \"sold\": 12 }, { \"year\": \"20");
+
+        let (x, y) = charted_encoding(&request);
+
+        // Quoted, so a year is a label rather than a number to plot.
+        assert_eq!(x, ("year".to_string(), "nominal".to_string()));
+        assert_eq!(y, ("sold".to_string(), "quantitative".to_string()));
+    }
+
+    #[test]
+    fn the_mock_chart_ignores_a_sample_it_cannot_find_two_fields_in() {
+        let (x, y) = charted_encoding(&chart_request_sampling("nothing chartable here"));
+
+        assert_eq!(x.0, "category");
+        assert_eq!(y.0, "value");
+    }
+
+    /// A repair round's latest message is the correction, so the sample has to be found further
+    /// back in the conversation.
+    #[test]
+    fn the_mock_chart_reads_the_sample_on_a_repair_round() {
+        let mut request = chart_request_sampling("category,value\nA,28\n");
+        request
+            .conversation
+            .push("Fix this specification".to_string());
+        request.message = Some("Fix this specification".to_string());
+
+        let (x, _) = charted_encoding(&request);
+
+        assert_eq!(x.0, "category");
     }
 
     /// The chatbot classifies the round from the function call item it announces and hands the

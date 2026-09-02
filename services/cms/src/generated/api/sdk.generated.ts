@@ -57,6 +57,8 @@ import type {
   GetCmsRepositoryExercisesForCourseResponses,
   GetExercisesWithSubmissionsData,
   GetExercisesWithSubmissionsResponses,
+  RequestChartSpecGenerationData,
+  RequestChartSpecGenerationResponses,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponses,
   UpdateCmsCourseDefaultPeerReviewData,
@@ -101,6 +103,7 @@ import {
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
   zGetExercisesWithSubmissionsResponse,
+  zRequestChartSpecGenerationResponse,
   zRequestParagraphSuggestionsResponse,
   zUpdateCmsCourseDefaultPeerReviewResponse,
   zUpdateCmsEmailTemplateResponse,
@@ -129,6 +132,33 @@ export type Options<
    */
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta
 }
+
+/**
+ *
+ * POST `/api/v0/cms/ai-suggestions/chart-spec` - Generate a Vega-Lite chart specification from a prompt.
+ *
+ * This endpoint is intended for the CMS chart block editor. It requires the user to have
+ * edit access to the referenced page when `page_id` is provided, otherwise it falls back
+ * to requiring a teaching role for some course via `Res::AnyCourse`.
+ */
+export const requestChartSpecGeneration = <ThrowOnError extends boolean = true>(
+  options: Options<RequestChartSpecGenerationData, ThrowOnError>,
+): RequestResult<RequestChartSpecGenerationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    RequestChartSpecGenerationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zRequestChartSpecGenerationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/ai-suggestions/chart-spec",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
 
 /**
  *

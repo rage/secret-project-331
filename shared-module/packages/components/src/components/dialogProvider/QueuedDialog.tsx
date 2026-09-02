@@ -1,0 +1,284 @@
+"use client"
+
+import { css } from "@emotion/css"
+import React from "react"
+import { FocusScope } from "react-aria"
+import { useTranslation } from "react-i18next"
+
+import { omitUndefined } from "../../lib/utils/nullability"
+import { Dialog, type DialogAction, type DialogLabelling } from "../Dialog"
+import { DialogDepthContext } from "./dialogContext"
+import type {
+  AlertRequest,
+  ConfirmRequest,
+  CustomPromptRequest,
+  DialogEntry,
+  DialogKind,
+  PromptControls,
+  TextPromptRequest,
+} from "./dialogRequests"
+import { dismissedResult } from "./dialogRequests"
+import { PromptTextField } from "./PromptTextField"
+import {
+  ALERT_DIALOG_OK_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
+  DIALOG_PROVIDER_DIALOG_TEST_ID,
+  PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
+  PROMPT_DIALOG_OK_BUTTON_TEST_ID,
+} from "./testIds"
+
+export interface QueuedDialogProps {
+  entry: DialogEntry
+  isOpen: boolean
+  /** Another dialog takes over when this one closes, so its scrim must not fade over the new one. */
+  hasSuccessor: boolean
+  onSettle: (entry: DialogEntry, result: unknown) => void
+  onExitComplete: (id: number) => void
+}
+
+/** Set once the body has produced a value. The wrapper keeps `undefined` representable. */
+interface PromptValue {
+  value: unknown
+}
+
+const bodyCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+`
+
+const messageCss = css`
+  margin: 0;
+`
+
+const descriptionCss = css`
+  margin: 0;
+  color: var(--color-gray-600);
+`
+
+const EXIT_HANDOFF = "handoff"
+const EXIT_FADE = "fade"
+
+const FALLBACK_LABEL_KEYS: Record<DialogKind, string> = {
+  alert: "dialog.alertLabel",
+  confirm: "dialog.confirmLabel",
+  prompt: "dialog.promptLabel",
+}
+
+/**
+ * One entry of the dialog queue, rendered as a `Dialog`.
+ *
+ * Owns the prompt's in-progress value, because the submit action lives in the dialog footer and so
+ * cannot read state held by the body.
+ */
+export const QueuedDialog: React.FC<QueuedDialogProps> = ({
+  entry,
+  isOpen,
+  hasSuccessor,
+  onSettle,
+  onExitComplete,
+}) => {
+  const { t } = useTranslation("shared-module")
+  const [promptValue, setPromptValue] = React.useState<PromptValue | null>(() =>
+    initialPromptValue(entry),
+  )
+  const [validationError, setValidationError] = React.useState<string | null>(null)
+
+  const settle = React.useCallback(
+    (result: unknown) => {
+      onSettle(entry, result)
+    },
+    [entry, onSettle],
+  )
+
+  const controls = React.useMemo<PromptControls<unknown>>(
+    () => ({
+      setValue: (value) => {
+        setPromptValue({ value })
+        setValidationError(null)
+      },
+      submit: (value) => {
+        settle({ isSubmitted: true, value })
+      },
+      dismiss: () => {
+        settle({ isSubmitted: false })
+      },
+    }),
+    [settle],
+  )
+
+  const { request, kind } = entry
+  const { message, title, description } = request
+
+  const submitPrompt = () => {
+    if (promptValue === null) {
+      return
+    }
+    const validate = (request as TextPromptRequest).validate
+    if (validate !== undefined && typeof promptValue.value === "string") {
+      const error = validate(promptValue.value)
+      if (error !== undefined) {
+        setValidationError(error)
+        return
+      }
+    }
+    settle({ isSubmitted: true, value: promptValue.value })
+  }
+
+  const header = (
+    <>
+      {typeof message === "string" ? <p className={messageCss}>{message}</p> : message}
+      {description !== undefined && <p className={descriptionCss}>{description}</p>}
+    </>
+  )
+
+  const customBody = (request as CustomPromptRequest<unknown>).body
+  const promptField =
+    customBody !== undefined ? (
+      customBody(controls)
+    ) : (
+      <PromptTextField
+        label={typeof message === "string" ? message : t(FALLBACK_LABEL_KEYS.prompt)}
+        value={typeof promptValue?.value === "string" ? promptValue.value : ""}
+        errorMessage={validationError}
+        onChange={controls.setValue}
+        onSubmit={submitPrompt}
+      />
+    )
+
+  const content =
+    kind === "prompt" ? (
+      // Gives the field the focus that would otherwise land on the dialog container; react-aria's
+      // own `useDialog` steps aside once the body has claimed it.
+      // oxlint-disable-next-line jsx-a11y/no-autofocus -- react-aria's focus scope, not DOM autofocus
+      <FocusScope autoFocus>
+        <div className={bodyCss}>
+          {header}
+          {promptField}
+        </div>
+      </FocusScope>
+    ) : (
+      <div className={bodyCss}>{header}</div>
+    )
+
+  const labelling: DialogLabelling =
+    title !== undefined
+      ? { title }
+      : { "aria-label": typeof message === "string" ? message : t(FALLBACK_LABEL_KEYS[kind]) }
+
+  const actions = buildActions({
+    kind,
+    request,
+    t,
+    settle,
+    submitPrompt,
+    isSubmitArmed: promptValue !== null,
+  })
+
+  return (
+    <Dialog
+      {...labelling}
+      {...omitUndefined({ size: request.size, lang: request.lang })}
+      open={isOpen}
+      onClose={() => {
+        settle(dismissedResult(kind))
+      }}
+      onExitComplete={() => {
+        onExitComplete(entry.id)
+      }}
+      // A short string message is an interruption that has to be read and answered, and
+      // `alertdialog` is what makes a screen reader announce it on open. A node body is a surface to
+      // work through, which some assistive technology would otherwise read out whole.
+      role={kind !== "prompt" && typeof message === "string" ? "alertdialog" : "dialog"}
+      showCloseButton={false}
+      isDismissable={false}
+      exit={hasSuccessor ? EXIT_HANDOFF : EXIT_FADE}
+      data-testid={DIALOG_PROVIDER_DIALOG_TEST_ID}
+      actions={actions}
+    >
+      <DialogDepthContext.Provider value={entry.depth + 1}>{content}</DialogDepthContext.Provider>
+    </Dialog>
+  )
+}
+
+interface ActionsInput {
+  kind: DialogKind
+  request: DialogEntry["request"]
+  t: (key: string) => string
+  settle: (result: unknown) => void
+  submitPrompt: () => void
+  isSubmitArmed: boolean
+}
+
+function buildActions({
+  kind,
+  request,
+  t,
+  settle,
+  submitPrompt,
+  isSubmitArmed,
+}: ActionsInput): readonly [DialogAction, ...DialogAction[]] {
+  switch (kind) {
+    case "alert": {
+      const alertRequest = request as AlertRequest
+      return [
+        {
+          label: alertRequest.acknowledgeLabel ?? t("dialog.ok"),
+          "data-testid": ALERT_DIALOG_OK_BUTTON_TEST_ID,
+          onPress: () => {
+            settle(undefined)
+          },
+        },
+      ]
+    }
+    case "confirm": {
+      const confirmRequest = request as ConfirmRequest
+      return [
+        {
+          label: confirmRequest.cancelLabel ?? t("dialog.decline"),
+          variant: "secondary",
+          "data-testid": CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
+          onPress: () => {
+            settle(false)
+          },
+        },
+        {
+          label: confirmRequest.confirmLabel ?? t("dialog.confirm"),
+          variant: confirmRequest.isDestructive === true ? "danger" : "primary",
+          "data-testid": CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
+          onPress: () => {
+            settle(true)
+          },
+        },
+      ]
+    }
+    case "prompt": {
+      const promptRequest = request as TextPromptRequest
+      return [
+        {
+          label: promptRequest.cancelLabel ?? t("dialog.cancel"),
+          variant: "secondary",
+          "data-testid": PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
+          onPress: () => {
+            settle({ isSubmitted: false })
+          },
+        },
+        {
+          label: promptRequest.submitLabel ?? t("dialog.ok"),
+          disabled: !isSubmitArmed,
+          "data-testid": PROMPT_DIALOG_OK_BUTTON_TEST_ID,
+          onPress: submitPrompt,
+        },
+      ]
+    }
+  }
+}
+
+function initialPromptValue(entry: DialogEntry): PromptValue | null {
+  if (entry.kind !== "prompt") {
+    return null
+  }
+  const defaultValue = (entry.request as TextPromptRequest).defaultValue
+  return defaultValue === undefined ? null : { value: defaultValue }
+}

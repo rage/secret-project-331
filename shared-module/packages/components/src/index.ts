@@ -133,3 +133,24 @@ export type { BreadcrumbItem, BreadcrumbsProps } from "./components/Breadcrumbs"
 
 export { Pagination } from "./components/Pagination"
 export type { PaginationProps } from "./components/Pagination"
+
+export { DialogProvider, useDialog } from "./components/dialogProvider/DialogProvider"
+export type { DialogProviderProps } from "./components/dialogProvider/DialogProvider"
+export type {
+  AlertRequest,
+  ConfirmRequest,
+  CustomPromptRequest,
+  DialogApi,
+  PromptControls,
+  PromptResult,
+  TextPromptRequest,
+} from "./components/dialogProvider/dialogRequests"
+export {
+  ALERT_DIALOG_OK_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
+  DIALOG_PROVIDER_DIALOG_TEST_ID,
+  PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
+  PROMPT_DIALOG_INPUT_TEST_ID,
+  PROMPT_DIALOG_OK_BUTTON_TEST_ID,
+} from "./components/dialogProvider/testIds"

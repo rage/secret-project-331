@@ -15,10 +15,10 @@ import {
   refetchUserChapterLocks,
   useUserChapterLocks,
 } from "@/hooks/course-material/useUserChapterLocks"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { useDialog } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { refetchViewAtom } from "@/state/course-material/selectors"
 
@@ -161,7 +161,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
         )
       }
 
-      const confirmed = await confirm(message, t("lock-chapter-confirm-title"))
+      const confirmed = await confirm({ message, title: t("lock-chapter-confirm-title") })
       if (confirmed) {
         lockMutation.mutate()
       }

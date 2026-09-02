@@ -7,9 +7,9 @@ import UploadImageForm from "@/components/forms/UploadImageForm"
 import { deleteChapterImage, updateChapterImage } from "@/generated/api/sdk.generated"
 import type { Chapter } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { validateFile } from "@/shared-module/common/utils/files"
+import { useDialog } from "@/shared-module/components"
 
 export interface ChapterImageControlsProps {
   chapter: Chapter
@@ -80,10 +80,11 @@ const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsP
   )
 
   const handleRemoveImage = async () => {
-    const confirmed = await confirm(
-      t("confirm-remove-chapter-image"),
-      t("confirm-remove-chapter-image-title"),
-    )
+    const confirmed = await confirm({
+      message: t("confirm-remove-chapter-image"),
+      title: t("confirm-remove-chapter-image-title"),
+      isDestructive: true,
+    })
     if (confirmed) {
       removeImageMutation.mutate()
     }

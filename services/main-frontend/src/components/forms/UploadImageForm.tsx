@@ -7,7 +7,7 @@ import React, { createRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { LabelButton } from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import { useDialog } from "@/shared-module/components"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -30,10 +30,11 @@ const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> =
     const file = fileInput.current?.files?.[0]
     if (file) {
       if (hasExistingImage) {
-        const confirmed = await confirm(
-          t("confirm-replace-existing-image"),
-          t("confirm-replace-existing-image-title"),
-        )
+        const confirmed = await confirm({
+          message: t("confirm-replace-existing-image"),
+          title: t("confirm-replace-existing-image-title"),
+          isDestructive: true,
+        })
         if (!confirmed) {
           // Reset the file input if user cancels
           if (fileInput.current) {

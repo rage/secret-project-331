@@ -10,11 +10,10 @@ import {
   hideCourseFromMyCoursesMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { manageCourseByIdRoute, navigateToCourseRoute } from "@/shared-module/common/utils/routes"
-import { QueryResults } from "@/shared-module/components"
+import { QueryResults, useDialog } from "@/shared-module/components"
 
 const MyCourses: React.FC = () => {
   const { t } = useTranslation()
@@ -33,10 +32,10 @@ const MyCourses: React.FC = () => {
     },
   )
   const handleHideCourse = async (courseId: string, courseName: string) => {
-    const confirmed = await confirm(
-      t("hide-course-confirmation-message", { name: courseName }),
-      t("hide-course-confirmation-title"),
-    )
+    const confirmed = await confirm({
+      message: t("hide-course-confirmation-message", { name: courseName }),
+      title: t("hide-course-confirmation-title"),
+    })
     if (confirmed) {
       hideCourseMutation.mutate({ path: { course_id: courseId } })
     }

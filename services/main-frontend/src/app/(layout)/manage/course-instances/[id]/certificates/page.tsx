@@ -19,7 +19,6 @@ import {
 } from "@/generated/api/sdk.generated"
 import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -28,6 +27,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { useDialog } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
@@ -271,7 +271,12 @@ const CertificationsPage: React.FC = () => {
                           setEditingConfiguration(module.id)
                         }}
                         onClickDelete={async () => {
-                          if (await confirm(t("confirm-certification-configuration-deletion"))) {
+                          if (
+                            await confirm({
+                              message: t("confirm-certification-configuration-deletion"),
+                              isDestructive: true,
+                            })
+                          ) {
                             deleteConfigurationMutation.mutate({
                               moduleId: module.id,
                               configurationId: configuration.certificate_configuration.id,

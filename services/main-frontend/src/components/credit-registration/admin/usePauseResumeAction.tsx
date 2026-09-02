@@ -3,9 +3,8 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Button } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 
 import { ReasonConfirmDialog } from "./ReasonConfirmDialog"
 

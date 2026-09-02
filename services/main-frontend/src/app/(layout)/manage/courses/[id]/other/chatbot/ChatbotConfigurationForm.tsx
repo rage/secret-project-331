@@ -762,9 +762,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     disabled={deleteChatbotMutation.isPending}
                     onClick={async () => {
                       if (
-                        await confirm(
-                          t("delete-chatbot-confirmation", { name: oldChatbotConf.chatbot_name }),
-                        )
+                        await confirm({
+                          message: t("delete-chatbot-confirmation", {
+                            name: oldChatbotConf.chatbot_name,
+                          }),
+                          isDestructive: true,
+                        })
                       ) {
                         deleteChatbotMutation.mutate({
                           path: {

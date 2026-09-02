@@ -19,11 +19,11 @@ import {
 import type { Course } from "@/generated/api/types.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
+import { useDialog } from "@/shared-module/components"
 
 import CourseMetadata from "./CourseMetadata"
 import EditCourseForm from "./EditCourseForm"
@@ -169,12 +169,13 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           variant="secondary"
           size="medium"
           onClick={async () => {
-            const confirmation = await confirm(
+            const confirmation = await confirm({
               // oxlint-disable-next-line i18next/no-literal-string
-              `${t("delete-course-confirmation")}\n\n${t(
+              message: `${t("delete-course-confirmation")}\n\n${t(
                 "delete-course-confirmation-explanation",
               )}`,
-            )
+              isDestructive: true,
+            })
             if (confirmation) {
               deleteCourseMutation.mutate()
             }
@@ -271,9 +272,10 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
               variant="secondary"
               size="medium"
               onClick={async () => {
-                const sure = await confirm(
-                  t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
-                )
+                const sure = await confirm({
+                  message: t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
+                  isDestructive: true,
+                })
                 if (sure) {
                   teacherResetCourseProgressForThemselvesMutation.mutate()
                 }
@@ -292,9 +294,10 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
                 variant="secondary"
                 size="medium"
                 onClick={async () => {
-                  const sure = await confirm(
-                    t("are-you-sure-you-want-to-reset-everyones-progress-on-the-course"),
-                  )
+                  const sure = await confirm({
+                    message: t("are-you-sure-you-want-to-reset-everyones-progress-on-the-course"),
+                    isDestructive: true,
+                  })
                   if (sure) {
                     teacherResetCourseProgressForEveryoneMutation.mutate()
                   }

@@ -17,11 +17,17 @@ import type {
   MyVerifiedStudentNumber,
   StudentNumberVerificationMethod,
 } from "@/generated/api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Badge, Button, DescriptionList, Infobox, QueryResult } from "@/shared-module/components"
+import {
+  Badge,
+  Button,
+  DescriptionList,
+  Infobox,
+  QueryResult,
+  useDialog,
+} from "@/shared-module/components"
 
 import { TONE } from "./constants"
 import { LinkingEmailLine } from "./EmailStatusLine"
@@ -87,10 +93,11 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
   )
 
   const askAndUnlink = async () => {
-    const confirmed = await confirm(
-      t("confirm-remove-student-number-message"),
-      t("confirm-remove-student-number-title"),
-    )
+    const confirmed = await confirm({
+      message: t("confirm-remove-student-number-message"),
+      title: t("confirm-remove-student-number-title"),
+      isDestructive: true,
+    })
     if (confirmed) {
       unlink.mutate()
     }

@@ -4,7 +4,6 @@ import { useCallback, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import {
   DEFAULT_LANGUAGE,
   getDir,
@@ -13,6 +12,7 @@ import {
 import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { useDialog } from "@/shared-module/components"
 
 function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)

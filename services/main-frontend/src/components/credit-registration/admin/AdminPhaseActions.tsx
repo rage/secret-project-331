@@ -9,9 +9,8 @@ import {
   listCreditRegistrationPhasesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminPausePhase, adminResumePhase, adminRunPhaseNow } from "@/generated/api/sdk.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Button } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 
 import { pauseResumeRootCss, usePauseResumeAction } from "./usePauseResumeAction"
 

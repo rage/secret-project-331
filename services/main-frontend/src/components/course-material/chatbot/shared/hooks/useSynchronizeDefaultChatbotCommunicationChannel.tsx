@@ -9,8 +9,8 @@ import type {
   ChatbotConversation,
   ChatbotConversationInfo,
 } from "@/generated/course-material-api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { waitForNextTick } from "@/shared-module/common/utils/async"
+import { useDialog } from "@/shared-module/components"
 import {
   defaultChatbotCommunicationChannel,
   defaultChatbotIsTurnInFlight,
@@ -47,14 +47,12 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
       sendNewMessage: async (message) => {
         try {
           if (!currentConversation) {
-            const confirmed = await confirm(
-              <ChatbotDisclaimer hideHeader={true} />,
-              t("about-the-chatbot"),
-              {
-                yesButtonLabel: t("button-text-agree"),
-                noButtonLabel: t("button-text-cancel"),
-              },
-            )
+            const confirmed = await confirm({
+              message: <ChatbotDisclaimer hideHeader={true} />,
+              title: t("about-the-chatbot"),
+              confirmLabel: t("button-text-agree"),
+              cancelLabel: t("button-text-cancel"),
+            })
             if (!confirmed) {
               return
             }

@@ -20,7 +20,6 @@ import type {
   CourseModule as GeneratedCourseModule,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -33,6 +32,7 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { useDialog } from "@/shared-module/components"
 
 const ModuleCertificate: React.FC = () => {
   const { t } = useTranslation()

@@ -8,10 +8,10 @@ import { deletePageMutation as deletePageMutationOptions } from "@/generated/api
 import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+import { useDialog } from "@/shared-module/components"
 
 import NewOrEditPageForm from "../NewOrEditPageForm"
 import PageListItem, {
@@ -52,7 +52,10 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const handleDeletePage = async (pageId: string, title: string) => {
-    const result = await confirm(t("page-deletion-confirmation-message", { title }))
+    const result = await confirm({
+      message: t("page-deletion-confirmation-message", { title }),
+      isDestructive: true,
+    })
     if (result) {
       deletePageMutation.mutate({
         path: {

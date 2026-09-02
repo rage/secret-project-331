@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next"
 
 import { endExamTime } from "@/generated/course-material-api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { useDialog } from "@/shared-module/components"
 
 export interface EndExamButtonProps {
   examId: string
@@ -42,7 +42,10 @@ export default function EndExamButton({ examId, disabled, onEnded }: EndExamButt
       variant={"primary"}
       size={"small"}
       onClick={async () => {
-        const confirmation = await confirm(t("message-do-you-want-to-end-the-exam"))
+        const confirmation = await confirm({
+          message: t("message-do-you-want-to-end-the-exam"),
+          isDestructive: true,
+        })
         if (confirmation) {
           handleEndExam()
         }

@@ -17,11 +17,10 @@ import {
 } from "@/generated/api/sdk.generated"
 import type { SuspectedCheaterStatus } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, useDialog } from "@/shared-module/components"
 
 interface CourseCheatersProps {
   courseId: string
@@ -117,10 +116,10 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
 
   // Confirming fails the student, so always ask first.
   const onConfirmClick = async (userId: string) => {
-    const confirmed = await confirm(
-      t("confirm-cheating-dialog-message"),
-      t("confirm-cheating-dialog-title"),
-    )
+    const confirmed = await confirm({
+      message: t("confirm-cheating-dialog-message"),
+      title: t("confirm-cheating-dialog-title"),
+    })
     if (confirmed) {
       handleConfirm.mutate(userId)
     }
@@ -130,10 +129,10 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
   // Dismissing a still-flagged student is harmless and fires directly.
   const onDismissClick = async (userId: string) => {
     if (status === "ConfirmedCheating") {
-      const confirmed = await confirm(
-        t("dismiss-from-confirmed-dialog-message"),
-        t("dismiss-suspicion"),
-      )
+      const confirmed = await confirm({
+        message: t("dismiss-from-confirmed-dialog-message"),
+        title: t("dismiss-suspicion"),
+      })
       if (!confirmed) {
         return
       }

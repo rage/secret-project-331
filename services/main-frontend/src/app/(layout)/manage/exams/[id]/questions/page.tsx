@@ -15,7 +15,6 @@ import {
 import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -24,7 +23,13 @@ import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styl
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Breadcrumbs, type BreadcrumbItem, Infobox, QueryResult } from "@/shared-module/components"
+import {
+  Breadcrumbs,
+  type BreadcrumbItem,
+  Infobox,
+  QueryResult,
+  useDialog,
+} from "@/shared-module/components"
 
 const GradingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()

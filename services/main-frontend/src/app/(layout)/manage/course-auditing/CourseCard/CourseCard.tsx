@@ -18,7 +18,6 @@ import type {
   CourseAuditingDataUpdate,
   CourseAuditingModuleUpdate,
 } from "@/generated/api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -28,7 +27,14 @@ import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { Button, Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
+import {
+  Button,
+  Link,
+  nullIfEmpty,
+  TextArea,
+  TextField,
+  useDialog,
+} from "@/shared-module/components"
 
 import { contentRowStyles, FieldSet, Legend } from "../page"
 import ContentDisplayBox from "./ContentDisplayBox"
@@ -113,10 +119,11 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
 
   const cancelEdit = async () => {
     if (isDirty) {
-      const confirmed = await confirm(
-        t("course-auditing-edit-unsaved-dialog-message"),
-        t("course-auditing-edit-unsaved-dialog-title"),
-      )
+      const confirmed = await confirm({
+        message: t("course-auditing-edit-unsaved-dialog-message"),
+        title: t("course-auditing-edit-unsaved-dialog-title"),
+        isDestructive: true,
+      })
       if (confirmed) {
         reset()
         updateMutation.reset()

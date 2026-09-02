@@ -7,10 +7,10 @@ import React, { useEffect } from "react"
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 
 const CourseInstanceStatusSummaryRedirect: React.FC = () => {
   const router = useRouter()
@@ -33,7 +33,7 @@ const CourseInstanceStatusSummaryRedirect: React.FC = () => {
     return <ErrorBanner variant="readOnly" error={courseInstanceQuery.error} />
   }
   if (courseInstanceQuery.isLoading) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
   if (!courseInstanceQuery.data) {
     return (
@@ -44,7 +44,7 @@ const CourseInstanceStatusSummaryRedirect: React.FC = () => {
       />
     )
   }
-  return <Spinner variant="medium" />
+  return <LoadingRegion />
 }
 
 export default withErrorBoundary(withSignedIn(CourseInstanceStatusSummaryRedirect))

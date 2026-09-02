@@ -10,10 +10,9 @@ import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generat
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Spinner } from "@/shared-module/components"
 import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 import {
   defaultTeacherChapterLockStatus,
@@ -231,7 +230,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                               disabled={lockActionPendingChapterId === chapterId}
                             >
                               {lockActionPendingChapterId === chapterId ? (
-                                <Spinner variant="small" />
+                                <Spinner size="sm" delayMs={0} />
                               ) : (
                                 <Pen size={16} />
                               )}
@@ -269,7 +268,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                     },
                     disabled: isSavingEditorStatus,
                     children: isSavingEditorStatus ? (
-                      <Spinner variant="small" />
+                      <Spinner size="sm" delayMs={0} />
                     ) : (
                       t("button-text-save")
                     ),

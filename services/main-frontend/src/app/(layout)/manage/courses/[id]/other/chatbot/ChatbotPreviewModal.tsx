@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Dialog } from "@/shared-module/components"
 
 interface ChatbotPreviewModalProps {
   open: boolean
@@ -39,7 +39,7 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
 
   return (
     <div>
-      <StandardDialog open={open} onClose={onClose} title={t("chatbot-preview-modal-title")}>
+      <Dialog open={open} onClose={onClose} title={t("chatbot-preview-modal-title")}>
         <div
           className={css`
             height: 75vh;
@@ -47,7 +47,7 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
         >
           <ChatbotChatBox {...chatbotStateAndData} />
         </div>
-      </StandardDialog>
+      </Dialog>
     </div>
   )
 }

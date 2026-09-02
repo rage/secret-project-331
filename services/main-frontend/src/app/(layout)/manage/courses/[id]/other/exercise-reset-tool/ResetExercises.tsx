@@ -9,10 +9,10 @@ import { resetExercisesForSelectedUsers } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { useUsers } from "@/hooks/useUsers"
 import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Dialog } from "@/shared-module/components"
 
 import ExerciseList from "./ExerciseList"
 import ResetFilter from "./ResetFilter"
@@ -146,22 +146,21 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
       </div>
 
       {isModalOpen && (
-        <StandardDialog
+        <Dialog
           onClose={() => setIsModalOpen(false)}
           title={t("confirm-reset-title")}
           open={isModalOpen}
-          leftAlignTitle={true}
-          buttons={[
+          actions={[
             {
               variant: "primary",
               onClick: () => resetMutation.mutate(),
               disabled: selectedUsers.length === 0 || selectedExerciseIds.length === 0,
-              children: t("button-reset"),
+              label: t("button-reset"),
             },
             {
               variant: "secondary",
               onClick: () => setIsModalOpen(false),
-              children: t("button-text-cancel"),
+              label: t("button-text-cancel"),
             },
           ]}
         >
@@ -198,7 +197,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
               </div>
             )}
           </div>
-        </StandardDialog>
+        </Dialog>
       )}
     </div>
   )

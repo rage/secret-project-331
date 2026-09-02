@@ -6,11 +6,10 @@ import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import TextFieldWithIcon from "@/shared-module/common/components/InputFields/TextFieldWithIcon"
 import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
-import { LoadingRegion } from "@/shared-module/components"
+import { Dialog, LoadingRegion } from "@/shared-module/components"
 
 interface Props {
   users?: UserDetail[]
@@ -70,12 +69,11 @@ const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers
         </Button>
       </div>
 
-      <StandardDialog
+      <Dialog
         onClose={() => setIsModalOpen(false)}
         title={t("button-add-students")}
         open={isModalOpen}
-        leftAlignTitle={true}
-        width={"wide"}
+        size="wide"
       >
         {isLoading ? (
           <LoadingRegion />
@@ -166,7 +164,7 @@ const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers
             {searchTerm.trim() && filteredUsers.length === 0 && <p>{t("label-no-users-found")}</p>}
           </div>
         )}
-      </StandardDialog>
+      </Dialog>
     </div>
   )
 }

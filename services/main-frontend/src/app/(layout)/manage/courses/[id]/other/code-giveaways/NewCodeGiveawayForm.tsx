@@ -4,10 +4,10 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { createCodeGiveawayMutation as createCodeGiveawayMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
+import { Dialog } from "@/shared-module/components"
 
 interface NewCodeGiveawayFormProps {
   courseId: string
@@ -52,11 +52,11 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
     return null
   }
   return (
-    <StandardDialog
+    <Dialog
       open={dialogOpen}
       onClose={() => setDialogOpen(false)}
       title={t("heading-new-code-giveaway")}
-      buttons={[
+      actions={[
         {
           variant: "primary",
           onClick: () =>
@@ -71,7 +71,7 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
               },
             }),
           disabled: !valid || createCodeGiveawayMutation.isPending,
-          children: t("button-text-create"),
+          label: t("button-text-create"),
         },
       ]}
     >
@@ -86,7 +86,7 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
         value={requireCourseSpecificConsentFormQuestionId}
         onChange={(e) => setRequireCourseSpecificConsentFormQuestionId(e.target.value)}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

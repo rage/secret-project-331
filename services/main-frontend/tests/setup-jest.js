@@ -28,6 +28,20 @@ if (globalThis.TextDecoder === undefined) {
   globalThis.TextDecoder = require("util").TextDecoder
 }
 
+// jsdom has no ResizeObserver at all, so anything rendering a virtualized list throws on mount.
+if (globalThis.ResizeObserver === undefined) {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+}
+// jsdom does define scrollTo, but as a stub that logs "Not implemented" on every call, so this
+// replaces it rather than filling a gap.
+if (typeof window !== "undefined") {
+  window.scrollTo = () => {}
+}
+
 jest.mock("next/dynamic", () => ({
   __esModule: true,
   default: (...props) => {

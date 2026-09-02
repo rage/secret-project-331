@@ -9,7 +9,7 @@ import CourseTestModeNotification from "@/components/course-material/notificatio
 import Page from "@/components/course-material/Page"
 import PageNotFound from "@/components/course-material/PageNotFound"
 import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
-import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
+import { useLanguageNavigation } from "@/hooks/course-material/language/useLanguageNavigation"
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import NoIndexMeta from "@/shared-module/common/components/NoIndexMeta"

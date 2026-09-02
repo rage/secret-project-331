@@ -5,7 +5,7 @@ import { Provider } from "jotai"
 import React, { useEffect } from "react"
 
 import { useConcurrencyThrottle } from "../../../hooks/useConcurrencyThrottle"
-import ThrottledChildRenderer, { type ChildFactoryWithCallback } from "../index"
+import { ThrottledChildRenderer, type ChildFactoryWithCallback } from "../index"
 
 declare global {
   var triggerIntersection: (

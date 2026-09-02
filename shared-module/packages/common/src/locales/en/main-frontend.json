@@ -1892,6 +1892,7 @@
   "label-reset-only-if-less-than-max-points": "Reset only if less than max points",
   "label-reset-only-if-less-than-threshold": "Reset only if received less than {{threshold}} points from the exercise",
   "label-reset-only-if-reviewedAndLocked": "Reset only if the exercise has been self or peer reviewed and the reviewing process is complete",
+  "label-resize-column": "Resize column {{column}}",
   "label-result": "Result",
   "label-result-after-merging": "Result after merging:",
   "label-review": "Review",

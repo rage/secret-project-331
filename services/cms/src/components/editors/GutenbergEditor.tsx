@@ -96,7 +96,7 @@ interface GutenbergEditorProps {
   allowedBlockVariations?: Record<string, string[]>
   customBlocks?: CustomBlockDefinition[]
   mediaUpload: (props: MediaUploadProps) => void
-  inspectorButtons?: JSX.Element
+  inspectorButtons?: React.JSX.Element
   /** This component has to run block migrations and validations once the Gutenberg editor and blocks have been loaded.
    * Whenever new data has been loaded from the server, the parent of this components will set this to true
    * to indicate to this component that migrations and validations should be run again.

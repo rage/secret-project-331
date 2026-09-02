@@ -49,11 +49,55 @@ export const staleTableCss = css`
   transition: opacity 0.15s;
 `
 
+// Fixed layout is what makes the columns hold still: under `auto` the widths follow whichever
+// rows the virtualizer currently has mounted, so they shift as the body scrolls. Widths come from
+// the <colgroup> the table renders; see useMeasuredColumnWidths.
 export const tableStyle = css`
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  table-layout: auto;
+  table-layout: fixed;
+`
+
+// text-overflow only clips a block's own inline content, so cell bodies are wrapped in this
+// rather than it being applied to the td.
+export const cellTruncateCss = css`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
+
+export const resizeHandleCss = css`
+  position: absolute;
+  top: 0;
+  /* Absolute offsets resolve against the padding box, so right: 0 would sit inside the cell's
+     1px border -- the very line the handle is supposed to grab. */
+  right: -1px;
+  width: 16px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: col-resize;
+  /* Without this the browser's horizontal pan wins over the drag on touch devices. */
+  touch-action: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 20%;
+    right: 0;
+    width: 1px;
+    height: 60%;
+    background: transparent;
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    background: ${baseTheme.colors.green[700]};
+    right: -1px;
+    width: 3px;
+  }
 `
 
 export const headerRowStyle = css`

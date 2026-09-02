@@ -8,9 +8,8 @@ import { useTranslation } from "react-i18next"
 import { useStatusPodLogs } from "@/hooks/useStatusPodLogs"
 import { useStatusPods } from "@/hooks/useStatusPods"
 import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult } from "@/shared-module/components"
 import { parseAnsiToReact } from "@/utils/parseAnsiToReact"
 
 const StatusPods: React.FC = () => {
@@ -174,11 +173,11 @@ const StatusPods: React.FC = () => {
       </QueryResult>
 
       {selectedPod && (
-        <StandardDialog
+        <Dialog
           open={!!selectedPod}
           onClose={() => setSelectedPod(null)}
           title={`${t("status-logs")}: ${selectedPod}`}
-          width="wide"
+          size="wide"
         >
           <div
             className={css`
@@ -242,7 +241,7 @@ const StatusPods: React.FC = () => {
               </QueryResult>
             </div>
           </div>
-        </StandardDialog>
+        </Dialog>
       )}
     </>
   )

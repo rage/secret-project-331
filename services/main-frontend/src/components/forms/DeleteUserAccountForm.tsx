@@ -8,7 +8,6 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import {
@@ -17,6 +16,7 @@ import {
 } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
+import { Dialog } from "@/shared-module/components"
 
 import OneTimeCodeForm from "./OneTimeCodeForm"
 import "@/shared-module/common/init/registerAuthApiClients"
@@ -99,12 +99,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
         {t("title-delete-account")}
       </Button>
 
-      <StandardDialog
+      <Dialog
         open={openDialog}
         title={t("title-delete-account")}
-        showCloseButton
-        // oxlint-disable-next-line i18next/no-literal-string
-        aria-modal="true"
         onClose={() => setOpenDialog(false)}
       >
         {(sendEmailCodeMutation.isError || deleteAccountMutation.isError) && (
@@ -141,7 +138,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
             }}
           />
         )}
-      </StandardDialog>
+      </Dialog>
     </>
   )
 }

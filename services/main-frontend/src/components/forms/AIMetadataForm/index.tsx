@@ -12,10 +12,9 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseMetadata } from "@/generated/api/types.generated"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { QueryResults } from "@/shared-module/components"
+import { Dialog, QueryResults } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import AIMetadataFormFields from "./AIMetadataFormFields"
@@ -93,16 +92,16 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
   )
 
   return (
-    <StandardDialog
+    <Dialog
       open={open}
       onClose={onClose}
       title={t("ai-metadata-form-title")}
-      buttons={[
+      actions={[
         {
-          children: t("button-text-replace-metadata"),
+          label: t("button-text-replace-metadata"),
           variant: "primary",
           // oxlint-disable-next-line i18next/no-literal-string
-          form: "ai-metadata-form",
+          domProps: { form: "ai-metadata-form" },
           disabled:
             courseQuery.isFetching ||
             courseQuery.isError ||
@@ -146,7 +145,7 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
           }}
         />
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import NewCourseForm from "@/components/NewCourseForm"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Dialog } from "@/shared-module/components"
 
 interface NewCourseDialogProps {
   open: boolean
@@ -16,14 +16,14 @@ const NewCourseDialog: React.FC<NewCourseDialogProps> = ({ open, onClose, organi
   const { t } = useTranslation()
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("new-course")}>
+    <Dialog open={open} onClose={onClose} title={t("new-course")}>
       <NewCourseForm
         organizationId={organizationId}
         onSuccess={() => {
           onClose()
         }}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

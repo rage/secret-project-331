@@ -71,15 +71,18 @@ jest.mock("../../studentsQueries", () => ({
   }),
 }))
 
+const cellTexts = (container: HTMLElement) =>
+  [...container.querySelectorAll("tbody td")].map((cell) => cell.textContent)
+
 describe("ProgressTabContent", () => {
   it("renders the per-chapter attempts count with its lock status", () => {
     chapterLockingEnabled = true
-    render(<ProgressTabContent />)
+    const { container } = render(<ProgressTabContent />)
 
     // Regression guard: the cell value used to be a React element placed in the row data, which
     // TanStack's default cell renderer stringified into "[object Object]".
     expect(screen.queryByText(/\[object Object\]/)).not.toBeInTheDocument()
-    expect(screen.getByText("teacher-chapter-lock-status-unlocked")).toBeInTheDocument()
+    expect(cellTexts(container)).toContain("3 (teacher-chapter-lock-status-unlocked)")
   })
 
   it("gives every leaf column a declared width and a resize handle", () => {
@@ -134,9 +137,10 @@ describe("ProgressTabContent", () => {
 
   it("renders a bare attempts count when chapter locking is disabled", () => {
     chapterLockingEnabled = false
-    render(<ProgressTabContent />)
+    const { container } = render(<ProgressTabContent />)
 
     expect(screen.queryByText(/\[object Object\]/)).not.toBeInTheDocument()
     expect(screen.queryByText("teacher-chapter-lock-status-unlocked")).not.toBeInTheDocument()
+    expect(cellTexts(container)).toContain("3")
   })
 })

@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import type { TFunction } from "i18next"
 import React from "react"
 import { FocusScope } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -60,10 +61,19 @@ const descriptionCss = css`
 const EXIT_HANDOFF = "handoff"
 const EXIT_FADE = "fade"
 
-const FALLBACK_LABEL_KEYS: Record<DialogKind, string> = {
-  alert: "dialog.alertLabel",
-  confirm: "dialog.confirmLabel",
-  prompt: "dialog.promptLabel",
+type SharedModuleTFunction = TFunction<"shared-module", undefined>
+
+// A switch, not a `Record<DialogKind, string>` lookup: i18next's typed keys reject a plain
+// `string` produced by indexing a record, so each branch has to call `t` with a literal.
+function fallbackDialogLabel(kind: DialogKind, t: SharedModuleTFunction): string {
+  switch (kind) {
+    case "alert":
+      return t("dialog.alertLabel")
+    case "confirm":
+      return t("dialog.confirmLabel")
+    case "prompt":
+      return t("dialog.promptLabel")
+  }
 }
 
 /**
@@ -139,7 +149,7 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
       customBody(controls)
     ) : (
       <PromptTextField
-        label={typeof message === "string" ? message : t(FALLBACK_LABEL_KEYS.prompt)}
+        label={typeof message === "string" ? message : t("dialog.promptLabel")}
         value={typeof promptValue?.value === "string" ? promptValue.value : ""}
         errorMessage={validationError}
         onChange={controls.setValue}
@@ -165,7 +175,7 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
   const labelling: DialogLabelling =
     title !== undefined
       ? { title }
-      : { "aria-label": typeof message === "string" ? message : t(FALLBACK_LABEL_KEYS[kind]) }
+      : { "aria-label": typeof message === "string" ? message : fallbackDialogLabel(kind, t) }
 
   const actions = buildActions({
     kind,
@@ -205,7 +215,7 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
 interface ActionsInput {
   kind: DialogKind
   request: DialogEntry["request"]
-  t: (key: string) => string
+  t: SharedModuleTFunction
   settle: (result: unknown) => void
   submitPrompt: () => void
   isSubmitArmed: boolean

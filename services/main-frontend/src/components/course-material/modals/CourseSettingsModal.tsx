@@ -170,6 +170,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
       // Settings must be completed explicitly: no close button, and closing on Escape is a no-op.
       onClose={() => {}}
       title={t("title-course-settings")}
+      // oxlint-disable-next-line i18next/no-literal-string -- padding is a layout enum, not user-facing text
       padding="none"
       showCloseButton={false}
       lang={dialogLanguage}

@@ -304,6 +304,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
       >
         <MagnifyingGlass size={16} weight="bold" />
       </Button>
+      {/* oxlint-disable-next-line i18next/no-literal-string -- padding is a layout enum, not user-facing text */}
       <Dialog open={open} onClose={closeModal} padding="none" aria-label={t("title-search-dialog")}>
         <SearchContainer $hasContent={hasContent}>
           <SearchInputContainer>

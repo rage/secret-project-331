@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import React from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import AllSubmissionsList from "@/components/AllSubmissionsList"
@@ -16,7 +16,6 @@ import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack
 import { useExerciseSubmissionsForUser } from "@/hooks/useExerciseSubmissionsForUser"
 import { useUserCourseSettings } from "@/hooks/useUserCourseSettings"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -30,7 +29,7 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Infobox, QueryResult } from "@/shared-module/components"
+import { Breadcrumbs, type BreadcrumbItem, Infobox, QueryResult } from "@/shared-module/components"
 
 const Submission: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -92,22 +91,17 @@ const Submission: React.FC = () => {
     .map((task) => task.previous_submission_grading?.score_given)
     .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
 
-  // Construct breadcrumb pieces
-  const breadcrumbPieces = React.useMemo(() => {
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
     if (!getSubmissionInfo.data) {
       return []
     }
 
     return [
       {
-        text: t("header-submissions"),
-        url: exerciseSubmissionsRoute(getSubmissionInfo.data.exercise.id),
+        label: t("header-submissions"),
+        href: exerciseSubmissionsRoute(getSubmissionInfo.data.exercise.id),
       },
-      {
-        text: t("title-submission-id", { id }),
-        // oxlint-disable-next-line i18next/no-literal-string
-        url: `/submissions/${id}`,
-      },
+      { label: t("title-submission-id", { id }) },
     ]
   }, [getSubmissionInfo.data, id, t])
 
@@ -116,7 +110,7 @@ const Submission: React.FC = () => {
       <QueryResult query={getSubmissionInfo}>
         {(submissionInfo) => (
           <>
-            {breadcrumbPieces.length > 0 && <Breadcrumbs pieces={breadcrumbPieces} />}
+            {breadcrumbItems.length > 0 && <Breadcrumbs items={breadcrumbItems} />}
             {submissionInfo.tasks.some((task) => task.deleted_at !== null) && (
               <Infobox>{t("message-this-task-has-been-deleted")}</Infobox>
             )}

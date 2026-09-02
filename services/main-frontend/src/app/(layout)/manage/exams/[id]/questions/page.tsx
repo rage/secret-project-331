@@ -13,8 +13,6 @@ import {
   releaseExamGradesMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
-import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
@@ -26,7 +24,7 @@ import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styl
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Infobox, QueryResult } from "@/shared-module/components"
+import { Breadcrumbs, type BreadcrumbItem, Infobox, QueryResult } from "@/shared-module/components"
 
 const GradingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -199,15 +197,14 @@ const GradingPage: React.FC = () => {
     [allSubmissionsList, getExam.data?.grade_manually],
   )
 
-  const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const breadcrumbPieces = [
+  const items: BreadcrumbItem[] = useMemo(
+    () => [
       // oxlint-disable-next-line i18next/no-literal-string
-      { text: t("link-manage"), url: `/manage/exams/${id}` },
-      // oxlint-disable-next-line i18next/no-literal-string
-      { text: t("questions"), url: `/manage/exams/${id}/questions` },
-    ]
-    return breadcrumbPieces
-  }, [id, t])
+      { label: t("link-manage"), href: `/manage/exams/${id}` },
+      { label: t("questions") },
+    ],
+    [id, t],
+  )
 
   const questionsContent = (
     <>
@@ -357,7 +354,7 @@ const GradingPage: React.FC = () => {
   return (
     <div>
       <BreakFromCentered sidebar={false}>
-        <Breadcrumbs pieces={pieces} />
+        <Breadcrumbs items={items} />
       </BreakFromCentered>
       <QueryResult query={getExercises} treatEmptyAsData>
         {() => questionsContent}

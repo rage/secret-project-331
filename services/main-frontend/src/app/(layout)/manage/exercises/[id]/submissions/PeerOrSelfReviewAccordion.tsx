@@ -10,10 +10,10 @@ import type {
   PeerOrSelfReviewAnswer,
   PeerReviewWithQuestionsAndAnswers,
 } from "@/generated/api/types.generated"
-import Accordion from "@/shared-module/common/components/Accordion"
 import LikertScale from "@/shared-module/common/components/PeerReview/LikertScale"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Disclosure } from "@/shared-module/components"
 
 export interface PeerOrSelfReviewAccordionProps {
   peerOrSelfReviews: PeerReviewWithQuestionsAndAnswers[]
@@ -96,9 +96,9 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
   }, [peerOrSelfReviews, userInfo.data?.user_id])
 
   return (
-    <Accordion>
-      <details>
-        <summary>
+    <Disclosure
+      title={
+        <>
           {title}{" "}
           <span
             className={css`
@@ -116,70 +116,69 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
           >
             {peerOrSelfReviews.length}
           </span>
-        </summary>
-        <div
-          className={css`
-            background: ${baseTheme.colors.clear[100]};
-            margin: 0.5rem 0;
-          `}
-        >
-          {selfReviews.map((selfReview) => (
-            <div key={selfReview.peer_or_self_review_submission_id}>
-              <Title
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  flex-wrap: wrap;
-                  gap: 0.5rem;
-                `}
-              >
-                {t("title-self-review")}
-                <UserDisplay userId={selfReview.peer_review_giver_user_id} courseId={courseId} />
-              </Title>
-              {selfReview.questions_and_answers.map((x, i) => (
-                <QuestionWrapper key={x.peer_or_self_review_question_id}>
-                  {mapToAnswer(
-                    `${t("question-n", { n: i + 1 })}: ${x.question}${
-                      x.answer_required ? " *" : ""
-                    }`,
-                    x.answer,
-                    x.peer_or_self_review_question_id,
-                  )}
-                </QuestionWrapper>
-              ))}
-            </div>
-          ))}
-          {peerReviews.map((peerReview, i) => (
-            <div key={peerReview.peer_or_self_review_submission_id}>
-              <Title
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  flex-wrap: wrap;
-                  gap: 0.5rem;
-                `}
-              >
-                {t("peer-review-n", { n: i + 1 })}
-                <UserDisplay userId={peerReview.peer_review_giver_user_id} courseId={courseId} />
-              </Title>
-              {peerReview.questions_and_answers.map((x, questionIndex) => (
-                <QuestionWrapper key={x.peer_or_self_review_question_id}>
-                  {mapToAnswer(
-                    `${t("question-n", { n: questionIndex + 1 })}: ${x.question}${
-                      x.answer_required ? " *" : ""
-                    }`,
-                    x.answer,
-                    x.peer_or_self_review_question_id,
-                  )}
-                </QuestionWrapper>
-              ))}
-            </div>
-          ))}
-        </div>
-      </details>
-    </Accordion>
+        </>
+      }
+    >
+      <div
+        className={css`
+          background: ${baseTheme.colors.clear[100]};
+          margin: 0.5rem 0;
+        `}
+      >
+        {selfReviews.map((selfReview) => (
+          <div key={selfReview.peer_or_self_review_submission_id}>
+            <Title
+              className={css`
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+              `}
+            >
+              {t("title-self-review")}
+              <UserDisplay userId={selfReview.peer_review_giver_user_id} courseId={courseId} />
+            </Title>
+            {selfReview.questions_and_answers.map((x, i) => (
+              <QuestionWrapper key={x.peer_or_self_review_question_id}>
+                {mapToAnswer(
+                  `${t("question-n", { n: i + 1 })}: ${x.question}${x.answer_required ? " *" : ""}`,
+                  x.answer,
+                  x.peer_or_self_review_question_id,
+                )}
+              </QuestionWrapper>
+            ))}
+          </div>
+        ))}
+        {peerReviews.map((peerReview, i) => (
+          <div key={peerReview.peer_or_self_review_submission_id}>
+            <Title
+              className={css`
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+              `}
+            >
+              {t("peer-review-n", { n: i + 1 })}
+              <UserDisplay userId={peerReview.peer_review_giver_user_id} courseId={courseId} />
+            </Title>
+            {peerReview.questions_and_answers.map((x, questionIndex) => (
+              <QuestionWrapper key={x.peer_or_self_review_question_id}>
+                {mapToAnswer(
+                  `${t("question-n", { n: questionIndex + 1 })}: ${x.question}${
+                    x.answer_required ? " *" : ""
+                  }`,
+                  x.answer,
+                  x.peer_or_self_review_question_id,
+                )}
+              </QuestionWrapper>
+            ))}
+          </div>
+        ))}
+      </div>
+    </Disclosure>
   )
 }
 

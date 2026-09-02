@@ -10,8 +10,6 @@ import GradeExamAnswerForm from "@/components/forms/GradeExamAnswerForm"
 import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
-import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
@@ -20,7 +18,7 @@ import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Breadcrumbs, type BreadcrumbItem, QueryResult } from "@/shared-module/components"
 
 import SubmissionIFrame from "./SubmissionIFrame"
 
@@ -66,27 +64,27 @@ const Submission: React.FC = () => {
     enabled: !!examId,
   })
 
-  const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const breadcrumbPieces = [
+  const items: BreadcrumbItem[] = useMemo(
+    () => [
       // oxlint-disable-next-line i18next/no-literal-string
-      { text: t("link-manage"), url: `/manage/exams/${examId}` },
+      { label: t("link-manage"), href: `/manage/exams/${examId}` },
       // oxlint-disable-next-line i18next/no-literal-string
-      { text: t("questions"), url: `/manage/exams/${examId}/questions` },
+      { label: t("questions"), href: `/manage/exams/${examId}/questions` },
       {
-        text: t("header-submissions"),
+        label: t("header-submissions"),
         // oxlint-disable-next-line i18next/no-literal-string
-        url: `/manage/exercises/${exerciseId}/exam-submissions`,
+        href: `/manage/exercises/${exerciseId}/exam-submissions`,
       },
-      { text: id, url: "" },
-    ]
-    return breadcrumbPieces
-  }, [examId, exerciseId, id, t])
+      { label: id },
+    ],
+    [examId, exerciseId, id, t],
+  )
 
   return (
     <div>
       <BreakFromCentered sidebar={false}>
         <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
-          <Breadcrumbs pieces={pieces} />
+          <Breadcrumbs items={items} />
         </PageMarginOffset>
       </BreakFromCentered>
       <QueryResult query={getSubmissionInfo}>

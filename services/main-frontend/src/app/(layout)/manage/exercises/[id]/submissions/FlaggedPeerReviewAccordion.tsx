@@ -6,8 +6,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { FlaggedAnswer } from "@/generated/api/types.generated"
-import Accordion from "@/shared-module/common/components/Accordion"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Disclosure } from "@/shared-module/components"
 
 export interface FlaggedPeerReviewAccordionProps {
   reports: FlaggedAnswer[]
@@ -28,9 +28,9 @@ const FlaggedPeerReviewAccordion: React.FC<FlaggedPeerReviewAccordionProps> = ({
   const { t } = useTranslation()
 
   return (
-    <Accordion>
-      <details>
-        <summary>
+    <Disclosure
+      title={
+        <>
           {title}
           <span
             className={css`
@@ -48,39 +48,40 @@ const FlaggedPeerReviewAccordion: React.FC<FlaggedPeerReviewAccordionProps> = ({
           >
             {reports.length}
           </span>
-        </summary>
-        <div
-          className={css`
-            background: ${baseTheme.colors.clear[100]};
-          `}
-        >
-          {reports.map((report, index) => (
-            <div key={report.submission_id}>
-              <Title>
-                {t("label-report")} {index + 1}
-              </Title>
-              <ul>
-                <li>
-                  <strong>{t("label-reason")}: </strong> {report.reason}
-                </li>
-                <li>
-                  <strong>{t("text-field-label-description")}: </strong>
-                  {report.description || t("no-description-available")}
-                </li>
-                <li>
-                  <strong>{t("label-flagged-by")}: </strong>
-                  {report.flagged_by}
-                </li>
-                <li>
-                  <strong>{t("label-created-at")}: </strong>
-                  {new Date(report.created_at).toLocaleString()}
-                </li>
-              </ul>
-            </div>
-          ))}
-        </div>
-      </details>
-    </Accordion>
+        </>
+      }
+    >
+      <div
+        className={css`
+          background: ${baseTheme.colors.clear[100]};
+        `}
+      >
+        {reports.map((report, index) => (
+          <div key={report.submission_id}>
+            <Title>
+              {t("label-report")} {index + 1}
+            </Title>
+            <ul>
+              <li>
+                <strong>{t("label-reason")}: </strong> {report.reason}
+              </li>
+              <li>
+                <strong>{t("text-field-label-description")}: </strong>
+                {report.description || t("no-description-available")}
+              </li>
+              <li>
+                <strong>{t("label-flagged-by")}: </strong>
+                {report.flagged_by}
+              </li>
+              <li>
+                <strong>{t("label-created-at")}: </strong>
+                {new Date(report.created_at).toLocaleString()}
+              </li>
+            </ul>
+          </div>
+        ))}
+      </div>
+    </Disclosure>
   )
 }
 

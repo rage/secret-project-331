@@ -10,10 +10,9 @@ import type {
   Page,
   PageChapterAndCourseInformation,
 } from "@/generated/course-material-api/types.generated"
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Breadcrumbs, type BreadcrumbItem, QueryResult } from "@/shared-module/components"
 
 interface CourseMaterialPageBreadcrumbsProps {
   page: Page | null
@@ -68,27 +67,26 @@ const CourseMaterialPageBreadcrumbs: React.FC<
         // oxlint-disable-next-line i18next/no-literal-string
         const courseUrlPrefix = `/org/${data.organization_slug}/courses/${data.course_slug}`
 
-        const pieces = [{ text: data.course_name ?? t("course"), url: courseUrlPrefix }]
+        const crumbs = [{ label: data.course_name ?? t("course"), href: courseUrlPrefix }]
         if (page.chapter_id) {
-          pieces.push({
-            text: t("chapter-chapter-number-chapter-name", { chapterName, chapterNumber }),
-            url: `${courseUrlPrefix}${data.chapter_front_page_url_path}`,
+          crumbs.push({
+            label: t("chapter-chapter-number-chapter-name", { chapterName, chapterNumber }),
+            href: `${courseUrlPrefix}${data.chapter_front_page_url_path}`,
           })
         }
         if (!isChapterFrontPage && !isCourseFrontPage) {
-          if (page.chapter_id) {
-            pieces.push({
-              text: `${pageOrderNumber}: ${page.title}`,
-              url: `${courseUrlPrefix}${page.url_path}}`,
-            })
-          } else {
-            pieces.push({ text: page.title, url: `${courseUrlPrefix}${page.url_path}}` })
-          }
+          crumbs.push({
+            label: page.chapter_id ? `${pageOrderNumber}: ${page.title}` : page.title,
+            href: `${courseUrlPrefix}${page.url_path}`,
+          })
         }
+        const items: BreadcrumbItem[] = crumbs.map((crumb, index) =>
+          index === crumbs.length - 1 ? { label: crumb.label } : crumb,
+        )
 
         return (
           <BreakFromCentered sidebar={false}>
-            <Breadcrumbs pieces={pieces} />
+            <Breadcrumbs items={items} />
           </BreakFromCentered>
         )
       }}

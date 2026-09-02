@@ -12,6 +12,7 @@ import { Button, type ButtonProps } from "./Button"
 
 export type DialogSize = "normal" | "wide"
 export type DialogPadding = "normal" | "none"
+export type DialogRole = "dialog" | "alertdialog"
 
 type DialogLabelling =
   | {
@@ -59,6 +60,11 @@ export type DialogProps = DialogLabelling &
      * list whose rows carry their own padding); reach for a different value through `className`.
      */
     padding?: DialogPadding
+    /**
+     * `"alertdialog"` wires `aria-describedby` to the content and announces it on open; use it
+     * for a short interrupting message, not for a surface the user has to work through.
+     */
+    role?: DialogRole
     /** Whether clicking the underlay closes the dialog. */
     isDismissable?: boolean
     /** Hides the visible close button in the top corner. */
@@ -230,6 +236,7 @@ const OpenDialog: React.FC<DialogProps> = ({
   children,
   size = "normal",
   padding = "normal",
+  role = "dialog",
   isDismissable = false,
   showCloseButton = true,
   footer,
@@ -252,8 +259,10 @@ const OpenDialog: React.FC<DialogProps> = ({
     },
   })
   const { modalProps, underlayProps } = useModalOverlay({ isDismissable }, state, ref)
-  const { dialogProps } = useDialog(
-    hasTitle ? { "aria-labelledby": titleId } : omitUndefined({ "aria-label": ariaLabel }),
+  const { dialogProps, contentProps } = useDialog(
+    hasTitle
+      ? { role, "aria-labelledby": titleId }
+      : omitUndefined({ role, "aria-label": ariaLabel }),
     ref,
   )
 
@@ -290,7 +299,7 @@ const OpenDialog: React.FC<DialogProps> = ({
               )}
             </div>
           )}
-          <div className={contentCss} data-below-header={hasTitle}>
+          <div {...contentProps} className={contentCss} data-below-header={hasTitle}>
             {children}
           </div>
           {actions !== undefined && (

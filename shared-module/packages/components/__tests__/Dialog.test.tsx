@@ -239,4 +239,28 @@ describe("Dialog", () => {
     const dialog = screen.getByRole("dialog")
     expect(getComputedStyle(dialog).getPropertyValue("--dialog-padding")).toBe("0")
   })
+
+  test("role defaults to dialog with no aria-describedby", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Settings">
+        <p>Content</p>
+      </Dialog>,
+    )
+    const dialog = screen.getByRole("dialog", { name: "Settings" })
+    expect(dialog).not.toHaveAttribute("aria-describedby")
+  })
+
+  test("alertdialog role wires aria-describedby to a description that actually resolves", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Delete course" role="alertdialog">
+        <p>This cannot be undone.</p>
+      </Dialog>,
+    )
+    const dialog = screen.getByRole("alertdialog", { name: "Delete course" })
+    const describedBy = dialog.getAttribute("aria-describedby")
+    expect(describedBy).toBeTruthy()
+    const description = describedBy ? document.querySelector(`[id="${describedBy}"]`) : null
+    expect(description).not.toBeNull()
+    expect(description).toHaveTextContent("This cannot be undone.")
+  })
 })

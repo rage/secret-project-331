@@ -219,4 +219,24 @@ describe("Dialog", () => {
     )
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
   })
+
+  test("padding defaults to normal", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Padded">
+        <p>Content</p>
+      </Dialog>,
+    )
+    const dialog = screen.getByRole("dialog")
+    expect(getComputedStyle(dialog).getPropertyValue("--dialog-padding")).toBe("var(--space-5)")
+  })
+
+  test("padding none collapses --dialog-padding to zero", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Flush" padding="none">
+        <p>Content</p>
+      </Dialog>,
+    )
+    const dialog = screen.getByRole("dialog")
+    expect(getComputedStyle(dialog).getPropertyValue("--dialog-padding")).toBe("0")
+  })
 })

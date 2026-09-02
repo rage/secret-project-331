@@ -11,6 +11,7 @@ import { below } from "../styles/breakpoints"
 import { Button, type ButtonProps } from "./Button"
 
 export type DialogSize = "normal" | "wide"
+export type DialogPadding = "normal" | "none"
 
 type DialogLabelling =
   | {
@@ -52,6 +53,12 @@ export type DialogProps = DialogLabelling &
     onClose: () => void
     children: React.ReactNode
     size?: DialogSize
+    /**
+     * Space between the surface's edge and its header, body and footer, set via
+     * `--dialog-padding`. `"none"` lets children run flush to the edge (a toolbar, a table, a
+     * list whose rows carry their own padding); reach for a different value through `className`.
+     */
+    padding?: DialogPadding
     /** Whether clicking the underlay closes the dialog. */
     isDismissable?: boolean
     /** Hides the visible close button in the top corner. */
@@ -96,12 +103,25 @@ const sizeCss: Record<DialogSize, string> = {
   `,
 }
 
+const paddingCss: Record<DialogPadding, string> = {
+  normal: css`
+    --dialog-padding: var(--space-5);
+
+    ${below("xs")} {
+      --dialog-padding: var(--space-4);
+    }
+  `,
+  none: css`
+    --dialog-padding: 0;
+  `,
+}
+
 const headerCss = css`
   flex: none;
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  padding: clamp(1rem, 5vw, 2rem);
+  padding: var(--dialog-padding);
   padding-bottom: var(--space-4);
 
   &[data-has-title="true"] {
@@ -157,7 +177,7 @@ const contentCss = css`
   overflow-y: auto;
   overflow-x: hidden;
   overflow-wrap: break-word;
-  padding: clamp(1rem, 5vw, 2rem);
+  padding: var(--dialog-padding);
 
   &[data-below-header="true"] {
     padding-top: var(--space-4);
@@ -169,7 +189,7 @@ const footerCss = css`
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
-  padding: 0 clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2rem);
+  padding: 0 var(--dialog-padding) var(--dialog-padding);
 
   ${below("xs")} {
     flex-direction: column;
@@ -209,6 +229,7 @@ const OpenDialog: React.FC<DialogProps> = ({
   onClose,
   children,
   size = "normal",
+  padding = "normal",
   isDismissable = false,
   showCloseButton = true,
   footer,
@@ -248,7 +269,7 @@ const OpenDialog: React.FC<DialogProps> = ({
           ref={ref}
           lang={lang}
           data-testid={dataTestId}
-          className={cx(surfaceCss, sizeCss[size], className)}
+          className={cx(surfaceCss, sizeCss[size], paddingCss[padding], className)}
         >
           {(hasTitle || showCloseButton) && (
             <div className={headerCss} data-has-title={hasTitle}>

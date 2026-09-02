@@ -14,8 +14,8 @@ import Echarts from "@/components/charts/Echarts"
 import type { CohortActivity } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion } from "@/shared-module/components"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import type { Period } from "./LineChart"
@@ -375,7 +375,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
         `}
       >
         {isLoading ? (
-          <Spinner variant="medium" />
+          <LoadingRegion minHeight={0} />
         ) : error ? (
           <ErrorBanner variant="readOnly" error={error} />
         ) : !data || data.length < 2 ? (

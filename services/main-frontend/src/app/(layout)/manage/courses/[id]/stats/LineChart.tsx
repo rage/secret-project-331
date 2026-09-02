@@ -11,8 +11,8 @@ import type { CountResult } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion } from "@/shared-module/components"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import StatsHeader from "./StatsHeader"
@@ -176,7 +176,7 @@ const LineChart: React.FC<LineChartProps> = ({
         `}
       >
         {isLoading ? (
-          <Spinner variant="medium" />
+          <LoadingRegion minHeight={0} />
         ) : error ? (
           <ErrorBanner variant="readOnly" error={error} />
         ) : !data || data.length < 2 ? (

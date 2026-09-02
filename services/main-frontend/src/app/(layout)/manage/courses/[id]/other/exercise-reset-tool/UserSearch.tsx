@@ -8,9 +8,9 @@ import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import TextFieldWithIcon from "@/shared-module/common/components/InputFields/TextFieldWithIcon"
-import Spinner from "@/shared-module/common/components/Spinner"
 import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { LoadingRegion } from "@/shared-module/components"
 
 interface Props {
   users?: UserDetail[]
@@ -78,7 +78,7 @@ const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers
         width={"wide"}
       >
         {isLoading ? (
-          <Spinner variant="medium" />
+          <LoadingRegion />
         ) : (
           <div>
             <div

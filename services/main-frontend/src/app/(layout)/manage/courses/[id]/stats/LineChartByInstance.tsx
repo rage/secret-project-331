@@ -11,8 +11,8 @@ import type { CountResult } from "@/generated/api/types.generated"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion } from "@/shared-module/components"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import type { Period } from "./LineChart"
@@ -366,7 +366,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       <InstructionBox>{instructionText}</InstructionBox>
       <div className={chartContainer}>
         {isLoading || courseInstancesQuery.isLoading ? (
-          <Spinner variant="medium" />
+          <LoadingRegion minHeight={0} />
         ) : error || courseInstancesQuery.error ? (
           <ErrorBanner variant="readOnly" error={error || courseInstancesQuery.error} />
         ) : isDataEmpty ? (

@@ -1452,6 +1452,7 @@
   "exam-time-to-complete": "You have {{ time-minutes }} minutes to complete the exam after starting",
   "exam-time-up": "Your time has run out and the exam is now closed. Come back to see the results after {{ ends-at }}.",
   "exam-timer-has-run-out": "Time has run out and the exam is now closed.",
+  "exam-to-duplicate": "Exam to duplicate",
   "exercise": "Exercise",
   "exercise-deadline": "Exercise deadline: ",
   "exercise-deadline-short": "Deadline",

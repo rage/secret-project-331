@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useDeferredValue, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { updateGeneratedCertificate } from "@/generated/api/sdk.generated"
@@ -14,11 +15,10 @@ import type {
 } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
-import { Button, Dialog, LoadingRegion } from "@/shared-module/components"
+import { Button, Dialog, LoadingRegion, TextField } from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
@@ -114,6 +114,9 @@ export const CertificatesTabContent: React.FC = () => {
     name_on_certificate: string
     date: string | null
   } | null>(null)
+  const editNameForm = useForm<{ name_on_certificate: string }>({
+    defaultValues: { name_on_certificate: "" },
+  })
   const [popupUrl, setPopupUrl] = useState<string | null>(null)
   const [verificationId, setVerificationId] = useState<string | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -246,13 +249,14 @@ export const CertificatesTabContent: React.FC = () => {
               {certificate_id && (
                 <IconButton
                   label={t("edit_certificate")}
-                  onClick={() =>
+                  onClick={() => {
                     setEditData({
                       id: certificate_id,
                       name_on_certificate: name_on_certificate ?? "",
                       date: date_issued ?? null,
                     })
-                  }
+                    editNameForm.reset({ name_on_certificate: name_on_certificate ?? "" })
+                  }}
                 >
                   <Pen size={18} />
                 </IconButton>
@@ -262,7 +266,7 @@ export const CertificatesTabContent: React.FC = () => {
         },
       },
     ],
-    [t],
+    [t, editNameForm],
   )
 
   if (identityQuery.isError) {
@@ -404,14 +408,9 @@ export const CertificatesTabContent: React.FC = () => {
         >
           <TextField
             type="text"
+            name="name_on_certificate"
+            control={editNameForm.control}
             label={t("name-on-certificate")}
-            placeholder={t("name-on-certificate")}
-            value={editData.name_on_certificate}
-            onChange={(e) =>
-              setEditData((prev) =>
-                prev ? { ...prev, name_on_certificate: e.target.value } : prev,
-              )
-            }
           />
 
           <DatePickerField
@@ -441,14 +440,12 @@ export const CertificatesTabContent: React.FC = () => {
                 if (!editData || !parsedEditDate || !editDateValid) {
                   return
                 }
+                const nameOnCertificate = editNameForm.getValues("name_on_certificate")
                 updateCertificateMutation.mutate({
                   certificateId: editData.id,
                   body: {
                     date_issued: parsedEditDate.toISOString(),
-                    name_on_certificate:
-                      editData.name_on_certificate.trim() === ""
-                        ? null
-                        : editData.name_on_certificate,
+                    name_on_certificate: nameOnCertificate.trim() === "" ? null : nameOnCertificate,
                   },
                 })
               }}

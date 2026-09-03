@@ -22,7 +22,7 @@ import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRende
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
-import { Button, useDialog } from "@/shared-module/components"
+import { Button, Link, useDialog } from "@/shared-module/components"
 
 import CourseMetadata from "./CourseMetadata"
 import EditCourseForm from "./EditCourseForm"
@@ -198,11 +198,14 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             margin: 1rem 0;
           `}
         >
-          <a href={courseMaterialFrontPageHref(organizationSlug, course.slug)}>
-            <Button variant="secondary" size="medium">
-              {t("button-text-open-course-front-page")}
-            </Button>
-          </a>
+          <Link
+            href={courseMaterialFrontPageHref(organizationSlug, course.slug)}
+            styledAsButton
+            variant="secondary"
+            size="medium"
+          >
+            {t("button-text-open-course-front-page")}
+          </Link>
         </div>
       )}
       <div
@@ -313,83 +316,91 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             `}
           >
             <li>
-              <a
+              <Link
                 href={`/api/v0/main-frontend/courses/${course.id}/export-submissions`}
                 aria-label={t("link-export-submissions")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-submissions")}
-                </Button>
-              </a>
+                {t("link-export-submissions")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={`/api/v0/main-frontend/courses/${course.id}/export-user-details`}
                 aria-label={t("link-export-user-details")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-user-details")}
-                </Button>
-              </a>
+                {t("link-export-user-details")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={`/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`}
                 aria-label={t("link-export-exercise-tasks")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-exercise-tasks")}
-                </Button>
-              </a>
+                {t("link-export-exercise-tasks")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={`/api/v0/main-frontend/courses/${course.id}/export-course-instances`}
                 aria-label={t("link-export-course-instances")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-course-instances")}
-                </Button>
-              </a>
+                {t("link-export-course-instances")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={`/api/v0/main-frontend/courses/${course.id}/export-course-user-consents`}
                 aria-label={t("link-export-course-user-consents")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-course-user-consents")}
-                </Button>
-              </a>
+                {t("link-export-course-user-consents")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={`/api/v0/main-frontend/courses/${course.id}/export-user-exercise-states`}
                 aria-label={t("link-export-user-exercise-states")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-user-exercise-states")}
-                </Button>
-              </a>
+                {t("link-export-user-exercise-states")}
+              </Link>
             </li>
           </ul>
         </>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
-        <a
+        <Link
           href={`/cms/courses/${course.id}/research-form-edit`}
           aria-label={t("button-text-create-or-edit-research-form")}
+          isCrossService
+          styledAsButton
+          variant="secondary"
+          size="medium"
         >
-          <Button variant="secondary" size="medium">
-            {t("button-text-create-or-edit-research-form")}
-          </Button>
-        </a>
+          {t("button-text-create-or-edit-research-form")}
+        </Link>
       </OnlyRenderIfPermissions>
       {course.is_joinable_by_code_only && (
         <div>

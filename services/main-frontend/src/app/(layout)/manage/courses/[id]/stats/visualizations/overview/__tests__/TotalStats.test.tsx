@@ -34,6 +34,12 @@ function pickToday(groupName: string) {
   fireEvent.click(screen.getByRole("button", { name: "datePicker.today" }))
 }
 
+/** Opens a Select's listbox and clicks the option with the given accessible name. */
+function chooseOption(triggerName: string, optionName: string) {
+  fireEvent.click(screen.getByRole("button", { name: new RegExp(triggerName) }))
+  fireEvent.click(screen.getByRole("option", { name: optionName }))
+}
+
 describe("TotalStats custom date range", () => {
   it("queries the custom time period with the picked start and end dates", async () => {
     jest.useFakeTimers()
@@ -43,7 +49,7 @@ describe("TotalStats custom date range", () => {
     try {
       render(<TotalStats courseId="course-1" />)
 
-      fireEvent.change(screen.getByRole("combobox"), { target: { value: "custom" } })
+      chooseOption("stats-date-range-selector-label", "stats-period-custom")
 
       pickToday("stats-start-date")
       pickToday("stats-end-date")
@@ -77,7 +83,7 @@ describe("TotalStats custom date range", () => {
   it("leaves the custom time period disabled until both dates are picked", () => {
     render(<TotalStats courseId="course-1" />)
 
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "custom" } })
+    chooseOption("stats-date-range-selector-label", "stats-period-custom")
 
     expect(useTotalUsersStartedCourseQueryCustomTimePeriod).toHaveBeenLastCalledWith(
       "course-1",

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -14,11 +14,11 @@ import {
   useTotalUsersStartedCourseQueryCustomTimePeriod,
 } from "@/hooks/stats"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { DateField } from "@/shared-module/components/components/DateField"
+import { Select } from "@/shared-module/components/components/Select"
 
 interface TotalStatsProps {
   courseId: string
@@ -73,19 +73,24 @@ const statTitleStyles = css`
 export const CUSTOM_RANGE = "custom" as const
 export const TOTAL_RANGE = "total" as const
 
-interface CustomDateRangeFilterValues {
+const FIELD_START_DATE = "startDate" as const
+const FIELD_END_DATE = "endDate" as const
+const FIELD_RANGE_MODE = "rangeMode" as const
+
+interface TotalStatsFilterValues {
   startDate: string
   endDate: string
+  rangeMode: "total" | "custom"
 }
 
 const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ courseId }) => {
   const { t, i18n } = useTranslation()
-  const { control: dateRangeControl } = useForm<CustomDateRangeFilterValues>({
-    defaultValues: { startDate: "", endDate: "" },
+  const { control: filterControl } = useForm<TotalStatsFilterValues>({
+    defaultValues: { startDate: "", endDate: "", rangeMode: TOTAL_RANGE },
   })
-  const startDate = useWatch({ control: dateRangeControl, name: "startDate" })
-  const endDate = useWatch({ control: dateRangeControl, name: "endDate" })
-  const [rangeMode, setRangeMode] = useState<"total" | "custom">(TOTAL_RANGE)
+  const startDate = useWatch({ control: filterControl, name: FIELD_START_DATE })
+  const endDate = useWatch({ control: filterControl, name: FIELD_END_DATE })
+  const rangeMode = useWatch({ control: filterControl, name: FIELD_RANGE_MODE })
 
   const totalUsersNormal = useTotalUsersStartedCourseQuery(courseId, {
     enabled: rangeMode === TOTAL_RANGE,
@@ -165,27 +170,31 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
                 `}
               >
                 <DateField
-                  control={dateRangeControl}
-                  name="startDate"
+                  control={filterControl}
+                  name={FIELD_START_DATE}
                   label={t("stats-start-date")}
                 />
-                <DateField control={dateRangeControl} name="endDate" label={t("stats-end-date")} />
+                <DateField
+                  control={filterControl}
+                  name={FIELD_END_DATE}
+                  label={t("stats-end-date")}
+                />
               </div>
             )}
 
-            <SelectMenu
+            <Select
               id="period-select"
+              control={filterControl}
+              name={FIELD_RANGE_MODE}
+              label={t("stats-date-range-selector-label")}
               options={[
                 { value: TOTAL_RANGE, label: t("stats-period-total") },
                 { value: CUSTOM_RANGE, label: t("stats-period-custom") },
               ]}
-              value={rangeMode}
-              onChange={(e) => setRangeMode(e.currentTarget.value as "total" | "custom")}
               className={css`
                 margin-bottom: 0;
                 min-width: 120px;
               `}
-              showDefaultOption={false}
             />
           </div>
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { TimeGranularity } from "@/generated/api/types.generated"
@@ -12,20 +12,29 @@ import {
   useNumberOfPeopleRegisteredCompletionToStudyRegistryQuery,
   useNumberOfPeopleStartedCourseQuery,
 } from "@/hooks/globalStats"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Select } from "@/shared-module/components/components/Select"
 
 import GlobalStatTable from "./GlobalStatTable"
 
 const YEAR_GRANULARITY = "Year"
 const MONTH_GRANULARITY = "Month"
+const FIELD_GRANULARITY = "granularity" as const
+
+interface StatsFilterValues {
+  granularity: TimeGranularity
+}
 
 const StatsPage = () => {
   const { t } = useTranslation()
   usePageTitle(t("title-statistics"))
-  const [granularity, setGranularity] = useState<TimeGranularity>(YEAR_GRANULARITY)
+
+  const { control: filterControl } = useForm<StatsFilterValues>({
+    defaultValues: { granularity: YEAR_GRANULARITY },
+  })
+  const granularity = useWatch({ control: filterControl, name: FIELD_GRANULARITY })
 
   const numberOfPeopleComplatedACourseQuery = useNumberOfPeopleCompletedACourseQuery(granularity)
   const numberOfPeopleRegisteredCompletionToStudyRegistryQuery =
@@ -47,30 +56,20 @@ const StatsPage = () => {
           width: 200px;
           margin-left: auto;
           margin-bottom: 2rem;
-
-          select {
-            min-height: 35px;
-            font-size: 14px;
-          }
-
-          label {
-            text-align: right;
-          }
         }
       `}
     >
       <h1>{t("link-stats")}</h1>
-      <SelectMenu
+      <Select
         id="granularity-select"
         className="granularity-select"
+        control={filterControl}
+        name={FIELD_GRANULARITY}
         label={t("time-granularity")}
-        value={granularity}
-        onChange={(e) => setGranularity(e.currentTarget.value as TimeGranularity)}
         options={[
           { value: YEAR_GRANULARITY, label: t("year") },
           { value: MONTH_GRANULARITY, label: t("month") },
         ]}
-        showDefaultOption={false}
       />
       <h2>{t("heading-number-of-people-started-course")}</h2>
       <GlobalStatTable

@@ -1,19 +1,17 @@
 "use client"
 
-/* oxlint-disable i18next/no-literal-string */
-import { css } from "@emotion/css"
-import { useState } from "react"
+import { useForm } from "react-hook-form"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import { Button } from "@/shared-module/components"
+import { Button, TextArea } from "@/shared-module/components"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 export interface IFramePlaceHolderProps {
   setUrl: (url: string) => void
   defaultValue: string | undefined
 }
 
-// If an url is added to this list, this one refuses handle that url and will tell the user to use the embed block instead. We do this because we're able to provide a better user experience with the embed block.
+// If a url is added to this list, the block refuses to handle it and tells the user to use the
+// embed block instead, which gives a better experience for these particular sources.
 const URLS_BETTER_HANDLED_BY_THE_EMBED_BLOCK = [
   "youtu.be",
   "youtube.com",
@@ -32,62 +30,71 @@ const URLS_BETTER_HANDLED_BY_THE_EMBED_BLOCK = [
   "tumblr.com",
 ]
 
+interface IframeSourceFormFields {
+  source: string
+}
+
+/** Extracts an embeddable url from a pasted url or an `<iframe>` embed snippet, or null if neither parses. */
+function parseIframeSourceUrl(rawValue: string): string | null {
+  const input = rawValue.trim()
+  try {
+    // oxlint-disable-next-line no-new -- validates input; throws on invalid URLs, caught below
+    new URL(input)
+    return input
+  } catch (_e) {
+    const parser = new DOMParser()
+    // oxlint-disable-next-line i18next/no-literal-string
+    const htmlDoc = parser.parseFromString(input, "text/html")
+    const iframe = htmlDoc.querySelector("iframe")
+    if (!iframe) {
+      return null
+    }
+    try {
+      // oxlint-disable-next-line no-new -- validates iframe.src; throws on invalid URLs, caught below
+      new URL(iframe.src)
+      return iframe.src
+    } catch (_e2) {
+      return null
+    }
+  }
+}
+
 const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultValue }) => {
-  const [value, setValue] = useState(defaultValue ?? "")
-  const [error, setError] = useState<string | null>(null)
+  const { t } = useTranslation()
+  const { control, handleSubmit } = useForm<IframeSourceFormFields>({
+    defaultValues: { source: defaultValue ?? "" },
+  })
+
+  const onParse = (data: IframeSourceFormFields) => {
+    const url = parseIframeSourceUrl(data.source)
+    if (url !== null) {
+      setUrl(url)
+    }
+  }
+
   return (
-    <div>
-      <TextAreaField label="URL / source" value={value} onChangeByValue={setValue} />
-      {error && (
-        <div
-          className={css`
-            margin: 1rem;
-          `}
-        >
-          <ErrorBanner variant="readOnly" error={error} />
-        </div>
-      )}
-      <Button
-        variant="primary"
-        size="medium"
-        onClick={() => {
-          setError(null)
-          const input = value.trim()
-          let url: string | null = null
-          try {
-            // oxlint-disable-next-line no-new -- validates input; throws on invalid URLs, caught below
-            new URL(input)
-            url = input
-          } catch (_e) {
-            const parser = new DOMParser()
-
-            const htmlDoc = parser.parseFromString(input, "text/html")
-
-            const iframe = htmlDoc.querySelector("iframe")
-            if (iframe) {
-              try {
-                // oxlint-disable-next-line no-new -- validates iframe.src; throws on invalid URLs, caught below
-                new URL(iframe.src)
-                url = iframe.src
-              } catch (_e2) {
-                // NOP
-              }
+    <form onSubmit={handleSubmit(onParse)}>
+      <TextArea
+        name="source"
+        control={control}
+        label={t("label-url-or-source")}
+        rules={{
+          validate: (value) => {
+            const url = parseIframeSourceUrl(value)
+            if (url === null) {
+              return t("error-parsing-failed")
             }
-          }
-          if (url !== null) {
-            if (URLS_BETTER_HANDLED_BY_THE_EMBED_BLOCK.some((u) => url?.includes(u))) {
-              setError("Please use the embed block instead.")
-              return
+            if (URLS_BETTER_HANDLED_BY_THE_EMBED_BLOCK.some((domain) => url.includes(domain))) {
+              return t("error-use-embed-block-instead")
             }
-            setUrl(url)
-          } else {
-            setError("Parsing failed.")
-          }
+            return true
+          },
         }}
-      >
-        Parse
+      />
+      <Button variant="primary" size="medium" type="submit">
+        {t("parse")}
       </Button>
-    </div>
+    </form>
   )
 }
 

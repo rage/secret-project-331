@@ -4,6 +4,8 @@
 
 # Enums
 'activity_progress' = "crate::exercises::ActivityProgress"
+'answer_kind' = "crate::exercise_task_submissions::AnswerKind"
+'answer_upload_origin' = "crate::exercise_answer_uploads::AnswerUploadOrigin"
 'application_task' = "crate::application_task_default_language_models::ApplicationTask"
 'application_type' = "crate::oauth_client::ApplicationType"
 'certificate_paper_size' = "crate::certificate_configurations::PaperSize"

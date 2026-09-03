@@ -486,6 +486,8 @@ pub async fn get_course_material_exercise(
     user_id: Option<Uuid>,
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseMaterialExercise> {
     let mut exercise = get_by_id(conn, exercise_id).await?;
     if exercise.deadline.is_none()
@@ -494,8 +496,15 @@ pub async fn get_course_material_exercise(
         let chapter = crate::chapters::get_chapter(conn, chapter_id).await?;
         exercise.deadline = chapter.deadline;
     }
-    let (current_exercise_slide, instance_or_exam_id) =
-        get_or_select_exercise_slide(&mut *conn, user_id, &exercise, fetch_service_info).await?;
+    let (current_exercise_slide, instance_or_exam_id) = get_or_select_exercise_slide(
+        &mut *conn,
+        user_id,
+        &exercise,
+        fetch_service_info,
+        file_store,
+        app_conf,
+    )
+    .await?;
     info!(
         "Current exercise slide id: {:#?}",
         current_exercise_slide.id
@@ -654,6 +663,8 @@ pub async fn get_or_select_exercise_slide(
     user_id: Option<Uuid>,
     exercise: &Exercise,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<(CourseMaterialExerciseSlide, Option<CourseOrExamId>)> {
     match (user_id, exercise.course_id, exercise.exam_id) {
         (None, ..) => {
@@ -665,6 +676,8 @@ pub async fn get_or_select_exercise_slide(
                 random_slide.id,
                 None,
                 fetch_service_info,
+                file_store,
+                app_conf,
             )
             .await?;
             Ok((
@@ -692,6 +705,8 @@ pub async fn get_or_select_exercise_slide(
                             exercise.id,
                             course_or_exam_id,
                             fetch_service_info,
+                            file_store,
+                            app_conf,
                         )
                         .await?;
                     Ok((tasks, Some(CourseOrExamId::Course(course_id))))
@@ -706,6 +721,8 @@ pub async fn get_or_select_exercise_slide(
                             exercise.id,
                             course_id,
                             &fetch_service_info,
+                            file_store,
+                            app_conf,
                         )
                         .await?;
                     if let Some(exercise_tasks) = exercise_tasks {
@@ -722,6 +739,8 @@ pub async fn get_or_select_exercise_slide(
                             random_slide.id,
                             Some(user_id),
                             &fetch_service_info,
+                            file_store,
+                            app_conf,
                         )
                         .await?;
 
@@ -754,6 +773,8 @@ pub async fn get_or_select_exercise_slide(
                 exercise.id,
                 CourseOrExamId::Exam(exam_id),
                 fetch_service_info,
+                file_store,
+                app_conf,
             )
             .await?;
             info!("selecting exam task {:#?}", tasks);
@@ -1455,6 +1476,51 @@ WHERE user_id = $1
     Ok(successful_resets)
 }
 
+/// Sets the exercise's own deadline, or clears it with `None`.
+///
+/// Clearing does not necessarily leave the exercise open: an exercise without a deadline inherits
+/// its chapter's, which [`get_course_material_exercise`] resolves.
+pub async fn set_deadline(
+    conn: &mut PgConnection,
+    id: Uuid,
+    deadline: Option<DateTime<Utc>>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE exercises SET deadline = $2 WHERE id = $1",
+        id,
+        deadline
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Sets how many tries an exercise allows per slide.
+///
+/// `max_tries_per_slide` is enforced only while `limit_number_of_tries` is set; otherwise it just
+/// remembers what the teacher last typed, so clearing the flag does not discard the number.
+pub async fn set_try_limit(
+    conn: &mut PgConnection,
+    id: Uuid,
+    limit_number_of_tries: bool,
+    max_tries_per_slide: Option<i32>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exercises
+SET limit_number_of_tries = $2,
+  max_tries_per_slide = $3
+WHERE id = $1
+",
+        id,
+        limit_number_of_tries,
+        max_tries_per_slide
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -1494,8 +1560,8 @@ mod test {
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
                 has_custom_view: false,
-                build_user_answer_endpoint_path: None,
-                answer_files_endpoint_path: None,
+                supports_native_client: false,
+                produces_file_answers: false,
             },
         )
         .await
@@ -1544,6 +1610,8 @@ mod test {
             Some(user_id),
             exercise_id,
             |_| unimplemented!(),
+            &init_file_store(),
+            &init_app_conf().expect("Application Configuration initialization failed"),
         )
         .await
         .unwrap();
@@ -1625,6 +1693,8 @@ mod test {
             Some(user_id),
             exercise_id,
             |_| unimplemented!(),
+            &init_file_store(),
+            &init_app_conf().expect("Application Configuration initialization failed"),
         )
         .await
         .unwrap();

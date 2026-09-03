@@ -12,8 +12,10 @@ use futures::{
 use headless_lms_models::{
     HttpErrorType, ModelError, ModelErrorType, ModelResult,
     exercise_service_info::ExerciseServiceInfoApi,
-    exercise_task_gradings::{ExerciseTaskGradingRequest, ExerciseTaskGradingResult},
-    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_task_gradings::{
+        ExerciseTaskGradingRequest, ExerciseTaskGradingResult, GradingRequestFile,
+    },
+    exercise_task_submissions::{AnswerFile as SubmittedAnswerFile, ExerciseTaskSubmission},
     exercise_tasks::ExerciseTask,
 };
 use secrecy::{ExposeSecret, SecretString};
@@ -32,6 +34,8 @@ use super::error::{ControllerError, ControllerErrorType};
 const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 pub const PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM: &str = "playground-grading-callback-claim";
+/// Query parameter carrying a [`DownloadClaim`]; the claimed-file route repeats it in a rename.
+pub const DOWNLOAD_CLAIM_PARAM: &str = "download-claim";
 
 /// A type for caching the spec fetching (only for the seed)
 type SpecCache = HashMap<(String, String, Option<String>), serde_json::Value>;
@@ -84,13 +88,7 @@ impl UploadClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_hs256_claim(token, key).map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                format!("Invalid jwt key: {}", err),
-                Some(err.into()),
-            )
-        })
+        validate_claim(token, key)
     }
 }
 
@@ -134,6 +132,45 @@ impl FromRequest for UploadClaim {
     }
 }
 
+/// Authorizes the bearer to read one specific host-stored file for a while.
+///
+/// Minted by the host when it hands a file-typed answer to an exercise service's grade endpoint, so
+/// the service fetches a URL the host chose rather than one a student supplied. The read-side mirror
+/// of [`UploadClaim`]; unlike it, this claim names a single file rather than a namespace, so a
+/// holder cannot reach any other file.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DownloadClaim {
+    file_upload_id: Uuid,
+    exp: usize,
+    iat: usize,
+}
+
+impl DownloadClaim {
+    pub fn file_upload_id(&self) -> Uuid {
+        self.file_upload_id
+    }
+
+    /// A day, not the grading request's 120 s: a service may finish asynchronously through
+    /// `grading_update_url` long after the request returns.
+    pub fn expiring_in_1_day(file_upload_id: Uuid) -> Self {
+        let now = Utc::now().timestamp().max(0) as usize;
+        let exp = (Utc::now().timestamp() + Duration::days(1).num_seconds()).max(0) as usize;
+        Self {
+            file_upload_id,
+            exp,
+            iat: now,
+        }
+    }
+
+    pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
+        sign_hs256_claim(&self, key)
+    }
+
+    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
+        validate_claim(token, key)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GradingUpdateClaim {
     submission_id: Uuid,
@@ -161,13 +198,7 @@ impl GradingUpdateClaim {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_hs256_claim(token, key).map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                format!("Invalid jwt key: {}", err),
-                Some(err.into()),
-            )
-        })
+        validate_claim(token, key)
     }
 }
 
@@ -292,163 +323,6 @@ pub struct SpecRequest<'a> {
 #[derive(Debug, Serialize)]
 pub struct ExerciseServiceCsvExportRequest<'a, T: Serialize> {
     pub items: &'a [T],
-}
-
-/// A file the host stored for a client, as an exercise service sees it.
-#[derive(Debug, Serialize)]
-pub struct UploadedFileRef {
-    pub id: Uuid,
-    pub name: String,
-    pub url: String,
-}
-
-/// Asks an exercise service to turn host-stored files into its own `UserAnswer`. Sent to the
-/// service's `build_user_answer_endpoint_path`.
-#[derive(Debug, Serialize)]
-pub struct BuildUserAnswerRequest<'a> {
-    pub request_id: Uuid,
-    /// The task's public spec, so the service can shape the answer to the exercise.
-    pub public_spec: Option<&'a serde_json::Value>,
-    pub uploaded_files: Vec<UploadedFileRef>,
-}
-
-/// The service's answer. Opaque to the host, which only stores and forwards it.
-#[derive(Debug, Deserialize)]
-pub struct BuildUserAnswerResponse {
-    pub answer: serde_json::Value,
-}
-
-/// Timeout for the build-user-answer hop. Deliberately far shorter than the 120 s spec and CSV
-/// timeouts: this one sits inside a user's submit request, and no host-side fallback exists — a
-/// fallback would mean the host guessing the service's answer shape, which is the coupling this
-/// endpoint removes.
-const BUILD_USER_ANSWER_TIMEOUT_SECS: u64 = 10;
-
-/// Posts `body` to an exercise service and parses its JSON response, wrapping an unsuccessful
-/// status in a `ModelError::HttpRequest`. `log_phrase` fills "...while {log_phrase}" in the log
-/// line, and `error_verb_phrase` fills "{error_verb_phrase} failed with status: ..." in the error.
-async fn post_exercise_service_json<Req, Resp>(
-    url: Url,
-    timeout: std::time::Duration,
-    body: &Req,
-    log_phrase: &str,
-    error_verb_phrase: &str,
-) -> ModelResult<Resp>
-where
-    Req: Serialize,
-    Resp: serde::de::DeserializeOwned,
-{
-    let client = reqwest::Client::new();
-    let response = client
-        .post(url.clone())
-        .timeout(timeout)
-        .json(body)
-        .send()
-        .await
-        .map_err(ModelError::from)?;
-
-    let status = response.status();
-    if !status.is_success() {
-        let status_code = status.as_u16();
-        let response_body = response.text().await.unwrap_or_default();
-        error!(
-            ?url,
-            ?response_body,
-            status_code = %status_code,
-            "Exercise service returned an unsuccessful status code while {}",
-            log_phrase
-        );
-        return Err(ModelError::new(
-            ModelErrorType::HttpRequest {
-                status_code,
-                response_body: response_body.clone(),
-            },
-            format!(
-                "{error_verb_phrase} failed with status: {status_code} response: {response_body}"
-            ),
-            None,
-        ));
-    }
-
-    parse_response_json(response).await
-}
-
-/// Asks the exercise service at `url` to build a `UserAnswer` from the given uploaded files.
-pub async fn post_build_user_answer_request(
-    url: Url,
-    public_spec: Option<&serde_json::Value>,
-    uploaded_files: Vec<UploadedFileRef>,
-) -> ModelResult<serde_json::Value> {
-    let response: BuildUserAnswerResponse = post_exercise_service_json(
-        url,
-        std::time::Duration::from_secs(BUILD_USER_ANSWER_TIMEOUT_SECS),
-        &BuildUserAnswerRequest {
-            request_id: Uuid::new_v4(),
-            public_spec,
-            uploaded_files,
-        },
-        "building a user answer",
-        "Building the user answer",
-    )
-    .await?;
-    Ok(response.answer)
-}
-
-/// Asks an exercise service which files one of its answers consists of. Sent to the service's
-/// `answer_files_endpoint_path`.
-#[derive(Debug, Serialize)]
-pub struct AnswerFilesRequest<'a> {
-    pub request_id: Uuid,
-    /// The task's public spec, so the service can name the files the way the exercise defines them.
-    pub public_spec: Option<&'a serde_json::Value>,
-    /// The answer to enumerate. Opaque to the host; only the service reads it.
-    pub answer: &'a serde_json::Value,
-}
-
-/// One file of an answer, as the service reports it.
-#[derive(Debug, Deserialize)]
-pub struct AnswerFile {
-    /// The file's name as the student sees it, e.g. `src/main.rs`.
-    pub name: String,
-    /// The file's bytes, base64-encoded, because an answer's files need not be text.
-    pub data: String,
-    /// Defaults to `application/octet-stream`, which is also what the client upload path records
-    /// for a part whose multipart headers name no type.
-    #[serde(default)]
-    pub mime: Option<String>,
-}
-
-/// The service's listing of an answer's files, for the host to download and store.
-#[derive(Debug, Deserialize)]
-pub struct AnswerFilesResponse {
-    /// In the order the student's files should be restored in; the host records it verbatim.
-    pub files: Vec<AnswerFile>,
-}
-
-/// Timeout for the answer-files hop. Longer than the build-user-answer hop's 10 s because a service
-/// may have to pack the answer's files into an archive to report them, which the build direction
-/// never does. Still well inside a user's submit request, and there is no host-side fallback.
-const ANSWER_FILES_TIMEOUT_SECS: u64 = 30;
-
-/// Asks the exercise service at `url` which files the given answer consists of.
-pub async fn post_answer_files_request(
-    url: Url,
-    public_spec: Option<&serde_json::Value>,
-    answer: &serde_json::Value,
-) -> ModelResult<Vec<AnswerFile>> {
-    let response: AnswerFilesResponse = post_exercise_service_json(
-        url,
-        std::time::Duration::from_secs(ANSWER_FILES_TIMEOUT_SECS),
-        &AnswerFilesRequest {
-            request_id: Uuid::new_v4(),
-            public_spec,
-            answer,
-        },
-        "listing an answer's files",
-        "Listing the answer's files",
-    )
-    .await?;
-    Ok(response.files)
 }
 
 /// Column definition for exercise service CSV export; callers must use scalar-only cell values.
@@ -582,8 +456,47 @@ fn fetch_service_info_with_timeout(
     .boxed()
 }
 
+/// The grading request's file list for a submission's answer: its files in answer order, empty for
+/// an answer that has none.
+///
+/// Mints a single-file download claim per file, so the service fetches a URL the host chose rather
+/// than one a student supplied.
+fn grading_request_files(
+    files: Option<&[SubmittedAnswerFile]>,
+    base_url: &str,
+    jwt_key: &JwtKey,
+) -> Result<Vec<GradingRequestFile>, jsonwebtoken::errors::Error> {
+    let Some(files) = files else {
+        return Ok(Vec::new());
+    };
+    let mut ordered: Vec<&SubmittedAnswerFile> = files.iter().collect();
+    ordered.sort_by_key(|file| file.order_number);
+    ordered
+        .into_iter()
+        .map(|file| {
+            let claim = DownloadClaim::expiring_in_1_day(file.id).sign(jwt_key)?;
+            Ok(GradingRequestFile {
+                id: file.id,
+                name: file.name.clone(),
+                mime: file.mime.clone(),
+                size_bytes: file.size_bytes,
+                download_url: format!(
+                    "{base_url}/api/v0/files/claimed/{}?{DOWNLOAD_CLAIM_PARAM}={claim}",
+                    file.id
+                ),
+            })
+        })
+        .collect()
+}
+
+/// Sends a submission to an exercise service for grading, with the claims the service needs to
+/// report back and to read a file-typed answer's files.
+///
+/// `base_url` is the host's own public base url, so both the callback and the file urls point at a
+/// host the service can reach.
 pub fn make_grading_request_sender(
     jwt_key: Arc<JwtKey>,
+    base_url: String,
 ) -> impl Fn(
     Url,
     &ExerciseTask,
@@ -591,11 +504,24 @@ pub fn make_grading_request_sender(
 ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>> {
     move |grade_url, exercise_task, submission| {
         let client = reqwest::Client::new();
-        // TODO: use real url
         let grading_update_url = format!(
-            "http://project-331.local/api/v0/exercise-services/grading/grading-update/{}",
+            "{base_url}/api/v0/exercise-services/grading/grading-update/{}",
             submission.id
         );
+        let submission_files =
+            match grading_request_files(submission.data_files.as_deref(), &base_url, &jwt_key) {
+                Ok(files) => files,
+                Err(err) => {
+                    return async move {
+                        Err(ModelError::new(
+                            ModelErrorType::Generic,
+                            format!("Failed to sign download claim: {err}"),
+                            Some(err.into()),
+                        ))
+                    }
+                    .boxed();
+                }
+            };
         let grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);
         let signed_grading_update_claim = match grading_update_claim.sign(&jwt_key) {
             Ok(claim) => claim,
@@ -620,7 +546,8 @@ pub fn make_grading_request_sender(
             .json(&ExerciseTaskGradingRequest {
                 grading_update_url: &grading_update_url,
                 exercise_spec: &exercise_task.private_spec,
-                submission_data: &submission.data_json,
+                submission_data: submission.data_json.as_ref(),
+                submission_files: &submission_files,
             });
         async move {
             let res = req.send().await.map_err(ModelError::from)?;
@@ -741,6 +668,18 @@ fn sign_hs256_claim<T: serde::Serialize>(
         claim,
         &EncodingKey::from_secret(&key.0),
     )
+}
+
+/// Decodes a claim, reporting a bad token as a request error rather than a JWT one.
+///
+/// [`validate_hs256_claim`] is the raw form that leaves the `jsonwebtoken` error unmapped, for the
+/// claims that report it differently.
+fn validate_claim<T: serde::de::DeserializeOwned>(
+    token: &str,
+    key: &JwtKey,
+) -> Result<T, ControllerError> {
+    validate_hs256_claim(token, key)
+        .map_err(|err| controller_err!(BadRequest, format!("Invalid jwt key: {}", err), err))
 }
 
 /// Decodes and verifies an HS256 token into the requested claim type.
@@ -868,6 +807,116 @@ mod tests {
 
     fn future_timestamp(seconds_ahead: i64) -> i64 {
         (Utc::now() + Duration::seconds(seconds_ahead)).timestamp()
+    }
+
+    fn answer_file(
+        id: Uuid,
+        name: &str,
+        order_number: i32,
+        size_bytes: Option<i64>,
+    ) -> SubmittedAnswerFile {
+        SubmittedAnswerFile {
+            id,
+            name: name.to_string(),
+            mime: "application/octet-stream".to_string(),
+            size_bytes,
+            order_number,
+            url: format!("http://project-331.local/api/v0/files/tmc/{name}"),
+        }
+    }
+
+    #[test]
+    fn download_claim_round_trips() {
+        let key = JwtKey::test_key();
+        let file_upload_id = Uuid::new_v4();
+        let token = DownloadClaim::expiring_in_1_day(file_upload_id)
+            .sign(&key)
+            .expect("signing should succeed");
+        let claim = DownloadClaim::validate(&token, &key).expect("the claim should validate");
+        assert_eq!(claim.file_upload_id(), file_upload_id);
+    }
+
+    /// A grading request's claims outlive the request itself, but not by more than a day.
+    #[test]
+    fn download_claim_expires_in_a_day() {
+        let claim = DownloadClaim::expiring_in_1_day(Uuid::new_v4());
+        let lifetime = claim.exp as i64 - claim.iat as i64;
+        assert_eq!(lifetime, Duration::days(1).num_seconds());
+    }
+
+    #[test]
+    fn expired_download_claim_is_rejected() {
+        let key = JwtKey::test_key();
+        let token = sign_json(
+            json!({
+                "file_upload_id": Uuid::new_v4(),
+                "exp": past_timestamp(3600),
+                "iat": past_timestamp(7200),
+            }),
+            &key,
+        );
+        DownloadClaim::validate(&token, &key).expect_err("an expired claim must be rejected");
+    }
+
+    #[test]
+    fn download_claim_signed_with_another_key_is_rejected() {
+        let token = DownloadClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&other_key())
+            .expect("signing should succeed");
+        DownloadClaim::validate(&token, &JwtKey::test_key())
+            .expect_err("a claim signed with another key must be rejected");
+    }
+
+    /// A downstream grader grades by position, so the request must list the files in the order the
+    /// answer records, whatever order they were resolved in.
+    #[test]
+    fn grading_request_files_are_in_answer_order_with_a_claim_for_each_file() {
+        let key = JwtKey::test_key();
+        let first = Uuid::new_v4();
+        let second = Uuid::new_v4();
+        let answer_files = vec![
+            answer_file(second, "b.txt", 1, None),
+            answer_file(first, "a.tar.zst", 0, Some(12)),
+        ];
+
+        let files = grading_request_files(Some(&answer_files), "http://project-331.local", &key)
+            .expect("the files should be built");
+
+        assert_eq!(
+            files.iter().map(|file| file.id).collect::<Vec<_>>(),
+            vec![first, second]
+        );
+        assert_eq!(files[0].size_bytes, Some(12));
+        assert_eq!(
+            files[1].size_bytes, None,
+            "an unknown size must not become a zero"
+        );
+        for (file, id) in files.iter().zip([first, second]) {
+            let (path, query) = file
+                .download_url
+                .strip_prefix("http://project-331.local/api/v0/files/claimed/")
+                .expect("a claimed-file url")
+                .split_once('?')
+                .expect("a claim in the query string");
+            assert_eq!(path, id.to_string());
+            let token = query
+                .strip_prefix(&format!("{DOWNLOAD_CLAIM_PARAM}="))
+                .expect("the claim parameter");
+            let claim = DownloadClaim::validate(token, &key).expect("the claim should validate");
+            assert_eq!(claim.file_upload_id(), id);
+        }
+    }
+
+    /// A JSON answer names no files at all, which reaches the request builder as `None`.
+    #[test]
+    fn a_json_answer_has_no_grading_request_files() {
+        let key = JwtKey::test_key();
+
+        assert!(
+            grading_request_files(None, "http://project-331.local", &key)
+                .expect("the files should be built")
+                .is_empty()
+        );
     }
 
     #[test]
@@ -1088,77 +1137,5 @@ mod tests {
         let err = extract_grading_update_claim(req, payload)
             .expect_err("a non-JWT claim header must be rejected");
         assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
-    }
-
-    /// The exercise service sees only this JSON, so its shape is a contract. In particular the
-    /// host sends no answer of its own: `uploaded_files` plus the public spec is all a service
-    /// gets, and whatever it returns under `answer` is stored verbatim.
-    #[test]
-    fn build_user_answer_request_serializes_to_the_documented_shape() {
-        let request_id = Uuid::new_v4();
-        let file_id = Uuid::new_v4();
-        let public_spec = json!({ "type": "editor" });
-        let value = serde_json::to_value(BuildUserAnswerRequest {
-            request_id,
-            public_spec: Some(&public_spec),
-            uploaded_files: vec![UploadedFileRef {
-                id: file_id,
-                name: "submission.tar.zst".to_string(),
-                url: "http://project-331.local/api/v0/files/tmc/abc".to_string(),
-            }],
-        })
-        .expect("serializes");
-        assert_eq!(
-            value,
-            json!({
-                "request_id": request_id,
-                "public_spec": { "type": "editor" },
-                "uploaded_files": [{
-                    "id": file_id,
-                    "name": "submission.tar.zst",
-                    "url": "http://project-331.local/api/v0/files/tmc/abc",
-                }],
-            })
-        );
-    }
-
-    /// A task with no public spec must still produce a valid request, and a service whose answer
-    /// needs no files must be reachable with an empty list.
-    #[test]
-    fn build_user_answer_request_allows_no_public_spec_and_no_files() {
-        let value = serde_json::to_value(BuildUserAnswerRequest {
-            request_id: Uuid::nil(),
-            public_spec: None,
-            uploaded_files: Vec::new(),
-        })
-        .expect("serializes");
-        assert_eq!(value["public_spec"], json!(null));
-        assert_eq!(value["uploaded_files"], json!([]));
-    }
-
-    /// The answer is opaque: any JSON value a service returns must round-trip untouched.
-    #[test]
-    fn build_user_answer_response_keeps_the_answer_opaque() {
-        for answer in [
-            json!({ "type": "editor", "archive_file_id": "x", "archive_download_url": "u" }),
-            json!({ "some": { "nested": ["shape", 1, true] } }),
-            json!("a bare string"),
-        ] {
-            let parsed: BuildUserAnswerResponse =
-                serde_json::from_value(json!({ "answer": answer.clone() })).expect("deserializes");
-            assert_eq!(parsed.answer, answer);
-        }
-    }
-
-    /// A service that answers 200 with the wrong body must fail rather than have the host invent
-    /// an answer, which is exactly the coupling this endpoint exists to remove.
-    #[test]
-    fn build_user_answer_response_rejects_a_body_without_an_answer() {
-        assert!(
-            serde_json::from_value::<BuildUserAnswerResponse>(json!({ "result": "editor" }))
-                .is_err()
-        );
-        assert!(serde_json::from_value::<BuildUserAnswerResponse>(json!({})).is_err());
-        assert!(serde_json::from_value::<BuildUserAnswerResponse>(json!([])).is_err());
     }
 }

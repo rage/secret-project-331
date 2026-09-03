@@ -19,6 +19,35 @@ export const zActivityProgress = z.enum([
   "Completed",
 ])
 
+/**
+ * One host-stored file that an answer consists of.
+ */
+export const zAnswerFile = z.object({
+  id: z.uuid(),
+  mime: z.string(),
+  name: z.string(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  size_bytes: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    })
+    .nullish(),
+  url: z.string(),
+})
+
+/**
+ * Which of a submission's two answer representations is the answer: the opaque blob in
+ * `data_json`, or the rows in `exercise_task_submission_files`.
+ */
+export const zAnswerKind = z.enum(["json", "file"])
+
 export const zChapterLockingStatus = z.enum([
   "unlocked",
   "completed_and_locked",
@@ -395,7 +424,9 @@ export const zCustomViewExerciseTaskSpec = z.object({
 })
 
 export const zCustomViewExerciseTaskSubmission = z.object({
+  answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
+  data_files: z.array(zAnswerFile).nullish(),
   data_json: z.unknown().optional(),
   exercise_slide_id: z.uuid(),
   exercise_slide_submission_id: z.uuid(),
@@ -466,7 +497,9 @@ export const zExercise = z.object({
 })
 
 export const zExerciseTaskSubmission = z.object({
+  answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
+  data_files: z.array(zAnswerFile).nullish(),
   data_json: z.unknown().optional(),
   deleted_at: z.iso.datetime().nullish(),
   exercise_slide_id: z.uuid(),
@@ -994,7 +1027,9 @@ export const zStudentCountry = z.object({
 })
 
 export const zStudentExerciseTaskSubmission = z.object({
-  data_json: z.unknown(),
+  answer_kind: zAnswerKind.nullish(),
+  data_files: z.array(z.uuid()).nullish(),
+  data_json: z.unknown().optional(),
   exercise_task_id: z.uuid(),
 })
 

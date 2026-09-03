@@ -536,8 +536,47 @@ export type AnalysisWorkspaceV1 = {
   wishes_topics?: string | null
 }
 
+/**
+ * One host-stored file that an answer consists of.
+ */
+export type AnswerFile = {
+  id: string
+  mime: string
+  /**
+   * The name the file was uploaded under. Not necessarily what a viewer should be shown -- a
+   * plugin that anonymizes filenames keeps its display name in `AnswerData::File::metadata`.
+   */
+  name: string
+  order_number: number
+  /**
+   * `None` for a file stored before the size was recorded. Omitted from the serialized form
+   * rather than nulled: the exercise service protocol's `size_bytes` is optional, not nullable,
+   * and its generated guard rejects a null.
+   */
+  size_bytes?: number | null
+  /**
+   * Capability download URL, minted at read time from the file's path. Never persisted.
+   */
+  url: string
+}
+
+/**
+ * Which of a submission's two answer representations is the answer: the opaque blob in
+ * `data_json`, or the rows in `exercise_task_submission_files`.
+ */
+export type AnswerKind = "json" | "file"
+
 export type AnswerRequiringAttentionWithTasks = {
+  answer_kind: AnswerKind
   created_at: string
+  /**
+   * The files the answer consists of, in grading order. Omitted when it has none.
+   */
+  data_files?: Array<AnswerFile> | null
+  /**
+   * The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+   * files for a `file` one.
+   */
   data_json?: unknown
   deleted_at?: string | null
   exercise_id: string
@@ -2745,6 +2784,7 @@ export type ExerciseCsvExportTaskOption = {
   exercise_task_id: string
   exercise_type: string
   order_number: number
+  produces_file_answers: boolean
   supports_csv_export_answers: boolean
   supports_csv_export_definitions: boolean
 }
@@ -2803,6 +2843,10 @@ export type ExerciseServiceNewOrUpdate = {
   slug: string
 }
 
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
 export type ExerciseServiceUploadResultEntry = {
   id: string
   url: string
@@ -2929,7 +2973,16 @@ export type ExerciseTaskGradingResult = {
 }
 
 export type ExerciseTaskSubmission = {
+  answer_kind: AnswerKind
   created_at: string
+  /**
+   * The files the answer consists of, in grading order. Omitted when it has none.
+   */
+  data_files?: Array<AnswerFile> | null
+  /**
+   * The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
+   * files for a `file` one.
+   */
   data_json?: unknown
   deleted_at?: string | null
   exercise_slide_id: string
@@ -4873,6 +4926,30 @@ export type VerifyEmailOwnershipPayload = {
  * indistinguishable to someone typing digits, and telling them apart only helps a guesser.
  */
 export type VerifyEmailOwnershipResult = "verified" | "already_verified" | "invalid"
+
+export type UploadFilesForExerciseAnswerData = {
+  body: {
+    [key: string]: Blob | File
+  }
+  path: {
+    /**
+     * Exercise task the files are attached to
+     */
+    exercise_task_id: string
+  }
+  query?: never
+  url: "/api/v0/files/answer-uploads/{exercise_task_id}"
+}
+
+export type UploadFilesForExerciseAnswerResponses = {
+  /**
+   * Uploaded files
+   */
+  200: Array<ExerciseServiceUploadResultEntry>
+}
+
+export type UploadFilesForExerciseAnswerResponse =
+  UploadFilesForExerciseAnswerResponses[keyof UploadFilesForExerciseAnswerResponses]
 
 export type UploadFilesFromExerciseServiceData = {
   body: {
@@ -10942,6 +11019,28 @@ export type GetExerciseCsvExportTaskOptionsResponses = {
 export type GetExerciseCsvExportTaskOptionsResponse =
   GetExerciseCsvExportTaskOptionsResponses[keyof GetExerciseCsvExportTaskOptionsResponses]
 
+export type DownloadExerciseAnswerFilesData = {
+  body?: never
+  path: {
+    /**
+     * Exercise id
+     */
+    exercise_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files"
+}
+
+export type DownloadExerciseAnswerFilesResponses = {
+  /**
+   * Zip archive of the exercise's answer files
+   */
+  200: Blob | File
+}
+
+export type DownloadExerciseAnswerFilesResponse =
+  DownloadExerciseAnswerFilesResponses[keyof DownloadExerciseAnswerFilesResponses]
+
 export type ExportExerciseAnswersCsvData = {
   body?: never
   path: {
@@ -11003,6 +11102,28 @@ export type ExportExerciseDefinitionsCsvResponses = {
 
 export type ExportExerciseDefinitionsCsvResponse =
   ExportExerciseDefinitionsCsvResponses[keyof ExportExerciseDefinitionsCsvResponses]
+
+export type ExerciseHasAnswerFilesData = {
+  body?: never
+  path: {
+    /**
+     * Exercise id
+     */
+    exercise_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercises/{exercise_id}/has-answer-files"
+}
+
+export type ExerciseHasAnswerFilesResponses = {
+  /**
+   * Whether the exercise has answer files
+   */
+  200: boolean
+}
+
+export type ExerciseHasAnswerFilesResponse =
+  ExerciseHasAnswerFilesResponses[keyof ExerciseHasAnswerFilesResponses]
 
 export type GetExerciseSubmissionsData = {
   body?: never

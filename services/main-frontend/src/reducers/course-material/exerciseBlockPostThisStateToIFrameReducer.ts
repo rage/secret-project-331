@@ -4,7 +4,11 @@ import type {
   UserCourseExerciseServiceVariable,
 } from "@/generated/course-material-api/types.generated"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
-import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
+import {
+  storedAnswerToAnswerExerciseFields,
+  storedAnswerToViewSubmissionFields,
+  exerciseTaskGradingToExerciseTaskGradingResult,
+} from "@/shared-module/common/utils/typeMappter"
 import type {
   ExerciseIframeState,
   UserVariablesMap,
@@ -74,7 +78,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
                 grading: exerciseTaskGradingToExerciseTaskGradingResult(
                   exerciseTask.previous_submission_grading,
                 ),
-                user_answer: exerciseTask.previous_submission.data_json,
+                ...storedAnswerToViewSubmissionFields(exerciseTask.previous_submission),
               },
             }
           } else if (exerciseTask.previous_submission) {
@@ -92,7 +96,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
                 grading: exerciseTaskGradingToExerciseTaskGradingResult(
                   exerciseTask.previous_submission_grading,
                 ),
-                user_answer: exerciseTask.previous_submission.data_json,
+                ...storedAnswerToViewSubmissionFields(exerciseTask.previous_submission),
               },
             }
           }
@@ -139,7 +143,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
             grading: exerciseTaskGradingToExerciseTaskGradingResult(submissionResult.grading),
             model_solution_spec: submissionResult.model_solution_spec,
             public_spec,
-            user_answer: submissionResult.submission.data_json,
+            ...storedAnswerToViewSubmissionFields(submissionResult.submission),
           },
         }
       })
@@ -163,7 +167,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
           user_variables: userVariables,
           data: {
             public_spec: exerciseTask.public_spec,
-            previous_submission: exerciseTask.previous_submission?.data_json ?? null,
+            ...storedAnswerToAnswerExerciseFields(exerciseTask.previous_submission),
           },
         }
       })

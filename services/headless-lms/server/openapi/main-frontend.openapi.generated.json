@@ -14,6 +14,57 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v0/files/answer-uploads/{exercise_task_id}": {
+      "post": {
+        "tags": ["files"],
+        "summary": "\nPOST `/api/v0/files/answer-uploads/:exercise_task_id`\nUsed to upload the files a student is attaching to an answer for the given exercise task.\n\nUnlike `POST /api/v0/files/:exercise_service_slug` this binds every stored file to the uploader and\nthe task's exercise, which is what lets a later submission verify that the answer only names files\nthe submitter uploaded for that exercise.\n\n# Returns\nAn ordered list of `file_uploads` ids and stored URLs, in the order the parts were sent.",
+        "operationId": "uploadFilesForExerciseAnswer",
+        "parameters": [
+          {
+            "name": "exercise_task_id",
+            "in": "path",
+            "description": "Exercise task the files are attached to",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "format": "binary"
+                },
+                "propertyNames": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseServiceUploadResultEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/files/{exercise_service_slug}": {
       "post": {
         "tags": ["files"],
@@ -9680,7 +9731,7 @@
     "/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options": {
       "get": {
         "tags": ["exercises"],
-        "summary": "\nGET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.",
+        "summary": "\nGET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.",
         "operationId": "getExerciseCsvExportTaskOptions",
         "parameters": [
           {
@@ -9704,6 +9755,37 @@
                   "items": {
                     "$ref": "#/components/schemas/ExerciseCsvExportTaskOption"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files": {
+      "get": {
+        "tags": ["exercises"],
+        "summary": "\nGET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.",
+        "operationId": "downloadExerciseAnswerFiles",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zip archive of the exercise's answer files",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -9804,6 +9886,37 @@
               "text/csv": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/exercises/{exercise_id}/has-answer-files": {
+      "get": {
+        "tags": ["exercises"],
+        "summary": "\nGET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.",
+        "operationId": "exerciseHasAnswerFiles",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether the exercise has answer files",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
                 }
               }
             }
@@ -15008,6 +15121,42 @@
           }
         }
       },
+      "AnswerFile": {
+        "type": "object",
+        "description": "One host-stored file that an answer consists of.",
+        "required": ["id", "name", "mime", "order_number", "url"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name the file was uploaded under. Not necessarily what a viewer should be shown -- a\nplugin that anonymizes filenames keeps its display name in `AnswerData::File::metadata`."
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size_bytes": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "`None` for a file stored before the size was recorded. Omitted from the serialized form\nrather than nulled: the exercise service protocol's `size_bytes` is optional, not nullable,\nand its generated guard rejects a null."
+          },
+          "url": {
+            "type": "string",
+            "description": "Capability download URL, minted at read time from the file's path. Never persisted."
+          }
+        }
+      },
+      "AnswerKind": {
+        "type": "string",
+        "description": "Which of a submission's two answer representations is the answer: the opaque blob in\n`data_json`, or the rows in `exercise_task_submission_files`.",
+        "enum": ["json", "file"]
+      },
       "AnswerRequiringAttentionWithTasks": {
         "type": "object",
         "required": [
@@ -15015,6 +15164,7 @@
           "user_id",
           "created_at",
           "updated_at",
+          "answer_kind",
           "grading_progress",
           "submission_id",
           "exercise_id",
@@ -15024,11 +15174,23 @@
           "received_peer_review_flagging_reports"
         ],
         "properties": {
+          "answer_kind": {
+            "$ref": "#/components/schemas/AnswerKind"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
-          "data_json": {},
+          "data_files": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/AnswerFile"
+            },
+            "description": "The files the answer consists of, in grading order. Omitted when it has none."
+          },
+          "data_json": {
+            "description": "The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the\nfiles for a `file` one."
+          },
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -20995,7 +21157,8 @@
           "exercise_type",
           "order_number",
           "supports_csv_export_definitions",
-          "supports_csv_export_answers"
+          "supports_csv_export_answers",
+          "produces_file_answers"
         ],
         "properties": {
           "exercise_task_id": {
@@ -21008,6 +21171,9 @@
           "order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "produces_file_answers": {
+            "type": "boolean"
           },
           "supports_csv_export_answers": {
             "type": "boolean"
@@ -21191,10 +21357,12 @@
       },
       "ExerciseServiceUploadResultEntry": {
         "type": "object",
+        "description": "What an upload route returns for one stored file: the `file_uploads` row id an answer names it\nby, and the URL it can be fetched from.",
         "required": ["id", "url"],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
           "url": {
             "type": "string"
@@ -21650,14 +21818,27 @@
           "updated_at",
           "exercise_slide_submission_id",
           "exercise_task_id",
-          "exercise_slide_id"
+          "exercise_slide_id",
+          "answer_kind"
         ],
         "properties": {
+          "answer_kind": {
+            "$ref": "#/components/schemas/AnswerKind"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
-          "data_json": {},
+          "data_files": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/AnswerFile"
+            },
+            "description": "The files the answer consists of, in grading order. Omitted when it has none."
+          },
+          "data_json": {
+            "description": "The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the\nfiles for a `file` one."
+          },
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"

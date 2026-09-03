@@ -300,6 +300,16 @@ export function generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem(): Priv
   return { ...emptyQuiz, items: [dropdownQuizItem] }
 }
 
+/** The grading-request envelope every generator returns, so a new protocol field lands in one place. */
+function gradingRequest<S, D>(exercise_spec: S, submission_data: D): GradingRequest<S, D> {
+  return {
+    grading_update_url: "example",
+    exercise_spec,
+    submission_data,
+    submission_files: [],
+  }
+}
+
 /**
  * Generates a grading request with a multiple-choice quiz item.
  * First few options are correct and all the rest are incorrect.
@@ -375,11 +385,7 @@ export function generateMultipleChoiceGradingRequest(
     itemAnswers: [userItemAnswer],
   }
 
-  return {
-    grading_update_url: "example",
-    exercise_spec: privateSpecQuiz,
-    submission_data: userAnswer,
-  }
+  return gradingRequest(privateSpecQuiz, userAnswer)
 }
 
 export function generateChooseNGradingRequest(
@@ -434,11 +440,7 @@ export function generateChooseNGradingRequest(
     itemAnswers: [userItemAnswer],
   }
 
-  return {
-    grading_update_url: "example",
-    exercise_spec: privateSpecQuiz,
-    submission_data: userAnswer,
-  }
+  return gradingRequest(privateSpecQuiz, userAnswer)
 }
 
 export function generateTimelineGradingRequest(
@@ -482,11 +484,7 @@ export function generateTimelineGradingRequest(
     itemAnswers: [userItemAnswer],
   }
 
-  return {
-    grading_update_url: "example",
-    exercise_spec: privateSpecQuiz,
-    submission_data: userAnswer,
-  }
+  return gradingRequest(privateSpecQuiz, userAnswer)
 }
 
 export function generateUnknownItemTypeGradingRequest() {
@@ -537,9 +535,5 @@ export function generateUnknownItemTypeGradingRequest() {
     itemAnswers: [userItemAnswer],
   } as UserAnswer
 
-  return {
-    grading_update_url: "example",
-    exercise_spec: privateSpecQuiz,
-    submission_data: userAnswer,
-  }
+  return gradingRequest(privateSpecQuiz, userAnswer)
 }

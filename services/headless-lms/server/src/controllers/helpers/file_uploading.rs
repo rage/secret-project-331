@@ -28,22 +28,21 @@ const EXERCISE_UPLOAD_MAX_FILES: usize = 10;
 const EXERCISE_UPLOAD_MAX_FILE_BYTES: u64 = 100 * 1024 * 1024;
 const EXERCISE_UPLOAD_MAX_BATCH_BYTES: u64 = 100 * 1024 * 1024;
 
+/// What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+/// by, and the URL it can be fetched from.
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct ExerciseServiceUploadResultEntry {
-    pub id: String,
+    pub id: Uuid,
     pub url: String,
 }
 
-/// One stored upload, with the host-side identity the wire result omits.
-///
-/// `entry.id` is the UUID the *caller* chose as the multipart field name, which is all the iframe
-/// protocol needs. A caller that has to reference the file later — the exercise-services client
-/// API, whose submit names uploads by id — needs the `file_uploads` row id and the original file
-/// name instead.
+/// One stored upload, with the file details the iframe's wire result omits and the client API's
+/// response carries.
 pub struct ExerciseServiceUpload {
     pub entry: ExerciseServiceUploadResultEntry,
-    pub file_upload_id: Uuid,
     pub name: String,
+    pub mime: String,
+    pub size_bytes: i64,
 }
 
 /** Tracks uploaded object paths for cleanup when the batch fails. */
@@ -51,10 +50,77 @@ pub struct ExerciseServiceUploadCleanup {
     pub path: String,
 }
 
+/// Deletes the objects an upload has already stored, unless the upload got far enough to
+/// [`disarm`](Self::disarm) it.
+///
+/// Objects reach the store before their rows are committed, so an upload that fails part way has to
+/// delete them itself; the reaper only finds objects through the rows that were never written. On
+/// the handler's own error path call [`clean_up`](Self::clean_up) and await it. The `Drop` path is
+/// the backstop for the case that has no error path at all: the client aborting the multipart body,
+/// which drops the handler future at an await point.
+pub struct UploadCleanup {
+    pub uploaded_paths: Vec<ExerciseServiceUploadCleanup>,
+    file_store: web::Data<dyn FileStore>,
+    armed: bool,
+}
+
+impl UploadCleanup {
+    pub fn new(file_store: web::Data<dyn FileStore>) -> Self {
+        Self {
+            uploaded_paths: Vec::new(),
+            file_store,
+            armed: true,
+        }
+    }
+
+    /// Deletes what has been stored so far and disarms, so the `Drop` backstop cannot delete the
+    /// same objects again.
+    pub async fn clean_up(&mut self) {
+        self.armed = false;
+        for uploaded in std::mem::take(&mut self.uploaded_paths) {
+            if let Err(delete_error) = self.file_store.delete(Path::new(&uploaded.path)).await {
+                error!(
+                    "Failed to delete file '{}' during cleanup: {delete_error}",
+                    uploaded.path
+                );
+            }
+        }
+    }
+
+    /// Call only once the uploads are recorded, with no await in between: an await would give the
+    /// runtime a chance to drop the handler and delete objects that already have rows.
+    pub fn disarm(&mut self) {
+        self.armed = false;
+    }
+}
+
+impl Drop for UploadCleanup {
+    fn drop(&mut self) {
+        if !self.armed || self.uploaded_paths.is_empty() {
+            return;
+        }
+        let uploaded_paths = std::mem::take(&mut self.uploaded_paths);
+        let file_store = self.file_store.clone();
+        // `drop` cannot await, so the deletes run detached and outlive this request.
+        actix_web::rt::spawn(async move {
+            for uploaded in uploaded_paths {
+                if let Err(delete_error) = file_store.delete(Path::new(&uploaded.path)).await {
+                    error!(
+                        "Failed to delete file '{}' during cleanup: {delete_error}",
+                        uploaded.path
+                    );
+                }
+            }
+        });
+    }
+}
+
 struct ExerciseServiceUploadMetadata {
     path: String,
     filename: String,
     mime_type: String,
+    size_bytes: i64,
+    url: String,
 }
 
 /// Processes an upload from an exercise service, an exercise iframe or a native client.
@@ -81,8 +147,7 @@ pub async fn process_exercise_service_upload(
 
 /// The parts of an upload that have reached the object store but have no database row yet.
 pub struct StreamedExerciseServiceUpload {
-    results: Vec<ExerciseServiceUploadResultEntry>,
-    metadata: Vec<ExerciseServiceUploadMetadata>,
+    parts: Vec<ExerciseServiceUploadMetadata>,
 }
 
 /// Streams every multipart part to the object store, issuing no statements at all.
@@ -98,8 +163,7 @@ pub async fn stream_exercise_service_upload(
     uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
     base_url: &str,
 ) -> Result<StreamedExerciseServiceUpload, ControllerError> {
-    let mut results = Vec::new();
-    let mut metadata = Vec::new();
+    let mut parts = Vec::new();
     let mut ids = HashSet::new();
     let batch_bytes = Arc::new(AtomicU64::new(0));
     while let Some(item) = payload.next().await {
@@ -110,7 +174,7 @@ pub async fn stream_exercise_service_upload(
                 anyhow::anyhow!("Multipart error: {}", err)
             )
         })?;
-        validate_exercise_upload_file_count(results.len())?;
+        validate_exercise_upload_file_count(parts.len())?;
         let field_name = {
             let name_ref = field.name().ok_or_else(|| {
                 controller_err!(
@@ -137,7 +201,8 @@ pub async fn stream_exercise_service_upload(
             .content_type()
             .map(ToString::to_string)
             .unwrap_or_default();
-        let (stream, stream_error) = limited_exercise_upload_stream(field, batch_bytes.clone());
+        let (stream, stream_error, uploaded_bytes) =
+            limited_exercise_upload_stream(field, batch_bytes.clone());
         let upload_result = file_store
             .upload_stream(Path::new(&path), stream, &mime_type)
             .await;
@@ -150,61 +215,74 @@ pub async fn stream_exercise_service_upload(
         }
         upload_result?;
         let url = format!("{base_url}/api/v0/files/{path}");
-        results.push(ExerciseServiceUploadResultEntry {
-            id: field_name,
-            url,
-        });
-        metadata.push(ExerciseServiceUploadMetadata {
+        parts.push(ExerciseServiceUploadMetadata {
             path,
             filename,
             mime_type,
+            size_bytes: uploaded_bytes.load(Ordering::SeqCst) as i64,
+            url,
         });
     }
-    validate_exercise_upload_not_empty(results.len())?;
-    Ok(StreamedExerciseServiceUpload { results, metadata })
+    validate_exercise_upload_not_empty(parts.len())?;
+    Ok(StreamedExerciseServiceUpload { parts })
 }
 
 /// Records the `file_uploads` rows for an already-streamed upload.
 ///
-/// Takes the caller's transaction so that a caller which has further rows to write — the
-/// exercise-services client API binds each upload to an exercise and user — lands them together
-/// with these.
+/// Takes the caller's transaction so that a caller which has further rows to write — the answer
+/// upload routes bind each upload to an exercise and user — lands them together with these.
 pub async fn record_exercise_service_upload(
     tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     streamed: StreamedExerciseServiceUpload,
     uploader: Option<Uuid>,
 ) -> Result<Vec<ExerciseServiceUpload>, ControllerError> {
-    let StreamedExerciseServiceUpload { results, metadata } = streamed;
-    let mut uploads = Vec::with_capacity(results.len());
-    for (entry, upload) in results.into_iter().zip(metadata) {
+    let StreamedExerciseServiceUpload { parts } = streamed;
+    let mut uploads = Vec::with_capacity(parts.len());
+    for part in parts {
         let file_upload_id = models::file_uploads::insert(
             tx,
-            &upload.filename,
-            &upload.path,
-            &upload.mime_type,
+            &part.filename,
+            &part.path,
+            &part.mime_type,
             uploader,
+            Some(part.size_bytes),
         )
         .await?;
         uploads.push(ExerciseServiceUpload {
-            entry,
-            file_upload_id,
-            name: upload.filename,
+            entry: ExerciseServiceUploadResultEntry {
+                id: file_upload_id,
+                url: part.url,
+            },
+            name: part.filename,
+            mime: part.mime_type,
+            size_bytes: part.size_bytes,
         });
     }
     Ok(uploads)
 }
 
-/// Returns a side channel for typed upload-limit errors because the stream yields `anyhow` errors.
-/// Callers must inspect it after `upload_stream` returns.
+/// Returns a side channel for typed upload-limit errors because the stream yields `anyhow` errors,
+/// and the running byte count of this part. Both are only meaningful once `upload_stream` has
+/// returned: the count is still climbing while the stream is being consumed.
 fn limited_exercise_upload_stream(
     field: mp::Field,
     batch_bytes: Arc<AtomicU64>,
-) -> (GenericPayload, Arc<Mutex<Option<ControllerError>>>) {
+) -> (
+    GenericPayload,
+    Arc<Mutex<Option<ControllerError>>>,
+    Arc<AtomicU64>,
+) {
     let per_file_bytes = Arc::new(AtomicU64::new(0));
     let stream_error = Arc::new(Mutex::new(None));
     let payload_stream_error = stream_error.clone();
+    let payload_per_file_bytes = per_file_bytes.clone();
     let stream = Box::pin(futures::stream::try_unfold(
-        (field, per_file_bytes, batch_bytes, payload_stream_error),
+        (
+            field,
+            payload_per_file_bytes,
+            batch_bytes,
+            payload_stream_error,
+        ),
         |(mut field, per_file_bytes, batch_bytes, stream_error)| async move {
             let Some(chunk) = field.next().await else {
                 return Ok(None);
@@ -224,7 +302,7 @@ fn limited_exercise_upload_stream(
             )))
         },
     ));
-    (stream, stream_error)
+    (stream, stream_error, per_file_bytes)
 }
 
 fn validate_exercise_upload_file_count(files_received: usize) -> Result<(), ControllerError> {
@@ -597,8 +675,8 @@ async fn upload_file_to_storage_in_existing_transaction(
     uploader: Option<Uuid>,
 ) -> Result<Uuid, ControllerError> {
     let path_string = path.to_str().context("invalid path")?.to_string();
-    let id =
-        models::file_uploads::insert(conn, file_name, &path_string, mime_type, uploader).await?;
+    let id = models::file_uploads::insert(conn, file_name, &path_string, mime_type, uploader, None)
+        .await?;
     file_store.upload_stream(path, file, mime_type).await?;
     Ok(id)
 }

@@ -7,7 +7,7 @@ pub mod credit_registrar;
 pub mod doc_file_generator;
 pub mod email_deliver;
 pub mod ended_exams_processor;
-pub mod exercise_service_client_upload_reaper;
+pub mod exercise_answer_upload_reaper;
 pub mod mailchimp_syncer;
 pub mod open_university_registration_link_fetcher;
 pub mod peer_review_updater;

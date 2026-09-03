@@ -14,17 +14,18 @@ export interface ExerciseServiceInfoApi {
   csv_export_definitions_endpoint_path?: string
   csv_export_answers_endpoint_path?: string
   /**
-   * Turns host-stored uploaded files into this service's `UserAnswer`. Declaring it is what
-   * makes the service visible to the exercise-services client API, so a service that omits it
-   * is never offered to a native (non-browser) client.
+   * Whether this service can be answered from a native (non-browser) client. Declaring it is what
+   * makes the service visible to the exercise-services client API, so a service that omits it is
+   * never offered to such a client.
    */
-  build_user_answer_endpoint_path?: string
+  supports_native_client?: boolean
   /**
-   * Enumerates the files one of this service's answers consists of. Declaring it is what makes an
-   * answer made in this service's IFrame downloadable through the exercise-services client API:
-   * such an answer names no host-stored uploads, so the host has no other way to know its files.
+   * Whether this service's answers consist of uploaded files rather than JSON. Not the
+   * native-client flag: it says nothing about which clients can answer the exercise, only what an
+   * answer to it is made of. Gates teacher-facing tooling that only makes sense for file answers,
+   * such as the answer-file archive download.
    */
-  answer_files_endpoint_path?: string
+  produces_file_answers?: boolean
 }
 
 export type GradingProgress = "Pending" | "Failed" | "FullyGraded" | "PendingManual" | "NotReady"
@@ -38,6 +39,19 @@ export interface ExerciseTaskGradingResult {
   set_user_variables?: Record<string, unknown>
 }
 
+/** One host-stored file that an answer consists of, as the host's own API returns it. */
+export interface AnswerFile {
+  id: string
+  name: string
+  mime: string
+  /** Absent for a file stored before sizes were recorded; the host cannot back-fill it. */
+  size_bytes?: number
+  /** The file's position in the answer. The order is part of the answer. */
+  order_number: number
+  /** Host download URL. Needs no authentication; do not persist it. */
+  url: string
+}
+
 export interface ExerciseTaskSubmission {
   id: string
   created_at: string
@@ -46,7 +60,14 @@ export interface ExerciseTaskSubmission {
   exercise_slide_submission_id: string
   exercise_task_id: string
   exercise_slide_id: string
+  answer_kind: "json" | "file"
+  /**
+   * The exercise service's own JSON: the whole answer for a `json` answer, the service's metadata
+   * about the files for a `file` one.
+   */
   data_json: unknown | null
+  /** The files the answer consists of. Absent when it has none. */
+  data_files?: AnswerFile[]
   exercise_task_grading_id: string | null
   metadata: unknown | null
 }

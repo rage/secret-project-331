@@ -360,6 +360,35 @@ export const zAnalysisWorkspaceV1 = z.object({
   wishes_topics: z.string().nullish(),
 })
 
+/**
+ * One host-stored file that an answer consists of.
+ */
+export const zAnswerFile = z.object({
+  id: z.uuid(),
+  mime: z.string(),
+  name: z.string(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  size_bytes: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    })
+    .nullish(),
+  url: z.string(),
+})
+
+/**
+ * Which of a submission's two answer representations is the answer: the opaque blob in
+ * `data_json`, or the rows in `exercise_task_submission_files`.
+ */
+export const zAnswerKind = z.enum(["json", "file"])
+
 export const zAuthorizedClientInfo = z.object({
   client_id: z.uuid(),
   client_name: z.string(),
@@ -2709,6 +2738,7 @@ export const zExerciseCsvExportTaskOption = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  produces_file_answers: z.boolean(),
   supports_csv_export_answers: z.boolean(),
   supports_csv_export_definitions: z.boolean(),
 })
@@ -2770,8 +2800,12 @@ export const zExerciseServiceNewOrUpdate = z.object({
   slug: z.string(),
 })
 
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
 export const zExerciseServiceUploadResultEntry = z.object({
-  id: z.string(),
+  id: z.uuid(),
   url: z.string(),
 })
 
@@ -2832,7 +2866,9 @@ export const zExerciseSlideSubmissionShare = z.object({
 })
 
 export const zExerciseTaskSubmission = z.object({
+  answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
+  data_files: z.array(zAnswerFile).nullish(),
   data_json: z.unknown().optional(),
   deleted_at: z.iso.datetime().nullish(),
   exercise_slide_id: z.uuid(),
@@ -4164,7 +4200,9 @@ export const zFlaggedAnswer = z.object({
 })
 
 export const zAnswerRequiringAttentionWithTasks = z.object({
+  answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
+  data_files: z.array(zAnswerFile).nullish(),
   data_json: z.unknown().optional(),
   deleted_at: z.iso.datetime().nullish(),
   exercise_id: z.uuid(),
@@ -5977,6 +6015,17 @@ export const zVerifyEmailOwnershipPayload = z.object({
  * indistinguishable to someone typing digits, and telling them apart only helps a guesser.
  */
 export const zVerifyEmailOwnershipResult = z.enum(["verified", "already_verified", "invalid"])
+
+export const zUploadFilesForExerciseAnswerBody = z.record(z.string(), z.string())
+
+export const zUploadFilesForExerciseAnswerPath = z.object({
+  exercise_task_id: z.uuid(),
+})
+
+/**
+ * Uploaded files
+ */
+export const zUploadFilesForExerciseAnswerResponse = z.array(zExerciseServiceUploadResultEntry)
 
 export const zUploadFilesFromExerciseServiceBody = z.record(z.string(), z.string())
 
@@ -8504,6 +8553,15 @@ export const zGetExerciseCsvExportTaskOptionsPath = z.object({
  */
 export const zGetExerciseCsvExportTaskOptionsResponse = z.array(zExerciseCsvExportTaskOption)
 
+export const zDownloadExerciseAnswerFilesPath = z.object({
+  exercise_id: z.uuid(),
+})
+
+/**
+ * Zip archive of the exercise's answer files
+ */
+export const zDownloadExerciseAnswerFilesResponse = z.string()
+
 export const zExportExerciseAnswersCsvPath = z.object({
   exercise_id: z.uuid(),
 })
@@ -8531,6 +8589,15 @@ export const zExportExerciseDefinitionsCsvQuery = z.object({
  * Exercise definitions CSV
  */
 export const zExportExerciseDefinitionsCsvResponse = z.string()
+
+export const zExerciseHasAnswerFilesPath = z.object({
+  exercise_id: z.uuid(),
+})
+
+/**
+ * Whether the exercise has answer files
+ */
+export const zExerciseHasAnswerFilesResponse = z.boolean()
 
 export const zGetExerciseSubmissionsPath = z.object({
   exercise_id: z.uuid(),

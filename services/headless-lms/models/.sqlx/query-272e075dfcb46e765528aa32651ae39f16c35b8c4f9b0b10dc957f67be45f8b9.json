@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT count(*) AS \"count!\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "272e075dfcb46e765528aa32651ae39f16c35b8c4f9b0b10dc957f67be45f8b9"
+}

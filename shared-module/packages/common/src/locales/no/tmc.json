@@ -1,4 +1,6 @@
 {
+  "answer-load-failed": "Kunne ikke åpne oppgavefilene dine. Ingenting har gått tapt; prøv igjen.",
+  "answer-save-failed": "Kunne ikke lagre svaret ditt. Arbeidet ditt er fortsatt her, men du kan ikke levere før det er lagret.",
   "are-you-sure": "Er du sikker?",
   "download-exercise": "Last ned oppgave",
   "download-submission-button": "Last ned",
@@ -19,6 +21,7 @@
   "submission-archive-download-label": "Det innsendte arkivet kan lastes ned fra følgende lenke",
   "submit": "Send inn",
   "test": "Test",
+  "try-again": "Prøv igjen",
   "upload-solution-instructions": "Last opp løsningsarkiv. Støttede arkivtyper: .tar.zst",
   "waiting-for-content": "Venter på innhold...",
   "waiting-for-port": "Laster inn side..."

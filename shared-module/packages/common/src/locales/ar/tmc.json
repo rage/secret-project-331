@@ -1,4 +1,6 @@
 {
+  "answer-load-failed": "تعذر فتح ملفات التمرين. لم يُفقد أي شيء؛ حاول مرة أخرى.",
+  "answer-save-failed": "فشل حفظ إجابتك. عملك ما زال موجودًا، لكن لا يمكنك التسليم قبل حفظه.",
   "are-you-sure": "هل أنت متأكد؟",
   "button.cancel": "إلغاء",
   "button.ok": "موافق",
@@ -35,6 +37,7 @@
   "test": "اختبار",
   "test-results": "نتائج الاختبارات",
   "tests-unavailable": "الاختبارات غير متاحة",
+  "try-again": "حاول مرة أخرى",
   "upload-solution-instructions": "رفع أرشيف الحل. أنواع الأرشيف المدعومة: .tar.zst",
   "waiting-for-content": "في انتظار المحتوى...",
   "waiting-for-input": "في انتظار المدخلات",

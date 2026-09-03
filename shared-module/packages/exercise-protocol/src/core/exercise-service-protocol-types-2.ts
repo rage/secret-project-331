@@ -8,7 +8,25 @@
 export interface GradingRequest<S = unknown, D = unknown> {
   grading_update_url: string
   exercise_spec: S
+  /** The whole answer for a JSON-typed submission; the plugin's metadata for a file-typed one. */
   submission_data: D
+  /** The answer's files, in answer order. Empty for a JSON-typed submission. */
+  submission_files: GradingRequestFile[]
+}
+
+/** One file of a file-typed answer, as an exercise service is handed it for grading. */
+export interface GradingRequestFile {
+  /** `file_uploads.id`; the same value the plugin put in `CurrentStateMessage.files`. */
+  id: string
+  name: string
+  mime: string
+  /**
+   * `null` for a file stored before the size was recorded; never a substitute zero, so a service
+   * enforcing a size limit can tell an unknown size from an empty file.
+   */
+  size_bytes: number | null
+  /** Host-minted and short-lived; do not persist it. */
+  download_url: string
 }
 
 export interface GradingResult<F = unknown> {

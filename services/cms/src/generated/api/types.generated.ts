@@ -296,6 +296,15 @@ export type ExerciseServiceIframeRenderingInfo = {
   slug: string
 }
 
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
+export type ExerciseServiceUploadResultEntry = {
+  id: string
+  url: string
+}
+
 export type GutenbergBlock = {
   attributes: {
     [key: string]: unknown
@@ -1183,3 +1192,27 @@ export type GetCmsRepositoryExercisesForCourseResponses = {
 
 export type GetCmsRepositoryExercisesForCourseResponse =
   GetCmsRepositoryExercisesForCourseResponses[keyof GetCmsRepositoryExercisesForCourseResponses]
+
+export type UploadFilesFromExerciseServiceData = {
+  body: {
+    [key: string]: Blob | File
+  }
+  path: {
+    /**
+     * Exercise service slug
+     */
+    exercise_service_slug: string
+  }
+  query?: never
+  url: "/api/v0/files/{exercise_service_slug}"
+}
+
+export type UploadFilesFromExerciseServiceResponses = {
+  /**
+   * Uploaded files
+   */
+  200: Array<ExerciseServiceUploadResultEntry>
+}
+
+export type UploadFilesFromExerciseServiceResponse =
+  UploadFilesFromExerciseServiceResponses[keyof UploadFilesFromExerciseServiceResponses]

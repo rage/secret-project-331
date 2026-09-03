@@ -10,7 +10,10 @@ import type {
   ReceivePlaygroundGradingData,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import type {
+  GradingRequest,
+  GradingRequestFile,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
 import type {
   ExerciseServiceInfoApi,
@@ -171,7 +174,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
   // Mutations
   type submitAnswerMutationParam =
     // Submits the data to the exercise service and sets the returned grading as the data
-    | { type: "submit"; data: unknown }
+    | { type: "submit"; data: unknown; files: GradingRequestFile[] }
     // Directly sets the grading received from a websocket as the mutation's data
     | { type: "fromWebsocket"; data: ExerciseTaskGradingResult }
   const submitAnswerMutation = useToastMutation<
@@ -201,6 +204,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           )}`,
           exercise_spec: args.parsedPrivateSpec.parsedPrivateSpec,
           submission_data: param.data,
+          submission_files: param.files,
         }
         args.setUserAnswer(param.data)
         const res = await fetch(

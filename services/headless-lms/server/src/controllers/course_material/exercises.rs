@@ -3,7 +3,7 @@
 use crate::{
     domain::{
         authorization::skip_authorize,
-        exercise_services::submission_files,
+        exercises::process_submission,
         models_requests::{self, GivePeerReviewClaim, JwtKey},
     },
     prelude::*,
@@ -63,11 +63,13 @@ expose the correct answers to the user.
         (status = 200, description = "Course material exercise", body = CourseMaterialExercise)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
     user: Option<AuthUser>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
@@ -76,6 +78,8 @@ async fn get_exercise(
         user_id,
         *exercise_id,
         models_requests::fetch_service_info,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await?;
 
@@ -162,12 +166,14 @@ This request will fail if the user is not in the peer review stage yet because t
         )
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_peer_review_for_exercise(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
     user: AuthUser,
     jwt_key: web::Data<JwtKey>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CourseMaterialPeerOrSelfReviewDataWithToken>> {
     let mut conn = pool.acquire().await?;
     let course_material_peer_or_self_review_data =
@@ -176,6 +182,8 @@ async fn get_peer_review_for_exercise(
             user.id,
             *exercise_id,
             models_requests::fetch_service_info,
+            file_store.as_ref(),
+            app_conf.as_ref(),
         )
         .await?;
     let token = authorize(
@@ -256,7 +264,10 @@ Content-Type: application/json
   "exercise_task_answers": [
     {
       "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
-      "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
+      "answer": {
+        "kind": "json",
+        "data": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
+      }
     }
   ]
 }
@@ -279,7 +290,7 @@ Content-Type: application/json
         )
     )
 )]
-#[instrument(skip(pool, file_store, jwt_key))]
+#[instrument(skip(pool, file_store, jwt_key, app_conf))]
 async fn post_submission(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
@@ -287,6 +298,7 @@ async fn post_submission(
     exercise_id: web::Path<Uuid>,
     payload: web::Json<StudentExerciseSlideSubmission>,
     user: AuthUser,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<StudentExerciseSlideSubmissionResult>> {
     let submission = payload.0;
     let mut conn = pool.acquire().await?;
@@ -327,13 +339,14 @@ async fn post_submission(
         Res::Exercise(exercise.id),
     )
     .await?;
-    let result = submission_files::submit_recording_answer_files(
+    let result = process_submission(
         &mut conn,
         user.id,
         exercise,
         &submission,
         jwt_key.into_inner(),
         file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await?;
     token.authorized_ok(web::Json(result))

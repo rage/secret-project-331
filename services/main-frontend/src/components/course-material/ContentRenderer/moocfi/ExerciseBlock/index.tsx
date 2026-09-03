@@ -43,10 +43,15 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+import { storedAnswerToCapturedAnswerFields } from "@/shared-module/common/utils/typeMappter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+import {
+  type CapturedExerciseTaskAnswer,
+  capturedAnswerToTaskSubmission,
+} from "@/utils/course-material/exerciseTaskAnswer"
 
 import type { BlockRendererProps } from "../.."
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
@@ -240,9 +245,7 @@ const ExerciseBlock: React.FC<
   const returnTo = useCurrentPagePathForReturnTo(
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
   )
-  const [answers, setAnswers] = useState<
-    Map<string, { valid: boolean; data: unknown; validityMessages?: string[] }>
-  >(new Map())
+  const [answers, setAnswers] = useState<Map<string, CapturedExerciseTaskAnswer>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
@@ -293,7 +296,10 @@ const ExerciseBlock: React.FC<
     const a = new Map()
     getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
       if (et.previous_submission) {
-        a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+        a.set(et.id, {
+          valid: true,
+          ...storedAnswerToCapturedAnswerFields(et.previous_submission),
+        })
       }
     })
     setAnswers(a)
@@ -374,7 +380,10 @@ const ExerciseBlock: React.FC<
         const a = new Map()
         getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
           if (et.previous_submission) {
-            a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+            a.set(et.id, {
+              valid: true,
+              ...storedAnswerToCapturedAnswerFields(et.previous_submission),
+            })
           }
         })
         setAnswers(a)
@@ -859,10 +868,8 @@ const ExerciseBlock: React.FC<
                           exercise_slide_id: courseMaterialExercise.current_exercise_slide.id,
                           exercise_task_submissions:
                             courseMaterialExercise.current_exercise_slide.exercise_tasks.map(
-                              (task) => ({
-                                exercise_task_id: task.id,
-                                data_json: answers.get(task.id)?.data,
-                              }),
+                              (task) =>
+                                capturedAnswerToTaskSubmission(task.id, answers.get(task.id)),
                             ),
                         },
                         {

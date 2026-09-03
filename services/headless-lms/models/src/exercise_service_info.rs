@@ -24,8 +24,8 @@ pub struct ExerciseServiceInfo {
     pub has_custom_view: bool,
     pub csv_export_definitions_endpoint_path: Option<String>,
     pub csv_export_answers_endpoint_path: Option<String>,
-    pub build_user_answer_endpoint_path: Option<String>,
-    pub answer_files_endpoint_path: Option<String>,
+    pub supports_native_client: bool,
+    pub produces_file_answers: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -37,8 +37,8 @@ pub struct PathInfo {
     pub model_solution_spec_endpoint_path: String,
     // #[serde(skip_serializing_if = "Option::is_none")]
     pub has_custom_view: bool,
-    pub build_user_answer_endpoint_path: Option<String>,
-    pub answer_files_endpoint_path: Option<String>,
+    pub supports_native_client: bool,
+    pub produces_file_answers: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -61,15 +61,14 @@ pub struct ExerciseServiceInfoApi {
     pub csv_export_definitions_endpoint_path: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub csv_export_answers_endpoint_path: Option<String>,
-    /// Turns host-stored uploaded files into this service's `UserAnswer`. Declaring it is
+    /// Whether the service can be answered from a native (non-browser) client. Declaring it is
     /// what makes the service visible to the exercise-services client API.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub build_user_answer_endpoint_path: Option<String>,
-    /// Enumerates the files one of this service's answers consists of. Declaring it is what makes
-    /// an answer made in this service's IFrame downloadable, since such an answer names no
-    /// host-stored uploads.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub answer_files_endpoint_path: Option<String>,
+    #[serde(default)]
+    pub supports_native_client: bool,
+    /// Whether this service's answers consist of uploaded files rather than JSON. Unrelated to
+    /// `supports_native_client`, which is about the client that answers, not the answer's shape.
+    #[serde(default)]
+    pub produces_file_answers: bool,
 }
 
 pub async fn insert(
@@ -86,8 +85,8 @@ INSERT INTO exercise_service_info (
     public_spec_endpoint_path,
     model_solution_spec_endpoint_path,
     has_custom_view,
-    build_user_answer_endpoint_path,
-    answer_files_endpoint_path
+    supports_native_client,
+    produces_file_answers
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *
@@ -98,10 +97,8 @@ RETURNING *
         exercise_service_info.public_spec_endpoint_path,
         exercise_service_info.model_solution_spec_endpoint_path,
         exercise_service_info.has_custom_view,
-        exercise_service_info
-            .build_user_answer_endpoint_path
-            .as_deref(),
-        exercise_service_info.answer_files_endpoint_path.as_deref()
+        exercise_service_info.supports_native_client,
+        exercise_service_info.produces_file_answers
     )
     .fetch_one(conn)
     .await?;
@@ -152,8 +149,8 @@ INSERT INTO exercise_service_info(
     has_custom_view,
     csv_export_definitions_endpoint_path,
     csv_export_answers_endpoint_path,
-    build_user_answer_endpoint_path,
-    answer_files_endpoint_path
+    supports_native_client,
+    produces_file_answers
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT(exercise_service_id) DO UPDATE
@@ -164,8 +161,8 @@ SET user_interface_iframe_path = $2,
   has_custom_view = $6,
   csv_export_definitions_endpoint_path = $7,
   csv_export_answers_endpoint_path = $8,
-  build_user_answer_endpoint_path = $9,
-  answer_files_endpoint_path = $10
+  supports_native_client = $9,
+  produces_file_answers = $10
 RETURNING *
     "#,
         exercise_service_id,
@@ -176,8 +173,8 @@ RETURNING *
         update.has_custom_view.unwrap_or_else(|| false),
         update.csv_export_definitions_endpoint_path.as_deref(),
         update.csv_export_answers_endpoint_path.as_deref(),
-        update.build_user_answer_endpoint_path.as_deref(),
-        update.answer_files_endpoint_path.as_deref()
+        update.supports_native_client,
+        update.produces_file_answers
     )
     .fetch_one(conn)
     .await?;
@@ -375,5 +372,77 @@ pub async fn get_course_material_service_info_by_exercise_type(
             Ok(service_info_option)
         }
         _ => Ok(None),
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::exercise_services::{ExerciseServiceNewOrUpdate, insert_exercise_service};
+    use crate::test_helper::*;
+
+    fn service_info_body(produces_file_answers: Option<bool>) -> serde_json::Value {
+        let mut body = serde_json::json!({
+            "service_name": "File answers",
+            "user_interface_iframe_path": "/iframe",
+            "grade_endpoint_path": "/grade",
+            "public_spec_endpoint_path": "/public-spec",
+            "model_solution_spec_endpoint_path": "/model-solution",
+        });
+        if let Some(declared) = produces_file_answers {
+            body["produces_file_answers"] = serde_json::json!(declared);
+        }
+        body
+    }
+
+    /// Services deployed before the field existed omit it, and their service info must still
+    /// deserialize instead of failing wholesale.
+    #[test]
+    fn a_service_info_body_declares_file_answers_or_defaults_to_not_producing_them() {
+        let omitted: ExerciseServiceInfoApi =
+            serde_json::from_value(service_info_body(None)).unwrap();
+        assert!(!omitted.produces_file_answers);
+
+        let declared: ExerciseServiceInfoApi =
+            serde_json::from_value(service_info_body(Some(true))).unwrap();
+        assert!(declared.produces_file_answers);
+    }
+
+    /// What a service declares is what the teacher UI offers an answer-file download for, and the
+    /// declaration only reaches it by being stored on the fetch hop.
+    #[tokio::test]
+    async fn a_declared_file_answer_capability_survives_the_fetch_and_store_hop() {
+        insert_data!(:tx);
+        let slug = format!("file-answers-{}", Uuid::new_v4());
+        let service = insert_exercise_service(
+            tx.as_mut(),
+            &ExerciseServiceNewOrUpdate {
+                name: slug.clone(),
+                slug: slug.clone(),
+                public_url: "http://example.com/api/service".to_string(),
+                internal_url: None,
+                max_reprocessing_submissions_at_once: 1,
+            },
+        )
+        .await
+        .unwrap();
+        let declared: ExerciseServiceInfoApi =
+            serde_json::from_value(service_info_body(Some(true))).unwrap();
+
+        let fetched = get_service_info_by_exercise_type(tx.as_mut(), &slug, |_url| {
+            let declared = declared.clone();
+            Box::pin(async move { Ok(declared) })
+        })
+        .await
+        .unwrap();
+
+        assert!(fetched.produces_file_answers);
+        assert!(
+            get_service_info(tx.as_mut(), service.id)
+                .await
+                .unwrap()
+                .produces_file_answers
+        );
+        tx.rollback().await;
     }
 }

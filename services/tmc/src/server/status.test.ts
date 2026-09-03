@@ -25,9 +25,9 @@ describe("GET /api/service-info", () => {
     expect(info.public_spec_endpoint_path.endsWith("/api/public-spec")).toBe(true)
     expect(info.model_solution_spec_endpoint_path.endsWith("/api/model-solution")).toBe(true)
     // Declaring this is what makes tmc visible to the exercise-services client API.
-    expect(info.build_user_answer_endpoint_path.endsWith("/api/build-user-answer")).toBe(true)
-    // Declaring this is what makes an IFrame-made answer downloadable.
-    expect(info.answer_files_endpoint_path.endsWith("/api/answer-files")).toBe(true)
+    expect(info.supports_native_client).toBe(true)
+    // Answers are uploaded project archives, which is what makes the answer-file export meaningful.
+    expect(info.produces_file_answers).toBe(true)
   })
 })
 

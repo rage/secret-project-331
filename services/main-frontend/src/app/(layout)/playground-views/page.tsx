@@ -33,7 +33,10 @@ import type {
   IframeViewType,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import type { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import type {
+  GradingRequest,
+  GradingRequestFile,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
 import type {
   ExerciseServiceInfoApi,
@@ -45,6 +48,8 @@ import {
   parseExerciseTaskGradingResult,
   parsePlaygroundViewsMessage,
 } from "@/utils/playgroundSchemas"
+import type { PlaygroundUploadedFiles } from "@/utils/playgroundUploadedFiles"
+import { playgroundSubmissionFiles, recordPlaygroundUploads } from "@/utils/playgroundUploadedFiles"
 
 import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
@@ -184,6 +189,7 @@ const IframeViewPlayground: React.FC = () => {
 
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
     useState<CurrentStateMessage | null>(null)
+  const [uploadedFiles, setUploadedFiles] = useState<PlaygroundUploadedFiles>({})
   // oxlint-disable-next-line i18next/no-literal-string
   const [currentView, setCurrentView] = useState<IframeViewType>("exercise-editor")
   const [submissionViewSendModelsolutionSpec, setSubmissionViewSendModelsolutionSpec] =
@@ -294,7 +300,7 @@ const IframeViewPlayground: React.FC = () => {
   const [userAnswer, setUserAnswer] = useState<unknown>(null)
   type submitAnswerMutationParam =
     // Submits the data to the exercise service and sets the returned grading as the data
-    | { type: "submit"; data: unknown }
+    | { type: "submit"; data: unknown; files: GradingRequestFile[] }
     // Directly sets the grading received from a websocket as the mutation's data
     | { type: "fromWebsocket"; data: ExerciseTaskGradingResult }
   const submitAnswerMutation = useToastMutation<
@@ -320,6 +326,7 @@ const IframeViewPlayground: React.FC = () => {
           )}`,
           exercise_spec: privateSpecParsed,
           submission_data: param.data,
+          submission_files: param.files,
         }
         setUserAnswer(param.data)
         const res = await fetch(
@@ -780,6 +787,9 @@ const IframeViewPlayground: React.FC = () => {
                     disableSandbox={disableSandbox}
                     userInformation={userInformation}
                     userAnswer={answerExerciseViewSendPreviousSubmission ? userAnswer : null}
+                    onFilesUploaded={(files, entries) =>
+                      setUploadedFiles((known) => recordPlaygroundUploads(known, files, entries))
+                    }
                   />
                   <Button
                     variant={"primary"}
@@ -796,6 +806,10 @@ const IframeViewPlayground: React.FC = () => {
                       submitAnswerMutation.mutate({
                         type: "submit",
                         data: currentStateReceivedFromIframe.data,
+                        files: playgroundSubmissionFiles(
+                          currentStateReceivedFromIframe.files,
+                          uploadedFiles,
+                        ),
                       })
                     }}
                   >

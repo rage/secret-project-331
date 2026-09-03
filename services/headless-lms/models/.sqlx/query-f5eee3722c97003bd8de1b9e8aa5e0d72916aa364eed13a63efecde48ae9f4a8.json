@@ -112,6 +112,27 @@
             "name": "exercise_slide_submission_id"
           }
         }
+      },
+      {
+        "ordinal": 10,
+        "name": "answer_kind",
+        "type_info": {
+          "Custom": {
+            "name": "answer_kind",
+            "kind": {
+              "Enum": [
+                "json",
+                "file"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "answer_kind"
+          }
+        }
       }
     ],
     "parameters": {
@@ -128,6 +149,7 @@
       true,
       true,
       true,
+      false,
       false,
       false
     ]

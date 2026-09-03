@@ -89,10 +89,8 @@ describe("POST /api/public-spec", () => {
 
 /**
  * The editor PublicSpec crosses a process and a language boundary: tmc-langs-rust deserializes it
- * into a typed struct (the same way `EditorAnswer` in
- * `services/headless-lms/server/src/domain/exercise_services/tmc_editor_answer.rs` mirrors this
- * service's `EditorUserAnswer`). Renaming or dropping a field here breaks the native client at
- * runtime with no compile-time signal on either side, so pin the exact serialized shape.
+ * into a typed struct. Renaming or dropping a field here breaks the native client at runtime with
+ * no compile-time signal on either side, so pin the exact serialized shape.
  */
 describe("POST /api/public-spec editor spec serialization", () => {
   const exercise: RepositoryExercise = {

@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT etsf.exercise_task_submission_id,\n  etsf.file_upload_id,\n  fu.name,\n  fu.path,\n  fu.mime,\n  fu.size_bytes,\n  etsf.order_number\nFROM exercise_task_submission_files AS etsf\n  JOIN file_uploads AS fu ON fu.id = etsf.file_upload_id\nWHERE etsf.exercise_task_submission_id = ANY($1)\n  AND etsf.deleted_at IS NULL\n  AND fu.deleted_at IS NULL\nORDER BY etsf.exercise_task_submission_id,\n  etsf.order_number\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_task_submission_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submission_files",
+            "name": "exercise_task_submission_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "file_upload_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submission_files",
+            "name": "file_upload_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "path"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "mime",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "mime"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "size_bytes",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "size_bytes"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "order_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submission_files",
+            "name": "order_number"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "736c0e76d4f9e28eb67f84aeddd5b51f9f61952cd52716a9ba7d40ae2c768307"
+}

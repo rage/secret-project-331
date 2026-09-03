@@ -6,6 +6,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { useContext } from "react"
 import { useController } from "react-hook-form"
 
+import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
 import type {
   ResearchForm,
   ResearchFormQuestion,
@@ -35,42 +36,44 @@ jest.mock("jotai", () => ({
   useAtomValue: (atom: string) => (atom === "mock-current-course-id-atom" ? "course-1" : null),
 }))
 
+// Function declarations so both names are fully hoisted: jest.mock() below is itself hoisted
+// above this file's other statements, and runs as soon as SelectResearchConsentForm is
+// imported, before a `const` arrow function here would be initialized.
+function QuestionCheckbox({ name, control }: { name: string; control: unknown }) {
+  // oxlint-disable-next-line typescript/no-explicit-any -- test double, real type is Control<Record<string, boolean>>
+  const { field } = useController({ name, control: control as any })
+  return (
+    <label>
+      {name}
+      <input
+        type="checkbox"
+        checked={Boolean(field.value)}
+        onChange={(e) => field.onChange(e.target.checked)}
+      />
+    </label>
+  )
+}
+
 // Mimics the real block renderer's Checkbox binding via bare useController, skipping the rest of
 // the Gutenberg content-renderer machinery.
-jest.mock("@/components/course-material/ContentRenderer", () => {
-  const { CheckboxContext } =
-    require("@/contexts/course-material/CheckboxContext") as typeof import("@/contexts/course-material/CheckboxContext")
-  const QuestionCheckbox = ({ name, control }: { name: string; control: unknown }) => {
-    // oxlint-disable-next-line typescript/no-explicit-any -- test double, real type is Control<Record<string, boolean>>
-    const { field } = useController({ name, control: control as any })
-    return (
-      <label>
-        {name}
-        <input
-          type="checkbox"
-          checked={Boolean(field.value)}
-          onChange={(e) => field.onChange(e.target.checked)}
-        />
-      </label>
-    )
+function MockContentRenderer({ data }: { data: { clientId: string }[] }) {
+  const { control } = useContext(CheckboxContext)
+  if (!control) {
+    return null
   }
-  return {
-    __esModule: true,
-    default: ({ data }: { data: { clientId: string }[] }) => {
-      const { control } = useContext(CheckboxContext)
-      if (!control) {
-        return null
-      }
-      return (
-        <>
-          {data.map((block) => (
-            <QuestionCheckbox key={block.clientId} name={block.clientId} control={control} />
-          ))}
-        </>
-      )
-    },
-  }
-})
+  return (
+    <>
+      {data.map((block) => (
+        <QuestionCheckbox key={block.clientId} name={block.clientId} control={control} />
+      ))}
+    </>
+  )
+}
+
+jest.mock("@/components/course-material/ContentRenderer", () => ({
+  __esModule: true,
+  default: MockContentRenderer,
+}))
 
 const QUESTIONS: ResearchFormQuestion[] = [
   {

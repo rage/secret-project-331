@@ -51,14 +51,16 @@ const reactAriaDisclosurePanel = css`
   visibility: visible;
   overflow: hidden;
   transition:
-    grid-template-columns 0.3s ease-in-out,
-    opacity 0.3s ease-in-out,
-    visibility 0.3s ease-in-out allow-discrete;
+    grid-template-columns 0.2s linear,
+    opacity 0.2s linear,
+    visibility 0.2s linear allow-discrete;
 
   &[aria-hidden="true"] {
     grid-template-columns: 0fr;
     opacity: 0;
     visibility: hidden;
+
+    transition: none;
   }
 `
 

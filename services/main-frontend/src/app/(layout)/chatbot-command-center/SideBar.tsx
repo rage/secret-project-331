@@ -27,9 +27,12 @@ const sideBarContainer = css`
   margin: 0;
   padding: 0;
   padding-top: 0.5rem;
-  overflow-y: auto;
   box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
   max-width: 400px;
+  // Applied when disclosure is open
+  &:has(> [data-expanded]) {
+    overflow-y: auto;
+  }
 `
 
 const SideBar: React.FC<SideBarProps> = (props) => {

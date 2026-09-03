@@ -205,21 +205,17 @@ const composerShellStyle = css`
   gap: 0.5rem;
   margin: 0 1rem;
   padding: 0.25rem 0.25rem 0.25rem 0.5rem;
-  /* gray[400] is the palest step still >= 3:1 against the field background (WCAG 1.4.11);
-     gray[300] measures 2.76:1. Matches the border the shared field picks for the same reason. */
-  border: 1.5px solid ${baseTheme.colors.gray[400]};
+  border: 1.5px solid var(--field-border-color);
   border-radius: 14px;
-  background-color: ${baseTheme.colors.clear[50]};
+  background-color: var(--field-bg);
   box-shadow: 0 1px 2px ${baseTheme.colors.gray[700]}14;
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
 
-  /* Mirrors the tokens shared fields focus with (--field-border-color-focus, --focus-ring-color);
-     restated here because packages/common has no token export the composer can import. */
   &:focus-within {
-    border-color: ${baseTheme.colors.green[500]};
-    box-shadow: 0 0 0 4px ${baseTheme.colors.green[600]}99;
+    border-color: var(--field-border-color-focus);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
   }
 `
 

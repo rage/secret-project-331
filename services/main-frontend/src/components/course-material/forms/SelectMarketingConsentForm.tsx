@@ -1,7 +1,8 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react"
+import React, { useContext, useEffect, useMemo, useRef } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -9,9 +10,8 @@ import {
   getCourseMaterialUserMarketingConsent,
 } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { LoadingRegion } from "@/shared-module/components"
+import { Checkbox, LoadingRegion } from "@/shared-module/components"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 interface SelectMarketingConsentFormProps {
@@ -28,8 +28,16 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
   onMarketingConsentChange,
 }) => {
   const { t } = useTranslation("main-frontend", { lng: dialogLanguage })
-  const [marketingConsent, setMarketingConsent] = useState(false)
-  const [emailSubscriptionConsent, setEmailSubscriptionConsent] = useState(false)
+  const { control, setValue } = useForm<{
+    marketingConsent: boolean
+    emailSubscriptionConsent: boolean
+  }>({
+    defaultValues: { marketingConsent: false, emailSubscriptionConsent: false },
+  })
+  // oxlint-disable-next-line i18next/no-literal-string
+  const marketingConsent = useWatch({ control, name: "marketingConsent" })
+  // oxlint-disable-next-line i18next/no-literal-string
+  const emailSubscriptionConsent = useWatch({ control, name: "emailSubscriptionConsent" })
   const loginStateContext = useContext(LoginStateContext)
 
   const initialMarketingConsentQuery = useQuery({
@@ -54,18 +62,6 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
     enabled: courseId !== undefined,
   })
 
-  const handleEmailSubscriptionConsentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = event.target.checked
-    onEmailSubscriptionConsentChange(isChecked)
-    setEmailSubscriptionConsent(isChecked)
-  }
-
-  const handleMarketingConsentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = event.target.checked
-    onMarketingConsentChange(isChecked)
-    setMarketingConsent(isChecked)
-  }
-
   // Initialize the saved consent values once per course. A background refetch must not re-sync them,
   // or it would silently overwrite the user's unsaved checkbox edits (and submit stale values).
   const initializedConsentCourseId = useRef<string | null>(null)
@@ -79,19 +75,23 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
     const marketing = initialMarketingConsentQuery.data?.consent ?? false
     const emailSub =
       initialMarketingConsentQuery.data?.email_subscription_in_mailchimp === "subscribed"
-    setMarketingConsent(marketing)
-    setEmailSubscriptionConsent(emailSub)
-    // Sync the parent with the saved values so it initializes correctly on (re)open.
-    onMarketingConsentChange(marketing)
-    onEmailSubscriptionConsentChange(emailSub)
+    setValue("marketingConsent", marketing)
+    setValue("emailSubscriptionConsent", emailSub)
     initializedConsentCourseId.current = courseId
   }, [
     courseId,
     initialMarketingConsentQuery.data,
     initialMarketingConsentQuery.isSuccess,
-    onMarketingConsentChange,
-    onEmailSubscriptionConsentChange,
+    setValue,
   ])
+
+  useEffect(() => {
+    onMarketingConsentChange(marketingConsent)
+  }, [marketingConsent, onMarketingConsentChange])
+
+  useEffect(() => {
+    onEmailSubscriptionConsentChange(emailSubscriptionConsent)
+  }, [emailSubscriptionConsent, onEmailSubscriptionConsentChange])
 
   const marketingConsentCheckboxText = useMemo(() => {
     if (customPrivacyPolicyCheckboxTextsQuery.isSuccess) {
@@ -139,20 +139,18 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
 
   return (
     <>
-      <CheckBox
-        label={marketingConsentCheckboxText}
-        labelIsRawHtml
-        type="checkbox"
-        checked={marketingConsent}
-        onChange={handleMarketingConsentChange}
-      ></CheckBox>
-      <CheckBox
-        label={marketingConsentPrivacyPolicyCheckboxText}
-        labelIsRawHtml
-        type="checkbox"
-        checked={emailSubscriptionConsent}
-        onChange={handleEmailSubscriptionConsentChange}
-      ></CheckBox>
+      <Checkbox
+        name="marketingConsent"
+        control={control}
+        label={<span dangerouslySetInnerHTML={{ __html: marketingConsentCheckboxText }} />}
+      />
+      <Checkbox
+        name="emailSubscriptionConsent"
+        control={control}
+        label={
+          <span dangerouslySetInnerHTML={{ __html: marketingConsentPrivacyPolicyCheckboxText }} />
+        }
+      />
     </>
   )
 }

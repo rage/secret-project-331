@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
@@ -49,7 +50,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   const courseId = useAtomValue(currentCourseIdAtom)
   const courseName = useAtomValue(materialCourseAtom)?.name
 
-  const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<Record<string, boolean>>()
+  const { control, reset, getValues } = useForm<Record<string, boolean>>()
   const getResearchFormQuestions = useQuery({
     queryKey: ["course-material-research-consent-form-questions", courseId],
     // oxlint-disable-next-line eslint/require-await -- async for the Promise<ResearchFormQuestion[]> contract
@@ -62,27 +63,22 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
     enabled: courseId !== null,
   })
 
-  // Adds all checkbox ids and false as default answer to questionIdsAndAnswers
+  // Adds all checkbox ids and false as default answer to the form
   useEffect(() => {
-    setQuestionIdsAndAnswers((prev) => {
-      let res = prev
-      if (!res) {
-        res = {}
+    const res = { ...getValues() }
+    if (usersInitialAnswers) {
+      for (const answer of usersInitialAnswers) {
+        res[answer.research_form_question_id] = answer.research_consent
       }
-      if (usersInitialAnswers) {
-        for (const answer of usersInitialAnswers) {
-          res[answer.research_form_question_id] = answer.research_consent
-        }
+    }
+    // Find out missing questions and add them to the list
+    for (const question of getResearchFormQuestions.data ?? []) {
+      if (Object.prototype.hasOwnProperty.call(res, question.id) === false) {
+        res[question.id] = false
       }
-      // Find out missing questions and add them to the list
-      for (const question of getResearchFormQuestions.data ?? []) {
-        if (Object.prototype.hasOwnProperty.call(res, question.id) === false) {
-          res[question.id] = false
-        }
-      }
-      return res
-    })
-  }, [getResearchFormQuestions.data, setQuestionIdsAndAnswers, usersInitialAnswers])
+    }
+    reset(res)
+  }, [getResearchFormQuestions.data, getValues, reset, usersInitialAnswers])
 
   const mutation = useToastMutation(
     (answer: UserAnswer) =>
@@ -103,12 +99,10 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   )
 
   const handleOnSubmit = () => {
-    if (questionIdsAndAnswers) {
-      Object.entries(questionIdsAndAnswers).forEach(([id, bol]) => {
-        const newAnswer: UserAnswer = { questionId: id, answer: bol }
-        mutation.mutate(newAnswer)
-      })
-    }
+    Object.entries(getValues()).forEach(([id, bol]) => {
+      const newAnswer: UserAnswer = { questionId: id, answer: bol }
+      mutation.mutate(newAnswer)
+    })
     onClose()
   }
   return (
@@ -130,7 +124,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
         },
       ]}
     >
-      <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
+      <CheckboxContext.Provider value={{ control }}>
         <ContentRenderer data={(researchForm.content as Block<unknown>[]) ?? []} isExam={false} />
       </CheckboxContext.Provider>
     </Dialog>

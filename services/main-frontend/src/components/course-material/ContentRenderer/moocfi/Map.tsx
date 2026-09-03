@@ -5,6 +5,7 @@ import styled from "@emotion/styled"
 import { skipToken, useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import React, { Fragment, useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -12,11 +13,10 @@ import {
   getCourseMaterialStudentCountry,
   postCourseMaterialStudentCountry,
 } from "@/generated/course-material-api/sdk.generated"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
-import { LoadingRegion } from "@/shared-module/components"
+import { LoadingRegion, Select } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
@@ -96,6 +96,9 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
 
   const [map, setMap] = useState<SVGLineElement | null>(null)
   const { t } = useTranslation()
+  const { control, handleSubmit } = useForm<{ country: string }>({
+    defaultValues: { country: countryList[90]?.value ?? "" },
+  })
 
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const pageData = useAtomValue(currentPageDataAtom)
@@ -236,14 +239,9 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     }
   }, [countryCodeCount, map, t])
 
-  const handleCountryChange = (event: React.ChangeEvent<HTMLFormElement>) => {
-    if (!event.currentTarget.country) {
-      return
-    }
-
-    const country: string = event.currentTarget.country.value.toLowerCase()
-    return uploadStudentCountry.mutate(country)
-  }
+  const handleCountryChange = handleSubmit((data) => {
+    uploadStudentCountry.mutate(data.country.toLowerCase())
+  })
 
   let studentCountryAdded = false
   let formattedCountryCodes
@@ -330,12 +328,11 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
                 }
               `}
             >
-              <SelectField
-                id={`country`}
+              <Select
+                name="country"
+                control={control}
                 label={t("label-country")}
-                onChange={() => null}
                 options={countryList}
-                defaultValue={countryList[90]?.label}
               />
               <input type="submit" value={t("submit")} />
             </StyledForm>

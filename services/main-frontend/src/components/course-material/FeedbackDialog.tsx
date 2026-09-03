@@ -5,15 +5,15 @@ import { InfoCircle } from "@vectopus/atlas-icons-react"
 import { useAtom } from "jotai"
 import React, { useId, useRef, useState } from "react"
 import { FocusScope, useDialog } from "react-aria"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { postFeedback } from "@/generated/course-material-api/sdk.generated"
 import type { FeedbackBlock } from "@/generated/course-material-api/types.generated"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Button } from "@/shared-module/components"
+import { Button, TextArea } from "@/shared-module/components"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -34,13 +34,18 @@ interface Comment {
 }
 
 const CLOSE_SYMBOL = "×"
+// oxlint-disable-next-line i18next/no-literal-string
+const COMMENT_FIELD = "comment" as const
 
 const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pageId }) => {
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection, setSelection] = useAtom(selectionAtom)
   const [comments, setComments] = useState<Comment[]>([])
-  const [comment, setComment] = useState("")
+  const { control: commentFormControl, setValue: setCommentValue } = useForm<{ comment: string }>({
+    defaultValues: { [COMMENT_FIELD]: "" },
+  })
+  const comment = useWatch({ control: commentFormControl, name: COMMENT_FIELD })
   const [error, setError] = useState<string | null>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
@@ -112,7 +117,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     }
     const selectedText = selection.text.slice(0, 10000)
     setComments((cs) => [...cs, { comment, selectedText, relatedBlocks }])
-    setComment("")
+    setCommentValue(COMMENT_FIELD, "")
     setSelection("", undefined)
   }
 
@@ -391,12 +396,10 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
             </div>
           )}
 
-          <TextAreaField
-            value={comment}
+          <TextArea
+            name={COMMENT_FIELD}
+            control={commentFormControl}
             label={t("add-comment")}
-            name=""
-            onChangeByValue={(value) => setComment(value)}
-            placeholder={t("write-your-feedback-here")}
             autoResize
             rows={3}
           />

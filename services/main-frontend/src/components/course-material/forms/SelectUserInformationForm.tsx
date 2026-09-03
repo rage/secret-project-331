@@ -3,18 +3,14 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialCountryFromIpOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { updateCourseMaterialUserInfo } from "@/generated/course-material-api/sdk.generated"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Dialog } from "@/shared-module/components"
+import { Checkbox, Dialog, Select, TextField } from "@/shared-module/components"
 
 interface SelectUserInfoFormFields {
   email: string
@@ -48,13 +44,21 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
   const {
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { isValid },
     control,
     reset,
-    register,
     setValue,
+  } = useForm<SelectUserInfoFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
-  } = useForm<SelectUserInfoFormFields>({ mode: "onChange" })
+    mode: "onChange",
+    defaultValues: {
+      email,
+      first_name: firstName,
+      last_name: lastName,
+      country: country ?? "",
+      emailCommunicationConsent,
+    },
+  })
 
   const countriesOptions = React.useMemo(
     () =>
@@ -64,7 +68,6 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       })),
     [tCountries],
   )
-  const selectedCountry = countriesOptions.find((opt) => opt.value === country)?.label
 
   const preFillCountry = useQuery({
     ...getCourseMaterialCountryFromIpOptions({}),
@@ -138,52 +141,40 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     >
       <form onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
         <TextField
+          name="first_name"
+          control={control}
+          rules={{ required: t("required-field") }}
           label={t("first-name")}
-          defaultValue={firstName}
-          placeholder={t("enter-first-name")}
-          {...register("first_name", {
-            required: t("required-field"),
-          })}
-          required={true}
-          {...omitUndefined({ error: errors.first_name })}
+          isRequired
         />
 
         <TextField
+          name="last_name"
+          control={control}
+          rules={{ required: t("required-field") }}
           label={t("last-name")}
-          defaultValue={lastName}
-          placeholder={t("enter-last-name")}
-          {...register("last_name", {
-            required: t("required-field"),
-          })}
-          required={true}
-          {...omitUndefined({ error: errors.last_name })}
+          isRequired
         />
 
-        <Controller
+        <Select
           name="country"
           control={control}
           rules={{ required: t("required-field") }}
-          render={({ field }) => (
-            <SearchableSelectField
-              label={t("enter-country-question")}
-              options={countriesOptions}
-              onChangeByValue={field.onChange}
-              value={field.value}
-              {...omitUndefined({ error: errors.country?.message })}
-              required={true}
-              placeholder={selectedCountry ?? t("select-a-country")}
-            />
-          )}
+          label={t("enter-country-question")}
+          options={countriesOptions}
+          isRequired
+          searchEnabled
+          placeholder={t("select-a-country")}
         />
 
-        <CheckBox
+        <Checkbox
+          name="emailCommunicationConsent"
+          control={control}
           className={css`
             margin-top: 1rem;
           `}
           label={t("email-communication-consent-checkbox-text")}
-          defaultChecked={emailCommunicationConsent}
-          {...register("emailCommunicationConsent")}
-        ></CheckBox>
+        />
       </form>
     </Dialog>
   )

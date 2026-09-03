@@ -71,9 +71,10 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
         res[answer.research_form_question_id] = answer.research_consent
       }
     }
-    // Find out missing questions and add them to the list
+    // useController pre-registers every rendered checkbox's key with value undefined, so
+    // hasOwnProperty is already true here; check the value itself to actually catch unanswered ones.
     for (const question of getResearchFormQuestions.data ?? []) {
-      if (Object.prototype.hasOwnProperty.call(res, question.id) === false) {
+      if (res[question.id] === undefined) {
         res[question.id] = false
       }
     }

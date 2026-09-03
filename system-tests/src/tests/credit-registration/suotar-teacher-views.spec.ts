@@ -350,9 +350,7 @@ test("A teacher cannot retry a registration on a course they do not teach", asyn
 
 test("The export carries verified student numbers in full", async ({ page }) => {
   await page.goto(STATES_COMPLETIONS_URL)
-  await expect(
-    page.getByRole("button", { name: "Export credit registrations as CSV" }),
-  ).toBeVisible()
+  await expect(page.getByRole("link", { name: "Export credit registrations as CSV" })).toBeVisible()
 
   const response = await page.request.get(
     `${COURSE_CREDIT_REGISTRATIONS_API}/courses/${STATES_COURSE_ID}/export`,

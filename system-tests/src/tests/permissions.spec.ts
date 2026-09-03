@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { Select } from "@/utils/components/Select"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import {
@@ -14,6 +15,11 @@ import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
+
+// Located by id: a Select trigger's accessible name is "<value> <label>", so it changes every time
+// the value does.
+const ADD_ROLE_SELECT = "#add-user-role"
+const EDIT_ROLE_SELECT = "#edit-user-role"
 
 test("Managing permissions works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
@@ -34,16 +40,19 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     ],
   })
 
-  await page.click('[placeholder="Enter email"]')
-  await page.fill('[placeholder="Enter email"]', "teacher@example.com")
-  await page.selectOption("select", "Admin")
+  const emailField = page.getByRole("textbox", { name: "Email" })
+  const roleToAdd = new Select(page, page.locator(ADD_ROLE_SELECT), { name: "Role to add" })
+
+  await emailField.click()
+  await emailField.fill("teacher@example.com")
+  await roleToAdd.chooseOption("Admin")
   await waitForSuccessNotification(page, async () => {
     await page.getByText("Add user").click()
   })
 
-  await page.click('[placeholder="Enter email"]')
-  await page.fill('[placeholder="Enter email"]', "admin@example.com")
-  await page.selectOption("select", "Teacher")
+  await emailField.click()
+  await emailField.fill("admin@example.com")
+  await roleToAdd.chooseOption("Teacher")
   await waitForSuccessNotification(page, async () => {
     await page.getByText("Add user").click()
   })
@@ -88,7 +97,9 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByText("teacher@example.com").first()],
   })
 
-  await teacherRowWithAdminRole.locator("select").selectOption("Reviewer")
+  await new Select(page, page.locator(EDIT_ROLE_SELECT), {
+    name: "Role being edited",
+  }).chooseOption("Reviewer")
 
   await showNextToastsInfinitely(page)
   await page.click('[aria-label="Save edited role"]')

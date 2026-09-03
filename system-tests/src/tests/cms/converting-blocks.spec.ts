@@ -15,7 +15,7 @@ test("Can convert blocks", async ({ page }) => {
   await page.getByRole("tab", { name: "Pages" }).click()
   await waitForSpinnersToDisappear(page)
   await page.getByRole("button", { name: "New page" }).nth(2).click()
-  await page.getByLabel("Title  *").fill("Test page")
+  await page.getByLabel("Title", { exact: true }).fill("Test page")
   await page.getByRole("button", { name: "Create" }).click()
   await page
     .getByRole("row", { name: "Test page /chapter-2/test-page Edit page Dropdown menu" })

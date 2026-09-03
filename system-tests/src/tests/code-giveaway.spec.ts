@@ -52,7 +52,7 @@ test("Code giveaways work", async ({ page }) => {
     await page.getByRole("button", { name: "Save", exact: true }).click()
   })
   const page1Promise = page.waitForEvent("popup")
-  await page.getByRole("button", { name: "Open saved page in a new tab" }).click()
+  await page.getByRole("link", { name: "Open saved page in a new tab" }).click()
 
   const page1 = await page1Promise
   await selectCourseInstanceIfPrompted(page1)

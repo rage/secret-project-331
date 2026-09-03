@@ -16,7 +16,7 @@ test("Chaning page path works and redirects correctly", async ({ page }) => {
   await page.getByRole("tab", { name: "Pages" }).click()
   await waitForSpinnersToDisappear(page)
   await page.getByText("New page").nth(1).click()
-  await page.getByLabel("Title  *").fill("page with wrong path")
+  await page.getByLabel("Title", { exact: true }).fill("page with wrong path")
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Create" }).click()
   })
@@ -28,8 +28,8 @@ test("Chaning page path works and redirects correctly", async ({ page }) => {
     .getByLabel("Dropdown menu")
     .click()
   await page.getByRole("button", { name: "Edit page details" }).click()
-  await page.getByLabel("Title  *").fill("page-with-right-path")
-  await page.getByLabel("Path  *").fill("page-with-right-path-yeah")
+  await page.getByLabel("Title", { exact: true }).fill("page-with-right-path")
+  await page.getByLabel("Path", { exact: true }).fill("page-with-right-path-yeah")
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Update" }).click()
   })

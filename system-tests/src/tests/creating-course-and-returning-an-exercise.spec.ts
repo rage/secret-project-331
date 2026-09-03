@@ -62,7 +62,7 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   for (const pageTitle of ["Integration Testing", "System Testing", "Acceptance Testing"]) {
     await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
     await newPageDialog.waitFor()
-    await newPageDialog.getByLabel("Title  *", { exact: true }).fill(pageTitle)
+    await newPageDialog.getByLabel("Title", { exact: true }).fill(pageTitle)
     await newPageDialog.getByRole("button", { name: "Create" }).click()
     // Wait for the dialog to go away before touching the page behind it: while the modal is up its
     // backdrop covers the "New page" buttons, and the page list re-renders as the new page lands.
@@ -134,7 +134,7 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await waitForSuccessNotification(page, async () => {
-    await page.click('button:text-is("Save") >> visible=true')
+    await page.getByRole("button", { name: "Save", exact: true }).click()
   })
 
   // Check that the assignment still displays after saving

@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
@@ -22,7 +23,7 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
     .getByRole("button", { name: "Dropdown menu" })
     .click()
   await page.getByRole("button", { name: "Edit", exact: true }).click()
-  await page.getByPlaceholder("Opens at").fill("3200-04-17T19:13:24")
+  await new DateTimeLocalField(page, "chapter-opens-at-field").setValue("3200-04-17T19:13")
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Update" }).click()
   })
@@ -31,7 +32,7 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
     .getByRole("button", { name: "Edit page" })
     .click()
   const page1Promise = page.waitForEvent("popup")
-  await page.getByRole("button", { name: "Open saved page in a new tab" }).click()
+  await page.getByRole("link", { name: "Open saved page in a new tab" }).click()
   const page1 = await page1Promise
   await selectCourseInstanceIfPrompted(page1)
   await page1.getByText("Everything is a big topic.").click()

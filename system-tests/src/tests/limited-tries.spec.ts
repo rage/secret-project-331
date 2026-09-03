@@ -38,7 +38,7 @@ test("Limited tries work", async ({ page }) => {
   await page.locator('[placeholder="Max\\ tries\\ per\\ slide"]').fill("2")
 
   await waitForSuccessNotification(page, async () => {
-    await page.locator(`button:text-is("Save")`).nth(1).click()
+    await page.getByRole("button", { name: "Save", exact: true }).click()
   })
 
   await page.goto("http://project-331.local/organizations")

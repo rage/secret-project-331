@@ -47,18 +47,18 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
     // Fill input[type="text"]
     await page.fill(`label:has-text("Name")`, "first")
 
-    await page.click(`button:text("Create")`)
+    await page.getByRole("button", { name: "Create", exact: true }).click()
 
     await page.getByText(`Chapter 1`).waitFor()
 
-    await page.click(`:nth-match(button:text("New page"):below(:text("Chapter 1")), 1)`)
+    await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
 
     // await page.click('input[type="text"]')
 
     // Fill input[type="text"]
     await page.fill(`label:has-text("Title")`, "first page")
 
-    await page.click(`button:text("Create")`)
+    await page.getByRole("button", { name: "Create", exact: true }).click()
 
     await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
 
@@ -431,7 +431,7 @@ test("Create quizzes in page", async ({ page }) => {
   await scrollToFrame(page, timelineIframe)
   await createTimeline(timelineIframe)
 
-  await page.click(`button:text-is("Save") >> visible=true`)
+  await page.getByRole("button", { name: "Save", exact: true }).click()
 })
 
 async function scrollToFrame(page: Page, locator: Locator) {

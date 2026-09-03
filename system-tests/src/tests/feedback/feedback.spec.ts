@@ -68,8 +68,8 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.locator(`text=I found this pretty confusing`)],
   })
 
-  await page.click(`button:text("Add comment")`)
-  await page.click(`button:text("Send")`)
+  await page.getByRole("button", { name: "Add comment", exact: true }).click()
+  await page.getByRole("button", { name: "Send", exact: true }).click()
   await page.getByText("Feedback submitted successfully").waitFor()
 
   await logout(page)

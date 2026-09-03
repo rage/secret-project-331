@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { ChapterSelector } from "@/utils/components/ChapterSelector"
+import { Select } from "@/utils/components/Select"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { clickPageInChapterByTitle } from "@/utils/flows/pagesInChapter.flow"
@@ -240,7 +241,12 @@ test.describe("Chapter locking feature", () => {
       const chapterStatusDialog = teacherPage.getByRole("dialog", {
         name: "Edit chapter lock status",
       })
-      await chapterStatusDialog.getByLabel("Chapter lock status").selectOption("unlocked")
+      const lockStatus = new Select(
+        teacherPage,
+        chapterStatusDialog.locator("#teacher-chapter-status-select"),
+        { name: "Chapter lock status" },
+      )
+      await lockStatus.chooseOption("Unlocked")
       await waitForSuccessNotification(teacherPage, async () => {
         await chapterStatusDialog.getByRole("button", { name: "Save" }).click()
       })
@@ -250,9 +256,7 @@ test.describe("Chapter locking feature", () => {
         .waitFor()
 
       await teacherPage.getByTestId(`teacher-edit-chapter-status-${chapterId}`).click()
-      await chapterStatusDialog
-        .getByLabel("Chapter lock status")
-        .selectOption("completed_and_locked")
+      await lockStatus.chooseOption("Completed and locked")
       await waitForSuccessNotification(teacherPage, async () => {
         await chapterStatusDialog.getByRole("button", { name: "Save" }).click()
       })

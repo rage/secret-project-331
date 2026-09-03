@@ -90,7 +90,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await saveCMSPage(page)
-  await page.locator(`button:enabled:text-is("Save") >> visible=true`).waitFor()
+  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeEnabled()
   await page.waitForTimeout(100)
 
   await page.goto("http://project-331.local/org/uh-cs")
@@ -186,7 +186,7 @@ screenshotTarget: page,
 
   await page.getByText("Restore").click()
   await page.getByRole("heading", { name: "Page edit history" }).click() // deselect restore
-  await page.locator("[aria-label='Current page: 1']").waitFor()
+  await page.getByLabel("Page 1", { exact: true }).waitFor()
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({

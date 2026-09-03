@@ -1,6 +1,8 @@
 /* oxlint-disable playwright/no-wait-for-timeout */
 import { expect, test } from "@playwright/test"
 
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
+import { Select } from "@/utils/components/Select"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
@@ -18,8 +20,8 @@ test.skip("Testing exam works", async ({ page }) => {
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("button", { name: "Create" }).nth(1).click()
     await page.getByLabel("Name", { exact: true }).fill("Exam for testing")
-    await page.getByLabel("Starts at").fill("1990-12-03T12:00")
-    await page.getByLabel("Ends at").fill("2052-03-09T09:08:01")
+    await new DateTimeLocalField(page, "exam-starts-at-field").setValue("1990-12-03T12:00")
+    await new DateTimeLocalField(page, "exam-ends-at-field").setValue("2052-03-09T09:08")
     await page.getByLabel("Time in minutes", { exact: true }).fill("60")
     await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Exam created successfully").waitFor()
@@ -34,7 +36,8 @@ test.skip("Testing exam works", async ({ page }) => {
       .click()
 
     await page.getByRole("link", { name: "Manage page" }).click()
-    await page.getByLabel("Toggle view").selectOption("block-menu")
+    const sidebarView = new Select(page, page.locator("#select-sidebar-view"))
+    await sidebarView.chooseOptionByValue("block-menu")
     await page.getByRole("option", { name: "Exercise", exact: true }).click()
     await page.getByPlaceholder("Exercise name").fill("Exercise name")
 

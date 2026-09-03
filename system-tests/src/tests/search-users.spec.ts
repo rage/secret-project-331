@@ -30,7 +30,7 @@ test("User search works", async ({ page, headless }, testInfo) => {
     .getByRole("row", {
       name: "00e249d8-345f-4eff-aedb-7bdc4c44c1d5 user_1@example.com User1 User1 Details",
     })
-    .getByRole("button", { name: "Details" })
+    .getByRole("link", { name: "Details" })
     .click()
   const courseCard = page
     .getByTestId("course-status-card")

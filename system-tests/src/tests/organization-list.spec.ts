@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { Select } from "@/utils/components/Select"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { manageOrganization } from "@/utils/organizationUtils"
 
@@ -20,7 +21,10 @@ test("Organization workflow", async ({ page }) => {
     await page.getByRole("textbox", { name: "Slug" }).fill("newslug")
 
     await waitForSuccessNotification(page, async () => {
-      await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
+      await page
+        .getByRole("dialog", { name: "Create a new organization" })
+        .getByRole("button", { name: "Create" })
+        .click()
     })
   })
 
@@ -48,7 +52,7 @@ test("Organization workflow", async ({ page }) => {
     await page.getByRole("button", { name: "Add user" }).click()
     await page.getByRole("textbox", { name: "Email" }).click()
     await page.getByRole("textbox", { name: "Email" }).fill("teacher@example.com")
-    await page.getByLabel("Role").selectOption("Teacher")
+    await new Select(page, page.locator("#add-user-role"), { name: "Role" }).chooseOption("Teacher")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
@@ -57,7 +61,10 @@ test("Organization workflow", async ({ page }) => {
 
   await test.step("Edit user permissions", async () => {
     await page.getByRole("button", { name: "Edit user Teacher Example" }).click()
-    await page.getByTestId("dialog").getByLabel("Role").selectOption("Reviewer")
+    await page
+      .getByRole("dialog", { name: "Edit User Role" })
+      .getByLabel("Role")
+      .selectOption("Reviewer")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
@@ -73,8 +80,11 @@ test("Organization workflow", async ({ page }) => {
     await page.getByRole("tab", { name: "General" }).click()
     await page.getByRole("button", { name: "Edit" }).click()
     await page.getByRole("button", { name: "Delete organization" }).click()
-    await page.getByTestId("dialog").getByRole("textbox").click()
-    await page.getByTestId("dialog").getByRole("textbox").fill("delete")
+    const deleteConfirmation = page
+      .getByRole("dialog", { name: "Delete organization" })
+      .getByRole("textbox")
+    await deleteConfirmation.click()
+    await deleteConfirmation.fill("delete")
     await waitForSuccessNotification(
       page,
       async () => {

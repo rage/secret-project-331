@@ -25,8 +25,8 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
   await page.getByRole("tab", { name: "Pages" }).click()
   await waitForSpinnersToDisappear(page)
   await page.getByRole("button", { name: "New page" }).nth(1).click()
-  await page.getByLabel("Title  *").click()
-  await page.getByLabel("Title  *").fill("Iframe Page")
+  await page.getByLabel("Title", { exact: true }).click()
+  await page.getByLabel("Title", { exact: true }).fill("Iframe Page")
   await page.getByRole("button", { name: "Create" }).click()
   await page
     .getByRole("row", { name: "Iframe Page /chapter-1/iframe-page Edit page Dropdown menu" })

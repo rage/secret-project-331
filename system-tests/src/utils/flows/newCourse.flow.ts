@@ -1,5 +1,7 @@
 import type { Locator, Page } from "@playwright/test"
 
+import { Select } from "@/utils/components/Select"
+
 /**
  * Values for the shared new-course form. The same form backs both the "New course" dialog on an
  * organization page and the new language version dialog on a course's "Language versions" tab, so
@@ -33,9 +35,12 @@ export interface NewCourseOptions {
 async function fillNewCourseForm(dialog: Locator, options: NewCourseOptions): Promise<void> {
   if (options.copyContentFromCourseId !== undefined) {
     await dialog.getByLabel("Copy content from another course").check()
-    await dialog
-      .locator("#duplicate-course-select-menu")
-      .selectOption(options.copyContentFromCourseId)
+    const courseToCopy = new Select(
+      dialog.page(),
+      dialog.locator("#duplicate-course-select-menu"),
+      { name: "Course to copy content from" },
+    )
+    await courseToCopy.chooseOptionByValue(options.copyContentFromCourseId)
   }
   if (options.grantAccessToOriginalUsers) {
     await dialog
@@ -44,9 +49,9 @@ async function fillNewCourseForm(dialog: Locator, options: NewCourseOptions): Pr
   }
 
   await dialog.getByLabel(options.language).check()
-  await dialog.getByLabel("Name  *", { exact: true }).fill(options.name)
-  await dialog.getByLabel("Teacher in charge name  *").fill(options.teacherInChargeName)
-  await dialog.getByLabel("Teacher in charge email  *").fill(options.teacherInChargeEmail)
+  await dialog.getByLabel("Name", { exact: true }).fill(options.name)
+  await dialog.getByLabel("Teacher in charge name").fill(options.teacherInChargeName)
+  await dialog.getByLabel("Teacher in charge email").fill(options.teacherInChargeEmail)
   if (options.description !== undefined) {
     await dialog.getByRole("textbox", { name: "Description" }).fill(options.description)
   }

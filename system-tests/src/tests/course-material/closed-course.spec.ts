@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -17,7 +18,7 @@ test("Can close courses and shows warning dialog", async ({ page }) => {
   await page.getByRole("link", { name: "Manage course 'Closed course'" }).click()
   await page.getByRole("button", { name: "Edit" }).click()
   await page.getByRole("checkbox", { name: "Set course closed at" }).check()
-  await page.getByRole("textbox", { name: "Closed at" }).fill("2025-01-01T13:15:03")
+  await new DateTimeLocalField(page, "closed-at-field").setValue("2025-01-01T13:15")
   await page.getByRole("textbox", { name: "Additional message on the" }).fill(ADDITIONAL_MESSAGE)
   await page
     .getByRole("textbox", { name: "Closed course successor" })
@@ -25,7 +26,7 @@ test("Can close courses and shows warning dialog", async ({ page }) => {
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Update" }).click()
   })
-  await page.getByRole("button", { name: "Open course front page" }).click()
+  await page.getByRole("link", { name: "Open course front page" }).click()
   await selectCourseInstanceIfPrompted(page)
   await page.getByText("This course has been closed").waitFor()
   await page.getByText("Additional information").waitFor()

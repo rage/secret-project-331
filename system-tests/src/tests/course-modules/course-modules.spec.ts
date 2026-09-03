@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { Select } from "@/utils/components/Select"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -54,16 +55,16 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   })
 
   // create invalid module
-  await page.locator('[placeholder="Name of module"]').fill("invalid module")
-  await page.locator("#new-module-start").selectOption("2")
-  await page.locator("#new-module-ends").selectOption("3")
+  await page.getByRole("textbox", { name: "Create module" }).fill("invalid module")
+  await new Select(page, page.locator("#new-module-start"), { name: "Starts" }).chooseOption("2")
+  await new Select(page, page.locator("#new-module-ends"), { name: "Ends" }).chooseOption("3")
   await page.getByText("Confirm").click()
   await page.getByText("Error: Default module has missing chapters between 1 and 4").waitFor()
 
   // update invalid module to be valid
   await page.locator('[aria-label="Edit"]').nth(1).click()
-  await page.locator('[placeholder="Name of module"]').nth(0).fill("valid module")
-  await page.locator("#editing-module-ends").selectOption("4")
+  await page.getByRole("textbox", { name: "Edit module" }).fill("valid module")
+  await new Select(page, page.locator("#editing-module-ends"), { name: "Ends" }).chooseOption("4")
   await page.locator('[aria-label="Confirm"]').click()
   await page
     .getByText("Error: Default module has missing chapters between 1 and 4")
@@ -74,8 +75,10 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
 
   // update last module
   await page.locator('[aria-label="Edit"]').nth(2).click()
-  await page.locator('[placeholder="Name of module"]').nth(0).fill("renamed module")
-  await page.locator("#editing-module-start").selectOption("3")
+  await page.getByRole("textbox", { name: "Edit module" }).fill("renamed module")
+  await new Select(page, page.locator("#editing-module-start"), { name: "Starts" }).chooseOption(
+    "3",
+  )
   await page.locator('[aria-label="Confirm"]').click()
   await page.getByText("2. renamed module").waitFor()
 

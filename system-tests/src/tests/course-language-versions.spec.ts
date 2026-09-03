@@ -89,7 +89,7 @@ test("creator of new language version can grant permissions to same users as the
   await page.getByRole("link", { name: "Manage course 'Introduction to localizing'" }).click()
   await page.getByRole("tab", { name: "Permissions" }).click()
   //add new permission to assistant
-  await page.getByPlaceholder("Enter email").fill("assistant@example.com")
+  await page.getByLabel("Email", { exact: true }).fill("assistant@example.com")
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Add user" }).click()
   })

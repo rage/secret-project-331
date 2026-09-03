@@ -36,7 +36,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   // Fill input[type="text"]
   await page.fill(`label:has-text("Name")`, "first page")
 
-  await page.click(`button:text("Create")`)
+  await page.getByRole("button", { name: "Create", exact: true }).click()
 
   await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
   // - CHAPTER GRID
@@ -105,7 +105,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
     "Wubba Lubba Dub Dub",
   )
 
-  await page.click('button:text-is("Save") >> visible=true')
+  await page.getByRole("button", { name: "Save", exact: true }).click()
   await page.waitForTimeout(200)
 
   await page.goto(`http://project-331.local/org/uh-mathstat`)

@@ -117,11 +117,11 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.getByText("Change requests").click()
   await page.getByText("Accept").first().waitFor({ state: "visible" })
 
-  await page.click(':nth-match(:text("Accept"), 1)')
+  await page.getByRole("radio", { name: "Accept", exact: true }).nth(0).check()
 
-  await page.click(':nth-match(:text("Edit and accept"), 2)')
+  await page.getByRole("radio", { name: "Edit and accept", exact: true }).nth(1).check()
   await page.fill('textarea:has-text("Like this!")', "Like this!!!!!")
-  await page.click(':nth-match(:text("Reject"), 3)')
+  await page.getByRole("radio", { name: "Reject", exact: true }).nth(2).check()
 
   await waitForSuccessNotification(page, async () => {
     await page.click('text="Send"')

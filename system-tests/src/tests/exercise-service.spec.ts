@@ -1,4 +1,3 @@
-/* oxlint-disable playwright/prefer-locator */
 import type { Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
@@ -29,21 +28,14 @@ test("can add and delete exercise service", async ({ page, headless }, testInfo)
 
   await expectUrlPathWithRandomUuid(page, "/manage/exercise-services")
 
-  await page.click(`button:text("New")`)
+  await page.getByRole("button", { name: "New", exact: true }).click()
 
-  await page.click('[placeholder="Name..."]')
+  const creationDialog = page.getByRole("dialog", { name: "Create" })
+  await creationDialog.getByLabel("Name", { exact: true }).fill("New exercise service")
+  await creationDialog.getByLabel("Public URL", { exact: true }).fill("http://example.com")
+  await creationDialog.getByLabel("Internal URL", { exact: true }).click()
 
-  // Fill [placeholder="Name..."]
-  await page.fill('[placeholder="Name..."]', "New exercise service")
-
-  await page.click('[placeholder="Public URL..."]')
-
-  // Fill [placeholder="Public URL..."]
-  await page.fill('[placeholder="Public URL..."]', "http://example.com")
-
-  await page.click('[placeholder="Internal URL..."]')
-
-  await page.click('button:text("Create")')
+  await creationDialog.getByRole("button", { name: "Create", exact: true }).click()
   await page.getByText("New exercise service").waitFor()
 
   await expectScreenshotsToMatchSnapshots({

@@ -82,9 +82,9 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     .click()
   // await page.locator('[aria-label="Edit"]').nth(1).click()
   await page.getByLabel("Override completion registration link").check()
-  await page.getByPlaceholder("Completion registration link").click()
+  await page.getByLabel("Completion registration link", { exact: true }).click()
   await page
-    .getByPlaceholder("Completion registration link")
+    .getByLabel("Completion registration link", { exact: true })
     .fill("https://www.example.com/override")
   await page.getByLabel("Confirm").click()
   await page.getByRole("button", { name: "Save changes" }).click()

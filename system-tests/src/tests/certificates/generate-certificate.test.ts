@@ -28,7 +28,7 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
   await page.getByText("Try again").waitFor()
   await page.getByRole("link", { name: "Certificates" }).click()
   await page.getByRole("link", { name: "Generate certificate for completion" }).first().click()
-  await page.getByLabel("Your name  *").fill("Example User")
+  await page.getByLabel("Your name").fill("Example User")
 
   await page.getByRole("button", { name: "Generate" }).click()
   await respondToConfirmDialog(page, true)

@@ -49,8 +49,8 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   })
 
   await test.step("Create new glossary term and verify success", async () => {
-    await page.getByPlaceholder("New term").fill("SSD")
-    await page.getByPlaceholder("New definition").fill(SSD_DEFINITION)
+    await page.getByLabel("New term").fill("SSD")
+    await page.getByLabel("New definition").fill(SSD_DEFINITION)
 
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save", exact: true }).click()
@@ -65,8 +65,8 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await test.step("Edit the newly added term and definition, then save", async () => {
     await page.getByRole("button", { name: "Edit" }).first().click()
 
-    await page.getByPlaceholder("Updated term").fill("SSD")
-    await page.getByPlaceholder("Updated definition").fill(SSD_DEFINITION)
+    await page.getByLabel("Updated term").fill("SSD")
+    await page.getByLabel("Updated definition").fill(SSD_DEFINITION)
 
     await waitForSuccessNotification(page, async () => {
       await page.locator(':nth-match(:text("Save"), 2)').click()

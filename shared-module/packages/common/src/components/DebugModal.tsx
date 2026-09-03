@@ -7,17 +7,21 @@ import type { Dispatch } from "react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../styles/theme"
-import Button from "./Button"
-import StandardDialog from "./dialogs/StandardDialog"
+import { Button } from "@/shared-module/components/components/Button"
+import type { DialogAction } from "@/shared-module/components/components/Dialog"
+import { Dialog } from "@/shared-module/components/components/Dialog"
+
+import { includeIf } from "../utils/nullability"
 import MonacoEditor from "./monaco/MonacoEditor"
 
 export interface DebugModalProps {
   data: unknown
   readOnly?: boolean
+  /** Called with the parsed, edited JSON when the modal closes, if the content was edited. */
   // oxlint-disable-next-line typescript/no-explicit-any
   updateDataOnClose?: Dispatch<any>
   buttonSize?: "small" | "medium" | "large"
+  /** `"minimal"` renders a bare icon button instead of the full button as the trigger. */
   variant?: "default" | "minimal"
   buttonWrapperStyles?: string
 }
@@ -30,12 +34,45 @@ const iconButtonStyles = css`
   align-items: center;
   justify-content: center;
   padding: 4px;
-  color: ${baseTheme.colors.gray[400]};
+  color: var(--color-gray-400);
   transition: color 0.2s ease;
 
   &:hover {
-    color: ${baseTheme.colors.green[600]};
+    color: var(--color-green-600);
   }
+`
+
+// The trigger keeps a fixed blue look regardless of the underlying Button variant's own
+// hover/pressed/focus colors, so every interactive state here needs !important to win.
+const triggerButtonStyles = css`
+  height: 41px;
+  padding: 8px;
+
+  &,
+  &:hover:not(:disabled),
+  &:focus-visible:not(:disabled),
+  &[data-pressed="true"] {
+    background: var(--color-blue-500) !important;
+    border-color: var(--color-blue-500) !important;
+    color: var(--color-clear-50) !important;
+    box-shadow: none !important;
+  }
+
+  svg {
+    color: var(--color-clear-50);
+    transition: color 0.2s ease;
+  }
+
+  &:hover svg {
+    color: var(--color-blue-500);
+  }
+`
+
+const titleSuffixStyles = css`
+  color: var(--color-gray-700);
+  font-weight: normal;
+  font-size: 0.9em;
+  margin-left: 0.5rem;
 `
 
 const ON = "on"
@@ -43,6 +80,7 @@ const ON = "on"
 // Limit so that we don't freeze the browser
 const MAX_CSV_EXPORT_SIZE_BYTES = 10 * 1024 * 1024
 
+/** Dev/admin tool: shows `data` as a JSON blob in an editor, with an optional CSV export. */
 const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
   data,
   readOnly = true,
@@ -59,7 +97,6 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
     return JSON.stringify(data, null, 2)
   }, [data])
 
-  // Memoize the stringification and size check together
   const { size } = useMemo(
     () => ({
       size: new Blob([JSON.stringify(data)]).size,
@@ -67,7 +104,6 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
     [data],
   )
 
-  // Combine all data validation into one memo
   const isDownloadable = useMemo(() => {
     if (!Array.isArray(data) || data.length === 0) {
       return false
@@ -93,7 +129,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
       }
     }
     setOpen(false)
-    editedContentRef.current = undefined // Reset the edited content when closing
+    editedContentRef.current = undefined
   }, [updateDataOnClose])
 
   const handleDownloadCSV = useCallback(() => {
@@ -127,6 +163,13 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
 
   const readOnlySpecifier = readOnly ? t("read-only") : t("editable")
 
+  const csvDownloadAction: DialogAction = {
+    label: t("download-csv"),
+    icon: <Download size={16} weight="bold" />,
+    variant: "secondary",
+    onClick: handleDownloadCSV,
+  }
+
   return (
     <>
       <div className={buttonWrapperStyles}>
@@ -144,68 +187,31 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
           </button>
         ) : (
           <Button
-            variant="blue"
+            variant="secondary"
             size={buttonSize}
             aria-label={t("title-data-view")}
             onClick={() => {
               editedContentRef.current = stringifiedData
               setOpen(true)
             }}
-            className={css`
-              height: 41px;
-              padding: 8px;
-              color: white !important;
-              svg {
-                color: white;
-                transition: color 0.2s ease;
-              }
-              &:hover svg {
-                color: ${baseTheme.colors.blue[500]};
-              }
-            `}
+            className={triggerButtonStyles}
           >
             <BugInsect size={16} weight="bold" />
           </Button>
         )}
       </div>
-      <StandardDialog
+      <Dialog
         open={open}
         onClose={closeModal}
-        width="wide"
-        noPadding
-        disableContentScroll
+        size="wide"
+        padding="none"
         title={
           <>
             {t("title-data-view")}
-            <span
-              className={css`
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: normal;
-                font-size: 0.9em;
-                margin-left: 0.5rem;
-              `}
-            >
-              ({readOnlySpecifier})
-            </span>
+            <span className={titleSuffixStyles}>({readOnlySpecifier})</span>
           </>
         }
-        className={css`
-          overflow: hidden;
-        `}
-        actionButtons={
-          isDownloadable && (
-            <Button variant="secondary" size="medium" onClick={handleDownloadCSV}>
-              <Download size={16} weight="bold" />
-              <span
-                className={css`
-                  margin-left: 0.5rem;
-                `}
-              >
-                {t("download-csv")}
-              </span>
-            </Button>
-          )
-        }
+        {...includeIf(isDownloadable, { actions: [csvDownloadAction] as const })}
       >
         <MonacoEditor
           height="90vh"
@@ -214,7 +220,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
           defaultValue={stringifiedData}
           onChange={handleEditorChange}
         />
-      </StandardDialog>
+      </Dialog>
     </>
   )
 }

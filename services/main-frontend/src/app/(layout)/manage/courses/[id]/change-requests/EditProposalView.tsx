@@ -85,10 +85,11 @@ function resolveBlockProposalInfo(
   if (decision === "accept" || decision === "edit") {
     const acceptPreview = isEditedBlockStillExistsData(block) ? block.accept_preview : undefined
     const data = decision === "edit" ? editedText : acceptPreview
+    if (data === null || data === undefined) {
+      return null
+    }
     // oxlint-disable-next-line i18next/no-literal-string
-    return data === null || data === undefined
-      ? null
-      : { id: block.id, action: { tag: "Accept", data } }
+    return { id: block.id, action: { tag: "Accept", data } }
   }
   return null
 }

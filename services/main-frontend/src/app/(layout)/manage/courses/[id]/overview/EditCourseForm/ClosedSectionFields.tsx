@@ -5,10 +5,15 @@ import React, { useEffect } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import { validateUUID } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { Checkbox, TextArea, TextField } from "@/shared-module/components"
+import {
+  Checkbox,
+  DateTimeLocalField,
+  nullIfEmpty,
+  TextArea,
+  TextField,
+} from "@/shared-module/components"
 
 import type { EditCourseFormValues } from "."
 
@@ -19,7 +24,6 @@ const FieldContainer = styled.div`
 const ClosedSectionFields = (): React.ReactElement => {
   const { t } = useTranslation()
   const {
-    register,
     setValue,
     getValues,
     formState: { dirtyFields },
@@ -52,7 +56,12 @@ const ClosedSectionFields = (): React.ReactElement => {
       {isClosed && (
         <>
           <FieldContainer>
-            <DateTimeLocal label={t("closed-at")} {...register("closed_at")} />
+            <DateTimeLocalField
+              control={control}
+              label={t("closed-at")}
+              name="closed_at"
+              rules={nullIfEmpty}
+            />
           </FieldContainer>
           <FieldContainer>
             <TextArea

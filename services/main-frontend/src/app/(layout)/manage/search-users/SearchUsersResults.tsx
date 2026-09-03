@@ -10,7 +10,6 @@ import {
   useTable,
 } from "@tanstack/react-table"
 import { differenceBy } from "lodash"
-import Link from "next/link"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,7 +17,7 @@ import type { UserDetail } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, LoadingRegion, Spinner } from "@/shared-module/components"
+import { Link, LoadingRegion, Spinner } from "@/shared-module/components"
 
 export interface SearchUsersResultsProps {
   searchByEmailQuery: UseQueryResult<UserDetail[], unknown>
@@ -82,10 +81,13 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
       id: "details",
       header: t("button-details"),
       cell: (props) => (
-        <Link href={manageUserRoute(props.row.original.user_id)}>
-          <Button variant="tertiary" size="medium">
-            {t("button-details")}
-          </Button>
+        <Link
+          href={manageUserRoute(props.row.original.user_id)}
+          styledAsButton
+          variant="tertiary"
+          size="medium"
+        >
+          {t("button-details")}
         </Link>
       ),
     }),

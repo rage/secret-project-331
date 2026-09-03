@@ -1,14 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
+import NextLink from "next/link"
 import { useTranslation } from "react-i18next"
 
 import type { CertificateConfigurationAndRequirements } from "@/generated/api/types.generated"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button } from "@/shared-module/components"
+import { Button, Link } from "@/shared-module/components"
 
 interface Props {
   configurationAndRequirements: CertificateConfigurationAndRequirements
@@ -41,9 +41,9 @@ const CertificateView: React.FC<Props> = ({
         {t("background-svg")}:{" "}
         <MaskOverThisInSystemTests>
           <SetHeightInSystemTests heightPx={100}>
-            <Link href={`/api/v0/files/${configuration.background_svg_path}`}>
+            <NextLink href={`/api/v0/files/${configuration.background_svg_path}`}>
               {configuration.background_svg_path}
-            </Link>
+            </NextLink>
           </SetHeightInSystemTests>
         </MaskOverThisInSystemTests>
       </div>
@@ -52,9 +52,9 @@ const CertificateView: React.FC<Props> = ({
         {configuration.overlay_svg_path ? (
           <MaskOverThisInSystemTests>
             <SetHeightInSystemTests heightPx={100}>
-              <Link href={`/api/v0/files/${configuration.overlay_svg_path}`}>
+              <NextLink href={`/api/v0/files/${configuration.overlay_svg_path}`}>
                 {configuration.overlay_svg_path}
-              </Link>
+              </NextLink>
             </SetHeightInSystemTests>
           </MaskOverThisInSystemTests>
         ) : (
@@ -160,10 +160,11 @@ const CertificateView: React.FC<Props> = ({
         />
         <Link
           href={`/certificates/validate/test?test_certificate_configuration_id=${configurationAndRequirements.certificate_configuration.id}&debug=true`}
+          styledAsButton
+          variant="tertiary"
+          size="medium"
         >
-          <Button variant="tertiary" size="medium">
-            {t("button-text-preview")}
-          </Button>
+          {t("button-text-preview")}
         </Link>
       </div>
     </div>

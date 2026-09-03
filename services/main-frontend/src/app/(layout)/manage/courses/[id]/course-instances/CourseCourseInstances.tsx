@@ -2,14 +2,13 @@
 
 import { css } from "@emotion/css"
 import { parseISO } from "date-fns"
-import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import useCourseInstancesQuery, { invalidateCourseInstances } from "@/hooks/useCourseInstancesQuery"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { Button, QueryResult } from "@/shared-module/components"
+import { Button, Link, QueryResult } from "@/shared-module/components"
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
@@ -134,38 +133,56 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                     <h3 className={cardTitleStyles}>{name}</h3>
                     <div className={actionButtonsContainerStyles}>
                       <div className={buttonGroupStyles}>
-                        <Link href={viewCourseInstanceCompletionsPageRoute(instance.id)}>
-                          <Button variant="tertiary" size="medium">
-                            {t("link-view-completions")}
-                          </Button>
+                        <Link
+                          href={viewCourseInstanceCompletionsPageRoute(instance.id)}
+                          styledAsButton
+                          variant="tertiary"
+                          size="medium"
+                        >
+                          {t("link-view-completions")}
                         </Link>
-                        <Link href={viewCourseInstancePointsPageRoute(instance.id)}>
-                          <Button variant="tertiary" size="medium">
-                            {t("link-view-points")}
-                          </Button>
+                        <Link
+                          href={viewCourseInstancePointsPageRoute(instance.id)}
+                          styledAsButton
+                          variant="tertiary"
+                          size="medium"
+                        >
+                          {t("link-view-points")}
                         </Link>
                       </div>
 
                       <div className={buttonGroupStyles}>
-                        <Link href={manageCourseInstancePageRoute(instance.id)}>
-                          <Button variant="secondary" size="medium">
-                            {t("link-manage")}
-                          </Button>
+                        <Link
+                          href={manageCourseInstancePageRoute(instance.id)}
+                          styledAsButton
+                          variant="secondary"
+                          size="medium"
+                        >
+                          {t("link-manage")}
                         </Link>
-                        <Link href={viewCourseInstanceCertificatesPageRoute(instance.id)}>
-                          <Button variant="secondary" size="medium">
-                            {t("link-manage-certificates")}
-                          </Button>
+                        <Link
+                          href={viewCourseInstanceCertificatesPageRoute(instance.id)}
+                          styledAsButton
+                          variant="secondary"
+                          size="medium"
+                        >
+                          {t("link-manage-certificates")}
                         </Link>
-                        <Link href={manageCourseInstanceEmailsPageRoute(instance.id)}>
-                          <Button variant="secondary" size="medium">
-                            {t("link-manage-emails")}
-                          </Button>
+                        <Link
+                          href={manageCourseInstanceEmailsPageRoute(instance.id)}
+                          styledAsButton
+                          variant="secondary"
+                          size="medium"
+                        >
+                          {t("link-manage-emails")}
                         </Link>
-                        <Link href={manageCourseInstancePermissionsPageRoute(instance.id)}>
-                          <Button variant="secondary" size="medium">
-                            {t("link-manage-permissions")}
-                          </Button>
+                        <Link
+                          href={manageCourseInstancePermissionsPageRoute(instance.id)}
+                          styledAsButton
+                          variant="secondary"
+                          size="medium"
+                        >
+                          {t("link-manage-permissions")}
                         </Link>
                       </div>
 

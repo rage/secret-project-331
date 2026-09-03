@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -30,8 +29,8 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   Breadcrumbs,
   type BreadcrumbItem,
-  Button,
   Infobox,
+  Link,
   LoadingRegion,
   QueryResult,
 } from "@/shared-module/components"
@@ -224,10 +223,11 @@ const Submission: React.FC = () => {
                             submissionInfo.exercise.course_id,
                             submissionInfo.exercise_slide_submission.user_id,
                           )}
+                          styledAsButton
+                          variant="tertiary"
+                          size="medium"
                         >
-                          <Button variant="tertiary" size="medium">
-                            {t("course-status-summary")}
-                          </Button>
+                          {t("course-status-summary")}
                         </Link>,
                       ]
                     : []

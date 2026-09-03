@@ -2,12 +2,11 @@
 
 import { css } from "@emotion/css"
 import { Envelope } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button } from "@/shared-module/components"
+import { Link } from "@/shared-module/components"
 
 const AccountDeletedPage: React.FC = () => {
   const { t } = useTranslation()
@@ -36,10 +35,8 @@ const AccountDeletedPage: React.FC = () => {
         </h1>
       </div>
 
-      <Link href="/">
-        <Button size="medium" variant="primary">
-          {t("home-page")}
-        </Button>
+      <Link href="/" styledAsButton size="medium" variant="primary">
+        {t("home-page")}
       </Link>
     </>
   )

@@ -1,13 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import type { UserCompletionInformation } from "@/generated/api/types.generated"
 import { baseTheme, typography } from "@/shared-module/common/styles"
-import { Button, Infobox } from "@/shared-module/components"
+import { Infobox, Link } from "@/shared-module/components"
 
 const MY_STUDYINFO = "https://opintopolku.fi/oma-opintopolku/"
 
@@ -105,10 +104,8 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
           margin: 1.5rem 0;
         `}
       >
-        <Link href={registrationFormUrl}>
-          <Button variant="primary" size="large">
-            {t("to-the-registration-form")}
-          </Button>
+        <Link href={registrationFormUrl} styledAsButton variant="primary" size="large">
+          {t("to-the-registration-form")}
         </Link>
       </div>
       <p>{t("bachelor-and-master-degree-students-from-university-of-helsinki-notice")}</p>

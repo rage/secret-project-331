@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
 import { groupBy, mapValues, sortBy } from "lodash"
-import Link from "next/link"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -15,7 +14,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { courseStatsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult } from "@/shared-module/components"
+import { Link, QueryResult } from "@/shared-module/components"
 
 interface RegularStatTableProps {
   query: UseQueryResult<GlobalStatEntry[]>
@@ -199,12 +198,15 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
                   }
                   return <td key={column.key}>{entry ? entry.value : "-"}</td>
                 })}
-                {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- cell contains a labeled Button/Link */}
+                {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- cell contains a labeled Link */}
                 <td>
-                  <Link href={courseStatsRoute(courseId)}>
-                    <Button variant="tertiary" size="small">
-                      {t("stats")}
-                    </Button>
+                  <Link
+                    href={courseStatsRoute(courseId)}
+                    styledAsButton
+                    variant="tertiary"
+                    size="small"
+                  >
+                    {t("stats")}
                   </Link>
                 </td>
               </FullWidthTableRow>

@@ -253,7 +253,9 @@ function CurrentCrumb({
       return
     }
     node.scrollIntoView(SCROLL_CURRENT_INTO_VIEW_OPTIONS)
-  }, [ref])
+    // ref's identity never changes, so label is what actually triggers a re-scroll when a
+    // client-side navigation swaps in a longer crumb at the same depth without remounting this.
+  }, [label, ref])
 
   return React.createElement(
     currentAs,

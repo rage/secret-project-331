@@ -100,10 +100,19 @@ function computePageItems(current: number, total: number): PageItem[] {
   return items
 }
 
-// display:none elements stay in the DOM (compact vs. full is CSS-only) but browsers refuse
-// them focus, so a fallback candidate must be checked before .focus() is trusted to have worked.
+// Compact mode hides the numbered <li> around a page button via a container query, not the
+// button itself, so the button's own computed display never changes — walk up through ancestors
+// to catch that, the same way a browser refuses focus to anything with a display:none ancestor.
 function isRenderedForFocus(element: HTMLElement | null): element is HTMLElement {
-  return element !== null && getComputedStyle(element).display !== "none"
+  if (element === null) {
+    return false
+  }
+  for (let node: HTMLElement | null = element; node !== null; node = node.parentElement) {
+    if (getComputedStyle(node).display === "none") {
+      return false
+    }
+  }
+  return true
 }
 
 interface PagerButtonProps {
@@ -202,6 +211,20 @@ export const Pagination: React.FC<PaginationProps> = ({
       return
     }
 
+    // Safari/Firefox on macOS don't focus a button on mouse click, so activeElement can be
+    // outside the nav even though this press is what just disabled pressedButton. Only skip the
+    // repair when focus is demonstrably parked somewhere unrelated (not body, not in the nav) —
+    // stealing it back in every other case is what makes the repair work regardless of how the
+    // press was made.
+    const activeElement = document.activeElement
+    if (
+      activeElement &&
+      activeElement !== document.body &&
+      !navRef.current?.contains(activeElement)
+    ) {
+      return
+    }
+
     const currentButton = currentPageButtonRef.current
     if (isRenderedForFocus(currentButton)) {
       currentButton.focus()
@@ -228,7 +251,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   const handlePrevPress = () => {
     const target = clampedPage - 1
-    if (target === 1 && document.activeElement === prevButtonRef.current) {
+    if (target === 1) {
       pendingFocusRepairRef.current = REPAIR_DIRECTION.PREV
     }
     goToPage(target)
@@ -236,7 +259,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   const handleNextPress = () => {
     const target = clampedPage + 1
-    if (target === normalizedTotalPages && document.activeElement === nextButtonRef.current) {
+    if (target === normalizedTotalPages) {
       pendingFocusRepairRef.current = REPAIR_DIRECTION.NEXT
     }
     goToPage(target)

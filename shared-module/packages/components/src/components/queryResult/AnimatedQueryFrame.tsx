@@ -160,7 +160,6 @@ export function AnimatedQueryFrame<E>({
   const shouldReduceMotion = !!useReducedMotion()
   const showDelayedSpinner = useLoadingAffordance(initialLoading, {
     delayMs: loadingDelayMs,
-    minVisibleMs: 0,
   })
   const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(refreshing)
   const surfaceThemeCss =
@@ -173,7 +172,10 @@ export function AnimatedQueryFrame<E>({
     return renderBlockingError ? renderBlockingError(args) : <DefaultBlockingError {...args} />
   }
 
-  if (initialLoading) {
+  // Once the delayed spinner has appeared, hold the whole section for its minVisibleMs even
+  // after initialLoading flips false — otherwise a resolve landing right after the spinner
+  // shows just flashes it instead of the flicker it exists to prevent.
+  if (initialLoading || showDelayedSpinner) {
     const loadingLabel = t("queryResult.loading")
     return (
       <section

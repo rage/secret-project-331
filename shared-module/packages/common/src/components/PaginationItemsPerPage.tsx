@@ -38,22 +38,22 @@ const PaginationItemsPerPage: React.FC<PaginationItemsPerPageProps> = ({
 
   // paginationInfo is a new object every render. Reading it through a ref keeps the subscribe
   // effect below mounted for the component's lifetime instead of tearing down and rebuilding
-  // the subscription every render, which could leave it briefly absent for setValue's
-  // synchronous callback in the effect above.
+  // the subscription every render.
   const paginationInfoRef = useRef(paginationInfo)
   paginationInfoRef.current = paginationInfo
 
-  // setValue only reaches the subscriber below when it actually changes the value. This flag
-  // marks that change as external so the subscriber does not echo it back into
-  // paginationInfo.setLimit, which would reset the page to 1 on every external limit change.
-  const isSyncingFromExternalRef = useRef(false)
+  // setValue only reaches the subscriber below when it actually changes the value. Tracking the
+  // exact value we pushed (rather than a "sync in progress" boolean) lets the subscriber recognize
+  // its own echo by content instead of by call ordering, so it doesn't depend on setValue's
+  // subscriber notification firing synchronously within this effect.
+  const lastSyncedExternalLimitRef = useRef<string | null>(null)
 
   useEffect(() => {
     const nextLimit = paginationInfo.limit.toString()
     if (getValues(LIMIT_FIELD_NAME) === nextLimit) {
       return
     }
-    isSyncingFromExternalRef.current = true
+    lastSyncedExternalLimitRef.current = nextLimit
     setValue(LIMIT_FIELD_NAME, nextLimit)
   }, [paginationInfo.limit, getValues, setValue])
 
@@ -62,8 +62,8 @@ const PaginationItemsPerPage: React.FC<PaginationItemsPerPageProps> = ({
       name: LIMIT_FIELD_NAME,
       formState: { values: true },
       callback: ({ values }) => {
-        if (isSyncingFromExternalRef.current) {
-          isSyncingFromExternalRef.current = false
+        if (lastSyncedExternalLimitRef.current === values.limit) {
+          lastSyncedExternalLimitRef.current = null
           return
         }
         paginationInfoRef.current.setLimit(Number(values.limit))

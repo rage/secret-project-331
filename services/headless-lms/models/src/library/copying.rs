@@ -867,6 +867,31 @@ AND deleted_at IS NULL;
     )
     .execute(&mut *tx)
     .await?;
+
+    // The copied specs name the same stored files as the originals, so the copy has to declare
+    // them too. Otherwise only the original task declares them, and editing or deleting the
+    // original leaves the copy serving files the reaper is free to delete.
+    sqlx::query!(
+        "
+INSERT INTO exercise_task_spec_files (exercise_task_id, file_upload_id, spec_kind)
+SELECT uuid_generate_v5($1, f.exercise_task_id::text),
+  f.file_upload_id,
+  f.spec_kind
+FROM exercise_task_spec_files f
+  JOIN exercise_tasks t ON t.id = f.exercise_task_id
+  JOIN exercise_slides s ON s.id = t.exercise_slide_id
+  JOIN exercises e ON e.id = s.exercise_id
+WHERE (e.course_id = $2 OR e.exam_id = $2)
+  AND e.deleted_at IS NULL
+  AND s.deleted_at IS NULL
+  AND t.deleted_at IS NULL
+  AND f.deleted_at IS NULL;
+    ",
+        namespace_id,
+        parent_id,
+    )
+    .execute(&mut *tx)
+    .await?;
     Ok(())
 }
 
@@ -1942,6 +1967,70 @@ mod tests {
                 assert_ne!(original_chapter.id, copied_exercise.id);
             }
         }
+    }
+
+    /// A copied course's specs name the same stored files as the originals, so the copy has to
+    /// declare them too. Without this the file is declared only by the original task, and editing
+    /// or deleting the original hands the copy's files to the abandoned-upload reaper.
+    #[tokio::test]
+    async fn copies_the_files_the_specs_declare() {
+        insert_data!(:tx, :user, :org, :course, instance: _i, course_module: _m,
+                     :chapter, :page, :exercise, :slide, task: task);
+        let file_upload_id = crate::file_uploads::insert(
+            tx.as_mut(),
+            "teacher-example.pdf",
+            "declaring-service/teacher-example.pdf",
+            "application/pdf",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        crate::exercise_task_spec_files::replace_for_exercise_task(
+            tx.as_mut(),
+            task,
+            crate::exercise_task_spec_files::SpecKind::Private,
+            &[file_upload_id],
+        )
+        .await
+        .unwrap();
+
+        let new_meta = create_new_course(org, "fi-FI".into());
+        let copied_course = copy_course(tx.as_mut(), course, &new_meta, false, user)
+            .await
+            .unwrap();
+
+        let copied_exercise =
+            crate::exercises::get_exercises_by_course_id(tx.as_mut(), copied_course.id)
+                .await
+                .unwrap()
+                .pop()
+                .unwrap();
+        let copied_slides = crate::exercise_slides::get_exercise_slides_by_exercise_ids(
+            tx.as_mut(),
+            &[copied_exercise.id],
+        )
+        .await
+        .unwrap();
+        let copied_tasks = crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
+            tx.as_mut(),
+            &copied_slides
+                .iter()
+                .map(|slide| slide.id)
+                .collect::<Vec<_>>(),
+        )
+        .await
+        .unwrap();
+        let copied_task = copied_tasks.first().expect("the copy has a task");
+
+        let declared = crate::exercise_task_spec_files::get_for_exercise_task(
+            tx.as_mut(),
+            copied_task.id,
+            crate::exercise_task_spec_files::SpecKind::Private,
+        )
+        .await
+        .unwrap();
+        assert_eq!(declared, vec![file_upload_id]);
     }
 
     fn create_new_course(organization_id: Uuid, language_code: String) -> NewCourse {

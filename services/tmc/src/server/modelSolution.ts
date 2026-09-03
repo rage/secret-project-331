@@ -13,7 +13,7 @@ import type { ModelSolutionSpec } from "@/util/stateInterfaces"
 
 import type { ParsedSpecRequest } from "./requestSchemas"
 import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
-import { uploadArchiveAndGetUrl } from "./uploadArchive"
+import { uploadArchive } from "./uploadArchive"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -118,14 +118,14 @@ const uploadModelSolution = async (
 
   const archiveName = exercise.part + "/" + exercise.name + "-solution.tar.zst"
   debug("uploading solution", "archiveName:", archiveName)
-  const solutionDownloadUrl = await uploadArchiveAndGetUrl({
+  const solution = await uploadArchive({
     archivePath: solutionArchive,
     archiveName,
     uploadUrl,
     uploadClaim,
   })
   return {
-    spec: { type: exerciseType, solution_download_url: solutionDownloadUrl },
+    spec: { type: exerciseType, solution_download_url: solution.url },
     paths: [solutionArchive],
   }
 }

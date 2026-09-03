@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 
 import { handleModelSolution } from "./modelSolution"
-import { uploadArchiveAndGetUrl } from "./uploadArchive"
+import { uploadArchive } from "./uploadArchive"
 
 // tmc-langs is a CLI subprocess and the template download hits the network; stub both so the
 // serialization guard below can drive the handler in-process. System tests cover the full flow.
@@ -19,7 +19,12 @@ vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
 }))
 vi.mock("./uploadArchive", () => ({
-  uploadArchiveAndGetUrl: vi.fn(() => Promise.resolve("http://files/part01/ex01-solution.tar.zst")),
+  uploadArchive: vi.fn(() =>
+    Promise.resolve({
+      id: "0f6d1c2b-3a4e-4f5c-8d9e-0a1b2c3d4e5f",
+      url: "http://files/part01/ex01-solution.tar.zst",
+    }),
+  ),
 }))
 
 // The happy path downloads the template and shells out to tmc-langs-cli; unit tests cover request
@@ -84,6 +89,7 @@ describe("POST /api/model-solution spec serialization", () => {
     download_url: "http://repo/template.tar.zst",
   }
   const solutionDownloadUrl = "http://files/part01/ex01-solution.tar.zst"
+  const solutionFileId = "0f6d1c2b-3a4e-4f5c-8d9e-0a1b2c3d4e5f"
 
   function specRequest(type: "browser" | "editor"): unknown {
     return {
@@ -95,7 +101,7 @@ describe("POST /api/model-solution spec serialization", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(uploadArchiveAndGetUrl).mockResolvedValue(solutionDownloadUrl)
+    vi.mocked(uploadArchive).mockResolvedValue({ id: solutionFileId, url: solutionDownloadUrl })
   })
 
   it("returns exactly the fields tmc-langs deserializes, tagged with the exercise type", async () => {
@@ -118,7 +124,7 @@ describe("POST /api/model-solution spec serialization", () => {
   it("uploads the solution under `<part>/<name>-solution.tar.zst`", async () => {
     await handleModelSolution(post(specRequest("editor")))
 
-    expect(uploadArchiveAndGetUrl).toHaveBeenCalledWith(
+    expect(uploadArchive).toHaveBeenCalledWith(
       expect.objectContaining({
         archiveName: "part01/ex01-solution.tar.zst",
         uploadUrl: "http://headless-lms/api/v0/files/tmc",
@@ -127,7 +133,7 @@ describe("POST /api/model-solution spec serialization", () => {
   })
 
   it("fails loudly rather than emitting a spec without a usable solution URL", async () => {
-    vi.mocked(uploadArchiveAndGetUrl).mockRejectedValue(new Error("upload exploded"))
+    vi.mocked(uploadArchive).mockRejectedValue(new Error("upload exploded"))
 
     await expect(handleModelSolution(post(specRequest("editor")))).rejects.toThrow(
       /upload exploded/,

@@ -20,7 +20,7 @@ import type { PublicSpec } from "@/util/stateInterfaces"
 
 import type { ParsedSpecRequest } from "./requestSchemas"
 import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
-import { uploadArchiveAndGetUrl } from "./uploadArchive"
+import { uploadArchive } from "./uploadArchive"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -145,7 +145,7 @@ const uploadPublicSpec = async (
 
   const archiveName = buildArchiveName(exercise)
   debug("uploading stub", "archiveName:", archiveName)
-  const stub_download_url = await uploadArchiveAndGetUrl({
+  const stub = await uploadArchive({
     archivePath: stubArchive,
     archiveName,
     uploadUrl,
@@ -156,7 +156,7 @@ const uploadPublicSpec = async (
     spec: {
       type,
       archive_name: archiveName,
-      stub_download_url,
+      stub_download_url: stub.url,
       checksum,
       student_file_paths: config.student_file_paths,
     },

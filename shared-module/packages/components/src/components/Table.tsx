@@ -16,12 +16,16 @@ export interface TableColumn<Row> {
 export interface TableProps<Row> {
   columns: TableColumn<Row>[]
   rows: Row[]
-  /** Stable identity per row; keeps React from reusing the wrong row on reorder. */
+  /**
+   * Stable identity per row; keeps React from reusing the wrong row on reorder. Also emitted as
+   * the row's `data-row-key`, so a test can scope to one row.
+   */
   rowKey: (row: Row, index: number) => React.Key
   /** Names the table for assistive tech; visually hidden unless `showCaption`. */
   caption: React.ReactNode
   showCaption?: boolean
   className?: string
+  "data-testid"?: string | undefined
 }
 
 const scrollCss = css`
@@ -80,11 +84,12 @@ export function Table<Row>({
   caption,
   showCaption = false,
   className,
+  "data-testid": dataTestId,
 }: TableProps<Row>) {
   const alignFor = (column: TableColumn<Row>) => (column.align ? alignCss[column.align] : undefined)
 
   return (
-    <div className={cx(scrollCss, className)}>
+    <div className={cx(scrollCss, className)} data-testid={dataTestId}>
       <table className={tableCss}>
         {showCaption ? (
           <caption className={captionCss}>{caption}</caption>
@@ -106,15 +111,18 @@ export function Table<Row>({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, rowIndex) => (
-            <tr key={rowKey(row, rowIndex)}>
-              {columns.map((column, columnIndex) => (
-                <td key={columnIndex} className={cx(cellCss, bodyCellCss, alignFor(column))}>
-                  {column.cell(row)}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {rows.map((row, rowIndex) => {
+            const key = rowKey(row, rowIndex)
+            return (
+              <tr key={key} data-row-key={String(key)}>
+                {columns.map((column, columnIndex) => (
+                  <td key={columnIndex} className={cx(cellCss, bodyCellCss, alignFor(column))}>
+                    {column.cell(row)}
+                  </td>
+                ))}
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

@@ -95,4 +95,12 @@ describe("Table", () => {
     expect(screen.getAllByRole("row")).toHaveLength(1)
     expect(screen.queryByRole("cell")).not.toBeInTheDocument()
   })
+
+  test("puts data-testid on the scroll container and every row key on its row", () => {
+    renderTable({ "data-testid": "completions-table" })
+
+    const root = screen.getByTestId("completions-table")
+    expect(root.tagName).toBe("DIV")
+    expect(root.querySelector('[data-row-key="b"]')?.tagName).toBe("TR")
+  })
 })

@@ -61,10 +61,9 @@ test("Organization workflow", async ({ page }) => {
 
   await test.step("Edit user permissions", async () => {
     await page.getByRole("button", { name: "Edit user Teacher Example" }).click()
-    await page
-      .getByRole("dialog", { name: "Edit User Role" })
-      .getByLabel("Role")
-      .selectOption("Reviewer")
+    await new Select(page, page.locator("#edit-user-role"), {
+      name: "Role being edited",
+    }).chooseOption("Reviewer")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })

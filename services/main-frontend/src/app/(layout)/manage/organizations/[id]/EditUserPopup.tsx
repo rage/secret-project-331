@@ -1,11 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useEffect } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { USER_ROLES } from "@/constants/roles"
-import { Dialog } from "@/shared-module/components"
+import { Dialog, Select } from "@/shared-module/components"
 
 interface EditUserPopupProps {
   show: boolean
@@ -17,6 +18,18 @@ interface EditUserPopupProps {
   handleSave: () => void
 }
 
+interface EditUserRoleFormValues {
+  role: string
+}
+
+const ROLE_FIELD_NAME = "role" as const
+
+/**
+ * Dialog for changing one user's role in an organization.
+ *
+ * The role lives in the parent's state, not in a form, so a local form mirrors it in both
+ * directions to satisfy `components`' react-hook-form-only `Select`.
+ */
 const EditUserPopup: React.FC<EditUserPopupProps> = ({
   show,
   setShow,
@@ -27,6 +40,14 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
   handleSave,
 }) => {
   const { t } = useTranslation()
+  const { control } = useForm<EditUserRoleFormValues>({ values: { role } })
+  const selectedRole = useWatch({ control, name: ROLE_FIELD_NAME })
+
+  // Echoing the parent's own value back at it is safe only because setRole is a plain state
+  // setter: an unchanged write bails out instead of looping.
+  useEffect(() => {
+    setRole(selectedRole)
+  }, [selectedRole, setRole])
 
   return (
     <Dialog
@@ -63,7 +84,6 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
           margin-bottom: 32px;
         `}
       >
-        {/* Name Row */}
         <div
           className={css`
             display: flex;
@@ -89,7 +109,6 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
           </span>
         </div>
 
-        {/* Email Row */}
         <div
           className={css`
             display: flex;
@@ -115,43 +134,16 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
           </span>
         </div>
 
-        {/* Role */}
-        <div
-          className={css`
-            display: flex;
-            align-items: center;
-            gap: 12px;
-          `}
-        >
-          <label
-            htmlFor="edit-user-role"
-            className={css`
-              font-size: 14px;
-              width: 60px;
-            `}
-          >
-            {t("label-role")}
-          </label>
-          <select
-            id="edit-user-role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className={css`
-              border: 1.6px solid #e4e5e8;
-              border-radius: 2px;
-              padding: 8px 12px;
-              font-size: 14px;
-              width: 100%;
-              background-color: white;
-            `}
-          >
-            {USER_ROLES.map((roleOption) => (
-              <option key={roleOption.value} value={roleOption.value}>
-                {t(roleOption.translationKey)}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          name={ROLE_FIELD_NAME}
+          control={control}
+          id="edit-user-role"
+          label={t("label-role")}
+          options={USER_ROLES.map((roleOption) => ({
+            value: roleOption.value,
+            label: t(roleOption.translationKey),
+          }))}
+        />
       </div>
     </Dialog>
   )

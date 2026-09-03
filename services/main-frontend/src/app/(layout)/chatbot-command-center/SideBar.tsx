@@ -26,12 +26,12 @@ const sideBarContainer = css`
   border-radius: 10px;
   margin: 0;
   padding: 0;
-  padding-top: 0.5rem;
   box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
   max-width: 400px;
   // Applied when disclosure is open
   &:has(> [data-expanded]) {
     overflow-y: auto;
+    overflow-x: hidden;
   }
 `
 

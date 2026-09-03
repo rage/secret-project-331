@@ -2,15 +2,15 @@
 
 import styled from "@emotion/styled"
 import Papa from "papaparse"
-import React, { useState } from "react"
+import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { CourseModule, TeacherManualCompletionRequest } from "@/generated/api/types.generated"
-import DatePicker from "@/shared-module/common/components/InputFields/DatePickerField"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { makeDateStringTimezoneErrorsLessLikely } from "@/shared-module/common/utils/dateUtil"
 import { Button, Select, TextArea } from "@/shared-module/components"
+import { DateField } from "@/shared-module/components/components/DateField"
 
 const FormatInstructions = styled.div`
   margin-top: 1.5rem;
@@ -58,7 +58,6 @@ const Note = styled.p`
 `
 
 const COMPLETIONS = "completions"
-const DATE = "date"
 
 const CSV_EXAMPLE = `user_id,grade,completion_date
 00000000-0000-0000-0000-000000000000,5,2024-03-15
@@ -74,6 +73,7 @@ interface AddCompletionsFormProps {
 interface AddCompletionsFields {
   completions: string
   course_module_id: string
+  date: string
 }
 
 interface RawTeacherManualCompletion {
@@ -90,8 +90,9 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
   onSubmit,
   submitText,
 }) => {
-  const { clearErrors, handleSubmit, control, setError } = useForm<AddCompletionsFields>()
-  const [date, setDate] = useState<string | null>(null)
+  const { clearErrors, handleSubmit, control, setError } = useForm<AddCompletionsFields>({
+    defaultValues: { date: "" },
+  })
   const { t } = useTranslation()
 
   const onWrapper = handleSubmit((data) => {
@@ -127,7 +128,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         return
       }
 
-      const defaultDate = date ? makeDateStringTimezoneErrorsLessLikely(date) : null
+      const defaultDate = data.date ? makeDateStringTimezoneErrorsLessLikely(data.date) : null
 
       const newCompletions = parsed.data.map((entry) => {
         const { user_id, grade, completion_date } = entry as RawTeacherManualCompletion
@@ -199,7 +200,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       />
 
       <p>{t("label-csv-completion-date")}</p>
-      <DatePicker label={DATE} onChangeByValue={(value) => setDate(value)} />
+      <DateField control={control} name="date" label={t("date")} />
 
       <FormatInstructions>
         <FormatTitle>{t("label-csv-completions-format")}</FormatTitle>

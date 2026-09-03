@@ -414,17 +414,7 @@ pub async fn get_submission(
     let row = sqlx::query_as!(
         SubmissionRow,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_submission_id,
-  exercise_task_id,
-  exercise_slide_id,
-  data_json,
-  answer_kind,
-  exercise_task_grading_id,
-  metadata
+SELECT *
 FROM exercise_task_submissions
 WHERE id = $1
 "#,
@@ -503,17 +493,7 @@ pub async fn get_by_id(
     let row = sqlx::query_as!(
         SubmissionRow,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_submission_id,
-  exercise_task_id,
-  exercise_slide_id,
-  data_json,
-  answer_kind,
-  exercise_task_grading_id,
-  metadata
+SELECT *
 FROM exercise_task_submissions
 WHERE id = $1
 "#,
@@ -533,17 +513,7 @@ pub async fn get_by_exercise_slide_submission_id(
     let rows = sqlx::query_as!(
         SubmissionRow,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_submission_id,
-  exercise_task_id,
-  exercise_slide_id,
-  data_json,
-  answer_kind,
-  exercise_task_grading_id,
-  metadata
+SELECT *
 FROM exercise_task_submissions
 WHERE exercise_slide_submission_id = $1
         "#,
@@ -694,17 +664,7 @@ pub async fn get_users_latest_exercise_task_submissions_for_exercise_slide(
         let rows = sqlx::query_as!(
             SubmissionRow,
             r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_submission_id,
-  exercise_task_id,
-  exercise_slide_id,
-  data_json,
-  answer_kind,
-  exercise_task_grading_id,
-  metadata
+SELECT *
 FROM exercise_task_submissions
 WHERE exercise_slide_submission_id = $1
   AND deleted_at IS NULL

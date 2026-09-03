@@ -1,20 +1,35 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { useStatusPodLogs } from "@/hooks/useStatusPodLogs"
 import { useStatusPods } from "@/hooks/useStatusPods"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { QueryResult } from "@/shared-module/components"
+import { Select } from "@/shared-module/components/components/Select"
+
+const FIELD_SELECTED_POD = "selectedPod" as const
+const FIELD_TAIL_LINES = "tailLines" as const
+
+interface StatusPodLogsFilterValues {
+  selectedPod: string
+  tailLines: string
+}
 
 const StatusPodLogs: React.FC = () => {
   const { t } = useTranslation()
   const { data: pods } = useStatusPods()
-  const [selectedPod, setSelectedPod] = useState<string>("")
-  const [tail, setTail] = useState<number>(100)
+
+  const { control: filterControl } = useForm<StatusPodLogsFilterValues>({
+    defaultValues: { selectedPod: "", tailLines: "100" },
+  })
+  const selectedPod = useWatch({ control: filterControl, name: FIELD_SELECTED_POD })
+  const tailLines = useWatch({ control: filterControl, name: FIELD_TAIL_LINES })
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+  const tail = parseInt(tailLines, 10)
   const logsQuery = useStatusPodLogs(selectedPod || null, undefined, tail)
 
   return (
@@ -37,13 +52,12 @@ const StatusPodLogs: React.FC = () => {
             flex: 1;
           `}
         >
-          <SelectMenu
+          <Select
             id="pod-select"
+            control={filterControl}
+            name={FIELD_SELECTED_POD}
             label={t("status-select-pod")}
-            value={selectedPod}
-            onChange={(e) => setSelectedPod(e.currentTarget.value)}
             options={pods?.map((pod) => ({ value: pod.name, label: pod.name })) || []}
-            showDefaultOption={true}
           />
         </div>
         <div
@@ -51,19 +65,17 @@ const StatusPodLogs: React.FC = () => {
             width: 150px;
           `}
         >
-          <SelectMenu
+          <Select
             id="tail-select"
+            control={filterControl}
+            name={FIELD_TAIL_LINES}
             label={t("status-tail-lines")}
-            value={tail.toString()}
-            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-            onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
             options={[
               { value: "50", label: "50" },
               { value: "100", label: "100" },
               { value: "200", label: "200" },
               { value: "500", label: "500" },
             ]}
-            showDefaultOption={false}
           />
         </div>
       </div>

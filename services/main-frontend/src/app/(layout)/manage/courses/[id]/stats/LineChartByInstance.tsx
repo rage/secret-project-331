@@ -3,21 +3,26 @@
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 import type { Color, EChartsOption, TooltipComponentFormatterCallbackParams } from "echarts"
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
 import type { CountResult } from "@/generated/api/types.generated"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { LoadingRegion } from "@/shared-module/components"
+import { Select } from "@/shared-module/components/components/Select"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import type { Period } from "./LineChart"
 import { DAILY_PERIOD, MONTHLY_PERIOD } from "./LineChart"
 import StatsHeader from "./StatsHeader"
+
+interface LineChartByInstanceFilterValues {
+  period: Period
+}
 
 interface LineChartByInstanceProps {
   courseId: string
@@ -37,6 +42,7 @@ interface LineChartByInstanceProps {
 const AXIS = "axis"
 const DATA_MAX = "dataMax"
 const DATA_MIN = "dataMin"
+const FIELD_PERIOD = "period" as const
 
 const tooltipRow = css`
   display: flex;
@@ -140,6 +146,16 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
   const { t } = useTranslation()
   const courseInstancesQuery = useCourseInstancesQuery(courseId)
   const [isLogScale, setIsLogScale] = useState(false)
+
+  // Select has no onChange prop, only control/name; the parent (which shares this period
+  // across sibling charts) is kept in sync via useWatch + effect instead.
+  const { control: filterControl } = useForm<LineChartByInstanceFilterValues>({
+    defaultValues: { period },
+  })
+  const watchedPeriod = useWatch({ control: filterControl, name: FIELD_PERIOD })
+  useEffect(() => {
+    setPeriod(watchedPeriod)
+  }, [watchedPeriod, setPeriod])
 
   const instanceMap = useMemo(() => {
     if (!courseInstancesQuery.data) {
@@ -349,16 +365,16 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
             {t("log-scale-short")}
           </button>
           {!disablePeriodSelector && (
-            <SelectMenu
+            <Select
               id="period-select"
+              control={filterControl}
+              name={FIELD_PERIOD}
+              label={t("stats-period-selector-label")}
               options={[
                 { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
                 { value: DAILY_PERIOD, label: t("stats-period-daily") },
               ]}
-              value={period}
-              onChange={(e) => setPeriod(e.currentTarget.value as Period)}
               className={periodSelect}
-              showDefaultOption={false}
             />
           )}
         </div>

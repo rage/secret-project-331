@@ -3,7 +3,9 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { Gear } from "@vectopus/atlas-icons-react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef } from "react"
+import { VisuallyHidden } from "react-aria"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -14,11 +16,10 @@ import {
 import type { CourseModule, CourseModuleThresholdInfo } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Button, QueryResult, QueryResults } from "@/shared-module/components"
+import { Button, QueryResult, QueryResults, TextField } from "@/shared-module/components"
 
 interface CheatersThresholdConfigProps {
   courseId: string
@@ -28,6 +29,16 @@ const SECONDS_PER_HOUR = 3600
 // The backend stores the threshold as a 32-bit signed integer number of seconds, so reject
 // anything that would overflow it before sending the request.
 const MAX_DURATION_SECONDS = 2_147_483_647
+
+interface ThresholdFormFields {
+  durations: Record<string, string>
+}
+
+/** The value a module's field shows before the user has touched it: the configured threshold, or the policy default. */
+function computeDisplayHours(info: CourseModuleThresholdInfo | undefined): number {
+  const seconds = info?.configured_duration_seconds ?? info?.default_duration_seconds ?? 0
+  return seconds / SECONDS_PER_HOUR
+}
 
 /** Renders threshold configuration UI for the cheaters section. */
 export default function CheatersThresholdConfig({ courseId }: CheatersThresholdConfigProps) {
@@ -63,9 +74,40 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     )
   }, [courseStructureQuery.data?.modules])
 
-  const [moduleThresholds, setModuleThresholds] = useState<Map<string, number | undefined>>(
-    () => new Map(),
-  )
+  const {
+    control,
+    watch,
+    reset,
+    resetField,
+    formState: { dirtyFields },
+  } = useForm<ThresholdFormFields>({ defaultValues: { durations: {} } })
+  const durations = watch("durations")
+
+  // Fields are seeded from the two queries once both have settled, then left alone: a later
+  // refetch (after a save) updates one field at a time via `resetField`, not this bulk reset.
+  const hasSeededFormRef = useRef(false)
+  useEffect(() => {
+    if (hasSeededFormRef.current || sortedModules.length === 0 || thresholdsQuery.isPending) {
+      return
+    }
+    hasSeededFormRef.current = true
+    reset({
+      durations: Object.fromEntries(
+        sortedModules.map((module) => [
+          module.id,
+          String(computeDisplayHours(thresholdInfoByModule.get(module.id))),
+        ]),
+      ),
+    })
+  }, [sortedModules, thresholdInfoByModule, thresholdsQuery.isPending, reset])
+
+  // Drop the in-progress edit once it is persisted so the row reflects the refetched saved state
+  // (otherwise a removed threshold would stay "edited" and never show the implicit default again).
+  const resetEditedThreshold = async (moduleId: string) => {
+    const { data: refreshedThresholds } = await thresholdsQuery.refetch()
+    const info = refreshedThresholds?.find((entry) => entry.course_module_id === moduleId)
+    resetField(`durations.${moduleId}`, { defaultValue: String(computeDisplayHours(info)) })
+  }
 
   const handleUpdateThreshold = (moduleId: string, durationSeconds: number | undefined) => {
     if (durationSeconds === undefined) {
@@ -83,26 +125,12 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     })
   }
 
-  // Drop the in-progress edit once it is persisted so the row reflects the refetched saved state
-  // (otherwise a removed threshold would stay "edited" and never show the implicit default again).
-  const clearEditedThreshold = (moduleId: string) => {
-    setModuleThresholds((prev) => {
-      if (!prev.has(moduleId)) {
-        return prev
-      }
-      const next = new Map(prev)
-      next.delete(moduleId)
-      return next
-    })
-  }
-
   const postThresholdForModuleMutation = useToastMutationOptions(
     createCourseModuleThresholdMutation(),
     { notify: true, successMessage: t("threshold-added-successfully"), method: "POST" },
     {
       onSuccess: (_data, variables) => {
-        clearEditedThreshold(variables.path.course_module_id)
-        thresholdsQuery.refetch()
+        void resetEditedThreshold(variables.path.course_module_id)
       },
     },
   )
@@ -112,8 +140,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     { notify: true, successMessage: t("threshold-removed-successfully"), method: "DELETE" },
     {
       onSuccess: (_data, variables) => {
-        clearEditedThreshold(variables.path.course_module_id)
-        thresholdsQuery.refetch()
+        void resetEditedThreshold(variables.path.course_module_id)
       },
     },
   )
@@ -241,9 +268,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
           <thead>
             <tr>
               <th scope="col">{t("module")}</th>
-              <th scope="col" id="duration-header">
-                {t("duration-in-hours")}
-              </th>
+              <th scope="col">{t("duration-in-hours")}</th>
               <th scope="col">{t("actions")}</th>
             </tr>
           </thead>
@@ -252,11 +277,16 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
               const info = thresholdInfoByModule.get(module.id)
               const configuredSeconds = info?.configured_duration_seconds ?? undefined
               const minimumSeconds = info?.minimum_duration_seconds ?? 0
-              const defaultSeconds = info?.default_duration_seconds ?? 0
               const configuredHours =
                 configuredSeconds !== undefined ? configuredSeconds / SECONDS_PER_HOUR : undefined
-              const isEdited = moduleThresholds.has(module.id)
-              const editedHours = moduleThresholds.get(module.id)
+              const isEdited = Boolean(dirtyFields.durations?.[module.id])
+              const rawValue = durations[module.id] ?? ""
+              const parsedValue =
+                rawValue.trim() === ""
+                  ? undefined
+                  : // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
+                    parseFloat(rawValue)
+              const editedHours = Number.isFinite(parsedValue) ? parsedValue : undefined
               const durationHours = isEdited ? editedHours : configuredHours
               const isDefault = module.name === null
               const moduleName = module.name ?? t("default-module")
@@ -285,11 +315,9 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                 minimumSeconds === 0 && durationSeconds !== undefined && durationSeconds === 0
               const isRemoving = hasConfiguredValue && isEdited && editedHours === undefined
               // With thresholdsQuery resolved, no configured value means the backend default
-              // applies; show it as the value instead of an empty field.
+              // applies; the field already shows it (seeded as the default value), this only
+              // gates the "using the default" note beside it.
               const showsImplicitDefault = !hasConfiguredValue && !isEdited
-              const displayedValue = showsImplicitDefault
-                ? (defaultSeconds / SECONDS_PER_HOUR).toString()
-                : (durationHours?.toString() ?? "")
               const isSaved =
                 !isEdited ||
                 (durationSeconds !== undefined && durationSeconds === configuredSeconds) ||
@@ -297,28 +325,10 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
               const minHours = minimumSeconds / SECONDS_PER_HOUR
               // oxlint-disable-next-line i18next/no-literal-string
               const inputId = `duration-input-${module.id}`
-              // oxlint-disable-next-line i18next/no-literal-string
-              const labelId = `${inputId}-label`
               return (
                 <tr key={module.id}>
                   <td>{isDefault ? <strong>{moduleName}</strong> : moduleName}</td>
                   <td>
-                    <span
-                      id={labelId}
-                      className={css`
-                        position: absolute;
-                        width: 1px;
-                        height: 1px;
-                        padding: 0;
-                        margin: -1px;
-                        overflow: hidden;
-                        clip-path: inset(50%);
-                        white-space: nowrap;
-                        border-width: 0;
-                      `}
-                    >
-                      {moduleName}
-                    </span>
                     <div
                       className={css`
                         display: inline-block;
@@ -327,23 +337,19 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                     >
                       <TextField
                         id={inputId}
+                        name={`durations.${module.id}`}
+                        control={control}
+                        label={
+                          <VisuallyHidden>
+                            {t("duration-in-hours")}, {moduleName}
+                          </VisuallyHidden>
+                        }
                         className="duration-threshold"
                         type="number"
                         min={minHours}
-                        step={0.01}
-                        {...omitUndefined({ error: errorMessage })}
-                        aria-labelledby={`duration-header ${labelId}`}
-                        value={displayedValue}
-                        onChangeByValue={(value: string) => {
-                          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
-                          const parsed = parseFloat(value)
-                          setModuleThresholds((prev) => {
-                            const next = new Map(prev)
-                            // oxlint-disable-next-line unicorn/no-immediate-mutation -- intended immutable copy-then-set; folding breaks tuple inference
-                            next.set(module.id, Number.isFinite(parsed) ? parsed : undefined)
-                            return next
-                          })
-                        }}
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        step="0.01"
+                        {...omitUndefined({ errorMessage })}
                       />
                     </div>
                     {showsImplicitDefault && (

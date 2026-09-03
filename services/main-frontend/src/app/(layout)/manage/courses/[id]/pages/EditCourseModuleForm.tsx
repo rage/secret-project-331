@@ -6,13 +6,10 @@ import React, { useEffect, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Button, Checkbox, Select, TextField as NewTextField } from "@/shared-module/components"
+import { Button, Checkbox, Select, TextField } from "@/shared-module/components"
 
 import type { ModuleView } from "./CourseModules"
 import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
@@ -78,11 +75,18 @@ const realisationRowCss = css`
   margin-bottom: 0.75rem;
 `
 
-const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseModuleFormFields => {
+// `Select` options carry string values, so `starts`/`ends` are strings here and converted back to
+// the numbers `EditCourseModuleFormFields` declares when the form submits.
+type ModuleEditFormValues = Omit<EditCourseModuleFormFields, "starts" | "ends"> & {
+  starts: string
+  ends: string
+}
+
+const makeDefaultValues = (module: ModuleView, chapters: number[]): ModuleEditFormValues => {
   return {
     name: module.name,
-    starts: module.firstChapter ?? (chapters.length > 0 ? (chapters[0] ?? 1) : 1),
-    ends: module.lastChapter ?? chapters.at(-1) ?? 1,
+    starts: String(module.firstChapter ?? (chapters.length > 0 ? (chapters[0] ?? 1) : 1)),
+    ends: String(module.lastChapter ?? chapters.at(-1) ?? 1),
     ects_credits: Number(module.ects_credits) || 0,
     uh_course_code: module.uh_course_code ?? "",
     automatic_completion: module.automatic_completion ?? false,
@@ -113,13 +117,12 @@ const EditCourseModuleForm: React.FC<Props> = ({
   const [active, setActive] = useState(false)
   const {
     control,
-    register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting, dirtyFields },
+    formState: { isValid, isSubmitting, dirtyFields },
     reset,
     setValue,
     watch,
-  } = useForm<EditCourseModuleFormFields>({
+  } = useForm<ModuleEditFormValues>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: makeDefaultValues(module, chapters),
@@ -171,10 +174,12 @@ const EditCourseModuleForm: React.FC<Props> = ({
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [creditRegistrationEnabled])
 
-  const onSubmitFormWrapper = (fields: EditCourseModuleFormFields) => {
+  const onSubmitFormWrapper = (fields: ModuleEditFormValues) => {
     setActive(false)
     onSubmitForm(module.id, {
       ...fields,
+      starts: Number(fields.starts),
+      ends: Number(fields.ends),
       // A disabled Checkbox still submits its value, unlike `register(name, { disabled })`.
       automatic_completion_requires_exam: fields.automatic_completion
         ? fields.automatic_completion_requires_exam
@@ -215,13 +220,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
         {module.name ? (
           active ? (
             <TextField
+              name="name"
+              control={control}
               label={t("edit-module")}
-              labelStyle={css`
-                color: ${baseTheme.colors.clear[100]};
-              `}
-              placeholder={t("name-of-module")}
-              {...register("name", { required: true })}
-              {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
+              rules={{ required: true }}
             />
           ) : (
             `${module.order_number}. ${module.name}`
@@ -265,39 +267,35 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   flex: 2;
                 `}
               >
-                <SelectField
+                <Select
                   className={css`
                     flex: 1;
                     min-width: 5rem;
                     margin-bottom: 0;
                   `}
                   id="editing-module-start"
+                  name="starts"
+                  control={control}
                   label={t("starts")}
-                  labelStyle={css`
-                    color: ${baseTheme.colors.gray[500]};
-                  `}
                   options={chapters.map((c) => {
                     return { value: c.toString(), label: c.toString() }
                   })}
-                  {...register("starts", { required: true, valueAsNumber: true })}
-                  {...includeIf(errors["starts"]?.message, { error: errors["starts"]?.message })}
+                  rules={{ required: true }}
                 />
-                <SelectField
+                <Select
                   className={css`
                     flex: 1;
                     min-width: 5rem;
                     margin-bottom: 0;
                   `}
                   id="editing-module-ends"
+                  name="ends"
+                  control={control}
                   label={t("ends")}
-                  labelStyle={css`
-                    color: ${baseTheme.colors.gray[500]};
-                  `}
                   options={chapters.map((cn) => {
                     return { value: cn.toString(), label: cn.toString() }
                   })}
-                  {...register("ends", { required: true, valueAsNumber: true })}
-                  {...includeIf(errors["ends"]?.message, { error: errors["ends"]?.message })}
+                  rules={{ required: true }}
                 />
               </div>
             </div>
@@ -321,27 +319,21 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   margin-bottom: 0;
                 `}
                 type="number"
+                name="automatic_completion_number_of_points_treshold"
+                control={control}
                 label={t("automatic-completion-points-treshold")}
-                placeholder={t("automatic-completion-points-treshold")}
-                {...register("automatic_completion_number_of_points_treshold", {
-                  valueAsNumber: true,
-                  disabled: !isChecked,
-                })}
-                {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
+                isDisabled={!isChecked}
               />
               <TextField
                 className={css`
                   flex: 1;
                   margin-bottom: 0;
                 `}
-                label={t("automatic-completion-exercise-treshold")}
-                placeholder={t("automatic-completion-exercise-treshold")}
                 type="number"
-                {...register("automatic_completion_number_of_exercises_attempted_treshold", {
-                  valueAsNumber: true,
-                  disabled: !isChecked,
-                })}
-                {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
+                name="automatic_completion_number_of_exercises_attempted_treshold"
+                control={control}
+                label={t("automatic-completion-exercise-treshold")}
+                isDisabled={!isChecked}
               />
               {/* Only for default module */}
               {!module.name && (
@@ -376,18 +368,14 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 label={t("override-completion-registration-link")}
               />
               <TextField
+                name="completion_registration_link_override"
+                control={control}
                 label={t("completion-registration-link")}
-                placeholder={t("completion-registration-link")}
                 className={css`
                   margin-bottom: 0;
                 `}
-                {...register("completion_registration_link_override", {
-                  disabled: !overrideLink,
-                  minLength: 10,
-                })}
-                {...includeIf(errors["completion_registration_link_override"]?.message, {
-                  error: errors["completion_registration_link_override"]?.message,
-                })}
+                isDisabled={!overrideLink}
+                rules={{ minLength: 10 }}
               />
             </div>
             <Checkbox
@@ -415,10 +403,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   min-width: 8rem;
                   margin-bottom: 0;
                 `}
+                name="uh_course_code"
+                control={control}
                 label={t("uh-course-code")}
-                placeholder={t("uh-course-code")}
-                {...register("uh_course_code")}
-                {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
               />
               <TextField
                 className={css`
@@ -426,14 +413,12 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   min-width: 8rem;
                   margin-bottom: 0;
                 `}
+                name="ects_credits"
+                control={control}
                 label={t("ects-credits")}
-                placeholder={t("ects-credits")}
                 type="number"
                 // oxlint-disable-next-line i18next/no-literal-string
                 step="any"
-                {...register("ects_credits", {
-                  valueAsNumber: true,
-                })}
               />
             </div>
             <OnlyRenderIfPermissions
@@ -449,7 +434,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 />
                 {creditRegistrationEnabled && (
                   <div className={creditRegistrationBodyCss}>
-                    <NewTextField
+                    <TextField
                       name="credit_registration.open_university_product_id"
                       control={control}
                       label={t("label-open-university-product-id")}
@@ -478,13 +463,13 @@ const EditCourseModuleForm: React.FC<Props> = ({
                       </div>
                       {realisations.fields.map((field, index) => (
                         <div className={realisationRowCss} key={field.id}>
-                          <NewTextField
+                          <TextField
                             name={`credit_registration.realisations.${index}.course_unit_realisation_id`}
                             control={control}
                             label={t("label-course-unit-realisation-id")}
                             rules={{ required: t("required-field") }}
                           />
-                          <NewTextField
+                          <TextField
                             name={`credit_registration.realisations.${index}.label`}
                             control={control}
                             label={t("label-realisation-name-shown-to-students")}

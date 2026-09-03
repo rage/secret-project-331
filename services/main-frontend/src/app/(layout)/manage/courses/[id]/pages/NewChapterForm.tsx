@@ -12,11 +12,10 @@ import {
 import type { Chapter, NewChapter } from "@/generated/api/types.generated"
 import CheckboxFieldWrapper from "@/shared-module/common/components/InputFields/CheckboxFieldWrapper"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
-import { Button } from "@/shared-module/components"
+import { Button, TextField } from "@/shared-module/components"
 
 interface NewChapterFormProps {
   courseId: string
@@ -43,6 +42,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
 }) => {
   const { t } = useTranslation()
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
@@ -119,23 +119,18 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
       `}
     >
       <TextField
-        {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
-        placeholder={t("text-field-label-name")}
+        name="name"
+        control={control}
         label={t("text-field-label-name")}
-        {...register("name", { required: "required-field" })}
+        rules={{ required: t("required-field") }}
       />
       <TextField
-        {...includeIf(errors["chapter_number"]?.message, {
-          error: errors["chapter_number"]?.message,
-        })}
-        placeholder={t("text-field-label-chapter-number")}
+        name="chapter_number"
+        control={control}
         label={t("text-field-label-chapter-number")}
         type="number"
-        {...register("chapter_number", {
-          required: t("required-field"),
-          valueAsNumber: true,
-          disabled: !newRecord,
-        })}
+        isDisabled={!newRecord}
+        rules={{ required: t("required-field") }}
       />
       <CheckboxFieldWrapper
         initialChecked={!!getValues("color")}
@@ -147,10 +142,9 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
             height: 45px;
             padding: 0px 0px 0px 0px !important;
           `}
-          {...includeIf(errors["color"]?.message, { error: errors["color"]?.message })}
-          placeholder={t("input-field-chapter-color")}
+          name="color"
+          control={control}
           label={t("input-field-chapter-color")}
-          {...register("color", { required: false })}
           type="color"
         />
       </CheckboxFieldWrapper>

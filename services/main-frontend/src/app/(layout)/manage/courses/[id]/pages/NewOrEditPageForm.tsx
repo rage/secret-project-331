@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -10,9 +11,8 @@ import {
   updatePageDetailsMutation as updatePageDetailsMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CreatePageData, Page } from "@/generated/api/types.generated"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Dialog } from "@/shared-module/components"
+import { Dialog, TextField } from "@/shared-module/components"
 import { cleanUrlPath, normalizePath } from "@/utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
@@ -39,6 +39,11 @@ interface NewOrEditPageFormProps {
 
 type NewPage = CreatePageData["body"]
 
+interface PageDetailsFields {
+  title: string
+  path: string
+}
+
 const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps>> = ({
   courseId,
   onSubmitForm,
@@ -57,8 +62,23 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
     }
     return prevPath.replace(prefix, "")
   }, [prefix, savedPage?.url_path])
-  const [path, setPath] = useState(initialPath)
-  const [title, setTitle] = useState(savedPage?.title ?? "")
+  const { control, watch, setValue, getValues } = useForm<PageDetailsFields>({
+    defaultValues: { title: savedPage?.title ?? "", path: initialPath },
+  })
+  const title = watch("title")
+  const path = watch("path")
+
+  // Deriving the path from the title is a convenience for a fresh edit, not a rule the initial
+  // (possibly hand-picked) path must obey, so this skips the render that fires from the seeded value.
+  const skipNextTitleDerivedPath = useRef(true)
+  useEffect(() => {
+    if (skipNextTitleDerivedPath.current) {
+      skipNextTitleDerivedPath.current = false
+      return
+    }
+    setValue("path", normalizePath(title))
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [title])
 
   const createPageMutation = useToastMutationOptions(
     createPageMutationOptions(),
@@ -144,13 +164,10 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
             `}
           >
             <TextField
-              required
+              isRequired
+              name="title"
+              control={control}
               label={t("text-field-label-title")}
-              value={title}
-              onChangeByValue={(value) => {
-                setTitle(value)
-                setPath(normalizePath(value))
-              }}
             />
           </FieldContainer>
           <FieldContainer
@@ -169,22 +186,21 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
               >
                 {prefix}
               </span>
-              <TextField
-                required
-                label={t("text-field-label-path")}
-                value={path}
+              <div
+                // React's onBlur bubbles from the input (unlike the native blur event), so this
+                // wrapper is what lets the cleanup run without the field exposing an onBlur prop.
+                onBlur={() => setValue("path", cleanUrlPath(getValues("path")))}
                 className={css`
                   width: 100%;
                 `}
-                onChangeByValue={(value) => {
-                  setPath(value)
-                }}
-                onBlur={() => {
-                  // Clean a manually entered path the way the backend stores it. On blur, not
-                  // per-keystroke, so typing hyphens mid-edit still works.
-                  setPath((current) => cleanUrlPath(current))
-                }}
-              />
+              >
+                <TextField
+                  isRequired
+                  name="path"
+                  control={control}
+                  label={t("text-field-label-path")}
+                />
+              </div>
             </PathFieldWithPrefixElement>
           </FieldContainer>
         </div>

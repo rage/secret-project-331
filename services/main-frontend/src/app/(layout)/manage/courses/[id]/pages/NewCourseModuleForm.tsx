@@ -5,12 +5,8 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Checkbox from "@/shared-module/common/components/InputFields/CheckBox"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
-import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Button } from "@/shared-module/components"
+import { Button, Checkbox, Select, TextField } from "@/shared-module/components"
 
 interface Props {
   chapters: number[]
@@ -31,21 +27,25 @@ export interface Fields {
   enable_registering_completion_to_uh_open_university: boolean
 }
 
+// `Select` options carry string values, so `starts`/`ends` are strings here and converted back to
+// the numbers `Fields` declares when the form submits.
+type NewModuleFormValues = Omit<Fields, "starts" | "ends"> & { starts: string; ends: string }
+
 const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
   const { t } = useTranslation()
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isValid, isSubmitting },
     reset,
     watch,
-  } = useForm<Fields>({
+  } = useForm<NewModuleFormValues>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       name: "",
-      starts: chapters[0] ?? 1,
-      ends: chapters.at(-1) ?? 1,
+      starts: String(chapters[0] ?? 1),
+      ends: String(chapters.at(-1) ?? 1),
       ects_credits: null,
       automatic_completion: false,
       uh_course_code: "",
@@ -54,8 +54,8 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
     },
   })
 
-  const onSubmitFormWrapper = (fields: Fields) => {
-    onSubmitForm(fields)
+  const onSubmitFormWrapper = (fields: NewModuleFormValues) => {
+    onSubmitForm({ ...fields, starts: Number(fields.starts), ends: Number(fields.ends) })
     reset()
   }
 
@@ -74,10 +74,10 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
     >
       <div>
         <TextField
+          name="name"
+          control={control}
           label={t("create-module")}
-          placeholder={t("name-of-module")}
-          {...register("name", { required: t("required-field") })}
-          {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
+          rules={{ required: t("required-field") }}
         />
         <div
           className={css`
@@ -104,30 +104,32 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               margin-bottom: 0.6rem;
             `}
           >
-            <SelectField
+            <Select
               className={css`
                 min-width: 5rem;
                 margin-right: 1rem;
               `}
               id="new-module-start"
+              name="starts"
+              control={control}
               label={t("starts")}
               options={chapters.map((c) => {
                 return { value: c.toString(), label: c.toString() }
               })}
-              {...register("starts", { required: t("required-field"), valueAsNumber: true })}
-              {...includeIf(errors["starts"]?.message, { error: errors["starts"]?.message })}
+              rules={{ required: t("required-field") }}
             />
-            <SelectField
+            <Select
               className={css`
                 min-width: 5rem;
               `}
               id="new-module-ends"
+              name="ends"
+              control={control}
               label={t("ends")}
               options={chapters.map((c) => {
                 return { value: c.toString(), label: c.toString() }
               })}
-              {...register("ends", { required: t("required-field"), valueAsNumber: true })}
-              {...includeIf(errors["ends"]?.message, { error: errors["ends"]?.message })}
+              rules={{ required: t("required-field") }}
             />
           </div>
         </div>
@@ -162,8 +164,9 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
             `}
           >
             <Checkbox
+              name="automatic_completion"
+              control={control}
               label={t("enable-automatic-completion")}
-              {...register("automatic_completion")}
               className={css`
                 grid-area: c;
                 font-size: 15px;
@@ -174,31 +177,26 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               className={css`
                 grid-area: d;
               `}
+              name="automatic_completion_number_of_points_treshold"
+              control={control}
               label={t("automatic-completion-points-treshold")}
-              placeholder={t("automatic-completion-points-treshold")}
               type="number"
-              {...register("automatic_completion_number_of_points_treshold", {
-                valueAsNumber: true,
-                disabled: !isChecked,
-              })}
-              {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
+              isDisabled={!isChecked}
             />
             <TextField
               className={css`
                 grid-area: e;
               `}
+              name="automatic_completion_number_of_exercises_attempted_treshold"
+              control={control}
               label={t("automatic-completion-exercise-treshold")}
-              placeholder={t("automatic-completion-exercise-treshold")}
               type="number"
-              {...register("automatic_completion_number_of_exercises_attempted_treshold", {
-                valueAsNumber: true,
-                disabled: !isChecked,
-              })}
-              {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
+              isDisabled={!isChecked}
             />
             <Checkbox
+              name="enable_registering_completion_to_uh_open_university"
+              control={control}
               label={t("label-enable-registering-completion-to-uh-open-university")}
-              {...register("enable_registering_completion_to_uh_open_university")}
               className={css`
                 grid-area: f;
                 font-size: 15px;
@@ -209,19 +207,18 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               className={css`
                 grid-area: a;
               `}
+              name="uh_course_code"
+              control={control}
               label={t("uh-course-code")}
-              placeholder={t("uh-course-code")}
-              {...register("uh_course_code")}
-              {...includeIf(errors["name"]?.message, { error: errors["name"]?.message })}
             />
             <TextField
               className={css`
                 grid-area: b;
               `}
+              name="ects_credits"
+              control={control}
               label={t("ects-credits")}
-              placeholder={t("ects-credits")}
               type="number"
-              {...register("ects_credits", { valueAsNumber: true })}
             />
           </div>
         </div>

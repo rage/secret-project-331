@@ -51,6 +51,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
       uh_course_code: "",
       automatic_completion_number_of_points_treshold: null,
       automatic_completion_number_of_exercises_attempted_treshold: null,
+      enable_registering_completion_to_uh_open_university: false,
     },
   })
 

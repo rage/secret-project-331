@@ -23,5 +23,6 @@ describe("NewCourseModuleForm", () => {
     expect(fields.name).toBe("Module 1")
     expect(fields.starts).toBe(1)
     expect(fields.ends).toBe(3)
+    expect(fields.enable_registering_completion_to_uh_open_university).toBe(false)
   })
 })

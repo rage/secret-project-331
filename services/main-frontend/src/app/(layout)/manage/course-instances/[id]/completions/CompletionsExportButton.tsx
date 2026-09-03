@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next"
 
-import { Button } from "@/shared-module/components"
+import { Link } from "@/shared-module/components"
 
 interface Props {
   courseInstanceId: string
@@ -13,15 +13,16 @@ const CompletionsExportButton: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   const { t } = useTranslation()
   return (
-    <a
+    <Link
       href={`/api/v0/main-frontend/course-instances/${courseInstanceId}/export-completions`}
       aria-label={t("link-export-completions")}
       download
+      styledAsButton
+      variant="secondary"
+      size="medium"
     >
-      <Button variant="secondary" size="medium" type="button">
-        {t("link-export-completions")}
-      </Button>
-    </a>
+      {t("link-export-completions")}
+    </Link>
   )
 }
 

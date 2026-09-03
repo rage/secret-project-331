@@ -132,3 +132,130 @@ WHERE exercise_task_id = $1
     .await?;
     Ok(res)
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::test_helper::*;
+
+    async fn insert_file(tx: &mut PgConnection, name: &str) -> Uuid {
+        crate::file_uploads::insert(
+            tx,
+            name,
+            &format!("tmc/{name}"),
+            "application/octet-stream",
+            None,
+            None,
+        )
+        .await
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn a_save_that_drops_a_file_releases_only_that_one() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:task_id);
+        let kept = insert_file(tx.as_mut(), "kept").await;
+        let dropped = insert_file(tx.as_mut(), "dropped").await;
+        replace_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private, &[kept, dropped])
+            .await
+            .unwrap();
+
+        replace_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private, &[kept])
+            .await
+            .unwrap();
+
+        let declared = get_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private)
+            .await
+            .unwrap();
+        assert_eq!(declared, vec![kept]);
+    }
+
+    /// The kinds have to be independent: storing a derived spec must not release what the private
+    /// spec declares, and a derived spec may name a file the private spec never did.
+    #[tokio::test]
+    async fn replacing_one_kind_leaves_the_others_alone() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:task_id);
+        let in_private = insert_file(tx.as_mut(), "teacher-example").await;
+        let in_public = insert_file(tx.as_mut(), "stub-archive").await;
+        replace_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private, &[in_private])
+            .await
+            .unwrap();
+        replace_for_exercise_task(tx.as_mut(), task_id, SpecKind::Public, &[in_public])
+            .await
+            .unwrap();
+
+        replace_for_exercise_task(tx.as_mut(), task_id, SpecKind::Public, &[])
+            .await
+            .unwrap();
+
+        assert_eq!(
+            get_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private)
+                .await
+                .unwrap(),
+            vec![in_private]
+        );
+        assert!(
+            get_for_exercise_task(tx.as_mut(), task_id, SpecKind::Public)
+                .await
+                .unwrap()
+                .is_empty()
+        );
+    }
+
+    /// Re-declaring must not churn: the editor emits a spec on every keystroke, so a save that
+    /// changes nothing would otherwise soft-delete and re-insert every row each time.
+    #[tokio::test]
+    async fn re_declaring_the_same_file_keeps_its_row() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:task_id);
+        let file_id = insert_file(tx.as_mut(), "unchanged").await;
+        replace_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private, &[file_id])
+            .await
+            .unwrap();
+        let first = row_count(tx.as_mut(), task_id).await;
+
+        replace_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private, &[file_id])
+            .await
+            .unwrap();
+
+        assert_eq!(row_count(tx.as_mut(), task_id).await, first);
+        assert_eq!(
+            get_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private)
+                .await
+                .unwrap(),
+            vec![file_id]
+        );
+    }
+
+    #[tokio::test]
+    async fn groups_declarations_by_task() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:task_id);
+        let file_id = insert_file(tx.as_mut(), "declared").await;
+        replace_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private, &[file_id])
+            .await
+            .unwrap();
+
+        let by_task = get_by_exercise_task_ids(tx.as_mut(), &[task_id], SpecKind::Private)
+            .await
+            .unwrap();
+
+        assert_eq!(by_task.get(&task_id), Some(&vec![file_id]));
+        assert!(
+            get_by_exercise_task_ids(tx.as_mut(), &[task_id], SpecKind::Public)
+                .await
+                .unwrap()
+                .is_empty()
+        );
+    }
+
+    /// Counts every row, soft-deleted ones included, which is what tells churn from a no-op.
+    async fn row_count(conn: &mut PgConnection, exercise_task_id: Uuid) -> i64 {
+        sqlx::query_scalar!(
+            "SELECT COUNT(*) FROM exercise_task_spec_files WHERE exercise_task_id = $1",
+            exercise_task_id
+        )
+        .fetch_one(conn)
+        .await
+        .unwrap()
+        .unwrap_or_default()
+    }
+}

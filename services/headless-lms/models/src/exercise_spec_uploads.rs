@@ -220,3 +220,254 @@ WHERE file_upload_id = $1
     .await?;
     Ok(())
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::exercise_task_spec_files::SpecKind;
+    use crate::test_helper::*;
+
+    const DECLARING_SLUG: &str = "declaring-service";
+    const SILENT_SLUG: &str = "silent-service";
+
+    async fn insert_file(tx: &mut PgConnection, name: &str) -> Uuid {
+        crate::file_uploads::insert(
+            tx,
+            name,
+            &format!("{DECLARING_SLUG}/{name}"),
+            "application/octet-stream",
+            None,
+            None,
+        )
+        .await
+        .unwrap()
+    }
+
+    /// A service and its info row, since the reaper only considers uploads of a service that
+    /// declares what its specs reference.
+    async fn insert_service(tx: &mut PgConnection, slug: &str, declares_spec_files: bool) {
+        let service = crate::exercise_services::insert_exercise_service(
+            tx,
+            &crate::exercise_services::ExerciseServiceNewOrUpdate {
+                name: slug.to_string(),
+                slug: slug.to_string(),
+                public_url: format!("http://{slug}.example.com/api/service-info"),
+                internal_url: None,
+                max_reprocessing_submissions_at_once: 1,
+            },
+        )
+        .await
+        .unwrap();
+        crate::exercise_service_info::insert(
+            tx,
+            &crate::exercise_service_info::PathInfo {
+                exercise_service_id: service.id,
+                user_interface_iframe_path: "/iframe".to_string(),
+                grade_endpoint_path: "/api/grade".to_string(),
+                public_spec_endpoint_path: "/api/public-spec".to_string(),
+                model_solution_spec_endpoint_path: "/api/model-solution".to_string(),
+                has_custom_view: false,
+                supports_native_client: false,
+                produces_file_answers: false,
+                declares_spec_files,
+            },
+        )
+        .await
+        .unwrap();
+    }
+
+    /// Records an abandoned-looking upload: old enough, declared by nothing.
+    async fn insert_stale_upload(tx: &mut PgConnection, slug: &str, name: &str) -> Uuid {
+        let file_id = insert_file(&mut *tx, name).await;
+        insert_many(&mut *tx, slug, None, &[file_id]).await.unwrap();
+        backdate(&mut *tx, file_id, Duration::days(8))
+            .await
+            .unwrap();
+        file_id
+    }
+
+    fn lists(reapable: &[ReapableUpload], file_upload_id: Uuid) -> bool {
+        reapable
+            .iter()
+            .any(|upload| upload.file_upload_id == file_upload_id)
+    }
+
+    #[tokio::test]
+    async fn lists_an_upload_no_spec_declares() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:_task);
+        insert_service(tx.as_mut(), DECLARING_SLUG, true).await;
+        let file_id = insert_stale_upload(tx.as_mut(), DECLARING_SLUG, "abandoned").await;
+
+        let reapable = get_reapable(tx.as_mut()).await.unwrap();
+
+        assert!(lists(&reapable, file_id));
+    }
+
+    #[tokio::test]
+    async fn spares_an_upload_inside_the_retention_window() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:_task);
+        insert_service(tx.as_mut(), DECLARING_SLUG, true).await;
+        let file_id = insert_file(tx.as_mut(), "fresh").await;
+        insert_many(tx.as_mut(), DECLARING_SLUG, None, &[file_id])
+            .await
+            .unwrap();
+
+        let reapable = get_reapable(tx.as_mut()).await.unwrap();
+
+        assert!(!lists(&reapable, file_id));
+    }
+
+    /// The gate that protects every service written before the declarations existed: without a
+    /// declaration the host has no evidence a file is unused, so it must keep it.
+    #[tokio::test]
+    async fn never_lists_an_upload_of_a_service_that_declares_nothing() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:_task);
+        insert_service(tx.as_mut(), SILENT_SLUG, false).await;
+        let file_id = insert_stale_upload(tx.as_mut(), SILENT_SLUG, "kept-forever").await;
+
+        let reapable = get_reapable(tx.as_mut()).await.unwrap();
+
+        assert!(!lists(&reapable, file_id));
+    }
+
+    /// The playground has no specs and no service behind its reserved slug, so what it stores is
+    /// throwaway and reapable without any declaration.
+    #[tokio::test]
+    async fn lists_a_playground_upload_although_no_service_declares() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:_task);
+        let file_id = insert_stale_upload(tx.as_mut(), "playground", "playground-file").await;
+
+        let reapable = get_reapable(tx.as_mut()).await.unwrap();
+
+        assert!(lists(&reapable, file_id));
+    }
+
+    #[tokio::test]
+    async fn spares_an_upload_a_live_spec_declares() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:task_id);
+        insert_service(tx.as_mut(), DECLARING_SLUG, true).await;
+        let file_id = insert_stale_upload(tx.as_mut(), DECLARING_SLUG, "in-a-spec").await;
+        crate::exercise_task_spec_files::replace_for_exercise_task(
+            tx.as_mut(),
+            task_id,
+            SpecKind::Private,
+            &[file_id],
+        )
+        .await
+        .unwrap();
+
+        let reapable = get_reapable(tx.as_mut()).await.unwrap();
+
+        assert!(!lists(&reapable, file_id));
+    }
+
+    /// A derived spec's declaration counts too. It is the only one that can: a file uploaded while
+    /// deriving is named by no private spec, so checking one kind would delete tmc's stub archives.
+    #[tokio::test]
+    async fn spares_an_upload_only_a_derived_spec_declares() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:task_id);
+        insert_service(tx.as_mut(), DECLARING_SLUG, true).await;
+        let file_id = insert_stale_upload(tx.as_mut(), DECLARING_SLUG, "stub-archive").await;
+        crate::exercise_task_spec_files::replace_for_exercise_task(
+            tx.as_mut(),
+            task_id,
+            SpecKind::Public,
+            &[file_id],
+        )
+        .await
+        .unwrap();
+
+        let reapable = get_reapable(tx.as_mut()).await.unwrap();
+
+        assert!(!lists(&reapable, file_id));
+    }
+
+    /// A file dropped from the current spec but still named by a snapshot a restore could bring
+    /// back. This is what makes the reaper collect abandoned uploads rather than dropped files.
+    #[tokio::test]
+    async fn spares_an_upload_only_page_history_declares() {
+        insert_data!(:tx, user:user_id, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:page_id, exercise:_exercise, slide:_slide, task:_task);
+        insert_service(tx.as_mut(), DECLARING_SLUG, true).await;
+        let file_id =
+            insert_stale_upload(tx.as_mut(), DECLARING_SLUG, "dropped-but-in-history").await;
+        let history_id = crate::page_history::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            page_id,
+            "Snapshot",
+            &crate::page_history::PageHistoryContent {
+                content: serde_json::json!([]),
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                peer_or_self_review_configs: vec![],
+                peer_or_self_review_questions: vec![],
+            },
+            crate::page_history::HistoryChangeReason::PageSaved,
+            user_id,
+            None,
+        )
+        .await
+        .unwrap();
+        crate::page_history_spec_files::insert_many(tx.as_mut(), history_id, &[file_id])
+            .await
+            .unwrap();
+
+        let reapable = get_reapable(tx.as_mut()).await.unwrap();
+
+        assert!(!lists(&reapable, file_id));
+    }
+
+    /// The re-check under the row lock, which is what stops a reap landing between `get_reapable`
+    /// and the delete of a file a save has since declared.
+    #[tokio::test]
+    async fn declines_to_retire_an_upload_declared_after_it_was_listed() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:task_id);
+        insert_service(tx.as_mut(), DECLARING_SLUG, true).await;
+        let file_id = insert_stale_upload(tx.as_mut(), DECLARING_SLUG, "declared-late").await;
+        let listed = get_reapable(tx.as_mut()).await.unwrap();
+        let upload = listed
+            .iter()
+            .find(|upload| upload.file_upload_id == file_id)
+            .expect("listed");
+        crate::exercise_task_spec_files::replace_for_exercise_task(
+            tx.as_mut(),
+            task_id,
+            SpecKind::Private,
+            &[file_id],
+        )
+        .await
+        .unwrap();
+
+        assert!(!mark_reaped(tx.as_mut(), upload.id).await.unwrap());
+        assert_eq!(
+            get_by_file_upload_id(tx.as_mut(), file_id)
+                .await
+                .unwrap()
+                .map(|recorded| recorded.deleted),
+            Some(false)
+        );
+    }
+
+    #[tokio::test]
+    async fn retires_an_upload_nothing_declares() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:_task);
+        insert_service(tx.as_mut(), DECLARING_SLUG, true).await;
+        let file_id = insert_stale_upload(tx.as_mut(), DECLARING_SLUG, "retired").await;
+        let recorded = get_by_file_upload_id(tx.as_mut(), file_id)
+            .await
+            .unwrap()
+            .expect("recorded");
+
+        assert!(mark_reaped(tx.as_mut(), recorded.id).await.unwrap());
+
+        assert_eq!(
+            get_by_file_upload_id(tx.as_mut(), file_id)
+                .await
+                .unwrap()
+                .map(|recorded| recorded.deleted),
+            Some(true),
+            "the row survives soft-deleted, as the audit trail of what was reclaimed"
+        );
+    }
+}

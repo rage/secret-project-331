@@ -10,10 +10,10 @@ import { useTranslation } from "react-i18next"
 import Echarts from "@/components/charts/Echarts"
 import type { CountResult } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { LoadingRegion } from "@/shared-module/components"
 import { DateField } from "@/shared-module/components/components/DateField"
+import { Select } from "@/shared-module/components/components/Select"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import StatsHeader from "./StatsHeader"
@@ -27,9 +27,14 @@ export type Period = typeof MONTHLY_PERIOD | typeof DAILY_PERIOD | typeof CUSTOM
 export const DAILY_DATE_FORMAT = "yyyy-MM-dd"
 export const MONTHLY_DATE_FORMAT = "yyyy-MM"
 
-interface CustomDateRangeFilterValues {
+const FIELD_START_DATE = "startDate" as const
+const FIELD_END_DATE = "endDate" as const
+const FIELD_PERIOD = "period" as const
+
+interface LineChartFilterValues {
   startDate: string
   endDate: string
+  period: Period
 }
 
 interface LineChartProps {
@@ -69,13 +74,15 @@ const LineChart: React.FC<LineChartProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  // DateField is control/name-only (no onChange prop), so this local form exists solely to host it;
-  // its values are mirrored up through the legacy setStartDate/setEndDate callback props.
-  const { control: dateRangeControl } = useForm<CustomDateRangeFilterValues>({
-    defaultValues: { startDate: "", endDate: "" },
+  // DateField and Select are control/name-only (no onChange prop), so this local form exists
+  // solely to host them; their values are mirrored up through the legacy setStartDate/setEndDate/
+  // setPeriod callback props.
+  const { control: filterControl } = useForm<LineChartFilterValues>({
+    defaultValues: { startDate: "", endDate: "", period },
   })
-  const watchedStartDate = useWatch({ control: dateRangeControl, name: "startDate" })
-  const watchedEndDate = useWatch({ control: dateRangeControl, name: "endDate" })
+  const watchedStartDate = useWatch({ control: filterControl, name: FIELD_START_DATE })
+  const watchedEndDate = useWatch({ control: filterControl, name: FIELD_END_DATE })
+  const watchedPeriod = useWatch({ control: filterControl, name: FIELD_PERIOD })
 
   useEffect(() => {
     setStartDate?.(watchedStartDate || null)
@@ -84,6 +91,10 @@ const LineChart: React.FC<LineChartProps> = ({
   useEffect(() => {
     setEndDate?.(watchedEndDate || null)
   }, [watchedEndDate, setEndDate])
+
+  useEffect(() => {
+    setPeriod(watchedPeriod)
+  }, [watchedPeriod, setPeriod])
 
   const chartOptions: EChartsOption = {
     xAxis: {
@@ -154,16 +165,23 @@ const LineChart: React.FC<LineChartProps> = ({
                 `}
               >
                 <DateField
-                  control={dateRangeControl}
-                  name="startDate"
+                  control={filterControl}
+                  name={FIELD_START_DATE}
                   label={t("stats-start-date")}
                 />
-                <DateField control={dateRangeControl} name="endDate" label={t("stats-end-date")} />
+                <DateField
+                  control={filterControl}
+                  name={FIELD_END_DATE}
+                  label={t("stats-end-date")}
+                />
               </div>
             )}
 
-            <SelectMenu
+            <Select
               id="period-select"
+              control={filterControl}
+              name={FIELD_PERIOD}
+              label={t("stats-period-selector-label")}
               options={[
                 { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
                 { value: DAILY_PERIOD, label: t("stats-period-daily") },
@@ -171,13 +189,10 @@ const LineChart: React.FC<LineChartProps> = ({
                   ? [{ value: CUSTOM_PERIOD, label: t("stats-period-custom") }]
                   : []),
               ]}
-              value={period}
-              onChange={(e) => setPeriod(e.currentTarget.value as Period)}
               className={css`
                 margin-bottom: 0;
                 min-width: 120px;
               `}
-              showDefaultOption={false}
             />
           </div>
         )}

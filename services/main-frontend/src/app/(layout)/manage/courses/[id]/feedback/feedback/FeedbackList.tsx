@@ -8,7 +8,7 @@ import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
 
-import FeedbackPage from "./FeedbackPage"
+import FeedbackPage from "../feedback/FeedbackPage"
 
 interface Props {
   courseId: string

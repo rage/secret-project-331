@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,17 +10,15 @@ import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
-  manageCourseChangeRequestsOldRoute,
-  manageCourseChangeRequestsPendingRoute,
   manageCourseChangeRequestsRoute,
+  manageCourseFeedbackChangeRequestsRoute,
 } from "@/shared-module/common/utils/routes"
 
 const KEY_PENDING = "pending"
 const KEY_OLD = "old"
 
-export default function ChangeRequestsLayout({ children }: { children: React.ReactNode }) {
+export default function FeedbackChangeRequestsLayout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>()
   const courseId = params.id
   const { t } = useTranslation()
@@ -46,29 +43,19 @@ export default function ChangeRequestsLayout({ children }: { children: React.Rea
       {
         key: KEY_PENDING,
         title: t("pending"),
-        href: manageCourseChangeRequestsPendingRoute(courseId),
+        href: manageCourseFeedbackChangeRequestsRoute(params.id, "pending"),
         countHook: pendingCountHook,
       },
       {
         key: KEY_OLD,
         title: t("old"),
-        href: manageCourseChangeRequestsOldRoute(courseId),
+        href: manageCourseFeedbackChangeRequestsRoute(params.id, "old"),
       },
     ]
   }, [courseId, t, pendingCountHook])
 
   return (
     <>
-      <h3
-        className={css`
-          font-size: clamp(2rem, 3.6vh, 36px);
-          color: ${baseTheme.colors.gray[700]};
-          font-family: ${headingFont};
-          font-weight: bold;
-        `}
-      >
-        {t("title-change-requests")}
-      </h3>
       <RouteTabPageTitle
         tabs={tabs}
         entityName={courseBreadcrumbInfo.data?.course_name}

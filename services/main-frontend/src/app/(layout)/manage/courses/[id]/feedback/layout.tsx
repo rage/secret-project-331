@@ -9,53 +9,56 @@ import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBrea
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
+import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
-  manageCourseFeedbackReadRoute,
-  manageCourseFeedbackRoute,
-  manageCourseFeedbackUnreadRoute,
+  manageCourseChangeRequestsRoute,
+  manageCourseFeedbackFeedbackRoute,
+  manageCourseFeedbackChangeRequestsRoute,
 } from "@/shared-module/common/utils/routes"
 
-const KEY_UNREAD = "unread"
-const KEY_READ = "read"
+const KEY_CHANGE_REQUESTS = "change-requests"
+const KEY_FEEDBACK = "feedback"
 
 export default function FeedbackLayout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>()
   const courseId = params.id
   const { t } = useTranslation()
-  const unreadCountHook = createUnreadFeedbackCountHook(courseId)
+  const feedbackCountHook = createUnreadFeedbackCountHook(courseId)
+  const changeRequestCountHook = createPendingChangeRequestCountHook(courseId)
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
   const crumbs = useMemo(
     () => [
       {
         isLoading: false as const,
-        label: t("title-feedback"),
-        href: manageCourseFeedbackRoute(courseId),
+        label: t("title-change-requests"),
+        href: manageCourseChangeRequestsRoute(courseId),
       },
     ],
     [courseId, t],
   )
 
-  useRegisterBreadcrumbs({ key: `course:${courseId}:feedback`, order: 30, crumbs })
+  useRegisterBreadcrumbs({ key: `course:${courseId}:change-requests`, order: 30, crumbs })
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     return [
       {
-        key: KEY_UNREAD,
-        title: t("unread"),
-        href: manageCourseFeedbackUnreadRoute(courseId),
-        countHook: unreadCountHook,
+        key: KEY_FEEDBACK,
+        title: t("link-feedback"),
+        href: manageCourseFeedbackFeedbackRoute(courseId),
+        countHook: feedbackCountHook,
       },
       {
-        key: KEY_READ,
-        title: t("read"),
-        href: manageCourseFeedbackReadRoute(courseId),
+        key: KEY_CHANGE_REQUESTS,
+        title: t("link-change-requests"),
+        href: manageCourseFeedbackChangeRequestsRoute(courseId),
+        countHook: changeRequestCountHook,
       },
     ]
-  }, [courseId, t, unreadCountHook])
+  }, [courseId, t, feedbackCountHook, changeRequestCountHook])
 
   return (
     <>

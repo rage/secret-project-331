@@ -401,6 +401,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
                         <Select
                           name="role"
                           control={editRoleControl}
+                          id="edit-user-role"
                           label={t("label-role")}
                           options={options(t)}
                         />
@@ -485,6 +486,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
           <Select
             name="role"
             control={addRoleControl}
+            id="add-user-role"
             label={t("label-role")}
             options={options(t)}
           />

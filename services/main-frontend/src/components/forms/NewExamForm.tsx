@@ -224,6 +224,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           <DateTimeLocalField
             name="startsAt"
             control={control}
+            data-testid="exam-starts-at-field"
             label={t("label-starts-at")}
             rules={{ required: t("required-field") }}
             {...includeIf(startTimeWarning !== null, { notice: startTimeWarning })}
@@ -231,6 +232,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           <DateTimeLocalField
             name="endsAt"
             control={control}
+            data-testid="exam-ends-at-field"
             label={t("label-ends-at")}
             rules={{ required: t("required-field") }}
           />

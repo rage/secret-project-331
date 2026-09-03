@@ -58,6 +58,7 @@ const ClosedSectionFields = (): React.ReactElement => {
           <FieldContainer>
             <DateTimeLocalField
               control={control}
+              data-testid="closed-at-field"
               label={t("closed-at")}
               name="closed_at"
               rules={nullIfEmpty}

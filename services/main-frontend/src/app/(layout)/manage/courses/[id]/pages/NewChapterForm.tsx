@@ -164,7 +164,12 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         label={t("set-field-value", { name: t("label-opens-at") })}
       />
       {hasOpensAt && (
-        <DateTimeLocalField name="opens_at" control={control} label={t("label-opens-at")} />
+        <DateTimeLocalField
+          name="opens_at"
+          control={control}
+          data-testid="chapter-opens-at-field"
+          label={t("label-opens-at")}
+        />
       )}
       <Checkbox
         name="has_deadline"
@@ -172,7 +177,12 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         label={t("set-field-value", { name: t("label-deadline") })}
       />
       {hasDeadline && (
-        <DateTimeLocalField name="deadline" control={control} label={t("label-deadline")} />
+        <DateTimeLocalField
+          name="deadline"
+          control={control}
+          data-testid="chapter-deadline-field"
+          label={t("label-deadline")}
+        />
       )}
       <div>
         <Button

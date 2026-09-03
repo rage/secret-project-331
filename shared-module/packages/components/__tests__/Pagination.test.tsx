@@ -74,6 +74,14 @@ describe("Pagination - structure and naming", () => {
     expect(screen.getByRole("button", { name: "Next page" })).toBeDisabled()
     expect(screen.getByRole("button", { name: "Go to page 1" })).toBeDisabled()
   })
+
+  test("puts data-testid on the nav", () => {
+    render(
+      <Pagination page={1} totalPages={5} onPageChange={jest.fn()} data-testid="results-pager" />,
+    )
+
+    expect(screen.getByTestId("results-pager")).toBe(screen.getByRole("navigation"))
+  })
 })
 
 describe("Pagination - boundaries", () => {

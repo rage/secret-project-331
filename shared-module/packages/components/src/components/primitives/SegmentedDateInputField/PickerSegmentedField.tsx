@@ -42,6 +42,7 @@ import {
 export interface PickerSegmentedFieldProps {
   canClear: boolean
   className?: string | undefined
+  dataTestId?: string | undefined
   dateFieldAria: DateFieldAria
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -88,6 +89,7 @@ export interface PickerSegmentedFieldProps {
 export function PickerSegmentedField({
   canClear,
   className,
+  dataTestId,
   dateFieldAria,
   description,
   errorMessage,
@@ -119,6 +121,9 @@ export function PickerSegmentedField({
   state,
   timeSelectorProps,
 }: PickerSegmentedFieldProps) {
+  const valueTestId = dataTestId ? `${dataTestId}-value` : undefined
+  const triggerTestId = dataTestId ? `${dataTestId}-trigger` : undefined
+
   const describedBy = joinAriaDescribedBy(
     typeof pickerAria.groupProps["aria-describedby"] === "string"
       ? pickerAria.groupProps["aria-describedby"]
@@ -195,6 +200,7 @@ export function PickerSegmentedField({
         {...mergeProps(pickerAria.groupProps, focusWithinProps)}
         ref={groupRef}
         className={segmentedPickerGroupCss}
+        data-testid={dataTestId}
         aria-describedby={describedBy}
         aria-disabled={resolvedState.isDisabled ? dataStateTrue : undefined}
         aria-invalid={pickerState.isInvalid ? dataStateTrue : undefined}
@@ -232,12 +238,13 @@ export function PickerSegmentedField({
           </div>
         </div>
         {iconEnd ? <span className={inlineAffixCss}>{iconEnd}</span> : null}
-        <DatePickerTriggerButton buttonProps={pickerAria.buttonProps} />
+        <DatePickerTriggerButton buttonProps={pickerAria.buttonProps} dataTestId={triggerTestId} />
       </div>
       <input
         {...dateFieldAria.inputProps}
         ref={composeRefs(hiddenInputRef, inputRef)}
         type="hidden"
+        data-testid={valueTestId}
         aria-describedby={describedBy}
         value={hiddenInputValue}
         onChange={() => {}}

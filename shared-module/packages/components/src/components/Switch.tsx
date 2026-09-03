@@ -53,6 +53,7 @@ export type SwitchProps<T extends FieldValues, N extends Path<T> = Path<T>> = Rh
   onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
   "aria-label"?: string
   className?: string
+  "data-testid"?: string | undefined
 }
 
 export function Switch<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -75,6 +76,7 @@ export function Switch<T extends FieldValues, N extends Path<T> = Path<T>>(
     onKeyDown,
     onKeyUp,
     "aria-label": ariaLabel,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
@@ -162,6 +164,7 @@ export function Switch<T extends FieldValues, N extends Path<T> = Path<T>>(
           {...mergedInputProps}
           ref={composeRefs(inputRef, field.ref)}
           className={checkableInputCss}
+          data-testid={dataTestId}
         />
         <span
           className={switchTrackCss}

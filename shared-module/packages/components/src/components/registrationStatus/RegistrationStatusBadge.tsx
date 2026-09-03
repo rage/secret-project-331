@@ -15,12 +15,14 @@ export interface RegistrationStatusBadgeProps {
   /** The translated label. */
   children: React.ReactNode
   className?: string
+  "data-testid"?: string | undefined
 }
 
 export const RegistrationStatusBadge: React.FC<RegistrationStatusBadgeProps> = ({
   state,
   children,
   className,
+  "data-testid": dataTestId,
 }) => {
   const Icon = registrationStatusIcon[state]
   const icon = Icon ? <Icon size={14} /> : undefined
@@ -29,6 +31,7 @@ export const RegistrationStatusBadge: React.FC<RegistrationStatusBadgeProps> = (
       tone={registrationStatusBadgeTone[state]}
       {...includeIf(Icon, { icon })}
       {...includeIf(className, { className })}
+      data-testid={dataTestId}
     >
       {children}
     </Badge>

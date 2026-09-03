@@ -79,6 +79,8 @@ export type FileFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   /** Native `accept` picker hint (e.g. `"image/*"`, `".svg"`); does not validate the selected file. */
   accept?: string
   multiple?: boolean
+  /** Lands on the visible button; the hidden file input gets the same id suffixed with `-input`. */
+  "data-testid"?: string | undefined
 }
 
 export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -100,6 +102,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
     className,
     accept,
     multiple,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({
@@ -168,6 +171,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
             required={isRequired}
             aria-hidden="true"
             tabIndex={-1}
+            data-testid={dataTestId === undefined ? undefined : `${dataTestId}-input`}
             onChange={(event) => {
               const next = fileListToArray(event.currentTarget.files)
               setFileSummary(summaryFormatter?.(next) ?? summarizeFiles(next, fileSummaryLabels))
@@ -181,6 +185,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
           type="button"
           disabled={isDisabled}
           data-invalid={isInvalid ? "true" : undefined}
+          data-testid={dataTestId}
           aria-describedby={buttonDescribedBy}
           aria-labelledby={
             typeof fieldProps["aria-labelledby"] === "string"

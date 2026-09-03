@@ -154,4 +154,10 @@ describe("ErrorNotice", () => {
 
     expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("Internal Server Error")
   })
+
+  test("puts data-testid on the root", () => {
+    const { container } = renderUi(<ErrorNotice error={apiFailure} data-testid="save-error" />)
+
+    expect(screen.getByTestId("save-error")).toBe(container.firstElementChild)
+  })
 })

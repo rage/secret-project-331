@@ -40,7 +40,7 @@ export interface ErrorNoticeProps {
   /** CSS length capping the technical details panel, which then scrolls. */
   detailsMaxHeight?: string
   className?: string
-  "data-testid"?: string
+  "data-testid"?: string | undefined
 }
 
 interface DetailRow {

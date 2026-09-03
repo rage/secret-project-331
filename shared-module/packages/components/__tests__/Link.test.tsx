@@ -232,6 +232,16 @@ describe("Link", () => {
     fireEvent.keyUp(link, { key: "Enter" })
     expect(link).toHaveAttribute("data-pressed", "false")
   })
+
+  test("puts data-testid on the anchor", () => {
+    renderUi(
+      <Link href="/settings" data-testid="settings-link">
+        Settings
+      </Link>,
+    )
+
+    expect(screen.getByTestId("settings-link")).toBe(screen.getByRole("link", { name: "Settings" }))
+  })
 })
 
 describe("Link variants and sizes", () => {

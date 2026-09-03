@@ -118,3 +118,14 @@ describe("Slider - value label", () => {
     expect(screen.queryByText("4")).not.toBeInTheDocument()
   })
 })
+
+describe("Slider - data-testid", () => {
+  test("lands on the range input and derives the thumb id", () => {
+    renderNumberField((control) => (
+      <Slider name="f" control={control} label="Points" maxValue={10} data-testid="points-field" />
+    ))
+    const input = screen.getByTestId("points-field")
+    expect(input).toBe(screen.getByRole("slider", { name: "Points" }))
+    expect(screen.getByTestId("points-field-thumb")).toContainElement(input)
+  })
+})

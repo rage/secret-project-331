@@ -270,4 +270,20 @@ describe("Select", () => {
     expect(screen.getByRole("presentation")).toBeInTheDocument()
     expect(screen.getByRole("presentation")).toHaveTextContent("No results found")
   })
+
+  test("data-testid lands on the trigger button", () => {
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        label="Country"
+        options={countryOptions}
+        data-testid="country-select"
+      />
+    ))
+
+    expect(screen.getByTestId("country-select")).toBe(
+      screen.getByRole("button", { name: /Country/ }),
+    )
+  })
 })

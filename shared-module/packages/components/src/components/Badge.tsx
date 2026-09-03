@@ -13,6 +13,7 @@ export interface BadgeProps {
   className?: string
   /** Optional hover/tooltip text. */
   title?: string
+  "data-testid"?: string | undefined
 }
 
 // Tinted chips: pale bg, darker border, dark text. No yellow tone — its ramp isn't contrast-safe as
@@ -71,8 +72,9 @@ export const Badge: React.FC<BadgeProps> = ({
   children,
   className,
   title,
+  "data-testid": dataTestId,
 }) => (
-  <span className={cx(rootCss, toneCss[tone], className)} title={title}>
+  <span className={cx(rootCss, toneCss[tone], className)} title={title} data-testid={dataTestId}>
     {icon ? (
       <span className={iconCss} aria-hidden="true">
         {icon}

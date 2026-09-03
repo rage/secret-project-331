@@ -111,6 +111,7 @@ export type NumberFieldProps<T extends FieldValues, N extends Path<T> = Path<T>>
   isWheelDisabled?: boolean
   placeholder?: string
   className?: string
+  "data-testid"?: string | undefined
 }
 
 export function NumberField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -137,6 +138,7 @@ export function NumberField<T extends FieldValues, N extends Path<T> = Path<T>>(
     isWheelDisabled,
     placeholder,
     className,
+    "data-testid": dataTestId,
   } = props
 
   const { t } = useTranslation("shared-module")
@@ -267,6 +269,7 @@ export function NumberField<T extends FieldValues, N extends Path<T> = Path<T>>(
           ref={composeRefs(inputRef, field.ref)}
           className={resolveInputCss(fieldSize)}
           aria-describedby={resolvedAriaDescribedBy}
+          data-testid={dataTestId}
         />
         <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
           {label}

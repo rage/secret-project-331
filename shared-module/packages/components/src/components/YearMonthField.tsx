@@ -41,6 +41,7 @@ export type YearMonthFieldProps<T extends FieldValues, N extends Path<T> = Path<
   min?: string
   max?: string
   placeholder?: React.ReactNode
+  "data-testid"?: string | undefined
 }
 
 const rootControlCss = css`
@@ -94,7 +95,11 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
     min,
     max,
     placeholder,
+    "data-testid": dataTestId,
   } = props
+
+  const valueTestId = dataTestId ? `${dataTestId}-value` : undefined
+  const triggerTestId = dataTestId ? `${dataTestId}-trigger` : undefined
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const value = typeof field.value === "string" ? field.value : ""
@@ -180,6 +185,7 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
         "data-floated": isFloated ? "true" : "false",
         "data-invalid": isInvalid ? "true" : "false",
         "data-placeholder": isPlaceholder ? "true" : "false",
+        "data-testid": dataTestId,
       }}
       label={label}
       labelProps={{ id: labelId, className: resolveSelectLabelCss(fieldSize) }}
@@ -198,6 +204,7 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
         {...mergedButtonProps}
         ref={triggerRef}
         className={resolveSelectTriggerCss(fieldSize)}
+        data-testid={triggerTestId}
         type="button"
         aria-labelledby={`${labelId} ${valueId}`}
       >
@@ -215,7 +222,14 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
           <span className={comboChevronCss} />
         </span>
       </button>
-      <input ref={field.ref} type="hidden" name={field.name} value={value} readOnly />
+      <input
+        ref={field.ref}
+        type="hidden"
+        name={field.name}
+        data-testid={valueTestId}
+        value={value}
+        readOnly
+      />
       {state.isOpen ? (
         <Popover
           className={popoverSizeCss}

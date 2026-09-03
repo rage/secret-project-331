@@ -41,6 +41,7 @@ export type DateTimeLocalFieldProps<
   step?: number | string
   hourCycle?: 12 | 24
   inputRef?: React.Ref<HTMLInputElement>
+  "data-testid"?: string | undefined
 }
 
 export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -67,6 +68,7 @@ export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Pa
     step,
     hourCycle,
     inputRef,
+    "data-testid": dataTestId,
   } = props
   const { field, resolvedError, isInvalid } = useRhfField({
     name,
@@ -99,6 +101,7 @@ export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Pa
       {...omitUndefined({ step })}
       {...omitUndefined({ hourCycle })}
       {...omitUndefined({ inputRef })}
+      data-testid={dataTestId}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

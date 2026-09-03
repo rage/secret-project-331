@@ -63,6 +63,7 @@ export type TextFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   placeholder?: string
   className?: string
   step?: string
+  "data-testid"?: string | undefined
 }
 
 export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -94,6 +95,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     min,
     max,
     step,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
@@ -195,6 +197,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
           ref={composeRefs(inputRef, field.ref)}
           className={resolveInputCss(fieldSize)}
           aria-describedby={resolvedAriaDescribedBy}
+          data-testid={dataTestId}
         />
         {isLabelHidden ? (
           <VisuallyHidden>

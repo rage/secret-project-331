@@ -71,6 +71,8 @@ export type SelectProps<T extends FieldValues, N extends Path<T> = Path<T>> = Rh
   className?: string
   searchEnabled?: boolean
   searchPlaceholder?: string
+  /** Lands on the trigger button; the listbox is reachable from its `aria-controls` while open. */
+  "data-testid"?: string | undefined
 }
 
 const selectRootCss = css`
@@ -140,6 +142,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     onKeyUp,
     searchEnabled = false,
     searchPlaceholder = "search",
+    "data-testid": dataTestId,
   } = props
 
   const [filterValue, setFilterValue] = useState("")
@@ -310,6 +313,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
           ref={composeRefs(buttonRef, field.ref)}
           className={resolveSelectTriggerCss(fieldSize)}
           type="button"
+          data-testid={dataTestId}
         >
           <span
             {...valueProps}

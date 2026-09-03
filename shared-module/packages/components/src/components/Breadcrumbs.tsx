@@ -34,7 +34,7 @@ export interface BreadcrumbsProps {
   /** Renders the last item as a heading instead of a span. */
   currentAs?: "span" | "h1" | "h2" | "h3"
   className?: string
-  "data-testid"?: string
+  "data-testid"?: string | undefined
 }
 
 const SEPARATOR_LTR = "›"

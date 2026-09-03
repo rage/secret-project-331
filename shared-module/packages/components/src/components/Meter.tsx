@@ -22,6 +22,7 @@ export interface MeterProps {
   /** Show the label/value row above the bar. When false, the bar is compact and label is SR-only. */
   showLabel?: boolean
   className?: string
+  "data-testid"?: string | undefined
 }
 
 const fillToneCss: Record<MeterTone, string> = {
@@ -111,6 +112,7 @@ export const Meter: React.FC<MeterProps> = ({
   tone = "neutral",
   showLabel = true,
   className,
+  "data-testid": dataTestId,
 }) => {
   const { meterProps, labelProps } = useMeter({
     label,
@@ -128,7 +130,7 @@ export const Meter: React.FC<MeterProps> = ({
     // react-aria sets role="meter progressbar" (an old multi-role fallback trick); axe-core treats
     // that as an invalid role and rejects the aria-value* attributes it puts on the same element.
     // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- aria-valuenow is in meterProps
-    <div {...meterProps} role="meter" className={cx(rootCss, className)}>
+    <div {...meterProps} role="meter" className={cx(rootCss, className)} data-testid={dataTestId}>
       {showLabel ? (
         <div className={labelRowCss}>
           <span {...labelProps}>{label}</span>

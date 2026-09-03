@@ -91,4 +91,32 @@ describe("RadioGroup", () => {
 
     expect(screen.getByRole("radio", { name: "Alpha" })).toHaveAttribute("type", "radio")
   })
+
+  test("data-testid lands on the radiogroup element", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Theme" data-testid="theme-group">
+          <Radio label="Light" value="light" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getByTestId("theme-group")).toBe(
+      screen.getByRole("radiogroup", { name: "Theme" }),
+    )
+  })
+
+  test("data-testid lands on the radio input", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Theme">
+          <Radio label="Light" value="light" data-testid="light-radio" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getByTestId("light-radio")).toBe(screen.getByRole("radio", { name: "Light" }))
+  })
 })

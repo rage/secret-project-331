@@ -59,6 +59,7 @@ export type CheckboxProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
   "aria-label"?: string
   className?: string
+  "data-testid"?: string | undefined
 }
 
 export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -82,6 +83,7 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     onKeyDown,
     onKeyUp,
     "aria-label": ariaLabel,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({
@@ -176,6 +178,7 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
           ref={composeRefs(inputRef, field.ref)}
           className={checkableInputCss}
           type="checkbox"
+          data-testid={dataTestId}
         />
         <span
           className={resolveChoiceIndicatorCss(fieldSize, "checkbox")}

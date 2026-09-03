@@ -147,6 +147,8 @@ export type SliderProps<T extends FieldValues, N extends Path<T> = Path<T>> = Rh
   marks?: readonly number[]
   "aria-label"?: string
   className?: string
+  /** Lands on the range input; the draggable thumb gets the same id suffixed with `-thumb`. */
+  "data-testid"?: string | undefined
 }
 
 export function Slider<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -171,6 +173,7 @@ export function Slider<T extends FieldValues, N extends Path<T> = Path<T>>(
     marks,
     className,
     "aria-label": ariaLabel,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
@@ -297,6 +300,7 @@ export function Slider<T extends FieldValues, N extends Path<T> = Path<T>>(
               data-dragging={isDragging ? "true" : "false"}
               data-focus-visible={isFocusVisible && isFocused ? "true" : "false"}
               data-disabled={isDisabled ? "true" : "false"}
+              data-testid={dataTestId === undefined ? undefined : `${dataTestId}-thumb`}
             >
               <VisuallyHidden>
                 <input
@@ -307,6 +311,7 @@ export function Slider<T extends FieldValues, N extends Path<T> = Path<T>>(
                     field.onBlur()
                   }}
                   aria-invalid={isInvalid ? "true" : undefined}
+                  data-testid={dataTestId}
                 />
               </VisuallyHidden>
             </div>

@@ -86,6 +86,8 @@ export type ComboBoxProps<
   placeholder?: string
   "aria-label"?: string
   className?: string
+  /** Lands on the text input; the listbox is reachable from its `aria-controls` while open. */
+  "data-testid"?: string | undefined
 }
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -123,6 +125,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     onKeyUp,
     placeholder,
     "aria-label": ariaLabel,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({
@@ -295,6 +298,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
             resolveComboBoxInputCss(fieldSize),
             !isEditable && comboBoxInputReadonlyCss,
           )}
+          data-testid={dataTestId}
         />
         <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
           {label}

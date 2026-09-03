@@ -76,6 +76,7 @@ export type TextAreaProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   inputRef?: React.Ref<HTMLTextAreaElement>
   /** Chained with react-aria's own handler via `mergeProps`, not replacing it. */
   onKeyDown?: React.KeyboardEventHandler<HTMLTextAreaElement>
+  "data-testid"?: string | undefined
 }
 
 export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -107,6 +108,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     className,
     inputRef,
     onKeyDown,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
@@ -212,6 +214,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
           className={resolveTextareaCss(fieldSize)}
           aria-describedby={resolvedAriaDescribedBy}
           aria-invalid={resolvedAriaInvalid}
+          data-testid={dataTestId}
         />
         {isLabelHidden ? (
           <VisuallyHidden>

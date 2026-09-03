@@ -39,6 +39,7 @@ export type DateFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   min?: string
   max?: string
   inputRef?: React.Ref<HTMLInputElement>
+  "data-testid"?: string | undefined
 }
 
 export function DateField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -63,6 +64,7 @@ export function DateField<T extends FieldValues, N extends Path<T> = Path<T>>(
     min,
     max,
     inputRef,
+    "data-testid": dataTestId,
   } = props
   const { field, resolvedError, isInvalid } = useRhfField({
     name,
@@ -93,6 +95,7 @@ export function DateField<T extends FieldValues, N extends Path<T> = Path<T>>(
       {...omitUndefined({ min })}
       {...omitUndefined({ max })}
       {...omitUndefined({ inputRef })}
+      data-testid={dataTestId}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

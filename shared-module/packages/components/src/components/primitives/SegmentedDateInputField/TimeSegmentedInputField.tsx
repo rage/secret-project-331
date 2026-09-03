@@ -62,6 +62,7 @@ export function TimeSegmentedInputField(
     <NonPickerSegmentedField
       aria={aria}
       className={base.className}
+      dataTestId={base.dataTestId}
       description={base.description}
       errorMessage={base.errorMessage}
       fieldRef={base.fieldRef}

@@ -388,3 +388,12 @@ describe("TextArea - onKeyDown", () => {
     expect(getValues().f).toBe("Hello")
   })
 })
+
+describe("TextArea - data-testid", () => {
+  test("lands on the textarea", () => {
+    renderStringField((control) => (
+      <TextArea name="f" control={control} label="Bio" data-testid="bio-field" />
+    ))
+    expect(screen.getByTestId("bio-field")).toBe(screen.getByRole("textbox", { name: "Bio" }))
+  })
+})

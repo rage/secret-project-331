@@ -86,6 +86,7 @@ export function DateLikePickerInner({
     <PickerSegmentedField
       canClear={canClear}
       className={base.className}
+      dataTestId={base.dataTestId}
       dateFieldAria={dateFieldAria}
       description={base.description}
       errorMessage={base.errorMessage}

@@ -229,4 +229,27 @@ describe("ComboBox", () => {
     expect(input).toHaveAttribute("aria-describedby")
     expect(input).toHaveAttribute("aria-invalid", "true")
   })
+
+  test("data-testid lands on the combobox input", () => {
+    renderWithForm<{ c: string | number | null }>(
+      (control) => (
+        <ComboBox<Item, { c: string | number | null }>
+          name="c"
+          control={control}
+          getItemKey={(item) => item.id}
+          getItemTextValue={(item) => item.label}
+          label="Framework"
+          items={items}
+          data-testid="framework-combobox"
+        >
+          {(item) => item.label}
+        </ComboBox>
+      ),
+      { defaultValues: { c: null } },
+    )
+
+    expect(screen.getByTestId("framework-combobox")).toBe(
+      screen.getByRole("combobox", { name: "Framework" }),
+    )
+  })
 })

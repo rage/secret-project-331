@@ -125,6 +125,7 @@ export function useSegmentedFieldBase(
     max,
     step,
     hourCycle,
+    "data-testid": dataTestId,
   } = props
 
   const { locale } = useLocale()
@@ -144,6 +145,7 @@ export function useSegmentedFieldBase(
 
   return {
     className,
+    dataTestId,
     description,
     errorMessage,
     fieldRef,

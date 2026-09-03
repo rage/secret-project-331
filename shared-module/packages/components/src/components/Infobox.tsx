@@ -14,6 +14,7 @@ export interface InfoboxProps {
   /** Live region; only for boxes that appear after a user action, not on first paint. */
   announce?: boolean
   className?: string
+  "data-testid"?: string | undefined
 }
 
 // Metrics match `common`'s GenericInfobox: the two appear side by side on many pages.
@@ -69,6 +70,7 @@ export const Infobox: React.FC<InfoboxProps> = ({
   children,
   announce = false,
   className,
+  "data-testid": dataTestId,
 }) => {
   const Icon = tone === "warning" ? ExclamationTriangle : InfoCircle
 
@@ -77,6 +79,7 @@ export const Infobox: React.FC<InfoboxProps> = ({
       className={cx(rootCss, toneCss[tone], className)}
       // `alert` interrupts a screen reader, `status` waits for a pause.
       role={announce ? (tone === "warning" ? "alert" : "status") : undefined}
+      data-testid={dataTestId}
     >
       <span className={cx(iconCss, iconToneCss[tone])} aria-hidden="true">
         <Icon />

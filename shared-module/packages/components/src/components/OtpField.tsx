@@ -121,6 +121,8 @@ export type OtpFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   id?: string
   autoComplete?: string
   className?: string
+  /** Lands on the slot group, not the individual slot inputs. */
+  "data-testid"?: string | undefined
 }
 
 export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -144,6 +146,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
     isRequired = false,
     className,
     autoComplete,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({
@@ -266,6 +269,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
         role="group"
         aria-labelledby={groupAriaLabelledBy || undefined}
         aria-disabled={isDisabled ? "true" : undefined}
+        data-testid={dataTestId}
         onBlur={(event) => {
           if (slotsContainerRef.current?.contains(event.relatedTarget as Node | null)) {
             return

@@ -9,7 +9,13 @@ import { CalendarIcon } from "./CalendarIcon"
 import { datePickerButtonCss, segmentedPickerTriggerCss } from "./segmentedDateInputFieldStyles"
 
 /** Calendar affordance wired to the date picker `useDatePicker` button props. */
-export function DatePickerTriggerButton({ buttonProps }: { buttonProps: AriaButtonProps }) {
+export function DatePickerTriggerButton({
+  buttonProps,
+  dataTestId,
+}: {
+  buttonProps: AriaButtonProps
+  dataTestId?: string | undefined
+}) {
   const ref = useRef<HTMLButtonElement>(null)
   const { buttonProps: triggerProps } = useButton(buttonProps, ref)
 
@@ -18,6 +24,7 @@ export function DatePickerTriggerButton({ buttonProps }: { buttonProps: AriaButt
       {...triggerProps}
       ref={ref}
       className={cx(datePickerButtonCss, segmentedPickerTriggerCss)}
+      data-testid={dataTestId}
       type="button"
     >
       <CalendarIcon />

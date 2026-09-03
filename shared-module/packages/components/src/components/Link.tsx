@@ -41,6 +41,7 @@ type CommonLinkExtras = PressHandlers & {
    * `_self`, and absolute URLs already skip the router without it.
    */
   isCrossService?: boolean
+  "data-testid"?: string | undefined
 }
 
 interface ButtonLikeStyling {
@@ -114,6 +115,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       legacyBehavior,
       onNavigate,
       transitionTypes,
+      "data-testid": dataTestId,
       ...rest
     } = props as LinkProps & ButtonLikeStyling
 
@@ -216,6 +218,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         tabIndex: finalTabIndex,
         "data-pressed": isPressed,
         "data-disabled-reason": disabledReason,
+        "data-testid": dataTestId,
         "aria-busy": isLoading || undefined,
       },
     )

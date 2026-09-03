@@ -148,4 +148,10 @@ describe("Breadcrumbs", () => {
 
     expect(screen.getByRole("navigation")).toHaveClass("breadcrumbs-root")
   })
+
+  test("puts data-testid on the nav", () => {
+    renderUi(<Breadcrumbs items={[{ label: "Course" }]} data-testid="course-breadcrumbs" />)
+
+    expect(screen.getByTestId("course-breadcrumbs")).toBe(screen.getByRole("navigation"))
+  })
 })

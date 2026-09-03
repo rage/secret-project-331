@@ -9,6 +9,8 @@ export interface AvatarProps {
   /** Diameter in pixels. */
   size?: number
   className?: string
+  /** The monogram is `aria-hidden`, so a test has no role to query it by. */
+  "data-testid"?: string | undefined
 }
 
 // Decorative monogram; the name is shown as text alongside, so this is aria-hidden.
@@ -53,7 +55,12 @@ const rootCss = css`
   user-select: none;
 `
 
-export const Avatar: React.FC<AvatarProps> = ({ name, size = 48, className }) => {
+export const Avatar: React.FC<AvatarProps> = ({
+  name,
+  size = 48,
+  className,
+  "data-testid": dataTestId,
+}) => {
   const sizeCss = css`
     width: ${size}px;
     height: ${size}px;
@@ -61,7 +68,7 @@ export const Avatar: React.FC<AvatarProps> = ({ name, size = 48, className }) =>
     font-size: ${Math.round(size * 0.38)}px;
   `
   return (
-    <span className={cx(rootCss, sizeCss, className)} aria-hidden="true">
+    <span className={cx(rootCss, sizeCss, className)} aria-hidden="true" data-testid={dataTestId}>
       {initials(name)}
     </span>
   )

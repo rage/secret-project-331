@@ -21,6 +21,7 @@ export interface RegistrationStatusStepperProps {
   steps: RegistrationStatusStep[]
   "aria-label": string
   className?: string
+  "data-testid"?: string | undefined
 }
 
 const rootCss = css`
@@ -78,8 +79,9 @@ export const RegistrationStatusStepper: React.FC<RegistrationStatusStepperProps>
   steps,
   "aria-label": ariaLabel,
   className,
+  "data-testid": dataTestId,
 }) => (
-  <ol className={cx(rootCss, className)} aria-label={ariaLabel}>
+  <ol className={cx(rootCss, className)} aria-label={ariaLabel} data-testid={dataTestId}>
     {steps.map((step, index) => {
       const Icon = registrationStatusIcon[step.state]
       return (

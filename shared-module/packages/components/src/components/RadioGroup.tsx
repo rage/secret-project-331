@@ -69,6 +69,8 @@ export type RadioGroupProps<T extends FieldValues, N extends Path<T> = Path<T>> 
   "aria-label"?: string
   className?: string
   children?: React.ReactNode
+  /** Lands on the group element; give each `Radio` its own id to address the inputs. */
+  "data-testid"?: string | undefined
 }
 
 export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -89,6 +91,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     className,
     children,
     "aria-label": ariaLabel,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
@@ -155,6 +158,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       ref={fieldsetRef}
       className={cx(fieldRootCss, fieldsetCss, className)}
       disabled={state.isDisabled}
+      data-testid={dataTestId}
     >
       <legend {...labelProps} className={stackedLabelCss}>
         {label}

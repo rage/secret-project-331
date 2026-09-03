@@ -16,6 +16,8 @@ export interface DisclosureProps {
   /** Accessible label for the trigger when `title` is not plain text. */
   "aria-label"?: string
   className?: string
+  /** Lands on the trigger button, the element a test presses. */
+  "data-testid"?: string | undefined
 }
 
 const CHEVRON_RIGHT = "▸"
@@ -78,6 +80,7 @@ export const Disclosure: React.FC<DisclosureProps> = ({
   children,
   "aria-label": ariaLabel,
   className,
+  "data-testid": dataTestId,
 }) => {
   const [internalExpanded, setInternalExpanded] = React.useState(defaultExpanded)
   const isControlled = expandedProp !== undefined
@@ -110,6 +113,7 @@ export const Disclosure: React.FC<DisclosureProps> = ({
         className={triggerCss}
         aria-expanded={expanded}
         aria-controls={panelId}
+        data-testid={dataTestId}
       >
         <span className={chevronCss} data-expanded={expanded} aria-hidden="true">
           {CHEVRON_RIGHT}

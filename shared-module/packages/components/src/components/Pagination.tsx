@@ -36,7 +36,7 @@ export interface PaginationProps {
   /** Greys out every control without removing the landmark, e.g. while the pager's data refetches. */
   isDisabled?: boolean
   className?: string
-  "data-testid"?: string
+  "data-testid"?: string | undefined
 }
 
 /** `null` marks an ellipsis slot; it carries no page number to translate or format. */

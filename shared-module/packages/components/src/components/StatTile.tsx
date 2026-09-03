@@ -16,6 +16,7 @@ export interface StatTileProps {
   /** Accessible label read as a single phrase, e.g. "Awaiting review: 3". Falls back to label + value. */
   ariaLabel?: string
   className?: string
+  "data-testid"?: string | undefined
 }
 
 const rootCss = css`
@@ -79,6 +80,7 @@ export const StatTile: React.FC<StatTileProps> = ({
   href,
   ariaLabel,
   className,
+  "data-testid": dataTestId,
 }) => {
   const isAlert = tone === "alert"
   const body = (
@@ -97,13 +99,18 @@ export const StatTile: React.FC<StatTileProps> = ({
   const classes = cx(rootCss, isAlert && alertCss, href && linkCss, className)
   if (href) {
     return (
-      <a className={classes} href={href} aria-label={ariaLabel}>
+      <a className={classes} href={href} aria-label={ariaLabel} data-testid={dataTestId}>
         {body}
       </a>
     )
   }
   return (
-    <div className={classes} aria-label={ariaLabel} role={ariaLabel ? "group" : undefined}>
+    <div
+      className={classes}
+      aria-label={ariaLabel}
+      role={ariaLabel ? "group" : undefined}
+      data-testid={dataTestId}
+    >
       {body}
     </div>
   )

@@ -13,6 +13,8 @@ export interface CopyButtonProps {
   /** Visible content; defaults to a copy glyph. Overriding it opts out of the state icon swap. */
   children?: React.ReactNode
   className?: string
+  /** Lands on the button, the element a test presses. */
+  "data-testid"?: string | undefined
 }
 
 const COPY_GLYPH = "⧉"
@@ -142,7 +144,13 @@ async function writeToClipboard(value: string): Promise<void> {
 }
 
 /** Icon button that copies `value`, swaps to a check/cross with a tooltip, and announces the result. */
-export const CopyButton: React.FC<CopyButtonProps> = ({ value, label, children, className }) => {
+export const CopyButton: React.FC<CopyButtonProps> = ({
+  value,
+  label,
+  children,
+  className,
+  "data-testid": dataTestId,
+}) => {
   const { t } = useTranslation("shared-module")
   const ref = React.useRef<HTMLButtonElement>(null)
   const [status, setStatus] = React.useState<CopyStatus>(COPY_STATUS.IDLE)
@@ -200,6 +208,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ value, label, children, 
         className={cx(rootCss, className)}
         type="button"
         data-pressed={isPressed}
+        data-testid={dataTestId}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
       >

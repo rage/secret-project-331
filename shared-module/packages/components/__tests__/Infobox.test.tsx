@@ -57,4 +57,10 @@ describe("Infobox", () => {
 
     expect(container.querySelector(".infobox-root")).toBe(container.firstElementChild)
   })
+
+  test("puts data-testid on the root", () => {
+    const { container } = renderUi(<Infobox data-testid="save-hint">Text</Infobox>)
+
+    expect(screen.getByTestId("save-hint")).toBe(container.firstElementChild)
+  })
 })

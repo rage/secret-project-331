@@ -36,6 +36,7 @@ import {
 export interface NonPickerSegmentedFieldProps {
   aria: DateFieldAria
   className?: string | undefined
+  dataTestId?: string | undefined
   description?: React.ReactNode
   errorMessage?: React.ReactNode
   externalOnBlur?: React.FocusEventHandler<HTMLElement> | undefined
@@ -61,6 +62,7 @@ export interface NonPickerSegmentedFieldProps {
 export function NonPickerSegmentedField({
   aria,
   className,
+  dataTestId,
   description,
   errorMessage,
   externalOnBlur,
@@ -81,6 +83,8 @@ export function NonPickerSegmentedField({
   setIsFocused,
   state,
 }: NonPickerSegmentedFieldProps) {
+  const valueTestId = dataTestId ? `${dataTestId}-value` : undefined
+
   const describedBy = joinAriaDescribedBy(
     typeof aria.fieldProps["aria-describedby"] === "string"
       ? aria.fieldProps["aria-describedby"]
@@ -154,6 +158,7 @@ export function NonPickerSegmentedField({
           resolvedState.isDisabled ? segmentedFieldDisabledCss : undefined,
           resolvedState.isReadOnly ? segmentedFieldReadOnlyCss : undefined,
         )}
+        data-testid={dataTestId}
         aria-disabled={resolvedState.isDisabled ? dataStateTrue : undefined}
         aria-describedby={describedBy}
         aria-invalid={state.isInvalid ? dataStateTrue : undefined}
@@ -175,6 +180,7 @@ export function NonPickerSegmentedField({
         {...aria.inputProps}
         ref={composeRefs(hiddenInputRef, inputRef)}
         type="hidden"
+        data-testid={valueTestId}
         aria-describedby={describedBy}
         value={hiddenInputValue}
         onChange={() => {}}

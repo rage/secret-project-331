@@ -100,6 +100,7 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
         {
           label: t("button-text-replace-metadata"),
           variant: "primary",
+          type: "submit",
           // oxlint-disable-next-line i18next/no-literal-string
           domProps: { form: "ai-metadata-form" },
           disabled:

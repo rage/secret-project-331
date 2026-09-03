@@ -46,6 +46,15 @@ export const pageButtonCss = css`
     background-color var(--duration-instant) var(--ease-standard),
     color var(--duration-instant) var(--ease-standard);
 
+  &:disabled {
+    opacity: var(--btn-disabled-opacity);
+    cursor: default;
+    transition: none;
+  }
+  &:disabled:hover {
+    cursor: not-allowed;
+  }
+
   &:hover:not(:disabled) {
     background: var(--color-clear-100);
     color: var(--color-gray-800);
@@ -55,15 +64,6 @@ export const pageButtonCss = css`
     background: var(--color-green-600);
     color: var(--color-clear-50);
     font-weight: 600;
-  }
-
-  &:disabled {
-    opacity: var(--btn-disabled-opacity);
-    cursor: default;
-    transition: none;
-  }
-  &:disabled:hover {
-    cursor: not-allowed;
   }
 
   &[data-focus-visible="true"] {

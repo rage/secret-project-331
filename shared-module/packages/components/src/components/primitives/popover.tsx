@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 "use client"
 
 import { css, cx } from "@emotion/css"

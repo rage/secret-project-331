@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 "use client"
 
 import type { ListState } from "@react-stately/list"

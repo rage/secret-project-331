@@ -111,7 +111,7 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
   const [hasFocusWithin, setHasFocusWithin] = useState(false)
 
   const state = useOverlayTriggerState({})
-  const { triggerProps } = useOverlayTrigger({ type: "dialog" }, state, triggerRef)
+  const { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, triggerRef)
   const { buttonProps } = useButton(
     {
       ...triggerProps,
@@ -224,6 +224,9 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
           triggerRef={triggerRef}
           placement="bottom"
           surfaceProps={{
+            id: overlayProps.id,
+            role: "dialog",
+            "aria-labelledby": labelId,
             onFocus: () => emitCompositeFocus(),
             onBlur: (event: React.FocusEvent<HTMLDivElement>) => {
               emitCompositeBlur(event.relatedTarget)

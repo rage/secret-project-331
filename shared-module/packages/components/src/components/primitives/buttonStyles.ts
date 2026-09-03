@@ -32,6 +32,37 @@ export const srOnlyCss = css`
   border: 0;
 `
 
+const disabledStateRules = `
+  &[aria-disabled="true"],
+  &:disabled {
+    opacity: var(--btn-disabled-opacity);
+    cursor: default;
+    transition: none;
+  }
+
+  /* An aria-disabled anchor stays tabbable and would otherwise still navigate when clicked. */
+  &[aria-disabled="true"] {
+    pointer-events: none;
+  }
+
+  &:disabled:hover {
+    cursor: not-allowed;
+  }
+`
+
+/**
+ * Disabled affordance for a link that is not styled as a button, which gets none of `rootBaseCss`.
+ *
+ * Without it an `isDisabled` link looks exactly like a working one while doing nothing.
+ */
+export const disabledPlainLinkCss = css`
+  ${disabledStateRules}
+
+  &[aria-disabled="true"] {
+    text-decoration: none;
+  }
+`
+
 export const rootBaseCss = css`
   position: relative;
   display: inline-flex;
@@ -61,26 +92,7 @@ export const rootBaseCss = css`
       0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
   }
 
-  /* Disabled styles:
-     - keep pointer cursor default (better UX for some a11y tooling)
-     - show not-allowed only on hover
-     - for links, also block pointer interactions (while still tabbable) */
-  &[aria-disabled="true"],
-  &:disabled {
-    opacity: var(--btn-disabled-opacity);
-    cursor: default;
-    transition: none;
-  }
-
-  /* Prevent pointer activation for disabled links (still keyboard-focusable via tabIndex). */
-  &[aria-disabled="true"] {
-    pointer-events: none;
-  }
-
-  &[aria-disabled="true"]:hover,
-  &:disabled:hover {
-    cursor: not-allowed;
-  }
+  ${disabledStateRules}
 
   /* Pressed state (hook-driven) */
   &[data-pressed="true"] {

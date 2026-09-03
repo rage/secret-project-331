@@ -3,10 +3,12 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Link } from "../src/components/Link"
+import { disabledPlainLinkCss } from "../src/components/primitives/buttonStyles"
 import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { pressEnter, renderUi } from "./testUtils"
 
-jest.mock("next/link")
+// The manual mock in __mocks__/next/link.tsx applies without a jest.mock call.
+jest.unmock("next/link")
 
 type Variant = "primary" | "secondary" | "tertiary"
 type Size = "small" | "medium" | "large"
@@ -177,6 +179,40 @@ describe("Link", () => {
     pressEnter(link)
 
     expect(onPress).toHaveBeenCalledTimes(0)
+  })
+
+  test("disabled plain link gets a disabled affordance", () => {
+    renderUi(
+      <Link href="/settings" isDisabled>
+        Settings
+      </Link>,
+    )
+
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveClass(disabledPlainLinkCss)
+  })
+
+  test("a caller mouse handler chains with react-aria press handling", () => {
+    const onMouseDown = jest.fn()
+    const onPress = jest.fn()
+
+    renderUi(
+      <Link href="/checkout" styledAsButton onMouseDown={onMouseDown} onPress={onPress}>
+        Continue
+      </Link>,
+    )
+
+    const link = screen.getByRole("link", { name: "Continue" })
+
+    fireEvent.mouseDown(link)
+
+    expect(onMouseDown).toHaveBeenCalledTimes(1)
+    expect(link).toHaveAttribute("data-pressed", "true")
+
+    fireEvent.mouseUp(link)
+    fireEvent.click(link, { detail: 1 })
+
+    expect(onPress).toHaveBeenCalledTimes(1)
+    expect(link).toHaveAttribute("data-pressed", "false")
   })
 
   test("data-pressed toggles during pointer press when styledAsButton", () => {

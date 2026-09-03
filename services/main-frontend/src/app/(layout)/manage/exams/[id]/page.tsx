@@ -5,6 +5,7 @@ import { skipToken, useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -15,7 +16,6 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { getOrganization } from "@/generated/api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
@@ -27,7 +27,7 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult } from "@/shared-module/components"
+import { Button, QueryResult, TextField } from "@/shared-module/components"
 
 import EditExamDialog from "../EditExamDialog"
 
@@ -79,7 +79,17 @@ const ManageExam: React.FC = () => {
   }).data?.slug
 
   const [editExamFormOpen, setEditExamFormOpen] = useState(false)
-  const [newCourse, setNewCourse] = useState("")
+  const {
+    control: newCourseControl,
+    watch: watchNewCourse,
+    reset: resetNewCourse,
+  } = useForm<{
+    newCourse: string
+  }>({
+    defaultValues: { newCourse: "" },
+  })
+  // oxlint-disable-next-line i18next/no-literal-string
+  const newCourse = watchNewCourse("newCourse")
   const setCourseMutation = useToastMutationOptions(
     setExamCourseMutation(),
     {
@@ -289,10 +299,9 @@ const ManageExam: React.FC = () => {
               </div>
             ))}
             <TextField
+              name="newCourse"
+              control={newCourseControl}
               label={t("add-course")}
-              value={newCourse}
-              onChange={(event) => setNewCourse(event.target.value)}
-              placeholder={t("course-id")}
               className={css`
                 margin-bottom: 0.5rem;
               `}
@@ -307,7 +316,7 @@ const ManageExam: React.FC = () => {
                     course_id: newCourse,
                   },
                 })
-                setNewCourse("")
+                resetNewCourse()
               }}
               variant="secondary"
               size="medium"

@@ -20,8 +20,6 @@ import type {
   UserPointsUpdateStrategy,
 } from "@/generated/api/types.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import PaginationControls from "@/shared-module/common/components/PaginationControls"
 import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -32,7 +30,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isUuid } from "@/shared-module/common/utils/fetching"
 import { manageRegradingRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Button, Dialog, QueryResult } from "@/shared-module/components"
+import { Button, Dialog, QueryResult, Select, TextArea } from "@/shared-module/components"
 
 interface Fields {
   ids: string
@@ -56,7 +54,7 @@ const RegradingsPage: React.FC = () => {
   const regradingsCountQuery = useQuery(getRegradingsCountOptions())
   const [newRegradingDialogOpen, setNewRegradingDialogOpen] = useState(false)
   const {
-    register,
+    control,
     reset,
     handleSubmit,
     formState: { isValid },
@@ -170,8 +168,9 @@ const RegradingsPage: React.FC = () => {
         onClose={() => setNewRegradingDialogOpen(false)}
         title={t("button-text-new-regrading")}
       >
-        <SelectField
-          id={"id-type"}
+        <Select
+          name="idType"
+          control={control}
           label={t("label-id-type")}
           options={[
             {
@@ -186,12 +185,13 @@ const RegradingsPage: React.FC = () => {
               value: "ExerciseId" satisfies NewRegradingIdType,
             },
           ]}
-          {...register("idType")}
         />
-        <TextAreaField
+        <TextArea
+          name="ids"
+          control={control}
           label={t("label-ids-one-per-line")}
           rows={20}
-          {...register("ids", {
+          rules={{
             validate: (input) => {
               const lines = input.trim().split("\n")
               if (lines.length === 0) {
@@ -200,11 +200,12 @@ const RegradingsPage: React.FC = () => {
 
               return lines.every((line) => isUuid(line.trim()))
             },
-          })}
+          }}
         />
 
-        <SelectField
-          id={"user-points-update-strategy"}
+        <Select
+          name="userPointsUpdateStrategy"
+          control={control}
           label={t("label-user-points-update-strategy")}
           options={[
             {
@@ -219,7 +220,6 @@ const RegradingsPage: React.FC = () => {
               value: "CanAddPointsAndCanRemovePoints" satisfies UserPointsUpdateStrategy,
             },
           ]}
-          {...register("userPointsUpdateStrategy")}
         />
 
         <Button

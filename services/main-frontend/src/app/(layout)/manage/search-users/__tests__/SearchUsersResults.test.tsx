@@ -130,7 +130,7 @@ describe("SearchUsersResults", () => {
       }),
     })
 
-    expect(screen.getByRole("alert")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Search failed" })).toBeInTheDocument()
     expect(screen.getByText("alice@example.com")).toBeInTheDocument()
   })
 })

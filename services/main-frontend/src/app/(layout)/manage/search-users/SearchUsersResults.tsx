@@ -19,6 +19,9 @@ import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Link, LoadingRegion, Spinner } from "@/shared-module/components"
 
+// useSearchUsersLiveRegion already announces a failed search; a second live region would repeat it.
+const ERROR_ANNOUNCEMENT = "off"
+
 export interface SearchUsersResultsProps {
   searchByEmailQuery: UseQueryResult<UserDetail[], unknown>
   searchByOtherDetailsQuery: UseQueryResult<UserDetail[], unknown>
@@ -41,7 +44,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
   const firstError = searchQueries.find((query) => query.isError)?.error
   const errorBanner =
     firstError !== undefined && firstError !== null ? (
-      <ErrorBanner variant="readOnly" error={firstError} />
+      <ErrorBanner variant="readOnly" error={firstError} announce={ERROR_ANNOUNCEMENT} />
     ) : null
 
   const [data, userIdsFromFuzzyMatch] = useMemo(() => {

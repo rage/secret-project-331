@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
-import Link from "next/link"
+import NextLink from "next/link"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -27,7 +27,7 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult, TextField } from "@/shared-module/components"
+import { Button, Link, QueryResult, TextField } from "@/shared-module/components"
 
 import EditExamDialog from "../EditExamDialog"
 
@@ -223,36 +223,46 @@ const ManageExam: React.FC = () => {
                 <a href={`/cms/pages/${data.page_id}`}>{t("link-edit-exam-page")}</a>
               </li>
               <li className={detailRow}>
-                <Link
+                <NextLink
                   href={`/manage/exams/${data.id}/permissions`}
                   aria-label={`${t("link-manage-permissions")} ${data.name}`}
                 >
                   {t("link-manage-permissions")}
-                </Link>
+                </NextLink>
               </li>
               <li className={detailRow}>
                 <a href={`/cms/exams/${data.id}/edit`}>{t("link-edit-exam-instructions")}</a>
               </li>
               <li className={detailRow}>
-                <a href={`/api/v0/main-frontend/exams/${data.id}/export-points`} download>
-                  <Button variant="tertiary" size="medium" type="button">
-                    {t("link-export-points")}
-                  </Button>
-                </a>
+                <Link
+                  href={`/api/v0/main-frontend/exams/${data.id}/export-points`}
+                  download
+                  styledAsButton
+                  variant="tertiary"
+                  size="medium"
+                >
+                  {t("link-export-points")}
+                </Link>
               </li>
               <li className={detailRow}>
-                <a href={`/api/v0/main-frontend/exams/${data.id}/export-submissions`} download>
-                  <Button variant="tertiary" size="medium" type="button">
-                    {t("link-export-submissions")}
-                  </Button>
-                </a>
+                <Link
+                  href={`/api/v0/main-frontend/exams/${data.id}/export-submissions`}
+                  download
+                  styledAsButton
+                  variant="tertiary"
+                  size="medium"
+                >
+                  {t("link-export-submissions")}
+                </Link>
               </li>
               <li className={detailRow}>
-                <Link href={manageExamQuestionsRoute(data.id)}>{t("grading")}</Link>
+                <NextLink href={manageExamQuestionsRoute(data.id)}>{t("grading")}</NextLink>
               </li>
               {organizationSlug && (
                 <li className={detailRow}>
-                  <Link href={testExamRoute(organizationSlug, data.id)}>{t("link-test-exam")}</Link>
+                  <NextLink href={testExamRoute(organizationSlug, data.id)}>
+                    {t("link-test-exam")}
+                  </NextLink>
                 </li>
               )}
             </ul>
@@ -279,7 +289,7 @@ const ManageExam: React.FC = () => {
                   margin-bottom: 0.5rem;
                 `}
               >
-                <Link href={manageCourseByIdRoute(c.id)}>{c.name}</Link>
+                <NextLink href={manageCourseByIdRoute(c.id)}>{c.name}</NextLink>
                 <Button
                   onClick={() => {
                     unsetCourseMutation.mutate({

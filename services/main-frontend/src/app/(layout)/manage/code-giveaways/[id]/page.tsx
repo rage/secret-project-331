@@ -13,7 +13,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
-import { Button, QueryResults } from "@/shared-module/components"
+import { Button, Link, QueryResults } from "@/shared-module/components"
 
 import CodeGiveawayCode from "./CodeGiveawayCode"
 import ImportCodesForm from "./ImportCodesForm"
@@ -63,18 +63,18 @@ const CodeGiveawayPage = () => {
         <Button size="medium" variant="primary" onClick={() => setRevealCodes(!revealCodes)}>
           {t(revealCodes ? "hide" : "reveal")}
         </Button>
-        <a href={`/api/v0/main-frontend/code-giveaways/${id}/codes/csv`} download>
-          <Button
-            size="medium"
-            variant="primary"
-            type="button"
-            className={css`
-              margin-top: 1rem;
-            `}
-          >
-            {t("link-export-given-codes-as-csv")}
-          </Button>
-        </a>
+        <Link
+          href={`/api/v0/main-frontend/code-giveaways/${id}/codes/csv`}
+          download
+          styledAsButton
+          size="medium"
+          variant="primary"
+          className={css`
+            margin-top: 1rem;
+          `}
+        >
+          {t("link-export-given-codes-as-csv")}
+        </Link>
       </div>
       <FullWidthTable>
         <thead>

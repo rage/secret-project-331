@@ -10,7 +10,7 @@ import {
   PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
   PROMPT_DIALOG_INPUT_TEST_ID,
   PROMPT_DIALOG_OK_BUTTON_TEST_ID,
-} from "@/shared-module/common/components/dialogs/dialogTestIds"
+} from "@/shared-module/components/components/dialogProvider/testIds"
 
 /**
  * Dismiss an alert dialog by clicking OK

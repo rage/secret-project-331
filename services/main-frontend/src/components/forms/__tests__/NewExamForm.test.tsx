@@ -59,6 +59,7 @@ describe("NewExamForm", () => {
     const submitted = onCreateNewExam.mock.calls[0][0] as NewExam
     expect(submitted.starts_at).toBe(FROZEN_NOW.toISOString())
     expect(submitted.ends_at).toBe(new Date(2026, 0, 15, 11, 0, 0).toISOString())
+    expect(submitted.grade_manually).toBe(false)
   })
 
   it("preserves initialData's starts_at/ends_at when submitted untouched", async () => {

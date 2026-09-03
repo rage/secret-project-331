@@ -46,6 +46,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
     defaultValues: {
       duplicateExam: false,
       parentId: null,
+      manualGradingEnabled: false,
       startsAt: initialData?.starts_at ? dateToDateTimeLocalString(initialData.starts_at) : "",
       endsAt: initialData?.ends_at ? dateToDateTimeLocalString(initialData.ends_at) : "",
     },

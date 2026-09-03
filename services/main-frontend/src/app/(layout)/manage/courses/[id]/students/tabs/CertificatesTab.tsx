@@ -37,6 +37,7 @@ const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"
 
 const EM_DASH = "—"
+const DATE_FIELD = "date" as const
 
 // Issue dates render in UTC so the displayed day does not shift with the viewer's timezone.
 const formatDateIssuedUtc = (value: string | null): string => {
@@ -170,7 +171,7 @@ export const CertificatesTabContent: React.FC = () => {
   }, [deferredDetailData, deferredIdentityRows, t])
 
   // Guard the edit dialog's date so an empty / invalid value never reaches new Date(...).toISOString().
-  const watchedEditDate = useWatch({ control: editForm.control, name: "date" })
+  const watchedEditDate = useWatch({ control: editForm.control, name: DATE_FIELD })
   const parsedEditDate = watchedEditDate ? new Date(watchedEditDate) : null
   const editDateValid = parsedEditDate !== null && !Number.isNaN(parsedEditDate.getTime())
 
@@ -414,7 +415,7 @@ export const CertificatesTabContent: React.FC = () => {
             label={t("name-on-certificate")}
           />
 
-          <DateField control={editForm.control} name="date" label={t("date-issued")} />
+          <DateField control={editForm.control} name={DATE_FIELD} label={t("date-issued")} />
 
           <div
             className={css`

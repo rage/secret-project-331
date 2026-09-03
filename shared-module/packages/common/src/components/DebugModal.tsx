@@ -42,32 +42,6 @@ const iconButtonStyles = css`
   }
 `
 
-// The trigger keeps a fixed blue look regardless of the underlying Button variant's own
-// hover/pressed/focus colors, so every interactive state here needs !important to win.
-const triggerButtonStyles = css`
-  height: 41px;
-  padding: 8px;
-
-  &,
-  &:hover:not(:disabled),
-  &:focus-visible:not(:disabled),
-  &[data-pressed="true"] {
-    background: var(--color-blue-500) !important;
-    border-color: var(--color-blue-500) !important;
-    color: var(--color-clear-50) !important;
-    box-shadow: none !important;
-  }
-
-  svg {
-    color: var(--color-clear-50);
-    transition: color 0.2s ease;
-  }
-
-  &:hover svg {
-    color: var(--color-blue-500);
-  }
-`
-
 const titleSuffixStyles = css`
   color: var(--color-gray-700);
   font-weight: normal;
@@ -187,14 +161,13 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
           </button>
         ) : (
           <Button
-            variant="secondary"
+            variant="icon"
             size={buttonSize}
             aria-label={t("title-data-view")}
             onClick={() => {
               editedContentRef.current = stringifiedData
               setOpen(true)
             }}
-            className={triggerButtonStyles}
           >
             <BugInsect size={16} weight="bold" />
           </Button>

@@ -116,4 +116,15 @@ describe("DebugModal", () => {
 
     expect(screen.queryByRole("button", { name: /Download CSV/ })).not.toBeInTheDocument()
   })
+
+  test("trigger button is keyboard-focusable", () => {
+    renderDebugModal(<DebugModal data={SAMPLE_DATA} />)
+    const trigger = openTrigger()
+
+    expect(trigger.tabIndex).toBeGreaterThanOrEqual(0)
+    trigger.focus()
+    expect(trigger).toHaveFocus()
+    // Not asserted here: the focus ring is a box-shadow from an emotion pseudo-class rule
+    // (buttonStyles.ts's &:focus-visible), which jsdom's getComputedStyle doesn't resolve.
+  })
 })

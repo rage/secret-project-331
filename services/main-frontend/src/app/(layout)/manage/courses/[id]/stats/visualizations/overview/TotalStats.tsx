@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import React, { useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -13,11 +14,11 @@ import {
   useTotalUsersStartedCourseQueryCustomTimePeriod,
 } from "@/hooks/stats"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { DateField } from "@/shared-module/components/components/DateField"
 
 interface TotalStatsProps {
   courseId: string
@@ -72,10 +73,18 @@ const statTitleStyles = css`
 export const CUSTOM_RANGE = "custom" as const
 export const TOTAL_RANGE = "total" as const
 
+interface CustomDateRangeFilterValues {
+  startDate: string
+  endDate: string
+}
+
 const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ courseId }) => {
   const { t, i18n } = useTranslation()
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
+  const { control: dateRangeControl } = useForm<CustomDateRangeFilterValues>({
+    defaultValues: { startDate: "", endDate: "" },
+  })
+  const startDate = useWatch({ control: dateRangeControl, name: "startDate" })
+  const endDate = useWatch({ control: dateRangeControl, name: "endDate" })
   const [rangeMode, setRangeMode] = useState<"total" | "custom">(TOTAL_RANGE)
 
   const totalUsersNormal = useTotalUsersStartedCourseQuery(courseId, {
@@ -91,24 +100,24 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
   const customEnabled = rangeMode === CUSTOM_RANGE && startDate && endDate && startDate <= endDate
   const totalUsersCustom = useTotalUsersStartedCourseQueryCustomTimePeriod(
     courseId,
-    startDate ?? "",
-    endDate ?? "",
+    startDate,
+    endDate,
     {
       enabled: !!customEnabled,
     },
   )
   const totalReturnedCustom = useTotalUsersReturnedExercisesQueryCustomTimePeriod(
     courseId,
-    startDate ?? "",
-    endDate ?? "",
+    startDate,
+    endDate,
     {
       enabled: !!customEnabled,
     },
   )
   const totalCompletionsCustom = useTotalUsersCompletedCourseQueryCustomTimePeriod(
     courseId,
-    startDate ?? "",
-    endDate ?? "",
+    startDate,
+    endDate,
     {
       enabled: !!customEnabled,
     },
@@ -155,16 +164,12 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
                   padding-bottom: 15px;
                 `}
               >
-                <DatePickerField
+                <DateField
+                  control={dateRangeControl}
+                  name="startDate"
                   label={t("stats-start-date")}
-                  value={startDate ?? ""}
-                  onChangeByValue={(value) => setStartDate(value)}
                 />
-                <DatePickerField
-                  label={t("stats-end-date")}
-                  value={endDate ?? ""}
-                  onChangeByValue={(value) => setEndDate(value)}
-                />
+                <DateField control={dateRangeControl} name="endDate" label={t("stats-end-date")} />
               </div>
             )}
 

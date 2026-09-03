@@ -203,6 +203,24 @@ The backend communicates with the plugin via REST to grade answers and generate 
 - **Method**: POST
 - **Purpose**: Grades a student's answer.
 
+> **Files a spec references.** A plugin that stores files in a spec should declare them, because
+> the host cannot read a spec: it stores all three as opaque blobs, so a file whose only reference
+> lives inside one looks exactly like an upload somebody abandoned. Declare by setting
+> `declares_spec_files` in service info, which commits the plugin to two things:
+>
+> - the exercise editor lists every file the private spec references in `current-state`'s `files`,
+>   on **every** `current-state` — omitting the list releases those files;
+> - the public-spec and model-solution endpoints answer with `{ "spec": ..., "files": [...] }`
+>   instead of the bare spec, listing the files *that* spec references. This is the only way the
+>   host can learn about a file uploaded during a derivation through `SpecRequest.upload_url`, which
+>   no private spec ever names.
+>
+> Declaring is opt-in and lossless to skip: without it the host keeps every file the plugin ever
+> uploaded, forever. With it, a file no live spec and no page-history version references is deleted
+> a week after it was uploaded. Because page history counts, what actually gets reclaimed is uploads
+> that never reached a save — a file replaced before saving, or an editing session that was closed —
+> not files dropped from a spec that was once saved.
+
 > **Grading a file answer.** The grading request carries `submission_files` alongside
 > `submission_data`: the answer's files in the order the plugin named them in `current-state`'s
 > `files`, and an empty list for an answer that has none. Each entry has the host `id` the plugin

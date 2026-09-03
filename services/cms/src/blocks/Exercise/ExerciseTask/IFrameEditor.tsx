@@ -91,7 +91,7 @@ const ExerciseTaskIFrameEditor: React.FC<
             onPrivateSpecChange(
               // oxlint-disable-next-line typescript/no-explicit-any
               JSON.stringify((messageContainer.data as any).private_spec),
-              messageContainer.files ?? [],
+              messageContainer.private_spec_files ?? [],
             )
           }
           if (messageContainer.message === "file-upload") {

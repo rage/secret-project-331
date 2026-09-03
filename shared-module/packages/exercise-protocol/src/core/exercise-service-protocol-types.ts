@@ -30,18 +30,25 @@ export interface CurrentStateMessage {
    */
   data: unknown
   /**
-   * Host file ids from `upload-result`, and what they mean depends on the view.
+   * From `answer-exercise`: host file ids from `upload-result` for the files the answer consists
+   * of, in the order the plugin wants them graded and displayed. Present makes the answer
+   * file-typed; absent leaves it JSON-typed. The host verifies every id was uploaded by this user
+   * for this exercise, and rejects a list that is empty or repeats an id.
    *
-   * From `answer-exercise`: the files the answer consists of, in the order the plugin wants them
-   * graded and displayed. Present makes the answer file-typed; absent leaves it JSON-typed. The
-   * host verifies every id was uploaded by this user for this exercise.
-   *
-   * From `exercise-editor`: every file the private spec references, in any order. The host cannot
-   * read the spec, so this list is the only thing that keeps those files from being reclaimed as
-   * abandoned uploads — send it on every `current-state`, since omitting it releases them. Only
-   * meaningful for a service whose service-info declares `declares_spec_files`.
+   * Ignored from the other views — the editor declares its files as `private_spec_files`.
    */
   files?: string[]
+  /**
+   * From `exercise-editor`: host file ids from `upload-result` for every file the private spec
+   * references, in any order. The host cannot read the spec, so this list is the only thing that
+   * keeps those files from being reclaimed as abandoned uploads — send it on every
+   * `current-state`, since omitting it releases them. Only meaningful for a service whose
+   * service-info declares `declares_spec_files`.
+   *
+   * Ignored from the other views. Unlike `files`, the host does not verify these ids belong to the
+   * editing user, but it does reject ids it has no upload for.
+   */
+  private_spec_files?: string[]
   valid: boolean
   /**
    * Optional, already-localized reasons the current answer is not yet submittable

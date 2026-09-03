@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React from "react"
+import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -14,7 +15,7 @@ import TrashIcon from "@/imgs/trash.svg"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont } from "@/shared-module/common/styles"
-import { Dialog, QueryResult } from "@/shared-module/components"
+import { Dialog, FileField, QueryResult } from "@/shared-module/components"
 
 const ACCEPTABLE_MIME_TYPES = [
   "audio/mpeg",
@@ -33,8 +34,18 @@ interface PageAudioWidgetContentProps {
   pageId: string
 }
 
+interface AudioUploadFields {
+  audioFile: File[]
+}
+
 const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId }) => {
   const { t } = useTranslation()
+  const { control, handleSubmit, reset } = useForm<AudioUploadFields>({
+    defaultValues: { audioFile: [] },
+  })
+  // FileField's chosen-file summary is internal display state that isn't driven by the RHF value,
+  // so remounting is the only way to clear it back to "no file chosen" after a successful upload.
+  const [resetKey, setResetKey] = useState(0)
   const pageAudioFilesQuery = useQuery(
     getPageAudioFilesOptions({
       path: {
@@ -79,22 +90,19 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
     },
   )
 
-  const handleUpload = (event: React.ChangeEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (!event.currentTarget.audioFile) {
+  const handleUpload = handleSubmit(({ audioFile }) => {
+    const file = audioFile[0]
+    if (!file) {
       return
     }
-    const file: File | null = event.currentTarget.audioFile.files[0]
-
-    if (file) {
-      if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
-        console.error("The audio format is not accepted")
-        throw new Error("The audio format is not accepted")
-      }
-      uploadAudioFileMutation.mutate(file)
-      event.currentTarget.audioFile.value = null
+    if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
+      console.error("The audio format is not accepted")
+      throw new Error("The audio format is not accepted")
     }
-  }
+    uploadAudioFileMutation.mutate(file)
+    reset()
+    setResetKey((key) => key + 1)
+  })
 
   return (
     <div
@@ -183,26 +191,11 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
             border: 1px solid #555;
             background: #fff;
             display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
             width: 85%;
-
-            input[type="file"] {
-              width: 350px;
-              max-width: 100%;
-              color: #444;
-              background: #fff;
-              border-radius: 2px;
-            }
-
-            input[type="file"]::file-selector-button {
-              margin-right: 20px;
-              border: none;
-              border-right: 1px solid #555;
-              padding: 10px 20px;
-              color: #333;
-              background: #fff;
-              cursor: pointer;
-              transition: background 0.2s ease-in-out;
-            }
 
             input[type="submit"] {
               border: none;
@@ -210,16 +203,11 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
               padding: 3px 20px;
               color: #fff;
               cursor: pointer;
-              margin: 3px 3px 3px auto;
               transition: background 0.2s ease-in-out;
-            }
-
-            input[type="file"]::file-selector-button:hover {
-              background: #e1e5ef;
             }
           `}
         >
-          <input id="audioFile" name="audioFile" type="file"></input>
+          <FileField key={resetKey} control={control} name="audioFile" label={t("audio-upload")} />
           <input type="submit" value={t("upload")} />
         </form>
       </div>

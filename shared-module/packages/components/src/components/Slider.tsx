@@ -147,7 +147,7 @@ export type SliderProps<T extends FieldValues, N extends Path<T> = Path<T>> = Rh
   marks?: readonly number[]
   "aria-label"?: string
   className?: string
-  /** Lands on the range input; the draggable thumb gets the same id suffixed with `-thumb`. */
+  /** Lands on the range input; the draggable thumb gets the same data-testid suffixed with `-thumb`. */
   "data-testid"?: string | undefined
 }
 

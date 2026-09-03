@@ -79,7 +79,7 @@ export type FileFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   /** Native `accept` picker hint (e.g. `"image/*"`, `".svg"`); does not validate the selected file. */
   accept?: string
   multiple?: boolean
-  /** Lands on the visible button; the hidden file input gets the same id suffixed with `-input`. */
+  /** Lands on the visible button; the hidden file input gets the same data-testid suffixed with `-input`. */
   "data-testid"?: string | undefined
 }
 

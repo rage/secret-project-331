@@ -1426,7 +1426,7 @@ fn internal_error(error: &anyhow::Error) -> HttpResponse {
     })
 }
 
-/// Nothing here is exported to utoipa or `bindings.ts`; no mock's DTOs are.
+/// Nothing here is exported to utoipa; no mock's DTOs are.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/command", web::post().to(command))
         .route("/health", web::get().to(health))

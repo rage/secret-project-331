@@ -14,7 +14,7 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
-import { Button, Disclosure } from "@/shared-module/components"
+import { Button, Disclosure, Link } from "@/shared-module/components"
 
 export interface FeedbackViewProps {
   feedback: Feedback
@@ -65,9 +65,8 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
       `}
     >
       {feedback.page_url_path && pageInfo.data && (
-        <a
+        <Link
           className={css`
-            display: block;
             float: right;
           `}
           href={`${pageRoute(
@@ -76,11 +75,12 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
           )}${feedback.blocks.length > 0 ? `?highlight-blocks=${feedback.blocks.map((b) => b.id).join(",")}` : ""}`}
           target="_blank"
           rel="noreferrer noopener"
+          styledAsButton
+          variant="secondary"
+          size="medium"
         >
-          <Button variant="secondary" size="medium">
-            {t("open-page-in-new-tab")}
-          </Button>
-        </a>
+          {t("open-page-in-new-tab")}
+        </Link>
       )}
       <h2
         className={css`

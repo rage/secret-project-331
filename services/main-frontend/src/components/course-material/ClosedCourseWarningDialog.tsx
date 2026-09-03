@@ -10,7 +10,7 @@ import useOrganization from "@/hooks/course-material/useOrganization"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
-import { Button, Dialog, LoadingRegion } from "@/shared-module/components"
+import { Dialog, Link, LoadingRegion } from "@/shared-module/components"
 import { materialCourseAtom } from "@/state/course-material/selectors"
 
 const ClosedCourseWarningDialog = () => {
@@ -95,16 +95,17 @@ const ClosedCourseWarningDialog = () => {
         )}
 
         {successorCourse.data && organization.data && (
-          <a
+          <Link
             className={css`
               margin: 1rem 0;
             `}
             href={navigateToCourseRoute(organization.data?.slug, successorCourse.data.slug)}
+            styledAsButton
+            variant="primary"
+            size="medium"
           >
-            <Button variant="primary" size="medium">
-              {t("course-closed-warning-successor-button")}
-            </Button>
-          </a>
+            {t("course-closed-warning-successor-button")}
+          </Link>
         )}
       </div>
     </Dialog>

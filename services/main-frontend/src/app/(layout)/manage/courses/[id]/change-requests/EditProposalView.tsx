@@ -21,7 +21,7 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
-import { Button, Radio, RadioGroup, TextArea } from "@/shared-module/components"
+import { Button, Link, Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
 const ImportantText = styled.div`
   white-space: pre-wrap;
@@ -300,9 +300,8 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
       `}
     >
       {proposal.page_url_path && pageInfo.data && (
-        <a
+        <Link
           className={css`
-            display: block;
             float: right;
           `}
           href={`${pageRoute(
@@ -311,11 +310,12 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           )}?highlight-blocks=${proposal.block_proposals.map((bp) => bp.block_id).join(",")}`}
           target="_blank"
           rel="noreferrer noopener"
+          styledAsButton
+          variant="secondary"
+          size="medium"
         >
-          <Button variant="secondary" size="medium">
-            {t("open-page-in-new-tab")}
-          </Button>
-        </a>
+          {t("open-page-in-new-tab")}
+        </Link>
       )}
       <h2
         className={css`

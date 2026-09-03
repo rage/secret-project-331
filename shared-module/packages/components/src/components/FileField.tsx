@@ -76,6 +76,8 @@ export type FileFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   summaryFormatter?: (files: File[] | null) => React.ReactNode
   id?: string
   className?: string
+  /** Native `accept` picker hint (e.g. `"image/*"`, `".svg"`); does not validate the selected file. */
+  accept?: string
   multiple?: boolean
 }
 
@@ -96,6 +98,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
     isRequired = false,
     summaryFormatter,
     className,
+    accept,
     multiple,
   } = props
 
@@ -159,6 +162,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
             ref={composeRefs(inputRef, field.ref)}
             type="file"
             name={field.name}
+            accept={accept}
             multiple={multiple}
             disabled={isDisabled}
             required={isRequired}

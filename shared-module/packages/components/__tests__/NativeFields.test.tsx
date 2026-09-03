@@ -284,4 +284,22 @@ describe("FileField", () => {
       /required/i,
     )
   })
+
+  test("forwards accept to the underlying input", () => {
+    const { container } = renderWithForm<{ files: File[] }>((control) => (
+      <FileField name="files" control={control} label="Documents" accept="image/*,.svg" />
+    ))
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement
+
+    expect(input).toHaveAttribute("accept", "image/*,.svg")
+  })
+
+  test("omits the accept attribute when not given", () => {
+    const { container } = renderWithForm<{ files: File[] }>((control) => (
+      <FileField name="files" control={control} label="Documents" />
+    ))
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement
+
+    expect(input).not.toHaveAttribute("accept")
+  })
 })

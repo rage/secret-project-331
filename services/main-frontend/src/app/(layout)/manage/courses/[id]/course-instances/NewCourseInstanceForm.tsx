@@ -1,13 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { CourseInstance, CourseInstanceForm } from "@/generated/api/types.generated"
-import TimePicker from "@/shared-module/common/components/InputFields/DateTimeLocal"
-import { Button, TextField } from "@/shared-module/components"
+import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { Button, DateTimeLocalField, TextField } from "@/shared-module/components"
 
 interface FormProps {
   initialData: CourseInstance | null
@@ -21,6 +21,8 @@ interface Fields {
   supportEmail: string
   teacherName: string
   teacherEmail: string
+  openingTime: string
+  closingTime: string
 }
 
 const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
@@ -36,10 +38,10 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       supportEmail: initialData?.support_email || "",
       teacherName: initialData?.teacher_in_charge_name || "",
       teacherEmail: initialData?.teacher_in_charge_email || "",
+      openingTime: formatDateForDateTimeLocalInputs(initialData?.starts_at) ?? "",
+      closingTime: formatDateForDateTimeLocalInputs(initialData?.ends_at) ?? "",
     },
   })
-  const [newOpeningTime, setNewOpeningTime] = useState(initialData?.starts_at || null)
-  const [newClosingTime, setNewClosingTime] = useState(initialData?.ends_at || null)
   const onSubmitWrapper = handleSubmit((data) => {
     onSubmit({
       name: data.name || null,
@@ -47,8 +49,8 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       support_email: data.supportEmail || null,
       teacher_in_charge_name: data.teacherName,
       teacher_in_charge_email: data.teacherEmail,
-      opening_time: newOpeningTime,
-      closing_time: newClosingTime,
+      opening_time: data.openingTime ? new Date(data.openingTime).toISOString() : null,
+      closing_time: data.closingTime ? new Date(data.closingTime).toISOString() : null,
     })
   })
 
@@ -59,16 +61,18 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <TextField name="supportEmail" control={control} label={t("support-email")} />
       <TextField name="teacherName" control={control} label={t("teacher-in-charge-name")} />
       <TextField name="teacherEmail" control={control} label={t("teacher-in-charge-email")} />
-      <TimePicker
+      <DateTimeLocalField
+        name="openingTime"
+        control={control}
         label={t("opening-time")}
-        onChangeByValue={(time) => setNewOpeningTime(new Date(time).toISOString())}
         className={css`
           margin-bottom: 0.5rem;
         `}
       />
-      <TimePicker
+      <DateTimeLocalField
+        name="closingTime"
+        control={control}
         label={t("closing-time")}
-        onChangeByValue={(time) => setNewClosingTime(new Date(time).toISOString())}
         className={css`
           margin-bottom: 0.5rem;
         `}

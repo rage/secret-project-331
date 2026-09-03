@@ -3,16 +3,17 @@
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 import type { EChartsOption, TooltipComponentFormatterCallbackParams } from "echarts"
-import React from "react"
+import React, { useEffect } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
 import type { CountResult } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { LoadingRegion } from "@/shared-module/components"
+import { DateField } from "@/shared-module/components/components/DateField"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import StatsHeader from "./StatsHeader"
@@ -25,6 +26,11 @@ export type Period = typeof MONTHLY_PERIOD | typeof DAILY_PERIOD | typeof CUSTOM
 
 export const DAILY_DATE_FORMAT = "yyyy-MM-dd"
 export const MONTHLY_DATE_FORMAT = "yyyy-MM"
+
+interface CustomDateRangeFilterValues {
+  startDate: string
+  endDate: string
+}
 
 interface LineChartProps {
   data: CountResult[] | undefined
@@ -62,6 +68,22 @@ const LineChart: React.FC<LineChartProps> = ({
   setEndDate,
 }) => {
   const { t } = useTranslation()
+
+  // DateField is control/name-only (no onChange prop), so this local form exists solely to host it;
+  // its values are mirrored up through the legacy setStartDate/setEndDate callback props.
+  const { control: dateRangeControl } = useForm<CustomDateRangeFilterValues>({
+    defaultValues: { startDate: "", endDate: "" },
+  })
+  const watchedStartDate = useWatch({ control: dateRangeControl, name: "startDate" })
+  const watchedEndDate = useWatch({ control: dateRangeControl, name: "endDate" })
+
+  useEffect(() => {
+    setStartDate?.(watchedStartDate || null)
+  }, [watchedStartDate, setStartDate])
+
+  useEffect(() => {
+    setEndDate?.(watchedEndDate || null)
+  }, [watchedEndDate, setEndDate])
 
   const chartOptions: EChartsOption = {
     xAxis: {
@@ -131,14 +153,12 @@ const LineChart: React.FC<LineChartProps> = ({
                   padding-bottom: 12px;
                 `}
               >
-                <DatePickerField
+                <DateField
+                  control={dateRangeControl}
+                  name="startDate"
                   label={t("stats-start-date")}
-                  onChangeByValue={(value) => setStartDate?.(value)}
                 />
-                <DatePickerField
-                  label={t("stats-end-date")}
-                  onChangeByValue={(value) => setEndDate?.(value)}
-                />
+                <DateField control={dateRangeControl} name="endDate" label={t("stats-end-date")} />
               </div>
             )}
 

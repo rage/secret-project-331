@@ -1,12 +1,12 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { addCodeGiveawayCodesMutation as addCodeGiveawayCodesMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Button, Dialog } from "@/shared-module/components"
+import { Button, Dialog, TextArea } from "@/shared-module/components"
 
 interface ImportCodesFormProps {
   codeGiveawayId: string
@@ -21,7 +21,8 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
   setDialogOpen,
   onCreated,
 }) => {
-  const [input, setInput] = useState("")
+  const { control, watch, reset } = useForm<{ input: string }>({ defaultValues: { input: "" } })
+  const input = watch("input")
   const parsedCodes = useMemo(
     () =>
       input
@@ -43,7 +44,7 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
     },
     {
       onSuccess: () => {
-        setInput("")
+        reset()
         setDialogOpen(false)
         if (onCreated) {
           onCreated()
@@ -56,12 +57,7 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
   }
   return (
     <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} title={t("heading-add-codes")}>
-      <TextAreaField
-        label={t("label-codes-one-per-line")}
-        value={input}
-        rows={20}
-        onChange={(e) => setInput(e.target.value)}
-      />
+      <TextArea name="input" control={control} label={t("label-codes-one-per-line")} rows={20} />
       <div>
         <Button
           size="medium"

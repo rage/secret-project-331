@@ -1,19 +1,19 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useEffect } from "react"
 import { VisuallyHidden } from "react-aria"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button } from "@/shared-module/components"
+import { Button, TextField } from "@/shared-module/components"
 
 import SearchUsersResults from "./SearchUsersResults"
 import useSearchUsersLiveRegion from "./useSearchUsersLiveRegion"
@@ -32,6 +32,27 @@ const SearchUsersPage: React.FC = () => {
     paramName: "search",
     delayMs: 250,
   })
+  const { control, watch, setValue } = useForm<{ search: string }>({
+    defaultValues: { search: inputValue },
+  })
+  const searchFieldValue = watch("search")
+
+  // `useUrlSyncedDebouncedQuery` owns `inputValue` (URL back/forward, a pasted link); mirror it in.
+  useEffect(() => {
+    if (inputValue !== searchFieldValue) {
+      setValue("search", inputValue)
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputValue])
+
+  // And mirror the field's own edits back out, so the debounce/URL sync still drives off them.
+  useEffect(() => {
+    if (searchFieldValue !== inputValue) {
+      setInputValue(searchFieldValue)
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchFieldValue])
+
   const queries = useSearchUsersQueries(searchQuery)
   const { searchByEmailQuery, searchByOtherDetailsQuery, searchFuzzyMatchQuery } = queries
   const hasActiveSearch = searchQuery !== ""
@@ -51,24 +72,22 @@ const SearchUsersPage: React.FC = () => {
       <h1>{t("title-user-search")}</h1>
 
       <div>
-        <div
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            runImmediate()
+          }}
           className={css`
             display: flex;
           `}
         >
-          <TextField
-            label={t("text-field-label-search")}
+          <div
             className={css`
               flex-grow: 1;
             `}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                runImmediate()
-              }
-            }}
-          />
+          >
+            <TextField name="search" control={control} label={t("text-field-label-search")} />
+          </div>
           <div
             className={css`
               display: flex;
@@ -77,15 +96,15 @@ const SearchUsersPage: React.FC = () => {
             `}
           >
             <Button
+              type="submit"
               variant="primary"
               size="medium"
-              onClick={runImmediate}
               disabled={searchByEmailQuery.isFetching}
             >
               {t("button-text-search")}
             </Button>
           </div>
-        </div>
+        </form>
       </div>
 
       <VisuallyHidden aria-live="polite" aria-atomic>

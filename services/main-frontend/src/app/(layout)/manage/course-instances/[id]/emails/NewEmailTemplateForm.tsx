@@ -2,13 +2,13 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useState } from "react"
+import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { Button } from "@/shared-module/components"
+import { Button, TextField } from "@/shared-module/components"
 
-const StyledTextField = styled(TextField)`
+const textFieldMarginCss = css`
   margin: 0.3rem;
 `
 const StyledButton = styled(Button)`
@@ -27,7 +27,10 @@ const NewEmailTemplateForm: React.FC<React.PropsWithChildren<NewEmailTemplateFor
   onSubmitForm,
 }) => {
   const { t } = useTranslation()
-  const [emailTitle, setEmailTitle] = useState("")
+  const { control, watch } = useForm<{ emailTitle: string }>({
+    defaultValues: { emailTitle: "" },
+  })
+  const emailTitle = watch("emailTitle")
 
   return (
     <div
@@ -37,13 +40,12 @@ const NewEmailTemplateForm: React.FC<React.PropsWithChildren<NewEmailTemplateFor
     >
       <div>
         <FieldContainer>
-          <StyledTextField
-            required
+          <TextField
+            isRequired
+            name="emailTitle"
+            control={control}
             label={t("text-field-label-email-title")}
-            value={emailTitle}
-            onChangeByValue={(value) => {
-              setEmailTitle(value)
-            }}
+            className={textFieldMarginCss}
           />
         </FieldContainer>
       </div>

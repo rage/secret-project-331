@@ -1,10 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useEffect } from "react"
+import { useForm } from "react-hook-form"
 
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { TextField } from "@/shared-module/components"
 
 type inputType = "number" | "text"
 interface ContentAreaProps {
@@ -16,6 +17,10 @@ interface ContentAreaProps {
   error?: string
 }
 
+interface ContentAreaFields {
+  value: string | number | null
+}
+
 const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
   title,
   text,
@@ -24,35 +29,48 @@ const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
   onChange,
   type,
 }) => {
+  const { control, watch, setValue } = useForm<ContentAreaFields>({
+    defaultValues: { value: text },
+  })
+  const fieldValue = watch("value")
+
+  // `text` can change from outside (e.g. editing the name also derives the slug), so the field
+  // has to resync instead of only ever pushing its own edits outward.
+  useEffect(() => {
+    if (text !== fieldValue) {
+      setValue("value", text)
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [text])
+
+  useEffect(() => {
+    if (fieldValue !== text) {
+      onChange(String(fieldValue ?? ""))
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [fieldValue])
+
   return (
     <div
       className={css`
         margin-bottom: 12px;
       `}
     >
-      <strong>{title}:</strong>
-      <br />
-
-      {editing && type === "text" && (
+      {editing ? (
         <TextField
-          label=""
-          {...omitUndefined({ error })}
-          onChangeByValue={(value) => onChange(value)}
-          value={String(text)}
-          placeholder={`${title}...`}
+          name="value"
+          control={control}
+          label={title}
+          type={type}
+          {...omitUndefined({ errorMessage: error })}
         />
+      ) : (
+        <>
+          <strong>{title}:</strong>
+          <br />
+          <span> {text} </span>
+        </>
       )}
-      {editing && type === "number" && (
-        <TextField
-          label=""
-          {...omitUndefined({ error })}
-          onChangeByValue={(value) => onChange(value)}
-          type={"number"}
-          value={String(text)}
-          placeholder={`${title}...`}
-        />
-      )}
-      {!editing && <span> {text} </span>}
     </div>
   )
 }

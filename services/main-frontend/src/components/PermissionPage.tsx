@@ -7,6 +7,7 @@ import type { TFunction } from "i18next"
 import { t as globalT } from "i18next"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import type { Equals } from "tsafe"
 import { assert } from "tsafe"
@@ -23,13 +24,11 @@ import {
 } from "@/generated/api/sdk.generated"
 import type { GetRolesData, RoleDomain, RoleUser, UserRole } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, QueryResult } from "@/shared-module/components"
+import { Button, QueryResult, Select, TextField } from "@/shared-module/components"
 
 import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
@@ -79,7 +78,6 @@ assert<Equals<rolesInTheForm, UserRole>>()
 interface EditingRole {
   userId: string
   currentRole: UserRole
-  newRole: UserRole
 }
 
 interface Props {
@@ -129,9 +127,18 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     throw new Error("Unknown domain type")
   }
 
-  const [newEmail, setNewEmail] = useState("")
-  // oxlint-disable-next-line i18next/no-literal-string
-  const [newRole, setNewRole] = useState<UserRole>("Assistant")
+  const {
+    control: addRoleControl,
+    setValue: setAddRoleValue,
+    getValues: getAddRoleValues,
+  } = useForm<{ email: string; role: UserRole }>({
+    defaultValues: { email: "", role: ASSISTANT },
+  })
+  const {
+    control: editRoleControl,
+    reset: resetEditRoleForm,
+    getValues: getEditRoleValues,
+  } = useForm<{ role: UserRole }>({ defaultValues: { role: ASSISTANT } })
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
   const roleQuery = useQuery({
@@ -149,7 +156,8 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        setNewEmail("")
+        // oxlint-disable-next-line i18next/no-literal-string
+        setAddRoleValue("email", "")
         roleQuery.refetch()
       },
       onError: setMutationError,
@@ -276,7 +284,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
                   </button>
                 </th>
                 <th>
-                  <label htmlFor={"editing-role"}>{t("label-role")}</label>
+                  {t("label-role")}
                   <button
                     className={css`
                       cursor: pointer;
@@ -361,13 +369,10 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
                             height: 100%;
                             margin-right: 8px;
                           `}
-                          onClick={() =>
-                            setEditingRole({
-                              userId: ur.user_id,
-                              currentRole: ur.role,
-                              newRole: ur.role,
-                            })
-                          }
+                          onClick={() => {
+                            setEditingRole({ userId: ur.user_id, currentRole: ur.role })
+                            resetEditRoleForm({ role: ur.role })
+                          }}
                         >
                           <Pencil size={20} color={"#1A2333"} />
                         </button>
@@ -393,17 +398,11 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
                   {editingRole?.userId === ur.user_id && editingRole?.currentRole === ur.role && (
                     <>
                       <td>
-                        <SelectField
-                          id={"editing-role"}
-                          onChangeByValue={(role) => {
-                            setEditingRole({
-                              userId: ur.user_id,
-                              currentRole: ur.role,
-                              newRole: role as UserRole,
-                            })
-                          }}
+                        <Select
+                          name="role"
+                          control={editRoleControl}
+                          label={t("label-role")}
                           options={options(t)}
-                          defaultValue={ur.role}
                         />
                       </td>
                       <td>
@@ -420,7 +419,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
                             editMutation.mutate({
                               email: ur.email,
                               oldRole: editingRole.currentRole,
-                              newRole: editingRole.newRole,
+                              newRole: getEditRoleValues().role,
                             })
                             setEditingRole(null)
                           }}
@@ -474,12 +473,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
             padding-right: 16px;
           `}
         >
-          <TextField
-            id={t("label-email")}
-            label={t("label-email")}
-            placeholder={t("field-enter-email")}
-            onChangeByValue={(value) => setNewEmail(value)}
-          />
+          <TextField name="email" control={addRoleControl} label={t("label-email")} />
         </div>
         <div
           className={css`
@@ -488,19 +482,11 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
             margin-bottom: 3px;
           `}
         >
-          <SelectField
-            className={css`
-              select {
-                padding: 10px;
-              }
-            `}
-            id={`adding-${t("label-role")}`}
+          <Select
+            name="role"
+            control={addRoleControl}
             label={t("label-role")}
-            onChangeByValue={(role) => {
-              setNewRole(role as UserRole)
-            }}
             options={options(t)}
-            defaultValue={ASSISTANT}
           />
         </div>
       </div>
@@ -520,8 +506,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
           onClick={() =>
             addMutation.mutate({
               body: {
-                email: newEmail,
-                role: newRole,
+                ...getAddRoleValues(),
                 domain,
               },
             })

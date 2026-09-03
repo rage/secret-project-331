@@ -324,3 +324,67 @@ describe("TextArea - auto-resize", () => {
     expect(textarea.style.height).toBe("")
   })
 })
+
+describe("TextArea - isLabelHidden", () => {
+  test("label stays the accessible name but is clipped from view", () => {
+    renderStringField((control) => (
+      <TextArea name="f" control={control} label="Message" isLabelHidden />
+    ))
+    expect(screen.getByRole("textbox", { name: "Message" })).toBeInTheDocument()
+
+    // react-aria's VisuallyHidden clips via inline style rather than display:none, so
+    // jest-dom's toBeVisible() would not catch a regression here; check the clip directly.
+    const wrapper = screen.getByText("Message").parentElement as HTMLElement
+    expect(wrapper.style.width).toBe("1px")
+    expect(wrapper.style.height).toBe("1px")
+    expect(wrapper.style.overflow).toBe("hidden")
+  })
+
+  test("placeholder is only rendered when the label is hidden", () => {
+    renderStringField((control) => (
+      <TextArea
+        name="f"
+        control={control}
+        label="Message"
+        isLabelHidden
+        placeholder="Ask anything"
+      />
+    ))
+    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Ask anything")
+  })
+})
+
+describe("TextArea - inputRef", () => {
+  test("receives the textarea element", () => {
+    const inputRef = { current: null as HTMLTextAreaElement | null }
+    renderStringField((control) => (
+      <TextArea name="f" control={control} label="Bio" inputRef={inputRef} />
+    ))
+    expect(inputRef.current).toBe(screen.getByRole("textbox"))
+  })
+
+  test("focus() through inputRef moves focus to the textarea", () => {
+    const inputRef = { current: null as HTMLTextAreaElement | null }
+    renderStringField((control) => (
+      <TextArea name="f" control={control} label="Bio" inputRef={inputRef} />
+    ))
+    inputRef.current?.focus()
+    expect(screen.getByRole("textbox")).toHaveFocus()
+  })
+})
+
+describe("TextArea - onKeyDown", () => {
+  test("fires the caller's handler without breaking typing", () => {
+    const onKeyDown = jest.fn()
+    const { getValues } = renderStringField((control) => (
+      <TextArea name="f" control={control} label="Bio" onKeyDown={onKeyDown} />
+    ))
+    const textarea = screen.getByRole("textbox")
+
+    fireEvent.keyDown(textarea, { key: "Enter" })
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
+
+    fireEvent.change(textarea, { target: { value: "Hello" } })
+    expect(getValues().f).toBe("Hello")
+  })
+})

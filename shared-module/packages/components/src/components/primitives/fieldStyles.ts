@@ -88,6 +88,11 @@ const inputBaseCss = css`
     user-select: none;
   }
 
+  [data-field-control][data-label-hidden="true"] &::placeholder {
+    color: var(--field-placeholder);
+    user-select: auto;
+  }
+
   &:focus {
     box-shadow:
       inset 0 0 0 1px var(--field-border-focus),

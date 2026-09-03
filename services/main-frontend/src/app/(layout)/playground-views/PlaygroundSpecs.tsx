@@ -8,11 +8,10 @@ import { useTranslation } from "react-i18next"
 
 import type { PlaygroundSettings } from "@/app/(layout)/playground-tabs/page"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { LoadingRegion } from "@/shared-module/components"
+import { LoadingRegion, TextArea } from "@/shared-module/components"
 
 export interface PlaygroundSpecsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>
@@ -50,12 +49,10 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
       `}
     >
       <div>
-        <TextAreaField
-          id="heading-private-spec"
-          rows={20}
-          spellCheck={false}
-          label={t("private-spec")}
-          {...settingsForm.register("private_spec", {
+        <TextArea
+          name="private_spec"
+          control={settingsForm.control}
+          rules={{
             validate: (value) => {
               try {
                 JSON.parse(value)
@@ -64,7 +61,10 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
                 return false
               }
             },
-          })}
+          }}
+          id="heading-private-spec"
+          rows={20}
+          label={t("private-spec")}
           className={css`
             margin-bottom: 1rem;
             textarea {

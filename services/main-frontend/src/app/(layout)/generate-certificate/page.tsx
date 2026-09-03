@@ -4,7 +4,8 @@ import type { UseQueryResult } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
 import { useRouter } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { generateCertificateMutation as generateCertificateMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -20,7 +21,6 @@ import type {
   CourseModule as GeneratedCourseModule,
 } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -30,7 +30,7 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, LoadingRegion, useDialog } from "@/shared-module/components"
+import { Button, LoadingRegion, TextField, useDialog } from "@/shared-module/components"
 
 const ModuleCertificate: React.FC = () => {
   const { t } = useTranslation()
@@ -40,7 +40,11 @@ const ModuleCertificate: React.FC = () => {
   // Used to generate the right title
   const moduleId = useQueryParameter("module")
   const userInfo = useUserInfo()
-  const [nameOnCertificate, setNameOnCertificate] = useState("")
+  const { control, setValue } = useForm<{ nameOnCertificate: string }>({
+    defaultValues: { nameOnCertificate: "" },
+  })
+  // oxlint-disable-next-line i18next/no-literal-string
+  const nameOnCertificate = useWatch({ control, name: "nameOnCertificate" })
   const existingCertificateQuery = useQuery({
     queryKey: ["getCertificateByConfigurationId", certificateConfigurationId],
     queryFn: (): Promise<GeneratedCertificate | null> =>
@@ -84,11 +88,12 @@ const ModuleCertificate: React.FC = () => {
 
   useEffect(() => {
     if (userInfo.isSuccess && userInfo.data && nameOnCertificate === "") {
-      setNameOnCertificate(
+      setValue(
+        "nameOnCertificate",
         `${userInfo.data.first_name ?? ""} ${userInfo.data.last_name ?? ""}`.trim(),
       )
     }
-  }, [userInfo.isSuccess, userInfo.data, nameOnCertificate])
+  }, [userInfo.isSuccess, userInfo.data, nameOnCertificate, setValue])
 
   const userGrade = useQuery({
     queryKey: [`${moduleId}-course-module-completion`, moduleId],
@@ -146,12 +151,7 @@ const ModuleCertificate: React.FC = () => {
           <h2>{getHeaderContent(t, courseAndModule, moduleId)}</h2>
           <div>{t("certificate-generation-instructions")}</div>
           <hr />
-          <TextField
-            required
-            label={t("your-name")}
-            value={nameOnCertificate}
-            onChange={(event) => setNameOnCertificate(event.target.value)}
-          ></TextField>
+          <TextField name="nameOnCertificate" control={control} isRequired label={t("your-name")} />
           <Button
             size="medium"
             variant="primary"

@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -10,11 +11,10 @@ import {
   updateShowExerciseAnswers,
 } from "@/generated/course-material-api/sdk.generated"
 import type { ExamData } from "@/generated/course-material-api/types.generated"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Button } from "@/shared-module/components"
+import { Button, Checkbox } from "@/shared-module/components"
 
 export interface TestExamTeacherToolsProps {
   examId: string
@@ -25,13 +25,19 @@ export interface TestExamTeacherToolsProps {
 export default function TestExamTeacherTools({ examId, examData }: TestExamTeacherToolsProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const [showExamAnswers, setShowExamAnswers] = useState<boolean>(false)
+  const { control, setValue, watch } = useForm<{ showExamAnswers: boolean }>({
+    defaultValues: { showExamAnswers: false },
+  })
+  const showExamAnswers = watch("showExamAnswers")
 
   useEffect(() => {
     if (examData.enrollment_data.tag === "EnrolledAndStarted") {
-      setShowExamAnswers(examData.enrollment_data.enrollment.show_exercise_answers ?? false)
+      setValue(
+        "showExamAnswers",
+        examData.enrollment_data.enrollment.show_exercise_answers ?? false,
+      )
     }
-  }, [examData])
+  }, [examData, setValue])
 
   const showAnswersMutation = useToastMutation(
     (showAnswers: boolean) =>
@@ -47,6 +53,18 @@ export default function TestExamTeacherTools({ examId, examData }: TestExamTeach
     { onSuccess: () => queryClient.refetchQueries() },
   )
 
+  // Skips the mount-time invocation, which would otherwise push the field's default value to the
+  // server before the sync effect above has had a chance to replace it with the real value.
+  const isFirstShowAnswersEffectRef = useRef(true)
+  useEffect(() => {
+    if (isFirstShowAnswersEffectRef.current) {
+      isFirstShowAnswersEffectRef.current = false
+      return
+    }
+    showAnswersMutation.mutate(showExamAnswers)
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [showExamAnswers])
+
   const resetExamMutation = useToastMutation(
     () =>
       resetExamProgress({
@@ -60,7 +78,7 @@ export default function TestExamTeacherTools({ examId, examData }: TestExamTeach
     },
     {
       onSuccess: async () => {
-        showAnswersMutation.mutate(false)
+        setValue("showExamAnswers", false)
         await queryClient.refetchQueries()
       },
     },
@@ -69,12 +87,6 @@ export default function TestExamTeacherTools({ examId, examData }: TestExamTeach
   const handleResetProgress = useCallback(() => {
     resetExamMutation.mutate()
   }, [resetExamMutation])
-
-  const handleShowAnswers = useCallback(() => {
-    const next = !showExamAnswers
-    setShowExamAnswers(next)
-    showAnswersMutation.mutate(next)
-  }, [showAnswersMutation, showExamAnswers])
 
   if (examData.enrollment_data.tag !== "EnrolledAndStarted") {
     return null
@@ -115,7 +127,7 @@ export default function TestExamTeacherTools({ examId, examData }: TestExamTeach
       >
         {t("button-text-reset-exam-progress")}
       </Button>
-      <CheckBox label={t("show-answers")} checked={showExamAnswers} onChange={handleShowAnswers} />
+      <Checkbox name="showExamAnswers" control={control} label={t("show-answers")} />
     </div>
   )
 }

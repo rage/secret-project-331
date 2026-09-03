@@ -5,10 +5,7 @@ import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Dialog } from "@/shared-module/components"
+import { Dialog, Select, TextField } from "@/shared-module/components"
 
 interface CreateOrganizationForm {
   name: string
@@ -28,12 +25,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
   onCreate,
 }) => {
   const { t } = useTranslation()
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<CreateOrganizationForm>({
+  const { control, handleSubmit, reset } = useForm<CreateOrganizationForm>({
     defaultValues: {
       name: "",
       // oxlint-disable-next-line i18next/no-literal-string
@@ -84,13 +76,15 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
 
       <form onSubmit={submitForm}>
         <TextField
-          {...register("name", { required: true })}
+          name="name"
+          control={control}
+          rules={{ required: t("validation-required") }}
           label={t("label-organization-name")}
-          {...includeIf(errors.name, { error: t("validation-required") })}
         />
 
-        <SelectField
-          {...register("visibility")}
+        <Select
+          name="visibility"
+          control={control}
           id="org-visibility"
           label={t("label-visibility")}
           options={[
@@ -102,9 +96,10 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
         />
 
         <TextField
-          {...register("slug", { required: true })}
+          name="slug"
+          control={control}
+          rules={{ required: t("validation-required") }}
           label={t("label-slug")}
-          {...includeIf(errors.slug, { error: t("validation-required") })}
         />
       </form>
     </Dialog>

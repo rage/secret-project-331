@@ -10,11 +10,9 @@ import { useTranslation } from "react-i18next"
 import type { PlaygroundSettings } from "@/app/(layout)/playground-tabs/page"
 import { DEFAULT_SERVICE_INFO_URL } from "@/constants/playground"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button } from "@/shared-module/components"
+import { Button, Checkbox, TextField } from "@/shared-module/components"
 import type { ExerciseServiceInfoApi } from "@/utils/playgroundSchemas"
 
 interface PlayGroundSettingsProps {
@@ -29,6 +27,7 @@ const PlayGroundSettings: React.FC<PlayGroundSettingsProps> = ({
   isValidServiceInfo,
 }) => {
   const { t } = useTranslation()
+  const { control } = settingsForm
   const url = settingsForm.watch("url")
   return (
     <div
@@ -37,7 +36,7 @@ const PlayGroundSettings: React.FC<PlayGroundSettingsProps> = ({
       `}
     >
       <div>
-        <TextField label={t("service-info-url")} {...settingsForm.register("url")} />
+        <TextField name="url" control={control} label={t("service-info-url")} />
         {serviceInfoQuery.isError && t("error-fetching-service-info")}
         {!serviceInfoQuery.isLoading && (
           <div
@@ -79,22 +78,15 @@ const PlayGroundSettings: React.FC<PlayGroundSettingsProps> = ({
         )}
       </div>
       <div>
+        <TextField name="width" control={control} label={t("label-width")} />
+        <Checkbox name="showIframeBorders" control={control} label={t("show-iframe-borders")} />
+        <Checkbox name="disableSandbox" control={control} label={t("disable-sandbox")} />
         <TextField
-          placeholder={t("label-width")}
-          label={t("label-width")}
-          {...settingsForm.register("width")}
-        />
-        <CheckBox
-          label={t("show-iframe-borders")}
-          {...settingsForm.register("showIframeBorders")}
-        />
-        <CheckBox label={t("disable-sandbox")} {...settingsForm.register("disableSandbox")} />
-        <TextField
-          placeholder={t("label-pseudonymous-user-id")}
+          name="pseudonymousUserId"
+          control={control}
           label={t("label-pseudonymous-user-id")}
-          {...settingsForm.register("pseudonymousUserId")}
         />
-        <CheckBox label={t("button-text-signed-in")} {...settingsForm.register("signedIn")} />
+        <Checkbox name="signedIn" control={control} label={t("button-text-signed-in")} />
       </div>
     </div>
   )

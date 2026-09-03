@@ -9,12 +9,10 @@ import type {
   CertificateTextAnchor,
   PaperSize,
 } from "@/generated/api/types.generated"
-import FileField from "@/shared-module/common/components/InputFields/FileField"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
-import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Button, Checkbox, Select, TextField } from "@/shared-module/components"
+import { Button, Checkbox, FileField, Select, TextField } from "@/shared-module/components"
 
 interface Props {
   generatingCertificatesEnabled: boolean
@@ -41,8 +39,8 @@ export interface CertificateFields {
   dateTextAnchor: CertificateTextAnchor
   locale: string
   paperSize: PaperSize
-  backgroundSvg: FileList
-  overlaySvg: FileList
+  backgroundSvg: File[]
+  overlaySvg: File[]
   clearCurrentOverlaySvg: boolean
   renderGrade: boolean
   gradePosX: string | null
@@ -70,12 +68,7 @@ const CertificateForm: React.FC<Props> = ({
   const configuration = configurationAndRequirements?.certificate_configuration
   const { t } = useTranslation()
   /* oxlint-disable i18next/no-literal-string */
-  const {
-    control,
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CertificateFields>({
+  const { control, handleSubmit } = useForm<CertificateFields>({
     mode: "onChange",
     defaultValues: {
       ownerNamePosX: configuration?.certificate_owner_name_x_pos ?? "50%",
@@ -95,6 +88,8 @@ const CertificateForm: React.FC<Props> = ({
       dateTextAnchor: configuration?.certificate_date_text_anchor ?? "start",
       locale: configuration?.certificate_locale ?? "en",
       paperSize: configuration?.paper_size ?? "horizontal-a4",
+      backgroundSvg: [],
+      overlaySvg: [],
       clearCurrentOverlaySvg: false,
       renderGrade: configuration?.render_certificate_grade ?? false,
       gradePosX: configuration?.certificate_grade_x_pos ?? null,
@@ -144,25 +139,20 @@ const CertificateForm: React.FC<Props> = ({
         <SetHeightInSystemTests heightPx={100}>
           <FileField
             id={"backgroundSvg"}
-            {...includeIf(errors.backgroundSvg, { error: errors.backgroundSvg })}
+            name="backgroundSvg"
+            control={control}
             label={
               configuration
                 ? t("label-background-svg-current", { path: configuration.background_svg_path })
                 : t("label-background-svg")
             }
-            {...register(
-              "backgroundSvg",
-              // required if configuration does not exist yet
-              configuration ? undefined : { required: t("required-field") },
-            )}
-            // required for new configurations
-            required={configuration === null}
-            // oxlint-disable-next-line i18next/no-literal-string
-            accept={".svg"}
+            rules={configuration ? undefined : { required: t("required-field") }}
+            isRequired={configuration === null}
           />
           <FileField
             id={"overlaySvg"}
-            {...includeIf(errors.overlaySvg, { error: errors.overlaySvg })}
+            name="overlaySvg"
+            control={control}
             label={
               configuration
                 ? configuration.overlay_svg_path
@@ -170,9 +160,6 @@ const CertificateForm: React.FC<Props> = ({
                   : t("label-overlay-svg-optional")
                 : t("label-overlay-svg")
             }
-            {...register("overlaySvg")}
-            // oxlint-disable-next-line i18next/no-literal-string
-            accept={".svg"}
           />
         </SetHeightInSystemTests>
       </MaskOverThisInSystemTests>

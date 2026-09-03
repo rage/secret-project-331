@@ -74,8 +74,8 @@ const CertificationsPage: React.FC = () => {
   })
   const updateConfigurationMutation = useToastMutation(
     ({ courseModuleId, courseInstanceId: instanceId, fields }: UpdateMutationArgs) => {
-      const backgroundSvg = fields.backgroundSvg.item(0)
-      const overlaySvg = fields.overlaySvg.item(0)
+      const backgroundSvg = fields.backgroundSvg[0] ?? null
+      const overlaySvg = fields.overlaySvg[0] ?? null
       const metadata: UpdateCertificateConfigurationData["body"]["metadata"] = {
         course_module_id: courseModuleId,
         course_instance_id: instanceId,

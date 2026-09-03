@@ -7,10 +7,9 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { NewExam, OrgExam } from "@/generated/api/types.generated"
-import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
-import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
-import { Button, Checkbox, Select, TextField } from "@/shared-module/components"
+import { Button, Checkbox, DateTimeLocalField, Select, TextField } from "@/shared-module/components"
 
 interface NewExamFormProps {
   initialData: OrgExam | null
@@ -43,16 +42,14 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
   const { t } = useTranslation()
   const [startTimeWarning, setStartTimeWarning] = useState<string | null>(null)
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-    clearErrors,
-    watch,
-    setValue,
-    setError,
-  } = useForm<NewExamFields>({ defaultValues: { duplicateExam: false, parentId: null } })
+  const { control, handleSubmit, clearErrors, watch, setValue, setError } = useForm<NewExamFields>({
+    defaultValues: {
+      duplicateExam: false,
+      parentId: null,
+      startsAt: initialData?.starts_at ? dateToDateTimeLocalString(initialData.starts_at) : "",
+      endsAt: initialData?.ends_at ? dateToDateTimeLocalString(initialData.ends_at) : "",
+    },
+  })
 
   const startsAt = watch("startsAt")
 
@@ -223,24 +220,18 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
             id={"name"}
             label={t("label-name")}
           />
-          <DateTimeLocal
-            {...omitUndefined({ error: errors.startsAt?.message })}
-            {...includeIf(startTimeWarning !== null && startTimeWarning !== undefined, {
-              warning: startTimeWarning,
-            })}
-            {...(initialData?.starts_at
-              ? { defaultValue: dateToDateTimeLocalString(initialData.starts_at) }
-              : {})}
+          <DateTimeLocalField
+            name="startsAt"
+            control={control}
             label={t("label-starts-at")}
-            {...register("startsAt", { required: t("required-field") })}
+            rules={{ required: t("required-field") }}
+            {...includeIf(startTimeWarning !== null, { notice: startTimeWarning })}
           />
-          <DateTimeLocal
-            {...omitUndefined({ error: errors.endsAt?.message })}
-            {...(initialData?.ends_at
-              ? { defaultValue: dateToDateTimeLocalString(initialData.ends_at) }
-              : {})}
+          <DateTimeLocalField
+            name="endsAt"
+            control={control}
             label={t("label-ends-at")}
-            {...register("endsAt", { required: t("required-field") })}
+            rules={{ required: t("required-field") }}
           />
           <TextField
             name="timeMinutes"

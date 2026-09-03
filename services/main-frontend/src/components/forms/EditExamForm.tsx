@@ -8,10 +8,8 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { Exam, NewExam } from "@/generated/api/types.generated"
-import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { Button, Checkbox, TextField } from "@/shared-module/components"
+import { Button, Checkbox, DateTimeLocalField, TextField } from "@/shared-module/components"
 
 interface EditExamFormProps {
   initialData: Exam
@@ -41,18 +39,13 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
   const initialStartsAt = formatDateForDateTimeLocalInputs(initialData.starts_at)
   const initialEndsAt = formatDateForDateTimeLocalInputs(initialData.ends_at)
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<EditExamFields>({
+  const { control, handleSubmit, watch } = useForm<EditExamFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       name: initialData.name,
-      ...omitUndefined({ startsAt: initialStartsAt, endsAt: initialEndsAt }),
+      startsAt: initialStartsAt ?? "",
+      endsAt: initialEndsAt ?? "",
       timeMinutes: initialData.time_minutes,
       automaticCompletionEnabled: initialData.minimum_points_treshold !== 0,
       minimumPointsTreshold: initialData.minimum_points_treshold,
@@ -94,15 +87,17 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
             id={"name"}
             label={t("label-name")}
           />
-          <DateTimeLocal
-            {...omitUndefined({ error: errors.startsAt?.message })}
+          <DateTimeLocalField
+            name="startsAt"
+            control={control}
             label={t("label-starts-at")}
-            {...register("startsAt", { required: t("required-field") })}
+            rules={{ required: t("required-field") }}
           />
-          <DateTimeLocal
-            {...omitUndefined({ error: errors.endsAt?.message })}
+          <DateTimeLocalField
+            name="endsAt"
+            control={control}
             label={t("label-ends-at")}
-            {...register("endsAt", { required: t("required-field"), validate: validateDates })}
+            rules={{ required: t("required-field"), validate: validateDates }}
           />
           <TextField
             name="timeMinutes"

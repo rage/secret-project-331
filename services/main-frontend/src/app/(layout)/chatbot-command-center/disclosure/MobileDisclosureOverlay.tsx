@@ -16,6 +16,66 @@ interface MobileDisclosureOverlay {
   children?: ReactNode
 }
 
+const underlayCss = css`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  ${respondToOrLarger.md} {
+    display: none !important;
+  }
+`
+
+const dialogCss = css`
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  transform: translateX(0);
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  ${respondToOrLarger.md} {
+    display: none !important;
+  }
+`
+
+const closeButtonCss = css`
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  font-size: 24px;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  color: #000;
+
+  &:active {
+    background: #d1d5db;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #111827;
+  }
+`
+
 const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlay> = ({
   state,
   onClose,
@@ -47,43 +107,8 @@ const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlay> = ({
   )
 
   return (
-    <div
-      {...underlayProps}
-      className={css`
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1000;
-        ${respondToOrLarger.md} {
-          display: none !important;
-        }
-      `}
-    >
-      <div
-        {...modalProps}
-        ref={overlayRef}
-        className={css`
-          position: fixed;
-          top: 0;
-          left: 0;
-          bottom: 0;
-          width: 100%;
-          max-width: 400px;
-          background: #ffffff;
-          box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-          z-index: 1001;
-          transform: translateX(0);
-          transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-          ${respondToOrLarger.md} {
-            display: none !important;
-          }
-        `}
-      >
+    <div {...underlayProps} className={underlayCss}>
+      <div {...modalProps} ref={overlayRef} className={dialogCss}>
         <div
           {...mergeProps(dialogProps)}
           ref={dialogRef}
@@ -108,36 +133,7 @@ const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlay> = ({
           >
             {t("navigation-menu")}
           </h2>
-          <button
-            className={css`
-              background: none;
-              border: none;
-              padding: 0.5rem;
-              cursor: pointer;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border-radius: 50%;
-              transition:
-                background-color 0.2s ease,
-                box-shadow 0.2s ease;
-              font-size: 24px;
-              line-height: 1;
-              width: 40px;
-              height: 40px;
-              color: #000;
-
-              &:active {
-                background: #d1d5db;
-              }
-
-              &:focus-visible {
-                outline: none;
-                box-shadow: 0 0 0 2px #111827;
-              }
-            `}
-            onClick={handleClose}
-          >
+          <button className={closeButtonCss} onClick={handleClose}>
             <span
               className={css`
                 font-size: 20px;

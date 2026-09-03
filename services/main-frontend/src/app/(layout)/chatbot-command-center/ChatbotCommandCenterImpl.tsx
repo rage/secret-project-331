@@ -35,7 +35,7 @@ interface ChatbotCommandCenterImplProps {
   conversations: ChatbotConversation[]
   configurationId: string | null
   setConfigurationId: React.Dispatch<string | null>
-  setCreateChatbotVisible
+  setCreateChatbotVisible: React.Dispatch<boolean>
 }
 
 const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({

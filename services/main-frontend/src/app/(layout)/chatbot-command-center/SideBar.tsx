@@ -10,9 +10,9 @@ import type { ChatbotConversation } from "@/generated/course-material-api/types.
 import { baseTheme } from "@/shared-module/common/styles"
 
 import ConversationHistory from "./ConversationHistory"
-import { DisclosureButton } from "./disclosure/DisclosureButton"
 import MobileDisclosureOverlay from "./disclosure/MobileDisclosureOverlay"
 import SideBarDisclosure from "./disclosure/SidebarDisclosure"
+import SidebarDisclosureMobile from "./disclosure/SidebarDisclosureMobile"
 
 interface SideBarProps {
   setChatbotDialog: React.Dispatch<boolean>
@@ -36,9 +36,9 @@ const SideBar: React.FC<SideBarProps> = (props) => {
   const { setChatbotDialog, conversations, setConfigurationId, chatbots, setCreateChatbotVisible } =
     props
   const menuState = useOverlayTriggerState({})
+
   return (
     <div className={sideBarContainer}>
-      <DisclosureButton state={menuState} />
       {menuState.isOpen && (
         <OverlayContainer>
           <MobileDisclosureOverlay state={menuState} onClose={menuState.close}>
@@ -51,6 +51,11 @@ const SideBar: React.FC<SideBarProps> = (props) => {
           </MobileDisclosureOverlay>
         </OverlayContainer>
       )}
+      <SidebarDisclosureMobile
+        menuState={menuState}
+        setChatbotDialog={setChatbotDialog}
+        setCreateChatbotVisible={setCreateChatbotVisible}
+      />
       <SideBarDisclosure
         setCreateChatbotVisible={setCreateChatbotVisible}
         setChatbotDialog={setChatbotDialog}

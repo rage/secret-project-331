@@ -36,7 +36,7 @@ const disclosureButton = css`
   border: none;
   box-shadow: none;
   text-shadow: none;
-  padding: 8px 10px;
+  padding: 12px 16px;
   border-radius: 12px;
   &[data-hovered] {
     background: #f3f4f6;
@@ -62,6 +62,16 @@ const reactAriaDisclosurePanel = css`
   }
 `
 
+const buttonStyle = css`
+  background: none;
+  border-width: medium;
+  border-style: none;
+  border-color: currentcolor;
+  border-image: none;
+  box-shadow: none;
+  text-shadow: none;
+`
+
 const SideBarDisclosure: React.FC<DisclosureProps> = (props) => {
   let state = useDisclosureState(props)
   let panelRef = useRef<HTMLDivElement>(null)
@@ -72,16 +82,6 @@ const SideBarDisclosure: React.FC<DisclosureProps> = (props) => {
   let { focusProps, isFocusVisible } = useFocusRing()
 
   const { t } = useTranslation()
-
-  const buttonStyle = css`
-    background: none;
-    border-width: medium;
-    border-style: none;
-    border-color: currentcolor;
-    border-image: none;
-    box-shadow: none;
-    text-shadow: none;
-  `
 
   let items: DropdownMenuItem[] = [
     {
@@ -176,10 +176,8 @@ const SideBarDisclosure: React.FC<DisclosureProps> = (props) => {
           data-disabled={props.isDisabled || undefined}
         >
           <LayoutVertical weight="medium" size={16} />
-          <span>{props.title}</span>
         </button>
       </div>
-
       <div {...panelProps} ref={panelRef} className={reactAriaDisclosurePanel}>
         <div>{props.children}</div>
       </div>

@@ -171,3 +171,10 @@ export {
   PROMPT_DIALOG_INPUT_TEST_ID,
   PROMPT_DIALOG_OK_BUTTON_TEST_ID,
 } from "./components/dialogProvider/testIds"
+export {
+  LOADING_REGION_TEST_ID,
+  QUERY_INITIAL_LOADING_TEST_ID,
+  QUERY_LOADING_SPINNER_TEST_ID,
+  QUERY_REFRESHING_TEST_ID,
+  SPINNER_TEST_ID,
+} from "./components/loadingTestIds"

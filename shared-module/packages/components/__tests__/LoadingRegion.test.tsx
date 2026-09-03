@@ -56,14 +56,14 @@ describe("LoadingRegion", () => {
   test("reserves minHeight from first paint, before the delay elapses", () => {
     renderUi(<LoadingRegion delayMs={1000} minHeight={200} />)
 
-    const container = screen.getByTestId("loading-spinner-component")
+    const container = screen.getByTestId("loading-region-component")
     expect(getComputedStyle(container).minHeight).toBe("200px")
   })
 
   test("the delay withholds the live region and glyph entirely, not just visually", () => {
     renderUi(<LoadingRegion delayMs={250} label="Loading data" />)
 
-    const container = screen.getByTestId("loading-spinner-component")
+    const container = screen.getByTestId("loading-region-component")
     expect(container).not.toHaveAttribute("role")
     expect(container).toBeEmptyDOMElement()
     expect(screen.queryByRole("status")).not.toBeInTheDocument()
@@ -99,6 +99,6 @@ describe("LoadingRegion", () => {
   test("a custom data-testid replaces the default one", () => {
     renderUi(<LoadingRegion delayMs={0} data-testid="my-region" />)
     expect(screen.getByTestId("my-region")).toBeInTheDocument()
-    expect(screen.queryByTestId("loading-spinner-component")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("loading-region-component")).not.toBeInTheDocument()
   })
 })

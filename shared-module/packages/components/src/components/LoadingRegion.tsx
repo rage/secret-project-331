@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next"
 
 import { useLoadingAffordance } from "../lib/utils/loading"
 import { LOADING_AFFORDANCE_DELAY_MS } from "../styles/motion"
+import { LOADING_REGION_TEST_ID } from "./loadingTestIds"
 import { spinnerGlyphCss, type SpinnerSize } from "./primitives/spinnerStyles"
 
-const DEFAULT_TEST_ID = "loading-spinner-component"
 const DEFAULT_MIN_HEIGHT = 160
 
 /**
@@ -28,7 +28,7 @@ export interface LoadingRegionProps {
   /** Suppress the affordance for this long after mount. Default `LOADING_AFFORDANCE_DELAY_MS`; 0 shows immediately. */
   delayMs?: number
   className?: string
-  "data-testid"?: string
+  "data-testid"?: string | undefined
 }
 
 const fadeIn = keyframes`
@@ -83,7 +83,7 @@ export const LoadingRegion: React.FC<LoadingRegionProps> = ({
   size = "md",
   delayMs = LOADING_AFFORDANCE_DELAY_MS,
   className,
-  "data-testid": dataTestId = DEFAULT_TEST_ID,
+  "data-testid": dataTestId = LOADING_REGION_TEST_ID,
 }) => {
   const { t } = useTranslation("shared-module")
   const label = labelProp ?? t("spinner.loading")

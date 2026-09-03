@@ -3,18 +3,27 @@
 import type { Page } from "playwright"
 
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
+import {
+  LOADING_REGION_TEST_ID,
+  QUERY_INITIAL_LOADING_TEST_ID,
+  QUERY_LOADING_SPINNER_TEST_ID,
+  QUERY_REFRESHING_TEST_ID,
+  SPINNER_TEST_ID,
+} from "@/shared-module/components/components/loadingTestIds"
 
-// Loading testids rendered by AnimatedQueryFrame (QueryResult / QueryResults wrappers).
-const QUERY_LOADING_TEST_IDS = [
-  "query-initial-loading",
-  "query-loading-spinner",
-  "query-refreshing",
+const LOADING_TEST_IDS = [
+  ...new Set([
+    LOADING_SPINNER_TEST_ID,
+    SPINNER_TEST_ID,
+    LOADING_REGION_TEST_ID,
+    QUERY_INITIAL_LOADING_TEST_ID,
+    QUERY_LOADING_SPINNER_TEST_ID,
+    QUERY_REFRESHING_TEST_ID,
+  ]),
 ]
 
-const LOADING_TEST_IDS = [LOADING_SPINNER_TEST_ID, ...QUERY_LOADING_TEST_IDS]
-
 /**
- * Waits until every node with {@link LOADING_SPINNER_TEST_ID} or a QueryResult loading testid is
+ * Waits until every node carrying a loading testid (spinner, LoadingRegion or QueryResult) is
  * detached so snapshots and axe checks do not run against incomplete UI.
  */
 export default async function waitForSpinnersToDisappear(

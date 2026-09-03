@@ -7,6 +7,11 @@ import { useTranslation } from "react-i18next"
 
 import { useLoadingAffordance } from "../../lib/utils/loading"
 import { Button } from "../Button"
+import {
+  QUERY_INITIAL_LOADING_TEST_ID,
+  QUERY_LOADING_SPINNER_TEST_ID,
+  QUERY_REFRESHING_TEST_ID,
+} from "../loadingTestIds"
 import { spinnerGlyphCss } from "../primitives/spinnerStyles"
 import type { RetryFn } from "./queryResultState"
 import { getErrorMessage } from "./queryResultState"
@@ -178,7 +183,7 @@ export function AnimatedQueryFrame<E>({
         aria-live="polite"
         aria-busy="true"
         aria-label={loadingLabel}
-        data-testid="query-initial-loading"
+        data-testid={QUERY_INITIAL_LOADING_TEST_ID}
       >
         <div
           className={cx(
@@ -208,7 +213,7 @@ export function AnimatedQueryFrame<E>({
             >
               <div
                 className={spinnerGlyphCss("lg", "accent")}
-                data-testid="query-loading-spinner"
+                data-testid={QUERY_LOADING_SPINNER_TEST_ID}
                 aria-hidden
               />
             </motion.div>
@@ -224,8 +229,7 @@ export function AnimatedQueryFrame<E>({
     <section
       className={cx(wrapperCss, refreshing ? wrapperIsolationCss : undefined)}
       aria-busy={refreshing || blurSettling ? "true" : undefined}
-      // oxlint-disable-next-line i18next/no-literal-string
-      {...((refreshing || blurSettling) && { "data-testid": "query-refreshing" })}
+      {...((refreshing || blurSettling) && { "data-testid": QUERY_REFRESHING_TEST_ID })}
     >
       {refreshing ? (
         <div

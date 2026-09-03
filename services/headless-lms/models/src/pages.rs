@@ -2862,6 +2862,7 @@ struct ExerciseTaskIdAndSpec {
 }
 
 /// A derived spec, with the stored files the exercise service declared it references.
+#[derive(Debug)]
 struct DerivedSpec {
     spec: Option<serde_json::Value>,
     /// `None` when this save declared nothing about the spec: either it was not re-derived, so the
@@ -2873,10 +2874,14 @@ struct DerivedSpec {
 
 /// The body a service that declares its spec files returns from the public-spec and
 /// model-solution endpoints, in place of the bare spec.
+///
+/// Both keys are required on purpose: serde reads a missing field of either an `Option` or a
+/// `#[serde(default)]` type without complaint, so a lenient envelope would swallow a bare spec
+/// object as "no spec, no files" and store `NULL` over a working exercise.
 #[derive(Deserialize)]
 struct DerivedSpecResponse {
-    spec: Option<serde_json::Value>,
-    #[serde(default)]
+    /// `null` for a kind the service has no spec for, such as a model solution it cannot show.
+    spec: serde_json::Value,
     files: Vec<Uuid>,
 }
 
@@ -2937,7 +2942,10 @@ async fn fetch_derived_spec(
                 )
             })?;
             Ok(DerivedSpec {
-                spec: response.spec,
+                spec: match response.spec {
+                    serde_json::Value::Null => None,
+                    spec => Some(spec),
+                },
                 declared_files: Some(response.files),
             })
         }
@@ -5504,5 +5512,74 @@ mod test {
         assert_eq!(page1_updated.order_number, 2);
         assert_eq!(page2_updated.order_number, 3);
         assert_eq!(page3_updated.order_number, 1);
+    }
+
+    fn declaring_task() -> NormalizedCmsExerciseTask {
+        NormalizedCmsExerciseTask {
+            id: Uuid::new_v4(),
+            assignment: serde_json::Value::Null,
+            exercise_type: "declaring-service".to_string(),
+            private_spec: Some(serde_json::json!({ "prompt": "hi" })),
+        }
+    }
+
+    async fn derive_from_declaring_service(body: serde_json::Value) -> ModelResult<DerivedSpec> {
+        let exercise_type = "declaring-service".to_string();
+        let mut urls = HashMap::new();
+        urls.insert(
+            &exercise_type,
+            Url::parse("http://example.com/spec").unwrap(),
+        );
+        fetch_derived_spec(
+            None,
+            &declaring_task(),
+            &urls,
+            move |_url, _slug, _spec| {
+                let body = body.clone();
+                Box::pin(async move { Ok(body) })
+            },
+            None,
+            Uuid::new_v4(),
+            true,
+        )
+        .await
+    }
+
+    #[tokio::test]
+    async fn reads_the_spec_and_its_files_a_declaring_service_answers_with() {
+        let file = Uuid::new_v4();
+        let derived = derive_from_declaring_service(serde_json::json!({
+            "spec": { "prompt": "hi" },
+            "files": [file],
+        }))
+        .await
+        .unwrap();
+
+        assert_eq!(derived.spec, Some(serde_json::json!({ "prompt": "hi" })));
+        assert_eq!(derived.declared_files, Some(vec![file]));
+    }
+
+    #[tokio::test]
+    async fn reads_a_null_spec_a_declaring_service_has_nothing_to_show_for() {
+        let derived = derive_from_declaring_service(serde_json::json!({
+            "spec": null,
+            "files": [],
+        }))
+        .await
+        .unwrap();
+
+        assert_eq!(derived.spec, None);
+        assert_eq!(derived.declared_files, Some(vec![]));
+    }
+
+    #[tokio::test]
+    async fn refuses_a_bare_spec_from_a_declaring_service() {
+        // The dangerous shape: a lenient parse reads a bare spec as "no spec, no files".
+        derive_from_declaring_service(serde_json::json!({ "prompt": "hi", "options": [] }))
+            .await
+            .expect_err("a bare spec is not an envelope");
+        derive_from_declaring_service(serde_json::json!({ "files": [] }))
+            .await
+            .expect_err("an envelope without its spec key is not an envelope");
     }
 }

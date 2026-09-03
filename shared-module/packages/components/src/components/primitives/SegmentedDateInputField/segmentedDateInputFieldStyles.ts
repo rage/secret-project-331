@@ -134,9 +134,17 @@ export const segmentedFieldShellRestEmptyCss = css`
   }
 `
 
-/** Hides placeholder segment glyphs while the label is at rest; keeps row in layout flow at zero height for focus. */
+/**
+ * Hides placeholder segment glyphs while the floating label is at rest, keeping the row in layout
+ * flow at zero height so its segments stay focusable.
+ *
+ * Fades rather than `visibility: hidden`: react-aria's `isFocusable` rejects hidden elements, so
+ * hiding strands an empty field — `useDateField` puts `focusManager.focusFirst()` on the label's
+ * click, and it would find no segment to focus. `pointer-events: none` keeps the row, now painted
+ * and hit-testable, from swallowing clicks meant for the field.
+ */
 export const segmentedSegmentsRowRestHiddenCss = css`
-  visibility: hidden;
+  opacity: 0;
   height: 0;
   overflow: hidden;
   padding: 0;

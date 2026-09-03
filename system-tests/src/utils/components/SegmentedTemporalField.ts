@@ -51,6 +51,20 @@ export class SegmentedTemporalField {
     return this.page.getByTestId(`${this.testId}-value`)
   }
 
+  /**
+   * The field's label, resolved through the group's `aria-labelledby`.
+   *
+   * Rooted at the page: like the hidden input, the label is the group's sibling in the field
+   * shell's control slot, not a descendant.
+   */
+  public async getLabel(): Promise<Locator> {
+    const labelId = await this.getGroup().getAttribute("aria-labelledby")
+    if (labelId === null || labelId.length === 0) {
+      throw new Error(`${this.testId} has no aria-labelledby to resolve its label through`)
+    }
+    return this.page.locator(`[id="${labelId}"]`)
+  }
+
   /** One editable segment, located by name because the segment order follows the locale. */
   public getSegment(segment: TemporalSegment): Locator {
     return this.getGroup().getByRole("spinbutton", {
@@ -91,13 +105,14 @@ export class SegmentedTemporalField {
   /**
    * Brings the segment row into reach before anything clicks a segment.
    *
-   * While the field is empty and unfocused the floating layout collapses the row to
-   * `visibility: hidden; height: 0`, and a hidden element can neither be clicked nor focused, so
-   * focus has to arrive through some other element inside the group first. A `TimeField` has no
-   * such element, so this can only settle an empty one once focus is already inside it.
+   * While the field is empty and unfocused the floating layout collapses the row to zero height,
+   * and Playwright will not click a zero-height element, so the row cannot be its own way in.
+   * Clicking the label is react-aria's answer: `useDateField` hangs `focusManager.focusFirst()` off
+   * the label, which focuses the first segment and expands the row.
    */
   protected async revealSegments(): Promise<void> {
-    await this.getGroup().click()
+    const label = await this.getLabel()
+    await label.click()
     await expect(this.getGroup().getByRole("spinbutton").first()).toBeVisible()
   }
 
@@ -147,8 +162,8 @@ export abstract class PickerTemporalField extends SegmentedTemporalField {
   }
 
   /**
-   * Focuses the trigger, which is the only always-visible focusable element inside the group and
-   * therefore the only way to un-collapse the segment row of an empty field.
+   * Focuses the trigger, which is always visible and sits inside the group, rather than routing
+   * through the label as the base class has to.
    */
   protected override async revealSegments(): Promise<void> {
     await this.getTrigger().focus()

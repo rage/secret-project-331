@@ -6,8 +6,8 @@ import { SegmentedTemporalField } from "./SegmentedTemporalField"
 /**
  * Driver for the shared-module `TimeField`, whose committed value is an `HH:mm` string.
  *
- * It has no calendar and therefore no trigger button, which also means nothing inside its group is
- * focusable while the field is empty; see `SegmentedTemporalField.revealSegments`.
+ * It has no calendar and therefore no trigger button to focus, so an empty one is reached through
+ * its label; see `SegmentedTemporalField.revealSegments`.
  */
 export class TimeField extends SegmentedTemporalField {
   /** Types the time segment by segment and asserts the field committed it. */

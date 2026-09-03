@@ -272,12 +272,6 @@ fn parse_and_validate_spec(
     if !spec.is_object() {
         return Err("The specification must be a JSON object.".to_string());
     }
-    if spec.get("spec").is_some_and(serde_json::Value::is_object) {
-        return Err(
-            "The answer must be the Vega-Lite specification itself, not an object wrapping it."
-                .to_string(),
-        );
-    }
     if let Some(offence) = find_data_source(&spec) {
         return Err(format!(
             "The specification must not contain any data, but it has {offence}. Leave the data out \
@@ -295,6 +289,16 @@ fn parse_and_validate_spec(
     }
     errors.truncate(MAX_REPORTED_VALIDATION_ERRORS);
     if !errors.is_empty() {
+        // A nested `spec` is valid only under facet or repeat, so on an already-rejected
+        // specification, one without either means the model wrapped its answer. Checking on the
+        // failure path never turns away a specification the schema accepts.
+        if spec.get("spec").is_some() && spec.get("facet").is_none() && spec.get("repeat").is_none()
+        {
+            return Err(
+                "The answer must be the Vega-Lite specification itself, not an object wrapping it."
+                    .to_string(),
+            );
+        }
         return Err(format!(
             "The specification does not conform to the Vega-Lite v6 JSON Schema: {}",
             errors.join("; ")
@@ -715,6 +719,72 @@ mod tests {
             .expect_err("should be rejected");
 
         assert!(err.contains("not an object wrapping it"), "{err}");
+    }
+
+    #[test]
+    fn parse_and_validate_rejects_a_wrapper_that_carries_more_than_the_specification() {
+        let wrapped = serde_json::json!({
+            "spec": dataless_spec(),
+            "explanation": "Here is the chart you asked for."
+        })
+        .to_string();
+
+        let err = parse_and_validate_spec(&wrapped, validator(), Some(DATA_FILE))
+            .expect_err("should be rejected");
+
+        assert!(err.contains("not an object wrapping it"), "{err}");
+    }
+
+    /// A facet's nested `spec` is not a wrapper, so a fault inside one must be reported as itself.
+    #[test]
+    fn parse_and_validate_reports_the_fault_inside_a_faceted_answer() {
+        let faceted = serde_json::json!({
+            "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+            "facet": {"field": "group", "type": "nominal"},
+            "spec": {"mark": 123}
+        })
+        .to_string();
+
+        let err = parse_and_validate_spec(&faceted, validator(), Some(DATA_FILE))
+            .expect_err("a numeric mark is invalid");
+
+        assert!(err.contains("does not conform"), "{err}");
+        assert!(!err.contains("not an object wrapping it"), "{err}");
+    }
+
+    #[test]
+    fn parse_and_validate_accepts_a_faceted_answer() {
+        let faceted = serde_json::json!({
+            "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+            "facet": {"field": "group", "type": "nominal"},
+            "columns": 2,
+            "spec": {
+                "mark": "bar",
+                "encoding": {"x": {"field": "a", "type": "quantitative"}}
+            }
+        })
+        .to_string();
+
+        let result = parse_and_validate_spec(&faceted, validator(), Some(DATA_FILE));
+
+        assert!(result.is_ok(), "expected valid, got: {result:?}");
+    }
+
+    #[test]
+    fn parse_and_validate_accepts_a_repeated_answer() {
+        let repeated = serde_json::json!({
+            "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+            "repeat": ["a", "b"],
+            "spec": {
+                "mark": "line",
+                "encoding": {"y": {"field": {"repeat": "repeat"}, "type": "quantitative"}}
+            }
+        })
+        .to_string();
+
+        let result = parse_and_validate_spec(&repeated, validator(), Some(DATA_FILE));
+
+        assert!(result.is_ok(), "expected valid, got: {result:?}");
     }
 
     #[test]

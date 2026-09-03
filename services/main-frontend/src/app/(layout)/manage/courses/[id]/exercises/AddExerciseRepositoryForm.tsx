@@ -5,11 +5,8 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { createExerciseRepositoryMutation as addExerciseRepositoryMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Button } from "@/shared-module/components"
+import { Button, TextArea, TextField } from "@/shared-module/components"
 
 interface Props {
   courseId: string | null
@@ -28,9 +25,9 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
   const { t } = useTranslation()
 
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isValid, isSubmitting },
     reset,
   } = useForm<Fields>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -67,29 +64,13 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
       )}
     >
       <TextField
+        name="gitUrl"
+        control={control}
         label={t("exercise-repositories-git-url")}
-        placeholder={t("exercise-repositories-git-url-placeholder")}
-        {...omitUndefined({ error: errors["gitUrl"]?.message })}
-        {...register("gitUrl", { required: t("required-field") })}
+        rules={{ required: t("required-field") }}
       />
-      <TextAreaField
-        label={t("public-key")}
-        placeholder={
-          // oxlint-disable-next-line i18next/no-literal-string
-          "ssh-ed25519 ..."
-        }
-        {...register("publicKey")}
-        {...omitUndefined({ errorMessage: errors["publicKey"]?.message })}
-      />
-      <TextAreaField
-        label={t("exercise-repositories-deploy-key")}
-        placeholder={
-          // oxlint-disable-next-line i18next/no-literal-string
-          "-----BEGIN OPENSSH PRIVATE KEY----- ..."
-        }
-        {...register("deployKey")}
-        {...omitUndefined({ errorMessage: errors["deployKey"]?.message })}
-      />
+      <TextArea name="publicKey" control={control} label={t("public-key")} />
+      <TextArea name="deployKey" control={control} label={t("exercise-repositories-deploy-key")} />
       <Button
         size="medium"
         variant="primary"

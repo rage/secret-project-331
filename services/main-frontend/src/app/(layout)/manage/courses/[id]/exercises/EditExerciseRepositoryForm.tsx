@@ -6,10 +6,8 @@ import { useTranslation } from "react-i18next"
 
 import { updateExerciseRepositoryMutation as updateExerciseRepositoryMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseRepository } from "@/generated/api/types.generated"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Button } from "@/shared-module/components"
+import { Button, TextField } from "@/shared-module/components"
 
 interface Props {
   exerciseRepository: ExerciseRepository
@@ -31,9 +29,9 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
   const { t } = useTranslation()
 
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isValid, isSubmitting },
     reset,
   } = useForm<Fields>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -68,10 +66,10 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
       )}
     >
       <TextField
+        name="gitUrl"
+        control={control}
         label={t("exercise-repositories-git-url")}
-        placeholder={t("exercise-repositories-git-url-placeholder")}
-        {...register("gitUrl", { required: t("required-field") })}
-        {...omitUndefined({ error: errors["gitUrl"]?.message })}
+        rules={{ required: t("required-field") }}
       />
       <Button
         type="submit"

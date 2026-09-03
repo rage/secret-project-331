@@ -9,11 +9,8 @@ import {
   updateGlossaryTermMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Button } from "@/shared-module/components"
+import { Button, TextArea, TextField } from "@/shared-module/components"
 
 interface UpdateTermForm {
   updatedTerm: string
@@ -31,9 +28,9 @@ interface TermItemProps {
 const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, refetch }) => {
   const { t } = useTranslation()
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { isValid },
     reset,
   } = useForm<UpdateTermForm>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -92,29 +89,28 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
       {isEditing ? (
         <form onSubmit={handleSubmit(onUpdate)}>
           <TextField
-            placeholder={t("updated-term")}
+            name="updatedTerm"
+            control={control}
             label={t("updated-term")}
-            {...register("updatedTerm", {
+            rules={{
               required: true,
               pattern: {
                 value: /\S+/,
                 message: t("required"),
               },
-            })}
-            {...includeIf(errors.updatedTerm, { error: t("required") })}
+            }}
           />
-          <TextAreaField
+          <TextArea
+            name="updatedDefinition"
+            control={control}
             label={t("updated-definition")}
-            placeholder={t("updated-definition")}
-            {...register("updatedDefinition", {
+            rules={{
               required: true,
               pattern: {
                 value: /\S+/,
                 message: t("required"),
               },
-            })}
-            {...includeIf(errors.updatedDefinition, { error: t("required") })}
-            disabled={false}
+            }}
           />
           <Button variant="primary" size="medium" type="submit" disabled={!isValid}>
             {t("button-text-save")}

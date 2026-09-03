@@ -1,7 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import { fireEvent, render, screen } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import { setupIntersectionObserverMock } from "@/shared-module/common/test-utils/mockIntersectionObserver"
 
@@ -34,7 +34,7 @@ describe("Stopping a running turn", () => {
     expect(sendMessage).not.toHaveBeenCalled()
   })
 
-  it("goes back to sending once the turn has ended", () => {
+  it("goes back to sending once the turn has ended", async () => {
     const { rerender } = render(
       <ChatbotChatBody {...makeChatBodyProps({ isTurnInFlight: true }).props} />,
     )
@@ -44,7 +44,8 @@ describe("Stopping a running turn", () => {
     fireEvent.click(screen.getByRole("button", { name: "send" }))
 
     expect(screen.queryByRole("button", { name: "stop-generating" })).toBeNull()
-    expect(sendMessage).toHaveBeenCalledWith("Tell me more")
+    // react-hook-form's handleSubmit resolves asynchronously, even with nothing to validate.
+    await waitFor(() => expect(sendMessage).toHaveBeenCalledWith("Tell me more"))
     expect(stopTurn).not.toHaveBeenCalled()
   })
 

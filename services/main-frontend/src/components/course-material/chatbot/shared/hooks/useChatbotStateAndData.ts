@@ -1,5 +1,7 @@
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useCallback, useEffect, useReducer, useRef, useState } from "react"
+import type { Control } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
@@ -48,11 +50,20 @@ export interface ClientToolResponse {
 /** A turn `runTurn` refused because another is still streaming. Never surfaced to the learner. */
 class TurnAlreadyRunningError extends Error {}
 
+/** react-hook-form field name for the chatbot composer's only field. */
+export const MESSAGE_FIELD = "message" as const
+
+/** The chatbot composer's only field: the message being drafted. */
+export interface ChatbotComposerValues {
+  [MESSAGE_FIELD]: string
+}
+
 /// Queries, state and data needed for chatbot functionality
 export interface ChatbotStateAndData {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newMessage: string
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>
+  control: Control<ChatbotComposerValues>
+  /** Reads the composer's current text and sends it as a new message. */
+  submitMessage: () => Promise<void>
   error: unknown | null
   messageState: ChatbotState
   dispatch: (action: ChatbotAction) => void
@@ -81,7 +92,7 @@ const useChatbotStateAndData = (
   pageId: string | null,
 ) => {
   const { t } = useTranslation()
-  const [newMessage, setNewMessage] = useState("")
+  const composerForm = useForm<ChatbotComposerValues>({ defaultValues: { [MESSAGE_FIELD]: "" } })
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
   const [messageState, dispatch] = useReducer(chatbotReducer, {
@@ -120,7 +131,7 @@ const useChatbotStateAndData = (
   const newConversationMutation = useNewConversationMutation(
     chatbotConfigurationId,
     currentConversationInfo,
-    setNewMessage,
+    composerForm.reset,
     setError,
   )
 
@@ -251,7 +262,7 @@ const useChatbotStateAndData = (
         const conversationId = requireConversationId()
         const message = messageToSend.trim()
         dispatch({ type: "USER_SENDS_MESSAGE", payload: message })
-        setNewMessage("")
+        composerForm.resetField(MESSAGE_FIELD)
         const pageContext: ChatbotPageContext | undefined =
           pageId !== null ? { page_id: pageId } : undefined
         await postChatbotStream(
@@ -291,13 +302,18 @@ const useChatbotStateAndData = (
     },
   )
 
+  const submitComposerMessage = useCallback(
+    (values: ChatbotComposerValues) => newMessageMutation.mutate(values.message),
+    [newMessageMutation],
+  )
+
   return {
     newConversationMutation,
     newMessageMutation,
     toolResponseMutation,
     currentConversationInfo,
-    newMessage,
-    setNewMessage,
+    control: composerForm.control,
+    submitMessage: composerForm.handleSubmit(submitComposerMessage),
     messageState,
     dispatch,
     error,

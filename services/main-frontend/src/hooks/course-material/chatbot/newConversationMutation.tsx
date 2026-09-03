@@ -15,7 +15,7 @@ import { saveChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 const useNewConversationMutation = (
   chatbotConfigurationId: string,
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>,
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>,
+  resetComposerMessage: () => void,
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
 ) => {
   const { t } = useTranslation()
@@ -32,7 +32,7 @@ const useNewConversationMutation = (
         const anonymousToken = res.anonymous_token
         saveChatbotAnonymousToken(anonymousToken)
         currentConversationInfo.refetch()
-        setNewMessage("")
+        resetComposerMessage()
         setError(null) // Clear any existing errors when starting a new conversation
       },
       // A toast, not the chat's own error area: a conversation started from the text selection

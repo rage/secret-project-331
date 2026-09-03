@@ -3,6 +3,8 @@
 import { css, cx } from "@emotion/css"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
+import type { Control } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type {
@@ -14,9 +16,8 @@ import type {
 import SendIcon from "@/imgs/send.svg"
 import StopIcon from "@/imgs/stop.svg"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, LoadingRegion } from "@/shared-module/components"
+import { Button, LoadingRegion, TextArea } from "@/shared-module/components"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
@@ -25,7 +26,8 @@ import ChatbotStatusRow from "./ChatbotStatusRow"
 import type { ClosedClientToolAnswer } from "./clientToolRegistry"
 import { CLIENT_TOOL_REGISTRY } from "./clientToolRegistry"
 import ErrorDisplay from "./ErrorDisplay"
-import type { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
+import type { ChatbotComposerValues, ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
+import { MESSAGE_FIELD } from "./hooks/useChatbotStateAndData"
 import MessageBubble from "./MessageBubble"
 import type { MessageClassification } from "./messageClassification"
 import {
@@ -226,18 +228,22 @@ const composerFieldStyle = css`
   min-width: 0;
   margin-bottom: 0;
 
-  /* Reaches into TextAreaField's own label textarea rules, which it renders and styles at the
-     same specificity; this wins only because cx puts the consumer class last. */
-  label textarea {
+  /* Matches [data-field-control][data-floated] specificity from the shared field's own
+     textarea styles so this wins regardless of stylesheet insertion order; the composer's
+     label is hidden, so the floated/rest padding split does not apply here. */
+  & [data-field-control] textarea,
+  & [data-field-control][data-floated="true"] textarea {
+    min-height: 0;
     padding: 0.6rem 0.25rem 0.4rem 0.4rem;
     border: none;
+    box-shadow: none;
     background: transparent;
     resize: none;
   }
 
   /* The shell already shows focus for the whole composer. */
-  label textarea:focus,
-  label textarea:focus-visible {
+  & [data-field-control] textarea:focus,
+  & [data-field-control] textarea:focus-visible {
     box-shadow: none;
   }
 `
@@ -383,11 +389,9 @@ interface ChatbotConversationViewProps {
   scrollContainerRef: React.RefObject<HTMLUListElement | null>
   onScroll: () => void
   error: unknown
-  newMessage: string
-  setNewMessage: (message: string) => void
-  onSubmit: () => void
+  control: Control<ChatbotComposerValues>
+  onSubmit: () => Promise<void>
   onStop: () => void
-  canSubmit: boolean
   composerRef: React.RefObject<HTMLTextAreaElement | null>
   onAutoResized: () => void
 }
@@ -405,15 +409,16 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
   scrollContainerRef,
   onScroll,
   error,
-  newMessage,
-  setNewMessage,
+  control,
   onSubmit,
   onStop,
-  canSubmit,
   composerRef,
   onAutoResized,
 }) => {
   const { t } = useTranslation()
+
+  const message = useWatch({ control, name: MESSAGE_FIELD })
+  const canSubmit = Boolean(message && message.trim().length > 0 && !isTurnInFlight)
 
   const isQuestionWaiting = rows.some((row) => row.kind === "clientToolCall" && row.call.isOpen)
 
@@ -459,11 +464,14 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
       </ul>
       {error !== null && error !== undefined ? <ErrorDisplay error={error} /> : null}
       <div className={composerShellStyle}>
-        <TextAreaField
-          ref={composerRef}
+        <TextArea
+          control={control}
+          name={MESSAGE_FIELD}
+          label={t("label-message")}
+          isLabelHidden
+          placeholder={t("label-message")}
+          inputRef={composerRef}
           className={composerFieldStyle}
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault()
@@ -477,7 +485,6 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
           autoResize={true}
           onAutoResized={onAutoResized}
           autoResizeMaxHeightPx={CHATBOX_HEIGHT_PX * 0.4}
-          placeholder={t("label-message")}
         />
         {/* One button across both states, so focus and tab order survive a turn starting or
           ending. */}
@@ -504,8 +511,8 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
 const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   currentConversationInfo,
   newConversationMutation,
-  newMessage,
-  setNewMessage,
+  control,
+  submitMessage,
   error,
   messageState,
   chatbotMessageAnnouncement,
@@ -644,12 +651,6 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     scrollToBottomIfFollowing()
   }, [scrollToBottomIfFollowing, classifiedFetched, messageState.messages])
 
-  const canSubmit = Boolean(newMessage && newMessage.trim().length > 0 && !isTurnInFlight)
-
-  const handleSubmit = useCallback(() => {
-    newMessageMutation.mutate(newMessage)
-  }, [newMessageMutation, newMessage])
-
   const handlePickSuggestion = useCallback(
     (message: string) => {
       newMessageMutation.mutate(message)
@@ -712,11 +713,9 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           scrollContainerRef={scrollContainerRef}
           onScroll={handleScroll}
           error={error}
-          newMessage={newMessage}
-          setNewMessage={setNewMessage}
-          onSubmit={handleSubmit}
+          control={control}
+          onSubmit={submitMessage}
           onStop={stopTurn}
-          canSubmit={canSubmit}
           composerRef={composerRef}
           onAutoResized={scrollToBottomIfFollowing}
         />

@@ -127,7 +127,7 @@ describe("POST /api/public-spec editor spec serialization", () => {
   it('returns exactly the fields tmc-langs deserializes, with `type: "editor"`', async () => {
     const res = await handlePublicSpec(post(specRequest()))
     expect(res.status).toBe(200)
-    const spec = (await res.json()) as Record<string, unknown>
+    const { spec } = (await res.json()) as { spec: Record<string, unknown> }
 
     expect(spec).toEqual({
       type: "editor",
@@ -150,6 +150,19 @@ describe("POST /api/public-spec editor spec serialization", () => {
     // The archive name is `<part>/<name>.tar.zst`; the URL comes from the upload response keyed by
     // exactly that name.
     expect(spec.archive_name).toBe("part01/ex01.tar.zst")
+  })
+
+  /**
+   * The declaration is the only thing that keeps the stub archive: it is uploaded during this
+   * derivation, so no saved spec the host can read ever mentions it, and the reaper would take it
+   * for an abandoned upload. tmc re-uploads on every save, so these are also the files that
+   * actually accumulate.
+   */
+  it("declares the uploaded stub archive as a file the spec references", async () => {
+    const res = await handlePublicSpec(post(specRequest()))
+    const { files } = (await res.json()) as { files: string[] }
+
+    expect(files).toEqual([stubFileId])
   })
 
   it("passes the built archive name and upload target through to the upload", async () => {

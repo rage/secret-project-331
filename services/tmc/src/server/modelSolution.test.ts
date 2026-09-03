@@ -107,18 +107,30 @@ describe("POST /api/model-solution spec serialization", () => {
   it("returns exactly the fields tmc-langs deserializes, tagged with the exercise type", async () => {
     const res = await handleModelSolution(post(specRequest("editor")))
     expect(res.status).toBe(200)
-    const spec = (await res.json()) as Record<string, unknown>
+    const body = (await res.json()) as { spec: Record<string, unknown> }
 
-    expect(spec).toEqual({ type: "editor", solution_download_url: solutionDownloadUrl })
-    expect(Object.keys(spec).toSorted()).toEqual(["solution_download_url", "type"])
+    expect(body.spec).toEqual({ type: "editor", solution_download_url: solutionDownloadUrl })
+    expect(Object.keys(body.spec).toSorted()).toEqual(["solution_download_url", "type"])
   })
 
   it("tags a browser exercise's solution as browser", async () => {
     const res = await handleModelSolution(post(specRequest("browser")))
     expect(res.status).toBe(200)
-    const spec = (await res.json()) as Record<string, unknown>
+    const body = (await res.json()) as { spec: Record<string, unknown> }
 
-    expect(spec).toEqual({ type: "browser", solution_download_url: solutionDownloadUrl })
+    expect(body.spec).toEqual({ type: "browser", solution_download_url: solutionDownloadUrl })
+  })
+
+  /**
+   * The declaration is the only thing that keeps the solution archive: it is uploaded during this
+   * derivation, so no saved spec the host can read ever mentions it, and the reaper would take it
+   * for an abandoned upload.
+   */
+  it("declares the uploaded solution archive as a file the spec references", async () => {
+    const res = await handleModelSolution(post(specRequest("editor")))
+    const body = (await res.json()) as { files: string[] }
+
+    expect(body.files).toEqual([solutionFileId])
   })
 
   it("uploads the solution under `<part>/<name>-solution.tar.zst`", async () => {

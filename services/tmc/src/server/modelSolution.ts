@@ -7,7 +7,7 @@ import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import type { RepositoryExercise } from "@/util/exerciseServiceApi"
+import type { DerivedSpecResponse, RepositoryExercise } from "@/util/exerciseServiceApi"
 import { createScopedLogger } from "@/util/logger"
 import type { ModelSolutionSpec } from "@/util/stateInterfaces"
 
@@ -82,7 +82,7 @@ const processModelSolution = async (
     await prepareSolution(extractedProjectDir, solutionDir, log)
 
     debug("uploading model solution")
-    const { spec, paths } = await uploadModelSolution(
+    const { spec, files, paths } = await uploadModelSolution(
       log,
       debug,
       solutionDir,
@@ -92,7 +92,10 @@ const processModelSolution = async (
       uploadClaim,
     )
     tempPaths.push(...paths)
-    return jsonOk(spec)
+    // The envelope, not the bare spec: this service declares `declares_spec_files`, so the host
+    // expects to be told which stored files the spec it is about to store references. Without it
+    // the upload the derivation just made is indistinguishable from an abandoned one.
+    return jsonOk<DerivedSpecResponse<ModelSolutionSpec>>({ spec, files })
   } catch (err) {
     error("Error while processing the model solution spec", err)
     throw err
@@ -111,7 +114,7 @@ const uploadModelSolution = async (
   exercise: RepositoryExercise,
   uploadUrl: string,
   uploadClaim: string | null,
-): Promise<{ spec: ModelSolutionSpec; paths: string[] }> => {
+): Promise<{ spec: ModelSolutionSpec; files: string[]; paths: string[] }> => {
   debug("compressing solution")
   const solutionArchive = temporaryFile()
   await compressProject(solutionDir, solutionArchive, "zstd", true, log)
@@ -126,6 +129,7 @@ const uploadModelSolution = async (
   })
   return {
     spec: { type: exerciseType, solution_download_url: solution.url },
+    files: [solution.id],
     paths: [solutionArchive],
   }
 }

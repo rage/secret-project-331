@@ -24,14 +24,22 @@ export type MessageFromIframe =
 export interface CurrentStateMessage {
   message: "current-state"
   /**
-   * The plugin's own answer JSON. When `files` is present this is metadata *about* those files,
-   * and may be omitted entirely by a plugin whose answer is nothing but the files.
+   * The plugin's own answer JSON, or `{ private_spec }` from the exercise editor. When `files` is
+   * present in an answer this is metadata *about* those files, and may be omitted entirely by a
+   * plugin whose answer is nothing but the files.
    */
   data: unknown
   /**
-   * Host file ids from `upload-result` that this answer consists of, in the order the plugin
-   * wants them graded and displayed. Present makes the answer file-typed; absent leaves it
-   * JSON-typed. The host verifies every id was uploaded by this user for this exercise.
+   * Host file ids from `upload-result`, and what they mean depends on the view.
+   *
+   * From `answer-exercise`: the files the answer consists of, in the order the plugin wants them
+   * graded and displayed. Present makes the answer file-typed; absent leaves it JSON-typed. The
+   * host verifies every id was uploaded by this user for this exercise.
+   *
+   * From `exercise-editor`: every file the private spec references, in any order. The host cannot
+   * read the spec, so this list is the only thing that keeps those files from being reclaimed as
+   * abandoned uploads — send it on every `current-state`, since omitting it releases them. Only
+   * meaningful for a service whose service-info declares `declares_spec_files`.
    */
   files?: string[]
   valid: boolean

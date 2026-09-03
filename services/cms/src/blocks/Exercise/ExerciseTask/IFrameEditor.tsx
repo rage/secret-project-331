@@ -35,7 +35,7 @@ const IFRAME_EDITOR = "IFRAME EDITOR"
 interface ExerciseTaskIFrameEditorProps {
   exerciseServiceSlug: string
   exerciseTaskId: string
-  onPrivateSpecChange: (newSpec: string) => void
+  onPrivateSpecChange: (newSpec: string, specFiles: string[]) => void
   privateSpec: string | null
   url: string | null | undefined
 }
@@ -86,8 +86,13 @@ const ExerciseTaskIFrameEditor: React.FC<
       onMessageFromIframe={async (messageContainer, responsePort) => {
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
-            // oxlint-disable-next-line typescript/no-explicit-any
-            onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
+            // The declared files travel beside the spec rather than inside it, because the host
+            // stores the spec as an opaque blob and cannot look for ids in it.
+            onPrivateSpecChange(
+              // oxlint-disable-next-line typescript/no-explicit-any
+              JSON.stringify((messageContainer.data as any).private_spec),
+              messageContainer.files ?? [],
+            )
           }
           if (messageContainer.message === "file-upload") {
             let response: MessageToIframe

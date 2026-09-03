@@ -39,6 +39,7 @@ export const zCmsPageExerciseTask = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   private_spec: z.unknown().optional(),
+  private_spec_files: z.array(z.uuid()).optional(),
 })
 
 export const zCodeGiveaway = z.object({

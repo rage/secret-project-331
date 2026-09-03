@@ -10,8 +10,9 @@ import {
   QUERY_REFRESHING_TEST_ID,
   SPINNER_TEST_ID,
 } from "@/shared-module/components/components/loadingTestIds"
+import { LOADING_AFFORDANCE_DELAY_MS } from "@/shared-module/components/styles/motion"
 
-const LOADING_TEST_IDS = [
+export const LOADING_TEST_IDS = [
   ...new Set([
     LOADING_SPINNER_TEST_ID,
     SPINNER_TEST_ID,
@@ -31,7 +32,8 @@ export default async function waitForSpinnersToDisappear(
   failureMessage?: string,
 ): Promise<void> {
   try {
-    await page.waitForTimeout(100)
+    // Outlast the delayed spinner mount, or the last poll below lands before it appears.
+    await page.waitForTimeout(LOADING_AFFORDANCE_DELAY_MS)
     for (let i = 0; i < 2; i++) {
       const spinnerLocators = (
         await Promise.all(LOADING_TEST_IDS.map((testId) => page.getByTestId(testId).all()))

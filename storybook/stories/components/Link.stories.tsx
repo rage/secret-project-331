@@ -37,7 +37,7 @@ const meta = {
     },
     size: {
       control: "select",
-      options: ["sm", "md", "lg"],
+      options: ["small", "medium", "large"],
     },
   },
 } satisfies Meta<typeof Link>
@@ -58,7 +58,7 @@ export const StyledAsButton = {
     href: "/",
     styledAsButton: true,
     variant: "primary",
-    size: "md",
+    size: "medium",
     icon: <ArrowRight aria-hidden="true" size={16} />,
     iconPosition: "start",
     children: "Open",
@@ -84,13 +84,13 @@ export const Variants = {
 export const Sizes = {
   render: () => (
     <div className={sizesCss}>
-      <Link href="/" styledAsButton size="sm">
+      <Link href="/" styledAsButton size="small">
         Small
       </Link>
-      <Link href="/" styledAsButton size="md">
+      <Link href="/" styledAsButton size="medium">
         Medium
       </Link>
-      <Link href="/" styledAsButton size="lg">
+      <Link href="/" styledAsButton size="large">
         Large
       </Link>
     </div>

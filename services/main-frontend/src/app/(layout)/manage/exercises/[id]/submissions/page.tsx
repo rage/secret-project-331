@@ -24,7 +24,7 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { fontWeights } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Checkbox, Dialog, QueryResults, Select } from "@/shared-module/components"
+import { Button, Checkbox, Dialog, Link, QueryResults, Select } from "@/shared-module/components"
 
 import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
@@ -264,16 +264,18 @@ const SubmissionsPage: React.FC = () => {
           <Button variant="secondary" size="small" onClick={closeExportDialog}>
             {t("button-text-cancel")}
           </Button>
-          <a
+          <Link
             href={exportHref}
             onClick={closeExportDialog}
             aria-label={t("actions-export")}
             download
+            isDisabled={!selectedTaskId}
+            styledAsButton
+            variant="primary"
+            size="small"
           >
-            <Button variant="primary" size="small" disabled={!selectedTaskId} type="button">
-              {t("actions-export")}
-            </Button>
-          </a>
+            {t("actions-export")}
+          </Link>
         </div>
       </Dialog>
     </div>

@@ -176,6 +176,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
       )}
       <div>
         <Button
+          type="submit"
           variant="primary"
           size="medium"
           disabled={!isValid || isSubmitting || isPending}

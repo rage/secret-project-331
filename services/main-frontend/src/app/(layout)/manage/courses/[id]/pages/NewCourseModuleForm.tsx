@@ -230,6 +230,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
           `}
         >
           <Button
+            type="submit"
             className={css`
               max-height: 3rem;
               align-self: flex-end;

@@ -32,7 +32,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
   } = useForm<Fields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
-    defaultValues: { gitUrl: "" },
+    defaultValues: { gitUrl: "", publicKey: "", deployKey: "" },
   })
   const mutation = useToastMutationOptions(
     addExerciseRepositoryMutationOptions(),
@@ -72,6 +72,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
       <TextArea name="publicKey" control={control} label={t("public-key")} />
       <TextArea name="deployKey" control={control} label={t("exercise-repositories-deploy-key")} />
       <Button
+        type="submit"
         size="medium"
         variant="primary"
         disabled={!isValid || isSubmitting || mutation.isPending}

@@ -26,13 +26,12 @@ function pickNow(groupName: string) {
   fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" })
 }
 
-/**
- * Submits the given button's form directly. The submit button lacks `type="submit"` (a
- * pre-existing issue, out of this migration's scope), so a click never fires the form's submit
- * event in a real browser either.
- */
-function submitViaForm(buttonName: string) {
-  fireEvent.submit(screen.getByRole("button", { name: buttonName }).closest("form")!)
+/** Waits for react-hook-form's async `mode: "onChange"` validation to enable the button first;
+ *  clicking while it's still disabled (mid-validation) would be a silent no-op. */
+async function clickSubmit(buttonName: string) {
+  const button = screen.getByRole("button", { name: buttonName })
+  await waitFor(() => expect(button).not.toBeDisabled())
+  fireEvent.click(button)
 }
 
 function renderForm(props: Partial<React.ComponentProps<typeof NewChapterForm>> = {}) {
@@ -74,7 +73,7 @@ describe("NewChapterForm", () => {
     fireEvent.click(document.querySelector('input[name="has_deadline"]') as HTMLInputElement)
     pickNow("label-deadline")
 
-    submitViaForm("button-text-create")
+    await clickSubmit("button-text-create")
 
     await waitFor(() => expect(mockCreateChapter).toHaveBeenCalledTimes(1))
     const body = mockCreateChapter.mock.calls[0][0].body
@@ -89,7 +88,7 @@ describe("NewChapterForm", () => {
     fireEvent.change(document.querySelector('input[name="name"]') as HTMLInputElement, {
       target: { value: "Chapter 1" },
     })
-    submitViaForm("button-text-create")
+    await clickSubmit("button-text-create")
 
     await waitFor(() => expect(mockCreateChapter).toHaveBeenCalledTimes(1))
     const body = mockCreateChapter.mock.calls[0][0].body
@@ -111,7 +110,7 @@ describe("NewChapterForm", () => {
     }
     renderForm({ initialData, newRecord: false })
 
-    submitViaForm("button-text-update")
+    await clickSubmit("button-text-update")
 
     await waitFor(() => expect(mockUpdateChapter).toHaveBeenCalledTimes(1))
     const body = mockUpdateChapter.mock.calls[0][0].body

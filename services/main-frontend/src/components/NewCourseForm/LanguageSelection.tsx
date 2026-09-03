@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useId, useState } from "react"
+import React, { useEffect, useId, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
+import { Radio, TextField } from "@/shared-module/components"
 
 import type { FormFields } from "."
 import {
@@ -21,10 +21,14 @@ interface LanguageSelectionProps {
   form: UseFormReturn<FormFields>
 }
 
+// oxlint-disable-next-line i18next/no-literal-string
+const LANGUAGE_CODE_FIELD = "language_code" as const
+
 const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
   const courseLanguageHeading = useId()
   const { t } = useTranslation()
-  const { register, setValue } = form
+  const { control, setValue } = form
+  const languageCode = useWatch({ control, name: LANGUAGE_CODE_FIELD })
   const [showCustomLanguageCode, setShowCustomLanguageCode] = useState(false)
   const [languageCodeValidationError, setLanguageCodeValidationError] = useState<string | null>(
     null,
@@ -35,57 +39,77 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
       setShowCustomLanguageCode(true)
     } else {
       setShowCustomLanguageCode(false)
-      setValue("language_code", value)
+      setValue(LANGUAGE_CODE_FIELD, value)
     }
   }
+
+  useEffect(() => {
+    if (!showCustomLanguageCode) {
+      setLanguageCodeValidationError(null)
+      return
+    }
+    try {
+      normalizeIETFLanguageTag(languageCode)
+      setLanguageCodeValidationError(null)
+    } catch (e: unknown) {
+      console.error(e)
+      setLanguageCodeValidationError(t("laguage-code-validation-error"))
+    }
+  }, [languageCode, showCustomLanguageCode, t])
 
   return (
     <>
       <div id={courseLanguageHeading}>{t("course-language")}</div>
       <FieldContainer aria-labelledby={courseLanguageHeading}>
-        <RadioButton
+        <Radio
           key={ENGLISH_LANGUAGE_CODE}
           label={t("english")}
+          name={LANGUAGE_CODE_FIELD}
           value={ENGLISH_LANGUAGE_CODE}
-          {...register("language_code")}
-          onChange={(_event) => handleLanguageSelectionChange(ENGLISH_LANGUAGE_CODE)}
+          checked={!showCustomLanguageCode && languageCode === ENGLISH_LANGUAGE_CODE}
+          onChange={() => handleLanguageSelectionChange(ENGLISH_LANGUAGE_CODE)}
         />
       </FieldContainer>
       <FieldContainer>
-        <RadioButton
+        <Radio
           key={FINNISH_LANGUAGE_CODE}
           label={t("finnish")}
+          name={LANGUAGE_CODE_FIELD}
           value={FINNISH_LANGUAGE_CODE}
-          {...register("language_code")}
-          onChange={(_event) => handleLanguageSelectionChange(FINNISH_LANGUAGE_CODE)}
+          checked={!showCustomLanguageCode && languageCode === FINNISH_LANGUAGE_CODE}
+          onChange={() => handleLanguageSelectionChange(FINNISH_LANGUAGE_CODE)}
         />
       </FieldContainer>
       <FieldContainer>
-        <RadioButton
+        <Radio
           key={SWEDISH_LANGUAGE_CODE}
           label={t("swedish")}
+          name={LANGUAGE_CODE_FIELD}
           value={SWEDISH_LANGUAGE_CODE}
-          {...register("language_code")}
-          onChange={(_event) => handleLanguageSelectionChange(SWEDISH_LANGUAGE_CODE)}
+          checked={!showCustomLanguageCode && languageCode === SWEDISH_LANGUAGE_CODE}
+          onChange={() => handleLanguageSelectionChange(SWEDISH_LANGUAGE_CODE)}
         />
       </FieldContainer>
       <FieldContainer>
-        <RadioButton
+        <Radio
           key={NORWEGIAN_LANGUAGE_CODE}
           label={t("norwegian")}
+          name={LANGUAGE_CODE_FIELD}
           value={NORWEGIAN_LANGUAGE_CODE}
-          {...register("language_code")}
-          onChange={(_event) => handleLanguageSelectionChange(NORWEGIAN_LANGUAGE_CODE)}
+          checked={!showCustomLanguageCode && languageCode === NORWEGIAN_LANGUAGE_CODE}
+          onChange={() => handleLanguageSelectionChange(NORWEGIAN_LANGUAGE_CODE)}
         />
       </FieldContainer>
       <FieldContainer>
-        <RadioButton
+        <Radio
           key="other"
           label={t("other-language")}
-          value="other"
-          {...register("language_code")}
+          name={LANGUAGE_CODE_FIELD}
           // oxlint-disable-next-line i18next/no-literal-string
-          onChange={(_event) => handleLanguageSelectionChange("other")}
+          value="other"
+          checked={showCustomLanguageCode}
+          // oxlint-disable-next-line i18next/no-literal-string
+          onChange={() => handleLanguageSelectionChange("other")}
         />
       </FieldContainer>
 
@@ -98,20 +122,10 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
           )}
           <FieldContainer>
             <TextField
-              required
+              name={LANGUAGE_CODE_FIELD}
+              control={control}
+              isRequired
               label={t("language-code")}
-              {...register("language_code")}
-              onChange={(event) => {
-                const value = event.target.value
-                setValue("language_code", value)
-                try {
-                  normalizeIETFLanguageTag(value)
-                  setLanguageCodeValidationError(null)
-                } catch (e: unknown) {
-                  console.error(e)
-                  setLanguageCodeValidationError(t("laguage-code-validation-error"))
-                }
-              }}
             />
           </FieldContainer>
         </>

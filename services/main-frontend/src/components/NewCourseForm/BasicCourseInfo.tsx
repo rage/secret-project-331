@@ -4,9 +4,7 @@ import React, { useEffect } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { TextArea, TextField } from "@/shared-module/components"
 import { normalizePath } from "@/utils/normalizePath"
 
 import type { FormFields } from "."
@@ -18,12 +16,7 @@ interface BasicCourseInfoProps {
 
 const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
   const { t } = useTranslation()
-  const {
-    register,
-    watch,
-    setValue,
-    formState: { errors },
-  } = form
+  const { control, watch, setValue } = form
   const name = watch("name")
 
   useEffect(() => {
@@ -36,24 +29,26 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
     <>
       <FieldContainer>
         <TextField
-          required
+          name="name"
+          control={control}
+          isRequired
           label={t("text-field-label-name")}
-          {...omitUndefined({ error: errors.name?.message })}
-          {...register("name", {
+          rules={{
             required: t("required-field"),
             minLength: {
               value: 3,
               message: t("error-min-length", { count: 3, field: t("text-field-label-name") }),
             },
-          })}
+          }}
         />
       </FieldContainer>
       <FieldContainer>
         <TextField
-          required
+          name="slug"
+          control={control}
+          isRequired
           label={t("text-field-label-or-header-slug-or-short-name")}
-          {...omitUndefined({ error: errors.slug?.message })}
-          {...register("slug", {
+          rules={{
             required: t("required-field"),
             pattern: {
               value: /^[a-z0-9-]+$/,
@@ -66,40 +61,42 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
                 field: t("text-field-label-or-header-slug-or-short-name"),
               }),
             },
-          })}
+          }}
         />
       </FieldContainer>
       <FieldContainer>
         <TextField
-          required
+          name="teacher_in_charge_name"
+          control={control}
+          isRequired
           label={t("teacher-in-charge-name")}
-          {...omitUndefined({ error: errors.teacher_in_charge_name?.message })}
-          {...register("teacher_in_charge_name", {
+          rules={{
             required: t("required-field"),
             minLength: {
               value: 2,
               message: t("error-min-length", { count: 2, field: t("teacher-in-charge-name") }),
             },
-          })}
+          }}
         />
       </FieldContainer>
       <FieldContainer>
         <TextField
-          required
+          name="teacher_in_charge_email"
+          control={control}
+          isRequired
           label={t("teacher-in-charge-email")}
           type="email"
-          {...omitUndefined({ error: errors.teacher_in_charge_email?.message })}
-          {...register("teacher_in_charge_email", {
+          rules={{
             required: t("required-field"),
             pattern: {
               value: /@/,
               message: t("enter-a-valid-email"),
             },
-          })}
+          }}
         />
       </FieldContainer>
       <FieldContainer>
-        <TextAreaField label={t("text-field-label-description")} {...register("description")} />
+        <TextArea name="description" control={control} label={t("text-field-label-description")} />
       </FieldContainer>
     </>
   )

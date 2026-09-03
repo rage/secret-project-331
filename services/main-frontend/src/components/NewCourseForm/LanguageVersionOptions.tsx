@@ -5,8 +5,7 @@ import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { Course } from "@/generated/api/types.generated"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import { Checkbox, Select } from "@/shared-module/components"
 
 import type { FormFields } from "."
 import { FieldContainer } from "."
@@ -18,23 +17,25 @@ interface LanguageVersionOptionsProps {
 
 const LanguageVersionOptions: React.FC<LanguageVersionOptionsProps> = ({ form, courses }) => {
   const { t } = useTranslation()
-  const { register, watch } = form
+  const { control, watch } = form
   const useExistingLanguageGroup = watch("useExistingLanguageGroup")
 
   return (
     <>
       <FieldContainer>
-        <CheckBox
+        <Checkbox
+          name="useExistingLanguageGroup"
+          control={control}
           label={t("resulting-course-should-be-a-language-version-of-a-different-course")}
-          {...register("useExistingLanguageGroup")}
-        ></CheckBox>
+        />
       </FieldContainer>
       {useExistingLanguageGroup && (
         <FieldContainer>
-          <SelectField
-            required
+          <Select
+            name="targetCourseId"
+            control={control}
+            isRequired
             label={t("target-course")}
-            {...register("targetCourseId")}
             options={
               courses?.map((course) => {
                 return { label: course.name, value: course.id }
@@ -44,10 +45,11 @@ const LanguageVersionOptions: React.FC<LanguageVersionOptionsProps> = ({ form, c
         </FieldContainer>
       )}
       <FieldContainer>
-        <CheckBox
+        <Checkbox
+          name="copy_user_permissions"
+          control={control}
           label={t("grant-access-to-users-with-permissions-to-original-course")}
-          {...register("copy_user_permissions")}
-        ></CheckBox>
+        />
       </FieldContainer>
     </>
   )

@@ -9,9 +9,8 @@ import { useTranslation } from "react-i18next"
 import type { NewCourse } from "@/generated/api/types.generated"
 import { useCreateCourse } from "@/hooks/useCreateCourse"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Button } from "@/shared-module/components"
+import { Button, Checkbox } from "@/shared-module/components"
 
 import BasicCourseInfo from "./BasicCourseInfo"
 import DuplicateOptions from "./DuplicateOptions"
@@ -71,7 +70,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
   })
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
     watch,
@@ -115,10 +114,11 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
 
         {isLanguageVersion && (
           <FieldContainer>
-            <CheckBox
+            <Checkbox
+              name="copy_user_permissions"
+              control={control}
               label={t("grant-access-to-users-with-permissions-to-original-course")}
-              {...register("copy_user_permissions")}
-            ></CheckBox>
+            />
           </FieldContainer>
         )}
 

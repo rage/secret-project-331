@@ -207,7 +207,13 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
             }
           `}
         >
-          <FileField key={resetKey} control={control} name="audioFile" label={t("audio-upload")} />
+          <FileField
+            key={resetKey}
+            control={control}
+            name="audioFile"
+            label={t("audio-upload")}
+            accept={ACCEPTABLE_MIME_TYPES.join(",")}
+          />
           <input type="submit" value={t("upload")} />
         </form>
       </div>

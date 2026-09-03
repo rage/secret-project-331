@@ -148,6 +148,8 @@ const CertificateForm: React.FC<Props> = ({
             }
             rules={configuration ? undefined : { required: t("required-field") }}
             isRequired={configuration === null}
+            // oxlint-disable-next-line i18next/no-literal-string
+            accept={".svg"}
           />
           <FileField
             id={"overlaySvg"}
@@ -160,6 +162,8 @@ const CertificateForm: React.FC<Props> = ({
                   : t("label-overlay-svg-optional")
                 : t("label-overlay-svg")
             }
+            // oxlint-disable-next-line i18next/no-literal-string
+            accept={".svg"}
           />
         </SetHeightInSystemTests>
       </MaskOverThisInSystemTests>

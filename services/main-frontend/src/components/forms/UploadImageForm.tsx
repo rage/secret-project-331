@@ -79,6 +79,8 @@ const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> =
           name={IMAGE_FIELD_NAME}
           label={t("button-text-select-image")}
           isDisabled={mutation.isPending}
+          // oxlint-disable-next-line i18next/no-literal-string
+          accept="image/*"
         />
       </FieldContainer>
     </div>

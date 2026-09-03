@@ -55,6 +55,23 @@ export type {
 } from "./components/Dialog"
 export { Disclosure } from "./components/Disclosure"
 export type { DisclosureProps } from "./components/Disclosure"
+export { ErrorNotice } from "./components/ErrorNotice"
+export type {
+  ErrorNoticeAnnouncement,
+  ErrorNoticeDensity,
+  ErrorNoticeProps,
+} from "./components/ErrorNotice"
+export { normalizeErrorForDisplay } from "./lib/errors/normalizeErrorForDisplay"
+export type {
+  BackendMessageKey,
+  ErrorCategory,
+  ErrorSeverity,
+  ErrorViewIssue,
+  ErrorViewModel,
+  ErrorViewTechnicalDetails,
+} from "./lib/errors/normalizeErrorForDisplay"
+export { resolveErrorDisplayCopy } from "./lib/errors/resolveErrorDisplayCopy"
+export type { ResolvedErrorDisplayCopy } from "./lib/errors/resolveErrorDisplayCopy"
 export { Infobox } from "./components/Infobox"
 export type { InfoboxProps, InfoboxTone } from "./components/Infobox"
 export { Meter } from "./components/Meter"

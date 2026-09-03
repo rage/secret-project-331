@@ -63,6 +63,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
       is_joinable_by_code_only: false,
       join_code: null,
       ask_marketing_consent: false,
+      description: "",
       useExistingLanguageGroup: false,
       targetCourseId: "",
       createAsLanguageVersion: false,

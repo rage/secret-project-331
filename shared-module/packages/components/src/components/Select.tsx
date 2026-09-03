@@ -216,6 +216,11 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   // oxlint-disable-next-line i18next/no-literal-string
   const collectionProps = omit(collectionPropsWrong, ["aria-label"])
 
+  // The collection id belongs to the listbox alone. Spreading it into useSelect below would land it
+  // on the trigger too, dropping the caller's id and leaving aria-controls pointing at the trigger.
+  // oxlint-disable-next-line i18next/no-literal-string
+  const collectionPropsWithoutId = omit(collectionProps, ["id"])
+
   const {
     triggerProps,
     valueProps,
@@ -237,7 +242,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       description,
       errorMessage: resolvedError,
       name: field.name,
-      ...collectionProps,
+      ...collectionPropsWithoutId,
       ...omitUndefined({ autoComplete }),
     },
     state,

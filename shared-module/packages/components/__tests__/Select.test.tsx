@@ -269,6 +269,10 @@ describe("Select", () => {
 
     expect(screen.getByRole("presentation")).toBeInTheDocument()
     expect(screen.getByRole("presentation")).toHaveTextContent("No results found")
+    // The trigger still has to point somewhere real, or aria-controls dangles on every empty search.
+    // Queried through the captured node: an open select makes the rest of the page inert, so the
+    // trigger is no longer reachable by role.
+    expect(trigger).toHaveAttribute("aria-controls", screen.getByRole("presentation").id)
   })
 
   test("data-testid lands on the trigger button", () => {
@@ -285,5 +289,27 @@ describe("Select", () => {
     expect(screen.getByTestId("country-select")).toBe(
       screen.getByRole("button", { name: /Country/ }),
     )
+  })
+
+  test("keeps the caller's id on the trigger and a separate one on the listbox", async () => {
+    const user = userEvent.setup()
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        id="country-trigger"
+        label="Country"
+        options={countryOptions}
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /Country/ })
+    expect(trigger).toHaveAttribute("id", "country-trigger")
+
+    await user.click(trigger)
+
+    const listBox = screen.getByRole("listbox")
+    expect(listBox.id).not.toBe(trigger.id)
+    expect(trigger).toHaveAttribute("aria-controls", listBox.id)
   })
 })

@@ -8,12 +8,10 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { Exam, NewExam } from "@/generated/api/types.generated"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { Button } from "@/shared-module/components"
+import { Button, Checkbox, TextField } from "@/shared-module/components"
 
 interface EditExamFormProps {
   initialData: Exam
@@ -45,6 +43,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     watch,
@@ -89,10 +88,11 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
           `}
         >
           <TextField
+            name="name"
+            control={control}
+            rules={{ required: t("required-field") }}
             id={"name"}
-            {...omitUndefined({ error: errors.name?.message })}
             label={t("label-name")}
-            {...register("name", { required: t("required-field") })}
           />
           <DateTimeLocal
             {...omitUndefined({ error: errors.startsAt?.message })}
@@ -105,22 +105,25 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
             {...register("endsAt", { required: t("required-field"), validate: validateDates })}
           />
           <TextField
+            name="timeMinutes"
+            control={control}
+            rules={{ required: t("required-field") }}
             id={"timeMinutes"}
-            {...omitUndefined({ error: errors.timeMinutes?.message })}
             label={t("label-time-minutes")}
-            {...register("timeMinutes", { required: t("required-field") })}
           />
-          <CheckBox label={t("label-grade-exam-manually")} {...register("gradeManually")} />
-          <CheckBox
+          <Checkbox name="gradeManually" control={control} label={t("label-grade-exam-manually")} />
+          <Checkbox
+            name="automaticCompletionEnabled"
+            control={control}
             label={t("label-related-courses-can-be-completed-automatically")}
-            {...register("automaticCompletionEnabled")}
           />
           {automaticEnabled && (
             <TextField
+              name="minimumPointsTreshold"
+              control={control}
+              rules={{ required: t("required-field") }}
               id={"minimumPointsTreshold"}
-              {...omitUndefined({ error: errors.minimumPointsTreshold?.message })}
               label={t("label-exam-minimum-points")}
-              {...register("minimumPointsTreshold", { required: t("required-field") })}
             />
           )}
         </div>

@@ -5,9 +5,7 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { baseTheme } from "@/shared-module/common/styles"
-import { Button } from "@/shared-module/components"
+import { Button, TextField } from "@/shared-module/components"
 
 interface VerifyPasswordFormProps {
   onSubmit: (password: string) => void
@@ -22,13 +20,10 @@ const VerifyPasswordForm: React.FC<VerifyPasswordFormProps> = ({
 }) => {
   const { t } = useTranslation()
   // oxlint-disable-next-line i18next/no-literal-string
-  const { register, handleSubmit } = useForm<{ password: string }>({ mode: "onChange" })
+  const { control, handleSubmit } = useForm<{ password: string }>({ mode: "onChange" })
 
   return (
-    <form
-      onSubmit={handleSubmit((data) => onSubmit(data.password))}
-      aria-describedby={credentialsError ? "password-error" : undefined}
-    >
+    <form onSubmit={handleSubmit((data) => onSubmit(data.password))}>
       <div
         className={css`
           display: flex;
@@ -38,28 +33,16 @@ const VerifyPasswordForm: React.FC<VerifyPasswordFormProps> = ({
       >
         <p>{t("delete-account-info")}</p>
         <TextField
+          name="password"
+          control={control}
+          rules={{ required: true }}
           type="password"
           label={t("label-password")}
           className={css`
             margin-bottom: 0px;
           `}
-          aria-invalid={credentialsError}
-          aria-describedby={credentialsError ? "password-error" : undefined}
-          {...register("password", { required: true })}
+          {...(credentialsError ? { errorMessage: t("incorrect-password") } : {})}
         />
-        {credentialsError && (
-          <div
-            aria-live="assertive"
-            className={css`
-              padding: 10px;
-              border: 2px solid ${baseTheme.colors.red[500]};
-              font-weight: bold;
-              color: ${baseTheme.colors.red[500]};
-            `}
-          >
-            {t("incorrect-password")}
-          </div>
-        )}
         <Button type="submit" variant="primary" disabled={isPending} size={"medium"}>
           {t("confirm")}
         </Button>

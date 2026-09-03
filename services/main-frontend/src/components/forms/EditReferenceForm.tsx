@@ -5,14 +5,12 @@ import styled from "@emotion/styled"
 // @ts-expect-error: No type definitions
 import Cite from "citation-js"
 import { useEffect, useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button } from "@/shared-module/components"
+import { Button, TextArea } from "@/shared-module/components"
 
 import {
   areCitationsValid,
@@ -47,15 +45,15 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
 }) => {
   const { t } = useTranslation()
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
     setError,
     clearErrors,
-    watch,
   } = useForm<EditReferenceFields>({ defaultValues: { reference: reference.reference } })
 
-  const watchedReference = watch("reference")
+  // oxlint-disable-next-line i18next/no-literal-string
+  const watchedReference = useWatch({ control, name: "reference" })
 
   const detection = useMemo(() => {
     if (!watchedReference) {
@@ -103,12 +101,12 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
         width: 100%;
       `}
     >
-      <TextAreaField
+      <TextArea
+        name="reference"
+        control={control}
+        rules={{ required: true }}
         label={REFERENCE}
         id={"reference"}
-        {...omitUndefined({ error: errors["reference"] })}
-        placeholder={REFERENCE}
-        {...register("reference", { required: true })}
         rows={5}
         className={css`
           width: 100%;

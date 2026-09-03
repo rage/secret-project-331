@@ -6,11 +6,9 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { changeUserPassword } from "@/generated/api/sdk.generated"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Button } from "@/shared-module/components"
+import { Button, TextField } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface ChangePasswordFormFields {
@@ -23,13 +21,7 @@ const ChangeUserPasswordForm: React.FC = () => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
-  const {
-    handleSubmit,
-    register,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<ChangePasswordFormFields>({
+  const { handleSubmit, control, reset, watch } = useForm<ChangePasswordFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
@@ -97,36 +89,36 @@ const ChangeUserPasswordForm: React.FC = () => {
       `}
     >
       <TextField
+        name="current_password"
+        control={control}
         label={t("old-password")}
         type="password"
-        placeholder={t("enter-your-current-password")}
-        {...register("current_password", { required: t("required-field") })}
-        {...omitUndefined({ error: errors.current_password?.message })}
-        required
+        rules={{ required: t("required-field") }}
+        isRequired
       />
 
       <TextField
+        name="new_password"
+        control={control}
         label={t("new-password")}
         type="password"
-        placeholder={t("enter-your-new-password")}
-        {...register("new_password", {
+        rules={{
           required: t("required-field"),
           minLength: { value: 8, message: t("password-must-have-at-least-8-characters") },
-        })}
-        {...omitUndefined({ error: errors.new_password?.message })}
-        required
+        }}
+        isRequired
       />
 
       <TextField
+        name="password_confirmation"
+        control={control}
         label={t("confirm-new-password")}
         type="password"
-        placeholder={t("confirm-your-new-password")}
-        {...register("password_confirmation", {
+        rules={{
           required: t("required-field"),
           validate: (value) => value === newPassword || t("passwords-dont-match"),
-        })}
-        {...omitUndefined({ error: errors.password_confirmation?.message })}
-        required
+        }}
+        isRequired
       />
 
       <div

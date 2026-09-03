@@ -5,14 +5,12 @@ import styled from "@emotion/styled"
 // @ts-expect-error: No type definitions
 import Cite from "citation-js"
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { NewMaterialReference } from "@/generated/api/types.generated"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button } from "@/shared-module/components"
+import { Button, TextArea } from "@/shared-module/components"
 
 interface NewReferenceFormProps {
   onCreateNewReference: (form: NewMaterialReference[]) => void
@@ -34,14 +32,10 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
   onCancel: _onCancel,
 }) => {
   const { t } = useTranslation()
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<NewReferenceFields>()
+  const { control, handleSubmit } = useForm<NewReferenceFields>()
 
-  const references = watch("references")
+  // oxlint-disable-next-line i18next/no-literal-string
+  const references = useWatch({ control, name: "references" })
 
   const [errorMessage, setErrorMessage] = useState("")
   const onCreateNewReferenceWrapper = handleSubmit((data) => {
@@ -99,12 +93,12 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
         width: 100%;
       `}
     >
-      <TextAreaField
+      <TextArea
+        name="references"
+        control={control}
+        rules={{ required: t("required-field") }}
         label={REFERENCE}
         id={"references"}
-        {...omitUndefined({ error: errors["references"] })}
-        placeholder={REFERENCE}
-        {...register("references", { required: t("required-field") })}
         rows={5}
         className={css`
           width: 100%;

@@ -4,16 +4,16 @@ import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { LinesClipboard } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { createUserResearchConsent } from "@/generated/api/sdk.generated"
 import type { UserResearchConsent } from "@/generated/api/types.generated"
 import { refetchUserResearchConsent } from "@/hooks/useUserResearchConsentQuery"
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import { Button, Dialog } from "@/shared-module/components"
+import { Button, Dialog, Radio } from "@/shared-module/components"
 
 interface ResearchOnCoursesFormProps {
   afterSubmit?: () => void
@@ -27,12 +27,11 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [researchConsentFormOpen, setResearchConsentFormOpen] = useState(true)
-  const [consent, setConsent] = useState<boolean | undefined>(initialConsentValue)
-  const [optionSelected, setOptionSelected] = useState<boolean>(true)
-
-  if (consent === undefined && optionSelected) {
-    setOptionSelected(false)
-  }
+  const { watch, setValue } = useForm<{ consent: boolean | null }>({
+    defaultValues: { consent: initialConsentValue ?? null },
+  })
+  const consent = watch("consent")
+  const optionSelected = consent !== null
 
   const consentQuery = useToastMutation<UserResearchConsent, unknown, void>(
     // oxlint-disable-next-line require-await -- async for the mutation Promise contract
@@ -54,8 +53,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   )
 
   const handleConsentSelection = (value: boolean) => {
-    setConsent(value)
-    setOptionSelected(true)
+    setValue("consent", value)
   }
 
   const handleOnSubmit = () => {
@@ -168,18 +166,18 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             color: ${baseTheme.colors.gray[700]};
           `}
         >
-          <RadioButton
+          <Radio
             id="researchConsent"
             label={t("research-consent-i-want-to-participate-in-educational-research")}
             name="researchConsent"
-            onClick={() => handleConsentSelection(true)}
+            onChange={() => handleConsentSelection(true)}
             checked={consent === true}
           />
-          <RadioButton
+          <Radio
             id="noResearchConsent"
             label={t("research-consent-i-do-not-want-participate-in-educational-research")}
             name="researchConsent"
-            onClick={() => handleConsentSelection(false)}
+            onChange={() => handleConsentSelection(false)}
             checked={consent === false}
           />
         </div>

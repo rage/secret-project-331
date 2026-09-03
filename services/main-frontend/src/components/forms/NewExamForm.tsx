@@ -7,13 +7,10 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { NewExam, OrgExam } from "@/generated/api/types.generated"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
-import { Button } from "@/shared-module/components"
+import { Button, Checkbox, Select, TextField } from "@/shared-module/components"
 
 interface NewExamFormProps {
   initialData: OrgExam | null
@@ -33,6 +30,7 @@ interface NewExamFields {
   automaticCompletionEnabled: boolean
   minimumPointsThreshold: number
   manualGradingEnabled: boolean
+  duplicateExam: boolean
 }
 
 const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
@@ -47,16 +45,14 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     clearErrors,
     watch,
+    setValue,
     setError,
-  } = useForm<NewExamFields>()
-
-  const [exam, setExam] = useState(initialData)
-  const [parentId, setParentId] = useState<string | null>(null)
-  const [duplicateExam, setDuplicateExam] = useState(false)
+  } = useForm<NewExamFields>({ defaultValues: { duplicateExam: false, parentId: null } })
 
   const startsAt = watch("startsAt")
 
@@ -161,11 +157,12 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
       return
     }
 
-    if (duplicateExam && !parentId) {
+    if (!data.parentId) {
       setError("parentId", { type: "manual", message: t("required-field") })
       return
     }
 
+    const exam = exams.find((e) => e.id === data.parentId)
     if (!exam) {
       setError("parentId", { message: t("exam-not-found") })
       return
@@ -182,8 +179,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
         : 0,
       grade_manually: data.manualGradingEnabled,
     }
-    const examId = String(parentId)
-    onDuplicateExam(examId, newExam)
+    onDuplicateExam(data.parentId, newExam)
   })
 
   const handleSetExamToDuplicate = (examId: string) => {
@@ -194,27 +190,23 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
       return
     }
 
-    setParentId(examId)
-    setExam(selectedExam)
+    setValue("parentId", examId)
   }
 
   const automaticEnabled = watch("automaticCompletionEnabled")
+  const duplicateExam = watch("duplicateExam")
 
-  const handleDuplicateToggle = () => {
-    if (!duplicateExam) {
-      // Switching to duplicate mode
-      setDuplicateExam(true)
+  useEffect(() => {
+    if (duplicateExam) {
       if (exams[0]) {
         handleSetExamToDuplicate(exams[0].id)
       }
     } else {
-      // Switching back to create mode
-      setDuplicateExam(false)
-      setParentId(null)
-      setExam(null)
+      setValue("parentId", null)
       clearErrors()
     }
-  }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [duplicateExam])
 
   return (
     <div>
@@ -225,10 +217,11 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           `}
         >
           <TextField
+            name="name"
+            control={control}
+            rules={{ required: t("required-field") }}
             id={"name"}
-            {...omitUndefined({ error: errors.name?.message })}
             label={t("label-name")}
-            {...register("name", { required: t("required-field") })}
           />
           <DateTimeLocal
             {...omitUndefined({ error: errors.startsAt?.message })}
@@ -250,51 +243,53 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
             {...register("endsAt", { required: t("required-field") })}
           />
           <TextField
-            id={"timeMinutes"}
-            {...omitUndefined({ error: errors.timeMinutes?.message })}
-            label={t("label-time-minutes")}
-            type="number"
-            {...register("timeMinutes", {
+            name="timeMinutes"
+            control={control}
+            rules={{
               required: t("required-field"),
               min: { value: 1, message: t("time-must-be-positive") },
-              valueAsNumber: true,
-            })}
+            }}
+            id={"timeMinutes"}
+            label={t("label-time-minutes")}
+            type="number"
           />
-          <CheckBox label={t("label-grade-exam-manually")} {...register("manualGradingEnabled")} />
-          <CheckBox
+          <Checkbox
+            name="manualGradingEnabled"
+            control={control}
+            label={t("label-grade-exam-manually")}
+          />
+          <Checkbox
+            name="automaticCompletionEnabled"
+            control={control}
             label={t("label-related-courses-can-be-completed-automatically")}
-            {...register("automaticCompletionEnabled")}
           />
 
           {automaticEnabled && (
             <TextField
-              id={"minimumPointsThreshold"}
-              {...omitUndefined({ error: errors.minimumPointsThreshold?.message })}
-              label={t("label-exam-minimum-points")}
-              type="number"
-              {...register("minimumPointsThreshold", {
+              name="minimumPointsThreshold"
+              control={control}
+              rules={{
                 required: t("required-field"),
                 min: { value: 0, message: t("points-must-be-non-negative") },
-                valueAsNumber: true,
-              })}
+              }}
+              id={"minimumPointsThreshold"}
+              label={t("label-exam-minimum-points")}
+              type="number"
             />
           )}
 
-          <CheckBox
-            checked={duplicateExam}
-            label={t("duplicate")}
-            onChange={handleDuplicateToggle}
-          />
+          <Checkbox name="duplicateExam" control={control} label={t("duplicate")} />
           {duplicateExam && exams.length > 0 && (
-            <SelectField
+            <Select
+              name="parentId"
+              control={control}
+              rules={{ required: t("required-field") }}
               id={"parentId"}
-              {...omitUndefined({ error: errors.parentId?.message })}
-              onChangeByValue={(value) => handleSetExamToDuplicate(value)}
+              label={t("exam-to-duplicate")}
               options={exams.map((e) => ({
                 label: e.name,
                 value: e.id,
               }))}
-              {...omitUndefined({ defaultValue: exams[0]?.id })}
             />
           )}
         </div>

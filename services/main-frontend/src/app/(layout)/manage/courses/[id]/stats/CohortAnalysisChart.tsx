@@ -7,20 +7,25 @@ import type {
   EChartsOption,
   TooltipComponentFormatterCallbackParams,
 } from "echarts"
-import React from "react"
+import React, { useEffect } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
 import type { CohortActivity } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { LoadingRegion } from "@/shared-module/components"
+import { Select } from "@/shared-module/components/components/Select"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import type { Period } from "./LineChart"
 import { DAILY_PERIOD, MONTHLY_PERIOD } from "./LineChart"
 import StatsHeader from "./StatsHeader"
+
+interface CohortAnalysisFilterValues {
+  period: Period
+}
 
 interface CohortAnalysisChartProps {
   data: CohortActivity[] | undefined
@@ -32,6 +37,8 @@ interface CohortAnalysisChartProps {
   setPeriod?: React.Dispatch<React.SetStateAction<Period>>
   disablePeriodSelector?: boolean
 }
+
+const FIELD_PERIOD = "period" as const
 
 const CHART_POSITION = "top" as const
 const CHART_ORIENTATION = "horizontal" as const
@@ -51,6 +58,16 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
   disablePeriodSelector = false,
 }) => {
   const { t } = useTranslation()
+
+  // Select has no onChange prop, only control/name; the parent (which shares this period
+  // across sibling charts) is kept in sync via useWatch + effect instead.
+  const { control: filterControl } = useForm<CohortAnalysisFilterValues>({
+    defaultValues: { period },
+  })
+  const watchedPeriod = useWatch({ control: filterControl, name: FIELD_PERIOD })
+  useEffect(() => {
+    setPeriod?.(watchedPeriod)
+  }, [watchedPeriod, setPeriod])
 
   const processData = (rawData: CohortActivity[] | undefined) => {
     if (!rawData || rawData.length === 0) {
@@ -345,19 +362,19 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
     <>
       <StatsHeader heading={statHeading} debugData={data}>
         {!disablePeriodSelector && period && setPeriod && (
-          <SelectMenu
+          <Select
             id="period-select"
+            control={filterControl}
+            name={FIELD_PERIOD}
+            label={t("stats-period-selector-label")}
             options={[
               { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
               { value: DAILY_PERIOD, label: t("stats-period-daily") },
             ]}
-            value={period}
-            onChange={(e) => setPeriod(e.currentTarget.value as Period)}
             className={css`
               margin-bottom: 0;
               min-width: 120px;
             `}
-            showDefaultOption={false}
           />
         )}
       </StatsHeader>

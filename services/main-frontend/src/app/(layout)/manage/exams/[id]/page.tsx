@@ -333,11 +333,14 @@ const ManageExam: React.FC = () => {
             >
               {t("add-course")}
             </Button>
+            {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
             {setCourseMutation.isError && (
-              <ErrorBanner variant="readOnly" error={setCourseMutation.error} />
+              // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+              <ErrorBanner variant="readOnly" error={setCourseMutation.error} announce="off" />
             )}
             {unsetCourseMutation.isError && (
-              <ErrorBanner variant="readOnly" error={unsetCourseMutation.error} />
+              // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+              <ErrorBanner variant="readOnly" error={unsetCourseMutation.error} announce="off" />
             )}
           </>
         )}

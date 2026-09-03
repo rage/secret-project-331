@@ -102,6 +102,8 @@
   "error-status": "Статус: {{status}}",
   "error-title": "Помилка",
   "error-type": "Тип: {{type}}",
+  "errorNotice.status": "Статус",
+  "errorNotice.type": "Тип",
   "essay": "Есе",
   "faq": "FAQ",
   "fileField.chooseFile": "Вибрати файл",

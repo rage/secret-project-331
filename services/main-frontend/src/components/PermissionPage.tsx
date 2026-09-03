@@ -453,7 +453,11 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
 
   return (
     <>
-      {mutationError && <ErrorBanner variant="readOnly" error={mutationError} />}
+      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
+      {mutationError && (
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorBanner variant="readOnly" error={mutationError} announce="off" />
+      )}
       <div
         className={css`
           display: flex;

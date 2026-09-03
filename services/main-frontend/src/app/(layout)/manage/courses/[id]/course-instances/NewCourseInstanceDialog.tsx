@@ -43,7 +43,11 @@ const NewCourseInstanceDialog: React.FC<
 
   return (
     <Dialog open={showDialog} onClose={onClose} title={t("new-course-instance")}>
-      {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
+      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
+      {mutation.isError && (
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorBanner variant={"readOnly"} error={mutation.error} announce="off" />
+      )}
       <NewCourseInstanceForm
         initialData={null}
         onSubmit={(data) => {

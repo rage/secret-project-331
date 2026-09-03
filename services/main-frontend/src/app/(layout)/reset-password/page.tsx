@@ -85,8 +85,10 @@ const ResetPassword: React.FC = () => {
       >
         {t("enter-email-for-password-reset-link")}
       </h3>
+      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {postResetPassword.isError && (
-        <ErrorBanner error={postResetPassword.error} variant={"readOnly"} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorBanner error={postResetPassword.error} variant={"readOnly"} announce="off" />
       )}
 
       <form

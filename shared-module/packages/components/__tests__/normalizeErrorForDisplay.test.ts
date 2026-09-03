@@ -150,6 +150,14 @@ describe("normalizeErrorForDisplay", () => {
     expect(result.technicalDetails?.stack).toContain("Boom")
   })
 
+  test("keeps the stack of withErrorBoundary's plain-object crash payload", () => {
+    const result = normalizeErrorForDisplay({ message: "Boom", stack: "at Boom (App.tsx:1)" }, t)
+
+    expect(result.title).toBe("Boom")
+    expect(result.category).toBe("client")
+    expect(result.technicalDetails?.stack).toBe("at Boom (App.tsx:1)")
+  })
+
   test("separates a timeout from other Errors", () => {
     expect(normalizeErrorForDisplay(new Error("Request Timeout"), t).category).toBe("timeout")
   })

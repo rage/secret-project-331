@@ -64,7 +64,8 @@ export interface ErrorViewModel {
   raw: unknown
 }
 
-const APP_API_ERROR_NAME = "AppApiError"
+/** `AppApiError.name` in `common`; shared so the two packages can't drift apart despite the import ban below. */
+export const APP_API_ERROR_NAME = "AppApiError"
 const ZOD_ERROR_NAME = "ZodError"
 const ABORT_ERROR_NAME = "AbortError"
 const AGGREGATE_ERROR_NAME = "AggregateError"
@@ -206,6 +207,48 @@ function isSimplifiedPayload(value: unknown): value is SimplifiedPayload {
     Array.isArray(value.errors) ||
     isRecord(value.metadata)
   )
+}
+
+/** The plain `{ message, stack? }` object `withErrorBoundary` throws — not a real `Error`, since it crosses a React class-component state boundary. */
+interface FrontendCrashPayload {
+  message: string
+  stack?: string
+}
+
+// Narrower than isSimplifiedPayload so a crash's stack isn't dropped by matching the generic
+// backend-payload shape first: a real backend payload never carries `stack`.
+function isFrontendCrashPayload(value: unknown): value is FrontendCrashPayload {
+  return (
+    isRecord(value) &&
+    !(value instanceof Error) &&
+    typeof value.message === "string" &&
+    (value.stack === undefined || typeof value.stack === "string") &&
+    value.type === undefined &&
+    value.message_key === undefined &&
+    value.errors === undefined &&
+    value.metadata === undefined
+  )
+}
+
+function normalizeFrontendCrash(payload: FrontendCrashPayload, t: TFunction): ErrorViewModel {
+  return {
+    category: "client",
+    severity: "error",
+    title: payload.message || t("error-unexpected-error"),
+    message: null,
+    requestId: null,
+    status: null,
+    messageKey: null,
+    type: null,
+    code: null,
+    retryable: true,
+    retryAfterSeconds: null,
+    issues: [],
+    blockId: null,
+    technicalDetails:
+      payload.stack === undefined ? null : { stack: payload.stack, detail: payload.message },
+    raw: payload,
+  }
 }
 
 function joinIssuePath(path: unknown): string | undefined {
@@ -416,6 +459,9 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorVie
       technicalDetails: { detail: typeof error.source === "string" ? error.source : null },
       raw: error,
     }
+  }
+  if (isFrontendCrashPayload(error)) {
+    return normalizeFrontendCrash(error, t)
   }
   if (isSimplifiedPayload(error)) {
     return normalizePayload(error, t)

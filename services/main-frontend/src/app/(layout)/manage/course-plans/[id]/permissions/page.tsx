@@ -172,9 +172,12 @@ const CoursePlanPermissionsPage: React.FC = () => {
     <div className={pageStyles}>
       <h1 className={titleStyles}>{t("course-plan-permissions-title")}</h1>
 
-      {mutationError !== null && mutationError !== undefined && (
-        <ErrorBanner variant="readOnly" error={normalizedMutationError} />
-      )}
+      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
+      {mutationError !== null &&
+        mutationError !== undefined && (
+          // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+          <ErrorBanner variant="readOnly" error={normalizedMutationError} announce="off" />
+        )}
 
       <form className={addFormStyles} onSubmit={handleAddMember}>
         <TextField

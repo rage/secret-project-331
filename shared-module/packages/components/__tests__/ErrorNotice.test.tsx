@@ -104,11 +104,15 @@ describe("ErrorNotice", () => {
     expect(report).toContain("Time: ")
   })
 
-  test("puts the stack trace in the report", async () => {
+  test("puts the stack trace in the report, but only once the disclosure has been opened", async () => {
     const crash = new Error("Cannot read properties of undefined")
     crash.stack = "Error: Cannot read properties of undefined\n    at render (App.tsx:8:1)"
     renderUi(<ErrorNotice error={crash} />)
 
+    pressCopyReport()
+    expect(writeText).not.toHaveBeenCalled()
+
+    domClick(screen.getByRole("button", { name: /Technical details/ }))
     pressCopyReport()
     const report = await copiedText()
 
@@ -117,14 +121,14 @@ describe("ErrorNotice", () => {
     expect(report).toContain("at render (App.tsx:8:1)")
   })
 
-  test("announces politely by default, assertively on request, and not at all when off", () => {
+  test("announces assertively by default, politely on request, and not at all when off", () => {
     const { unmount } = renderUi(<ErrorNotice error={apiFailure} />)
-    expect(screen.getByRole("status")).toHaveTextContent("Internal Server Error")
+    expect(screen.getByRole("alert")).toHaveTextContent("Internal Server Error")
     unmount()
 
-    const assertive = renderUi(<ErrorNotice error={apiFailure} announce="assertive" />)
-    expect(screen.getByRole("alert")).toHaveTextContent("Internal Server Error")
-    assertive.unmount()
+    const polite = renderUi(<ErrorNotice error={apiFailure} announce="polite" />)
+    expect(screen.getByRole("status")).toHaveTextContent("Internal Server Error")
+    polite.unmount()
 
     renderUi(<ErrorNotice error={apiFailure} announce="off" />)
     expect(screen.queryByRole("status")).not.toBeInTheDocument()

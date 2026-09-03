@@ -104,6 +104,8 @@
   "error-status": "الحالة: {{status}}",
   "error-title": "خطأ",
   "error-type": "النوع: {{type}}",
+  "errorNotice.status": "الحالة",
+  "errorNotice.type": "النوع",
   "essay": "مقال",
   "exercise-iframe-reload-exhausted-message": "استُنفدت محاولات إعادة التحميل التلقائي. يمكنك محاولة إعادة تحميل التمرين يدويًا.",
   "exercise-iframe-reload-exhausted-reload-button": "إعادة تحميل التمرين",

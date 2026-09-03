@@ -49,7 +49,9 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
           message: (
             <>
               <p>{t("create-chatbot-form-fail-dialog")}</p>
-              <ErrorBanner error={error} />
+              {/* notify:true already announced this error via the toast when the mutation failed */}
+              {/* oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text */}
+              <ErrorBanner error={error} announce="off" />
             </>
           ),
           title: t("create-chatbot-form-fail-title"),

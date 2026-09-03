@@ -314,8 +314,10 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
               gap: 1rem;
             `}
           >
+            {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
             {updateMutation.isError && (
-              <ErrorBanner error={updateMutation.error} variant="readOnly" />
+              // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+              <ErrorBanner error={updateMutation.error} variant="readOnly" announce="off" />
             )}
             <TextArea
               control={control}

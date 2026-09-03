@@ -91,11 +91,14 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
 
   return (
     <Dialog open={open} onClose={onClose} title={t("new-exam")}>
+      {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
       {createExamMutation.isError && (
-        <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorBanner variant={"readOnly"} error={createExamMutation.error} announce="off" />
       )}
       {duplicateExamMutation.isError && (
-        <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} announce="off" />
       )}
       <QueryResult query={getOrgExams} treatEmptyAsData>
         {(exams) => renderForm(exams)}

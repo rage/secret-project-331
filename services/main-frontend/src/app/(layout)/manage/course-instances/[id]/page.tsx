@@ -80,8 +80,15 @@ const ManageCourseInstances: React.FC = () => {
         {getCourseInstances.data?.name ?? t("default-course-instance-name")} (
         {getCourseInstances.isSuccess && getCourseInstances.data.id})
       </h1>
-      {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
-      {deleteMutation.isError && <ErrorBanner variant={"readOnly"} error={deleteMutation.error} />}
+      {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
+      {mutation.isError && (
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorBanner variant={"readOnly"} error={mutation.error} announce="off" />
+      )}
+      {deleteMutation.isError && (
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorBanner variant={"readOnly"} error={deleteMutation.error} announce="off" />
+      )}
       <QueryResult query={getCourseInstances}>
         {(data) => {
           if (editing) {

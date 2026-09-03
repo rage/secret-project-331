@@ -103,6 +103,8 @@
   "error-status": "Status: {{status}}",
   "error-title": "Feil",
   "error-type": "Type: {{type}}",
+  "errorNotice.status": "Status",
+  "errorNotice.type": "Type",
   "essay": "Essay",
   "exercise-iframe-reload-exhausted-message": "Automatiske forsøk på å laste inn på nytt ble brukt opp. Du kan prøve å laste øvelsen inn manuelt.",
   "exercise-iframe-reload-exhausted-reload-button": "Last øvelsen inn på nytt",

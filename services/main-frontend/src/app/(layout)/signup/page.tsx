@@ -493,9 +493,12 @@ const CreateAccountForm: React.FC = () => {
           </a>
         </div>
       )}
-      {createAccountMutation.isError && !emailAlreadyTakenError && (
-        <ErrorBanner variant={"text"} error={createAccountMutation.error} />
-      )}
+      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
+      {createAccountMutation.isError &&
+        !emailAlreadyTakenError && (
+          // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+          <ErrorBanner variant={"text"} error={createAccountMutation.error} announce="off" />
+        )}
     </Wrapper>
   )
 }

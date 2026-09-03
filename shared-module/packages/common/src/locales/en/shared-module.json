@@ -185,6 +185,7 @@
   "error-zod-issue-prefix": "Validation issue at",
   "errorNotice.code": "Code",
   "errorNotice.copyReport": "Copy error report",
+  "errorNotice.copyReportRevealFirst": "Expand technical details to review before copying",
   "errorNotice.copyRequestId": "Copy request ID",
   "errorNotice.detail": "Detail",
   "errorNotice.messageKey": "Message key",

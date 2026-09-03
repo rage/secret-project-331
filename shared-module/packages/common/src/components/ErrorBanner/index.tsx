@@ -3,13 +3,15 @@
 import React from "react"
 
 import type { ErrorNoticeAnnouncement } from "@/shared-module/components/components/ErrorNotice"
-import { ErrorNotice } from "@/shared-module/components/components/ErrorNotice"
+import {
+  COMFORTABLE_DENSITY,
+  COMPACT_DENSITY,
+  ErrorNotice,
+} from "@/shared-module/components/components/ErrorNotice"
 
 import { omitUndefined } from "../../utils/nullability"
 
 const FRONTEND_CRASH_VARIANT = "frontendCrash"
-const COMPACT_DENSITY = "compact"
-const COMFORTABLE_DENSITY = "comfortable"
 
 export interface BannerExtraProps {
   error: unknown
@@ -18,7 +20,7 @@ export interface BannerExtraProps {
   contextMessage?: React.ReactNode
   maxHeightVH?: number
   listMaxHeightVH?: number
-  /** See `ErrorNotice`; defaults to a polite announcement. */
+  /** See `ErrorNotice`; defaults to an assertive announcement. */
   announce?: ErrorNoticeAnnouncement
   className?: string
 }

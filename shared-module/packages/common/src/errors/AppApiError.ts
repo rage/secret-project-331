@@ -1,3 +1,5 @@
+import { APP_API_ERROR_NAME } from "@/shared-module/components/lib/errors/normalizeErrorForDisplay"
+
 export type AppApiErrorKind = "api" | "network" | "abort" | "parse" | "client" | "stream"
 
 export interface CanonicalApiIssue {
@@ -93,7 +95,7 @@ export class AppApiError extends Error {
   public constructor(init: AppApiErrorInit) {
     const title = init.title?.trim() ? init.title : "Request failed"
     super(title)
-    this.name = "AppApiError"
+    this.name = APP_API_ERROR_NAME
     this.kind = init.kind
     this.status = init.status ?? null
     this.requestId = init.requestId ?? null

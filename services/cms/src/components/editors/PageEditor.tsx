@@ -23,7 +23,7 @@ import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { pageRoute } from "@/shared-module/common/utils/routes"
-import { Button, useDialog } from "@/shared-module/components"
+import { Button, Link, useDialog } from "@/shared-module/components"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
@@ -254,25 +254,21 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const saveAndReset = (
     <div>
       {pageInfo.data && pageInfo.data.organization_slug && pageInfo.data.course_slug && (
-        <a
+        <Link
           className={css`
-            display: block;
             margin-bottom: 1rem;
+            width: 100%;
           `}
           href={pageRoute(pageInfo.data, data.url_path)}
           target="_blank"
           rel="noopener noreferrer"
+          isCrossService
+          styledAsButton
+          variant="secondary"
+          size="medium"
         >
-          <Button
-            variant={"secondary"}
-            size={"medium"}
-            className={css`
-              width: 100%;
-            `}
-          >
-            {t("open-saved-page-in-new-tab")}
-          </Button>
-        </a>
+          {t("open-saved-page-in-new-tab")}
+        </Link>
       )}
       <div
         className={css`
@@ -318,11 +314,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         </Button>
         <Menu variant="bottom">
           <li>
-            <a href={nextPageUrl}>
-              <Button size="medium" variant="primary">
-                {t("next-page")}
-              </Button>
-            </a>
+            <Link href={nextPageUrl} isCrossService styledAsButton size="medium" variant="primary">
+              {t("next-page")}
+            </Link>
           </li>
         </Menu>
       </div>

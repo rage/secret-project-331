@@ -304,14 +304,43 @@ describe("confirm", () => {
 })
 
 describe("role selection", () => {
-  test("a string message announces itself as an alertdialog", () => {
+  test("a string message with nothing else announces itself once, not twice", () => {
     renderWithProvider(<ConfirmButton request="End the exam?" label="Ask" />)
+
+    domClick(screen.getByRole("button", { name: "Ask" }))
+    const dialog = screen.getByRole("alertdialog", { name: "End the exam?" })
+    // The content is the same "End the exam?" text as the name above: wiring it up as the
+    // description too would make a screen reader announce it twice back to back.
+    expect(dialog).not.toHaveAttribute("aria-describedby")
+  })
+
+  test("a separate description is still announced alongside a string message", () => {
+    renderWithProvider(
+      <ConfirmButton
+        request={{ message: "End the exam?", description: "This cannot be undone." }}
+        label="Ask"
+      />,
+    )
 
     domClick(screen.getByRole("button", { name: "Ask" }))
     const dialog = screen.getByRole("alertdialog", { name: "End the exam?" })
     const describedBy = dialog.getAttribute("aria-describedby")
     expect(describedBy).toBeTruthy()
-    expect(document.querySelector(`[id="${describedBy}"]`)).toHaveTextContent("End the exam?")
+    expect(document.querySelector(`[id="${describedBy}"]`)).toHaveTextContent(
+      "This cannot be undone.",
+    )
+  })
+
+  test("a title plus message still wires a description, since they differ", () => {
+    renderWithProvider(
+      <ConfirmButton request={{ title: "Delete course", message: "Are you sure?" }} label="Ask" />,
+    )
+
+    domClick(screen.getByRole("button", { name: "Ask" }))
+    const dialog = screen.getByRole("alertdialog", { name: "Delete course" })
+    const describedBy = dialog.getAttribute("aria-describedby")
+    expect(describedBy).toBeTruthy()
+    expect(document.querySelector(`[id="${describedBy}"]`)).toHaveTextContent("Are you sure?")
   })
 
   test("a node message is a plain dialog, named by the kind when there is no title", () => {
@@ -545,6 +574,43 @@ describe("the queue", () => {
     await waitFor(() => expect(getDialogs()).toHaveLength(1))
   })
 
+  test("hands off to a dialog requested from the resolved promise's own continuation", async () => {
+    function SequentialConfirms() {
+      const { confirm } = useDialog()
+      const run = async () => {
+        const first = await confirm("First?")
+        record(`first:${String(first)}`)
+        const second = await confirm("Second?")
+        record(`second:${String(second)}`)
+      }
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            void run()
+          }}
+        >
+          Ask sequentially
+        </button>
+      )
+    }
+
+    renderWithProvider(<SequentialConfirms />)
+
+    domClick(screen.getByRole("button", { name: "Ask sequentially" }))
+    domClick(partOfCurrentDialog(CONFIRM_DIALOG_YES_BUTTON_TEST_ID))
+
+    // Second? is only requested from the microtask after First? resolves, unlike TwoConfirms
+    // above where both are queued up front — so it lands one tick behind, not in the same commit.
+    await waitFor(() =>
+      expect(screen.getByRole("alertdialog", { name: "Second?" })).toBeInTheDocument(),
+    )
+
+    domClick(partOfCurrentDialog(CONFIRM_DIALOG_YES_BUTTON_TEST_ID))
+    await waitFor(() => expect(results).toEqual(["first:true", "second:true"]))
+    await waitForNoDialogs()
+  })
+
   test("restores focus to the trigger only after the whole sequence is answered", async () => {
     renderWithProvider(<TwoConfirms />)
 
@@ -695,7 +761,7 @@ describe("teardown", () => {
     await waitFor(() => expect(results).toEqual(["alert", "confirm:false", { isSubmitted: false }]))
   })
 
-  test("a body that throws still settles the caller's promise", async () => {
+  test("a body that throws settles the caller's promise without reaching an outer boundary", async () => {
     const consoleError = jest.spyOn(console, "error").mockImplementation(() => undefined)
     try {
       render(
@@ -711,7 +777,36 @@ describe("teardown", () => {
 
       domClick(screen.getByRole("button", { name: "Ask" }))
       await waitFor(() => expect(results).toEqual([{ isSubmitted: false }]))
-      expect(screen.getByText("Something broke")).toBeInTheDocument()
+      // QueuedDialog's own boundary catches it first, so the outer app boundary never fires.
+      expect(screen.queryByText("Something broke")).not.toBeInTheDocument()
+    } finally {
+      consoleError.mockRestore()
+    }
+  })
+
+  test("a body that throws does not take the rest of the provider down with it", async () => {
+    const consoleError = jest.spyOn(console, "error").mockImplementation(() => undefined)
+    try {
+      // No boundary anywhere above DialogProvider: if the crash propagated past QueuedDialog,
+      // this whole tree would unmount and every assertion below would fail to find its element.
+      renderWithProvider(
+        <>
+          <AlertButton request="Unrelated" label="Warn" />
+          <CustomPromptButton<string>
+            request={{ message: "Pick", body: () => <ExplodingBody /> }}
+            label="Ask"
+          />
+        </>,
+      )
+
+      domClick(screen.getByRole("button", { name: "Ask" }))
+      await waitFor(() => expect(results).toEqual([{ isSubmitted: false }]))
+      // The crashed dialog is still exiting (and the background still inert) until this settles.
+      await waitForNoDialogs()
+
+      domClick(screen.getByRole("button", { name: "Warn" }))
+      domClick(partOfCurrentDialog(ALERT_DIALOG_OK_BUTTON_TEST_ID))
+      await waitFor(() => expect(results).toEqual([{ isSubmitted: false }, undefined]))
     } finally {
       consoleError.mockRestore()
     }

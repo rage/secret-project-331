@@ -69,6 +69,12 @@ export type DialogProps = DialogLabelling &
      */
     role?: DialogRole
     /**
+     * Whether the body holds text beyond the name already given by `title`/`aria-label`. `false`
+     * drops `alertdialog`'s auto `aria-describedby` wiring, so a screen reader isn't asked to
+     * announce the exact same string as both name and description. No effect on `role="dialog"`.
+     */
+    hasDescription?: boolean
+    /**
      * How the surface and scrim animate on close. `"handoff"` drops the scrim immediately
      * instead of fading it, so it never doubles up with an incoming dialog's own scrim while
      * both are mid-transition. Leave it unset unless another dialog is about to replace this one.
@@ -275,6 +281,7 @@ const OpenDialog: React.FC<DialogProps> = ({
   size = "normal",
   padding = "normal",
   role = "dialog",
+  hasDescription = true,
   exit = "fade",
   isDismissable = false,
   showCloseButton = true,
@@ -302,12 +309,17 @@ const OpenDialog: React.FC<DialogProps> = ({
     },
   })
   const { modalProps, underlayProps } = useModalOverlay({ isDismissable }, state, ref)
-  const { dialogProps, contentProps } = useDialog(
+  const { dialogProps: dialogPropsFromHook, contentProps } = useDialog(
     hasTitle
       ? { role, "aria-labelledby": titleId }
       : omitUndefined({ role, "aria-label": ariaLabel }),
     ref,
   )
+  // react-aria always wires alertdialog's aria-describedby to the content div; drop it when that
+  // content is only the name again, so a screen reader isn't asked to announce the name twice.
+  const dialogProps = hasDescription
+    ? dialogPropsFromHook
+    : omitUndefined({ ...dialogPropsFromHook, "aria-describedby": undefined })
 
   const underlayTransition = shouldReduceMotion ? reducedTransition : exitTransition
 
@@ -385,7 +397,11 @@ const OpenDialog: React.FC<DialogProps> = ({
               )}
             </div>
           )}
-          <div {...contentProps} className={contentCss} data-below-header={hasTitle}>
+          <div
+            {...(hasDescription ? contentProps : undefined)}
+            className={contentCss}
+            data-below-header={hasTitle}
+          >
             {children}
           </div>
           {actions !== undefined && (

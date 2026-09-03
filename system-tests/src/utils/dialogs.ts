@@ -24,7 +24,9 @@ export async function dismissAlertDialog(
   expectedTitle?: string,
 ): Promise<void> {
   await test.step("Dismiss alert dialog", async () => {
-    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
+    // `.last()`: during a handoff, an outgoing dialog can still be mid-exit-animation and share
+    // this testid with the new one taking over; the newest is always the last in DOM order.
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID).last()
     await dialog.waitFor()
 
     if (expectedMessage) {
@@ -56,7 +58,7 @@ export async function respondToConfirmDialog(
   const action = confirm ? "Confirm" : "Cancel"
 
   await test.step(`Respond to confirm dialog - ${action}`, async () => {
-    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID).last()
     await dialog.waitFor()
 
     if (expectedMessage) {
@@ -93,7 +95,7 @@ export async function fillPromptDialog(
   const action = submit ? "Submit" : "Cancel"
 
   await test.step(`Fill prompt dialog - ${action}`, async () => {
-    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID).last()
     await dialog.waitFor()
 
     if (expectedMessage) {

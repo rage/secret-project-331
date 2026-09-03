@@ -10,8 +10,10 @@ interface DialogRequest {
    */
   title?: string
   /**
-   * The question or statement. A string is announced the moment the dialog opens, because a string
-   * message selects `role="alertdialog"`; a node is rendered as the body and is not announced.
+   * The question or statement. For `alert`/`confirm`, a string is announced the moment the dialog
+   * opens, because it selects `role="alertdialog"`; a node body, or any `prompt`, is rendered as
+   * the body and is not announced (a prompt always uses `role="dialog"`, even with a string
+   * message, since its field needs focus rather than an interruption to read).
    */
   message: React.ReactNode
   /** The consequence, rendered and announced under `message`. Use instead of joining sentences. */

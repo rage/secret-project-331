@@ -7,7 +7,7 @@ import { FocusScope } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { omitUndefined } from "../../lib/utils/nullability"
-import { Dialog, type DialogAction, type DialogLabelling } from "../Dialog"
+import { Dialog, type DialogAction, type DialogExit, type DialogLabelling } from "../Dialog"
 import { DialogDepthContext } from "./dialogContext"
 import type {
   AlertRequest,
@@ -41,6 +41,39 @@ export interface QueuedDialogProps {
 /** Set once the body has produced a value. The wrapper keeps `undefined` representable. */
 interface PromptValue {
   value: unknown
+}
+
+/** Calls a caller-supplied custom body during its own render, so a throw is catchable below. */
+const CustomBody: React.FC<{
+  body: (controls: PromptControls<unknown>) => React.ReactNode
+  controls: PromptControls<unknown>
+}> = ({ body, controls }) => <>{body(controls)}</>
+
+interface DialogBodyBoundaryProps {
+  /** Runs once, from `componentDidCatch`, so the caller can settle the entry as dismissed. */
+  onCrash: () => void
+  children: React.ReactNode
+}
+
+/**
+ * Contains a crash from a caller-supplied custom body to this one dialog, instead of letting it
+ * propagate to whatever boundary the host app placed above `DialogProvider` — which would
+ * otherwise unmount every other in-flight dialog along with the one at fault.
+ */
+class DialogBodyBoundary extends React.Component<DialogBodyBoundaryProps, { hasCrashed: boolean }> {
+  public override state = { hasCrashed: false }
+
+  public static getDerivedStateFromError(): { hasCrashed: boolean } {
+    return { hasCrashed: true }
+  }
+
+  public override componentDidCatch(): void {
+    this.props.onCrash()
+  }
+
+  public override render(): React.ReactNode {
+    return this.state.hasCrashed ? null : this.props.children
+  }
 }
 
 const bodyCss = css`
@@ -95,6 +128,27 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
   )
   const [validationError, setValidationError] = React.useState<string | null>(null)
 
+  // A caller doing `await confirm(); alert()` only requests the next dialog once this one has
+  // resolved and started closing, in the microtask right after `resolve()`. Deferring the visual
+  // close by one microtask lets that request land, and `hasSuccessor` update, before Dialog's
+  // AnimatePresence freezes `exit` at the render where `open` flips to false — without this, the
+  // scrim always fades as if nothing were taking over, even when something is a tick away.
+  const hasSuccessorRef = React.useRef(hasSuccessor)
+  hasSuccessorRef.current = hasSuccessor
+  const [visuallyOpen, setVisuallyOpen] = React.useState(isOpen)
+  const frozenExitRef = React.useRef<DialogExit>(EXIT_FADE)
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setVisuallyOpen(true)
+      return
+    }
+    queueMicrotask(() => {
+      frozenExitRef.current = hasSuccessorRef.current ? EXIT_HANDOFF : EXIT_FADE
+      setVisuallyOpen(false)
+    })
+  }, [isOpen])
+
   const settle = React.useCallback(
     (result: unknown) => {
       onSettle(entry, result)
@@ -146,7 +200,9 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
   const customBody = (request as CustomPromptRequest<unknown>).body
   const promptField =
     customBody !== undefined ? (
-      customBody(controls)
+      <DialogBodyBoundary onCrash={() => settle(dismissedResult(kind))}>
+        <CustomBody body={customBody} controls={controls} />
+      </DialogBodyBoundary>
     ) : (
       <PromptTextField
         label={typeof message === "string" ? message : t("dialog.promptLabel")}
@@ -190,7 +246,7 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
     <Dialog
       {...labelling}
       {...omitUndefined({ size: request.size, lang: request.lang })}
-      open={isOpen}
+      open={visuallyOpen}
       onClose={() => {
         settle(dismissedResult(kind))
       }}
@@ -201,9 +257,12 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
       // `alertdialog` is what makes a screen reader announce it on open. A node body is a surface to
       // work through, which some assistive technology would otherwise read out whole.
       role={kind !== "prompt" && typeof message === "string" ? "alertdialog" : "dialog"}
+      // Without a title or a separate description, the content is just the message again — the
+      // same text as the `aria-label` fallback below, so a description would only repeat the name.
+      hasDescription={title !== undefined || description !== undefined}
       showCloseButton={false}
       isDismissable={false}
-      exit={hasSuccessor ? EXIT_HANDOFF : EXIT_FADE}
+      exit={visuallyOpen ? (hasSuccessor ? EXIT_HANDOFF : EXIT_FADE) : frozenExitRef.current}
       data-testid={DIALOG_PROVIDER_DIALOG_TEST_ID}
       actions={actions}
     >

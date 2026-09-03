@@ -30,7 +30,7 @@ function openCount(state: DialogQueueState): number {
  * the exit animation runs against the props of its last open render.
  */
 export function hasSuccessor(state: DialogQueueState): boolean {
-  return openCount(state) > 1 || state.pending.length > 0
+  return openCount(state) > 0 || state.pending.length > 0
 }
 
 export function dialogQueueReducer(

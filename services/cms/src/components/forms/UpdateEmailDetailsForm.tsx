@@ -3,9 +3,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useMemo } from "react"
+import type { Control } from "react-hook-form"
 
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
+import type { EmailTemplateType } from "@/generated/api"
+import { Select, TextField } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
@@ -16,25 +17,27 @@ const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 
-interface UpdateEmailDetailsFormProps {
-  templateType: unknown
+export interface EmailDetailsFormFields {
+  templateType: EmailTemplateType
   subject: string
-  setTemplateType: React.Dispatch<React.SetStateAction<unknown>>
-  setSubject: (newSubject: string) => void
+}
+
+export const TEMPLATE_TYPE_FIELD_NAME = "templateType"
+export const SUBJECT_FIELD_NAME = "subject"
+
+interface UpdateEmailDetailsFormProps {
+  control: Control<EmailDetailsFormFields>
+  templateType: EmailTemplateType
   placeholderValidation: PlaceholderValidationResult
 }
 
 const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetailsFormProps>> = ({
+  control,
   templateType,
-  subject,
-  setTemplateType,
-  setSubject,
   placeholderValidation,
 }) => {
   const { t } = useTranslation()
-  const templateTypeString =
-    typeof templateType === "string" ? templateType : (templateType as unknown as string)
-  const placeholderConfig = getPlaceholderConfig(templateTypeString)
+  const placeholderConfig = getPlaceholderConfig(templateType)
 
   const templateTypeHelperText = useMemo(() => {
     if (placeholderConfig) {
@@ -60,13 +63,11 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
 
       <div>
         <FieldContainer>
-          <SelectField
-            required
+          <Select
+            name={TEMPLATE_TYPE_FIELD_NAME}
+            control={control}
+            isRequired
             label={t("label-template-type")}
-            value={templateTypeString}
-            onChangeByValue={(value) => {
-              setTemplateType(value)
-            }}
             options={[
               {
                 // oxlint-disable-next-line i18next/no-literal-string
@@ -104,12 +105,10 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
         </FieldContainer>
         <FieldContainer>
           <TextField
-            required
+            name={SUBJECT_FIELD_NAME}
+            control={control}
+            isRequired
             label={t("label-email-subject")}
-            value={subject}
-            onChangeByValue={(value) => {
-              setSubject(value)
-            }}
           />
           <div
             className={css`

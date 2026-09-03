@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 
 import type { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -18,7 +19,11 @@ import type { MediaUploadProps } from "../../services/mediaUpload"
 import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
-import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
+import type { EmailDetailsFormFields } from "../forms/UpdateEmailDetailsForm"
+import UpdateEmailDetailsForm, {
+  SUBJECT_FIELD_NAME,
+  TEMPLATE_TYPE_FIELD_NAME,
+} from "../forms/UpdateEmailDetailsForm"
 
 interface EmailEditorProps {
   data: EmailTemplate
@@ -58,18 +63,18 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     const initialContent = modifyBlocks(normalizedBlocks, allowedEmailCoreBlocks) as BlockInstance[]
     return initialContent
   })
-  const [templateType, setTemplateType] = useState<unknown>(
-    // oxlint-disable-next-line i18next/no-literal-string
-    (data as { template_type?: unknown }).template_type ?? "generic",
-  )
-  const [subject, setSubject] = useState(data.subject ?? "")
-
-  const templateTypeString = useMemo(() => {
-    if (typeof templateType === "string") {
-      return templateType
-    }
-    return templateType as unknown as string
-  }, [templateType])
+  const { control: emailDetailsControl, reset: resetEmailDetailsForm } =
+    useForm<EmailDetailsFormFields>({
+      defaultValues: {
+        templateType: data.template_type,
+        subject: data.subject ?? "",
+      },
+    })
+  const templateTypeString = useWatch({
+    control: emailDetailsControl,
+    name: TEMPLATE_TYPE_FIELD_NAME,
+  })
+  const subject = useWatch({ control: emailDetailsControl, name: SUBJECT_FIELD_NAME })
 
   const detectedPlaceholders = useMemo(() => extractPlaceholders(content), [content])
   const placeholderValidation = useMemo(() => {
@@ -87,11 +92,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   }, [templateTypeString, detectedPlaceholders])
 
   const dataContentString = useMemo(() => JSON.stringify(data.content), [data.content])
-  const dataTemplateType = useMemo(
-    // oxlint-disable-next-line i18next/no-literal-string
-    () => (data as { template_type?: unknown }).template_type ?? "generic",
-    [data],
-  )
+  const dataTemplateType = data.template_type
 
   useEffect(() => {
     const contentToUse = data.content ?? []
@@ -101,8 +102,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       allowedEmailCoreBlocks,
     ) as BlockInstance[]
     setContent(modifiedContent)
-    setTemplateType(dataTemplateType)
-    setSubject(data.subject ?? "")
+    resetEmailDetailsForm({ templateType: dataTemplateType, subject: data.subject ?? "" })
     setNeedToRunMigrationsAndValidations(true)
   }, [
     dataContentString,
@@ -111,19 +111,18 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     data.content,
     setNeedToRunMigrationsAndValidations,
     normalizeBlocks,
+    resetEmailDetailsForm,
   ])
 
   useEffect(() => {
     if (saveMutation.isSuccess && saveMutation.data) {
       setContent((saveMutation.data.content ?? []) as BlockInstance[])
-
-      setTemplateType(
-        // oxlint-disable-next-line i18next/no-literal-string
-        (saveMutation.data as { template_type?: unknown }).template_type ?? "generic",
-      )
-      setSubject(saveMutation.data.subject ?? "")
+      resetEmailDetailsForm({
+        templateType: saveMutation.data.template_type,
+        subject: saveMutation.data.subject ?? "",
+      })
     }
-  }, [saveMutation.isSuccess, saveMutation.data])
+  }, [saveMutation.isSuccess, saveMutation.data, resetEmailDetailsForm])
 
   const handleOnSave = () => {
     if (!placeholderValidation.valid) {
@@ -133,7 +132,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     saveMutation.mutate(
       {
         subject,
-        template_type: templateType,
+        template_type: templateTypeString,
         content: removeUnsupportedBlockType(content),
         exercise_completions_threshold: null,
         points_threshold: null,
@@ -141,9 +140,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       {
         onSuccess: (res) => {
           setContent((res.content ?? []) as BlockInstance[])
-          // oxlint-disable-next-line i18next/no-literal-string
-          setTemplateType((res as { template_type?: unknown }).template_type ?? "generic")
-          setSubject(res.subject ?? "")
+          resetEmailDetailsForm({ templateType: res.template_type, subject: res.subject ?? "" })
         },
       },
     )
@@ -186,10 +183,8 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
           {saveMutation.isError && <ErrorBanner error={saveMutation.error} />}
 
           <UpdateEmailDetailsForm
-            templateType={templateType}
-            subject={subject}
-            setTemplateType={setTemplateType}
-            setSubject={setSubject}
+            control={emailDetailsControl}
+            templateType={templateTypeString}
             placeholderValidation={placeholderValidation}
           />
         </div>

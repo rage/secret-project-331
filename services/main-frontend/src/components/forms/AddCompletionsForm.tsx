@@ -9,8 +9,7 @@ import { useTranslation } from "react-i18next"
 import type { CourseModule, TeacherManualCompletionRequest } from "@/generated/api/types.generated"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { makeDateStringTimezoneErrorsLessLikely } from "@/shared-module/common/utils/dateUtil"
-import { Button, Select, TextArea } from "@/shared-module/components"
-import { DateField } from "@/shared-module/components/components/DateField"
+import { Button, DateField, Select, TextArea } from "@/shared-module/components"
 
 const FormatInstructions = styled.div`
   margin-top: 1.5rem;

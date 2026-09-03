@@ -8,8 +8,7 @@ import { useTranslation } from "react-i18next"
 import { useStatusPodLogs } from "@/hooks/useStatusPodLogs"
 import { useStatusPods } from "@/hooks/useStatusPods"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
-import { Select } from "@/shared-module/components/components/Select"
+import { QueryResult, Select } from "@/shared-module/components"
 
 const FIELD_SELECTED_POD = "selectedPod" as const
 const FIELD_TAIL_LINES = "tailLines" as const

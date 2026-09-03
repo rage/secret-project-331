@@ -15,7 +15,7 @@ import {
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Select } from "@/shared-module/components/components/Select"
+import { Select } from "@/shared-module/components"
 
 import GlobalStatTable from "./GlobalStatTable"
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type {
@@ -42,6 +42,7 @@ export interface CertificateFields {
   backgroundSvg: File[]
   overlaySvg: File[]
   clearCurrentOverlaySvg: boolean
+  enableGrade: boolean
   renderGrade: boolean
   gradePosX: string | null
   gradePosY: string | null
@@ -91,6 +92,7 @@ const CertificateForm: React.FC<Props> = ({
       backgroundSvg: [],
       overlaySvg: [],
       clearCurrentOverlaySvg: false,
+      enableGrade: !!configuration?.certificate_grade_x_pos,
       renderGrade: configuration?.render_certificate_grade ?? false,
       gradePosX: configuration?.certificate_grade_x_pos ?? null,
       gradePosY: configuration?.certificate_grade_y_pos ?? null,
@@ -104,13 +106,7 @@ const CertificateForm: React.FC<Props> = ({
     onClickSave(data)
   })
 
-  const { control: gradeToggleControl, watch: watchGradeToggle } = useForm<{
-    enableGrade: boolean
-  }>({
-    defaultValues: { enableGrade: !!configuration?.certificate_grade_x_pos },
-  })
-  // oxlint-disable-next-line i18next/no-literal-string
-  const showGradeFields = watchGradeToggle("enableGrade")
+  const showGradeFields = useWatch({ control, name: "enableGrade" })
 
   return (
     <form
@@ -292,12 +288,7 @@ const CertificateForm: React.FC<Props> = ({
         />
       </div>
       <hr />
-      <Checkbox
-        id="enableGrade"
-        name="enableGrade"
-        control={gradeToggleControl}
-        label={t("label-grade")}
-      />
+      <Checkbox id="enableGrade" name="enableGrade" control={control} label={t("label-grade")} />
       {showGradeFields && (
         <>
           <hr />

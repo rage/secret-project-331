@@ -17,8 +17,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { DateField } from "@/shared-module/components/components/DateField"
-import { Select } from "@/shared-module/components/components/Select"
+import { DateField, Select } from "@/shared-module/components"
 
 interface TotalStatsProps {
   courseId: string

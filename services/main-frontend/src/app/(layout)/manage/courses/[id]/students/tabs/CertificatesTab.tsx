@@ -17,8 +17,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
-import { Button, Dialog, LoadingRegion, TextField } from "@/shared-module/components"
-import { DateField } from "@/shared-module/components/components/DateField"
+import { Button, DateField, Dialog, LoadingRegion, TextField } from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
@@ -46,6 +45,24 @@ const formatDateIssuedUtc = (value: string | null): string => {
   }
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? EM_DASH : date.toISOString().slice(0, 10)
+}
+
+const withOriginalTimeOfDay = (editedDate: Date, originalDateIssued: string | null): Date => {
+  if (!originalDateIssued) {
+    return editedDate
+  }
+  const original = new Date(originalDateIssued)
+  if (Number.isNaN(original.getTime())) {
+    return editedDate
+  }
+  const combined = new Date(editedDate)
+  combined.setUTCHours(
+    original.getUTCHours(),
+    original.getUTCMinutes(),
+    original.getUTCSeconds(),
+    original.getUTCMilliseconds(),
+  )
+  return combined
 }
 
 interface EditCertificateFormValues {
@@ -116,6 +133,9 @@ export const CertificatesTabContent: React.FC = () => {
   const isStale = deferredIdentityRows !== identityRows || deferredDetailData !== detailQuery.data
 
   const [editingCertificateId, setEditingCertificateId] = useState<string | null>(null)
+  // The date field only edits the calendar day; the original time of day is reapplied on submit
+  // so editing a certificate doesn't reset its issue time to midnight UTC.
+  const [editingOriginalDateIssued, setEditingOriginalDateIssued] = useState<string | null>(null)
   const editForm = useForm<EditCertificateFormValues>({
     defaultValues: { name_on_certificate: "", date: "" },
   })
@@ -254,6 +274,7 @@ export const CertificatesTabContent: React.FC = () => {
                   label={t("edit_certificate")}
                   onClick={() => {
                     setEditingCertificateId(certificate_id)
+                    setEditingOriginalDateIssued(date_issued)
                     editForm.reset({
                       name_on_certificate: name_on_certificate ?? "",
                       date: formatDateForDateInputs(date_issued) ?? "",
@@ -440,7 +461,10 @@ export const CertificatesTabContent: React.FC = () => {
                 updateCertificateMutation.mutate({
                   certificateId: editingCertificateId,
                   body: {
-                    date_issued: parsedEditDate.toISOString(),
+                    date_issued: withOriginalTimeOfDay(
+                      parsedEditDate,
+                      editingOriginalDateIssued,
+                    ).toISOString(),
                     name_on_certificate: nameOnCertificate.trim() === "" ? null : nameOnCertificate,
                   },
                 })

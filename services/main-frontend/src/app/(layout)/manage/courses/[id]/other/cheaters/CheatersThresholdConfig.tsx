@@ -31,7 +31,7 @@ const SECONDS_PER_HOUR = 3600
 const MAX_DURATION_SECONDS = 2_147_483_647
 
 interface ThresholdFormFields {
-  durations: Record<string, string>
+  durations: Record<string, number | null>
 }
 
 /** The value a module's field shows before the user has touched it: the configured threshold, or the policy default. */
@@ -95,7 +95,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
       durations: Object.fromEntries(
         sortedModules.map((module) => [
           module.id,
-          String(computeDisplayHours(thresholdInfoByModule.get(module.id))),
+          computeDisplayHours(thresholdInfoByModule.get(module.id)),
         ]),
       ),
     })
@@ -106,7 +106,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
   const resetEditedThreshold = async (moduleId: string) => {
     const { data: refreshedThresholds } = await thresholdsQuery.refetch()
     const info = refreshedThresholds?.find((entry) => entry.course_module_id === moduleId)
-    resetField(`durations.${moduleId}`, { defaultValue: String(computeDisplayHours(info)) })
+    resetField(`durations.${moduleId}`, { defaultValue: computeDisplayHours(info) })
   }
 
   const handleUpdateThreshold = (moduleId: string, durationSeconds: number | undefined) => {
@@ -184,10 +184,18 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
         `}
       >
         {postThresholdForModuleMutation.isError && (
-          <ErrorBanner variant="readOnly" error={postThresholdForModuleMutation.error} />
+          <ErrorBanner
+            variant="readOnly"
+            error={postThresholdForModuleMutation.error}
+            announce="off"
+          />
         )}
         {deleteThresholdForModuleMutation.isError && (
-          <ErrorBanner variant="readOnly" error={deleteThresholdForModuleMutation.error} />
+          <ErrorBanner
+            variant="readOnly"
+            error={deleteThresholdForModuleMutation.error}
+            announce="off"
+          />
         )}
         <h5 className="heading">
           <Gear size={16} weight="bold" aria-hidden="true" />
@@ -280,13 +288,11 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
               const configuredHours =
                 configuredSeconds !== undefined ? configuredSeconds / SECONDS_PER_HOUR : undefined
               const isEdited = Boolean(dirtyFields.durations?.[module.id])
-              const rawValue = durations[module.id] ?? ""
-              const parsedValue =
-                rawValue.trim() === ""
-                  ? undefined
-                  : // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
-                    parseFloat(rawValue)
-              const editedHours = Number.isFinite(parsedValue) ? parsedValue : undefined
+              const fieldValue = durations[module.id]
+              const editedHours =
+                typeof fieldValue === "number" && Number.isFinite(fieldValue)
+                  ? fieldValue
+                  : undefined
               const durationHours = isEdited ? editedHours : configuredHours
               const isDefault = module.name === null
               const moduleName = module.name ?? t("default-module")

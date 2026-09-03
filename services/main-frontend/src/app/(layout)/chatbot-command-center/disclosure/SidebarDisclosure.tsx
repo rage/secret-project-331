@@ -16,6 +16,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
 
 import DropdownButton from "./DropdownButton"
+import NewConversationButton from "./NewConversationButton"
 
 interface DisclosureProps extends AriaDisclosureProps {
   title?: ReactNode
@@ -99,31 +100,7 @@ const SideBarDisclosure: React.FC<DisclosureProps> = (props) => {
               isMobile={false}
               setCreateChatbotVisible={props.setCreateChatbotVisible}
             />
-            <Button
-              className={css`
-                color: var(--field-fg);
-                text-wrap: nowrap;
-                padding: 0;
-                // Hide button text when disclosure collapsed
-                & span[id]:last-of-type {
-                  display: ${!state.isExpanded ? "none" : "block"};
-                }
-              `}
-              icon={
-                <AddMessage
-                  className={css`
-                    color: ${baseTheme.colors.green[700]};
-                  `}
-                />
-              }
-              // oxlint-disable-next-line i18next/no-literal-string
-              iconPosition="start"
-              size="medium"
-              variant="icon"
-              onClick={() => props.setChatbotDialog(true)}
-            >
-              New conversation
-            </Button>
+            <NewConversationButton isMobile={false} setChatbotDialog={props.setChatbotDialog} />
           </OnlyRenderIfPermissions>
         </div>
         <button

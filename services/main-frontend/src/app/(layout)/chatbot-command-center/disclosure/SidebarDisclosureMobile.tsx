@@ -2,15 +2,11 @@
 
 import { css } from "@emotion/css"
 import type { OverlayTriggerState } from "@react-stately/overlays"
-import { AddMessage } from "@vectopus/atlas-icons-react"
 import type React from "react"
-
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { baseTheme } from "@/shared-module/common/styles/theme"
-import { Button } from "@/shared-module/components"
 
 import { DisclosureButton } from "./DisclosureButton"
 import DropdownButton from "./DropdownButton"
+import NewConversationButton from "./NewConversationButton"
 
 interface SidebarDisclosureMobileProps {
   menuState: OverlayTriggerState
@@ -31,28 +27,7 @@ const SidebarDisclosureMobile: React.FC<SidebarDisclosureMobileProps> = ({
       `}
     >
       <DisclosureButton state={menuState} />
-      <Button
-        className={css`
-          color: var(--field-fg);
-          text-wrap: nowrap;
-          padding: 0;
-          ${respondToOrLarger.md} {
-            display: none;
-          }
-        `}
-        icon={
-          <AddMessage
-            className={css`
-              color: ${baseTheme.colors.green[700]};
-            `}
-          />
-        }
-        // oxlint-disable-next-line i18next/no-literal-string
-        iconPosition="start"
-        size="medium"
-        variant="icon"
-        onClick={() => setChatbotDialog(true)}
-      ></Button>
+      <NewConversationButton isMobile={true} setChatbotDialog={setChatbotDialog} />
       <DropdownButton isMobile={true} setCreateChatbotVisible={setCreateChatbotVisible} />
     </div>
   )

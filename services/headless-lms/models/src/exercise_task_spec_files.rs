@@ -31,6 +31,10 @@ pub enum SpecKind {
 /// no longer named are soft-deleted, and once no history version names them either the upload
 /// becomes reapable. Re-declaring a file that is already recorded leaves its row alone, so a save
 /// that changes nothing does not churn the table.
+///
+/// Fails with `PreconditionFailed` on an id the host has no live upload for, naming it: the caller
+/// is relaying a list an exercise service sent, and a bad id is that service's bug, not a reason to
+/// surface a foreign key violation from a page save.
 pub async fn replace_for_exercise_task(
     conn: &mut PgConnection,
     exercise_task_id: Uuid,
@@ -38,6 +42,38 @@ pub async fn replace_for_exercise_task(
     file_upload_ids: &[Uuid],
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
+    let unknown: Vec<Uuid> = sqlx::query_scalar!(
+        "
+SELECT declared.file_upload_id
+FROM UNNEST($1::uuid []) AS declared(file_upload_id)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM file_uploads
+    WHERE id = declared.file_upload_id
+      AND deleted_at IS NULL
+  )
+",
+        file_upload_ids
+    )
+    .fetch_all(&mut *tx)
+    .await?
+    .into_iter()
+    .flatten()
+    .collect();
+    if !unknown.is_empty() {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            format!(
+                "An exercise service declared files the host has no upload for: {}",
+                unknown
+                    .iter()
+                    .map(|id| id.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+            None,
+        ));
+    }
     sqlx::query!(
         "
 UPDATE exercise_task_spec_files
@@ -223,6 +259,28 @@ mod test {
                 .await
                 .unwrap(),
             vec![file_id]
+        );
+    }
+
+    #[tokio::test]
+    async fn refuses_a_file_the_host_has_no_upload_for() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:task_id);
+        let known = insert_file(tx.as_mut(), "known").await;
+
+        replace_for_exercise_task(
+            tx.as_mut(),
+            task_id,
+            SpecKind::Private,
+            &[known, Uuid::new_v4()],
+        )
+        .await
+        .expect_err("an unknown id is the exercise service's bug, reported as such");
+
+        assert!(
+            get_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private)
+                .await
+                .unwrap()
+                .is_empty()
         );
     }
 

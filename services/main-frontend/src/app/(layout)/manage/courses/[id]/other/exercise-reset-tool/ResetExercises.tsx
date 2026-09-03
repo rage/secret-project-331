@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
@@ -17,16 +18,41 @@ import ExerciseList from "./ExerciseList"
 import ResetFilter from "./ResetFilter"
 import SelectedUsers from "./SelectedUsers"
 
+export interface ResetFormFields {
+  onlyResetBelowThreshold: boolean
+  resetAllBelowMaxPoints: boolean
+  resetOnlyLockedPeerReviews: boolean
+  selectedExercises: Record<string, boolean>
+}
+
 const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const { data: users, isLoading } = useUsers(courseId)
   const [selectedUsers, setSelectedUsers] = useState<UserDetail[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [threshold, setThreshold] = useState<number | null>(null)
-  const [resetOnlyLockedPeerReviews, setResetOnlyLockedPeerReviews] = useState<boolean>(false)
-  const [resetAllBelowMaxPoints, setResetAllBelowMaxPoints] = useState<boolean>(false)
 
-  const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([])
+  const { control, watch, setValue } = useForm<ResetFormFields>({
+    defaultValues: {
+      onlyResetBelowThreshold: false,
+      resetAllBelowMaxPoints: false,
+      resetOnlyLockedPeerReviews: false,
+      selectedExercises: {},
+    },
+  })
+  const resetOnlyLockedPeerReviews = watch("resetOnlyLockedPeerReviews")
+  const resetAllBelowMaxPoints = watch("resetAllBelowMaxPoints")
+  const selectedExercisesMap = watch("selectedExercises")
+  const selectedExerciseIds = useMemo(
+    () =>
+      Object.entries(selectedExercisesMap)
+        .filter(([, selected]) => selected)
+        .map(([id]) => id),
+    [selectedExercisesMap],
+  )
+  const setSelectedExerciseIds = (ids: string[]) => {
+    setValue("selectedExercises", Object.fromEntries(ids.map((id) => [id, true])))
+  }
 
   useEffect(() => {
     if (!users) {
@@ -109,14 +135,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         />
       </div>
 
-      <ResetFilter
-        threshold={threshold}
-        setThreshold={setThreshold}
-        resetAllBelowMaxPoints={resetAllBelowMaxPoints}
-        setResetAllBelowMaxPoints={setResetAllBelowMaxPoints}
-        resetOnlyLockedPeerReviews={resetOnlyLockedPeerReviews}
-        setResetOnlyLockedPeerReviews={setResetOnlyLockedPeerReviews}
-      ></ResetFilter>
+      <ResetFilter control={control} threshold={threshold} setThreshold={setThreshold} />
 
       <div
         className={css`
@@ -127,6 +146,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
 
       <ExerciseList
         courseId={courseId}
+        control={control}
         selectedExerciseIds={selectedExerciseIds}
         setSelectedExerciseIds={setSelectedExerciseIds}
       />

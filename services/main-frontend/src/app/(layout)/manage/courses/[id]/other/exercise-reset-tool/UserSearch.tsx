@@ -2,13 +2,13 @@
 
 import { css } from "@emotion/css"
 import { useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
-import TextFieldWithIcon from "@/shared-module/common/components/InputFields/TextFieldWithIcon"
 import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
-import { Button, Dialog, LoadingRegion } from "@/shared-module/components"
+import { Button, Dialog, LoadingRegion, TextField } from "@/shared-module/components"
 
 interface Props {
   users?: UserDetail[]
@@ -21,7 +21,10 @@ interface Props {
 const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers, isLoading }) => {
   const { t } = useTranslation()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  const { control, watch } = useForm<{ searchTerm: string }>({
+    defaultValues: { searchTerm: "" },
+  })
+  const searchTerm = watch("searchTerm")
 
   const isAdded = (user: UserDetail) => selectedUsers.some((u) => u.user_id === user.user_id)
 
@@ -83,17 +86,16 @@ const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers
               {t("label-list-of-all-students")}
             </div>
 
-            <TextFieldWithIcon
-              type="text"
-              placeholder={t("placeholder-search-users")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+            <TextField
+              name="searchTerm"
+              control={control}
+              label={t("label-search-students")}
               className={css`
                 margin-top: 1rem;
                 margin-bottom: 2rem;
                 width: 45%;
               `}
-              icon={<SearchIcon />}
+              iconStart={<SearchIcon />}
             />
             <div>
               <table

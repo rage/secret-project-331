@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
+import type { Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -11,18 +12,21 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { DatabaseChapter, Exercise, Page } from "@/generated/api/types.generated"
 import { useExercises } from "@/hooks/useExercises"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
-import { Button, QueryResults } from "@/shared-module/components"
+import { Button, Checkbox, QueryResults } from "@/shared-module/components"
+
+import type { ResetFormFields } from "./ResetExercises"
 
 interface Props {
   courseId: string
+  control: Control<ResetFormFields>
   selectedExerciseIds: string[]
-  setSelectedExerciseIds: React.Dispatch<React.SetStateAction<string[]>>
+  setSelectedExerciseIds: (ids: string[]) => void
 }
 
 const ExerciseList: React.FC<Props> = ({
   courseId,
+  control,
   selectedExerciseIds,
   setSelectedExerciseIds,
 }) => {
@@ -45,12 +49,6 @@ const ExerciseList: React.FC<Props> = ({
       },
     }),
   })
-
-  const toggleExercise = (exerciseId: string) => {
-    setSelectedExerciseIds((prev) =>
-      prev.includes(exerciseId) ? prev.filter((id) => id !== exerciseId) : [...prev, exerciseId],
-    )
-  }
 
   const exercises = exercisesQuery.data
   const groupedExercises = useMemo(() => {
@@ -223,10 +221,13 @@ const ExerciseList: React.FC<Props> = ({
                               .map((exercise) => (
                                 <tr key={exercise.id}>
                                   <td>
-                                    <CheckBox
-                                      checked={selectedExerciseIds.includes(exercise.id)}
-                                      onChange={() => toggleExercise(exercise.id)}
-                                      label={""}
+                                    <Checkbox
+                                      name={`selectedExercises.${exercise.id}`}
+                                      control={control}
+                                      label=""
+                                      aria-label={t("label-select-exercise", {
+                                        name: exercise.name,
+                                      })}
                                       className={css`
                                         margin: 0px;
                                         padding-left: 10px;

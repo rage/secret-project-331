@@ -2,11 +2,11 @@
 
 import styled from "@emotion/styled"
 import React from "react"
-import { Controller, useFormContext } from "react-hook-form"
+import { useController, useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Radio, RadioGroup } from "@/shared-module/components"
 
 import type { EditCourseFormValues } from "."
 
@@ -30,69 +30,48 @@ const HelpText = styled.p`
 
 const AiPolicyFields = (): React.ReactElement => {
   const { t } = useTranslation()
-  const { register, control } = useFormContext<EditCourseFormValues>()
+  const { control } = useFormContext<EditCourseFormValues>()
+  // oxlint-disable-next-line i18next/no-literal-string
+  const { field } = useController({ name: "course_material_ai_instructions", control })
 
   return (
     <>
       <FieldSet>
         <Legend>{t("course-material-ai-instructions-label")}</Legend>
         <HelpText>{t("course-material-ai-instructions-help")}</HelpText>
-        <Controller
-          name="course_material_ai_instructions"
-          control={control}
-          render={({ field }) => (
-            <>
-              <RadioButton
-                label={t("course-material-ai-instructions-option-unknown")}
-                name={field.name}
-                checked={field.value === null || field.value === undefined}
-                onChange={() => field.onChange(null)}
-              />
-              <RadioButton
-                label={t("course-material-ai-instructions-option-yes")}
-                name={field.name}
-                checked={field.value === true}
-                onChange={() => field.onChange(true)}
-              />
-              <RadioButton
-                label={t("course-material-ai-instructions-option-no")}
-                name={field.name}
-                checked={field.value === false}
-                onChange={() => field.onChange(false)}
-              />
-            </>
-          )}
+        <Radio
+          label={t("course-material-ai-instructions-option-unknown")}
+          name={field.name}
+          checked={field.value === null || field.value === undefined}
+          onChange={() => field.onChange(null)}
+        />
+        <Radio
+          label={t("course-material-ai-instructions-option-yes")}
+          name={field.name}
+          checked={field.value === true}
+          onChange={() => field.onChange(true)}
+        />
+        <Radio
+          label={t("course-material-ai-instructions-option-no")}
+          name={field.name}
+          checked={field.value === false}
+          onChange={() => field.onChange(false)}
         />
       </FieldSet>
       <FieldSet>
-        <Legend>{t("ai-policy-label")}</Legend>
-        <HelpText>{t("ai-policy-help")}</HelpText>
-        <RadioButton
-          label={t("ai-policy-option-not-set")}
-          value="NotSet"
-          {...register("ai_policy")}
-        />
-        <RadioButton label={t("ai-policy-option-no-ai")} value="NoAi" {...register("ai_policy")} />
-        <RadioButton
-          label={t("ai-policy-option-planning-only")}
-          value="PlanningOnly"
-          {...register("ai_policy")}
-        />
-        <RadioButton
-          label={t("ai-policy-option-limited")}
-          value="Limited"
-          {...register("ai_policy")}
-        />
-        <RadioButton
-          label={t("ai-policy-option-full-use")}
-          value="FullUse"
-          {...register("ai_policy")}
-        />
-        <RadioButton
-          label={t("ai-policy-option-required")}
-          value="Required"
-          {...register("ai_policy")}
-        />
+        <RadioGroup
+          name="ai_policy"
+          control={control}
+          label={t("ai-policy-label")}
+          description={t("ai-policy-help")}
+        >
+          <Radio label={t("ai-policy-option-not-set")} value="NotSet" />
+          <Radio label={t("ai-policy-option-no-ai")} value="NoAi" />
+          <Radio label={t("ai-policy-option-planning-only")} value="PlanningOnly" />
+          <Radio label={t("ai-policy-option-limited")} value="Limited" />
+          <Radio label={t("ai-policy-option-full-use")} value="FullUse" />
+          <Radio label={t("ai-policy-option-required")} value="Required" />
+        </RadioGroup>
       </FieldSet>
     </>
   )

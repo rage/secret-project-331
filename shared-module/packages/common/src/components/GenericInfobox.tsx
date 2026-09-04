@@ -10,9 +10,9 @@ const GenericInfobox: React.FC<React.PropsWithChildren> = ({ children }) => {
     <div
       className={css`
         padding: 0.875rem 1rem;
-        border: 1px solid ${baseTheme.colors.blue[200]};
-        border-radius: 8px;
-        background: ${baseTheme.colors.blue[50]};
+        border-left: 3px solid ${baseTheme.colors.blue[500]};
+        border-radius: 0 6px 6px 0;
+        background: ${baseTheme.colors.blue[25]};
         display: flex;
         align-items: flex-start;
 

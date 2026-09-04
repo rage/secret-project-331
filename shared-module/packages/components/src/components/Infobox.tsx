@@ -23,20 +23,25 @@ const rootCss = css`
   align-items: flex-start;
   gap: var(--space-3);
   padding: 0.875rem 1rem;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  /* An accented edge rather than a full outline: these often sit inside a card or dialog that
+     already has one, and a second rounded box inside the first reads as stray chrome. Width is
+     per-side but the colour stays a single value, so a tone is still one border-color. */
+  border-style: solid;
+  border-width: 0 0 0 3px;
+  border-color: transparent;
+  border-radius: 0 6px 6px 0;
   overflow-x: auto;
 `
 
 const toneCss: Record<InfoboxTone, string> = {
   info: css`
-    border-color: var(--color-blue-200);
-    background: var(--color-blue-50);
+    border-color: var(--color-blue-500);
+    background: var(--color-blue-25);
   `,
   // Red rather than yellow: the yellow ramp is not contrast-safe here, same as in Badge.
   warning: css`
-    border-color: var(--color-red-200);
-    background: var(--color-red-50);
+    border-color: var(--color-red-600);
+    background: var(--color-red-25);
   `,
 }
 

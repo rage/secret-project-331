@@ -12,6 +12,10 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      '@fontsource/commit-mono':
+        specifier: ^5.3.0
+        version: 5.3.0
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 0.18.5
@@ -70,6 +74,9 @@ packages:
 
   '@emnapi/wasi-threads@1.2.2':
     resolution: {integrity: sha512-c95qOXkHdydNKhscBTebqEC1CVAZpyqOfVfBzQ1qgzyl3gfeldUjIggDbIZgDKsHLgnsM+igH7TJ/eAasaVuMA==}
+
+  '@fontsource/commit-mono@5.3.0':
+    resolution: {integrity: sha512-Bs+zlEWHDgk/cCVWEMJJaA7LbBU3Ixi5Zums+SSwMKdm2N7RJ4P7jCJTwsMHRt5WFiXYB0tu0q9HMfkn0YsLsQ==}
 
   '@loaderkit/resolve@1.0.6':
     resolution: {integrity: sha512-G8FdIoF5CypfwmD9rl8BXod5HDn8JqB0CCNBXDTaRZ+yRYhARrrSToX1zg1zy9jX3zLqigsELwhT4gNtkdQAUg==}
@@ -1094,6 +1101,8 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@fontsource/commit-mono@5.3.0': {}
+
   '@loaderkit/resolve@1.0.6':
     dependencies:
       '@braidai/lang': 1.1.2
@@ -1777,6 +1786,7 @@ snapshots:
 
 time:
   '@arethetypeswrong/cli@0.18.5': '2026-07-09T22:24:30.256Z'
+  '@fontsource/commit-mono@5.3.0': '2026-07-19T03:48:28.058Z'
   '@playwright/test@1.61.1': '2026-06-23T19:49:12.825Z'
   '@types/node@26.1.0': '2026-07-01T11:04:10.429Z'
   '@typescript/typescript6@6.0.2': '2026-07-06T18:06:47.459Z'

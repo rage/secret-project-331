@@ -1,6 +1,6 @@
 "use client"
 
-import { css, keyframes } from "@emotion/css"
+import { css, cx, keyframes } from "@emotion/css"
 import React, { useId, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
@@ -17,16 +17,35 @@ const OPEN_UNIVERSITY_ENROLLMENT_INFO_URL_EN =
   "https://www.helsinki.fi/en/admissions-and-education/open-university/enrollment-and-study-fees"
 const MY_STUDYINFO = "https://opintopolku.fi/oma-opintopolku/"
 
+const SECTION_PADDING_X = "2.25rem"
+
 // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
 const myStudyInfoLink = <a href={MY_STUDYINFO} target="_blank" rel="noopener noreferrer" />
 
 const pageCss = css`
-  max-width: 38rem;
+  max-width: 46rem;
   margin: 0 auto;
   padding: 2.5rem 0 4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2.25rem;
+`
+
+const cardCss = css`
+  border: 1px solid var(--color-clear-300);
+  border-radius: 12px;
+  background: var(--color-clear-50);
+  box-shadow: 0 1px 3px rgba(10, 15, 23, 0.04);
+  overflow: hidden;
+`
+
+const sectionCss = css`
+  padding: 1.75rem ${SECTION_PADDING_X};
+
+  @media (max-width: 40rem) {
+    padding: 1.5rem var(--space-4);
+  }
+`
+
+const dividedCss = css`
+  border-top: 1px solid var(--color-clear-200);
 `
 
 const headerCss = css`
@@ -59,16 +78,9 @@ const headerCss = css`
 `
 
 const questionCss = css`
-  background: var(--color-green-75);
-  border-radius: 10px;
-  padding: var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-
-  @media (max-width: 40rem) {
-    padding: var(--space-4);
-  }
 `
 
 const questionTextCss = css`
@@ -127,13 +139,49 @@ const instructionsCss = css`
   }
 `
 
-/** The icon would otherwise float beside the middle of a paragraph that runs several lines. */
+/**
+ * Softened into a note that sits inside the card: the stock two pixel outline competes with the
+ * card's own edge. Doubled selector to outsource the specificity fight with the component's own
+ * tone class.
+ */
 const infoboxCss = css`
-  align-items: flex-start;
+  && {
+    align-items: flex-start;
+    border-width: 1px;
+    background: var(--color-blue-50);
+  }
+`
+
+/** Stripped back to a plain row of the card, since its own border would box a box. */
+const disclosureCss = css`
+  && {
+    border: none;
+    border-top: 1px solid var(--color-clear-200);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  && button {
+    padding: 1.5rem ${SECTION_PADDING_X};
+  }
+
+  && section {
+    padding: 0 ${SECTION_PADDING_X} 1.5rem;
+  }
+
+  @media (max-width: 40rem) {
+    && button {
+      padding: 1.25rem var(--space-4);
+    }
+
+    && section {
+      padding: 0 var(--space-4) 1.25rem;
+    }
+  }
 `
 
 const callToActionCss = css`
-  margin-top: var(--space-3);
+  margin-top: var(--space-2);
 
   /* Long labels wrap on narrow screens, so the fixed control height has to give way. */
   a {
@@ -172,108 +220,121 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
 
   return (
     <div className={pageCss}>
-      <div className={headerCss}>
-        <h1>{t("register-completion")}</h1>
-        <h2>
-          {t("course")}: {data.course_name}
-        </h2>
-        {data.ects_credits && <p>{t("credits-n-ects", { n: data.ects_credits })}</p>}
-      </div>
-
-      <div className={questionCss} role="group" aria-labelledby={questionId}>
-        <p className={questionTextCss} id={questionId}>
-          {t("are-you-a-student-or-exchange-student-at-uh")}
-        </p>
-        <p className={questionHintCss} id={hintId}>
-          {t("open-university-students-and-everyone-else-select-no")}
-        </p>
-        <div className={answersCss}>
-          <Button
-            variant={answer === "yes" ? "primary" : "tertiary"}
-            size="medium"
-            aria-describedby={hintId}
-            domProps={{ "aria-pressed": answer === "yes" }}
-            // oxlint-disable-next-line i18next/no-literal-string
-            onClick={() => setAnswer("yes")}
-          >
-            {t("yes")}
-          </Button>
-          <Button
-            variant={answer === "no" ? "primary" : "tertiary"}
-            size="medium"
-            aria-describedby={hintId}
-            domProps={{ "aria-pressed": answer === "no" }}
-            // oxlint-disable-next-line i18next/no-literal-string
-            onClick={() => setAnswer("no")}
-          >
-            {t("no")}
-          </Button>
+      <div className={cardCss}>
+        <div className={cx(sectionCss, headerCss)}>
+          <h1>{t("register-completion")}</h1>
+          <h2>
+            {t("course")}: {data.course_name}
+          </h2>
+          {data.ects_credits && <p>{t("credits-n-ects", { n: data.ects_credits })}</p>}
         </div>
-      </div>
 
-      {answer === "yes" && (
-        <div className={instructionsCss}>
-          <p>{t("enroll-through-sisu-to-register-credits")}</p>
-          <Infobox className={infoboxCss} announce>
-            <Trans t={t} i18nKey="sisu-email-matching-explanation" values={{ email: data.email }} />
-          </Infobox>
-          <div className={callToActionCss}>
-            <Link
-              href={SISU_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              styledAsButton
-              variant="primary"
-              size="large"
+        <div
+          className={cx(sectionCss, dividedCss, questionCss)}
+          role="group"
+          aria-labelledby={questionId}
+        >
+          <p className={questionTextCss} id={questionId}>
+            {t("are-you-a-student-or-exchange-student-at-uh")}
+          </p>
+          <p className={questionHintCss} id={hintId}>
+            {t("open-university-students-and-everyone-else-select-no")}
+          </p>
+          <div className={answersCss}>
+            <Button
+              variant={answer === "yes" ? "primary" : "tertiary"}
+              size="medium"
+              aria-describedby={hintId}
+              domProps={{ "aria-pressed": answer === "yes" }}
+              // oxlint-disable-next-line i18next/no-literal-string
+              onClick={() => setAnswer("yes")}
             >
-              {t("go-to-sisu")}
-            </Link>
+              {t("yes")}
+            </Button>
+            <Button
+              variant={answer === "no" ? "primary" : "tertiary"}
+              size="medium"
+              aria-describedby={hintId}
+              domProps={{ "aria-pressed": answer === "no" }}
+              // oxlint-disable-next-line i18next/no-literal-string
+              onClick={() => setAnswer("no")}
+            >
+              {t("no")}
+            </Button>
           </div>
         </div>
-      )}
 
-      {answer === "no" && (
-        <div className={instructionsCss}>
-          <Infobox className={infoboxCss} announce>
-            <Trans
-              t={t}
-              i18nKey="use-this-email-on-enrollment-form-or-credits-wont-register"
-              values={{ email: data.email }}
-            />
-          </Infobox>
-          <p>
-            <Trans
-              t={t}
-              i18nKey="open-university-credits-registered-through-ou-explanation"
-              values={{ email: data.email }}
-              components={{ openUniversityInfoLink }}
-            />
-          </p>
-          <p>
-            <Trans
-              t={t}
-              i18nKey="credits-registered-within-few-days-and-my-studyinfo-pointer"
-              values={{ url: MY_STUDYINFO }}
-              components={{ myStudyInfoLink }}
-            />
-          </p>
-          <div className={callToActionCss}>
-            <Link href={registrationFormUrl} styledAsButton variant="primary" size="large">
-              {t("to-the-registration-form")}
-            </Link>
+        {answer === "yes" && (
+          <div className={cx(sectionCss, dividedCss, instructionsCss)}>
+            <p>{t("enroll-through-sisu-to-register-credits")}</p>
+            <Infobox className={infoboxCss} announce>
+              <Trans
+                t={t}
+                i18nKey="sisu-email-matching-explanation"
+                values={{ email: data.email }}
+              />
+            </Infobox>
+            <div className={callToActionCss}>
+              <Link
+                href={SISU_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                styledAsButton
+                variant="primary"
+                size="large"
+              >
+                {t("go-to-sisu")}
+              </Link>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {answer !== null && (
-        <Disclosure title={t("changed-email-since-completing-course-disclosure-title")}>
-          <Trans
-            t={t}
-            i18nKey="changed-email-since-completing-course-disclosure-body"
-            values={{ email: data.email }}
-          />
-        </Disclosure>
-      )}
+        {answer === "no" && (
+          <div className={cx(sectionCss, dividedCss, instructionsCss)}>
+            <Infobox className={infoboxCss} announce>
+              <Trans
+                t={t}
+                i18nKey="use-this-email-on-enrollment-form-or-credits-wont-register"
+                values={{ email: data.email }}
+              />
+            </Infobox>
+            <p>
+              <Trans
+                t={t}
+                i18nKey="open-university-credits-registered-through-ou-explanation"
+                values={{ email: data.email }}
+                components={{ openUniversityInfoLink }}
+              />
+            </p>
+            <p>
+              <Trans
+                t={t}
+                i18nKey="credits-registered-within-few-days-and-my-studyinfo-pointer"
+                values={{ url: MY_STUDYINFO }}
+                components={{ myStudyInfoLink }}
+              />
+            </p>
+            <div className={callToActionCss}>
+              <Link href={registrationFormUrl} styledAsButton variant="primary" size="large">
+                {t("to-the-registration-form")}
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {answer !== null && (
+          <Disclosure
+            className={disclosureCss}
+            title={t("changed-email-since-completing-course-disclosure-title")}
+          >
+            <Trans
+              t={t}
+              i18nKey="changed-email-since-completing-course-disclosure-body"
+              values={{ email: data.email }}
+            />
+          </Disclosure>
+        )}
+      </div>
     </div>
   )
 }

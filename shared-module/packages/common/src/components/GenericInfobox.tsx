@@ -9,11 +9,12 @@ const GenericInfobox: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <div
       className={css`
-        padding: 0.7rem 1rem;
-        border: 2px solid ${baseTheme.colors.blue[400]};
+        padding: 0.875rem 1rem;
+        border: 1px solid ${baseTheme.colors.blue[200]};
         border-radius: 8px;
+        background: ${baseTheme.colors.blue[50]};
         display: flex;
-        align-items: center;
+        align-items: flex-start;
 
         overflow-x: auto;
       `}
@@ -21,6 +22,7 @@ const GenericInfobox: React.FC<React.PropsWithChildren> = ({ children }) => {
       <InfoCircle
         className={css`
           color: ${baseTheme.colors.blue[500]};
+          flex: none;
           margin-right: 0.5rem;
         `}
       />

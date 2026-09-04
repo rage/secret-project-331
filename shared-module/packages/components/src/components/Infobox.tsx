@@ -19,21 +19,24 @@ export interface InfoboxProps {
 // Metrics match `common`'s GenericInfobox: the two appear side by side on many pages.
 const rootCss = css`
   display: flex;
-  align-items: center;
+  /* Anchors the icon to the first line; centring strands it beside the middle of a long body. */
+  align-items: flex-start;
   gap: var(--space-3);
-  padding: 0.7rem 1rem;
-  border: 2px solid transparent;
+  padding: 0.875rem 1rem;
+  border: 1px solid transparent;
   border-radius: 8px;
   overflow-x: auto;
 `
 
 const toneCss: Record<InfoboxTone, string> = {
   info: css`
-    border-color: var(--color-blue-400);
+    border-color: var(--color-blue-200);
+    background: var(--color-blue-50);
   `,
   // Red rather than yellow: the yellow ramp is not contrast-safe here, same as in Badge.
   warning: css`
-    border-color: var(--color-red-400);
+    border-color: var(--color-red-200);
+    background: var(--color-red-50);
   `,
 }
 

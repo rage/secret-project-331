@@ -14,6 +14,15 @@ const OPEN_UNIVERSITY_ENROLLMENT_INFO_URL =
   "https://www.helsinki.fi/en/admissions-and-education/open-university/enrollment-and-study-fees"
 const MY_STUDYINFO = "https://opintopolku.fi/oma-opintopolku/"
 
+// The link content is provided by the translation string via <Trans>, so these anchors have no
+// static children here.
+const openUniversityInfoLink = (
+  // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
+  <a href={OPEN_UNIVERSITY_ENROLLMENT_INFO_URL} target="_blank" rel="noopener noreferrer" />
+)
+// oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
+const myStudyInfoLink = <a href={MY_STUDYINFO} target="_blank" rel="noopener noreferrer" />
+
 export interface RegisterCompletionProps {
   data: UserCompletionInformation
   registrationFormUrl: string
@@ -104,12 +113,7 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
         <div>
           <p>{t("enroll-through-sisu-to-register-credits")}</p>
           <Infobox>
-            <Trans t={t} i18nKey="sisu-email-matching-explanation">
-              Your credits are matched to you by email address, so your Sisu profile must include{" "}
-              <strong>{{ email: data.email }}</strong>, the address you used on this course. If it
-              is not your primary address in Sisu, add it as a secondary email address in your Sisu
-              settings.
-            </Trans>
+            <Trans t={t} i18nKey="sisu-email-matching-explanation" values={{ email: data.email }} />
           </Infobox>
           <div
             className={css`
@@ -130,36 +134,31 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
       {answer === "no" && (
         <div>
           <Infobox>
-            <Trans t={t} i18nKey="use-this-email-on-enrollment-form-or-credits-wont-register">
-              Use this email address on the enrollment form:{" "}
-              <strong>{{ email: data.email }}</strong>. If you use a different address, we cannot
-              match your enrollment to your completion and your credits will not be registered.
-            </Trans>
+            <Trans
+              t={t}
+              i18nKey="use-this-email-on-enrollment-form-or-credits-wont-register"
+              values={{ email: data.email }}
+            />
           </Infobox>
           <p
             className={css`
               margin: 1.5rem 0;
             `}
           >
-            <Trans t={t} i18nKey="open-university-credits-registered-through-ou-explanation">
-              Credits for this course are registered through the Open University of the University
-              of Helsinki. Fill in the Open University enrollment form. Use{" "}
-              <strong>{{ email: data.email }}</strong> as your email address there. Enrollment
-              requires strong authentication, see the{" "}
-              <a href={OPEN_UNIVERSITY_ENROLLMENT_INFO_URL}>
-                {t("open-university-enrollment-page-link-text")}
-              </a>{" "}
-              for details.
-            </Trans>
+            <Trans
+              t={t}
+              i18nKey="open-university-credits-registered-through-ou-explanation"
+              values={{ email: data.email }}
+              components={{ openUniversityInfoLink }}
+            />
           </p>
           <p>
-            <Trans t={t} i18nKey="credits-registered-within-few-days-and-my-studyinfo-pointer">
-              Your credits will be registered in the University of Helsinki&apos;s study register
-              within a few days. After your completion has been registered, you can view it in the{" "}
-              <strong>My StudyInfo</strong> service:{" "}
-              <a href={MY_STUDYINFO}>{{ url: MY_STUDYINFO }}</a> Note that there is some delay
-              before a registered completion becomes visible in My StudyInfo.
-            </Trans>
+            <Trans
+              t={t}
+              i18nKey="credits-registered-within-few-days-and-my-studyinfo-pointer"
+              values={{ url: MY_STUDYINFO }}
+              components={{ myStudyInfoLink }}
+            />
           </p>
           <div
             className={css`
@@ -184,13 +183,11 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
           `}
         >
           <Disclosure title={t("changed-email-since-completing-course-disclosure-title")}>
-            <Trans t={t} i18nKey="changed-email-since-completing-course-disclosure-body">
-              The email address shown on this page, <strong>{{ email: data.email }}</strong>, is the
-              one you were using on the platform when you completed this course. Registration only
-              recognizes that address. Even if you have since changed your email address here, you
-              must use <strong>{{ email: data.email }}</strong> for this registration. If you use a
-              different address, you will not get your credits.
-            </Trans>
+            <Trans
+              t={t}
+              i18nKey="changed-email-since-completing-course-disclosure-body"
+              values={{ email: data.email }}
+            />
           </Disclosure>
         </div>
       )}

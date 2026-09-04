@@ -5,7 +5,7 @@ import React, { useId, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import type { UserCompletionInformation } from "@/generated/api/types.generated"
-import { typography } from "@/shared-module/common/styles"
+import { monospaceFont, typography } from "@/shared-module/common/styles"
 import { Button, Disclosure, Infobox, Link } from "@/shared-module/components"
 
 const SISU_URL = "https://sisu.helsinki.fi/student/frontpage"
@@ -140,15 +140,20 @@ const instructionsCss = css`
 `
 
 /**
- * Softened into a note that sits inside the card: the stock two pixel outline competes with the
- * card's own edge. Doubled selector to outsource the specificity fight with the component's own
- * tone class.
+ * The address is the one thing that has to be transcribed exactly, so it gets set apart from the
+ * sentence it sits in. Monospace makes O/0 and l/1 tellable apart. Only the address is emphasised
+ * inside these notices, so matching `strong` is enough.
  */
 const infoboxCss = css`
-  && {
-    align-items: flex-start;
-    border-width: 1px;
-    background: var(--color-blue-50);
+  && strong {
+    padding: 0.1em 0.28em;
+    border-radius: 4px;
+    background: var(--color-clear-50);
+    color: var(--color-gray-700);
+    font-family: ${monospaceFont};
+    font-size: 0.92em;
+    font-weight: 700;
+    overflow-wrap: anywhere;
   }
 `
 

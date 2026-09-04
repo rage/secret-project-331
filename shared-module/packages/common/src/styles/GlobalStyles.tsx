@@ -6,7 +6,8 @@ import { headingFont, monospaceFont, primaryFont, typography } from "."
 import { defaultFontSizePx, linkWithExtraIconClass } from "./constants"
 import cssReset from "./cssReset"
 
-import "@fontsource/space-mono/400.css"
+import "@fontsource/commit-mono/400.css"
+import "@fontsource/commit-mono/700.css"
 import "@fontsource/inter/400.css"
 import "@fontsource-variable/inter/wght.css"
 
@@ -53,8 +54,11 @@ const globalCss = css`
   kbd,
   tt {
     font-family: ${monospaceFont};
-    font-variant-ligatures: none;
-    font-feature-settings: "liga" 0;
+    /* Commit Mono's Smart Kerning is contextual alternates, so it has to stay on while
+       ligatures stay off. font-variant-ligatures: none would disable both. */
+    font-feature-settings:
+      "liga" 0,
+      "calt" 1;
   }
   .screen-reader-only {
     position: absolute;

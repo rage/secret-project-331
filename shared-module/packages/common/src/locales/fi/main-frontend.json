@@ -1120,7 +1120,7 @@
   "credit-registration-teacher-notification-email-sent": "Järjestelmä lähetti sen {{date}}.",
   "credit-will-be-registered-within-six-weeks": "Opintopisteet kirjataan muutaman vuorokauden kuluessa.",
   "credits-n-ects": "Opintopisteet: {{n}} op",
-  "credits-registered-within-few-days-and-my-studyinfo-pointer": "Opintopisteesi kirjataan Helsingin yliopiston opintorekisteriin muutaman päivän kuluessa. Kun suorituksesi on kirjattu, näet sen <strong>Oma Opintopolku</strong> -palvelussa: <myStudyInfoLink>{{url}}</myStudyInfoLink> Huomaa, että kirjaamisen jälkeen kestää jonkin aikaa ennen kuin suoritus näkyy siellä.",
+  "credits-registered-within-few-days-and-my-studyinfo-pointer": "Opintopisteesi kirjataan Helsingin yliopiston opintorekisteriin muutaman päivän kuluessa. Kun suorituksesi on kirjattu, näet sen <strong>Oma Opintopolku</strong> -palvelussa: <myStudyInfoLink>{{url}}</myStudyInfoLink>. Huomaa, että kirjaamisen jälkeen kestää jonkin aikaa ennen kuin suoritus näkyy siellä.",
   "current": "Nykyinen",
   "current-course-description-title": "Tämänhetkinen kuvaus:",
   "current-page-unavailable-in-the-new-language-taking-you-to-the-front-page": "Nykyinen sivu ei ole saatavilla kielellä, johon olet vaihtamassa. Sinut ohjataan kurssin etusivulle.",

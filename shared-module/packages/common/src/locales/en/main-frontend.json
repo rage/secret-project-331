@@ -1241,7 +1241,7 @@
   "credit-registration-teacher-notification-email-send-failed": "Sending failed. The student was not told.",
   "credit-registration-teacher-notification-email-sent": "Sent from our system on {{date}}.",
   "credits-n-ects": "Credits: {{n}} ECTS",
-  "credits-registered-within-few-days-and-my-studyinfo-pointer": "Your credits will be registered in the University of Helsinki's study register within a few days. After your completion has been registered, you can view it in the <strong>My StudyInfo</strong> service: <myStudyInfoLink>{{url}}</myStudyInfoLink> Note that there is some delay before a registered completion becomes visible in My StudyInfo.",
+  "credits-registered-within-few-days-and-my-studyinfo-pointer": "Your credits will be registered in the University of Helsinki's study register within a few days. After your completion has been registered, you can view it in the <strong>My StudyInfo</strong> service: <myStudyInfoLink>{{url}}</myStudyInfoLink>. Note that there is some delay before a registered completion becomes visible in My StudyInfo.",
   "current": "Current",
   "current-course-description-title": "Current description:",
   "current-page-unavailable-in-the-new-language-taking-you-to-the-front-page": "The current page is not available in the language version you are switching to. You will be taken to the front page of the course.",

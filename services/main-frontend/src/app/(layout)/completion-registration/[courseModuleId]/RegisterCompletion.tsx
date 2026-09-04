@@ -10,16 +10,14 @@ import { typography } from "@/shared-module/common/styles"
 import { Button, Disclosure, Infobox } from "@/shared-module/components"
 
 const SISU_URL = "https://sisu.helsinki.fi/student/frontpage"
-const OPEN_UNIVERSITY_ENROLLMENT_INFO_URL =
+// The Open University only publishes this page in Finnish and English; other languages fall
+// back to the English version.
+const OPEN_UNIVERSITY_ENROLLMENT_INFO_URL_FI =
+  "https://www.helsinki.fi/fi/hakeminen-ja-opetus/avoin-yliopisto/ilmoittautuminen-ja-opintomaksut"
+const OPEN_UNIVERSITY_ENROLLMENT_INFO_URL_EN =
   "https://www.helsinki.fi/en/admissions-and-education/open-university/enrollment-and-study-fees"
 const MY_STUDYINFO = "https://opintopolku.fi/oma-opintopolku/"
 
-// The link content is provided by the translation string via <Trans>, so these anchors have no
-// static children here.
-const openUniversityInfoLink = (
-  // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
-  <a href={OPEN_UNIVERSITY_ENROLLMENT_INFO_URL} target="_blank" rel="noopener noreferrer" />
-)
 // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
 const myStudyInfoLink = <a href={MY_STUDYINFO} target="_blank" rel="noopener noreferrer" />
 
@@ -34,8 +32,16 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
   data,
   registrationFormUrl,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [answer, setAnswer] = useState<StudentTypeAnswer>(null)
+
+  const openUniversityEnrollmentInfoUrl = /^fi(?:-|$)/.test(i18n.language)
+    ? OPEN_UNIVERSITY_ENROLLMENT_INFO_URL_FI
+    : OPEN_UNIVERSITY_ENROLLMENT_INFO_URL_EN
+  const openUniversityInfoLink = (
+    // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
+    <a href={openUniversityEnrollmentInfoUrl} target="_blank" rel="noopener noreferrer" />
+  )
 
   return (
     <div>

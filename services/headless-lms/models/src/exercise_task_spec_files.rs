@@ -306,14 +306,15 @@ mod test {
     }
 
     /// Counts every row, soft-deleted ones included, which is what tells churn from a no-op.
+    ///
+    /// Not a `query_scalar!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
     async fn row_count(conn: &mut PgConnection, exercise_task_id: Uuid) -> i64 {
-        sqlx::query_scalar!(
+        sqlx::query_scalar(
             "SELECT COUNT(*) FROM exercise_task_spec_files WHERE exercise_task_id = $1",
-            exercise_task_id
         )
+        .bind(exercise_task_id)
         .fetch_one(conn)
         .await
         .unwrap()
-        .unwrap_or_default()
     }
 }

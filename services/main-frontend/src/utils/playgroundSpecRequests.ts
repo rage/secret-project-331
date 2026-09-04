@@ -50,10 +50,17 @@ export async function fetchDerivedSpec(request: DerivedSpecRequest): Promise<unk
   if (!request.declaresSpecFiles) {
     return body
   }
-  if (typeof body !== "object" || body === null || !("spec" in body) || !("files" in body)) {
+  if (
+    typeof body !== "object" ||
+    body === null ||
+    !("spec" in body) ||
+    !("files" in body) ||
+    !Array.isArray(body.files) ||
+    body.files.some((fileId) => typeof fileId !== "string")
+  ) {
     throw new Error(
       `This service declares spec files, so its ${request.specDescription} response has to be ` +
-        `{ "spec": ..., "files": [...] } rather than the bare spec.`,
+        `{ "spec": ..., "files": ["<file id>", ...] } rather than the bare spec.`,
     )
   }
   return body.spec

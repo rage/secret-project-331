@@ -47,6 +47,12 @@ describe("fetchDerivedSpec", () => {
     await expect(derive(true)).rejects.toThrow("declares spec files")
   })
 
+  it("reports an envelope whose files are not a list of ids", async () => {
+    respondWith({ spec: SPEC, files: null })
+
+    await expect(derive(true)).rejects.toThrow("declares spec files")
+  })
+
   it("reports a failed request by the spec it was deriving", async () => {
     respondWith(SPEC, false)
 

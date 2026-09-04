@@ -32,9 +32,9 @@ pub enum SpecKind {
 /// becomes reapable. Re-declaring a file that is already recorded leaves its row alone, so a save
 /// that changes nothing does not churn the table.
 ///
-/// Fails with `PreconditionFailed` on an id the host has no live upload for, naming it: the caller
-/// is relaying a list an exercise service sent, and a bad id is that service's bug, not a reason to
-/// surface a foreign key violation from a page save.
+/// Fails with `PreconditionFailed` on an id the host has no live upload for, or one the reaper has
+/// already reclaimed, naming it: the caller is relaying a list an exercise service sent, and a bad
+/// id is that service's bug, not a reason to surface a foreign key violation from a page save.
 pub async fn replace_for_exercise_task(
     conn: &mut PgConnection,
     exercise_task_id: Uuid,
@@ -42,6 +42,36 @@ pub async fn replace_for_exercise_task(
     file_upload_ids: &[Uuid],
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
+    // Locks the recorded uploads for the rest of the transaction. Without it a reaper run can read
+    // the reference tables, find nothing, and retire an upload between the check below and the
+    // commit that references it; holding the lock makes it block here and re-read them after.
+    let recorded = sqlx::query!(
+        "
+SELECT file_upload_id,
+  deleted_at
+FROM exercise_spec_uploads
+WHERE file_upload_id = ANY($1)
+FOR UPDATE
+",
+        file_upload_ids
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let reclaimed: Vec<Uuid> = recorded
+        .iter()
+        .filter(|upload| upload.deleted_at.is_some())
+        .map(|upload| upload.file_upload_id)
+        .collect();
+    if !reclaimed.is_empty() {
+        tx.rollback().await?;
+        return Err(model_err!(
+            PreconditionFailed,
+            format!(
+                "An exercise service declared files the reaper has already reclaimed: {}",
+                comma_separated(&reclaimed)
+            )
+        ));
+    }
     let unknown: Vec<Uuid> = sqlx::query_scalar!(
         "
 SELECT declared.file_upload_id
@@ -61,17 +91,13 @@ WHERE NOT EXISTS (
     .flatten()
     .collect();
     if !unknown.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
+        tx.rollback().await?;
+        return Err(model_err!(
+            PreconditionFailed,
             format!(
                 "An exercise service declared files the host has no upload for: {}",
-                unknown
-                    .iter()
-                    .map(|id| id.to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ),
-            None,
+                comma_separated(&unknown)
+            )
         ));
     }
     sqlx::query!(
@@ -113,6 +139,13 @@ WHERE NOT EXISTS (
     .await?;
     tx.commit().await?;
     Ok(())
+}
+
+fn comma_separated(ids: &[Uuid]) -> String {
+    ids.iter()
+        .map(|id| id.to_string())
+        .collect::<Vec<_>>()
+        .join(", ")
 }
 
 /// What each task's spec of the given kind declares, keyed by task. Tasks that declare nothing are
@@ -275,6 +308,37 @@ mod test {
         )
         .await
         .expect_err("an unknown id is the exercise service's bug, reported as such");
+
+        assert!(
+            get_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private)
+                .await
+                .unwrap()
+                .is_empty()
+        );
+    }
+
+    /// The reaper retires the upload before it removes the object, so a declaration that lands in
+    /// that window would reference a file that is about to disappear.
+    #[tokio::test]
+    async fn refuses_a_file_the_reaper_has_already_reclaimed() {
+        insert_data!(:tx, user:_user, :org, course:_course, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:_exercise, slide:_slide, task:task_id);
+        let file_id = insert_file(tx.as_mut(), "reclaimed").await;
+        crate::exercise_spec_uploads::insert_many(tx.as_mut(), "tmc", None, &[file_id])
+            .await
+            .unwrap();
+        let recorded = crate::exercise_spec_uploads::get_by_file_upload_id(tx.as_mut(), file_id)
+            .await
+            .unwrap()
+            .expect("recorded");
+        assert!(
+            crate::exercise_spec_uploads::mark_reaped(tx.as_mut(), recorded.id)
+                .await
+                .unwrap()
+        );
+
+        replace_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private, &[file_id])
+            .await
+            .expect_err("the file's object is already on its way out");
 
         assert!(
             get_for_exercise_task(tx.as_mut(), task_id, SpecKind::Private)

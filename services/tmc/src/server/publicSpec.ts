@@ -77,7 +77,11 @@ async function processPublicSpec(
     tempPaths.push(...paths)
     let publicSpec: PublicSpec
     debug("uploading public spec")
-    const { spec, files, paths: uploadPaths } = await uploadPublicSpec(
+    const {
+      spec,
+      files,
+      paths: uploadPaths,
+    } = await uploadPublicSpec(
       privateSpec.type,
       log,
       debug,

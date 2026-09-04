@@ -148,7 +148,7 @@ const infoboxCss = css`
   && strong {
     padding: 0.1em 0.28em;
     border-radius: 4px;
-    background: var(--color-clear-50);
+    background: var(--color-clear-100);
     color: var(--color-gray-700);
     font-family: ${monospaceFont};
     font-size: 0.92em;

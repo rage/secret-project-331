@@ -26,6 +26,9 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/commit-mono':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@inquirer/prompts':
         specifier: ^8.6.0
         version: 8.6.0(@types/node@26.3.0)
@@ -218,6 +221,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource/commit-mono@5.3.0':
+    resolution: {integrity: sha512-Bs+zlEWHDgk/cCVWEMJJaA7LbBU3Ixi5Zums+SSwMKdm2N7RJ4P7jCJTwsMHRt5WFiXYB0tu0q9HMfkn0YsLsQ==}
 
   '@inquirer/ansi@2.0.7':
     resolution: {integrity: sha512-3eTuUO1vH2cZm2ZKHeQxnOqlTi9EfZDGgIe3BL3I4u+rJHocr9Fz86M4fjYABPvFnQG/gGK551HqDiIcETwU6Q==}
@@ -1168,6 +1174,8 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
+  '@fontsource/commit-mono@5.3.0': {}
+
   '@inquirer/ansi@2.0.7': {}
 
   '@inquirer/checkbox@5.2.2(@types/node@26.3.0)':
@@ -1755,6 +1763,7 @@ snapshots:
       '@yuku-parser/binding-win32-x64': 0.8.0
 
 time:
+  '@fontsource/commit-mono@5.3.0': '2026-07-19T03:48:28.058Z'
   '@inquirer/prompts@8.6.0': '2026-08-19T17:30:36.430Z'
   '@types/node@26.3.0': '2026-08-24T19:42:30.879Z'
   '@typescript/typescript6@6.0.2': '2026-07-06T18:06:47.459Z'

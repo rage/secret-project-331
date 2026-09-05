@@ -1,11 +1,11 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { dividedListCss, noteCss, rowCss } from "@/components/credit-registration/styles"
+import { dividedListCss, noteCss, spacedRowCss } from "@/components/credit-registration/styles"
 import {
   getMyCoursesQueryKey,
   getMyStudiesQueryKey,
@@ -18,13 +18,6 @@ import { Button, Disclosure } from "@/shared-module/components"
 export interface HiddenCoursesSectionProps {
   courses: MyStudiesCourse[]
 }
-
-const itemCss = cx(
-  rowCss,
-  css`
-    justify-content: space-between;
-  `,
-)
 
 const courseNameCss = css`
   font-weight: 500;
@@ -54,7 +47,7 @@ const HiddenCoursesSection: React.FC<HiddenCoursesSectionProps> = ({ courses }) 
       <p className={noteCss}>{t("hidden-courses-are-not-included-in-the-summary")}</p>
       <ul className={dividedListCss}>
         {courses.map((course) => (
-          <li className={itemCss} key={course.course_id}>
+          <li className={spacedRowCss} key={course.course_id}>
             <span className={courseNameCss}>{course.course_name}</span>
             <Button
               variant="secondary"

@@ -15,9 +15,8 @@ import type {
 import { baseTheme } from "@/shared-module/common/styles"
 import { manageCourseOtherCheatersSuspectedRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Badge, Meter, QueryResult } from "@/shared-module/components"
+import { Badge, Meter, MIDDLE_DOT, QueryResult } from "@/shared-module/components"
 
-import { MIDDLE_DOT } from "../lib/displayConstants"
 import { ratioPercent, toHours } from "../lib/durations"
 import { sectionHeadingCss } from "../lib/sectionHeading"
 

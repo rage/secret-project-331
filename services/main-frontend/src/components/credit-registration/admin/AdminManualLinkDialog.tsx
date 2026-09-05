@@ -31,8 +31,6 @@ import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 interface Props {
   open: boolean
   onClose: () => void
-  /** Seeds the lookup field; empty when the dialog is opened without a row to act on. */
-  studentNumber?: string
 }
 
 interface Fields {
@@ -46,11 +44,11 @@ interface Fields {
 const LINKED = "linked"
 
 /** The API enforces the same two gates: the preview must have run, and a reason is required. */
-const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber = "" }) => {
+const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose }) => {
   const { t } = useTranslation()
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
-    student_number: studentNumber,
+    student_number: "",
     user_id: "",
     resending_cannot_work: false,
     reason: "",

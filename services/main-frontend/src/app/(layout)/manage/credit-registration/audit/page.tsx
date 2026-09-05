@@ -25,6 +25,7 @@ import {
 import {
   ABSENT,
   ARROW,
+  ID_PREFIX_LENGTH,
   MIDDLE_DOT,
   QUIET_REFRESH,
   TIME_IN_TITLE,
@@ -39,7 +40,6 @@ import {
   rowCss,
   sectionCss,
   sectionHeaderCss,
-  sectionsCss,
   stackedCellCss,
 } from "@/components/credit-registration/styles"
 import type {
@@ -50,6 +50,7 @@ import type {
 import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
+import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
 import {
   Badge,
   Button,
@@ -61,7 +62,6 @@ import {
 } from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
-const ID_PREFIX_LENGTH = 8
 
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ACTOR_ROLE = "actor_role"
@@ -81,15 +81,6 @@ const ANY = ""
 const OVERRIDE_RATE_CAP: CreditRegistrationAdminAction = "override_rate_cap"
 // oxlint-disable-next-line i18next/no-literal-string
 const REGISTRATION_TARGET: CreditRegistrationAdminActionTarget = "credit_registration"
-
-const CLEARABLE_PARAMS = [
-  PARAM_ACTOR_ROLE,
-  PARAM_ACTION,
-  PARAM_TARGET_KIND,
-  PARAM_COURSE_ID,
-  PARAM_FROM,
-  PARAM_TO,
-]
 
 // Derived from the copy table so a new action can't appear in results without a filter option.
 const ACTIONS = Object.keys(ADMIN_ACTION_KEYS) as CreditRegistrationAdminAction[]
@@ -137,9 +128,7 @@ const dayOf = (instant: string | undefined): string => {
   if (Number.isNaN(local.getTime())) {
     return ""
   }
-  const month = String(local.getMonth() + 1).padStart(2, "0")
-  const day = String(local.getDate()).padStart(2, "0")
-  return `${local.getFullYear()}-${month}-${day}`
+  return formatDateForDateInputs(local) ?? ""
 }
 
 const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
@@ -217,7 +206,7 @@ const AuditPage: React.FC = () => {
     return Array.from(byCourseId, ([value, label]) => ({ value, label }))
   }, [courseStatsQuery.data?.modules])
 
-  const { control, param, reset, applyParams, paginationInfo, query } = useFilteredAdminQuery(
+  const { control, activeFilterCount, clearFilters, paginationInfo, query } = useFilteredAdminQuery(
     FILTER_FIELDS,
     (filters, pagination) => {
       const actorRole = filters.param(PARAM_ACTOR_ROLE)
@@ -245,168 +234,151 @@ const AuditPage: React.FC = () => {
   )
 
   const actionsQuery = useCreditRegistrationAdminActions(query)
-  const activeFilterCount = CLEARABLE_PARAMS.filter((name) => param(name) !== undefined).length
 
   return (
-    <div className={sectionsCss}>
-      <section className={sectionCss}>
-        <div className={sectionHeaderCss}>
-          <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
-          <p className={noteCss}>{t("credit-registration-admin-audit-two-actor-kinds-note")}</p>
+    <section className={sectionCss}>
+      <div className={sectionHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
+        <p className={noteCss}>{t("credit-registration-admin-audit-two-actor-kinds-note")}</p>
+      </div>
+      <form className={controlsCss}>
+        <div className={controlCss}>
+          <Select
+            name="actor_role"
+            control={control}
+            label={t("credit-registration-admin-actor-kind")}
+            options={[
+              { value: ANY, label: t("credit-registration-admin-any-actor-kind") },
+              {
+                value: GLOBAL_ADMIN_ROLE,
+                label: t("credit-registration-admin-actor-global-admin"),
+              },
+              {
+                value: COURSE_TEACHER_ROLE,
+                label: t("credit-registration-admin-actor-course-teacher"),
+              },
+            ]}
+          />
         </div>
-        <form className={controlsCss}>
-          <div className={controlCss}>
-            <Select
-              name="actor_role"
-              control={control}
-              label={t("credit-registration-admin-actor-kind")}
-              options={[
-                { value: ANY, label: t("credit-registration-admin-any-actor-kind") },
-                {
-                  value: GLOBAL_ADMIN_ROLE,
-                  label: t("credit-registration-admin-actor-global-admin"),
-                },
-                {
-                  value: COURSE_TEACHER_ROLE,
-                  label: t("credit-registration-admin-actor-course-teacher"),
-                },
-              ]}
-            />
-          </div>
-          <div className={controlCss}>
-            <Select
-              name="action"
-              control={control}
-              label={t("credit-registration-admin-column-action")}
-              options={[
-                { value: ANY, label: t("credit-registration-admin-any-action") },
-                ...ACTIONS.map((action) => ({
-                  value: action,
-                  label: adminActionLabel(t, action),
-                })),
-              ]}
-            />
-          </div>
-          <div className={controlCss}>
-            <Select
-              name="target_kind"
-              control={control}
-              label={t("credit-registration-admin-column-target")}
-              options={[
-                { value: ANY, label: t("credit-registration-admin-any-target") },
-                ...TARGET_KINDS.map((kind) => ({
-                  value: kind,
-                  label: adminActionTargetLabel(t, kind),
-                })),
-              ]}
-            />
-          </div>
-          <div className={controlCss}>
-            <Select
-              name="course_id"
-              control={control}
-              label={t("label-course")}
-              options={[
-                { value: ANY, label: t("credit-registration-admin-any-course") },
-                ...courseOptions,
-              ]}
-            />
-          </div>
-          <div className={controlCss}>
-            <DateField name="from" control={control} label={t("credit-registration-admin-from")} />
-          </div>
-          <div className={controlCss}>
-            <DateField name="to" control={control} label={t("credit-registration-admin-to")} />
-          </div>
-        </form>
-        {activeFilterCount > 0 && (
-          <div className={rowCss}>
-            <span className={noteCss}>
-              {t("credit-registration-admin-active-filters", { count: activeFilterCount })}
-            </span>
-            <Button
-              variant="tertiary"
-              size="small"
-              onClick={() => {
-                reset({
-                  actor_role: ANY,
-                  action: ANY,
-                  target_kind: ANY,
-                  course_id: ANY,
-                  from: "",
-                  to: "",
-                })
-                applyParams(Object.fromEntries(CLEARABLE_PARAMS.map((name) => [name, undefined])))
-              }}
-            >
-              {t("button-text-clear-filters")}
-            </Button>
-          </div>
-        )}
-        <QueryResult query={actionsQuery} refreshIndicator={QUIET_REFRESH}>
-          {(page) =>
-            page.data.length === 0 ? (
-              <p className={emptyStateCss}>{t("credit-registration-admin-no-matching-actions")}</p>
-            ) : (
-              <>
-                <p className={noteCss}>
-                  {t("credit-registration-admin-action-count", { count: page.total_count })}
-                </p>
-                <Table
-                  caption={t("credit-registration-heading-audit")}
-                  rowKey={(row) => row.id}
-                  rows={page.data}
-                  columns={[
-                    {
-                      header: t("label-time"),
-                      cell: (row) => (
-                        <RelativeTime at={row.created_at} absoluteTime={TIME_IN_TITLE} />
+        <div className={controlCss}>
+          <Select
+            name="action"
+            control={control}
+            label={t("credit-registration-admin-column-action")}
+            options={[
+              { value: ANY, label: t("credit-registration-admin-any-action") },
+              ...ACTIONS.map((action) => ({
+                value: action,
+                label: adminActionLabel(t, action),
+              })),
+            ]}
+          />
+        </div>
+        <div className={controlCss}>
+          <Select
+            name="target_kind"
+            control={control}
+            label={t("credit-registration-admin-column-target")}
+            options={[
+              { value: ANY, label: t("credit-registration-admin-any-target") },
+              ...TARGET_KINDS.map((kind) => ({
+                value: kind,
+                label: adminActionTargetLabel(t, kind),
+              })),
+            ]}
+          />
+        </div>
+        <div className={controlCss}>
+          <Select
+            name="course_id"
+            control={control}
+            label={t("label-course")}
+            options={[
+              { value: ANY, label: t("credit-registration-admin-any-course") },
+              ...courseOptions,
+            ]}
+          />
+        </div>
+        <div className={controlCss}>
+          <DateField name="from" control={control} label={t("credit-registration-admin-from")} />
+        </div>
+        <div className={controlCss}>
+          <DateField name="to" control={control} label={t("credit-registration-admin-to")} />
+        </div>
+      </form>
+      {activeFilterCount > 0 && (
+        <div className={rowCss}>
+          <span className={noteCss}>
+            {t("credit-registration-admin-active-filters", { count: activeFilterCount })}
+          </span>
+          <Button variant="tertiary" size="small" onClick={() => clearFilters()}>
+            {t("button-text-clear-filters")}
+          </Button>
+        </div>
+      )}
+      <QueryResult query={actionsQuery} refreshIndicator={QUIET_REFRESH}>
+        {(page) =>
+          page.data.length === 0 ? (
+            <p className={emptyStateCss}>{t("credit-registration-admin-no-matching-actions")}</p>
+          ) : (
+            <>
+              <p className={noteCss}>
+                {t("credit-registration-admin-action-count", { count: page.total_count })}
+              </p>
+              <Table
+                caption={t("credit-registration-heading-audit")}
+                rowKey={(row) => row.id}
+                rows={page.data}
+                columns={[
+                  {
+                    header: t("label-time"),
+                    cell: (row) => (
+                      <RelativeTime at={row.created_at} absoluteTime={TIME_IN_TITLE} />
+                    ),
+                  },
+                  { header: t("label-actor"), cell: (row) => <ActorCell row={row} /> },
+                  {
+                    header: t("credit-registration-admin-column-action"),
+                    cell: (row) => (
+                      <span className={stackedCellCss}>
+                        <span>{adminActionLabel(t, row.action)}</span>
+                        {/* Teachers cannot override a rate cap, so such a row is a hole, not a record. */}
+                        {row.action === OVERRIDE_RATE_CAP &&
+                          row.actor_role === COURSE_TEACHER_ROLE && (
+                            <Badge tone={TONE.DANGER}>
+                              {t("credit-registration-admin-impossible-action")}
+                            </Badge>
+                          )}
+                      </span>
+                    ),
+                  },
+                  {
+                    header: t("credit-registration-admin-column-target"),
+                    cell: (row) => <TargetCell row={row} />,
+                  },
+                  {
+                    header: t("credit-registration-admin-column-state-change"),
+                    cell: (row) =>
+                      row.before_state === null && row.after_state === null ? (
+                        ABSENT
+                      ) : (
+                        <code>
+                          {[row.before_state, row.after_state].filter(Boolean).join(ARROW)}
+                        </code>
                       ),
-                    },
-                    { header: t("label-actor"), cell: (row) => <ActorCell row={row} /> },
-                    {
-                      header: t("credit-registration-admin-column-action"),
-                      cell: (row) => (
-                        <span className={stackedCellCss}>
-                          <span>{adminActionLabel(t, row.action)}</span>
-                          {/* Teachers cannot override a rate cap, so such a row is a hole, not a record. */}
-                          {row.action === OVERRIDE_RATE_CAP &&
-                            row.actor_role === COURSE_TEACHER_ROLE && (
-                              <Badge tone={TONE.DANGER}>
-                                {t("credit-registration-admin-impossible-action")}
-                              </Badge>
-                            )}
-                        </span>
-                      ),
-                    },
-                    {
-                      header: t("credit-registration-admin-column-target"),
-                      cell: (row) => <TargetCell row={row} />,
-                    },
-                    {
-                      header: t("credit-registration-admin-column-state-change"),
-                      cell: (row) =>
-                        row.before_state === null && row.after_state === null ? (
-                          ABSENT
-                        ) : (
-                          <code>
-                            {[row.before_state, row.after_state].filter(Boolean).join(ARROW)}
-                          </code>
-                        ),
-                    },
-                    {
-                      header: t("label-reason"),
-                      cell: (row) => row.reason ?? ABSENT,
-                    },
-                  ]}
-                />
-                <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
-              </>
-            )
-          }
-        </QueryResult>
-      </section>
-    </div>
+                  },
+                  {
+                    header: t("label-reason"),
+                    cell: (row) => row.reason ?? ABSENT,
+                  },
+                ]}
+              />
+              <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
+            </>
+          )
+        }
+      </QueryResult>
+    </section>
   )
 }
 

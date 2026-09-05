@@ -1,28 +1,19 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { StatTile } from "@/shared-module/components"
+import { StatTile, StatTileList } from "@/shared-module/components"
 
 import { awaitingReviewCount, completedModuleCount } from "../lib/completions"
-import { TONE } from "../lib/displayConstants"
 
 export interface UserStatBarProps {
   enrollments: CourseEnrollmentInfo[]
   /** Fragment id of the completion-review section the "awaiting review" tile links to. */
   reviewTargetId: string
 }
-
-const rowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-`
 
 /** At-a-glance summary of the student's enrolment and review status. */
 const UserStatBar: React.FC<UserStatBarProps> = ({ enrollments, reviewTargetId }) => {
@@ -33,16 +24,16 @@ const UserStatBar: React.FC<UserStatBarProps> = ({ enrollments, reviewTargetId }
   const awaitingReview = awaitingReviewCount(enrollments)
 
   return (
-    <div className={rowCss}>
+    <StatTileList ariaLabel={t("stat-enrolled-courses")}>
       <StatTile label={t("stat-enrolled-courses")} value={enrolled} />
       <StatTile label={t("stat-completions")} value={completions} />
       <StatTile
         label={t("stat-awaiting-review")}
         value={awaitingReview}
-        tone={awaitingReview > 0 ? TONE.ALERT : TONE.NEUTRAL}
+        alertWhenNonZero
         {...includeIf(awaitingReview > 0, { href: `#${reviewTargetId}` })}
       />
-    </div>
+    </StatTileList>
   )
 }
 

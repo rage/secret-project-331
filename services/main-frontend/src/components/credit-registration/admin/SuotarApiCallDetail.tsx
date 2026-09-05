@@ -6,55 +6,33 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import {
-  Button,
-  CopyButton,
-  Dialog,
-  QueryResult,
-  RelativeTime,
-  Table,
-} from "@/shared-module/components"
+import { Button, Dialog, QueryResult, RelativeTime, Table } from "@/shared-module/components"
 
 import { ABSENT, TIME_IN_TITLE } from "../constants"
 import {
   emptyStateCss,
   monospaceCss,
   noteCss,
-  payloadCss,
   sectionCss,
   subheadingCss,
   subsectionCss,
 } from "../styles"
 import { eventKindLabel } from "./adminCreditRegistrationCopy"
 import AdminStateBadge from "./AdminStateBadge"
+import PayloadBlock from "./PayloadBlock"
 
 interface Props {
   suotarApiCallId: string
 }
 
-const JSON_INDENT = 2
-
-const stringify = (body: unknown): string =>
-  body === null || body === undefined ? "" : JSON.stringify(body, null, JSON_INDENT)
-
-const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => {
-  const { t } = useTranslation()
-  const text = stringify(body)
-  return (
-    <div className={subsectionCss}>
-      <h3 className={subheadingCss}>{title}</h3>
-      {text === "" ? (
-        <p className={emptyStateCss}>{t("credit-registration-admin-no-body-stored")}</p>
-      ) : (
-        <>
-          <pre className={payloadCss}>{text}</pre>
-          <CopyButton value={text} label={t("credit-registration-admin-copy-stored-body")} />
-        </>
-      )}
-    </div>
-  )
-}
+const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
+  <div className={subsectionCss}>
+    <h3 className={subheadingCss}>{title}</h3>
+    <PayloadBlock body={body} />
+  </div>
+)
 
 /**
  * The stored request and response of one call, with the ledger rows it carried beside them.
@@ -122,7 +100,7 @@ const SuotarApiCallDetail: React.FC<Props> = ({ suotarApiCallId }) => {
                         },
                         {
                           header: t("label-student"),
-                          cell: (row) => [row.first_name, row.last_name].filter(Boolean).join(" "),
+                          cell: (row) => formatUserName(row),
                         },
                         {
                           header: t("label-email"),

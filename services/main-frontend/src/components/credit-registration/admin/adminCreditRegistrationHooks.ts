@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import {
   getAccountLinkingStatsOptions,
@@ -47,34 +47,39 @@ const HISTORY_REFETCH_INTERVAL_MS = 300_000
 /** The shortest window the health endpoint reports. */
 export const HOUR_SECS = 3600
 
-// The global QueryClient sets gcTime/staleTime near zero, so without an opt-in every tab switch
-// refetches everything. Each hook below is fresh until its own refetchInterval is due anyway.
 const GC_TIME_MS = 5 * 60_000
+
+// The global QueryClient sets gcTime/staleTime near zero, so without an opt-in every tab switch
+// refetches everything. A polled query is fresh until its own interval is due anyway.
+const polled = (intervalMs: number) => ({
+  refetchInterval: intervalMs,
+  staleTime: intervalMs,
+  gcTime: GC_TIME_MS,
+})
 
 /** The alert banner and every tab badge share this key with the Overview tiles, so none can disagree. */
 export const useCreditRegistrationOverview = () =>
   useQuery({
     ...getCreditRegistrationOverviewOptions(),
-    refetchInterval: OVERVIEW_REFETCH_INTERVAL_MS,
+    ...polled(OVERVIEW_REFETCH_INTERVAL_MS),
     refetchOnWindowFocus: true,
-    staleTime: OVERVIEW_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
   })
 
 export const useSuotarHealth = () =>
   useQuery({
     ...getSuotarHealthOptions(),
-    refetchInterval: OVERVIEW_REFETCH_INTERVAL_MS,
-    staleTime: OVERVIEW_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(OVERVIEW_REFETCH_INTERVAL_MS),
   })
 
+/**
+ * The call log for the filters currently in the URL. The caller-filter options come off this
+ * response, so the previous page is kept while a new filter key loads rather than blanking both.
+ */
 export const useSuotarApiCalls = (query: NonNullable<ListSuotarApiCallsData["query"]>) =>
   useQuery({
     ...listSuotarApiCallsOptions({ query }),
-    refetchInterval: CALL_LOG_REFETCH_INTERVAL_MS,
-    staleTime: CALL_LOG_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(CALL_LOG_REFETCH_INTERVAL_MS),
+    placeholderData: keepPreviousData,
   })
 
 export const useAdminCreditRegistrations = (
@@ -103,9 +108,7 @@ export const useAdminCreditRegistration = (creditRegistrationId: string) =>
 export const useAccountLinkingStats = (windowDays: number) =>
   useQuery({
     ...getAccountLinkingStatsOptions({ query: { window_days: windowDays } }),
-    refetchInterval: LIST_REFETCH_INTERVAL_MS,
-    staleTime: LIST_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(LIST_REFETCH_INTERVAL_MS),
   })
 
 export const useAdminVerifiedStudentNumbers = (
@@ -113,17 +116,13 @@ export const useAdminVerifiedStudentNumbers = (
 ) =>
   useQuery({
     ...listVerifiedStudentNumbersForAdminOptions({ query }),
-    refetchInterval: LIST_REFETCH_INTERVAL_MS,
-    staleTime: LIST_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(LIST_REFETCH_INTERVAL_MS),
   })
 
 export const useCreditRegistrationPhases = () =>
   useQuery({
     ...listCreditRegistrationPhasesOptions(),
-    refetchInterval: PHASE_REFETCH_INTERVAL_MS,
-    staleTime: PHASE_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(PHASE_REFETCH_INTERVAL_MS),
   })
 
 /** The thresholds the detectors and the alert rules share, so the page never states a number of its own. */
@@ -137,9 +136,7 @@ export const useCreditRegistrationThresholds = () =>
 export const useCreditRegistrationAttentionItems = () =>
   useQuery({
     ...getCreditRegistrationAttentionItemsOptions(),
-    refetchInterval: ATTENTION_REFETCH_INTERVAL_MS,
-    staleTime: ATTENTION_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(ATTENTION_REFETCH_INTERVAL_MS),
   })
 
 export const useInvalidateAttentionItems = () => {
@@ -151,20 +148,6 @@ export const useInvalidateAttentionItems = () => {
       queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
     ])
 }
-
-/**
- * The distinct `worker_name` values in the whole call log, for the caller filter.
- *
- * Its own unfiltered query on purpose: the call-log page's own result carries the same list, but
- * every filter change gives it a new query key, and the options would empty out while that loads.
- */
-export const useSuotarWorkerNames = () =>
-  useQuery({
-    ...listSuotarApiCallsOptions({ query: { page: 1, limit: 1 } }),
-    staleTime: GC_TIME_MS,
-    gcTime: GC_TIME_MS,
-    select: (page) => page.worker_names,
-  })
 
 const alertTotal = (
   overview: CreditRegistrationOverview,
@@ -197,9 +180,7 @@ const selectUnhealthyPhases = (overview: CreditRegistrationOverview) =>
 const useOverviewCount = (select: (overview: CreditRegistrationOverview) => number) =>
   useQuery({
     ...getCreditRegistrationOverviewOptions(),
-    refetchInterval: OVERVIEW_REFETCH_INTERVAL_MS,
-    staleTime: OVERVIEW_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(OVERVIEW_REFETCH_INTERVAL_MS),
     select,
   })
 
@@ -217,18 +198,14 @@ export const useCreditRegistrationUnhealthyPhaseCount = () =>
 export const useCreditRegistrationErrorsByCode = (windowSecs: number) =>
   useQuery({
     ...getCreditRegistrationErrorsByCodeOptions({ query: { window_secs: windowSecs } }),
-    refetchInterval: ATTENTION_REFETCH_INTERVAL_MS,
-    staleTime: ATTENTION_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(ATTENTION_REFETCH_INTERVAL_MS),
   })
 
 /** A once-a-day series, so there is nothing to gain from polling it briskly. */
 export const useCreditRegistrationPipelineHistory = (days: number) =>
   useQuery({
     ...getCreditRegistrationPipelineHistoryOptions({ query: { days } }),
-    refetchInterval: HISTORY_REFETCH_INTERVAL_MS,
-    staleTime: HISTORY_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(HISTORY_REFETCH_INTERVAL_MS),
   })
 
 export const useCreditRegistrationAdminActions = (
@@ -236,18 +213,14 @@ export const useCreditRegistrationAdminActions = (
 ) =>
   useQuery({
     ...listCreditRegistrationAdminActionsOptions({ query }),
-    refetchInterval: LIST_REFETCH_INTERVAL_MS,
-    staleTime: LIST_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(LIST_REFETCH_INTERVAL_MS),
   })
 
 /** Heavier queries over absences rather than rows, and slow-moving with it. */
 export const useCreditRegistrationReconciliation = () =>
   useQuery({
     ...getCreditRegistrationReconciliationOptions(),
-    refetchInterval: RECONCILIATION_REFETCH_INTERVAL_MS,
-    staleTime: RECONCILIATION_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(RECONCILIATION_REFETCH_INTERVAL_MS),
   })
 
 export const useInvalidateReconciliation = () => {
@@ -259,9 +232,7 @@ export const useInvalidateReconciliation = () => {
 export const useCreditRegistrationCourseStats = () =>
   useQuery({
     ...getCreditRegistrationStatsByCourseOptions(),
-    refetchInterval: LIST_REFETCH_INTERVAL_MS,
-    staleTime: LIST_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
+    ...polled(LIST_REFETCH_INTERVAL_MS),
   })
 
 export const useInvalidateCourseStats = () => {

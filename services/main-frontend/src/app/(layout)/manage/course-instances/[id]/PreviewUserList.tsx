@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next"
 import type { ManualCompletionPreviewUser } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
+import { FAIL_GRADE_VALUE, PASS_GRADE_VALUE } from "./completions/completionsRows"
+
 export interface PreviewUserListProps {
   users: ManualCompletionPreviewUser[]
 }
@@ -137,10 +139,10 @@ function formatGrade(grade: number | null | undefined, t: TFunction): string {
   if (grade === null || grade === undefined) {
     return "-"
   }
-  if (grade === -1) {
+  if (grade === FAIL_GRADE_VALUE) {
     return t("label-not-passed")
   }
-  if (grade === 0.5) {
+  if (grade === PASS_GRADE_VALUE) {
     return t("label-passed")
   }
   return grade.toString()

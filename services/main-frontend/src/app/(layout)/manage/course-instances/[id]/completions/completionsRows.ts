@@ -1,10 +1,10 @@
 import type { SortingState } from "@tanstack/react-table"
 
+import { registrationNeedsAttention } from "@/components/credit-registration/creditRegistrationCopy"
 import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
 import { creditRegistrationKey } from "@/components/credit-registration/teacherCreditRegistrations"
 import type {
   CourseModuleCompletionWithRegistrationInfo,
-  StudentFacingCreditRegistrationStatus,
   UserWithModuleCompletions,
 } from "@/generated/api/types.generated"
 
@@ -14,6 +14,10 @@ export interface CompletionsRow {
   firstName: string | null
   lastName: string | null
   email: string
+  /** Lowercased name, email and id; the search filter scans every student on every keystroke. */
+  searchText: string
+  /** What the student column sorts on: "Last First", or the email when neither name is known. */
+  sortableName: string
   moduleCompletions: Map<string, CourseModuleCompletionWithRegistrationInfo[]>
 }
 
@@ -40,12 +44,8 @@ export const PREREQUISITE_MARK = "*"
 
 export const PREREQUISITE_FOOTNOTE_PREFIX = `${PREREQUISITE_MARK}: `
 
-/** Registration stages a teacher or their student can still do something about. */
-const NEEDS_ATTENTION_STATUSES: ReadonlySet<StudentFacingCreditRegistrationStatus> = new Set([
-  "failed",
-  "needs_student_number",
-  "needs_enrolment",
-])
+/** The student column's sort key; every other `sorting[0].id` is a course module id. */
+export const STUDENT_COLUMN_ID = "student"
 
 const EMPTY_SUMMARY: ModuleCompletionSummary = { latest: null, attempts: 0 }
 
@@ -58,13 +58,21 @@ export const toCompletionsRows = (users: UserWithModuleCompletions[]): Completio
       moduleCompletions.set(completion.course_module_id, bucket)
     }
     for (const completions of moduleCompletions.values()) {
-      completions.sort((a, b) => a.created_at.localeCompare(b.created_at))
+      // ISO 8601 timestamps compare lexicographically; collation would only cost more.
+      completions.sort((a, b) =>
+        a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0,
+      )
     }
+    const firstName = user.first_name ?? null
+    const lastName = user.last_name ?? null
     return {
       userId: user.user_id,
-      firstName: user.first_name ?? null,
-      lastName: user.last_name ?? null,
+      firstName,
+      lastName,
       email: user.email,
+      searchText:
+        `${firstName ?? ""} ${lastName ?? ""} ${user.email} ${user.user_id}`.toLowerCase(),
+      sortableName: `${lastName ?? ""} ${firstName ?? ""}`.trim() || user.email,
       moduleCompletions,
     }
   })
@@ -75,25 +83,23 @@ export const moduleSummaryOf = (row: CompletionsRow, moduleId: string): ModuleCo
   return latest ? { latest, attempts: completions?.length ?? 1 } : EMPTY_SUMMARY
 }
 
-const sortableName = (row: CompletionsRow): string =>
-  `${row.lastName ?? ""} ${row.firstName ?? ""}`.trim() || row.email
+/** Where a pass and a fail with no numeric grade sit on the scale numeric grades sort on. */
+export const PASS_GRADE_VALUE = 0.5
+export const FAIL_GRADE_VALUE = -1
+/** Below every attempt: the student has no completion for the module at all. */
+const NO_COMPLETION_VALUE = -2
 
-/** Ranks a module's newest attempt so that "no completion" sorts below a fail. */
-const gradeRank = (summary: ModuleCompletionSummary): number => {
-  if (summary.latest === null) {
-    return -2
-  }
-  const grade = summary.latest.grade
-  if (grade !== null && grade !== undefined) {
-    return grade
-  }
-  return summary.latest.passed ? 0.5 : -1
-}
+/**
+ * One completion's place on the grade order, shared by the column sorter and the manual-completion
+ * preview's "previous best grade".
+ */
+export const gradeSortValue = (grade: number | null | undefined, passed: boolean): number =>
+  grade ?? (passed ? PASS_GRADE_VALUE : FAIL_GRADE_VALUE)
 
-const matchesSearch = (row: CompletionsRow, needle: string): boolean =>
-  `${row.firstName ?? ""} ${row.lastName ?? ""} ${row.email} ${row.userId}`
-    .toLowerCase()
-    .includes(needle)
+const gradeRank = (summary: ModuleCompletionSummary): number =>
+  summary.latest === null
+    ? NO_COMPLETION_VALUE
+    : gradeSortValue(summary.latest.grade, summary.latest.passed)
 
 const needsAttention = (
   row: CompletionsRow,
@@ -103,7 +109,7 @@ const needsAttention = (
   moduleIds.some((moduleId) => {
     const registration = creditRegistrations.get(creditRegistrationKey(row.userId, moduleId))
     return (
-      registration !== undefined && NEEDS_ATTENTION_STATUSES.has(registration.student_facing_status)
+      registration !== undefined && registrationNeedsAttention(registration.student_facing_status)
     )
   })
 
@@ -123,7 +129,7 @@ export const filterCompletionsRows = (
 ): CompletionsRow[] => {
   const needle = search.trim().toLowerCase()
   return rows.filter((row) => {
-    if (needle !== "" && !matchesSearch(row, needle)) {
+    if (needle !== "" && !row.searchText.includes(needle)) {
       return false
     }
     if (view === "needs_attention") {
@@ -139,14 +145,12 @@ export const filterCompletionsRows = (
   })
 }
 
-/**
- * Sorted here rather than by the server: the endpoint hands back the whole instance at once.
- * `sorting[0].id` is either `studentColumnId` or a course module id.
- */
+const nameCollator = new Intl.Collator()
+
+/** Sorted here rather than by the server: the endpoint hands back the whole instance at once. */
 export const sortCompletionsRows = (
   rows: CompletionsRow[],
   sorting: SortingState,
-  studentColumnId: string,
 ): CompletionsRow[] => {
   const sort = sorting[0]
   if (!sort) {
@@ -154,8 +158,9 @@ export const sortCompletionsRows = (
   }
   const direction = sort.desc ? -1 : 1
   const compare =
-    sort.id === studentColumnId
-      ? (a: CompletionsRow, b: CompletionsRow) => sortableName(a).localeCompare(sortableName(b))
+    sort.id === STUDENT_COLUMN_ID
+      ? (a: CompletionsRow, b: CompletionsRow) =>
+          nameCollator.compare(a.sortableName, b.sortableName)
       : (a: CompletionsRow, b: CompletionsRow) =>
           gradeRank(moduleSummaryOf(a, sort.id)) - gradeRank(moduleSummaryOf(b, sort.id))
   return rows.toSorted((a, b) => direction * compare(a, b))

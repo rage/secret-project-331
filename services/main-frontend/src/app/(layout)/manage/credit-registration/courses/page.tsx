@@ -8,12 +8,14 @@ import { useTranslation } from "react-i18next"
 import AccountLinkingSection from "@/components/credit-registration/admin/AccountLinkingSection"
 import AdminCourseModulePauseButton from "@/components/credit-registration/admin/AdminCourseModulePauseButton"
 import { useCreditRegistrationCourseStats } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import type { CourseModuleStatus } from "@/components/credit-registration/admin/courseModuleStatus"
 import {
   backfillGap,
   courseModuleStatus,
+  courseModuleStatusLabel,
+  courseModuleStatusTone,
   failureRatePercent,
 } from "@/components/credit-registration/admin/courseModuleStatus"
+import { formatPercent } from "@/components/credit-registration/admin/percent"
 import {
   ALIGN_END,
   MIDDLE_DOT,
@@ -30,7 +32,6 @@ import {
   noteCss,
   rowCss,
   sectionCss,
-  sectionsCss,
   stackedCellCss,
 } from "@/components/credit-registration/styles"
 import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
@@ -39,7 +40,6 @@ import {
   creditRegistrationRegistrationsRoute,
   manageCourseModulesRoute,
 } from "@/shared-module/common/utils/routes"
-import type { BadgeTone } from "@/shared-module/components"
 import {
   Badge,
   Button,
@@ -65,23 +65,18 @@ const SORT_FAILURES = "failures"
 // oxlint-disable-next-line i18next/no-literal-string
 const SORT_BACKFILL = "backfill"
 
-const STATUS_KEYS = {
-  broken_config: "credit-registration-admin-status-broken-config",
-  paused: "credit-registration-admin-module-paused",
-  double_registering: "credit-registration-admin-old-flow-also-enabled",
-  failing: "credit-registration-admin-status-failing",
-  unchecked: "credit-registration-admin-never-config-checked",
-  ok: "credit-registration-admin-status-ok",
-} as const satisfies Record<CourseModuleStatus, string>
+type CourseComparator = (
+  a: CreditRegistrationCourseStats,
+  b: CreditRegistrationCourseStats,
+) => number
 
-const STATUS_TONES = {
-  broken_config: TONE.DANGER,
-  paused: TONE.NEUTRAL,
-  double_registering: TONE.DANGER,
-  failing: TONE.DANGER,
-  unchecked: TONE.NEUTRAL,
-  ok: TONE.SUCCESS,
-} as const satisfies Record<CourseModuleStatus, BadgeTone>
+const byCourseName: CourseComparator = (a, b) => a.course_name.localeCompare(b.course_name)
+
+const SORT_COMPARATORS: Record<string, CourseComparator> = {
+  [SORT_NAME]: byCourseName,
+  [SORT_FAILURES]: (a, b) => (failureRatePercent(b) ?? -1) - (failureRatePercent(a) ?? -1),
+  [SORT_BACKFILL]: (a, b) => backfillGap(b) - backfillGap(a),
+}
 
 interface ViewFields {
   sort: string
@@ -170,15 +165,7 @@ const CourseSection: React.FC = () => {
           const shown = stats.modules.filter(
             (module) => !problemsOnly || courseModuleStatus(module) !== "ok",
           )
-          const modules = shown.toSorted((a, b) => {
-            if (sort === SORT_FAILURES) {
-              return (failureRatePercent(b) ?? -1) - (failureRatePercent(a) ?? -1)
-            }
-            if (sort === SORT_BACKFILL) {
-              return backfillGap(b) - backfillGap(a)
-            }
-            return a.course_name.localeCompare(b.course_name)
-          })
+          const modules = shown.toSorted(SORT_COMPARATORS[sort] ?? byCourseName)
           return (
             <>
               <div className={controlsCss}>
@@ -214,7 +201,7 @@ const CourseSection: React.FC = () => {
                 <StatTile
                   label={t("credit-registration-admin-modules-misconfigured")}
                   value={stats.misconfigured_count}
-                  {...includeIf(stats.misconfigured_count > 0, { tone: TONE.ALERT })}
+                  alertWhenNonZero
                 />
                 <StatTile
                   label={t("credit-registration-admin-modules-paused")}
@@ -253,10 +240,10 @@ const CourseSection: React.FC = () => {
                         return (
                           <span className={rowCss}>
                             <Badge
-                              tone={STATUS_TONES[status]}
+                              tone={courseModuleStatusTone(status)}
                               {...includeIf(row.pause_reason, { title: row.pause_reason })}
                             >
-                              {t(STATUS_KEYS[status])}
+                              {courseModuleStatusLabel(t, status)}
                             </Badge>
                             {status !== "ok" && <ConfigDetail module={row} />}
                           </span>
@@ -280,7 +267,7 @@ const CourseSection: React.FC = () => {
                         const rate = failureRatePercent(row)
                         return rate === null
                           ? row.failed_count
-                          : `${row.failed_count} (${Math.round(rate)} %)`
+                          : `${row.failed_count} (${formatPercent(rate)})`
                       },
                     },
                     {
@@ -326,10 +313,10 @@ const CourseSection: React.FC = () => {
 
 /** Which courses register credits, and how their students get a student number onto an account. */
 const CoursesPage: React.FC = () => (
-  <div className={sectionsCss}>
+  <>
     <CourseSection />
     <AccountLinkingSection />
-  </div>
+  </>
 )
 
 export default CoursesPage

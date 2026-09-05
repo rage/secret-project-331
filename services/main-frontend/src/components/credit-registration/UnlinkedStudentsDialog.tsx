@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import React, { useMemo, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -47,17 +47,6 @@ const UnlinkedStudentsDialog: React.FC<Props> = ({ courseId, open, onClose }) =>
     enabled: open,
   })
 
-  const unlinked = useMemo(
-    () =>
-      (listQuery.data?.data ?? []).filter(
-        (row) => row.student_facing_status === NEEDS_STUDENT_NUMBER,
-      ),
-    [listQuery.data],
-  )
-  const totalPages = Math.max(Math.ceil(unlinked.length / ROWS_PER_PAGE), 1)
-  const currentPage = Math.min(page, totalPages)
-  const shown = unlinked.slice((currentPage - 1) * ROWS_PER_PAGE, currentPage * ROWS_PER_PAGE)
-
   return (
     <Dialog
       open={open}
@@ -66,69 +55,80 @@ const UnlinkedStudentsDialog: React.FC<Props> = ({ courseId, open, onClose }) =>
       size="wide"
     >
       <QueryResult query={listQuery}>
-        {(list) => (
-          <>
-            {list.total_pages > 1 && (
-              <p className={noteCss}>
-                {t("credit-registration-unlinked-students-capped", { max: PENDING_ROWS_FETCHED })}
-              </p>
-            )}
-            {unlinked.length === 0 ? (
-              <p className={noteCss}>{t("credit-registration-no-unlinked-students")}</p>
-            ) : (
-              <>
-                <Table
-                  caption={t("label-credit-registration-unlinked-enrolled-students")}
-                  rowKey={(row) => row.id}
-                  rows={shown}
-                  columns={[
-                    {
-                      header: t("label-student"),
-                      cell: (row) => (
-                        <span className={stackedCellCss}>
-                          <span>{studentName(row) || ABSENT}</span>
-                          <span className={noteCss}>{row.email}</span>
-                        </span>
-                      ),
-                    },
-                    {
-                      header: t("label-student-number"),
-                      cell: (row) =>
-                        row.student_number ? (
-                          <span className={monospaceCss}>{row.student_number}</span>
-                        ) : (
-                          ABSENT
+        {(list) => {
+          const unlinked = list.data.filter(
+            (row) => row.student_facing_status === NEEDS_STUDENT_NUMBER,
+          )
+          const totalPages = Math.max(Math.ceil(unlinked.length / ROWS_PER_PAGE), 1)
+          const currentPage = Math.min(page, totalPages)
+          const shown = unlinked.slice(
+            (currentPage - 1) * ROWS_PER_PAGE,
+            currentPage * ROWS_PER_PAGE,
+          )
+          return (
+            <>
+              {list.total_pages > 1 && (
+                <p className={noteCss}>
+                  {t("credit-registration-unlinked-students-capped", { max: PENDING_ROWS_FETCHED })}
+                </p>
+              )}
+              {unlinked.length === 0 ? (
+                <p className={noteCss}>{t("credit-registration-no-unlinked-students")}</p>
+              ) : (
+                <>
+                  <Table
+                    caption={t("label-credit-registration-unlinked-enrolled-students")}
+                    rowKey={(row) => row.id}
+                    rows={shown}
+                    columns={[
+                      {
+                        header: t("label-student"),
+                        cell: (row) => (
+                          <span className={stackedCellCss}>
+                            <span>{studentName(row) || ABSENT}</span>
+                            <span className={noteCss}>{row.email}</span>
+                          </span>
                         ),
-                    },
-                    {
-                      header: t("label-credit-registration-linking-email"),
-                      cell: (row) =>
-                        row.linking_email
-                          ? linkingEmailSentence(
-                              t,
-                              row.linking_email.email_send_status,
-                              row.linking_email.sent_at,
-                              row.linking_email.emailed_to_masked,
-                              i18n.language,
-                            )
-                          : ABSENT,
-                    },
-                  ]}
-                />
-                <Pagination
-                  totalPages={totalPages}
-                  paginationInfo={{
-                    page: currentPage,
-                    setPage,
-                    limit: ROWS_PER_PAGE,
-                    setLimit: () => undefined,
-                  }}
-                  disableItemsPerPage
-                />
-              </>
-            )}
-          </>
-        )}
+                      },
+                      {
+                        header: t("label-student-number"),
+                        cell: (row) =>
+                          row.student_number ? (
+                            <span className={monospaceCss}>{row.student_number}</span>
+                          ) : (
+                            ABSENT
+                          ),
+                      },
+                      {
+                        header: t("label-credit-registration-linking-email"),
+                        cell: (row) =>
+                          row.linking_email
+                            ? linkingEmailSentence(
+                                t,
+                                row.linking_email.email_send_status,
+                                row.linking_email.sent_at,
+                                row.linking_email.emailed_to_masked,
+                                i18n.language,
+                              )
+                            : ABSENT,
+                      },
+                    ]}
+                  />
+                  <Pagination
+                    totalPages={totalPages}
+                    paginationInfo={{
+                      page: currentPage,
+                      setPage,
+                      limit: ROWS_PER_PAGE,
+                      setLimit: () => undefined,
+                    }}
+                    disableItemsPerPage
+                  />
+                </>
+              )}
+            </>
+          )
+        }}
       </QueryResult>
     </Dialog>
   )

@@ -95,6 +95,14 @@ export const rowCss = css`
   align-items: center;
 `
 
+/** A `rowCss` whose ends are pushed apart: a name on the left, its status or action on the right. */
+export const spacedRowCss = cx(
+  rowCss,
+  css`
+    justify-content: space-between;
+  `,
+)
+
 /** The only card: a repeated grid item, or a form that appears on demand. Never a page section. */
 export const cardCss = css`
   display: grid;
@@ -135,6 +143,14 @@ export const dialogFormCss = css`
   display: grid;
   gap: var(--space-4);
 `
+
+/** A `dialogFormCss` whose controls keep their own width instead of stretching to the grid. */
+export const dialogFormStartCss = cx(
+  dialogFormCss,
+  css`
+    justify-items: start;
+  `,
+)
 
 /** Sticky action bar under a table with selectable rows. */
 export const toolbarCss = css`
@@ -198,6 +214,14 @@ export const monospaceCss = css`
   font-family: ${monospaceFont};
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
+`
+
+/** A claimed student number shown as a page's hero value. */
+export const studentNumberCss = css`
+  font-size: var(--font-size-4);
+  font-weight: 600;
+  color: var(--color-gray-700);
+  font-variant-numeric: tabular-nums;
 `
 
 /** A stored request or response body in a `<pre>`. */

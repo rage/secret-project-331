@@ -1,6 +1,6 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -33,15 +33,10 @@ const KEY_COURSES = "courses"
 const KEY_SYSTEM = "system"
 const KEY_AUDIT = "audit"
 
-const shellCss = cx(
-  sectionsCss,
-  css`
-    /* The shared tab list carries its own bottom margin; this grid owns every gap in the shell. */
-    > [role="tablist"] {
-      margin-bottom: 0;
-    }
-  `,
-)
+// The shared tab list carries its own bottom margin; this shell's grid owns every gap instead.
+const flushTabListCss = css`
+  margin-bottom: 0;
+`
 
 const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation()
@@ -99,10 +94,10 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
   )
 
   return (
-    <div className={shellCss}>
+    <div className={sectionsCss}>
       <h1 className={pageTitleCss}>{t("title-credit-registration")}</h1>
       <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
-      <RouteTabList tabs={tabs} />
+      <RouteTabList tabs={tabs} className={flushTabListCss} />
       <CreditRegistrationAlertBanner />
       {children}
     </div>

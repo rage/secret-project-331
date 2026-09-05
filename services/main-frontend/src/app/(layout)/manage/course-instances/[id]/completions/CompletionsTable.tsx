@@ -16,9 +16,13 @@ import type { CourseModule } from "@/generated/api/types.generated"
 
 import { StudentsTable } from "../../../courses/[id]/students/StudentsTable"
 import type { StudentsTableFeatures } from "../../../courses/[id]/students/studentsTableFeatures"
-import { COMPLETIONS_LEAF_MIN_WIDTH } from "../../../courses/[id]/students/studentsTableStyles"
+import {
+  COMPLETIONS_LEAF_MIN_WIDTH,
+  inlineCellCss,
+} from "../../../courses/[id]/students/studentsTableStyles"
+import { STUDENT_PILL_CHROME_PX } from "../../../courses/[id]/students/tabs/StudentPillCell"
 import type { CompletionsRow, ModuleCompletionSummary } from "./completionsRows"
-import { moduleSummaryOf, PREREQUISITE_MARK } from "./completionsRows"
+import { moduleSummaryOf, PREREQUISITE_MARK, STUDENT_COLUMN_ID } from "./completionsRows"
 
 export interface CompletionsTableProps {
   courseId: string | null
@@ -29,26 +33,8 @@ export interface CompletionsTableProps {
   onSortingChange: OnChangeFn<SortingState>
 }
 
-/** Avatar, gap, padding and border of the student pill, none of which text measurement can see. */
-const STUDENT_PILL_CHROME_PX = 50
-
 /** Width of the review badge and the attempt note, which the text measurement cannot see. */
 const GRADE_CHROME_PX = 60
-
-/** The sort key the page's sorter recognises for the student column. */
-export const STUDENT_COLUMN_ID = "student"
-
-// Single line, right-aligned so every row is the same height and grades read as numbers, which is
-// what keeps the virtualized body from shifting as it scrolls.
-const inlineCellCss = css`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: nowrap;
-  min-width: 0;
-  gap: var(--space-2);
-  font-variant-numeric: tabular-nums;
-`
 
 const attemptsCss = css`
   color: var(--color-gray-500);

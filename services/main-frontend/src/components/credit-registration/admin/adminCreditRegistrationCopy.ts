@@ -13,8 +13,9 @@ import type {
   ResendOutcome,
   Retryability,
 } from "@/generated/api/types.generated"
-import type { RegistrationStatusState } from "@/shared-module/components"
+import type { BadgeTone, RegistrationStatusState } from "@/shared-module/components"
 
+import { TONE } from "../constants"
 import { labelFrom, widenedLookup } from "../labelFrom"
 
 export {
@@ -54,10 +55,6 @@ export const stateTone = (
   (pendingReason ? widenedLookup(PENDING_REASON_TONES, pendingReason) : undefined) ??
   widenedLookup(STATE_TONES, state) ??
   "upcoming"
-
-/** The credit exists in the study registry, whoever put it there. */
-export const isSuccessState = (state: CreditRegistrationState): boolean =>
-  state === "registered" || state === "duplicate" || state === "not_improved"
 
 /**
  * `ready_to_submit` as `ready to submit`, for a chart legend or an axis. Deliberately untranslated,
@@ -157,6 +154,18 @@ const RETRYABILITY_UNKNOWN_KEY = "credit-registration-admin-retryability-unknown
 /** What can be done about an error code, which is the difference between waiting and fixing. */
 export const retryabilityLabel = (t: TFunction, retryability: Retryability): string =>
   labelFrom(t, RETRYABILITY_KEYS, retryability, RETRYABILITY_UNKNOWN_KEY)
+
+const RETRYABILITY_TONES = {
+  retryable_transient: TONE.NEUTRAL,
+  verify_only: TONE.NEUTRAL,
+  permanent_needs_student: TONE.WARNING,
+  permanent_needs_admin: TONE.DANGER,
+  permanent_needs_config: TONE.DANGER,
+} as const satisfies Record<Retryability, BadgeTone>
+
+/** The badge tone beside `retryabilityLabel`. */
+export const retryabilityTone = (retryability: Retryability): BadgeTone =>
+  widenedLookup(RETRYABILITY_TONES, retryability) ?? TONE.NEUTRAL
 
 export const ADMIN_ACTION_KEYS = {
   retry_item: "credit-registration-admin-action-retry-item",

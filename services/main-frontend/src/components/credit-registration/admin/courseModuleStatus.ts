@@ -1,4 +1,9 @@
+import type { TFunction } from "i18next"
+
 import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
+import type { BadgeTone } from "@/shared-module/components"
+
+import { TONE } from "../constants"
 
 export type CourseModuleStatus =
   | "broken_config"
@@ -47,3 +52,29 @@ export const courseModuleStatus = (module: CreditRegistrationCourseStats): Cours
   }
   return "ok"
 }
+
+const STATUS_KEYS = {
+  broken_config: "credit-registration-admin-status-broken-config",
+  paused: "credit-registration-admin-module-paused",
+  double_registering: "credit-registration-admin-old-flow-also-enabled",
+  failing: "credit-registration-admin-status-failing",
+  unchecked: "credit-registration-admin-never-config-checked",
+  ok: "credit-registration-admin-status-ok",
+} as const satisfies Record<CourseModuleStatus, string>
+
+const STATUS_TONES = {
+  broken_config: TONE.DANGER,
+  paused: TONE.NEUTRAL,
+  double_registering: TONE.DANGER,
+  failing: TONE.DANGER,
+  unchecked: TONE.NEUTRAL,
+  ok: TONE.SUCCESS,
+} as const satisfies Record<CourseModuleStatus, BadgeTone>
+
+/** The Courses tab's badge text for a module verdict. */
+export const courseModuleStatusLabel = (t: TFunction, status: CourseModuleStatus): string =>
+  t(STATUS_KEYS[status])
+
+/** The Courses tab's badge tone for a module verdict. */
+export const courseModuleStatusTone = (status: CourseModuleStatus): BadgeTone =>
+  STATUS_TONES[status]

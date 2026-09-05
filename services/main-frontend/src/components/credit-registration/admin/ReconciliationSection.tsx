@@ -11,7 +11,7 @@ import type {
   CreditRegistrationReconciliation,
   ReconciliationRegistration,
 } from "@/generated/api/types.generated"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import { formatUserName } from "@/hooks/useUserDetails"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import type { TableColumn } from "@/shared-module/components"
 import {
@@ -33,14 +33,11 @@ interface Props {
   reconciliation: CreditRegistrationReconciliation
 }
 
-const studentName = (row: { first_name?: string | null; last_name?: string | null }): string =>
-  [row.first_name, row.last_name].filter(Boolean).join(" ")
-
 const StudentCell: React.FC<{
   row: { first_name?: string | null; last_name?: string | null; email?: string | null }
 }> = ({ row }) => (
   <span className={stackedCellCss}>
-    <span>{studentName(row)}</span>
+    <span>{formatUserName(row)}</span>
     <span className={noteCss}>{row.email}</span>
   </span>
 )
@@ -52,7 +49,7 @@ const registrationColumns = (t: TFunction): TableColumn<ReconciliationRegistrati
     cell: (row) => (
       <span className={stackedCellCss}>
         <Link href={creditRegistrationItemRoute(row.credit_registration_id)} prefetch={false}>
-          {studentName(row)}
+          {formatUserName(row)}
         </Link>
         <span className={noteCss}>{row.email}</span>
       </span>
@@ -146,7 +143,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
         <StatTile
           label={t("credit-registration-admin-findings")}
           value={reconciliation.finding_count}
-          {...includeIf(reconciliation.finding_count > 0, { tone: TONE.ALERT })}
+          alertWhenNonZero
         />
       </StatTileList>
       <p className={noteCss}>
@@ -229,7 +226,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
                     href={creditRegistrationItemRoute(row.credit_registration_id)}
                     prefetch={false}
                   >
-                    {studentName(row)}
+                    {formatUserName(row)}
                   </Link>
                   <span className={noteCss}>{row.email}</span>
                 </span>

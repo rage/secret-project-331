@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { pageTitleCss } from "@/components/credit-registration/styles"
+import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
 import Tab from "@/components/Tabs/Tab"
 import TabPanel from "@/components/Tabs/TabPanel"
 import Tabs from "@/components/Tabs/Tabs"
@@ -16,13 +16,13 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import { CREDIT_REGISTRATION_TAB, STUDIES_TAB } from "./constants"
 
-const pageCss = css`
-  display: grid;
-  gap: var(--space-4);
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: var(--space-5) var(--space-4);
-`
+// `Centered` pads horizontally only, so the page owns the space above the title.
+const pageCss = cx(
+  sectionsCss,
+  css`
+    padding-block: var(--space-5);
+  `,
+)
 
 /**
  * Reserves the strip's height until `myStudies` says whether the second tab belongs here, so the

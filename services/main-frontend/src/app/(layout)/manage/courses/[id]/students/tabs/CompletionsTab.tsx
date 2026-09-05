@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import type { ColumnDef } from "@tanstack/react-table"
 import type { TFunction } from "i18next"
 import React, { useDeferredValue, useMemo } from "react"
@@ -27,12 +26,9 @@ import {
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
 import type { StudentsTableFeatures } from "../studentsTableFeatures"
-import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
+import { COMPLETIONS_LEAF_MIN_WIDTH, inlineCellCss } from "../studentsTableStyles"
 import { StaleTableWrapper } from "./StaleTableWrapper"
 import { STUDENT_PILL_CHROME_PX, StudentPillCell, studentPillText } from "./StudentPillCell"
-
-/** Stable identity so the column memo does not rebuild on every render before the fetch lands. */
-const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 type CompletionRow = Record<string, unknown> & {
   user_id: string
@@ -109,19 +105,6 @@ const gradeLabel = (grade: unknown, passed: unknown, t: TFunction): string => {
   return ABSENT
 }
 
-// Single line, right-aligned so every row is the same height and grades read as numbers, which is
-// what keeps the virtualized body from shifting as it scrolls.
-const inlineCellClass = css`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: nowrap;
-  min-width: 0;
-  gap: var(--space-2);
-  font-variant-numeric: tabular-nums;
-`
-
 /** Width of the review badge, which the plain-text column measurement cannot see. */
 const NEEDS_REVIEW_BADGE_PX = 44
 
@@ -132,7 +115,7 @@ const GradeCell: React.FC<{
 }> = ({ grade, passed, needsReview }) => {
   const { t } = useTranslation()
   return (
-    <div className={inlineCellClass}>
+    <div className={inlineCellCss}>
       <span>{gradeLabel(grade, passed, t)}</span>
       {needsReview && <CourseModuleCompletionNeedsReviewBadge />}
     </div>
@@ -227,7 +210,7 @@ export const CompletionsTabContent: React.FC = () => {
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
-  const { data: creditRegistrationsData, isAuthorized: canSeeCreditRegistrations } =
+  const { data: creditRegistrations, isAuthorized: canSeeCreditRegistrations } =
     useTeacherCreditRegistrations(courseId, userIds)
 
   // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
@@ -240,7 +223,6 @@ export const CompletionsTabContent: React.FC = () => {
     () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], t),
     [deferredIdentityRows, deferredDetailData, t],
   )
-  const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
   const columns = useMemo(
     () => buildColumns(modulesInOrder, t, creditRegistrations),
     [modulesInOrder, t, creditRegistrations],

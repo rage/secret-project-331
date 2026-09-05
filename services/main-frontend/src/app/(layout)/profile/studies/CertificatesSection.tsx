@@ -1,6 +1,6 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -10,8 +10,8 @@ import {
   dividedListCss,
   headingCss,
   noteCss,
-  rowCss,
   sectionCss,
+  spacedRowCss,
 } from "@/components/credit-registration/styles"
 import { getMyCertificatesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { UserCertificate } from "@/generated/api/types.generated"
@@ -19,13 +19,6 @@ import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Link, QueryResult } from "@/shared-module/components"
-
-const itemCss = cx(
-  rowCss,
-  css`
-    justify-content: space-between;
-  `,
-)
 
 const titleCss = css`
   font-weight: 500;
@@ -59,7 +52,7 @@ export const CertificatesList: React.FC<{ certificates: UserCertificate[] }> = (
       <h2 className={headingCss}>{t("heading-your-certificates")}</h2>
       <ul className={dividedListCss}>
         {certificates.map((certificate) => (
-          <li key={certificate.id} className={itemCss}>
+          <li key={certificate.id} className={spacedRowCss}>
             <div>
               <div className={titleCss}>
                 {certificate.course_module_name ?? certificate.course_name}

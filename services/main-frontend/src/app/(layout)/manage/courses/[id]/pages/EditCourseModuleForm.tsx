@@ -7,8 +7,15 @@ import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { TONE } from "@/components/credit-registration/constants"
-import CreditRegistrationConfigCallout from "@/components/credit-registration/CreditRegistrationConfigCallout"
-import { cardCss, noteCss, subheadingCss } from "@/components/credit-registration/styles"
+import CreditRegistrationConfigCallout, {
+  hasCreditRegistrationConfigProblem,
+} from "@/components/credit-registration/CreditRegistrationConfigCallout"
+import {
+  cardCss,
+  noteCss,
+  subheadingCss,
+  subsectionCss,
+} from "@/components/credit-registration/styles"
 import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
@@ -123,11 +130,6 @@ const realisationRowCss = css`
   border-bottom: 1px solid var(--color-clear-300);
 `
 
-const realisationsCss = css`
-  display: grid;
-  gap: var(--space-3);
-`
-
 // The icon variant's default grey is too faint for an icon-only control on this header.
 const iconButtonCss = css`
   color: var(--color-gray-700);
@@ -234,9 +236,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
     label: chapter.toString(),
   }))
   const savedPath = registrationPathOf(module)
-  const hasConfigProblem =
-    creditRegistrationConfig?.enable_credit_registration_via_suotar === true &&
-    Boolean(creditRegistrationConfig.credit_registration_config_check_message)
+  const hasConfigProblem = hasCreditRegistrationConfigProblem(creditRegistrationConfig)
 
   return (
     <form onSubmit={handleSubmit(onSubmitFormWrapper)} className={cx(cardCss, formCss)}>
@@ -413,7 +413,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                     {realisations.fields.length === 0 ? (
                       <p className={noteCss}>{t("credit-registration-no-realisations")}</p>
                     ) : (
-                      <div className={realisationsCss}>
+                      <div className={subsectionCss}>
                         {realisations.fields.map((field, index) => (
                           <div className={realisationRowCss} key={field.id}>
                             <TextField

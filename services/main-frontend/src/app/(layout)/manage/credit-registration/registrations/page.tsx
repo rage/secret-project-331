@@ -10,7 +10,11 @@ import { useAdminCreditRegistrations } from "@/components/credit-registration/ad
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import { useFilteredAdminQuery } from "@/components/credit-registration/admin/useFilteredAdminQuery"
-import { QUIET_REFRESH, TIME_IN_TITLE } from "@/components/credit-registration/constants"
+import {
+  ID_PREFIX_LENGTH,
+  QUIET_REFRESH,
+  TIME_IN_TITLE,
+} from "@/components/credit-registration/constants"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
   controlCss,
@@ -21,13 +25,13 @@ import {
   noteCss,
   rowCss,
   sectionCss,
-  sectionsCss,
   stackedCellCss,
 } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationErrorCode,
   CreditRegistrationState,
 } from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
@@ -42,7 +46,6 @@ import {
 } from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
-const ID_PREFIX_LENGTH = 8
 
 // Every filter lives in the query string, so links are shareable and the Overview can deep-link in.
 // oxlint-disable-next-line i18next/no-literal-string
@@ -85,8 +88,6 @@ const NARROWING_PARAMS = [
   PARAM_USER_ID,
   PARAM_STUDENT_NUMBER,
 ]
-
-const CLEARABLE_PARAMS = [...NARROWING_PARAMS, PARAM_SEARCH, PARAM_ATTENTION, PARAM_SUPERSEDED]
 
 /** Chip labels for `NARROWING_PARAMS`; the value itself stays untranslated, matching AdminStateBadge. */
 const FILTER_LABEL_KEYS: Record<string, string> = {
@@ -139,38 +140,47 @@ const searchCss = css`
 const RegistrationsPage: React.FC = () => {
   const { t } = useTranslation()
 
-  const { control, watch, reset, handleSubmit, param, params, applyParams, paginationInfo, query } =
-    useFilteredAdminQuery(
-      FILTER_FIELDS,
-      (filters, pagination) => {
-        const states = filters.params(PARAM_STATE) as CreditRegistrationState[]
-        const errorCodes = filters.params(PARAM_ERROR_CODE) as CreditRegistrationErrorCode[]
-        const courseId = filters.param(PARAM_COURSE_ID)
-        const courseModuleId = filters.param(PARAM_COURSE_MODULE_ID)
-        const userId = filters.param(PARAM_USER_ID)
-        const studentNumber = filters.param(PARAM_STUDENT_NUMBER)
-        const search = filters.param(PARAM_SEARCH)
-        const sort = filters.param(PARAM_SORT)
-        return {
-          page: pagination.page,
-          limit: pagination.limit,
-          ...includeIf(states.length > 0, { state: states }),
-          ...includeIf(errorCodes.length > 0, { error_code: errorCodes }),
-          ...includeIf(courseId, { course_id: courseId }),
-          ...includeIf(courseModuleId, { course_module_id: courseModuleId }),
-          ...includeIf(userId, { user_id: userId }),
-          ...includeIf(studentNumber, { student_number: studentNumber }),
-          ...includeIf(filters.param(PARAM_ATTENTION) === TRUE, { needs_admin_attention: true }),
-          ...includeIf(search, { search }),
-          ...includeIf(filters.param(PARAM_SUPERSEDED) === TRUE, { include_superseded: true }),
-          ...includeIf(sort, { sort }),
-        }
-      },
-      {
-        rowsPerPage: ROWS_PER_PAGE,
-        manualDefaults: (filters) => ({ search: filters.param(PARAM_SEARCH) ?? "" }),
-      },
-    )
+  const {
+    control,
+    watch,
+    handleSubmit,
+    param,
+    params,
+    applyParams,
+    clearFilters,
+    paginationInfo,
+    query,
+  } = useFilteredAdminQuery(
+    FILTER_FIELDS,
+    (filters, pagination) => {
+      const states = filters.params(PARAM_STATE) as CreditRegistrationState[]
+      const errorCodes = filters.params(PARAM_ERROR_CODE) as CreditRegistrationErrorCode[]
+      const courseId = filters.param(PARAM_COURSE_ID)
+      const courseModuleId = filters.param(PARAM_COURSE_MODULE_ID)
+      const userId = filters.param(PARAM_USER_ID)
+      const studentNumber = filters.param(PARAM_STUDENT_NUMBER)
+      const search = filters.param(PARAM_SEARCH)
+      const sort = filters.param(PARAM_SORT)
+      return {
+        page: pagination.page,
+        limit: pagination.limit,
+        ...includeIf(states.length > 0, { state: states }),
+        ...includeIf(errorCodes.length > 0, { error_code: errorCodes }),
+        ...includeIf(courseId, { course_id: courseId }),
+        ...includeIf(courseModuleId, { course_module_id: courseModuleId }),
+        ...includeIf(userId, { user_id: userId }),
+        ...includeIf(studentNumber, { student_number: studentNumber }),
+        ...includeIf(filters.param(PARAM_ATTENTION) === TRUE, { needs_admin_attention: true }),
+        ...includeIf(search, { search }),
+        ...includeIf(filters.param(PARAM_SUPERSEDED) === TRUE, { include_superseded: true }),
+        ...includeIf(sort, { sort }),
+      }
+    },
+    {
+      rowsPerPage: ROWS_PER_PAGE,
+      manualDefaults: (filters) => ({ search: filters.param(PARAM_SEARCH) ?? "" }),
+    },
+  )
 
   const typedSearch = watch("search")
   // Refetching mid-word would reshuffle the table under the operator's cursor.
@@ -182,166 +192,161 @@ const RegistrationsPage: React.FC = () => {
   )
 
   return (
-    <div className={sectionsCss}>
-      <section className={sectionCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-registrations")}</h2>
-        <form
-          className={controlsCss}
-          onSubmit={handleSubmit((fields) => applyParams({ [PARAM_SEARCH]: fields.search.trim() }))}
-        >
-          <div className={searchCss}>
-            <TextField
-              name="search"
-              control={control}
-              label={t("credit-registration-admin-search-label")}
-              description={t("credit-registration-admin-search-description")}
-            />
-          </div>
-          <Button variant="secondary" size="medium" type="submit">
-            {t("button-text-search")}
-          </Button>
-        </form>
-        <div className={controlsCss}>
-          <div className={controlCss}>
-            <Select
-              name="sort"
-              control={control}
-              label={t("credit-registration-admin-sort")}
-              options={[
-                {
-                  value: SORT_LAST_ACTIVITY,
-                  label: t("credit-registration-admin-sort-last-activity"),
-                },
-                {
-                  value: SORT_TIME_IN_STATE,
-                  label: t("credit-registration-admin-sort-time-in-state"),
-                },
-                { value: SORT_ATTEMPTS, label: t("credit-registration-admin-sort-attempts") },
-                { value: SORT_CREATED, label: t("credit-registration-admin-sort-created") },
-              ]}
-            />
-          </div>
-          <Checkbox
-            name="attention"
+    <section className={sectionCss}>
+      <h2 className={headingCss}>{t("credit-registration-heading-registrations")}</h2>
+      <form
+        className={controlsCss}
+        onSubmit={handleSubmit((fields) => applyParams({ [PARAM_SEARCH]: fields.search.trim() }))}
+      >
+        <div className={searchCss}>
+          <TextField
+            name="search"
             control={control}
-            label={t("credit-registration-admin-only-needs-attention")}
-          />
-          <Checkbox
-            name="superseded"
-            control={control}
-            label={t("credit-registration-admin-show-superseded")}
+            label={t("credit-registration-admin-search-label")}
+            description={t("credit-registration-admin-search-description")}
           />
         </div>
-        {activeNarrowings.length > 0 && (
-          <div className={rowCss}>
-            {activeNarrowings.map(({ name, value }) => (
-              <Button
-                key={`${name}:${value}`}
-                variant="tertiary"
-                size="small"
-                domProps={{ title: value }}
-                aria-label={t("credit-registration-admin-remove-filter", {
-                  filter: labelFrom(t, FILTER_LABEL_KEYS, name, name),
-                  value,
-                })}
-                onClick={() => applyParams({ [name]: undefined })}
-              >
-                {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${
-                  ID_PARAMS.has(name)
-                    ? value.slice(0, ID_PREFIX_LENGTH)
-                    : name === PARAM_STATE
-                      ? stateName(value as CreditRegistrationState)
-                      : value
-                }`}
-              </Button>
-            ))}
+        <Button variant="secondary" size="medium" type="submit">
+          {t("button-text-search")}
+        </Button>
+      </form>
+      <div className={controlsCss}>
+        <div className={controlCss}>
+          <Select
+            name="sort"
+            control={control}
+            label={t("credit-registration-admin-sort")}
+            options={[
+              {
+                value: SORT_LAST_ACTIVITY,
+                label: t("credit-registration-admin-sort-last-activity"),
+              },
+              {
+                value: SORT_TIME_IN_STATE,
+                label: t("credit-registration-admin-sort-time-in-state"),
+              },
+              { value: SORT_ATTEMPTS, label: t("credit-registration-admin-sort-attempts") },
+              { value: SORT_CREATED, label: t("credit-registration-admin-sort-created") },
+            ]}
+          />
+        </div>
+        <Checkbox
+          name="attention"
+          control={control}
+          label={t("credit-registration-admin-only-needs-attention")}
+        />
+        <Checkbox
+          name="superseded"
+          control={control}
+          label={t("credit-registration-admin-show-superseded")}
+        />
+      </div>
+      {activeNarrowings.length > 0 && (
+        <div className={rowCss}>
+          {activeNarrowings.map(({ name, value }) => (
             <Button
+              key={`${name}:${value}`}
               variant="tertiary"
               size="small"
-              onClick={() => {
-                reset({ search: "", sort: SORT_LAST_ACTIVITY, attention: false, superseded: false })
-                applyParams(Object.fromEntries(CLEARABLE_PARAMS.map((name) => [name, undefined])))
-              }}
+              domProps={{ title: value }}
+              aria-label={t("credit-registration-admin-remove-filter", {
+                filter: labelFrom(t, FILTER_LABEL_KEYS, name, name),
+                value,
+              })}
+              onClick={() => applyParams({ [name]: undefined })}
             >
-              {t("button-text-clear-filters")}
+              {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${
+                ID_PARAMS.has(name)
+                  ? value.slice(0, ID_PREFIX_LENGTH)
+                  : name === PARAM_STATE
+                    ? stateName(value as CreditRegistrationState)
+                    : value
+              }`}
             </Button>
-          </div>
-        )}
-        <QueryResult query={registrationsQuery} refreshIndicator={QUIET_REFRESH}>
-          {(page) =>
-            page.data.length === 0 ? (
-              <p className={emptyStateCss}>{t("credit-registration-admin-no-matching-rows")}</p>
-            ) : (
-              <>
-                <p className={noteCss}>
-                  {t("credit-registration-admin-row-count", { count: page.total_count })}
-                </p>
-                <Table
-                  caption={t("credit-registration-heading-registrations")}
-                  rowKey={(row) => row.id}
-                  rows={page.data}
-                  columns={[
-                    {
-                      header: t("label-student"),
-                      // Up to 50 of these render at once, and few get clicked.
-                      cell: (row) => (
-                        <span className={stackedCellCss}>
-                          <Link href={creditRegistrationItemRoute(row.id)} prefetch={false}>
-                            {[row.first_name, row.last_name].filter(Boolean).join(" ")}
-                          </Link>
-                          <span className={noteCss}>{row.email}</span>
-                        </span>
-                      ),
+          ))}
+          <Button
+            variant="tertiary"
+            size="small"
+            onClick={() => clearFilters([...NARROWING_PARAMS, PARAM_SEARCH])}
+          >
+            {t("button-text-clear-filters")}
+          </Button>
+        </div>
+      )}
+      <QueryResult query={registrationsQuery} refreshIndicator={QUIET_REFRESH}>
+        {(page) =>
+          page.data.length === 0 ? (
+            <p className={emptyStateCss}>{t("credit-registration-admin-no-matching-rows")}</p>
+          ) : (
+            <>
+              <p className={noteCss}>
+                {t("credit-registration-admin-row-count", { count: page.total_count })}
+              </p>
+              <Table
+                caption={t("credit-registration-heading-registrations")}
+                rowKey={(row) => row.id}
+                rows={page.data}
+                columns={[
+                  {
+                    header: t("label-student"),
+                    // Up to 50 of these render at once, and few get clicked.
+                    cell: (row) => (
+                      <span className={stackedCellCss}>
+                        <Link href={creditRegistrationItemRoute(row.id)} prefetch={false}>
+                          {formatUserName(row)}
+                        </Link>
+                        <span className={noteCss}>{row.email}</span>
+                      </span>
+                    ),
+                  },
+                  {
+                    header: t("label-student-number"),
+                    cell: (row) => {
+                      const number = row.verified_student_number ?? row.student_number
+                      return number === null || number === undefined ? (
+                        t("credit-registration-admin-not-linked")
+                      ) : (
+                        <span className={monospaceCss}>{number}</span>
+                      )
                     },
-                    {
-                      header: t("label-student-number"),
-                      cell: (row) => {
-                        const number = row.verified_student_number ?? row.student_number
-                        return number === null || number === undefined ? (
-                          t("credit-registration-admin-not-linked")
-                        ) : (
-                          <span className={monospaceCss}>{number}</span>
-                        )
-                      },
-                    },
-                    {
-                      header: t("label-course"),
-                      cell: (row) => (
-                        <span className={stackedCellCss}>
-                          <span>{row.course_name}</span>
-                          <span className={noteCss}>{row.course_module_name}</span>
-                        </span>
-                      ),
-                    },
-                    {
-                      header: t("label-state"),
-                      cell: (row) => (
-                        <span className={stackedCellCss}>
-                          <AdminStateBadge
-                            state={row.state}
-                            pendingReason={row.pending_reason}
-                            superseded={row.superseded}
-                            attemptNumber={row.attempt_number}
-                          />
-                          {row.error_code && <code>{row.error_code}</code>}
-                        </span>
-                      ),
-                    },
-                    {
-                      header: t("label-credit-registration-last-activity"),
-                      cell: (row) => (
-                        <RelativeTime at={row.last_attempt_at} absoluteTime={TIME_IN_TITLE} />
-                      ),
-                    },
-                  ]}
-                />
-                <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
-              </>
-            )
-          }
-        </QueryResult>
-      </section>
-    </div>
+                  },
+                  {
+                    header: t("label-course"),
+                    cell: (row) => (
+                      <span className={stackedCellCss}>
+                        <span>{row.course_name}</span>
+                        <span className={noteCss}>{row.course_module_name}</span>
+                      </span>
+                    ),
+                  },
+                  {
+                    header: t("label-state"),
+                    cell: (row) => (
+                      <span className={stackedCellCss}>
+                        <AdminStateBadge
+                          state={row.state}
+                          pendingReason={row.pending_reason}
+                          superseded={row.superseded}
+                          attemptNumber={row.attempt_number}
+                        />
+                        {row.error_code && <code>{row.error_code}</code>}
+                      </span>
+                    ),
+                  },
+                  {
+                    header: t("label-credit-registration-last-activity"),
+                    cell: (row) => (
+                      <RelativeTime at={row.last_attempt_at} absoluteTime={TIME_IN_TITLE} />
+                    ),
+                  },
+                ]}
+              />
+              <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
+            </>
+          )
+        }
+      </QueryResult>
+    </section>
   )
 }
 

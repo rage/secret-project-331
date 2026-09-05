@@ -26,11 +26,7 @@ import {
   subheadingCss,
   subsectionCss,
 } from "../styles"
-import {
-  useSuotarApiCalls,
-  useSuotarHealth,
-  useSuotarWorkerNames,
-} from "./adminCreditRegistrationHooks"
+import { useSuotarApiCalls, useSuotarHealth } from "./adminCreditRegistrationHooks"
 import SuotarApiCallDetail from "./SuotarApiCallDetail"
 import type { FilterFieldDescriptor } from "./useFilteredAdminQuery"
 import { selectFilterField, useFilteredAdminQuery } from "./useFilteredAdminQuery"
@@ -150,7 +146,6 @@ const EndpointSummary: React.FC = () => {
 /** The transport boundary's own log: one row per HTTP call, with the ledger rows it carried. */
 const ApiLogSection: React.FC = () => {
   const { t } = useTranslation()
-  const workerNamesQuery = useSuotarWorkerNames()
 
   const { control, applyParams, handleSubmit, paginationInfo, query } = useFilteredAdminQuery(
     FILTER_FIELDS,
@@ -221,7 +216,10 @@ const ApiLogSection: React.FC = () => {
               label={t("credit-registration-admin-column-caller")}
               options={[
                 { value: ANY, label: t("credit-registration-admin-any-caller") },
-                ...(workerNamesQuery.data ?? []).map((name) => ({ value: name, label: name })),
+                ...(callsQuery.data?.worker_names ?? []).map((name) => ({
+                  value: name,
+                  label: name,
+                })),
               ]}
             />
           </div>

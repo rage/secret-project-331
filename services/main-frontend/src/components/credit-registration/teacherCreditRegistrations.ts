@@ -50,7 +50,7 @@ const fetchInBatches = async (
 export const useTeacherCreditRegistrations = (
   courseId: string | null,
   userIds: string[],
-): { data: CreditRegistrationIndex | undefined; isAuthorized: boolean } => {
+): { data: CreditRegistrationIndex; isAuthorized: boolean } => {
   const isAuthorized =
     useAuthorizeMultiple(
       courseId !== null
@@ -77,7 +77,7 @@ export const useTeacherCreditRegistrations = (
     }),
   )
 
-  return { data: query.data, isAuthorized }
+  return { data: query.data ?? EMPTY_CREDIT_REGISTRATIONS, isAuthorized }
 }
 
 /**
@@ -105,6 +105,9 @@ export const useInvalidateAfterRetry = (courseId: string) => {
 }
 
 export type CreditRegistrationIndex = Map<string, CourseCreditRegistration>
+
+/** One shared instance: consumers feed the index straight into `useMemo` dependencies. */
+const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 export const creditRegistrationKey = (userId: string, moduleId: string) => `${userId}:${moduleId}`
 

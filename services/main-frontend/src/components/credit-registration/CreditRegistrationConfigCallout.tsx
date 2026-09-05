@@ -22,13 +22,18 @@ interface Props {
   fixHref?: string
 }
 
+/** Whether the module's saved configuration failed its last check; a module with one always has a config. */
+export const hasCreditRegistrationConfigProblem = (
+  config: CourseModuleCreditRegistrationConfig | undefined,
+): config is CourseModuleCreditRegistrationConfig =>
+  config?.enable_credit_registration_via_suotar === true &&
+  Boolean(config.credit_registration_config_check_message)
+
 /** One callout naming every enabled module whose last configuration check failed; the raw diagnostic sits behind a Disclosure. */
 const CreditRegistrationConfigCallout: React.FC<Props> = ({ configs, fixHref }) => {
   const { t } = useTranslation()
-  const failing = configs.filter(
-    ({ config }) =>
-      config?.enable_credit_registration_via_suotar === true &&
-      Boolean(config.credit_registration_config_check_message),
+  const failing = configs.flatMap(({ moduleName, config }) =>
+    hasCreditRegistrationConfigProblem(config) ? [{ moduleName, config }] : [],
   )
   if (failing.length === 0) {
     return null
@@ -45,16 +50,16 @@ const CreditRegistrationConfigCallout: React.FC<Props> = ({ configs, fixHref }) 
                 ? t("heading-credit-registration-config-problem-in-module", { module: moduleName })
                 : t("heading-credit-registration-config-problem")}
             </div>
-            {config?.credit_registration_course_code_resolves === false && (
+            {config.credit_registration_course_code_resolves === false && (
               <div>{t("credit-registration-config-course-code-unknown")}</div>
             )}
-            {config?.credit_registration_product_token_found === false && (
+            {config.credit_registration_product_token_found === false && (
               <div>{t("credit-registration-config-no-product-token")}</div>
             )}
             {/* Written for an integrator and stored untranslated; it is what a teacher quotes to support. */}
             <Disclosure title={t("credit-registration-config-diagnostic-for-support")}>
               <div className={cx(noteCss, monospaceCss)}>
-                {config?.credit_registration_config_check_message}
+                {config.credit_registration_config_check_message}
               </div>
             </Disclosure>
           </li>

@@ -1,6 +1,6 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import type { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -16,6 +16,7 @@ import {
   noteCss,
   rowCss,
   sectionHeaderCss,
+  spacedRowCss,
   statusTriggerCss,
   subheadingCss,
 } from "@/components/credit-registration/styles"
@@ -45,13 +46,6 @@ export interface StudiesCourseCardProps {
   registrationByCourseModuleId: ReadonlyMap<string, MyCreditRegistration>
 }
 
-const moduleHeaderCss = cx(
-  rowCss,
-  css`
-    justify-content: space-between;
-  `,
-)
-
 const moduleNameCss = css`
   font-weight: 600;
   color: var(--color-gray-700);
@@ -63,11 +57,6 @@ const resultCss = css`
 `
 
 /** A module row's own vertical stack; the divider and outer spacing come from `dividedListCss`. */
-const moduleCss = css`
-  display: grid;
-  gap: var(--space-2);
-`
-
 const completionResultLabel = (
   t: TFunction,
   completion: MyStudiesCompletion | null | undefined,
@@ -156,8 +145,8 @@ const ModuleRow: React.FC<{
   ) : null
 
   return (
-    <li className={moduleCss}>
-      <div className={moduleHeaderCss}>
+    <li className={sectionHeaderCss}>
+      <div className={spacedRowCss}>
         {showName ? <span className={moduleNameCss}>{module.name ?? courseName}</span> : null}
         <div className={rowCss}>
           <span className={resultCss}>{completionResultLabel(t, completion)}</span>

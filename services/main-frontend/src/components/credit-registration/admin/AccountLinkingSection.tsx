@@ -10,9 +10,9 @@ import type {
   AccountLinkingStats,
   EmailSendStatus,
 } from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
 import {
   Badge,
@@ -54,11 +54,11 @@ import {
 } from "./adminCreditRegistrationHooks"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
+import { formatSharePercent } from "./percent"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
 
 const WINDOW_DAYS = 30
 const CLAIMS_PER_PAGE = 25
-const PERCENT = 100
 
 // oxlint-disable-next-line i18next/no-literal-string
 const WAITING_QUERY = "?state=pending"
@@ -168,7 +168,7 @@ const WindowTotals: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
       {linksTotal > 0 && (
         <StatTile
           label={t("credit-registration-admin-fast-track-share")}
-          value={`${Math.round((fastTrackTotal / linksTotal) * PERCENT)} %`}
+          value={formatSharePercent(fastTrackTotal, linksTotal)}
         />
       )}
       <StatTile label={t("credit-registration-admin-manual-links-total")} value={manualTotal} />
@@ -176,7 +176,7 @@ const WindowTotals: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
         label={t("credit-registration-admin-waiting-for-number")}
         value={stats.waiting_for_student_number_count}
         href={`${creditRegistrationRegistrationsRoute()}${WAITING_QUERY}`}
-        {...includeIf(stats.waiting_for_student_number_count > 0, { tone: TONE.ALERT })}
+        alertWhenNonZero
       />
     </StatTileList>
   )
@@ -199,7 +199,7 @@ const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
         <StatTile
           label={t("credit-registration-admin-send-status-send-failed")}
           value={totals.send_failed}
-          {...includeIf(totals.send_failed > 0, { tone: TONE.ALERT })}
+          alertWhenNonZero
         />
       </StatTileList>
       {stats.hard_failure_domains.length > 0 && (
@@ -437,7 +437,7 @@ const RecentClaimsBlock: React.FC = () => {
                     header: t("label-student"),
                     cell: (row) => (
                       <span className={stackedCellCss}>
-                        <span>{[row.first_name, row.last_name].filter(Boolean).join(" ")}</span>
+                        <span>{formatUserName(row)}</span>
                         <span className={noteCss}>{row.user_email}</span>
                       </span>
                     ),

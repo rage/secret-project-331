@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import {
   registrationErrorHelp,
   registrationExplanation,
+  registrationNeedsAttention,
   registrationStatusLabel,
   registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
@@ -18,27 +19,13 @@ import {
   headingCss,
   rowCss,
   sectionCss,
+  sectionHeaderCss,
 } from "@/components/credit-registration/styles"
 import { getMyCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import type {
-  MyCreditRegistration,
-  StudentFacingCreditRegistrationStatus,
-} from "@/generated/api/types.generated"
+import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import { completionRegistrationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Link, QueryResult, RegistrationStatusBadge } from "@/shared-module/components"
-
-/** The statuses that are either the student's to fix or ours to answer for. */
-const NEEDS_ATTENTION: readonly StudentFacingCreditRegistrationStatus[] = [
-  "needs_student_number",
-  "needs_enrolment",
-  "failed",
-]
-
-const itemCss = css`
-  display: grid;
-  gap: var(--space-2);
-`
 
 const moduleNameCss = css`
   font-weight: 600;
@@ -61,7 +48,7 @@ const RegistrationsNeedingAttention: React.FC = () => {
           const needingAttention = registrations.filter(
             (registration) =>
               !registration.superseded &&
-              NEEDS_ATTENTION.includes(registration.student_facing_status),
+              registrationNeedsAttention(registration.student_facing_status),
           )
           if (needingAttention.length === 0) {
             return (
@@ -89,7 +76,7 @@ const AttentionRow: React.FC<{ registration: MyCreditRegistration }> = ({ regist
   const errorHelp = registrationErrorHelp(t, registration.error_code)
 
   return (
-    <li className={itemCss}>
+    <li className={sectionHeaderCss}>
       <div className={rowCss}>
         <span className={moduleNameCss}>
           {registration.course_module_name ?? registration.course_name}

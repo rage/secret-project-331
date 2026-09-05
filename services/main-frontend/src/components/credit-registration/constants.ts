@@ -1,21 +1,12 @@
 // The i18next literal-string lint only runs on .tsx, so these presentational literals live here.
 
-export const TONE = {
-  INFO: "info",
-  WARNING: "warning",
-  SUCCESS: "success",
-  NEUTRAL: "neutral",
-  ALERT: "alert",
-  DANGER: "danger",
-} as const
+export { ABSENT_LABEL as ABSENT, MIDDLE_DOT, TONE } from "@/shared-module/components"
 
-export const MIDDLE_DOT = " · "
+/** How much of a uuid an operator needs to recognise a row in a chip or a target label. */
+export const ID_PREFIX_LENGTH = 8
 
 /** Separates a from-state and a to-state in a transition. */
 export const ARROW = " → "
-
-/** The one glyph for a value that does not exist. Drop the segment instead where a list allows it. */
-export const ABSENT = "—"
 
 export const STACKED = "stacked" as const
 

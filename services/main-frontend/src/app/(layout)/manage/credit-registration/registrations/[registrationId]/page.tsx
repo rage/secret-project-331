@@ -18,6 +18,7 @@ import {
 import { useAdminCreditRegistration } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
+import PayloadBlock from "@/components/credit-registration/admin/PayloadBlock"
 import SuotarApiCallDetail from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
   ABSENT,
@@ -40,7 +41,6 @@ import {
   headingCss,
   monospaceCss,
   noteCss,
-  payloadCss,
   proseCss,
   rowCss,
   sectionCss,
@@ -57,6 +57,7 @@ import type {
   AdminSuotarApiCall,
   CreditRegistrationAdminActionRecord,
 } from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import { creditRegistrationItemRoute, manageCourseRoute } from "@/shared-module/common/utils/routes"
 import type { DescriptionListItem, TableColumn } from "@/shared-module/components"
 import {
@@ -72,11 +73,6 @@ import {
   StatTileList,
   Table,
 } from "@/shared-module/components"
-
-const JSON_INDENT = 2
-
-const studentName = (row: AdminCreditRegistrationRow): string =>
-  [row.first_name, row.last_name].filter(Boolean).join(" ")
 
 /** Each id is copyable on its own: these get quoted into tickets and SQL consoles. */
 const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
@@ -126,7 +122,7 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>
-        {studentName(row)}
+        {formatUserName(row)}
         {MIDDLE_DOT}
         {row.course_name}
       </h2>
@@ -191,7 +187,7 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
         items={[
           {
             label: t("label-student"),
-            value: [studentName(row), row.email].filter(Boolean).join(MIDDLE_DOT),
+            value: [formatUserName(row), row.email].filter(Boolean).join(MIDDLE_DOT),
           },
           {
             label: t("label-student-number"),
@@ -282,7 +278,6 @@ const AttemptChainSection: React.FC<{ attempts: AdminCreditRegistrationRow[] }> 
 const PayloadDialog: React.FC<{ title: string; payload: unknown }> = ({ title, payload }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const text = JSON.stringify(payload, null, JSON_INDENT)
   return (
     <>
       <Button variant="tertiary" size="small" onClick={() => setOpen(true)}>
@@ -290,8 +285,7 @@ const PayloadDialog: React.FC<{ title: string; payload: unknown }> = ({ title, p
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)} size="wide" title={title}>
         <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-        <pre className={payloadCss}>{text}</pre>
-        <CopyButton value={text} label={t("credit-registration-admin-copy-stored-body")} />
+        <PayloadBlock body={payload} />
       </Dialog>
     </>
   )

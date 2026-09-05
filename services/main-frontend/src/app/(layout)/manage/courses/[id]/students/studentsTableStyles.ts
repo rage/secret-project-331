@@ -67,6 +67,18 @@ export const cellTruncateCss = css`
   white-space: nowrap;
 `
 
+// Single line, right-aligned so every row is the same height and grades read as numbers, which is
+// what keeps the virtualized body from shifting as it scrolls.
+export const inlineCellCss = css`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  min-width: 0;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
+`
+
 export const resizeHandleCss = css`
   position: absolute;
   top: 0;

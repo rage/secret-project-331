@@ -7,10 +7,11 @@ import { useTranslation } from "react-i18next"
 import { useCreditRegistrationPhases } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminPhaseActions from "@/components/credit-registration/admin/AdminPhaseActions"
 import ApiLogSection from "@/components/credit-registration/admin/ApiLogSection"
-import type { PhaseHealth } from "@/components/credit-registration/admin/phaseStatus"
 import {
   countPhasesByHealth,
   phaseHealth,
+  phaseHealthLabel,
+  phaseHealthTone,
 } from "@/components/credit-registration/admin/phaseStatus"
 import {
   MIDDLE_DOT,
@@ -18,7 +19,6 @@ import {
   TIME_IN_TITLE,
   TONE,
 } from "@/components/credit-registration/constants"
-import { widenedLookup } from "@/components/credit-registration/labelFrom"
 import {
   dividedListCss,
   emptyStateCss,
@@ -28,7 +28,6 @@ import {
   proseCss,
   rowCss,
   sectionCss,
-  sectionsCss,
   subheadingCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
@@ -36,8 +35,6 @@ import type {
   CreditRegistrationPhaseList,
   CreditRegistrationPhaseRow,
 } from "@/generated/api/types.generated"
-import { includeIf } from "@/shared-module/common/utils/nullability"
-import type { BadgeTone } from "@/shared-module/components"
 import {
   Badge,
   Link,
@@ -50,25 +47,6 @@ import {
 // oxlint-disable-next-line i18next/no-literal-string
 const POD_STATUS_PATH = "/status"
 
-const HEALTH_KEYS = {
-  paused: "credit-registration-admin-phase-paused",
-  not_built: "credit-registration-admin-phase-not-built",
-  failing: "credit-registration-admin-phase-failing",
-  heartbeat_late: "credit-registration-admin-phase-heartbeat-late",
-  never_reported: "credit-registration-admin-phase-never-reported",
-  running: "credit-registration-admin-phase-running",
-} as const satisfies Record<PhaseHealth, string>
-
-// A phase somebody stopped on purpose must not look like one that is broken.
-const HEALTH_TONES = {
-  paused: TONE.NEUTRAL,
-  not_built: TONE.NEUTRAL,
-  failing: TONE.DANGER,
-  heartbeat_late: TONE.DANGER,
-  never_reported: TONE.NEUTRAL,
-  running: TONE.SUCCESS,
-} as const satisfies Record<PhaseHealth, BadgeTone>
-
 const PhaseRow: React.FC<{ phase: CreditRegistrationPhaseRow }> = ({ phase }) => {
   const { t } = useTranslation()
   const health = phaseHealth(phase)
@@ -76,9 +54,7 @@ const PhaseRow: React.FC<{ phase: CreditRegistrationPhaseRow }> = ({ phase }) =>
     <li className={subsectionCss}>
       <div className={rowCss}>
         <code>{phase.phase}</code>
-        <Badge tone={widenedLookup(HEALTH_TONES, health) ?? TONE.NEUTRAL}>
-          {t(widenedLookup(HEALTH_KEYS, health) ?? HEALTH_KEYS.running)}
-        </Badge>
+        <Badge tone={phaseHealthTone(health)}>{phaseHealthLabel(t, health)}</Badge>
         {phase.consecutive_failures > 0 && (
           <Badge tone={TONE.DANGER}>
             {t("credit-registration-admin-consecutive-failures", {
@@ -139,12 +115,12 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
         <StatTile
           label={t("credit-registration-admin-phase-heartbeat-late")}
           value={counts.heartbeat_late}
-          {...includeIf(counts.heartbeat_late > 0, { tone: TONE.ALERT })}
+          alertWhenNonZero
         />
         <StatTile
           label={t("credit-registration-admin-phase-failing")}
           value={counts.failing}
-          {...includeIf(counts.failing > 0, { tone: TONE.ALERT })}
+          alertWhenNonZero
         />
         <StatTile label={t("credit-registration-admin-phase-paused")} value={counts.paused} />
       </StatTileList>
@@ -184,12 +160,12 @@ const SystemPage: React.FC = () => {
   const phasesQuery = useCreditRegistrationPhases()
 
   return (
-    <div className={sectionsCss}>
+    <>
       <QueryResult query={phasesQuery} refreshIndicator={QUIET_REFRESH}>
         {(list) => <PhaseSection list={list} />}
       </QueryResult>
       <ApiLogSection />
-    </div>
+    </>
   )
 }
 

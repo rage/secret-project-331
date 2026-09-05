@@ -10,6 +10,7 @@ import AdminBulkTransitionDialog from "@/components/credit-registration/admin/Ad
 import {
   attentionReasonLabel,
   retryabilityLabel,
+  retryabilityTone,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
   useCreditRegistrationAttentionItems,
@@ -19,6 +20,7 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminRequeueRetryableDialog from "@/components/credit-registration/admin/AdminRequeueRetryableDialog"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
+import { formatSharePercent } from "@/components/credit-registration/admin/percent"
 import ReconciliationSection from "@/components/credit-registration/admin/ReconciliationSection"
 import { useQueryParamFilters } from "@/components/credit-registration/admin/useQueryParamFilters"
 import {
@@ -41,7 +43,6 @@ import {
   noteCss,
   rowCss,
   sectionCss,
-  sectionsCss,
   stackedCellCss,
   subheadingCss,
   subsectionCss,
@@ -50,14 +51,12 @@ import {
 import type {
   CreditRegistrationAttentionItems,
   CreditRegistrationAttentionReason,
-  Retryability,
 } from "@/generated/api/types.generated"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import { formatUserName } from "@/hooks/useUserDetails"
 import {
   creditRegistrationItemRoute,
   creditRegistrationRegistrationsRoute,
 } from "@/shared-module/common/utils/routes"
-import type { BadgeTone } from "@/shared-module/components"
 import {
   Badge,
   Button,
@@ -69,21 +68,12 @@ import {
   Table,
 } from "@/shared-module/components"
 
-const PERCENT = 100
 const SECONDS_PER_HOUR = 3600
 
 // oxlint-disable-next-line i18next/no-literal-string
 const ERROR_CODE_QUERY = "?error_code="
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_REASON = "reason"
-
-const RETRYABILITY_TONES = {
-  retryable_transient: TONE.NEUTRAL,
-  verify_only: TONE.NEUTRAL,
-  permanent_needs_student: TONE.WARNING,
-  permanent_needs_admin: TONE.DANGER,
-  permanent_needs_config: TONE.DANGER,
-} as const satisfies Record<Retryability, BadgeTone>
 
 interface SelectionFields {
   selectAll: boolean
@@ -134,7 +124,7 @@ const FailureSection: React.FC = () => {
                 <StatTile
                   label={t("credit-registration-admin-column-failed")}
                   value={verdicts.failed_permanent_count}
-                  {...includeIf(verdicts.failed_permanent_count > 0, { tone: TONE.ALERT })}
+                  alertWhenNonZero
                 />
                 <StatTile
                   label={t("credit-registration-admin-verdict-cancelled")}
@@ -143,7 +133,7 @@ const FailureSection: React.FC = () => {
                 {verdicts.total_count > 0 && (
                   <StatTile
                     label={t("credit-registration-admin-success-rate")}
-                    value={`${Math.round((successCount / verdicts.total_count) * PERCENT)} %`}
+                    value={formatSharePercent(successCount, verdicts.total_count)}
                   />
                 )}
               </StatTileList>
@@ -173,7 +163,7 @@ const FailureSection: React.FC = () => {
                       {
                         header: t("credit-registration-admin-column-retryability"),
                         cell: (row) => (
-                          <Badge tone={RETRYABILITY_TONES[row.retryability] ?? TONE.NEUTRAL}>
+                          <Badge tone={retryabilityTone(row.retryability)}>
                             {retryabilityLabel(t, row.retryability)}
                           </Badge>
                         ),
@@ -222,12 +212,9 @@ const FailureSection: React.FC = () => {
   )
 }
 
-const ReasonFilter: React.FC<{
-  attention: CreditRegistrationAttentionItems
-  active: CreditRegistrationAttentionReason | undefined
-  onToggle: (reason: CreditRegistrationAttentionReason) => void
-}> = ({ attention, active, onToggle }) => {
+const ReasonFilter: React.FC<{ attention: CreditRegistrationAttentionItems }> = ({ attention }) => {
   const { t } = useTranslation()
+  const { activeReason, toggleReason } = useAttentionReasonFilter()
   const groups = attention.counts_by_reason.filter((group) => group.count > 0)
   if (groups.length === 0) {
     return null
@@ -237,10 +224,10 @@ const ReasonFilter: React.FC<{
       {groups.map((group) => (
         <Button
           key={group.reason}
-          variant={active === group.reason ? "secondary" : "tertiary"}
+          variant={activeReason === group.reason ? "secondary" : "tertiary"}
           size="small"
-          aria-pressed={active === group.reason}
-          onClick={() => onToggle(group.reason)}
+          aria-pressed={activeReason === group.reason}
+          onClick={() => toggleReason(group.reason)}
         >
           {`${attentionReasonLabel(t, group.reason)}${MIDDLE_DOT}${group.count}`}
         </Button>
@@ -249,12 +236,11 @@ const ReasonFilter: React.FC<{
   )
 }
 
-const AttentionSection: React.FC<{
-  attention: CreditRegistrationAttentionItems
-  activeReason: CreditRegistrationAttentionReason | undefined
-  onToggleReason: (reason: CreditRegistrationAttentionReason) => void
-}> = ({ attention, activeReason, onToggleReason }) => {
+const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }> = ({
+  attention,
+}) => {
   const { t } = useTranslation()
+  const { activeReason } = useAttentionReasonFilter()
   const thresholdsQuery = useCreditRegistrationThresholds()
   const { control, watch, reset, setValue } = useForm<SelectionFields>({
     defaultValues: { selectAll: false, selected: {} },
@@ -285,12 +271,12 @@ const AttentionSection: React.FC<{
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-attention")}</h2>
-      <ReasonFilter attention={attention} active={activeReason} onToggle={onToggleReason} />
+      <ReasonFilter attention={attention} />
       <StatTileList ariaLabel={t("credit-registration-heading-attention")}>
         <StatTile
           label={t("label-credit-registration-needs-attention")}
           value={attention.total_count}
-          {...includeIf(attention.total_count > 0, { tone: TONE.ALERT })}
+          alertWhenNonZero
         />
       </StatTileList>
       {attention.total_count >= attention.max_items && (
@@ -327,7 +313,7 @@ const AttentionSection: React.FC<{
                     label={
                       <VisuallyHidden>
                         {t("credit-registration-admin-select-registration", {
-                          student: [row.first_name, row.last_name].filter(Boolean).join(" "),
+                          student: formatUserName(row),
                         })}
                       </VisuallyHidden>
                     }
@@ -342,7 +328,7 @@ const AttentionSection: React.FC<{
                       href={creditRegistrationItemRoute(row.credit_registration_id)}
                       prefetch={false}
                     >
-                      {[row.first_name, row.last_name].filter(Boolean).join(" ")}
+                      {formatUserName(row)}
                     </Link>
                     <span className={noteCss}>{row.email}</span>
                   </span>
@@ -432,24 +418,17 @@ const AttentionSection: React.FC<{
 const ErrorsPage: React.FC = () => {
   const attentionQuery = useCreditRegistrationAttentionItems()
   const reconciliationQuery = useCreditRegistrationReconciliation()
-  const { activeReason, toggleReason } = useAttentionReasonFilter()
 
   return (
-    <div className={sectionsCss}>
+    <>
       <QueryResult query={attentionQuery} refreshIndicator={QUIET_REFRESH}>
-        {(attention) => (
-          <AttentionSection
-            attention={attention}
-            activeReason={activeReason}
-            onToggleReason={toggleReason}
-          />
-        )}
+        {(attention) => <AttentionSection attention={attention} />}
       </QueryResult>
       <FailureSection />
       <QueryResult query={reconciliationQuery} refreshIndicator={QUIET_REFRESH}>
         {(reconciliation) => <ReconciliationSection reconciliation={reconciliation} />}
       </QueryResult>
-    </div>
+    </>
   )
 }
 

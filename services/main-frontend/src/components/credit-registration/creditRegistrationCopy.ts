@@ -84,6 +84,19 @@ export const registrationStatusState = (
   status: StudentFacingCreditRegistrationStatus,
 ): RegistrationStatusState => widenedLookup(STATUS_STATES, status) ?? UNKNOWN_STATUS_STATE
 
+/**
+ * Whether the registration is stalled on something the student or the course staff can still do.
+ *
+ * Derived from the status-to-state map, so a status added there cannot silently drop out of the
+ * student's attention list or the teacher's "needs attention" filter.
+ */
+export const registrationNeedsAttention = (
+  status: StudentFacingCreditRegistrationStatus,
+): boolean => {
+  const state = registrationStatusState(status)
+  return state === "action-needed" || state === "failed"
+}
+
 export const registrationExplanation = (
   t: TFunction,
   status: StudentFacingCreditRegistrationStatus,

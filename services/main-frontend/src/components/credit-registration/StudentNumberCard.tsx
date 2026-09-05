@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -35,7 +34,7 @@ import {
 
 import { TONE } from "./constants"
 import { LinkingEmailLine } from "./EmailStatusLine"
-import { headingCss, rowCss, sectionCss } from "./styles"
+import { headingCss, rowCss, sectionCss, studentNumberCss } from "./styles"
 
 /** A student disputing a wrong number needs to know how the link was proved. */
 const PROVENANCE_KEYS = {
@@ -43,13 +42,6 @@ const PROVENANCE_KEYS = {
   email_match_fast_track: "student-number-verified-via-email-match",
   admin_manual: "student-number-verified-via-admin-manual",
 } as const satisfies Record<StudentNumberVerificationMethod, string>
-
-const studentNumberCss = css`
-  font-size: var(--font-size-4);
-  font-weight: 600;
-  color: var(--color-gray-700);
-  font-variant-numeric: tabular-nums;
-`
 
 const StudentNumberCard: React.FC = () => {
   const { t } = useTranslation()

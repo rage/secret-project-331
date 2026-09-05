@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { announce } from "@react-aria/live-announcer"
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useRef } from "react"
@@ -53,11 +52,6 @@ export interface CreditRegistrationStatusProps {
 const MOVING_REFETCH_INTERVAL_MS = 10_000
 /** Sisu answers on its own schedule, so polling it hard buys nothing. */
 const WAITING_FOR_SISU_REFETCH_INTERVAL_MS = 60_000
-
-const explanationCss = css`
-  display: grid;
-  gap: var(--space-3);
-`
 
 const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   courseModuleId,
@@ -162,10 +156,15 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration; checkedAt
       : []),
   ]
 
-  const hasAction = status === "needs_enrolment" || status === "needs_student_number"
+  const attentionHeading =
+    state === "failed"
+      ? t("heading-what-went-wrong")
+      : state === "action-needed"
+        ? t("heading-what-you-need-to-do")
+        : null
 
   const explanation = (
-    <div className={explanationCss}>
+    <div className={subsectionCss}>
       <p>{registrationExplanation(t, status)}</p>
       {/* Otherwise raising a grade and seeing "registered" unchanged reads as a lost submission. */}
       {registration.registry_already_held_equal_or_better ? (
@@ -186,12 +185,8 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration; checkedAt
       <div>
         <RegistrationStatusBadge state={state}>{statusLabel}</RegistrationStatusBadge>
       </div>
-      {state === "action-needed" ? (
-        <Infobox tone={TONE.WARNING} heading={t("heading-what-you-need-to-do")}>
-          {explanation}
-        </Infobox>
-      ) : state === "failed" ? (
-        <Infobox tone={TONE.WARNING} heading={t("heading-what-went-wrong")}>
+      {attentionHeading !== null ? (
+        <Infobox tone={TONE.WARNING} heading={attentionHeading}>
           {explanation}
         </Infobox>
       ) : (
@@ -201,36 +196,29 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration; checkedAt
       {status === "needs_enrolment" && !registration.enrolment_link ? (
         <p className={noteCss}>{t("credit-registration-no-enrolment-link-available")}</p>
       ) : null}
-      {hasAction ? (
+      {status === "needs_enrolment" ? (
         <div className={rowCss}>
-          {status === "needs_enrolment" ? (
-            <>
-              {registration.enrolment_link ? (
-                <Link
-                  href={registration.enrolment_link}
-                  styledAsButton
-                  variant="primary"
-                  size="medium"
-                >
-                  {t("credit-registration-action-enrol")}
-                </Link>
-              ) : null}
-              <Button
-                variant="secondary"
-                size="medium"
-                disabled={!registration.can_request_enrolment_recheck}
-                isLoading={recheckEnrolment.isPending}
-                onClick={() => recheckEnrolment.mutate(registration)}
-              >
-                {t("credit-registration-action-recheck-enrolment")}
-              </Button>
-            </>
-          ) : null}
-          {status === "needs_student_number" ? (
-            <Link href={userSettingsStudentNumberRoute()}>
-              {t("credit-registration-about-your-student-number")}
+          {registration.enrolment_link ? (
+            <Link href={registration.enrolment_link} styledAsButton variant="primary" size="medium">
+              {t("credit-registration-action-enrol")}
             </Link>
           ) : null}
+          <Button
+            variant="secondary"
+            size="medium"
+            disabled={!registration.can_request_enrolment_recheck}
+            isLoading={recheckEnrolment.isPending}
+            onClick={() => recheckEnrolment.mutate(registration)}
+          >
+            {t("credit-registration-action-recheck-enrolment")}
+          </Button>
+        </div>
+      ) : null}
+      {status === "needs_student_number" ? (
+        <div className={rowCss}>
+          <Link href={userSettingsStudentNumberRoute()}>
+            {t("credit-registration-about-your-student-number")}
+          </Link>
         </div>
       ) : null}
       {status === "needs_enrolment" && !registration.can_request_enrolment_recheck ? (

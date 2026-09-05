@@ -44,7 +44,7 @@ const sumBy = (
 ): number => modules.reduce((total, module) => total + pick(module), 0)
 
 /** Course-wide registration counts behind the one-line summary and the by-module table. */
-export interface CreditRegistrationCourseCounts {
+interface CreditRegistrationCourseCounts {
   registered: number
   total: number
   failed: number
@@ -53,7 +53,7 @@ export interface CreditRegistrationCourseCounts {
 }
 
 /** Course-wide totals for the one-line summary above the roster; the by-module table below has the detail per module. */
-export const summarizeCreditRegistrationCounts = (
+const summarizeCreditRegistrationCounts = (
   summary: CourseCreditRegistrationSummary,
 ): CreditRegistrationCourseCounts => {
   const enabledModules = summary.modules.filter((module) => module.enabled)
@@ -69,20 +69,18 @@ export const summarizeCreditRegistrationCounts = (
   }
 }
 
+/** Each needs-attention count and its sentence, in the order they follow the registered total. */
+const NEEDS_ATTENTION_SEGMENTS = [
+  ["failed", "credit-registration-summary-failed"],
+  ["waitingOnStudents", "credit-registration-summary-waiting"],
+  ["undeliverableEmails", "credit-registration-summary-undeliverable-emails"],
+] as const satisfies readonly (readonly [keyof CreditRegistrationCourseCounts, string])[]
+
 interface SummaryLineProps {
   courseId: string
   /** Narrows the roster below to registrations needing attention. */
   onShowNeedsAttention: () => void
 }
-
-const SummarySegment: React.FC<{ onClick: () => void; children: React.ReactNode }> = ({
-  onClick,
-  children,
-}) => (
-  <button type="button" className={statusTriggerCss} onClick={onClick}>
-    <span>{children}</span>
-  </button>
-)
 
 /** How the course's credits are going, in one line, before any student row. */
 export const CreditRegistrationSummaryLine: React.FC<SummaryLineProps> = ({
@@ -107,32 +105,14 @@ export const CreditRegistrationSummaryLine: React.FC<SummaryLineProps> = ({
               registered: counts.registered,
               total: counts.total,
             })}
-            {counts.failed > 0 && (
-              <>
+            {NEEDS_ATTENTION_SEGMENTS.filter(([field]) => counts[field] > 0).map(([field, key]) => (
+              <React.Fragment key={key}>
                 {MIDDLE_DOT}
-                <SummarySegment onClick={onShowNeedsAttention}>
-                  {t("credit-registration-summary-failed", { count: counts.failed })}
-                </SummarySegment>
-              </>
-            )}
-            {counts.waitingOnStudents > 0 && (
-              <>
-                {MIDDLE_DOT}
-                <SummarySegment onClick={onShowNeedsAttention}>
-                  {t("credit-registration-summary-waiting", { count: counts.waitingOnStudents })}
-                </SummarySegment>
-              </>
-            )}
-            {counts.undeliverableEmails > 0 && (
-              <>
-                {MIDDLE_DOT}
-                <SummarySegment onClick={onShowNeedsAttention}>
-                  {t("credit-registration-summary-undeliverable-emails", {
-                    count: counts.undeliverableEmails,
-                  })}
-                </SummarySegment>
-              </>
-            )}
+                <button type="button" className={statusTriggerCss} onClick={onShowNeedsAttention}>
+                  <span>{t(key, { count: counts[field] })}</span>
+                </button>
+              </React.Fragment>
+            ))}
           </p>
         )
       }}

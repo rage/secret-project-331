@@ -10,10 +10,9 @@ import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
-import { Badge, Disclosure } from "@/shared-module/components"
+import { Badge, Disclosure, TONE } from "@/shared-module/components"
 
 import { completedModuleCount } from "../lib/completions"
-import { TONE } from "../lib/displayConstants"
 import ModuleCompletionsTable from "./ModuleCompletionsTable"
 
 export interface CourseEnrollmentCardProps {

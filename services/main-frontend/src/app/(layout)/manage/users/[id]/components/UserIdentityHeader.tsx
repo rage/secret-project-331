@@ -20,9 +20,8 @@ import {
   CopyButton,
   DescriptionList,
   QueryResults,
+  TONE,
 } from "@/shared-module/components"
-
-import { TONE } from "../lib/displayConstants"
 
 export interface UserIdentityHeaderProps {
   userId: string

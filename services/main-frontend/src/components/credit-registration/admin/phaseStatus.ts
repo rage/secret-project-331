@@ -1,3 +1,9 @@
+import type { TFunction } from "i18next"
+
+import type { BadgeTone } from "@/shared-module/components"
+
+import { TONE } from "../constants"
+
 export type PhaseHealth =
   | "paused"
   | "not_built"
@@ -37,6 +43,32 @@ export const phaseHealth = (phase: PhaseHealthFields): PhaseHealth => {
   }
   return "running"
 }
+
+const HEALTH_KEYS = {
+  paused: "credit-registration-admin-phase-paused",
+  not_built: "credit-registration-admin-phase-not-built",
+  failing: "credit-registration-admin-phase-failing",
+  heartbeat_late: "credit-registration-admin-phase-heartbeat-late",
+  never_reported: "credit-registration-admin-phase-never-reported",
+  running: "credit-registration-admin-phase-running",
+} as const satisfies Record<PhaseHealth, string>
+
+// A phase somebody stopped on purpose must not look like one that is broken.
+const HEALTH_TONES = {
+  paused: TONE.NEUTRAL,
+  not_built: TONE.NEUTRAL,
+  failing: TONE.DANGER,
+  heartbeat_late: TONE.DANGER,
+  never_reported: TONE.NEUTRAL,
+  running: TONE.SUCCESS,
+} as const satisfies Record<PhaseHealth, BadgeTone>
+
+/** The System tab's badge text for a phase health. */
+export const phaseHealthLabel = (t: TFunction, health: PhaseHealth): string =>
+  t(HEALTH_KEYS[health])
+
+/** The System tab's badge tone for a phase health. */
+export const phaseHealthTone = (health: PhaseHealth): BadgeTone => HEALTH_TONES[health]
 
 /** How many phases are in each health, so a caller never names one health as a bare string. */
 export const countPhasesByHealth = (phases: PhaseHealthFields[]): Record<PhaseHealth, number> => {

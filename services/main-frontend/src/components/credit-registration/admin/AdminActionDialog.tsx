@@ -1,23 +1,15 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
 import React, { useState } from "react"
 import type { Control, FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Button, Dialog } from "@/shared-module/components"
 
-import { dialogFormCss } from "../styles"
+import { dialogFormCss, dialogFormStartCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import type { WithReason } from "./ReasonConfirmDialog"
-
-const rootCss = cx(
-  dialogFormCss,
-  css`
-    justify-items: start;
-  `,
-)
 
 interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result> {
   triggerLabel: string
@@ -25,10 +17,9 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
   dialogTitle: string
   defaultValues: Fields
   mutationFn: (fields: Fields) => Promise<Result>
-  onSuccess?: (result: Result, fields: Fields) => void
+  onSuccess?: (result: Result) => void
   renderFields: (control: Control<Fields>) => React.ReactNode
-  /** `fields` is what the confirmed submission sent, e.g. to phrase the result around a chosen target. */
-  renderResult: (result: Result, fields: Fields) => React.ReactNode
+  renderResult: (result: Result) => React.ReactNode
 }
 
 /**
@@ -47,18 +38,16 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
 }: AdminActionDialogProps<Fields, Result>) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [submittedFields, setSubmittedFields] = useState<Fields | null>(null)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>(defaultValues)
   const reason = watch("reason" as Path<Fields>) as string
 
-  const { result, mutation } = useActionResult(mutationFn, (data, fields) => {
+  const { result, mutation } = useActionResult(mutationFn, (data) => {
     setOpen(false)
-    setSubmittedFields(fields)
-    onSuccess?.(data, fields)
+    onSuccess?.(data)
   })
 
   return (
-    <div className={rootCss}>
+    <div className={dialogFormStartCss}>
       <Button
         variant="secondary"
         size="medium"
@@ -67,7 +56,7 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
       >
         {triggerLabel}
       </Button>
-      {result && submittedFields && renderResult(result, submittedFields)}
+      {result && renderResult(result)}
       <Dialog open={open} onClose={() => setOpen(false)} title={dialogTitle}>
         <form
           className={dialogFormCss}

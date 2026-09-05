@@ -22,7 +22,6 @@ import {
   sectionCss,
   sectionsCss,
 } from "@/components/credit-registration/styles"
-import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
 import { useTeacherCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
 import {
@@ -34,6 +33,7 @@ import {
   previewCourseInstanceCompletions,
 } from "@/generated/api/sdk.generated"
 import type {
+  CourseInstanceCompletionSummary,
   ManualCompletionPreview,
   TeacherManualCompletionRequest,
 } from "@/generated/api/types.generated"
@@ -51,19 +51,24 @@ import type { CompletionsView } from "./completionsRows"
 import {
   COMPLETIONS_VIEWS,
   DEFAULT_COMPLETIONS_VIEW,
+  FAIL_GRADE_VALUE,
   filterCompletionsRows,
+  gradeSortValue,
   moduleSummaryOf,
   PREREQUISITE_FOOTNOTE_PREFIX,
   sortCompletionsRows,
+  STUDENT_COLUMN_ID,
   toCompletionsRows,
 } from "./completionsRows"
-import CompletionsTable, { STUDENT_COLUMN_ID } from "./CompletionsTable"
+import CompletionsTable from "./CompletionsTable"
 
-const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
-
-/** Ranks a pass carrying no numeric grade above a fail, for the preview's "previous best grade". */
-const PASS_GRADE_VALUE = 0.5
-const FAIL_GRADE_VALUE = -1
+/** Hoisted out of the query options: React Query only memoizes a `select` of stable identity. */
+const selectCompletionsRows = (completions: CourseInstanceCompletionSummary) => ({
+  sortedCourseModules: completions.course_modules.toSorted(
+    (a, b) => a.order_number - b.order_number,
+  ),
+  rows: toCompletionsRows(completions.users_with_course_module_completions),
+})
 
 const NEEDS_ATTENTION_VIEW: CompletionsView = "needs_attention"
 
@@ -122,21 +127,16 @@ const CompletionsPage: React.FC = () => {
     ...getCourseInstanceCompletionsOptions({
       path: { course_instance_id: courseInstanceId },
     }),
-    select: (completions) => ({
-      sortedCourseModules: completions.course_modules.toSorted(
-        (a, b) => a.order_number - b.order_number,
-      ),
-      rows: toCompletionsRows(completions.users_with_course_module_completions),
-    }),
+    select: selectCompletionsRows,
   })
+  const completions = completionsQuery.data
 
   const listedUserIds = useMemo(
-    () => completionsQuery.data?.rows.map((row) => row.userId) ?? [],
-    [completionsQuery.data],
+    () => completions?.rows.map((row) => row.userId) ?? [],
+    [completions],
   )
-  const { data: creditRegistrationsData, isAuthorized: canSeeCreditRegistrations } =
+  const { data: creditRegistrations, isAuthorized: canSeeCreditRegistrations } =
     useTeacherCreditRegistrations(courseId, listedUserIds)
-  const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
 
   const { control, watch, setValue } = useForm<CompletionsControls>({
     defaultValues: { search: "", view: DEFAULT_COMPLETIONS_VIEW },
@@ -145,6 +145,37 @@ const CompletionsPage: React.FC = () => {
   const search = useDeferredValue(watch("search"))
   const view = watch("view")
   const [sorting, setSorting] = useState<SortingState>([{ id: STUDENT_COLUMN_ID, desc: false }])
+
+  const moduleIds = useMemo(
+    () => completions?.sortedCourseModules.map((module) => module.id) ?? [],
+    [completions],
+  )
+  // For identity as much as for cost: a fresh array rebuilds the table's columns and row model.
+  const shown = useMemo(
+    () =>
+      completions === undefined
+        ? []
+        : sortCompletionsRows(
+            filterCompletionsRows(completions.rows, {
+              search,
+              view,
+              moduleIds,
+              creditRegistrations,
+            }),
+            sorting,
+          ),
+    [completions, search, view, moduleIds, creditRegistrations, sorting],
+  )
+  const anyPrerequisiteMissing = useMemo(
+    () =>
+      shown.some((row) =>
+        moduleIds.some(
+          (moduleId) =>
+            moduleSummaryOf(row, moduleId).latest?.prerequisite_modules_completed === false,
+        ),
+      ),
+    [shown, moduleIds],
+  )
 
   const [showForm, setShowForm] = useState(false)
   const [completionFormData, setCompletionFormData] =
@@ -177,20 +208,15 @@ const CompletionsPage: React.FC = () => {
     })
 
     const alreadyCompletedUsers = preview.already_completed_users.map((user) => {
-      const row = completionsQuery.data?.rows.find((candidate) => candidate.userId === user.user_id)
-      const completions = row?.moduleCompletions.get(data.course_module_id)
-      if (!completions) {
+      const row = completions?.rows.find((candidate) => candidate.userId === user.user_id)
+      const moduleAttempts = row?.moduleCompletions.get(data.course_module_id)
+      if (!moduleAttempts) {
         return { ...user, previous_best_grade: null }
       }
-      const bestGrade = completions.reduce((best, completion) => {
-        const grade =
-          completion.grade !== null && completion.grade !== undefined
-            ? completion.grade
-            : completion.passed
-              ? PASS_GRADE_VALUE
-              : FAIL_GRADE_VALUE
-        return Math.max(best, grade)
-      }, FAIL_GRADE_VALUE)
+      const bestGrade = moduleAttempts.reduce(
+        (best, completion) => Math.max(best, gradeSortValue(completion.grade, completion.passed)),
+        FAIL_GRADE_VALUE,
+      )
       return { ...user, previous_best_grade: bestGrade }
     })
 
@@ -215,95 +241,81 @@ const CompletionsPage: React.FC = () => {
       )}
 
       <QueryResult query={completionsQuery} treatEmptyAsData refreshIndicator={QUIET_REFRESH}>
-        {({ sortedCourseModules, rows }) => {
-          const moduleIds = sortedCourseModules.map((module) => module.id)
-          const shown = sortCompletionsRows(
-            filterCompletionsRows(rows, { search, view, moduleIds, creditRegistrations }),
-            sorting,
-            STUDENT_COLUMN_ID,
-          )
-          const anyPrerequisiteMissing = shown.some((row) =>
-            moduleIds.some(
-              (moduleId) =>
-                moduleSummaryOf(row, moduleId).latest?.prerequisite_modules_completed === false,
-            ),
-          )
-          return (
-            <>
-              <section className={sectionCss}>
-                <div className={controlsCss}>
-                  <TextField
-                    name="search"
-                    control={control}
-                    className={controlCss}
-                    label={t("label-search-students")}
-                    type="search"
+        {({ sortedCourseModules, rows }) => (
+          <>
+            <section className={sectionCss}>
+              <div className={controlsCss}>
+                <TextField
+                  name="search"
+                  control={control}
+                  className={controlCss}
+                  label={t("label-search-students")}
+                  type="search"
+                />
+                <Select
+                  name="view"
+                  control={control}
+                  className={controlCss}
+                  label={t("label-show")}
+                  options={COMPLETIONS_VIEWS.map((value) => ({
+                    value,
+                    label: t(VIEW_LABEL_KEYS[value]),
+                  }))}
+                />
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  type="button"
+                  onClick={() => setShowForm(!showForm)}
+                >
+                  {t("manually-add-completions")}
+                </Button>
+              </div>
+              <p className={noteCss}>
+                {t("completions-shown-of-total", { shown: shown.length, total: rows.length })}
+              </p>
+              {showForm && (
+                <div className={cardCss}>
+                  <AddCompletionsForm
+                    onSubmit={handlePostCompletionsPreview}
+                    courseModules={sortedCourseModules}
+                    submitText={t("button-text-check")}
                   />
-                  <Select
-                    name="view"
-                    control={control}
-                    className={controlCss}
-                    label={t("label-show")}
-                    options={COMPLETIONS_VIEWS.map((value) => ({
-                      value,
-                      label: t(VIEW_LABEL_KEYS[value]),
-                    }))}
-                  />
-                  <Button
-                    variant="secondary"
-                    size="medium"
-                    type="button"
-                    onClick={() => setShowForm(!showForm)}
-                  >
-                    {t("manually-add-completions")}
-                  </Button>
-                </div>
-                <p className={noteCss}>
-                  {t("completions-shown-of-total", { shown: shown.length, total: rows.length })}
-                </p>
-                {showForm && (
-                  <div className={cardCss}>
-                    <AddCompletionsForm
-                      onSubmit={handlePostCompletionsPreview}
-                      courseModules={sortedCourseModules}
-                      submitText={t("button-text-check")}
+                  {previewData && completionFormData && (
+                    <CompletionRegistrationPreview
+                      manualCompletionPreview={previewData}
+                      onSubmit={(options) => {
+                        addCompletionsMutation.mutate({
+                          ...completionFormData,
+                          skip_duplicate_completions: options.skipDuplicateCompletions,
+                        })
+                      }}
                     />
-                    {previewData && completionFormData && (
-                      <CompletionRegistrationPreview
-                        manualCompletionPreview={previewData}
-                        onSubmit={(options) => {
-                          addCompletionsMutation.mutate({
-                            ...completionFormData,
-                            skip_duplicate_completions: options.skipDuplicateCompletions,
-                          })
-                        }}
-                      />
-                    )}
-                  </div>
-                )}
-              </section>
-
-              <BreakFromCentered sidebar={false}>
-                <div className={tableScrollCss} data-students-horizontal-scroll>
-                  <CompletionsTable
-                    courseId={courseId}
-                    sortedCourseModules={sortedCourseModules}
-                    rows={shown}
-                    creditRegistrations={creditRegistrations}
-                    sorting={sorting}
-                    onSortingChange={setSorting}
-                  />
+                  )}
                 </div>
-                {anyPrerequisiteMissing && (
-                  <p className={noteCss}>
-                    {PREREQUISITE_FOOTNOTE_PREFIX}
-                    {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}
-                  </p>
-                )}
-              </BreakFromCentered>
-            </>
-          )
-        }}
+              )}
+            </section>
+
+            <BreakFromCentered sidebar={false}>
+              <div className={tableScrollCss} data-students-horizontal-scroll>
+                <CompletionsTable
+                  courseId={courseId}
+                  sortedCourseModules={sortedCourseModules}
+                  rows={shown}
+                  creditRegistrations={creditRegistrations}
+                  sorting={sorting}
+                  onSortingChange={setSorting}
+                />
+              </div>
+              {anyPrerequisiteMissing && (
+                <p className={noteCss}>
+                  {PREREQUISITE_FOOTNOTE_PREFIX}
+                  {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}
+                </p>
+              )}
+            </BreakFromCentered>
+          </>
+        )}
       </QueryResult>
 
       {canSeeCreditRegistrations && courseId !== null && (

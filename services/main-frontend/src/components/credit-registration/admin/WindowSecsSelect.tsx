@@ -11,8 +11,8 @@ import { HOUR_SECS } from "./adminCreditRegistrationHooks"
 import { useQueryParamFilters } from "./useQueryParamFilters"
 
 export const DAY_SECS = 86_400
-export const WEEK_SECS = 604_800
-export const MONTH_SECS = 2_592_000
+const WEEK_SECS = 604_800
+const MONTH_SECS = 2_592_000
 
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_WINDOW_SECS = "window_secs"

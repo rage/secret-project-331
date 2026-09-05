@@ -1,6 +1,5 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -14,7 +13,7 @@ import { Button, Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
 import { MIDDLE_DOT, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
-import { dialogFormCss } from "../styles"
+import { dialogFormCss, dialogFormStartCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { ReasonField, isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
@@ -29,13 +28,6 @@ interface Fields {
   override_rate_caps: boolean
   reason: string
 }
-
-const rootCss = cx(
-  dialogFormCss,
-  css`
-    justify-items: start;
-  `,
-)
 
 /** The override retires the rows the caps count rather than relaxing a cap, and needs a reason. */
 const AdminResendLinkingEmailDialog: React.FC<Props> = ({
@@ -78,7 +70,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   }
 
   return (
-    <div className={rootCss}>
+    <div className={dialogFormStartCss}>
       <Button
         variant="secondary"
         size="medium"

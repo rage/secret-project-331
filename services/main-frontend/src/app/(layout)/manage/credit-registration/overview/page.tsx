@@ -13,12 +13,7 @@ import {
   useCreditRegistrationPipelineHistory,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
-import {
-  ALIGN_END,
-  MIDDLE_DOT,
-  QUIET_REFRESH,
-  TONE,
-} from "@/components/credit-registration/constants"
+import { ALIGN_END, MIDDLE_DOT, QUIET_REFRESH } from "@/components/credit-registration/constants"
 import {
   controlCss,
   controlsCss,
@@ -26,7 +21,6 @@ import {
   headingCss,
   noteCss,
   sectionCss,
-  sectionsCss,
   subheadingCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
@@ -35,7 +29,6 @@ import type {
   CreditRegistrationOverview,
   CreditRegistrationState,
 } from "@/generated/api/types.generated"
-import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   creditRegistrationErrorsRoute,
   creditRegistrationRegistrationsRoute,
@@ -129,13 +122,13 @@ const AttentionSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ 
           label={t("label-credit-registration-needs-attention")}
           value={overview.needs_admin_attention_count}
           href={`${creditRegistrationRegistrationsRoute()}${ATTENTION_QUERY}`}
-          {...includeIf(overview.needs_admin_attention_count > 0, { tone: TONE.ALERT })}
+          alertWhenNonZero
         />
         <StatTile
           label={t("label-credit-registration-stuck")}
           value={stuckTotal}
           href={`${creditRegistrationErrorsRoute()}${STUCK_QUERY}`}
-          {...includeIf(stuckTotal > 0, { tone: TONE.ALERT })}
+          alertWhenNonZero
         />
         <StatTile
           label={t("credit-registration-admin-registered-in-days", { days: RECENT_DAYS })}
@@ -144,7 +137,7 @@ const AttentionSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ 
         <StatTile
           label={t("credit-registration-admin-failed-in-days", { days: RECENT_DAYS })}
           value={failed}
-          {...includeIf(failed > 0, { tone: TONE.ALERT })}
+          alertWhenNonZero
         />
       </StatTileList>
     </section>
@@ -356,7 +349,7 @@ const OverviewPage: React.FC = () => {
   const overviewQuery = useCreditRegistrationOverview()
 
   return (
-    <div className={sectionsCss}>
+    <>
       <QueryResult query={overviewQuery} refreshIndicator={QUIET_REFRESH}>
         {(overview) => (
           <>
@@ -366,7 +359,7 @@ const OverviewPage: React.FC = () => {
         )}
       </QueryResult>
       <TrendSection />
-    </div>
+    </>
   )
 }
 

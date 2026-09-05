@@ -49,6 +49,7 @@ export interface CreditRegistrationCourseCounts {
   total: number
   failed: number
   waitingOnStudents: number
+  undeliverableEmails: number
 }
 
 /** Course-wide totals for the one-line summary above the roster; the by-module table below has the detail per module. */
@@ -63,8 +64,8 @@ export const summarizeCreditRegistrationCounts = (
       enabledModules,
       (module) => module.failed_permanent_count + module.needs_admin_attention_count,
     ),
-    waitingOnStudents:
-      summary.unlinked_enrolled_student_count + summary.linking_emails_failed_to_send_count,
+    waitingOnStudents: summary.unlinked_enrolled_student_count,
+    undeliverableEmails: summary.linking_emails_failed_to_send_count,
   }
 }
 
@@ -119,6 +120,16 @@ export const CreditRegistrationSummaryLine: React.FC<SummaryLineProps> = ({
                 {MIDDLE_DOT}
                 <SummarySegment onClick={onShowNeedsAttention}>
                   {t("credit-registration-summary-waiting", { count: counts.waitingOnStudents })}
+                </SummarySegment>
+              </>
+            )}
+            {counts.undeliverableEmails > 0 && (
+              <>
+                {MIDDLE_DOT}
+                <SummarySegment onClick={onShowNeedsAttention}>
+                  {t("credit-registration-summary-undeliverable-emails", {
+                    count: counts.undeliverableEmails,
+                  })}
                 </SummarySegment>
               </>
             )}

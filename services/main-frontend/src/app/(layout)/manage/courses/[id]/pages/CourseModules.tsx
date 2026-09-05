@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { isEqual } from "lodash"
 import React, { useEffect, useState } from "react"
@@ -9,6 +8,12 @@ import { v4 } from "uuid"
 
 import BottomPanel from "@/components/BottomPanel"
 import {
+  dividedListCss,
+  pageTitleCss,
+  sectionsCss,
+  subsectionCss,
+} from "@/components/credit-registration/styles"
+import {
   getCourseCreditRegistrationModuleConfigsOptions,
   getCourseStructureOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
@@ -16,7 +21,6 @@ import { updateCourseModules } from "@/generated/api/sdk.generated"
 import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { QueryResults } from "@/shared-module/components"
@@ -568,36 +572,14 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       treatEmptyAsData
       renderData={([data]) => (
         <>
-          <div
-            className={css`
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-            `}
-          >
-            <h1
-              className={css`
-                font-size: clamp(2rem, 3.6vh, 36px);
-                color: ${baseTheme.colors.gray[700]};
-                font-family: ${headingFont};
-                font-weight: bold;
-                margin-bottom: 1.6rem;
-              `}
-            >
-              {t("modules")}
-            </h1>
+          <div className={sectionsCss}>
+            <h1 className={pageTitleCss}>{t("modules")}</h1>
             {moduleList?.modules
               .toSorted((l, r) => {
                 return l.order_number - r.order_number
               })
               .map((module) => (
-                <div
-                  className={css`
-                    margin-bottom: 2rem;
-                    width: 100%;
-                  `}
-                  key={module.id}
-                >
+                <div className={subsectionCss} key={module.id}>
                   <EditCourseModuleForm
                     module={module}
                     chapters={data.chapterNumbers}
@@ -608,38 +590,17 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                     onSubmitForm={handleSaveModuleEdits}
                     onDeleteModule={handleDeleteModule}
                   />
-                  {moduleList?.chapters
-                    .filter((c) => c.module === module.id)
-                    .map((c) => (
-                      <div
-                        className={css`
-                          background-color: #fff;
-                          color: ${baseTheme.colors.gray[700]};
-                          height: 3.5rem;
-                          min-width: 100%;
-                          display: flex;
-                          align-items: center;
-                          font-weight: 500;
-                          border-bottom: 2px solid #e1e3e5;
-                          border-right: 2px solid #e1e3e5;
-                          border-left: 2px solid #e1e3e5;
-
-                          &:last-of-type {
-                            border-bottom-right-radius: 4px;
-                            border-bottom-left-radius: 4px;
-                          }
-                        `}
-                        key={c.id}
-                      >
-                        <div
-                          className={css`
-                            margin-left: 1.25rem;
-                          `}
-                        >
-                          {c.chapter_number}. {c.name}
-                        </div>
-                      </div>
-                    ))}
+                  {moduleList?.chapters.some((c) => c.module === module.id) && (
+                    <ul className={dividedListCss}>
+                      {moduleList.chapters
+                        .filter((c) => c.module === module.id)
+                        .map((c) => (
+                          <li key={c.id}>
+                            {c.chapter_number}. {c.name}
+                          </li>
+                        ))}
+                    </ul>
+                  )}
                 </div>
               ))}
           </div>

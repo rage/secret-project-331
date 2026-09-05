@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import { TONE } from "@/components/credit-registration/constants"
 import CreditRegistrationConfigCallout from "@/components/credit-registration/CreditRegistrationConfigCallout"
+import { cardCss, noteCss, subheadingCss } from "@/components/credit-registration/styles"
 import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
@@ -77,40 +78,36 @@ interface EditCourseModuleFormState extends Omit<
   registration_path: RegistrationPath
 }
 
+const formCss = css`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+`
+
 const headerCss = css`
-  margin: 1rem 1.25rem;
   flex-grow: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-3);
   align-items: center;
   ${respondToOrLarger.sm} {
     max-width: 22rem;
   }
 `
 
-const moduleNameCss = css`
-  text-transform: uppercase;
-  font-weight: 600;
-`
-
 const groupCss = css`
   display: grid;
-  gap: 1rem;
-  margin: 0 0 1.5rem;
+  gap: var(--space-4);
   padding: 0;
   border: 0;
 `
 
-const legendCss = css`
-  padding: 0;
-  font-weight: 600;
-  font-size: 0.9375rem;
-`
-
 const fieldRowCss = css`
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   ${respondToOrLarger.md} {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
@@ -121,27 +118,18 @@ const realisationRowCss = css`
   display: flex;
   flex-wrap: wrap;
   align-items: start;
-  gap: 0.75rem;
-  padding-bottom: 0.75rem;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--color-clear-300);
 `
 
 const realisationsCss = css`
   display: grid;
-  gap: 0.75rem;
-`
-
-const hintCss = css`
-  margin: 0;
-  color: var(--color-gray-500);
-  font-size: 0.875rem;
+  gap: var(--space-3);
 `
 
 // The icon variant's default grey is too faint for an icon-only control on this header.
 const iconButtonCss = css`
-  height: 2rem;
-  width: 2rem;
-  border-radius: 100%;
   color: var(--color-gray-700);
 `
 
@@ -152,8 +140,7 @@ const deleteButtonCss = css`
 const actionsCss = css`
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  padding: 0 1rem 1rem 0;
+  gap: var(--space-4);
 `
 
 const registrationPathOf = (module: ModuleView): RegistrationPath => {
@@ -252,21 +239,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
     Boolean(creditRegistrationConfig.credit_registration_config_check_message)
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmitFormWrapper)}
-      className={css`
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        background-color: #f7f8f9;
-        color: #1a2333;
-        align-items: center;
-        justify-content: space-between;
-        border: 2px solid #e1e3e5;
-        border-top-right-radius: 4px;
-        border-top-left-radius: 4px;
-      `}
-    >
+    <form onSubmit={handleSubmit(onSubmitFormWrapper)} className={cx(cardCss, formCss)}>
       <div className={headerCss}>
         {module.name && active ? (
           <TextField
@@ -277,7 +250,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             rules={{ required: t("required-field") }}
           />
         ) : (
-          <span className={moduleNameCss}>
+          <span className={subheadingCss}>
             {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
           </span>
         )}
@@ -298,16 +271,14 @@ const EditCourseModuleForm: React.FC<Props> = ({
       <div
         className={css`
           ${active && `width: 100%;`}
+          display: grid;
+          gap: var(--space-4);
         `}
       >
         {active && (
-          <div
-            className={css`
-              margin: 0 1rem 1rem;
-            `}
-          >
+          <>
             <fieldset className={groupCss}>
-              <legend className={legendCss}>{t("heading-module-chapters")}</legend>
+              <legend className={subheadingCss}>{t("heading-module-chapters")}</legend>
               <div className={fieldRowCss}>
                 <Select
                   name="starts"
@@ -327,7 +298,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             </fieldset>
 
             <fieldset className={groupCss}>
-              <legend className={legendCss}>{t("heading-module-completion")}</legend>
+              <legend className={subheadingCss}>{t("heading-module-completion")}</legend>
               <Checkbox
                 name="automatic_completion"
                 control={control}
@@ -361,7 +332,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             </fieldset>
 
             <fieldset className={groupCss}>
-              <legend className={legendCss}>{t("heading-module-credits")}</legend>
+              <legend className={subheadingCss}>{t("heading-module-credits")}</legend>
               <div className={fieldRowCss}>
                 <TextField
                   name="uh_course_code"
@@ -380,7 +351,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             </fieldset>
 
             <fieldset className={groupCss}>
-              <legend className={legendCss}>{t("heading-credit-registration")}</legend>
+              <legend className={subheadingCss}>{t("heading-credit-registration")}</legend>
               <CreditRegistrationConfigCallout
                 configs={[
                   {
@@ -435,12 +406,12 @@ const EditCourseModuleForm: React.FC<Props> = ({
                     ]}
                   />
                   <fieldset className={groupCss}>
-                    <legend className={legendCss}>
+                    <legend className={subheadingCss}>
                       {t("heading-credit-registration-realisations")}
                     </legend>
-                    <p className={hintCss}>{t("hint-credit-registration-realisations")}</p>
+                    <p className={noteCss}>{t("hint-credit-registration-realisations")}</p>
                     {realisations.fields.length === 0 ? (
-                      <p className={hintCss}>{t("credit-registration-no-realisations")}</p>
+                      <p className={noteCss}>{t("credit-registration-no-realisations")}</p>
                     ) : (
                       <div className={realisationsCss}>
                         {realisations.fields.map((field, index) => (
@@ -509,7 +480,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 }
               />
             </fieldset>
-          </div>
+          </>
         )}
         <div className={actionsCss}>
           {active ? (

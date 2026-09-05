@@ -13,9 +13,9 @@ export const COMPLETIONS_LEAF_MIN_WIDTH = 60
 export const tableViewportCss = css`
   position: relative;
   width: 100%;
-  border: 1px solid #ced1d7;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid var(--color-clear-300);
+  border-radius: var(--surface-radius);
+  background: var(--color-clear-50);
 `
 
 // Fixed-position clone of the header shown once the real thead scrolls above the viewport.
@@ -35,7 +35,7 @@ export const floatingHeaderShellDynamic = (left: number, width: number) => css`
 `
 
 export const floatingHeaderInnerCss = css`
-  background: #fff;
+  background: var(--color-clear-50);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
   overflow: hidden;
   display: inline-block;
@@ -101,7 +101,7 @@ export const resizeHandleCss = css`
 `
 
 export const headerRowStyle = css`
-  background: #f7f8f9;
+  background: var(--color-clear-100);
   height: 40px;
 
   ${respondToOrLarger.md} {
@@ -118,10 +118,10 @@ export const thStyle = css`
   padding-right: 8px;
   text-align: left;
   height: 40px;
-  background: #f7f8f9;
-  border-bottom: 1px solid #ced1d7;
+  background: var(--color-clear-100);
+  border-bottom: 1px solid var(--color-clear-300);
   vertical-align: middle;
-  border-right: 1px solid #ced1d7;
+  border-right: 1px solid var(--color-clear-300);
 
   ${respondToOrLarger.md} {
     font-size: 14px;
@@ -136,18 +136,10 @@ export const thStyle = css`
   }
 
   &:first-of-type {
-    border-radius: 4px 0 0 0;
-
-    ${respondToOrLarger.md} {
-      border-radius: 7px 0 0 0;
-    }
+    border-radius: var(--surface-radius) 0 0 0;
   }
   &:last-of-type {
-    border-radius: 0 4px 0 0;
-
-    ${respondToOrLarger.md} {
-      border-radius: 0 7px 0 0;
-    }
+    border-radius: 0 var(--surface-radius) 0 0;
   }
 `
 
@@ -175,13 +167,14 @@ export const tdStyle = css`
   font-weight: 400;
   font-size: 12px;
   line-height: 140%;
+  font-variant-numeric: tabular-nums;
   padding-left: 8px;
   padding-right: 8px;
   height: 42px;
   vertical-align: middle;
-  background: #fff;
-  border-bottom: 1px solid #ced1d7;
-  border-right: 1px solid #ced1d7;
+  background: var(--color-clear-50);
+  border-bottom: 1px solid var(--color-clear-300);
+  border-right: 1px solid var(--color-clear-300);
 
   ${respondToOrLarger.md} {
     font-size: 14px;

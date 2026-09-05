@@ -7,7 +7,7 @@ import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
-import { QUIET_REFRESH } from "@/components/credit-registration/constants"
+import { ABSENT, QUIET_REFRESH } from "@/components/credit-registration/constants"
 import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
 import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
 import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
@@ -30,8 +30,6 @@ import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
 import { StaleTableWrapper } from "./StaleTableWrapper"
 import { STUDENT_PILL_CHROME_PX, StudentPillCell, studentPillText } from "./StudentPillCell"
-
-const PLACEHOLDER = "-"
 
 /** Stable identity so the column memo does not rebuild on every render before the fetch lands. */
 const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
@@ -103,23 +101,25 @@ const gradeLabel = (grade: unknown, passed: unknown, t: TFunction): string => {
     return String(grade)
   }
   if (passed === true) {
-    return t("passed")
+    return t("label-passed")
   }
   if (passed === false) {
-    return t("failed")
+    return t("label-not-passed")
   }
-  return PLACEHOLDER
+  return ABSENT
 }
 
-// Single line so every row is the same height, which is what keeps the virtualized body from
-// shifting as it scrolls.
+// Single line, right-aligned so every row is the same height and grades read as numbers, which is
+// what keeps the virtualized body from shifting as it scrolls.
 const inlineCellClass = css`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: flex-end;
   flex-wrap: nowrap;
   min-width: 0;
-  gap: 0.25rem;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
 `
 
 /** Width of the review badge, which the plain-text column measurement cannot see. */
@@ -148,7 +148,7 @@ const RegistrationCell: React.FC<{
   if (creditRegistration) {
     return <CreditRegistrationStatusCell registration={creditRegistration} />
   }
-  return <span>{registered ? t("registered") : PLACEHOLDER}</span>
+  return <span>{registered ? t("registered") : ABSENT}</span>
 }
 
 const buildColumns = (
@@ -262,9 +262,6 @@ export const CompletionsTabContent: React.FC = () => {
             <StudentsTable
               columns={columns}
               data={data}
-              colorHeaders
-              colorColumns
-              colorHeaderUnderline
               sorting={sorting}
               onSortingChange={onSortingChange}
             />

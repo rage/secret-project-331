@@ -19,7 +19,7 @@ const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
     if (grade !== null && grade !== undefined) {
       return grade.toString()
     }
-    return passed ? t("column-passed") : t("column-failed")
+    return passed ? t("label-passed") : t("label-not-passed")
   }
 
   return (
@@ -138,10 +138,10 @@ function formatGrade(grade: number | null | undefined, t: TFunction): string {
     return "-"
   }
   if (grade === -1) {
-    return t("column-failed")
+    return t("label-not-passed")
   }
   if (grade === 0.5) {
-    return t("column-passed")
+    return t("label-passed")
   }
   return grade.toString()
 }

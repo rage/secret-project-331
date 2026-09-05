@@ -7,6 +7,7 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
+import { ABSENT } from "@/components/credit-registration/constants"
 import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
 import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
 import { creditRegistrationKey } from "@/components/credit-registration/teacherCreditRegistrations"
@@ -34,19 +35,19 @@ const STUDENT_PILL_CHROME_PX = 50
 /** Width of the review badge and the attempt note, which the text measurement cannot see. */
 const GRADE_CHROME_PX = 60
 
-const PLACEHOLDER = "-"
-
 /** The sort key the page's sorter recognises for the student column. */
 export const STUDENT_COLUMN_ID = "student"
 
-// Single line so every row is the same height, which is what keeps the virtualized body from
-// shifting as it scrolls.
+// Single line, right-aligned so every row is the same height and grades read as numbers, which is
+// what keeps the virtualized body from shifting as it scrolls.
 const inlineCellCss = css`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   flex-wrap: nowrap;
   min-width: 0;
-  gap: 0.25rem;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
 `
 
 const attemptsCss = css`
@@ -57,19 +58,19 @@ const attemptsCss = css`
 
 const gradeText = (summary: ModuleCompletionSummary, t: TFunction): string => {
   if (summary.latest === null) {
-    return PLACEHOLDER
+    return ABSENT
   }
   const grade = summary.latest.grade
   if (grade !== null && grade !== undefined) {
     return String(grade)
   }
-  return summary.latest.passed ? t("column-passed") : t("column-failed")
+  return summary.latest.passed ? t("label-passed") : t("label-not-passed")
 }
 
 const GradeCell: React.FC<{ summary: ModuleCompletionSummary }> = ({ summary }) => {
   const { t } = useTranslation()
   if (summary.latest === null) {
-    return <span>{PLACEHOLDER}</span>
+    return <div className={inlineCellCss}>{ABSENT}</div>
   }
   return (
     <div className={inlineCellCss}>
@@ -160,7 +161,7 @@ const buildColumns = (
             if (summary.latest === null) {
               return null
             }
-            return <span>{summary.latest.registered ? t("yes") : PLACEHOLDER}</span>
+            return <span>{summary.latest.registered ? t("yes") : ABSENT}</span>
           },
         },
       ],
@@ -189,9 +190,6 @@ const CompletionsTable: React.FC<CompletionsTableProps> = ({
     <StudentsTable
       columns={columns}
       data={rows}
-      colorHeaders
-      colorColumns
-      colorHeaderUnderline
       sorting={sorting}
       onSortingChange={onSortingChange}
     />

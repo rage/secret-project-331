@@ -1,7 +1,7 @@
 "use client"
 
-import { css } from "@emotion/css"
-import React from "react"
+import { cx } from "@emotion/css"
+import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -24,7 +24,9 @@ import {
 import {
   controlCss,
   controlsCss,
+  emptyStateCss,
   headingCss,
+  monospaceCss,
   noteCss,
   rowCss,
   sectionCss,
@@ -40,10 +42,10 @@ import {
 import type { BadgeTone } from "@/shared-module/components"
 import {
   Badge,
+  Button,
   Checkbox,
-  Disclosure,
+  Dialog,
   Link,
-  Meter,
   QueryResult,
   RelativeTime,
   Select,
@@ -86,12 +88,10 @@ interface ViewFields {
   problemsOnly: boolean
 }
 
-const meterCss = css`
-  min-width: 9rem;
-`
-
+/** One module's configuration checks, in a dialog so the table row stays one line high. */
 const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
   const checks: { label: string; value: boolean | null }[] = [
     {
       label: t("credit-registration-admin-check-course-code"),
@@ -108,32 +108,47 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
     },
   ]
   return (
-    <Disclosure title={t("credit-registration-admin-column-configuration")}>
-      <div className={rowCss}>
-        {checks.map((check) => (
-          <Badge
-            key={check.label}
-            // Never checked is not checked and failed, so it stays neutral rather than red.
-            tone={check.value === null ? TONE.NEUTRAL : check.value ? TONE.SUCCESS : TONE.DANGER}
-          >
-            {check.value === null
-              ? `${check.label}: ${t("credit-registration-admin-check-not-checked")}`
-              : check.label}
-          </Badge>
-        ))}
-      </div>
-      {module.check.message && <p className={noteCss}>{module.check.message}</p>}
-      <p className={noteCss}>
-        {module.config_checked_at === null ? (
-          t("credit-registration-admin-never-config-checked")
-        ) : (
-          <>
-            {t("credit-registration-admin-config-checked-at")}{" "}
-            <RelativeTime at={module.config_checked_at} absoluteTime={TIME_IN_TITLE} />
-          </>
-        )}
-      </p>
-    </Disclosure>
+    <>
+      <Button variant="tertiary" size="small" onClick={() => setOpen(true)}>
+        {t("label-details")}
+      </Button>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t("credit-registration-admin-column-configuration")}
+      >
+        <div className={sectionCss}>
+          <div className={rowCss}>
+            {checks.map((check) => (
+              <Badge
+                key={check.label}
+                // Never checked is not checked and failed, so it stays neutral rather than red.
+                tone={
+                  check.value === null ? TONE.NEUTRAL : check.value ? TONE.SUCCESS : TONE.DANGER
+                }
+              >
+                {check.value === null
+                  ? `${check.label}: ${t("credit-registration-admin-check-not-checked")}`
+                  : check.label}
+              </Badge>
+            ))}
+          </div>
+          {module.check.message && (
+            <p className={cx(noteCss, monospaceCss)}>{module.check.message}</p>
+          )}
+          <p className={noteCss}>
+            {module.config_checked_at === null ? (
+              t("credit-registration-admin-never-config-checked")
+            ) : (
+              <>
+                {t("credit-registration-admin-config-checked-at")}{" "}
+                <RelativeTime at={module.config_checked_at} absoluteTime={TIME_IN_TITLE} />
+              </>
+            )}
+          </p>
+        </div>
+      </Dialog>
+    </>
   )
 }
 
@@ -166,21 +181,6 @@ const CourseSection: React.FC = () => {
           })
           return (
             <>
-              <StatTileList ariaLabel={t("credit-registration-heading-courses")}>
-                <StatTile
-                  label={t("credit-registration-admin-modules-enabled")}
-                  value={stats.modules.length}
-                />
-                <StatTile
-                  label={t("credit-registration-admin-modules-misconfigured")}
-                  value={stats.misconfigured_count}
-                  {...includeIf(stats.misconfigured_count > 0, { tone: TONE.ALERT })}
-                />
-                <StatTile
-                  label={t("credit-registration-admin-modules-paused")}
-                  value={pausedCount}
-                />
-              </StatTileList>
               <div className={controlsCss}>
                 <div className={controlCss}>
                   <Select
@@ -206,8 +206,23 @@ const CourseSection: React.FC = () => {
                   label={t("credit-registration-admin-only-problems")}
                 />
               </div>
+              <StatTileList ariaLabel={t("credit-registration-heading-courses")}>
+                <StatTile
+                  label={t("credit-registration-admin-modules-enabled")}
+                  value={stats.modules.length}
+                />
+                <StatTile
+                  label={t("credit-registration-admin-modules-misconfigured")}
+                  value={stats.misconfigured_count}
+                  {...includeIf(stats.misconfigured_count > 0, { tone: TONE.ALERT })}
+                />
+                <StatTile
+                  label={t("credit-registration-admin-modules-paused")}
+                  value={pausedCount}
+                />
+              </StatTileList>
               {modules.length === 0 ? (
-                <p className={noteCss}>{t("credit-registration-admin-no-enabled-modules")}</p>
+                <p className={emptyStateCss}>{t("credit-registration-admin-no-enabled-modules")}</p>
               ) : (
                 <Table
                   caption={t("credit-registration-heading-courses-table")}
@@ -224,9 +239,9 @@ const CourseSection: React.FC = () => {
                             {row.course_name}
                           </Link>
                           <span className={noteCss}>
-                            {[row.course_module_name, row.uh_course_code]
-                              .filter(Boolean)
-                              .join(MIDDLE_DOT)}
+                            {row.course_module_name}
+                            {row.course_module_name && row.uh_course_code ? MIDDLE_DOT : null}
+                            {row.uh_course_code ? <code>{row.uh_course_code}</code> : null}
                           </span>
                         </span>
                       ),
@@ -236,7 +251,7 @@ const CourseSection: React.FC = () => {
                       cell: (row) => {
                         const status = courseModuleStatus(row)
                         return (
-                          <span className={stackedCellCss}>
+                          <span className={rowCss}>
                             <Badge
                               tone={STATUS_TONES[status]}
                               {...includeIf(row.pause_reason, { title: row.pause_reason })}
@@ -250,17 +265,8 @@ const CourseSection: React.FC = () => {
                     },
                     {
                       header: t("credit-registration-admin-column-backfill"),
-                      cell: (row) => (
-                        <span className={meterCss}>
-                          <Meter
-                            value={row.registration_count}
-                            maxValue={Math.max(row.eligible_completion_count, 1)}
-                            label={t("credit-registration-admin-column-backfill")}
-                            valueLabel={`${row.registration_count} / ${row.eligible_completion_count}`}
-                            showLabel={false}
-                          />
-                        </span>
-                      ),
+                      align: ALIGN_END,
+                      cell: (row) => `${row.registration_count} / ${row.eligible_completion_count}`,
                     },
                     {
                       header: t("credit-registration-admin-column-registered"),

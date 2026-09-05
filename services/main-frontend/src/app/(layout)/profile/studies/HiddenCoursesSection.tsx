@@ -1,10 +1,11 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { dividedListCss, noteCss, rowCss } from "@/components/credit-registration/styles"
 import {
   getMyCoursesQueryKey,
   getMyStudiesQueryKey,
@@ -12,36 +13,22 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyStudiesCourse } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { Button, Disclosure } from "@/shared-module/components"
 
 export interface HiddenCoursesSectionProps {
   courses: MyStudiesCourse[]
 }
 
-const rowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid ${baseTheme.colors.clear[300]};
-
-  &:last-of-type {
-    border-bottom: none;
-  }
-`
+const itemCss = cx(
+  rowCss,
+  css`
+    justify-content: space-between;
+  `,
+)
 
 const courseNameCss = css`
-  font-weight: ${fontWeights.medium};
-  color: ${baseTheme.colors.gray[700]};
-`
-
-const noteCss = css`
-  color: ${baseTheme.colors.gray[600]};
-  font-size: 0.9rem;
-  margin: 0 0 0.5rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
 `
 
 const POST = "POST"
@@ -65,19 +52,21 @@ const HiddenCoursesSection: React.FC<HiddenCoursesSectionProps> = ({ courses }) 
   return (
     <Disclosure title={t("hidden-courses-n", { n: courses.length })}>
       <p className={noteCss}>{t("hidden-courses-are-not-included-in-the-summary")}</p>
-      {courses.map((course) => (
-        <div className={rowCss} key={course.course_id}>
-          <span className={courseNameCss}>{course.course_name}</span>
-          <Button
-            variant="secondary"
-            size="small"
-            onPress={() => unhideCourseMutation.mutate({ path: { course_id: course.course_id } })}
-            aria-label={t("unhide-course", { title: course.course_name })}
-          >
-            {t("unhide")}
-          </Button>
-        </div>
-      ))}
+      <ul className={dividedListCss}>
+        {courses.map((course) => (
+          <li className={itemCss} key={course.course_id}>
+            <span className={courseNameCss}>{course.course_name}</span>
+            <Button
+              variant="secondary"
+              size="small"
+              onPress={() => unhideCourseMutation.mutate({ path: { course_id: course.course_id } })}
+              aria-label={t("unhide-course", { title: course.course_name })}
+            >
+              {t("unhide")}
+            </Button>
+          </li>
+        ))}
+      </ul>
     </Disclosure>
   )
 }

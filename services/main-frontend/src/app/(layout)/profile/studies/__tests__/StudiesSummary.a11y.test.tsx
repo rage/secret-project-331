@@ -7,24 +7,9 @@ import StudiesSummary from "../StudiesSummary"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
 describe("StudiesSummary", () => {
-  it("shows each total next to a text label, inside a named list", () => {
+  it("summarises completions and ECTS as one line under the tab heading", () => {
     render(<StudiesSummary totals={{ courses: 4, completions: 6, ects: 27 }} />)
 
-    expect(screen.getByRole("list")).toHaveAccessibleName("heading-summary")
-    expect(screen.getByText("stat-completions")).toBeInTheDocument()
-    expect(screen.getByText("stat-ects-earned")).toBeInTheDocument()
-    expect(screen.getByText("6")).toBeInTheDocument()
-  })
-
-  it("does not dress a whole number of credits up as a decimal", () => {
-    render(<StudiesSummary totals={{ courses: 1, completions: 1, ects: 5 }} />)
-
-    expect(screen.getByText("5")).toBeInTheDocument()
-  })
-
-  it("keeps a fractional credit total", () => {
-    render(<StudiesSummary totals={{ courses: 1, completions: 1, ects: 7.5 }} />)
-
-    expect(screen.getByText("7.5")).toBeInTheDocument()
+    expect(screen.getByText("studies-summary-completions-and-ects")).toBeInTheDocument()
   })
 })

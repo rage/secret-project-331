@@ -1,54 +1,35 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { MIDDLE_DOT } from "@/components/credit-registration/constants"
+import {
+  dividedListCss,
+  headingCss,
+  noteCss,
+  rowCss,
+  sectionCss,
+} from "@/components/credit-registration/styles"
 import { getMyCertificatesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { UserCertificate } from "@/generated/api/types.generated"
-import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Link, QueryResult } from "@/shared-module/components"
 
-const headingCss = css`
-  font-size: 1.125rem;
-  font-weight: ${fontWeights.semibold};
-  color: ${baseTheme.colors.gray[700]};
-  margin: 1.5rem 0 0.75rem;
-`
-
-const listCss = css`
-  list-style: none;
-  margin: 0;
-  padding: 0;
-`
-
-const rowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid ${baseTheme.colors.clear[300]};
-
-  &:last-of-type {
-    border-bottom: none;
-  }
-`
+const itemCss = cx(
+  rowCss,
+  css`
+    justify-content: space-between;
+  `,
+)
 
 const titleCss = css`
-  font-weight: ${fontWeights.medium};
-  color: ${baseTheme.colors.gray[700]};
-`
-
-const metaCss = css`
-  color: ${baseTheme.colors.gray[500]};
-  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
 `
 
 /**
@@ -74,16 +55,16 @@ export const CertificatesList: React.FC<{ certificates: UserCertificate[] }> = (
   const { t } = useTranslation()
 
   return (
-    <section>
+    <section className={sectionCss}>
       <h2 className={headingCss}>{t("heading-your-certificates")}</h2>
-      <ul className={listCss}>
+      <ul className={dividedListCss}>
         {certificates.map((certificate) => (
-          <li key={certificate.id} className={rowCss}>
+          <li key={certificate.id} className={itemCss}>
             <div>
               <div className={titleCss}>
                 {certificate.course_module_name ?? certificate.course_name}
               </div>
-              <div className={metaCss}>
+              <div className={noteCss}>
                 {certificate.course_module_name ? (
                   <>
                     {certificate.course_name}

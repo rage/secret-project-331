@@ -1,17 +1,23 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  cardGridCss,
+  emptyStateCss,
+  headingCss,
+  sectionCss,
+  sectionHeaderCss,
+  sectionsCss,
+} from "@/components/credit-registration/styles"
 import {
   getMyCreditRegistrationsOptions,
   getMyStudiesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration, MyStudiesCourse } from "@/generated/api/types.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Link, QueryResult } from "@/shared-module/components"
 
@@ -20,30 +26,6 @@ import CertificatesSection from "./CertificatesSection"
 import HiddenCoursesSection from "./HiddenCoursesSection"
 import StudiesCourseCard from "./StudiesCourseCard"
 import StudiesSummary from "./StudiesSummary"
-
-const headingCss = css`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-gray-700);
-  margin: 1.75rem 0 0.75rem;
-`
-
-const emptyStateCss = css`
-  color: var(--color-gray-600);
-  margin: 0 0 0.5rem;
-`
-
-const courseGridCss = css`
-  display: grid;
-  gap: 0.75rem;
-  ${respondToOrLarger.md} {
-    grid-template-columns: repeat(auto-fill, minmax(23rem, 1fr));
-  }
-`
-
-const hiddenSectionCss = css`
-  margin-top: 1.5rem;
-`
 
 const isCompleted = (course: MyStudiesCourse): boolean =>
   course.modules.length > 0 && course.modules.every((module) => module.completion?.passed === true)
@@ -86,7 +68,8 @@ const StudiesPage: React.FC = () => {
       {(myStudies) => {
         if (myStudies.courses.length === 0) {
           return (
-            <div>
+            <div className={sectionsCss}>
+              <h2 className={headingCss}>{t("profile-studies-tab")}</h2>
               <p className={emptyStateCss}>{t("you-have-not-started-any-courses-yet")}</p>
               <Link href={FIND_MORE_COURSES_URL}>{t("link-text-find-more-courses")}</Link>
             </div>
@@ -100,9 +83,9 @@ const StudiesPage: React.FC = () => {
 
         const courseSection = (heading: string, courses: MyStudiesCourse[]) =>
           courses.length === 0 ? null : (
-            <section>
+            <section className={sectionCss}>
               <h2 className={headingCss}>{heading}</h2>
-              <div className={courseGridCss}>
+              <div className={cardGridCss}>
                 {courses.map((course) => (
                   <StudiesCourseCard
                     key={course.course_id}
@@ -115,8 +98,11 @@ const StudiesPage: React.FC = () => {
           )
 
         return (
-          <div>
-            <StudiesSummary totals={myStudies.totals} />
+          <div className={sectionsCss}>
+            <div className={sectionHeaderCss}>
+              <h2 className={headingCss}>{t("profile-studies-tab")}</h2>
+              <StudiesSummary totals={myStudies.totals} />
+            </div>
 
             {visibleCourses.length === 0 ? (
               <p className={emptyStateCss}>{t("all-of-your-courses-are-hidden")}</p>
@@ -126,11 +112,7 @@ const StudiesPage: React.FC = () => {
 
             <CertificatesSection />
 
-            {hiddenCourses.length > 0 ? (
-              <div className={hiddenSectionCss}>
-                <HiddenCoursesSection courses={hiddenCourses} />
-              </div>
-            ) : null}
+            {hiddenCourses.length > 0 ? <HiddenCoursesSection courses={hiddenCourses} /> : null}
           </div>
         )
       }}

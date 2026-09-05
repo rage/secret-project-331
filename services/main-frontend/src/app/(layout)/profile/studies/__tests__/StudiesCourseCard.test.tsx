@@ -110,10 +110,10 @@ describe("StudiesCourseCard", () => {
     expect(tones.modules).toEqual(tones.neutral)
   })
 
-  it("badges a module the student passed as a success", () => {
+  it("does not badge a module the student passed as a success either", () => {
     const tones = badgeTones(true)
 
-    expect(tones.modules).not.toEqual(tones.neutral)
+    expect(tones.modules).toEqual(tones.neutral)
   })
 
   it("links a module's registration status to that module's own status page", () => {

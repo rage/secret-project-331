@@ -140,7 +140,7 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
       {errorHelp ? (
         <div className={subsectionCss}>
           <p className={proseCss}>{errorHelp}</p>
-          {/* Untranslated on purpose: this is the code an operator quotes to the registry. */}
+          {/* Untranslated on purpose: this is the identifier an operator quotes. */}
           <p className={noteCss}>
             <code>{row.error_code}</code>
           </p>

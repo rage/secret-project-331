@@ -18,11 +18,10 @@ import {
   Dialog,
   Infobox,
   RelativeTime,
-  RELATIVE_TIME_ABSENT_LABEL,
   TextField,
 } from "@/shared-module/components"
 
-import { MIDDLE_DOT, STACKED, TONE } from "../constants"
+import { ABSENT, MIDDLE_DOT, STACKED, TONE } from "../constants"
 import { controlCss, controlsCss, dialogFormCss, noteCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
@@ -124,11 +123,11 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber =
                 items={[
                   {
                     label: t("label-name"),
-                    value: `${preview.first_names ?? RELATIVE_TIME_ABSENT_LABEL} ${preview.last_name ?? RELATIVE_TIME_ABSENT_LABEL}`,
+                    value: `${preview.first_names ?? ABSENT} ${preview.last_name ?? ABSENT}`,
                   },
                   {
                     label: t("label-credit-registration-person-id"),
-                    value: <code>{preview.sisu_person_id ?? RELATIVE_TIME_ABSENT_LABEL}</code>,
+                    value: <code>{preview.sisu_person_id ?? ABSENT}</code>,
                   },
                   {
                     label: t("label-credit-registration-already-linked-to"),

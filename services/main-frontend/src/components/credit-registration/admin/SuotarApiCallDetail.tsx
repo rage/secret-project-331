@@ -19,6 +19,7 @@ import {
 import { ABSENT, TIME_IN_TITLE } from "../constants"
 import {
   emptyStateCss,
+  monospaceCss,
   noteCss,
   payloadCss,
   sectionCss,
@@ -129,7 +130,9 @@ const SuotarApiCallDetail: React.FC<Props> = ({ suotarApiCallId }) => {
                         },
                         {
                           header: t("label-student-number"),
-                          cell: (row) => row.student_number ?? ABSENT,
+                          cell: (row) => (
+                            <span className={monospaceCss}>{row.student_number ?? ABSENT}</span>
+                          ),
                         },
                         { header: t("label-course"), cell: (row) => row.course_name },
                         {

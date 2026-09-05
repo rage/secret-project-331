@@ -2,6 +2,7 @@ import type { TFunction } from "i18next"
 
 import type {
   CreditRegistrationErrorCode,
+  CreditRegistrationState,
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
 import type { RegistrationStatusState } from "@/shared-module/components"
@@ -115,3 +116,35 @@ export const registrationErrorHelp = (
   t: TFunction,
   errorCode: CreditRegistrationErrorCode | null | undefined,
 ): string | null => (errorCode ? labelFrom(t, ERROR_CODE_KEYS, errorCode, GENERIC_ERROR_KEY) : null)
+
+const LEDGER_STATE_KEYS = {
+  pending: "credit-registration-ledger-state-pending",
+  ready_to_submit: "credit-registration-ledger-state-ready-to-submit",
+  resolving_enrolment: "credit-registration-ledger-state-resolving-enrolment",
+  checking_enrolment: "credit-registration-ledger-state-checking-enrolment",
+  no_usable_enrolment: "credit-registration-ledger-state-no-usable-enrolment",
+  submitting: "credit-registration-ledger-state-submitting",
+  submission_uncertain: "credit-registration-ledger-state-submission-uncertain",
+  awaiting_verification: "credit-registration-ledger-state-awaiting-verification",
+  registered: "credit-registration-ledger-state-registered",
+  duplicate: "credit-registration-ledger-state-duplicate",
+  not_improved: "credit-registration-ledger-state-not-improved",
+  misregistered: "credit-registration-ledger-state-misregistered",
+  failed_retryable: "credit-registration-ledger-state-failed-retryable",
+  failed_permanent: "credit-registration-ledger-state-failed-permanent",
+  blocked: "credit-registration-ledger-state-blocked",
+  cancelled: "credit-registration-ledger-state-cancelled",
+} as const satisfies Record<CreditRegistrationState, string>
+
+const LEDGER_STATE_UNKNOWN_KEY = "credit-registration-ledger-state-unknown"
+
+/**
+ * One ledger state in a sentence a teacher can act on. Coarser than the state itself, so keep the
+ * raw state beside it wherever the teacher may have to quote it to support.
+ *
+ * Not `registrationStatusLabel`, which names the collapsed stage the student is shown.
+ */
+export const registrationLedgerStateLabel = (
+  t: TFunction,
+  state: CreditRegistrationState,
+): string => labelFrom(t, LEDGER_STATE_KEYS, state, LEDGER_STATE_UNKNOWN_KEY)

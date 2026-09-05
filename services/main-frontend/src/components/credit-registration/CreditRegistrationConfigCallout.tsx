@@ -1,17 +1,19 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
-import { monospaceFont } from "@/shared-module/common/styles"
-import { Badge, Infobox } from "@/shared-module/components"
+import { Badge, Infobox, Link } from "@/shared-module/components"
 
 import { TONE } from "./constants"
+import { monospaceCss, noteCss } from "./styles"
 
 interface Props {
   config: CourseModuleCreditRegistrationConfig | undefined
+  /** Names the module in the heading, for callers that show several modules at once. */
+  moduleName?: string
   /** Where the fields are edited, for callers that are not already on that page. */
   fixHref?: string
 }
@@ -23,10 +25,9 @@ const chipsCss = css`
   margin: 0.5rem 0;
 `
 
-// Written for an integrator and stored untranslated; it is what a teacher quotes to support.
 const diagnosticCss = css`
-  font-family: ${monospaceFont};
-  font-size: 0.875rem;
+  margin: 0;
+  font-size: 0.8125rem;
 `
 
 /**
@@ -36,7 +37,7 @@ const diagnosticCss = css`
  * leaves the checks unknown until it has listed the course at least once, and an unchecked module is
  * not a broken one.
  */
-const CreditRegistrationConfigCallout: React.FC<Props> = ({ config, fixHref }) => {
+const CreditRegistrationConfigCallout: React.FC<Props> = ({ config, moduleName, fixHref }) => {
   const { t } = useTranslation()
   if (!config?.enable_credit_registration_via_suotar) {
     return null
@@ -51,7 +52,14 @@ const CreditRegistrationConfigCallout: React.FC<Props> = ({ config, fixHref }) =
   const productTokenMissing = config.credit_registration_product_token_found === false
 
   return (
-    <Infobox tone={TONE.WARNING} heading={t("heading-credit-registration-config-problem")}>
+    <Infobox
+      tone={TONE.WARNING}
+      heading={
+        moduleName
+          ? t("heading-credit-registration-config-problem-in-module", { module: moduleName })
+          : t("heading-credit-registration-config-problem")
+      }
+    >
       <div className={chipsCss}>
         <Badge tone={courseCodeFailed ? TONE.WARNING : TONE.NEUTRAL}>
           {courseCodeFailed
@@ -64,8 +72,12 @@ const CreditRegistrationConfigCallout: React.FC<Props> = ({ config, fixHref }) =
             : t("credit-registration-config-product-token-found")}
         </Badge>
       </div>
-      <p className={diagnosticCss}>{config.credit_registration_config_check_message}</p>
-      {fixHref && <a href={fixHref}>{t("link-edit-course-modules")}</a>}
+      <p className={noteCss}>{t("credit-registration-config-diagnostic-for-support")}</p>
+      {/* Written for an integrator and stored untranslated; it is what a teacher quotes to support. */}
+      <p className={cx(noteCss, monospaceCss, diagnosticCss)}>
+        {config.credit_registration_config_check_message}
+      </p>
+      {fixHref && <Link href={fixHref}>{t("link-edit-course-modules")}</Link>}
     </Infobox>
   )
 }

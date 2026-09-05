@@ -28,7 +28,7 @@ test.describe("The teacher opts the module in", () => {
     await page.goto(MODULES_URL)
     const moduleForm = page.locator('form:has-text("Default module")')
     await moduleForm.getByRole("button", { name: "Edit" }).click()
-    await page.getByLabel("Register completions to the study registry automatically").check()
+    await page.getByRole("radio", { name: "In the study registry" }).check()
     // The realisation list starts empty, and a module with no realisation is never listed.
     await page.getByRole("button", { name: "Add realisation" }).click()
     await page.getByLabel("Realisation id").last().fill(REALISATION_ID)

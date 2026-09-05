@@ -7,6 +7,7 @@ import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
+import { QUIET_REFRESH } from "@/components/credit-registration/constants"
 import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
 import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
 import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
@@ -15,8 +16,7 @@ import {
   useTeacherCreditRegistrations,
 } from "@/components/credit-registration/teacherCreditRegistrations"
 import type { CompletionGridRow, CourseCreditRegistration } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { QueryResults } from "@/shared-module/components"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import {
@@ -113,7 +113,7 @@ const gradeLabel = (grade: unknown, passed: unknown, t: TFunction): string => {
 
 // Single line so every row is the same height, which is what keeps the virtualized body from
 // shifting as it scrolls.
-const statusCellClass = css`
+const inlineCellClass = css`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -122,22 +122,33 @@ const statusCellClass = css`
   gap: 0.25rem;
 `
 
-const StatusCell: React.FC<{
-  registered: boolean
+/** Width of the review badge, which the plain-text column measurement cannot see. */
+const NEEDS_REVIEW_BADGE_PX = 44
+
+const GradeCell: React.FC<{
+  grade: unknown
+  passed: unknown
   needsReview: boolean
-  creditRegistration: CourseCreditRegistration | undefined
-}> = ({ registered, needsReview, creditRegistration }) => {
+}> = ({ grade, passed, needsReview }) => {
   const { t } = useTranslation()
-  const status = registered ? t("registered") : PLACEHOLDER
-  // The ledger also says why nothing has happened yet, so its badge wins over the legacy yes/no.
-  const showStatus = !creditRegistration && (registered || !needsReview)
   return (
-    <div className={statusCellClass}>
-      {creditRegistration && <CreditRegistrationStatusCell registration={creditRegistration} />}
-      {showStatus && <span>{status}</span>}
+    <div className={inlineCellClass}>
+      <span>{gradeLabel(grade, passed, t)}</span>
       {needsReview && <CourseModuleCompletionNeedsReviewBadge />}
     </div>
   )
+}
+
+/** The registry's own state when the ledger has a row, else the legacy registered flag. */
+const RegistrationCell: React.FC<{
+  registered: boolean
+  creditRegistration: CourseCreditRegistration | undefined
+}> = ({ registered, creditRegistration }) => {
+  const { t } = useTranslation()
+  if (creditRegistration) {
+    return <CreditRegistrationStatusCell registration={creditRegistration} />
+  }
+  return <span>{registered ? t("registered") : PLACEHOLDER}</span>
 }
 
 const buildColumns = (
@@ -175,19 +186,24 @@ const buildColumns = (
           accessorKey: gradeKeyOf(moduleId),
           enableSorting: false,
           minSize: COMPLETIONS_LEAF_MIN_WIDTH,
-          cell: ({ row }) =>
-            gradeLabel(row.original[gradeKeyOf(moduleId)], row.original[passedKeyOf(moduleId)], t),
+          cell: ({ row }) => (
+            <GradeCell
+              grade={row.original[gradeKeyOf(moduleId)]}
+              passed={row.original[passedKeyOf(moduleId)]}
+              needsReview={Boolean(row.original[needsReviewKeyOf(moduleId)])}
+            />
+          ),
+          meta: { measureExtraPx: NEEDS_REVIEW_BADGE_PX },
         },
         {
           // oxlint-disable-next-line i18next/no-literal-string
-          id: `${moduleId}__status`,
-          header: t("status"),
+          id: `${moduleId}__registration`,
+          header: t("credit-registration-column-registration"),
           enableSorting: false,
           minSize: COMPLETIONS_LEAF_MIN_WIDTH,
           cell: ({ row }) => (
-            <StatusCell
+            <RegistrationCell
               registered={Boolean(row.original[registeredKeyOf(moduleId)])}
-              needsReview={Boolean(row.original[needsReviewKeyOf(moduleId)])}
               creditRegistration={creditRegistrations.get(
                 creditRegistrationKey(row.original.user_id, moduleId),
               )}
@@ -230,30 +246,31 @@ export const CompletionsTabContent: React.FC = () => {
     [modulesInOrder, t, creditRegistrations],
   )
 
-  if (identityQuery.isError) {
-    return <ErrorBanner error={identityQuery.error} />
-  }
-  if (detailQuery.isError) {
-    return <ErrorBanner error={detailQuery.error} />
-  }
-  if (identityQuery.isPending || (userIds.length > 0 && detailQuery.isLoading)) {
-    return <Spinner variant="medium" />
-  }
+  // The detail request is skipped while the page lists nobody, so a query that can never resolve
+  // must stay out of the tuple.
+  const queries = userIds.length > 0 ? [identityQuery, detailQuery] : [identityQuery]
 
   return (
     <>
       {canSeeCreditRegistrations && <CourseCreditRegistrationSummaryPanel courseId={courseId} />}
-      <StaleTableWrapper isStale={isStale}>
-        <StudentsTable
-          columns={columns}
-          data={data}
-          colorHeaders
-          colorColumns
-          colorHeaderUnderline
-          sorting={sorting}
-          onSortingChange={onSortingChange}
-        />
-      </StaleTableWrapper>
+      <QueryResults
+        queries={queries}
+        treatEmptyAsData
+        refreshIndicator={QUIET_REFRESH}
+        renderData={() => (
+          <StaleTableWrapper isStale={isStale}>
+            <StudentsTable
+              columns={columns}
+              data={data}
+              colorHeaders
+              colorColumns
+              colorHeaderUnderline
+              sorting={sorting}
+              onSortingChange={onSortingChange}
+            />
+          </StaleTableWrapper>
+        )}
+      />
     </>
   )
 }

@@ -1,25 +1,33 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
-import { monospaceFont } from "@/shared-module/common/styles"
-import { humanReadableDateTime } from "@/shared-module/common/utils/time"
-import { Badge, DescriptionList, Dialog, QueryResult } from "@/shared-module/components"
+import {
+  Badge,
+  DescriptionList,
+  Dialog,
+  QueryResult,
+  RelativeTime,
+  Table,
+} from "@/shared-module/components"
 
+import { eventKindLabel } from "./admin/adminCreditRegistrationCopy"
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
-import { STACKED } from "./constants"
+import { STACKED, TIME_IN_TITLE } from "./constants"
 import {
   registrationErrorHelp,
   registrationExplanation,
   registrationGradeLabel,
+  registrationLedgerStateLabel,
   registrationStatusLabel,
 } from "./creditRegistrationCopy"
 import RetryCreditRegistrationBlock from "./RetryCreditRegistrationBlock"
+import { headingCss, monospaceCss, noteCss, stackedCellCss } from "./styles"
 import {
   isAdminEstablishedLink,
   linkingEmailSentence,
@@ -34,35 +42,8 @@ interface Props {
   onClose: () => void
 }
 
-const timelineCss = css`
-  display: grid;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-`
-
-const timelineRowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: baseline;
-  font-size: 0.875rem;
-`
-
-const timestampCss = css`
-  color: var(--color-gray-500);
-  font-variant-numeric: tabular-nums;
-`
-
-const ledgerStateCss = css`
-  font-family: ${monospaceFont};
-  color: var(--color-gray-600);
-`
-
-const sectionHeadingCss = css`
-  font-weight: 500;
-  margin: 1.5rem 0 0.5rem;
+const timelineSectionCss = css`
+  margin-top: 1.5rem;
 `
 
 // A support-established link rests on judgement, so it is toned apart from a confirmed one.
@@ -192,19 +173,39 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
                 ]}
               />
             ) : null}
-            <div className={sectionHeadingCss}>{t("heading-credit-registration-timeline")}</div>
-            <ul className={timelineCss}>
-              {details.events.map((event) => (
-                <li className={timelineRowCss} key={event.id}>
-                  <span className={timestampCss}>
-                    {humanReadableDateTime(event.created_at, i18n.language)}
-                  </span>
-                  {/* Deliberately untranslated: this is what a teacher quotes to support. */}
-                  <span className={ledgerStateCss}>{event.to_state ?? event.kind}</span>
-                  {event.message && <span>{event.message}</span>}
-                </li>
-              ))}
-            </ul>
+            <div className={timelineSectionCss}>
+              <h3 className={headingCss}>{t("heading-credit-registration-timeline")}</h3>
+              <Table
+                caption={t("heading-credit-registration-timeline")}
+                rowKey={(event) => event.id}
+                rows={details.events}
+                columns={[
+                  {
+                    header: t("label-when"),
+                    cell: (event) => (
+                      <RelativeTime at={event.created_at} absoluteTime={TIME_IN_TITLE} />
+                    ),
+                  },
+                  {
+                    header: t("label-what-happened"),
+                    cell: (event) => (
+                      <span className={stackedCellCss}>
+                        <span>
+                          {event.to_state
+                            ? registrationLedgerStateLabel(t, event.to_state)
+                            : eventKindLabel(t, event.kind)}
+                        </span>
+                        {/* Untranslated on purpose: this is what a teacher quotes to support. */}
+                        <span className={cx(noteCss, monospaceCss)}>
+                          {event.to_state ?? event.kind}
+                        </span>
+                      </span>
+                    ),
+                  },
+                  { header: t("label-details"), cell: (event) => event.message ?? "" },
+                ]}
+              />
+            </div>
           </>
         )}
       </QueryResult>

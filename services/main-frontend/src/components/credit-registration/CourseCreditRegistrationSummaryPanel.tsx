@@ -11,14 +11,22 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistrationModuleSummary } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Badge, Meter, QueryResult, StatTile } from "@/shared-module/components"
+import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
+import {
+  Badge,
+  Button,
+  QueryResult,
+  StatTile,
+  StatTileList,
+  Table,
+} from "@/shared-module/components"
 
-import { TONE } from "./constants"
+import { ALIGN_END, QUIET_REFRESH, TONE } from "./constants"
 import CourseCreditRegistrationActionsPanel from "./CourseCreditRegistrationActionsPanel"
 import CreditRegistrationConfigCallout from "./CreditRegistrationConfigCallout"
 import CreditRegistrationExportLink from "./CreditRegistrationExportLink"
 import RetryFailedCreditRegistrationsBlock from "./RetryFailedCreditRegistrationsBlock"
-import { tilesCss } from "./styles"
+import { headingCss, rowCss, sectionCss } from "./styles"
 import UnlinkedStudentsDialog from "./UnlinkedStudentsDialog"
 
 interface Props {
@@ -27,52 +35,22 @@ interface Props {
 
 const rootCss = css`
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
   margin-bottom: 1.5rem;
-`
-
-const headingCss = css`
-  font-weight: 500;
-`
-
-const modulesCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const moduleRowCss = css`
-  display: grid;
-  gap: 0.25rem;
-`
-
-const moduleHeaderCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-`
-
-const actionsRowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-`
-
-const tileButtonCss = css`
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
 `
 
 const liveRowCount = (module: CourseCreditRegistrationModuleSummary): number =>
   module.counts_by_state.reduce((total, row) => total + row.count, 0)
 
+const sumBy = (
+  modules: CourseCreditRegistrationModuleSummary[],
+  pick: (module: CourseCreditRegistrationModuleSummary) => number,
+): number => modules.reduce((total, module) => total + pick(module), 0)
+
+/** Whether the course's credits are going through, and who is stuck, before any student row. */
 const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
-  const [showBlocked, setShowBlocked] = useState(false)
+  const [showUnlinked, setShowUnlinked] = useState(false)
   const summaryQuery = useQuery(
     getCourseCreditRegistrationSummaryOptions({ path: { course_id: courseId } }),
   )
@@ -81,89 +59,116 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
   )
 
   return (
-    <QueryResult query={summaryQuery}>
+    <QueryResult query={summaryQuery} refreshIndicator={QUIET_REFRESH}>
       {(summary) => {
         const enabledModules = summary.modules.filter((module) => module.enabled)
         if (enabledModules.length === 0) {
           return null
         }
+        const failedCount = sumBy(enabledModules, (module) => module.failed_permanent_count)
+        const attentionCount = sumBy(enabledModules, (module) => module.needs_admin_attention_count)
+        const configOf = (moduleId: string) =>
+          configsQuery.data?.modules.find((config) => config.course_module_id === moduleId)
+
         return (
           <section className={rootCss}>
-            <h2 className={headingCss}>{t("heading-credit-registration")}</h2>
-            <div className={modulesCss}>
-              {enabledModules.map((module) => {
-                const total = liveRowCount(module)
-                return (
-                  <div className={moduleRowCss} key={module.course_module_id}>
-                    <div className={moduleHeaderCss}>
-                      <span>{module.course_module_name ?? t("default-module")}</span>
-                      {module.paused && (
-                        <Badge tone={TONE.WARNING}>{t("credit-registration-module-paused")}</Badge>
-                      )}
-                    </div>
-                    <CreditRegistrationConfigCallout
-                      config={configsQuery.data?.modules.find(
-                        (config) => config.course_module_id === module.course_module_id,
-                      )}
-                      fixHref={`/manage/courses/${courseId}/pages`}
-                    />
-                    <Meter
-                      value={module.success_count}
-                      maxValue={Math.max(total, 1)}
-                      tone={module.failed_permanent_count > 0 ? TONE.NEUTRAL : TONE.SUCCESS}
-                      label={t("label-credit-registration-registered-of-completions")}
-                      valueLabel={t("credit-registration-registered-of-total", {
-                        registered: module.success_count,
-                        total,
-                      })}
-                      showLabel
-                    />
-                    <div className={tilesCss}>
-                      <StatTile
-                        label={t("label-credit-registration-failed")}
-                        value={module.failed_permanent_count}
-                        {...includeIf(module.failed_permanent_count > 0, { tone: TONE.ALERT })}
-                      />
-                      <StatTile
-                        label={t("label-credit-registration-needs-attention")}
-                        value={module.needs_admin_attention_count}
-                        {...includeIf(module.needs_admin_attention_count > 0, { tone: TONE.ALERT })}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            <div className={tilesCss}>
-              <button
-                type="button"
-                className={tileButtonCss}
-                onClick={() => setShowBlocked(true)}
-                aria-label={t("button-text-list-students-waiting-for-a-student-number")}
-              >
+            <section className={sectionCss}>
+              <h2 className={headingCss}>{t("heading-credit-registration")}</h2>
+              <StatTileList ariaLabel={t("heading-credit-registration")}>
+                <StatTile
+                  label={t("label-credit-registration-failed")}
+                  value={failedCount}
+                  {...includeIf(failedCount > 0, { tone: TONE.ALERT })}
+                />
+                <StatTile
+                  label={t("label-credit-registration-needs-attention")}
+                  value={attentionCount}
+                  {...includeIf(attentionCount > 0, { tone: TONE.ALERT })}
+                />
                 <StatTile
                   label={t("label-credit-registration-unlinked-enrolled-students")}
                   value={summary.unlinked_enrolled_student_count}
                 />
-              </button>
-              <StatTile
-                label={t("label-credit-registration-emails-we-could-not-send")}
-                value={summary.linking_emails_failed_to_send_count}
-                {...includeIf(summary.linking_emails_failed_to_send_count > 0, {
-                  tone: TONE.ALERT,
-                })}
+                <StatTile
+                  label={t("label-credit-registration-emails-we-could-not-send")}
+                  value={summary.linking_emails_failed_to_send_count}
+                  {...includeIf(summary.linking_emails_failed_to_send_count > 0, {
+                    tone: TONE.ALERT,
+                  })}
+                />
+              </StatTileList>
+            </section>
+
+            <section className={sectionCss}>
+              <h3 className={headingCss}>{t("heading-credit-registration-by-module")}</h3>
+              <Table
+                caption={t("heading-credit-registration-by-module")}
+                rowKey={(module) => module.course_module_id}
+                rows={enabledModules}
+                columns={[
+                  {
+                    header: t("module"),
+                    cell: (module) => (
+                      <span className={rowCss}>
+                        <span>{module.course_module_name ?? t("default-module")}</span>
+                        {module.paused && (
+                          <Badge tone={TONE.WARNING}>
+                            {t("credit-registration-module-paused")}
+                          </Badge>
+                        )}
+                      </span>
+                    ),
+                  },
+                  {
+                    header: t("label-credit-registration-registered-of-completions"),
+                    align: ALIGN_END,
+                    cell: (module) => module.success_count,
+                  },
+                  {
+                    header: t("completions"),
+                    align: ALIGN_END,
+                    cell: (module) => liveRowCount(module),
+                  },
+                  {
+                    header: t("credit-registration-column-failed"),
+                    align: ALIGN_END,
+                    cell: (module) => module.failed_permanent_count,
+                  },
+                  {
+                    header: t("credit-registration-column-needs-an-admin"),
+                    align: ALIGN_END,
+                    cell: (module) => module.needs_admin_attention_count,
+                  },
+                ]}
               />
-            </div>
-            <div className={actionsRowCss}>
-              <RetryFailedCreditRegistrationsBlock courseId={courseId} />
+              {enabledModules.map((module) => (
+                <CreditRegistrationConfigCallout
+                  key={module.course_module_id}
+                  config={configOf(module.course_module_id)}
+                  moduleName={module.course_module_name ?? t("default-module")}
+                  fixHref={manageCourseModulesRoute(courseId)}
+                />
+              ))}
+            </section>
+
+            <div className={rowCss}>
+              <Button
+                variant="secondary"
+                size="medium"
+                type="button"
+                onClick={() => setShowUnlinked(true)}
+              >
+                {t("button-text-list-students-waiting-for-a-student-number")}
+              </Button>
               <CreditRegistrationExportLink courseId={courseId} />
             </div>
+            <RetryFailedCreditRegistrationsBlock courseId={courseId} failedCount={failedCount} />
             <CourseCreditRegistrationActionsPanel courseId={courseId} />
-            {showBlocked && (
+            {showUnlinked && (
               <UnlinkedStudentsDialog
                 courseId={courseId}
-                open={showBlocked}
-                onClose={() => setShowBlocked(false)}
+                open={showUnlinked}
+                onClose={() => setShowUnlinked(false)}
               />
             )}
           </section>

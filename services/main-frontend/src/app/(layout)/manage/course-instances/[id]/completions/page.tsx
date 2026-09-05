@@ -2,16 +2,27 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { maxBy } from "lodash"
+import type { SortingState } from "@tanstack/react-table"
 import { useParams } from "next/navigation"
-import React, { useMemo, useState } from "react"
+import React, { useDeferredValue, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { QUIET_REFRESH } from "@/components/credit-registration/constants"
+import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
+import {
+  cardCss,
+  controlCss,
+  controlsCss,
+  headingCss,
+  noteCss,
+  sectionCss,
+  sectionsCss,
+} from "@/components/credit-registration/styles"
 import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
 import { useTeacherCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
-import FullWidthTable from "@/components/tables/FullWidthTable"
 import {
   getCourseInstanceCompletionsOptions,
   getCourseInstanceOptions,
@@ -21,106 +32,138 @@ import {
   previewCourseInstanceCompletions,
 } from "@/generated/api/sdk.generated"
 import type {
-  CourseModuleCompletionWithRegistrationInfo,
   ManualCompletionPreview,
   TeacherManualCompletionRequest,
-  UserWithModuleCompletions,
 } from "@/generated/api/types.generated"
-import CaretDownIcon from "@/imgs/caret-down.svg"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult } from "@/shared-module/components"
+import {
+  Button,
+  QueryResult,
+  Select,
+  StatTile,
+  StatTileList,
+  TextField,
+} from "@/shared-module/components"
 
-import ChapterPointsDashboard from "../ChapterPointsDashboard"
 import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
-import type { UserCompletionRowUser } from "../UserCompletionRow"
-import UserCompletionRow from "../UserCompletionRow"
 import CompletionsExportButton from "./CompletionsExportButton"
-
-const EMAIL = "email"
-const NAME = "name"
-const NUMBER = "number"
+import type { CompletionsView } from "./completionsRows"
+import {
+  COMPLETIONS_VIEWS,
+  DEFAULT_COMPLETIONS_VIEW,
+  filterCompletionsRows,
+  moduleSummaryOf,
+  PREREQUISITE_FOOTNOTE_PREFIX,
+  sortCompletionsRows,
+  toCompletionsRows,
+} from "./completionsRows"
+import CompletionsTable, { STUDENT_COLUMN_ID } from "./CompletionsTable"
 
 const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
-interface Sorting {
-  type: string
-  data: string | null
+/** Ranks a pass carrying no numeric grade above a fail, for the preview's "previous best grade". */
+const PASS_GRADE_VALUE = 0.5
+const FAIL_GRADE_VALUE = -1
+
+const VIEW_LABEL_KEYS = {
+  everyone: "completions-view-everyone",
+  needs_attention: "completions-view-needs-attention",
+  awaiting_review: "completions-view-awaiting-review",
+  not_completed: "completions-view-not-completed",
+} as const satisfies Record<CompletionsView, string>
+
+interface CompletionsControls {
+  search: string
+  view: CompletionsView
 }
 
+const headerRowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+`
+
+const pageHeadingCss = css`
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+`
+
+const tableScrollCss = css`
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+`
+
+/** Whether the instance's credits went through and who is stuck, then every student's grades. */
 const CompletionsPage: React.FC = () => {
   const { t } = useTranslation()
   const params = useParams<{ id: string }>()
   const courseInstanceId = params.id
 
-  const courseInstanceQuery = useQuery({
-    ...getCourseInstanceOptions({
-      path: {
-        course_instance_id: courseInstanceId,
-      },
-    }),
-  })
+  const courseInstanceQuery = useQuery(
+    getCourseInstanceOptions({ path: { course_instance_id: courseInstanceId } }),
+  )
+  const instanceName = courseInstanceQuery.data?.name || t("default-instance")
+  const courseId = courseInstanceQuery.data?.course_id ?? null
 
   usePageTitle(
-    courseInstanceQuery.isLoading
-      ? null
-      : joinTitleSegments([
-          t("completions"),
-          courseInstanceQuery.data?.name || t("default-instance"),
-        ]),
+    courseInstanceQuery.isLoading ? null : joinTitleSegments([t("completions"), instanceName]),
     { order: 10 },
   )
 
   const crumbs = useMemo(() => [{ isLoading: false as const, label: t("completions") }], [t])
-
   useRegisterBreadcrumbs({
     key: `course-instance:${courseInstanceId}:completions`,
     order: 60,
     crumbs,
   })
-  const getCompletionsList = useQuery({
+
+  const completionsQuery = useQuery({
     ...getCourseInstanceCompletionsOptions({
-      path: {
-        course_instance_id: courseInstanceId,
-      },
+      path: { course_instance_id: courseInstanceId },
     }),
-    select: (completions) => {
-      const sortedCourseModules = completions.course_modules.toSorted(
+    select: (completions) => ({
+      sortedCourseModules: completions.course_modules.toSorted(
         (a, b) => a.order_number - b.order_number,
-      )
-      return {
-        sortedCourseModules,
-        users: completions.users_with_course_module_completions.map(prepareUser),
-      }
-    },
+      ),
+      rows: toCompletionsRows(completions.users_with_course_module_completions),
+    }),
   })
 
   const listedUserIds = useMemo(
-    () => getCompletionsList.data?.users.map((user) => user.userId) ?? [],
-    [getCompletionsList.data],
+    () => completionsQuery.data?.rows.map((row) => row.userId) ?? [],
+    [completionsQuery.data],
   )
-  const { data: creditRegistrationsData } = useTeacherCreditRegistrations(
-    courseInstanceQuery.data?.course_id ?? null,
-    listedUserIds,
-  )
+  const { data: creditRegistrationsData, isAuthorized: canSeeCreditRegistrations } =
+    useTeacherCreditRegistrations(courseId, listedUserIds)
   const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
 
+  const { control, watch } = useForm<CompletionsControls>({
+    defaultValues: { search: "", view: DEFAULT_COMPLETIONS_VIEW },
+  })
+  // Filtering scans every student of the instance, so it trails the keystrokes instead of blocking them.
+  const search = useDeferredValue(watch("search"))
+  const view = watch("view")
+  const [sorting, setSorting] = useState<SortingState>([{ id: STUDENT_COLUMN_ID, desc: false }])
+
   const [showForm, setShowForm] = useState(false)
-  const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
   const [completionFormData, setCompletionFormData] =
     useState<TeacherManualCompletionRequest | null>(null)
   const [previewData, setPreviewData] = useState<ManualCompletionPreview | null>(null)
-  const mutation = useToastMutation(
+  const addCompletionsMutation = useToastMutation(
     (data: TeacherManualCompletionRequest) =>
       createCourseInstanceCompletions({
         body: data,
-        path: {
-          course_instance_id: courseInstanceId,
-        },
+        path: { course_instance_id: courseInstanceId },
       }),
     { notify: true, method: "POST", successMessage: t("completions-submitted-successfully") },
     {
@@ -128,287 +171,162 @@ const CompletionsPage: React.FC = () => {
         setCompletionFormData(null)
         setPreviewData(null)
         setShowForm(false)
-        getCompletionsList.refetch()
+        completionsQuery.refetch()
       },
     },
   )
-
-  function sortUsers(first: UserCompletionRowUser, second: UserCompletionRowUser): number {
-    if (sorting.type === NUMBER) {
-      return first.userId.localeCompare(second.userId)
-    } else if (sorting.type === NAME) {
-      return `${first.lastName} ${first.firstName}`.localeCompare(
-        `${second.lastName} ${second.firstName}`,
-      )
-    } else if (sorting.type === EMAIL) {
-      return first.email.localeCompare(second.email)
-    }
-    return (
-      (maxBy(second.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0) -
-      (maxBy(first.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0)
-    )
-  }
 
   const handlePostCompletionsPreview = async (
     data: TeacherManualCompletionRequest,
   ): Promise<void> => {
     setCompletionFormData(data)
-    const previewDataFromBackend = await previewCourseInstanceCompletions({
+    const preview = await previewCourseInstanceCompletions({
       body: data,
-      path: {
-        course_instance_id: courseInstanceId,
-      },
+      path: { course_instance_id: courseInstanceId },
     })
 
-    const updatedAlreadyCompletedUsers = previewDataFromBackend.already_completed_users.map(
-      (user) => {
-        const existingUser = getCompletionsList.data?.users.find((u) => u.userId === user.user_id)
-        if (!existingUser) {
-          return { ...user, previous_best_grade: null }
-        }
-
-        const completions = existingUser.moduleCompletions.get(data.course_module_id)
-        const bestGrade = completions
-          ? completions.reduce((max, curr) => {
-              let gradeValue: number
-
-              if (curr.grade !== null && curr.grade !== undefined) {
-                gradeValue = curr.grade
-              } else if (curr.passed) {
-                gradeValue = 0.5 // "pass"
-              } else {
-                gradeValue = -1 // "fail"
-              }
-
-              return gradeValue > max ? gradeValue : max
-            }, -1)
-          : null
-
-        return {
-          ...user,
-          previous_best_grade: bestGrade,
-        }
-      },
-    )
-
-    setPreviewData({
-      ...previewDataFromBackend,
-      already_completed_users: updatedAlreadyCompletedUsers,
+    const alreadyCompletedUsers = preview.already_completed_users.map((user) => {
+      const row = completionsQuery.data?.rows.find((candidate) => candidate.userId === user.user_id)
+      const completions = row?.moduleCompletions.get(data.course_module_id)
+      if (!completions) {
+        return { ...user, previous_best_grade: null }
+      }
+      const bestGrade = completions.reduce((best, completion) => {
+        const grade =
+          completion.grade !== null && completion.grade !== undefined
+            ? completion.grade
+            : completion.passed
+              ? PASS_GRADE_VALUE
+              : FAIL_GRADE_VALUE
+        return Math.max(best, grade)
+      }, FAIL_GRADE_VALUE)
+      return { ...user, previous_best_grade: bestGrade }
     })
+
+    setPreviewData({ ...preview, already_completed_users: alreadyCompletedUsers })
   }
 
   return (
-    <>
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          margin-bottom: 2rem;
-
-          ${respondToOrLarger.md} {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            gap: 0;
-          }
-        `}
-      >
-        <h2
-          className={css`
-            margin: 0;
-            font-size: 1.5rem;
-            color: #2c3e50;
-            overflow-wrap: break-word;
-
-            ${respondToOrLarger.md} {
-              font-size: 1.8rem;
-            }
-          `}
-        >
-          {t("completions")}: {courseInstanceId}
-        </h2>
+    <div className={sectionsCss}>
+      <div className={headerRowCss}>
+        <div>
+          <h1 className={pageHeadingCss}>{t("completions")}</h1>
+          <p className={noteCss}>{instanceName}</p>
+        </div>
         <CompletionsExportButton courseInstanceId={courseInstanceId} />
       </div>
 
-      <QueryResult query={getCompletionsList}>
-        {(data) => (
-          <>
-            <div
-              className={css`
-                margin-bottom: 2rem;
-              `}
-            >
-              <ChapterPointsDashboard
-                chapterScores={data.sortedCourseModules.map((module) => ({
-                  id: module.id,
-                  name: module.name ?? t("label-default"),
-                  value: `${
-                    data.users.filter(
-                      (user) => (user.moduleCompletions.get(module.id) ?? []).length > 0,
-                    ).length
-                  }/${data.users.length}`,
-                }))}
-                userCount={data.users.length}
-              />
-            </div>
+      {canSeeCreditRegistrations && courseId !== null && (
+        <CourseCreditRegistrationSummaryPanel courseId={courseId} />
+      )}
 
-            <div
-              className={css`
-                margin-bottom: 2rem;
-                padding: 1.5rem;
-                background: #f8f9fa;
-                border-radius: 8px;
-              `}
-            >
-              <Button
-                variant="primary"
-                size="small"
-                onClick={() => setShowForm(!showForm)}
-                className={css`
-                  margin-bottom: ${showForm ? "1.5rem" : "0"};
-                `}
-              >
-                {t("manually-add-completions")}
-              </Button>
-              {showForm && (
-                <div
-                  className={css`
-                    background: white;
-                    padding: 1.5rem;
-                    border-radius: 6px;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-                  `}
-                >
-                  <AddCompletionsForm
-                    onSubmit={handlePostCompletionsPreview}
-                    courseModules={data.sortedCourseModules}
-                    submitText={t("button-text-check")}
-                  />
-                  {previewData && completionFormData && (
-                    <CompletionRegistrationPreview
-                      manualCompletionPreview={previewData}
-                      onSubmit={(options) => {
-                        mutation.mutate({
-                          ...completionFormData,
-                          skip_duplicate_completions: options.skipDuplicateCompletions,
-                        })
-                      }}
+      <QueryResult query={completionsQuery} treatEmptyAsData refreshIndicator={QUIET_REFRESH}>
+        {({ sortedCourseModules, rows }) => {
+          const moduleIds = sortedCourseModules.map((module) => module.id)
+          const shown = sortCompletionsRows(
+            filterCompletionsRows(rows, { search, view, moduleIds, creditRegistrations }),
+            sorting,
+            STUDENT_COLUMN_ID,
+          )
+          const anyPrerequisiteMissing = shown.some((row) =>
+            moduleIds.some(
+              (moduleId) =>
+                moduleSummaryOf(row, moduleId).latest?.prerequisite_modules_completed === false,
+            ),
+          )
+          return (
+            <>
+              <section className={sectionCss}>
+                <h2 className={headingCss}>{t("heading-completions-per-module")}</h2>
+                <StatTileList ariaLabel={t("heading-completions-per-module")}>
+                  <StatTile label={t("number-of-students")} value={rows.length} />
+                  {sortedCourseModules.map((module) => (
+                    <StatTile
+                      key={module.id}
+                      label={module.name ?? t("label-default")}
+                      value={rows.filter((row) => row.moduleCompletions.has(module.id)).length}
                     />
-                  )}
-                </div>
-              )}
-            </div>
-            <FullWidthTable>
-              <thead>
-                <tr
-                  className={css`
-                    text-align: left;
-                    font-size: 13px;
-                  `}
-                >
-                  <th rowSpan={2}>
-                    {t("label-user-id")}{" "}
-                    <a
-                      href="#number"
-                      onClick={() => setSorting({ type: NUMBER, data: null })}
-                      aria-label={t("sort-by-column", { column: t("label-user-id") })}
-                    >
-                      <CaretDownIcon />
-                    </a>
-                  </th>
-                  <th rowSpan={2}>
-                    {t("student-name")}{" "}
-                    <a
-                      href="#name"
-                      onClick={() => setSorting({ type: NAME, data: null })}
-                      aria-label={t("sort-by-column", { column: t("student-name") })}
-                    >
-                      <CaretDownIcon />
-                    </a>
-                  </th>
-                  <th rowSpan={2}>
-                    {t("label-email")}{" "}
-                    <a
-                      href="#email"
-                      onClick={() => setSorting({ type: EMAIL, data: null })}
-                      aria-label={t("sort-by-column", { column: t("label-email") })}
-                    >
-                      <CaretDownIcon />
-                    </a>
-                  </th>
-                  {data.sortedCourseModules
-                    .toSorted((a, b) => a.order_number - b.order_number)
-                    .map((module) => {
-                      // oxlint-disable-next-line i18next/no-literal-string
-                      const moduleSorting = `#mod${module.order_number}`
-                      return (
-                        <th key={module.id} colSpan={2}>
-                          <div
-                            className={css`
-                              text-align: center;
-                            `}
-                          >
-                            {module.name ?? t("label-default")}{" "}
-                            <a
-                              href={moduleSorting}
-                              onClick={() => setSorting({ type: moduleSorting, data: module.id })}
-                              aria-label={t("sort-by-column", {
-                                column: module.name ?? t("label-default"),
-                              })}
-                            >
-                              <CaretDownIcon />
-                            </a>
-                          </div>
-                        </th>
-                      )
-                    })}
-                </tr>
-                <tr>
-                  {data.sortedCourseModules.map((_, i) => (
-                    <React.Fragment key={i}>
-                      <td>{t("label-grade")}</td>
-                      <td>{t("label-registered")}</td>
-                    </React.Fragment>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.users.toSorted(sortUsers).map((user) => (
-                  <UserCompletionRow
-                    key={user.userId}
-                    sortedCourseModules={data.sortedCourseModules}
-                    user={user}
-                    creditRegistrations={creditRegistrations}
+                </StatTileList>
+              </section>
+
+              <section className={sectionCss}>
+                <div className={controlsCss}>
+                  <TextField
+                    name="search"
+                    control={control}
+                    className={controlCss}
+                    label={t("label-search-students")}
+                    type="search"
                   />
-                ))}
-              </tbody>
-            </FullWidthTable>
-            <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
-          </>
-        )}
+                  <Select
+                    name="view"
+                    control={control}
+                    className={controlCss}
+                    label={t("label-show")}
+                    options={COMPLETIONS_VIEWS.map((value) => ({
+                      value,
+                      label: t(VIEW_LABEL_KEYS[value]),
+                    }))}
+                  />
+                  <Button
+                    variant="secondary"
+                    size="medium"
+                    type="button"
+                    onClick={() => setShowForm(!showForm)}
+                  >
+                    {t("manually-add-completions")}
+                  </Button>
+                </div>
+                <p className={noteCss}>
+                  {t("completions-shown-of-total", { shown: shown.length, total: rows.length })}
+                </p>
+                {showForm && (
+                  <div className={cardCss}>
+                    <AddCompletionsForm
+                      onSubmit={handlePostCompletionsPreview}
+                      courseModules={sortedCourseModules}
+                      submitText={t("button-text-check")}
+                    />
+                    {previewData && completionFormData && (
+                      <CompletionRegistrationPreview
+                        manualCompletionPreview={previewData}
+                        onSubmit={(options) => {
+                          addCompletionsMutation.mutate({
+                            ...completionFormData,
+                            skip_duplicate_completions: options.skipDuplicateCompletions,
+                          })
+                        }}
+                      />
+                    )}
+                  </div>
+                )}
+              </section>
+
+              <BreakFromCentered sidebar={false}>
+                <div className={tableScrollCss} data-students-horizontal-scroll>
+                  <CompletionsTable
+                    courseId={courseId}
+                    sortedCourseModules={sortedCourseModules}
+                    rows={shown}
+                    creditRegistrations={creditRegistrations}
+                    sorting={sorting}
+                    onSortingChange={setSorting}
+                  />
+                </div>
+              </BreakFromCentered>
+              {anyPrerequisiteMissing && (
+                <p className={noteCss}>
+                  {PREREQUISITE_FOOTNOTE_PREFIX}
+                  {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}
+                </p>
+              )}
+            </>
+          )
+        }}
       </QueryResult>
-    </>
+    </div>
   )
 }
 
 export default withErrorBoundary(withSignedIn(CompletionsPage))
-
-function prepareUser(user: UserWithModuleCompletions): UserCompletionRowUser {
-  const moduleCompletions = new Map<string, CourseModuleCompletionWithRegistrationInfo[]>()
-  for (const completion of user.completed_modules) {
-    const bucket = moduleCompletions.get(completion.course_module_id) ?? []
-    bucket.push(completion)
-    moduleCompletions.set(completion.course_module_id, bucket)
-  }
-  for (const completions of Array.from(moduleCompletions.values())) {
-    completions.sort((a, b) => (a.created_at >= b.created_at ? 1 : -1))
-  }
-  return {
-    moduleCompletions,
-    email: user.email,
-    firstName: user.first_name ?? null,
-    lastName: user.last_name ?? null,
-    userId: user.user_id,
-  }
-}

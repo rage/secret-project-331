@@ -8,13 +8,13 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import BottomPanel from "@/components/BottomPanel"
-import CreditRegistrationConfigCallout from "@/components/credit-registration/CreditRegistrationConfigCallout"
 import {
   getCourseCreditRegistrationModuleConfigsOptions,
   getCourseStructureOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCourseModules } from "@/generated/api/sdk.generated"
 import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -34,6 +34,10 @@ import NewCourseModuleForm from "./NewCourseModuleForm"
 
 const AUTOMATIC = "automatic"
 const MANUAL = "manual"
+
+const CONFIGURE_STUDY_REGISTRY = [
+  { action: { type: "administrate" }, resource: { type: "global_permissions" } },
+] as const
 
 interface Props {
   courseId: string
@@ -117,6 +121,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
   const [edited, setEdited] = useState(false)
   const [moduleList, setModuleList] = useState<ModuleList | null>(null)
+  const canConfigureStudyRegistry =
+    useAuthorizeMultiple([...CONFIGURE_STUDY_REGISTRY]).data?.[0] === true
 
   // helper functions
   const validateModuleList = (modules: ModuleView[], chapters: ChapterView[]): string | null => {
@@ -592,14 +598,13 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                   `}
                   key={module.id}
                 >
-                  <CreditRegistrationConfigCallout
-                    config={creditRegistrationConfigs?.modules.find(
-                      (config) => config.course_module_id === module.id,
-                    )}
-                  />
                   <EditCourseModuleForm
                     module={module}
                     chapters={data.chapterNumbers}
+                    creditRegistrationConfig={creditRegistrationConfigs?.modules.find(
+                      (config) => config.course_module_id === module.id,
+                    )}
+                    canConfigureStudyRegistry={canConfigureStudyRegistry}
                     onSubmitForm={handleSaveModuleEdits}
                     onDeleteModule={handleDeleteModule}
                   />

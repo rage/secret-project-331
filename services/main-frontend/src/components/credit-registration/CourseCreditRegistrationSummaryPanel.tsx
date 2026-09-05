@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -9,35 +8,32 @@ import {
   getCourseCreditRegistrationModuleConfigsOptions,
   getCourseCreditRegistrationSummaryOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type { CourseCreditRegistrationModuleSummary } from "@/generated/api/types.generated"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import type {
+  CourseCreditRegistrationModuleSummary,
+  CourseCreditRegistrationSummary,
+} from "@/generated/api/types.generated"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
-import {
-  Badge,
-  Button,
-  QueryResult,
-  StatTile,
-  StatTileList,
-  Table,
-} from "@/shared-module/components"
+import { Badge, Button, QueryResult, Table } from "@/shared-module/components"
 
-import { ALIGN_END, QUIET_REFRESH, TONE } from "./constants"
+import { ALIGN_END, MIDDLE_DOT, QUIET_REFRESH, TONE } from "./constants"
 import CourseCreditRegistrationActionsPanel from "./CourseCreditRegistrationActionsPanel"
 import CreditRegistrationConfigCallout from "./CreditRegistrationConfigCallout"
 import CreditRegistrationExportLink from "./CreditRegistrationExportLink"
 import RetryFailedCreditRegistrationsBlock from "./RetryFailedCreditRegistrationsBlock"
-import { headingCss, rowCss, sectionCss } from "./styles"
+import {
+  headingCss,
+  noteCss,
+  rowCss,
+  sectionCss,
+  statusTriggerCss,
+  subheadingCss,
+  subsectionCss,
+} from "./styles"
 import UnlinkedStudentsDialog from "./UnlinkedStudentsDialog"
 
 interface Props {
   courseId: string
 }
-
-const rootCss = css`
-  display: grid;
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
-`
 
 const liveRowCount = (module: CourseCreditRegistrationModuleSummary): number =>
   module.counts_by_state.reduce((total, row) => total + row.count, 0)
@@ -47,7 +43,93 @@ const sumBy = (
   pick: (module: CourseCreditRegistrationModuleSummary) => number,
 ): number => modules.reduce((total, module) => total + pick(module), 0)
 
-/** Whether the course's credits are going through, and who is stuck, before any student row. */
+/** Course-wide registration counts behind the one-line summary and the by-module table. */
+export interface CreditRegistrationCourseCounts {
+  registered: number
+  total: number
+  failed: number
+  waitingOnStudents: number
+}
+
+/** Course-wide totals for the one-line summary above the roster; the by-module table below has the detail per module. */
+export const summarizeCreditRegistrationCounts = (
+  summary: CourseCreditRegistrationSummary,
+): CreditRegistrationCourseCounts => {
+  const enabledModules = summary.modules.filter((module) => module.enabled)
+  return {
+    registered: sumBy(enabledModules, (module) => module.success_count),
+    total: sumBy(enabledModules, liveRowCount),
+    failed: sumBy(
+      enabledModules,
+      (module) => module.failed_permanent_count + module.needs_admin_attention_count,
+    ),
+    waitingOnStudents:
+      summary.unlinked_enrolled_student_count + summary.linking_emails_failed_to_send_count,
+  }
+}
+
+interface SummaryLineProps {
+  courseId: string
+  /** Narrows the roster below to registrations needing attention. */
+  onShowNeedsAttention: () => void
+}
+
+const SummarySegment: React.FC<{ onClick: () => void; children: React.ReactNode }> = ({
+  onClick,
+  children,
+}) => (
+  <button type="button" className={statusTriggerCss} onClick={onClick}>
+    <span>{children}</span>
+  </button>
+)
+
+/** How the course's credits are going, in one line, before any student row. */
+export const CreditRegistrationSummaryLine: React.FC<SummaryLineProps> = ({
+  courseId,
+  onShowNeedsAttention,
+}) => {
+  const { t } = useTranslation()
+  const summaryQuery = useQuery(
+    getCourseCreditRegistrationSummaryOptions({ path: { course_id: courseId } }),
+  )
+
+  return (
+    <QueryResult query={summaryQuery} refreshIndicator={QUIET_REFRESH}>
+      {(summary) => {
+        const counts = summarizeCreditRegistrationCounts(summary)
+        if (counts.total === 0) {
+          return null
+        }
+        return (
+          <p className={noteCss}>
+            {t("credit-registration-summary-registered", {
+              registered: counts.registered,
+              total: counts.total,
+            })}
+            {counts.failed > 0 && (
+              <>
+                {MIDDLE_DOT}
+                <SummarySegment onClick={onShowNeedsAttention}>
+                  {t("credit-registration-summary-failed", { count: counts.failed })}
+                </SummarySegment>
+              </>
+            )}
+            {counts.waitingOnStudents > 0 && (
+              <>
+                {MIDDLE_DOT}
+                <SummarySegment onClick={onShowNeedsAttention}>
+                  {t("credit-registration-summary-waiting", { count: counts.waitingOnStudents })}
+                </SummarySegment>
+              </>
+            )}
+          </p>
+        )
+      }}
+    </QueryResult>
+  )
+}
+
+/** The course's credit registration detail: by-module counts, configuration problems, and the retry/export controls. */
 const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
   const [showUnlinked, setShowUnlinked] = useState(false)
@@ -66,41 +148,14 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
           return null
         }
         const failedCount = sumBy(enabledModules, (module) => module.failed_permanent_count)
-        const attentionCount = sumBy(enabledModules, (module) => module.needs_admin_attention_count)
         const configOf = (moduleId: string) =>
           configsQuery.data?.modules.find((config) => config.course_module_id === moduleId)
 
         return (
-          <section className={rootCss}>
-            <section className={sectionCss}>
-              <h2 className={headingCss}>{t("heading-credit-registration")}</h2>
-              <StatTileList ariaLabel={t("heading-credit-registration")}>
-                <StatTile
-                  label={t("label-credit-registration-failed")}
-                  value={failedCount}
-                  {...includeIf(failedCount > 0, { tone: TONE.ALERT })}
-                />
-                <StatTile
-                  label={t("label-credit-registration-needs-attention")}
-                  value={attentionCount}
-                  {...includeIf(attentionCount > 0, { tone: TONE.ALERT })}
-                />
-                <StatTile
-                  label={t("label-credit-registration-unlinked-enrolled-students")}
-                  value={summary.unlinked_enrolled_student_count}
-                />
-                <StatTile
-                  label={t("label-credit-registration-emails-we-could-not-send")}
-                  value={summary.linking_emails_failed_to_send_count}
-                  {...includeIf(summary.linking_emails_failed_to_send_count > 0, {
-                    tone: TONE.ALERT,
-                  })}
-                />
-              </StatTileList>
-            </section>
-
-            <section className={sectionCss}>
-              <h3 className={headingCss}>{t("heading-credit-registration-by-module")}</h3>
+          <section className={sectionCss}>
+            <h2 className={headingCss}>{t("heading-credit-registration")}</h2>
+            <div className={subsectionCss}>
+              <h3 className={subheadingCss}>{t("heading-credit-registration-by-module")}</h3>
               <Table
                 caption={t("heading-credit-registration-by-module")}
                 rowKey={(module) => module.course_module_id}
@@ -112,7 +167,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
                       <span className={rowCss}>
                         <span>{module.course_module_name ?? t("default-module")}</span>
                         {module.paused && (
-                          <Badge tone={TONE.WARNING}>
+                          <Badge tone={TONE.NEUTRAL}>
                             {t("credit-registration-module-paused")}
                           </Badge>
                         )}
@@ -141,26 +196,24 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({ courseId }) => 
                   },
                 ]}
               />
-              {enabledModules.map((module) => (
-                <CreditRegistrationConfigCallout
-                  key={module.course_module_id}
-                  config={configOf(module.course_module_id)}
-                  moduleName={module.course_module_name ?? t("default-module")}
-                  fixHref={manageCourseModulesRoute(courseId)}
-                />
-              ))}
-            </section>
-
-            <div className={rowCss}>
-              <Button
-                variant="secondary"
-                size="medium"
-                type="button"
-                onClick={() => setShowUnlinked(true)}
-              >
-                {t("button-text-list-students-waiting-for-a-student-number")}
-              </Button>
-              <CreditRegistrationExportLink courseId={courseId} />
+              <CreditRegistrationConfigCallout
+                configs={enabledModules.map((module) => ({
+                  moduleName: module.course_module_name ?? t("default-module"),
+                  config: configOf(module.course_module_id),
+                }))}
+                fixHref={manageCourseModulesRoute(courseId)}
+              />
+              <div className={rowCss}>
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  type="button"
+                  onClick={() => setShowUnlinked(true)}
+                >
+                  {t("button-text-list-students-waiting-for-a-student-number")}
+                </Button>
+                <CreditRegistrationExportLink courseId={courseId} />
+              </div>
             </div>
             <RetryFailedCreditRegistrationsBlock courseId={courseId} failedCount={failedCount} />
             <CourseCreditRegistrationActionsPanel courseId={courseId} />

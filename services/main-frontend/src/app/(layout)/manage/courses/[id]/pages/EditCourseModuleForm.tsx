@@ -381,7 +381,14 @@ const EditCourseModuleForm: React.FC<Props> = ({
 
             <fieldset className={groupCss}>
               <legend className={legendCss}>{t("heading-credit-registration")}</legend>
-              <CreditRegistrationConfigCallout config={creditRegistrationConfig} />
+              <CreditRegistrationConfigCallout
+                configs={[
+                  {
+                    moduleName: module.name ?? t("default-module"),
+                    config: creditRegistrationConfig,
+                  },
+                ]}
+              />
               <RadioGroup
                 name="registration_path"
                 control={control}

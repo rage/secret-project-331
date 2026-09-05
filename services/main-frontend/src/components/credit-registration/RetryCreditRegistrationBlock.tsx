@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -12,18 +11,13 @@ import { Button, Infobox } from "@/shared-module/components"
 
 import { TONE } from "./constants"
 import { isUneventfulRefusal, refusalSentence } from "./resubmissionRefusal"
+import { subsectionCss } from "./styles"
 import { useInvalidateAfterRetry } from "./teacherCreditRegistrations"
 import { useActionResult } from "./useActionResult"
 
 interface Props {
   registration: CourseCreditRegistration
 }
-
-const rootCss = css`
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-`
 
 /** The retry button, or the reason the server gives for there not being one. */
 const RetryCreditRegistrationBlock: React.FC<Props> = ({ registration }) => {
@@ -48,14 +42,14 @@ const RetryCreditRegistrationBlock: React.FC<Props> = ({ registration }) => {
   const refusal = registration.resubmission_refusal
   if (refusal) {
     return isUneventfulRefusal(refusal) ? null : (
-      <div className={rootCss}>
+      <div className={subsectionCss}>
         <Infobox tone={TONE.WARNING}>{refusalSentence(t, refusal)}</Infobox>
       </div>
     )
   }
 
   return (
-    <div className={rootCss}>
+    <div className={subsectionCss}>
       <div>
         <Button
           variant="secondary"

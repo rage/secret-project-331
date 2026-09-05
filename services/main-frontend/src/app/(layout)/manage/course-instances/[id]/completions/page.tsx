@@ -10,13 +10,15 @@ import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { QUIET_REFRESH } from "@/components/credit-registration/constants"
-import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
+import CourseCreditRegistrationSummaryPanel, {
+  CreditRegistrationSummaryLine,
+} from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
 import {
   cardCss,
   controlCss,
   controlsCss,
-  headingCss,
   noteCss,
+  pageTitleCss,
   sectionCss,
   sectionsCss,
 } from "@/components/credit-registration/styles"
@@ -41,14 +43,7 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import {
-  Button,
-  QueryResult,
-  Select,
-  StatTile,
-  StatTileList,
-  TextField,
-} from "@/shared-module/components"
+import { Button, QueryResult, Select, TextField } from "@/shared-module/components"
 
 import CompletionRegistrationPreview from "../CompletionRegistrationPreview"
 import CompletionsExportButton from "./CompletionsExportButton"
@@ -70,6 +65,8 @@ const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 const PASS_GRADE_VALUE = 0.5
 const FAIL_GRADE_VALUE = -1
 
+const NEEDS_ATTENTION_VIEW: CompletionsView = "needs_attention"
+
 const VIEW_LABEL_KEYS = {
   everyone: "completions-view-everyone",
   needs_attention: "completions-view-needs-attention",
@@ -85,15 +82,9 @@ interface CompletionsControls {
 const headerRowCss = css`
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: var(--space-4);
   align-items: baseline;
   justify-content: space-between;
-`
-
-const pageHeadingCss = css`
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 600;
 `
 
 const tableScrollCss = css`
@@ -147,7 +138,7 @@ const CompletionsPage: React.FC = () => {
     useTeacherCreditRegistrations(courseId, listedUserIds)
   const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
 
-  const { control, watch } = useForm<CompletionsControls>({
+  const { control, watch, setValue } = useForm<CompletionsControls>({
     defaultValues: { search: "", view: DEFAULT_COMPLETIONS_VIEW },
   })
   // Filtering scans every student of the instance, so it trails the keystrokes instead of blocking them.
@@ -210,14 +201,17 @@ const CompletionsPage: React.FC = () => {
     <div className={sectionsCss}>
       <div className={headerRowCss}>
         <div>
-          <h1 className={pageHeadingCss}>{t("completions")}</h1>
+          <h1 className={pageTitleCss}>{t("completions")}</h1>
           <p className={noteCss}>{instanceName}</p>
         </div>
         <CompletionsExportButton courseInstanceId={courseInstanceId} />
       </div>
 
       {canSeeCreditRegistrations && courseId !== null && (
-        <CourseCreditRegistrationSummaryPanel courseId={courseId} />
+        <CreditRegistrationSummaryLine
+          courseId={courseId}
+          onShowNeedsAttention={() => setValue("view", NEEDS_ATTENTION_VIEW)}
+        />
       )}
 
       <QueryResult query={completionsQuery} treatEmptyAsData refreshIndicator={QUIET_REFRESH}>
@@ -236,20 +230,6 @@ const CompletionsPage: React.FC = () => {
           )
           return (
             <>
-              <section className={sectionCss}>
-                <h2 className={headingCss}>{t("heading-completions-per-module")}</h2>
-                <StatTileList ariaLabel={t("heading-completions-per-module")}>
-                  <StatTile label={t("number-of-students")} value={rows.length} />
-                  {sortedCourseModules.map((module) => (
-                    <StatTile
-                      key={module.id}
-                      label={module.name ?? t("label-default")}
-                      value={rows.filter((row) => row.moduleCompletions.has(module.id)).length}
-                    />
-                  ))}
-                </StatTileList>
-              </section>
-
               <section className={sectionCss}>
                 <div className={controlsCss}>
                   <TextField
@@ -314,17 +294,21 @@ const CompletionsPage: React.FC = () => {
                     onSortingChange={setSorting}
                   />
                 </div>
+                {anyPrerequisiteMissing && (
+                  <p className={noteCss}>
+                    {PREREQUISITE_FOOTNOTE_PREFIX}
+                    {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}
+                  </p>
+                )}
               </BreakFromCentered>
-              {anyPrerequisiteMissing && (
-                <p className={noteCss}>
-                  {PREREQUISITE_FOOTNOTE_PREFIX}
-                  {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}
-                </p>
-              )}
             </>
           )
         }}
       </QueryResult>
+
+      {canSeeCreditRegistrations && courseId !== null && (
+        <CourseCreditRegistrationSummaryPanel courseId={courseId} />
+      )}
     </div>
   )
 }

@@ -7,9 +7,9 @@ import { useTranslation } from "react-i18next"
 import { getCourseCreditRegistrationActionsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { Badge, QueryResult, RelativeTime, Table } from "@/shared-module/components"
 
-import { ALIGN_END, QUIET_REFRESH, TIME_IN_TITLE, TONE } from "./constants"
+import { ABSENT, ALIGN_END, QUIET_REFRESH, TIME_IN_TITLE, TONE } from "./constants"
 import { actionLabel, TEACHER_ACTOR_ROLE } from "./creditRegistrationRetry"
-import { headingCss, noteCss, rowCss, sectionCss, stackedCellCss } from "./styles"
+import { noteCss, rowCss, stackedCellCss, subheadingCss, subsectionCss } from "./styles"
 
 interface Props {
   courseId: string
@@ -17,8 +17,6 @@ interface Props {
 
 /** A colleague's last handful of actions is what stops two teachers retrying the same rows. */
 const SHOWN_ACTIONS = 10
-
-const ABSENT = "—"
 
 const CourseCreditRegistrationActionsPanel: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -33,8 +31,8 @@ const CourseCreditRegistrationActionsPanel: React.FC<Props> = ({ courseId }) => 
           return null
         }
         return (
-          <section className={sectionCss}>
-            <h3 className={headingCss}>{t("heading-credit-registration-recent-actions")}</h3>
+          <div className={subsectionCss}>
+            <h3 className={subheadingCss}>{t("heading-credit-registration-recent-actions")}</h3>
             <p className={noteCss}>{t("credit-registration-recent-actions-hint")}</p>
             <Table
               caption={t("heading-credit-registration-recent-actions")}
@@ -80,7 +78,7 @@ const CourseCreditRegistrationActionsPanel: React.FC<Props> = ({ courseId }) => 
                 },
               ]}
             />
-          </section>
+          </div>
         )
       }}
     </QueryResult>

@@ -1352,6 +1352,7 @@
   "duration-of-threshold": "{{hours}} h of {{threshold}} h ({{percent}}%)",
   "duration-vs-threshold-label": "Completion time versus threshold for {{course}}",
   "ects-credits": "ECTS credits",
+  "ects-credits-must-be-non-negative": "ECTS credits must be zero or more",
   "ects-n": "{{n}} ECTS",
   "edit": "Edit",
   "edit-and-accept": "Edit and accept",

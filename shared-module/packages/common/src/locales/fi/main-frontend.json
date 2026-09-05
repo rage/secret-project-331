@@ -1227,6 +1227,7 @@
   "duration-in-hours": "Kesto (tunneissa)",
   "duration-minutes": "{{minutes}} min",
   "ects-credits": "Opintopisteet",
+  "ects-credits-must-be-non-negative": "Opintopisteiden on oltava vähintään nolla",
   "ects-n": "{{n}} op",
   "edit": "Muokkaa",
   "edit-and-accept": "Muokkaa ja hyväksy",

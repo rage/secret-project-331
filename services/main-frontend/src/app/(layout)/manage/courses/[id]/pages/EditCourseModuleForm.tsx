@@ -75,6 +75,8 @@ const [NO_REGISTRATION, OPEN_UNIVERSITY, STUDY_REGISTRY] = REGISTRATION_PATHS
 /** Shorter than this is a fragment, not a link a student can follow. */
 const MIN_COMPLETION_LINK_LENGTH = 10
 
+const VALIDATE_ON_COMMIT = "validate" as const
+
 interface EditCourseModuleFormState extends Omit<
   EditCourseModuleFormFields,
   "enable_registering_completion_to_uh_open_university" | "starts" | "ends"
@@ -346,6 +348,15 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   label={t("ects-credits")}
                   minValue={0}
                   step={0.5}
+                  // The step only sizes the stepper buttons: snapping to it rewrites a module
+                  // already stored on, say, 1.3 credits the moment the editor opens.
+                  commitBehavior={VALIDATE_ON_COMMIT}
+                  rules={{
+                    validate: (value) =>
+                      value === null || value === undefined || value >= 0
+                        ? true
+                        : t("ects-credits-must-be-non-negative"),
+                  }}
                 />
               </div>
             </fieldset>

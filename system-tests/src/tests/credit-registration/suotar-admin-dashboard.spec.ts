@@ -255,6 +255,7 @@ test("No stored body carries a student number, a name or an email address", asyn
     // and a redacted one look the same.
     await page.goto(`${REGISTRATIONS_URL}/${registered.id}`)
     await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible()
+    await page.getByRole("button", { name: "Show what was sent and received" }).first().click()
     await expect(
       page.getByText("Names, student numbers and email addresses are redacted"),
     ).toBeVisible()

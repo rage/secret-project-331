@@ -135,14 +135,17 @@ const ModuleRow: React.FC<{
   const { t } = useTranslation()
   const completion = module.completion
 
+  const ectsLabel =
+    typeof module.ects_credits === "number" ? t("ects-n", { n: module.ects_credits }) : null
   const factsLine = completion ? (
     <>
+      {ectsLabel ? `${ectsLabel}${MIDDLE_DOT}` : null}
       {t("label-completed")}{" "}
       <RelativeTime at={completion.completion_date} absoluteTime={TIME_IN_TITLE} />
     </>
-  ) : typeof module.ects_credits === "number" ? (
-    t("ects-n", { n: module.ects_credits })
-  ) : null
+  ) : (
+    ectsLabel
+  )
 
   return (
     <li className={sectionHeaderCss}>

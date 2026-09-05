@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,17 +18,34 @@ import {
   Badge,
   DescriptionList,
   Disclosure,
-  Meter,
   QueryResult,
   RelativeTime,
-  RELATIVE_TIME_ABSENT_LABEL,
   StatTile,
   StatTileList,
   Table,
 } from "@/shared-module/components"
 
-import { ALIGN_END, MIDDLE_DOT, QUIET_REFRESH, STACKED, TIME_IN_TITLE, TONE } from "../constants"
-import { headingCss, noteCss, rowCss, sectionCss, stackedCellCss } from "../styles"
+import {
+  ABSENT,
+  ALIGN_END,
+  MIDDLE_DOT,
+  QUIET_REFRESH,
+  STACKED,
+  TIME_IN_TITLE,
+  TONE,
+} from "../constants"
+import {
+  emptyStateCss,
+  headingCss,
+  monospaceCss,
+  noteCss,
+  proseCss,
+  rowCss,
+  sectionCss,
+  stackedCellCss,
+  subheadingCss,
+  subsectionCss,
+} from "../styles"
 import { sendStatusLabel, verificationMethodLabel } from "./adminCreditRegistrationCopy"
 import {
   useAccountLinkingStats,
@@ -52,15 +69,9 @@ const FAST_TRACK = "email_match_fast_track"
 // oxlint-disable-next-line i18next/no-literal-string
 const SEND_FAILED: EmailSendStatus = "send_failed"
 
-const funnelCss = css`
-  display: grid;
-  gap: 0.5rem;
-  max-width: 40rem;
-`
-
 const addressListCss = css`
   margin: 0;
-  padding-inline-start: 1rem;
+  padding-inline-start: var(--space-4);
 `
 
 const UnlinkButton: React.FC<{ verifiedStudentNumberId: string; number: string }> = ({
@@ -91,13 +102,12 @@ const UnlinkButton: React.FC<{ verifiedStudentNumberId: string; number: string }
 }
 
 /**
- * Where the last discovery run's persons went. Every bar shares `persons_discovered_last_run` as its
- * denominator; anything measured over the window is a tile below instead, never a bar on this axis.
+ * Where the last discovery run's persons went. Only counts from that one run belong here; anything
+ * measured over the window is a tile above instead.
  */
 const DiscoverySteps: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation()
   const funnel = stats.funnel
-  const discovered = Math.max(funnel.persons_discovered_last_run, 1)
   const steps = [
     {
       label: t("credit-registration-admin-funnel-discovered"),
@@ -124,20 +134,7 @@ const DiscoverySteps: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => 
       value: funnel.no_address_in_study_registry_last_run,
     },
   ]
-  return (
-    <div className={funnelCss}>
-      {steps.map((step) => (
-        <Meter
-          key={step.label}
-          value={step.value}
-          maxValue={discovered}
-          label={step.label}
-          valueLabel={String(step.value)}
-          showLabel
-        />
-      ))}
-    </div>
-  )
+  return <DescriptionList className={proseCss} items={steps} />
 }
 
 const WindowTotals: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
@@ -168,14 +165,12 @@ const WindowTotals: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
         label={t("credit-registration-admin-funnel-manual-links")}
         value={funnel.manual_links_in_window}
       />
-      <StatTile
-        label={t("credit-registration-admin-fast-track-share")}
-        value={
-          linksTotal === 0
-            ? RELATIVE_TIME_ABSENT_LABEL
-            : `${Math.round((fastTrackTotal / linksTotal) * PERCENT)} %`
-        }
-      />
+      {linksTotal > 0 && (
+        <StatTile
+          label={t("credit-registration-admin-fast-track-share")}
+          value={`${Math.round((fastTrackTotal / linksTotal) * PERCENT)} %`}
+        />
+      )}
       <StatTile label={t("credit-registration-admin-manual-links-total")} value={manualTotal} />
       <StatTile
         label={t("credit-registration-admin-waiting-for-number")}
@@ -191,8 +186,8 @@ const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
   const { t } = useTranslation()
   const totals = stats.send_status_totals
   return (
-    <>
-      <h3 className={headingCss}>{t("credit-registration-admin-send-status-header")}</h3>
+    <div className={subsectionCss}>
+      <h3 className={subheadingCss}>{t("credit-registration-admin-send-status-header")}</h3>
       <p className={noteCss}>{t("credit-registration-admin-send-status-our-side-note")}</p>
       <StatTileList ariaLabel={t("credit-registration-admin-send-status-header")}>
         <StatTile label={t("credit-registration-admin-send-status-queued")} value={totals.queued} />
@@ -219,7 +214,7 @@ const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
           ]}
         />
       )}
-    </>
+    </div>
   )
 }
 
@@ -273,7 +268,7 @@ const RealisationDetail: React.FC<{ row: AccountLinkingRealisationCounters }> = 
         layout={STACKED}
         items={counters.map((counter) => ({
           label: counter.label,
-          value: counter.value ?? RELATIVE_TIME_ABSENT_LABEL,
+          value: counter.value ?? ABSENT,
         }))}
       />
     </Disclosure>
@@ -283,11 +278,11 @@ const RealisationDetail: React.FC<{ row: AccountLinkingRealisationCounters }> = 
 const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation()
   return (
-    <>
-      <h3 className={headingCss}>{t("credit-registration-heading-realisations")}</h3>
+    <div className={subsectionCss}>
+      <h3 className={subheadingCss}>{t("credit-registration-heading-realisations")}</h3>
       <p className={noteCss}>{t("credit-registration-admin-realisation-last-run-note")}</p>
       {stats.realisations.length === 0 ? (
-        <p className={noteCss}>{t("credit-registration-admin-no-realisations")}</p>
+        <p className={emptyStateCss}>{t("credit-registration-admin-no-realisations")}</p>
       ) : (
         <Table
           caption={t("credit-registration-heading-realisations")}
@@ -299,7 +294,7 @@ const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
               cell: (row) => (
                 <span className={stackedCellCss}>
                   <span>{row.course_name}</span>
-                  <span className={noteCss}>{row.uh_course_code}</span>
+                  <span className={cx(noteCss, monospaceCss)}>{row.uh_course_code}</span>
                 </span>
               ),
             },
@@ -326,17 +321,17 @@ const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
             {
               header: t("credit-registration-admin-funnel-discovered"),
               align: ALIGN_END,
-              cell: (row) => row.listed_person_count ?? RELATIVE_TIME_ABSENT_LABEL,
+              cell: (row) => row.listed_person_count ?? ABSENT,
             },
             {
               header: t("credit-registration-admin-funnel-mails-claimed"),
               align: ALIGN_END,
-              cell: (row) => row.mailed_count ?? RELATIVE_TIME_ABSENT_LABEL,
+              cell: (row) => row.mailed_count ?? ABSENT,
             },
             {
               header: t("credit-registration-admin-funnel-fast-tracked"),
               align: ALIGN_END,
-              cell: (row) => row.fast_tracked_count ?? RELATIVE_TIME_ABSENT_LABEL,
+              cell: (row) => row.fast_tracked_count ?? ABSENT,
             },
             {
               header: t("credit-registration-admin-column-breakdown"),
@@ -345,15 +340,15 @@ const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
           ]}
         />
       )}
-    </>
+    </div>
   )
 }
 
 const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation()
   return (
-    <>
-      <h3 className={headingCss}>
+    <div className={subsectionCss}>
+      <h3 className={subheadingCss}>
         {t("credit-registration-heading-stale-addresses", {
           max: stats.max_mails_per_person_and_course,
         })}
@@ -363,14 +358,17 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
         <AdminManualLinkButton />
       </div>
       {stats.stale_addresses.length === 0 ? (
-        <p className={noteCss}>{t("credit-registration-admin-no-stale-addresses")}</p>
+        <p className={emptyStateCss}>{t("credit-registration-admin-no-stale-addresses")}</p>
       ) : (
         <Table
           caption={t("credit-registration-heading-stale-addresses-table")}
           rowKey={(row) => `${row.student_number}:${row.course_id}`}
           rows={stats.stale_addresses}
           columns={[
-            { header: t("label-student-number"), cell: (row) => row.student_number },
+            {
+              header: t("label-student-number"),
+              cell: (row) => <span className={monospaceCss}>{row.student_number}</span>,
+            },
             { header: t("label-course"), cell: (row) => row.course_name },
             {
               header: t("label-credit-registration-addresses-tried"),
@@ -405,7 +403,7 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
           ]}
         />
       )}
-    </>
+    </div>
   )
 }
 
@@ -417,13 +415,13 @@ const RecentClaimsBlock: React.FC = () => {
     limit: paginationInfo.limit,
   })
   return (
-    <>
-      <h3 className={headingCss}>{t("credit-registration-heading-recent-claims")}</h3>
+    <div className={subsectionCss}>
+      <h3 className={subheadingCss}>{t("credit-registration-heading-recent-claims")}</h3>
       <p className={noteCss}>{t("credit-registration-admin-claiming-address-differs-note")}</p>
       <QueryResult query={numbersQuery} refreshIndicator={QUIET_REFRESH}>
         {(page) =>
           page.data.length === 0 ? (
-            <p className={noteCss}>{t("credit-registration-admin-no-links-yet")}</p>
+            <p className={emptyStateCss}>{t("credit-registration-admin-no-links-yet")}</p>
           ) : (
             <>
               <Table
@@ -431,7 +429,10 @@ const RecentClaimsBlock: React.FC = () => {
                 rowKey={(row) => row.id}
                 rows={page.data}
                 columns={[
-                  { header: t("label-student-number"), cell: (row) => row.student_number },
+                  {
+                    header: t("label-student-number"),
+                    cell: (row) => <span className={monospaceCss}>{row.student_number}</span>,
+                  },
                   {
                     header: t("label-student"),
                     cell: (row) => (
@@ -446,7 +447,7 @@ const RecentClaimsBlock: React.FC = () => {
                     cell: (row) => (
                       <span className={stackedCellCss}>
                         <Badge
-                          tone={row.verified_via === ADMIN_MANUAL ? TONE.WARNING : TONE.SUCCESS}
+                          tone={row.verified_via === ADMIN_MANUAL ? TONE.NEUTRAL : TONE.SUCCESS}
                         >
                           {verificationMethodLabel(t, row.verified_via) ?? row.verified_via}
                         </Badge>
@@ -474,7 +475,7 @@ const RecentClaimsBlock: React.FC = () => {
           )
         }
       </QueryResult>
-    </>
+    </div>
   )
 }
 
@@ -490,8 +491,12 @@ const AccountLinkingSection: React.FC = () => {
         {(stats) => (
           <>
             <WindowTotals stats={stats} />
-            <h3 className={headingCss}>{t("credit-registration-heading-last-discovery-run")}</h3>
-            <DiscoverySteps stats={stats} />
+            <div className={subsectionCss}>
+              <h3 className={subheadingCss}>
+                {t("credit-registration-heading-last-discovery-run")}
+              </h3>
+              <DiscoverySteps stats={stats} />
+            </div>
             <SendStatusBlock stats={stats} />
             <RealisationBlock stats={stats} />
             <StaleAddressBlock stats={stats} />

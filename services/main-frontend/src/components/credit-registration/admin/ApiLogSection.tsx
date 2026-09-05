@@ -10,14 +10,22 @@ import {
   Badge,
   QueryResult,
   RelativeTime,
-  RELATIVE_TIME_ABSENT_LABEL,
   Select,
   Table,
   TextField,
 } from "@/shared-module/components"
 
-import { ALIGN_END, QUIET_REFRESH, TIME_IN_TITLE, TONE } from "../constants"
-import { controlCss, controlsCss, headingCss, noteCss, sectionCss } from "../styles"
+import { ABSENT, ALIGN_END, QUIET_REFRESH, TIME_IN_TITLE, TONE } from "../constants"
+import {
+  controlCss,
+  controlsCss,
+  emptyStateCss,
+  headingCss,
+  noteCss,
+  sectionCss,
+  subheadingCss,
+  subsectionCss,
+} from "../styles"
 import {
   useSuotarApiCalls,
   useSuotarHealth,
@@ -81,15 +89,17 @@ const EndpointSummary: React.FC = () => {
 
   return (
     <>
-      <div className={controlCss}>
-        <WindowSecsSelect control={control} />
+      <div className={controlsCss}>
+        <div className={controlCss}>
+          <WindowSecsSelect control={control} />
+        </div>
       </div>
       <QueryResult query={healthQuery} refreshIndicator={QUIET_REFRESH}>
         {(health) => {
           const endpoints =
             health.windows.find((window) => window.window_secs === windowSecs)?.endpoints ?? []
           return endpoints.length === 0 ? (
-            <p className={noteCss}>{t("credit-registration-admin-no-calls-in-window")}</p>
+            <p className={emptyStateCss}>{t("credit-registration-admin-no-calls-in-window")}</p>
           ) : (
             <Table
               caption={t("credit-registration-heading-endpoints")}
@@ -115,7 +125,7 @@ const EndpointSummary: React.FC = () => {
                 {
                   header: t("label-credit-registration-p95-ms"),
                   align: ALIGN_END,
-                  cell: (row) => row.p95_duration_ms ?? RELATIVE_TIME_ABSENT_LABEL,
+                  cell: (row) => row.p95_duration_ms ?? ABSENT,
                 },
                 {
                   header: t("label-credit-registration-last-failure"),
@@ -173,116 +183,118 @@ const ApiLogSection: React.FC = () => {
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-endpoints")}</h2>
       <EndpointSummary />
-      <h3 className={headingCss}>{t("credit-registration-heading-api-calls")}</h3>
-      <form
-        className={controlsCss}
-        onSubmit={handleSubmit((fields) =>
-          applyParams({ [PARAM_REGISTRATION]: fields.credit_registration_id.trim() }),
-        )}
-      >
-        <div className={controlCss}>
-          <Select
-            name="endpoint"
-            control={control}
-            label={t("label-endpoint")}
-            options={[
-              { value: ANY, label: t("credit-registration-admin-any-endpoint") },
-              ...ENDPOINTS.map((endpoint) => ({ value: endpoint, label: endpoint })),
-            ]}
-          />
-        </div>
-        <div className={controlCss}>
-          <Select
-            name="succeeded"
-            control={control}
-            label={t("label-status")}
-            options={[
-              { value: ANY, label: t("credit-registration-admin-any-outcome") },
-              { value: SUCCEEDED, label: t("credit-registration-admin-call-succeeded") },
-              { value: FAILED, label: t("credit-registration-admin-call-failed") },
-            ]}
-          />
-        </div>
-        <div className={controlCss}>
-          <Select
-            name="worker_name"
-            control={control}
-            label={t("credit-registration-admin-column-caller")}
-            options={[
-              { value: ANY, label: t("credit-registration-admin-any-caller") },
-              ...(workerNamesQuery.data ?? []).map((name) => ({ value: name, label: name })),
-            ]}
-          />
-        </div>
-        <div className={controlCss}>
-          <TextField
-            name="credit_registration_id"
-            control={control}
-            label={t("label-credit-registration-registration")}
-            description={t("credit-registration-admin-search-by-registration-note")}
-          />
-        </div>
-      </form>
-      <QueryResult query={callsQuery} refreshIndicator={QUIET_REFRESH}>
-        {(page) =>
-          page.data.length === 0 ? (
-            <p className={noteCss}>{t("credit-registration-admin-no-matching-calls")}</p>
-          ) : (
-            <>
-              <p className={noteCss}>
-                {t("credit-registration-admin-call-count", { count: page.total_count })}
-              </p>
-              <Table
-                caption={t("credit-registration-heading-api-calls")}
-                rowKey={(row) => row.id}
-                rows={page.data}
-                columns={[
-                  {
-                    header: t("label-time"),
-                    cell: (row) => (
-                      <RelativeTime at={row.started_at} absoluteTime={TIME_IN_TITLE} />
-                    ),
-                  },
-                  { header: t("label-endpoint"), cell: (row) => <code>{row.endpoint}</code> },
-                  {
-                    header: t("credit-registration-admin-column-caller"),
-                    cell: (row) => <code>{row.worker_name}</code>,
-                  },
-                  {
-                    header: t("label-status"),
-                    cell: (row) => (
-                      <Badge tone={row.succeeded ? TONE.SUCCESS : TONE.DANGER}>
-                        {row.http_status === null
-                          ? t("credit-registration-admin-no-http-answer")
-                          : String(row.http_status)}
-                      </Badge>
-                    ),
-                  },
-                  {
-                    header: t("credit-registration-admin-column-items"),
-                    cell: (row) =>
-                      t("credit-registration-admin-call-items", {
-                        requested: row.request_item_count,
-                        ok: row.ok_item_count,
-                        failed: row.error_item_count,
-                      }),
-                  },
-                  {
-                    header: t("credit-registration-admin-column-duration-ms"),
-                    align: ALIGN_END,
-                    cell: (row) => row.duration_ms ?? RELATIVE_TIME_ABSENT_LABEL,
-                  },
-                  {
-                    header: t("label-actions"),
-                    cell: (row) => <SuotarApiCallDetail suotarApiCallId={row.id} />,
-                  },
-                ]}
-              />
-              <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
-            </>
-          )
-        }
-      </QueryResult>
+      <div className={subsectionCss}>
+        <h3 className={subheadingCss}>{t("credit-registration-heading-api-calls")}</h3>
+        <form
+          className={controlsCss}
+          onSubmit={handleSubmit((fields) =>
+            applyParams({ [PARAM_REGISTRATION]: fields.credit_registration_id.trim() }),
+          )}
+        >
+          <div className={controlCss}>
+            <Select
+              name="endpoint"
+              control={control}
+              label={t("label-endpoint")}
+              options={[
+                { value: ANY, label: t("credit-registration-admin-any-endpoint") },
+                ...ENDPOINTS.map((endpoint) => ({ value: endpoint, label: endpoint })),
+              ]}
+            />
+          </div>
+          <div className={controlCss}>
+            <Select
+              name="succeeded"
+              control={control}
+              label={t("label-status")}
+              options={[
+                { value: ANY, label: t("credit-registration-admin-any-outcome") },
+                { value: SUCCEEDED, label: t("credit-registration-admin-call-succeeded") },
+                { value: FAILED, label: t("credit-registration-admin-call-failed") },
+              ]}
+            />
+          </div>
+          <div className={controlCss}>
+            <Select
+              name="worker_name"
+              control={control}
+              label={t("credit-registration-admin-column-caller")}
+              options={[
+                { value: ANY, label: t("credit-registration-admin-any-caller") },
+                ...(workerNamesQuery.data ?? []).map((name) => ({ value: name, label: name })),
+              ]}
+            />
+          </div>
+          <div className={controlCss}>
+            <TextField
+              name="credit_registration_id"
+              control={control}
+              label={t("label-credit-registration-registration")}
+              description={t("credit-registration-admin-search-by-registration-note")}
+            />
+          </div>
+        </form>
+        <QueryResult query={callsQuery} refreshIndicator={QUIET_REFRESH}>
+          {(page) =>
+            page.data.length === 0 ? (
+              <p className={emptyStateCss}>{t("credit-registration-admin-no-matching-calls")}</p>
+            ) : (
+              <>
+                <p className={noteCss}>
+                  {t("credit-registration-admin-call-count", { count: page.total_count })}
+                </p>
+                <Table
+                  caption={t("credit-registration-heading-api-calls")}
+                  rowKey={(row) => row.id}
+                  rows={page.data}
+                  columns={[
+                    {
+                      header: t("label-time"),
+                      cell: (row) => (
+                        <RelativeTime at={row.started_at} absoluteTime={TIME_IN_TITLE} />
+                      ),
+                    },
+                    { header: t("label-endpoint"), cell: (row) => <code>{row.endpoint}</code> },
+                    {
+                      header: t("credit-registration-admin-column-caller"),
+                      cell: (row) => <code>{row.worker_name}</code>,
+                    },
+                    {
+                      header: t("label-status"),
+                      cell: (row) => (
+                        <Badge tone={row.succeeded ? TONE.SUCCESS : TONE.DANGER}>
+                          {row.http_status === null
+                            ? t("credit-registration-admin-no-http-answer")
+                            : String(row.http_status)}
+                        </Badge>
+                      ),
+                    },
+                    {
+                      header: t("credit-registration-admin-column-items"),
+                      cell: (row) =>
+                        t("credit-registration-admin-call-items", {
+                          requested: row.request_item_count,
+                          ok: row.ok_item_count,
+                          failed: row.error_item_count,
+                        }),
+                    },
+                    {
+                      header: t("credit-registration-admin-column-duration-ms"),
+                      align: ALIGN_END,
+                      cell: (row) => row.duration_ms ?? ABSENT,
+                    },
+                    {
+                      header: t("label-actions"),
+                      cell: (row) => <SuotarApiCallDetail suotarApiCallId={row.id} />,
+                    },
+                  ]}
+                />
+                <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
+              </>
+            )
+          }
+        </QueryResult>
+      </div>
     </section>
   )
 }

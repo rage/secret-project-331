@@ -247,6 +247,24 @@ test("refreshing announces status", () => {
   expect(screen.getByRole("status", { name: "Refreshing" })).toBeInTheDocument()
 })
 
+test("quiet refresh indicator does not blur or block clicks on content", () => {
+  renderUi(
+    <QueryResult
+      query={makeQuery({ data: "ok", isFetching: true })}
+      themeMode="light"
+      refreshIndicator="quiet"
+    >
+      {(d: string) => <div>{d}</div>}
+    </QueryResult>,
+  )
+
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+  const content = screen.getByText("ok").parentElement as HTMLElement
+  const styles = getComputedStyle(content)
+  expect(styles.pointerEvents).not.toBe("none")
+  expect(styles.filter).not.toContain("blur")
+})
+
 test("loaded content is not wrapped in a clipping frame", () => {
   renderUi(
     <QueryResult query={makeQuery({ data: "ok" })} themeMode="light">

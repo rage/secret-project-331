@@ -60,8 +60,12 @@ export type {
   RegistrationStatusStepperProps,
 } from "./components/registrationStatus/RegistrationStatusStepper"
 export type { RegistrationStatusState } from "./components/registrationStatus/registrationStatusState"
+export { RELATIVE_TIME_ABSENT_LABEL, RelativeTime } from "./components/RelativeTime"
+export type { RelativeTimeProps } from "./components/RelativeTime"
 export { StatTile } from "./components/StatTile"
 export type { StatTileProps, StatTileTone } from "./components/StatTile"
+export { StatTileList } from "./components/StatTileList"
+export type { StatTileListProps } from "./components/StatTileList"
 export { Table } from "./components/Table"
 export type { TableAlign, TableColumn, TableProps } from "./components/Table"
 export type ButtonRef = HTMLButtonElement
@@ -96,7 +100,7 @@ export { QueryResult } from "./components/queryResult/QueryResult"
 export type { QueryResultProps } from "./components/queryResult/QueryResult"
 export { QueryResults } from "./components/queryResult/QueryResults"
 export type { QueryResultsProps } from "./components/queryResult/QueryResults"
-export type { ThemeMode } from "./components/queryResult/queryResultStyles"
+export type { RefreshIndicator, ThemeMode } from "./components/queryResult/queryResultStyles"
 export {
   getErrorMessage,
   getMultiQueryState,

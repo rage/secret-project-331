@@ -22,6 +22,7 @@ import {
   initialLoadingSurfaceLightCss,
   loadingSurfaceMinHeightCss,
   queryLoadingSpinnerCss,
+  type RefreshIndicator,
   skeletonBlockBaseCss,
   skeletonBlockDarkCss,
   skeletonBlockDimsCss,
@@ -109,6 +110,8 @@ export interface AnimatedQueryFrameProps<E> {
   themeMode: ThemeMode
   minHeight?: number
   loadingDelayMs?: number
+  /** Refetch indicator style. Defaults to "blur", which dims/blurs the content and blocks clicks. */
+  refreshIndicator?: RefreshIndicator
   initialLoading: boolean
   refreshing: boolean
   blockingError: boolean
@@ -156,6 +159,7 @@ export function AnimatedQueryFrame<E>({
   themeMode,
   minHeight = 160,
   loadingDelayMs = 200,
+  refreshIndicator = "blur",
   initialLoading,
   refreshing,
   blockingError,
@@ -169,7 +173,11 @@ export function AnimatedQueryFrame<E>({
   const { t } = useTranslation()
   const shouldReduceMotion = !!useReducedMotion()
   const showDelayedSpinner = useDelayedFlag(initialLoading, loadingDelayMs)
-  const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(refreshing)
+  const isQuietRefresh = refreshIndicator === "quiet"
+  // Quiet mode never blurs, so it has no blur-out transition to wait for.
+  const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(
+    isQuietRefresh ? false : refreshing,
+  )
   const surfaceThemeCss =
     themeMode === "dark" ? initialLoadingSurfaceDarkCss : initialLoadingSurfaceLightCss
   const skeletonToneCss = themeMode === "dark" ? skeletonBlockDarkCss : skeletonBlockLightCss
@@ -266,8 +274,10 @@ export function AnimatedQueryFrame<E>({
         <div
           className={cx(
             animatedContentCss,
-            refreshing ? animatedContentRefreshingCss : undefined,
-            refreshing || blurSettling ? animatedContentNonInteractiveCss : undefined,
+            !isQuietRefresh && refreshing ? animatedContentRefreshingCss : undefined,
+            !isQuietRefresh && (refreshing || blurSettling)
+              ? animatedContentNonInteractiveCss
+              : undefined,
           )}
           onTransitionEnd={onContentTransitionEnd}
         >

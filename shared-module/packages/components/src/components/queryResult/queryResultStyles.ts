@@ -2,6 +2,8 @@ import { css, keyframes } from "@emotion/css"
 
 export type ThemeMode = "light" | "dark"
 
+export type RefreshIndicator = "blur" | "quiet"
+
 const shimmer = keyframes`
   0% { transform: translateX(-130%); }
   100% { transform: translateX(130%); }

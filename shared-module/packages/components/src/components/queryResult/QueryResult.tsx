@@ -6,7 +6,7 @@ import React from "react"
 import { omitUndefined } from "../../lib/utils/nullability"
 import { AnimatedQueryFrame, type AnimatedQueryFrameProps } from "./AnimatedQueryFrame"
 import { getSingleQueryState, isQueryResultEmpty } from "./queryResultState"
-import type { ThemeMode } from "./queryResultStyles"
+import type { RefreshIndicator, ThemeMode } from "./queryResultStyles"
 
 export interface QueryResultProps<T, E = unknown> {
   query: UseQueryResult<T, E>
@@ -17,6 +17,7 @@ export interface QueryResultProps<T, E = unknown> {
   treatEmptyAsData?: boolean
   minHeight?: number
   loadingDelayMs?: number
+  refreshIndicator?: RefreshIndicator
   renderBlockingError?: AnimatedQueryFrameProps<E>["renderBlockingError"]
   renderStaleError?: AnimatedQueryFrameProps<E>["renderStaleError"]
 }
@@ -44,6 +45,7 @@ export function QueryResult<T, E = unknown>({
   treatEmptyAsData = false,
   minHeight,
   loadingDelayMs,
+  refreshIndicator,
   renderBlockingError,
   renderStaleError,
 }: QueryResultProps<T, E>) {
@@ -64,6 +66,7 @@ export function QueryResult<T, E = unknown>({
       themeMode={themeMode}
       {...omitUndefined({ minHeight })}
       {...omitUndefined({ loadingDelayMs })}
+      {...omitUndefined({ refreshIndicator })}
       initialLoading={state.initialLoading}
       refreshing={state.refreshing}
       blockingError={state.blockingError}

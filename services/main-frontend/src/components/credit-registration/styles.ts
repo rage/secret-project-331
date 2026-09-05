@@ -42,3 +42,26 @@ export const controlsCss = css`
 export const controlCss = css`
   min-width: 12rem;
 `
+
+/** A bordered block for content that is not a whole page section: a detail header, one phase. */
+export const cardCss = css`
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-clear-300);
+  border-radius: 8px;
+  background: var(--color-clear-50);
+`
+
+/** A wrapping row of badges, buttons or chips. */
+export const rowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+`
+
+export const monospaceCss = css`
+  font-family: monospace;
+  overflow-wrap: anywhere;
+`

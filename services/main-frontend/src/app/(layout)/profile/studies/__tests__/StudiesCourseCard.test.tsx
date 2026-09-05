@@ -28,6 +28,7 @@ const courseWithCompletion = (passed: boolean): MyStudiesCourse => ({
       order_number: 0,
       ects_credits: 5,
       supports_credit_registration: false,
+      score_given: 0,
       completion: {
         course_module_completion_id: "completion-1",
         completion_date: "2026-01-12T09:00:00Z",

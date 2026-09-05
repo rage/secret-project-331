@@ -9,6 +9,12 @@ import { useDateFormatter, useLocale } from "react-aria"
 export interface RelativeTimeProps {
   /** ISO 8601 timestamp. Renders `RELATIVE_TIME_ABSENT_LABEL` when null/undefined. */
   at: string | null | undefined
+  /**
+   * Where the absolute date and time goes. "inline" (the default) prints it beside the relative
+   * distance; "title" moves it into the element's tooltip, for tables carrying several time columns
+   * where an inline date on every row crowds out the values being compared.
+   */
+  absoluteTime?: "inline" | "title"
 }
 
 export const RELATIVE_TIME_ABSENT_LABEL = "—"
@@ -46,9 +52,10 @@ const absoluteTimeCss = css`
 
 /**
  * Renders a timestamp as a locale-aware relative distance (e.g. "3 hours ago"), with the
- * absolute date and time always visible alongside it rather than hidden behind a hover tooltip.
+ * absolute date and time beside it rather than hidden behind a hover tooltip. Pass
+ * `absoluteTime="title"` where an inline date would crowd the surrounding values.
  */
-export const RelativeTime: React.FC<RelativeTimeProps> = ({ at }) => {
+export const RelativeTime: React.FC<RelativeTimeProps> = ({ at, absoluteTime = "inline" }) => {
   const { locale } = useLocale()
   const absoluteFormatter = useDateFormatter({ dateStyle: "medium", timeStyle: "short" })
 
@@ -58,6 +65,14 @@ export const RelativeTime: React.FC<RelativeTimeProps> = ({ at }) => {
 
   const date = new Date(at)
   const absoluteLabel = absoluteFormatter.format(date)
+
+  if (absoluteTime === "title") {
+    return (
+      <time dateTime={at} title={absoluteLabel}>
+        {formatRelativeDistance(date, locale)}
+      </time>
+    )
+  }
 
   return (
     <time dateTime={at}>

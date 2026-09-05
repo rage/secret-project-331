@@ -1,13 +1,15 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const PAGE_PARAM = "page"
 
 export interface QueryParamFilters {
   param: (name: string) => string | undefined
+  /** Every value of a repeated parameter, e.g. `?state=a&state=b`. Empty when it is absent. */
+  params: (name: string) => string[]
   /** Sets or, for an empty value, clears each named parameter, and returns to page one. */
   applyParams: (changes: Record<string, string | undefined>) => void
 }
@@ -18,6 +20,11 @@ export const useQueryParamFilters = (): QueryParamFilters => {
 
   const param = useCallback(
     (name: string): string | undefined => searchParams?.get(name) ?? undefined,
+    [searchParams],
+  )
+
+  const params = useCallback(
+    (name: string): string[] => searchParams?.getAll(name) ?? [],
     [searchParams],
   )
 
@@ -49,5 +56,6 @@ export const useQueryParamFilters = (): QueryParamFilters => {
     )
   }, [])
 
-  return { param, applyParams }
+  // Memoised: `buildQuery` consumers depend on this object's identity.
+  return useMemo(() => ({ param, params, applyParams }), [param, params, applyParams])
 }

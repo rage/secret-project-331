@@ -6,6 +6,7 @@ import type {
   CreditRegistrationAdminActionTarget,
   CreditRegistrationAlertId,
   CreditRegistrationAttentionReason,
+  CreditRegistrationEventKind,
   CreditRegistrationPendingReason,
   CreditRegistrationState,
   EmailSendStatus,
@@ -57,6 +58,39 @@ export const stateTone = (
 /** The credit exists in the study registry, whoever put it there. */
 export const isSuccessState = (state: CreditRegistrationState): boolean =>
   state === "registered" || state === "duplicate" || state === "not_improved"
+
+/**
+ * `ready_to_submit` as `ready to submit`, for a chart legend or an axis. Deliberately untranslated,
+ * like `AdminStateBadge`: the state name is the identifier an operator quotes.
+ */
+export const stateName = (state: CreditRegistrationState): string => state.replaceAll("_", " ")
+
+const EVENT_KIND_KEYS = {
+  created: "credit-registration-admin-event-created",
+  state_changed: "credit-registration-admin-event-state-changed",
+  suotar_response: "credit-registration-admin-event-suotar-response",
+  retry_scheduled: "credit-registration-admin-event-retry-scheduled",
+  admin_action: "credit-registration-admin-event-admin-action",
+  student_action: "credit-registration-admin-event-student-action",
+  cancelled: "credit-registration-admin-event-cancelled",
+} as const satisfies Record<CreditRegistrationEventKind, string>
+
+const EVENT_KIND_UNKNOWN_KEY = "credit-registration-admin-event-unknown"
+
+/** What kind of thing the timeline entry records. */
+export const eventKindLabel = (t: TFunction, kind: CreditRegistrationEventKind): string =>
+  labelFrom(t, EVENT_KIND_KEYS, kind, EVENT_KIND_UNKNOWN_KEY)
+
+// oxlint-disable-next-line i18next/no-literal-string
+export const COURSE_TEACHER_ROLE = "course_teacher"
+// oxlint-disable-next-line i18next/no-literal-string
+export const GLOBAL_ADMIN_ROLE = "global_admin"
+
+/** Whose permission authorised the action. The backend types the role as a bare string. */
+export const actorRoleLabel = (t: TFunction, actorRole: string): string =>
+  actorRole === COURSE_TEACHER_ROLE
+    ? t("credit-registration-admin-actor-course-teacher")
+    : t("credit-registration-admin-actor-global-admin")
 
 const ALERT_KEYS = {
   credentials_rejected: "credit-registration-alert-credentials-rejected",

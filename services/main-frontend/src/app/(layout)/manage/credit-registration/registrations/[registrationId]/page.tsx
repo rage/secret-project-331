@@ -4,28 +4,47 @@ import { css } from "@emotion/css"
 import type { TFunction } from "i18next"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  actorRoleLabel,
+  adminActionLabel,
+  adminActionTargetLabel,
+  eventKindLabel,
   notificationKindLabel,
   sendStatusLabel,
+  stateName,
   verificationMethodLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import { useAdminCreditRegistration } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
-import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
-import { MIDDLE_DOT, STACKED, TONE } from "@/components/credit-registration/constants"
-import { registrationErrorHelp } from "@/components/credit-registration/creditRegistrationCopy"
+import SuotarApiCallDetail from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
+  ALIGN_END,
+  MIDDLE_DOT,
+  QUIET_REFRESH,
+  STACKED,
+  TIME_IN_TITLE,
+  TONE,
+} from "@/components/credit-registration/constants"
+import {
+  registrationErrorHelp,
+  registrationGradeLabel,
+} from "@/components/credit-registration/creditRegistrationCopy"
+import {
+  cardCss,
   headingCss,
+  monospaceCss,
   noteCss,
+  rowCss,
   sectionCss,
   sectionsCss,
 } from "@/components/credit-registration/styles"
 import type {
   AdminCreditRegistrationDetails,
+  AdminCreditRegistrationEvent,
   AdminCreditRegistrationRow,
   AdminLinkingEmail,
   AdminNotificationEmail,
@@ -36,24 +55,32 @@ import { creditRegistrationItemRoute, manageCourseRoute } from "@/shared-module/
 import type { DescriptionListItem, TableColumn } from "@/shared-module/components"
 import {
   Badge,
+  Button,
+  CopyButton,
   DescriptionList,
+  Dialog,
   Disclosure,
   Infobox,
   QueryResult,
+  RelativeTime,
+  RELATIVE_TIME_ABSENT_LABEL,
+  StatTile,
+  StatTileList,
   Table,
 } from "@/shared-module/components"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const ARROW = " → "
-// oxlint-disable-next-line i18next/no-literal-string
-const SLASH = " / "
 const JSON_INDENT = 2
 
-const headerRowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
+const titleCss = css`
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+`
+
+const sentenceCss = css`
+  margin: 0;
 `
 
 const bodyCss = css`
@@ -65,56 +92,154 @@ const bodyCss = css`
   border-radius: 6px;
   padding: 0.6rem;
   margin: 0;
-  max-height: 24rem;
+  max-height: 60vh;
   overflow: auto;
 `
 
-const attemptChainCss = css`
+const identifierRowCss = css`
   display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
 `
 
+const timelineCss = css`
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`
+
+const entryCss = css`
+  display: grid;
+  gap: 0.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-clear-300);
+`
+
+const studentName = (row: AdminCreditRegistrationRow): string =>
+  [row.first_name, row.last_name].filter(Boolean).join(" ")
+
+/** Each id is copyable on its own: these get quoted into tickets and SQL consoles. */
+const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
+  const { t } = useTranslation()
+  const identifiers: { label: string; value: string | null | undefined }[] = [
+    { label: t("label-credit-registration-registration"), value: row.id },
+    { label: t("label-credit-registration-completion"), value: row.course_module_completion_id },
+    { label: t("label-credit-registration-request-item-id"), value: row.request_item_id },
+    { label: t("label-credit-registration-enrolment"), value: row.selected_enrolment_id },
+    {
+      label: t("credit-registration-admin-submitted-attainment-id"),
+      value: row.submitted_attainment_id,
+    },
+    { label: t("credit-registration-admin-registry-attainment-id"), value: row.sisu_attainment_id },
+    { label: t("label-user-id"), value: row.user_id },
+    { label: t("label-course-module-id"), value: row.course_module_id },
+  ]
+  return (
+    <Disclosure title={t("credit-registration-heading-identifiers")}>
+      <DescriptionList
+        layout={STACKED}
+        items={identifiers
+          .filter((identifier) => Boolean(identifier.value))
+          .map((identifier) => ({
+            label: identifier.label,
+            value: (
+              <span className={identifierRowCss}>
+                <span className={monospaceCss}>{identifier.value}</span>
+                <CopyButton
+                  value={identifier.value ?? ""}
+                  label={t("credit-registration-admin-copy-identifier", {
+                    label: identifier.label,
+                  })}
+                />
+              </span>
+            ),
+          }))}
+      />
+    </Disclosure>
+  )
+}
+
 const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
   const { t } = useTranslation()
   const row = details.registration
-  // Next to the grade we sent, which is the comparison that explains the verdict.
+  const errorHelp = registrationErrorHelp(t, row.error_code)
+  return (
+    <section className={sectionCss}>
+      <div className={cardCss}>
+        <h2 className={titleCss}>
+          {studentName(row)}
+          {MIDDLE_DOT}
+          {row.course_name}
+        </h2>
+        <div className={rowCss}>
+          <AdminStateBadge
+            state={row.state}
+            pendingReason={row.pending_reason}
+            superseded={row.superseded}
+            attemptNumber={row.attempt_number}
+          />
+          {row.needs_admin_attention && (
+            <Badge tone={TONE.WARNING}>{t("label-credit-registration-needs-attention")}</Badge>
+          )}
+        </div>
+        {errorHelp ? (
+          <Infobox tone={TONE.WARNING} heading={row.error_code}>
+            {errorHelp}
+          </Infobox>
+        ) : (
+          <p className={sentenceCss}>
+            {t("credit-registration-admin-state-sentence", { state: stateName(row.state) })}
+          </p>
+        )}
+        <AdminTransitionBlock registration={row} />
+      </div>
+    </section>
+  )
+}
+
+const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
+  const { t } = useTranslation()
+  const row = details.registration
+  // Next to the grade we sent, which is the comparison that explains a "no improvement" verdict.
   const heldGrade: DescriptionListItem[] = details.not_improved_attainment
     ? [
         {
           label: t("label-credit-registration-registry-held-grade"),
-          value: [
-            details.not_improved_attainment.grade_scale_id ?? ABSENT,
-            details.not_improved_attainment.grade_id ?? ABSENT,
-          ].join(SLASH),
+          value: registrationGradeLabel(
+            t,
+            details.not_improved_attainment.grade_id,
+            details.not_improved_attainment.grade_scale_id,
+          ),
         },
       ]
     : []
+
   return (
     <section className={sectionCss}>
-      <div className={headerRowCss}>
-        <AdminStateBadge
-          state={row.state}
-          pendingReason={row.pending_reason}
-          superseded={row.superseded}
-          attemptNumber={row.attempt_number}
+      <h2 className={headingCss}>{t("credit-registration-heading-what-was-sent")}</h2>
+      <StatTileList ariaLabel={t("credit-registration-heading-what-was-sent")}>
+        <StatTile label={t("credit-registration-admin-submits")} value={row.submit_retry_count} />
+        <StatTile
+          label={t("credit-registration-admin-verify-checks")}
+          value={row.verify_attempt_count}
         />
-        {row.needs_admin_attention && (
-          <Badge tone={TONE.WARNING}>{t("label-credit-registration-needs-attention")}</Badge>
-        )}
-      </div>
-      {row.error_code && (
-        <Infobox tone={TONE.INFO} heading={<code>{row.error_code}</code>}>
-          {registrationErrorHelp(t, row.error_code)}
-        </Infobox>
-      )}
+        <StatTile
+          label={t("label-credit-registration-time-in-state")}
+          value={<RelativeTime at={row.state_entered_at} absoluteTime={TIME_IN_TITLE} />}
+        />
+        <StatTile
+          label={t("label-credit-registration-next-attempt")}
+          value={<RelativeTime at={row.next_attempt_at} absoluteTime={TIME_IN_TITLE} />}
+        />
+      </StatTileList>
       <DescriptionList
         layout={STACKED}
         items={[
           {
             label: t("label-student"),
-            value: [row.first_name, row.last_name, row.email].filter(Boolean).join(MIDDLE_DOT),
+            value: [studentName(row), row.email].filter(Boolean).join(MIDDLE_DOT),
           },
           {
             label: t("label-student-number"),
@@ -131,65 +256,31 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
               <>
                 <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
                 {MIDDLE_DOT}
-                {row.course_module_name ?? ABSENT}
+                {row.course_module_name ?? RELATIVE_TIME_ABSENT_LABEL}
                 {MIDDLE_DOT}
-                <code>{row.uh_course_code ?? ABSENT}</code>
-              </>
-            ),
-          },
-          {
-            label: t("label-credit-registration-completion"),
-            value: (
-              <>
-                <code>{row.course_module_completion_id}</code>
-                {MIDDLE_DOT}
-                <RelativeTime at={row.completion_date} />
+                {row.uh_course_code ?? RELATIVE_TIME_ABSENT_LABEL}
               </>
             ),
           },
           {
             label: t("label-credit-registration-grade"),
-            value:
-              [row.grade_scale_id ?? ABSENT, row.grade_id ?? ABSENT].join(SLASH) +
-              MIDDLE_DOT +
-              (row.credits ?? ABSENT),
+            value: [
+              registrationGradeLabel(t, row.grade_id, row.grade_scale_id),
+              row.credits === null || row.credits === undefined
+                ? null
+                : t("credit-registration-admin-credits", { credits: row.credits }),
+            ]
+              .filter(Boolean)
+              .join(MIDDLE_DOT),
           },
           ...heldGrade,
           {
-            label: t("label-credit-registration-enrolment"),
-            value: <code>{row.selected_enrolment_id ?? ABSENT}</code>,
-          },
-          {
-            label: t("label-credit-registration-request-item-id"),
-            value: <code>{row.request_item_id}</code>,
-          },
-          {
-            label: t("label-credit-registration-attainment-ids"),
-            value: (
-              <>
-                <code>{row.submitted_attainment_id ?? ABSENT}</code>
-                {ARROW}
-                <code>{row.sisu_attainment_id ?? ABSENT}</code>
-              </>
-            ),
-          },
-          {
-            label: t("label-credit-registration-attempts"),
-            value: t("credit-registration-admin-submit-verify-attempts", {
-              submits: row.submit_retry_count,
-              verifies: row.verify_attempt_count,
-            }),
-          },
-          {
-            label: t("label-credit-registration-next-attempt"),
-            value: <RelativeTime at={row.next_attempt_at} />,
-          },
-          {
-            label: t("label-credit-registration-time-in-state"),
-            value: <RelativeTime at={row.state_entered_at} />,
+            label: t("label-credit-registration-completion"),
+            value: <RelativeTime at={row.completion_date} />,
           },
         ]}
       />
+      <IdentifierList row={row} />
     </section>
   )
 }
@@ -205,7 +296,7 @@ const AttemptChainSection: React.FC<{ attempts: AdminCreditRegistrationRow[] }> 
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-attempt-chain")}</h2>
-      <div className={attemptChainCss}>
+      <div className={rowCss}>
         {chain.map((attempt) => (
           <Link key={attempt.id} href={creditRegistrationItemRoute(attempt.id)}>
             <AdminStateBadge
@@ -222,51 +313,71 @@ const AttemptChainSection: React.FC<{ attempts: AdminCreditRegistrationRow[] }> 
   )
 }
 
-const TimelineSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
+const PayloadDialog: React.FC<{ title: string; payload: unknown }> = ({ title, payload }) => {
   const { t } = useTranslation()
-  const events = details.events.toReversed()
+  const [open, setOpen] = useState(false)
+  const text = JSON.stringify(payload, null, JSON_INDENT)
+  return (
+    <>
+      <Button variant="tertiary" size="small" onClick={() => setOpen(true)}>
+        {t("credit-registration-admin-show-exchange")}
+      </Button>
+      <Dialog open={open} onClose={() => setOpen(false)} size="wide" title={title}>
+        <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
+        <pre className={bodyCss}>{text}</pre>
+        <CopyButton value={text} label={t("credit-registration-admin-copy-stored-body")} />
+      </Dialog>
+    </>
+  )
+}
+
+const TimelineEntry: React.FC<{ event: AdminCreditRegistrationEvent }> = ({ event }) => {
+  const { t } = useTranslation()
+  return (
+    <li className={entryCss}>
+      <span className={rowCss}>
+        <RelativeTime at={event.created_at} />
+        <Badge tone={TONE.NEUTRAL}>{eventKindLabel(t, event.kind)}</Badge>
+        {event.to_state && (
+          <span className={rowCss}>
+            {event.from_state && (
+              <>
+                <AdminStateBadge state={event.from_state} />
+                {ARROW}
+              </>
+            )}
+            <AdminStateBadge state={event.to_state} />
+          </span>
+        )}
+        {event.error_code && <span className={monospaceCss}>{event.error_code}</span>}
+      </span>
+      {event.message && <span>{event.message}</span>}
+      {event.details !== null && event.details !== undefined && (
+        <span>
+          <PayloadDialog
+            title={t("credit-registration-heading-exchange", {
+              kind: eventKindLabel(t, event.kind),
+            })}
+            payload={event.details}
+          />
+        </span>
+      )}
+    </li>
+  )
+}
+
+const TimelineSection: React.FC<{ events: AdminCreditRegistrationEvent[] }> = ({ events }) => {
+  const { t } = useTranslation()
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-timeline")}</h2>
       <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-      <Table
-        caption={t("credit-registration-heading-timeline")}
-        rowKey={(event) => event.id}
-        rows={events}
-        columns={[
-          { header: t("label-time"), cell: (event) => <RelativeTime at={event.created_at} /> },
-          { header: t("label-kind"), cell: (event) => <code>{event.kind}</code> },
-          {
-            header: t("label-state"),
-            cell: (event) =>
-              event.to_state ? (
-                <>
-                  {event.from_state && (
-                    <>
-                      <code>{event.from_state}</code>
-                      {ARROW}
-                    </>
-                  )}
-                  <AdminStateBadge state={event.to_state} />
-                </>
-              ) : null,
-          },
-          {
-            header: t("label-error-code"),
-            cell: (event) => (event.error_code ? <code>{event.error_code}</code> : null),
-          },
-          { header: t("label-message"), cell: (event) => event.message },
-          {
-            header: t("label-credit-registration-exchange"),
-            cell: (event) =>
-              event.details ? (
-                <Disclosure title={t("credit-registration-admin-show-exchange")}>
-                  <pre className={bodyCss}>{JSON.stringify(event.details, null, JSON_INDENT)}</pre>
-                </Disclosure>
-              ) : null,
-          },
-        ]}
-      />
+      {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
+      <ol className={timelineCss} role="list">
+        {events.toReversed().map((event) => (
+          <TimelineEntry key={event.id} event={event} />
+        ))}
+      </ol>
     </section>
   )
 }
@@ -284,18 +395,18 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
         rowKey={(call) => call.id}
         rows={calls}
         columns={[
-          { header: t("label-time"), cell: (call) => <RelativeTime at={call.started_at} /> },
+          {
+            header: t("label-time"),
+            cell: (call) => <RelativeTime at={call.started_at} absoluteTime={TIME_IN_TITLE} />,
+          },
           { header: t("label-endpoint"), cell: (call) => <code>{call.endpoint}</code> },
           {
             header: t("label-credit-registration-http-status"),
-            cell: (call) => call.http_status ?? ABSENT,
+            align: ALIGN_END,
+            cell: (call) => call.http_status ?? RELATIVE_TIME_ABSENT_LABEL,
           },
           {
-            header: t("label-credit-registration-duration-ms"),
-            cell: (call) => call.duration_ms ?? ABSENT,
-          },
-          {
-            header: t("label-credit-registration-items"),
+            header: t("credit-registration-admin-column-items"),
             cell: (call) =>
               t("credit-registration-admin-ok-error-items", {
                 ok: call.ok_item_count,
@@ -304,24 +415,8 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
               }),
           },
           {
-            header: t("label-error-code"),
-            cell: (call) =>
-              call.request_level_error_code ? <code>{call.request_level_error_code}</code> : null,
-          },
-          { header: t("label-credit-registration-worker"), cell: (call) => call.worker_name },
-          {
-            header: t("label-credit-registration-bodies"),
-            cell: (call) => (
-              <Disclosure title={t("credit-registration-admin-show-bodies")}>
-                <pre className={bodyCss}>
-                  {JSON.stringify(
-                    { request: call.request_body_sample, response: call.response_body_sample },
-                    null,
-                    JSON_INDENT,
-                  )}
-                </pre>
-              </Disclosure>
-            ),
+            header: t("label-actions"),
+            cell: (call) => <SuotarApiCallDetail suotarApiCallId={call.id} />,
           },
         ]}
       />
@@ -342,6 +437,7 @@ const sendStatusColumns = <T extends { send_status: AdminLinkingEmail["send_stat
   },
   {
     header: t("label-credit-registration-retries"),
+    align: ALIGN_END,
     cell: (mail) => mail.send_status.retry_count,
   },
 ]
@@ -363,19 +459,17 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
           { header: t("label-email"), cell: (mail) => mail.emailed_to },
           sendStatusColumn,
           {
-            header: t("label-credit-registration-claimed-slot"),
-            cell: (mail) => <RelativeTime at={mail.claimed_at} />,
-          },
-          {
             header: t("label-credit-registration-handed-over"),
-            cell: (mail) => <RelativeTime at={mail.send_status.sent_at} />,
+            cell: (mail) => (
+              <RelativeTime at={mail.send_status.sent_at} absoluteTime={TIME_IN_TITLE} />
+            ),
           },
           retriesColumn,
           {
             header: t("label-credit-registration-token-claimed"),
             cell: (mail) =>
               mail.token_used_at ? (
-                <RelativeTime at={mail.token_used_at} />
+                <RelativeTime at={mail.token_used_at} absoluteTime={TIME_IN_TITLE} />
               ) : (
                 <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-token-unclaimed")}</Badge>
               ),
@@ -404,7 +498,9 @@ const NotificationSection: React.FC<{ mails: AdminNotificationEmail[] }> = ({ ma
           sendStatusColumn,
           {
             header: t("label-credit-registration-handed-over"),
-            cell: (mail) => <RelativeTime at={mail.send_status.sent_at} />,
+            cell: (mail) => (
+              <RelativeTime at={mail.send_status.sent_at} absoluteTime={TIME_IN_TITLE} />
+            ),
           },
           retriesColumn,
         ]}
@@ -417,46 +513,60 @@ const AuditSection: React.FC<{ actions: CreditRegistrationAdminActionRecord[] }>
   actions,
 }) => {
   const { t } = useTranslation()
-  if (actions.length === 0) {
-    return <p className={noteCss}>{t("credit-registration-admin-no-actions-yet")}</p>
-  }
   return (
-    <Table
-      caption={t("credit-registration-heading-audit")}
-      rowKey={(action) => action.id}
-      rows={actions}
-      columns={[
-        { header: t("label-time"), cell: (action) => <RelativeTime at={action.created_at} /> },
-        { header: t("label-action"), cell: (action) => <code>{action.action}</code> },
-        { header: t("label-role"), cell: (action) => <code>{action.actor_role}</code> },
-        { header: t("label-actor"), cell: (action) => <code>{action.actor_user_id}</code> },
-        { header: t("label-reason"), cell: (action) => action.reason },
-      ]}
-    />
+    <section className={sectionCss}>
+      <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
+      {actions.length === 0 ? (
+        <p className={noteCss}>{t("credit-registration-admin-no-actions-yet")}</p>
+      ) : (
+        <Table
+          caption={t("credit-registration-heading-audit")}
+          rowKey={(action) => action.id}
+          rows={actions}
+          columns={[
+            {
+              header: t("label-time"),
+              cell: (action) => (
+                <RelativeTime at={action.created_at} absoluteTime={TIME_IN_TITLE} />
+              ),
+            },
+            {
+              header: t("credit-registration-admin-column-action"),
+              cell: (action) => adminActionLabel(t, action.action),
+            },
+            {
+              header: t("credit-registration-admin-column-target"),
+              cell: (action) => adminActionTargetLabel(t, action.target_kind),
+            },
+            {
+              header: t("label-role"),
+              cell: (action) => actorRoleLabel(t, action.actor_role),
+            },
+            { header: t("label-reason"), cell: (action) => action.reason },
+          ]}
+        />
+      )}
+    </section>
   )
 }
 
+/** One ledger row end to end: what it is, what an admin can do to it, and everything it has done. */
 const RegistrationDetailPage: React.FC = () => {
-  const { t } = useTranslation()
   const params = useParams<{ registrationId: string }>()
   const detailsQuery = useAdminCreditRegistration(params.registrationId)
 
   return (
-    <QueryResult query={detailsQuery}>
+    <QueryResult query={detailsQuery} refreshIndicator={QUIET_REFRESH}>
       {(details) => (
         <div className={sectionsCss}>
           <HeaderSection details={details} />
+          <FactsSection details={details} />
           <AttemptChainSection attempts={details.attempts} />
-          <TimelineSection details={details} />
+          <TimelineSection events={details.events} />
           <ApiCallSection calls={details.suotar_api_calls} />
           <LinkingSection mails={details.linking_emails} />
           <NotificationSection mails={details.notification_emails} />
-          <section className={sectionCss}>
-            <h2 className={headingCss}>{t("credit-registration-heading-actions")}</h2>
-            <AdminTransitionBlock registration={details.registration} />
-            <h3 className={headingCss}>{t("credit-registration-heading-audit")}</h3>
-            <AuditSection actions={details.actions} />
-          </section>
+          <AuditSection actions={details.actions} />
         </div>
       )}
     </QueryResult>

@@ -2,9 +2,8 @@
 
 import { css } from "@emotion/css"
 import Link from "next/link"
-import React from "react"
+import React, { useEffect } from "react"
 import { VisuallyHidden } from "react-aria"
-import type { Control } from "react-hook-form"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -16,77 +15,116 @@ import {
 import {
   useCreditRegistrationAttentionItems,
   useCreditRegistrationErrorsByCode,
+  useCreditRegistrationReconciliation,
   useCreditRegistrationThresholds,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminRequeueRetryableDialog from "@/components/credit-registration/admin/AdminRequeueRetryableDialog"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
-import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
-import { DAY_SECS, WindowSecsSelect } from "@/components/credit-registration/admin/WindowSecsSelect"
-import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
+import ReconciliationSection from "@/components/credit-registration/admin/ReconciliationSection"
+import { useQueryParamFilters } from "@/components/credit-registration/admin/useQueryParamFilters"
 import {
+  DAY_SECS,
+  useWindowSecsParam,
+  WindowSecsSelect,
+} from "@/components/credit-registration/admin/WindowSecsSelect"
+import {
+  ALIGN_END,
+  MIDDLE_DOT,
+  QUIET_REFRESH,
+  TIME_IN_TITLE,
+  TONE,
+} from "@/components/credit-registration/constants"
+import {
+  cardCss,
+  controlCss,
   headingCss,
   noteCss,
+  rowCss,
   sectionCss,
   sectionsCss,
   stackedCellCss,
-  tilesCss,
 } from "@/components/credit-registration/styles"
 import type {
-  CreditRegistrationAttentionItem,
   CreditRegistrationAttentionItems,
   CreditRegistrationAttentionReason,
+  Retryability,
 } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
+import {
+  creditRegistrationItemRoute,
+  creditRegistrationRegistrationsRoute,
+} from "@/shared-module/common/utils/routes"
+import type { BadgeTone } from "@/shared-module/components"
 import {
   Badge,
+  Button,
   Checkbox,
-  Disclosure,
   QueryResult,
+  RelativeTime,
+  RELATIVE_TIME_ABSENT_LABEL,
   StatTile,
+  StatTileList,
   Table,
 } from "@/shared-module/components"
 
 const PERCENT = 100
+const SECONDS_PER_HOUR = 3600
 
-const controlsCss = css`
-  max-width: 16rem;
-`
+// oxlint-disable-next-line i18next/no-literal-string
+const ERROR_CODE_QUERY = "?error_code="
+// oxlint-disable-next-line i18next/no-literal-string
+const PARAM_REASON = "reason"
 
-const actionsCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: start;
-`
-
-const reasonsCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-`
-
-interface WindowFields {
-  window_secs: string
-}
+const RETRYABILITY_TONES = {
+  retryable_transient: TONE.INFO,
+  verify_only: TONE.INFO,
+  permanent_needs_student: TONE.WARNING,
+  permanent_needs_admin: TONE.DANGER,
+  permanent_needs_config: TONE.DANGER,
+} as const satisfies Record<Retryability, BadgeTone>
 
 interface SelectionFields {
+  selectAll: boolean
   selected: Record<string, boolean>
 }
 
-const VerdictSection: React.FC<{ windowSecs: number }> = ({ windowSecs }) => {
+const selectionBarCss = css`
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+`
+
+/** The reason chip, kept in the query string so the Overview's "stuck" tile can deep-link in. */
+const useAttentionReasonFilter = () => {
+  const { param, applyParams } = useQueryParamFilters()
+  const activeReason = param(PARAM_REASON) as CreditRegistrationAttentionReason | undefined
+  const toggleReason = (reason: CreditRegistrationAttentionReason) =>
+    applyParams({ [PARAM_REASON]: activeReason === reason ? undefined : reason })
+  return { activeReason, toggleReason }
+}
+
+const hours = (seconds: number): number => Math.round(seconds / SECONDS_PER_HOUR)
+
+const signed = (delta: number): string => (delta > 0 ? `+${delta}` : String(delta))
+
+const FailureSection: React.FC = () => {
   const { t } = useTranslation()
+  const { control, windowSecs } = useWindowSecsParam(DAY_SECS)
   const errorsQuery = useCreditRegistrationErrorsByCode(windowSecs)
+
   return (
-    <QueryResult query={errorsQuery}>
-      {(errors) => {
-        const verdicts = errors.verdicts
-        const successCount = verdicts.registered_count + verdicts.duplicate_and_not_improved_count
-        return (
-          <>
-            <section className={sectionCss}>
-              <h2 className={headingCss}>{t("credit-registration-heading-verdicts")}</h2>
-              <div className={tilesCss}>
+    <section className={sectionCss}>
+      <h2 className={headingCss}>{t("credit-registration-heading-verdicts")}</h2>
+      <div className={controlCss}>
+        <WindowSecsSelect control={control} includeMonth />
+      </div>
+      <QueryResult query={errorsQuery} refreshIndicator={QUIET_REFRESH}>
+        {(errors) => {
+          const verdicts = errors.verdicts
+          const successCount = verdicts.registered_count + verdicts.duplicate_and_not_improved_count
+          return (
+            <>
+              <StatTileList ariaLabel={t("credit-registration-heading-verdicts")}>
                 <StatTile
                   label={t("credit-registration-admin-column-registered")}
                   value={verdicts.registered_count}
@@ -108,14 +146,12 @@ const VerdictSection: React.FC<{ windowSecs: number }> = ({ windowSecs }) => {
                   label={t("credit-registration-admin-success-rate")}
                   value={
                     verdicts.total_count === 0
-                      ? ABSENT
+                      ? RELATIVE_TIME_ABSENT_LABEL
                       : `${Math.round((successCount / verdicts.total_count) * PERCENT)} %`
                   }
                 />
-              </div>
-            </section>
-            <section className={sectionCss}>
-              <h2 className={headingCss}>{t("credit-registration-heading-error-codes")}</h2>
+              </StatTileList>
+              <h3 className={headingCss}>{t("credit-registration-heading-error-codes")}</h3>
               {errors.codes.length === 0 ? (
                 <p className={noteCss}>{t("credit-registration-admin-no-errors-in-window")}</p>
               ) : (
@@ -124,229 +160,294 @@ const VerdictSection: React.FC<{ windowSecs: number }> = ({ windowSecs }) => {
                   rowKey={(row) => row.error_code}
                   rows={errors.codes}
                   columns={[
-                    { header: t("label-error-code"), cell: (row) => <code>{row.error_code}</code> },
+                    {
+                      header: t("label-error-code"),
+                      cell: (row) => (
+                        <Link
+                          href={`${creditRegistrationRegistrationsRoute()}${ERROR_CODE_QUERY}${row.error_code}`}
+                          prefetch={false}
+                        >
+                          <code>{row.error_code}</code>
+                        </Link>
+                      ),
+                    },
                     {
                       header: t("credit-registration-admin-column-retryability"),
                       cell: (row) => (
-                        <Badge tone={TONE.NEUTRAL}>{retryabilityLabel(t, row.retryability)}</Badge>
+                        <Badge tone={RETRYABILITY_TONES[row.retryability] ?? TONE.NEUTRAL}>
+                          {retryabilityLabel(t, row.retryability)}
+                        </Badge>
                       ),
                     },
                     {
                       header: t("credit-registration-admin-column-in-window"),
+                      align: ALIGN_END,
                       cell: (row) => row.current_count,
                     },
                     {
-                      header: t("credit-registration-admin-column-window-before"),
-                      cell: (row) => row.previous_count,
+                      header: t("credit-registration-admin-column-change"),
+                      align: ALIGN_END,
+                      cell: (row) =>
+                        row.previous_count === 0
+                          ? t("credit-registration-admin-new-this-window")
+                          : signed(row.current_count - row.previous_count),
                     },
                     {
                       header: t("credit-registration-admin-column-students"),
+                      align: ALIGN_END,
                       cell: (row) => row.user_count,
                     },
                     {
                       header: t("credit-registration-admin-column-courses"),
+                      align: ALIGN_END,
                       cell: (row) => row.course_count,
                     },
                     {
-                      header: t("label-endpoint"),
-                      cell: (row) =>
-                        row.endpoints.map((endpoint) => <code key={endpoint}>{endpoint}</code>),
-                    },
-                    {
-                      header: t("credit-registration-admin-column-first-seen"),
-                      cell: (row) => <RelativeTime at={row.first_seen_at} />,
-                    },
-                    {
                       header: t("credit-registration-admin-column-last-seen"),
-                      cell: (row) => <RelativeTime at={row.last_seen_at} />,
+                      cell: (row) => (
+                        <RelativeTime at={row.last_seen_at} absoluteTime={TIME_IN_TITLE} />
+                      ),
                     },
                   ]}
                 />
               )}
-            </section>
-          </>
-        )
-      }}
-    </QueryResult>
+              <div className={rowCss}>
+                <AdminRequeueRetryableDialog />
+              </div>
+            </>
+          )
+        }}
+      </QueryResult>
+    </section>
   )
 }
 
-const AttentionTable: React.FC<{
-  reason: CreditRegistrationAttentionReason
-  items: CreditRegistrationAttentionItem[]
-  control: Control<SelectionFields>
-}> = ({ reason, items, control }) => {
+const ReasonFilter: React.FC<{
+  attention: CreditRegistrationAttentionItems
+  active: CreditRegistrationAttentionReason | undefined
+  onToggle: (reason: CreditRegistrationAttentionReason) => void
+}> = ({ attention, active, onToggle }) => {
   const { t } = useTranslation()
+  const groups = attention.counts_by_reason.filter((group) => group.count > 0)
+  if (groups.length === 0) {
+    return null
+  }
   return (
-    <Table
-      caption={t("credit-registration-admin-attention-of-reason", {
-        reason: attentionReasonLabel(t, reason),
-      })}
-      rowKey={(row) => row.credit_registration_id}
-      rows={items}
-      columns={[
-        {
-          header: t("credit-registration-admin-column-select"),
-          cell: (row) => (
-            <Checkbox
-              name={`selected.${row.credit_registration_id}`}
-              control={control}
-              label={
-                <VisuallyHidden>
-                  {t("credit-registration-admin-select-registration", {
-                    student: [row.first_name, row.last_name].filter(Boolean).join(" "),
-                  })}
-                </VisuallyHidden>
-              }
-            />
-          ),
-        },
-        {
-          header: t("label-state"),
-          cell: (row) => (
-            <Link href={creditRegistrationItemRoute(row.credit_registration_id)} prefetch={false}>
-              <AdminStateBadge state={row.state} />
-            </Link>
-          ),
-        },
-        {
-          header: t("credit-registration-admin-column-reasons"),
-          cell: (row) => (
-            <span className={reasonsCss}>
-              {row.reasons.map((each) => (
-                <Badge key={each} tone={TONE.NEUTRAL}>
-                  {attentionReasonLabel(t, each)}
-                </Badge>
-              ))}
-            </span>
-          ),
-        },
-        {
-          header: t("label-student"),
-          cell: (row) => (
-            <span className={stackedCellCss}>
-              <span>
-                {row.first_name} {row.last_name}
-              </span>
-              <span className={noteCss}>{row.email}</span>
-            </span>
-          ),
-        },
-        {
-          header: t("label-student-number"),
-          cell: (row) => row.student_number ?? ABSENT,
-        },
-        {
-          header: t("label-course"),
-          cell: (row) => (
-            <span className={stackedCellCss}>
-              <span>{row.course_name}</span>
-              <span className={noteCss}>{row.course_module_name}</span>
-            </span>
-          ),
-        },
-        {
-          header: t("label-error-code"),
-          cell: (row) => (row.error_code ? <code>{row.error_code}</code> : ABSENT),
-        },
-        {
-          header: t("label-credit-registration-attempts"),
-          cell: (row) => row.attempt_count,
-        },
-        {
-          header: t("label-credit-registration-time-in-state"),
-          cell: (row) => <RelativeTime at={row.state_entered_at} />,
-        },
-        {
-          header: t("credit-registration-admin-column-next-attempt"),
-          cell: (row) => <RelativeTime at={row.next_attempt_at} />,
-        },
-      ]}
-    />
+    <div className={rowCss}>
+      {groups.map((group) => (
+        <Button
+          key={group.reason}
+          variant={active === group.reason ? "secondary" : "tertiary"}
+          size="small"
+          aria-pressed={active === group.reason}
+          onClick={() => onToggle(group.reason)}
+        >
+          {`${attentionReasonLabel(t, group.reason)}${MIDDLE_DOT}${group.count}`}
+        </Button>
+      ))}
+    </div>
   )
 }
 
-const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }> = ({
-  attention,
-}) => {
+const AttentionSection: React.FC<{
+  attention: CreditRegistrationAttentionItems
+  activeReason: CreditRegistrationAttentionReason | undefined
+  onToggleReason: (reason: CreditRegistrationAttentionReason) => void
+}> = ({ attention, activeReason, onToggleReason }) => {
   const { t } = useTranslation()
   const thresholdsQuery = useCreditRegistrationThresholds()
-  const { control, watch, reset } = useForm<SelectionFields>({ defaultValues: { selected: {} } })
+  const { control, watch, reset, setValue } = useForm<SelectionFields>({
+    defaultValues: { selectAll: false, selected: {} },
+  })
   const selected = watch("selected")
+  const selectAll = watch("selectAll")
   const selectedIds = Object.entries(selected ?? {})
     .filter(([, checked]) => checked)
     .map(([id]) => id)
   const thresholds = thresholdsQuery.data
 
+  const items =
+    activeReason === undefined
+      ? attention.items
+      : attention.items.filter((item) => item.reasons.includes(activeReason))
+  const visibleIds = items.map((item) => item.credit_registration_id)
+
+  // Only when the header box itself is toggled: reacting to `visibleIds` would clear the selection
+  // on every poll.
+  useEffect(() => {
+    setValue(
+      "selected",
+      Object.fromEntries(visibleIds.map((id) => [id, selectAll])) as Record<string, boolean>,
+    )
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectAll])
+
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-attention")}</h2>
-      <div className={tilesCss}>
+      <StatTileList ariaLabel={t("credit-registration-heading-attention")}>
         <StatTile
           label={t("label-credit-registration-needs-attention")}
           value={attention.total_count}
           {...includeIf(attention.total_count > 0, { tone: TONE.ALERT })}
         />
-      </div>
+      </StatTileList>
+      {thresholds && (
+        <p className={noteCss}>
+          {t("credit-registration-admin-stuck-thresholds", {
+            readyToSubmit: hours(thresholds.stuck_ready_to_submit_secs),
+            submitting: hours(thresholds.stuck_submitting_secs),
+            awaitingVerification: hours(thresholds.stuck_awaiting_verification_secs),
+            failedRetryable: hours(thresholds.stuck_failed_retryable_secs),
+          })}
+        </p>
+      )}
       {attention.total_count >= attention.max_items && (
         <p className={noteCss}>
           {t("credit-registration-admin-attention-capped", { max: attention.max_items })}
         </p>
       )}
-      {thresholds && (
-        <p className={noteCss}>
-          {t("credit-registration-admin-stuck-thresholds", {
-            readyToSubmit: thresholds.stuck_ready_to_submit_secs,
-            submitting: thresholds.stuck_submitting_secs,
-            awaitingVerification: thresholds.stuck_awaiting_verification_secs,
-            failedRetryable: thresholds.stuck_failed_retryable_secs,
-          })}
-        </p>
-      )}
-      <div className={actionsCss}>
-        <AdminBulkTransitionDialog
-          selectedIds={selectedIds}
-          onApplied={() => reset({ selected: {} })}
-        />
-        <AdminRequeueRetryableDialog />
-      </div>
-      {attention.total_count === 0 ? (
+      <ReasonFilter attention={attention} active={activeReason} onToggle={onToggleReason} />
+      {items.length === 0 ? (
         <p className={noteCss}>{t("credit-registration-admin-nothing-needs-a-human")}</p>
       ) : (
-        attention.counts_by_reason.map((group) => (
-          <Disclosure
-            key={group.reason}
-            defaultExpanded={group.count > 0}
-            title={`${attentionReasonLabel(t, group.reason)}${MIDDLE_DOT}${group.count}`}
-          >
-            <AttentionTable
-              reason={group.reason}
-              items={attention.items.filter((item) => item.reasons.includes(group.reason))}
-              control={control}
-            />
-          </Disclosure>
-        ))
+        <>
+          <Table
+            caption={t("credit-registration-heading-attention")}
+            rowKey={(row) => row.credit_registration_id}
+            rows={items}
+            columns={[
+              {
+                header: (
+                  <Checkbox
+                    name="selectAll"
+                    control={control}
+                    isIndeterminate={selectedIds.length > 0 && selectedIds.length < items.length}
+                    label={
+                      <VisuallyHidden>
+                        {t("credit-registration-admin-select-every-row")}
+                      </VisuallyHidden>
+                    }
+                  />
+                ),
+                cell: (row) => (
+                  <Checkbox
+                    name={`selected.${row.credit_registration_id}`}
+                    control={control}
+                    label={
+                      <VisuallyHidden>
+                        {t("credit-registration-admin-select-registration", {
+                          student: [row.first_name, row.last_name].filter(Boolean).join(" "),
+                        })}
+                      </VisuallyHidden>
+                    }
+                  />
+                ),
+              },
+              {
+                header: t("label-student"),
+                cell: (row) => (
+                  <span className={stackedCellCss}>
+                    <Link
+                      href={creditRegistrationItemRoute(row.credit_registration_id)}
+                      prefetch={false}
+                    >
+                      {[row.first_name, row.last_name].filter(Boolean).join(" ")}
+                    </Link>
+                    <span className={noteCss}>{row.email}</span>
+                  </span>
+                ),
+              },
+              {
+                header: t("label-course"),
+                cell: (row) => (
+                  <span className={stackedCellCss}>
+                    <span>{row.course_name}</span>
+                    <span className={noteCss}>{row.course_module_name}</span>
+                  </span>
+                ),
+              },
+              {
+                header: t("label-state"),
+                cell: (row) => (
+                  <span className={stackedCellCss}>
+                    <AdminStateBadge state={row.state} />
+                    {row.error_code && <code>{row.error_code}</code>}
+                  </span>
+                ),
+              },
+              {
+                header: t("credit-registration-admin-column-reasons"),
+                cell: (row) => (
+                  <span className={rowCss}>
+                    {row.reasons.map((reason) => (
+                      <Badge key={reason} tone={TONE.NEUTRAL}>
+                        {attentionReasonLabel(t, reason)}
+                      </Badge>
+                    ))}
+                  </span>
+                ),
+              },
+              {
+                header: t("label-credit-registration-time-in-state"),
+                cell: (row) => (
+                  <RelativeTime at={row.state_entered_at} absoluteTime={TIME_IN_TITLE} />
+                ),
+              },
+              {
+                header: t("credit-registration-admin-column-next-attempt"),
+                cell: (row) => (
+                  <RelativeTime at={row.next_attempt_at} absoluteTime={TIME_IN_TITLE} />
+                ),
+              },
+            ]}
+          />
+          {selectedIds.length > 0 && (
+            <div className={`${cardCss} ${selectionBarCss}`}>
+              <div className={rowCss}>
+                <span>
+                  {t("credit-registration-admin-selected-count", { count: selectedIds.length })}
+                </span>
+                <AdminBulkTransitionDialog
+                  selectedIds={selectedIds}
+                  onApplied={() => reset({ selectAll: false, selected: {} })}
+                />
+                <Button
+                  variant="tertiary"
+                  size="medium"
+                  onClick={() => reset({ selectAll: false, selected: {} })}
+                >
+                  {t("credit-registration-admin-clear-selection")}
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </section>
   )
 }
 
-/** Two halves on one tab because an incident is read as one: what is breaking, and who must act. */
+/** What is breaking, who must act on it, and what has silently drifted: one incident, read top down. */
 const ErrorsPage: React.FC = () => {
-  const { control, watch } = useForm<WindowFields>({
-    defaultValues: { window_secs: String(DAY_SECS) },
-  })
-  const windowSecs = Number(watch("window_secs"))
   const attentionQuery = useCreditRegistrationAttentionItems()
+  const reconciliationQuery = useCreditRegistrationReconciliation()
+  const { activeReason, toggleReason } = useAttentionReasonFilter()
 
   return (
     <div className={sectionsCss}>
-      <div className={controlsCss}>
-        <WindowSecsSelect control={control} includeMonth />
-      </div>
-      <VerdictSection windowSecs={windowSecs} />
-      <QueryResult query={attentionQuery}>
-        {(attention) => <AttentionSection attention={attention} />}
+      <QueryResult query={attentionQuery} refreshIndicator={QUIET_REFRESH}>
+        {(attention) => (
+          <AttentionSection
+            attention={attention}
+            activeReason={activeReason}
+            onToggleReason={toggleReason}
+          />
+        )}
+      </QueryResult>
+      <FailureSection />
+      <QueryResult query={reconciliationQuery} refreshIndicator={QUIET_REFRESH}>
+        {(reconciliation) => <ReconciliationSection reconciliation={reconciliation} />}
       </QueryResult>
     </div>
   )

@@ -5,6 +5,7 @@ import React, { useState } from "react"
 import type { Control, FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Dialog } from "@/shared-module/components"
 
 import { useActionResult } from "../useActionResult"
@@ -25,6 +26,8 @@ const rootCss = css`
 interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result> {
   triggerLabel: string
   triggerDisabled?: boolean
+  /** Defaults to `secondary`; use it to rank several actions offered side by side. */
+  triggerVariant?: ButtonVariant
   dialogTitle: string
   defaultValues: Fields
   mutationFn: (fields: Fields) => Promise<Result>
@@ -35,12 +38,13 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
 }
 
 /**
- * The shell every admin bulk-action dialog shares: a trigger button, a result banner from the last
+ * The shell every admin action dialog shares: a trigger button, a result banner from the last
  * run, and a reason-gated form dialog. `renderFields`/`renderResult` supply what differs per action.
  */
 export function AdminActionDialog<Fields extends FieldValues & WithReason, Result>({
   triggerLabel,
   triggerDisabled,
+  triggerVariant = "secondary",
   dialogTitle,
   defaultValues,
   mutationFn,
@@ -63,7 +67,7 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
   return (
     <div className={rootCss}>
       <Button
-        variant="secondary"
+        variant={triggerVariant}
         size="medium"
         disabled={triggerDisabled ?? false}
         onClick={() => setOpen(true)}

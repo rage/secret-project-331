@@ -16,14 +16,12 @@ import { MIDDLE_DOT, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
 import { useActionResult } from "../useActionResult"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
-import AdminManualLinkDialog from "./AdminManualLinkDialog"
 import { ReasonField, isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props {
   studentNumber: string
   courseId: string
   courseName: string
-  hasMailHistory: boolean
 }
 
 interface Fields {
@@ -42,32 +40,15 @@ const formCss = css`
   gap: 0.75rem;
 `
 
-const lastResortCss = css`
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-  text-decoration: underline;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-  }
-`
-
 /** The override retires the rows the caps count rather than relaxing a cap, and needs a reason. */
 const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   studentNumber,
   courseId,
   courseName,
-  hasMailHistory,
 }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const [manualLinkOpen, setManualLinkOpen] = useState(false)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
     override_rate_caps: false,
     reason: "",
@@ -111,16 +92,6 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       >
         {t("button-text-resend-linking-email")}
       </Button>
-      {hasMailHistory && (
-        <button
-          type="button"
-          className={lastResortCss}
-          onClick={() => setManualLinkOpen(true)}
-          aria-label={t("credit-registration-admin-manual-link-last-resort")}
-        >
-          {t("credit-registration-admin-manual-link-last-resort")}
-        </button>
-      )}
       <Dialog open={open} onClose={closeDialog} title={t("button-text-resend-linking-email")}>
         {result && (
           <Infobox tone={result.outcome === RESEND_QUEUED ? TONE.INFO : TONE.WARNING}>
@@ -177,13 +148,6 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
           </Button>
         </form>
       </Dialog>
-      {manualLinkOpen && (
-        <AdminManualLinkDialog
-          open={manualLinkOpen}
-          onClose={() => setManualLinkOpen(false)}
-          studentNumber={studentNumber}
-        />
-      )}
     </div>
   )
 }

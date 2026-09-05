@@ -18,6 +18,8 @@ import {
   DescriptionList,
   Dialog,
   Infobox,
+  RelativeTime,
+  RELATIVE_TIME_ABSENT_LABEL,
   TextField,
 } from "@/shared-module/components"
 
@@ -27,12 +29,12 @@ import { useActionResult } from "../useActionResult"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
-import RelativeTime, { ABSENT } from "./RelativeTime"
 
 interface Props {
   open: boolean
   onClose: () => void
-  studentNumber: string
+  /** Seeds the lookup field; empty when the dialog is opened without a row to act on. */
+  studentNumber?: string
 }
 
 interface Fields {
@@ -58,7 +60,7 @@ const rowCss = css`
 `
 
 /** The API enforces the same two gates: the preview must have run, and a reason is required. */
-const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }) => {
+const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber = "" }) => {
   const { t } = useTranslation()
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
@@ -130,11 +132,11 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
                 items={[
                   {
                     label: t("label-name"),
-                    value: `${preview.first_names ?? ABSENT} ${preview.last_name ?? ABSENT}`,
+                    value: `${preview.first_names ?? RELATIVE_TIME_ABSENT_LABEL} ${preview.last_name ?? RELATIVE_TIME_ABSENT_LABEL}`,
                   },
                   {
                     label: t("label-credit-registration-person-id"),
-                    value: <code>{preview.sisu_person_id ?? ABSENT}</code>,
+                    value: <code>{preview.sisu_person_id ?? RELATIVE_TIME_ABSENT_LABEL}</code>,
                   },
                   {
                     label: t("label-credit-registration-already-linked-to"),

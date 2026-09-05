@@ -48,20 +48,17 @@ test.use({ storageState: ADMIN_STORAGE_STATE })
 const DASHBOARD_URL = `${ORIGIN}/manage/credit-registration`
 const OVERVIEW_URL = `${DASHBOARD_URL}/overview`
 const REGISTRATIONS_URL = `${DASHBOARD_URL}/registrations`
-const LINKING_URL = `${DASHBOARD_URL}/linking`
-const WORKERS_URL = `${DASHBOARD_URL}/workers`
+const COURSES_URL = `${DASHBOARD_URL}/courses`
+const ERRORS_URL = `${DASHBOARD_URL}/errors`
+const SYSTEM_URL = `${DASHBOARD_URL}/system`
 
 /** In the order the layout lists them, which is the order an operator reads the shell in. */
 const TAB_NAMES = [
   "Overview",
-  "Pipeline",
   "Registrations",
   "Errors & stuck",
-  "Account linking",
   "Courses",
-  "Study registry calls",
-  "Workers",
-  "Reconciliation",
+  "System",
   "Audit",
 ] as const
 
@@ -91,8 +88,8 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
   for (const name of TAB_NAMES) {
     await expect(page.getByRole("tab", { name })).toBeVisible()
   }
+  await expect(page.getByRole("heading", { name: "What needs attention" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Where registrations stand" })).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Study registry" })).toBeVisible()
   await accessibilityCheck(page, "Credit registration admin overview")
 
   await test.step("Both worker programs are alive and stamping their phases", async () => {
@@ -111,8 +108,11 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
   await expect(page.getByRole("table", { name: "Registrations" })).toBeVisible()
   await expect(page.getByRole("columnheader", { name: "State", exact: true })).toBeVisible()
 
-  await page.getByRole("tab", { name: "Account linking" }).click()
-  await expect(page.getByRole("heading", { name: "Account linking" }).first()).toBeVisible()
+  await page.getByRole("tab", { name: "Courses" }).click()
+  await expect(
+    page.getByRole("heading", { name: "Courses with credit registration on" }),
+  ).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Account linking" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Per course realisation" })).toBeVisible()
 })
 
@@ -191,7 +191,8 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
   await test.step("A replaced attempt offers no actions", async () => {
     await page.goto(`${REGISTRATIONS_URL}/${SUPERSEDED_ATTEMPT_1_ID}`)
     await expect(page.getByText("This attempt has been replaced by a later one.")).toBeVisible()
-    await expect(page.getByRole("button", { name: "Move this registration" })).toHaveCount(0)
+    await expect(page.getByRole("button", { name: "Send it again" })).toHaveCount(0)
+    await expect(page.getByRole("button", { name: "Cancel this registration" })).toHaveCount(0)
   })
 })
 
@@ -283,7 +284,7 @@ test("No stored body carries a student number, a name or an email address", asyn
     expect(reference?.request_item_id).toBeTruthy()
     expect(reference?.student_number).toBe(ADMIN_LINKED_STUDENT_NUMBER)
 
-    await page.goto(`${DASHBOARD_URL}/api-log?credit_registration_id=${registered.id}`)
+    await page.goto(`${SYSTEM_URL}?credit_registration_id=${registered.id}`)
     await expect(page.getByRole("table", { name: "Calls to the study registry" })).toBeVisible()
     await page.getByRole("button", { name: "Show what was sent and received" }).first().click()
     await expect(
@@ -293,12 +294,9 @@ test("No stored body carries a student number, a name or an email address", asyn
 })
 
 test("Manual link is refused without a preview and without a reason", async ({ page }) => {
-  await page.goto(LINKING_URL)
-  const staleRow = page
-    .getByRole("table", { name: "People mailed to the cap without a claim" })
-    .getByRole("row")
-    .filter({ hasText: STALE_STUDENT_NUMBER })
-  await staleRow.getByRole("button", { name: "Student cannot receive our mail at all?" }).click()
+  await page.goto(COURSES_URL)
+  // The manual link is one page-level escape hatch, so the dialog opens with no number filled in.
+  await page.getByRole("button", { name: "Link a student number by hand" }).click()
 
   const dialog = page.getByRole("dialog").filter({ hasText: "Link a student number by hand" })
   const confirm = dialog.getByRole("button", { name: "Link this number by hand" })
@@ -337,7 +335,7 @@ test("Manual link is refused without a preview and without a reason", async ({ p
 })
 
 test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
-  await page.goto(LINKING_URL)
+  await page.goto(COURSES_URL)
   const staleRow = page
     .getByRole("table", { name: "People mailed to the cap without a claim" })
     .getByRole("row")
@@ -406,13 +404,13 @@ test("Phase- and student-number-targeted actions are readable from the audit log
   })
 })
 
-test("The pipeline tab reads the daily snapshots", async ({ page }) => {
+test("The overview reads the daily snapshots", async ({ page }) => {
   // Unscoped, because only an unscoped run writes the snapshot: a run narrowed to one course would
   // record that course's depth as everyone's. Without this a fresh database has no snapshot at all
   // and the tab's empty state is the only thing there is to assert.
   await runLedgerSnapshotTick(page.request)
 
-  await page.goto(`${DASHBOARD_URL}/pipeline`)
+  await page.goto(OVERVIEW_URL)
   await expect(page.getByRole("heading", { name: "Queue depth over time" })).toBeVisible()
   await expect(
     page.getByRole("heading", { name: "What moved on the last snapshot day" }),
@@ -431,15 +429,15 @@ test("The pipeline tab reads the daily snapshots", async ({ page }) => {
 })
 
 test("The errors tab shows the window's verdicts and what needs a human", async ({ page }) => {
-  await page.goto(`${DASHBOARD_URL}/errors`)
+  await page.goto(ERRORS_URL)
   await expect(
     page.getByRole("heading", { name: "How registrations ended in this window" }),
   ).toBeVisible()
   await expect(page.getByRole("heading", { name: "Needs a human" })).toBeVisible()
   await expect(page.getByRole("button", { name: "Requeue everything retryable" })).toBeVisible()
 
-  await test.step("A bulk move needs a selection", async () => {
-    await expect(page.getByRole("button", { name: /Move 0 selected/ })).toBeDisabled()
+  await test.step("The selection bar stays out of the way until something is ticked", async () => {
+    await expect(page.getByRole("button", { name: /Move \d+ selected/ })).toHaveCount(0)
   })
 })
 
@@ -448,7 +446,7 @@ test("The courses tab reports each enabled module's configuration", async ({ pag
   const mine = stats.modules.find((module) => module.course_id === ADMIN_COURSE_ID)
   expect(mine, "the admin course has no module with credit registration enabled").toBeDefined()
 
-  await page.goto(`${DASHBOARD_URL}/courses`)
+  await page.goto(COURSES_URL)
   await expect(
     page.getByRole("heading", { name: "Courses with credit registration on" }),
   ).toBeVisible()
@@ -471,8 +469,8 @@ test("There is no item-level pause anywhere", async ({ page }) => {
   expect(response.status()).toBe(404)
 })
 
-test("The workers tab groups the phases under the process that runs them", async ({ page }) => {
-  await page.goto(WORKERS_URL)
+test("The system tab groups the phases under the process that runs them", async ({ page }) => {
+  await page.goto(SYSTEM_URL)
   await expect(page.getByRole("heading", { name: "Pipeline phases" })).toBeVisible()
 
   const list = await listAdminPhases(page.request)
@@ -491,7 +489,6 @@ test("The workers tab groups the phases under the process that runs them", async
     }
   })
 
-  await page.goto(`${DASHBOARD_URL}/workers`)
   for (const processName of ["credit-registrar", "suotar-syncer"]) {
     await expect(page.getByRole("heading", { name: processName, exact: true })).toBeVisible()
   }
@@ -508,8 +505,12 @@ test("The reconciliation badge is the sum of its detectors", async ({ page }) =>
       reconciliation.legacy_divergence_count,
   )
 
-  await page.goto(`${DASHBOARD_URL}/reconciliation`)
-  await expect(page.getByRole("heading", { name: "Never entered the pipeline" })).toBeVisible()
+  // The detectors live on the errors tab, each behind its own disclosure rather than a heading.
+  await page.goto(ERRORS_URL)
+  await expect(
+    page.getByRole("heading", { name: "Drift between us and the study registry" }),
+  ).toBeVisible()
+  await expect(page.getByRole("button", { name: /Never entered the pipeline/ })).toBeVisible()
 })
 
 test("The audit tab tells the two actor kinds apart", async ({ page }) => {

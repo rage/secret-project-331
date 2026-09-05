@@ -1,5 +1,3 @@
-import type { CreditRegistrationPhaseRow } from "@/generated/api/types.generated"
-
 export type PhaseHealth =
   | "paused"
   | "not_built"
@@ -20,7 +18,7 @@ export interface PhaseHealthFields {
   last_heartbeat_at?: string | null
 }
 
-/** What the Workers tab's status column says. `paused` wins: a paused phase is not late, it is stopped. */
+/** What the System tab's status badge says. `paused` wins: a paused phase is not late, it is stopped. */
 export const phaseHealth = (phase: PhaseHealthFields): PhaseHealth => {
   if (phase.paused_at) {
     return "paused"
@@ -40,11 +38,18 @@ export const phaseHealth = (phase: PhaseHealthFields): PhaseHealth => {
   return "running"
 }
 
-const NEEDS_ATTENTION: ReadonlySet<PhaseHealth> = new Set(["paused", "failing", "heartbeat_late"])
-
-/**
- * Whether the phase is one the tab badge counts. A phase that has never reported is deliberately
- * out: on a database whose workers have not started yet that would be a badge nobody can clear.
- */
-export const phaseNeedsAttention = (phase: CreditRegistrationPhaseRow): boolean =>
-  NEEDS_ATTENTION.has(phaseHealth(phase))
+/** How many phases are in each health, so a caller never names one health as a bare string. */
+export const countPhasesByHealth = (phases: PhaseHealthFields[]): Record<PhaseHealth, number> => {
+  const counts: Record<PhaseHealth, number> = {
+    paused: 0,
+    not_built: 0,
+    failing: 0,
+    heartbeat_late: 0,
+    never_reported: 0,
+    running: 0,
+  }
+  for (const phase of phases) {
+    counts[phaseHealth(phase)] += 1
+  }
+  return counts
+}

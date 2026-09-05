@@ -5,28 +5,36 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  actorRoleLabel,
   ADMIN_ACTION_KEYS,
   ADMIN_TARGET_KEYS,
   adminActionLabel,
   adminActionTargetLabel,
+  COURSE_TEACHER_ROLE,
+  GLOBAL_ADMIN_ROLE,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
   useCreditRegistrationAdminActions,
   useCreditRegistrationCourseStats,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
-import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   selectFilterField,
   useFilteredAdminQuery,
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
-import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
+import {
+  MIDDLE_DOT,
+  QUIET_REFRESH,
+  TIME_IN_TITLE,
+  TONE,
+} from "@/components/credit-registration/constants"
 import {
   controlCss,
   controlsCss,
   headingCss,
   noteCss,
+  rowCss,
   sectionCss,
   sectionsCss,
   stackedCellCss,
@@ -39,9 +47,21 @@ import type {
 import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Badge, DateField, QueryResult, Select, Table } from "@/shared-module/components"
+import {
+  Badge,
+  Button,
+  DateField,
+  QueryResult,
+  RelativeTime,
+  RELATIVE_TIME_ABSENT_LABEL,
+  Select,
+  Table,
+} from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
+const ID_PREFIX_LENGTH = 8
+// oxlint-disable-next-line i18next/no-literal-string
+const ARROW = " → "
 
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ACTOR_ROLE = "actor_role"
@@ -58,13 +78,18 @@ const PARAM_TO = "to"
 // oxlint-disable-next-line i18next/no-literal-string
 const ANY = ""
 // oxlint-disable-next-line i18next/no-literal-string
-const GLOBAL_ADMIN = "global_admin"
-// oxlint-disable-next-line i18next/no-literal-string
-const COURSE_TEACHER = "course_teacher"
-// oxlint-disable-next-line i18next/no-literal-string
 const OVERRIDE_RATE_CAP: CreditRegistrationAdminAction = "override_rate_cap"
 // oxlint-disable-next-line i18next/no-literal-string
 const REGISTRATION_TARGET: CreditRegistrationAdminActionTarget = "credit_registration"
+
+const CLEARABLE_PARAMS = [
+  PARAM_ACTOR_ROLE,
+  PARAM_ACTION,
+  PARAM_TARGET_KIND,
+  PARAM_COURSE_ID,
+  PARAM_FROM,
+  PARAM_TO,
+]
 
 // Derived from the copy table so a new action can't appear in results without a filter option.
 const ACTIONS = Object.keys(ADMIN_ACTION_KEYS) as CreditRegistrationAdminAction[]
@@ -87,14 +112,35 @@ interface FilterFields {
   to: string
 }
 
+/**
+ * The chosen day is the operator's own day, so the window has to run from their midnight to their
+ * next midnight. A `Z` suffix would silently shift "today" by the offset from UTC.
+ */
 const dayStart = (day: string): string | undefined =>
-  day === "" ? undefined : new Date(`${day}T00:00:00Z`).toISOString()
+  day === "" ? undefined : new Date(`${day}T00:00:00`).toISOString()
 
-const dayEnd = (day: string): string | undefined =>
-  day === "" ? undefined : new Date(`${day}T23:59:59Z`).toISOString()
+const dayEnd = (day: string): string | undefined => {
+  if (day === "") {
+    return undefined
+  }
+  const nextMidnight = new Date(`${day}T00:00:00`)
+  nextMidnight.setDate(nextMidnight.getDate() + 1)
+  return new Date(nextMidnight.getTime() - 1).toISOString()
+}
 
 /** The inverse of the two above, so a pasted link's window reaches the date inputs it came from. */
-const dayOf = (instant: string | undefined): string => instant?.slice(0, 10) ?? ""
+const dayOf = (instant: string | undefined): string => {
+  if (instant === undefined) {
+    return ""
+  }
+  const local = new Date(instant)
+  if (Number.isNaN(local.getTime())) {
+    return ""
+  }
+  const month = String(local.getMonth() + 1).padStart(2, "0")
+  const day = String(local.getDate()).padStart(2, "0")
+  return `${local.getFullYear()}-${month}-${day}`
+}
 
 const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
   selectFilterField(PARAM_ACTOR_ROLE, "actor_role"),
@@ -117,16 +163,14 @@ const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
 
 const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
   const { t } = useTranslation()
-  const isTeacher = row.actor_role === COURSE_TEACHER
   return (
     <span className={stackedCellCss}>
-      <span>{[row.actor_first_name, row.actor_last_name].filter(Boolean).join(" ")}</span>
+      <span>
+        {[row.actor_first_name, row.actor_last_name].filter(Boolean).join(" ")}
+        {MIDDLE_DOT}
+        {actorRoleLabel(t, row.actor_role)}
+      </span>
       <span className={noteCss}>{row.actor_email}</span>
-      <Badge tone={isTeacher ? TONE.INFO : TONE.NEUTRAL}>
-        {isTeacher
-          ? t("credit-registration-admin-actor-course-teacher")
-          : t("credit-registration-admin-actor-global-admin")}
-      </Badge>
     </span>
   )
 }
@@ -135,9 +179,11 @@ const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }
   const { t } = useTranslation()
   const kind = adminActionTargetLabel(t, row.target_kind)
   if (row.target_kind === REGISTRATION_TARGET && row.target_id) {
+    // Every registration link would otherwise read "Credit registration", which a screen reader's
+    // link list turns into one indistinguishable row per action.
     return (
       <Link href={creditRegistrationItemRoute(row.target_id)} prefetch={false}>
-        {kind}
+        {[kind, row.course_name ?? row.target_id.slice(0, ID_PREFIX_LENGTH)].join(MIDDLE_DOT)}
       </Link>
     )
   }
@@ -171,15 +217,15 @@ const AuditPage: React.FC = () => {
     return Array.from(byCourseId, ([value, label]) => ({ value, label }))
   }, [courseStatsQuery.data?.modules])
 
-  const { control, paginationInfo, query } = useFilteredAdminQuery(
+  const { control, param, reset, applyParams, paginationInfo, query } = useFilteredAdminQuery(
     FILTER_FIELDS,
-    (filterParam, pagination) => {
-      const actorRole = filterParam(PARAM_ACTOR_ROLE)
-      const action = filterParam(PARAM_ACTION)
-      const targetKind = filterParam(PARAM_TARGET_KIND)
-      const courseId = filterParam(PARAM_COURSE_ID)
-      const from = filterParam(PARAM_FROM)
-      const to = filterParam(PARAM_TO)
+    (filters, pagination) => {
+      const actorRole = filters.param(PARAM_ACTOR_ROLE)
+      const action = filters.param(PARAM_ACTION)
+      const targetKind = filters.param(PARAM_TARGET_KIND)
+      const courseId = filters.param(PARAM_COURSE_ID)
+      const from = filters.param(PARAM_FROM)
+      const to = filters.param(PARAM_TO)
       // Validated against the derived option list rather than cast blind, so a stale/tampered URL
       // param can't reach the API as a value the Select never offered.
       const validAction = isAdminAction(action) ? action : undefined
@@ -199,6 +245,7 @@ const AuditPage: React.FC = () => {
   )
 
   const actionsQuery = useCreditRegistrationAdminActions(query)
+  const activeFilterCount = CLEARABLE_PARAMS.filter((name) => param(name) !== undefined).length
 
   return (
     <div className={sectionsCss}>
@@ -214,11 +261,11 @@ const AuditPage: React.FC = () => {
               options={[
                 { value: ANY, label: t("credit-registration-admin-any-actor-kind") },
                 {
-                  value: GLOBAL_ADMIN,
+                  value: GLOBAL_ADMIN_ROLE,
                   label: t("credit-registration-admin-actor-global-admin"),
                 },
                 {
-                  value: COURSE_TEACHER,
+                  value: COURSE_TEACHER_ROLE,
                   label: t("credit-registration-admin-actor-course-teacher"),
                 },
               ]}
@@ -270,12 +317,39 @@ const AuditPage: React.FC = () => {
             <DateField name="to" control={control} label={t("credit-registration-admin-to")} />
           </div>
         </form>
-        <QueryResult query={actionsQuery}>
+        {activeFilterCount > 0 && (
+          <div className={rowCss}>
+            <span className={noteCss}>
+              {t("credit-registration-admin-active-filters", { count: activeFilterCount })}
+            </span>
+            <Button
+              variant="tertiary"
+              size="small"
+              onClick={() => {
+                reset({
+                  actor_role: ANY,
+                  action: ANY,
+                  target_kind: ANY,
+                  course_id: ANY,
+                  from: "",
+                  to: "",
+                })
+                applyParams(Object.fromEntries(CLEARABLE_PARAMS.map((name) => [name, undefined])))
+              }}
+            >
+              {t("button-text-clear-filters")}
+            </Button>
+          </div>
+        )}
+        <QueryResult query={actionsQuery} refreshIndicator={QUIET_REFRESH}>
           {(page) =>
             page.data.length === 0 ? (
               <p className={noteCss}>{t("credit-registration-admin-no-matching-actions")}</p>
             ) : (
               <>
+                <p className={noteCss}>
+                  {t("credit-registration-admin-action-count", { count: page.total_count })}
+                </p>
                 <Table
                   caption={t("credit-registration-heading-audit")}
                   rowKey={(row) => row.id}
@@ -283,10 +357,11 @@ const AuditPage: React.FC = () => {
                   columns={[
                     {
                       header: t("label-time"),
-                      cell: (row) => <RelativeTime at={row.created_at} />,
+                      cell: (row) => (
+                        <RelativeTime at={row.created_at} absoluteTime={TIME_IN_TITLE} />
+                      ),
                     },
                     { header: t("label-actor"), cell: (row) => <ActorCell row={row} /> },
-                    { header: t("label-course"), cell: (row) => row.course_name ?? ABSENT },
                     {
                       header: t("credit-registration-admin-column-action"),
                       cell: (row) => (
@@ -294,8 +369,8 @@ const AuditPage: React.FC = () => {
                           <span>{adminActionLabel(t, row.action)}</span>
                           {/* Teachers cannot override a rate cap, so such a row is a hole, not a record. */}
                           {row.action === OVERRIDE_RATE_CAP &&
-                            row.actor_role === COURSE_TEACHER && (
-                              <Badge tone={TONE.WARNING}>
+                            row.actor_role === COURSE_TEACHER_ROLE && (
+                              <Badge tone={TONE.DANGER}>
                                 {t("credit-registration-admin-impossible-action")}
                               </Badge>
                             )}
@@ -310,24 +385,21 @@ const AuditPage: React.FC = () => {
                       header: t("credit-registration-admin-column-state-change"),
                       cell: (row) =>
                         row.before_state === null && row.after_state === null ? (
-                          ABSENT
+                          RELATIVE_TIME_ABSENT_LABEL
                         ) : (
-                          <span className={stackedCellCss}>
+                          <span className={rowCss}>
                             {row.before_state && <AdminStateBadge state={row.before_state} />}
+                            {row.before_state && row.after_state && ARROW}
                             {row.after_state && <AdminStateBadge state={row.after_state} />}
                           </span>
                         ),
                     },
-                    { header: t("label-reason"), cell: (row) => row.reason ?? ABSENT },
                     {
-                      header: t("credit-registration-admin-column-rows-affected"),
-                      cell: (row) => row.affected_row_count ?? ABSENT,
+                      header: t("label-reason"),
+                      cell: (row) => row.reason ?? RELATIVE_TIME_ABSENT_LABEL,
                     },
                   ]}
                 />
-                <p className={noteCss}>
-                  {t("credit-registration-admin-action-count", { count: page.total_count })}
-                </p>
                 <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
               </>
             )

@@ -25,13 +25,13 @@ import {
   listVerifiedStudentNumbersForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
+  CreditRegistrationAlertId,
+  CreditRegistrationOverview,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationsForAdminData,
   ListSuotarApiCallsData,
   ListVerifiedStudentNumbersForAdminData,
 } from "@/generated/api/types.generated"
-
-import { phaseNeedsAttention } from "./phaseStatus"
 
 /** Group-bys over the ledger, so not a cheap read. */
 const OVERVIEW_REFETCH_INTERVAL_MS = 30_000
@@ -44,20 +44,14 @@ const ATTENTION_REFETCH_INTERVAL_MS = 20_000
 const CALL_LOG_REFETCH_INTERVAL_MS = 15_000
 const RECONCILIATION_REFETCH_INTERVAL_MS = 120_000
 const HISTORY_REFETCH_INTERVAL_MS = 300_000
-/** The shortest window the health endpoint reports, which is the one the tab badge reads. */
+/** The shortest window the health endpoint reports. */
 export const HOUR_SECS = 3600
-
-// Tab badges in the layout poll on every route under credit-registration, not just while their
-// own tab is open, so they use a slower cadence than the same data's own tab content does.
-const BADGE_ATTENTION_REFETCH_INTERVAL_MS = 60_000
-const BADGE_PHASE_REFETCH_HEALTHY_INTERVAL_MS = 60_000
-const BADGE_PHASE_REFETCH_UNHEALTHY_INTERVAL_MS = 30_000
 
 // The global QueryClient sets gcTime/staleTime near zero, so without an opt-in every tab switch
 // refetches everything. Each hook below is fresh until its own refetchInterval is due anyway.
 const GC_TIME_MS = 5 * 60_000
 
-/** The alert banner shares this key with the Overview tiles, so the two cannot disagree. */
+/** The alert banner and every tab badge share this key with the Overview tiles, so none can disagree. */
 export const useCreditRegistrationOverview = () =>
   useQuery({
     ...getCreditRegistrationOverviewOptions(),
@@ -73,23 +67,6 @@ export const useSuotarHealth = () =>
     refetchInterval: OVERVIEW_REFETCH_INTERVAL_MS,
     staleTime: OVERVIEW_REFETCH_INTERVAL_MS,
     gcTime: GC_TIME_MS,
-  })
-
-/**
- * Calls the study registry rejected wholesale in the last hour, which is the API log's tab badge.
- * Read off the health windows rather than the call log so no clock arithmetic reaches a query key.
- */
-export const useSuotarRequestFailureCount = () =>
-  useQuery({
-    ...getSuotarHealthOptions(),
-    refetchInterval: OVERVIEW_REFETCH_INTERVAL_MS,
-    staleTime: OVERVIEW_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
-    select: (health) =>
-      (health.windows.find((window) => window.window_secs === HOUR_SECS)?.endpoints ?? []).reduce(
-        (sum, endpoint) => sum + endpoint.failed_call_count,
-        0,
-      ),
   })
 
 export const useSuotarApiCalls = (query: NonNullable<ListSuotarApiCallsData["query"]>) =>
@@ -149,18 +126,6 @@ export const useCreditRegistrationPhases = () =>
     gcTime: GC_TIME_MS,
   })
 
-export const useCreditRegistrationPhasesNeedingAttentionCount = () =>
-  useQuery({
-    ...listCreditRegistrationPhasesOptions(),
-    refetchInterval: (query) =>
-      (query.state.data?.phases.filter(phaseNeedsAttention).length ?? 0) > 0
-        ? BADGE_PHASE_REFETCH_UNHEALTHY_INTERVAL_MS
-        : BADGE_PHASE_REFETCH_HEALTHY_INTERVAL_MS,
-    staleTime: BADGE_PHASE_REFETCH_HEALTHY_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
-    select: (list) => list.phases.filter(phaseNeedsAttention).length,
-  })
-
 /** The thresholds the detectors and the alert rules share, so the page never states a number of its own. */
 export const useCreditRegistrationThresholds = () =>
   useQuery({
@@ -177,15 +142,6 @@ export const useCreditRegistrationAttentionItems = () =>
     gcTime: GC_TIME_MS,
   })
 
-export const useCreditRegistrationAttentionCount = () =>
-  useQuery({
-    ...getCreditRegistrationAttentionItemsOptions(),
-    refetchInterval: BADGE_ATTENTION_REFETCH_INTERVAL_MS,
-    staleTime: BADGE_ATTENTION_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
-    select: (items) => items.total_count,
-  })
-
 export const useInvalidateAttentionItems = () => {
   const queryClient = useQueryClient()
   return () =>
@@ -195,6 +151,68 @@ export const useInvalidateAttentionItems = () => {
       queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
     ])
 }
+
+/**
+ * The distinct `worker_name` values in the whole call log, for the caller filter.
+ *
+ * Its own unfiltered query on purpose: the call-log page's own result carries the same list, but
+ * every filter change gives it a new query key, and the options would empty out while that loads.
+ */
+export const useSuotarWorkerNames = () =>
+  useQuery({
+    ...listSuotarApiCallsOptions({ query: { page: 1, limit: 1 } }),
+    staleTime: GC_TIME_MS,
+    gcTime: GC_TIME_MS,
+    select: (page) => page.worker_names,
+  })
+
+const alertTotal = (
+  overview: CreditRegistrationOverview,
+  ids: readonly CreditRegistrationAlertId[],
+): number =>
+  overview.health.alerts
+    .filter((alert) => ids.includes(alert.id))
+    .reduce((sum, alert) => sum + alert.count, 0)
+
+// oxlint-disable-next-line i18next/no-literal-string
+const COURSE_ALERT_IDS: readonly CreditRegistrationAlertId[] = ["course_configuration_broken"]
+
+// Both counts are phase counts, so their sum is still a number of phases.
+const SYSTEM_ALERT_IDS: readonly CreditRegistrationAlertId[] = [
+  // oxlint-disable-next-line i18next/no-literal-string
+  "phase_failing",
+  // oxlint-disable-next-line i18next/no-literal-string
+  "phase_heartbeat_stale",
+]
+
+const selectNeedsAttention = (overview: CreditRegistrationOverview) =>
+  overview.needs_admin_attention_count
+
+const selectBrokenCourseConfigurations = (overview: CreditRegistrationOverview) =>
+  alertTotal(overview, COURSE_ALERT_IDS)
+
+const selectUnhealthyPhases = (overview: CreditRegistrationOverview) =>
+  alertTotal(overview, SYSTEM_ALERT_IDS)
+
+const useOverviewCount = (select: (overview: CreditRegistrationOverview) => number) =>
+  useQuery({
+    ...getCreditRegistrationOverviewOptions(),
+    refetchInterval: OVERVIEW_REFETCH_INTERVAL_MS,
+    staleTime: OVERVIEW_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
+    select,
+  })
+
+/** Registrations the detectors say need a human. */
+export const useCreditRegistrationAttentionCount = () => useOverviewCount(selectNeedsAttention)
+
+/** Course modules whose last configuration check failed. */
+export const useCreditRegistrationMisconfiguredCourseCount = () =>
+  useOverviewCount(selectBrokenCourseConfigurations)
+
+/** Pipeline phases that are failing or overdue. */
+export const useCreditRegistrationUnhealthyPhaseCount = () =>
+  useOverviewCount(selectUnhealthyPhases)
 
 export const useCreditRegistrationErrorsByCode = (windowSecs: number) =>
   useQuery({
@@ -232,15 +250,6 @@ export const useCreditRegistrationReconciliation = () =>
     gcTime: GC_TIME_MS,
   })
 
-export const useCreditRegistrationFindingCount = () =>
-  useQuery({
-    ...getCreditRegistrationReconciliationOptions(),
-    refetchInterval: RECONCILIATION_REFETCH_INTERVAL_MS,
-    staleTime: RECONCILIATION_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
-    select: (reconciliation) => reconciliation.finding_count,
-  })
-
 export const useInvalidateReconciliation = () => {
   const queryClient = useQueryClient()
   return () =>
@@ -253,15 +262,6 @@ export const useCreditRegistrationCourseStats = () =>
     refetchInterval: LIST_REFETCH_INTERVAL_MS,
     staleTime: LIST_REFETCH_INTERVAL_MS,
     gcTime: GC_TIME_MS,
-  })
-
-export const useCreditRegistrationMisconfiguredCourseCount = () =>
-  useQuery({
-    ...getCreditRegistrationStatsByCourseOptions(),
-    refetchInterval: LIST_REFETCH_INTERVAL_MS,
-    staleTime: LIST_REFETCH_INTERVAL_MS,
-    gcTime: GC_TIME_MS,
-    select: (stats) => stats.misconfigured_count,
   })
 
 export const useInvalidateCourseStats = () => {

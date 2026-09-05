@@ -183,6 +183,16 @@ export const statusTriggerCss = css`
   }
 `
 
+/**
+ * Marks a replaced attempt wherever one is listed beside the current row.
+ *
+ * Not `opacity`: it blends already contrast-checked colours toward the page background and
+ * collapses the ratio below WCAG AA.
+ */
+export const supersededCss = css`
+  text-decoration: line-through;
+`
+
 /** Any code-like value: identifiers, error codes, student numbers. */
 export const monospaceCss = css`
   font-family: ${monospaceFont};

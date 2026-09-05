@@ -46,6 +46,7 @@ import {
   sectionCss,
   sectionsCss,
   subsectionCss,
+  supersededCss,
 } from "@/components/credit-registration/styles"
 import type {
   AdminCreditRegistrationDetails,
@@ -262,7 +263,11 @@ const AttemptChainSection: React.FC<{ attempts: AdminCreditRegistrationRow[] }> 
       <h2 className={headingCss}>{t("credit-registration-heading-attempt-chain")}</h2>
       <div className={rowCss}>
         {chain.map((attempt) => (
-          <Link key={attempt.id} href={creditRegistrationItemRoute(attempt.id)}>
+          <Link
+            key={attempt.id}
+            href={creditRegistrationItemRoute(attempt.id)}
+            className={attempt.superseded ? supersededCss : undefined}
+          >
             {t("credit-registration-attempt-n", { n: attempt.attempt_number })}
             {MIDDLE_DOT}
             <code>{attempt.state}</code>

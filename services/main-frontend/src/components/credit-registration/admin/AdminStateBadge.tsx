@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,6 +9,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { RegistrationStatusBadge } from "@/shared-module/components"
 
+import { supersededCss } from "../styles"
 import { stateTone } from "./adminCreditRegistrationCopy"
 
 interface Props {
@@ -18,12 +18,6 @@ interface Props {
   superseded?: boolean
   attemptNumber?: number
 }
-
-// Not `opacity`: it blends the badge's already contrast-checked fg/bg toward the page background,
-// collapsing the ratio below WCAG AA. The strikethrough alone carries the "no longer current" cue.
-const supersededCss = css`
-  text-decoration: line-through;
-`
 
 /** The state name is deliberately untranslated: it is the identifier an operator quotes. */
 const AdminStateBadge: React.FC<Props> = ({ state, pendingReason, superseded, attemptNumber }) => {

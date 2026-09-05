@@ -28,9 +28,9 @@ export interface ExerciseServiceInfoApi {
   produces_file_answers?: boolean
   /**
    * Whether this service declares which stored files its specs reference. Declaring means two
-   * things: the exercise editor lists the private spec's files in `current-state`'s `files`, and
-   * the public-spec and model-solution endpoints answer with `{ spec, files }` instead of the bare
-   * spec.
+   * things: the exercise editor lists the private spec's files in `current-state`'s
+   * `private_spec_files`, and the public-spec and model-solution endpoints answer with
+   * `{ spec, files }` instead of the bare spec.
    *
    * Declaring is what lets the host reclaim files this service uploaded and no longer uses — it
    * cannot read a spec, so without declarations it has no evidence any file is unused and keeps

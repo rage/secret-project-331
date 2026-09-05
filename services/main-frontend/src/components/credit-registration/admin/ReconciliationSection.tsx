@@ -1,5 +1,6 @@
 "use client"
 
+import { cx } from "@emotion/css"
 import type { TFunction } from "i18next"
 import Link from "next/link"
 import React from "react"
@@ -17,14 +18,13 @@ import {
   Badge,
   Disclosure,
   RelativeTime,
-  RELATIVE_TIME_ABSENT_LABEL,
   StatTile,
   StatTileList,
   Table,
 } from "@/shared-module/components"
 
-import { MIDDLE_DOT, TIME_IN_TITLE, TONE } from "../constants"
-import { headingCss, noteCss, rowCss, sectionCss, stackedCellCss } from "../styles"
+import { ABSENT, MIDDLE_DOT, TIME_IN_TITLE, TONE } from "../constants"
+import { headingCss, monospaceCss, noteCss, rowCss, sectionCss, stackedCellCss } from "../styles"
 import { useInvalidateReconciliation } from "./adminCreditRegistrationHooks"
 import AdminStateBadge from "./AdminStateBadge"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
@@ -60,14 +60,14 @@ const registrationColumns = (t: TFunction): TableColumn<ReconciliationRegistrati
   },
   {
     header: t("label-student-number"),
-    cell: (row) => row.student_number ?? RELATIVE_TIME_ABSENT_LABEL,
+    cell: (row) => <span className={monospaceCss}>{row.student_number ?? ABSENT}</span>,
   },
   {
     header: t("label-course"),
     cell: (row) => (
       <span className={stackedCellCss}>
         <span>{row.course_name}</span>
-        <span className={noteCss}>{row.uh_course_code}</span>
+        <span className={cx(noteCss, monospaceCss)}>{row.uh_course_code}</span>
       </span>
     ),
   },
@@ -182,9 +182,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("credit-registration-admin-column-why-not-materialised"),
               cell: (row) =>
                 row.missing_enrolment ? (
-                  <Badge tone={TONE.WARNING}>
-                    {t("credit-registration-admin-missing-enrolment")}
-                  </Badge>
+                  <Badge tone={TONE.INFO}>{t("credit-registration-admin-missing-enrolment")}</Badge>
                 ) : (
                   <Badge tone={TONE.NEUTRAL}>
                     {t("credit-registration-admin-materialise-would-take-it")}
@@ -244,12 +242,10 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               cell: (row) => (
                 <span className={rowCss}>
                   {row.mirror_missing && (
-                    <Badge tone={TONE.WARNING}>
-                      {t("credit-registration-admin-mirror-missing")}
-                    </Badge>
+                    <Badge tone={TONE.INFO}>{t("credit-registration-admin-mirror-missing")}</Badge>
                   )}
                   {row.registered_by_a_registrar && (
-                    <Badge tone={TONE.WARNING}>
+                    <Badge tone={TONE.INFO}>
                       {t("credit-registration-admin-registered-by-a-registrar")}
                     </Badge>
                   )}

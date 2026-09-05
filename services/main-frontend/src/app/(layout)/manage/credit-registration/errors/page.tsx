@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import Link from "next/link"
 import React, { useEffect } from "react"
 import { VisuallyHidden } from "react-aria"
@@ -35,14 +34,18 @@ import {
   TONE,
 } from "@/components/credit-registration/constants"
 import {
-  cardCss,
   controlCss,
+  controlsCss,
+  emptyStateCss,
   headingCss,
   noteCss,
   rowCss,
   sectionCss,
   sectionsCss,
   stackedCellCss,
+  subheadingCss,
+  subsectionCss,
+  toolbarCss,
 } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationAttentionItems,
@@ -61,7 +64,6 @@ import {
   Checkbox,
   QueryResult,
   RelativeTime,
-  RELATIVE_TIME_ABSENT_LABEL,
   StatTile,
   StatTileList,
   Table,
@@ -88,12 +90,6 @@ interface SelectionFields {
   selected: Record<string, boolean>
 }
 
-const selectionBarCss = css`
-  position: sticky;
-  bottom: 0;
-  z-index: 1;
-`
-
 /** The reason chip, kept in the query string so the Overview's "stuck" tile can deep-link in. */
 const useAttentionReasonFilter = () => {
   const { param, applyParams } = useQueryParamFilters()
@@ -115,8 +111,10 @@ const FailureSection: React.FC = () => {
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-verdicts")}</h2>
-      <div className={controlCss}>
-        <WindowSecsSelect control={control} includeMonth />
+      <div className={controlsCss}>
+        <div className={controlCss}>
+          <WindowSecsSelect control={control} includeMonth />
+        </div>
       </div>
       <QueryResult query={errorsQuery} refreshIndicator={QUIET_REFRESH}>
         {(errors) => {
@@ -142,75 +140,77 @@ const FailureSection: React.FC = () => {
                   label={t("credit-registration-admin-verdict-cancelled")}
                   value={verdicts.cancelled_count}
                 />
-                <StatTile
-                  label={t("credit-registration-admin-success-rate")}
-                  value={
-                    verdicts.total_count === 0
-                      ? RELATIVE_TIME_ABSENT_LABEL
-                      : `${Math.round((successCount / verdicts.total_count) * PERCENT)} %`
-                  }
-                />
+                {verdicts.total_count > 0 && (
+                  <StatTile
+                    label={t("credit-registration-admin-success-rate")}
+                    value={`${Math.round((successCount / verdicts.total_count) * PERCENT)} %`}
+                  />
+                )}
               </StatTileList>
-              <h3 className={headingCss}>{t("credit-registration-heading-error-codes")}</h3>
-              {errors.codes.length === 0 ? (
-                <p className={noteCss}>{t("credit-registration-admin-no-errors-in-window")}</p>
-              ) : (
-                <Table
-                  caption={t("credit-registration-heading-error-codes")}
-                  rowKey={(row) => row.error_code}
-                  rows={errors.codes}
-                  columns={[
-                    {
-                      header: t("label-error-code"),
-                      cell: (row) => (
-                        <Link
-                          href={`${creditRegistrationRegistrationsRoute()}${ERROR_CODE_QUERY}${row.error_code}`}
-                          prefetch={false}
-                        >
-                          <code>{row.error_code}</code>
-                        </Link>
-                      ),
-                    },
-                    {
-                      header: t("credit-registration-admin-column-retryability"),
-                      cell: (row) => (
-                        <Badge tone={RETRYABILITY_TONES[row.retryability] ?? TONE.NEUTRAL}>
-                          {retryabilityLabel(t, row.retryability)}
-                        </Badge>
-                      ),
-                    },
-                    {
-                      header: t("credit-registration-admin-column-in-window"),
-                      align: ALIGN_END,
-                      cell: (row) => row.current_count,
-                    },
-                    {
-                      header: t("credit-registration-admin-column-change"),
-                      align: ALIGN_END,
-                      cell: (row) =>
-                        row.previous_count === 0
-                          ? t("credit-registration-admin-new-this-window")
-                          : signed(row.current_count - row.previous_count),
-                    },
-                    {
-                      header: t("credit-registration-admin-column-students"),
-                      align: ALIGN_END,
-                      cell: (row) => row.user_count,
-                    },
-                    {
-                      header: t("credit-registration-admin-column-courses"),
-                      align: ALIGN_END,
-                      cell: (row) => row.course_count,
-                    },
-                    {
-                      header: t("credit-registration-admin-column-last-seen"),
-                      cell: (row) => (
-                        <RelativeTime at={row.last_seen_at} absoluteTime={TIME_IN_TITLE} />
-                      ),
-                    },
-                  ]}
-                />
-              )}
+              <div className={subsectionCss}>
+                <h3 className={subheadingCss}>{t("credit-registration-heading-error-codes")}</h3>
+                {errors.codes.length === 0 ? (
+                  <p className={emptyStateCss}>
+                    {t("credit-registration-admin-no-errors-in-window")}
+                  </p>
+                ) : (
+                  <Table
+                    caption={t("credit-registration-heading-error-codes")}
+                    rowKey={(row) => row.error_code}
+                    rows={errors.codes}
+                    columns={[
+                      {
+                        header: t("label-error-code"),
+                        cell: (row) => (
+                          <Link
+                            href={`${creditRegistrationRegistrationsRoute()}${ERROR_CODE_QUERY}${row.error_code}`}
+                            prefetch={false}
+                          >
+                            <code>{row.error_code}</code>
+                          </Link>
+                        ),
+                      },
+                      {
+                        header: t("credit-registration-admin-column-retryability"),
+                        cell: (row) => (
+                          <Badge tone={RETRYABILITY_TONES[row.retryability] ?? TONE.NEUTRAL}>
+                            {retryabilityLabel(t, row.retryability)}
+                          </Badge>
+                        ),
+                      },
+                      {
+                        header: t("credit-registration-admin-column-in-window"),
+                        align: ALIGN_END,
+                        cell: (row) => row.current_count,
+                      },
+                      {
+                        header: t("credit-registration-admin-column-change"),
+                        align: ALIGN_END,
+                        cell: (row) =>
+                          row.previous_count === 0
+                            ? t("credit-registration-admin-new-this-window")
+                            : signed(row.current_count - row.previous_count),
+                      },
+                      {
+                        header: t("credit-registration-admin-column-students"),
+                        align: ALIGN_END,
+                        cell: (row) => row.user_count,
+                      },
+                      {
+                        header: t("credit-registration-admin-column-courses"),
+                        align: ALIGN_END,
+                        cell: (row) => row.course_count,
+                      },
+                      {
+                        header: t("credit-registration-admin-column-last-seen"),
+                        cell: (row) => (
+                          <RelativeTime at={row.last_seen_at} absoluteTime={TIME_IN_TITLE} />
+                        ),
+                      },
+                    ]}
+                  />
+                )}
+              </div>
               <div className={rowCss}>
                 <AdminRequeueRetryableDialog />
               </div>
@@ -285,6 +285,7 @@ const AttentionSection: React.FC<{
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-attention")}</h2>
+      <ReasonFilter attention={attention} active={activeReason} onToggle={onToggleReason} />
       <StatTileList ariaLabel={t("credit-registration-heading-attention")}>
         <StatTile
           label={t("label-credit-registration-needs-attention")}
@@ -292,24 +293,13 @@ const AttentionSection: React.FC<{
           {...includeIf(attention.total_count > 0, { tone: TONE.ALERT })}
         />
       </StatTileList>
-      {thresholds && (
-        <p className={noteCss}>
-          {t("credit-registration-admin-stuck-thresholds", {
-            readyToSubmit: hours(thresholds.stuck_ready_to_submit_secs),
-            submitting: hours(thresholds.stuck_submitting_secs),
-            awaitingVerification: hours(thresholds.stuck_awaiting_verification_secs),
-            failedRetryable: hours(thresholds.stuck_failed_retryable_secs),
-          })}
-        </p>
-      )}
       {attention.total_count >= attention.max_items && (
         <p className={noteCss}>
           {t("credit-registration-admin-attention-capped", { max: attention.max_items })}
         </p>
       )}
-      <ReasonFilter attention={attention} active={activeReason} onToggle={onToggleReason} />
       {items.length === 0 ? (
-        <p className={noteCss}>{t("credit-registration-admin-nothing-needs-a-human")}</p>
+        <p className={emptyStateCss}>{t("credit-registration-admin-nothing-needs-a-human")}</p>
       ) : (
         <>
           <Table
@@ -403,7 +393,7 @@ const AttentionSection: React.FC<{
             ]}
           />
           {selectedIds.length > 0 && (
-            <div className={`${cardCss} ${selectionBarCss}`}>
+            <div className={toolbarCss}>
               <div className={rowCss}>
                 <span>
                   {t("credit-registration-admin-selected-count", { count: selectedIds.length })}
@@ -423,6 +413,16 @@ const AttentionSection: React.FC<{
             </div>
           )}
         </>
+      )}
+      {thresholds && (
+        <p className={noteCss}>
+          {t("credit-registration-admin-stuck-thresholds", {
+            readyToSubmit: hours(thresholds.stuck_ready_to_submit_secs),
+            submitting: hours(thresholds.stuck_submitting_secs),
+            awaitingVerification: hours(thresholds.stuck_awaiting_verification_secs),
+            failedRetryable: hours(thresholds.stuck_failed_retryable_secs),
+          })}
+        </p>
       )}
     </section>
   )

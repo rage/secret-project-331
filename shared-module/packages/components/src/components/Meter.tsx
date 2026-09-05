@@ -32,7 +32,7 @@ const fillToneCss: Record<MeterTone, string> = {
     background: var(--color-green-600);
   `,
   warning: css`
-    background: var(--color-red-500);
+    background: var(--color-yellow-700);
   `,
   danger: css`
     background: var(--color-crimson-700);

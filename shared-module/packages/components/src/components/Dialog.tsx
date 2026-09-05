@@ -82,7 +82,7 @@ const surfaceCss = css`
   overflow: hidden;
   background: var(--color-clear-50);
   color: var(--color-gray-700);
-  border-radius: 8px;
+  border-radius: var(--surface-radius);
   outline: none;
 `
 

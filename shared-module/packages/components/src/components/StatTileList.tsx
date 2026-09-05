@@ -11,15 +11,15 @@ export interface StatTileListProps {
 }
 
 const listCss = css`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   gap: var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
 `
 
-/** Lays out `StatTile` children as a responsive row, announced as a list. */
+/** Lays out `StatTile` children as an even responsive grid, announced as a list. */
 export const StatTileList: React.FC<StatTileListProps> = ({ children, ariaLabel, className }) => (
   // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role; this restores it
   <ul className={cx(listCss, className)} role="list" aria-label={ariaLabel}>

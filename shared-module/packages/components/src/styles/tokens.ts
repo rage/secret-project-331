@@ -5,6 +5,7 @@ export const tokensGlobal = injectGlobal`
     /* sizing */
     --control-gap: var(--space-3);
     --control-radius: var(--space-2);
+    --surface-radius: 8px;
 
     --control-height-sm: var(--space-5);
     --control-height-md: var(--space-6);

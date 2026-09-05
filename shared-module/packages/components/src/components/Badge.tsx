@@ -15,8 +15,8 @@ export interface BadgeProps {
   title?: string
 }
 
-// Tinted chips: pale bg, darker border, dark text. No yellow tone — its ramp isn't contrast-safe as
-// text, so "warning" uses the red ramp.
+// Tinted chips: pale bg, darker border, dark text. The yellow ramp is not contrast-safe as text, so
+// warning carries its hue in the background and border only.
 const toneCss: Record<BadgeTone, string> = {
   neutral: css`
     background: var(--color-gray-50);
@@ -34,9 +34,9 @@ const toneCss: Record<BadgeTone, string> = {
     color: var(--color-green-700);
   `,
   warning: css`
-    background: var(--color-red-100);
-    border-color: var(--color-red-300);
-    color: var(--color-red-800);
+    background: var(--color-yellow-100);
+    border-color: var(--color-yellow-700);
+    color: var(--color-gray-800);
   `,
   danger: css`
     background: var(--color-crimson-100);

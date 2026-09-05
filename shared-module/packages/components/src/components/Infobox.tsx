@@ -4,10 +4,10 @@ import { css, cx } from "@emotion/css"
 import { ExclamationTriangle, InfoCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 
-export type InfoboxTone = "info" | "warning"
+export type InfoboxTone = "info" | "warning" | "danger"
 
 export interface InfoboxProps {
-  /** `info` explains or reassures; `warning` flags something the reader has to act on. */
+  /** `info` explains, `warning` flags something to act on, `danger` reports a failure. */
   tone?: InfoboxTone
   heading?: React.ReactNode
   children: React.ReactNode
@@ -29,7 +29,7 @@ const rootCss = css`
   border-style: solid;
   border-width: 0 0 0 3px;
   border-color: transparent;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 var(--surface-radius) var(--surface-radius) 0;
   overflow-x: auto;
 `
 
@@ -38,10 +38,14 @@ const toneCss: Record<InfoboxTone, string> = {
     border-color: var(--color-blue-500);
     background: var(--color-blue-25);
   `,
-  // Red rather than yellow: the yellow ramp is not contrast-safe here, same as in Badge.
+  // The yellow ramp is not contrast-safe as text, so warning tints only the stripe and background.
   warning: css`
-    border-color: var(--color-red-600);
-    background: var(--color-red-25);
+    border-color: var(--color-yellow-700);
+    background: var(--color-yellow-100);
+  `,
+  danger: css`
+    border-color: var(--color-crimson-600);
+    background: var(--color-crimson-25);
   `,
 }
 
@@ -50,7 +54,10 @@ const iconToneCss: Record<InfoboxTone, string> = {
     color: var(--color-blue-500);
   `,
   warning: css`
-    color: var(--color-red-600);
+    color: var(--color-gray-700);
+  `,
+  danger: css`
+    color: var(--color-crimson-600);
   `,
 }
 
@@ -78,13 +85,13 @@ export const Infobox: React.FC<InfoboxProps> = ({
   announce = false,
   className,
 }) => {
-  const Icon = tone === "warning" ? ExclamationTriangle : InfoCircle
+  const Icon = tone === "info" ? InfoCircle : ExclamationTriangle
 
   return (
     <div
       className={cx(rootCss, toneCss[tone], className)}
       // `alert` interrupts a screen reader, `status` waits for a pause.
-      role={announce ? (tone === "warning" ? "alert" : "status") : undefined}
+      role={announce ? (tone === "info" ? "status" : "alert") : undefined}
     >
       <span className={cx(iconCss, iconToneCss[tone])} aria-hidden="true">
         <Icon />

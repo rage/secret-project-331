@@ -22,7 +22,7 @@ const CHEVRON_RIGHT = "▸"
 
 const rootCss = css`
   border: 1px solid var(--color-clear-300);
-  border-radius: 8px;
+  border-radius: var(--surface-radius);
   overflow: hidden;
   background: var(--color-clear-50);
 `

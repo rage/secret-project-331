@@ -8,7 +8,7 @@ export type StatTileTone = "neutral" | "alert"
 export interface StatTileProps {
   label: React.ReactNode
   value: React.ReactNode
-  /** "alert" draws attention (e.g. a non-zero review backlog). */
+  /** "alert" recolours the value (e.g. a non-zero review backlog); the surface never changes. */
   tone?: StatTileTone
   icon?: React.ReactNode
   /** If set, the whole tile becomes a link (e.g. jump to the relevant section). */
@@ -24,10 +24,9 @@ const rootCss = css`
   gap: var(--space-1);
   padding: var(--space-4);
   border: 1px solid var(--color-clear-300);
-  border-radius: 8px;
+  border-radius: var(--surface-radius);
   background: var(--color-clear-50);
   text-decoration: none;
-  min-width: 7rem;
 `
 
 const linkCss = css`
@@ -40,11 +39,6 @@ const linkCss = css`
   }
 `
 
-const alertCss = css`
-  border-color: var(--color-red-300);
-  background: var(--color-red-100);
-`
-
 const valueCss = css`
   font-size: var(--font-size-5);
   font-weight: 700;
@@ -54,7 +48,7 @@ const valueCss = css`
 `
 
 const alertValueCss = css`
-  color: var(--color-red-800);
+  color: var(--color-crimson-700);
 `
 
 const labelRowCss = css`
@@ -94,7 +88,7 @@ export const StatTile: React.FC<StatTileProps> = ({
       </span>
     </>
   )
-  const classes = cx(rootCss, isAlert && alertCss, href && linkCss, className)
+  const classes = cx(rootCss, href && linkCss, className)
   if (href) {
     return (
       <a className={classes} href={href} aria-label={ariaLabel}>

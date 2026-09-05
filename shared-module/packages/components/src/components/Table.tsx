@@ -28,11 +28,10 @@ const scrollCss = css`
   overflow-x: auto;
 `
 
-// 15px rather than a type-scale step: matches the completion tables this replaces.
 const tableCss = css`
   width: 100%;
   border-collapse: collapse;
-  font-size: 15px;
+  font-size: var(--font-size-2);
 `
 
 const captionCss = css`
@@ -44,7 +43,7 @@ const captionCss = css`
 
 const cellCss = css`
   text-align: start;
-  padding: 0.5rem 0.6rem;
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-clear-300);
   vertical-align: top;
 `

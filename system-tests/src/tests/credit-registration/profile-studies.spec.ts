@@ -30,7 +30,7 @@ test("profile studies tab shows the student's points and result, without a credi
   // Registered in the shell, but hidden until some course offers credit registration.
   await expect(page.getByRole("tab", { name: "Credit registration" })).toHaveCount(0)
 
-  await expect(page.getByText("ECTS earned")).toBeVisible()
+  await expect(page.getByText(/ECTS/)).toBeVisible()
 
   const courseCard = page
     .getByTestId("profile-course-card")

@@ -74,12 +74,12 @@ export const stackedCellCss = css`
   display: grid;
 `
 
-/** A row of form controls, aligned on their inputs. `rowCss` is for badges and buttons. */
+/** A row of form controls. `rowCss` is for badges and buttons. */
 export const controlsCss = css`
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
-  align-items: end;
+  align-items: start;
 `
 
 /** One field in a `controlsCss` row. */

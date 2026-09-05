@@ -131,8 +131,8 @@ const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
 const searchFormCss = css`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: end;
+  gap: var(--space-3);
+  align-items: start;
 `
 
 const searchCss = css`
@@ -204,13 +204,13 @@ const RegistrationsPage: React.FC = () => {
               name="search"
               control={control}
               label={t("credit-registration-admin-search-label")}
+              description={t("credit-registration-admin-search-description")}
             />
           </div>
           <Button variant="secondary" size="medium" type="submit">
             {t("button-text-search")}
           </Button>
         </form>
-        <p className={noteCss}>{t("credit-registration-admin-search-description")}</p>
         <div className={controlsCss}>
           <div className={controlCss}>
             <Select

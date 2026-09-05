@@ -218,8 +218,9 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
                 exercise_type: task.exercise_type,
                 private_spec: JSON.stringify(task.private_spec),
                 // Round-tripped, not derived: dropping these on load would make the next save
-                // release every file the spec references.
-                private_spec_files: task.private_spec_files ?? [],
+                // release every file the spec references. Sorted like the editor's own list, since
+                // these arrive in no particular order and the unsaved-changes check deep-compares.
+                private_spec_files: (task.private_spec_files ?? []).toSorted(),
                 show_editor: false,
                 order_number: task.order_number,
               },

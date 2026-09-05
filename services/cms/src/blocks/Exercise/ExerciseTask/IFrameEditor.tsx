@@ -91,7 +91,9 @@ const ExerciseTaskIFrameEditor: React.FC<
             onPrivateSpecChange(
               // oxlint-disable-next-line typescript/no-explicit-any
               JSON.stringify((messageContainer.data as any).private_spec),
-              messageContainer.private_spec_files ?? [],
+              // Sorted because the unsaved-changes check deep-compares block attributes: declaring
+              // the same files in another order than they load in would leave the page dirty forever.
+              (messageContainer.private_spec_files ?? []).toSorted(),
             )
           }
           if (messageContainer.message === "file-upload") {

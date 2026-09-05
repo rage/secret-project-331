@@ -1,12 +1,11 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { useCreditRegistrationPhases } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminPhaseActions from "@/components/credit-registration/admin/AdminPhaseActions"
-import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import ApiLogSection from "@/components/credit-registration/admin/ApiLogSection"
 import type { PhaseHealth } from "@/components/credit-registration/admin/phaseStatus"
 import {
@@ -21,12 +20,17 @@ import {
 } from "@/components/credit-registration/constants"
 import { widenedLookup } from "@/components/credit-registration/labelFrom"
 import {
-  cardCss,
+  dividedListCss,
+  emptyStateCss,
   headingCss,
+  monospaceCss,
   noteCss,
+  proseCss,
   rowCss,
   sectionCss,
   sectionsCss,
+  subheadingCss,
+  subsectionCss,
 } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationPhaseList,
@@ -65,33 +69,13 @@ const HEALTH_TONES = {
   running: TONE.SUCCESS,
 } as const satisfies Record<PhaseHealth, BadgeTone>
 
-const phaseCardsCss = css`
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
-`
-
-const phaseNameCss = css`
-  font-family: monospace;
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-`
-
-const errorCss = css`
-  font-family: monospace;
-  font-size: var(--font-size-1);
-  overflow-wrap: anywhere;
-  margin: 0;
-`
-
-const PhaseCard: React.FC<{ phase: CreditRegistrationPhaseRow }> = ({ phase }) => {
+const PhaseRow: React.FC<{ phase: CreditRegistrationPhaseRow }> = ({ phase }) => {
   const { t } = useTranslation()
   const health = phaseHealth(phase)
   return (
-    <div className={cardCss}>
-      <h4 className={phaseNameCss}>{phase.phase}</h4>
+    <li className={subsectionCss}>
       <div className={rowCss}>
+        <code>{phase.phase}</code>
         <Badge tone={widenedLookup(HEALTH_TONES, health) ?? TONE.NEUTRAL}>
           {t(widenedLookup(HEALTH_KEYS, health) ?? HEALTH_KEYS.running)}
         </Badge>
@@ -115,21 +99,15 @@ const PhaseCard: React.FC<{ phase: CreditRegistrationPhaseRow }> = ({ phase }) =
           </>
         )}
       </p>
-      {phase.owned_states.length > 0 && (
-        <div className={rowCss}>
-          {phase.owned_states.map((state) => (
-            <AdminStateBadge key={state} state={state} />
-          ))}
-        </div>
-      )}
-      {phase.last_error && <p className={errorCss}>{phase.last_error}</p>}
+      {phase.owned_states.length > 0 && <code>{phase.owned_states.join(MIDDLE_DOT)}</code>}
+      {phase.last_error && <p className={cx(noteCss, monospaceCss)}>{phase.last_error}</p>}
       {phase.pause_reason && <p className={noteCss}>{phase.pause_reason}</p>}
       <AdminPhaseActions
         phase={phase.phase}
         paused={phase.paused_at !== null}
         implemented={phase.implemented}
       />
-    </div>
+    </li>
   )
 }
 
@@ -171,9 +149,25 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
         <StatTile label={t("credit-registration-admin-phase-paused")} value={counts.paused} />
       </StatTileList>
       {list.paused_globally && (
-        <Badge tone={TONE.WARNING}>{t("credit-registration-admin-paused-globally")}</Badge>
+        <div className={rowCss}>
+          <Badge tone={TONE.NEUTRAL}>{t("credit-registration-admin-paused-globally")}</Badge>
+        </div>
       )}
-      <p className={noteCss}>
+      {list.phases.length === 0 ? (
+        <p className={emptyStateCss}>{t("credit-registration-admin-no-phases")}</p>
+      ) : (
+        groupByProcess(list.phases).map(([processName, phases]) => (
+          <div key={processName} className={subsectionCss}>
+            <h3 className={subheadingCss}>{processName}</h3>
+            <ul className={dividedListCss}>
+              {phases.map((phase) => (
+                <PhaseRow key={phase.phase} phase={phase} />
+              ))}
+            </ul>
+          </div>
+        ))
+      )}
+      <p className={cx(noteCss, proseCss)}>
         {t("credit-registration-admin-phase-late-note", {
           multiplier: list.heartbeat_interval_multiplier,
           limit: list.consecutive_failure_limit,
@@ -181,20 +175,6 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
         {t("credit-registration-admin-pause-is-our-flag-note")}{" "}
         <Link href={POD_STATUS_PATH}>{t("credit-registration-admin-open-pod-status")}</Link>
       </p>
-      {list.phases.length === 0 ? (
-        <p className={noteCss}>{t("credit-registration-admin-no-phases")}</p>
-      ) : (
-        groupByProcess(list.phases).map(([processName, phases]) => (
-          <React.Fragment key={processName}>
-            <h3 className={phaseNameCss}>{processName}</h3>
-            <div className={phaseCardsCss}>
-              {phases.map((phase) => (
-                <PhaseCard key={phase.phase} phase={phase} />
-              ))}
-            </div>
-          </React.Fragment>
-        ))
-      )}
     </section>
   )
 }

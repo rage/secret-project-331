@@ -44,8 +44,7 @@ const CreditRegistrationAlertBanner: React.FC = () => {
       ))}
       {rest.length > 0 && (
         <Disclosure title={t("credit-registration-alert-n-more", { count: rest.length })}>
-          {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
-          <ul className={dividedListCss} role="list">
+          <ul className={dividedListCss}>
             {rest.map((alert) => (
               <li key={alert.id}>
                 {alertSentence(t, alert.id, alert.count, alert.subject, alert.total)}

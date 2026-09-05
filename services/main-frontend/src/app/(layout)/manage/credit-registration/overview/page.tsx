@@ -13,14 +13,22 @@ import {
   useCreditRegistrationPipelineHistory,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
-import { ALIGN_END, QUIET_REFRESH, TONE } from "@/components/credit-registration/constants"
+import {
+  ALIGN_END,
+  MIDDLE_DOT,
+  QUIET_REFRESH,
+  TONE,
+} from "@/components/credit-registration/constants"
 import {
   controlCss,
+  controlsCss,
+  emptyStateCss,
   headingCss,
   noteCss,
-  rowCss,
   sectionCss,
   sectionsCss,
+  subheadingCss,
+  subsectionCss,
 } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationHistory,
@@ -166,7 +174,7 @@ const QueueSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ over
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-states")}</h2>
       {rows.length === 0 ? (
-        <p className={noteCss}>{t("credit-registration-admin-no-registrations")}</p>
+        <p className={emptyStateCss}>{t("credit-registration-admin-no-registrations")}</p>
       ) : (
         <Table
           caption={t("credit-registration-heading-states")}
@@ -188,13 +196,7 @@ const QueueSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ over
             },
             {
               header: t("label-state"),
-              cell: (row) => (
-                <span className={rowCss}>
-                  {row.states.map((state) => (
-                    <AdminStateBadge key={state} state={state} />
-                  ))}
-                </span>
-              ),
+              cell: (row) => <code>{row.states.join(MIDDLE_DOT)}</code>,
             },
           ]}
         />
@@ -230,7 +232,7 @@ const DepthChart: React.FC<{ history: CreditRegistrationHistory }> = ({ history 
   })).filter((candidate) => candidate.points.some((point) => point !== null && point > 0))
 
   if (series.length === 0) {
-    return <p className={noteCss}>{t("credit-registration-admin-no-snapshots")}</p>
+    return <p className={emptyStateCss}>{t("credit-registration-admin-no-snapshots")}</p>
   }
 
   const options: EChartsOption = {
@@ -263,13 +265,13 @@ const FlowTable: React.FC<{ history: CreditRegistrationHistory }> = ({ history }
   const { t } = useTranslation()
   const latest = history.days.at(-1)
   if (!latest) {
-    return <p className={noteCss}>{t("credit-registration-admin-no-snapshots")}</p>
+    return <p className={emptyStateCss}>{t("credit-registration-admin-no-snapshots")}</p>
   }
   const rows = latest.states.filter(
     (point) => point.count > 0 || point.entered_count > 0 || point.left_count > 0,
   )
   if (rows.length === 0) {
-    return <p className={noteCss}>{t("credit-registration-admin-nothing-moved")}</p>
+    return <p className={emptyStateCss}>{t("credit-registration-admin-nothing-moved")}</p>
   }
   return (
     <>
@@ -320,24 +322,28 @@ const TrendSection: React.FC = () => {
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-queue-depth")}</h2>
-      <div className={controlCss}>
-        <Select
-          name="days"
-          control={control}
-          label={t("credit-registration-admin-history-length")}
-          options={[
-            { value: MONTH_DAYS, label: t("credit-registration-admin-window-month") },
-            { value: QUARTER_DAYS, label: t("credit-registration-admin-window-quarter") },
-            { value: YEAR_DAYS, label: t("credit-registration-admin-window-year") },
-          ]}
-        />
+      <div className={controlsCss}>
+        <div className={controlCss}>
+          <Select
+            name="days"
+            control={control}
+            label={t("credit-registration-admin-history-length")}
+            options={[
+              { value: MONTH_DAYS, label: t("credit-registration-admin-window-month") },
+              { value: QUARTER_DAYS, label: t("credit-registration-admin-window-quarter") },
+              { value: YEAR_DAYS, label: t("credit-registration-admin-window-year") },
+            ]}
+          />
+        </div>
       </div>
       <QueryResult query={historyQuery} refreshIndicator={QUIET_REFRESH}>
         {(history) => (
           <>
             <DepthChart history={history} />
-            <h3 className={headingCss}>{t("credit-registration-heading-flow")}</h3>
-            <FlowTable history={history} />
+            <div className={subsectionCss}>
+              <h3 className={subheadingCss}>{t("credit-registration-heading-flow")}</h3>
+              <FlowTable history={history} />
+            </div>
           </>
         )}
       </QueryResult>

@@ -21,7 +21,7 @@ interface Props {
   implemented: boolean
 }
 
-/** Pause, resume and run-now for one pipeline phase, as the System tab offers them on its card. */
+/** Pause, resume and run-now for one pipeline phase, as the System tab offers them on its row. */
 const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()

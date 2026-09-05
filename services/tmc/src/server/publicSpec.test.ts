@@ -4,7 +4,7 @@ import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 
 import { handlePublicSpec } from "./publicSpec"
-import { uploadArchiveAndGetUrl } from "./uploadArchive"
+import { uploadArchive } from "./uploadArchive"
 
 // tmc-langs is a CLI subprocess and the template download hits the network; stub both so the
 // serialization guard below can drive the handler in-process. System tests cover the full flow.
@@ -29,7 +29,12 @@ vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
 // The upload's own wire contract is covered by uploadArchive.test.ts; here it only needs to yield a
 // URL (or throw) so the spec shape below can be asserted.
 vi.mock("./uploadArchive", () => ({
-  uploadArchiveAndGetUrl: vi.fn(() => Promise.resolve("http://files/part01/ex01.tar.zst")),
+  uploadArchive: vi.fn(() =>
+    Promise.resolve({
+      id: "c4d5e6f7-8091-4a2b-9c3d-4e5f60718293",
+      url: "http://files/part01/ex01.tar.zst",
+    }),
+  ),
 }))
 
 function post(body: string): Request {
@@ -104,6 +109,7 @@ describe("POST /api/public-spec editor spec serialization", () => {
   }
   const archiveName = buildArchiveName(exercise)
   const stubDownloadUrl = "http://files/part01/ex01.tar.zst"
+  const stubFileId = "c4d5e6f7-8091-4a2b-9c3d-4e5f60718293"
 
   function specRequest(): string {
     return JSON.stringify({
@@ -115,13 +121,13 @@ describe("POST /api/public-spec editor spec serialization", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(uploadArchiveAndGetUrl).mockResolvedValue(stubDownloadUrl)
+    vi.mocked(uploadArchive).mockResolvedValue({ id: stubFileId, url: stubDownloadUrl })
   })
 
   it('returns exactly the fields tmc-langs deserializes, with `type: "editor"`', async () => {
     const res = await handlePublicSpec(post(specRequest()))
     expect(res.status).toBe(200)
-    const spec = (await res.json()) as Record<string, unknown>
+    const { spec } = (await res.json()) as { spec: Record<string, unknown> }
 
     expect(spec).toEqual({
       type: "editor",
@@ -146,10 +152,23 @@ describe("POST /api/public-spec editor spec serialization", () => {
     expect(spec.archive_name).toBe("part01/ex01.tar.zst")
   })
 
+  /**
+   * The declaration is the only thing that keeps the stub archive: it is uploaded during this
+   * derivation, so no saved spec the host can read ever mentions it, and the reaper would take it
+   * for an abandoned upload. tmc re-uploads on every save, so these are also the files that
+   * actually accumulate.
+   */
+  it("declares the uploaded stub archive as a file the spec references", async () => {
+    const res = await handlePublicSpec(post(specRequest()))
+    const { files } = (await res.json()) as { files: string[] }
+
+    expect(files).toEqual([stubFileId])
+  })
+
   it("passes the built archive name and upload target through to the upload", async () => {
     await handlePublicSpec(post(specRequest()))
 
-    expect(uploadArchiveAndGetUrl).toHaveBeenCalledWith(
+    expect(uploadArchive).toHaveBeenCalledWith(
       expect.objectContaining({
         archiveName,
         uploadUrl: "http://headless-lms/api/v0/files/tmc",
@@ -160,7 +179,7 @@ describe("POST /api/public-spec editor spec serialization", () => {
   it("fails loudly rather than emitting a spec without a usable stub URL", async () => {
     // A rejected upload must surface; silently producing a spec with an empty/undefined
     // stub_download_url would strand the client.
-    vi.mocked(uploadArchiveAndGetUrl).mockRejectedValue(new Error("upload exploded"))
+    vi.mocked(uploadArchive).mockRejectedValue(new Error("upload exploded"))
 
     await expect(handlePublicSpec(post(specRequest()))).rejects.toThrow(/upload exploded/)
   })

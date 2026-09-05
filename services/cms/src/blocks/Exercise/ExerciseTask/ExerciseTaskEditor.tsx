@@ -110,6 +110,11 @@ export interface ExerciseTaskAttributes {
   id: string
   exercise_type: string
   private_spec: string | null
+  /**
+   * Host file ids the private spec references, as the exercise service declared them. Round-tripped
+   * so a save keeps them: they are what stops the files being reclaimed as abandoned uploads.
+   */
+  private_spec_files: string[]
   show_editor: boolean
   order_number: number
 }
@@ -251,7 +256,9 @@ const ExerciseTaskEditor: React.FC<
                     <ExerciseTaskIFrameEditor
                       exerciseServiceSlug={exerciseType}
                       exerciseTaskId={attributes.id}
-                      onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
+                      onPrivateSpecChange={(privateSpec, specFiles) =>
+                        setAttributes({ private_spec: privateSpec, private_spec_files: specFiles })
+                      }
                       privateSpec={privateSpecToPostToIframe}
                       url={url}
                     />

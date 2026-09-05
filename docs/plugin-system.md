@@ -114,7 +114,9 @@ Communication between the parent page and the IFrame is restricted to specific m
 > answer made of those files names their ids in `current-state`'s `files`, in the order they should
 > be graded and displayed; the ids belong there rather than inside `answer`, which the host does not
 > read. The host verifies that every named id was uploaded by this student for this exercise, and
-> rejects a `files` list that is empty, repeats an id, or names anything else. Both
+> rejects a `files` list that is empty, repeats an id, or names anything else. The editor's
+> `private_spec_files` is a separate list with its own rules — an empty list is meaningful there,
+> order is not, and the host checks only that it has an upload for each id. Both
 > messages carry a `requestId` solely so several uploads can be in flight at once. Don't hand-roll this: use the
 > `useFileUpload(port)` hook (`exercise-react`) or the `ParentUploadClient` engine
 > (`exercise-client`), which mirror the `useParentDialog` / `ParentDialogClient` request/response
@@ -141,7 +143,8 @@ Plugins must implement the following views, each serving a specific purpose. Rem
 
 - **Purpose**: Allows teachers to create and configure exercises.
 - **Inputs**: `private_spec` (via `set-state` message).
-- **Outputs**: `private_spec` (via `current-state` message).
+- **Outputs**: `private_spec` (via `current-state` message), plus `private_spec_files` from a
+  plugin whose service info declares `declares_spec_files`.
 
 #### 2. Answer Exercise View
 
@@ -183,6 +186,35 @@ The backend communicates with the plugin via REST to grade answers and generate 
 
 - **Method**: GET
 - **Purpose**: Defines the plugin and lists paths to all other endpoints.
+- **Outputs**: the plugin's name, the path to each of the endpoints below and to the IFrame, and
+  optional flags declaring what the plugin does: `has_custom_view`, `supports_native_client`,
+  `produces_file_answers`, `declares_spec_files`. Every flag defaults to off, so a plugin that
+  omits them all is a valid plugin.
+
+> **Declaring the files a spec references.** A plugin that stores files in a spec should declare
+> them, because the host cannot read a spec: it stores all three as opaque blobs, so a file whose
+> only reference lives inside one looks exactly like an upload somebody abandoned. Declare by
+> setting `declares_spec_files` in service info, which commits the plugin to two things:
+>
+> - the exercise editor lists every file the private spec references in `current-state`'s
+>   `private_spec_files`, on **every** `current-state` — omitting the list releases those files;
+> - the public-spec and model-solution endpoints answer with `{ "spec": ..., "files": [...] }`
+>   instead of the bare spec, listing the files _that_ spec references. Both keys are required, and
+>   `spec` is `null` for a spec the plugin has none of. This is the only way the host can learn
+>   about a file uploaded during a derivation through `SpecRequest.upload_url`, which no private
+>   spec ever names.
+>
+> Declaring is opt-in and lossless to skip: without it the host keeps every file the plugin ever
+> uploaded, forever. With it, a file no live spec and no page-history version references is deleted
+> a week after it was uploaded. Because page history counts, what actually gets reclaimed is uploads
+> that never reached a save — a file replaced before saving, or an editing session that was closed —
+> not files dropped from a spec that was once saved.
+>
+> Set the flag from a plugin's first deployment if it will ever need it. The host reads service info
+> from a cache it refreshes about once a minute, so for a short window after the flag changes — and
+> for the length of a rolling deploy — the host and the plugin can disagree about which response
+> shape the spec endpoints use. The host rejects a bare spec from a plugin it believes declares, so
+> that direction fails the save loudly; the other direction stores the envelope as the spec.
 
 #### 2. User Interface IFrame Endpoint
 
@@ -217,20 +249,20 @@ The backend communicates with the plugin via REST to grade answers and generate 
 
 ### Views
 
-| View Type           | Inputs                                                                               | Outputs        |
-| ------------------- | ------------------------------------------------------------------------------------ | -------------- |
-| **Exercise Editor** | `private_spec`                                                                       | `private_spec` |
-| **Answer Exercise** | `public_spec`, optional `answer`                                                     | `answer`       |
-| **View Submission** | `public_spec`, `answer`, optional `grading_feedback`, optional `model_solution_spec` | None           |
+| View Type           | Inputs                                                                               | Outputs                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| **Exercise Editor** | `private_spec`                                                                       | `private_spec`, and `private_spec_files` from a plugin that declares them |
+| **Answer Exercise** | `public_spec`, optional `answer`                                                     | `answer`                                                                  |
+| **View Submission** | `public_spec`, `answer`, optional `grading_feedback`, optional `model_solution_spec` | None                                                                      |
 
 ### REST API Endpoints
 
-| Endpoint Name                     | Inputs                                       | Outputs               |
-| --------------------------------- | -------------------------------------------- | --------------------- |
-| **Service Info**                  | None                                         | Metadata              |
-| **Public Spec Generator**         | `private_spec`                               | `public_spec`         |
-| **Model Solution Spec Generator** | `private_spec`                               | `model_solution_spec` |
-| **Grade Endpoint**                | `private_spec`, `answer`, the answer's files | `GradingResult`       |
+| Endpoint Name                     | Inputs                                       | Outputs                                                                              |
+| --------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Service Info**                  | None                                         | Metadata                                                                             |
+| **Public Spec Generator**         | `private_spec`                               | `public_spec`, wrapped as `{ spec, files }` by a plugin that declares its spec files |
+| **Model Solution Spec Generator** | `private_spec`                               | `model_solution_spec`, wrapped the same way                                          |
+| **Grade Endpoint**                | `private_spec`, `answer`, the answer's files | `GradingResult`                                                                      |
 
 The Grade endpoint returns a `GradingResult`: `grading_progress` (`FullyGraded` \| `Pending` \| `PendingManual` \| `Failed`), `score_given`/`score_maximum`, `feedback_text`, and `feedback_json` (the plugin-defined `grading_feedback`).
 

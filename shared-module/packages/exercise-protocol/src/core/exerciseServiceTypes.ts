@@ -26,6 +26,27 @@ export interface ExerciseServiceInfoApi {
    * such as the answer-file archive download.
    */
   produces_file_answers?: boolean
+  /**
+   * Whether this service declares which stored files its specs reference. Declaring means two
+   * things: the exercise editor lists the private spec's files in `current-state`'s
+   * `private_spec_files`, and the public-spec and model-solution endpoints answer with
+   * `{ spec, files }` instead of the bare spec.
+   *
+   * Declaring is what lets the host reclaim files this service uploaded and no longer uses — it
+   * cannot read a spec, so without declarations it has no evidence any file is unused and keeps
+   * every one forever. Opt-in for that reason: a service that omits this loses nothing.
+   */
+  declares_spec_files?: boolean
+}
+
+/**
+ * What the public-spec and model-solution endpoints of a service that declares its spec files
+ * return, in place of the bare spec.
+ */
+export interface DerivedSpecResponse<S = unknown> {
+  spec: S | null
+  /** Host file ids the derived spec references. Files uploaded via `SpecRequest.upload_url` count. */
+  files: string[]
 }
 
 export type GradingProgress = "Pending" | "Failed" | "FullyGraded" | "PendingManual" | "NotReady"

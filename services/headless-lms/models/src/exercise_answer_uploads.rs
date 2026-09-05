@@ -151,11 +151,11 @@ pub struct ReapableUpload {
 /// query to `file_uploads` would silently destroy course media. Never do it.
 ///
 /// Files referenced only from a spec blob (e.g. ones a teacher attaches in the CMS editor) must be
-/// uploaded through the unbound `POST /api/v0/files/{exercise_service_slug}` route: the host never
+/// uploaded through the `POST /api/v0/files/{exercise_service_slug}` route instead: the host never
 /// inspects spec contents, so such a file never gets an `exercise_task_submission_files` row and a
-/// binding here would have it reaped a week later. Nothing else owns their lifecycle either, so a
-/// file dropped from a spec is never reclaimed and stays fetchable at its unauthenticated
-/// `GET /api/v0/files/*` url forever.
+/// binding here would have it reaped a week later. Their lifecycle is
+/// [`crate::exercise_spec_uploads`]', which reclaims them against declarations rather than
+/// submissions.
 ///
 /// Progress is tracked by `file_uploads.deleted_at`, not by the binding's: the binding is retired
 /// first and the object removed afterwards, so a row whose object delete failed still has a live

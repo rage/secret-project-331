@@ -13,14 +13,14 @@ import {
   prepareStub,
 } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import type { RepositoryExercise } from "@/util/exerciseServiceApi"
+import type { DerivedSpecResponse, RepositoryExercise } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
 import type { PublicSpec } from "@/util/stateInterfaces"
 
 import type { ParsedSpecRequest } from "./requestSchemas"
 import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
-import { uploadArchiveAndGetUrl } from "./uploadArchive"
+import { uploadArchive } from "./uploadArchive"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -77,7 +77,11 @@ async function processPublicSpec(
     tempPaths.push(...paths)
     let publicSpec: PublicSpec
     debug("uploading public spec")
-    const { spec, paths: uploadPaths } = await uploadPublicSpec(
+    const {
+      spec,
+      files,
+      paths: uploadPaths,
+    } = await uploadPublicSpec(
       privateSpec.type,
       log,
       debug,
@@ -103,7 +107,10 @@ async function processPublicSpec(
         }
       }
     }
-    return jsonOk(publicSpec)
+    // The envelope, not the bare spec: this service declares `declares_spec_files`, so it has to
+    // tell the host which stored files the spec references. The stub archive is uploaded during
+    // this very derivation, so nothing else could tell the host it is in use.
+    return jsonOk<DerivedSpecResponse<PublicSpec>>({ spec: publicSpec, files })
   } finally {
     await Promise.allSettled(
       tempPaths.map((p) => fsPromises.rm(p, { recursive: true, force: true })),
@@ -137,7 +144,7 @@ const uploadPublicSpec = async (
   exercise: RepositoryExercise,
   uploadUrl: string,
   uploadClaim: string | null,
-): Promise<{ spec: PublicSpec; paths: string[] }> => {
+): Promise<{ spec: PublicSpec; files: string[]; paths: string[] }> => {
   log("editor exercise")
   const stubArchive = temporaryFile()
   debug("compressing stub to", stubArchive)
@@ -145,7 +152,7 @@ const uploadPublicSpec = async (
 
   const archiveName = buildArchiveName(exercise)
   debug("uploading stub", "archiveName:", archiveName)
-  const stub_download_url = await uploadArchiveAndGetUrl({
+  const stub = await uploadArchive({
     archivePath: stubArchive,
     archiveName,
     uploadUrl,
@@ -156,10 +163,11 @@ const uploadPublicSpec = async (
     spec: {
       type,
       archive_name: archiveName,
-      stub_download_url,
+      stub_download_url: stub.url,
       checksum,
       student_file_paths: config.student_file_paths,
     },
+    files: [stub.id],
     paths: [stubArchive],
   }
 }

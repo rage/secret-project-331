@@ -26,6 +26,7 @@ pub struct ExerciseServiceInfo {
     pub csv_export_answers_endpoint_path: Option<String>,
     pub supports_native_client: bool,
     pub produces_file_answers: bool,
+    pub declares_spec_files: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -39,6 +40,7 @@ pub struct PathInfo {
     pub has_custom_view: bool,
     pub supports_native_client: bool,
     pub produces_file_answers: bool,
+    pub declares_spec_files: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -69,6 +71,15 @@ pub struct ExerciseServiceInfoApi {
     /// `supports_native_client`, which is about the client that answers, not the answer's shape.
     #[serde(default)]
     pub produces_file_answers: bool,
+    /// Whether this service declares which stored files its specs reference: the private spec's in
+    /// the editor's `current-state` message, and each derived spec's in the response of the
+    /// endpoint that produced it, which then returns `{ spec, files }` instead of the bare spec.
+    ///
+    /// Declaring is what lets the host reclaim the service's abandoned uploads. A service that does
+    /// not declare keeps every file it ever uploaded, because the host cannot read a spec and so
+    /// has no evidence that a file is unused.
+    #[serde(default)]
+    pub declares_spec_files: bool,
 }
 
 pub async fn insert(
@@ -86,9 +97,10 @@ INSERT INTO exercise_service_info (
     model_solution_spec_endpoint_path,
     has_custom_view,
     supports_native_client,
-    produces_file_answers
+    produces_file_answers,
+    declares_spec_files
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING *
 ",
         exercise_service_info.exercise_service_id,
@@ -98,7 +110,8 @@ RETURNING *
         exercise_service_info.model_solution_spec_endpoint_path,
         exercise_service_info.has_custom_view,
         exercise_service_info.supports_native_client,
-        exercise_service_info.produces_file_answers
+        exercise_service_info.produces_file_answers,
+        exercise_service_info.declares_spec_files
     )
     .fetch_one(conn)
     .await?;
@@ -150,9 +163,10 @@ INSERT INTO exercise_service_info(
     csv_export_definitions_endpoint_path,
     csv_export_answers_endpoint_path,
     supports_native_client,
-    produces_file_answers
+    produces_file_answers,
+    declares_spec_files
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
@@ -162,7 +176,8 @@ SET user_interface_iframe_path = $2,
   csv_export_definitions_endpoint_path = $7,
   csv_export_answers_endpoint_path = $8,
   supports_native_client = $9,
-  produces_file_answers = $10
+  produces_file_answers = $10,
+  declares_spec_files = $11
 RETURNING *
     "#,
         exercise_service_id,
@@ -174,7 +189,8 @@ RETURNING *
         update.csv_export_definitions_endpoint_path.as_deref(),
         update.csv_export_answers_endpoint_path.as_deref(),
         update.supports_native_client,
-        update.produces_file_answers
+        update.produces_file_answers,
+        update.declares_spec_files
     )
     .fetch_one(conn)
     .await?;

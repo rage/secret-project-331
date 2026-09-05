@@ -126,21 +126,38 @@ struct ExerciseServiceUploadMetadata {
 /// Processes an upload from an exercise service, an exercise iframe or a native client.
 /// This function assumes that any permission checks have already been made.
 ///
-/// `path_prefix` only namespaces the stored objects; it carries no authorization meaning.
+/// `exercise_service_slug` namespaces the stored objects and is recorded with the upload; it
+/// carries no authorization meaning. The playground passes its reserved `playground` slug, which
+/// names no exercise service.
 pub async fn process_exercise_service_upload(
     conn: &mut PgConnection,
-    path_prefix: &str,
+    exercise_service_slug: &str,
     payload: Multipart,
     file_store: &dyn FileStore,
     uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
     uploader: Option<Uuid>,
     base_url: &str,
 ) -> Result<Vec<ExerciseServiceUpload>, ControllerError> {
-    let streamed =
-        stream_exercise_service_upload(path_prefix, payload, file_store, uploaded_paths, base_url)
-            .await?;
+    let streamed = stream_exercise_service_upload(
+        exercise_service_slug,
+        payload,
+        file_store,
+        uploaded_paths,
+        base_url,
+    )
+    .await?;
     let mut tx = conn.begin().await?;
     let uploads = record_exercise_service_upload(&mut tx, streamed, uploader).await?;
+    let file_upload_ids: Vec<Uuid> = uploads.iter().map(|upload| upload.entry.id).collect();
+    // Recorded in the same transaction as the file rows: an upload the reaper cannot see is an
+    // upload nothing will ever reclaim, since a spec's references are invisible to the host.
+    models::exercise_spec_uploads::insert_many(
+        &mut tx,
+        exercise_service_slug,
+        uploader,
+        &file_upload_ids,
+    )
+    .await?;
     tx.commit().await?;
     Ok(uploads)
 }

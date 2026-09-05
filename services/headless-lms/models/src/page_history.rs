@@ -78,8 +78,17 @@ RETURNING *
         author_user_id,
         restored_from_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *conn)
     .await?;
+    // A restore has to be able to bring back the private specs in this snapshot, so the files they
+    // name must stay out of the abandoned-upload reaper's reach for as long as the snapshot exists.
+    // Only the private ones: a restore re-derives the other two from them.
+    let spec_files: Vec<Uuid> = content
+        .exercise_tasks
+        .iter()
+        .flat_map(|task| task.private_spec_files.iter().copied())
+        .collect();
+    crate::page_history_spec_files::insert_many(conn, res.id, &spec_files).await?;
     Ok(res.id)
 }
 

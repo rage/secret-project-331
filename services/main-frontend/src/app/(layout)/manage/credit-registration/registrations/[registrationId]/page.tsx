@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import type { TFunction } from "i18next"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -14,7 +13,6 @@ import {
   eventKindLabel,
   notificationKindLabel,
   sendStatusLabel,
-  stateName,
   verificationMethodLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import { useAdminCreditRegistration } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
@@ -22,7 +20,9 @@ import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBa
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
 import SuotarApiCallDetail from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
+  ABSENT,
   ALIGN_END,
+  ARROW,
   MIDDLE_DOT,
   QUIET_REFRESH,
   STACKED,
@@ -32,15 +32,20 @@ import {
 import {
   registrationErrorHelp,
   registrationGradeLabel,
+  registrationLedgerStateLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import {
-  cardCss,
+  dividedListCss,
+  emptyStateCss,
   headingCss,
   monospaceCss,
   noteCss,
+  payloadCss,
+  proseCss,
   rowCss,
   sectionCss,
   sectionsCss,
+  subsectionCss,
 } from "@/components/credit-registration/styles"
 import type {
   AdminCreditRegistrationDetails,
@@ -60,62 +65,14 @@ import {
   DescriptionList,
   Dialog,
   Disclosure,
-  Infobox,
   QueryResult,
   RelativeTime,
-  RELATIVE_TIME_ABSENT_LABEL,
   StatTile,
   StatTileList,
   Table,
 } from "@/shared-module/components"
 
-// oxlint-disable-next-line i18next/no-literal-string
-const ARROW = " → "
 const JSON_INDENT = 2
-
-const titleCss = css`
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
-`
-
-const sentenceCss = css`
-  margin: 0;
-`
-
-const bodyCss = css`
-  font-size: 0.8125rem;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  background: var(--color-gray-50);
-  border: 1px solid var(--color-gray-100);
-  border-radius: 6px;
-  padding: 0.6rem;
-  margin: 0;
-  max-height: 60vh;
-  overflow: auto;
-`
-
-const identifierRowCss = css`
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-`
-
-const timelineCss = css`
-  display: grid;
-  gap: 0.75rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-`
-
-const entryCss = css`
-  display: grid;
-  gap: 0.25rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--color-clear-300);
-`
 
 const studentName = (row: AdminCreditRegistrationRow): string =>
   [row.first_name, row.last_name].filter(Boolean).join(" ")
@@ -145,7 +102,7 @@ const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
           .map((identifier) => ({
             label: identifier.label,
             value: (
-              <span className={identifierRowCss}>
+              <span className={rowCss}>
                 <span className={monospaceCss}>{identifier.value}</span>
                 <CopyButton
                   value={identifier.value ?? ""}
@@ -167,34 +124,34 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
   const errorHelp = registrationErrorHelp(t, row.error_code)
   return (
     <section className={sectionCss}>
-      <div className={cardCss}>
-        <h2 className={titleCss}>
-          {studentName(row)}
-          {MIDDLE_DOT}
-          {row.course_name}
-        </h2>
-        <div className={rowCss}>
-          <AdminStateBadge
-            state={row.state}
-            pendingReason={row.pending_reason}
-            superseded={row.superseded}
-            attemptNumber={row.attempt_number}
-          />
-          {row.needs_admin_attention && (
-            <Badge tone={TONE.WARNING}>{t("label-credit-registration-needs-attention")}</Badge>
-          )}
-        </div>
-        {errorHelp ? (
-          <Infobox tone={TONE.WARNING} heading={row.error_code}>
-            {errorHelp}
-          </Infobox>
-        ) : (
-          <p className={sentenceCss}>
-            {t("credit-registration-admin-state-sentence", { state: stateName(row.state) })}
-          </p>
-        )}
-        <AdminTransitionBlock registration={row} />
+      <h2 className={headingCss}>
+        {studentName(row)}
+        {MIDDLE_DOT}
+        {row.course_name}
+      </h2>
+      <div className={rowCss}>
+        <AdminStateBadge
+          state={row.state}
+          pendingReason={row.pending_reason}
+          superseded={row.superseded}
+          attemptNumber={row.attempt_number}
+        />
       </div>
+      {errorHelp ? (
+        <div className={subsectionCss}>
+          <p className={proseCss}>{errorHelp}</p>
+          {/* Untranslated on purpose: this is the code an operator quotes to the registry. */}
+          <p className={noteCss}>
+            <code>{row.error_code}</code>
+          </p>
+        </div>
+      ) : (
+        <p className={proseCss}>
+          {t("credit-registration-admin-state-sentence", {
+            state: registrationLedgerStateLabel(t, row.state),
+          })}
+        </p>
+      )}
     </section>
   )
 }
@@ -202,6 +159,8 @@ const HeaderSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ 
 const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
   const { t } = useTranslation()
   const row = details.registration
+  const studentNumber = row.verified_student_number ?? row.student_number
+  const verifiedVia = verificationMethodLabel(t, row.verified_student_number_via)
   // Next to the grade we sent, which is the comparison that explains a "no improvement" verdict.
   const heldGrade: DescriptionListItem[] = details.not_improved_attainment
     ? [
@@ -225,14 +184,6 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
           label={t("credit-registration-admin-verify-checks")}
           value={row.verify_attempt_count}
         />
-        <StatTile
-          label={t("label-credit-registration-time-in-state")}
-          value={<RelativeTime at={row.state_entered_at} absoluteTime={TIME_IN_TITLE} />}
-        />
-        <StatTile
-          label={t("label-credit-registration-next-attempt")}
-          value={<RelativeTime at={row.next_attempt_at} absoluteTime={TIME_IN_TITLE} />}
-        />
       </StatTileList>
       <DescriptionList
         layout={STACKED}
@@ -243,22 +194,27 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
           },
           {
             label: t("label-student-number"),
-            value: [
-              row.verified_student_number ?? row.student_number,
-              verificationMethodLabel(t, row.verified_student_number_via),
-            ]
-              .filter(Boolean)
-              .join(MIDDLE_DOT),
+            value: studentNumber ? (
+              <span className={rowCss}>
+                <span className={monospaceCss}>{studentNumber}</span>
+                {verifiedVia}
+              </span>
+            ) : (
+              ABSENT
+            ),
           },
           {
             label: t("label-course"),
             value: (
               <>
                 <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
-                {MIDDLE_DOT}
-                {row.course_module_name ?? RELATIVE_TIME_ABSENT_LABEL}
-                {MIDDLE_DOT}
-                {row.uh_course_code ?? RELATIVE_TIME_ABSENT_LABEL}
+                {row.course_module_name ? `${MIDDLE_DOT}${row.course_module_name}` : null}
+                {row.uh_course_code ? (
+                  <>
+                    {MIDDLE_DOT}
+                    <code>{row.uh_course_code}</code>
+                  </>
+                ) : null}
               </>
             ),
           },
@@ -277,6 +233,14 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
           {
             label: t("label-credit-registration-completion"),
             value: <RelativeTime at={row.completion_date} />,
+          },
+          {
+            label: t("label-credit-registration-time-in-state"),
+            value: <RelativeTime at={row.state_entered_at} absoluteTime={TIME_IN_TITLE} />,
+          },
+          {
+            label: t("label-credit-registration-next-attempt"),
+            value: <RelativeTime at={row.next_attempt_at} absoluteTime={TIME_IN_TITLE} />,
           },
         ]}
       />
@@ -299,12 +263,9 @@ const AttemptChainSection: React.FC<{ attempts: AdminCreditRegistrationRow[] }> 
       <div className={rowCss}>
         {chain.map((attempt) => (
           <Link key={attempt.id} href={creditRegistrationItemRoute(attempt.id)}>
-            <AdminStateBadge
-              state={attempt.state}
-              pendingReason={attempt.pending_reason}
-              superseded={attempt.superseded}
-              attemptNumber={attempt.attempt_number}
-            />
+            {t("credit-registration-attempt-n", { n: attempt.attempt_number })}
+            {MIDDLE_DOT}
+            <code>{attempt.state}</code>
           </Link>
         ))}
       </div>
@@ -324,7 +285,7 @@ const PayloadDialog: React.FC<{ title: string; payload: unknown }> = ({ title, p
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)} size="wide" title={title}>
         <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-        <pre className={bodyCss}>{text}</pre>
+        <pre className={payloadCss}>{text}</pre>
         <CopyButton value={text} label={t("credit-registration-admin-copy-stored-body")} />
       </Dialog>
     </>
@@ -334,22 +295,14 @@ const PayloadDialog: React.FC<{ title: string; payload: unknown }> = ({ title, p
 const TimelineEntry: React.FC<{ event: AdminCreditRegistrationEvent }> = ({ event }) => {
   const { t } = useTranslation()
   return (
-    <li className={entryCss}>
+    <li className={subsectionCss}>
       <span className={rowCss}>
         <RelativeTime at={event.created_at} />
         <Badge tone={TONE.NEUTRAL}>{eventKindLabel(t, event.kind)}</Badge>
         {event.to_state && (
-          <span className={rowCss}>
-            {event.from_state && (
-              <>
-                <AdminStateBadge state={event.from_state} />
-                {ARROW}
-              </>
-            )}
-            <AdminStateBadge state={event.to_state} />
-          </span>
+          <code>{[event.from_state, event.to_state].filter(Boolean).join(ARROW)}</code>
         )}
-        {event.error_code && <span className={monospaceCss}>{event.error_code}</span>}
+        {event.error_code && <code>{event.error_code}</code>}
       </span>
       {event.message && <span>{event.message}</span>}
       {event.details !== null && event.details !== undefined && (
@@ -371,9 +324,8 @@ const TimelineSection: React.FC<{ events: AdminCreditRegistrationEvent[] }> = ({
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-timeline")}</h2>
-      <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
       {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
-      <ol className={timelineCss} role="list">
+      <ol className={dividedListCss} role="list">
         {events.toReversed().map((event) => (
           <TimelineEntry key={event.id} event={event} />
         ))}
@@ -403,7 +355,7 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
           {
             header: t("label-credit-registration-http-status"),
             align: ALIGN_END,
-            cell: (call) => call.http_status ?? RELATIVE_TIME_ABSENT_LABEL,
+            cell: (call) => call.http_status ?? ABSENT,
           },
           {
             header: t("credit-registration-admin-column-items"),
@@ -517,7 +469,7 @@ const AuditSection: React.FC<{ actions: CreditRegistrationAdminActionRecord[] }>
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
       {actions.length === 0 ? (
-        <p className={noteCss}>{t("credit-registration-admin-no-actions-yet")}</p>
+        <p className={emptyStateCss}>{t("credit-registration-admin-no-actions-yet")}</p>
       ) : (
         <Table
           caption={t("credit-registration-heading-audit")}
@@ -561,6 +513,9 @@ const RegistrationDetailPage: React.FC = () => {
         <div className={sectionsCss}>
           <HeaderSection details={details} />
           <FactsSection details={details} />
+          <section className={sectionCss}>
+            <AdminTransitionBlock registration={details.registration} />
+          </section>
           <AttemptChainSection attempts={details.attempts} />
           <TimelineSection events={details.events} />
           <ApiCallSection calls={details.suotar_api_calls} />

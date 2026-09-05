@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import type {
   CreditRegistrationPendingReason,
@@ -9,7 +10,6 @@ import type {
 } from "@/generated/api/types.generated"
 import { RegistrationStatusBadge } from "@/shared-module/components"
 
-import { MIDDLE_DOT } from "../constants"
 import { stateTone } from "./adminCreditRegistrationCopy"
 
 interface Props {
@@ -27,14 +27,20 @@ const supersededCss = css`
 
 /** The state name is deliberately untranslated: it is the identifier an operator quotes. */
 const AdminStateBadge: React.FC<Props> = ({ state, pendingReason, superseded, attemptNumber }) => {
+  const { t } = useTranslation()
   // `pending` on its own does not say what the row is waiting for.
   const name = pendingReason ? `${state} (${pendingReason})` : state
   return (
-    <span className={superseded ? supersededCss : undefined}>
+    <span
+      className={superseded ? supersededCss : undefined}
+      title={
+        attemptNumber !== undefined && attemptNumber > 1
+          ? t("credit-registration-attempt-n", { n: attemptNumber })
+          : undefined
+      }
+    >
       <RegistrationStatusBadge state={stateTone(state, pendingReason)}>
-        {attemptNumber !== undefined && attemptNumber > 1
-          ? `${attemptNumber}${MIDDLE_DOT}${name}`
-          : name}
+        {name}
       </RegistrationStatusBadge>
     </span>
   )

@@ -1,33 +1,27 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React, { useState } from "react"
 import type { Control, FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Dialog } from "@/shared-module/components"
 
+import { dialogFormCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import type { WithReason } from "./ReasonConfirmDialog"
 
-const formCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const rootCss = css`
-  display: grid;
-  gap: 0.75rem;
-  justify-items: start;
-`
+const rootCss = cx(
+  dialogFormCss,
+  css`
+    justify-items: start;
+  `,
+)
 
 interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result> {
   triggerLabel: string
   triggerDisabled?: boolean
-  /** Defaults to `secondary`; use it to rank several actions offered side by side. */
-  triggerVariant?: ButtonVariant
   dialogTitle: string
   defaultValues: Fields
   mutationFn: (fields: Fields) => Promise<Result>
@@ -44,7 +38,6 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
 export function AdminActionDialog<Fields extends FieldValues & WithReason, Result>({
   triggerLabel,
   triggerDisabled,
-  triggerVariant = "secondary",
   dialogTitle,
   defaultValues,
   mutationFn,
@@ -67,7 +60,7 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
   return (
     <div className={rootCss}>
       <Button
-        variant={triggerVariant}
+        variant="secondary"
         size="medium"
         disabled={triggerDisabled ?? false}
         onClick={() => setOpen(true)}
@@ -76,7 +69,10 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
       </Button>
       {result && submittedFields && renderResult(result, submittedFields)}
       <Dialog open={open} onClose={() => setOpen(false)} title={dialogTitle}>
-        <form className={formCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
+        <form
+          className={dialogFormCss}
+          onSubmit={handleSubmit((fields) => mutation.mutate(fields))}
+        >
           {renderFields(control)}
           <Button
             variant="primary"

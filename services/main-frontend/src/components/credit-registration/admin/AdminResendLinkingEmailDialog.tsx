@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -14,6 +14,7 @@ import { Button, Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
 import { MIDDLE_DOT, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
+import { dialogFormCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { ReasonField, isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
@@ -29,16 +30,12 @@ interface Fields {
   reason: string
 }
 
-const rootCss = css`
-  display: grid;
-  gap: 0.5rem;
-  justify-items: start;
-`
-
-const formCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
+const rootCss = cx(
+  dialogFormCss,
+  css`
+    justify-items: start;
+  `,
+)
 
 /** The override retires the rows the caps count rather than relaxing a cap, and needs a reason. */
 const AdminResendLinkingEmailDialog: React.FC<Props> = ({
@@ -118,7 +115,10 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
             ))}
           </Infobox>
         )}
-        <form className={formCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
+        <form
+          className={dialogFormCss}
+          onSubmit={handleSubmit((fields) => mutation.mutate(fields))}
+        >
           <p>
             {t("credit-registration-admin-resend-dialog-target", {
               studentNumber,

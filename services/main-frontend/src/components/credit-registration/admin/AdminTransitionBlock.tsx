@@ -14,7 +14,6 @@ import type {
   AdminCreditRegistrationRow,
   AdminTransitionCreditRegistrationResult,
 } from "@/generated/api/types.generated"
-import type { ButtonVariant } from "@/shared-module/components"
 import { Infobox } from "@/shared-module/components"
 
 import { TONE } from "../constants"
@@ -52,7 +51,6 @@ interface TransitionActionProps {
   choice: TransitionChoice
   label: string
   appliedMessage: string
-  variant: ButtonVariant
 }
 
 const TransitionAction: React.FC<TransitionActionProps> = ({
@@ -60,7 +58,6 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
   choice,
   label,
   appliedMessage,
-  variant,
 }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -68,7 +65,6 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
   return (
     <AdminActionDialog<Fields, AdminTransitionCreditRegistrationResult>
       triggerLabel={label}
-      triggerVariant={variant}
       dialogTitle={label}
       defaultValues={{ action: choice, reason: "" }}
       mutationFn={(fields) =>
@@ -122,14 +118,12 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
           choice={READY_TO_SUBMIT}
           label={t("credit-registration-admin-target-resubmit")}
           appliedMessage={t("credit-registration-admin-resubmit-applied")}
-          variant="primary"
         />
         <TransitionAction
           registration={registration}
           choice={CHECK_NOW}
           label={t("credit-registration-admin-target-check-now")}
           appliedMessage={t("credit-registration-admin-check-now-applied")}
-          variant="secondary"
         />
         {registration.needs_admin_attention && (
           <TransitionAction
@@ -137,7 +131,6 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
             choice={CLEAR_ATTENTION}
             label={t("credit-registration-admin-target-clear-attention")}
             appliedMessage={t("credit-registration-admin-attention-cleared")}
-            variant="tertiary"
           />
         )}
         <TransitionAction
@@ -145,7 +138,6 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
           choice={CANCELLED}
           label={t("credit-registration-admin-target-cancel")}
           appliedMessage={t("credit-registration-admin-cancel-applied")}
-          variant="tertiary"
         />
       </div>
     </>

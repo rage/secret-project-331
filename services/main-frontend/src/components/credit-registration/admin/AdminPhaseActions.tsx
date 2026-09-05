@@ -13,7 +13,8 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button } from "@/shared-module/components"
 
-import { pauseResumeRootCss, usePauseResumeAction } from "./usePauseResumeAction"
+import { rowCss } from "../styles"
+import { usePauseResumeAction } from "./usePauseResumeAction"
 
 interface Props {
   phase: string
@@ -55,7 +56,7 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
   }
 
   return (
-    <div className={pauseResumeRootCss}>
+    <div className={rowCss}>
       {paused ? (
         resumeButton
       ) : (

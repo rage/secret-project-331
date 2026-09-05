@@ -15,7 +15,9 @@ import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
   controlCss,
   controlsCss,
+  emptyStateCss,
   headingCss,
+  monospaceCss,
   noteCss,
   rowCss,
   sectionCss,
@@ -128,21 +130,9 @@ const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
   },
 ]
 
-const searchFormCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  align-items: start;
-`
-
 const searchCss = css`
   min-width: 20rem;
   flex: 1 1 20rem;
-`
-
-const errorCodeCss = css`
-  font-family: monospace;
-  font-size: var(--font-size-1);
 `
 
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
@@ -196,7 +186,7 @@ const RegistrationsPage: React.FC = () => {
       <section className={sectionCss}>
         <h2 className={headingCss}>{t("credit-registration-heading-registrations")}</h2>
         <form
-          className={searchFormCss}
+          className={controlsCss}
           onSubmit={handleSubmit((fields) => applyParams({ [PARAM_SEARCH]: fields.search.trim() }))}
         >
           <div className={searchCss}>
@@ -280,7 +270,7 @@ const RegistrationsPage: React.FC = () => {
         <QueryResult query={registrationsQuery} refreshIndicator={QUIET_REFRESH}>
           {(page) =>
             page.data.length === 0 ? (
-              <p className={noteCss}>{t("credit-registration-admin-no-matching-rows")}</p>
+              <p className={emptyStateCss}>{t("credit-registration-admin-no-matching-rows")}</p>
             ) : (
               <>
                 <p className={noteCss}>
@@ -305,10 +295,14 @@ const RegistrationsPage: React.FC = () => {
                     },
                     {
                       header: t("label-student-number"),
-                      cell: (row) =>
-                        row.verified_student_number ??
-                        row.student_number ??
-                        t("credit-registration-admin-not-linked"),
+                      cell: (row) => {
+                        const number = row.verified_student_number ?? row.student_number
+                        return number === null || number === undefined ? (
+                          t("credit-registration-admin-not-linked")
+                        ) : (
+                          <span className={monospaceCss}>{number}</span>
+                        )
+                      },
                     },
                     {
                       header: t("label-course"),
@@ -329,7 +323,7 @@ const RegistrationsPage: React.FC = () => {
                             superseded={row.superseded}
                             attemptNumber={row.attempt_number}
                           />
-                          {row.error_code && <span className={errorCodeCss}>{row.error_code}</span>}
+                          {row.error_code && <code>{row.error_code}</code>}
                         </span>
                       ),
                     },

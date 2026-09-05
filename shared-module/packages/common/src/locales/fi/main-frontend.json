@@ -981,6 +981,7 @@
   "credit-registration-alert-sisu-unavailable": "Sisu vaikuttaa olevan poissa käytöstä: {{count}} viimeisimmästä {{total}} kohdasta kaatui siihen. Kohdat yritetään automaattisesti uudelleen.",
   "credit-registration-alert-stuck-registrations": "{{count}} kirjausta on jumissa, suurin osa tilassa {{subject}}.",
   "credit-registration-alert-study-registry-unreachable": "Opintorekisteri ei vastaa: {{count}} peräkkäistä epäonnistunutta kutsua.",
+  "credit-registration-attempt-n": "Yritys {{n}}",
   "credit-registration-bulk-retry-confirm-title": "Yritä epäonnistuneita rekisteröintejä uudelleen",
   "credit-registration-bulk-retry-confirm_one": "Lähetetäänkö {{count}} lopullisesti epäonnistunut rekisteröinti uudelleen opintorekisteriin?",
   "credit-registration-bulk-retry-confirm_other": "Lähetetäänkö {{count}} lopullisesti epäonnistunutta rekisteröintiä uudelleen opintorekisteriin?",

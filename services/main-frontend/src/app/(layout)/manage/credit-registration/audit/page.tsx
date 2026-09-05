@@ -17,13 +17,14 @@ import {
   useCreditRegistrationAdminActions,
   useCreditRegistrationCourseStats,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   selectFilterField,
   useFilteredAdminQuery,
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
+  ABSENT,
+  ARROW,
   MIDDLE_DOT,
   QUIET_REFRESH,
   TIME_IN_TITLE,
@@ -32,10 +33,12 @@ import {
 import {
   controlCss,
   controlsCss,
+  emptyStateCss,
   headingCss,
   noteCss,
   rowCss,
   sectionCss,
+  sectionHeaderCss,
   sectionsCss,
   stackedCellCss,
 } from "@/components/credit-registration/styles"
@@ -53,15 +56,12 @@ import {
   DateField,
   QueryResult,
   RelativeTime,
-  RELATIVE_TIME_ABSENT_LABEL,
   Select,
   Table,
 } from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
 const ID_PREFIX_LENGTH = 8
-// oxlint-disable-next-line i18next/no-literal-string
-const ARROW = " → "
 
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ACTOR_ROLE = "actor_role"
@@ -250,8 +250,10 @@ const AuditPage: React.FC = () => {
   return (
     <div className={sectionsCss}>
       <section className={sectionCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
-        <p className={noteCss}>{t("credit-registration-admin-audit-two-actor-kinds-note")}</p>
+        <div className={sectionHeaderCss}>
+          <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
+          <p className={noteCss}>{t("credit-registration-admin-audit-two-actor-kinds-note")}</p>
+        </div>
         <form className={controlsCss}>
           <div className={controlCss}>
             <Select
@@ -344,7 +346,7 @@ const AuditPage: React.FC = () => {
         <QueryResult query={actionsQuery} refreshIndicator={QUIET_REFRESH}>
           {(page) =>
             page.data.length === 0 ? (
-              <p className={noteCss}>{t("credit-registration-admin-no-matching-actions")}</p>
+              <p className={emptyStateCss}>{t("credit-registration-admin-no-matching-actions")}</p>
             ) : (
               <>
                 <p className={noteCss}>
@@ -385,18 +387,16 @@ const AuditPage: React.FC = () => {
                       header: t("credit-registration-admin-column-state-change"),
                       cell: (row) =>
                         row.before_state === null && row.after_state === null ? (
-                          RELATIVE_TIME_ABSENT_LABEL
+                          ABSENT
                         ) : (
-                          <span className={rowCss}>
-                            {row.before_state && <AdminStateBadge state={row.before_state} />}
-                            {row.before_state && row.after_state && ARROW}
-                            {row.after_state && <AdminStateBadge state={row.after_state} />}
-                          </span>
+                          <code>
+                            {[row.before_state, row.after_state].filter(Boolean).join(ARROW)}
+                          </code>
                         ),
                     },
                     {
                       header: t("label-reason"),
-                      cell: (row) => row.reason ?? RELATIVE_TIME_ABSENT_LABEL,
+                      cell: (row) => row.reason ?? ABSENT,
                     },
                   ]}
                 />

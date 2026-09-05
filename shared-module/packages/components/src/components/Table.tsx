@@ -21,8 +21,6 @@ export interface TableProps<Row> {
   /** Names the table for assistive tech; visually hidden unless `showCaption`. */
   caption: React.ReactNode
   showCaption?: boolean
-  /** Rendered in place of the whole table, caption and header included, when `rows` is empty. */
-  emptyState?: React.ReactNode
   className?: string
 }
 
@@ -61,13 +59,6 @@ const bodyCellCss = css`
   font-variant-numeric: tabular-nums;
 `
 
-const emptyStateCss = css`
-  margin: 0;
-  padding: var(--space-4) 0;
-  color: var(--color-gray-500);
-  font-size: var(--font-size-2);
-`
-
 const alignCss: Record<TableAlign, string> = {
   start: css`
     text-align: start;
@@ -87,14 +78,9 @@ export function Table<Row>({
   rowKey,
   caption,
   showCaption = false,
-  emptyState,
   className,
 }: TableProps<Row>) {
   const alignFor = (column: TableColumn<Row>) => (column.align ? alignCss[column.align] : undefined)
-
-  if (rows.length === 0 && emptyState) {
-    return <div className={cx(emptyStateCss, className)}>{emptyState}</div>
-  }
 
   return (
     <div className={cx(scrollCss, className)}>

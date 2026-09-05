@@ -3,14 +3,10 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
-export type StatTileTone = "neutral" | "alert"
-
 export interface StatTileProps {
   label: React.ReactNode
   value: React.ReactNode
-  /** "alert" recolours the value; the surface never changes. Prefer `alertWhenNonZero` for counts. */
-  tone?: StatTileTone
-  /** Alerts once `value` is a number above zero, for tiles counting something that is wrong. */
+  /** Recolours the value once it is a number above zero; the surface never changes. */
   alertWhenNonZero?: boolean
   /** If set, the whole tile becomes a link (e.g. jump to the relevant section). */
   href?: string
@@ -60,12 +56,11 @@ const labelCss = css`
 export const StatTile: React.FC<StatTileProps> = ({
   label,
   value,
-  tone = "neutral",
   alertWhenNonZero = false,
   href,
   ariaLabel,
 }) => {
-  const isAlert = tone === "alert" || (alertWhenNonZero && typeof value === "number" && value > 0)
+  const isAlert = alertWhenNonZero && typeof value === "number" && value > 0
   const body = (
     <>
       <span className={cx(valueCss, isAlert && alertValueCss)}>{value}</span>

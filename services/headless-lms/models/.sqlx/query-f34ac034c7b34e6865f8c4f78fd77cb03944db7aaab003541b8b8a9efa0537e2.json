@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM course_module_suotar_configurations conf\n  JOIN course_modules cm ON cm.id = conf.course_module_id\nWHERE cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\n  AND conf.deleted_at IS NULL\n  AND conf.config_checked_at IS NOT NULL\n  AND conf.config_check_message IS NOT NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "f34ac034c7b34e6865f8c4f78fd77cb03944db7aaab003541b8b8a9efa0537e2"
+}

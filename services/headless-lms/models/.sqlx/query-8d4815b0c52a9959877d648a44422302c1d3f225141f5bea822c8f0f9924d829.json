@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT chapters.course_module_id AS \"course_module_id!\",\n  COALESCE(SUM(ues.score_given), 0) AS \"score_given!\"\nFROM user_exercise_states AS ues\n  JOIN exercises ON (ues.exercise_id = exercises.id)\n  JOIN chapters ON (exercises.chapter_id = chapters.id)\nWHERE ues.course_id = ANY($1)\n  AND ues.user_id = $2\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.deleted_at IS NULL\n  AND chapters.course_module_id IS NOT NULL\nGROUP BY chapters.course_module_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "score_given!",
+        "type_info": "Float4",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "8d4815b0c52a9959877d648a44422302c1d3f225141f5bea822c8f0f9924d829"
+}

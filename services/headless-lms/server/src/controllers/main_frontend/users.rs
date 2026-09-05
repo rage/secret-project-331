@@ -345,6 +345,13 @@ pub struct MyStudiesCourseModule {
     pub ects_credits: Option<f32>,
     pub uh_course_code: Option<String>,
     pub supports_credit_registration: bool,
+    /// Exercise points the student has in the module, rounded to two decimals. Not ECTS credits.
+    pub score_given: f32,
+    /// Exercise points the module offers. `None` when it has no exercises.
+    pub score_maximum: Option<u32>,
+    /// Exercise points an automatic completion requires. `None` when the module is completed
+    /// manually or sets no point threshold.
+    pub score_required: Option<i32>,
     /// `None` when no completion may be shown to the student. May be a failed one, so check `passed`.
     pub completion: Option<MyStudiesCompletion>,
 }
@@ -432,6 +439,18 @@ async fn get_my_studies(
     let organization_slugs: HashMap<Uuid, String> =
         organizations.into_iter().map(|o| (o.id, o.slug)).collect();
 
+    let course_ids: Vec<Uuid> = enrollments_info
+        .course_enrollments
+        .iter()
+        .map(|enrollment| enrollment.course_id)
+        .collect();
+    let scores_by_module = models::user_exercise_states::get_user_course_module_scores(
+        &mut conn,
+        &course_ids,
+        user.id,
+    )
+    .await?;
+
     let mut courses = Vec::with_capacity(enrollments_info.course_enrollments.len());
 
     for enrollment in enrollments_info.course_enrollments {
@@ -465,14 +484,21 @@ async fn get_my_studies(
         let mut modules: Vec<MyStudiesCourseModule> = enrollment
             .course_modules
             .iter()
-            .map(|course_module| MyStudiesCourseModule {
-                course_module_id: course_module.id,
-                name: course_module.name.clone(),
-                order_number: course_module.order_number,
-                ects_credits: course_module.ects_credits,
-                uh_course_code: course_module.uh_course_code.clone(),
-                supports_credit_registration: course_module.enable_credit_registration_via_suotar,
-                completion: best_completion_by_module.remove(&course_module.id),
+            .map(|course_module| {
+                let score = scores_by_module.get(&course_module.id);
+                MyStudiesCourseModule {
+                    course_module_id: course_module.id,
+                    name: course_module.name.clone(),
+                    order_number: course_module.order_number,
+                    ects_credits: course_module.ects_credits,
+                    uh_course_code: course_module.uh_course_code.clone(),
+                    supports_credit_registration: course_module
+                        .enable_credit_registration_via_suotar,
+                    score_given: score.map_or(0.0, |score| score.score_given),
+                    score_maximum: score.and_then(|score| score.score_maximum),
+                    score_required: score.and_then(|score| score.score_required),
+                    completion: best_completion_by_module.remove(&course_module.id),
+                }
             })
             .collect();
         modules.sort_by_key(|m| m.order_number);

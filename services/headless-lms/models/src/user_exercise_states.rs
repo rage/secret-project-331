@@ -400,6 +400,93 @@ pub async fn get_user_course_progress(
     merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
 }
 
+/// One course module's exercise points for one user. Points are exercise scores, never ECTS credits.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct UserCourseModuleScore {
+    pub score_given: f32,
+    /// `None` when the module has no exercises.
+    pub score_maximum: Option<u32>,
+    /// `None` when the module is completed manually or sets no point threshold.
+    pub score_required: Option<i32>,
+}
+
+/// The user's exercise points in every module of the given courses, keyed by course module id.
+///
+/// Every non-deleted module of those courses gets an entry, whether or not the user has answered
+/// anything in it. Closed chapters are included. Confusable with `get_user_course_progress`, which
+/// answers the same question one course at a time and also reports exercise counts.
+pub async fn get_user_course_module_scores(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+    user_id: Uuid,
+) -> ModelResult<HashMap<Uuid, UserCourseModuleScore>> {
+    let score_maximum_rows = sqlx::query!(
+        r#"
+SELECT chapters.course_module_id AS "course_module_id!",
+  SUM(exercises.score_maximum) AS "score_maximum!"
+FROM exercises
+  JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE exercises.course_id = ANY($1)
+  AND exercises.deleted_at IS NULL
+  AND chapters.course_module_id IS NOT NULL
+GROUP BY chapters.course_module_id
+        "#,
+        course_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let score_maximum_by_module: HashMap<Uuid, i64> = score_maximum_rows
+        .into_iter()
+        .map(|x| (x.course_module_id, x.score_maximum))
+        .collect();
+
+    let score_given_rows = sqlx::query!(
+        r#"
+SELECT chapters.course_module_id AS "course_module_id!",
+  COALESCE(SUM(ues.score_given), 0) AS "score_given!"
+FROM user_exercise_states AS ues
+  JOIN exercises ON (ues.exercise_id = exercises.id)
+  JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE ues.course_id = ANY($1)
+  AND ues.user_id = $2
+  AND ues.activity_progress IN ('completed', 'submitted')
+  AND ues.deleted_at IS NULL
+  AND chapters.course_module_id IS NOT NULL
+GROUP BY chapters.course_module_id
+        "#,
+        course_ids,
+        user_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let score_given_by_module: HashMap<Uuid, f32> = score_given_rows
+        .into_iter()
+        .map(|x| (x.course_module_id, x.score_given))
+        .collect();
+
+    course_modules::get_by_course_ids(conn, course_ids)
+        .await?
+        .into_iter()
+        .map(|course_module| {
+            let score = UserCourseModuleScore {
+                score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
+                    score_given_by_module.get(&course_module.id).copied(),
+                ),
+                score_maximum: score_maximum_by_module
+                    .get(&course_module.id)
+                    .copied()
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                score_required: course_module
+                    .completion_policy
+                    .automatic()
+                    .and_then(|requirements| requirements.number_of_points_treshold),
+            };
+            Ok((course_module.id, score))
+        })
+        .collect::<ModelResult<_>>()
+}
+
 /// Gets the total amount of points that the user has received from an exam.
 ///
 /// The caller should take into consideration that for an ongoing exam the result will be volatile.

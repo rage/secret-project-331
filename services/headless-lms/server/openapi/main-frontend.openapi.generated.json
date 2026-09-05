@@ -22867,7 +22867,12 @@
       "MyStudiesCourseModule": {
         "type": "object",
         "description": "A course module as the student's own profile shows it, with their best visible completion.",
-        "required": ["course_module_id", "order_number", "supports_credit_registration"],
+        "required": [
+          "course_module_id",
+          "order_number",
+          "supports_credit_registration",
+          "score_given"
+        ],
         "properties": {
           "completion": {
             "oneOf": [
@@ -22895,6 +22900,22 @@
           "order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float",
+            "description": "Exercise points the student has in the module, rounded to two decimals. Not ECTS credits."
+          },
+          "score_maximum": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Exercise points the module offers. `None` when it has no exercises.",
+            "minimum": 0
+          },
+          "score_required": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Exercise points an automatic completion requires. `None` when the module is completed\nmanually or sets no point threshold."
           },
           "supports_credit_registration": {
             "type": "boolean"

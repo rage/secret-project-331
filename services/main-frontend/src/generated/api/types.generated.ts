@@ -3343,6 +3343,19 @@ export type MyStudiesCourseModule = {
    */
   name?: string | null
   order_number: number
+  /**
+   * Exercise points the student has in the module, rounded to two decimals. Not ECTS credits.
+   */
+  score_given: number
+  /**
+   * Exercise points the module offers. `None` when it has no exercises.
+   */
+  score_maximum?: number | null
+  /**
+   * Exercise points an automatic completion requires. `None` when the module is completed
+   * manually or sets no point threshold.
+   */
+  score_required?: number | null
   supports_credit_registration: boolean
   uh_course_code?: string | null
 }

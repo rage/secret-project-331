@@ -104,13 +104,13 @@ describe("StudiesCourseCard", () => {
     expect(screen.getByText("Part 2")).toBeInTheDocument()
   })
 
-  it("does not badge a module the student failed as a success", () => {
+  it("keeps the module count neutral when the student failed a module", () => {
     const tones = badgeTones(false)
 
     expect(tones.modules).toEqual(tones.neutral)
   })
 
-  it("does not badge a module the student passed as a success either", () => {
+  it("keeps the module count neutral when the student passed every module", () => {
     const tones = badgeTones(true)
 
     expect(tones.modules).toEqual(tones.neutral)

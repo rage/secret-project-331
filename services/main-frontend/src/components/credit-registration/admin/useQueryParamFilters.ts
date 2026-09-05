@@ -10,8 +10,11 @@ export interface QueryParamFilters {
   param: (name: string) => string | undefined
   /** Every value of a repeated parameter, e.g. `?state=a&state=b`. Empty when it is absent. */
   params: (name: string) => string[]
-  /** Sets or, for an empty value, clears each named parameter, and returns to page one. */
-  applyParams: (changes: Record<string, string | undefined>) => void
+  /**
+   * Replaces each named parameter and returns to page one. An array sets every value of a repeated
+   * parameter, so dropping one of them means passing the rest; undefined, "" and `[]` all clear it.
+   */
+  applyParams: (changes: Record<string, string | string[] | undefined>) => void
 }
 
 /** Keeps a view's filters in its query string, so an operator can paste the link into a channel. */
@@ -28,17 +31,19 @@ export const useQueryParamFilters = (): QueryParamFilters => {
     [searchParams],
   )
 
-  const applyParams = useCallback((changes: Record<string, string | undefined>) => {
+  const applyParams = useCallback((changes: Record<string, string | string[] | undefined>) => {
     // Read back from the address bar, not from this render's `searchParams`: a view with one effect
     // per filter fires several of these in a single commit, and each would otherwise start from the
     // same pre-first-call snapshot and overwrite its predecessors, leaving the URL describing only
     // whichever effect happened to run last.
     const next = new URLSearchParams(window.location.search)
     for (const [name, value] of Object.entries(changes)) {
-      if (value === undefined || value === "") {
-        next.delete(name)
-      } else {
-        next.set(name, value)
+      const values = (
+        value === undefined ? [] : typeof value === "string" ? [value] : value
+      ).filter((one) => one !== "")
+      next.delete(name)
+      for (const one of values) {
+        next.append(name, one)
       }
     }
     // A narrowed result set has different pages.

@@ -253,7 +253,7 @@ const RegistrationsPage: React.FC = () => {
                 filter: labelFrom(t, FILTER_LABEL_KEYS, name, name),
                 value,
               })}
-              onClick={() => applyParams({ [name]: undefined })}
+              onClick={() => applyParams({ [name]: params(name).filter((one) => one !== value) })}
             >
               {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${
                 ID_PARAMS.has(name)

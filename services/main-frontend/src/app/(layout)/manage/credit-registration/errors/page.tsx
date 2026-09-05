@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import AdminBulkTransitionDialog from "@/components/credit-registration/admin/AdminBulkTransitionDialog"
 import {
   attentionReasonLabel,
+  isAttentionReason,
   retryabilityLabel,
   retryabilityTone,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
@@ -83,7 +84,10 @@ interface SelectionFields {
 /** The reason chip, kept in the query string so the Overview's "stuck" tile can deep-link in. */
 const useAttentionReasonFilter = () => {
   const { param, applyParams } = useQueryParamFilters()
-  const activeReason = param(PARAM_REASON) as CreditRegistrationAttentionReason | undefined
+  // Validated, not cast: an unknown reason filters the table to nothing, which the page then
+  // reports as "nothing needs a human".
+  const rawReason = param(PARAM_REASON)
+  const activeReason = isAttentionReason(rawReason) ? rawReason : undefined
   const toggleReason = (reason: CreditRegistrationAttentionReason) =>
     applyParams({ [PARAM_REASON]: activeReason === reason ? undefined : reason })
   return { activeReason, toggleReason }

@@ -135,6 +135,14 @@ const ATTENTION_REASON_KEYS = {
 
 const ATTENTION_REASON_UNKNOWN_KEY = "credit-registration-admin-reason-unknown"
 
+// Derived from the copy table so a new reason can't reach the filter without a label.
+const ATTENTION_REASONS = Object.keys(ATTENTION_REASON_KEYS) as CreditRegistrationAttentionReason[]
+
+export const isAttentionReason = (
+  value: string | undefined,
+): value is CreditRegistrationAttentionReason =>
+  value !== undefined && (ATTENTION_REASONS as string[]).includes(value)
+
 /** Which detector put a row on the attention table. */
 export const attentionReasonLabel = (
   t: TFunction,

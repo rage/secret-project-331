@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import { QUIET_REFRESH, TIME_IN_TITLE, TONE } from "@/components/credit-registration/constants"
+import { QUIET_REFRESH, TIME_IN_TITLE } from "@/components/credit-registration/constants"
 import {
   registrationErrorHelp,
   registrationExplanation,
@@ -40,6 +40,7 @@ import {
   Link,
   QueryResult,
   RegistrationStatusBadge,
+  registrationStatusInfoboxTone,
   RelativeTime,
 } from "@/shared-module/components"
 
@@ -186,7 +187,7 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration; checkedAt
         <RegistrationStatusBadge state={state}>{statusLabel}</RegistrationStatusBadge>
       </div>
       {attentionHeading !== null ? (
-        <Infobox tone={TONE.WARNING} heading={attentionHeading}>
+        <Infobox tone={registrationStatusInfoboxTone[state]} heading={attentionHeading}>
           {explanation}
         </Infobox>
       ) : (

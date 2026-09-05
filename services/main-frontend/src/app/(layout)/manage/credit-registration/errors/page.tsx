@@ -76,8 +76,8 @@ const ERROR_CODE_QUERY = "?error_code="
 const PARAM_REASON = "reason"
 
 const RETRYABILITY_TONES = {
-  retryable_transient: TONE.INFO,
-  verify_only: TONE.INFO,
+  retryable_transient: TONE.NEUTRAL,
+  verify_only: TONE.NEUTRAL,
   permanent_needs_student: TONE.WARNING,
   permanent_needs_admin: TONE.DANGER,
   permanent_needs_config: TONE.DANGER,

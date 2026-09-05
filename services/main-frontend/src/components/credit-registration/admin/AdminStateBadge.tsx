@@ -9,6 +9,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { RegistrationStatusBadge } from "@/shared-module/components"
 
+import { MIDDLE_DOT } from "../constants"
 import { stateTone } from "./adminCreditRegistrationCopy"
 
 interface Props {
@@ -31,7 +32,9 @@ const AdminStateBadge: React.FC<Props> = ({ state, pendingReason, superseded, at
   return (
     <span className={superseded ? supersededCss : undefined}>
       <RegistrationStatusBadge state={stateTone(state, pendingReason)}>
-        {attemptNumber !== undefined && attemptNumber > 1 ? `${attemptNumber}· ${name}` : name}
+        {attemptNumber !== undefined && attemptNumber > 1
+          ? `${attemptNumber}${MIDDLE_DOT}${name}`
+          : name}
       </RegistrationStatusBadge>
     </span>
   )

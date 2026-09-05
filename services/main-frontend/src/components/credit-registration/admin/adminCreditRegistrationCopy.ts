@@ -29,7 +29,7 @@ const STATE_TONES = {
   checking_enrolment: "current",
   no_usable_enrolment: "action-needed",
   submitting: "current",
-  submission_uncertain: "failed",
+  submission_uncertain: "action-needed",
   awaiting_verification: "current",
   registered: "done",
   duplicate: "done",

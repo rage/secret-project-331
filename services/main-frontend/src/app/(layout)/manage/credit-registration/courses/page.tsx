@@ -74,9 +74,9 @@ const STATUS_KEYS = {
 
 const STATUS_TONES = {
   broken_config: TONE.DANGER,
-  paused: TONE.WARNING,
+  paused: TONE.NEUTRAL,
   double_registering: TONE.DANGER,
-  failing: TONE.WARNING,
+  failing: TONE.DANGER,
   unchecked: TONE.NEUTRAL,
   ok: TONE.SUCCESS,
 } as const satisfies Record<CourseModuleStatus, BadgeTone>

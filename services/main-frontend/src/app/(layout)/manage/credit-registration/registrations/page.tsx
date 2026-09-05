@@ -204,13 +204,13 @@ const RegistrationsPage: React.FC = () => {
               name="search"
               control={control}
               label={t("credit-registration-admin-search-label")}
-              description={t("credit-registration-admin-search-description")}
             />
           </div>
           <Button variant="secondary" size="medium" type="submit">
             {t("button-text-search")}
           </Button>
         </form>
+        <p className={noteCss}>{t("credit-registration-admin-search-description")}</p>
         <div className={controlsCss}>
           <div className={controlCss}>
             <Select

@@ -38,7 +38,7 @@ const triggerCss = css`
 `
 
 const chevronCss = css`
-  font-size: var(--font-size-0);
+  font-size: var(--font-size-1);
   line-height: 1;
 `
 

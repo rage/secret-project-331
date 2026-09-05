@@ -57,7 +57,7 @@ const HEALTH_KEYS = {
 
 // A phase somebody stopped on purpose must not look like one that is broken.
 const HEALTH_TONES = {
-  paused: TONE.WARNING,
+  paused: TONE.NEUTRAL,
   not_built: TONE.NEUTRAL,
   failing: TONE.DANGER,
   heartbeat_late: TONE.DANGER,

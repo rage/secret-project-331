@@ -1,11 +1,20 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import { monospaceFont } from "@/shared-module/common/styles"
+import {
+  cardCss,
+  headingCss,
+  monospaceCss,
+  narrowPageCss,
+  noteCss,
+  pageTitleCss,
+  sectionCss,
+  sectionHeaderCss,
+} from "@/components/credit-registration/styles"
 import { CopyButton, Disclosure, Link, Radio, RadioGroup } from "@/shared-module/components"
 
 const SISU_URL = "https://sisu.helsinki.fi/student/frontpage"
@@ -24,69 +33,22 @@ const STUDENT_TYPE_FIELD = "studentType"
 // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
 const myStudyInfoLink = <a href={MY_STUDYINFO} target="_blank" rel="noopener noreferrer" />
 
-const pageCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1.75rem;
-  max-width: 42rem;
-  margin: 2.5rem auto 4rem;
+const emailBlockCss = cx(
+  cardCss,
+  css`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  `,
+)
 
-  h1 {
-    margin: 0;
-    font-size: 1.625rem;
+const emailValueCss = cx(
+  monospaceCss,
+  css`
     font-weight: 600;
-    line-height: 1.2;
-    color: var(--color-gray-700);
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-gray-700);
-  }
-
-  p {
-    margin: 0;
-    line-height: 1.6;
-    color: var(--color-gray-600);
-  }
-`
-
-const subtitleCss = css`
-  margin-top: 0.375rem;
-`
-
-const instructionsCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: flex-start;
-`
-
-const emailBlockCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--color-clear-300);
-  border-radius: 8px;
-  background: var(--color-clear-50);
-  align-self: stretch;
-`
-
-const emailLabelCss = css`
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-`
-
-const emailValueCss = css`
-  font-family: ${monospaceFont};
-  font-weight: 600;
-  color: var(--color-gray-700);
-  overflow-wrap: anywhere;
-`
+  `,
+)
 
 export interface RegisterCompletionProps {
   /** The address the completion was made under; registration matches on it and nothing else. */
@@ -121,10 +83,10 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
   )
 
   return (
-    <div className={pageCss}>
-      <div>
-        <h1>{t("register-completion")}</h1>
-        <p className={subtitleCss}>
+    <div className={narrowPageCss}>
+      <div className={sectionHeaderCss}>
+        <h1 className={pageTitleCss}>{t("register-completion")}</h1>
+        <p className={noteCss}>
           {typeof ectsCredits === "number"
             ? t("course-name-and-ects", { course: courseName, ects: ectsCredits })
             : courseName}
@@ -141,19 +103,22 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
       </RadioGroup>
 
       {studentType === STUDY_RIGHT_AT_UH ? (
-        <section className={instructionsCss}>
-          <h2>{t("heading-enrol-in-sisu")}</h2>
+        <section className={sectionCss}>
+          <h2 className={headingCss}>{t("heading-enrol-in-sisu")}</h2>
           <EmailToUse email={email} />
-          <Link
-            href={SISU_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            styledAsButton
-            variant="primary"
-            size="large"
-          >
-            {t("go-to-sisu")}
-          </Link>
+          {/* A grid child otherwise stretches the button's own box to the section's full width. */}
+          <div>
+            <Link
+              href={SISU_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              styledAsButton
+              variant="primary"
+              size="medium"
+            >
+              {t("go-to-sisu")}
+            </Link>
+          </div>
           <p>{t("enroll-through-sisu-to-register-credits")}</p>
           <p>{t("sisu-add-this-address-as-a-secondary-address")}</p>
           <ChangedEmailNote />
@@ -161,12 +126,14 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
       ) : null}
 
       {studentType === OPEN_UNIVERSITY_OR_NEITHER ? (
-        <section className={instructionsCss}>
-          <h2>{t("heading-enrol-at-the-open-university")}</h2>
+        <section className={sectionCss}>
+          <h2 className={headingCss}>{t("heading-enrol-at-the-open-university")}</h2>
           <EmailToUse email={email} />
-          <Link href={registrationFormUrl} styledAsButton variant="primary" size="large">
-            {t("to-the-registration-form")}
-          </Link>
+          <div>
+            <Link href={registrationFormUrl} styledAsButton variant="primary" size="medium">
+              {t("to-the-registration-form")}
+            </Link>
+          </div>
           <p>
             <Trans
               t={t}
@@ -193,7 +160,7 @@ const EmailToUse: React.FC<{ email: string }> = ({ email }) => {
   return (
     <>
       <div className={emailBlockCss}>
-        <span className={emailLabelCss}>{t("label-the-email-address-to-use")}</span>
+        <span className={noteCss}>{t("label-the-email-address-to-use")}</span>
         <span className={emailValueCss}>{email}</span>
         <CopyButton value={email} label={t("copy-the-email-address")} />
       </div>

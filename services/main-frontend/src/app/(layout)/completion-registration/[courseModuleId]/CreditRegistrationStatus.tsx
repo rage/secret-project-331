@@ -19,6 +19,15 @@ import {
   NotificationEmailLine,
 } from "@/components/credit-registration/EmailStatusLine"
 import { useRequestEnrolmentRecheck } from "@/components/credit-registration/enrolmentActions"
+import {
+  narrowPageCss,
+  noteCss,
+  pageTitleCss,
+  rowCss,
+  sectionHeaderCss,
+  subheadingCss,
+  subsectionCss,
+} from "@/components/credit-registration/styles"
 import { getMyCreditRegistrationForCourseModuleOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import {
@@ -45,57 +54,9 @@ const MOVING_REFETCH_INTERVAL_MS = 10_000
 /** Sisu answers on its own schedule, so polling it hard buys nothing. */
 const WAITING_FOR_SISU_REFETCH_INTERVAL_MS = 60_000
 
-const pageCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  max-width: 46rem;
-  margin: 2rem 0 4rem;
-
-  h1 {
-    margin: 0;
-  }
-`
-
-const subtitleCss = css`
-  margin: 0.375rem 0 0;
-  color: var(--color-gray-600);
-`
-
-const bodyCss = css`
-  display: flex;
-  flex-direction: column;
+const explanationCss = css`
+  display: grid;
   gap: var(--space-3);
-
-  p {
-    margin: 0;
-  }
-`
-
-const actionsCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  align-items: center;
-`
-
-const quietLineCss = css`
-  margin: 0;
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-`
-
-const attemptsCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-
-  h2 {
-    margin: 0;
-    font-size: 1.0625rem;
-    font-weight: 600;
-    color: var(--color-gray-700);
-  }
 `
 
 const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
@@ -120,10 +81,13 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   })
 
   return (
-    <div className={pageCss}>
-      <div>
-        <h1>{t("heading-credit-registration")}</h1>
-        <p className={subtitleCss}>
+    <div className={narrowPageCss}>
+      <Link href={profileCreditRegistrationRoute()}>
+        {t("credit-registration-see-all-my-registrations")}
+      </Link>
+      <div className={sectionHeaderCss}>
+        <h1 className={pageTitleCss}>{t("heading-credit-registration")}</h1>
+        <p className={noteCss}>
           {typeof ectsCredits === "number"
             ? t("course-name-and-ects", { course: heading, ects: ectsCredits })
             : heading}
@@ -143,8 +107,8 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
                 checkedAt={new Date(query.dataUpdatedAt).toISOString()}
               />
               {data.earlier_attempts.length > 0 ? (
-                <div className={attemptsCss}>
-                  <h2>{t("heading-earlier-attempts")}</h2>
+                <div className={subsectionCss}>
+                  <h3 className={subheadingCss}>{t("heading-earlier-attempts")}</h3>
                   {data.earlier_attempts.map((attempt) => (
                     <EarlierAttempt key={attempt.id} attempt={attempt} />
                   ))}
@@ -198,8 +162,10 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration; checkedAt
       : []),
   ]
 
+  const hasAction = status === "needs_enrolment" || status === "needs_student_number"
+
   const explanation = (
-    <div className={bodyCss}>
+    <div className={explanationCss}>
       <p>{registrationExplanation(t, status)}</p>
       {/* Otherwise raising a grade and seeing "registered" unchanged reads as a lost submission. */}
       {registration.registry_already_held_equal_or_better ? (
@@ -216,7 +182,10 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration; checkedAt
 
   return (
     <>
-      <RegistrationStatusBadge state={state}>{statusLabel}</RegistrationStatusBadge>
+      {/* A grid child otherwise stretches the badge's own box to the page's full width. */}
+      <div>
+        <RegistrationStatusBadge state={state}>{statusLabel}</RegistrationStatusBadge>
+      </div>
       {state === "action-needed" ? (
         <Infobox tone={TONE.WARNING} heading={t("heading-what-you-need-to-do")}>
           {explanation}
@@ -228,48 +197,47 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration; checkedAt
       ) : (
         explanation
       )}
-      {status === "needs_enrolment" && !registration.enrolment_link ? (
-        <p className={quietLineCss}>{t("credit-registration-no-enrolment-link-available")}</p>
-      ) : null}
-      <div className={actionsCss}>
-        {status === "needs_enrolment" ? (
-          <>
-            {registration.enrolment_link ? (
-              <Link
-                href={registration.enrolment_link}
-                styledAsButton
-                variant="primary"
-                size="medium"
-              >
-                {t("credit-registration-action-enrol")}
-              </Link>
-            ) : null}
-            <Button
-              variant="secondary"
-              size="medium"
-              disabled={!registration.can_request_enrolment_recheck}
-              isLoading={recheckEnrolment.isPending}
-              onClick={() => recheckEnrolment.mutate(registration)}
-            >
-              {t("credit-registration-action-recheck-enrolment")}
-            </Button>
-          </>
-        ) : null}
-        {status === "needs_student_number" ? (
-          <Link href={userSettingsStudentNumberRoute()}>
-            {t("credit-registration-about-your-student-number")}
-          </Link>
-        ) : null}
-        <Link href={profileCreditRegistrationRoute()}>
-          {t("credit-registration-see-all-my-registrations")}
-        </Link>
-      </div>
-      {status === "needs_enrolment" && !registration.can_request_enrolment_recheck ? (
-        <p className={quietLineCss}>{t("credit-registration-enrolment-checked-recently")}</p>
-      ) : null}
       {details.length > 0 ? <DescriptionList items={details} /> : null}
+      {status === "needs_enrolment" && !registration.enrolment_link ? (
+        <p className={noteCss}>{t("credit-registration-no-enrolment-link-available")}</p>
+      ) : null}
+      {hasAction ? (
+        <div className={rowCss}>
+          {status === "needs_enrolment" ? (
+            <>
+              {registration.enrolment_link ? (
+                <Link
+                  href={registration.enrolment_link}
+                  styledAsButton
+                  variant="primary"
+                  size="medium"
+                >
+                  {t("credit-registration-action-enrol")}
+                </Link>
+              ) : null}
+              <Button
+                variant="secondary"
+                size="medium"
+                disabled={!registration.can_request_enrolment_recheck}
+                isLoading={recheckEnrolment.isPending}
+                onClick={() => recheckEnrolment.mutate(registration)}
+              >
+                {t("credit-registration-action-recheck-enrolment")}
+              </Button>
+            </>
+          ) : null}
+          {status === "needs_student_number" ? (
+            <Link href={userSettingsStudentNumberRoute()}>
+              {t("credit-registration-about-your-student-number")}
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
+      {status === "needs_enrolment" && !registration.can_request_enrolment_recheck ? (
+        <p className={noteCss}>{t("credit-registration-enrolment-checked-recently")}</p>
+      ) : null}
       {registration.status_is_moving ? (
-        <p className={quietLineCss}>
+        <p className={noteCss}>
           {t("credit-registration-last-checked")}{" "}
           <RelativeTime at={checkedAt} absoluteTime={TIME_IN_TITLE} />
         </p>
@@ -282,7 +250,7 @@ const EarlierAttempt: React.FC<{ attempt: MyCreditRegistration }> = ({ attempt }
   const { t } = useTranslation()
   const status = attempt.student_facing_status
   return (
-    <div className={actionsCss}>
+    <div className={rowCss}>
       <RegistrationStatusBadge state={registrationStatusState(status)}>
         {registrationStatusLabel(t, status)}
       </RegistrationStatusBadge>

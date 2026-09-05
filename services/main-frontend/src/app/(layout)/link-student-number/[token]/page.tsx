@@ -1,12 +1,18 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { TONE } from "@/components/credit-registration/constants"
+import {
+  cardCss,
+  narrowPageCss,
+  pageTitleCss,
+  rowCss,
+} from "@/components/credit-registration/styles"
 import {
   getMyCreditRegistrationsQueryKey,
   getMyVerifiedStudentNumberQueryKey,
@@ -33,44 +39,19 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { InfoboxTone } from "@/shared-module/components"
 import { Button, DescriptionList, Infobox, Link, QueryResult } from "@/shared-module/components"
 
-const pageCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  max-width: 640px;
-  margin: 3rem auto 5rem;
-
-  h1 {
-    margin: 0;
-  }
-
-  p {
-    margin: 0;
-    line-height: 1.55;
-  }
-`
-
-const actionsCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  align-items: center;
-`
-
-const claimSummaryCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem 0.75rem;
-  padding: 1rem;
-  border: 1px solid var(--color-clear-300);
-  border-radius: 8px;
-  background: var(--color-clear-50);
-`
+const claimSummaryCss = cx(
+  cardCss,
+  css`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+  `,
+)
 
 const studentNumberCss = css`
   font-size: var(--font-size-4);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-gray-700);
   font-variant-numeric: tabular-nums;
 `
@@ -78,7 +59,7 @@ const studentNumberCss = css`
 const outcomeCss = css`
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--space-4);
 
   &:focus {
     outline: none;
@@ -92,8 +73,8 @@ const LinkStudentNumberPage: React.FC = () => {
   const loginState = useContext(LoginStateContext)
 
   return (
-    <div className={pageCss}>
-      <h1>{t("heading-link-student-number")}</h1>
+    <div className={narrowPageCss}>
+      <h1 className={pageTitleCss}>{t("heading-link-student-number")}</h1>
       {loginState.signedIn === true ? (
         <SignedIn token={token} />
       ) : loginState.signedIn === false ? (
@@ -110,7 +91,7 @@ const SignInOrSignUp: React.FC<{ token: string }> = ({ token }) => {
   return (
     <>
       <p>{t("link-student-number-sign-in-required")}</p>
-      <div className={actionsCss}>
+      <div className={rowCss}>
         <Link href={loginRoute(returnTo)} styledAsButton variant="primary" size="medium">
           {t("login")}
         </Link>
@@ -155,7 +136,7 @@ const DeadEnd: React.FC<{ tone?: InfoboxTone; message: string }> = ({ tone, mess
   return (
     <>
       <Infobox {...includeIf(tone, { tone })}>{message}</Infobox>
-      <div className={actionsCss}>
+      <div className={rowCss}>
         <Link
           href={userSettingsStudentNumberRoute()}
           styledAsButton
@@ -228,7 +209,7 @@ const Confirmation: React.FC<{
           })}
         </Infobox>
       ) : null}
-      <div className={actionsCss}>
+      <div className={rowCss}>
         <Button
           variant="primary"
           size="medium"
@@ -241,7 +222,7 @@ const Confirmation: React.FC<{
         <Link href={profileCreditRegistrationRoute()}>{t("button-text-cancel")}</Link>
       </div>
       {/* Opening the mail while logged in to the wrong account is the common mistake. */}
-      <div className={actionsCss}>
+      <div className={rowCss}>
         <Button variant="tertiary" size="small" onClick={() => void logout()}>
           {t("link-student-number-wrong-account")}
         </Button>
@@ -311,7 +292,7 @@ const ClaimOutcome: React.FC<{ result: ClaimStudentNumberVerificationTokenResult
             })}
           </p>
         ) : null}
-        <div className={actionsCss}>
+        <div className={rowCss}>
           <Link
             href={profileCreditRegistrationRoute()}
             styledAsButton

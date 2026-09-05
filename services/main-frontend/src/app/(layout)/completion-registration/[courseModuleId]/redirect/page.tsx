@@ -1,12 +1,12 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useEffect } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import { TONE } from "@/components/credit-registration/constants"
+import { narrowPageCss, pageTitleCss } from "@/components/credit-registration/styles"
 import { getCourseModuleCompletionRegistrationLinkOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -14,27 +14,6 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Infobox, QueryResult } from "@/shared-module/components"
 
 const NOT_FOUND = 404
-
-const pageCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 42rem;
-  margin: 2.5rem auto 4rem;
-
-  h1 {
-    margin: 0;
-    font-size: 1.375rem;
-    font-weight: 600;
-    color: var(--color-gray-700);
-  }
-
-  p {
-    margin: 0;
-    line-height: 1.6;
-    color: var(--color-gray-600);
-  }
-`
 
 const CompletionRedirectPage: React.FC = () => {
   const { courseModuleId } = useParams<{ courseModuleId: string }>()
@@ -56,8 +35,8 @@ const CompletionRedirectPage: React.FC = () => {
   }, [userCompletionInformation.data])
 
   return (
-    <div className={pageCss}>
-      <h1>{t("title-completion-registration-redirect")}</h1>
+    <div className={narrowPageCss}>
+      <h1 className={pageTitleCss}>{t("title-completion-registration-redirect")}</h1>
       <QueryResult
         query={userCompletionInformation}
         renderBlockingError={({ error }) => (

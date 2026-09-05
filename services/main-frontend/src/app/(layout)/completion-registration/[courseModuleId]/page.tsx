@@ -52,7 +52,7 @@ const CompletionPage: React.FC = () => {
         }
         if (!data.enable_registering_completion_to_uh_open_university) {
           return (
-            <Infobox tone={TONE.WARNING} heading={t("register-completion")}>
+            <Infobox tone={TONE.INFO} heading={t("register-completion")}>
               {t("this-course-does-not-register-credits-for-you")}
             </Infobox>
           )

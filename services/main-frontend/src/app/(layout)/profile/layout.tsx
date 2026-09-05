@@ -5,38 +5,23 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import Tab from "@/components/Tabs/Tab"
 import TabPanel from "@/components/Tabs/TabPanel"
 import Tabs from "@/components/Tabs/Tabs"
 import { getMyStudiesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import { CREDIT_REGISTRATION_TAB, STUDIES_TAB } from "./constants"
 
 const pageCss = css`
+  display: grid;
+  gap: var(--space-4);
   max-width: 1100px;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
-  ${respondToOrLarger.md} {
-    padding: 2.5rem 1.5rem;
-  }
-`
-
-const titleCss = css`
-  font-family: ${headingFont};
-  font-weight: ${fontWeights.bold};
-  font-size: 1.5rem;
-  color: ${baseTheme.colors.gray[700]};
-  margin: 0 0 1.75rem;
-  letter-spacing: -0.01em;
-  ${respondToOrLarger.md} {
-    font-size: 1.75rem;
-    margin-bottom: 2rem;
-  }
+  padding: var(--space-5) var(--space-4);
 `
 
 /**
@@ -61,7 +46,7 @@ const ProfileLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   return (
     <div className={cx(pageCss, myStudies.isPending && tabsNotDecidedYetCss)}>
-      <h1 className={titleCss}>{t("profile")}</h1>
+      <h1 className={pageTitleCss}>{t("profile")}</h1>
 
       <Tabs>
         <Tab tabName={STUDIES_TAB}>{t("profile-studies-tab")}</Tab>

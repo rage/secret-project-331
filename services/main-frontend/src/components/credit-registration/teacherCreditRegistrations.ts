@@ -136,11 +136,6 @@ export const studentNumberVerificationLabel = (
   return key ? t(key) : null
 }
 
-/** A support-established link rests on judgement, not on proof of mailbox control. */
-export const isAdminEstablishedLink = (
-  method: StudentNumberVerificationMethod | null | undefined,
-): boolean => method === "admin_manual"
-
 const LINKING_EMAIL_KEYS = {
   queued: "credit-registration-teacher-linking-email-queued",
   retrying: "credit-registration-teacher-linking-email-retrying",

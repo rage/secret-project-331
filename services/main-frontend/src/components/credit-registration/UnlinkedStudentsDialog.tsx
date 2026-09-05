@@ -7,10 +7,10 @@ import { useTranslation } from "react-i18next"
 import { getCourseCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
-import { Badge, Dialog, QueryResult, Table } from "@/shared-module/components"
+import { Dialog, QueryResult, Table } from "@/shared-module/components"
 
-import { TONE } from "./constants"
-import { noteCss, stackedCellCss } from "./styles"
+import { ABSENT } from "./constants"
+import { monospaceCss, noteCss, stackedCellCss } from "./styles"
 import { linkingEmailSentence } from "./teacherCreditRegistrations"
 
 interface Props {
@@ -32,8 +32,6 @@ const PENDING_ROWS_FETCHED = 1000
 const PENDING = "pending" as const
 // oxlint-disable-next-line i18next/no-literal-string
 const NEEDS_STUDENT_NUMBER = "needs_student_number" as const
-
-const ABSENT = "—"
 
 const studentName = (row: CourseCreditRegistration): string =>
   [row.last_name, row.first_name].filter(Boolean).join(" ")
@@ -97,7 +95,7 @@ const UnlinkedStudentsDialog: React.FC<Props> = ({ courseId, open, onClose }) =>
                       header: t("label-student-number"),
                       cell: (row) =>
                         row.student_number ? (
-                          <Badge tone={TONE.NEUTRAL}>{row.student_number}</Badge>
+                          <span className={monospaceCss}>{row.student_number}</span>
                         ) : (
                           ABSENT
                         ),

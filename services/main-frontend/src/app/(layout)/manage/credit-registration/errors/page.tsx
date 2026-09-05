@@ -247,9 +247,6 @@ const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }
   })
   const selected = watch("selected")
   const selectAll = watch("selectAll")
-  const selectedIds = Object.entries(selected ?? {})
-    .filter(([, checked]) => checked)
-    .map(([id]) => id)
   const thresholds = thresholdsQuery.data
 
   const items =
@@ -257,6 +254,9 @@ const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }
       ? attention.items
       : attention.items.filter((item) => item.reasons.includes(activeReason))
   const visibleIds = items.map((item) => item.credit_registration_id)
+  // Read off the rows on screen, so a tick the reason chip has since hidden cannot reach the bulk
+  // dialog, and the header box's indeterminate state counts the set the table actually shows.
+  const selectedIds = visibleIds.filter((id) => selected?.[id])
 
   // Only when the header box itself is toggled: reacting to `visibleIds` would clear the selection
   // on every poll.
@@ -267,6 +267,12 @@ const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }
     )
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [selectAll])
+
+  // A chip changes which rows exist to act on; ticks it hides would otherwise reappear in the
+  // toolbar's count later, once the chip is cleared again.
+  useEffect(() => {
+    reset({ selectAll: false, selected: {} })
+  }, [activeReason, reset])
 
   return (
     <section className={sectionCss}>

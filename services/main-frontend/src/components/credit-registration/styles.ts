@@ -21,12 +21,6 @@ export const noteCss = css`
   margin: 0;
 `
 
-export const tilesCss = css`
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-`
-
 /** A two-line table cell: primary value over a `noteCss` secondary line. */
 export const stackedCellCss = css`
   display: grid;

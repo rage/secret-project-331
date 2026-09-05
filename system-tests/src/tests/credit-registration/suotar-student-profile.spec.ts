@@ -1,7 +1,10 @@
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
+  completionRegistrationUrl,
   CREDIT_REGISTRATIONS_API,
+  myCreditRegistrations,
   PROFILE_CREDIT_REGISTRATION_URL,
+  PROFILE_STUDIES_URL,
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
 import { ADMIN_REGISTRATIONS_URL } from "@/utils/creditRegistrationAdmin"
@@ -20,21 +23,28 @@ const EMPTY_EMAIL = "credit-registration-profile-empty@example.com"
 test.describe("A student whose grade was registered twice", () => {
   test.use({ storageState: seededStudentStorageState(SUPERSEDED_EMAIL) })
 
-  test("The cards render for a student with data, including a replaced attempt as history", async ({
+  test("The studies tab answers where the credits went, and the replaced attempt survives as history", async ({
     page,
   }) => {
-    await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
+    await page.goto(PROFILE_STUDIES_URL)
 
     await expect(page.getByRole("tab", { name: "Credit registration" })).toBeVisible()
-    for (const heading of ["Student number", "My credit registrations"]) {
-      await expect(page.getByRole("heading", { level: 3, name: heading })).toBeVisible()
-    }
+    // The card is always open, so the module's registration status needs no click.
+    await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
 
-    const registrations = page.getByRole("table", { name: "My credit registrations" })
-    await expect(registrations.getByText("Registered in Sisu").first()).toBeVisible()
-    // The replaced attempt stays visible as history: a student who saw grade 3 registered should not
-    // find that it never happened.
-    await expect(registrations.getByText("Earlier attempt 1")).toBeVisible()
+    const [live] = (await myCreditRegistrations(page.request)).filter((row) => !row.superseded)
+    expect(live, "the seeded pair has one live attempt").toBeDefined()
+    await page.goto(completionRegistrationUrl(live!.course_module_id))
+    // A student who saw grade 3 registered should not find that it never happened.
+    await expect(page.getByRole("heading", { name: "Earlier attempts" })).toBeVisible()
+    await expect(page.getByText("Attempt 1")).toBeVisible()
+
+    await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
+    for (const heading of ["Student number", "Registrations that need attention"]) {
+      await expect(page.getByRole("heading", { level: 2, name: heading })).toBeVisible()
+    }
+    // Nothing is wrong with a registered attempt, so the tab does not re-list it.
+    await expect(page.getByText("Nothing needs your attention")).toBeVisible()
 
     await accessibilityCheck(page, "Profile credit registration tab")
   })
@@ -46,12 +56,9 @@ test.describe("A student on a Suotar course and nothing else", () => {
   test("A student with nothing linked sees explanatory copy, not empty cards", async ({ page }) => {
     await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
 
-    await expect(page.getByRole("heading", { level: 3, name: "Student number" })).toBeVisible()
-    await expect(
-      page
-        .getByText("No credit registrations yet", { exact: false })
-        .or(page.getByRole("heading", { level: 3, name: "My credit registrations" })),
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { level: 2, name: "Student number" })).toBeVisible()
+    await expect(page.getByText("No student number is linked to this account yet.")).toBeVisible()
+    await expect(page.getByText("Nothing needs your attention")).toBeVisible()
   })
 
   test("A student cannot read another student's credit registrations", async ({ page }) => {

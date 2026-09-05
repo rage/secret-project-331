@@ -52,7 +52,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
 
-  await page.getByRole("button", { name: "No" }).click()
+  await page.getByRole("radio", { name: /Open University student/ }).check()
   await page
     .getByText(
       "Credits for this course are registered through the Open University of the University of Helsinki.",
@@ -106,14 +106,14 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
-  await page.getByRole("button", { name: "No" }).click()
+  await page.getByRole("radio", { name: /Open University student/ }).check()
   await page
     .getByText(
       "Credits for this course are registered through the Open University of the University of Helsinki.",
     )
     .waitFor()
 
-  await page.getByText("Use this email address").first().waitFor()
+  await page.getByText("Email address to use").first().waitFor()
   await page.getByText("To the registration form").click()
   // Wait for the redirection
   await page.waitForURL("https://www.example.com/override", { waitUntil: "commit" })

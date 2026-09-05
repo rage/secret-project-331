@@ -1,8 +1,7 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { Graduation } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,6 +17,38 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import { CREDIT_REGISTRATION_TAB, STUDIES_TAB } from "./constants"
 
+const pageCss = css`
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  ${respondToOrLarger.md} {
+    padding: 2.5rem 1.5rem;
+  }
+`
+
+const titleCss = css`
+  font-family: ${headingFont};
+  font-weight: ${fontWeights.bold};
+  font-size: 1.5rem;
+  color: ${baseTheme.colors.gray[700]};
+  margin: 0 0 1.75rem;
+  letter-spacing: -0.01em;
+  ${respondToOrLarger.md} {
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+  }
+`
+
+/**
+ * Reserves the strip's height until `myStudies` says whether the second tab belongs here, so the
+ * bar does not visibly grow a tab. Rendering the panel outside `Tabs` instead would remount it.
+ */
+const tabsNotDecidedYetCss = css`
+  [role="tablist"] {
+    visibility: hidden;
+  }
+`
+
 const ProfileLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation()
   // Low baseline order so the nested tab pages, which register a higher order, win.
@@ -29,62 +60,8 @@ const ProfileLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const showCreditRegistrationTab = myStudies.data?.any_module_supports_credit_registration === true
 
   return (
-    <div
-      className={css`
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 1.5rem 1rem;
-        ${respondToOrLarger.md} {
-          padding: 2.5rem 1.5rem;
-        }
-      `}
-    >
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          gap: 0.875rem;
-          margin-bottom: 1.75rem;
-          ${respondToOrLarger.md} {
-            margin-bottom: 2rem;
-          }
-        `}
-      >
-        <div
-          className={css`
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            background: ${baseTheme.colors.green[100]};
-            border-radius: 10px;
-            flex-shrink: 0;
-          `}
-        >
-          <Graduation
-            size={24}
-            className={css`
-              color: ${baseTheme.colors.green[700]};
-            `}
-          />
-        </div>
-        <h1
-          className={css`
-            font-family: ${headingFont};
-            font-weight: ${fontWeights.bold};
-            font-size: 1.5rem;
-            color: ${baseTheme.colors.gray[700]};
-            margin: 0;
-            letter-spacing: -0.01em;
-            ${respondToOrLarger.md} {
-              font-size: 1.75rem;
-            }
-          `}
-        >
-          {t("profile")}
-        </h1>
-      </div>
+    <div className={cx(pageCss, myStudies.isPending && tabsNotDecidedYetCss)}>
+      <h1 className={titleCss}>{t("profile")}</h1>
 
       <Tabs>
         <Tab tabName={STUDIES_TAB}>{t("profile-studies-tab")}</Tab>

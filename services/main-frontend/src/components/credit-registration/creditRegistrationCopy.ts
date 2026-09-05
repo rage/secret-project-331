@@ -4,41 +4,20 @@ import type {
   CreditRegistrationErrorCode,
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
-import type { RegistrationStatusState, RegistrationStatusStep } from "@/shared-module/components"
+import type { RegistrationStatusState } from "@/shared-module/components"
 
 import { labelFrom, widenedLookup } from "./labelFrom"
 
-const STAGE_KEYS = [
-  "credit-registration-stage-student-number",
-  "credit-registration-stage-enrolment",
-  "credit-registration-stage-registered",
-] as const
-
-type StageStates = readonly [
-  RegistrationStatusState,
-  RegistrationStatusState,
-  RegistrationStatusState,
-]
-
-/** One row per status, each in `STAGE_KEYS` order. */
-const STAGE_STATES = {
-  waiting_for_completion: ["upcoming", "upcoming", "upcoming"],
-  needs_student_number: ["action-needed", "upcoming", "upcoming"],
-  in_progress: ["done", "current", "upcoming"],
-  needs_enrolment: ["done", "action-needed", "upcoming"],
-  waiting_for_sisu: ["done", "done", "current"],
-  registered: ["done", "done", "done"],
-  failed: ["done", "done", "failed"],
-  not_registering: ["upcoming", "upcoming", "upcoming"],
-} as const satisfies Record<StudentFacingCreditRegistrationStatus, StageStates>
-
-const STATE_LABEL_KEYS = {
-  done: "credit-registration-step-state-done",
-  current: "credit-registration-step-state-current",
-  "action-needed": "credit-registration-step-state-action-needed",
-  failed: "credit-registration-step-state-failed",
-  upcoming: "credit-registration-step-state-upcoming",
-} as const satisfies Record<RegistrationStatusState, string>
+const STATUS_STATES = {
+  waiting_for_completion: "upcoming",
+  needs_student_number: "action-needed",
+  in_progress: "current",
+  needs_enrolment: "action-needed",
+  waiting_for_sisu: "current",
+  registered: "done",
+  failed: "failed",
+  not_registering: "upcoming",
+} as const satisfies Record<StudentFacingCreditRegistrationStatus, RegistrationStatusState>
 
 const STATUS_LABEL_KEYS = {
   waiting_for_completion: "credit-registration-status-waiting-for-completion",
@@ -97,37 +76,12 @@ export const registrationStatusLabel = (
   status: StudentFacingCreditRegistrationStatus,
 ): string => labelFrom(t, STATUS_LABEL_KEYS, status, STATUS_LABEL_UNKNOWN_KEY)
 
-const UNKNOWN_STAGE_STATES: StageStates = STAGE_STATES.waiting_for_completion
+/** A status this client does not know reads as not started, never as done. */
+const UNKNOWN_STATUS_STATE: RegistrationStatusState = "upcoming"
 
 export const registrationStatusState = (
   status: StudentFacingCreditRegistrationStatus,
-): RegistrationStatusState => {
-  const stages = widenedLookup(STAGE_STATES, status) ?? UNKNOWN_STAGE_STATES
-  if (status === "registered") {
-    return "done"
-  }
-  if (stages.includes("failed")) {
-    return "failed"
-  }
-  if (stages.includes("action-needed")) {
-    return "action-needed"
-  }
-  if (stages.includes("current")) {
-    return "current"
-  }
-  return "upcoming"
-}
-
-export const registrationStepperSteps = (
-  t: TFunction,
-  status: StudentFacingCreditRegistrationStatus,
-): RegistrationStatusStep[] => {
-  const stages = widenedLookup(STAGE_STATES, status) ?? UNKNOWN_STAGE_STATES
-  return STAGE_KEYS.map((key, index) => {
-    const state = stages[index] ?? "upcoming"
-    return { label: t(key), state, stateLabel: t(STATE_LABEL_KEYS[state]) }
-  })
-}
+): RegistrationStatusState => widenedLookup(STATUS_STATES, status) ?? UNKNOWN_STATUS_STATE
 
 export const registrationExplanation = (
   t: TFunction,

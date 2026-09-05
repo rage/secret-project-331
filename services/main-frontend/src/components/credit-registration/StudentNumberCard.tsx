@@ -2,26 +2,35 @@
 
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { IdCard } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
   getMyCreditRegistrationsOptions,
   getMyCreditRegistrationsQueryKey,
+  getMyEmailVerificationStatusOptions,
   getMyVerifiedStudentNumberOptions,
   getMyVerifiedStudentNumberQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { dismissMyAutoLinkNotice, unlinkMyStudentNumber } from "@/generated/api/sdk.generated"
 import type {
+  LinkingEmailStatus,
   MyVerifiedStudentNumber,
   StudentNumberVerificationMethod,
 } from "@/generated/api/types.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { userSettingsRoute } from "@/shared-module/common/utils/routes"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Badge, Button, DescriptionList, Infobox, QueryResult } from "@/shared-module/components"
+import {
+  Badge,
+  Button,
+  DescriptionList,
+  Infobox,
+  Link,
+  QueryResult,
+} from "@/shared-module/components"
 
 import { TONE } from "./constants"
 import { LinkingEmailLine } from "./EmailStatusLine"
@@ -33,6 +42,20 @@ const PROVENANCE_KEYS = {
   email_match_fast_track: "student-number-verified-via-email-match",
   admin_manual: "student-number-verified-via-admin-manual",
 } as const satisfies Record<StudentNumberVerificationMethod, string>
+
+const numberRowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+`
+
+const studentNumberCss = css`
+  font-size: var(--font-size-4);
+  font-weight: 700;
+  color: var(--color-gray-700);
+  font-variant-numeric: tabular-nums;
+`
 
 const noticeActionsCss = css`
   display: flex;
@@ -53,7 +76,7 @@ const StudentNumberCard: React.FC = () => {
     )?.linking_email ?? null
 
   return (
-    <SectionCard icon={<IdCard size={16} />} title={t("heading-student-number")}>
+    <SectionCard title={t("heading-student-number")}>
       <QueryResult
         query={linkQuery}
         treatNullAsEmpty
@@ -98,7 +121,6 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
 
   const sisuName = [link.first_names, link.last_name].filter(Boolean).join(" ")
   const items = [
-    { label: t("label-student-number"), value: link.student_number },
     ...(sisuName ? [{ label: t("label-name-in-university-records"), value: sisuName }] : []),
     {
       label: t("label-confirmed-at"),
@@ -114,12 +136,15 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
 
   return (
     <>
-      <Badge tone={TONE.SUCCESS}>{t("badge-student-number-linked")}</Badge>
+      <div className={numberRowCss}>
+        <span className={studentNumberCss}>{link.student_number}</span>
+        <Badge tone={TONE.SUCCESS}>{t("badge-student-number-linked")}</Badge>
+      </div>
+      <p>{t("student-number-credits-registered-under-this-number")}</p>
+      <DescriptionList items={items} />
       {link.linked_automatically && !link.auto_link_notice_dismissed && (
         <AutoLinkNotice link={link} onUnlink={askAndUnlink} unlinkPending={unlink.isPending} />
       )}
-      <DescriptionList items={items} />
-      <p>{t("student-number-credits-registered-under-this-number")}</p>
       <Button variant="secondary" size="medium" isLoading={unlink.isPending} onClick={askAndUnlink}>
         {t("button-remove-student-number")}
       </Button>
@@ -128,8 +153,9 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
 }
 
 /**
- * The only way a student finds out we linked a number without asking them. Its unlink button is the
- * whole point, so dismissing must not be the easier of the two to hit.
+ * The only way a student finds out we linked a number without asking them. It sits below the
+ * provenance it asks them to judge, and its unlink button is the whole point, so dismissing must
+ * not be the easier of the two to hit.
  */
 const AutoLinkNotice: React.FC<{
   link: MyVerifiedStudentNumber
@@ -178,17 +204,32 @@ const AutoLinkNotice: React.FC<{
   )
 }
 
-const NotLinked: React.FC<{
-  linkingEmail: React.ComponentProps<typeof LinkingEmailLine>["linkingEmail"]
-}> = ({ linkingEmail }) => {
+/**
+ * There is no student-facing resend, so the one action this state can offer is confirming the
+ * account's own address: an address the University also holds links the number with no mail at all.
+ */
+const NotLinked: React.FC<{ linkingEmail: LinkingEmailStatus | null }> = ({ linkingEmail }) => {
   const { t } = useTranslation()
+  const emailStatus = useQuery({ ...getMyEmailVerificationStatusOptions() }).data
+  const canConfirmEmail =
+    emailStatus?.verification_enabled === true &&
+    emailStatus.template_configured &&
+    !emailStatus.email_verified_at
+
   return (
     <>
       <p>{t("student-number-not-linked")}</p>
-      <Infobox>{t("student-number-how-linking-works")}</Infobox>
+      <p>{t("student-number-how-the-link-arrives")}</p>
       <LinkingEmailLine linkingEmail={linkingEmail} />
-      {linkingEmail && <p>{t("student-number-linking-mail-resend-hint")}</p>}
-      <p>{t("student-number-cannot-read-that-address")}</p>
+      {canConfirmEmail ? (
+        <>
+          <p>{t("student-number-confirming-your-address-can-link-it")}</p>
+          <Link href={userSettingsRoute()} styledAsButton variant="primary" size="medium">
+            {t("button-confirm-your-email-address")}
+          </Link>
+        </>
+      ) : null}
+      <p>{t("student-number-cannot-reach-that-mailbox")}</p>
     </>
   )
 }

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { TONE } from "@/components/credit-registration/constants"
@@ -17,24 +17,26 @@ import type {
   ClaimStudentNumberVerificationTokenResult,
   StudentNumberVerificationTokenPreview,
 } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useLogout from "@/shared-module/common/hooks/useLogout"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   linkStudentNumberRoute,
   loginRoute,
   profileCreditRegistrationRoute,
   signUpRoute,
+  userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import type { InfoboxTone } from "@/shared-module/components"
 import { Button, DescriptionList, Infobox, Link, QueryResult } from "@/shared-module/components"
 
 const pageCss = css`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   max-width: 640px;
   margin: 3rem auto 5rem;
 
@@ -55,14 +57,32 @@ const actionsCss = css`
   align-items: center;
 `
 
-const quietActionCss = css`
-  background: none;
-  border: 0;
-  padding: 0;
-  color: var(--color-blue-600);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
+const claimSummaryCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-clear-300);
+  border-radius: 8px;
+  background: var(--color-clear-50);
+`
+
+const studentNumberCss = css`
+  font-size: var(--font-size-4);
+  font-weight: 700;
+  color: var(--color-gray-700);
+  font-variant-numeric: tabular-nums;
+`
+
+const outcomeCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &:focus {
+    outline: none;
+  }
 `
 
 const LinkStudentNumberPage: React.FC = () => {
@@ -118,11 +138,34 @@ const SignedIn: React.FC<{ token: string }> = ({ token }) => {
     <QueryResult
       query={preview}
       renderBlockingError={() => (
-        <Infobox tone={TONE.WARNING}>{t("link-student-number-not-found")}</Infobox>
+        <DeadEnd tone={TONE.WARNING} message={t("link-student-number-not-found")} />
       )}
     >
       {(data) => <Confirmation token={token} preview={data} onClaimed={setResult} />}
     </QueryResult>
+  )
+}
+
+/**
+ * A link that cannot be used again. Always paired with somewhere to go, since the student number
+ * page is where the state and the remaining options are.
+ */
+const DeadEnd: React.FC<{ tone?: InfoboxTone; message: string }> = ({ tone, message }) => {
+  const { t } = useTranslation()
+  return (
+    <>
+      <Infobox {...includeIf(tone, { tone })}>{message}</Infobox>
+      <div className={actionsCss}>
+        <Link
+          href={userSettingsStudentNumberRoute()}
+          styledAsButton
+          variant="secondary"
+          size="medium"
+        >
+          {t("credit-registration-about-your-student-number")}
+        </Link>
+      </div>
+    </>
   )
 }
 
@@ -154,10 +197,8 @@ const Confirmation: React.FC<{
   }
 
   const sisuName = [preview.first_names, preview.last_name].filter(Boolean).join(" ")
-  const items = [
-    { label: t("label-student-number"), value: preview.student_number },
+  const secondaryItems = [
     ...(sisuName ? [{ label: t("label-name-in-university-records"), value: sisuName }] : []),
-    { label: t("label-this-account"), value: preview.target_account_email },
     ...(preview.course_name ? [{ label: t("label-course"), value: preview.course_name }] : []),
     {
       label: t("label-link-expires-at"),
@@ -167,9 +208,19 @@ const Confirmation: React.FC<{
 
   return (
     <>
-      {claim.isError && <ErrorBanner variant={"readOnly"} error={claim.error} />}
+      {claim.isError && (
+        <Infobox tone={TONE.WARNING} announce>
+          {t("link-student-number-could-not-link")}
+        </Infobox>
+      )}
       <p>{t("link-student-number-confirm-question")}</p>
-      <DescriptionList items={items} />
+      <div className={claimSummaryCss}>
+        <span className={studentNumberCss}>{preview.student_number}</span>
+        <span>
+          {t("link-student-number-to-this-account", { account: preview.target_account_email })}
+        </span>
+      </div>
+      <DescriptionList items={secondaryItems} />
       {preview.current_student_number ? (
         <Infobox tone={TONE.WARNING}>
           {t("link-student-number-replaces-current", {
@@ -189,12 +240,12 @@ const Confirmation: React.FC<{
         </Button>
         <Link href={profileCreditRegistrationRoute()}>{t("button-text-cancel")}</Link>
       </div>
-      <p>
-        {/* Opening the mail while logged in to the wrong account is the common mistake. */}
-        <button type="button" className={quietActionCss} onClick={() => void logout()}>
+      {/* Opening the mail while logged in to the wrong account is the common mistake. */}
+      <div className={actionsCss}>
+        <Button variant="tertiary" size="small" onClick={() => void logout()}>
           {t("link-student-number-wrong-account")}
-        </button>
-      </p>
+        </Button>
+      </div>
     </>
   )
 }
@@ -204,63 +255,80 @@ const UnusableLink: React.FC<{ preview: StudentNumberVerificationTokenPreview }>
 }) => {
   const { t } = useTranslation()
   if (preview.conflicts_with_other_account) {
-    return <Infobox tone={TONE.WARNING}>{t("link-student-number-conflict")}</Infobox>
+    return <DeadEnd tone={TONE.WARNING} message={t("link-student-number-conflict")} />
   }
   if (preview.already_used) {
     return (
-      <Infobox>
-        {preview.already_used_by_this_account
-          ? t("link-student-number-already-used-by-this-account")
-          : t("link-student-number-already-used")}
-      </Infobox>
+      <DeadEnd
+        message={
+          preview.already_used_by_this_account
+            ? t("link-student-number-already-used-by-this-account")
+            : t("link-student-number-already-used")
+        }
+      />
     )
   }
   if (preview.expired) {
-    return <Infobox>{t("link-student-number-expired")}</Infobox>
+    return <DeadEnd message={t("link-student-number-expired")} />
   }
-  return <Infobox>{t("link-student-number-unusable")}</Infobox>
+  return <DeadEnd message={t("link-student-number-unusable")} />
 }
 
 const ClaimOutcome: React.FC<{ result: ClaimStudentNumberVerificationTokenResult }> = ({
   result,
 }) => {
   const { t } = useTranslation()
-  if (result.outcome === "expired") {
-    return <Infobox>{t("link-student-number-expired")}</Infobox>
+  // The subtree swapped under the button that was pressed, so focus has to follow it or it falls
+  // back to the document and the outcome goes unread.
+  const outcomeRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    outcomeRef.current?.focus()
+  }, [])
+
+  const body = () => {
+    if (result.outcome === "expired") {
+      return <DeadEnd message={t("link-student-number-expired")} />
+    }
+    if (result.outcome === "already_used") {
+      return <DeadEnd message={t("link-student-number-already-used")} />
+    }
+    if (result.outcome === "student_number_already_linked_to_another_account") {
+      return <DeadEnd tone={TONE.WARNING} message={t("link-student-number-conflict")} />
+    }
+    return (
+      <>
+        <Infobox heading={t("link-student-number-success-heading")}>
+          {result.outcome === "already_linked_to_this_account"
+            ? t("link-student-number-already-linked-to-this-account", {
+                studentNumber: result.student_number,
+              })
+            : t("link-student-number-success", { studentNumber: result.student_number })}
+        </Infobox>
+        {result.newly_unblocked_registration_count > 0 ? (
+          <p>
+            {t("link-student-number-success-unblocked", {
+              count: result.newly_unblocked_registration_count,
+            })}
+          </p>
+        ) : null}
+        <div className={actionsCss}>
+          <Link
+            href={profileCreditRegistrationRoute()}
+            styledAsButton
+            variant="primary"
+            size="medium"
+          >
+            {t("credit-registration-see-all-my-registrations")}
+          </Link>
+        </div>
+      </>
+    )
   }
-  if (result.outcome === "already_used") {
-    return <Infobox>{t("link-student-number-already-used")}</Infobox>
-  }
-  if (result.outcome === "student_number_already_linked_to_another_account") {
-    return <Infobox tone={TONE.WARNING}>{t("link-student-number-conflict")}</Infobox>
-  }
+
   return (
-    <>
-      <Infobox heading={t("link-student-number-success-heading")}>
-        {result.outcome === "already_linked_to_this_account"
-          ? t("link-student-number-already-linked-to-this-account", {
-              studentNumber: result.student_number,
-            })
-          : t("link-student-number-success", { studentNumber: result.student_number })}
-      </Infobox>
-      {result.newly_unblocked_registration_count > 0 ? (
-        <p>
-          {t("link-student-number-success-unblocked", {
-            count: result.newly_unblocked_registration_count,
-          })}
-        </p>
-      ) : null}
-      <div className={actionsCss}>
-        <Link
-          href={profileCreditRegistrationRoute()}
-          styledAsButton
-          variant="primary"
-          size="medium"
-        >
-          {t("credit-registration-see-all-my-registrations")}
-        </Link>
-      </div>
-    </>
+    <div className={outcomeCss} ref={outcomeRef} tabIndex={-1}>
+      {body()}
+    </div>
   )
 }
 

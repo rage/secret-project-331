@@ -88,6 +88,8 @@ export const courseFrontPageUrl = (courseSlug: string): string =>
 export const completionRegistrationUrl = (courseModuleId: string): string =>
   `${ORIGIN}/completion-registration/${courseModuleId}`
 
+export const PROFILE_STUDIES_URL = `${ORIGIN}/profile/studies`
+
 export const PROFILE_CREDIT_REGISTRATION_URL = `${ORIGIN}/profile/credit-registration`
 
 export const linkStudentNumberUrl = (token: string): string =>

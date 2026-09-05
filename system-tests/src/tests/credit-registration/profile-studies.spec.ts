@@ -1,16 +1,16 @@
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { PROFILE_STUDIES_URL } from "@/utils/creditRegistration"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 const COURSE_URL = "http://project-331.local/org/uh-cs/courses/automatic-completions"
 const COURSE_PAGE_URL = `${COURSE_URL}/chapter-1/page-1`
-const PROFILE_STUDIES_URL = "http://project-331.local/profile/studies"
 const COURSE_NAME = "Automatic Completions"
 
 test.use({
   storageState: "src/states/student4@example.com.json",
 })
 
-test("profile studies tab shows the student's progress and completions, without a credit-registration tab", async ({
+test("profile studies tab shows the student's points and result, without a credit-registration tab", async ({
   page,
 }) => {
   test.slow()
@@ -31,26 +31,15 @@ test("profile studies tab shows the student's progress and completions, without 
   await expect(page.getByRole("tab", { name: "Credit registration" })).toHaveCount(0)
 
   await expect(page.getByText("ECTS earned")).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Your courses" })).toBeVisible()
 
   const courseCard = page
     .getByTestId("profile-course-card")
     .filter({ hasText: COURSE_NAME })
     .first()
-  await expect(courseCard).toBeVisible()
-  await courseCard.getByRole("button").first().click()
+  await expect(courseCard.getByRole("heading", { level: 3, name: COURSE_NAME })).toBeVisible()
 
-  await expect(courseCard.getByRole("heading", { name: "Your progress" })).toBeVisible()
-  await expect(courseCard.getByText("Total points").first()).toBeVisible()
-  await expect(courseCard.getByText("Exercises attempted").first()).toBeVisible()
-
-  // The default module's completion row is labelled with the course name.
-  await expect(courseCard.getByRole("heading", { name: "Completions", exact: true })).toBeVisible()
-  const completionsTable = courseCard.getByRole("table")
-  await expect(completionsTable.getByRole("columnheader", { name: "Grade" })).toBeVisible()
-  await expect(
-    completionsTable.getByRole("row").filter({ hasText: COURSE_NAME }).getByText("Passed"),
-  ).toBeVisible()
-
+  // Nothing to open: the points and the result are on the card as it renders.
+  await expect(courseCard.getByRole("meter", { name: "Points" })).toBeVisible()
+  await expect(courseCard.getByText("Passed")).toBeVisible()
   await expect(courseCard.getByRole("link", { name: "Go to course" })).toBeVisible()
 })

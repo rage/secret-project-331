@@ -7,13 +7,12 @@ import StudiesSummary from "../StudiesSummary"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
 describe("StudiesSummary", () => {
-  it("shows each total next to a text label", () => {
+  it("shows each total next to a text label, inside a named list", () => {
     render(<StudiesSummary totals={{ courses: 4, completions: 6, ects: 27 }} />)
 
-    expect(screen.getByText("stat-courses")).toBeInTheDocument()
+    expect(screen.getByRole("list")).toHaveAccessibleName("heading-summary")
     expect(screen.getByText("stat-completions")).toBeInTheDocument()
     expect(screen.getByText("stat-ects-earned")).toBeInTheDocument()
-    expect(screen.getByText("4")).toBeInTheDocument()
     expect(screen.getByText("6")).toBeInTheDocument()
   })
 

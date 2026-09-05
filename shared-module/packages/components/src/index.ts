@@ -54,11 +54,6 @@ export { Meter } from "./components/Meter"
 export type { MeterProps, MeterTone } from "./components/Meter"
 export { RegistrationStatusBadge } from "./components/registrationStatus/RegistrationStatusBadge"
 export type { RegistrationStatusBadgeProps } from "./components/registrationStatus/RegistrationStatusBadge"
-export { RegistrationStatusStepper } from "./components/registrationStatus/RegistrationStatusStepper"
-export type {
-  RegistrationStatusStep,
-  RegistrationStatusStepperProps,
-} from "./components/registrationStatus/RegistrationStatusStepper"
 export type { RegistrationStatusState } from "./components/registrationStatus/registrationStatusState"
 export { RELATIVE_TIME_ABSENT_LABEL, RelativeTime } from "./components/RelativeTime"
 export type { RelativeTimeProps } from "./components/RelativeTime"

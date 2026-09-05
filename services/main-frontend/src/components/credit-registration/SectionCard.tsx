@@ -6,37 +6,18 @@ import React from "react"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
 export interface SectionCardProps {
-  icon: React.ReactNode
+  /** Rendered as an `h2`, so callers must sit directly under the page's `h1`. */
   title: string
   children: React.ReactNode
 }
 
-const headerCss = css`
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  margin-bottom: 1.25rem;
+const headingCss = css`
+  margin: 0 0 1.25rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--color-gray-100);
-
-  h3 {
-    margin: 0;
-    font-size: 1.0625rem;
-    font-weight: 600;
-    color: var(--color-gray-700);
-  }
-`
-
-const iconChipCss = css`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border-radius: 6px;
-  background: var(--color-green-75);
-  color: var(--color-green-700);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
 `
 
 const bodyCss = css`
@@ -52,16 +33,11 @@ const bodyCss = css`
   }
 `
 
-const SectionCard: React.FC<SectionCardProps> = ({ icon, title, children }) => (
-  <div className={settingsCardCss}>
-    <div className={headerCss}>
-      <div className={iconChipCss} aria-hidden="true">
-        {icon}
-      </div>
-      <h3>{title}</h3>
-    </div>
+const SectionCard: React.FC<SectionCardProps> = ({ title, children }) => (
+  <section className={settingsCardCss}>
+    <h2 className={headingCss}>{title}</h2>
     <div className={bodyCss}>{children}</div>
-  </div>
+  </section>
 )
 
 export default SectionCard

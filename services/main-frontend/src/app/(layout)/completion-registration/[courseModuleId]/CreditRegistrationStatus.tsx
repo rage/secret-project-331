@@ -1,18 +1,18 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { announce } from "@react-aria/live-announcer"
 import { useQuery } from "@tanstack/react-query"
-import React from "react"
+import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import { TONE } from "@/components/credit-registration/constants"
+import { QUIET_REFRESH, TIME_IN_TITLE, TONE } from "@/components/credit-registration/constants"
 import {
   registrationErrorHelp,
   registrationExplanation,
   registrationGradeLabel,
   registrationStatusLabel,
   registrationStatusState,
-  registrationStepperSteps,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   LinkingEmailLine,
@@ -22,10 +22,9 @@ import { useRequestEnrolmentRecheck } from "@/components/credit-registration/enr
 import { getMyCreditRegistrationForCourseModuleOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import {
-  userSettingsStudentNumberRoute,
   profileCreditRegistrationRoute,
+  userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
-import { humanReadableDate } from "@/shared-module/common/utils/time"
 import {
   Button,
   DescriptionList,
@@ -33,7 +32,7 @@ import {
   Link,
   QueryResult,
   RegistrationStatusBadge,
-  RegistrationStatusStepper,
+  RelativeTime,
 } from "@/shared-module/components"
 
 export interface CreditRegistrationStatusProps {
@@ -49,29 +48,21 @@ const WAITING_FOR_SISU_REFETCH_INTERVAL_MS = 60_000
 const pageCss = css`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  max-width: 46rem;
   margin: 2rem 0 4rem;
-`
-
-const headerCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  align-items: flex-start;
 
   h1 {
     margin: 0;
   }
-
-  h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-gray-700);
-  }
 `
 
-const infoboxBodyCss = css`
+const subtitleCss = css`
+  margin: 0.375rem 0 0;
+  color: var(--color-gray-600);
+`
+
+const bodyCss = css`
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -88,12 +79,18 @@ const actionsCss = css`
   align-items: center;
 `
 
+const quietLineCss = css`
+  margin: 0;
+  color: var(--color-gray-500);
+  font-size: var(--font-size-1);
+`
+
 const attemptsCss = css`
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 
-  h3 {
+  h2 {
     margin: 0;
     font-size: 1.0625rem;
     font-weight: 600;
@@ -124,19 +121,30 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
 
   return (
     <div className={pageCss}>
-      <div className={headerCss}>
+      <div>
         <h1>{t("heading-credit-registration")}</h1>
-        <h2>{heading}</h2>
-        {typeof ectsCredits === "number" ? <p>{t("credits-n-ects", { n: ectsCredits })}</p> : null}
+        <p className={subtitleCss}>
+          {typeof ectsCredits === "number"
+            ? t("course-name-and-ects", { course: heading, ects: ectsCredits })
+            : heading}
+        </p>
       </div>
-      <QueryResult query={query} treatNullAsEmpty emptyFallback={<NotInThePipelineYet />}>
+      <QueryResult
+        query={query}
+        treatNullAsEmpty
+        refreshIndicator={QUIET_REFRESH}
+        emptyFallback={<NotInThePipelineYet />}
+      >
         {(data) =>
           data ? (
             <>
-              <LiveRegistration registration={data.registration} />
+              <LiveRegistration
+                registration={data.registration}
+                checkedAt={new Date(query.dataUpdatedAt).toISOString()}
+              />
               {data.earlier_attempts.length > 0 ? (
                 <div className={attemptsCss}>
-                  <h3>{t("heading-earlier-attempts")}</h3>
+                  <h2>{t("heading-earlier-attempts")}</h2>
                   {data.earlier_attempts.map((attempt) => (
                     <EarlierAttempt key={attempt.id} attempt={attempt} />
                   ))}
@@ -155,68 +163,75 @@ const NotInThePipelineYet: React.FC = () => {
   return <Infobox>{t("credit-registration-not-in-the-pipeline-yet")}</Infobox>
 }
 
-const LiveRegistration: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
-  const { t, i18n } = useTranslation()
+const LiveRegistration: React.FC<{ registration: MyCreditRegistration; checkedAt: string }> = ({
+  registration,
+  checkedAt,
+}) => {
+  const { t } = useTranslation()
   const status = registration.student_facing_status
   const state = registrationStatusState(status)
   const errorHelp = registrationErrorHelp(t, registration.error_code)
+  const statusLabel = registrationStatusLabel(t, status)
 
   const recheckEnrolment = useRequestEnrolmentRecheck()
+
+  // The page polls, so a status that moves while it is open has to be announced, not only redrawn.
+  const announcedStatus = useRef(status)
+  useEffect(() => {
+    if (announcedStatus.current !== status) {
+      announcedStatus.current = status
+      announce(t("credit-registration-status-is-now", { status: statusLabel }))
+    }
+  }, [status, statusLabel, t])
 
   const details = [
     ...(registration.registered_at
       ? [
           {
             label: t("label-registered-at"),
-            value: humanReadableDate(registration.registered_at, i18n.language) ?? "",
+            value: <RelativeTime at={registration.registered_at} />,
           },
         ]
       : []),
     ...(registration.enrolment_realisation_name
-      ? [
-          {
-            label: t("label-enrolment"),
-            value: registration.enrolment_realisation_name,
-          },
-        ]
+      ? [{ label: t("label-enrolment"), value: registration.enrolment_realisation_name }]
       : []),
   ]
 
+  const explanation = (
+    <div className={bodyCss}>
+      <p>{registrationExplanation(t, status)}</p>
+      {/* Otherwise raising a grade and seeing "registered" unchanged reads as a lost submission. */}
+      {registration.registry_already_held_equal_or_better ? (
+        <p>{t("credit-registration-explanation-not-improved")}</p>
+      ) : null}
+      {errorHelp ? <p>{errorHelp}</p> : null}
+      {status === "failed" ? <p>{t("credit-registration-failed-not-yours-to-fix")}</p> : null}
+      {status === "needs_student_number" ? (
+        <LinkingEmailLine linkingEmail={registration.linking_email} />
+      ) : null}
+      <NotificationEmailLine notificationEmail={registration.notification_email} />
+    </div>
+  )
+
   return (
     <>
-      <RegistrationStatusBadge state={state}>
-        {registrationStatusLabel(t, status)}
-      </RegistrationStatusBadge>
-      <RegistrationStatusStepper
-        steps={registrationStepperSteps(t, status)}
-        aria-label={t("credit-registration-progress")}
-      />
-      <Infobox tone={state === "action-needed" || state === "failed" ? TONE.WARNING : TONE.INFO}>
-        <div className={infoboxBodyCss}>
-          <p>{registrationExplanation(t, status)}</p>
-          {/* Otherwise raising a grade and seeing "registered" unchanged reads as a lost submission. */}
-          {registration.registry_already_held_equal_or_better ? (
-            <p>{t("credit-registration-explanation-not-improved")}</p>
-          ) : null}
-          {errorHelp ? <p>{errorHelp}</p> : null}
-          {status === "needs_student_number" ? (
-            <LinkingEmailLine linkingEmail={registration.linking_email} />
-          ) : null}
-          <NotificationEmailLine notificationEmail={registration.notification_email} />
-        </div>
-      </Infobox>
-      {details.length > 0 ? <DescriptionList items={details} /> : null}
+      <RegistrationStatusBadge state={state}>{statusLabel}</RegistrationStatusBadge>
+      {state === "action-needed" ? (
+        <Infobox tone={TONE.WARNING} heading={t("heading-what-you-need-to-do")}>
+          {explanation}
+        </Infobox>
+      ) : state === "failed" ? (
+        <Infobox tone={TONE.WARNING} heading={t("heading-what-went-wrong")}>
+          {explanation}
+        </Infobox>
+      ) : (
+        explanation
+      )}
+      {status === "needs_enrolment" && !registration.enrolment_link ? (
+        <p className={quietLineCss}>{t("credit-registration-no-enrolment-link-available")}</p>
+      ) : null}
       <div className={actionsCss}>
-        {status === "needs_student_number" ? (
-          <Link
-            href={userSettingsStudentNumberRoute()}
-            styledAsButton
-            variant="primary"
-            size="medium"
-          >
-            {t("credit-registration-action-link-student-number")}
-          </Link>
-        ) : null}
         {status === "needs_enrolment" ? (
           <>
             {registration.enrolment_link ? (
@@ -240,10 +255,25 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration }> = ({ re
             </Button>
           </>
         ) : null}
+        {status === "needs_student_number" ? (
+          <Link href={userSettingsStudentNumberRoute()}>
+            {t("credit-registration-about-your-student-number")}
+          </Link>
+        ) : null}
         <Link href={profileCreditRegistrationRoute()}>
           {t("credit-registration-see-all-my-registrations")}
         </Link>
       </div>
+      {status === "needs_enrolment" && !registration.can_request_enrolment_recheck ? (
+        <p className={quietLineCss}>{t("credit-registration-enrolment-checked-recently")}</p>
+      ) : null}
+      {details.length > 0 ? <DescriptionList items={details} /> : null}
+      {registration.status_is_moving ? (
+        <p className={quietLineCss}>
+          {t("credit-registration-last-checked")}{" "}
+          <RelativeTime at={checkedAt} absoluteTime={TIME_IN_TITLE} />
+        </p>
+      ) : null}
     </>
   )
 }

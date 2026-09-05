@@ -5,12 +5,12 @@ import { useParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { TONE } from "@/components/credit-registration/constants"
 import { getCourseModuleUserCompletionOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Infobox, QueryResult } from "@/shared-module/components"
 
 import CreditRegistrationStatus from "./CreditRegistrationStatus"
 import RegisterCompletion from "./RegisterCompletion"
@@ -52,15 +52,19 @@ const CompletionPage: React.FC = () => {
         }
         if (!data.enable_registering_completion_to_uh_open_university) {
           return (
-            <ErrorBanner
-              error={t(
-                "error-registering-to-the-uh-open-university-not-enabled-for-this-course-module",
-              )}
-              variant={"readOnly"}
-            />
+            <Infobox tone={TONE.WARNING} heading={t("register-completion")}>
+              {t("this-course-does-not-register-credits-for-you")}
+            </Infobox>
           )
         }
-        return <RegisterCompletion data={data} registrationFormUrl={`${pathname}/${REDIRECT}`} />
+        return (
+          <RegisterCompletion
+            email={data.email}
+            courseName={data.course_name}
+            ectsCredits={data.ects_credits}
+            registrationFormUrl={`${pathname}/${REDIRECT}`}
+          />
+        )
       }}
     </QueryResult>
   )

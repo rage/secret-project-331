@@ -68,8 +68,7 @@ import {
   StatTileList,
   Table,
 } from "@/shared-module/components"
-
-const SECONDS_PER_HOUR = 3600
+import { formatDuration } from "@/utils/moduleTimeline"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const ERROR_CODE_QUERY = "?error_code="
@@ -92,8 +91,6 @@ const useAttentionReasonFilter = () => {
     applyParams({ [PARAM_REASON]: activeReason === reason ? undefined : reason })
   return { activeReason, toggleReason }
 }
-
-const hours = (seconds: number): number => Math.round(seconds / SECONDS_PER_HOUR)
 
 const signed = (delta: number): string => (delta > 0 ? `+${delta}` : String(delta))
 
@@ -413,10 +410,10 @@ const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }
       {thresholds && (
         <p className={noteCss}>
           {t("credit-registration-admin-stuck-thresholds", {
-            readyToSubmit: hours(thresholds.stuck_ready_to_submit_secs),
-            submitting: hours(thresholds.stuck_submitting_secs),
-            awaitingVerification: hours(thresholds.stuck_awaiting_verification_secs),
-            failedRetryable: hours(thresholds.stuck_failed_retryable_secs),
+            readyToSubmit: formatDuration(thresholds.stuck_ready_to_submit_secs, t),
+            submitting: formatDuration(thresholds.stuck_submitting_secs, t),
+            awaitingVerification: formatDuration(thresholds.stuck_awaiting_verification_secs, t),
+            failedRetryable: formatDuration(thresholds.stuck_failed_retryable_secs, t),
           })}
         </p>
       )}

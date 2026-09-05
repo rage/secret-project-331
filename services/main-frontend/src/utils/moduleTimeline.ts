@@ -11,7 +11,7 @@ export function durationSeconds(from: Date, to: Date): number {
   return Math.max(0, Math.round((to.getTime() - from.getTime()) / 1000))
 }
 
-/** Localized, day-aware duration: `Xd` / `Xd Yh` / `Xh Ym` / `Ym`. */
+/** Localized, day-aware duration: `Xd` / `Xd Yh` / `Xh` / `Xh Ym` / `Ym`. */
 export function formatDuration(seconds: number, t: TFunction): string {
   const totalMinutes = Math.round(seconds / 60)
   const days = Math.floor(totalMinutes / (60 * 24))
@@ -21,7 +21,9 @@ export function formatDuration(seconds: number, t: TFunction): string {
     return hours > 0 ? t("duration-days-hours", { days, hours }) : t("duration-days", { days })
   }
   if (hours > 0) {
-    return t("duration-hours-minutes", { hours, minutes })
+    return minutes > 0
+      ? t("duration-hours-minutes", { hours, minutes })
+      : t("duration-hours", { hours })
   }
   return t("duration-minutes", { minutes })
 }

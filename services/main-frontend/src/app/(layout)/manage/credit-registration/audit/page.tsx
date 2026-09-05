@@ -47,6 +47,7 @@ import type {
   CreditRegistrationAdminActionRow,
   CreditRegistrationAdminActionTarget,
 } from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
@@ -155,7 +156,7 @@ const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row })
   return (
     <span className={stackedCellCss}>
       <span>
-        {[row.actor_first_name, row.actor_last_name].filter(Boolean).join(" ")}
+        {formatUserName({ first_name: row.actor_first_name, last_name: row.actor_last_name })}
         {MIDDLE_DOT}
         {actorRoleLabel(t, row.actor_role)}
       </span>

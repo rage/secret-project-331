@@ -61,11 +61,11 @@ const GradeCell: React.FC<{ summary: ModuleCompletionSummary }> = ({ summary }) 
   return (
     <div className={inlineCellCss}>
       <span
-        {...(summary.latest.prerequisite_modules_completed
-          ? {}
-          : {
-              title: t("module-is-completed-but-requires-completion-of-prerequisite-modules"),
-            })}
+        title={
+          summary.latest.prerequisite_modules_completed
+            ? undefined
+            : t("module-is-completed-but-requires-completion-of-prerequisite-modules")
+        }
       >
         {gradeText(summary, t)}
         {!summary.latest.prerequisite_modules_completed && PREREQUISITE_MARK}

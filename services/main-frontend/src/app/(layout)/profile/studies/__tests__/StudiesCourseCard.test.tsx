@@ -41,7 +41,7 @@ const course = (modules: MyStudiesCourseModule[]): MyStudiesCourse => ({
   modules,
 })
 
-const passedCompletion = (passed: boolean) => ({
+const completion = (passed: boolean) => ({
   course_module_completion_id: "completion-1",
   completion_date: "2026-01-12T09:00:00Z",
   grade: passed ? 4 : 0,
@@ -50,7 +50,7 @@ const passedCompletion = (passed: boolean) => ({
 })
 
 const twoModules = (passed: boolean): MyStudiesCourseModule[] => [
-  courseModule({ completion: passedCompletion(passed) }),
+  courseModule({ completion: completion(passed) }),
   courseModule({ course_module_id: "module-2", name: "Part 2", order_number: 1 }),
 ]
 

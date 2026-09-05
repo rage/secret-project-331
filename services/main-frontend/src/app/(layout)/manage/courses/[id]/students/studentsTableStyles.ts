@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 
-import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 // --- shared sizing ---
@@ -106,7 +105,7 @@ export const resizeHandleCss = css`
 
   &:hover::after,
   &:focus-visible::after {
-    background: ${baseTheme.colors.green[700]};
+    background: var(--color-green-700);
     right: -1px;
     width: 3px;
   }
@@ -122,7 +121,7 @@ export const headerRowStyle = css`
 `
 
 export const thStyle = css`
-  color: ${baseTheme.colors.gray[700]};
+  color: var(--color-gray-700);
   font-weight: 500;
   font-size: 12px;
   line-height: 140%;
@@ -160,7 +159,7 @@ export const sortableThCss = css`
   user-select: none;
 
   &:focus-visible {
-    outline: 2px solid ${baseTheme.colors.green[700]};
+    outline: 2px solid var(--color-green-700);
     outline-offset: -2px;
   }
 `
@@ -174,7 +173,7 @@ export const rowStyle = css`
 `
 
 export const tdStyle = css`
-  color: ${baseTheme.colors.gray[700]};
+  color: var(--color-gray-700);
   opacity: 0.8;
   font-weight: 400;
   font-size: 12px;
@@ -216,7 +215,7 @@ export const noLeftBorder = css`
 export const tableEmptyCell = css`
   text-align: center;
   padding: 32px 16px;
-  color: ${baseTheme.colors.gray[500]};
+  color: var(--color-gray-500);
   font-size: 14px;
 `
 

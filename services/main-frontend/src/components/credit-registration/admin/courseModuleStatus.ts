@@ -31,11 +31,7 @@ export const backfillGap = (module: CreditRegistrationCourseStats): number =>
 
 /** One verdict per module, worst first: an operator scanning the column reads one thing per row. */
 export const courseModuleStatus = (module: CreditRegistrationCourseStats): CourseModuleStatus => {
-  if (
-    module.check.course_code_resolves === false ||
-    module.check.product_token_found === false ||
-    module.check.message !== null
-  ) {
+  if (module.check.message !== null) {
     return "broken_config"
   }
   if (module.old_flow_also_enabled) {

@@ -12,10 +12,10 @@ const JSON_INDENT = 2
 /** One stored JSON body: pretty-printed and copyable, or the note that none was kept. */
 const PayloadBlock: React.FC<{ body: unknown }> = ({ body }) => {
   const { t } = useTranslation()
-  const text = body === null || body === undefined ? "" : JSON.stringify(body, null, JSON_INDENT)
-  if (text === "") {
+  if (body === null || body === undefined) {
     return <p className={emptyStateCss}>{t("credit-registration-admin-no-body-stored")}</p>
   }
+  const text = JSON.stringify(body, null, JSON_INDENT)
   return (
     <>
       <pre className={payloadCss}>{text}</pre>

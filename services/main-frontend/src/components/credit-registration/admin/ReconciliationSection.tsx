@@ -24,7 +24,15 @@ import {
 } from "@/shared-module/components"
 
 import { ABSENT, MIDDLE_DOT, TIME_IN_TITLE, TONE } from "../constants"
-import { headingCss, monospaceCss, noteCss, rowCss, sectionCss, stackedCellCss } from "../styles"
+import {
+  emptyStateCss,
+  headingCss,
+  monospaceCss,
+  noteCss,
+  rowCss,
+  sectionCss,
+  stackedCellCss,
+} from "../styles"
 import { useInvalidateReconciliation } from "./adminCreditRegistrationHooks"
 import AdminStateBadge from "./AdminStateBadge"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
@@ -35,9 +43,17 @@ interface Props {
 
 const StudentCell: React.FC<{
   row: { first_name?: string | null; last_name?: string | null; email?: string | null }
-}> = ({ row }) => (
+  /** Links the name to the registration; detectors without one row per registration omit it. */
+  href?: string
+}> = ({ row, href }) => (
   <span className={stackedCellCss}>
-    <span>{formatUserName(row)}</span>
+    {href ? (
+      <Link href={href} prefetch={false}>
+        {formatUserName(row)}
+      </Link>
+    ) : (
+      <span>{formatUserName(row)}</span>
+    )}
     <span className={noteCss}>{row.email}</span>
   </span>
 )
@@ -47,12 +63,7 @@ const registrationColumns = (t: TFunction): TableColumn<ReconciliationRegistrati
   {
     header: t("label-student"),
     cell: (row) => (
-      <span className={stackedCellCss}>
-        <Link href={creditRegistrationItemRoute(row.credit_registration_id)} prefetch={false}>
-          {formatUserName(row)}
-        </Link>
-        <span className={noteCss}>{row.email}</span>
-      </span>
+      <StudentCell row={row} href={creditRegistrationItemRoute(row.credit_registration_id)} />
     ),
   },
   {
@@ -88,7 +99,7 @@ const Detector: React.FC<{
 }> = ({ heading, count, explanation, emptyText, children }) => (
   <Disclosure title={`${heading}${MIDDLE_DOT}${count}`}>
     <p className={noteCss}>{explanation}</p>
-    {count === 0 ? <p className={noteCss}>{emptyText}</p> : children}
+    {count === 0 ? <p className={emptyStateCss}>{emptyText}</p> : children}
   </Disclosure>
 )
 
@@ -221,15 +232,10 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
             {
               header: t("label-student"),
               cell: (row) => (
-                <span className={stackedCellCss}>
-                  <Link
-                    href={creditRegistrationItemRoute(row.credit_registration_id)}
-                    prefetch={false}
-                  >
-                    {formatUserName(row)}
-                  </Link>
-                  <span className={noteCss}>{row.email}</span>
-                </span>
+                <StudentCell
+                  row={row}
+                  href={creditRegistrationItemRoute(row.credit_registration_id)}
+                />
               ),
             },
             { header: t("label-course"), cell: (row) => row.course_name },

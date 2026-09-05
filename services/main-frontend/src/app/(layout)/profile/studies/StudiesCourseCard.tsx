@@ -56,7 +56,6 @@ const resultCss = css`
   font-weight: 600;
 `
 
-/** A module row's own vertical stack; the divider and outer spacing come from `dividedListCss`. */
 const completionResultLabel = (
   t: TFunction,
   completion: MyStudiesCompletion | null | undefined,

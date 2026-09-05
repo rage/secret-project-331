@@ -24,16 +24,6 @@ const pageCss = cx(
   `,
 )
 
-/**
- * Reserves the strip's height until `myStudies` says whether the second tab belongs here, so the
- * bar does not visibly grow a tab. Rendering the panel outside `Tabs` instead would remount it.
- */
-const tabsNotDecidedYetCss = css`
-  [role="tablist"] {
-    visibility: hidden;
-  }
-`
-
 const ProfileLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation()
   // Low baseline order so the nested tab pages, which register a higher order, win.
@@ -45,10 +35,12 @@ const ProfileLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const showCreditRegistrationTab = myStudies.data?.any_module_supports_credit_registration === true
 
   return (
-    <div className={cx(pageCss, myStudies.isPending && tabsNotDecidedYetCss)}>
+    <div className={pageCss}>
       <h1 className={pageTitleCss}>{t("profile")}</h1>
 
-      <Tabs>
+      {/* Hidden, not omitted: the bar must not visibly grow a tab, and rendering the panel
+          outside `Tabs` to decide first would remount it. */}
+      <Tabs isTabListHidden={myStudies.isPending}>
         <Tab tabName={STUDIES_TAB}>{t("profile-studies-tab")}</Tab>
         {showCreditRegistrationTab ? (
           <Tab tabName={CREDIT_REGISTRATION_TAB}>{t("profile-credit-registration-tab")}</Tab>

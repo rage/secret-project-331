@@ -79,8 +79,11 @@ export const toCompletionsRows = (users: UserWithModuleCompletions[]): Completio
 
 export const moduleSummaryOf = (row: CompletionsRow, moduleId: string): ModuleCompletionSummary => {
   const completions = row.moduleCompletions.get(moduleId)
-  const latest = completions?.at(-1)
-  return latest ? { latest, attempts: completions?.length ?? 1 } : EMPTY_SUMMARY
+  if (!completions) {
+    return EMPTY_SUMMARY
+  }
+  const latest = completions.at(-1)
+  return latest ? { latest, attempts: completions.length } : EMPTY_SUMMARY
 }
 
 /** Where a pass and a fail with no numeric grade sit on the scale numeric grades sort on. */

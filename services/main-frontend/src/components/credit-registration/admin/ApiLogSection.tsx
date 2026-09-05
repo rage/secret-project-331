@@ -158,7 +158,7 @@ const ApiLogSection: React.FC = () => {
       return {
         page: pagination.page,
         limit: pagination.limit,
-        ...includeIf(validEndpoint, { endpoint: validEndpoint as SuotarEndpoint }),
+        ...includeIf(validEndpoint, { endpoint: validEndpoint }),
         ...includeIf(succeeded, { succeeded: succeeded === SUCCEEDED }),
         ...includeIf(worker, { worker_name: worker }),
         ...includeIf(registrationId, { credit_registration_id: registrationId }),

@@ -437,9 +437,8 @@ test("The errors tab shows the window's verdicts and what needs a human", async 
   await expect(page.getByRole("heading", { name: "Needs a human" })).toBeVisible()
   await expect(page.getByRole("button", { name: "Requeue everything retryable" })).toBeVisible()
 
-  await test.step("The selection bar stays out of the way until something is ticked", async () => {
-    await expect(page.getByRole("button", { name: /Move \d+ selected/ })).toHaveCount(0)
-  })
+  // The selection bar stays out of the way until something is ticked.
+  await expect(page.getByRole("button", { name: /Move \d+ selected/ })).toHaveCount(0)
 })
 
 test("The courses tab reports each enabled module's configuration", async ({ page }) => {

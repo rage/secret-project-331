@@ -376,9 +376,11 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 control={control}
                 label={t("label-module-registration-path")}
                 isReadOnly={!canConfigureStudyRegistry && savedPath === STUDY_REGISTRY}
-                {...(canConfigureStudyRegistry
-                  ? {}
-                  : { description: t("description-registration-path-support-only") })}
+                description={
+                  canConfigureStudyRegistry
+                    ? undefined
+                    : t("description-registration-path-support-only")
+                }
               >
                 <Radio value={NO_REGISTRATION} label={t("registration-path-none")} />
                 <Radio
@@ -536,7 +538,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
           {module.name !== null && (
             <Button
               aria-label={t("button-text-delete")}
-              className={cx(iconButtonCss, deleteButtonCss)}
+              className={deleteButtonCss}
               onClick={() => onDeleteModule(module.id)}
               disabled={isSubmitting}
               type="button"

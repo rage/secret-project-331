@@ -102,6 +102,14 @@ const FILTER_LABEL_KEYS: Record<string, string> = {
 /** A uuid filter reads as noise in full; the prefix is enough to tell two of them apart. */
 const ID_PARAMS = new Set([PARAM_COURSE_ID, PARAM_COURSE_MODULE_ID, PARAM_USER_ID])
 
+/** What a filter chip shows for its value: shortened for ids, named for states, raw otherwise. */
+const chipValue = (name: string, value: string): string => {
+  if (ID_PARAMS.has(name)) {
+    return value.slice(0, ID_PREFIX_LENGTH)
+  }
+  return name === PARAM_STATE ? stateName(value as CreditRegistrationState) : value
+}
+
 interface FilterFields {
   search: string
   sort: string
@@ -255,13 +263,7 @@ const RegistrationsPage: React.FC = () => {
               })}
               onClick={() => applyParams({ [name]: params(name).filter((one) => one !== value) })}
             >
-              {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${
-                ID_PARAMS.has(name)
-                  ? value.slice(0, ID_PREFIX_LENGTH)
-                  : name === PARAM_STATE
-                    ? stateName(value as CreditRegistrationState)
-                    : value
-              }`}
+              {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${chipValue(name, value)}`}
             </Button>
           ))}
           <Button

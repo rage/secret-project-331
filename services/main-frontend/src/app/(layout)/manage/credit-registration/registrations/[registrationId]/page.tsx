@@ -95,14 +95,16 @@ const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
       <DescriptionList
         layout={STACKED}
         items={identifiers
-          .filter((identifier) => Boolean(identifier.value))
+          .filter((identifier): identifier is { label: string; value: string } =>
+            Boolean(identifier.value),
+          )
           .map((identifier) => ({
             label: identifier.label,
             value: (
               <span className={rowCss}>
                 <span className={monospaceCss}>{identifier.value}</span>
                 <CopyButton
-                  value={identifier.value ?? ""}
+                  value={identifier.value}
                   label={t("credit-registration-admin-copy-identifier", {
                     label: identifier.label,
                   })}

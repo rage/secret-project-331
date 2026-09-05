@@ -29,9 +29,15 @@ export const useTabsContext = () => {
 interface TabsProps {
   children: React.ReactNode
   orientation?: "horizontal" | "vertical"
+  /** Keeps the strip's height while hiding the tabs, for callers still deciding which tabs belong. */
+  isTabListHidden?: boolean
 }
 
-const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => {
+const Tabs: React.FC<TabsProps> = ({
+  children,
+  orientation = "horizontal",
+  isTabListHidden = false,
+}) => {
   const pathname = usePathname()
   const router = useRouter()
   const { t } = useTranslation()
@@ -127,6 +133,7 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
           flex-direction: ${orientation === "horizontal" ? "row" : "column"};
           margin-bottom: 1.5rem;
           border: 1px solid ${baseTheme.colors.gray[100]};
+          visibility: ${isTabListHidden ? "hidden" : "visible"};
         `}
       >
         {tabChildren}

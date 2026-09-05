@@ -5,6 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseCreditRegistrationActionsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import { Badge, QueryResult, RelativeTime, Table } from "@/shared-module/components"
 
 import { ABSENT, ALIGN_END, QUIET_REFRESH, TIME_IN_TITLE, TONE } from "./constants"
@@ -50,9 +51,10 @@ const CourseCreditRegistrationActionsPanel: React.FC<Props> = ({ courseId }) => 
                   cell: (action) => (
                     <span className={rowCss}>
                       <span>
-                        {[action.actor_first_name, action.actor_last_name]
-                          .filter(Boolean)
-                          .join(" ") || t("reset-by-unknown-user")}
+                        {formatUserName({
+                          first_name: action.actor_first_name,
+                          last_name: action.actor_last_name,
+                        }) || t("reset-by-unknown-user")}
                       </span>
                       {action.actor_role !== TEACHER_ACTOR_ROLE && (
                         <Badge tone={TONE.NEUTRAL}>

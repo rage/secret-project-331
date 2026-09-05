@@ -72,14 +72,16 @@ type CourseComparator = (
 
 const byCourseName: CourseComparator = (a, b) => a.course_name.localeCompare(b.course_name)
 
-const SORT_COMPARATORS: Record<string, CourseComparator> = {
+type CourseSortKey = typeof SORT_NAME | typeof SORT_FAILURES | typeof SORT_BACKFILL
+
+const SORT_COMPARATORS = {
   [SORT_NAME]: byCourseName,
   [SORT_FAILURES]: (a, b) => (failureRatePercent(b) ?? -1) - (failureRatePercent(a) ?? -1),
   [SORT_BACKFILL]: (a, b) => backfillGap(b) - backfillGap(a),
-}
+} satisfies Record<CourseSortKey, CourseComparator>
 
 interface ViewFields {
-  sort: string
+  sort: CourseSortKey
   problemsOnly: boolean
 }
 
@@ -165,7 +167,7 @@ const CourseSection: React.FC = () => {
           const shown = stats.modules.filter(
             (module) => !problemsOnly || courseModuleStatus(module) !== "ok",
           )
-          const modules = shown.toSorted(SORT_COMPARATORS[sort] ?? byCourseName)
+          const modules = shown.toSorted(SORT_COMPARATORS[sort])
           return (
             <>
               <div className={controlsCss}>

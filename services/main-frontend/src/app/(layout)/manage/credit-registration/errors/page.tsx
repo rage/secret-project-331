@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import React, { useEffect } from "react"
+import React, { useCallback, useEffect } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -213,9 +213,12 @@ const FailureSection: React.FC = () => {
   )
 }
 
-const ReasonFilter: React.FC<{ attention: CreditRegistrationAttentionItems }> = ({ attention }) => {
+const ReasonFilter: React.FC<{
+  attention: CreditRegistrationAttentionItems
+  activeReason: CreditRegistrationAttentionReason | undefined
+  toggleReason: (reason: CreditRegistrationAttentionReason) => void
+}> = ({ attention, activeReason, toggleReason }) => {
   const { t } = useTranslation()
-  const { activeReason, toggleReason } = useAttentionReasonFilter()
   const groups = attention.counts_by_reason.filter((group) => group.count > 0)
   if (groups.length === 0) {
     return null
@@ -241,13 +244,14 @@ const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }
   attention,
 }) => {
   const { t } = useTranslation()
-  const { activeReason } = useAttentionReasonFilter()
+  const { activeReason, toggleReason } = useAttentionReasonFilter()
   const thresholdsQuery = useCreditRegistrationThresholds()
   const { control, watch, reset, setValue } = useForm<SelectionFields>({
     defaultValues: { selectAll: false, selected: {} },
   })
   const selected = watch("selected")
   const selectAll = watch("selectAll")
+  const clearSelection = useCallback(() => reset({ selectAll: false, selected: {} }), [reset])
   const thresholds = thresholdsQuery.data
 
   const items =
@@ -257,28 +261,25 @@ const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }
   const visibleIds = items.map((item) => item.credit_registration_id)
   // Read off the rows on screen, so a tick the reason chip has since hidden cannot reach the bulk
   // dialog, and the header box's indeterminate state counts the set the table actually shows.
-  const selectedIds = visibleIds.filter((id) => selected?.[id])
+  const selectedIds = visibleIds.filter((id) => selected[id])
 
   // Only when the header box itself is toggled: reacting to `visibleIds` would clear the selection
   // on every poll.
   useEffect(() => {
-    setValue(
-      "selected",
-      Object.fromEntries(visibleIds.map((id) => [id, selectAll])) as Record<string, boolean>,
-    )
+    setValue("selected", Object.fromEntries(visibleIds.map((id) => [id, selectAll] as const)))
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [selectAll])
 
   // A chip changes which rows exist to act on; ticks it hides would otherwise reappear in the
   // toolbar's count later, once the chip is cleared again.
   useEffect(() => {
-    reset({ selectAll: false, selected: {} })
-  }, [activeReason, reset])
+    clearSelection()
+  }, [activeReason, clearSelection])
 
   return (
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-attention")}</h2>
-      <ReasonFilter attention={attention} />
+      <ReasonFilter attention={attention} activeReason={activeReason} toggleReason={toggleReason} />
       <StatTileList ariaLabel={t("credit-registration-heading-attention")}>
         <StatTile
           label={t("label-credit-registration-needs-attention")}
@@ -391,15 +392,8 @@ const AttentionSection: React.FC<{ attention: CreditRegistrationAttentionItems }
                 <span>
                   {t("credit-registration-admin-selected-count", { count: selectedIds.length })}
                 </span>
-                <AdminBulkTransitionDialog
-                  selectedIds={selectedIds}
-                  onApplied={() => reset({ selectAll: false, selected: {} })}
-                />
-                <Button
-                  variant="tertiary"
-                  size="medium"
-                  onClick={() => reset({ selectAll: false, selected: {} })}
-                >
+                <AdminBulkTransitionDialog selectedIds={selectedIds} onApplied={clearSelection} />
+                <Button variant="tertiary" size="medium" onClick={clearSelection}>
                   {t("credit-registration-admin-clear-selection")}
                 </Button>
               </div>

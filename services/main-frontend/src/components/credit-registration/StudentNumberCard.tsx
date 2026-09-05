@@ -27,6 +27,7 @@ import {
   Badge,
   Button,
   DescriptionList,
+  Disclosure,
   Infobox,
   Link,
   QueryResult,
@@ -34,7 +35,7 @@ import {
 
 import { TONE } from "./constants"
 import { LinkingEmailLine } from "./EmailStatusLine"
-import SectionCard from "./SectionCard"
+import { headingCss, rowCss, sectionCss } from "./styles"
 
 /** A student disputing a wrong number needs to know how the link was proved. */
 const PROVENANCE_KEYS = {
@@ -43,25 +44,11 @@ const PROVENANCE_KEYS = {
   admin_manual: "student-number-verified-via-admin-manual",
 } as const satisfies Record<StudentNumberVerificationMethod, string>
 
-const numberRowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-`
-
 const studentNumberCss = css`
   font-size: var(--font-size-4);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-gray-700);
   font-variant-numeric: tabular-nums;
-`
-
-const noticeActionsCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
 `
 
 const StudentNumberCard: React.FC = () => {
@@ -76,7 +63,8 @@ const StudentNumberCard: React.FC = () => {
     )?.linking_email ?? null
 
   return (
-    <SectionCard title={t("heading-student-number")}>
+    <section className={sectionCss}>
+      <h2 className={headingCss}>{t("heading-student-number")}</h2>
       <QueryResult
         query={linkQuery}
         treatNullAsEmpty
@@ -84,7 +72,7 @@ const StudentNumberCard: React.FC = () => {
       >
         {(link) => (link ? <Linked link={link} /> : null)}
       </QueryResult>
-    </SectionCard>
+    </section>
   )
 }
 
@@ -136,7 +124,7 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
 
   return (
     <>
-      <div className={numberRowCss}>
+      <div className={rowCss}>
         <span className={studentNumberCss}>{link.student_number}</span>
         <Badge tone={TONE.SUCCESS}>{t("badge-student-number-linked")}</Badge>
       </div>
@@ -145,9 +133,17 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber }> = ({ link }) => {
       {link.linked_automatically && !link.auto_link_notice_dismissed && (
         <AutoLinkNotice link={link} onUnlink={askAndUnlink} unlinkPending={unlink.isPending} />
       )}
-      <Button variant="secondary" size="medium" isLoading={unlink.isPending} onClick={askAndUnlink}>
-        {t("button-remove-student-number")}
-      </Button>
+      {/* A grid child otherwise stretches the button's own box to the section's full width. */}
+      <div>
+        <Button
+          variant="secondary"
+          size="medium"
+          isLoading={unlink.isPending}
+          onClick={askAndUnlink}
+        >
+          {t("button-remove-student-number")}
+        </Button>
+      </div>
     </>
   )
 }
@@ -186,7 +182,7 @@ const AutoLinkNotice: React.FC<{
             email: link.verified_via_email_masked ?? "",
           })}
         </p>
-        <div className={noticeActionsCss}>
+        <div className={rowCss}>
           <Button variant="secondary" size="medium" isLoading={unlinkPending} onClick={onUnlink}>
             {t("button-not-my-student-number-unlink")}
           </Button>
@@ -218,18 +214,25 @@ const NotLinked: React.FC<{ linkingEmail: LinkingEmailStatus | null }> = ({ link
 
   return (
     <>
+      <div>
+        <Badge tone={TONE.NEUTRAL}>{t("badge-student-number-not-linked")}</Badge>
+      </div>
       <p>{t("student-number-not-linked")}</p>
       <p>{t("student-number-how-the-link-arrives")}</p>
       <LinkingEmailLine linkingEmail={linkingEmail} />
       {canConfirmEmail ? (
         <>
           <p>{t("student-number-confirming-your-address-can-link-it")}</p>
-          <Link href={userSettingsRoute()} styledAsButton variant="primary" size="medium">
-            {t("button-confirm-your-email-address")}
-          </Link>
+          <div>
+            <Link href={userSettingsRoute()} styledAsButton variant="primary" size="medium">
+              {t("button-confirm-your-email-address")}
+            </Link>
+          </div>
         </>
       ) : null}
-      <p>{t("student-number-cannot-reach-that-mailbox")}</p>
+      <Disclosure title={t("student-number-cannot-reach-that-mailbox-disclosure-title")}>
+        <p>{t("student-number-cannot-reach-that-mailbox")}</p>
+      </Disclosure>
     </>
   )
 }

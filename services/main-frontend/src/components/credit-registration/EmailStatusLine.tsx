@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -13,12 +12,7 @@ import type {
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 
 import { labelFrom } from "./labelFrom"
-
-const lineCss = css`
-  margin: 0;
-  color: var(--color-gray-600);
-  font-size: var(--font-size-1);
-`
+import { noteCss } from "./styles"
 
 interface EmailStatusLineProps {
   status: { email_send_status: EmailSendStatus; sent_at?: string | null } | null | undefined
@@ -45,13 +39,13 @@ const EmailStatusLine: React.FC<EmailStatusLineProps> = ({
     return null
   }
   if (status.email_send_status === "send_failed") {
-    return <p className={lineCss}>{labelFrom(t, sendFailedKeys, kind, sendFailedFallbackKey)}</p>
+    return <p className={noteCss}>{labelFrom(t, sendFailedKeys, kind, sendFailedFallbackKey)}</p>
   }
   if (status.email_send_status !== "sent" || !status.sent_at) {
     return null
   }
   return (
-    <p className={lineCss}>
+    <p className={noteCss}>
       {labelFrom(t, sentKeys, kind, sentFallbackKey, {
         ...sentOptions,
         date: humanReadableDate(status.sent_at, i18n.language),

@@ -347,10 +347,6 @@ export function linkStudentNumberRoute(token: string) {
   return `/link-student-number/${token}`
 }
 
-export function creditRegistrationRoute() {
-  return "/manage/credit-registration"
-}
-
 export function creditRegistrationOverviewRoute() {
   return "/manage/credit-registration/overview"
 }

@@ -1,13 +1,12 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import React from "react"
 
 export interface StatTileListProps {
   children: React.ReactNode
   /** Accessible name for the list, e.g. "Registration overview". */
   ariaLabel?: string
-  className?: string
 }
 
 const listCss = css`
@@ -20,9 +19,9 @@ const listCss = css`
 `
 
 /** Lays out `StatTile` children as an even responsive grid, announced as a list. */
-export const StatTileList: React.FC<StatTileListProps> = ({ children, ariaLabel, className }) => (
+export const StatTileList: React.FC<StatTileListProps> = ({ children, ariaLabel }) => (
   // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role; this restores it
-  <ul className={cx(listCss, className)} role="list" aria-label={ariaLabel}>
+  <ul className={listCss} role="list" aria-label={ariaLabel}>
     {React.Children.map(children, (child, index) => (
       <li key={index}>{child}</li>
     ))}

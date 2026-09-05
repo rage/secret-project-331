@@ -1,15 +1,8 @@
 "use client"
 
-import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 
-import { StatTile } from "../../src/shared-module/components"
-
-const rowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-`
+import { StatTile, StatTileList } from "../../src/shared-module/components"
 
 const meta = {
   title: "Components/StatTile",
@@ -28,17 +21,17 @@ export const Playground = {} satisfies Story
 
 export const Row = {
   render: () => (
-    <div className={rowCss}>
+    <StatTileList ariaLabel="Study overview">
       <StatTile label="Enrolled courses" value={7} ariaLabel="Enrolled courses: 7" />
       <StatTile label="Currently active" value={2} ariaLabel="Currently active: 2" />
       <StatTile label="Completions" value={11} ariaLabel="Completions: 11" />
       <StatTile
         label="Awaiting review"
         value={3}
-        tone="alert"
+        alertWhenNonZero
         ariaLabel="Awaiting review: 3"
         href="#completion-review"
       />
-    </div>
+    </StatTileList>
   ),
 } satisfies Story

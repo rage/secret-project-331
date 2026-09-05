@@ -173,11 +173,8 @@ export function AnimatedQueryFrame<E>({
   const { t } = useTranslation()
   const shouldReduceMotion = !!useReducedMotion()
   const showDelayedSpinner = useDelayedFlag(initialLoading, loadingDelayMs)
-  const isQuietRefresh = refreshIndicator === "quiet"
-  // Quiet mode never blurs, so it has no blur-out transition to wait for.
-  const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(
-    isQuietRefresh ? false : refreshing,
-  )
+  const blurring = refreshIndicator !== "quiet" && refreshing
+  const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(blurring)
   const surfaceThemeCss =
     themeMode === "dark" ? initialLoadingSurfaceDarkCss : initialLoadingSurfaceLightCss
   const skeletonToneCss = themeMode === "dark" ? skeletonBlockDarkCss : skeletonBlockLightCss
@@ -274,10 +271,8 @@ export function AnimatedQueryFrame<E>({
         <div
           className={cx(
             animatedContentCss,
-            !isQuietRefresh && refreshing ? animatedContentRefreshingCss : undefined,
-            !isQuietRefresh && (refreshing || blurSettling)
-              ? animatedContentNonInteractiveCss
-              : undefined,
+            blurring ? animatedContentRefreshingCss : undefined,
+            blurring || blurSettling ? animatedContentNonInteractiveCss : undefined,
           )}
           onTransitionEnd={onContentTransitionEnd}
         >

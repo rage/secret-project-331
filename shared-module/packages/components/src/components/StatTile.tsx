@@ -8,14 +8,14 @@ export type StatTileTone = "neutral" | "alert"
 export interface StatTileProps {
   label: React.ReactNode
   value: React.ReactNode
-  /** "alert" recolours the value (e.g. a non-zero review backlog); the surface never changes. */
+  /** "alert" recolours the value; the surface never changes. Prefer `alertWhenNonZero` for counts. */
   tone?: StatTileTone
-  icon?: React.ReactNode
+  /** Alerts once `value` is a number above zero, for tiles counting something that is wrong. */
+  alertWhenNonZero?: boolean
   /** If set, the whole tile becomes a link (e.g. jump to the relevant section). */
   href?: string
   /** Accessible label read as a single phrase, e.g. "Awaiting review: 3". Falls back to label + value. */
   ariaLabel?: string
-  className?: string
 }
 
 const rootCss = css`
@@ -51,17 +51,9 @@ const alertValueCss = css`
   color: var(--color-crimson-700);
 `
 
-const labelRowCss = css`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
+const labelCss = css`
   font-size: var(--font-size-1);
   color: var(--color-gray-500);
-`
-
-const iconCss = css`
-  display: inline-flex;
-  align-items: center;
 `
 
 /** At-a-glance metric. Compose several inside `StatTileList` to lay them out as a row. */
@@ -69,35 +61,26 @@ export const StatTile: React.FC<StatTileProps> = ({
   label,
   value,
   tone = "neutral",
-  icon,
+  alertWhenNonZero = false,
   href,
   ariaLabel,
-  className,
 }) => {
-  const isAlert = tone === "alert"
+  const isAlert = tone === "alert" || (alertWhenNonZero && typeof value === "number" && value > 0)
   const body = (
     <>
       <span className={cx(valueCss, isAlert && alertValueCss)}>{value}</span>
-      <span className={labelRowCss}>
-        {icon ? (
-          <span className={iconCss} aria-hidden="true">
-            {icon}
-          </span>
-        ) : null}
-        {label}
-      </span>
+      <span className={labelCss}>{label}</span>
     </>
   )
-  const classes = cx(rootCss, href && linkCss, className)
   if (href) {
     return (
-      <a className={classes} href={href} aria-label={ariaLabel}>
+      <a className={cx(rootCss, linkCss)} href={href} aria-label={ariaLabel}>
         {body}
       </a>
     )
   }
   return (
-    <div className={classes} aria-label={ariaLabel} role={ariaLabel ? "group" : undefined}>
+    <div className={rootCss} aria-label={ariaLabel} role={ariaLabel ? "group" : undefined}>
       {body}
     </div>
   )

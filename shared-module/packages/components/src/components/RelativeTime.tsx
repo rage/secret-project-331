@@ -6,8 +6,10 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useDateFormatter, useLocale } from "react-aria"
 
+import { ABSENT_LABEL } from "../lib/displayConstants"
+
 export interface RelativeTimeProps {
-  /** ISO 8601 timestamp. Renders `RELATIVE_TIME_ABSENT_LABEL` when null/undefined. */
+  /** ISO 8601 timestamp. Renders `ABSENT_LABEL` when null/undefined. */
   at: string | null | undefined
   /**
    * Where the absolute date and time goes. "inline" (the default) prints it beside the relative
@@ -17,11 +19,10 @@ export interface RelativeTimeProps {
   absoluteTime?: "inline" | "title"
 }
 
-export const RELATIVE_TIME_ABSENT_LABEL = "—"
-
 /**
  * Each entry divides `duration` down to the next unit; `limit` is that divisor, not an
  * absolute threshold (so "weeks" divides by ~4.35 to reach "months", not by a week count).
+ * Years is the fallback below, so it needs no row.
  */
 const relativeTimeUnits: { limit: number; unit: Intl.RelativeTimeFormatUnit }[] = [
   { limit: 60, unit: "seconds" },
@@ -30,11 +31,23 @@ const relativeTimeUnits: { limit: number; unit: Intl.RelativeTimeFormatUnit }[] 
   { limit: 7, unit: "days" },
   { limit: 4.34524, unit: "weeks" },
   { limit: 12, unit: "months" },
-  { limit: Number.POSITIVE_INFINITY, unit: "years" },
 ]
 
-function formatRelativeDistance(at: Date, locale: string): string {
+// Resolving a locale costs more than the format call; tables render one instance per row.
+const formatterCache = new Map<string, Intl.RelativeTimeFormat>()
+
+function relativeTimeFormatter(locale: string): Intl.RelativeTimeFormat {
+  const cached = formatterCache.get(locale)
+  if (cached) {
+    return cached
+  }
   const formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
+  formatterCache.set(locale, formatter)
+  return formatter
+}
+
+function formatRelativeDistance(at: Date, locale: string): string {
+  const formatter = relativeTimeFormatter(locale)
   let duration = (at.getTime() - Date.now()) / 1000
   for (const { limit, unit } of relativeTimeUnits) {
     if (Math.abs(duration) < limit) {
@@ -60,7 +73,7 @@ export const RelativeTime: React.FC<RelativeTimeProps> = ({ at, absoluteTime = "
   const absoluteFormatter = useDateFormatter({ dateStyle: "medium", timeStyle: "short" })
 
   if (!at) {
-    return <span>{RELATIVE_TIME_ABSENT_LABEL}</span>
+    return <span>{ABSENT_LABEL}</span>
   }
 
   const date = new Date(at)

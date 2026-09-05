@@ -1,27 +1,34 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
-import { monospaceFont } from "@/shared-module/common/styles"
-import { humanReadableDateTime } from "@/shared-module/common/utils/time"
-import { Badge, DescriptionList, Dialog, QueryResult } from "@/shared-module/components"
+import {
+  Badge,
+  CopyButton,
+  DescriptionList,
+  Dialog,
+  QueryResult,
+  RelativeTime,
+  Table,
+} from "@/shared-module/components"
 
+import { eventKindLabel } from "./admin/adminCreditRegistrationCopy"
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
-import { STACKED } from "./constants"
+import { MIDDLE_DOT, STACKED, TIME_COMPACT, TONE } from "./constants"
 import {
   registrationErrorHelp,
-  registrationExplanation,
   registrationGradeLabel,
-  registrationStatusLabel,
+  registrationLedgerStateLabel,
+  registrationStatusTeacherLabel,
+  registrationTeacherExplanation,
 } from "./creditRegistrationCopy"
 import RetryCreditRegistrationBlock from "./RetryCreditRegistrationBlock"
+import { monospaceCss, rowCss, sectionsCss, subheadingCss, subsectionCss } from "./styles"
 import {
-  isAdminEstablishedLink,
   linkingEmailSentence,
   notificationEmailLabel,
   notificationEmailSentence,
@@ -34,42 +41,6 @@ interface Props {
   onClose: () => void
 }
 
-const timelineCss = css`
-  display: grid;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-`
-
-const timelineRowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: baseline;
-  font-size: 0.875rem;
-`
-
-const timestampCss = css`
-  color: var(--color-gray-500);
-  font-variant-numeric: tabular-nums;
-`
-
-const ledgerStateCss = css`
-  font-family: ${monospaceFont};
-  color: var(--color-gray-600);
-`
-
-const sectionHeadingCss = css`
-  font-weight: 500;
-  margin: 1.5rem 0 0.5rem;
-`
-
-// A support-established link rests on judgement, so it is toned apart from a confirmed one.
-// oxlint-disable-next-line i18next/no-literal-string
-const SUPPORT_LINK_TONE = "warning" as const
-// oxlint-disable-next-line i18next/no-literal-string
-const CONFIRMED_LINK_TONE = "neutral" as const
 // The one stage where a resend can help: nothing moves until a student number is linked.
 // oxlint-disable-next-line i18next/no-literal-string
 const WAITING_FOR_STUDENT_NUMBER = "needs_student_number" as const
@@ -83,6 +54,9 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
     enabled: open,
   })
 
+  const studentName =
+    [registration.last_name, registration.first_name].filter(Boolean).join(" ") || t("missing-name")
+  const moduleName = registration.course_module_name ?? t("default-module")
   const errorHelp = registrationErrorHelp(t, registration.error_code)
   const verificationLabel = studentNumberVerificationLabel(
     t,
@@ -91,35 +65,18 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
   const items = [
     {
       label: t("label-status"),
-      value: registrationStatusLabel(t, registration.student_facing_status),
+      value: registrationStatusTeacherLabel(t, registration.student_facing_status),
     },
     {
       label: t("label-explanation"),
-      value: registrationExplanation(t, registration.student_facing_status),
+      value: registrationTeacherExplanation(t, registration.student_facing_status),
     },
     {
       label: t("label-verified-student-number"),
       value: registration.student_number ? (
-        <span
-          className={css`
-            display: inline-flex;
-            gap: 0.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-          `}
-        >
-          <span>{registration.student_number}</span>
-          {verificationLabel && (
-            <Badge
-              tone={
-                isAdminEstablishedLink(registration.student_number_verified_via)
-                  ? SUPPORT_LINK_TONE
-                  : CONFIRMED_LINK_TONE
-              }
-            >
-              {verificationLabel}
-            </Badge>
-          )}
+        <span className={rowCss}>
+          <span className={monospaceCss}>{registration.student_number}</span>
+          {verificationLabel && <Badge tone={TONE.NEUTRAL}>{verificationLabel}</Badge>}
         </span>
       ) : (
         t("credit-registration-no-student-number-linked")
@@ -138,7 +95,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
   if (registration.sisu_attainment_id) {
     items.push({
       label: t("label-attainment-id"),
-      value: registration.sisu_attainment_id,
+      value: <span className={monospaceCss}>{registration.sisu_attainment_id}</span>,
     })
   }
   if (registration.linking_email) {
@@ -161,53 +118,87 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
     })
   }
 
+  // The untranslated identifiers support asks for, in one copyable string rather than on every row.
+  const supportReference = [registration.id, registration.state, registration.error_code]
+    .filter(Boolean)
+    .join(" ")
+  items.push({
+    label: t("label-credit-registration-support-reference"),
+    value: (
+      <span className={rowCss}>
+        <span className={monospaceCss}>{supportReference}</span>
+        <CopyButton
+          value={supportReference}
+          label={t("button-text-copy-credit-registration-support-reference")}
+        />
+      </span>
+    ),
+  })
+
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      title={t("heading-credit-registration-details")}
-      size="wide"
-    >
-      <DescriptionList items={items} layout={STACKED} />
-      {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
-        <ResendLinkingEmailBlock registration={registration} />
-      )}
-      <RetryCreditRegistrationBlock registration={registration} />
-      <QueryResult query={detailsQuery}>
-        {(details) => (
-          <>
-            {/* The grade already in the registry, which is why a better one was turned down. */}
-            {details.not_improved_attainment ? (
-              <DescriptionList
-                layout={STACKED}
-                items={[
-                  {
-                    label: t("label-credit-registration-registry-held-grade"),
-                    value: registrationGradeLabel(
-                      t,
-                      details.not_improved_attainment.grade_id,
-                      details.not_improved_attainment.grade_scale_id,
-                    ),
-                  },
-                ]}
-              />
-            ) : null}
-            <div className={sectionHeadingCss}>{t("heading-credit-registration-timeline")}</div>
-            <ul className={timelineCss}>
-              {details.events.map((event) => (
-                <li className={timelineRowCss} key={event.id}>
-                  <span className={timestampCss}>
-                    {humanReadableDateTime(event.created_at, i18n.language)}
-                  </span>
-                  {/* Deliberately untranslated: this is what a teacher quotes to support. */}
-                  <span className={ledgerStateCss}>{event.to_state ?? event.kind}</span>
-                  {event.message && <span>{event.message}</span>}
-                </li>
-              ))}
-            </ul>
-          </>
+    <Dialog open={open} onClose={onClose} title={`${studentName}${MIDDLE_DOT}${moduleName}`}>
+      <div className={sectionsCss}>
+        <DescriptionList items={items} layout={STACKED} />
+        {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
+          <ResendLinkingEmailBlock registration={registration} />
         )}
-      </QueryResult>
+        <RetryCreditRegistrationBlock registration={registration} />
+        <QueryResult query={detailsQuery}>
+          {(details) => (
+            <>
+              {/* The grade already in the registry, which is why a better one was turned down. */}
+              {details.not_improved_attainment ? (
+                <DescriptionList
+                  layout={STACKED}
+                  items={[
+                    {
+                      label: t("label-credit-registration-registry-held-grade"),
+                      value: registrationGradeLabel(
+                        t,
+                        details.not_improved_attainment.grade_id,
+                        details.not_improved_attainment.grade_scale_id,
+                      ),
+                    },
+                  ]}
+                />
+              ) : null}
+              <div className={subsectionCss}>
+                <h3 className={subheadingCss}>{t("credit-registration-heading-timeline")}</h3>
+                <Table
+                  caption={t("credit-registration-heading-timeline")}
+                  rowKey={(event) => event.id}
+                  rows={details.events}
+                  columns={[
+                    {
+                      header: t("label-when"),
+                      nowrap: true,
+                      cell: (event) => (
+                        <RelativeTime at={event.created_at} absoluteTime={TIME_COMPACT} />
+                      ),
+                    },
+                    {
+                      header: t("label-what-happened"),
+                      // The wire name stays quotable to support without printing on every row.
+                      cell: (event) => (
+                        <span title={event.to_state ?? event.kind}>
+                          {event.to_state
+                            ? registrationLedgerStateLabel(t, event.to_state)
+                            : eventKindLabel(t, event.kind)}
+                        </span>
+                      ),
+                    },
+                    {
+                      header: t("label-details"),
+                      grow: true,
+                      cell: (event) => event.message ?? "",
+                    },
+                  ]}
+                />
+              </div>
+            </>
+          )}
+        </QueryResult>
+      </div>
     </Dialog>
   )
 }

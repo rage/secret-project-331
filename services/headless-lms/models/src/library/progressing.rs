@@ -751,7 +751,10 @@ pub async fn get_manual_completion_result_preview(
 
 pub struct UserCompletionInformation {
     pub course_module_completion_id: Uuid,
+    /// The course's own name, never the module's; the module is named by `course_module_name`.
     pub course_name: String,
+    /// The module's own name, `None` on a course's default module.
+    pub course_module_name: Option<String>,
     /// `None` only on a module registering through credit registration.
     pub uh_course_code: Option<String>,
     pub email: String,
@@ -788,10 +791,8 @@ pub async fn get_user_completion_information(
     }
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
-        course_name: course_module
-            .name
-            .clone()
-            .unwrap_or_else(|| course.name.clone()),
+        course_name: course.name.clone(),
+        course_module_name: course_module.name.clone(),
         uh_course_code: course_module.uh_course_code.clone(),
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,

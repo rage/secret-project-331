@@ -57,6 +57,50 @@ impl StudentFacingCreditRegistrationStatus {
     }
 }
 
+/// The `(state, completion_eligible, has_verified_student_number)` combinations a set of stages
+/// covers, as three parallel arrays for a query to `UNNEST` and join against.
+///
+/// Enumerated from [`StudentFacingCreditRegistrationStatus::of`] rather than restated as a SQL
+/// predicate: a roster filtered to "failed" must return exactly the rows whose own badge says
+/// failed, and a new ledger state must not be able to fall out of one side of that.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct StageMatch {
+    pub states: Vec<CreditRegistrationState>,
+    pub completion_eligible: Vec<bool>,
+    pub has_verified_student_number: Vec<bool>,
+}
+
+impl StageMatch {
+    /// Empty for an empty `stages`, which every query reads as "do not narrow".
+    pub fn of(stages: &[StudentFacingCreditRegistrationStatus]) -> Self {
+        let mut matched = Self::default();
+        if stages.is_empty() {
+            return matched;
+        }
+        for state in CreditRegistrationState::ALL {
+            for completion_eligible in [false, true] {
+                for has_verified_student_number in [false, true] {
+                    let preconditions = PendingPreconditions {
+                        completion_eligible,
+                        has_verified_student_number,
+                    };
+                    if stages.contains(&StudentFacingCreditRegistrationStatus::of(
+                        state,
+                        preconditions,
+                    )) {
+                        matched.states.push(state);
+                        matched.completion_eligible.push(completion_eligible);
+                        matched
+                            .has_verified_student_number
+                            .push(has_verified_student_number);
+                    }
+                }
+            }
+        }
+        matched
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

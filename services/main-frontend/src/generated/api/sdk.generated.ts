@@ -1920,6 +1920,9 @@ export const retryFailedCreditRegistrationsForCourse = <ThrowOnError extends boo
  *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
  * counts plus the two reasons a student of this course will not get credits.
+ *
+ * Course-wide unless `course_instance_id` narrows the per-module counts to one instance. The two
+ * student-number totals are course-wide either way: a student holds one number, not one per instance.
  */
 export const getCourseCreditRegistrationSummary = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseCreditRegistrationSummaryData, ThrowOnError>,
@@ -4935,10 +4938,12 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
- * wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
+ * detector wants a human to look at, with the detectors that picked each.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
+ * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
+ * `needs_admin_attention_count` is the same number.
  */
 export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationAttentionItemsData, ThrowOnError>,

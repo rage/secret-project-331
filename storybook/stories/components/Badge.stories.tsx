@@ -37,3 +37,19 @@ export const Tones = {
     </div>
   ),
 } satisfies Story
+
+export const Compact = {
+  render: () => (
+    <div className={rowCss}>
+      <Badge size="compact" tone="success">
+        Registered
+      </Badge>
+      <Badge size="compact" tone="warning">
+        No student number
+      </Badge>
+      <Badge size="compact" tone="danger">
+        Failed
+      </Badge>
+    </div>
+  ),
+} satisfies Story

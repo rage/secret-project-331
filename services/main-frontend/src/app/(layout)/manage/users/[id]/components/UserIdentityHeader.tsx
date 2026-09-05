@@ -13,16 +13,14 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { UserDetail, UserRole } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import { baseTheme } from "@/shared-module/common/styles"
 import {
   Avatar,
   Badge,
   CopyButton,
   DescriptionList,
   QueryResults,
+  TONE,
 } from "@/shared-module/components"
-
-import { TONE } from "../lib/displayConstants"
 
 export interface UserIdentityHeaderProps {
   userId: string
@@ -36,8 +34,8 @@ const TMC_PARTICIPANT_URL = "https://tmc.mooc.fi/participants/"
 const headerCss = css`
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
-  margin: 1rem 0 0.5rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
 `
 
 const tmcLinkCss = css`
@@ -50,8 +48,8 @@ const tmcLinkCss = css`
   }
 
   &:focus-visible {
-    outline: 2px solid ${baseTheme.colors.blue[400]};
-    outline-offset: 1px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 `
 
@@ -61,38 +59,38 @@ const bodyCss = css`
 `
 
 const nameCss = css`
-  margin: 0 0 0.4rem;
-  font-size: 1.6rem;
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-4);
   font-weight: 700;
-  color: ${baseTheme.colors.gray[700]};
+  color: var(--color-gray-700);
 `
 
 const chipsCss = css`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.6rem 0;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
 `
 
 // Role/TMC chips share the chips row's flex layout, but sit inside the query frame that gates them.
 const chipGroupCss = css`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: var(--space-2);
   align-items: center;
 `
 
 const verificationValueCss = css`
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-2);
   flex-wrap: wrap;
 `
 
 const idValueCss = css`
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-2);
   min-width: 0;
   overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
@@ -154,7 +152,7 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
           {new Date(verifiedAt).toLocaleString(i18n.language)}
         </span>
       ) : (
-        <Badge tone={TONE.WARNING}>{t("badge-email-not-verified")}</Badge>
+        <Badge tone={TONE.NEUTRAL}>{t("badge-email-not-verified")}</Badge>
       ),
     })
   }

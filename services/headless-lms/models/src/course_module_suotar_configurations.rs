@@ -286,6 +286,13 @@ LIMIT $1
 
 /// Enabled modules the last check found broken. A module nothing has checked yet is not counted:
 /// unknown is not a failure.
+///
+/// Counts the stored message, not the two booleans, so the tab badge matches the Courses tab's own
+/// "misconfigured" tile. The booleans cover only the course code and the product token, while
+/// [`check_module_config`] also reports a missing realisation, missing credits, an unusable grade
+/// scale and a double-enabled registration path.
+///
+/// [`check_module_config`]: crate::library::credit_registration::config_validation::check_module_config
 pub async fn count_modules_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
     let count = sqlx::query_scalar!(
         r#"
@@ -296,10 +303,7 @@ WHERE cm.enable_credit_registration_via_suotar
   AND cm.deleted_at IS NULL
   AND conf.deleted_at IS NULL
   AND conf.config_checked_at IS NOT NULL
-  AND (
-    conf.course_code_resolves IS FALSE
-    OR conf.product_token_found IS FALSE
-  )
+  AND conf.config_check_message IS NOT NULL
         "#,
     )
     .fetch_one(conn)

@@ -187,11 +187,35 @@ describe("Link variants and sizes", () => {
   const variants: Variant[] = ["primary", "secondary", "tertiary"]
   const sizes: Size[] = ["small", "medium", "large"]
 
-  test("plain link does not receive button styles", () => {
+  test("plain link is drawn as a text link, not as a button", () => {
     renderUi(<Link href="/settings">Settings</Link>)
-    const link = screen.getByRole("link", { name: "Settings" })
-    expect(link).toBeInTheDocument()
-    expect(link.getAttribute("class")).toBeNull()
+    const styles = getComputedStyle(screen.getByRole("link", { name: "Settings" }))
+
+    expect(styles.textDecoration).toContain("underline")
+    expect(styles.color).not.toBe("")
+    expect(styles.display).not.toBe("inline-flex")
+  })
+
+  test("a quiet link keeps the colour and drops the resting underline", () => {
+    renderUi(
+      <Link href="/settings" appearance="quiet">
+        Settings
+      </Link>,
+    )
+    const styles = getComputedStyle(screen.getByRole("link", { name: "Settings" }))
+
+    expect(styles.textDecoration).toBe("none")
+    expect(styles.color).not.toBe("")
+  })
+
+  test("appearance=inherit adds no styles of its own", () => {
+    renderUi(
+      <Link href="/settings" appearance="inherit">
+        Settings
+      </Link>,
+    )
+
+    expect(screen.getByRole("link", { name: "Settings" }).getAttribute("class")).toBeNull()
   })
 
   test("plain link preserves caller supplied className", () => {

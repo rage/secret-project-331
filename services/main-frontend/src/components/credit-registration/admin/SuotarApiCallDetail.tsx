@@ -1,62 +1,38 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { CopyButton, Disclosure, QueryResult, Table } from "@/shared-module/components"
+import { Button, Dialog, QueryResult, RelativeTime, Table } from "@/shared-module/components"
 
-import { headingCss, noteCss } from "../styles"
+import { ABSENT, DENSITY_COMPACT, TIME_COMPACT } from "../constants"
+import {
+  emptyStateCss,
+  monospaceCss,
+  noteCss,
+  sectionCss,
+  subheadingCss,
+  subsectionCss,
+} from "../styles"
+import { eventKindLabel } from "./adminCreditRegistrationCopy"
 import AdminStateBadge from "./AdminStateBadge"
-import RelativeTime, { ABSENT } from "./RelativeTime"
+import PayloadBlock from "./PayloadBlock"
 
 interface Props {
   suotarApiCallId: string
 }
 
-const JSON_INDENT = 2
-
-const bodyCss = css`
-  max-height: 20rem;
-  overflow: auto;
-  background: var(--color-gray-50);
-  padding: 0.5rem;
-  border-radius: 4px;
-  font-size: var(--font-size-1);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-`
-
-const blockCss = css`
-  display: grid;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-`
-
-const stringify = (body: unknown): string =>
-  body === null || body === undefined ? "" : JSON.stringify(body, null, JSON_INDENT)
-
-const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => {
-  const { t } = useTranslation()
-  const text = stringify(body)
-  return (
-    <div className={blockCss}>
-      <h4 className={headingCss}>{title}</h4>
-      {text === "" ? (
-        <p className={noteCss}>{t("credit-registration-admin-no-body-stored")}</p>
-      ) : (
-        <>
-          <pre className={bodyCss}>{text}</pre>
-          <CopyButton value={text} label={t("credit-registration-admin-copy-stored-body")} />
-        </>
-      )}
-    </div>
-  )
-}
+const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
+  <div className={subsectionCss}>
+    <h3 className={subheadingCss}>{title}</h3>
+    <PayloadBlock body={body} />
+  </div>
+)
 
 /**
  * The stored request and response of one call, with the ledger rows it carried beside them.
@@ -73,108 +49,142 @@ const SuotarApiCallDetail: React.FC<Props> = ({ suotarApiCallId }) => {
   })
 
   return (
-    <Disclosure
-      title={t("credit-registration-admin-show-stored-bodies")}
-      expanded={open}
-      onExpandedChange={setOpen}
-    >
-      {open && (
-        <QueryResult query={detailQuery}>
-          {(detail) => (
-            <div className={blockCss}>
-              <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-              {detail.error_message && <p>{detail.error_message}</p>}
-              <Body
-                title={t("credit-registration-admin-stored-request")}
-                body={detail.request_body_sample}
-              />
-              <Body
-                title={t("credit-registration-admin-stored-response")}
-                body={detail.response_body_sample}
-              />
-              <h4 className={headingCss}>{t("credit-registration-heading-ledger-references")}</h4>
-              {detail.ledger_references.length === 0 ? (
-                <p className={noteCss}>{t("credit-registration-admin-no-ledger-references")}</p>
-              ) : (
-                <Table
-                  caption={t("credit-registration-heading-ledger-references")}
-                  rowKey={(row) => row.credit_registration_id}
-                  rows={detail.ledger_references}
-                  columns={[
-                    {
-                      header: t("credit-registration-admin-column-request-item-id"),
-                      cell: (row) => (
-                        <Link
-                          href={creditRegistrationItemRoute(row.credit_registration_id)}
-                          prefetch={false}
-                        >
-                          <code>{row.request_item_id}</code>
-                        </Link>
-                      ),
-                    },
-                    {
-                      header: t("label-student"),
-                      cell: (row) => [row.first_name, row.last_name].filter(Boolean).join(" "),
-                    },
-                    { header: t("label-email"), cell: (row) => row.email ?? ABSENT },
-                    {
-                      header: t("label-student-number"),
-                      cell: (row) => row.student_number ?? ABSENT,
-                    },
-                    { header: t("label-course"), cell: (row) => row.course_name },
-                    {
-                      header: t("label-state"),
-                      cell: (row) => <AdminStateBadge state={row.state} />,
-                    },
-                    {
-                      header: t("label-error-code"),
-                      cell: (row) => (row.error_code ? <code>{row.error_code}</code> : ABSENT),
-                    },
-                  ]}
+    <>
+      {/* Short in the cell, long to a screen reader: this button repeats 50 times down a table. */}
+      <Button
+        variant="tertiary"
+        size="small"
+        aria-label={t("credit-registration-admin-show-stored-bodies")}
+        onClick={() => setOpen(true)}
+      >
+        {t("credit-registration-admin-payloads")}
+      </Button>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        size="wide"
+        title={t("credit-registration-admin-show-stored-bodies")}
+      >
+        {open && (
+          <QueryResult query={detailQuery}>
+            {(detail) => (
+              <div className={sectionCss}>
+                <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
+                {detail.error_message && <p>{detail.error_message}</p>}
+                <Body
+                  title={t("credit-registration-admin-stored-request")}
+                  body={detail.request_body_sample}
                 />
-              )}
-              <h4 className={headingCss}>{t("credit-registration-heading-timeline")}</h4>
-              {detail.events.length === 0 ? (
-                <p className={noteCss}>{t("credit-registration-admin-no-events-for-call")}</p>
-              ) : (
-                <Table
-                  caption={t("credit-registration-heading-timeline")}
-                  rowKey={(row) => row.id}
-                  rows={detail.events}
-                  columns={[
-                    {
-                      header: t("label-time"),
-                      cell: (row) => <RelativeTime at={row.created_at} />,
-                    },
-                    { header: t("label-kind"), cell: (row) => <code>{row.kind}</code> },
-                    {
-                      header: t("label-state"),
-                      cell: (row) =>
-                        row.to_state ? <AdminStateBadge state={row.to_state} /> : ABSENT,
-                    },
-                    {
-                      header: t("label-error-code"),
-                      cell: (row) => (row.error_code ? <code>{row.error_code}</code> : ABSENT),
-                    },
-                    {
-                      header: t("label-credit-registration-registration"),
-                      cell: (row) => (
-                        <Link
-                          href={creditRegistrationItemRoute(row.credit_registration_id)}
-                          prefetch={false}
-                        >
-                          {t("credit-registration-admin-open-registration")}
-                        </Link>
-                      ),
-                    },
-                  ]}
+                <Body
+                  title={t("credit-registration-admin-stored-response")}
+                  body={detail.response_body_sample}
                 />
-              )}
-            </div>
-          )}
-        </QueryResult>
-      )}
-    </Disclosure>
+                <div className={subsectionCss}>
+                  <h3 className={subheadingCss}>
+                    {t("credit-registration-heading-ledger-references")}
+                  </h3>
+                  {detail.ledger_references.length === 0 ? (
+                    <p className={emptyStateCss}>
+                      {t("credit-registration-admin-no-ledger-references")}
+                    </p>
+                  ) : (
+                    <Table
+                      caption={t("credit-registration-heading-ledger-references")}
+                      density={DENSITY_COMPACT}
+                      rowKey={(row) => row.credit_registration_id}
+                      rows={detail.ledger_references}
+                      columns={[
+                        {
+                          header: t("credit-registration-admin-column-request-item-id"),
+                          cell: (row) => (
+                            <Link
+                              href={creditRegistrationItemRoute(row.credit_registration_id)}
+                              prefetch={false}
+                            >
+                              <code>{row.request_item_id}</code>
+                            </Link>
+                          ),
+                        },
+                        {
+                          header: t("label-student"),
+                          cell: (row) => formatUserName(row),
+                        },
+                        {
+                          header: t("label-email"),
+                          cell: (row) => row.email ?? ABSENT,
+                        },
+                        {
+                          header: t("label-student-number"),
+                          cell: (row) => (
+                            <span className={monospaceCss}>{row.student_number ?? ABSENT}</span>
+                          ),
+                        },
+                        { header: t("label-course"), cell: (row) => row.course_name },
+                        {
+                          header: t("label-state"),
+                          cell: (row) => <AdminStateBadge state={row.state} />,
+                        },
+                        {
+                          header: t("label-error-code"),
+                          cell: (row) => (row.error_code ? <code>{row.error_code}</code> : ABSENT),
+                        },
+                      ]}
+                    />
+                  )}
+                </div>
+                <div className={subsectionCss}>
+                  <h3 className={subheadingCss}>{t("credit-registration-heading-timeline")}</h3>
+                  {detail.events.length === 0 ? (
+                    <p className={emptyStateCss}>
+                      {t("credit-registration-admin-no-events-for-call")}
+                    </p>
+                  ) : (
+                    <Table
+                      caption={t("credit-registration-heading-timeline")}
+                      density={DENSITY_COMPACT}
+                      rowKey={(row) => row.id}
+                      rows={detail.events}
+                      columns={[
+                        {
+                          header: t("label-time"),
+                          cell: (row) => (
+                            <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />
+                          ),
+                        },
+                        {
+                          header: t("label-kind"),
+                          cell: (row) => eventKindLabel(t, row.kind),
+                        },
+                        {
+                          header: t("label-state"),
+                          cell: (row) =>
+                            row.to_state ? <AdminStateBadge state={row.to_state} /> : ABSENT,
+                        },
+                        {
+                          header: t("label-error-code"),
+                          cell: (row) => (row.error_code ? <code>{row.error_code}</code> : ABSENT),
+                        },
+                        {
+                          header: t("label-credit-registration-registration"),
+                          cell: (row) => (
+                            <Link
+                              href={creditRegistrationItemRoute(row.credit_registration_id)}
+                              prefetch={false}
+                            >
+                              {t("credit-registration-admin-open-registration")}
+                            </Link>
+                          ),
+                        },
+                      ]}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+          </QueryResult>
+        )}
+      </Dialog>
+    </>
   )
 }
 

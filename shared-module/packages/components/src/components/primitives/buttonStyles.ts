@@ -4,7 +4,7 @@ import type { PressEvent } from "react-aria"
 export type ButtonSize = "small" | "medium" | "large"
 export type IconPosition = "start" | "end"
 
-export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon"
+export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon" | "destructive"
 
 export interface PressHandlers {
   onPress?: (e: PressEvent) => void
@@ -48,6 +48,9 @@ export const rootBaseCss = css`
   font-weight: 600;
   line-height: 1;
   text-decoration: none;
+  /* A button that wraps to two lines has already lost its shape. A label too long to fit wants
+     shortening; a caller that cannot shorten it overrides this through its own className. */
+  white-space: nowrap;
 
   border: 1px solid transparent;
   background: transparent;
@@ -255,6 +258,35 @@ const tertiaryCss = css`
   }
 `
 
+const destructiveCss = css`
+  background: var(--btn-destructive-bg);
+  color: var(--btn-destructive-fg);
+  border-color: var(--btn-destructive-border);
+
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--btn-destructive-bg-hover);
+    color: var(--btn-destructive-fg-hover);
+    border-color: var(--btn-destructive-border-hover);
+    box-shadow:
+      var(--btn-destructive-shadow-hover),
+      inset 0 0 0 var(--btn-destructive-outline-width) var(--btn-destructive-bg);
+  }
+
+  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--btn-destructive-bg-hover);
+    color: var(--btn-destructive-fg-hover);
+    border-color: var(--btn-destructive-border-hover);
+    box-shadow:
+      var(--btn-destructive-shadow-hover),
+      inset 0 0 0 var(--btn-destructive-outline-width) var(--btn-destructive-bg);
+  }
+
+  &[data-pressed="true"] {
+    background: var(--btn-destructive-bg-pressed);
+    box-shadow: var(--btn-pressed-shadow);
+  }
+`
+
 const iconCss = css`
   background: var(--btn-icon-bg);
   color: var(--btn-icon-fg);
@@ -292,6 +324,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary: secondaryCss,
   tertiary: tertiaryCss,
   icon: iconCss,
+  destructive: destructiveCss,
 }
 
 const iconSizeStyles: Record<ButtonSize, string> = {

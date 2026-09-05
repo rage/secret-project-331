@@ -1,13 +1,23 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { ExclamationTriangle, InfoCircle } from "@vectopus/atlas-icons-react"
+import {
+  CheckCircle,
+  ExclamationTriangle,
+  InfoCircle,
+  MinusCircle,
+} from "@vectopus/atlas-icons-react"
 import React from "react"
 
-export type InfoboxTone = "info" | "warning"
+export type InfoboxTone = "neutral" | "info" | "success" | "warning" | "danger"
 
 export interface InfoboxProps {
-  /** `info` explains or reassures; `warning` flags something the reader has to act on. */
+  /**
+   * `info` explains, `success` confirms something worked, `warning` flags something to act on,
+   * `danger` reports a failure — these fills darken in that order, so two boxes on one page read
+   * as ranked. `neutral` sits outside that order: a fact worth setting apart visually, but not
+   * news.
+   */
   tone?: InfoboxTone
   heading?: React.ReactNode
   children: React.ReactNode
@@ -29,28 +39,49 @@ const rootCss = css`
   border-style: solid;
   border-width: 0 0 0 3px;
   border-color: transparent;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 var(--surface-radius) var(--surface-radius) 0;
   overflow-x: auto;
 `
 
 const toneCss: Record<InfoboxTone, string> = {
+  neutral: css`
+    border-color: var(--color-gray-400);
+    background: var(--color-gray-50);
+  `,
   info: css`
     border-color: var(--color-blue-500);
     background: var(--color-blue-25);
   `,
-  // Red rather than yellow: the yellow ramp is not contrast-safe here, same as in Badge.
+  success: css`
+    border-color: var(--color-green-600);
+    background: var(--color-green-50);
+  `,
+  // The yellow ramp is not contrast-safe as text, so warning tints only the stripe and background.
   warning: css`
-    border-color: var(--color-red-600);
-    background: var(--color-red-25);
+    border-color: var(--color-yellow-700);
+    background: var(--color-yellow-100);
+  `,
+  danger: css`
+    border-color: var(--color-crimson-600);
+    background: var(--color-crimson-75);
   `,
 }
 
 const iconToneCss: Record<InfoboxTone, string> = {
+  neutral: css`
+    color: var(--color-gray-500);
+  `,
   info: css`
     color: var(--color-blue-500);
   `,
+  success: css`
+    color: var(--color-green-600);
+  `,
   warning: css`
-    color: var(--color-red-600);
+    color: var(--color-gray-700);
+  `,
+  danger: css`
+    color: var(--color-crimson-600);
   `,
 }
 
@@ -71,6 +102,14 @@ const headingCss = css`
   font-weight: 600;
 `
 
+const toneIcon: Record<InfoboxTone, React.ComponentType<{ size?: number }>> = {
+  neutral: MinusCircle,
+  info: InfoCircle,
+  success: CheckCircle,
+  warning: ExclamationTriangle,
+  danger: ExclamationTriangle,
+}
+
 export const Infobox: React.FC<InfoboxProps> = ({
   tone = "info",
   heading,
@@ -78,13 +117,14 @@ export const Infobox: React.FC<InfoboxProps> = ({
   announce = false,
   className,
 }) => {
-  const Icon = tone === "warning" ? ExclamationTriangle : InfoCircle
+  const Icon = toneIcon[tone]
 
   return (
     <div
       className={cx(rootCss, toneCss[tone], className)}
-      // `alert` interrupts a screen reader, `status` waits for a pause.
-      role={announce ? (tone === "warning" ? "alert" : "status") : undefined}
+      // `alert` interrupts a screen reader, `status` waits for a pause; only a tone that asks for
+      // action is worth an interruption.
+      role={announce ? (tone === "warning" || tone === "danger" ? "alert" : "status") : undefined}
     >
       <span className={cx(iconCss, iconToneCss[tone])} aria-hidden="true">
         <Icon />

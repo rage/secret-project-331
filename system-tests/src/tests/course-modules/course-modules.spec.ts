@@ -1,8 +1,15 @@
+import type { Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+
+/** The edit form's chapter pickers are listbox selects, not native `<select>` elements. */
+const pickChapter = async (page: Page, triggerId: string, chapter: string) => {
+  await page.locator(triggerId).click()
+  await page.getByRole("option", { name: chapter, exact: true }).click()
+}
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -54,17 +61,18 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   })
 
   // create invalid module
+  await page.getByRole("button", { name: "Add a module" }).click()
   await page.locator('[placeholder="Name of module"]').fill("invalid module")
-  await page.locator("#new-module-start").selectOption("2")
-  await page.locator("#new-module-ends").selectOption("3")
-  await page.getByText("Confirm").click()
+  await pickChapter(page, "#new-module-start", "2")
+  await pickChapter(page, "#new-module-ends", "3")
+  await page.getByRole("button", { name: "Create module" }).click()
   await page.getByText("Error: Default module has missing chapters between 1 and 4").waitFor()
 
   // update invalid module to be valid
-  await page.locator('[aria-label="Edit"]').nth(1).click()
+  await page.getByRole("button", { name: "Edit" }).nth(1).click()
   await page.locator('[placeholder="Name of module"]').nth(0).fill("valid module")
-  await page.locator("#editing-module-ends").selectOption("4")
-  await page.locator('[aria-label="Confirm"]').click()
+  await pickChapter(page, "#editing-module-ends", "4")
+  await page.getByRole("button", { name: "Done" }).click()
   await page
     .getByText("Error: Default module has missing chapters between 1 and 4")
     .waitFor({ state: "hidden" })
@@ -73,10 +81,10 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   await page.locator('[aria-label="Delete"]').nth(1).click()
 
   // update last module
-  await page.locator('[aria-label="Edit"]').nth(2).click()
+  await page.getByRole("button", { name: "Edit" }).nth(2).click()
   await page.locator('[placeholder="Name of module"]').nth(0).fill("renamed module")
-  await page.locator("#editing-module-start").selectOption("3")
-  await page.locator('[aria-label="Confirm"]').click()
+  await pickChapter(page, "#editing-module-start", "3")
+  await page.getByRole("button", { name: "Done" }).click()
   await page.getByText("2. renamed module").waitFor()
 
   // save changes

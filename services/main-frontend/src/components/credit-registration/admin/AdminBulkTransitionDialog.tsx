@@ -1,11 +1,13 @@
 "use client"
 
 import React from "react"
+import type { Control } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { adminBulkTransitionCreditRegistrations } from "@/generated/api/sdk.generated"
 import type { AdminBulkTransitionResult } from "@/generated/api/types.generated"
-import { Infobox } from "@/shared-module/components"
+import { Checkbox, Infobox } from "@/shared-module/components"
 
 import { TONE } from "../constants"
 import { refusalSentence } from "../resubmissionRefusal"
@@ -14,16 +16,52 @@ import { AdminActionDialog } from "./AdminActionDialog"
 import { useInvalidateAttentionItems } from "./adminCreditRegistrationHooks"
 import { ReasonField } from "./ReasonConfirmDialog"
 import type { TransitionChoice } from "./TransitionTargetSelect"
-import { READY_TO_SUBMIT, transitionAction, TransitionTargetSelect } from "./TransitionTargetSelect"
+import {
+  CANCELLED,
+  READY_TO_SUBMIT,
+  transitionAction,
+  TransitionTargetSelect,
+} from "./TransitionTargetSelect"
 
 interface Props {
   selectedIds: string[]
   onApplied: () => void
 }
 
+// oxlint-disable-next-line i18next/no-literal-string
+const ACTION_FIELD = "action" as const
+
 interface Fields {
   action: TransitionChoice
   reason: string
+  cancelUnderstood: boolean
+}
+
+/**
+ * A second, explicit gate on the one bulk move that cannot be undone: the reason field gates every
+ * action in this dialog equally, so on its own it puts cancelling a hundred rows on a par with
+ * resubmitting them.
+ */
+const BulkCancelGate: React.FC<{ control: Control<Fields>; count: number }> = ({
+  control,
+  count,
+}) => {
+  const { t } = useTranslation()
+  const action = useWatch({ control, name: ACTION_FIELD })
+  if (action !== CANCELLED) {
+    return null
+  }
+  return (
+    <>
+      <Infobox tone={TONE.DANGER}>{t("credit-registration-admin-bulk-cancel-warning")}</Infobox>
+      <Checkbox
+        name="cancelUnderstood"
+        control={control}
+        rules={{ required: t("required-field") }}
+        label={t("credit-registration-admin-bulk-cancel-confirm", { count })}
+      />
+    </>
+  )
 }
 
 /**
@@ -43,7 +81,7 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedIds, onApplied }) 
       dialogTitle={t("credit-registration-admin-bulk-transition-title", {
         count: selectedIds.length,
       })}
-      defaultValues={{ action: READY_TO_SUBMIT, reason: "" }}
+      defaultValues={{ action: READY_TO_SUBMIT, reason: "", cancelUnderstood: false }}
       mutationFn={(fields) =>
         adminBulkTransitionCreditRegistrations({
           body: {
@@ -61,6 +99,7 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedIds, onApplied }) 
         <>
           <p className={noteCss}>{t("credit-registration-admin-bulk-uncertain-note")}</p>
           <TransitionTargetSelect control={control} />
+          <BulkCancelGate control={control} count={selectedIds.length} />
           <ReasonField
             control={control}
             description={t("description-credit-registration-transition-reason")}

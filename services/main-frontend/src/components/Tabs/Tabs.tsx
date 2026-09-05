@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import type { TabListState } from "@react-stately/tabs"
 import { useTabListState } from "@react-stately/tabs"
 import { usePathname, useRouter } from "next/navigation"
@@ -8,8 +8,9 @@ import React, { createContext, useContext, useMemo, useRef } from "react"
 import { useTabList } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "@/shared-module/common/styles"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import { tabStripCss, tabStripVerticalCss, useScrollSelectedTabIntoView } from "./tabStrip"
 
 interface TabsContextValue {
   state: TabListState<object>
@@ -17,6 +18,10 @@ interface TabsContextValue {
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null)
+
+const hiddenStripCss = css`
+  visibility: hidden;
+`
 
 export const useTabsContext = () => {
   const context = useContext(TabsContext)
@@ -29,9 +34,15 @@ export const useTabsContext = () => {
 interface TabsProps {
   children: React.ReactNode
   orientation?: "horizontal" | "vertical"
+  /** Keeps the strip's height while hiding the tabs, for callers still deciding which tabs belong. */
+  isTabListHidden?: boolean
 }
 
-const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => {
+const Tabs: React.FC<TabsProps> = ({
+  children,
+  orientation = "horizontal",
+  isTabListHidden = false,
+}) => {
   const pathname = usePathname()
   const router = useRouter()
   const { t } = useTranslation()
@@ -113,21 +124,18 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
     tabListRef,
   )
 
+  useScrollSelectedTabIntoView(tabListRef, selectedKey)
+
   return (
     <TabsContext.Provider value={{ state, basePath }}>
       <div
         {...tabListProps}
         ref={tabListRef}
-        className={css`
-          display: flex;
-          background: ${baseTheme.colors.gray[75]};
-          padding: 4px;
-          border-radius: 8px;
-          gap: 4px;
-          flex-direction: ${orientation === "horizontal" ? "row" : "column"};
-          margin-bottom: 1.5rem;
-          border: 1px solid ${baseTheme.colors.gray[100]};
-        `}
+        className={cx(
+          tabStripCss,
+          orientation === "vertical" && tabStripVerticalCss,
+          isTabListHidden && hiddenStripCss,
+        )}
       >
         {tabChildren}
       </div>

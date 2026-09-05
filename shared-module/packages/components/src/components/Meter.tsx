@@ -19,7 +19,12 @@ export interface MeterProps {
   /** Optional reference marker on the same scale as `value` (e.g. a threshold). */
   threshold?: number
   tone?: MeterTone
-  /** Show the label/value row above the bar. When false, the bar is compact and label is SR-only. */
+  /**
+   * Show the label/value row above the bar. When false, the bar is compact and the label is
+   * SR-only, so the bar itself carries no visible meaning — only safe on a dashboard where a
+   * shared legend already states what every bar in it measures. A bar that stands alone (a table
+   * cell, a single card) needs `MeterInline` instead, not `showLabel={false}`.
+   */
   showLabel?: boolean
   className?: string
 }
@@ -32,7 +37,7 @@ const fillToneCss: Record<MeterTone, string> = {
     background: var(--color-green-600);
   `,
   warning: css`
-    background: var(--color-red-500);
+    background: var(--color-yellow-700);
   `,
   danger: css`
     background: var(--color-crimson-700);
@@ -157,5 +162,124 @@ export const Meter: React.FC<MeterProps> = ({
         ) : null}
       </div>
     </div>
+  )
+}
+
+export interface MeterInlineProps {
+  value: number
+  minValue?: number
+  maxValue: number
+  /** Accessible name. Not displayed — the visible text is `valueText`. */
+  label: string
+  /** Short visible text beside the bar, e.g. "26 d". Falls back to `valueLabel` for the accessible value text when it is a string. */
+  valueText: React.ReactNode
+  /** Full accessible value text, e.g. "26 days, past the 1 day threshold". */
+  valueLabel?: string
+  /** Short visible text after the bar, e.g. the threshold restated as "1 d". */
+  secondaryText?: React.ReactNode
+  /** Optional reference marker on the same scale as `value` (e.g. a threshold). */
+  threshold?: number
+  tone?: MeterTone
+  className?: string
+}
+
+const inlineRootCss = css`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+`
+
+const inlineValueCss = css`
+  color: var(--color-gray-700);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+`
+
+const inlineSecondaryCss = css`
+  color: var(--color-gray-500);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+`
+
+const inlineTrackCss = css`
+  position: relative;
+  flex: none;
+  width: 3rem;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-gray-100);
+  overflow: hidden;
+`
+
+const inlineTickCss = css`
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  background: var(--color-gray-600);
+`
+
+/**
+ * A meter's value as text beside a short bar, for a table cell or another dense row where a bare
+ * bar (`Meter` with `showLabel={false}`) would carry no visible meaning. The value is always
+ * shown — there is no `showLabel` toggle.
+ */
+export const MeterInline: React.FC<MeterInlineProps> = ({
+  value,
+  minValue = 0,
+  maxValue,
+  label,
+  valueText,
+  valueLabel,
+  secondaryText,
+  threshold,
+  tone = "neutral",
+  className,
+}) => {
+  const resolvedValueLabel = valueLabel ?? (typeof valueText === "string" ? valueText : undefined)
+  const { meterProps } = useMeter({
+    label,
+    value,
+    minValue,
+    maxValue,
+    ...omitUndefined({ valueLabel: resolvedValueLabel }),
+    "aria-label": label,
+  })
+
+  const fillPct = clampPct(value, minValue, maxValue)
+  const thresholdPct = threshold !== undefined ? clampPct(threshold, minValue, maxValue) : null
+
+  return (
+    // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- aria-valuenow is in meterProps
+    <span {...meterProps} role="meter" className={cx(inlineRootCss, className)}>
+      <span className={inlineValueCss}>{valueText}</span>
+      <span
+        className={cx(inlineTrackCss, thresholdPct !== null && trackWithTickCss)}
+        aria-hidden="true"
+      >
+        <span
+          className={cx(
+            fillCss,
+            fillToneCss[tone],
+            css`
+              width: ${fillPct}%;
+            `,
+          )}
+        />
+        {thresholdPct !== null ? (
+          <span
+            className={cx(
+              inlineTickCss,
+              css`
+                left: ${thresholdPct}%;
+              `,
+            )}
+          />
+        ) : null}
+      </span>
+      {secondaryText ? <span className={inlineSecondaryCss}>{secondaryText}</span> : null}
+    </span>
   )
 }

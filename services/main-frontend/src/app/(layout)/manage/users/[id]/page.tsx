@@ -1,11 +1,12 @@
 "use client"
 
-import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
-import React from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { headingCss, sectionCss, sectionsCss } from "@/components/credit-registration/styles"
 import { getUserCourseEnrollmentsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
   extractUserDetail,
@@ -17,6 +18,7 @@ import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { searchUsersRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
 
@@ -27,13 +29,8 @@ import CourseEnrollmentsSection from "./components/CourseEnrollmentsSection"
 import ExerciseResetLogSection from "./components/ExerciseResetLogSection"
 import UserIdentityHeader from "./components/UserIdentityHeader"
 import UserStatBar from "./components/UserStatBar"
-import { sectionHeadingCss } from "./lib/sectionHeading"
 
 const COMPLETION_REVIEW_ID = "completion-review"
-
-const Area = styled.div`
-  margin: 3rem 0;
-`
 
 const UserPage: React.FC = () => {
   const { t } = useTranslation()
@@ -52,6 +49,15 @@ const UserPage: React.FC = () => {
   const userDisplayName = formatUserName(userDetail)
   usePageTitle(userDisplayName || t("header-user-details"))
 
+  const crumbs = useMemo(
+    () => [
+      { isLoading: false as const, label: t("users"), href: searchUsersRoute() },
+      { isLoading: false as const, label: userDisplayName || t("header-user-details") },
+    ],
+    [t, userDisplayName],
+  )
+  useRegisterBreadcrumbs({ key: `user:${id}`, order: 20, crumbs })
+
   return (
     <QueryResults
       queries={[courseEnrollmentsQuery, userDetailsQuery] as const}
@@ -68,7 +74,7 @@ const UserPage: React.FC = () => {
         const userDetailsNotFound = isUserDetailsNotFound(userDetailsResult)
         const enrollments = enrollmentsResult.course_enrollments
         return (
-          <>
+          <div className={sectionsCss}>
             <UserIdentityHeader
               userId={id}
               userDetails={userDetails}
@@ -77,29 +83,29 @@ const UserPage: React.FC = () => {
             <CompletionReviewBanner enrollments={enrollments} targetId={COMPLETION_REVIEW_ID} />
             <UserStatBar enrollments={enrollments} reviewTargetId={COMPLETION_REVIEW_ID} />
             {enrollments.length > 0 ? (
-              <Area>
-                <h2 className={sectionHeadingCss}>{t("user-activity")}</h2>
+              <section className={sectionCss}>
+                <h2 className={headingCss}>{t("user-activity")}</h2>
                 <ActivityTimeline enrollments={enrollments} />
-              </Area>
+              </section>
             ) : null}
             <CompletionReviewSection
               userId={id}
               enrollments={enrollments}
               id={COMPLETION_REVIEW_ID}
             />
-            <Area>
-              <h2 className={sectionHeadingCss}>{t("header-course-enrollments")}</h2>
+            <section className={sectionCss}>
+              <h2 className={headingCss}>{t("header-course-enrollments")}</h2>
               <CourseEnrollmentsSection enrollments={enrollments} userId={id} />
-            </Area>
+            </section>
             <OnlyRenderIfPermissions
               action={{ type: "teach" }}
               resource={{ type: "global_permissions" }}
             >
-              <Area>
+              <section className={sectionCss}>
                 <ExerciseResetLogSection userId={id} />
-              </Area>
+              </section>
             </OnlyRenderIfPermissions>
-          </>
+          </div>
         )
       }}
     />

@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React, { useState } from "react"
 
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
@@ -8,11 +7,6 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button } from "@/shared-module/components"
 
 import { ReasonConfirmDialog } from "./ReasonConfirmDialog"
-
-export const pauseResumeRootCss = css`
-  display: flex;
-  gap: 0.4rem;
-`
 
 interface UsePauseResumeActionOptions {
   pause: (fields: { reason: string }) => Promise<unknown>

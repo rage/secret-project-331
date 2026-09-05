@@ -1,8 +1,11 @@
 import { type QueryClient, queryOptions, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
+import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   getCourseCreditRegistrationActionsQueryKey,
+  getCourseCreditRegistrationsOptions,
   getCourseCreditRegistrationSummaryQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { getCourseCreditRegistrationsForUsers } from "@/generated/api/sdk.generated"
@@ -11,12 +14,14 @@ import type {
   CreditRegistrationNotificationKind,
   EmailSendStatus,
   NotificationEmailStatus,
+  StudentFacingCreditRegistrationStatus,
   StudentNumberVerificationMethod,
 } from "@/generated/api/types.generated"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
+import { registrationErrorShortLabel } from "./creditRegistrationCopy"
 import { labelFrom, widenedLookup } from "./labelFrom"
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -24,6 +29,11 @@ const QUERY_KEY_PREFIX = "course-credit-registrations/by-user-ids"
 
 /** The server rejects a request body over 2 MB, and a caller may list every enrolled user. */
 const USER_IDS_PER_REQUEST = 500
+
+/** Enough failures for the breakdown to be exact on any real course; past it, it says it is capped. */
+const FAILED_ROWS_FETCHED = 500
+
+const FAILED_STATUS: StudentFacingCreditRegistrationStatus[] = ["failed"]
 
 const fetchInBatches = async (
   courseId: string,
@@ -41,27 +51,34 @@ const fetchInBatches = async (
 }
 
 /**
+ * Whether this user may read the course's registrations at all.
+ *
+ * Not implied by the permission that opens a students/completions view: an assistant may hold that
+ * one, and a registration carries the student's national study registry identity.
+ */
+export const useCanViewCreditRegistrations = (courseId: string | null): boolean =>
+  useAuthorizeMultiple(
+    courseId !== null
+      ? [
+          {
+            action: { type: "view_and_manage_credit_registrations" },
+            resource: { type: "course", id: courseId },
+          },
+        ]
+      : [],
+  ).data?.[0] === true
+
+/**
  * Keyed `userId:moduleId`, newest attempt only.
  *
- * Not implied by the permission that opens a students/completions view: an assistant may read it,
- * and a registration carries the student's national study registry identity. `isAuthorized` lets
- * every consumer show the same loading/denied state instead of each guarding the query itself.
+ * `isAuthorized` lets every consumer show the same loading/denied state instead of each guarding
+ * the query itself.
  */
 export const useTeacherCreditRegistrations = (
   courseId: string | null,
   userIds: string[],
-): { data: CreditRegistrationIndex | undefined; isAuthorized: boolean } => {
-  const isAuthorized =
-    useAuthorizeMultiple(
-      courseId !== null
-        ? [
-            {
-              action: { type: "view_and_manage_credit_registrations" },
-              resource: { type: "course", id: courseId },
-            },
-          ]
-        : [],
-    ).data?.[0] === true
+): { data: CreditRegistrationIndex; isAuthorized: boolean } => {
+  const isAuthorized = useCanViewCreditRegistrations(courseId)
 
   const query = useQuery(
     optionalGeneratedQueryOptions({
@@ -77,7 +94,7 @@ export const useTeacherCreditRegistrations = (
     }),
   )
 
-  return { data: query.data, isAuthorized }
+  return { data: query.data ?? EMPTY_CREDIT_REGISTRATIONS, isAuthorized }
 }
 
 /**
@@ -104,7 +121,58 @@ export const useInvalidateAfterRetry = (courseId: string) => {
     ])
 }
 
+/** One cause and how many of the course's failures have it, worst first. */
+export interface CreditRegistrationFailureReason {
+  label: string
+  count: number
+}
+
+/**
+ * The failures of the course, or of one instance, grouped by cause.
+ *
+ * There is no per-cause aggregate endpoint, so the failed rows themselves are fetched and counted
+ * here; `isCapped` says the page was full and the breakdown is therefore a lower bound.
+ */
+export const useCourseFailureReasons = (
+  courseId: string,
+  courseInstanceId: string | null,
+  enabled: boolean,
+): { reasons: CreditRegistrationFailureReason[]; isCapped: boolean } => {
+  const { t } = useTranslation()
+  const query = useQuery({
+    ...getCourseCreditRegistrationsOptions({
+      path: { course_id: courseId },
+      query: {
+        page: 1,
+        limit: FAILED_ROWS_FETCHED,
+        status: FAILED_STATUS,
+        ...(courseInstanceId ? { course_instance_id: courseInstanceId } : {}),
+      },
+    }),
+    enabled,
+  })
+
+  return useMemo(() => {
+    const rows = query.data?.data ?? []
+    const counts = new Map<string, number>()
+    for (const row of rows) {
+      const label =
+        registrationErrorShortLabel(t, row.error_code) ?? t("credit-registration-reason-unknown")
+      counts.set(label, (counts.get(label) ?? 0) + 1)
+    }
+    return {
+      reasons: [...counts.entries()]
+        .map(([label, count]) => ({ label, count }))
+        .toSorted((a, b) => b.count - a.count),
+      isCapped: rows.length >= FAILED_ROWS_FETCHED,
+    }
+  }, [query.data, t])
+}
+
 export type CreditRegistrationIndex = Map<string, CourseCreditRegistration>
+
+/** One shared instance: consumers feed the index straight into `useMemo` dependencies. */
+const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 export const creditRegistrationKey = (userId: string, moduleId: string) => `${userId}:${moduleId}`
 
@@ -135,11 +203,6 @@ export const studentNumberVerificationLabel = (
   const key = widenedLookup(VERIFICATION_METHOD_KEYS, method)
   return key ? t(key) : null
 }
-
-/** A support-established link rests on judgement, not on proof of mailbox control. */
-export const isAdminEstablishedLink = (
-  method: StudentNumberVerificationMethod | null | undefined,
-): boolean => method === "admin_manual"
 
 const LINKING_EMAIL_KEYS = {
   queued: "credit-registration-teacher-linking-email-queued",

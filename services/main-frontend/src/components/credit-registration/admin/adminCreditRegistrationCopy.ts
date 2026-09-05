@@ -6,20 +6,38 @@ import type {
   CreditRegistrationAdminActionTarget,
   CreditRegistrationAlertId,
   CreditRegistrationAttentionReason,
+  CreditRegistrationEventKind,
   CreditRegistrationPendingReason,
   CreditRegistrationState,
   EmailSendStatus,
   ResendOutcome,
   Retryability,
+  StudentNumberVerificationMethod,
 } from "@/generated/api/types.generated"
-import type { RegistrationStatusState } from "@/shared-module/components"
+import type { BadgeTone, RegistrationStatusState } from "@/shared-module/components"
 
+import { TONE } from "../constants"
 import { labelFrom, widenedLookup } from "../labelFrom"
 
 export {
   notificationEmailLabel as notificationKindLabel,
   studentNumberVerificationLabel as verificationMethodLabel,
 } from "../teacherCreditRegistrations"
+
+/**
+ * How much the link is worth as proof. The automatic match is the weakest: nobody confirmed
+ * anything, an address just lined up — which is what the name-mismatch alert is about.
+ */
+const VERIFICATION_METHOD_TONES = {
+  emailed_link: TONE.SUCCESS,
+  email_match_fast_track: TONE.INFO,
+  admin_manual: TONE.NEUTRAL,
+} as const satisfies Record<StudentNumberVerificationMethod, BadgeTone>
+
+export const verificationMethodTone = (
+  method: StudentNumberVerificationMethod | null | undefined,
+): BadgeTone =>
+  method ? (widenedLookup(VERIFICATION_METHOD_TONES, method) ?? TONE.NEUTRAL) : TONE.NEUTRAL
 
 const STATE_TONES = {
   pending: "upcoming",
@@ -28,7 +46,7 @@ const STATE_TONES = {
   checking_enrolment: "current",
   no_usable_enrolment: "action-needed",
   submitting: "current",
-  submission_uncertain: "failed",
+  submission_uncertain: "action-needed",
   awaiting_verification: "current",
   registered: "done",
   duplicate: "done",
@@ -54,9 +72,38 @@ export const stateTone = (
   widenedLookup(STATE_TONES, state) ??
   "upcoming"
 
-/** The credit exists in the study registry, whoever put it there. */
-export const isSuccessState = (state: CreditRegistrationState): boolean =>
-  state === "registered" || state === "duplicate" || state === "not_improved"
+/**
+ * `ready_to_submit` as `ready to submit`, for a chart legend or an axis. Deliberately untranslated,
+ * like `AdminStateBadge`: the state name is the identifier an operator quotes.
+ */
+export const stateName = (state: CreditRegistrationState): string => state.replaceAll("_", " ")
+
+const EVENT_KIND_KEYS = {
+  created: "credit-registration-admin-event-created",
+  state_changed: "credit-registration-admin-event-state-changed",
+  suotar_response: "credit-registration-admin-event-suotar-response",
+  retry_scheduled: "credit-registration-admin-event-retry-scheduled",
+  admin_action: "credit-registration-admin-event-admin-action",
+  student_action: "credit-registration-admin-event-student-action",
+  cancelled: "credit-registration-admin-event-cancelled",
+} as const satisfies Record<CreditRegistrationEventKind, string>
+
+const EVENT_KIND_UNKNOWN_KEY = "credit-registration-admin-event-unknown"
+
+/** What kind of thing the timeline entry records. */
+export const eventKindLabel = (t: TFunction, kind: CreditRegistrationEventKind): string =>
+  labelFrom(t, EVENT_KIND_KEYS, kind, EVENT_KIND_UNKNOWN_KEY)
+
+// oxlint-disable-next-line i18next/no-literal-string
+export const COURSE_TEACHER_ROLE = "course_teacher"
+// oxlint-disable-next-line i18next/no-literal-string
+export const GLOBAL_ADMIN_ROLE = "global_admin"
+
+/** Whose permission authorised the action. The backend types the role as a bare string. */
+export const actorRoleLabel = (t: TFunction, actorRole: string): string =>
+  actorRole === COURSE_TEACHER_ROLE
+    ? t("credit-registration-admin-actor-course-teacher")
+    : t("credit-registration-admin-actor-global-admin")
 
 const ALERT_KEYS = {
   credentials_rejected: "credit-registration-alert-credentials-rejected",
@@ -99,10 +146,17 @@ const ATTENTION_REASON_KEYS = {
   misregistered: "credit-registration-admin-reason-misregistered",
   too_many_attempts: "credit-registration-admin-reason-too-many-attempts",
   outcome_uncertain: "credit-registration-admin-reason-outcome-uncertain",
-  flagged_by_pipeline: "credit-registration-admin-reason-flagged-by-pipeline",
 } as const satisfies Record<CreditRegistrationAttentionReason, string>
 
 const ATTENTION_REASON_UNKNOWN_KEY = "credit-registration-admin-reason-unknown"
+
+// Derived from the copy table so a new reason can't reach the filter without a label.
+const ATTENTION_REASONS = Object.keys(ATTENTION_REASON_KEYS) as CreditRegistrationAttentionReason[]
+
+export const isAttentionReason = (
+  value: string | undefined,
+): value is CreditRegistrationAttentionReason =>
+  value !== undefined && (ATTENTION_REASONS as string[]).includes(value)
 
 /** Which detector put a row on the attention table. */
 export const attentionReasonLabel = (
@@ -123,6 +177,18 @@ const RETRYABILITY_UNKNOWN_KEY = "credit-registration-admin-retryability-unknown
 /** What can be done about an error code, which is the difference between waiting and fixing. */
 export const retryabilityLabel = (t: TFunction, retryability: Retryability): string =>
   labelFrom(t, RETRYABILITY_KEYS, retryability, RETRYABILITY_UNKNOWN_KEY)
+
+const RETRYABILITY_TONES = {
+  retryable_transient: TONE.NEUTRAL,
+  verify_only: TONE.NEUTRAL,
+  permanent_needs_student: TONE.WARNING,
+  permanent_needs_admin: TONE.DANGER,
+  permanent_needs_config: TONE.DANGER,
+} as const satisfies Record<Retryability, BadgeTone>
+
+/** The badge tone beside `retryabilityLabel`. */
+export const retryabilityTone = (retryability: Retryability): BadgeTone =>
+  widenedLookup(RETRYABILITY_TONES, retryability) ?? TONE.NEUTRAL
 
 export const ADMIN_ACTION_KEYS = {
   retry_item: "credit-registration-admin-action-retry-item",

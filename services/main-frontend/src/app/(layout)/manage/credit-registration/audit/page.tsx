@@ -1,34 +1,47 @@
 "use client"
 
-import Link from "next/link"
-import React from "react"
+import { css, cx } from "@emotion/css"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  actorRoleLabel,
   ADMIN_ACTION_KEYS,
   ADMIN_TARGET_KEYS,
   adminActionLabel,
   adminActionTargetLabel,
+  COURSE_TEACHER_ROLE,
+  GLOBAL_ADMIN_ROLE,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
   useCreditRegistrationAdminActions,
   useCreditRegistrationCourseStats,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
-import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   selectFilterField,
   useFilteredAdminQuery,
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
-import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
+import {
+  ABSENT,
+  ARROW,
+  DENSITY_COMPACT,
+  ID_PREFIX_LENGTH,
+  LINK_QUIET,
+  MIDDLE_DOT,
+  QUIET_REFRESH,
+  TIME_COMPACT,
+  TONE,
+} from "@/components/credit-registration/constants"
 import {
   controlCss,
   controlsCss,
   headingCss,
   noteCss,
+  rowCss,
   sectionCss,
-  sectionsCss,
+  sectionHeaderCss,
   stackedCellCss,
 } from "@/components/credit-registration/styles"
 import type {
@@ -36,19 +49,35 @@ import type {
   CreditRegistrationAdminActionRow,
   CreditRegistrationAdminActionTarget,
 } from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Badge, DateField, QueryResult, Select, Table } from "@/shared-module/components"
+import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
+import {
+  Badge,
+  Button,
+  DateField,
+  Link,
+  QueryResult,
+  RelativeTime,
+  Select,
+  Table,
+  TextField,
+} from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
 
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ACTOR_ROLE = "actor_role"
 // oxlint-disable-next-line i18next/no-literal-string
+const PARAM_ACTOR_USER_ID = "actor_user_id"
+// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ACTION = "action"
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_TARGET_KIND = "target_kind"
+// oxlint-disable-next-line i18next/no-literal-string
+const PARAM_TARGET_ID = "target_id"
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_COURSE_ID = "course_id"
 // oxlint-disable-next-line i18next/no-literal-string
@@ -57,10 +86,6 @@ const PARAM_FROM = "from"
 const PARAM_TO = "to"
 // oxlint-disable-next-line i18next/no-literal-string
 const ANY = ""
-// oxlint-disable-next-line i18next/no-literal-string
-const GLOBAL_ADMIN = "global_admin"
-// oxlint-disable-next-line i18next/no-literal-string
-const COURSE_TEACHER = "course_teacher"
 // oxlint-disable-next-line i18next/no-literal-string
 const OVERRIDE_RATE_CAP: CreditRegistrationAdminAction = "override_rate_cap"
 // oxlint-disable-next-line i18next/no-literal-string
@@ -78,26 +103,68 @@ const isAdminActionTarget = (
 ): value is CreditRegistrationAdminActionTarget =>
   value !== undefined && (TARGET_KINDS as string[]).includes(value)
 
+/** Lets the Selects share one row instead of stranding the last of them on a line of its own. */
+const auditControlCss = cx(
+  controlCss,
+  css`
+    flex: 1 1 12rem;
+  `,
+)
+
+/** From and To read as one control, so they sit on one line and are announced as one group. */
+const dateRangeCss = css`
+  display: flex;
+  flex: 1 1 20rem;
+  gap: var(--space-3);
+  align-items: end;
+
+  > * {
+    flex: 1 1 9rem;
+  }
+`
+
 interface FilterFields {
   actor_role: string
+  actor_user_id: string
   action: string
   target_kind: string
+  target_id: string
   course_id: string
   from: string
   to: string
 }
 
+/**
+ * The chosen day is the operator's own day, so the window has to run from their midnight to their
+ * next midnight. A `Z` suffix would silently shift "today" by the offset from UTC.
+ */
 const dayStart = (day: string): string | undefined =>
-  day === "" ? undefined : new Date(`${day}T00:00:00Z`).toISOString()
+  day === "" ? undefined : new Date(`${day}T00:00:00`).toISOString()
 
-const dayEnd = (day: string): string | undefined =>
-  day === "" ? undefined : new Date(`${day}T23:59:59Z`).toISOString()
+const dayEnd = (day: string): string | undefined => {
+  if (day === "") {
+    return undefined
+  }
+  const nextMidnight = new Date(`${day}T00:00:00`)
+  nextMidnight.setDate(nextMidnight.getDate() + 1)
+  return new Date(nextMidnight.getTime() - 1).toISOString()
+}
 
 /** The inverse of the two above, so a pasted link's window reaches the date inputs it came from. */
-const dayOf = (instant: string | undefined): string => instant?.slice(0, 10) ?? ""
+const dayOf = (instant: string | undefined): string => {
+  if (instant === undefined) {
+    return ""
+  }
+  const local = new Date(instant)
+  if (Number.isNaN(local.getTime())) {
+    return ""
+  }
+  return formatDateForDateInputs(local) ?? ""
+}
 
 const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
   selectFilterField(PARAM_ACTOR_ROLE, "actor_role"),
+  selectFilterField(PARAM_ACTOR_USER_ID, "actor_user_id"),
   selectFilterField(PARAM_ACTION, "action"),
   selectFilterField(PARAM_TARGET_KIND, "target_kind"),
   selectFilterField(PARAM_COURSE_ID, "course_id"),
@@ -115,41 +182,63 @@ const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
   },
 ]
 
-const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
-  const { t } = useTranslation()
-  const isTeacher = row.actor_role === COURSE_TEACHER
-  return (
-    <span className={stackedCellCss}>
-      <span>{[row.actor_first_name, row.actor_last_name].filter(Boolean).join(" ")}</span>
-      <span className={noteCss}>{row.actor_email}</span>
-      <Badge tone={isTeacher ? TONE.INFO : TONE.NEUTRAL}>
-        {isTeacher
-          ? t("credit-registration-admin-actor-course-teacher")
-          : t("credit-registration-admin-actor-global-admin")}
-      </Badge>
+const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => (
+  <span className={stackedCellCss}>
+    <span>
+      {formatUserName({ first_name: row.actor_first_name, last_name: row.actor_last_name })}
     </span>
-  )
-}
+    <span className={noteCss}>{row.actor_email}</span>
+  </span>
+)
 
+/** Who or what the action was about, named rather than identified by an id prefix. */
 const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
   const { t } = useTranslation()
   const kind = adminActionTargetLabel(t, row.target_kind)
-  if (row.target_kind === REGISTRATION_TARGET && row.target_id) {
-    return (
-      <Link href={creditRegistrationItemRoute(row.target_id)} prefetch={false}>
+  const student =
+    row.target_first_name || row.target_last_name
+      ? formatUserName({ first_name: row.target_first_name, last_name: row.target_last_name })
+      : null
+  const name = student ?? (row.target_id ? row.target_id.slice(0, ID_PREFIX_LENGTH) : null)
+  const body = (
+    <span className={stackedCellCss}>
+      <span>
         {kind}
-      </Link>
-    )
+        {row.target_phase ? (
+          <>
+            {MIDDLE_DOT}
+            <code>{row.target_phase}</code>
+          </>
+        ) : (
+          name && `${MIDDLE_DOT}${name}`
+        )}
+      </span>
+      {row.course_name && <span className={noteCss}>{row.course_name}</span>}
+    </span>
+  )
+  return row.target_kind === REGISTRATION_TARGET && row.target_id ? (
+    <Link
+      href={creditRegistrationItemRoute(row.target_id)}
+      appearance={LINK_QUIET}
+      prefetch={false}
+    >
+      {body}
+    </Link>
+  ) : (
+    body
+  )
+}
+
+/** Both sides of the move, so a single state is never left pointing in no direction. */
+const StateChangeCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
+  if (!row.before_state && !row.after_state) {
+    return <span>{ABSENT}</span>
   }
   return (
-    <span>
-      {kind}
-      {row.target_phase && (
-        <>
-          {MIDDLE_DOT}
-          <code>{row.target_phase}</code>
-        </>
-      )}
+    <span className={rowCss}>
+      {row.before_state ? <AdminStateBadge state={row.before_state} /> : ABSENT}
+      <span aria-hidden="true">{ARROW}</span>
+      {row.after_state ? <AdminStateBadge state={row.after_state} /> : ABSENT}
     </span>
   )
 }
@@ -163,7 +252,7 @@ const AuditPage: React.FC = () => {
   const courseStatsQuery = useCreditRegistrationCourseStats()
   // The stats are one row per module, and a course can have several Suotar-enabled modules: dedupe
   // by course_id or the Select gets two options with the same value and refuses to render at all.
-  const courseOptions = React.useMemo(() => {
+  const courseOptions = useMemo(() => {
     const byCourseId = new Map<string, string>()
     for (const courseModule of courseStatsQuery.data?.modules ?? []) {
       byCourseId.set(courseModule.course_id, courseModule.course_name)
@@ -171,15 +260,25 @@ const AuditPage: React.FC = () => {
     return Array.from(byCourseId, ([value, label]) => ({ value, label }))
   }, [courseStatsQuery.data?.modules])
 
-  const { control, paginationInfo, query } = useFilteredAdminQuery(
+  const {
+    control,
+    handleSubmit,
+    applyParams,
+    activeFilterCount,
+    clearFilters,
+    paginationInfo,
+    query,
+  } = useFilteredAdminQuery(
     FILTER_FIELDS,
-    (filterParam, pagination) => {
-      const actorRole = filterParam(PARAM_ACTOR_ROLE)
-      const action = filterParam(PARAM_ACTION)
-      const targetKind = filterParam(PARAM_TARGET_KIND)
-      const courseId = filterParam(PARAM_COURSE_ID)
-      const from = filterParam(PARAM_FROM)
-      const to = filterParam(PARAM_TO)
+    (filters, pagination) => {
+      const actorRole = filters.param(PARAM_ACTOR_ROLE)
+      const actorUserId = filters.param(PARAM_ACTOR_USER_ID)
+      const action = filters.param(PARAM_ACTION)
+      const targetKind = filters.param(PARAM_TARGET_KIND)
+      const targetId = filters.param(PARAM_TARGET_ID)
+      const courseId = filters.param(PARAM_COURSE_ID)
+      const from = filters.param(PARAM_FROM)
+      const to = filters.param(PARAM_TO)
       // Validated against the derived option list rather than cast blind, so a stale/tampered URL
       // param can't reach the API as a value the Select never offered.
       const validAction = isAdminAction(action) ? action : undefined
@@ -188,153 +287,221 @@ const AuditPage: React.FC = () => {
         page: pagination.page,
         limit: pagination.limit,
         ...includeIf(actorRole, { actor_role: actorRole }),
+        ...includeIf(actorUserId, { actor_user_id: actorUserId }),
         ...includeIf(validAction, { action: [validAction as CreditRegistrationAdminAction] }),
         ...includeIf(validTargetKind, { target_kind: validTargetKind }),
+        ...includeIf(targetId, { target_id: targetId }),
         ...includeIf(courseId, { course_id: courseId }),
         ...includeIf(from, { from }),
         ...includeIf(to, { to }),
       }
     },
-    { rowsPerPage: ROWS_PER_PAGE },
+    {
+      rowsPerPage: ROWS_PER_PAGE,
+      manualDefaults: (filters) => ({ target_id: filters.param(PARAM_TARGET_ID) ?? "" }),
+    },
   )
 
   const actionsQuery = useCreditRegistrationAdminActions(query)
 
+  // Off the page in view, because the endpoint reports no roster of actors: someone who has not
+  // acted on the rows currently listed is not offered, and picking one narrows the list to them.
+  const actorOptions = useMemo(() => {
+    const byUserId = new Map<string, string>()
+    for (const row of actionsQuery.data?.data ?? []) {
+      byUserId.set(
+        row.actor_user_id,
+        formatUserName({ first_name: row.actor_first_name, last_name: row.actor_last_name }),
+      )
+    }
+    return Array.from(byUserId, ([value, label]) => ({ value, label }))
+  }, [actionsQuery.data?.data])
+
   return (
-    <div className={sectionsCss}>
-      <section className={sectionCss}>
+    <section className={sectionCss}>
+      <div className={sectionHeaderCss}>
         <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
         <p className={noteCss}>{t("credit-registration-admin-audit-two-actor-kinds-note")}</p>
-        <form className={controlsCss}>
-          <div className={controlCss}>
-            <Select
-              name="actor_role"
-              control={control}
-              label={t("credit-registration-admin-actor-kind")}
-              options={[
-                { value: ANY, label: t("credit-registration-admin-any-actor-kind") },
+      </div>
+      <form
+        className={controlsCss}
+        onSubmit={handleSubmit((fields) =>
+          applyParams({ [PARAM_TARGET_ID]: fields.target_id.trim() }),
+        )}
+      >
+        <div className={auditControlCss}>
+          <Select
+            name="actor_role"
+            control={control}
+            label={t("credit-registration-admin-actor-kind")}
+            options={[
+              { value: ANY, label: t("credit-registration-admin-any-actor-kind") },
+              {
+                value: GLOBAL_ADMIN_ROLE,
+                label: t("credit-registration-admin-actor-global-admin"),
+              },
+              {
+                value: COURSE_TEACHER_ROLE,
+                label: t("credit-registration-admin-actor-course-teacher"),
+              },
+            ]}
+          />
+        </div>
+        <div className={auditControlCss}>
+          <Select
+            name="actor_user_id"
+            control={control}
+            label={t("label-actor")}
+            options={[
+              { value: ANY, label: t("credit-registration-admin-any-actor") },
+              ...actorOptions,
+            ]}
+            searchEnabled
+          />
+        </div>
+        <div className={auditControlCss}>
+          <Select
+            name="action"
+            control={control}
+            label={t("credit-registration-admin-column-action")}
+            options={[
+              { value: ANY, label: t("credit-registration-admin-any-action") },
+              ...ACTIONS.map((action) => ({
+                value: action,
+                label: adminActionLabel(t, action),
+              })),
+            ]}
+          />
+        </div>
+        <div className={auditControlCss}>
+          <Select
+            name="target_kind"
+            control={control}
+            label={t("credit-registration-admin-column-target")}
+            options={[
+              { value: ANY, label: t("credit-registration-admin-any-target") },
+              ...TARGET_KINDS.map((kind) => ({
+                value: kind,
+                label: adminActionTargetLabel(t, kind),
+              })),
+            ]}
+          />
+        </div>
+        <div className={auditControlCss}>
+          <Select
+            name="course_id"
+            control={control}
+            label={t("label-course")}
+            options={[
+              { value: ANY, label: t("credit-registration-admin-any-course") },
+              ...courseOptions,
+            ]}
+            searchEnabled
+          />
+        </div>
+        <div className={auditControlCss}>
+          <TextField
+            name="target_id"
+            control={control}
+            label={t("credit-registration-admin-target-id")}
+            description={t("credit-registration-admin-target-id-description")}
+          />
+        </div>
+        <div
+          className={dateRangeCss}
+          role="group"
+          aria-label={t("credit-registration-admin-taken")}
+        >
+          <DateField name="from" control={control} label={t("credit-registration-admin-from")} />
+          <DateField name="to" control={control} label={t("credit-registration-admin-to")} />
+        </div>
+      </form>
+      {activeFilterCount > 0 && (
+        <div className={rowCss}>
+          <span className={noteCss}>
+            {t("credit-registration-admin-active-filters", { count: activeFilterCount })}
+          </span>
+          <Button variant="tertiary" size="small" onClick={() => clearFilters([PARAM_TARGET_ID])}>
+            {t("button-text-clear-filters")}
+          </Button>
+        </div>
+      )}
+      <QueryResult query={actionsQuery} refreshIndicator={QUIET_REFRESH}>
+        {(page) => (
+          <>
+            <p className={noteCss}>
+              {t("credit-registration-admin-action-count", { count: page.total_count })}
+            </p>
+            <Table
+              caption={t("credit-registration-heading-audit")}
+              density={DENSITY_COMPACT}
+              rowKey={(row) => row.id}
+              rows={page.data}
+              emptyState={t("credit-registration-admin-no-matching-actions")}
+              columns={[
                 {
-                  value: GLOBAL_ADMIN,
-                  label: t("credit-registration-admin-actor-global-admin"),
+                  header: t("label-time"),
+                  minWidth: "8rem",
+                  nowrap: true,
+                  cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
                 },
                 {
-                  value: COURSE_TEACHER,
-                  label: t("credit-registration-admin-actor-course-teacher"),
+                  header: t("label-actor"),
+                  minWidth: "11rem",
+                  cell: (row) => <ActorCell row={row} />,
+                },
+                {
+                  header: t("label-role"),
+                  minWidth: "6rem",
+                  cell: (row) => (
+                    <Badge
+                      tone={row.actor_role === COURSE_TEACHER_ROLE ? TONE.INFO : TONE.NEUTRAL}
+                      size="compact"
+                    >
+                      {actorRoleLabel(t, row.actor_role)}
+                    </Badge>
+                  ),
+                },
+                {
+                  header: t("credit-registration-admin-column-action"),
+                  minWidth: "11rem",
+                  cell: (row) => (
+                    <span className={stackedCellCss}>
+                      <span>{adminActionLabel(t, row.action)}</span>
+                      {/* Teachers cannot override a rate cap, so such a row is a hole, not a record. */}
+                      {row.action === OVERRIDE_RATE_CAP &&
+                        row.actor_role === COURSE_TEACHER_ROLE && (
+                          <Badge tone={TONE.DANGER} size="compact">
+                            {t("credit-registration-admin-impossible-action")}
+                          </Badge>
+                        )}
+                    </span>
+                  ),
+                },
+                {
+                  header: t("credit-registration-admin-column-target"),
+                  minWidth: "12rem",
+                  cell: (row) => <TargetCell row={row} />,
+                },
+                {
+                  header: t("credit-registration-admin-column-state-change"),
+                  minWidth: "14rem",
+                  cell: (row) => <StateChangeCell row={row} />,
+                },
+                {
+                  header: t("label-reason"),
+                  grow: true,
+                  minWidth: "24rem",
+                  nowrap: false,
+                  cell: (row) => row.reason ?? ABSENT,
                 },
               ]}
             />
-          </div>
-          <div className={controlCss}>
-            <Select
-              name="action"
-              control={control}
-              label={t("credit-registration-admin-column-action")}
-              options={[
-                { value: ANY, label: t("credit-registration-admin-any-action") },
-                ...ACTIONS.map((action) => ({
-                  value: action,
-                  label: adminActionLabel(t, action),
-                })),
-              ]}
-            />
-          </div>
-          <div className={controlCss}>
-            <Select
-              name="target_kind"
-              control={control}
-              label={t("credit-registration-admin-column-target")}
-              options={[
-                { value: ANY, label: t("credit-registration-admin-any-target") },
-                ...TARGET_KINDS.map((kind) => ({
-                  value: kind,
-                  label: adminActionTargetLabel(t, kind),
-                })),
-              ]}
-            />
-          </div>
-          <div className={controlCss}>
-            <Select
-              name="course_id"
-              control={control}
-              label={t("label-course")}
-              options={[
-                { value: ANY, label: t("credit-registration-admin-any-course") },
-                ...courseOptions,
-              ]}
-            />
-          </div>
-          <div className={controlCss}>
-            <DateField name="from" control={control} label={t("credit-registration-admin-from")} />
-          </div>
-          <div className={controlCss}>
-            <DateField name="to" control={control} label={t("credit-registration-admin-to")} />
-          </div>
-        </form>
-        <QueryResult query={actionsQuery}>
-          {(page) =>
-            page.data.length === 0 ? (
-              <p className={noteCss}>{t("credit-registration-admin-no-matching-actions")}</p>
-            ) : (
-              <>
-                <Table
-                  caption={t("credit-registration-heading-audit")}
-                  rowKey={(row) => row.id}
-                  rows={page.data}
-                  columns={[
-                    {
-                      header: t("label-time"),
-                      cell: (row) => <RelativeTime at={row.created_at} />,
-                    },
-                    { header: t("label-actor"), cell: (row) => <ActorCell row={row} /> },
-                    { header: t("label-course"), cell: (row) => row.course_name ?? ABSENT },
-                    {
-                      header: t("credit-registration-admin-column-action"),
-                      cell: (row) => (
-                        <span className={stackedCellCss}>
-                          <span>{adminActionLabel(t, row.action)}</span>
-                          {/* Teachers cannot override a rate cap, so such a row is a hole, not a record. */}
-                          {row.action === OVERRIDE_RATE_CAP &&
-                            row.actor_role === COURSE_TEACHER && (
-                              <Badge tone={TONE.WARNING}>
-                                {t("credit-registration-admin-impossible-action")}
-                              </Badge>
-                            )}
-                        </span>
-                      ),
-                    },
-                    {
-                      header: t("credit-registration-admin-column-target"),
-                      cell: (row) => <TargetCell row={row} />,
-                    },
-                    {
-                      header: t("credit-registration-admin-column-state-change"),
-                      cell: (row) =>
-                        row.before_state === null && row.after_state === null ? (
-                          ABSENT
-                        ) : (
-                          <span className={stackedCellCss}>
-                            {row.before_state && <AdminStateBadge state={row.before_state} />}
-                            {row.after_state && <AdminStateBadge state={row.after_state} />}
-                          </span>
-                        ),
-                    },
-                    { header: t("label-reason"), cell: (row) => row.reason ?? ABSENT },
-                    {
-                      header: t("credit-registration-admin-column-rows-affected"),
-                      cell: (row) => row.affected_row_count ?? ABSENT,
-                    },
-                  ]}
-                />
-                <p className={noteCss}>
-                  {t("credit-registration-admin-action-count", { count: page.total_count })}
-                </p>
-                <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
-              </>
-            )
-          }
-        </QueryResult>
-      </section>
-    </div>
+            <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
+          </>
+        )}
+      </QueryResult>
+    </section>
   )
 }
 

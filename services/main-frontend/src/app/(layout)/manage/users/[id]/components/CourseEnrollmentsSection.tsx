@@ -1,11 +1,10 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { dividedListCss, emptyStateCss } from "@/components/credit-registration/styles"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
-import { baseTheme } from "@/shared-module/common/styles"
 
 import CourseEnrollmentCard from "./CourseEnrollmentCard"
 
@@ -13,15 +12,6 @@ export interface CourseEnrollmentsSectionProps {
   enrollments: CourseEnrollmentInfo[]
   userId: string
 }
-
-const listCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const emptyCss = css`
-  color: ${baseTheme.colors.gray[500]};
-`
 
 const byMostRecentlyEnrolled = (a: CourseEnrollmentInfo, b: CourseEnrollmentInfo) =>
   new Date(b.first_enrolled_at).getTime() - new Date(a.first_enrolled_at).getTime()
@@ -34,17 +24,19 @@ const CourseEnrollmentsSection: React.FC<CourseEnrollmentsSectionProps> = ({
   const { t } = useTranslation()
 
   if (enrollments.length === 0) {
-    return <p className={emptyCss}>{t("no-course-enrollments")}</p>
+    return <p className={emptyStateCss}>{t("no-course-enrollments")}</p>
   }
 
   const sorted = enrollments.toSorted(byMostRecentlyEnrolled)
 
   return (
-    <div className={listCss}>
+    <ul className={dividedListCss}>
       {sorted.map((enrollment) => (
-        <CourseEnrollmentCard key={enrollment.course_id} enrollment={enrollment} userId={userId} />
+        <li key={enrollment.course_id}>
+          <CourseEnrollmentCard enrollment={enrollment} userId={userId} />
+        </li>
       ))}
-    </div>
+    </ul>
   )
 }
 

@@ -1263,21 +1263,47 @@ export type CourseCreditRegistrationModuleConfigs = {
   realisations: Array<CourseModuleSuotarRealisation>
 }
 
+/**
+ * One module's live registrations, split so a teacher can add the columns up.
+ *
+ * `registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and
+ * `not_registering_count` partition `registration_count`: every live row falls in exactly one, and
+ * each is the same classification the row's own badge shows. `needs_admin_attention_count` is not
+ * one of them — it cuts across all five — so it is never added to them.
+ */
 export type CourseCreditRegistrationModuleSummary = {
   counts_by_state: Array<CreditRegistrationStateCount>
   course_module_id: string
   course_module_name?: string | null
   enabled: boolean
+  failed_count: number
   /**
-   * `failed_permanent` only: a retrying row is still working and `misregistered` is not terminal.
+   * The pipeline is working on it and nobody has to do anything.
    */
-  failed_permanent_count: number
+  in_progress_count: number
+  /**
+   * Rows the pipeline handed to support. Nothing for a teacher to do; shown so a module's
+   * failures do not read as unattended.
+   */
   needs_admin_attention_count: number
+  /**
+   * Blocked or cancelled: nothing is happening and nothing will.
+   */
+  not_registering_count: number
   paused: boolean
   /**
-   * `registered`, `duplicate` and `not_improved`: the credit exists in Sisu.
+   * The credit exists in the study registry, whoever put it there.
    */
-  success_count: number
+  registered_count: number
+  /**
+   * Live registrations of this module, replaced attempts excluded. Registrations, not
+   * completions: one per student per module, and a regrade replaces rather than adds.
+   */
+  registration_count: number
+  /**
+   * Waiting for the student: their completion, their student number or their enrolment.
+   */
+  waiting_on_student_count: number
 }
 
 export type CourseCreditRegistrationSummary = {
@@ -1287,7 +1313,8 @@ export type CourseCreditRegistrationSummary = {
   linking_emails_failed_to_send_count: number
   modules: Array<CourseCreditRegistrationModuleSummary>
   /**
-   * Enrolled students we hold no student number for.
+   * Course-wide, whatever the per-module counts were narrowed to: enrolled students we hold no
+   * student number for.
    */
   unlinked_enrolled_student_count: number
 }
@@ -1878,18 +1905,33 @@ export type CreditRegistrationAdminActionRow = {
   affected_row_count?: number | null
   after_state?: null | CreditRegistrationState
   before_state?: null | CreditRegistrationState
+  /**
+   * The course the action was about: a teacher's own, a course target, or the course of a
+   * targeted registration.
+   */
   course_name?: string | null
   created_at: string
   details?: unknown
   id: string
   reason?: string | null
   /**
+   * In full, like the actor's.
+   */
+  target_email?: string | null
+  target_first_name?: string | null
+  /**
    * `None` for a phase target, which is named by `target_phase`, and for a bulk action over a
    * selection, whose ids are in `details`.
    */
   target_id?: string | null
   target_kind: CreditRegistrationAdminActionTarget
+  target_last_name?: string | null
   target_phase?: string | null
+  /**
+   * The student a registration- or link-targeted action was about, so a row names who it
+   * concerned rather than only an id prefix. `None` for a phase, course or module target.
+   */
+  target_user_id?: string | null
 }
 
 export type CreditRegistrationAdminActionTarget =
@@ -1921,6 +1963,12 @@ export type CreditRegistrationAlert = {
    * same for every evaluation and travel separately.
    */
   total?: number | null
+  /**
+   * How far back the rule looked, where it looked back at all. `None` for a rule that reads the
+   * live state or a threshold rather than a window; without it, two alerts counting the same
+   * thing over different windows read as a contradiction.
+   */
+  window_secs?: number | null
 }
 
 export type CreditRegistrationAlertId =
@@ -1957,9 +2005,15 @@ export type CreditRegistrationAttentionItem = {
   error_code?: null | CreditRegistrationErrorCode
   first_name?: string | null
   last_name?: string | null
+  /**
+   * The pipeline's cached "a human should look at this". A fact about the row, never a reason:
+   * see [`CreditRegistrationAttentionReason`].
+   */
+  needs_admin_attention: boolean
   next_attempt_at: string
   /**
-   * Every detector that picked this row, so the table can group by any of them.
+   * Every detector that picked this row, so the table can group by any of them. Empty on a row
+   * the pipeline flagged that no detector explains.
    */
   reasons: Array<CreditRegistrationAttentionReason>
   state: CreditRegistrationState
@@ -1969,18 +2023,38 @@ export type CreditRegistrationAttentionItem = {
 }
 
 export type CreditRegistrationAttentionItems = {
-  counts_by_reason: Array<CreditRegistrationAttentionReasonCount>
-  items: Array<CreditRegistrationAttentionItem>
-  max_items: number
   /**
-   * Rows returned, which is the tab badge. Capped at `max_items`; the counts per reason are over
-   * the same capped set.
+   * Over the whole queue, not over the page or the filter, so the counts stay usable as facets.
+   */
+  counts_by_reason: Array<CreditRegistrationAttentionReasonCount>
+  /**
+   * Rows matching this request's narrowing, which is what `total_pages` pages through. Equal to
+   * `total_count` when neither `reason` nor `without_reason` was given.
+   */
+  filtered_count: number
+  /**
+   * Queue rows no detector picked, which the pipeline's flag alone put there. No `reason`
+   * reaches them, so a surface that groups by reason has to offer `without_reason` beside the
+   * reasons or leave this many rows unreachable.
+   */
+  flagged_without_reason_count: number
+  /**
+   * The requested page of the queue.
+   */
+  items: Array<CreditRegistrationAttentionItem>
+  /**
+   * The whole queue, whatever this request filtered to: the canonical "needs a human" count, the
+   * same number `/overview` reports and the tab badge shows.
    */
   total_count: number
+  total_pages: number
 }
 
 /**
  * Why a row is on the attention table. One row can carry several.
+ *
+ * `needs_admin_attention` is deliberately not one of them: the flag is what the pipeline caches
+ * when it wants a human, not an answer to "why". It travels on the item instead.
  */
 export type CreditRegistrationAttentionReason =
   | "stuck_in_state"
@@ -1989,7 +2063,6 @@ export type CreditRegistrationAttentionReason =
   | "misregistered"
   | "too_many_attempts"
   | "outcome_uncertain"
-  | "flagged_by_pipeline"
 
 export type CreditRegistrationAttentionReasonCount = {
   count: number
@@ -2225,6 +2298,10 @@ export type CreditRegistrationOverview = {
   endpoints: Array<SuotarEndpointStanding>
   error_codes: Array<CreditRegistrationErrorCodeTotal>
   health: CreditRegistrationHealth
+  /**
+   * Live rows at least one attention detector picked. The one definition of "needs a human":
+   * `/attention` pages through exactly these rows and reports the same total.
+   */
   needs_admin_attention_count: number
   oldest_non_terminal?: null | CreditRegistrationOldestNonTerminal
   /**
@@ -3266,6 +3343,11 @@ export type MyCreditRegistration = {
    */
   status_is_moving: boolean
   student_facing_status: StudentFacingCreditRegistrationStatus
+  /**
+   * The student number we submitted this registration under, so a `registered` row can be
+   * checked against the student's own card; `None` before the row was ready to send.
+   */
+  student_number?: string | null
   superseded: boolean
   uh_course_code?: string | null
 }
@@ -3343,6 +3425,19 @@ export type MyStudiesCourseModule = {
    */
   name?: string | null
   order_number: number
+  /**
+   * Exercise points the student has in the module, rounded to two decimals. Not ECTS credits.
+   */
+  score_given: number
+  /**
+   * Exercise points the module offers. `None` when it has no exercises.
+   */
+  score_maximum?: number | null
+  /**
+   * Exercise points an automatic completion requires. `None` when the module is completed
+   * manually or sets no point threshold.
+   */
+  score_required?: number | null
   supports_credit_registration: boolean
   uh_course_code?: string | null
 }
@@ -3861,18 +3956,33 @@ export type PageCreditRegistrationAdminActionRow = {
     affected_row_count?: number | null
     after_state?: null | CreditRegistrationState
     before_state?: null | CreditRegistrationState
+    /**
+     * The course the action was about: a teacher's own, a course target, or the course of a
+     * targeted registration.
+     */
     course_name?: string | null
     created_at: string
     details?: unknown
     id: string
     reason?: string | null
     /**
+     * In full, like the actor's.
+     */
+    target_email?: string | null
+    target_first_name?: string | null
+    /**
      * `None` for a phase target, which is named by `target_phase`, and for a bulk action over a
      * selection, whose ids are in `details`.
      */
     target_id?: string | null
     target_kind: CreditRegistrationAdminActionTarget
+    target_last_name?: string | null
     target_phase?: string | null
+    /**
+     * The student a registration- or link-targeted action was about, so a row names who it
+     * concerned rather than only an id prefix. `None` for a phase, course or module target.
+     */
+    target_user_id?: string | null
   }>
   total_count: number
   total_pages: number
@@ -4755,6 +4865,13 @@ export type UserChapterProgress = {
 
 export type UserCompletionInformation = {
   course_module_completion_id: string
+  /**
+   * The module's own name, `None` on a course's default module.
+   */
+  course_module_name?: string | null
+  /**
+   * The course's own name, never the module's; the module is named by `course_module_name`.
+   */
   course_name: string
   ects_credits?: number | null
   email: string
@@ -5655,6 +5772,10 @@ export type GetCourseCreditRegistrationsData = {
      */
     state?: CreditRegistrationState
     /**
+     * Student-facing stage filter; repeat the parameter for several
+     */
+    status?: Array<StudentFacingCreditRegistrationStatus>
+    /**
      * Course instance filter
      */
     course_instance_id?: string
@@ -5753,7 +5874,12 @@ export type GetCourseCreditRegistrationSummaryData = {
      */
     course_id: string
   }
-  query?: never
+  query?: {
+    /**
+     * Narrows the per-module counts to one instance
+     */
+    course_instance_id?: string
+  }
   url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary"
 }
 
@@ -8803,6 +8929,10 @@ export type GetCourseStudentsUsersData = {
      * A sis-0-5 grade ("0".."5"), "passed"/"failed", or "not_completed"; requires module_id
      */
     grade?: string
+    /**
+     * Only students holding a live credit registration at one of these stages; repeat the parameter for several
+     */
+    registration_status?: Array<StudentFacingCreditRegistrationStatus>
   }
   url: "/api/v0/main-frontend/courses/{course_id}/students/users"
 }
@@ -9325,13 +9455,34 @@ export type AdminResolveStudentNumberForLinkingResponse =
 export type GetCreditRegistrationAttentionItemsData = {
   body?: never
   path?: never
-  query?: never
+  query?: {
+    /**
+     * Page number, from 1
+     */
+    page?: number
+    /**
+     * Rows per page
+     */
+    limit?: number
+    /**
+     * Only rows one of these detectors picked; repeat the parameter for several
+     */
+    reason?: Array<CreditRegistrationAttentionReason>
+    /**
+     * Only rows no detector picked, which the pipeline's flag alone put in the queue; selects nothing alongside reason
+     */
+    without_reason?: boolean
+    /**
+     * time_in_state, next_attempt or course
+     */
+    sort?: string
+  }
   url: "/api/v0/main-frontend/credit-registration-admin/attention"
 }
 
 export type GetCreditRegistrationAttentionItemsResponses = {
   /**
-   * Rows needing a human, and how many for each reason
+   * A page of the rows needing a human, and how many for each reason
    */
   200: CreditRegistrationAttentionItems
 }

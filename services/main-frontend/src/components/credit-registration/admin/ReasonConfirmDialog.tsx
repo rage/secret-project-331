@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import type { Control, DefaultValues, FieldValues, Path } from "react-hook-form"
 import { useForm } from "react-hook-form"
@@ -8,6 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { Button, Dialog, TextArea } from "@/shared-module/components"
+
+import { dialogFormCss } from "../styles"
 
 export interface WithReason {
   reason: string
@@ -49,11 +50,6 @@ export function ReasonField<T extends FieldValues & WithReason>({
   )
 }
 
-const formCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
 interface ReasonConfirmDialogProps {
   open: boolean
   onClose: () => void
@@ -82,7 +78,7 @@ export const ReasonConfirmDialog: React.FC<ReasonConfirmDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} title={title}>
-      <form className={formCss} onSubmit={handleSubmit((fields) => onConfirm(fields.reason))}>
+      <form className={dialogFormCss} onSubmit={handleSubmit((fields) => onConfirm(fields.reason))}>
         {message && <p>{message}</p>}
         <ReasonField control={control} description={reasonDescription} />
         <Button

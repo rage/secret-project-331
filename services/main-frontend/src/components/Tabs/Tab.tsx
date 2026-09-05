@@ -43,7 +43,8 @@ const Tab: React.FC<TabProps> = ({ tabName, children }) => {
       href={href}
       replace
       className={css`
-        flex: 1;
+        flex: 0 1 auto;
+        white-space: nowrap;
         display: flex;
         align-items: center;
         justify-content: center;

@@ -3,24 +3,25 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button } from "@/shared-module/components"
+import { Link } from "@/shared-module/components"
 
 interface Props {
   courseId: string
 }
 
+/** One element, not a Button inside an anchor: a download is a link wherever the keyboard is concerned. */
 const CreditRegistrationExportLink: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
   return (
-    <a
+    <Link
       href={`/api/v0/main-frontend/course-credit-registrations/courses/${courseId}/export`}
-      aria-label={t("link-export-credit-registrations")}
+      styledAsButton
+      variant="secondary"
+      size="medium"
       download
     >
-      <Button variant="secondary" size="medium" type="button">
-        {t("link-export-credit-registrations")}
-      </Button>
-    </a>
+      {t("link-export-credit-registration-statuses")}
+    </Link>
   )
 }
 

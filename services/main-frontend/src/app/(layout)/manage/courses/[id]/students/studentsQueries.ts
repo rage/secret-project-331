@@ -2,6 +2,8 @@ import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
 import { useEffect } from "react"
 
+import type { RegistrationStatusView } from "@/components/credit-registration/registrationStatusViews"
+import { registrationStatusesOf } from "@/components/credit-registration/registrationStatusViews"
 import {
   getCourseStudentsProgressStructureOptions,
   getCourseStudentsUsersOptions,
@@ -52,6 +54,8 @@ export interface StudentsListParams {
   /** Module the `grade` filter is scoped to; `grade` is ignored server-side without it. */
   moduleId: string | null
   grade: GradeFilterValue | null
+  /** Narrows the page to students holding a live registration at one of the view's stages. */
+  registrationView: RegistrationStatusView
 }
 
 // Explicit caching opt-in: the global QueryClient sets gcTime ~0, so without these the shared
@@ -59,8 +63,9 @@ export interface StudentsListParams {
 const STALE_TIME = 60_000
 const GC_TIME = 5 * 60_000
 
-const buildIdentityOptions = (courseId: string, params: StudentsListParams) =>
-  getCourseStudentsUsersOptions({
+const buildIdentityOptions = (courseId: string, params: StudentsListParams) => {
+  const registrationStatuses = registrationStatusesOf(params.registrationView)
+  return getCourseStudentsUsersOptions({
     path: { course_id: courseId },
     // Optional keys are omitted (not set to undefined) to satisfy exactOptionalPropertyTypes.
     query: {
@@ -74,8 +79,12 @@ const buildIdentityOptions = (courseId: string, params: StudentsListParams) =>
       // `grade` is only meaningful alongside a module (enforced server-side too), so it never gets
       // sent on its own.
       ...includeIf(params.moduleId, omitUndefined({ grade: params.grade ?? undefined })),
+      ...(registrationStatuses.length > 0
+        ? { registration_status: [...registrationStatuses] }
+        : {}),
     },
   })
+}
 
 /**
  * Shared, cached identity query that drives every subtab: a page of enrolled users plus the total
@@ -113,6 +122,7 @@ export const useCourseStudentsPrefetchNextPage = (
         courseInstanceId: params.courseInstanceId,
         moduleId: params.moduleId,
         grade: params.grade,
+        registrationView: params.registrationView,
       }),
       staleTime: STALE_TIME,
       gcTime: GC_TIME,
@@ -128,6 +138,7 @@ export const useCourseStudentsPrefetchNextPage = (
     params.courseInstanceId,
     params.moduleId,
     params.grade,
+    params.registrationView,
   ])
 }
 

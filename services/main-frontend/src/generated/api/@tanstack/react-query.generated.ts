@@ -2223,6 +2223,9 @@ export const getCourseCreditRegistrationSummaryQueryKey = (
  *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
  * counts plus the two reasons a student of this course will not get credits.
+ *
+ * Course-wide unless `course_instance_id` narrows the per-module counts to one instance. The two
+ * student-number totals are course-wide either way: a student holds one number, not one per instance.
  */
 export const getCourseCreditRegistrationSummaryOptions = (
   options: Options<GetCourseCreditRegistrationSummaryData>,
@@ -6243,10 +6246,12 @@ export const getCreditRegistrationAttentionItemsQueryKey = (
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
- * wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
+ * detector wants a human to look at, with the detectors that picked each.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
+ * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
+ * `needs_admin_attention_count` is the same number.
  */
 export const getCreditRegistrationAttentionItemsOptions = (
   options?: Options<GetCreditRegistrationAttentionItemsData>,
@@ -6266,6 +6271,63 @@ export const getCreditRegistrationAttentionItemsOptions = (
       }),
     queryKey: getCreditRegistrationAttentionItemsQueryKey(options),
   })
+
+export const getCreditRegistrationAttentionItemsInfiniteQueryKey = (
+  options?: Options<GetCreditRegistrationAttentionItemsData>,
+): QueryKey<Options<GetCreditRegistrationAttentionItemsData>> =>
+  createQueryKey("getCreditRegistrationAttentionItems", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
+ * detector wants a human to look at, with the detectors that picked each.
+ *
+ * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
+ * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
+ * `needs_admin_attention_count` is the same number.
+ */
+export const getCreditRegistrationAttentionItemsInfiniteOptions = (
+  options?: Options<GetCreditRegistrationAttentionItemsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    GetCreditRegistrationAttentionItemsResponse,
+    DefaultError,
+    InfiniteData<GetCreditRegistrationAttentionItemsResponse>,
+    QueryKey<Options<GetCreditRegistrationAttentionItemsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetCreditRegistrationAttentionItemsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetCreditRegistrationAttentionItemsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getCreditRegistrationAttentionItems({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getCreditRegistrationAttentionItemsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const listCreditRegistrationAdminActionsQueryKey = (
   options?: Options<ListCreditRegistrationAdminActionsData>,

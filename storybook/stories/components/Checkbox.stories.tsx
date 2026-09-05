@@ -12,11 +12,19 @@ const stackCss = css`
   gap: 16px;
 `
 
+const toolbarCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+`
+
 interface CheckboxDemoProps {
   label: ReactNode
   defaultChecked?: boolean
   isIndeterminate?: boolean
   isDisabled?: boolean
+  isInline?: boolean
   errorMessage?: ReactNode
 }
 
@@ -41,6 +49,15 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Playground = {} satisfies Story
+
+export const InlineInAToolbar = {
+  render: () => (
+    <div className={toolbarCss}>
+      <CheckboxDemo label="Only rows that need attention" isInline />
+      <CheckboxDemo label="Show replaced attempts" isInline />
+    </div>
+  ),
+} satisfies Story
 
 export const States = {
   render: () => (

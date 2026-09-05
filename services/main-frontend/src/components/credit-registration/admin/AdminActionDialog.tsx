@@ -1,46 +1,38 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React, { useState } from "react"
 import type { Control, FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Dialog } from "@/shared-module/components"
 
+import { dialogFormCss, dialogFormStartCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import type { WithReason } from "./ReasonConfirmDialog"
 
-const formCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const rootCss = css`
-  display: grid;
-  gap: 0.75rem;
-  justify-items: start;
-`
-
 interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result> {
   triggerLabel: string
   triggerDisabled?: boolean
+  /** Lower it to `tertiary` where the action must not read as the row's obvious next step. */
+  triggerVariant?: ButtonVariant
   dialogTitle: string
   defaultValues: Fields
   mutationFn: (fields: Fields) => Promise<Result>
-  onSuccess?: (result: Result, fields: Fields) => void
+  onSuccess?: (result: Result) => void
   renderFields: (control: Control<Fields>) => React.ReactNode
-  /** `fields` is what the confirmed submission sent, e.g. to phrase the result around a chosen target. */
-  renderResult: (result: Result, fields: Fields) => React.ReactNode
+  renderResult: (result: Result) => React.ReactNode
 }
 
 /**
- * The shell every admin bulk-action dialog shares: a trigger button, a result banner from the last
+ * The shell every admin action dialog shares: a trigger button, a result banner from the last
  * run, and a reason-gated form dialog. `renderFields`/`renderResult` supply what differs per action.
  */
 export function AdminActionDialog<Fields extends FieldValues & WithReason, Result>({
   triggerLabel,
   triggerDisabled,
+  triggerVariant = "secondary",
   dialogTitle,
   defaultValues,
   mutationFn,
@@ -50,29 +42,30 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
 }: AdminActionDialogProps<Fields, Result>) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [submittedFields, setSubmittedFields] = useState<Fields | null>(null)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>(defaultValues)
   const reason = watch("reason" as Path<Fields>) as string
 
-  const { result, mutation } = useActionResult(mutationFn, (data, fields) => {
+  const { result, mutation } = useActionResult(mutationFn, (data) => {
     setOpen(false)
-    setSubmittedFields(fields)
-    onSuccess?.(data, fields)
+    onSuccess?.(data)
   })
 
   return (
-    <div className={rootCss}>
+    <div className={dialogFormStartCss}>
       <Button
-        variant="secondary"
+        variant={triggerVariant}
         size="medium"
         disabled={triggerDisabled ?? false}
         onClick={() => setOpen(true)}
       >
         {triggerLabel}
       </Button>
-      {result && submittedFields && renderResult(result, submittedFields)}
+      {result && renderResult(result)}
       <Dialog open={open} onClose={() => setOpen(false)} title={dialogTitle}>
-        <form className={formCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
+        <form
+          className={dialogFormCss}
+          onSubmit={handleSubmit((fields) => mutation.mutate(fields))}
+        >
           {renderFields(control)}
           <Button
             variant="primary"

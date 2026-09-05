@@ -6,6 +6,7 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { headingCss } from "@/components/credit-registration/styles"
 import { getUserSuspectedCheatersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   CourseEnrollmentInfo,
@@ -15,11 +16,9 @@ import type {
 import { baseTheme } from "@/shared-module/common/styles"
 import { manageCourseOtherCheatersSuspectedRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Badge, Meter, QueryResult } from "@/shared-module/components"
+import { Badge, Meter, MIDDLE_DOT, QueryResult } from "@/shared-module/components"
 
-import { MIDDLE_DOT } from "../lib/displayConstants"
 import { ratioPercent, toHours } from "../lib/durations"
-import { sectionHeadingCss } from "../lib/sectionHeading"
 
 export interface CompletionReviewSectionProps {
   userId: string
@@ -74,8 +73,9 @@ const meterValueCss = css`
   font-variant-numeric: tabular-nums;
 `
 
-const sectionCss = css`
-  margin: 3rem 0;
+const reviewListCss = css`
+  display: grid;
+  gap: var(--space-2);
 `
 
 const explanationCss = css`
@@ -140,8 +140,8 @@ const CompletionReviewSection: React.FC<CompletionReviewSectionProps> = ({
             return null
           }
           return (
-            <div className={sectionCss}>
-              <h2 className={sectionHeadingCss}>{t("completion-review")}</h2>
+            <div className={reviewListCss}>
+              <h2 className={headingCss}>{t("completion-review")}</h2>
               <p className={explanationCss}>{t("completion-review-explanation")}</p>
               {records.map((record) => {
                 const durationSeconds = record.total_duration_seconds ?? 0

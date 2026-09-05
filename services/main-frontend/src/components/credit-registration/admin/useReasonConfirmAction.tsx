@@ -4,6 +4,7 @@ import React, { useState } from "react"
 
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import type { ButtonSize } from "@/shared-module/components"
 import { Button } from "@/shared-module/components"
 
 import { ReasonConfirmDialog } from "./ReasonConfirmDialog"
@@ -19,6 +20,8 @@ interface UseReasonConfirmActionOptions {
   dialogMessage?: string
   reasonDescription?: string
   buttonVariant?: "primary" | "secondary" | "tertiary"
+  /** Drop it to `small` where the button lives in a table row rather than under a heading. */
+  buttonSize?: ButtonSize
   toastOptions?: ToastOptions
 }
 
@@ -36,6 +39,7 @@ export function useReasonConfirmAction({
   dialogMessage,
   reasonDescription,
   buttonVariant = "tertiary",
+  buttonSize = "medium",
   toastOptions = { notify: true, method: "POST" },
 }: UseReasonConfirmActionOptions): ReasonConfirmAction {
   const [open, setOpen] = useState(false)
@@ -48,7 +52,7 @@ export function useReasonConfirmAction({
   })
 
   const button = (
-    <Button variant={buttonVariant} size="medium" onClick={() => setOpen(true)}>
+    <Button variant={buttonVariant} size={buttonSize} onClick={() => setOpen(true)}>
       {buttonLabel}
     </Button>
   )

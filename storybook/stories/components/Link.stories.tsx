@@ -26,7 +26,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Accessible link component built on React Aria with optional button styling, loading state, and icon slots. When `styledAsButton` is set, padding, variants, and sizes use the same `buttonStyles` primitives as `Button` for visual parity.",
+          "Accessible link component built on React Aria with optional button styling, loading state, and icon slots. A plain link is a text link; `appearance` chooses between the underlined body-copy form, a `quiet` form for dense lists, and `inherit` for a link wrapping a badge or a card. When `styledAsButton` is set, padding, variants, and sizes use the same `buttonStyles` primitives as `Button` for visual parity.",
       },
     },
   },
@@ -51,6 +51,22 @@ export const Plain = {
     href: "/",
     children: "Visit homepage",
   },
+} satisfies StoryType
+
+export const Appearances = {
+  render: () => (
+    <div className={stackCss}>
+      <p>
+        A sentence with a <Link href="/">body-copy link</Link> in it.
+      </p>
+      <Link href="/" appearance="quiet">
+        Quiet, for a table cell
+      </Link>
+      <Link href="/" appearance="inherit">
+        Inherit, for a link wrapping a badge
+      </Link>
+    </div>
+  ),
 } satisfies StoryType
 
 export const StyledAsButton = {

@@ -1,22 +1,14 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { noteCss } from "@/components/credit-registration/styles"
 import type { MyStudiesTotals } from "@/generated/api/types.generated"
-import { StatTile } from "@/shared-module/components"
 
 export interface StudiesSummaryProps {
   totals: MyStudiesTotals
 }
-
-const rowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 0 0 1.5rem;
-`
 
 /** ECTS can be fractional, but a whole number should not read as "5.0". */
 const formatEcts = (ects: number, locale: string): string =>
@@ -26,11 +18,12 @@ const StudiesSummary: React.FC<StudiesSummaryProps> = ({ totals }) => {
   const { t, i18n } = useTranslation()
 
   return (
-    <div className={rowCss}>
-      <StatTile label={t("stat-courses")} value={totals.courses} />
-      <StatTile label={t("stat-completions")} value={totals.completions} />
-      <StatTile label={t("stat-ects-earned")} value={formatEcts(totals.ects, i18n.language)} />
-    </div>
+    <p className={noteCss}>
+      {t("studies-summary-modules-completed-and-ects", {
+        count: totals.completions,
+        ects: formatEcts(totals.ects, i18n.language),
+      })}
+    </p>
   )
 }
 

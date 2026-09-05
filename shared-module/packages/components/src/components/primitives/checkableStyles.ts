@@ -7,6 +7,12 @@ export const checkableRootCss = css`
   gap: var(--space-2);
 `
 
+/** Overrides the full-line width every field root takes, which in a flex row costs a whole row. */
+export const checkableRootInlineCss = css`
+  display: inline-grid;
+  width: auto;
+`
+
 export const checkableRowCss = css`
   position: relative;
   display: inline-flex;

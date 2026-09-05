@@ -22,6 +22,7 @@ import {
   initialLoadingSurfaceLightCss,
   loadingSurfaceMinHeightCss,
   queryLoadingSpinnerCss,
+  type RefreshIndicator,
   skeletonBlockBaseCss,
   skeletonBlockDarkCss,
   skeletonBlockDimsCss,
@@ -48,6 +49,9 @@ const skeletonPresets = [
 ] as const
 
 const contentEntranceEase = [0.2, 0, 0, 1] as const
+
+/** Tall enough for the three skeleton blocks and their padding, and no taller. */
+const DEFAULT_MIN_HEIGHT = 120
 
 /** Delays showing an affordance (e.g. centered spinner) to avoid flashes on fast requests. */
 export function useDelayedFlag(active: boolean, delayMs: number): boolean {
@@ -107,8 +111,11 @@ function useBlurSettling(refreshing: boolean) {
 
 export interface AnimatedQueryFrameProps<E> {
   themeMode: ThemeMode
+  /** Floor for the loading skeleton, in pixels. Raise it where the content it stands in for is tall. */
   minHeight?: number
   loadingDelayMs?: number
+  /** Refetch indicator style. Defaults to "blur", which dims/blurs the content and blocks clicks. */
+  refreshIndicator?: RefreshIndicator
   initialLoading: boolean
   refreshing: boolean
   blockingError: boolean
@@ -116,6 +123,12 @@ export interface AnimatedQueryFrameProps<E> {
   error?: E
   retry: RetryFn
   children: React.ReactNode
+  /**
+   * Class for the div that holds `children`. The frame is not layout-transparent, so a caller
+   * whose children are meant to be siblings in the parent's grid or flex layout has to make this
+   * div that layout itself.
+   */
+  contentClassName?: string
   renderBlockingError?: (args: FallbackArgs<E>) => React.ReactNode
   renderStaleError?: (args: FallbackArgs<E>) => React.ReactNode
 }
@@ -151,11 +164,17 @@ export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
   )
 }
 
-/** Layout shell for async query UX: skeleton, refetch progress, stale banners, and motion. */
+/**
+ * Layout shell for async query UX: skeleton, refetch progress, stale banners, and motion.
+ *
+ * It wraps `children` in elements of its own, so the parent's `gap` reaches the frame and stops
+ * there. Pass `contentClassName` where the children were meant to be laid out by the parent.
+ */
 export function AnimatedQueryFrame<E>({
   themeMode,
-  minHeight = 160,
+  minHeight = DEFAULT_MIN_HEIGHT,
   loadingDelayMs = 200,
+  refreshIndicator = "blur",
   initialLoading,
   refreshing,
   blockingError,
@@ -163,13 +182,15 @@ export function AnimatedQueryFrame<E>({
   error,
   retry,
   children,
+  contentClassName,
   renderBlockingError,
   renderStaleError,
 }: AnimatedQueryFrameProps<E>) {
   const { t } = useTranslation()
   const shouldReduceMotion = !!useReducedMotion()
   const showDelayedSpinner = useDelayedFlag(initialLoading, loadingDelayMs)
-  const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(refreshing)
+  const blurring = refreshIndicator !== "quiet" && refreshing
+  const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(blurring)
   const surfaceThemeCss =
     themeMode === "dark" ? initialLoadingSurfaceDarkCss : initialLoadingSurfaceLightCss
   const skeletonToneCss = themeMode === "dark" ? skeletonBlockDarkCss : skeletonBlockLightCss
@@ -266,8 +287,9 @@ export function AnimatedQueryFrame<E>({
         <div
           className={cx(
             animatedContentCss,
-            refreshing ? animatedContentRefreshingCss : undefined,
-            refreshing || blurSettling ? animatedContentNonInteractiveCss : undefined,
+            blurring ? animatedContentRefreshingCss : undefined,
+            blurring || blurSettling ? animatedContentNonInteractiveCss : undefined,
+            contentClassName,
           )}
           onTransitionEnd={onContentTransitionEnd}
         >

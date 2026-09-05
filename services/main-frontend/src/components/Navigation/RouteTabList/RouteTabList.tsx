@@ -1,43 +1,34 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { cx } from "@emotion/css"
 import { useTabListState } from "@react-stately/tabs"
 import { usePathname } from "next/navigation"
 import React, { useMemo, useRef } from "react"
 import { useTabList } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import {
+  tabStripCss,
+  tabStripVerticalCss,
+  useScrollSelectedTabIntoView,
+} from "@/components/Tabs/tabStrip"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import { resolveActiveTab } from "./resolveActiveTab"
 import { RouteTab, type RouteTabDefinition } from "./RouteTab"
 import { useRouteTabListContext } from "./RouteTabListContext"
 
-const tabListClassName = css`
-  display: flex;
-  background: ${baseTheme.colors.gray[75]};
-  padding: 4px;
-  border-radius: 8px;
-  gap: 4px;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-bottom: 1.5rem;
-  border: 1px solid ${baseTheme.colors.gray[100]};
-`
-
-const tabListClassNameVertical = css`
-  flex-direction: column;
-`
-
 export interface RouteTabListProps {
   tabs?: RouteTabDefinition[]
   orientation?: "horizontal" | "vertical"
+  /** Composed after the built-in styles, so a layout can override the tab list's own spacing. */
+  className?: string | undefined
 }
 
 function RouteTabListStandalone({
   tabs,
   orientation,
+  className,
 }: RouteTabListProps & { tabs: RouteTabDefinition[] }) {
   const pathname = usePathname()
   const { t } = useTranslation()
@@ -70,11 +61,13 @@ function RouteTabListStandalone({
     tabListRef,
   )
 
+  useScrollSelectedTabIntoView(tabListRef, selectedKey)
+
   return (
     <div
       {...tabListProps}
       ref={tabListRef}
-      className={`${tabListClassName} ${orientation === "vertical" ? tabListClassNameVertical : ""}`}
+      className={cx(tabStripCss, orientation === "vertical" && tabStripVerticalCss, className)}
     >
       {tabs.map((tab) => (
         <RouteTab key={tab.key} item={tab} state={state} />
@@ -83,7 +76,7 @@ function RouteTabListStandalone({
   )
 }
 
-function RouteTabListFromContext() {
+function RouteTabListFromContext({ className }: Pick<RouteTabListProps, "className">) {
   const context = useRouteTabListContext()
   const { t } = useTranslation()
   const tabListRef = useRef<HTMLDivElement>(null)
@@ -101,11 +94,13 @@ function RouteTabListFromContext() {
     tabListRef,
   )
 
+  useScrollSelectedTabIntoView(tabListRef, state.selectedKey)
+
   return (
     <div
       {...tabListProps}
       ref={tabListRef}
-      className={`${tabListClassName} ${orientation === "vertical" ? tabListClassNameVertical : ""}`}
+      className={cx(tabStripCss, orientation === "vertical" && tabStripVerticalCss, className)}
     >
       {tabs.map((tab) => (
         <RouteTab key={tab.key} item={tab} state={state} />
@@ -124,11 +119,12 @@ export const RouteTabList: React.FC<RouteTabListProps> = (props) => {
       <RouteTabListStandalone
         tabs={props.tabs}
         orientation={props.orientation ?? DEFAULT_ORIENTATION}
+        className={props.className}
       />
     )
   }
   if (context !== null) {
-    return <RouteTabListFromContext />
+    return <RouteTabListFromContext className={props.className} />
   }
   throw new Error("RouteTabList requires either tabs prop or RouteTabListProvider context")
 }

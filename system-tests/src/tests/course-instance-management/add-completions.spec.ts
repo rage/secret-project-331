@@ -80,7 +80,7 @@ test("Manually adding completions works", async ({ page }) => {
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),
-    page.getByRole("link", { name: "Export completions as CSV" }).click(),
+    page.getByRole("link", { name: "Export grades as CSV" }).click(),
   ])
 
   const completionsCsvContents = await downloadToString(download)

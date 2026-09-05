@@ -11,6 +11,8 @@ import React, {
   useRef,
 } from "react"
 
+import type { RegistrationStatusView } from "@/components/credit-registration/registrationStatusViews"
+import { DEFAULT_REGISTRATION_STATUS_VIEW } from "@/components/credit-registration/registrationStatusViews"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
 
@@ -53,6 +55,9 @@ interface StudentsContextValue {
   setModuleId: (value: string | null) => void
   grade: GradeFilterValue | null
   setGrade: (value: GradeFilterValue | null) => void
+  // Credit-registration filter, applied by the server to the shared identity query.
+  registrationView: RegistrationStatusView
+  setRegistrationView: (value: RegistrationStatusView) => void
 }
 
 const StudentsContext = createContext<StudentsContextValue | null>(null)
@@ -87,6 +92,9 @@ export function StudentsContextProvider({
   const [courseInstanceId, setCourseInstanceId] = React.useState<string | null>(null)
   const [moduleId, setModuleIdState] = React.useState<string | null>(null)
   const [grade, setGrade] = React.useState<GradeFilterValue | null>(null)
+  const [registrationView, setRegistrationView] = React.useState<RegistrationStatusView>(
+    DEFAULT_REGISTRATION_STATUS_VIEW,
+  )
 
   const setSort = useCallback((column: StudentsSortColumn, direction: SortDirection) => {
     setSortColumn(column)
@@ -101,7 +109,7 @@ export function StudentsContextProvider({
   }, [])
 
   // Changing any filter or the sort order should return to the first page.
-  const filterSignature = `${search}|${courseInstanceId ?? ""}|${moduleId ?? ""}|${grade ?? ""}|${sortColumn}|${sortDirection}`
+  const filterSignature = `${search}|${courseInstanceId ?? ""}|${moduleId ?? ""}|${grade ?? ""}|${registrationView}|${sortColumn}|${sortDirection}`
   const previousSignature = useRef(filterSignature)
   useEffect(() => {
     if (previousSignature.current === filterSignature) {
@@ -135,6 +143,8 @@ export function StudentsContextProvider({
     setModuleId,
     grade,
     setGrade,
+    registrationView,
+    setRegistrationView,
   }
 
   return <StudentsContext.Provider value={value}>{children}</StudentsContext.Provider>
@@ -149,8 +159,17 @@ export function StudentsContextProvider({
  * a matching header indicator. Falls back to the default sort in that case.
  */
 export function useStudentsListParams(allowedColumns?: StudentsSortColumn[]): StudentsListParams {
-  const { page, limit, search, sortColumn, sortDirection, courseInstanceId, moduleId, grade } =
-    useStudentsContext()
+  const {
+    page,
+    limit,
+    search,
+    sortColumn,
+    sortDirection,
+    courseInstanceId,
+    moduleId,
+    grade,
+    registrationView,
+  } = useStudentsContext()
   const columnAllowed = !allowedColumns || allowedColumns.includes(sortColumn)
   return {
     page,
@@ -161,6 +180,7 @@ export function useStudentsListParams(allowedColumns?: StudentsSortColumn[]): St
     courseInstanceId,
     moduleId,
     grade,
+    registrationView,
   }
 }
 

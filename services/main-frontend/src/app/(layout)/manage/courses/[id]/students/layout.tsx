@@ -7,6 +7,12 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import type { RegistrationStatusView } from "@/components/credit-registration/registrationStatusViews"
+import {
+  REGISTRATION_STATUS_VIEWS,
+  registrationStatusViewLabel,
+} from "@/components/credit-registration/registrationStatusViews"
+import { useCanViewCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
@@ -121,7 +127,10 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
     setModuleId,
     grade,
     setGrade,
+    registrationView,
+    setRegistrationView,
   } = useStudentsContext()
+  const canFilterByRegistration = useCanViewCreditRegistrations(courseId)
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
   const listParams = useStudentsListParams()
@@ -181,13 +190,20 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
           <div className={styles.headerTopRow}>
             <div className={styles.headerTitleWrap}>
               <div className={styles.title}>{t("label-students")}</div>
-              <div className={styles.chatbotInfo}>{t("chatbot-student-page-info")}</div>
             </div>
           </div>
           <hr className={styles.divider} />
         </div>
 
         <div className={styles.headerControlsSection}>
+          <div className={styles.navigationRow}>
+            <RouteTabPageTitle
+              tabs={tabs}
+              entityName={courseBreadcrumbInfo.data?.course_name}
+              order={20}
+            />
+            <RouteTabList tabs={tabs} />
+          </div>
           <div className={styles.controlsRow}>
             <div className={styles.searchBoxWrap}>
               <input
@@ -256,12 +272,20 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
               </select>
             )}
 
-            <RouteTabPageTitle
-              tabs={tabs}
-              entityName={courseBreadcrumbInfo.data?.course_name}
-              order={20}
-            />
-            <RouteTabList tabs={tabs} />
+            {canFilterByRegistration && (
+              <select
+                className={instanceSelect}
+                aria-label={t("credit-registration-column-registration")}
+                value={registrationView}
+                onChange={(e) => setRegistrationView(e.target.value as RegistrationStatusView)}
+              >
+                {REGISTRATION_STATUS_VIEWS.map((view) => (
+                  <option key={view} value={view}>
+                    {registrationStatusViewLabel(t, view)}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
 
@@ -269,11 +293,13 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
           {children}
         </div>
 
-        <Pagination
-          totalPages={totalPages}
-          paginationInfo={{ page, setPage, limit, setLimit }}
-          itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
-        />
+        {totalPages > 1 && (
+          <Pagination
+            totalPages={totalPages}
+            paginationInfo={{ page, setPage, limit, setLimit }}
+            itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
+          />
+        )}
       </div>
     </BreakFromCentered>
   )

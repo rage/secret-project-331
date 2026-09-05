@@ -1,7 +1,11 @@
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
+  completionRegistrationUrl,
   CREDIT_REGISTRATIONS_API,
+  myCreditRegistrations,
+  ORIGIN,
   PROFILE_CREDIT_REGISTRATION_URL,
+  PROFILE_STUDIES_URL,
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
 import { ADMIN_REGISTRATIONS_URL } from "@/utils/creditRegistrationAdmin"
@@ -20,23 +24,31 @@ const EMPTY_EMAIL = "credit-registration-profile-empty@example.com"
 test.describe("A student whose grade was registered twice", () => {
   test.use({ storageState: seededStudentStorageState(SUPERSEDED_EMAIL) })
 
-  test("The cards render for a student with data, including a replaced attempt as history", async ({
+  test("The studies page answers where the credits went, and the replaced attempt survives as history", async ({
     page,
   }) => {
+    await page.goto(PROFILE_STUDIES_URL)
+
+    // The card is always open, so the module's registration status needs no click.
+    await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
+    // A registered, non-superseded attempt needs nothing from the student, so the section is absent.
+    await expect(
+      page.getByRole("heading", { name: "Registrations that need attention" }),
+    ).toHaveCount(0)
+
+    const [live] = (await myCreditRegistrations(page.request)).filter((row) => !row.superseded)
+    expect(live, "the seeded pair has one live attempt").toBeDefined()
+    await page.goto(completionRegistrationUrl(live!.course_module_id))
+    // A student who saw grade 3 registered should not find that it never happened.
+    await expect(page.getByRole("heading", { name: "Earlier attempts" })).toBeVisible()
+    await expect(page.getByText("Attempt 1")).toBeVisible()
+
+    await accessibilityCheck(page, "Profile studies page")
+  })
+
+  test("the old credit-registration tab link still lands on the studies page", async ({ page }) => {
     await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
-
-    await expect(page.getByRole("tab", { name: "Credit registration" })).toBeVisible()
-    for (const heading of ["Student number", "My credit registrations"]) {
-      await expect(page.getByRole("heading", { level: 3, name: heading })).toBeVisible()
-    }
-
-    const registrations = page.getByRole("table", { name: "My credit registrations" })
-    await expect(registrations.getByText("Registered in Sisu").first()).toBeVisible()
-    // The replaced attempt stays visible as history: a student who saw grade 3 registered should not
-    // find that it never happened.
-    await expect(registrations.getByText("Earlier attempt 1")).toBeVisible()
-
-    await accessibilityCheck(page, "Profile credit registration tab")
+    await expect(page).toHaveURL(PROFILE_STUDIES_URL)
   })
 })
 
@@ -44,14 +56,12 @@ test.describe("A student on a Suotar course and nothing else", () => {
   test.use({ storageState: seededStudentStorageState(EMPTY_EMAIL) })
 
   test("A student with nothing linked sees explanatory copy, not empty cards", async ({ page }) => {
-    await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
+    await page.goto(PROFILE_STUDIES_URL)
 
-    await expect(page.getByRole("heading", { level: 3, name: "Student number" })).toBeVisible()
+    await expect(page.getByText("No student number linked yet.")).toBeVisible()
     await expect(
-      page
-        .getByText("No credit registrations yet", { exact: false })
-        .or(page.getByRole("heading", { level: 3, name: "My credit registrations" })),
-    ).toBeVisible()
+      page.getByRole("heading", { name: "Registrations that need attention" }),
+    ).toHaveCount(0)
   })
 
   test("A student cannot read another student's credit registrations", async ({ page }) => {
@@ -69,11 +79,14 @@ test.describe("A student on a Suotar course and nothing else", () => {
 test.describe("A student whose number was confirmed by the mailed link", () => {
   test.use({ storageState: seededStudentStorageState(LINKED_EMAIL) })
 
-  test("The linked card names the number and how it was confirmed", async ({ page }) => {
-    await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
-
+  test("The studies page points at the linked number, and the settings page names it in full", async ({
+    page,
+  }) => {
+    await page.goto(PROFILE_STUDIES_URL)
     await expect(page.getByText(LINKED_STUDENT_NUMBER)).toBeVisible()
-    await expect(page.getByText("Linked").first()).toBeVisible()
+
+    await page.goto(`${ORIGIN}/user-settings/student-number`)
+    await expect(page.getByText(LINKED_STUDENT_NUMBER)).toBeVisible()
     // We can see our own outbox and nothing else, so the copy may never claim delivery.
     await expect(page.getByText("delivered")).toHaveCount(0)
   })

@@ -28,13 +28,12 @@ test.describe("The teacher opts the module in", () => {
     await page.goto(MODULES_URL)
     const moduleForm = page.locator('form:has-text("Default module")')
     await moduleForm.getByRole("button", { name: "Edit" }).click()
-    await page.getByLabel("Register completions to the study registry automatically").check()
+    await page.getByRole("radio", { name: "In the study registry" }).check()
     // The realisation list starts empty, and a module with no realisation is never listed.
     await page.getByRole("button", { name: "Add realisation" }).click()
     await page.getByLabel("Realisation id").last().fill(REALISATION_ID)
-    // Confirm: this module's own inline save, ambiguous with the "create module" panel's disabled
-    // one below it. Save changes: the page-level submit that actually persists it.
-    await moduleForm.getByLabel("Confirm").click()
+    // Done: this module's own card. Save changes: the page-level submit that persists it.
+    await moduleForm.getByRole("button", { name: "Done" }).click()
     await page.getByRole("button", { name: "Save changes" }).click()
     await expect(page.getByText("Success").first()).toBeVisible()
 

@@ -11,7 +11,8 @@ use utoipa::ToSchema;
 
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
 use crate::library::credit_registration::{
-    CreditRegistrationPendingReason, PendingPreconditions, PendingReasonCounts,
+    CreditRegistrationPendingReason, PendingPreconditions, PendingReasonCounts, StageMatch,
+    StudentFacingCreditRegistrationStatus,
 };
 use crate::library::students_view::escape_like_pattern;
 use crate::prelude::*;
@@ -1194,6 +1195,9 @@ pub struct StudentCreditRegistration {
     pub next_attempt_at: DateTime<Utc>,
     pub registered_at: Option<DateTime<Utc>>,
     pub sisu_attainment_id: Option<String>,
+    /// The number frozen on the row before it was sent, which is the one a student would check a
+    /// registration against; `None` until the row leaves `checking_enrolment`.
+    pub student_number: Option<String>,
     pub credits: Option<f32>,
     pub grade_id: Option<String>,
     /// Needed to read `grade_id`: "1" is a pass on the pass/fail scale and a one out of five on the
@@ -1256,6 +1260,7 @@ SELECT cr.id,
   cr.next_attempt_at,
   cr.registered_at,
   cr.sisu_attainment_id,
+  cr.student_number,
   cr.credits,
   cr.grade_id,
   cr.grade_scale_id,
@@ -1794,41 +1799,62 @@ WHERE cr.state = 'pending'
     })
 }
 
-/// Live rows of one course per module and state, for the teacher's per-module summary, with how many
-/// of each need a human folded in: both counts are read off the same scan, since the summary always
-/// wants them together.
+/// Live rows of one course grouped by module and state, with the preconditions a `pending` row is
+/// waiting on and how many of each group the pipeline handed to support.
+///
+/// The preconditions travel with the group so a caller can classify it with
+/// [`crate::library::credit_registration::StudentFacingCreditRegistrationStatus::of`] rather than
+/// restate that mapping in SQL, which is what keeps the teacher's per-module columns and the badge
+/// on each of its rows saying the same thing.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CourseModuleStateCount {
+    pub course_module_id: Uuid,
+    pub state: CreditRegistrationState,
+    pub completion_eligible: bool,
+    pub has_verified_student_number: bool,
+    pub count: i64,
+    /// Of `count`, how many carry the pipeline's flag. Overlaps every other group's, so it is never
+    /// added to them.
+    pub needs_admin_attention_count: i64,
+}
+
+/// The course's live rows per module and state, narrowed to one instance where the caller names one.
 pub async fn count_by_module_and_state_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<(Uuid, CreditRegistrationState, i64, i64)>> {
-    let rows = sqlx::query!(
+    course_instance_id: Option<Uuid>,
+) -> ModelResult<Vec<CourseModuleStateCount>> {
+    let res = sqlx::query_as!(
+        CourseModuleStateCount,
         r#"
-SELECT course_module_id,
-  state,
+SELECT cr.course_module_id,
+  cr.state AS "state: CreditRegistrationState",
+  p.completion_eligible AS "completion_eligible!",
+  p.has_verified_student_number AS "has_verified_student_number!",
   COUNT(*) AS "count!",
-  COUNT(*) FILTER (WHERE needs_admin_attention) AS "needs_admin_attention_count!"
-FROM credit_registrations
-WHERE course_id = $1
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
-GROUP BY course_module_id,
-  state
+  COUNT(*) FILTER (
+    WHERE cr.needs_admin_attention
+  ) AS "needs_admin_attention_count!"
+FROM credit_registrations cr
+  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
+WHERE cr.course_id = $1
+  AND (
+    $2::uuid IS NULL
+    OR cr.course_instance_id = $2
+  )
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+GROUP BY cr.course_module_id,
+  cr.state,
+  p.completion_eligible,
+  p.has_verified_student_number
         "#,
-        course_id
+        course_id,
+        course_instance_id,
     )
     .fetch_all(conn)
     .await?;
-    Ok(rows
-        .into_iter()
-        .map(|r| {
-            (
-                r.course_module_id,
-                r.state,
-                r.count,
-                r.needs_admin_attention_count,
-            )
-        })
-        .collect())
+    Ok(res)
 }
 
 /// One ledger row as a teacher sees it: the raw state, the student's identity and the unmasked
@@ -1886,6 +1912,9 @@ pub struct TeacherCreditRegistrationFilters<'a> {
     pub id: Option<Uuid>,
     pub user_ids: Option<&'a [Uuid]>,
     pub state: Option<CreditRegistrationState>,
+    /// Rows whose student-facing stage is one of these. Empty means no narrowing. The stage set the
+    /// teacher surfaces filter by, so a row this returns always carries a badge the filter named.
+    pub stages: &'a [StudentFacingCreditRegistrationStatus],
     /// Matched against the student's name, email or verified student number.
     pub search: Option<&'a str>,
     pub course_instance_id: Option<Uuid>,
@@ -1904,6 +1933,7 @@ async fn teacher_facing_page(
     offset: i64,
 ) -> ModelResult<Vec<TeacherCreditRegistration>> {
     let search_pattern = filters.search.map(search_pattern_of);
+    let stages = StageMatch::of(filters.stages);
     let res = sqlx::query_as!(
         TeacherCreditRegistration,
         r#"
@@ -1962,6 +1992,20 @@ WHERE cr.deleted_at IS NULL
   )
   AND ($6::uuid IS NULL OR cr.course_instance_id = $6)
   AND ($7::uuid IS NULL OR cr.course_module_completion_id = $7)
+  AND (
+    CARDINALITY($10::credit_registration_state []) = 0
+    OR EXISTS (
+      SELECT 1
+      FROM UNNEST(
+          $10::credit_registration_state [],
+          $11::boolean [],
+          $12::boolean []
+        ) AS stage(state, completion_eligible, has_verified_student_number)
+      WHERE stage.state = cr.state
+        AND stage.completion_eligible = p.completion_eligible
+        AND stage.has_verified_student_number = (vsn.student_number IS NOT NULL)
+    )
+  )
 ORDER BY cmc.completion_date DESC,
   cr.attempt_number DESC,
   cr.id
@@ -1976,6 +2020,9 @@ LIMIT $8 OFFSET $9
         filters.course_module_completion_id,
         limit,
         offset,
+        &stages.states as &[CreditRegistrationState],
+        &stages.completion_eligible as &[bool],
+        &stages.has_verified_student_number as &[bool],
     )
     .fetch_all(conn)
     .await?;
@@ -2374,21 +2421,6 @@ ORDER BY COUNT(*) DESC
         .collect())
 }
 
-pub async fn count_needing_admin_attention(conn: &mut PgConnection) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
-        r#"
-SELECT COUNT(*) AS "count!"
-FROM credit_registrations
-WHERE needs_admin_attention
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
-        "#,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(count)
-}
-
 /// The row that has been waiting longest for the pipeline to do something with it.
 #[derive(Debug, Clone, PartialEq)]
 pub struct OldestNonTerminalRegistration {
@@ -2649,7 +2681,70 @@ GROUP BY cr.course_module_id
     Ok(res)
 }
 
+/// Which detector picked a row for the attention queue. A row can carry several.
+///
+/// Not `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue, but
+/// it says nothing about why, so it is reported per row rather than as a reason of its own.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum AttentionReason {
+    /// Past its state's threshold with the pipeline still owning it.
+    StuckInState,
+    PermanentError,
+    RetryWindowExpired,
+    Misregistered,
+    TooManyAttempts,
+    /// `submission_uncertain`: never retried automatically, and never in bulk.
+    OutcomeUncertain,
+}
+
+impl AttentionReason {
+    pub const ALL: [Self; 6] = [
+        Self::StuckInState,
+        Self::PermanentError,
+        Self::RetryWindowExpired,
+        Self::Misregistered,
+        Self::TooManyAttempts,
+        Self::OutcomeUncertain,
+    ];
+
+    /// Bound into the query as a `text` array element.
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::StuckInState => "stuck_in_state",
+            Self::PermanentError => "permanent_error",
+            Self::RetryWindowExpired => "retry_window_expired",
+            Self::Misregistered => "misregistered",
+            Self::TooManyAttempts => "too_many_attempts",
+            Self::OutcomeUncertain => "outcome_uncertain",
+        }
+    }
+}
+
+/// How the attention queue orders a page. The default puts the row that has been waiting longest
+/// first, which is the order an operator works the queue in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AttentionSort {
+    #[default]
+    TimeInState,
+    NextAttempt,
+    Course,
+}
+
+impl AttentionSort {
+    /// Bound into the query's `ORDER BY` as a `text` parameter.
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::TimeInState => "time_in_state",
+            Self::NextAttempt => "next_attempt",
+            Self::Course => "course",
+        }
+    }
+}
+
 /// One row the Errors tab wants a human to look at, with the detectors that picked it.
+///
+/// The `*_count` fields are totals over the whole queue this call selected, not over the page, so a
+/// caller reads them off the first row instead of running a second aggregate.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AttentionRegistration {
     pub id: Uuid,
@@ -2665,6 +2760,8 @@ pub struct AttentionRegistration {
     pub state_entered_at: DateTime<Utc>,
     pub error_code: Option<CreditRegistrationErrorCode>,
     pub attempt_count: i32,
+    /// The pipeline's cached "a human should look at this". Membership in the queue does not depend
+    /// on it alone, and it is never reported as a reason.
     pub needs_admin_attention: bool,
     pub next_attempt_at: DateTime<Utc>,
     pub student_number: Option<String>,
@@ -2674,22 +2771,109 @@ pub struct AttentionRegistration {
     pub misregistered: bool,
     pub too_many_attempts: bool,
     pub outcome_uncertain: bool,
-    pub flagged_by_pipeline: bool,
+    pub total_count: i64,
+    pub stuck_in_state_count: i64,
+    pub permanent_error_count: i64,
+    pub retry_window_expired_count: i64,
+    pub misregistered_count: i64,
+    pub too_many_attempts_count: i64,
+    pub outcome_uncertain_count: i64,
+    /// Rows the flag alone put in the queue. Reachable by no reason, so a caller grouping by reason
+    /// has to account for them separately or leave part of its own queue unreachable.
+    pub flagged_without_reason_count: i64,
 }
 
-/// Rows at least one attention detector picked, worst-waiting first.
+impl AttentionRegistration {
+    /// The detectors that picked this row.
+    pub fn reasons(&self) -> Vec<AttentionReason> {
+        AttentionReason::ALL
+            .into_iter()
+            .filter(|reason| match reason {
+                AttentionReason::StuckInState => self.stuck_in_state,
+                AttentionReason::PermanentError => self.permanent_error,
+                AttentionReason::RetryWindowExpired => self.retry_window_expired,
+                AttentionReason::Misregistered => self.misregistered,
+                AttentionReason::TooManyAttempts => self.too_many_attempts,
+                AttentionReason::OutcomeUncertain => self.outcome_uncertain,
+            })
+            .collect()
+    }
+
+    /// How many rows of the whole queue each detector picked, in [`AttentionReason::ALL`] order.
+    pub fn counts_by_reason(&self) -> Vec<(AttentionReason, i64)> {
+        vec![
+            (AttentionReason::StuckInState, self.stuck_in_state_count),
+            (AttentionReason::PermanentError, self.permanent_error_count),
+            (
+                AttentionReason::RetryWindowExpired,
+                self.retry_window_expired_count,
+            ),
+            (AttentionReason::Misregistered, self.misregistered_count),
+            (
+                AttentionReason::TooManyAttempts,
+                self.too_many_attempts_count,
+            ),
+            (
+                AttentionReason::OutcomeUncertain,
+                self.outcome_uncertain_count,
+            ),
+        ]
+    }
+}
+
+/// Which rows of the attention queue a call wants, and which slice of them.
 ///
-/// Superseded rows are excluded in the query rather than left to a predicate elsewhere: a false
-/// positive here costs an operator's attention directly.
-/// `thresholds` are the same seconds [`count_stuck`] uses, so the table and the alert cannot
-/// disagree about what stuck means.
+/// `reasons` and `only_without_reason` narrow the whole selection, totals included, so a caller
+/// after facet counts over the unnarrowed queue leaves both at their defaults.
+#[derive(Debug, Clone, Copy)]
+pub struct AttentionSelection<'a> {
+    pub reasons: &'a [AttentionReason],
+    pub only_without_reason: bool,
+    pub sort: AttentionSort,
+    pub limit: i64,
+    pub offset: i64,
+}
+
+impl Default for AttentionSelection<'_> {
+    fn default() -> Self {
+        Self {
+            reasons: &[],
+            only_without_reason: false,
+            sort: AttentionSort::TimeInState,
+            limit: 1,
+            offset: 0,
+        }
+    }
+}
+
+/// A page of the attention queue, with the totals for everything the call selected on every row.
+///
+/// The one query behind the Errors tab's pages and behind [`count_needing_attention`], so the queue
+/// an operator works through and the number the Overview tile and the tab badge show cannot come
+/// from two definitions.
+///
+/// A row is in the queue when at least one detector fired or the pipeline flagged it, so clearing
+/// the flag by hand only removes a row no detector also picked. Superseded rows are excluded in the
+/// query rather than left to a predicate elsewhere: a false positive here costs an operator's
+/// attention directly. `thresholds` are the same seconds [`count_stuck`] uses, so the table and the alert
+/// cannot disagree about what stuck means. `reasons` and `only_without_reason` narrow the whole
+/// selection, totals included, so a caller wanting facet counts over the unnarrowed queue asks for
+/// them with `reasons` empty and `only_without_reason` false.
 pub async fn get_attention_items(
     conn: &mut PgConnection,
     thresholds: &StuckThresholds,
     too_many_attempts: i32,
-    limit: i64,
+    selection: AttentionSelection<'_>,
 ) -> ModelResult<Vec<AttentionRegistration>> {
+    let AttentionSelection {
+        reasons,
+        only_without_reason,
+        sort,
+        limit,
+        offset,
+    } = selection;
     let (state_thresholds, threshold_secs) = thresholds.state_seconds_arrays();
+    let reason_names: Vec<&str> = reasons.iter().map(|reason| reason.as_str()).collect();
     let res = sqlx::query_as!(
         AttentionRegistration,
         r#"
@@ -2715,7 +2899,28 @@ SELECT cr.id,
   d.misregistered AS "misregistered!",
   d.too_many_attempts AS "too_many_attempts!",
   d.outcome_uncertain AS "outcome_uncertain!",
-  d.flagged_by_pipeline AS "flagged_by_pipeline!"
+  COUNT(*) OVER () AS "total_count!",
+  COUNT(*) FILTER (
+    WHERE d.stuck_in_state
+  ) OVER () AS "stuck_in_state_count!",
+  COUNT(*) FILTER (
+    WHERE d.permanent_error
+  ) OVER () AS "permanent_error_count!",
+  COUNT(*) FILTER (
+    WHERE d.retry_window_expired
+  ) OVER () AS "retry_window_expired_count!",
+  COUNT(*) FILTER (
+    WHERE d.misregistered
+  ) OVER () AS "misregistered_count!",
+  COUNT(*) FILTER (
+    WHERE d.too_many_attempts
+  ) OVER () AS "too_many_attempts_count!",
+  COUNT(*) FILTER (
+    WHERE d.outcome_uncertain
+  ) OVER () AS "outcome_uncertain_count!",
+  COUNT(*) FILTER (
+    WHERE NOT any_d.any_reason
+  ) OVER () AS "flagged_without_reason_count!"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
   JOIN course_modules cm ON cm.id = cr.course_module_id
@@ -2737,31 +2942,85 @@ FROM credit_registrations cr
       COALESCE(cr.error_code = 'retry_window_expired', FALSE) AS retry_window_expired,
       cr.state = 'misregistered' AS misregistered,
       cr.submit_retry_count + cr.verify_attempt_count >= $3 AS too_many_attempts,
-      cr.state = 'submission_uncertain' AS outcome_uncertain,
-      cr.needs_admin_attention AS flagged_by_pipeline
+      cr.state = 'submission_uncertain' AS outcome_uncertain
   ) d
+  CROSS JOIN LATERAL (
+    SELECT d.stuck_in_state
+      OR d.permanent_error
+      OR d.retry_window_expired
+      OR d.misregistered
+      OR d.too_many_attempts
+      OR d.outcome_uncertain AS any_reason
+  ) any_d
 WHERE cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
   AND (
-    d.stuck_in_state
-    OR d.permanent_error
-    OR d.retry_window_expired
-    OR d.misregistered
-    OR d.too_many_attempts
-    OR d.outcome_uncertain
-    OR d.flagged_by_pipeline
+    any_d.any_reason
+    OR cr.needs_admin_attention
   )
-ORDER BY cr.state_entered_at
-LIMIT $4
+  AND (
+    NOT $8::bool
+    OR NOT any_d.any_reason
+  )
+  AND (
+    CARDINALITY($4::text []) = 0
+    OR (d.stuck_in_state AND 'stuck_in_state' = ANY($4))
+    OR (d.permanent_error AND 'permanent_error' = ANY($4))
+    OR (
+      d.retry_window_expired
+      AND 'retry_window_expired' = ANY($4)
+    )
+    OR (d.misregistered AND 'misregistered' = ANY($4))
+    OR (
+      d.too_many_attempts
+      AND 'too_many_attempts' = ANY($4)
+    )
+    OR (
+      d.outcome_uncertain
+      AND 'outcome_uncertain' = ANY($4)
+    )
+  )
+ORDER BY CASE
+    WHEN $5::text = 'course' THEN c.name
+  END,
+  CASE
+    WHEN $5::text = 'next_attempt' THEN cr.next_attempt_at
+    ELSE cr.state_entered_at
+  END,
+  cr.id
+LIMIT $6 OFFSET $7
         "#,
         &state_thresholds as &[CreditRegistrationState],
         &threshold_secs as &[f64],
         too_many_attempts,
+        &reason_names as &[&str],
+        sort.as_str(),
         limit,
+        offset,
+        only_without_reason,
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// The whole queue's totals: how many rows need a human, and how many of them each detector picked.
+///
+/// The canonical "needs a human" count. Every surface that shows one — the Overview tile, the tab
+/// badge, the Errors queue — reads this, so none can disagree. `None` when the queue is empty.
+pub async fn count_needing_attention(
+    conn: &mut PgConnection,
+    thresholds: &StuckThresholds,
+    too_many_attempts: i32,
+) -> ModelResult<Option<AttentionRegistration>> {
+    let rows = get_attention_items(
+        conn,
+        thresholds,
+        too_many_attempts,
+        AttentionSelection::default(),
+    )
+    .await?;
+    Ok(rows.into_iter().next())
 }
 
 /// Live rows in each of the given states, newest activity first within each state, for the

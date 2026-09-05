@@ -1,29 +1,39 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { retryFailedCreditRegistrationsForCourse } from "@/generated/api/sdk.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { Button, Infobox } from "@/shared-module/components"
 
 import { TONE } from "./constants"
 import { refusalSentence } from "./resubmissionRefusal"
+import { rowCss, sectionCss } from "./styles"
 import { useInvalidateAfterRetry } from "./teacherCreditRegistrations"
 import { useActionResult } from "./useActionResult"
 
 interface Props {
   courseId: string
+  /** Rows the run would take, from the course summary; the button names it and the confirm repeats it. */
+  failedCount: number
+  /** The rest of the panel's controls, ordered after the one that changes the world. */
+  children?: React.ReactNode
 }
 
-const resultCss = css`
-  display: grid;
-  gap: 0.25rem;
-  width: 100%;
-`
-
-const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({ courseId }) => {
+/**
+ * The course-wide retry and the controls beside it.
+ *
+ * It resubmits every permanently failed row, so it says how many and asks first — and it leads the
+ * row as the primary action, because the exports next to it change nothing.
+ */
+const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({
+  courseId,
+  failedCount,
+  children,
+}) => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
   const invalidateAfterRetry = useInvalidateAfterRetry(courseId)
 
   const { result, mutation } = useActionResult(
@@ -33,20 +43,39 @@ const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({ courseId }) => {
     },
   )
 
+  const askAndRetry = async () => {
+    const confirmed = await confirm(
+      t("credit-registration-bulk-retry-confirm", { count: failedCount }),
+      t("credit-registration-bulk-retry-confirm-title"),
+      {
+        yesButtonLabel: t("button-text-retry-failed-credit-registrations", { count: failedCount }),
+      },
+    )
+    if (confirmed) {
+      mutation.mutate(undefined)
+    }
+  }
+
   return (
-    <>
-      <Button
-        variant="secondary"
-        size="medium"
-        type="button"
-        disabled={mutation.isPending}
-        onClick={() => mutation.mutate(undefined)}
-      >
-        {t("button-text-retry-failed-credit-registrations")}
-      </Button>
+    <div className={sectionCss}>
+      <div className={rowCss}>
+        {/* Nothing to retry and nothing said yet, so the course gets no bulk control at all. */}
+        {(failedCount > 0 || result !== null) && (
+          <Button
+            variant="primary"
+            size="medium"
+            type="button"
+            disabled={failedCount === 0 || mutation.isPending}
+            onClick={askAndRetry}
+          >
+            {t("button-text-retry-failed-credit-registrations", { count: failedCount })}
+          </Button>
+        )}
+        {children}
+      </div>
       {result && (
-        <Infobox tone={result.retried_count > 0 ? TONE.INFO : TONE.WARNING} announce>
-          <div className={resultCss}>
+        <Infobox tone={result.retried_count > 0 ? TONE.SUCCESS : TONE.WARNING} announce>
+          <div className={sectionCss}>
             <div>
               {t("credit-registration-bulk-retry-retried", { count: result.retried_count })}
             </div>
@@ -68,7 +97,7 @@ const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({ courseId }) => {
           </div>
         </Infobox>
       )}
-    </>
+    </div>
   )
 }
 

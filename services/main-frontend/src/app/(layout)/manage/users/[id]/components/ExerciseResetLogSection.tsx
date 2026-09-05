@@ -6,12 +6,11 @@ import { groupBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { headingCss } from "@/components/credit-registration/styles"
 import { getUserResetExerciseLogsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { CopyButton, QueryResult } from "@/shared-module/components"
-
-import { sectionHeadingCss } from "../lib/sectionHeading"
 
 export interface ExerciseResetLogSectionProps {
   userId: string
@@ -76,7 +75,7 @@ const ExerciseResetLogSection: React.FC<ExerciseResetLogSectionProps> = ({ userI
 
   return (
     <section>
-      <h2 className={sectionHeadingCss}>{t("label-exercise-reset-log")}</h2>
+      <h2 className={headingCss}>{t("label-exercise-reset-log")}</h2>
       <QueryResult query={query} treatEmptyAsData>
         {(data) => {
           if (data.length === 0) {

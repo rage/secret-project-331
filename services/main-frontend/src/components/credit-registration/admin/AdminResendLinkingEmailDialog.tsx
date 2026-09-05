@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -14,16 +13,17 @@ import { Button, Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
 import { MIDDLE_DOT, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
+import { dialogFormCss, dialogFormStartCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
-import AdminManualLinkDialog from "./AdminManualLinkDialog"
 import { ReasonField, isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props {
   studentNumber: string
   courseId: string
   courseName: string
-  hasMailHistory: boolean
+  /** Set it where the trigger is one cell of a table row rather than a block's own action. */
+  compact?: boolean
 }
 
 interface Fields {
@@ -31,43 +31,16 @@ interface Fields {
   reason: string
 }
 
-const rootCss = css`
-  display: grid;
-  gap: 0.5rem;
-  justify-items: start;
-`
-
-const formCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const lastResortCss = css`
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-  text-decoration: underline;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-  }
-`
-
 /** The override retires the rows the caps count rather than relaxing a cap, and needs a reason. */
 const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   studentNumber,
   courseId,
   courseName,
-  hasMailHistory,
+  compact = false,
 }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const [manualLinkOpen, setManualLinkOpen] = useState(false)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
     override_rate_caps: false,
     reason: "",
@@ -100,27 +73,19 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   }
 
   return (
-    <div className={rootCss}>
+    <div className={dialogFormStartCss}>
+      {/* Short in a table row; the full sentence stays on the accessible name. */}
       <Button
-        variant="secondary"
-        size="medium"
+        variant={compact ? "tertiary" : "secondary"}
+        size={compact ? "small" : "medium"}
+        aria-label={t("button-text-resend-linking-email")}
         onClick={() => {
           setResult(null)
           setOpen(true)
         }}
       >
-        {t("button-text-resend-linking-email")}
+        {compact ? t("credit-registration-admin-resend") : t("button-text-resend-linking-email")}
       </Button>
-      {hasMailHistory && (
-        <button
-          type="button"
-          className={lastResortCss}
-          onClick={() => setManualLinkOpen(true)}
-          aria-label={t("credit-registration-admin-manual-link-last-resort")}
-        >
-          {t("credit-registration-admin-manual-link-last-resort")}
-        </button>
-      )}
       <Dialog open={open} onClose={closeDialog} title={t("button-text-resend-linking-email")}>
         {result && (
           <Infobox tone={result.outcome === RESEND_QUEUED ? TONE.INFO : TONE.WARNING}>
@@ -147,7 +112,10 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
             ))}
           </Infobox>
         )}
-        <form className={formCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
+        <form
+          className={dialogFormCss}
+          onSubmit={handleSubmit((fields) => mutation.mutate(fields))}
+        >
           <p>
             {t("credit-registration-admin-resend-dialog-target", {
               studentNumber,
@@ -177,13 +145,6 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
           </Button>
         </form>
       </Dialog>
-      {manualLinkOpen && (
-        <AdminManualLinkDialog
-          open={manualLinkOpen}
-          onClose={() => setManualLinkOpen(false)}
-          studentNumber={studentNumber}
-        />
-      )}
     </div>
   )
 }

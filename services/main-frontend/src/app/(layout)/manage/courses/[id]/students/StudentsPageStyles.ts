@@ -79,27 +79,6 @@ export const title = css`
   }
 `
 
-export const chatbotInfo = css`
-  font-family: ${primaryFont};
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 140%;
-  color: ${baseTheme.colors.gray[700]};
-  opacity: 0.9;
-  margin-bottom: 16px;
-  max-width: 100%;
-
-  ${respondToOrLarger.md} {
-    font-size: 14px;
-    margin-bottom: 20px;
-    max-width: 700px;
-  }
-
-  ${respondToOrLarger.lg} {
-    margin-bottom: 24px;
-  }
-`
-
 export const divider = css`
   border: none;
   border-top: 2px solid rgba(206, 209, 215, 0.5);
@@ -112,6 +91,11 @@ export const divider = css`
   ${respondToOrLarger.lg} {
     margin-bottom: 28px;
   }
+`
+
+// Its own row above the filters: the tabs choose what is listed, the filters narrow it.
+export const navigationRow = css`
+  margin-bottom: 16px;
 `
 
 export const controlsRow = css`

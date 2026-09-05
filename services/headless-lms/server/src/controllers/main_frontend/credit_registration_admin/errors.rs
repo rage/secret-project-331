@@ -2,7 +2,8 @@
 
 use headless_lms_models::credit_registration_events::{self, ErrorCodeWindowCounts};
 use headless_lms_models::credit_registrations::{
-    self, AttentionRegistration, CreditRegistrationErrorCode, CreditRegistrationState,
+    self, AttentionReason, AttentionRegistration, AttentionSort, CreditRegistrationErrorCode,
+    CreditRegistrationState,
 };
 use headless_lms_models::library::credit_registration::classification::{
     Retryability, retryability,
@@ -15,17 +16,17 @@ use crate::domain::credit_registration::health::{
 };
 use crate::prelude::*;
 
-use super::authorize_credit_registration_admin;
+use super::{ATTENTION_TOO_MANY_ATTEMPTS, authorize_credit_registration_admin};
 
-/// The `chatbot_syncer` precedent, and the point past which retrying is not the answer.
-const TOO_MANY_ATTEMPTS: i32 = 5;
-/// Bounds the attention table. A dashboard that renders ten thousand rows helps nobody, and the
-/// per-reason counts beside it say how much is left.
-const ATTENTION_LIMIT: i64 = 500;
+/// Rows per page of the attention queue when the caller names no limit.
+const ATTENTION_PAGE_SIZE: u32 = 50;
 const DEFAULT_ERROR_WINDOW_SECS: i64 = 24 * 60 * 60;
 const MAX_ERROR_WINDOW_SECS: i64 = 90 * 24 * 60 * 60;
 
 /// Why a row is on the attention table. One row can carry several.
+///
+/// `needs_admin_attention` is deliberately not one of them: the flag is what the pipeline caches
+/// when it wants a human, not an answer to "why". It travels on the item instead.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum CreditRegistrationAttentionReason {
@@ -37,8 +38,30 @@ pub enum CreditRegistrationAttentionReason {
     TooManyAttempts,
     /// `submission_uncertain`: never retried automatically, and never in bulk.
     OutcomeUncertain,
-    /// The pipeline itself asked for a human, e.g. because the completion drifted under the row.
-    FlaggedByPipeline,
+}
+
+impl CreditRegistrationAttentionReason {
+    fn of(reason: AttentionReason) -> Self {
+        match reason {
+            AttentionReason::StuckInState => Self::StuckInState,
+            AttentionReason::PermanentError => Self::PermanentError,
+            AttentionReason::RetryWindowExpired => Self::RetryWindowExpired,
+            AttentionReason::Misregistered => Self::Misregistered,
+            AttentionReason::TooManyAttempts => Self::TooManyAttempts,
+            AttentionReason::OutcomeUncertain => Self::OutcomeUncertain,
+        }
+    }
+
+    fn to_model(self) -> AttentionReason {
+        match self {
+            Self::StuckInState => AttentionReason::StuckInState,
+            Self::PermanentError => AttentionReason::PermanentError,
+            Self::RetryWindowExpired => AttentionReason::RetryWindowExpired,
+            Self::Misregistered => AttentionReason::Misregistered,
+            Self::TooManyAttempts => AttentionReason::TooManyAttempts,
+            Self::OutcomeUncertain => AttentionReason::OutcomeUncertain,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -59,8 +82,12 @@ pub struct CreditRegistrationAttentionItem {
     pub attempt_count: i32,
     pub next_attempt_at: DateTime<Utc>,
     pub student_number: Option<String>,
-    /// Every detector that picked this row, so the table can group by any of them.
+    /// Every detector that picked this row, so the table can group by any of them. Empty on a row
+    /// the pipeline flagged that no detector explains.
     pub reasons: Vec<CreditRegistrationAttentionReason>,
+    /// The pipeline's cached "a human should look at this". A fact about the row, never a reason:
+    /// see [`CreditRegistrationAttentionReason`].
+    pub needs_admin_attention: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -71,12 +98,21 @@ pub struct CreditRegistrationAttentionReasonCount {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationAttentionItems {
+    /// The requested page of the queue.
     pub items: Vec<CreditRegistrationAttentionItem>,
-    /// Rows returned, which is the tab badge. Capped at `max_items`; the counts per reason are over
-    /// the same capped set.
+    /// The whole queue, whatever this request filtered to: the canonical "needs a human" count, the
+    /// same number `/overview` reports and the tab badge shows.
     pub total_count: i64,
+    /// Rows matching this request's narrowing, which is what `total_pages` pages through. Equal to
+    /// `total_count` when neither `reason` nor `without_reason` was given.
+    pub filtered_count: i64,
+    pub total_pages: u32,
+    /// Over the whole queue, not over the page or the filter, so the counts stay usable as facets.
     pub counts_by_reason: Vec<CreditRegistrationAttentionReasonCount>,
-    pub max_items: i64,
+    /// Queue rows no detector picked, which the pipeline's flag alone put there. No `reason`
+    /// reaches them, so a surface that groups by reason has to offer `without_reason` beside the
+    /// reasons or leave this many rows unreachable.
+    pub flagged_without_reason_count: i64,
 }
 
 /// One error code over the chosen window and the one before it.
@@ -144,11 +180,24 @@ pub async fn get_credit_registration_thresholds(
     token.authorized_ok(web::Json(thresholds()))
 }
 
+#[derive(Debug, Deserialize)]
+pub struct AttentionQuery {
+    page: Option<u32>,
+    limit: Option<u32>,
+    reason: Option<Vec<CreditRegistrationAttentionReason>>,
+    /// Narrows to the rows `flagged_without_reason_count` counts. Given together with `reason` it
+    /// selects nothing: no row both carries a reason and lacks one.
+    without_reason: Option<bool>,
+    sort: Option<String>,
+}
+
 /**
-GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
-wants a human to look at, with the detectors that picked each.
+GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
+detector wants a human to look at, with the detectors that picked each.
 
 Superseded attempts are outside every detector: acting on a replaced attempt is never right.
+`total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
+`needs_admin_attention_count` is the same number.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -156,45 +205,89 @@ Superseded attempts are outside every detector: acting on a replaced attempt is 
     path = "/attention",
     operation_id = "getCreditRegistrationAttentionItems",
     tag = "credit-registration-admin",
+    params(
+        ("page" = Option<u32>, Query, description = "Page number, from 1"),
+        ("limit" = Option<u32>, Query, description = "Rows per page"),
+        ("reason" = Option<Vec<CreditRegistrationAttentionReason>>, Query, description = "Only rows one of these detectors picked; repeat the parameter for several"),
+        ("without_reason" = Option<bool>, Query, description = "Only rows no detector picked, which the pipeline's flag alone put in the queue; selects nothing alongside reason"),
+        ("sort" = Option<String>, Query, description = "time_in_state, next_attempt or course")
+    ),
     responses(
-        (status = 200, description = "Rows needing a human, and how many for each reason", body = CreditRegistrationAttentionItems)
+        (status = 200, description = "A page of the rows needing a human, and how many for each reason", body = CreditRegistrationAttentionItems)
     )
 )]
 pub async fn get_credit_registration_attention_items(
     user: AuthUser,
     pool: web::Data<PgPool>,
+    query: MultiQuery<AttentionQuery>,
 ) -> ControllerResult<web::Json<CreditRegistrationAttentionItems>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let items: Vec<CreditRegistrationAttentionItem> = credit_registrations::get_attention_items(
-        &mut conn,
-        &stuck_thresholds(),
-        TOO_MANY_ATTEMPTS,
-        ATTENTION_LIMIT,
-    )
-    .await?
-    .into_iter()
-    .map(to_attention_item)
-    .collect();
+    let pagination = parse_pagination(query.page, query.limit, ATTENTION_PAGE_SIZE)?;
+    let reasons: Vec<AttentionReason> = query
+        .reason
+        .as_deref()
+        .unwrap_or_default()
+        .iter()
+        .map(|reason| reason.to_model())
+        .collect();
+    let only_without_reason = query.without_reason.unwrap_or(false);
+    let sort = match query.sort.as_deref() {
+        Some("next_attempt") => AttentionSort::NextAttempt,
+        Some("course") => AttentionSort::Course,
+        _ => AttentionSort::TimeInState,
+    };
+    let thresholds = stuck_thresholds();
 
-    let counts_by_reason = ALL_ATTENTION_REASONS
+    let rows = credit_registrations::get_attention_items(
+        &mut conn,
+        &thresholds,
+        ATTENTION_TOO_MANY_ATTEMPTS,
+        credit_registrations::AttentionSelection {
+            reasons: &reasons,
+            only_without_reason,
+            sort,
+            limit: pagination.limit(),
+            offset: pagination.offset(),
+        },
+    )
+    .await?;
+    let filtered_count = rows.first().map_or(0, |row| row.total_count);
+    // An unfiltered page already carries the whole queue's totals; only a narrowed or empty one
+    // needs them asked for separately.
+    let queue = match rows.first() {
+        Some(row) if reasons.is_empty() && !only_without_reason => Some(row.clone()),
+        _ => {
+            credit_registrations::count_needing_attention(
+                &mut conn,
+                &thresholds,
+                ATTENTION_TOO_MANY_ATTEMPTS,
+            )
+            .await?
+        }
+    };
+    let counts_by_reason = queue
+        .as_ref()
+        .map(AttentionRegistration::counts_by_reason)
+        .unwrap_or_default()
         .into_iter()
-        .map(|reason| CreditRegistrationAttentionReasonCount {
-            reason,
-            count: items
-                .iter()
-                .filter(|item| item.reasons.contains(&reason))
-                .count() as i64,
+        .filter(|(_, count)| *count > 0)
+        .map(|(reason, count)| CreditRegistrationAttentionReasonCount {
+            reason: CreditRegistrationAttentionReason::of(reason),
+            count,
         })
-        .filter(|row| row.count > 0)
         .collect();
 
     token.authorized_ok(web::Json(CreditRegistrationAttentionItems {
-        total_count: items.len() as i64,
-        items,
+        items: rows.into_iter().map(to_attention_item).collect(),
+        total_count: queue.as_ref().map_or(0, |row| row.total_count),
+        filtered_count,
+        total_pages: pagination.total_pages(u32::try_from(filtered_count).unwrap_or(u32::MAX)),
         counts_by_reason,
-        max_items: ATTENTION_LIMIT,
+        flagged_without_reason_count: queue
+            .as_ref()
+            .map_or(0, |row| row.flagged_without_reason_count),
     }))
 }
 
@@ -253,51 +346,12 @@ pub async fn get_credit_registration_errors_by_code(
     }))
 }
 
-const ALL_ATTENTION_REASONS: [CreditRegistrationAttentionReason; 7] = [
-    CreditRegistrationAttentionReason::StuckInState,
-    CreditRegistrationAttentionReason::PermanentError,
-    CreditRegistrationAttentionReason::RetryWindowExpired,
-    CreditRegistrationAttentionReason::Misregistered,
-    CreditRegistrationAttentionReason::TooManyAttempts,
-    CreditRegistrationAttentionReason::OutcomeUncertain,
-    CreditRegistrationAttentionReason::FlaggedByPipeline,
-];
-
 fn to_attention_item(row: AttentionRegistration) -> CreditRegistrationAttentionItem {
-    let flags = [
-        (
-            row.stuck_in_state,
-            CreditRegistrationAttentionReason::StuckInState,
-        ),
-        (
-            row.permanent_error,
-            CreditRegistrationAttentionReason::PermanentError,
-        ),
-        (
-            row.retry_window_expired,
-            CreditRegistrationAttentionReason::RetryWindowExpired,
-        ),
-        (
-            row.misregistered,
-            CreditRegistrationAttentionReason::Misregistered,
-        ),
-        (
-            row.too_many_attempts,
-            CreditRegistrationAttentionReason::TooManyAttempts,
-        ),
-        (
-            row.outcome_uncertain,
-            CreditRegistrationAttentionReason::OutcomeUncertain,
-        ),
-        (
-            row.flagged_by_pipeline,
-            CreditRegistrationAttentionReason::FlaggedByPipeline,
-        ),
-    ];
     CreditRegistrationAttentionItem {
-        reasons: flags
+        reasons: row
+            .reasons()
             .into_iter()
-            .filter_map(|(fired, reason)| fired.then_some(reason))
+            .map(CreditRegistrationAttentionReason::of)
             .collect(),
         credit_registration_id: row.id,
         user_id: row.user_id,
@@ -314,6 +368,7 @@ fn to_attention_item(row: AttentionRegistration) -> CreditRegistrationAttentionI
         attempt_count: row.attempt_count,
         next_attempt_at: row.next_attempt_at,
         student_number: row.student_number,
+        needs_admin_attention: row.needs_admin_attention,
     }
 }
 

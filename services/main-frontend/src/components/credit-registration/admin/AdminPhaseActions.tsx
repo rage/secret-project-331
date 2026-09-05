@@ -13,7 +13,8 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button } from "@/shared-module/components"
 
-import { pauseResumeRootCss, usePauseResumeAction } from "./usePauseResumeAction"
+import { rowCss } from "../styles"
+import { usePauseResumeAction } from "./usePauseResumeAction"
 
 interface Props {
   phase: string
@@ -21,7 +22,7 @@ interface Props {
   implemented: boolean
 }
 
-/** Pause, resume and run-now for one pipeline phase; the Overview strip and the Workers tab share it. */
+/** Pause, resume and run-now for one pipeline phase, as the System tab offers them on its row. */
 const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -55,7 +56,7 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
   }
 
   return (
-    <div className={pauseResumeRootCss}>
+    <div className={rowCss}>
       {paused ? (
         resumeButton
       ) : (
@@ -68,6 +69,8 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
             onClick={async () => {
               const confirmed = await confirm(
                 t("credit-registration-admin-phase-run-now-confirm", { phase }),
+                undefined,
+                { yesButtonLabel: t("button-text-credit-registration-phase-run-now") },
               )
               if (confirmed) {
                 runNowMutation.mutate()

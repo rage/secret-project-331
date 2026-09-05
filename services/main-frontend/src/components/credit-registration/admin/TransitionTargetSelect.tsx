@@ -37,7 +37,7 @@ interface TransitionTargetSelectProps<T extends TransitionFields> {
   control: Control<T>
 }
 
-/** The four transition targets an admin can pick, shared by the single-item and bulk dialogs. */
+/** The four transition targets a bulk move can pick. One row at a time offers them as separate actions. */
 export function TransitionTargetSelect<T extends TransitionFields>({
   control,
 }: TransitionTargetSelectProps<T>) {

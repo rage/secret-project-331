@@ -8,8 +8,9 @@ import {
   adminResumeCourseModuleCreditRegistration,
 } from "@/generated/api/sdk.generated"
 
+import { rowCss } from "../styles"
 import { useInvalidateCourseStats } from "./adminCreditRegistrationHooks"
-import { pauseResumeRootCss, usePauseResumeAction } from "./usePauseResumeAction"
+import { usePauseResumeAction } from "./usePauseResumeAction"
 
 interface Props {
   courseModuleId: string
@@ -50,7 +51,7 @@ const AdminCourseModulePauseButton: React.FC<Props> = ({
   })
 
   return (
-    <div className={pauseResumeRootCss}>
+    <div className={rowCss}>
       {paused ? resumeButton : pauseButton}
       {dialog}
     </div>

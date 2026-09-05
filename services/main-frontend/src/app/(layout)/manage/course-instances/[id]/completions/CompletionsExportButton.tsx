@@ -2,26 +2,27 @@
 
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
+import { Link } from "@/shared-module/components"
 
 interface Props {
   courseInstanceId: string
 }
 
+/** One element, not a Button inside an anchor: a download is a link wherever the keyboard is concerned. */
 const CompletionsExportButton: React.FC<React.PropsWithChildren<Props>> = ({
   courseInstanceId,
 }) => {
   const { t } = useTranslation()
   return (
-    <a
+    <Link
       href={`/api/v0/main-frontend/course-instances/${courseInstanceId}/export-completions`}
-      aria-label={t("link-export-completions")}
+      styledAsButton
+      variant="secondary"
+      size="medium"
       download
     >
-      <Button variant="secondary" size="medium" type="button">
-        {t("link-export-completions")}
-      </Button>
-    </a>
+      {t("link-export-grades")}
+    </Link>
   )
 }
 

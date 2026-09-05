@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,21 +17,22 @@ import {
   DescriptionList,
   Dialog,
   Infobox,
+  RelativeTime,
   TextField,
 } from "@/shared-module/components"
 
-import { MIDDLE_DOT, STACKED, TONE } from "../constants"
-import { noteCss } from "../styles"
+import { ABSENT, MIDDLE_DOT, STACKED, TONE } from "../constants"
+import { controlCss, controlsCss, dialogFormCss, noteCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
-import RelativeTime, { ABSENT } from "./RelativeTime"
 
 interface Props {
   open: boolean
   onClose: () => void
-  studentNumber: string
+  /** Seeds the number field; the preview still has to be run against it. */
+  studentNumber?: string
 }
 
 interface Fields {
@@ -45,24 +45,12 @@ interface Fields {
 // oxlint-disable-next-line i18next/no-literal-string
 const LINKED = "linked"
 
-const formCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const rowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: end;
-`
-
 /** The API enforces the same two gates: the preview must have run, and a reason is required. */
 const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }) => {
   const { t } = useTranslation()
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
-    student_number: studentNumber,
+    student_number: studentNumber ?? "",
     user_id: "",
     resending_cannot_work: false,
     reason: "",
@@ -107,10 +95,15 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
       title={t("credit-registration-admin-manual-link-title")}
       size="wide"
     >
-      <div className={formCss}>
+      <div className={dialogFormCss}>
         <Infobox tone={TONE.WARNING}>{t("credit-registration-admin-manual-link-warning")}</Infobox>
-        <div className={rowCss}>
-          <TextField name="student_number" control={control} label={t("label-student-number")} />
+        <div className={controlsCss}>
+          <TextField
+            name="student_number"
+            control={control}
+            className={controlCss}
+            label={t("label-student-number")}
+          />
           <Button
             variant="secondary"
             size="medium"
@@ -169,7 +162,10 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber }
           </Infobox>
         )}
         <p className={noteCss}>{t("credit-registration-admin-manual-link-preview-required")}</p>
-        <form onSubmit={handleSubmit((values) => linkMutation.mutate(values))} className={formCss}>
+        <form
+          onSubmit={handleSubmit((values) => linkMutation.mutate(values))}
+          className={dialogFormCss}
+        >
           <TextField
             name="user_id"
             control={control}

@@ -82,7 +82,7 @@ const surfaceCss = css`
   overflow: hidden;
   background: var(--color-clear-50);
   color: var(--color-gray-700);
-  border-radius: 8px;
+  border-radius: var(--surface-radius);
   outline: none;
 `
 
@@ -191,7 +191,10 @@ const actionCss = css`
  * closes. Reflows without horizontal overflow down to 320px viewports.
  *
  * The footer is either arbitrary `footer` content or an `actions` row of buttons described as
- * data, which share the footer width evenly.
+ * data, which share the footer width evenly. A dialog whose body is a form should submit through
+ * `actions`, not a button rendered in `children` — `actions` is what positions, sizes, and stacks
+ * it consistently on narrow screens. For a confirm/cancel action pair, prefer the `ConfirmDialog`
+ * preset over assembling `actions` by hand.
  */
 export const Dialog: React.FC<DialogProps> = (props) => {
   // The overlay stack (focus trap, scroll lock, focus-on-mount) must mount and

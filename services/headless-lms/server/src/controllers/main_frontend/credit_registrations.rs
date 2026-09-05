@@ -115,6 +115,9 @@ pub struct MyCreditRegistration {
     pub next_attempt_at: DateTime<Utc>,
     pub registered_at: Option<DateTime<Utc>>,
     pub sisu_attainment_id: Option<String>,
+    /// The student number we submitted this registration under, so a `registered` row can be
+    /// checked against the student's own card; `None` before the row was ready to send.
+    pub student_number: Option<String>,
     pub grade_id: Option<String>,
     /// Names the scale `grade_id` is on, without which "1" reads as a one out of five when it means
     /// a pass.
@@ -786,6 +789,7 @@ fn to_my_credit_registration(
         next_attempt_at: row.next_attempt_at,
         registered_at: row.registered_at,
         sisu_attainment_id: row.sisu_attainment_id,
+        student_number: row.student_number,
         grade_id: row.grade_id,
         grade_scale_id: row.grade_scale_id,
         credits: row.credits,

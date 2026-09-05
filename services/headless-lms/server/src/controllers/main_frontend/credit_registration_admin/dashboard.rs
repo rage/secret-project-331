@@ -27,7 +27,7 @@ use crate::domain::credit_registration_phases::breaker::{
 };
 use crate::prelude::*;
 
-use super::{authorize_credit_registration_admin, required_reason};
+use super::{ATTENTION_TOO_MANY_ATTEMPTS, authorize_credit_registration_admin, required_reason};
 
 const THROUGHPUT_DAYS: i64 = 30;
 
@@ -128,6 +128,8 @@ pub struct CreditRegistrationOverview {
     /// The `pending` depth split by what each row is waiting on, which the ledger does not store.
     pub pending_by_reason: PendingReasonCounts,
     pub error_codes: Vec<CreditRegistrationErrorCodeTotal>,
+    /// Live rows at least one attention detector picked. The one definition of "needs a human":
+    /// `/attention` pages through exactly these rows and reports the same total.
     pub needs_admin_attention_count: i64,
     pub oldest_non_terminal: Option<CreditRegistrationOldestNonTerminal>,
     pub throughput: Vec<CreditRegistrationThroughputBucket>,
@@ -208,8 +210,13 @@ pub async fn get_credit_registration_overview(
         .into_iter()
         .map(to_error_code_total)
         .collect();
-    let needs_admin_attention_count =
-        credit_registrations::count_needing_admin_attention(&mut conn).await?;
+    let needs_admin_attention_count = credit_registrations::count_needing_attention(
+        &mut conn,
+        &stuck_thresholds(),
+        ATTENTION_TOO_MANY_ATTEMPTS,
+    )
+    .await?
+    .map_or(0, |row| row.total_count);
     let oldest_non_terminal = credit_registrations::get_oldest_non_terminal(&mut conn)
         .await?
         .map(|row| to_oldest_non_terminal(row, Utc::now()));

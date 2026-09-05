@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,11 +11,11 @@ import {
   useCreditRegistrationUnhealthyPhaseCount,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import CreditRegistrationAlertBanner from "@/components/credit-registration/admin/CreditRegistrationAlertBanner"
+import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
   creditRegistrationAuditRoute,
   creditRegistrationCoursesRoute,
@@ -33,12 +33,15 @@ const KEY_COURSES = "courses"
 const KEY_SYSTEM = "system"
 const KEY_AUDIT = "audit"
 
-const headingCss = css`
-  font-size: clamp(2rem, 3.6vh, 36px);
-  color: ${baseTheme.colors.gray[700]};
-  font-family: ${headingFont};
-  font-weight: bold;
-`
+const shellCss = cx(
+  sectionsCss,
+  css`
+    /* The shared tab list carries its own bottom margin; this grid owns every gap in the shell. */
+    > [role="tablist"] {
+      margin-bottom: 0;
+    }
+  `,
+)
 
 const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation()
@@ -96,13 +99,13 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
   )
 
   return (
-    <>
-      <h1 className={headingCss}>{t("title-credit-registration")}</h1>
+    <div className={shellCss}>
+      <h1 className={pageTitleCss}>{t("title-credit-registration")}</h1>
       <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
       <RouteTabList tabs={tabs} />
       <CreditRegistrationAlertBanner />
       {children}
-    </>
+    </div>
   )
 }
 

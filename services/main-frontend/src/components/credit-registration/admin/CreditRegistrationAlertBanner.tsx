@@ -1,68 +1,25 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type {
-  CreditRegistrationAlert,
-  CreditRegistrationAlertSeverity,
-} from "@/generated/api/types.generated"
-import type { BadgeTone } from "@/shared-module/components"
-import { Badge, Disclosure, Infobox } from "@/shared-module/components"
+import type { CreditRegistrationAlertSeverity } from "@/generated/api/types.generated"
+import type { InfoboxTone } from "@/shared-module/components"
+import { Disclosure, Infobox } from "@/shared-module/components"
 
 import { TONE } from "../constants"
 import { widenedLookup } from "../labelFrom"
+import { dividedListCss, sectionCss } from "../styles"
 import { alertSentence } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationOverview } from "./adminCreditRegistrationHooks"
 
 const MAX_SHOWN = 3
 
-const SEVERITY_KEYS = {
-  critical: "credit-registration-alert-severity-critical",
-  warning: "credit-registration-alert-severity-warning",
-  info: "credit-registration-alert-severity-info",
-} as const satisfies Record<CreditRegistrationAlertSeverity, string>
-
-// Infobox has no danger tone, so the severity badge is what tells a critical alert from a warning.
-const SEVERITY_BADGE_TONES = {
+const SEVERITY_TONES = {
   critical: TONE.DANGER,
   warning: TONE.WARNING,
-  info: TONE.NEUTRAL,
-} as const satisfies Record<CreditRegistrationAlertSeverity, BadgeTone>
-
-// oxlint-disable-next-line i18next/no-literal-string
-const INFO_SEVERITY: CreditRegistrationAlertSeverity = "info"
-
-const rootCss = css`
-  display: grid;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-`
-
-const bodyCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: baseline;
-`
-
-const restCss = css`
-  display: grid;
-  gap: 0.5rem;
-`
-
-const AlertLine: React.FC<{ alert: CreditRegistrationAlert }> = ({ alert }) => {
-  const { t } = useTranslation()
-  return (
-    <span className={bodyCss}>
-      <Badge tone={widenedLookup(SEVERITY_BADGE_TONES, alert.severity) ?? TONE.WARNING}>
-        {t(widenedLookup(SEVERITY_KEYS, alert.severity) ?? SEVERITY_KEYS.warning)}
-      </Badge>
-      <span>{alertSentence(t, alert.id, alert.count, alert.subject, alert.total)}</span>
-    </span>
-  )
-}
+  info: TONE.INFO,
+} as const satisfies Record<CreditRegistrationAlertSeverity, InfoboxTone>
 
 /** The health rules that are firing right now, worst first, on every tab of the shell. */
 const CreditRegistrationAlertBanner: React.FC = () => {
@@ -76,19 +33,25 @@ const CreditRegistrationAlertBanner: React.FC = () => {
   const rest = alerts.slice(MAX_SHOWN)
 
   return (
-    <div className={rootCss}>
+    <div className={sectionCss}>
       {shown.map((alert) => (
-        <Infobox key={alert.id} tone={alert.severity === INFO_SEVERITY ? TONE.INFO : TONE.WARNING}>
-          <AlertLine alert={alert} />
+        <Infobox
+          key={alert.id}
+          tone={widenedLookup(SEVERITY_TONES, alert.severity) ?? TONE.WARNING}
+        >
+          {alertSentence(t, alert.id, alert.count, alert.subject, alert.total)}
         </Infobox>
       ))}
       {rest.length > 0 && (
         <Disclosure title={t("credit-registration-alert-n-more", { count: rest.length })}>
-          <div className={restCss}>
+          {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
+          <ul className={dividedListCss} role="list">
             {rest.map((alert) => (
-              <AlertLine key={alert.id} alert={alert} />
+              <li key={alert.id}>
+                {alertSentence(t, alert.id, alert.count, alert.subject, alert.total)}
+              </li>
             ))}
-          </div>
+          </ul>
         </Disclosure>
       )}
     </div>

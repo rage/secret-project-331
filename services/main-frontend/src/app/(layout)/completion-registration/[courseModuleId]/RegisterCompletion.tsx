@@ -15,6 +15,7 @@ import {
   pageTitleCss,
   sectionCss,
   sectionHeaderCss,
+  stepsCss,
 } from "@/components/credit-registration/styles"
 import { CopyButton, Disclosure, Link, Radio, RadioGroup } from "@/shared-module/components"
 
@@ -85,18 +86,17 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
   return (
     <div className={narrowPageCss}>
       <div className={sectionHeaderCss}>
-        <h1 className={pageTitleCss}>{t("register-completion")}</h1>
-        <p className={noteCss}>
-          {typeof ectsCredits === "number"
-            ? t("course-name-and-ects", { course: courseName, ects: ectsCredits })
-            : courseName}
-        </p>
+        <h1 className={pageTitleCss}>{courseName}</h1>
+        {typeof ectsCredits === "number" ? (
+          <p className={noteCss}>{t("ects-n", { n: ectsCredits })}</p>
+        ) : null}
       </div>
 
       <RadioGroup
         name={STUDENT_TYPE_FIELD}
         control={control}
         label={t("how-do-you-study-at-the-university-of-helsinki")}
+        description={t("hint-not-sure-which-student-type")}
       >
         <Radio value={STUDY_RIGHT_AT_UH} label={t("option-degree-or-exchange-student-at-uh")} />
         <Radio value={OPEN_UNIVERSITY_OR_NEITHER} label={t("option-open-university-or-neither")} />
@@ -104,8 +104,12 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
 
       {studentType === STUDY_RIGHT_AT_UH ? (
         <section className={sectionCss}>
-          <h2 className={headingCss}>{t("heading-enrol-in-sisu")}</h2>
+          <h2 className={headingCss}>{t("heading-get-these-credits-into-sisu")}</h2>
           <EmailToUse email={email} />
+          <ol className={stepsCss}>
+            <li>{t("enroll-through-sisu-to-register-credits")}</li>
+            <li>{t("sisu-add-this-address-as-a-secondary-address")}</li>
+          </ol>
           {/* A grid child otherwise stretches the button's own box to the section's full width. */}
           <div>
             <Link
@@ -119,21 +123,15 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
               {t("go-to-sisu")}
             </Link>
           </div>
-          <p>{t("enroll-through-sisu-to-register-credits")}</p>
-          <p>{t("sisu-add-this-address-as-a-secondary-address")}</p>
+          <p>{t("credits-appear-in-sisu-after-enrolling")}</p>
           <ChangedEmailNote />
         </section>
       ) : null}
 
       {studentType === OPEN_UNIVERSITY_OR_NEITHER ? (
         <section className={sectionCss}>
-          <h2 className={headingCss}>{t("heading-enrol-at-the-open-university")}</h2>
+          <h2 className={headingCss}>{t("heading-get-these-credits-into-sisu")}</h2>
           <EmailToUse email={email} />
-          <div>
-            <Link href={registrationFormUrl} styledAsButton variant="primary" size="medium">
-              {t("to-the-registration-form")}
-            </Link>
-          </div>
           <p>
             <Trans
               t={t}
@@ -141,6 +139,11 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
               components={{ openUniversityInfoLink }}
             />
           </p>
+          <div>
+            <Link href={registrationFormUrl} styledAsButton variant="primary" size="medium">
+              {t("to-the-registration-form")}
+            </Link>
+          </div>
           <p>
             <Trans
               t={t}

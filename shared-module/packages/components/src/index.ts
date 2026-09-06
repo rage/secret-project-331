@@ -59,7 +59,12 @@ export type { InfoboxProps, InfoboxTone } from "./components/Infobox"
 export { Menu } from "./components/Menu"
 export type { MenuItemDescriptor, MenuProps } from "./components/Menu"
 export { Meter, MeterInline } from "./components/Meter"
-export type { MeterInlineProps, MeterProps, MeterTone } from "./components/Meter"
+export type {
+  MeterInlineProps,
+  MeterInlineTrackWidth,
+  MeterProps,
+  MeterTone,
+} from "./components/Meter"
 export { MultiSelect } from "./components/MultiSelect"
 export type { MultiSelectKey, MultiSelectProps } from "./components/MultiSelect"
 export { Pagination } from "./components/Pagination"
@@ -71,7 +76,7 @@ export type { RegistrationStatusBadgeProps } from "./components/registrationStat
 export { RegistrationStatusHeadline } from "./components/registrationStatus/RegistrationStatusHeadline"
 export type { RegistrationStatusHeadlineProps } from "./components/registrationStatus/RegistrationStatusHeadline"
 export type { RegistrationStatusState } from "./components/registrationStatus/registrationStatusState"
-export { registrationStatusInfoboxTone } from "./components/registrationStatus/registrationStatusState"
+export { registrationStatusTone } from "./components/registrationStatus/registrationStatusState"
 export { RelativeTime } from "./components/RelativeTime"
 export type { RelativeTimeProps } from "./components/RelativeTime"
 export { ABSENT_LABEL, MIDDLE_DOT, TONE } from "./lib/displayConstants"

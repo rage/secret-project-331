@@ -1,22 +1,17 @@
 "use client"
 
-import { cx } from "@emotion/css"
 import { useTabListState } from "@react-stately/tabs"
 import { usePathname } from "next/navigation"
-import React, { useMemo, useRef } from "react"
-import { useTabList } from "react-aria"
-import { useTranslation } from "react-i18next"
+import React, { useMemo } from "react"
 
-import {
-  tabStripCss,
-  tabStripVerticalCss,
-  useScrollSelectedTabIntoView,
-} from "@/components/Tabs/tabStrip"
+import { TabStrip } from "@/components/Tabs/tabStrip"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import { resolveActiveTab } from "./resolveActiveTab"
 import { RouteTab, type RouteTabDefinition } from "./RouteTab"
 import { useRouteTabListContext } from "./RouteTabListContext"
+
+const DEFAULT_ORIENTATION = "horizontal"
 
 export interface RouteTabListProps {
   tabs?: RouteTabDefinition[]
@@ -29,10 +24,11 @@ function RouteTabListStandalone({
   tabs,
   orientation,
   className,
-}: RouteTabListProps & { tabs: RouteTabDefinition[] }) {
+}: Omit<RouteTabListProps, "orientation" | "tabs"> & {
+  tabs: RouteTabDefinition[]
+  orientation: "horizontal" | "vertical"
+}) {
   const pathname = usePathname()
-  const { t } = useTranslation()
-  const tabListRef = useRef<HTMLDivElement>(null)
 
   const selectedKey = useMemo(() => resolveActiveTab(tabs, pathname)?.key, [pathname, tabs])
 
@@ -52,64 +48,40 @@ function RouteTabListStandalone({
     items,
   })
 
-  const { tabListProps } = useTabList(
-    {
-      ...omitUndefined({ orientation }),
-      "aria-label": t("tab-aria-label-default"),
-    },
-    state,
-    tabListRef,
-  )
-
-  useScrollSelectedTabIntoView(tabListRef, selectedKey)
-
   return (
-    <div
-      {...tabListProps}
-      ref={tabListRef}
-      className={cx(tabStripCss, orientation === "vertical" && tabStripVerticalCss, className)}
+    <TabStrip
+      state={state}
+      orientation={orientation}
+      selectedKey={state.selectedKey}
+      className={className}
     >
       {tabs.map((tab) => (
         <RouteTab key={tab.key} item={tab} state={state} />
       ))}
-    </div>
+    </TabStrip>
   )
 }
 
 function RouteTabListFromContext({ className }: Pick<RouteTabListProps, "className">) {
   const context = useRouteTabListContext()
-  const { t } = useTranslation()
-  const tabListRef = useRef<HTMLDivElement>(null)
   if (!context) {
     throw new Error("RouteTabList must be used with tabs prop or inside RouteTabListProvider")
   }
   const { state, tabs, orientation } = context
 
-  const { tabListProps } = useTabList(
-    {
-      orientation,
-      "aria-label": t("tab-aria-label-default"),
-    },
-    state,
-    tabListRef,
-  )
-
-  useScrollSelectedTabIntoView(tabListRef, state.selectedKey)
-
   return (
-    <div
-      {...tabListProps}
-      ref={tabListRef}
-      className={cx(tabStripCss, orientation === "vertical" && tabStripVerticalCss, className)}
+    <TabStrip
+      state={state}
+      orientation={orientation}
+      selectedKey={state.selectedKey}
+      className={className}
     >
       {tabs.map((tab) => (
         <RouteTab key={tab.key} item={tab} state={state} />
       ))}
-    </div>
+    </TabStrip>
   )
 }
-
-const DEFAULT_ORIENTATION = "horizontal"
 
 /** Renders tab list. Use with tabs prop (standalone) or inside RouteTabListProvider (with RouteTabPanel for full ARIA). */
 export const RouteTabList: React.FC<RouteTabListProps> = (props) => {

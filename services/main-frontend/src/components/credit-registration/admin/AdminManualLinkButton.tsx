@@ -4,26 +4,34 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import type { ButtonSize } from "@/shared-module/components"
+import type { ButtonVariant } from "@/shared-module/components"
 import { Button } from "@/shared-module/components"
 
+import type { ManualLinkAccount } from "./AdminManualLinkDialog"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
 
 interface Props {
   /** Seeds the dialog's number field where the caller already knows whose row this is. */
   studentNumber?: string
+  /** Seeds the dialog's account, where the caller already knows which one to link to. */
+  account?: ManualLinkAccount
   label?: string
-  size?: ButtonSize
+  variant?: ButtonVariant
 }
 
 /** The escape hatch for a student no mail can reach. */
-const AdminManualLinkButton: React.FC<Props> = ({ studentNumber, label, size = "medium" }) => {
+const AdminManualLinkButton: React.FC<Props> = ({
+  studentNumber,
+  account,
+  label,
+  variant = "tertiary",
+}) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
   return (
     <>
-      <Button variant="tertiary" size={size} onClick={() => setOpen(true)}>
+      <Button variant={variant} size="medium" onClick={() => setOpen(true)}>
         {label ?? t("credit-registration-admin-manual-link-title")}
       </Button>
       {open && (
@@ -31,6 +39,7 @@ const AdminManualLinkButton: React.FC<Props> = ({ studentNumber, label, size = "
           open
           onClose={() => setOpen(false)}
           {...includeIf(studentNumber, { studentNumber })}
+          {...includeIf(account, { account })}
         />
       )}
     </>

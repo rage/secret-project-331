@@ -49,7 +49,7 @@ export const CertificatesList: React.FC<{ certificates: UserCertificate[] }> = (
 
   return (
     <section className={sectionCss}>
-      <h2 className={headingCss}>{t("heading-your-certificates")}</h2>
+      <h2 className={headingCss}>{t("heading-my-certificates")}</h2>
       <ul className={dividedListCss}>
         {certificates.map((certificate) => (
           <li key={certificate.id} className={spacedRowCss}>

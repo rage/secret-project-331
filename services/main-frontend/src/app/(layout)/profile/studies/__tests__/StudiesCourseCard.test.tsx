@@ -79,7 +79,7 @@ describe("StudiesCourseCard", () => {
     expect(screen.getAllByText("Introduction to Programming")).toHaveLength(1)
   })
 
-  it("omits the unnamed default module's name beside a named sibling, rather than repeating the course", () => {
+  it("names the unnamed default module beside a named sibling, rather than leaving its position to say so", () => {
     render(
       <StudiesCourseCard
         course={course(twoModules(true))}
@@ -89,7 +89,7 @@ describe("StudiesCourseCard", () => {
 
     expect(screen.getAllByText("Introduction to Programming")).toHaveLength(1)
     expect(screen.getByText("Part 2")).toBeInTheDocument()
-    expect(screen.queryByText("label-default-course-module")).not.toBeInTheDocument()
+    expect(screen.getByText("label-default-course-module")).toBeInTheDocument()
   })
 
   it("falls back to a generic module label for every row when none of them are named", () => {

@@ -1,111 +1,129 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
-import { Trans, useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 
-import { SUPPORT_EMAIL } from "@/components/credit-registration/constants"
 import {
-  registrationErrorHelp,
-  registrationExplanation,
-  registrationNeedsAttention,
+  MIDDLE_DOT,
+  STATE_ACTION_NEEDED,
+  STATE_FAILED,
+  TIME_DATE,
+} from "@/components/credit-registration/constants"
+import {
   registrationStatusLabel,
   registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
-import { NotificationEmailLine } from "@/components/credit-registration/EmailStatusLine"
+import RegistrationStatusCard from "@/components/credit-registration/RegistrationStatusCard"
+import { useStudentRegistrationActions } from "@/components/credit-registration/studentRegistrationActions"
+import { StudentRegistrationExplanation } from "@/components/credit-registration/StudentRegistrationExplanation"
 import {
-  dividedListCss,
+  cardCss,
   headingCss,
   noteCss,
-  rowCss,
   sectionCss,
-  sectionHeaderCss,
+  sectionsCss,
 } from "@/components/credit-registration/styles"
+import SupportMailLink from "@/components/credit-registration/SupportMailLink"
+import { useCanConfirmEmailAddress } from "@/components/credit-registration/useCanConfirmEmailAddress"
 import { getMyCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
-import { completionRegistrationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Link, QueryResult, RegistrationStatusBadge } from "@/shared-module/components"
-
-const titleCss = css`
-  font-weight: 600;
-  color: var(--color-gray-700);
-`
-
-// oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
-const supportMailLink = <a href={`mailto:${SUPPORT_EMAIL}`} />
+import type { RegistrationStatusState } from "@/shared-module/components"
+import { QueryResult, RelativeTime } from "@/shared-module/components"
 
 /**
- * The registrations a student may need to do something about. Everything that is simply on its way
- * lives beside the course further down the page, so it is not repeated here.
+ * The registrations a student is being asked to do something about, and the ones that did not go
+ * through, under headings that say which is which — a student told a failure needs their attention
+ * looks for a lever that is not there.
  *
- * Renders nothing when there is nothing to show: a heading over "nothing needs your attention"
- * would tell a student nothing the course list below does not already show.
+ * Everything simply on its way lives beside the course further down the page. Renders nothing when
+ * there is nothing to show: a heading over "nothing needs your attention" tells a student nothing
+ * the course list below does not.
  */
 const RegistrationsNeedingAttention: React.FC = () => {
   const { t } = useTranslation()
   const query = useQuery({ ...getMyCreditRegistrationsOptions() })
 
   return (
-    <QueryResult query={query} treatEmptyAsData>
+    <QueryResult query={query} treatEmptyAsData contentClassName={sectionsCss}>
       {(registrations) => {
-        const needingAttention = registrations.filter(
-          (registration) =>
-            !registration.superseded &&
-            registrationNeedsAttention(registration.student_facing_status),
-        )
-        if (needingAttention.length === 0) {
+        const live = registrations.filter((registration) => !registration.superseded)
+        const inState = (state: RegistrationStatusState) =>
+          live.filter(
+            (registration) => registrationStatusState(registration.student_facing_status) === state,
+          )
+        const actionNeeded = inState(STATE_ACTION_NEEDED)
+        const failed = inState(STATE_FAILED)
+        if (actionNeeded.length === 0 && failed.length === 0) {
           return null
         }
         return (
-          <section className={sectionCss}>
-            <h2 className={headingCss}>{t("heading-credit-registrations-needing-attention")}</h2>
-            <ul className={dividedListCss}>
-              {needingAttention.map((registration) => (
-                <AttentionRow key={registration.id} registration={registration} />
-              ))}
-            </ul>
-          </section>
+          <>
+            <AttentionSection
+              heading={t("heading-something-you-need-to-do")}
+              registrations={actionNeeded}
+            />
+            <AttentionSection
+              heading={t("heading-credits-that-did-not-go-through")}
+              registrations={failed}
+            />
+          </>
         )
       }}
     </QueryResult>
   )
 }
 
-const AttentionRow: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
+const AttentionSection: React.FC<{
+  heading: string
+  registrations: MyCreditRegistration[]
+}> = ({ heading, registrations }) =>
+  registrations.length === 0 ? null : (
+    <section className={sectionCss}>
+      <h2 className={headingCss}>{heading}</h2>
+      {registrations.map((registration) => (
+        <AttentionCard key={registration.id} registration={registration} />
+      ))}
+    </section>
+  )
+
+const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
   const { t } = useTranslation()
   const status = registration.student_facing_status
-  const state = registrationStatusState(status)
-  const errorHelp = registrationErrorHelp(t, registration.error_code)
+  const canConfirmEmail = useCanConfirmEmailAddress()
+  const { primaryAction, secondaryActions, supportMail, supportMailPromoted } =
+    useStudentRegistrationActions({
+      registration,
+      canConfirmEmail,
+      linkToStatusPage: true,
+    })
+
+  const subject = registration.course_module_name
+    ? `${registration.course_name}${MIDDLE_DOT}${registration.course_module_name}`
+    : registration.course_name
 
   return (
-    <li className={sectionHeaderCss}>
-      <div className={rowCss}>
-        <span className={titleCss}>{registration.course_name}</span>
-        <RegistrationStatusBadge state={state}>
-          {registrationStatusLabel(t, status)}
-        </RegistrationStatusBadge>
-      </div>
-      {registration.course_module_name ? (
-        <p className={noteCss}>{registration.course_module_name}</p>
-      ) : null}
-      <p>{errorHelp ?? registrationExplanation(t, status)}</p>
-      {state === "failed" ? (
-        <p className={noteCss}>
-          <Trans
-            t={t}
-            i18nKey="credit-registration-contact-support"
-            values={{ email: SUPPORT_EMAIL }}
-            components={{ mailLink: supportMailLink }}
-          />
-        </p>
-      ) : null}
-      <NotificationEmailLine notificationEmail={registration.notification_email} />
-      <Link href={completionRegistrationRoute(registration.course_module_id)}>
-        {t("credit-registration-registration-details")}
-      </Link>
-    </li>
+    <RegistrationStatusCard
+      className={cardCss}
+      state={registrationStatusState(status)}
+      headline={registrationStatusLabel(t, status)}
+      subject={subject}
+      explanation={<StudentRegistrationExplanation registration={registration} />}
+      primaryAction={primaryAction}
+      secondaryActions={secondaryActions}
+      meta={
+        <>
+          {supportMail ? (
+            <SupportMailLink {...supportMail} referenceOnly={supportMailPromoted} />
+          ) : null}
+          <p className={noteCss}>
+            {t("credit-registration-course-part-completed")}{" "}
+            <RelativeTime at={registration.completion_date} absoluteTime={TIME_DATE} />
+          </p>
+        </>
+      }
+    />
   )
 }
 

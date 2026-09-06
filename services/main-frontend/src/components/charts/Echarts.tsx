@@ -22,6 +22,11 @@ const Echarts: React.FC<React.PropsWithChildren<EchartsProps>> = ({ options, hei
     <div
       className={css`
         width: 100%;
+        /* echarts writes a pixel width onto its own container once initialised, and a chart in a
+           grid or flex track would otherwise size the whole page by it. Contained here so no
+           consumer has to wrap the chart to stop it. */
+        min-width: 0;
+        overflow-x: hidden;
       `}
     >
       {/* oxlint-disable-next-line react/forbid-component-props */}

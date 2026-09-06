@@ -5,7 +5,7 @@ import React from "react"
 
 interface Props {
   label: string
-  count: number
+  count?: number
   isSelected: boolean
   onToggle: () => void
 }
@@ -69,7 +69,9 @@ const FacetChip: React.FC<Props> = ({ label, count, isSelected, onToggle }) => (
     onClick={onToggle}
   >
     <span>{label}</span>
-    <span className={cx(countCss, isSelected && selectedCountCss)}>{count}</span>
+    {count !== undefined && (
+      <span className={cx(countCss, isSelected && selectedCountCss)}>{count}</span>
+    )}
   </button>
 )
 

@@ -21,9 +21,11 @@ import {
   DENSITY_COMPACT,
   MIDDLE_DOT,
   QUIET_REFRESH,
+  TABLE_STACK,
   TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
+import { registrationLedgerStateLabel } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   headingCss,
   monospaceCss,
@@ -32,7 +34,6 @@ import {
   rowCss,
   sectionCss,
   sectionHeaderCss,
-  spacedRowCss,
   stackedCellCss,
   subheadingCss,
   subsectionCss,
@@ -44,62 +45,50 @@ import type {
 import {
   Badge,
   Link,
-  Meter,
   QueryResult,
   RelativeTime,
   StatTile,
   StatTileList,
   Table,
+  Tooltip,
 } from "@/shared-module/components"
 
-// oxlint-disable-next-line i18next/no-literal-string
-const POD_STATUS_PATH = "/status"
-
-/**
- * How overdue a phase is, as a share of the interval it is allowed to be silent for. The tick marks
- * one ordinary tick, so a bar past it is a phase that has missed one and a full bar is a late one.
- */
-const HeartbeatMeter: React.FC<{
-  phase: CreditRegistrationPhaseRow
-  lateMultiplier: number
-}> = ({ phase, lateMultiplier }) => {
-  const { t } = useTranslation()
-  const elapsed = phase.seconds_since_heartbeat
-  if (elapsed === null || elapsed === undefined) {
-    return <span className={noteCss}>{ABSENT}</span>
-  }
-  return (
-    <Meter
-      value={elapsed}
-      maxValue={phase.expected_interval_secs * lateMultiplier}
-      threshold={phase.expected_interval_secs}
-      showLabel={false}
-      tone={phase.heartbeat_late ? TONE.DANGER : TONE.SUCCESS}
-      label={t("credit-registration-admin-heartbeat-progress", {
-        elapsed: formatIntervalSecs(elapsed, t),
-        interval: formatIntervalSecs(phase.expected_interval_secs, t),
-      })}
-    />
-  )
-}
+const SERVER_STATUS_PATH = "/status"
 
 const PhaseTable: React.FC<{
   phases: CreditRegistrationPhaseRow[]
-  lateMultiplier: number
   caption: string
-}> = ({ phases, lateMultiplier, caption }) => {
+}> = ({ phases, caption }) => {
   const { t } = useTranslation()
   return (
     <Table
       caption={caption}
       density={DENSITY_COMPACT}
+      responsive={TABLE_STACK}
       rowKey={(row) => row.phase}
       rows={phases}
       columns={[
         {
           header: t("credit-registration-admin-column-phase"),
           minWidth: "12rem",
-          cell: (row) => <code>{row.phase}</code>,
+          cell: (row) => (
+            <span className={rowCss}>
+              <code>{row.phase}</code>
+              {row.owned_states.length > 0 && (
+                <Tooltip
+                  aria-label={t("credit-registration-admin-owned-states-tooltip-label", {
+                    phase: row.phase,
+                  })}
+                >
+                  {t("credit-registration-admin-owned-states-tooltip-body", {
+                    states: row.owned_states
+                      .map((state) => registrationLedgerStateLabel(t, state))
+                      .join(MIDDLE_DOT),
+                  })}
+                </Tooltip>
+              )}
+            </span>
+          ),
         },
         {
           header: t("label-status"),
@@ -136,17 +125,20 @@ const PhaseTable: React.FC<{
         },
         {
           header: t("credit-registration-admin-column-due"),
-          minWidth: "9rem",
-          cell: (row) => (
-            <span className={stackedCellCss}>
+          minWidth: "13rem",
+          cell: (row) => {
+            const elapsed = row.seconds_since_heartbeat
+            return (
               <span className={noteCss}>
-                {t("credit-registration-admin-phase-every", {
-                  interval: formatIntervalSecs(row.expected_interval_secs, t),
-                })}
+                {elapsed === null || elapsed === undefined
+                  ? ABSENT
+                  : t("credit-registration-admin-heartbeat-progress", {
+                      elapsed: formatIntervalSecs(elapsed, t),
+                      interval: formatIntervalSecs(row.expected_interval_secs, t),
+                    })}
               </span>
-              <HeartbeatMeter phase={row} lateMultiplier={lateMultiplier} />
-            </span>
-          ),
+            )
+          },
         },
         {
           header: t("credit-registration-admin-column-queue"),
@@ -156,20 +148,8 @@ const PhaseTable: React.FC<{
           cell: (row) => row.queue_depth ?? ABSENT,
         },
         {
-          header: t("credit-registration-admin-column-owned-states"),
-          grow: true,
-          minWidth: "12rem",
-          nowrap: false,
-          cell: (row) =>
-            row.owned_states.length === 0 ? (
-              ABSENT
-            ) : (
-              <code>{row.owned_states.join(MIDDLE_DOT)}</code>
-            ),
-        },
-        {
           header: t("label-actions"),
-          minWidth: "9rem",
+          minWidth: "4rem",
           cell: (row) => (
             <AdminPhaseActions
               phase={row.phase}
@@ -205,16 +185,14 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
 
   return (
     <section className={sectionCss}>
-      <div className={spacedRowCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-phases")}</h2>
-        <Link href={POD_STATUS_PATH}>{t("credit-registration-admin-open-pod-status")}</Link>
-      </div>
+      <h2 className={headingCss}>{t("credit-registration-heading-phases")}</h2>
       <p className={cx(noteCss, proseCss)}>
         {t("credit-registration-admin-phase-late-note", {
           multiplier: list.heartbeat_interval_multiplier,
           limit: list.consecutive_failure_limit,
         })}{" "}
-        {t("credit-registration-admin-pause-is-our-flag-note")}
+        {t("credit-registration-admin-pause-is-our-flag-note")}{" "}
+        <Link href={SERVER_STATUS_PATH}>{t("credit-registration-admin-open-pod-status")}</Link>
       </p>
       <StatTileList ariaLabel={t("credit-registration-heading-phases")}>
         <StatTile label={t("credit-registration-admin-phase-running")} value={counts.running} />
@@ -241,11 +219,7 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
             <h3 className={subheadingCss}>{processName}</h3>
             <p className={noteCss}>{t("credit-registration-admin-process-group-note")}</p>
           </div>
-          <PhaseTable
-            phases={phases}
-            lateMultiplier={list.heartbeat_interval_multiplier}
-            caption={processName}
-          />
+          <PhaseTable phases={phases} caption={processName} />
         </div>
       ))}
       {list.phases.length === 0 && (

@@ -91,10 +91,10 @@ test("initial loading shows skeleton immediately and status", () => {
   expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument()
 })
 
-test("disabled query with no data renders an empty frame, not an infinite skeleton", () => {
+test("disabled query with no data renders nothing, not an infinite skeleton", () => {
   // enabled: false / skipToken queries stay isPending but never fetch. Without data there is nothing
-  // to render, so QueryResult shows neither a skeleton nor children (consumers that want to render
-  // without data should not wrap that case in QueryResult).
+  // to render, so QueryResult renders nothing at all rather than an empty node, which would still
+  // cost its parent a grid or flex gap.
   renderUi(
     <QueryResult
       query={makeQuery<string>({ data: undefined, isPending: true, isFetching: false })}

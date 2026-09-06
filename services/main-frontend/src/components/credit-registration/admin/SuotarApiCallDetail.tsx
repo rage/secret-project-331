@@ -21,6 +21,7 @@ import {
 } from "../styles"
 import { eventKindLabel } from "./adminCreditRegistrationCopy"
 import AdminStateBadge from "./AdminStateBadge"
+import ErrorCodeCell from "./ErrorCodeCell"
 import PayloadBlock from "./PayloadBlock"
 
 interface Props {
@@ -37,16 +38,134 @@ const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
 /**
  * The stored request and response of one call, with the ledger rows it carried beside them.
  *
+ * Fetches when it is rendered, so a table hands it to an expanded row rather than to every row.
  * The bodies were scrubbed when they were written and are shown exactly as stored; the ledger
  * reference table is where the names and student numbers behind each `requestItemId` live.
  */
+export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
+  const { t } = useTranslation()
+  const detailQuery = useQuery(
+    getSuotarApiCallOptions({ path: { suotar_api_call_id: suotarApiCallId } }),
+  )
+
+  return (
+    <QueryResult query={detailQuery}>
+      {(detail) => (
+        <div className={sectionCss}>
+          <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
+          {detail.error_message && <p>{detail.error_message}</p>}
+          <Body
+            title={t("credit-registration-admin-stored-request")}
+            body={detail.request_body_sample}
+          />
+          <Body
+            title={t("credit-registration-admin-stored-response")}
+            body={detail.response_body_sample}
+          />
+          <div className={subsectionCss}>
+            <h3 className={subheadingCss}>{t("credit-registration-heading-ledger-references")}</h3>
+            {detail.ledger_references.length === 0 ? (
+              <p className={emptyStateCss}>{t("credit-registration-admin-no-ledger-references")}</p>
+            ) : (
+              <Table
+                caption={t("credit-registration-heading-ledger-references")}
+                density={DENSITY_COMPACT}
+                rowKey={(row) => row.credit_registration_id}
+                rows={detail.ledger_references}
+                columns={[
+                  {
+                    header: t("credit-registration-admin-column-request-item-id"),
+                    cell: (row) => (
+                      <Link
+                        href={creditRegistrationItemRoute(row.credit_registration_id)}
+                        prefetch={false}
+                      >
+                        <code>{row.request_item_id}</code>
+                      </Link>
+                    ),
+                  },
+                  {
+                    header: t("label-student"),
+                    cell: (row) => formatUserName(row),
+                  },
+                  {
+                    header: t("label-email"),
+                    cell: (row) => row.email ?? ABSENT,
+                  },
+                  {
+                    header: t("label-student-number"),
+                    cell: (row) => (
+                      <span className={monospaceCss}>{row.student_number ?? ABSENT}</span>
+                    ),
+                  },
+                  { header: t("label-course"), cell: (row) => row.course_name },
+                  {
+                    header: t("label-state"),
+                    cell: (row) => <AdminStateBadge state={row.state} />,
+                  },
+                  {
+                    header: t("label-error-code"),
+                    cell: (row) =>
+                      row.error_code ? <ErrorCodeCell errorCode={row.error_code} /> : ABSENT,
+                  },
+                ]}
+              />
+            )}
+          </div>
+          <div className={subsectionCss}>
+            <h3 className={subheadingCss}>{t("credit-registration-heading-timeline")}</h3>
+            {detail.events.length === 0 ? (
+              <p className={emptyStateCss}>{t("credit-registration-admin-no-events-for-call")}</p>
+            ) : (
+              <Table
+                caption={t("credit-registration-heading-timeline")}
+                density={DENSITY_COMPACT}
+                rowKey={(row) => row.id}
+                rows={detail.events}
+                columns={[
+                  {
+                    header: t("label-time"),
+                    cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
+                  },
+                  {
+                    header: t("label-kind"),
+                    cell: (row) => eventKindLabel(t, row.kind),
+                  },
+                  {
+                    header: t("label-state"),
+                    cell: (row) =>
+                      row.to_state ? <AdminStateBadge state={row.to_state} /> : ABSENT,
+                  },
+                  {
+                    header: t("label-error-code"),
+                    cell: (row) =>
+                      row.error_code ? <ErrorCodeCell errorCode={row.error_code} /> : ABSENT,
+                  },
+                  {
+                    header: t("label-credit-registration-registration"),
+                    cell: (row) => (
+                      <Link
+                        href={creditRegistrationItemRoute(row.credit_registration_id)}
+                        prefetch={false}
+                      >
+                        {t("credit-registration-admin-open-registration")}
+                      </Link>
+                    ),
+                  },
+                ]}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </QueryResult>
+  )
+}
+
+/** The same bodies behind a button, for a table whose rows cannot expand. */
 const SuotarApiCallDetail: React.FC<Props> = ({ suotarApiCallId }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const detailQuery = useQuery({
-    ...getSuotarApiCallOptions({ path: { suotar_api_call_id: suotarApiCallId } }),
-    enabled: open,
-  })
 
   return (
     <>
@@ -65,124 +184,7 @@ const SuotarApiCallDetail: React.FC<Props> = ({ suotarApiCallId }) => {
         size="wide"
         title={t("credit-registration-admin-show-stored-bodies")}
       >
-        {open && (
-          <QueryResult query={detailQuery}>
-            {(detail) => (
-              <div className={sectionCss}>
-                <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-                {detail.error_message && <p>{detail.error_message}</p>}
-                <Body
-                  title={t("credit-registration-admin-stored-request")}
-                  body={detail.request_body_sample}
-                />
-                <Body
-                  title={t("credit-registration-admin-stored-response")}
-                  body={detail.response_body_sample}
-                />
-                <div className={subsectionCss}>
-                  <h3 className={subheadingCss}>
-                    {t("credit-registration-heading-ledger-references")}
-                  </h3>
-                  {detail.ledger_references.length === 0 ? (
-                    <p className={emptyStateCss}>
-                      {t("credit-registration-admin-no-ledger-references")}
-                    </p>
-                  ) : (
-                    <Table
-                      caption={t("credit-registration-heading-ledger-references")}
-                      density={DENSITY_COMPACT}
-                      rowKey={(row) => row.credit_registration_id}
-                      rows={detail.ledger_references}
-                      columns={[
-                        {
-                          header: t("credit-registration-admin-column-request-item-id"),
-                          cell: (row) => (
-                            <Link
-                              href={creditRegistrationItemRoute(row.credit_registration_id)}
-                              prefetch={false}
-                            >
-                              <code>{row.request_item_id}</code>
-                            </Link>
-                          ),
-                        },
-                        {
-                          header: t("label-student"),
-                          cell: (row) => formatUserName(row),
-                        },
-                        {
-                          header: t("label-email"),
-                          cell: (row) => row.email ?? ABSENT,
-                        },
-                        {
-                          header: t("label-student-number"),
-                          cell: (row) => (
-                            <span className={monospaceCss}>{row.student_number ?? ABSENT}</span>
-                          ),
-                        },
-                        { header: t("label-course"), cell: (row) => row.course_name },
-                        {
-                          header: t("label-state"),
-                          cell: (row) => <AdminStateBadge state={row.state} />,
-                        },
-                        {
-                          header: t("label-error-code"),
-                          cell: (row) => (row.error_code ? <code>{row.error_code}</code> : ABSENT),
-                        },
-                      ]}
-                    />
-                  )}
-                </div>
-                <div className={subsectionCss}>
-                  <h3 className={subheadingCss}>{t("credit-registration-heading-timeline")}</h3>
-                  {detail.events.length === 0 ? (
-                    <p className={emptyStateCss}>
-                      {t("credit-registration-admin-no-events-for-call")}
-                    </p>
-                  ) : (
-                    <Table
-                      caption={t("credit-registration-heading-timeline")}
-                      density={DENSITY_COMPACT}
-                      rowKey={(row) => row.id}
-                      rows={detail.events}
-                      columns={[
-                        {
-                          header: t("label-time"),
-                          cell: (row) => (
-                            <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />
-                          ),
-                        },
-                        {
-                          header: t("label-kind"),
-                          cell: (row) => eventKindLabel(t, row.kind),
-                        },
-                        {
-                          header: t("label-state"),
-                          cell: (row) =>
-                            row.to_state ? <AdminStateBadge state={row.to_state} /> : ABSENT,
-                        },
-                        {
-                          header: t("label-error-code"),
-                          cell: (row) => (row.error_code ? <code>{row.error_code}</code> : ABSENT),
-                        },
-                        {
-                          header: t("label-credit-registration-registration"),
-                          cell: (row) => (
-                            <Link
-                              href={creditRegistrationItemRoute(row.credit_registration_id)}
-                              prefetch={false}
-                            >
-                              {t("credit-registration-admin-open-registration")}
-                            </Link>
-                          ),
-                        },
-                      ]}
-                    />
-                  )}
-                </div>
-              </div>
-            )}
-          </QueryResult>
-        )}
+        {open && <SuotarApiCallBodies suotarApiCallId={suotarApiCallId} />}
       </Dialog>
     </>
   )

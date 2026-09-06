@@ -7,11 +7,16 @@ import { useTranslation } from "react-i18next"
 import { getCreditRegistrationDetailsQueryKey } from "@/generated/api/@tanstack/react-query.generated"
 import { retryCreditRegistration } from "@/generated/api/sdk.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
-import { Button, Infobox } from "@/shared-module/components"
+import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
+import { Button, Infobox, Link } from "@/shared-module/components"
 
-import { TONE } from "./constants"
+import { BUTTON_SECONDARY, TONE } from "./constants"
+import { registrationErrorShortLabel } from "./creditRegistrationCopy"
+import type { FailureAction } from "./registrationFailures"
+import { failureActionLabel, failureActions, failureOwnerHeading } from "./registrationFailures"
 import { isUneventfulRefusal, refusalSentence } from "./resubmissionRefusal"
-import { subsectionCss } from "./styles"
+import { rowCss, subsectionCss } from "./styles"
+import SupportMailLink from "./SupportMailLink"
 import { useInvalidateAfterRetry } from "./teacherCreditRegistrations"
 import { useActionResult } from "./useActionResult"
 
@@ -19,7 +24,16 @@ interface Props {
   registration: CourseCreditRegistration
 }
 
-/** The retry button, or the reason the server gives for there not being one. */
+const FAILED = "failed" as const
+const TEACHER_AUDIENCE = "teacher" as const
+const SUPPORT_LINK_APPEARANCE = "link" as const
+
+/**
+ * What a teacher can do about one failed registration, and nothing else.
+ *
+ * Every offer here comes from `failureActions`, so a reason a resubmission cannot clear never
+ * gets a retry button; when the teacher has no action at all the block names the owner instead.
+ */
 const RetryCreditRegistrationBlock: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -40,26 +54,86 @@ const RetryCreditRegistrationBlock: React.FC<Props> = ({ registration }) => {
   )
 
   const refusal = registration.resubmission_refusal
-  if (refusal) {
-    return isUneventfulRefusal(refusal) ? null : (
+  if (refusal && !isUneventfulRefusal(refusal)) {
+    return (
       <div className={subsectionCss}>
         <Infobox tone={TONE.WARNING}>{refusalSentence(t, refusal)}</Infobox>
       </div>
     )
   }
+  if (registration.student_facing_status !== FAILED) {
+    return null
+  }
+
+  const plan = failureActions(registration.error_code, TEACHER_AUDIENCE)
+  const supportLink = (
+    <SupportMailLink
+      key={plan.remedy}
+      subject={t("credit-registration-support-mail-subject", {
+        module: registration.course_module_name ?? t("default-module"),
+        reason: registrationErrorShortLabel(t, registration.error_code) ?? plan.remedy,
+      })}
+      bodyLines={[
+        `${t("label-credit-registration-support-reference")} ${registration.id}`,
+        `${t("label-student")} ${registration.email ?? registration.user_id}`,
+      ]}
+      reference={registration.id}
+      appearance={SUPPORT_LINK_APPEARANCE}
+    />
+  )
+
+  const render = (action: FailureAction, isPrimary: boolean): React.ReactNode => {
+    switch (action) {
+      case "retry":
+        return (
+          <Button
+            key={action}
+            variant={isPrimary ? "primary" : BUTTON_SECONDARY}
+            size="medium"
+            type="button"
+            disabled={mutation.isPending}
+            onClick={() => mutation.mutate(undefined)}
+          >
+            {failureActionLabel(t, action)}
+          </Button>
+        )
+      case "fix_module_configuration":
+        return (
+          <Link
+            key={action}
+            href={manageCourseModulesRoute(registration.course_id)}
+            styledAsButton
+            variant={isPrimary ? "primary" : BUTTON_SECONDARY}
+            size="medium"
+          >
+            {failureActionLabel(t, action)}
+          </Link>
+        )
+      case "email_student":
+        return registration.email ? (
+          <Link
+            key={action}
+            href={`mailto:${registration.email}`}
+            styledAsButton
+            variant={isPrimary ? "primary" : BUTTON_SECONDARY}
+            size="medium"
+          >
+            {failureActionLabel(t, action)}
+          </Link>
+        ) : null
+      case "contact_support":
+        return supportLink
+      default:
+        return null
+    }
+  }
 
   return (
     <div className={subsectionCss}>
-      <div>
-        <Button
-          variant="secondary"
-          size="medium"
-          type="button"
-          disabled={mutation.isPending}
-          onClick={() => mutation.mutate(undefined)}
-        >
-          {t("button-text-retry-credit-registration")}
-        </Button>
+      {plan.primary === null && <div>{failureOwnerHeading(t, plan.owner)}</div>}
+      <div className={rowCss}>
+        {plan.primary && render(plan.primary, true)}
+        {plan.secondary.map((action) => render(action, false))}
       </div>
       {result && (
         <Infobox tone={result.refusal ? TONE.WARNING : TONE.SUCCESS}>

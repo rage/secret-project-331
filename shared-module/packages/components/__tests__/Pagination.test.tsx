@@ -91,24 +91,24 @@ describe("Pagination", () => {
 
   test("offers the page size only when the caller can change it", () => {
     const { unmount } = renderPagination()
-    expect(screen.queryByRole("button", { name: /Items per page/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "50 / page" })).not.toBeInTheDocument()
     unmount()
 
     renderPagination({ onItemsPerPageChange: jest.fn() })
 
-    expect(screen.getByRole("button", { name: /Items per page/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "50 / page" })).toBeInTheDocument()
   })
 
   test("keeps a page size from outside its own list selectable", () => {
     renderPagination({ itemsPerPage: 500, onItemsPerPageChange: jest.fn() })
 
-    fireEvent.click(screen.getByRole("button", { name: /Items per page/ }))
+    fireEvent.click(screen.getByRole("button", { name: "500 / page" }))
 
-    expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
-      "25",
-      "50",
-      "100",
-      "500",
+    expect(screen.getAllByRole("menuitem").map((item) => item.textContent)).toEqual([
+      "25 / page",
+      "50 / page",
+      "100 / page",
+      "500 / page",
     ])
   })
 
@@ -116,8 +116,8 @@ describe("Pagination", () => {
     const onItemsPerPageChange = jest.fn()
     renderPagination({ onItemsPerPageChange })
 
-    fireEvent.click(screen.getByRole("button", { name: /Items per page/ }))
-    fireEvent.click(screen.getByRole("option", { name: "25" }))
+    fireEvent.click(screen.getByRole("button", { name: "50 / page" }))
+    fireEvent.click(screen.getByRole("menuitem", { name: "25 / page" }))
 
     expect(onItemsPerPageChange).toHaveBeenCalledWith(25)
   })

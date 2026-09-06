@@ -26,23 +26,26 @@ import {
 import {
   ABSENT,
   ARROW,
+  BADGE_COMPACT,
+  BUTTON_TERTIARY,
   DENSITY_COMPACT,
   ID_PREFIX_LENGTH,
   LINK_QUIET,
   MIDDLE_DOT,
   QUIET_REFRESH,
+  TABLE_STACK,
   TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
 import {
   controlCss,
   controlsCss,
-  headingCss,
   noteCss,
+  proseCss,
   rowCss,
   sectionCss,
-  sectionHeaderCss,
   stackedCellCss,
+  stateChangeFromCss,
 } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationAdminAction,
@@ -57,7 +60,10 @@ import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
 import {
   Badge,
   Button,
+  Chip,
   DateField,
+  EmptyState,
+  Infobox,
   Link,
   QueryResult,
   RelativeTime,
@@ -68,28 +74,18 @@ import {
 
 const ROWS_PER_PAGE = 50
 
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ACTOR_ROLE = "actor_role"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ACTOR_USER_ID = "actor_user_id"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ACTION = "action"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_TARGET_KIND = "target_kind"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_TARGET_ID = "target_id"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_COURSE_ID = "course_id"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_FROM = "from"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_TO = "to"
-// oxlint-disable-next-line i18next/no-literal-string
 const ANY = ""
-// oxlint-disable-next-line i18next/no-literal-string
 const OVERRIDE_RATE_CAP: CreditRegistrationAdminAction = "override_rate_cap"
-// oxlint-disable-next-line i18next/no-literal-string
 const REGISTRATION_TARGET: CreditRegistrationAdminActionTarget = "credit_registration"
+const TARGET_ID_FIELD = "target_id"
 
 // Derived from the copy table so a new action can't appear in results without a filter option.
 const ACTIONS = Object.keys(ADMIN_ACTION_KEYS) as CreditRegistrationAdminAction[]
@@ -102,6 +98,16 @@ const isAdminActionTarget = (
   value: string | undefined,
 ): value is CreditRegistrationAdminActionTarget =>
   value !== undefined && (TARGET_KINDS as string[]).includes(value)
+
+/** A teacher cannot override a rate cap, so such a row records something that should not exist. */
+const isBeyondActorsRole = (row: CreditRegistrationAdminActionRow): boolean =>
+  row.action === OVERRIDE_RATE_CAP && row.actor_role === COURSE_TEACHER_ROLE
+
+/** Who and what on one line, then which row and when on the next. */
+const filterRowsCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
 
 /** Lets the Selects share one row instead of stranding the last of them on a line of its own. */
 const auditControlCss = cx(
@@ -121,6 +127,11 @@ const dateRangeCss = css`
   > * {
     flex: 1 1 9rem;
   }
+`
+
+/** The "On" column's subtitle: a course or module name, which can outrun the column's width. */
+const targetSubtitleCss = css`
+  overflow-wrap: anywhere;
 `
 
 interface FilterFields {
@@ -182,38 +193,50 @@ const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
   },
 ]
 
-const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => (
-  <span className={stackedCellCss}>
-    <span>
-      {formatUserName({ first_name: row.actor_first_name, last_name: row.actor_last_name })}
-    </span>
-    <span className={noteCss}>{row.actor_email}</span>
-  </span>
-)
+const actorName = (row: CreditRegistrationAdminActionRow): string =>
+  formatUserName({ first_name: row.actor_first_name, last_name: row.actor_last_name })
 
-/** Who or what the action was about, named rather than identified by an id prefix. */
+/** The actor with the role under the name, so one cell answers who did this and on what authority. */
+const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
+  const { t } = useTranslation()
+  return (
+    <span className={stackedCellCss}>
+      <span>{actorName(row)}</span>
+      <span className={rowCss}>
+        <Badge
+          tone={row.actor_role === COURSE_TEACHER_ROLE ? TONE.INFO : TONE.NEUTRAL}
+          size={BADGE_COMPACT}
+        >
+          {actorRoleLabel(t, row.actor_role)}
+        </Badge>
+      </span>
+      <span className={noteCss}>{row.actor_email}</span>
+    </span>
+  )
+}
+
+/** What the action was about, named rather than prefixed with its kind and identified by an id. */
 const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
   const { t } = useTranslation()
-  const kind = adminActionTargetLabel(t, row.target_kind)
   const student =
     row.target_first_name || row.target_last_name
       ? formatUserName({ first_name: row.target_first_name, last_name: row.target_last_name })
       : null
-  const name = student ?? (row.target_id ? row.target_id.slice(0, ID_PREFIX_LENGTH) : null)
+  const name =
+    student ??
+    row.target_phase ??
+    row.course_name ??
+    (row.target_id ? row.target_id.slice(0, ID_PREFIX_LENGTH) : null)
+  const kindAndCourse = [
+    adminActionTargetLabel(t, row.target_kind),
+    student ? row.course_name : null,
+  ]
+    .filter(Boolean)
+    .join(MIDDLE_DOT)
   const body = (
     <span className={stackedCellCss}>
-      <span>
-        {kind}
-        {row.target_phase ? (
-          <>
-            {MIDDLE_DOT}
-            <code>{row.target_phase}</code>
-          </>
-        ) : (
-          name && `${MIDDLE_DOT}${name}`
-        )}
-      </span>
-      {row.course_name && <span className={noteCss}>{row.course_name}</span>}
+      <span>{name ?? ABSENT}</span>
+      <span className={cx(noteCss, targetSubtitleCss)}>{kindAndCourse}</span>
     </span>
   )
   return row.target_kind === REGISTRATION_TARGET && row.target_id ? (
@@ -232,15 +255,39 @@ const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }
 /** Both sides of the move, so a single state is never left pointing in no direction. */
 const StateChangeCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
   if (!row.before_state && !row.after_state) {
-    return <span>{ABSENT}</span>
+    return null
   }
   return (
     <span className={rowCss}>
-      {row.before_state ? <AdminStateBadge state={row.before_state} /> : ABSENT}
-      <span aria-hidden="true">{ARROW}</span>
-      {row.after_state ? <AdminStateBadge state={row.after_state} /> : ABSENT}
+      {row.before_state && (
+        <span className={stateChangeFromCss}>
+          <AdminStateBadge state={row.before_state} />
+          <span aria-hidden="true">{ARROW}</span>
+        </span>
+      )}
+      {row.after_state ? <AdminStateBadge state={row.after_state} /> : <span>{ABSENT}</span>}
     </span>
   )
+}
+
+/** What the action touched, and where it left it: one cell, because they name the same thing. */
+const OnCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => (
+  <span className={stackedCellCss}>
+    <TargetCell row={row} />
+    <StateChangeCell row={row} />
+  </span>
+)
+
+/** The target of a `target_id` filter, named from the rows it matched. */
+const filteredTargetLabel = (
+  targetId: string,
+  rows: readonly CreditRegistrationAdminActionRow[],
+): string => {
+  const match = rows.find((row) => row.target_id === targetId)
+  const student = match
+    ? formatUserName({ first_name: match.target_first_name, last_name: match.target_last_name })
+    : ""
+  return student || match?.course_name || targetId.slice(0, ID_PREFIX_LENGTH)
 }
 
 /**
@@ -262,7 +309,9 @@ const AuditPage: React.FC = () => {
 
   const {
     control,
+    setValue,
     handleSubmit,
+    param,
     applyParams,
     activeFilterCount,
     clearFilters,
@@ -303,203 +352,257 @@ const AuditPage: React.FC = () => {
   )
 
   const actionsQuery = useCreditRegistrationAdminActions(query)
+  const filteredTargetId = param(PARAM_TARGET_ID)
+  const filteredActorId = param(PARAM_ACTOR_USER_ID)
 
   // Off the page in view, because the endpoint reports no roster of actors: someone who has not
   // acted on the rows currently listed is not offered, and picking one narrows the list to them.
   const actorOptions = useMemo(() => {
     const byUserId = new Map<string, string>()
     for (const row of actionsQuery.data?.data ?? []) {
-      byUserId.set(
-        row.actor_user_id,
-        formatUserName({ first_name: row.actor_first_name, last_name: row.actor_last_name }),
-      )
+      byUserId.set(row.actor_user_id, actorName(row))
+    }
+    // A filtered actor with no rows in the result would otherwise leave the Select showing nothing.
+    if (filteredActorId && !byUserId.has(filteredActorId)) {
+      byUserId.set(filteredActorId, filteredActorId.slice(0, ID_PREFIX_LENGTH))
     }
     return Array.from(byUserId, ([value, label]) => ({ value, label }))
-  }, [actionsQuery.data?.data])
+  }, [actionsQuery.data?.data, filteredActorId])
+
+  const clearTargetFilter = () => {
+    setValue(TARGET_ID_FIELD, "")
+    applyParams({ [PARAM_TARGET_ID]: undefined })
+  }
+
+  // The target id is applied on submit rather than on change, so it is not one of the descriptors
+  // the hook counts — and a reader who arrived from a registration has only that one filter set.
+  const narrowedByCount = activeFilterCount + (filteredTargetId ? 1 : 0)
+  const clearAllFilters = () => {
+    setValue(TARGET_ID_FIELD, "")
+    clearFilters([PARAM_TARGET_ID])
+  }
 
   return (
     <section className={sectionCss}>
-      <div className={sectionHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
-        <p className={noteCss}>{t("credit-registration-admin-audit-two-actor-kinds-note")}</p>
-      </div>
+      <p className={cx(noteCss, proseCss)}>
+        {t("credit-registration-admin-audit-two-actor-kinds-note")}
+      </p>
       <form
-        className={controlsCss}
+        className={filterRowsCss}
         onSubmit={handleSubmit((fields) =>
           applyParams({ [PARAM_TARGET_ID]: fields.target_id.trim() }),
         )}
       >
-        <div className={auditControlCss}>
-          <Select
-            name="actor_role"
-            control={control}
-            label={t("credit-registration-admin-actor-kind")}
-            options={[
-              { value: ANY, label: t("credit-registration-admin-any-actor-kind") },
-              {
-                value: GLOBAL_ADMIN_ROLE,
-                label: t("credit-registration-admin-actor-global-admin"),
-              },
-              {
-                value: COURSE_TEACHER_ROLE,
-                label: t("credit-registration-admin-actor-course-teacher"),
-              },
-            ]}
-          />
+        <div className={controlsCss}>
+          <div className={auditControlCss}>
+            <Select
+              name="actor_role"
+              control={control}
+              label={t("credit-registration-admin-actor-kind")}
+              options={[
+                { value: ANY, label: t("credit-registration-admin-any-actor-kind") },
+                {
+                  value: GLOBAL_ADMIN_ROLE,
+                  label: t("credit-registration-admin-actor-global-admin"),
+                },
+                {
+                  value: COURSE_TEACHER_ROLE,
+                  label: t("credit-registration-admin-actor-course-teacher"),
+                },
+              ]}
+            />
+          </div>
+          <div className={auditControlCss}>
+            <Select
+              name="actor_user_id"
+              control={control}
+              label={t("label-actor")}
+              options={[
+                { value: ANY, label: t("credit-registration-admin-any-actor") },
+                ...actorOptions,
+              ]}
+              searchEnabled
+            />
+          </div>
+          <div className={auditControlCss}>
+            <Select
+              name="action"
+              control={control}
+              label={t("credit-registration-admin-column-action")}
+              options={[
+                { value: ANY, label: t("credit-registration-admin-any-action") },
+                ...ACTIONS.map((action) => ({
+                  value: action,
+                  label: adminActionLabel(t, action),
+                })),
+              ]}
+            />
+          </div>
+          <div className={auditControlCss}>
+            <Select
+              name="target_kind"
+              control={control}
+              label={t("credit-registration-admin-column-target")}
+              options={[
+                { value: ANY, label: t("credit-registration-admin-any-target") },
+                ...TARGET_KINDS.map((kind) => ({
+                  value: kind,
+                  label: adminActionTargetLabel(t, kind),
+                })),
+              ]}
+            />
+          </div>
+          <div className={auditControlCss}>
+            <Select
+              name="course_id"
+              control={control}
+              label={t("label-course")}
+              options={[
+                { value: ANY, label: t("credit-registration-admin-any-course") },
+                ...courseOptions,
+              ]}
+              searchEnabled
+            />
+          </div>
         </div>
-        <div className={auditControlCss}>
-          <Select
-            name="actor_user_id"
-            control={control}
-            label={t("label-actor")}
-            options={[
-              { value: ANY, label: t("credit-registration-admin-any-actor") },
-              ...actorOptions,
-            ]}
-            searchEnabled
-          />
-        </div>
-        <div className={auditControlCss}>
-          <Select
-            name="action"
-            control={control}
-            label={t("credit-registration-admin-column-action")}
-            options={[
-              { value: ANY, label: t("credit-registration-admin-any-action") },
-              ...ACTIONS.map((action) => ({
-                value: action,
-                label: adminActionLabel(t, action),
-              })),
-            ]}
-          />
-        </div>
-        <div className={auditControlCss}>
-          <Select
-            name="target_kind"
-            control={control}
-            label={t("credit-registration-admin-column-target")}
-            options={[
-              { value: ANY, label: t("credit-registration-admin-any-target") },
-              ...TARGET_KINDS.map((kind) => ({
-                value: kind,
-                label: adminActionTargetLabel(t, kind),
-              })),
-            ]}
-          />
-        </div>
-        <div className={auditControlCss}>
-          <Select
-            name="course_id"
-            control={control}
-            label={t("label-course")}
-            options={[
-              { value: ANY, label: t("credit-registration-admin-any-course") },
-              ...courseOptions,
-            ]}
-            searchEnabled
-          />
-        </div>
-        <div className={auditControlCss}>
-          <TextField
-            name="target_id"
-            control={control}
-            label={t("credit-registration-admin-target-id")}
-            description={t("credit-registration-admin-target-id-description")}
-          />
-        </div>
-        <div
-          className={dateRangeCss}
-          role="group"
-          aria-label={t("credit-registration-admin-taken")}
-        >
-          <DateField name="from" control={control} label={t("credit-registration-admin-from")} />
-          <DateField name="to" control={control} label={t("credit-registration-admin-to")} />
+        <div className={controlsCss}>
+          <div className={auditControlCss}>
+            <TextField
+              name="target_id"
+              control={control}
+              label={t("credit-registration-admin-target-id")}
+            />
+          </div>
+          <div
+            className={dateRangeCss}
+            role="group"
+            aria-label={t("credit-registration-admin-taken")}
+          >
+            <DateField name="from" control={control} label={t("credit-registration-admin-from")} />
+            <DateField name="to" control={control} label={t("credit-registration-admin-to")} />
+          </div>
         </div>
       </form>
+      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-actors-on-this-page")}</p>
       {activeFilterCount > 0 && (
         <div className={rowCss}>
           <span className={noteCss}>
             {t("credit-registration-admin-active-filters", { count: activeFilterCount })}
           </span>
-          <Button variant="tertiary" size="small" onClick={() => clearFilters([PARAM_TARGET_ID])}>
+          <Button variant={BUTTON_TERTIARY} size="small" onClick={clearAllFilters}>
             {t("button-text-clear-filters")}
           </Button>
         </div>
       )}
-      <QueryResult query={actionsQuery} refreshIndicator={QUIET_REFRESH}>
-        {(page) => (
-          <>
-            <p className={noteCss}>
-              {t("credit-registration-admin-action-count", { count: page.total_count })}
-            </p>
-            <Table
-              caption={t("credit-registration-heading-audit")}
-              density={DENSITY_COMPACT}
-              rowKey={(row) => row.id}
-              rows={page.data}
-              emptyState={t("credit-registration-admin-no-matching-actions")}
-              columns={[
-                {
-                  header: t("label-time"),
-                  minWidth: "8rem",
-                  nowrap: true,
-                  cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
-                },
-                {
-                  header: t("label-actor"),
-                  minWidth: "11rem",
-                  cell: (row) => <ActorCell row={row} />,
-                },
-                {
-                  header: t("label-role"),
-                  minWidth: "6rem",
-                  cell: (row) => (
-                    <Badge
-                      tone={row.actor_role === COURSE_TEACHER_ROLE ? TONE.INFO : TONE.NEUTRAL}
-                      size="compact"
-                    >
-                      {actorRoleLabel(t, row.actor_role)}
-                    </Badge>
-                  ),
-                },
-                {
-                  header: t("credit-registration-admin-column-action"),
-                  minWidth: "11rem",
-                  cell: (row) => (
-                    <span className={stackedCellCss}>
-                      <span>{adminActionLabel(t, row.action)}</span>
-                      {/* Teachers cannot override a rate cap, so such a row is a hole, not a record. */}
-                      {row.action === OVERRIDE_RATE_CAP &&
-                        row.actor_role === COURSE_TEACHER_ROLE && (
-                          <Badge tone={TONE.DANGER} size="compact">
-                            {t("credit-registration-admin-impossible-action")}
-                          </Badge>
+      <QueryResult
+        query={actionsQuery}
+        refreshIndicator={QUIET_REFRESH}
+        contentClassName={sectionCss}
+      >
+        {(page) => {
+          const beyondRoleCount = page.data.filter(isBeyondActorsRole).length
+          return (
+            <>
+              {beyondRoleCount > 0 && (
+                <Infobox tone={TONE.DANGER}>
+                  {t("credit-registration-admin-beyond-role-count", { count: beyondRoleCount })}
+                </Infobox>
+              )}
+              <div className={rowCss}>
+                <p className={noteCss}>
+                  {t("credit-registration-admin-action-count", { count: page.total_count })}
+                </p>
+                {filteredTargetId && (
+                  <Chip
+                    onRemove={clearTargetFilter}
+                    removeLabel={t("credit-registration-admin-remove-filter", {
+                      filter: t("credit-registration-admin-column-target"),
+                      value: filteredTargetLabel(filteredTargetId, page.data),
+                    })}
+                  >
+                    {t("credit-registration-admin-filtered-to", {
+                      target: filteredTargetLabel(filteredTargetId, page.data),
+                    })}
+                  </Chip>
+                )}
+              </div>
+              <Table
+                caption={t("credit-registration-heading-audit")}
+                density={DENSITY_COMPACT}
+                responsive={TABLE_STACK}
+                rowKey={(row) => row.id}
+                rows={page.data}
+                emptyState={
+                  <EmptyState
+                    title={t("credit-registration-admin-no-matching-actions")}
+                    {...(narrowedByCount > 0
+                      ? {
+                          action: (
+                            <Button
+                              variant={BUTTON_TERTIARY}
+                              size="small"
+                              onClick={clearAllFilters}
+                            >
+                              {t("button-text-clear-filters")}
+                            </Button>
+                          ),
+                        }
+                      : {})}
+                  />
+                }
+                columns={[
+                  {
+                    header: t("label-time"),
+                    minWidth: "7rem",
+                    nowrap: true,
+                    cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
+                  },
+                  {
+                    header: t("label-actor"),
+                    minWidth: "9rem",
+                    cell: (row) => <ActorCell row={row} />,
+                  },
+                  {
+                    header: t("credit-registration-admin-column-action"),
+                    minWidth: "8rem",
+                    cell: (row) => (
+                      <span className={stackedCellCss}>
+                        <span>{adminActionLabel(t, row.action)}</span>
+                        {isBeyondActorsRole(row) && (
+                          <span className={rowCss}>
+                            <Badge tone={TONE.DANGER} size={BADGE_COMPACT}>
+                              {t("credit-registration-admin-impossible-action")}
+                            </Badge>
+                          </span>
                         )}
-                    </span>
-                  ),
-                },
-                {
-                  header: t("credit-registration-admin-column-target"),
-                  minWidth: "12rem",
-                  cell: (row) => <TargetCell row={row} />,
-                },
-                {
-                  header: t("credit-registration-admin-column-state-change"),
-                  minWidth: "14rem",
-                  cell: (row) => <StateChangeCell row={row} />,
-                },
-                {
-                  header: t("label-reason"),
-                  grow: true,
-                  minWidth: "24rem",
-                  nowrap: false,
-                  cell: (row) => row.reason ?? ABSENT,
-                },
-              ]}
-            />
-            <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
-          </>
-        )}
+                      </span>
+                    ),
+                  },
+                  {
+                    // The widest column and the point of the log: it must never be the one that
+                    // runs off the edge, so it takes twice the slack of the one beside it.
+                    header: t("label-reason"),
+                    grow: 2,
+                    minWidth: "16rem",
+                    nowrap: false,
+                    cell: (row) => row.reason ?? ABSENT,
+                  },
+                  {
+                    header: t("credit-registration-admin-column-on"),
+                    grow: 1,
+                    minWidth: "18rem",
+                    cell: (row) => <OnCell row={row} />,
+                  },
+                ]}
+              />
+              <Pagination
+                paginationInfo={paginationInfo}
+                totalPages={page.total_pages}
+                totalItems={page.total_count}
+              />
+            </>
+          )
+        }}
       </QueryResult>
     </section>
   )

@@ -25,8 +25,10 @@ import {
   listVerifiedStudentNumbersForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
+  AccountLinkingStats,
   CreditRegistrationAlertId,
   CreditRegistrationOverview,
+  CreditRegistrationStatsByCourse,
   GetCreditRegistrationAttentionItemsData,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationsForAdminData,
@@ -47,6 +49,9 @@ const RECONCILIATION_REFETCH_INTERVAL_MS = 120_000
 const HISTORY_REFETCH_INTERVAL_MS = 300_000
 /** The shortest window the health endpoint reports. */
 export const HOUR_SECS = 3600
+
+/** The window the Linking page reads its funnel over. Shared so the tab badge hits the same cache. */
+export const LINKING_STATS_WINDOW_DAYS = 30
 
 const GC_TIME_MS = 5 * 60_000
 
@@ -134,13 +139,20 @@ export const useCreditRegistrationThresholds = () =>
     gcTime: GC_TIME_MS,
   })
 
-/** One page of the work queue. The facet counts on the response cover the whole queue, not the page. */
+/**
+ * One page of the work queue. The facet counts on the response cover the whole queue, not the page.
+ *
+ * `enabled: false` for the second call a page makes to select a whole facet at once, which must not
+ * run until the operator asks for it.
+ */
 export const useCreditRegistrationAttentionItems = (
   query: NonNullable<GetCreditRegistrationAttentionItemsData["query"]>,
+  { enabled = true }: { enabled?: boolean } = {},
 ) =>
   useQuery({
     ...getCreditRegistrationAttentionItemsOptions({ query }),
     ...polled(ATTENTION_REFETCH_INTERVAL_MS),
+    enabled,
     // A facet click must not blank the table it renumbers.
     placeholderData: keepPreviousData,
   })
@@ -163,36 +175,17 @@ const alertTotal = (
     .filter((alert) => ids.includes(alert.id))
     .reduce((sum, alert) => sum + alert.count, 0)
 
-// oxlint-disable-next-line i18next/no-literal-string
-const COURSE_ALERT_IDS: readonly CreditRegistrationAlertId[] = ["course_configuration_broken"]
-
-// Both are mails that never reached anybody, so their sum is still a number of undelivered mails.
-const LINKING_ALERT_IDS: readonly CreditRegistrationAlertId[] = [
-  // oxlint-disable-next-line i18next/no-literal-string
-  "linking_mail_send_failed",
-  // oxlint-disable-next-line i18next/no-literal-string
-  "linking_mail_rate_cap_exceeded",
-]
-
 // Both counts are phase counts, so their sum is still a number of phases.
 const SYSTEM_ALERT_IDS: readonly CreditRegistrationAlertId[] = [
-  // oxlint-disable-next-line i18next/no-literal-string
   "phase_failing",
-  // oxlint-disable-next-line i18next/no-literal-string
   "phase_heartbeat_stale",
 ]
 
 const selectNeedsAttention = (overview: CreditRegistrationOverview) =>
   overview.needs_admin_attention_count
 
-const selectBrokenCourseConfigurations = (overview: CreditRegistrationOverview) =>
-  alertTotal(overview, COURSE_ALERT_IDS)
-
 const selectUnhealthyPhases = (overview: CreditRegistrationOverview) =>
   alertTotal(overview, SYSTEM_ALERT_IDS)
-
-const selectUndeliveredLinkingMails = (overview: CreditRegistrationOverview) =>
-  alertTotal(overview, LINKING_ALERT_IDS)
 
 const useOverviewCount = (select: (overview: CreditRegistrationOverview) => number) =>
   useQuery({
@@ -204,17 +197,33 @@ const useOverviewCount = (select: (overview: CreditRegistrationOverview) => numb
 /** Registrations the detectors say need a human. */
 export const useCreditRegistrationAttentionCount = () => useOverviewCount(selectNeedsAttention)
 
-/** Course modules whose last configuration check failed. */
+/**
+ * Course modules whose current facts fail the configuration check.
+ *
+ * The same field the Courses page leads with, not the alert rule's count: a badge that disagrees
+ * with the page it opens costs the reader more than it tells them.
+ */
 export const useCreditRegistrationMisconfiguredCourseCount = () =>
-  useOverviewCount(selectBrokenCourseConfigurations)
+  useQuery({
+    ...getCreditRegistrationStatsByCourseOptions(),
+    ...polled(LIST_REFETCH_INTERVAL_MS),
+    select: (stats: CreditRegistrationStatsByCourse) => stats.misconfigured_count,
+  })
 
 /** Pipeline phases that are failing or overdue. */
 export const useCreditRegistrationUnhealthyPhaseCount = () =>
   useOverviewCount(selectUnhealthyPhases)
 
-/** Account-linking mails our own sender never got out. */
+/**
+ * Account-linking mails our own sender never got out, all time — the number the Linking page's
+ * "Sending failed" tile shows. Keep the two reading the same field.
+ */
 export const useCreditRegistrationLinkingFailureCount = () =>
-  useOverviewCount(selectUndeliveredLinkingMails)
+  useQuery({
+    ...getAccountLinkingStatsOptions({ query: { window_days: LINKING_STATS_WINDOW_DAYS } }),
+    ...polled(LIST_REFETCH_INTERVAL_MS),
+    select: (stats: AccountLinkingStats) => stats.send_status_totals.send_failed,
+  })
 
 export const useCreditRegistrationErrorsByCode = (windowSecs: number) =>
   useQuery({

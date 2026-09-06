@@ -1,6 +1,6 @@
 "use client"
 
-import { cx } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,14 +8,8 @@ import {
   retryabilityLabel,
   retryabilityTone,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
-import {
-  useCreditRegistrationErrorsByCode,
-  useCreditRegistrationReconciliation,
-} from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import AdminRequeueRetryableDialog from "@/components/credit-registration/admin/AdminRequeueRetryableDialog"
+import { useCreditRegistrationErrorsByCode } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AttentionQueueSection from "@/components/credit-registration/admin/AttentionQueueSection"
-import { formatSharePercent } from "@/components/credit-registration/admin/percent"
-import ReconciliationSection from "@/components/credit-registration/admin/ReconciliationSection"
 import {
   DAY_SECS,
   useWindowSecsParam,
@@ -23,122 +17,120 @@ import {
 } from "@/components/credit-registration/admin/WindowSecsSelect"
 import {
   ALIGN_END,
+  BADGE_COMPACT,
   DENSITY_COMPACT,
   LINK_QUIET,
   QUIET_REFRESH,
+  TABLE_STACK,
   TIME_COMPACT,
-  TONE,
 } from "@/components/credit-registration/constants"
+import { registrationErrorShortLabel } from "@/components/credit-registration/creditRegistrationCopy"
+import {
+  failureOwner,
+  failureOwnerLabel,
+} from "@/components/credit-registration/registrationFailures"
 import {
   controlCss,
   controlsCss,
-  headingCss,
+  monospaceCss,
   noteCss,
-  proseCss,
   sectionCss,
-  spacedRowCss,
-  subheadingCss,
-  subsectionCss,
+  stackedCellCss,
 } from "@/components/credit-registration/styles"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
 import {
   Badge,
+  Disclosure,
   Link,
-  Meter,
   QueryResult,
   RelativeTime,
-  StatTile,
-  StatTileList,
   Table,
 } from "@/shared-module/components"
 
-// oxlint-disable-next-line i18next/no-literal-string
 const ERROR_CODE_QUERY = "?error_code="
 
 const signed = (delta: number): string => (delta > 0 ? `+${delta}` : String(delta))
 
-/** How the window's finished registrations ended, and which error codes account for the failures. */
-const FailureSection: React.FC = () => {
+const risingCss = css`
+  color: var(--color-crimson-700);
+  font-variant-numeric: tabular-nums;
+`
+
+const fallingCss = css`
+  color: var(--color-green-700);
+  font-variant-numeric: tabular-nums;
+`
+
+/**
+ * Which error codes the window's failures ended on, collapsed: the queue below is the work, and
+ * this is the report an operator opens once they want to know what keeps happening.
+ */
+const ErrorCodeSummary: React.FC = () => {
   const { t } = useTranslation()
   const { control, windowSecs } = useWindowSecsParam(DAY_SECS)
   const errorsQuery = useCreditRegistrationErrorsByCode(windowSecs)
+  const codes = errorsQuery.data?.codes ?? []
+  const failureCount = codes.reduce((sum, row) => sum + row.current_count, 0)
 
   return (
     <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-verdicts")}</h2>
-      <div className={controlsCss}>
-        <div className={controlCss}>
-          <WindowSecsSelect control={control} includeMonth />
-        </div>
-      </div>
-      <QueryResult query={errorsQuery} refreshIndicator={QUIET_REFRESH}>
-        {(errors) => {
-          const verdicts = errors.verdicts
-          const successCount = verdicts.registered_count + verdicts.duplicate_and_not_improved_count
-          return (
-            <>
-              <StatTileList ariaLabel={t("credit-registration-heading-verdicts")}>
-                <StatTile
-                  label={t("credit-registration-admin-column-registered")}
-                  value={verdicts.registered_count}
-                />
-                <StatTile
-                  label={t("credit-registration-admin-verdict-duplicate-or-not-improved")}
-                  value={verdicts.duplicate_and_not_improved_count}
-                />
-                <StatTile
-                  label={t("credit-registration-admin-column-failed")}
-                  value={verdicts.failed_permanent_count}
-                  alertWhenNonZero
-                />
-                <StatTile
-                  label={t("credit-registration-admin-verdict-cancelled")}
-                  value={verdicts.cancelled_count}
-                />
-              </StatTileList>
-              {verdicts.total_count > 0 && (
-                <Meter
-                  className={proseCss}
-                  label={t("credit-registration-admin-success-rate")}
-                  value={successCount}
-                  maxValue={verdicts.total_count}
-                  valueLabel={formatSharePercent(successCount, verdicts.total_count)}
-                  tone={TONE.SUCCESS}
-                />
-              )}
-              <div className={subsectionCss}>
-                <div className={spacedRowCss}>
-                  <h3 className={subheadingCss}>{t("credit-registration-heading-error-codes")}</h3>
-                  <AdminRequeueRetryableDialog />
-                </div>
-                <p className={cx(noteCss, proseCss)}>
-                  {t("credit-registration-admin-requeue-note")}
-                </p>
+      <Disclosure
+        title={t("credit-registration-heading-error-codes")}
+        summary={
+          errorsQuery.data
+            ? t("credit-registration-admin-error-code-summary", {
+                codes: codes.length,
+                failures: failureCount,
+              })
+            : undefined
+        }
+      >
+        <div className={sectionCss}>
+          <div className={controlsCss}>
+            <div className={controlCss}>
+              <WindowSecsSelect control={control} includeMonth />
+            </div>
+          </div>
+          <QueryResult query={errorsQuery} refreshIndicator={QUIET_REFRESH}>
+            {(errors) => {
+              // Every row is "new" when there was no previous window to compare against, and a
+              // marker on every row marks nothing.
+              const hadPreviousWindow = errors.codes.some((row) => row.previous_count > 0)
+              return (
                 <Table
                   caption={t("credit-registration-heading-error-codes")}
                   density={DENSITY_COMPACT}
                   rowKey={(row) => row.error_code}
                   rows={errors.codes}
                   emptyState={t("credit-registration-admin-no-errors-in-window")}
+                  responsive={TABLE_STACK}
                   columns={[
                     {
-                      header: t("label-error-code"),
-                      grow: true,
+                      header: t("credit-registration-admin-column-what-failed"),
+                      grow: 2,
                       minWidth: "14rem",
                       cell: (row) => (
                         <Link
                           href={`${creditRegistrationRegistrationsRoute()}${ERROR_CODE_QUERY}${row.error_code}`}
                           appearance={LINK_QUIET}
                         >
-                          <code>{row.error_code}</code>
+                          <span className={stackedCellCss}>
+                            <span>{registrationErrorShortLabel(t, row.error_code)}</span>
+                            <code className={cx(noteCss, monospaceCss)}>{row.error_code}</code>
+                          </span>
                         </Link>
                       ),
+                    },
+                    {
+                      header: t("credit-registration-admin-column-who-fixes-this"),
+                      minWidth: "9rem",
+                      cell: (row) => failureOwnerLabel(t, failureOwner(row.error_code)),
                     },
                     {
                       header: t("credit-registration-admin-column-retryability"),
                       minWidth: "9rem",
                       cell: (row) => (
-                        <Badge tone={retryabilityTone(row.retryability)} size="compact">
+                        <Badge tone={retryabilityTone(row.retryability)} size={BADGE_COMPACT}>
                           {retryabilityLabel(t, row.retryability)}
                         </Badge>
                       ),
@@ -155,20 +147,19 @@ const FailureSection: React.FC = () => {
                       align: ALIGN_END,
                       minWidth: "6rem",
                       nowrap: true,
-                      // A count and a "new" marker in the same cell, so the column stays numeric.
-                      cell: (row) => (
-                        <span>
-                          {signed(row.current_count - row.previous_count)}
-                          {row.previous_count === 0 && (
-                            <>
-                              {" "}
-                              <Badge tone={TONE.NEUTRAL} size="compact">
-                                {t("credit-registration-admin-new-this-window")}
-                              </Badge>
-                            </>
-                          )}
-                        </span>
-                      ),
+                      cell: (row) => {
+                        const delta = row.current_count - row.previous_count
+                        if (hadPreviousWindow && row.previous_count === 0) {
+                          return t("credit-registration-admin-new-this-window")
+                        }
+                        return (
+                          <span
+                            className={delta > 0 ? risingCss : delta < 0 ? fallingCss : noteCss}
+                          >
+                            {signed(delta)}
+                          </span>
+                        )
+                      },
                     },
                     {
                       header: t("credit-registration-admin-column-students"),
@@ -194,28 +185,21 @@ const FailureSection: React.FC = () => {
                     },
                   ]}
                 />
-              </div>
-            </>
-          )
-        }}
-      </QueryResult>
+              )
+            }}
+          </QueryResult>
+        </div>
+      </Disclosure>
     </section>
   )
 }
 
-/** The queue a human works from, then the window's failure report, then the drift nothing else sees. */
-const ErrorsPage: React.FC = () => {
-  const reconciliationQuery = useCreditRegistrationReconciliation()
-
-  return (
-    <>
-      <AttentionQueueSection />
-      <FailureSection />
-      <QueryResult query={reconciliationQuery} refreshIndicator={QUIET_REFRESH}>
-        {(reconciliation) => <ReconciliationSection reconciliation={reconciliation} />}
-      </QueryResult>
-    </>
-  )
-}
+/** The queue a human works from, and nothing else: throughput and the Sisu checks are the Overview's. */
+const ErrorsPage: React.FC = () => (
+  <>
+    <ErrorCodeSummary />
+    <AttentionQueueSection />
+  </>
+)
 
 export default ErrorsPage

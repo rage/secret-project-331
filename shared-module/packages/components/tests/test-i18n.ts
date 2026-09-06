@@ -57,6 +57,7 @@ void i18next.use(initReactI18next).init({
         "numberField.increment": "Increase value",
         "numberField.incrementFor": "Increase {{label}}",
         "otp.slotLabel": "Code character {{index}}",
+        "pagination.itemsPerPage": "{{rows}} / page",
         "pagination.label": "Pagination",
         "pagination.pageOfTotal": "Page {{page}} of {{totalPages}}",
         "pagination.range": "Showing {{first}}–{{last}} of {{total}}",

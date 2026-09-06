@@ -176,6 +176,7 @@
   "opens-in": "Avautuu",
   "opens-now": "Avautuu nyt!",
   "otp.slotLabel": "Koodin merkki {{index}}",
+  "pagination.itemsPerPage": "{{rows}} / sivu",
   "pagination.label": "Sivutus",
   "pagination.pageOfTotal": "Sivu {{page}} / {{totalPages}}",
   "pagination.range": "Näytetään {{first}}–{{last}} / {{total}}",

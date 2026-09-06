@@ -157,13 +157,11 @@ export function StudentsTable<T extends object>({
     ? rowVirtualizer.getTotalSize() + scrollMargin - lastVirtualItem.end
     : 0
 
-  // Floating header: a second copy of the <thead>, rendered from the same react-table state so
-  // sort/ARIA state can never drift out of sync, shown as position: fixed once the real header
-  // scrolls above the viewport. Needed because tableSection (layout.tsx) keeps overflow-x: auto
-  // for wide-table horizontal scroll on narrow viewports, and CSS auto-promotes overflow-y to
-  // auto whenever overflow-x isn't visible -- which would silently break a plain CSS
-  // `position: sticky` header's ability to track the *window's* scroll instead of that
-  // ancestor's (permanently-zero) scroll offset.
+  // Floating header: a second copy of the <thead>, from the same react-table state so sort and
+  // ARIA cannot drift, fixed to the viewport once the real header scrolls off. A plain sticky
+  // header will not do: StaleTableWrapper keeps overflow-x: auto for narrow viewports, CSS then
+  // promotes overflow-y to auto, and sticky tracks that ancestor's always-zero scroll offset
+  // rather than the window's.
   const realTableRef = useRef<HTMLTableElement | null>(null)
   const theadRef = useRef<HTMLTableSectionElement | null>(null)
   const floatingInnerRef = useRef<HTMLDivElement | null>(null)

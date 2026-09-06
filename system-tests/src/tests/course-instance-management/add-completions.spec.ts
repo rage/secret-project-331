@@ -26,8 +26,9 @@ test("Manually adding completions works", async ({ page }) => {
     .filter({ has: page.getByRole("heading", { name: "Default", exact: true }) })
     .getByRole("link", { name: "View completions" })
     .click()
+  // A course's completions live on one roster; the instance link lands there with the instance picked.
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/course-instances/6e3764c9-f2ad-5fe5-b310-ab73c289842e/completions",
+    "http://project-331.local/manage/courses/34f4e7b7-9f55-48a7-95d7-3fc3e89553b5/students/completions?instance=6e3764c9-f2ad-5fe5-b310-ab73c289842e",
   )
 
   await page.getByText("Manually add completions").click()

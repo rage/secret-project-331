@@ -10,8 +10,7 @@ import { staleTableCss, tableScrollCss } from "../studentsTableStyles"
  * while deferred data is stale so the previous rows stay visible instead of flashing during a
  * search/sort/page change.
  *
- * `data-students-horizontal-scroll` is what `StudentsTable` resolves its scroller by; the nearest
- * one wins, so the layout's outer scroller no longer carries a whole tab sideways.
+ * `data-students-horizontal-scroll` is what `StudentsTable` resolves its scroller by.
  */
 export const StaleTableWrapper: React.FC<{ isStale: boolean; children: React.ReactNode }> = ({
   isStale,

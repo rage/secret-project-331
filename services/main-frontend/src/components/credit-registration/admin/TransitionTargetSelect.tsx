@@ -6,15 +6,10 @@ import { useTranslation } from "react-i18next"
 import type { AdminCreditRegistrationAction } from "@/generated/api/types.generated"
 import { Select } from "@/shared-module/components"
 
-// oxlint-disable-next-line i18next/no-literal-string
 export const READY_TO_SUBMIT = "ready_to_submit" as const
-// oxlint-disable-next-line i18next/no-literal-string
 export const CANCELLED = "cancelled" as const
-// oxlint-disable-next-line i18next/no-literal-string
 export const CLEAR_ATTENTION = "clear_needs_admin_attention" as const
-// oxlint-disable-next-line i18next/no-literal-string
 export const CHECK_NOW = "check_now" as const
-// oxlint-disable-next-line i18next/no-literal-string
 const STATE_MOVE = "state_move" as const
 
 /** A dropdown carries one flat value, so the tagged shape the endpoint wants is rebuilt on submit. */

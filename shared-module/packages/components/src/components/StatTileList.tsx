@@ -33,16 +33,23 @@ const listCss = css`
 `
 
 /**
- * Bounds each tile to a comfortable width band and caps the list itself at the width `maxColumns`
- * tiles would take, so a group with fewer tiles than that cannot stretch to fill the row, and a
- * wide viewport cannot squeeze in more columns than intended.
+ * Splits the row into as many equal tracks as fit at `min` or wider, never more than
+ * `maxColumns`, and caps the list at the width `maxColumns` tiles of `max` would take, so a group
+ * with fewer tiles than that cannot stretch to fill the row.
  */
 function columnsCss(maxColumns: number, size: StatTileListSize) {
   const { min, max, gap } = TILE_WIDTH[size]
+  const evenTrack = `(100% - ${maxColumns - 1} * ${gap}) / ${maxColumns}`
   return css`
     gap: ${gap};
-    grid-template-columns: repeat(auto-fill, minmax(${min}, ${max}));
+    /* The percentage floor and the tiles' min-width keep the column count out of the list's
+       intrinsic width, which grid and flex ancestors pass on rather than shrink below. */
+    grid-template-columns: repeat(auto-fill, minmax(max(${min}, ${evenTrack}), 1fr));
     max-width: calc(${maxColumns} * ${max} + (${maxColumns} - 1) * ${gap});
+
+    > li {
+      min-width: 0;
+    }
   `
 }
 

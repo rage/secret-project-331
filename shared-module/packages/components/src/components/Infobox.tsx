@@ -26,6 +26,9 @@ export interface InfoboxProps {
   className?: string
 }
 
+/** Below this the icon shares the heading's line instead of holding a column of its own. */
+const ICON_IN_LINE_BELOW_PX = 480
+
 // Metrics match `common`'s GenericInfobox: the two appear side by side on many pages.
 const rootCss = css`
   display: flex;
@@ -41,54 +44,69 @@ const rootCss = css`
   border-color: transparent;
   border-radius: 0 var(--surface-radius) var(--surface-radius) 0;
   overflow-x: auto;
+
+  /* A column of its own for the icon costs the body part of every line, which on a phone adds two
+     wrapped lines to a two-sentence body. Blocking lets the floated icon take the heading's line. */
+  @media (max-width: ${ICON_IN_LINE_BELOW_PX - 0.02}px) {
+    display: block;
+  }
 `
 
-const toneCss: Record<InfoboxTone, string> = {
-  neutral: css`
-    border-color: var(--color-gray-400);
-    background: var(--color-gray-50);
-  `,
-  info: css`
-    border-color: var(--color-blue-500);
-    background: var(--color-blue-25);
-  `,
-  success: css`
-    border-color: var(--color-green-600);
-    background: var(--color-green-50);
-  `,
-  // The yellow ramp is not contrast-safe as text, so warning tints only the stripe and background.
-  warning: css`
-    border-color: var(--color-yellow-700);
-    background: var(--color-yellow-100);
-  `,
-  danger: css`
-    border-color: var(--color-crimson-600);
-    background: var(--color-crimson-75);
-  `,
-}
-
-const iconToneCss: Record<InfoboxTone, string> = {
-  neutral: css`
-    color: var(--color-gray-500);
-  `,
-  info: css`
-    color: var(--color-blue-500);
-  `,
-  success: css`
-    color: var(--color-green-600);
-  `,
-  warning: css`
-    color: var(--color-gray-700);
-  `,
-  danger: css`
-    color: var(--color-crimson-600);
-  `,
+/** One entry per tone: stripe, ground and icon, so adding a tone is one edit rather than three. */
+const tones: Record<InfoboxTone, { icon: React.ComponentType<{ size?: number }>; css: string }> = {
+  neutral: {
+    icon: MinusCircle,
+    css: css`
+      border-color: var(--color-gray-400);
+      background: var(--color-gray-50);
+      --infobox-icon: var(--color-gray-500);
+    `,
+  },
+  info: {
+    icon: InfoCircle,
+    css: css`
+      border-color: var(--color-blue-500);
+      background: var(--color-blue-25);
+      --infobox-icon: var(--color-blue-500);
+    `,
+  },
+  success: {
+    icon: CheckCircle,
+    css: css`
+      border-color: var(--color-green-600);
+      background: var(--color-green-50);
+      --infobox-icon: var(--color-green-600);
+    `,
+  },
+  warning: {
+    icon: ExclamationTriangle,
+    css: css`
+      border-color: var(--color-yellow-700);
+      background: var(--color-yellow-100);
+      /* The yellow ramp is not contrast-safe as ink, so the icon stays grey. */
+      --infobox-icon: var(--color-gray-700);
+    `,
+  },
+  danger: {
+    icon: ExclamationTriangle,
+    css: css`
+      border-color: var(--color-crimson-600);
+      background: var(--color-crimson-75);
+      --infobox-icon: var(--color-crimson-600);
+    `,
+  },
 }
 
 const iconCss = css`
   display: inline-flex;
   align-items: center;
   flex: none;
+  color: var(--infobox-icon);
+
+  @media (max-width: ${ICON_IN_LINE_BELOW_PX - 0.02}px) {
+    float: left;
+    margin-right: var(--space-3);
+  }
 `
 
 const bodyCss = css`
@@ -102,14 +120,6 @@ const headingCss = css`
   font-weight: 600;
 `
 
-const toneIcon: Record<InfoboxTone, React.ComponentType<{ size?: number }>> = {
-  neutral: MinusCircle,
-  info: InfoCircle,
-  success: CheckCircle,
-  warning: ExclamationTriangle,
-  danger: ExclamationTriangle,
-}
-
 export const Infobox: React.FC<InfoboxProps> = ({
   tone = "info",
   heading,
@@ -117,16 +127,16 @@ export const Infobox: React.FC<InfoboxProps> = ({
   announce = false,
   className,
 }) => {
-  const Icon = toneIcon[tone]
+  const { icon: Icon, css: toneCss } = tones[tone]
 
   return (
     <div
-      className={cx(rootCss, toneCss[tone], className)}
+      className={cx(rootCss, toneCss, className)}
       // `alert` interrupts a screen reader, `status` waits for a pause; only a tone that asks for
       // action is worth an interruption.
       role={announce ? (tone === "warning" || tone === "danger" ? "alert" : "status") : undefined}
     >
-      <span className={cx(iconCss, iconToneCss[tone])} aria-hidden="true">
+      <span className={iconCss} aria-hidden="true">
         <Icon />
       </span>
       <div className={bodyCss}>

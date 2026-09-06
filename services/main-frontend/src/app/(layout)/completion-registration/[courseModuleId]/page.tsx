@@ -19,7 +19,6 @@ const REDIRECT = "redirect"
 
 const CompletionPage: React.FC = () => {
   const { t } = useTranslation()
-  usePageTitle(t("register-completion"))
   const { courseModuleId } = useParams<{ courseModuleId: string }>()
   const [pathname, setPathname] = useState<string>("")
 
@@ -36,6 +35,13 @@ const CompletionPage: React.FC = () => {
       },
     }),
   })
+
+  const courseName = userCompletionInformation.data?.course_name
+  usePageTitle(
+    courseName
+      ? t("page-title-credit-registration-for-course", { course: courseName })
+      : t("heading-credit-registration"),
+  )
 
   return (
     <QueryResult query={userCompletionInformation}>

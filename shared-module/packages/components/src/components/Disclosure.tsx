@@ -12,8 +12,7 @@ export type DisclosureVariant = "card" | "plain"
 export interface DisclosureProps {
   /** Always-visible header content in the trigger row. */
   title: React.ReactNode
-  /** Always-visible header content after `title`, e.g. a count or a severity badge. Shown whether
-   *  or not the panel is expanded. */
+  /** Always-visible header content after `title`, e.g. a count or a severity badge. */
   summary?: React.ReactNode
   /** Uncontrolled initial state. */
   defaultExpanded?: boolean
@@ -27,7 +26,6 @@ export interface DisclosureProps {
   className?: string
 }
 
-// oxlint-disable-next-line i18next/no-literal-string -- a direction, not user-facing text
 const CHEVRON_DIRECTION = "right" as const
 
 const rootCss = css`
@@ -46,6 +44,7 @@ const rootPlainCss = css`
 
 const triggerCss = css`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
@@ -88,7 +87,10 @@ const titleWrapCss = css`
 `
 
 const summaryCss = css`
-  flex: none;
+  /* Shrinkable, so a summary too long for the row drops under the title instead of crushing it
+     to nothing and painting over it. */
+  flex: 0 1 auto;
+  min-width: 0;
   color: var(--color-gray-500);
   font-size: var(--font-size-1);
   font-weight: 400;

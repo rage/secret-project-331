@@ -7,20 +7,19 @@ import { useTranslation } from "react-i18next"
 import { adminUnlinkStudentNumber } from "@/generated/api/sdk.generated"
 import type {
   AccountLinkingRealisationCounters,
+  AccountLinkingStaleAddress,
   AccountLinkingStats,
   EmailSendStatus,
 } from "@/generated/api/types.generated"
-import { formatUserName } from "@/hooks/useUserDetails"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
 import type { TableColumn } from "@/shared-module/components"
 import {
   Badge,
-  Button,
   DescriptionList,
-  Dialog,
-  Meter,
+  Disclosure,
+  Menu,
+  MeterInline,
   QueryResult,
   RelativeTime,
   StatTile,
@@ -31,10 +30,11 @@ import {
 import {
   ABSENT,
   ALIGN_END,
+  BADGE_COMPACT,
   DENSITY_COMPACT,
-  MIDDLE_DOT,
   QUIET_REFRESH,
   STACKED,
+  TABLE_STACK,
   TIME_COMPACT,
   TONE,
 } from "../constants"
@@ -56,33 +56,47 @@ import {
   verificationMethodTone,
 } from "./adminCreditRegistrationCopy"
 import {
+  LINKING_STATS_WINDOW_DAYS,
   useAccountLinkingStats,
   useAdminVerifiedStudentNumbers,
   useInvalidateAfterLinkingChange,
 } from "./adminCreditRegistrationHooks"
 import AdminManualLinkButton from "./AdminManualLinkButton"
+import AdminManualLinkDialog from "./AdminManualLinkDialog"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 import { formatSharePercent } from "./percent"
+import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
 
-const WINDOW_DAYS = 30
 const CLAIMS_PER_PAGE = 25
+const CLAIMS_PAGE_SIZE_OPTIONS = [25, 50, 100]
 const DAY_SECS = 86_400
+/** A meter needs a non-zero maximum, and a funnel whose first step is zero has nothing to scale. */
+const MIN_FUNNEL_BASE = 1
 
-// oxlint-disable-next-line i18next/no-literal-string
-const WAITING_QUERY = "?state=pending"
-// oxlint-disable-next-line i18next/no-literal-string
 const ADMIN_MANUAL = "admin_manual"
-// oxlint-disable-next-line i18next/no-literal-string
-const FAST_TRACK = "email_match_fast_track"
-// oxlint-disable-next-line i18next/no-literal-string
 const SEND_FAILED: EmailSendStatus = "send_failed"
-// oxlint-disable-next-line i18next/no-literal-string
-const SMALL = "small" as const
+const RESEND_ITEM = "resend"
+const LINK_BY_HAND_ITEM = "link-by-hand"
 
-const addressListCss = css`
+/** A step's label beside its bar, so the bars line up in a column of their own. */
+const funnelStepCss = css`
+  display: grid;
+  gap: var(--space-1) var(--space-4);
+  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+  align-items: center;
+
+  @media (max-width: 40rem) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+`
+
+const funnelCss = css`
+  display: grid;
+  gap: var(--space-3);
   margin: 0;
-  padding-inline-start: var(--space-4);
+  padding: 0;
+  list-style: none;
 `
 
 /** Capped, so the count does not sit a screen away from the domain it belongs to. */
@@ -90,159 +104,174 @@ const narrowTableCss = css`
   max-width: 24rem;
 `
 
-/** The escape hatch's warning belongs beside the button, not inside the dialog it opens. */
-const manualLinkCalloutCss = css`
+const addressListCss = css`
   display: grid;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border-left: 3px solid var(--color-crimson-600);
-  border-radius: 0 var(--surface-radius) var(--surface-radius) 0;
-  background: var(--color-crimson-50);
-  justify-items: start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 `
 
-const UnlinkButton: React.FC<{ verifiedStudentNumberId: string; number: string }> = ({
-  verifiedStudentNumberId,
-  number,
-}) => {
-  const { t } = useTranslation()
-  const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
-  const { button, dialog } = useReasonConfirmAction({
-    mutationFn: (fields) =>
-      adminUnlinkStudentNumber({
-        path: { verified_student_number_id: verifiedStudentNumberId },
-        body: { reason: fields.reason },
-      }),
-    // Unlinking recomputes preconditions synchronously, so registration state moves too.
-    invalidate: () => void invalidateAfterLinkingChange(),
-    buttonLabel: t("button-text-unlink"),
-    buttonSize: SMALL,
-    dialogTitle: t("button-text-unlink"),
-    dialogMessage: t("credit-registration-admin-unlink-warning", { number }),
-  })
-
-  return (
-    <>
-      {button}
-      {dialog}
-    </>
-  )
+interface FunnelStep {
+  /** Also the list key: two steps of one funnel never carry the same label. */
+  label: string
+  value: number
+  /** Set where the step is part of the first step's population rather than a route beside it. */
+  isShareOfBase?: boolean
 }
 
 /**
- * Where the last discovery run's people went, each step as a share of the people it listed. Only
- * counts from that one run belong here; anything measured over the window is a tile above.
+ * One funnel as a bar list: every step against the first, so where people drop out is the shape of
+ * the list rather than a number the reader has to divide.
  */
-const DiscoverySteps: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
-  const { t } = useTranslation()
-  const funnel = stats.funnel
-  const listed = funnel.persons_discovered_last_run
-  const steps = [
-    {
-      label: t("credit-registration-admin-funnel-already-linked"),
-      value: funnel.already_linked_last_run,
-    },
-    {
-      label: t("credit-registration-admin-funnel-fast-tracked-last-run"),
-      value: funnel.fast_tracked_last_run,
-    },
-    {
-      label: t("credit-registration-admin-suppressed-by-dedup"),
-      value: funnel.suppressed_by_dedup_last_run,
-    },
-    {
-      label: t("credit-registration-admin-suppressed-by-rate-cap"),
-      value: funnel.suppressed_by_rate_cap_last_run,
-    },
-    {
-      label: t("credit-registration-admin-no-address-in-registry"),
-      value: funnel.no_address_in_study_registry_last_run,
-    },
-  ]
-  return (
-    <div className={cx(subsectionCss, proseCss)}>
-      <p className={noteCss}>{t("credit-registration-admin-funnel-listed", { count: listed })}</p>
-      {steps.map((step) => (
-        <Meter
-          key={step.label}
+const FunnelSteps: React.FC<{ steps: readonly FunnelStep[]; base: number }> = ({ steps, base }) => (
+  // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
+  <ol className={funnelCss} role="list">
+    {steps.map((step) => (
+      <li key={step.label} className={funnelStepCss}>
+        <span>{step.label}</span>
+        <MeterInline
           label={step.label}
           value={step.value}
-          maxValue={Math.max(listed, 1)}
-          valueLabel={String(step.value)}
+          maxValue={Math.max(base, MIN_FUNNEL_BASE)}
+          valueText={String(step.value)}
+          {...(step.isShareOfBase && base > 0
+            ? { secondaryText: formatSharePercent(step.value, base) }
+            : {})}
         />
-      ))}
+      </li>
+    ))}
+  </ol>
+)
+
+/** The two numbers that are about now rather than about a window: the backlog and the failures. */
+const RightNow: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
+  const { t } = useTranslation()
+  return (
+    <div className={subsectionCss}>
+      <h2 className={headingCss}>{t("credit-registration-heading-linking-right-now")}</h2>
+      <StatTileList
+        ariaLabel={t("credit-registration-heading-linking-right-now")}
+        maxColumns={2}
+        size="compact"
+      >
+        {/* A normal backlog, not a failure: only "Sending failed" is worth a red tile here. */}
+        <StatTile
+          label={t("credit-registration-admin-waiting-for-number")}
+          value={stats.waiting_for_student_number_count}
+        />
+        {/* The same field the tab badge counts, so the two can never disagree. */}
+        <StatTile
+          label={t("credit-registration-admin-send-status-send-failed")}
+          value={stats.send_status_totals.send_failed}
+          alertWhenNonZero
+        />
+      </StatTileList>
     </div>
   )
 }
 
-const WindowTotals: React.FC<{ stats: AccountLinkingStats; windowDays: number }> = ({
+/** Where the window's mails ended up: sent, claimed, or linked without a mail at all. */
+const WindowFunnel: React.FC<{ stats: AccountLinkingStats; windowDays: number }> = ({
   stats,
   windowDays,
 }) => {
   const { t } = useTranslation()
   const funnel = stats.funnel
+  const steps: FunnelStep[] = [
+    {
+      label: t("credit-registration-admin-funnel-mails-sent"),
+      value: funnel.mails_sent_in_window,
+    },
+    {
+      label: t("credit-registration-admin-funnel-numbers-claimed"),
+      value: funnel.numbers_claimed_in_window,
+      isShareOfBase: true,
+    },
+    {
+      label: t("credit-registration-admin-funnel-fast-tracked"),
+      value: funnel.fast_tracked_in_window,
+    },
+    {
+      label: t("credit-registration-admin-funnel-manual-links"),
+      value: funnel.manual_links_in_window,
+    },
+  ]
   return (
     <div className={subsectionCss}>
-      <h3 className={subheadingCss}>
-        {t("credit-registration-heading-linking-window", { days: windowDays })}
-      </h3>
-      <StatTileList
-        ariaLabel={t("credit-registration-heading-linking-window", { days: windowDays })}
-      >
-        <StatTile
-          label={t("credit-registration-admin-funnel-mails-sent")}
-          value={funnel.mails_sent_in_window}
-        />
-        <StatTile
-          label={t("credit-registration-admin-funnel-numbers-claimed")}
-          value={funnel.numbers_claimed_in_window}
-        />
-        <StatTile
-          label={t("credit-registration-admin-funnel-fast-tracked-in-window")}
-          value={funnel.fast_tracked_in_window}
-        />
-        <StatTile
-          label={t("credit-registration-admin-funnel-manual-links")}
-          value={funnel.manual_links_in_window}
-        />
-      </StatTileList>
+      <div className={sectionHeaderCss}>
+        <h2 className={headingCss}>
+          {t("credit-registration-heading-linking-window", { days: windowDays })}
+        </h2>
+        <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-funnel-note")}</p>
+      </div>
+      <FunnelSteps steps={steps} base={funnel.mails_sent_in_window} />
     </div>
   )
 }
 
-/** The two figures that are not about the window: the backlog now, and the all-time link mix. */
-const StandingTotals: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
+/**
+ * The last discovery run as a funnel that adds up: every person Sisu listed either took one of the
+ * branches below or was mailed, and the mails are the remainder rather than a counter of their own.
+ */
+const DiscoveryRun: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation()
-  const fastTrackTotal =
-    stats.links_total_by_method.find((row) => row.verified_via === FAST_TRACK)?.count ?? 0
-  const manualTotal =
-    stats.links_total_by_method.find((row) => row.verified_via === ADMIN_MANUAL)?.count ?? 0
-  const linksTotal = stats.links_total_by_method.reduce((sum, row) => sum + row.count, 0)
+  const funnel = stats.funnel
+  const listed = funnel.persons_discovered_last_run
+  const branches: FunnelStep[] = [
+    {
+      label: t("credit-registration-admin-funnel-already-linked"),
+      value: funnel.already_linked_last_run,
+      isShareOfBase: true,
+    },
+    {
+      label: t("credit-registration-admin-funnel-fast-tracked"),
+      value: funnel.fast_tracked_last_run,
+      isShareOfBase: true,
+    },
+    {
+      label: t("credit-registration-admin-suppressed-by-dedup"),
+      value: funnel.suppressed_by_dedup_last_run,
+      isShareOfBase: true,
+    },
+    {
+      label: t("credit-registration-admin-suppressed-by-rate-cap"),
+      value: funnel.suppressed_by_rate_cap_last_run,
+      isShareOfBase: true,
+    },
+    {
+      label: t("credit-registration-admin-no-address-in-registry"),
+      value: funnel.no_address_in_study_registry_last_run,
+      isShareOfBase: true,
+    },
+  ]
+  const branched = branches.reduce((sum, branch) => sum + branch.value, 0)
+  const mailed = Math.max(listed - branched, 0)
+  const steps =
+    mailed > 0
+      ? [
+          ...branches,
+          {
+            label: t("credit-registration-admin-funnel-mailed-this-run"),
+            value: mailed,
+            isShareOfBase: true,
+          },
+        ]
+      : branches
   return (
     <div className={subsectionCss}>
-      <h3 className={subheadingCss}>{t("credit-registration-heading-linking-standing")}</h3>
-      <StatTileList ariaLabel={t("credit-registration-heading-linking-standing")} maxColumns={2}>
-        <StatTile
-          label={t("credit-registration-admin-waiting-for-number")}
-          value={stats.waiting_for_student_number_count}
-          href={`${creditRegistrationRegistrationsRoute()}${WAITING_QUERY}`}
-          alertWhenNonZero
-        />
-        <StatTile label={t("credit-registration-admin-manual-links-total")} value={manualTotal} />
-      </StatTileList>
-      {linksTotal > 0 && (
-        <Meter
-          className={proseCss}
-          label={t("credit-registration-admin-fast-track-share")}
-          value={fastTrackTotal}
-          maxValue={linksTotal}
-          valueLabel={formatSharePercent(fastTrackTotal, linksTotal)}
-        />
-      )}
+      <div className={sectionHeaderCss}>
+        <h3 className={subheadingCss}>{t("credit-registration-heading-last-discovery-run")}</h3>
+        <p className={cx(noteCss, proseCss)}>
+          {t("credit-registration-admin-funnel-listed", { count: listed })}
+        </p>
+      </div>
+      <FunnelSteps steps={steps} base={Math.max(listed, branched + mailed)} />
     </div>
   )
 }
 
+/** What our own sender did with the mails, and the domains it could not reach at all. */
 const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation()
   const totals = stats.send_status_totals
@@ -254,7 +283,7 @@ const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
           {t("credit-registration-admin-send-status-our-side-note")}
         </p>
       </div>
-      <StatTileList ariaLabel={t("credit-registration-admin-send-status-header")}>
+      <StatTileList ariaLabel={t("credit-registration-admin-send-status-header")} size="compact">
         <StatTile label={t("credit-registration-admin-send-status-queued")} value={totals.queued} />
         <StatTile
           label={t("credit-registration-admin-send-status-retrying")}
@@ -268,27 +297,33 @@ const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
         />
       </StatTileList>
       {stats.hard_failure_domains.length > 0 && (
-        <Table
-          className={narrowTableCss}
-          caption={t("credit-registration-heading-failure-domains")}
-          showCaption
-          density={DENSITY_COMPACT}
-          rowKey={(row) => row.domain}
-          rows={stats.hard_failure_domains}
-          columns={[
-            { header: t("label-domain"), grow: true, cell: (row) => <code>{row.domain}</code> },
-            { header: t("label-count"), align: ALIGN_END, nowrap: true, cell: (row) => row.count },
-          ]}
-        />
+        <div className={subsectionCss}>
+          <h4 className={subheadingCss}>{t("credit-registration-heading-failure-domains")}</h4>
+          <Table
+            className={narrowTableCss}
+            caption={t("credit-registration-heading-failure-domains")}
+            density={DENSITY_COMPACT}
+            rowKey={(row) => row.domain}
+            rows={stats.hard_failure_domains}
+            columns={[
+              { header: t("label-domain"), grow: true, cell: (row) => <code>{row.domain}</code> },
+              {
+                header: t("label-count"),
+                align: ALIGN_END,
+                nowrap: true,
+                cell: (row) => row.count,
+              },
+            ]}
+          />
+        </div>
       )}
     </div>
   )
 }
 
-/** The ten reasons a listed person got no mail, in a dialog so the row above stays one line high. */
+/** Why listed people got no mail on this realisation's last run; a counter of zero says nothing. */
 const RealisationBreakdown: React.FC<{ row: AccountLinkingRealisationCounters }> = ({ row }) => {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
   const counters: { label: string; value: number | null | undefined }[] = [
     {
       label: t("credit-registration-admin-funnel-already-linked"),
@@ -328,25 +363,15 @@ const RealisationBreakdown: React.FC<{ row: AccountLinkingRealisationCounters }>
       value: row.fast_track_skipped_unlinked_before_count,
     },
   ]
+  const nonZero = counters.filter((counter) => (counter.value ?? 0) > 0)
+  if (nonZero.length === 0) {
+    return <p className={noteCss}>{t("credit-registration-admin-nothing-held-a-mail-back")}</p>
+  }
   return (
-    <>
-      <Button variant="tertiary" size="small" onClick={() => setOpen(true)}>
-        {t("credit-registration-admin-column-breakdown")}
-      </Button>
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        title={t("credit-registration-admin-why-no-mail")}
-      >
-        <DescriptionList
-          layout={STACKED}
-          items={counters.map((counter) => ({
-            label: counter.label,
-            value: counter.value ?? ABSENT,
-          }))}
-        />
-      </Dialog>
-    </>
+    <DescriptionList
+      layout={STACKED}
+      items={nonZero.map((counter) => ({ label: counter.label, value: counter.value ?? ABSENT }))}
+    />
   )
 }
 
@@ -363,9 +388,11 @@ const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
       <Table
         caption={t("credit-registration-heading-realisations")}
         density={DENSITY_COMPACT}
+        responsive={TABLE_STACK}
         rowKey={(row) => row.course_unit_realisation_id}
         rows={stats.realisations}
         emptyState={t("credit-registration-admin-no-realisations")}
+        expandableRow={(row) => <RealisationBreakdown row={row} />}
         columns={[
           {
             header: t("label-course"),
@@ -379,23 +406,20 @@ const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
             ),
           },
           {
+            // Nothing when the listing works: a badge on every row is a badge nobody reads.
             header: t("label-credit-registration-listing-health"),
-            minWidth: "12rem",
+            minWidth: "10rem",
             cell: (row) =>
               row.last_listing_error ? (
                 <span className={stackedCellCss}>
-                  <Badge tone={TONE.DANGER} size="compact">
+                  <Badge tone={TONE.DANGER} size={BADGE_COMPACT}>
                     {t("credit-registration-admin-listing-failing", {
                       count: row.consecutive_listing_failures,
                     })}
                   </Badge>
                   <span className={noteCss}>{row.last_listing_error}</span>
                 </span>
-              ) : (
-                <Badge tone={TONE.SUCCESS} size="compact">
-                  {t("credit-registration-admin-listing-ok")}
-                </Badge>
-              ),
+              ) : null,
           },
           {
             header: t("label-credit-registration-last-listed"),
@@ -424,37 +448,104 @@ const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
             nowrap: false,
             cell: (row) => row.fast_tracked_count ?? ABSENT,
           },
-          {
-            header: t("credit-registration-admin-column-breakdown"),
-            minWidth: "8rem",
-            cell: (row) => <RealisationBreakdown row={row} />,
-          },
         ]}
       />
     </div>
   )
 }
 
+/** Both remedies for one stale row, out of the row's way until they are asked for. */
+const StaleAddressActions: React.FC<{ row: AccountLinkingStaleAddress }> = ({ row }) => {
+  const { t } = useTranslation()
+  const [isResendOpen, setResendOpen] = useState(false)
+  const [isLinkOpen, setLinkOpen] = useState(false)
+  return (
+    <>
+      <Menu
+        aria-label={t("credit-registration-admin-row-actions", { student: row.student_number })}
+        items={[
+          {
+            key: RESEND_ITEM,
+            label: t("button-text-resend-linking-email"),
+            onAction: () => setResendOpen(true),
+          },
+          {
+            key: LINK_BY_HAND_ITEM,
+            label: t("credit-registration-admin-manual-link-title"),
+            onAction: () => setLinkOpen(true),
+          },
+        ]}
+      />
+      <AdminResendLinkingEmailDialog
+        open={isResendOpen}
+        onClose={() => setResendOpen(false)}
+        studentNumber={row.student_number}
+        courseId={row.course_id}
+        courseName={row.course_name}
+      />
+      {isLinkOpen && (
+        <AdminManualLinkDialog
+          open
+          onClose={() => setLinkOpen(false)}
+          studentNumber={row.student_number}
+        />
+      )}
+    </>
+  )
+}
+
+/** The addresses one person's mails went to, kept off the row until the reader asks for them. */
+const StaleAddressSends: React.FC<{ row: AccountLinkingStaleAddress }> = ({ row }) => {
+  const { t } = useTranslation()
+  return (
+    // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
+    <ul className={addressListCss} role="list">
+      {row.sends.map((send, index) => (
+        <li key={`${send.address}:${index}`} className={rowCss}>
+          <span>{send.address}</span>
+          <Badge
+            tone={send.send_status === SEND_FAILED ? TONE.DANGER : TONE.NEUTRAL}
+            size={BADGE_COMPACT}
+          >
+            {sendStatusLabel(t, send.send_status)}
+          </Badge>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** The people mail cannot reach, one line each: the work list this page exists for. */
 const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation()
+  const addressSummary = (row: AccountLinkingStaleAddress): string => {
+    const addressCount = new Set(row.sends.map((send) => send.address)).size
+    return row.sends.some((send) => send.send_status === SEND_FAILED)
+      ? t("credit-registration-admin-addresses-sending-failed", { count: addressCount })
+      : t("credit-registration-admin-addresses-all-sent", { count: addressCount })
+  }
   return (
     <div className={subsectionCss}>
       <div className={sectionHeaderCss}>
-        <h3 className={subheadingCss}>
+        <h2 className={headingCss}>
           {t("credit-registration-heading-stale-addresses", {
             max: stats.max_mails_per_person_and_course,
           })}
-        </h3>
+        </h2>
         <p className={cx(noteCss, proseCss)}>
           {t("credit-registration-admin-stale-addresses-note")}
         </p>
       </div>
       <Table
-        caption={t("credit-registration-heading-stale-addresses-table")}
+        caption={t("credit-registration-heading-stale-addresses", {
+          max: stats.max_mails_per_person_and_course,
+        })}
         density={DENSITY_COMPACT}
+        responsive={TABLE_STACK}
         rowKey={(row) => `${row.student_number}:${row.course_id}`}
         rows={stats.stale_addresses}
         emptyState={t("credit-registration-admin-no-stale-addresses")}
+        expandableRow={(row) => <StaleAddressSends row={row} />}
         columns={[
           {
             header: t("label-student-number"),
@@ -462,27 +553,16 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
             nowrap: true,
             cell: (row) => <span className={monospaceCss}>{row.student_number}</span>,
           },
-          { header: t("label-course"), minWidth: "12rem", cell: (row) => row.course_name },
+          {
+            header: t("label-course"),
+            grow: true,
+            minWidth: "12rem",
+            cell: (row) => row.course_name,
+          },
           {
             header: t("label-credit-registration-addresses-tried"),
-            grow: true,
-            minWidth: "16rem",
-            cell: (row) => (
-              <ul className={addressListCss}>
-                {row.sends.map((send) => (
-                  <li key={send.address}>
-                    {send.address}
-                    {MIDDLE_DOT}
-                    <Badge
-                      tone={send.send_status === SEND_FAILED ? TONE.DANGER : TONE.NEUTRAL}
-                      size="compact"
-                    >
-                      {sendStatusLabel(t, send.send_status)}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            ),
+            minWidth: "10rem",
+            cell: (row) => addressSummary(row),
           },
           {
             header: t("label-credit-registration-last-sent"),
@@ -492,30 +572,46 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
           },
           {
             header: t("label-actions"),
-            minWidth: "12rem",
-            cell: (row) => (
-              <span className={rowCss}>
-                <AdminResendLinkingEmailDialog
-                  studentNumber={row.student_number}
-                  courseId={row.course_id}
-                  courseName={row.course_name}
-                  compact
-                />
-                <AdminManualLinkButton
-                  studentNumber={row.student_number}
-                  size={SMALL}
-                  label={t("credit-registration-admin-link-by-hand")}
-                />
-              </span>
-            ),
+            minWidth: "5rem",
+            cell: (row) => <StaleAddressActions row={row} />,
           },
         ]}
       />
-      <div className={manualLinkCalloutCss}>
-        <p className={proseCss}>{t("credit-registration-admin-manual-link-warning")}</p>
+      <div className={rowCss}>
         <AdminManualLinkButton />
       </div>
     </div>
+  )
+}
+
+const UnlinkAction: React.FC<{ verifiedStudentNumberId: string; number: string }> = ({
+  verifiedStudentNumberId,
+  number,
+}) => {
+  const { t } = useTranslation()
+  const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
+  const { item, dialog } = useReasonConfirmAction({
+    mutationFn: (fields) =>
+      adminUnlinkStudentNumber({
+        path: { verified_student_number_id: verifiedStudentNumberId },
+        body: { reason: fields.reason },
+      }),
+    // Unlinking recomputes preconditions synchronously, so registration state moves too.
+    invalidate: () => void invalidateAfterLinkingChange(),
+    buttonLabel: t("button-text-unlink"),
+    dialogTitle: t("button-text-unlink"),
+    dialogMessage: t("credit-registration-admin-unlink-warning", { number }),
+    isDestructive: true,
+  })
+
+  return (
+    <>
+      <Menu
+        aria-label={t("credit-registration-admin-row-actions", { student: number })}
+        items={[item]}
+      />
+      {dialog}
+    </>
   )
 }
 
@@ -528,13 +624,14 @@ const RecentClaimsBlock: React.FC = () => {
   })
   return (
     <div className={subsectionCss}>
-      <div className={sectionHeaderCss}>
-        <h3 className={subheadingCss}>{t("credit-registration-heading-recent-claims")}</h3>
-        <p className={cx(noteCss, proseCss)}>
-          {t("credit-registration-admin-claiming-address-differs-note")}
-        </p>
-      </div>
-      <QueryResult query={numbersQuery} refreshIndicator={QUIET_REFRESH}>
+      <p className={cx(noteCss, proseCss)}>
+        {t("credit-registration-admin-claiming-address-differs-note")}
+      </p>
+      <QueryResult
+        query={numbersQuery}
+        refreshIndicator={QUIET_REFRESH}
+        contentClassName={subsectionCss}
+      >
         {(page) => {
           // Only manual links carry one, so on most pages the column would be empty end to end.
           const reasonColumn: TableColumn<(typeof page.data)[number]>[] = page.data.some(
@@ -555,6 +652,7 @@ const RecentClaimsBlock: React.FC = () => {
               <Table
                 caption={t("credit-registration-heading-recent-claims")}
                 density={DENSITY_COMPACT}
+                responsive={TABLE_STACK}
                 rowKey={(row) => row.id}
                 rows={page.data}
                 emptyState={t("credit-registration-admin-no-links-yet")}
@@ -568,20 +666,15 @@ const RecentClaimsBlock: React.FC = () => {
                   {
                     header: t("label-student"),
                     grow: reasonColumn.length === 0,
-                    minWidth: "12rem",
-                    cell: (row) => (
-                      <span className={stackedCellCss}>
-                        <span>{formatUserName(row)}</span>
-                        <span className={noteCss}>{row.user_email}</span>
-                      </span>
-                    ),
+                    minWidth: STUDENT_COLUMN_MIN_WIDTH,
+                    cell: (row) => <StudentCell row={{ ...row, email: row.user_email ?? null }} />,
                   },
                   {
                     header: t("label-credit-registration-verified-via"),
                     minWidth: "12rem",
                     cell: (row) => (
                       <span className={stackedCellCss}>
-                        <Badge tone={verificationMethodTone(row.verified_via)} size="compact">
+                        <Badge tone={verificationMethodTone(row.verified_via)} size={BADGE_COMPACT}>
                           {verificationMethodLabel(t, row.verified_via) ?? row.verified_via}
                         </Badge>
                         <span className={noteCss}>{row.verified_via_email}</span>
@@ -599,14 +692,19 @@ const RecentClaimsBlock: React.FC = () => {
                   ...reasonColumn,
                   {
                     header: t("label-actions"),
-                    minWidth: "7rem",
+                    minWidth: "5rem",
                     cell: (row) => (
-                      <UnlinkButton verifiedStudentNumberId={row.id} number={row.student_number} />
+                      <UnlinkAction verifiedStudentNumberId={row.id} number={row.student_number} />
                     ),
                   },
                 ]}
               />
-              <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
+              <Pagination
+                paginationInfo={paginationInfo}
+                totalPages={page.total_pages}
+                totalItems={page.total_count}
+                itemsPerPageOptions={CLAIMS_PAGE_SIZE_OPTIONS}
+              />
             </>
           )
         }}
@@ -615,36 +713,63 @@ const RecentClaimsBlock: React.FC = () => {
   )
 }
 
-/** How a student number reaches an account, and who is stuck on the way. */
+/**
+ * How a student number reaches an account, and who is stuck on the way.
+ *
+ * The window's funnel and the two numbers that are true right now are the page; the per-realisation
+ * counters, the send-status totals and the link history are diagnostics behind a disclosure.
+ */
 const AccountLinkingSection: React.FC = () => {
   const { t } = useTranslation()
-  const statsQuery = useAccountLinkingStats(WINDOW_DAYS)
+  const statsQuery = useAccountLinkingStats(LINKING_STATS_WINDOW_DAYS)
 
   return (
     <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-linking-funnel")}</h2>
-      <QueryResult query={statsQuery} refreshIndicator={QUIET_REFRESH}>
+      <QueryResult
+        query={statsQuery}
+        refreshIndicator={QUIET_REFRESH}
+        contentClassName={sectionCss}
+      >
         {(stats) => {
           // From the response, not the request: the endpoint decides what window it measured.
           const windowDays = Math.round(stats.window_secs / DAY_SECS)
+          const manualLinkTotal =
+            stats.links_total_by_method.find((row) => row.verified_via === ADMIN_MANUAL)?.count ?? 0
           return (
             <>
-              <WindowTotals stats={stats} windowDays={windowDays} />
-              <StandingTotals stats={stats} />
-              <div className={subsectionCss}>
-                <h3 className={subheadingCss}>
-                  {t("credit-registration-heading-last-discovery-run")}
-                </h3>
-                <DiscoverySteps stats={stats} />
-              </div>
-              <SendStatusBlock stats={stats} />
-              <RealisationBlock stats={stats} />
+              <RightNow stats={stats} />
+              <WindowFunnel stats={stats} windowDays={windowDays} />
               <StaleAddressBlock stats={stats} />
+              <Disclosure
+                title={t("credit-registration-heading-linking-details")}
+                summary={
+                  <span className={noteCss}>
+                    {t("credit-registration-admin-linking-details-summary")}
+                  </span>
+                }
+              >
+                <div className={sectionCss}>
+                  <SendStatusBlock stats={stats} />
+                  <DiscoveryRun stats={stats} />
+                  <RealisationBlock stats={stats} />
+                </div>
+              </Disclosure>
+              <Disclosure
+                title={t("credit-registration-heading-recent-claims")}
+                summary={
+                  <span className={noteCss}>
+                    {t("credit-registration-admin-manual-links-total-count", {
+                      count: manualLinkTotal,
+                    })}
+                  </span>
+                }
+              >
+                <RecentClaimsBlock />
+              </Disclosure>
             </>
           )
         }}
       </QueryResult>
-      <RecentClaimsBlock />
     </section>
   )
 }

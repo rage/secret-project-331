@@ -1,15 +1,15 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { mergeProps } from "@react-aria/utils"
 import Link from "next/link"
 import React, { useRef } from "react"
 import { useFocusRing, useHover, useTab } from "react-aria"
 
-import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 import { useTabsContext } from "./Tabs"
+import { tabPillCss } from "./tabStrip"
 
 interface TabProps {
   tabName: string
@@ -17,7 +17,7 @@ interface TabProps {
 }
 
 const Tab: React.FC<TabProps> = ({ tabName, children }) => {
-  const { state, basePath } = useTabsContext()
+  const { state, basePath, isCurrentRouteATab } = useTabsContext()
   const tabRef = useRef<HTMLAnchorElement>(null)
 
   const { tabProps, isSelected } = useTab(
@@ -31,6 +31,7 @@ const Tab: React.FC<TabProps> = ({ tabName, children }) => {
   const { focusProps, isFocusVisible } = useFocusRing()
   const { hoverProps, isHovered } = useHover({})
 
+  const isCurrent = isSelected && isCurrentRouteATab
   const href = `${basePath}/${tabName}`
 
   const { "aria-controls": _ariaControls, ...restTabProps } = tabProps
@@ -39,52 +40,19 @@ const Tab: React.FC<TabProps> = ({ tabName, children }) => {
     // @ts-expect-error -- mergeProps' `handler | undefined` event handlers are rejected by Next LinkProps under exactOptionalPropertyTypes; safe at runtime
     <Link
       {...mergeProps(restTabProps, focusProps, hoverProps)}
+      aria-selected={isCurrent}
       ref={tabRef}
       href={href}
       replace
-      className={css`
-        flex: 0 1 auto;
-        white-space: nowrap;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        font-weight: ${isSelected ? fontWeights.semibold : fontWeights.medium};
-        font-size: 0.9375rem;
-        color: ${isSelected ? baseTheme.colors.green[700] : baseTheme.colors.gray[500]};
-        background: ${isSelected ? "#fff" : "transparent"};
-        border-radius: 6px;
-        padding: 0.625rem 1rem;
-        transition: all 0.15s ease;
-        position: relative;
-        ${
-          isSelected &&
-          css`
-            box-shadow:
-              0 1px 3px rgba(0, 0, 0, 0.08),
-              0 1px 2px rgba(0, 0, 0, 0.06);
-          `
-        }
-        ${respondToOrLarger.sm} {
-          padding: 0.75rem 1.5rem;
+      className={cx(
+        tabPillCss({ isSelected: isCurrent, isFocusVisible, isHovered }),
+        css`
           font-size: 0.9375rem;
-        }
-        ${
-          isFocusVisible &&
-          css`
-            outline: 2px solid ${baseTheme.colors.green[400]};
-            outline-offset: 2px;
-          `
-        }
-        ${
-          isHovered &&
-          !isSelected &&
-          css`
-            color: ${baseTheme.colors.gray[700]};
-            background: rgba(255, 255, 255, 0.5);
-          `
-        }
-      `}
+          ${respondToOrLarger.sm} {
+            padding: 0.75rem 1.5rem;
+          }
+        `,
+      )}
     >
       {children}
     </Link>

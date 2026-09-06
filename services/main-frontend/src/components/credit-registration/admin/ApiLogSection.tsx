@@ -4,12 +4,25 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { SuotarEndpoint } from "@/generated/api/types.generated"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { QueryResult, RelativeTime, Select, Table, TextField } from "@/shared-module/components"
+import {
+  Pagination,
+  QueryResult,
+  RelativeTime,
+  Select,
+  Table,
+  TextField,
+} from "@/shared-module/components"
 
-import { ABSENT, ALIGN_END, DENSITY_COMPACT, QUIET_REFRESH, TIME_COMPACT } from "../constants"
-import { controlCss, controlsCss, headingCss, noteCss, sectionCss } from "../styles"
+import {
+  ABSENT,
+  ALIGN_END,
+  DENSITY_COMPACT,
+  QUIET_REFRESH,
+  TABLE_STACK,
+  TIME_COMPACT,
+} from "../constants"
+import { controlCss, controlsCss, headingCss, noteCss, sectionCss, stackedCellCss } from "../styles"
 import { useSuotarApiCalls } from "./adminCreditRegistrationHooks"
 import HttpStatusBadge from "./HttpStatusBadge"
 import SuotarApiCallDetail from "./SuotarApiCallDetail"
@@ -18,20 +31,16 @@ import { selectFilterField, useFilteredAdminQuery } from "./useFilteredAdminQuer
 
 const ROWS_PER_PAGE = 50
 
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ENDPOINT = "endpoint"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_SUCCEEDED = "succeeded"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_WORKER = "worker_name"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_REGISTRATION = "credit_registration_id"
-// oxlint-disable-next-line i18next/no-literal-string
 const ANY = ""
-// oxlint-disable-next-line i18next/no-literal-string
 const SUCCEEDED = "true"
-// oxlint-disable-next-line i18next/no-literal-string
 const FAILED = "false"
+/** Sentinel for "every outcome", distinct from the unset param so that state is reachable: an
+ *  unset `succeeded` param defaults the view to failures only (see `resolveSucceededFilter`). */
+const ALL_OUTCOMES = "all"
 
 // `satisfies` keeps this exhaustive over the endpoint enum, so a new one can't silently vanish
 // from the filter.
@@ -58,9 +67,32 @@ interface FilterFields {
 
 const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
   selectFilterField(PARAM_ENDPOINT, "endpoint"),
-  selectFilterField(PARAM_SUCCEEDED, "succeeded"),
+  {
+    param: PARAM_SUCCEEDED,
+    field: "succeeded",
+    // Unset means "not chosen yet", which the query below reads as failures only; "all" is the
+    // explicit opt-in to see everything, so it needs its own value distinct from unset.
+    fromParam: (raw) => raw ?? FAILED,
+    toParam: (value) => (value === FAILED ? undefined : (value as string)),
+  },
   selectFilterField(PARAM_WORKER, "worker_name"),
 ]
+
+/** `succeeded` param -> query value. Unset defaults the log to failures, `all` means no filter. */
+const resolveSucceededFilter = (raw: string | undefined): boolean | undefined => {
+  if (raw === undefined) {
+    return false
+  }
+  return raw === ALL_OUTCOMES ? undefined : raw === SUCCEEDED
+}
+
+/** `worker_name` values are `"<process>/<task>"`; the task is what a reader scans for. */
+const splitWorkerName = (workerName: string): { task: string; process: string | null } => {
+  const slashIndex = workerName.indexOf("/")
+  return slashIndex === -1
+    ? { task: workerName, process: null }
+    : { task: workerName.slice(slashIndex + 1), process: workerName.slice(0, slashIndex) }
+}
 
 /** The transport boundary's own log: one row per HTTP call, with the ledger rows it carried. */
 const ApiLogSection: React.FC = () => {
@@ -70,7 +102,7 @@ const ApiLogSection: React.FC = () => {
     FILTER_FIELDS,
     (filters, pagination) => {
       const endpoint = filters.param(PARAM_ENDPOINT)
-      const succeeded = filters.param(PARAM_SUCCEEDED)
+      const succeeded = resolveSucceededFilter(filters.param(PARAM_SUCCEEDED))
       const worker = filters.param(PARAM_WORKER)
       const registrationId = filters.param(PARAM_REGISTRATION)
       const validEndpoint = isSuotarEndpoint(endpoint) ? endpoint : undefined
@@ -78,7 +110,7 @@ const ApiLogSection: React.FC = () => {
         page: pagination.page,
         limit: pagination.limit,
         ...includeIf(validEndpoint, { endpoint: validEndpoint }),
-        ...includeIf(succeeded, { succeeded: succeeded === SUCCEEDED }),
+        ...includeIf(succeeded !== undefined, { succeeded }),
         ...includeIf(worker, { worker_name: worker }),
         ...includeIf(registrationId, { credit_registration_id: registrationId }),
       }
@@ -119,7 +151,7 @@ const ApiLogSection: React.FC = () => {
             control={control}
             label={t("label-status")}
             options={[
-              { value: ANY, label: t("credit-registration-admin-any-outcome") },
+              { value: ALL_OUTCOMES, label: t("credit-registration-admin-any-outcome") },
               { value: SUCCEEDED, label: t("credit-registration-admin-call-succeeded") },
               { value: FAILED, label: t("credit-registration-admin-call-failed") },
             ]}
@@ -157,6 +189,7 @@ const ApiLogSection: React.FC = () => {
             <Table
               caption={t("credit-registration-heading-api-calls")}
               density={DENSITY_COMPACT}
+              responsive={TABLE_STACK}
               rowKey={(row) => row.id}
               rows={page.data}
               emptyState={t("credit-registration-admin-no-matching-calls")}
@@ -169,14 +202,22 @@ const ApiLogSection: React.FC = () => {
                 },
                 {
                   header: t("label-endpoint"),
-                  grow: true,
                   minWidth: "11rem",
                   cell: (row) => <code>{row.endpoint}</code>,
                 },
                 {
                   header: t("credit-registration-admin-column-caller"),
-                  minWidth: "9rem",
-                  cell: (row) => <code>{row.worker_name}</code>,
+                  minWidth: "11rem",
+                  nowrap: true,
+                  cell: (row) => {
+                    const { task, process } = splitWorkerName(row.worker_name)
+                    return (
+                      <span className={stackedCellCss}>
+                        <code>{task}</code>
+                        {process && <span className={noteCss}>{process}</span>}
+                      </span>
+                    )
+                  },
                 },
                 {
                   header: t("label-status"),
@@ -192,6 +233,7 @@ const ApiLogSection: React.FC = () => {
                 },
                 {
                   header: t("credit-registration-admin-column-items"),
+                  grow: true,
                   minWidth: "10rem",
                   cell: (row) =>
                     t("credit-registration-admin-call-items", {
@@ -214,7 +256,14 @@ const ApiLogSection: React.FC = () => {
                 },
               ]}
             />
-            <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
+            <Pagination
+              page={paginationInfo.page}
+              totalPages={page.total_pages}
+              onPageChange={paginationInfo.setPage}
+              itemsPerPage={paginationInfo.limit}
+              totalItems={page.total_count}
+              onItemsPerPageChange={paginationInfo.setLimit}
+            />
           </>
         )}
       </QueryResult>

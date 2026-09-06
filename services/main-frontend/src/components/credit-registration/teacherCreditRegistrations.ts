@@ -1,4 +1,10 @@
-import { type QueryClient, queryOptions, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  keepPreviousData,
+  type QueryClient,
+  queryOptions,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import type { TFunction } from "i18next"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,11 +17,13 @@ import {
 import { getCourseCreditRegistrationsForUsers } from "@/generated/api/sdk.generated"
 import type {
   CourseCreditRegistration,
+  CreditRegistrationErrorCode,
   CreditRegistrationNotificationKind,
   EmailSendStatus,
   NotificationEmailStatus,
   StudentFacingCreditRegistrationStatus,
   StudentNumberVerificationMethod,
+  TeacherLinkingEmailStatus,
 } from "@/generated/api/types.generated"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
@@ -23,8 +31,9 @@ import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOpt
 
 import { registrationErrorShortLabel } from "./creditRegistrationCopy"
 import { labelFrom, widenedLookup } from "./labelFrom"
+import type { FailureOwner } from "./registrationFailures"
+import { failureOwner, retryableFailureCount } from "./registrationFailures"
 
-// oxlint-disable-next-line i18next/no-literal-string
 const QUERY_KEY_PREFIX = "course-credit-registrations/by-user-ids"
 
 /** The server rejects a request body over 2 MB, and a caller may list every enrolled user. */
@@ -34,6 +43,9 @@ const USER_IDS_PER_REQUEST = 500
 const FAILED_ROWS_FETCHED = 500
 
 const FAILED_STATUS: StudentFacingCreditRegistrationStatus[] = ["failed"]
+
+/** A failed row the server sent no code for still needs grouping, and it is nobody's to retry. */
+const UNCLASSIFIED_ERROR_CODE: CreditRegistrationErrorCode = "unknown"
 
 const fetchInBatches = async (
   courseId: string,
@@ -72,12 +84,21 @@ export const useCanViewCreditRegistrations = (courseId: string | null): boolean 
  * Keyed `userId:moduleId`, newest attempt only.
  *
  * `isAuthorized` lets every consumer show the same loading/denied state instead of each guarding
- * the query itself.
+ * the query itself. `isPending` is true only while there is no data at all for the current
+ * `userIds` (first load); `keepPreviousData` means a later change of `userIds` keeps showing the
+ * previous set's index rather than collapsing to empty, so a caller must not read a missing entry
+ * as "no registration" without also checking this — see `isFetching` for the window where the
+ * previous data may no longer match the ids on screen.
  */
 export const useTeacherCreditRegistrations = (
   courseId: string | null,
   userIds: string[],
-): { data: CreditRegistrationIndex; isAuthorized: boolean } => {
+): {
+  data: CreditRegistrationIndex
+  isAuthorized: boolean
+  isPending: boolean
+  isFetching: boolean
+} => {
   const isAuthorized = useCanViewCreditRegistrations(courseId)
 
   const query = useQuery(
@@ -90,11 +111,17 @@ export const useTeacherCreditRegistrations = (
           queryKey: [QUERY_KEY_PREFIX, id, ids],
           queryFn: () => fetchInBatches(id, ids),
           select: indexLiveRegistrations,
+          placeholderData: keepPreviousData,
         }),
     }),
   )
 
-  return { data: query.data ?? EMPTY_CREDIT_REGISTRATIONS, isAuthorized }
+  return {
+    data: query.data ?? EMPTY_CREDIT_REGISTRATIONS,
+    isAuthorized,
+    isPending: query.isPending,
+    isFetching: query.isFetching,
+  }
 }
 
 /**
@@ -121,23 +148,35 @@ export const useInvalidateAfterRetry = (courseId: string) => {
     ])
 }
 
-/** One cause and how many of the course's failures have it, worst first. */
+/** One cause, whose problem it is, and how many of the course's failures have it. */
 export interface CreditRegistrationFailureReason {
+  errorCode: CreditRegistrationErrorCode
   label: string
+  owner: FailureOwner
   count: number
 }
 
 /**
- * The failures of the course, or of one instance, grouped by cause.
+ * The failures of the course, or of one instance, grouped by cause and by who has to clear them.
  *
- * There is no per-cause aggregate endpoint, so the failed rows themselves are fetched and counted
- * here; `isCapped` says the page was full and the breakdown is therefore a lower bound.
+ * `retryableCount` is the only honest number for a retry button: the rest of the failures need a
+ * course setting changed, a student to act, or support. There is no per-cause aggregate endpoint,
+ * so the failed rows themselves are fetched and counted here; `isCapped` says the page was full
+ * and every number is therefore a lower bound.
+ *
+ * `moduleId` narrows to one module. The endpoint has no module filter, so it is applied to the
+ * rows that came back — exact unless `isCapped`.
  */
 export const useCourseFailureReasons = (
   courseId: string,
   courseInstanceId: string | null,
+  moduleId: string | null,
   enabled: boolean,
-): { reasons: CreditRegistrationFailureReason[]; isCapped: boolean } => {
+): {
+  reasons: CreditRegistrationFailureReason[]
+  retryableCount: number
+  isCapped: boolean
+} => {
   const { t } = useTranslation()
   const query = useQuery({
     ...getCourseCreditRegistrationsOptions({
@@ -153,20 +192,27 @@ export const useCourseFailureReasons = (
   })
 
   return useMemo(() => {
-    const rows = query.data?.data ?? []
-    const counts = new Map<string, number>()
+    const fetched = query.data?.data ?? []
+    const rows = moduleId ? fetched.filter((row) => row.course_module_id === moduleId) : fetched
+    const counts = new Map<CreditRegistrationErrorCode, number>()
     for (const row of rows) {
-      const label =
-        registrationErrorShortLabel(t, row.error_code) ?? t("credit-registration-reason-unknown")
-      counts.set(label, (counts.get(label) ?? 0) + 1)
+      const errorCode = row.error_code ?? UNCLASSIFIED_ERROR_CODE
+      counts.set(errorCode, (counts.get(errorCode) ?? 0) + 1)
     }
     return {
       reasons: [...counts.entries()]
-        .map(([label, count]) => ({ label, count }))
+        .map(([errorCode, count]) => ({
+          errorCode,
+          count,
+          owner: failureOwner(errorCode),
+          label:
+            registrationErrorShortLabel(t, errorCode) ?? t("credit-registration-reason-unknown"),
+        }))
         .toSorted((a, b) => b.count - a.count),
-      isCapped: rows.length >= FAILED_ROWS_FETCHED,
+      retryableCount: retryableFailureCount(rows.map((row) => row.error_code)),
+      isCapped: fetched.length >= FAILED_ROWS_FETCHED,
     }
-  }, [query.data, t])
+  }, [query.data, moduleId, t])
 }
 
 export type CreditRegistrationIndex = Map<string, CourseCreditRegistration>
@@ -223,6 +269,37 @@ export const linkingEmailSentence = (
     address: maskedAddress,
     date: humanReadableDate(sentAt, locale) ?? "",
   })
+
+const LINKING_EMAIL_SHORT_KEYS = {
+  queued: "credit-registration-linking-email-short-queued",
+  retrying: "credit-registration-linking-email-short-retrying",
+  sent: "credit-registration-linking-email-short-sent",
+  send_failed: "credit-registration-linking-email-short-send-failed",
+} as const satisfies Record<EmailSendStatus, string>
+
+/**
+ * Where the student's confirmation link got to, in the few words a roster cell has room for.
+ *
+ * The reason line under a "No student number" pill: the teacher's question there is whether the
+ * student was ever asked, not why a registration failed. Null when nothing has been sent yet.
+ * Use `linkingEmailSentence` wherever there is room for the whole sentence.
+ */
+export const linkingEmailShortLabel = (
+  t: TFunction,
+  linkingEmail: TeacherLinkingEmailStatus | null | undefined,
+  locale: string,
+): string | null =>
+  linkingEmail
+    ? labelFrom(
+        t,
+        LINKING_EMAIL_SHORT_KEYS,
+        linkingEmail.email_send_status,
+        LINKING_EMAIL_SHORT_KEYS.queued,
+        {
+          date: humanReadableDate(linkingEmail.sent_at, locale) ?? "",
+        },
+      )
+    : null
 
 const NOTIFICATION_EMAIL_LABEL_KEYS = {
   action_needed: "label-credit-registration-action-needed-email",

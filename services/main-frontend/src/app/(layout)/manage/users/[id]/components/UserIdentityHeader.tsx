@@ -1,10 +1,16 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { TONE } from "@/components/credit-registration/constants"
+import { monospaceCss, noteCss, pageTitleCss } from "@/components/credit-registration/styles"
+import {
+  linkingEmailSentence,
+  studentNumberVerificationLabel,
+} from "@/components/credit-registration/teacherCreditRegistrations"
 import DeletedUserNotice from "@/components/DeletedUserNotice"
 import { USER_ROLES } from "@/constants/roles"
 import {
@@ -18,14 +24,18 @@ import {
   Badge,
   CopyButton,
   DescriptionList,
+  type DescriptionListItem,
   QueryResults,
-  TONE,
 } from "@/shared-module/components"
+
+import type { StudentNumberState } from "../lib/creditRegistrations"
 
 export interface UserIdentityHeaderProps {
   userId: string
   userDetails: UserDetail | null
   userDetailsNotFound: boolean
+  /** Null when no registration knows of a student number, or the viewer may not read one. */
+  studentNumber: StudentNumberState | null
 }
 
 // The student's TMC (mooc.fi) participant page; the account's upstream_id is the participant id.
@@ -36,6 +46,7 @@ const headerCss = css`
   align-items: flex-start;
   gap: var(--space-4);
   margin-bottom: var(--space-3);
+  min-width: 0;
 `
 
 const tmcLinkCss = css`
@@ -58,11 +69,10 @@ const bodyCss = css`
   min-width: 0;
 `
 
+// A user with no name falls back to their email, which has no spaces to wrap at.
 const nameCss = css`
-  margin: 0 0 var(--space-2);
-  font-size: var(--font-size-4);
-  font-weight: 700;
-  color: var(--color-gray-700);
+  margin: 0 0 var(--space-2) 0;
+  overflow-wrap: anywhere;
 `
 
 const chipsCss = css`
@@ -80,38 +90,69 @@ const chipGroupCss = css`
   align-items: center;
 `
 
-const verificationValueCss = css`
+const emailValueCss = css`
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   flex-wrap: wrap;
-`
-
-const idValueCss = css`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
   min-width: 0;
   overflow-wrap: anywhere;
-  font-variant-numeric: tabular-nums;
 `
 
-const CopyableValue: React.FC<{ display: string; value: string; copyLabel: string }> = ({
-  display,
-  value,
-  copyLabel,
-}) => (
-  <span className={idValueCss}>
-    {display}
-    <CopyButton value={value} label={copyLabel} />
-  </span>
-)
+const idButtonRowCss = css`
+  margin-top: var(--space-3);
+`
 
-/** Identity block: monogram, name, copyable email/ID, and account chips (roles, age, TMC id). */
+// CopyButton's default chrome is a bordered chip, which reads as a Badge once it carries a text
+// label rather than just its glyph.
+const quietCopyButtonCss = css`
+  border: none;
+  background: none;
+`
+
+/** The number the credits are registered under, or what we last did about getting one confirmed. */
+const StudentNumberValue: React.FC<{ state: StudentNumberState }> = ({ state }) => {
+  const { t, i18n } = useTranslation()
+
+  if (state.studentNumber) {
+    const provenance = studentNumberVerificationLabel(t, state.verifiedVia)
+    return (
+      <span className={emailValueCss}>
+        <span className={monospaceCss}>{state.studentNumber}</span>
+        {/* No leading dot: this can wrap onto its own line, stranding one at the front. */}
+        {provenance ? <span className={noteCss}>{provenance}</span> : null}
+      </span>
+    )
+  }
+
+  const linkingEmail = state.linkingEmail
+  return (
+    <span className={emailValueCss}>
+      <Badge tone={TONE.NEUTRAL}>{t("badge-student-number-not-linked")}</Badge>
+      {linkingEmail ? (
+        <span className={noteCss}>
+          {linkingEmailSentence(
+            t,
+            linkingEmail.email_send_status,
+            linkingEmail.sent_at,
+            linkingEmail.emailed_to_masked,
+            i18n.language,
+          )}
+        </span>
+      ) : null}
+    </span>
+  )
+}
+
+/**
+ * Identity block: monogram, name, the email with its verification note, the student number the
+ * credits go under, and the account chips (roles, TMC id).
+ */
 const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
   userId,
   userDetails,
   userDetailsNotFound,
+  studentNumber,
 }) => {
   const { t, i18n } = useTranslation()
   const rolesQuery = useQuery({ ...getUserRolesOptions({ path: { user_id: userId } }) })
@@ -125,35 +166,32 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
     return match ? t(match.translationKey) : role
   }
 
-  const items = [
-    {
-      label: t("label-user-id"),
-      value: <CopyableValue display={userId} value={userId} copyLabel={t("copy-user-id")} />,
-    },
-  ]
+  const items: DescriptionListItem[] = []
   if (!userDetailsNotFound && userDetails?.email) {
-    items.unshift({
+    // An unverified address is self-service editable, so support needs to see it — but it does not
+    // block credit registration, which links through the university's own address instead.
+    const verifiedAt = userDetails.email_verified_at
+    items.push({
       label: t("label-email"),
       value: (
-        <CopyableValue
-          display={userDetails.email}
-          value={userDetails.email}
-          copyLabel={t("copy-email")}
-        />
+        <span className={emailValueCss}>
+          {userDetails.email}
+          <CopyButton value={userDetails.email} label={t("copy-email")} />
+          <Badge tone={verifiedAt ? TONE.SUCCESS : TONE.NEUTRAL}>
+            {verifiedAt
+              ? t("email-verified-on", {
+                  date: new Date(verifiedAt).toLocaleString(i18n.language),
+                })
+              : t("email-not-verified")}
+          </Badge>
+        </span>
       ),
     })
-    // An unverified address is self-service editable; support needs to see that.
-    const verifiedAt = userDetails.email_verified_at
-    items.splice(1, 0, {
-      label: t("label-email-verification"),
-      value: verifiedAt ? (
-        <span className={verificationValueCss}>
-          <Badge tone={TONE.SUCCESS}>{t("badge-email-verified")}</Badge>
-          {new Date(verifiedAt).toLocaleString(i18n.language)}
-        </span>
-      ) : (
-        <Badge tone={TONE.NEUTRAL}>{t("badge-email-not-verified")}</Badge>
-      ),
+  }
+  if (studentNumber) {
+    items.push({
+      label: t("label-student-number"),
+      value: <StudentNumberValue state={studentNumber} />,
     })
   }
 
@@ -162,7 +200,7 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
       <div className={headerCss}>
         <Avatar name={displayName} size={56} />
         <div className={bodyCss}>
-          <h1 className={nameCss}>{displayName}</h1>
+          <h1 className={cx(pageTitleCss, nameCss)}>{displayName}</h1>
           <div className={chipsCss}>
             {userDetailsNotFound ? (
               <Badge tone={TONE.DANGER}>{t("badge-deleted-user")}</Badge>
@@ -197,7 +235,12 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
               }}
             />
           </div>
-          <DescriptionList items={items} />
+          {items.length > 0 ? <DescriptionList items={items} /> : null}
+          <div className={idButtonRowCss}>
+            <CopyButton value={userId} label={t("copy-user-id")} className={quietCopyButtonCss}>
+              {t("copy-user-id")}
+            </CopyButton>
+          </div>
         </div>
       </div>
       {userDetailsNotFound ? <DeletedUserNotice userId={userId} /> : null}

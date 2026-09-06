@@ -5,7 +5,7 @@ import React from "react"
 import { includeIf } from "../../lib/utils/nullability"
 import { Badge, type BadgeSize } from "../Badge"
 import {
-  registrationStatusBadgeTone,
+  registrationStatusTone,
   registrationStatusIcon,
   type RegistrationStatusState,
 } from "./registrationStatusState"
@@ -33,7 +33,7 @@ export const RegistrationStatusBadge: React.FC<RegistrationStatusBadgeProps> = (
   const icon = Icon ? <Icon size={ICON_SIZE[size]} /> : undefined
   return (
     <Badge
-      tone={registrationStatusBadgeTone[state]}
+      tone={registrationStatusTone[state]}
       size={size}
       {...includeIf(Icon, { icon })}
       {...includeIf(className, { className })}

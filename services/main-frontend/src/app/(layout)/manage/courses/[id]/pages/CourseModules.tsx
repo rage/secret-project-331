@@ -11,10 +11,13 @@ import {
   dividedListCss,
   pageTitleCss,
   sectionsCss,
+  subheadingCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
+import { useCanViewCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
 import {
   getCourseCreditRegistrationModuleConfigsOptions,
+  getCourseCreditRegistrationSummaryOptions,
   getCourseStructureOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCourseModules } from "@/generated/api/sdk.generated"
@@ -22,9 +25,11 @@ import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/ap
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { Button, QueryResults } from "@/shared-module/components"
 
+import { MODULE_PARAM, REGISTRATION_PARAM } from "../students/StudentsContext"
 import type { CourseModuleFormFields, CourseModuleFormMode } from "./CourseModuleForm"
 import CourseModuleForm from "./CourseModuleForm"
 import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
@@ -33,9 +38,13 @@ import {
   EMPTY_CREDIT_REGISTRATION_FIELDS,
   toCreditRegistrationEdit,
 } from "./creditRegistrationModuleFields"
+import ModuleRegistrationStatus from "./ModuleRegistrationStatus"
 
 const AUTOMATIC = "automatic"
 const MANUAL = "manual"
+
+const STUDENTS_SUBTAB_COMPLETIONS = "completions"
+const REGISTRATION_VIEW_FAILED = "failed"
 
 const CREATE: CourseModuleFormMode = "create"
 const EDIT: CourseModuleFormMode = "edit"
@@ -118,6 +127,16 @@ const blankModule = (chapters: number[]): ModuleView => ({
   enable_registering_completion_to_uh_open_university: false,
   credit_registration: EMPTY_CREDIT_REGISTRATION_FIELDS,
 })
+
+/** The completions roster, filtered to one module and, when `failed`, to its failed registrations. */
+const rosterHrefOf = (courseId: string, moduleId: string, failed?: boolean): string =>
+  `${manageCourseStudentsRoute(courseId, STUDENTS_SUBTAB_COMPLETIONS)}?${new URLSearchParams({
+    [MODULE_PARAM]: moduleId,
+    ...(failed ? { [REGISTRATION_PARAM]: REGISTRATION_VIEW_FAILED } : {}),
+  })}`
+
+/** What the save sends. `order_number` is renumbered locally as chapters move and is not an edit of its own. */
+const savedFieldsOf = ({ order_number: _orderNumber, ...fields }: ModuleView) => fields
 
 const sortAndUpdateOrderNumbers = (modules: ModuleView[]): ModuleView[] => {
   modules.sort((l, r) => {
@@ -214,6 +233,13 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: courseId } }),
   )
   const creditRegistrationConfigs = creditRegistrationConfigsQuery.data
+  // A registration carries the student's Sisu identity, so the counts need their own permission.
+  const canViewCreditRegistrations = useCanViewCreditRegistrations(courseId)
+  const registrationSummaryQuery = useQuery({
+    ...getCourseCreditRegistrationSummaryOptions({ path: { course_id: courseId } }),
+    enabled: canViewCreditRegistrations,
+  })
+  const registrationSummaries = registrationSummaryQuery.data?.modules
   const courseStructureQuery = useQuery({
     ...getCourseStructureOptions({
       path: {
@@ -464,7 +490,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         return c
       })
       const existing = old.modules.find((m) => m.id === id)
-      const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(id, chapters)
       const saved: ModuleView = {
         id,
         name,
@@ -478,8 +503,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         completion_registration_link_override: override_completion_link
           ? completion_registration_link_override
           : null,
-        firstChapter,
-        lastChapter,
+        // Overwritten below, along with every other module's.
+        firstChapter: null,
+        lastChapter: null,
         isNew: existing?.isNew ?? true,
         enable_registering_completion_to_uh_open_university,
         credit_registration,
@@ -541,9 +567,15 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               .toSorted((l, r) => {
                 return l.order_number - r.order_number
               })
-              .map((module) => (
-                <div className={subsectionCss} key={module.id}>
+              .map((module) => {
+                const initialModule = initialModuleList?.modules.find((m) => m.id === module.id)
+                const moduleChapters = moduleList.chapters.filter((c) => c.module === module.id)
+                const registrationSummary = registrationSummaries?.find(
+                  (summary) => summary.course_module_id === module.id,
+                )
+                return (
                   <CourseModuleForm
+                    key={module.id}
                     mode={EDIT}
                     module={module}
                     chapters={data.chapterNumbers}
@@ -551,22 +583,35 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                       (config) => config.course_module_id === module.id,
                     )}
                     canConfigureStudyRegistry={canConfigureStudyRegistry}
+                    hasUnsavedChanges={
+                      edited &&
+                      (initialModule === undefined ||
+                        !isEqual(savedFieldsOf(module), savedFieldsOf(initialModule)))
+                    }
                     onSubmitForm={handleSaveModule}
                     onDeleteModule={handleDeleteModule}
-                  />
-                  {moduleList?.chapters.some((c) => c.module === module.id) && (
-                    <ul className={dividedListCss}>
-                      {moduleList.chapters
-                        .filter((c) => c.module === module.id)
-                        .map((c) => (
-                          <li key={c.id}>
-                            {c.chapter_number}. {c.name}
-                          </li>
-                        ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
+                  >
+                    {registrationSummary && (
+                      <ModuleRegistrationStatus
+                        summary={registrationSummary}
+                        rosterHrefOf={(failed) => rosterHrefOf(courseId, module.id, failed)}
+                      />
+                    )}
+                    {moduleChapters.length > 0 && (
+                      <div className={subsectionCss}>
+                        <h4 className={subheadingCss}>{t("heading-module-chapters")}</h4>
+                        <ul className={dividedListCss}>
+                          {moduleChapters.map((c) => (
+                            <li key={c.id}>
+                              {c.chapter_number}. {c.name}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CourseModuleForm>
+                )
+              })}
             {newModule ? (
               <CourseModuleForm
                 mode={CREATE}

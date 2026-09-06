@@ -1802,10 +1802,9 @@ WHERE cr.state = 'pending'
 /// Live rows of one course grouped by module and state, with the preconditions a `pending` row is
 /// waiting on and how many of each group the pipeline handed to support.
 ///
-/// The preconditions travel with the group so a caller can classify it with
-/// [`crate::library::credit_registration::StudentFacingCreditRegistrationStatus::of`] rather than
-/// restate that mapping in SQL, which is what keeps the teacher's per-module columns and the badge
-/// on each of its rows saying the same thing.
+/// The preconditions travel with the group so a caller can classify it via
+/// [`crate::library::credit_registration::StudentFacingCreditRegistrationStatus::of`] instead of
+/// reimplementing that mapping in SQL — keeping per-module columns and per-row badges in sync.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CourseModuleStateCount {
     pub course_module_id: Uuid,
@@ -2685,7 +2684,10 @@ GROUP BY cr.course_module_id
 ///
 /// Not `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue, but
 /// it says nothing about why, so it is reported per row rather than as a reason of its own.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
+#[serde(rename_all = "snake_case")]
+// The API has always called it this; the short name is for Rust callers, who have the module.
+#[schema(as = CreditRegistrationAttentionReason)]
 pub enum AttentionReason {
     /// Past its state's threshold with the pipeline still owning it.
     StuckInState,
@@ -2707,7 +2709,8 @@ impl AttentionReason {
         Self::OutcomeUncertain,
     ];
 
-    /// Bound into the query as a `text` array element.
+    /// Bound into the query as a `text` array element; must match the serde names a caller sends
+    /// to narrow the queue.
     fn as_str(self) -> &'static str {
         match self {
             Self::StuckInState => "stuck_in_state",
@@ -2848,17 +2851,15 @@ impl Default for AttentionSelection<'_> {
 
 /// A page of the attention queue, with the totals for everything the call selected on every row.
 ///
-/// The one query behind the Errors tab's pages and behind [`count_needing_attention`], so the queue
-/// an operator works through and the number the Overview tile and the tab badge show cannot come
-/// from two definitions.
+/// The one query behind the Errors tab's pages and [`count_needing_attention`], so the queue an
+/// operator works through and the counts the Overview tile and tab badge show cannot disagree.
 ///
 /// A row is in the queue when at least one detector fired or the pipeline flagged it, so clearing
-/// the flag by hand only removes a row no detector also picked. Superseded rows are excluded in the
-/// query rather than left to a predicate elsewhere: a false positive here costs an operator's
-/// attention directly. `thresholds` are the same seconds [`count_stuck`] uses, so the table and the alert
-/// cannot disagree about what stuck means. `reasons` and `only_without_reason` narrow the whole
-/// selection, totals included, so a caller wanting facet counts over the unnarrowed queue asks for
-/// them with `reasons` empty and `only_without_reason` false.
+/// the flag by hand only removes a row no detector also picked. Superseded rows are excluded in
+/// the query itself rather than a later predicate: a false positive here costs an operator's
+/// attention directly. `thresholds` are the same seconds [`count_stuck`] uses, so the table and
+/// the alert can't disagree about what stuck means. `reasons` and `only_without_reason` behave as
+/// on [`AttentionSelection`].
 pub async fn get_attention_items(
     conn: &mut PgConnection,
     thresholds: &StuckThresholds,

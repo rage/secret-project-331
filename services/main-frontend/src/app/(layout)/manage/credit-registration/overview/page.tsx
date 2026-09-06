@@ -1,20 +1,23 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { UseQueryResult } from "@tanstack/react-query"
 import type { EChartsOption } from "echarts"
-import React from "react"
-import type { Control } from "react-hook-form"
-import { useForm } from "react-hook-form"
+import React, { useEffect, useMemo, useRef, useState } from "react"
+import { useDateFormatter } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
-import { stateName } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
+  useCreditRegistrationErrorsByCode,
+  useCreditRegistrationMisconfiguredCourseCount,
   useCreditRegistrationOverview,
   useCreditRegistrationPipelineHistory,
+  useCreditRegistrationReconciliation,
+  useCreditRegistrationUnhealthyPhaseCount,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
+import FacetChip from "@/components/credit-registration/admin/FacetChip"
+import { formatSharePercent } from "@/components/credit-registration/admin/percent"
 import {
   ALL_STATES,
   BUCKET_COLORS,
@@ -24,66 +27,79 @@ import {
   LIVE_BUCKETS,
   type QueueBucket,
 } from "@/components/credit-registration/admin/queueBuckets"
+import ReconciliationSection from "@/components/credit-registration/admin/ReconciliationSection"
 import {
-  ABSENT,
+  useWindowSecsParam,
+  WEEK_SECS,
+  WindowSecsSelect,
+} from "@/components/credit-registration/admin/WindowSecsSelect"
+import {
   ALIGN_END,
+  DAY_AND_MONTH_FORMAT,
   DENSITY_COMPACT,
   LINK_QUIET,
   QUIET_REFRESH,
+  TABLE_STACK,
 } from "@/components/credit-registration/constants"
+import { registrationLedgerStateLabel } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   controlCss,
+  controlsCss,
   emptyStateCss,
   headingCss,
   noteCss,
-  proseCss,
   sectionCss,
   sectionHeaderCss,
+  sectionsCss,
   spacedRowCss,
   subheadingCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationHistory,
-  CreditRegistrationHistoryDay,
   CreditRegistrationOverview,
   CreditRegistrationState,
 } from "@/generated/api/types.generated"
 import {
+  creditRegistrationCoursesRoute,
   creditRegistrationErrorsRoute,
   creditRegistrationRegistrationsRoute,
+  creditRegistrationSystemRoute,
 } from "@/shared-module/common/utils/routes"
 import {
   Link,
-  Meter,
+  MeterInline,
   QueryResult,
-  Select,
   StatTile,
   StatTileList,
   Table,
 } from "@/shared-module/components"
 
-const BUCKET_CHART_HEIGHT = 260
-const RECENT_DAYS = 7
+const BUCKET_CHART_HEIGHT = 300
 const MS_PER_DAY = 86_400_000
 const DAY_LENGTH = 10
 
-/** One mini line per state, four to a row: the shared grid is what makes them comparable. */
-const SMALL_MULTIPLE_COLUMNS = 4
+/** One mini line per state on a shared grid: the same scale is what makes them comparable. */
 const SMALL_MULTIPLE_HEIGHT = 84
 const SMALL_MULTIPLE_TITLE_HEIGHT = 24
+const SMALL_MULTIPLE_AXIS_HEIGHT = 22
 const SMALL_MULTIPLE_ROW_GAP = 20
+const MEDIUM_PANEL_WIDTH = 900
+const WIDE_COLUMNS = 4
+const MEDIUM_COLUMNS = 2
+/** Registered, already in the registry, failed, cancelled and the rate over them. */
+const VERDICT_TILE_COLUMNS = 5
+/** Horizontal room each panel gives its y-axis line, as a share of the panel; the axis labels
+ * themselves are hidden, the scale being stated in the note above the grid. */
+const PANEL_AXIS_SHARE = 3
+const PANEL_INSET_SHARE = 4
 
-// oxlint-disable-next-line i18next/no-literal-string
 const STUCK_QUERY = "?reason=stuck_in_state"
-// oxlint-disable-next-line i18next/no-literal-string
 const STATE_QUERY = "?state="
-// oxlint-disable-next-line i18next/no-literal-string
-const MONTH_DAYS = "30"
-// oxlint-disable-next-line i18next/no-literal-string
-const QUARTER_DAYS = "90"
-// oxlint-disable-next-line i18next/no-literal-string
-const YEAR_DAYS = "365"
+
+const MONTH_DAYS = 30
+const QUARTER_DAYS = 90
+const YEAR_DAYS = 365
 
 const GRID_LINE_COLOR = "#eeeff0"
 const AXIS_TEXT_COLOR = "#535a66"
@@ -93,26 +109,21 @@ const LINE_WIDTH = 2
 const GAP_OPACITY = 0.7
 const MINI_LABEL_SIZE = 10
 const MINI_TITLE_SIZE = 12
+/** Ends the y-axis on a number a reader can divide by, rather than on the tallest day's depth. */
+const NICE_STEPS = [1, 2, 5, 10]
 
-const smallMultiplesCss = css`
-  /* Four mini charts across is unreadable on a phone, and the bucket area above answers the same
-     question at that width. */
-  @media (max-width: 48rem) {
-    display: none;
-  }
+const rangeChipsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 `
 
-const signed = (delta: number): string => (delta > 0 ? `+${delta}` : String(delta))
-
+/** What needs a person today: the four numbers the tab badges count, each opening its own rows. */
 const AttentionSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ overview }) => {
   const { t } = useTranslation()
   const stuckTotal = overview.stuck.reduce((sum, row) => sum + row.count, 0)
-  const recent = overview.throughput.slice(-RECENT_DAYS)
-  const registered = recent.reduce(
-    (sum, bucket) => sum + bucket.registered_count + bucket.other_success_count,
-    0,
-  )
-  const failed = recent.reduce((sum, bucket) => sum + bucket.failed_count, 0)
+  const misconfiguredCount = useCreditRegistrationMisconfiguredCourseCount().data ?? 0
+  const unhealthyPhaseCount = useCreditRegistrationUnhealthyPhaseCount().data ?? 0
 
   return (
     <section className={sectionCss}>
@@ -131,12 +142,15 @@ const AttentionSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ 
           alertWhenNonZero
         />
         <StatTile
-          label={t("credit-registration-admin-registered-in-days", { days: RECENT_DAYS })}
-          value={registered}
+          label={t("credit-registration-admin-modules-misconfigured")}
+          value={misconfiguredCount}
+          href={creditRegistrationCoursesRoute()}
+          alertWhenNonZero
         />
         <StatTile
-          label={t("credit-registration-admin-failed-in-days", { days: RECENT_DAYS })}
-          value={failed}
+          label={t("credit-registration-admin-phases-unhealthy")}
+          value={unhealthyPhaseCount}
+          href={creditRegistrationSystemRoute()}
           alertWhenNonZero
         />
       </StatTileList>
@@ -144,62 +158,94 @@ const AttentionSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ 
   )
 }
 
-interface StateRow {
-  state: CreditRegistrationState
-  bucket: QueueBucket
-  count: number
-  /** Rows that entered minus rows that left on the last snapshot day; null with no snapshot. */
-  net: number | null
-}
-
-/**
- * Every state holding a row, its share of the live queue, and which way it moved on the last
- * snapshot day. One table: the flow numbers are a column here rather than a second table below.
- */
-const QueueSection: React.FC<{
-  overview: CreditRegistrationOverview
-  latestDay: CreditRegistrationHistoryDay | undefined
-}> = ({ overview, latestDay }) => {
+/** How the window's finished registrations ended, which is the throughput question. */
+const ThroughputSection: React.FC = () => {
   const { t } = useTranslation()
-  const rows: StateRow[] = overview.counts_by_state
-    .filter((row) => row.count > 0)
-    .map((row) => {
-      const point = latestDay?.states.find((candidate) => candidate.state === row.state)
-      return {
-        state: row.state,
-        bucket: BUCKET_OF_STATE[row.state],
-        count: row.count,
-        net: point ? point.entered_count - point.left_count : null,
-      }
-    })
-    .toSorted(
-      (a, b) =>
-        BUCKET_ORDER.indexOf(a.bucket) - BUCKET_ORDER.indexOf(b.bucket) || b.count - a.count,
-    )
-
-  const liveTotal = rows
-    .filter((row) => row.bucket !== "done")
-    .reduce((sum, row) => sum + row.count, 0)
+  const { control, windowSecs } = useWindowSecsParam(WEEK_SECS)
+  const errorsQuery = useCreditRegistrationErrorsByCode(windowSecs)
 
   return (
     <section className={sectionCss}>
-      <div className={sectionHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-states")}</h2>
-        {latestDay && (
-          <p className={noteCss}>
-            {t("credit-registration-admin-flow-as-of", { day: latestDay.snapshot_date })}
-          </p>
-        )}
+      <h2 className={headingCss}>{t("credit-registration-heading-verdicts")}</h2>
+      <div className={controlsCss}>
+        <div className={controlCss}>
+          <WindowSecsSelect control={control} includeMonth />
+        </div>
+      </div>
+      <QueryResult query={errorsQuery} refreshIndicator={QUIET_REFRESH}>
+        {(errors) => {
+          const verdicts = errors.verdicts
+          const successCount = verdicts.registered_count + verdicts.duplicate_and_not_improved_count
+          return (
+            <StatTileList
+              ariaLabel={t("credit-registration-heading-verdicts")}
+              maxColumns={VERDICT_TILE_COLUMNS}
+            >
+              <StatTile
+                label={t("credit-registration-admin-column-registered")}
+                value={verdicts.registered_count}
+              />
+              <StatTile
+                label={t("credit-registration-admin-verdict-duplicate-or-not-improved")}
+                value={verdicts.duplicate_and_not_improved_count}
+              />
+              <StatTile
+                label={t("credit-registration-admin-column-failed")}
+                value={verdicts.failed_permanent_count}
+                alertWhenNonZero
+              />
+              <StatTile
+                label={t("credit-registration-admin-verdict-cancelled")}
+                value={verdicts.cancelled_count}
+              />
+              <StatTile
+                label={t("credit-registration-admin-success-rate")}
+                value={
+                  verdicts.total_count === 0
+                    ? t("credit-registration-admin-nothing-finished")
+                    : formatSharePercent(successCount, verdicts.total_count)
+                }
+              />
+            </StatTileList>
+          )
+        }}
+      </QueryResult>
+    </section>
+  )
+}
+
+interface StateRow {
+  state: CreditRegistrationState
+  count: number
+}
+
+/** One stage's states, deepest first, with each state's share of everything still live. */
+const StageTable: React.FC<{
+  bucket: QueueBucket
+  rows: StateRow[]
+  liveTotal: number
+  deepestLiveCount: number
+}> = ({ bucket, rows, liveTotal, deepestLiveCount }) => {
+  const { t } = useTranslation()
+  const isLive = bucket !== "done"
+  const subtotal = rows.reduce((sum, row) => sum + row.count, 0)
+
+  return (
+    <div className={subsectionCss}>
+      <div className={spacedRowCss}>
+        <h3 className={subheadingCss}>{bucketLabel(t, bucket)}</h3>
+        <p className={noteCss}>{t("credit-registration-admin-stage-count", { count: subtotal })}</p>
       </div>
       <Table
-        caption={t("credit-registration-heading-states")}
+        caption={bucketLabel(t, bucket)}
         density={DENSITY_COMPACT}
         rowKey={(row) => row.state}
         rows={rows}
-        emptyState={t("credit-registration-admin-no-registrations")}
+        responsive={TABLE_STACK}
         columns={[
           {
             header: t("label-state"),
+            grow: 1,
             minWidth: "13rem",
             cell: (row) => (
               <Link
@@ -211,49 +257,72 @@ const QueueSection: React.FC<{
             ),
           },
           {
-            header: t("credit-registration-admin-column-stage"),
-            minWidth: "10rem",
-            cell: (row) => bucketLabel(t, row.bucket),
-          },
-          {
             header: t("label-count"),
             align: ALIGN_END,
             minWidth: "5rem",
             nowrap: true,
             cell: (row) => row.count,
           },
-          {
-            header: t("credit-registration-admin-column-share-of-live"),
-            grow: true,
-            minWidth: "9rem",
-            cell: (row) =>
-              row.bucket === "done" || liveTotal === 0 ? (
-                ABSENT
-              ) : (
-                <Meter
-                  value={row.count}
-                  maxValue={liveTotal}
-                  showLabel={false}
-                  label={t("credit-registration-admin-share-of-live-label", {
-                    state: stateName(row.state),
-                    count: row.count,
-                    total: liveTotal,
-                  })}
-                />
-              ),
-          },
-          {
-            header: t("credit-registration-admin-column-net"),
-            align: ALIGN_END,
-            minWidth: "5rem",
-            nowrap: true,
-            cell: (row) => (row.net === null ? ABSENT : signed(row.net)),
-          },
+          // Scaled to the deepest live state rather than to the whole queue: against the total,
+          // every state renders as a sliver and no two of them can be told apart.
+          ...(isLive && liveTotal > 0
+            ? [
+                {
+                  header: t("credit-registration-admin-column-share-of-live"),
+                  grow: 1,
+                  minWidth: "10rem",
+                  cell: (row: StateRow) => (
+                    <MeterInline
+                      value={row.count}
+                      maxValue={deepestLiveCount}
+                      valueText={formatSharePercent(row.count, liveTotal)}
+                      label={t("credit-registration-admin-share-of-live-label", {
+                        state: registrationLedgerStateLabel(t, row.state),
+                        count: row.count,
+                        total: liveTotal,
+                      })}
+                    />
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
-      <p className={proseCss}>
-        <span className={noteCss}>{t("credit-registration-admin-queue-vs-states-note")}</span>
-      </p>
+    </div>
+  )
+}
+
+/**
+ * Every state holding a row, grouped by what the rows in it are waiting for. The stage subtotals
+ * are the counts an operator quotes; they are not the work queue, which is a row-by-row judgement.
+ */
+const QueueSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ overview }) => {
+  const { t } = useTranslation()
+  const rows: StateRow[] = overview.counts_by_state.filter((row) => row.count > 0)
+  const liveRows = rows.filter((row) => BUCKET_OF_STATE[row.state] !== "done")
+  const liveTotal = liveRows.reduce((sum, row) => sum + row.count, 0)
+  const deepestLiveCount = Math.max(...liveRows.map((row) => row.count), 1)
+
+  return (
+    <section className={sectionCss}>
+      <h2 className={headingCss}>{t("credit-registration-heading-states")}</h2>
+      {rows.length === 0 && (
+        <p className={emptyStateCss}>{t("credit-registration-admin-no-registrations")}</p>
+      )}
+      {BUCKET_ORDER.map((bucket) => {
+        const inBucket = rows
+          .filter((row) => BUCKET_OF_STATE[row.state] === bucket)
+          .toSorted((a, b) => b.count - a.count)
+        return inBucket.length === 0 ? null : (
+          <StageTable
+            key={bucket}
+            bucket={bucket}
+            rows={inBucket}
+            liveTotal={liveTotal}
+            deepestLiveCount={deepestLiveCount}
+          />
+        )
+      })}
     </section>
   )
 }
@@ -269,15 +338,19 @@ interface ChartDays {
   depthOf: (day: string, state: CreditRegistrationState) => number | null
 }
 
-/** Every day in the range, so a day the snapshot phase missed stays a gap rather than a zero. */
+/**
+ * Every day in the range up to the last snapshot, so a day the snapshot phase missed stays a gap
+ * rather than a zero, and the series ends on a day there is a depth for.
+ */
 const readHistory = (history: CreditRegistrationHistory): ChartDays => {
   const byDate = new Map(history.days.map((day) => [day.snapshot_date, day]))
+  const lastSnapshot = history.days.at(-1)?.snapshot_date
+  const end = Math.min(
+    new Date(history.to).getTime(),
+    lastSnapshot === undefined ? -Infinity : new Date(lastSnapshot).getTime(),
+  )
   const points: DayPoint[] = []
-  for (
-    let day = new Date(history.from).getTime();
-    day <= new Date(history.to).getTime();
-    day += MS_PER_DAY
-  ) {
+  for (let day = new Date(history.from).getTime(); day <= end; day += MS_PER_DAY) {
     // `toISOString` is safe here: the endpoint's dates are plain UTC days with no offset to lose.
     const isoDay = new Date(day).toISOString().slice(0, DAY_LENGTH)
     points.push({ day: isoDay, hasSnapshot: byDate.has(isoDay) })
@@ -307,24 +380,55 @@ const missingRanges = (points: DayPoint[]): [string, string][] => {
   return ranges
 }
 
+/** The next 1, 2 or 5 above `value`, so the axis ends on a number worth reading. */
+const niceMax = (value: number): number => {
+  const magnitude = 10 ** Math.floor(Math.log10(Math.max(value, 1)))
+  const step = NICE_STEPS.find((candidate) => value <= candidate * magnitude) ?? 10
+  return step * magnitude
+}
+
+/** The container's width once it is on screen; 0 before the first measurement. */
+const useMeasuredWidth = (): [React.RefObject<HTMLDivElement | null>, number] => {
+  const ref = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(0)
+  useEffect(() => {
+    const element = ref.current
+    if (element === null || typeof ResizeObserver === "undefined") {
+      return
+    }
+    const observer = new ResizeObserver(() => setWidth(element.clientWidth))
+    observer.observe(element)
+    setWidth(element.clientWidth)
+    return () => observer.disconnect()
+  }, [])
+  return [ref, width]
+}
+
 /** Does the pipeline drain? The three live buckets stacked, so the top edge is the whole backlog. */
 const BucketAreaChart: React.FC<{ history: CreditRegistrationHistory }> = ({ history }) => {
   const { t } = useTranslation()
-  const { points, days, depthOf } = readHistory(history)
-  const gaps = missingRanges(points)
+  const dayFormatter = useDateFormatter(DAY_AND_MONTH_FORMAT)
+  const { points, days, depthOf } = useMemo(() => readHistory(history), [history])
+  const gaps = useMemo(() => missingRanges(points), [points])
 
-  const series = LIVE_BUCKETS.map((bucket) => {
-    const states = ALL_STATES.filter((state) => BUCKET_OF_STATE[state] === bucket)
-    return {
-      bucket,
-      points: days.map((day) => {
-        const depths = states.map((state) => depthOf(day, state))
-        return depths.every((depth) => depth === null)
-          ? null
-          : depths.reduce((sum: number, depth) => sum + (depth ?? 0), 0)
+  // A refetch re-renders this with the same history, and at the year range the walk below is three
+  // buckets over a year of days.
+  const series = useMemo(
+    () =>
+      LIVE_BUCKETS.map((bucket) => {
+        const states = ALL_STATES.filter((state) => BUCKET_OF_STATE[state] === bucket)
+        return {
+          bucket,
+          points: days.map((day) => {
+            const depths = states.map((state) => depthOf(day, state))
+            return depths.every((depth) => depth === null)
+              ? null
+              : depths.reduce((sum: number, depth) => sum + (depth ?? 0), 0)
+          }),
+        }
       }),
-    }
-  })
+    [days, depthOf],
+  )
 
   if (series.every((one) => one.points.every((point) => point === null))) {
     return <p className={emptyStateCss}>{t("credit-registration-admin-no-snapshots")}</p>
@@ -343,21 +447,23 @@ const BucketAreaChart: React.FC<{ history: CreditRegistrationHistory }> = ({ his
   const options: EChartsOption = {
     // oxlint-disable-next-line i18next/no-literal-string
     tooltip: { trigger: "axis" },
-    legend: { data: series.map((one) => bucketLabel(t, one.bucket)) },
-    // oxlint-disable-next-line i18next/no-literal-string
-    grid: { left: 52, right: 128, top: 56, bottom: 32 },
-    // oxlint-disable-next-line i18next/no-literal-string
-    xAxis: { type: "category", data: days, boundaryGap: false },
+    // Above the plot: at the bottom it lands on the dates, and one of the two has to be read.
+    legend: { data: series.map((one) => bucketLabel(t, one.bucket)), top: 0 },
+    // The legend can wrap to two rows at phone width, so top has to clear both.
+    grid: { left: 52, right: 16, top: 72, bottom: 32 },
+    xAxis: {
+      type: "category",
+      data: days,
+      boundaryGap: false,
+      axisLabel: { formatter: (value: string) => dayFormatter.format(new Date(value)) },
+    },
     yAxis: {
-      // oxlint-disable-next-line i18next/no-literal-string
       type: "value",
-      name: t("credit-registration-admin-queue-depth-axis"),
       minInterval: 1,
       splitLine: { lineStyle: { color: GRID_LINE_COLOR } },
     },
     series: series.map((one, index) => ({
       name: bucketLabel(t, one.bucket),
-      // oxlint-disable-next-line i18next/no-literal-string
       type: "line",
       // oxlint-disable-next-line i18next/no-literal-string
       stack: "live",
@@ -366,8 +472,6 @@ const BucketAreaChart: React.FC<{ history: CreditRegistrationHistory }> = ({ his
       lineStyle: { width: LINE_WIDTH },
       areaStyle: { opacity: AREA_OPACITY },
       itemStyle: { color: BUCKET_COLORS[one.bucket] },
-      // The legend names the bands; this names them again where the eye stops reading.
-      endLabel: { show: true, formatter: bucketLabel(t, one.bucket), color: AXIS_TEXT_COLOR },
       data: one.points,
       ...(index === 0 && gaps.length > 0 ? { markArea: gapMarkArea } : {}),
     })),
@@ -377,29 +481,48 @@ const BucketAreaChart: React.FC<{ history: CreditRegistrationHistory }> = ({ his
 
 /** Which state is piling up? One small line per state, all on the same scale. */
 const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({ history }) => {
-  const { days, depthOf } = readHistory(history)
+  const { t } = useTranslation()
+  const dayFormatter = useDateFormatter(DAY_AND_MONTH_FORMAT)
+  const [panelRef, panelWidth] = useMeasuredWidth()
+  const { days, depthOf } = useMemo(() => readHistory(history), [history])
 
-  const charted = ALL_STATES.filter((state) => BUCKET_OF_STATE[state] !== "done")
-    .map((state) => ({ state, points: days.map((day) => depthOf(day, state)) }))
-    .filter((one) => one.points.some((point) => point !== null && point > 0))
+  // Every resize tick re-renders this, and at the year range the walk is twelve states over a year
+  // of days.
+  const charted = useMemo(
+    () =>
+      ALL_STATES.filter((state) => BUCKET_OF_STATE[state] !== "done")
+        .map((state) => ({ state, points: days.map((day) => depthOf(day, state)) }))
+        .filter((one) => one.points.some((point) => point !== null && point > 0)),
+    [days, depthOf],
+  )
 
   if (charted.length === 0) {
-    return null
+    return <p className={emptyStateCss}>{t("credit-registration-admin-no-snapshots")}</p>
   }
 
-  // Shared, so a deep queue looks deep beside a shallow one instead of every panel filling itself.
-  const sharedMax = Math.max(...charted.flatMap((one) => one.points.map((point) => point ?? 0)), 1)
-  const rowPitch = SMALL_MULTIPLE_TITLE_HEIGHT + SMALL_MULTIPLE_HEIGHT + SMALL_MULTIPLE_ROW_GAP
-  const rowCount = Math.ceil(charted.length / SMALL_MULTIPLE_COLUMNS)
-  const cellLeft = (index: number) =>
-    `${((index % SMALL_MULTIPLE_COLUMNS) * 100) / SMALL_MULTIPLE_COLUMNS + 4}%`
-  const cellTop = (index: number) => Math.floor(index / SMALL_MULTIPLE_COLUMNS) * rowPitch
+  // Four panels across is unreadable on a phone, so the panel count follows the room there is.
+  // Two columns is the floor: twelve single-column panels run to 1800px of near-empty charts, and
+  // 9rem is comfortable even at phone width.
+  const columns = panelWidth > 0 && panelWidth < MEDIUM_PANEL_WIDTH ? MEDIUM_COLUMNS : WIDE_COLUMNS
+
+  const sharedMax = niceMax(
+    Math.max(...charted.flatMap((one) => one.points.map((point) => point ?? 0)), 1),
+  )
+  const rowPitch =
+    SMALL_MULTIPLE_TITLE_HEIGHT +
+    SMALL_MULTIPLE_HEIGHT +
+    SMALL_MULTIPLE_AXIS_HEIGHT +
+    SMALL_MULTIPLE_ROW_GAP
+  const rowCount = Math.ceil(charted.length / columns)
+  const cellLeft = (index: number) => `${((index % columns) * 100) / columns + PANEL_INSET_SHARE}%`
+  const cellTop = (index: number) => Math.floor(index / columns) * rowPitch
+  const firstAndLast = (index: number) => index === 0 || index === days.length - 1
 
   const options: EChartsOption = {
     // oxlint-disable-next-line i18next/no-literal-string
     tooltip: { trigger: "axis" },
     title: charted.map((one, index) => ({
-      text: stateName(one.state),
+      text: registrationLedgerStateLabel(t, one.state),
       left: cellLeft(index),
       top: cellTop(index),
       // oxlint-disable-next-line i18next/no-literal-string
@@ -408,29 +531,39 @@ const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({
     grid: charted.map((_, index) => ({
       left: cellLeft(index),
       top: cellTop(index) + SMALL_MULTIPLE_TITLE_HEIGHT,
-      width: `${100 / SMALL_MULTIPLE_COLUMNS - 9}%`,
+      width: `${100 / columns - PANEL_AXIS_SHARE}%`,
       height: SMALL_MULTIPLE_HEIGHT,
     })),
     xAxis: charted.map((_, index) => ({
-      // oxlint-disable-next-line i18next/no-literal-string
       type: "category",
       data: days,
       gridIndex: index,
       boundaryGap: false,
-      show: false,
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: GRID_LINE_COLOR } },
+      // Only the ends: the panels share a range, and a date under every panel is the same date
+      // written twelve times.
+      axisLabel: {
+        interval: firstAndLast,
+        fontSize: MINI_LABEL_SIZE,
+        color: MINOR_TEXT_COLOR,
+        // oxlint-disable-next-line i18next/no-literal-string
+        align: "center",
+        formatter: (value: string) => dayFormatter.format(new Date(value)),
+      },
     })),
     yAxis: charted.map((_, index) => ({
-      // oxlint-disable-next-line i18next/no-literal-string
       type: "value",
       gridIndex: index,
       max: sharedMax,
       minInterval: 1,
-      axisLabel: { fontSize: MINI_LABEL_SIZE, color: MINOR_TEXT_COLOR },
+      // The note above the grid already says every panel shares this scale, so twelve repeats of
+      // the same numbers would only be noise.
+      axisLabel: { show: false },
       splitLine: { lineStyle: { color: GRID_LINE_COLOR } },
     })),
     series: charted.map((one, index) => ({
-      name: stateName(one.state),
-      // oxlint-disable-next-line i18next/no-literal-string
+      name: registrationLedgerStateLabel(t, one.state),
       type: "line",
       xAxisIndex: index,
       yAxisIndex: index,
@@ -442,42 +575,63 @@ const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({
     })),
   }
   return (
-    <div className={smallMultiplesCss}>
+    <div ref={panelRef}>
       <Echarts options={options} height={rowCount * rowPitch} />
     </div>
   )
 }
 
-interface DaysFields {
-  days: string
+const HISTORY_RANGES = [
+  { days: MONTH_DAYS, labelKey: "credit-registration-admin-window-chip-month" },
+  { days: QUARTER_DAYS, labelKey: "credit-registration-admin-window-chip-quarter" },
+  { days: YEAR_DAYS, labelKey: "credit-registration-admin-window-chip-year" },
+] as const
+
+const RangeChips: React.FC<{ days: number; onChange: (days: number) => void }> = ({
+  days,
+  onChange,
+}) => {
+  const { t } = useTranslation()
+
+  return (
+    <div
+      className={rangeChipsCss}
+      role="group"
+      aria-label={t("credit-registration-admin-history-length")}
+    >
+      {HISTORY_RANGES.map((range) => (
+        <FacetChip
+          key={range.days}
+          label={t(range.labelKey)}
+          isSelected={range.days === days}
+          onToggle={() => onChange(range.days)}
+        />
+      ))}
+    </div>
+  )
 }
 
-const TrendSection: React.FC<{
-  control: Control<DaysFields>
-  historyQuery: UseQueryResult<CreditRegistrationHistory>
-}> = ({ control, historyQuery }) => {
+const TrendSection: React.FC = () => {
   const { t } = useTranslation()
+  const [historyDays, setHistoryDays] = useState(MONTH_DAYS)
+  const historyQuery = useCreditRegistrationPipelineHistory(historyDays)
 
   return (
     <section className={sectionCss}>
       <div className={spacedRowCss}>
         <h2 className={headingCss}>{t("credit-registration-heading-queue-depth")}</h2>
-        <div className={controlCss}>
-          <Select
-            name="days"
-            control={control}
-            label={t("credit-registration-admin-history-length")}
-            options={[
-              { value: MONTH_DAYS, label: t("credit-registration-admin-window-month") },
-              { value: QUARTER_DAYS, label: t("credit-registration-admin-window-quarter") },
-              { value: YEAR_DAYS, label: t("credit-registration-admin-window-year") },
-            ]}
-          />
-        </div>
+        <RangeChips days={historyDays} onChange={setHistoryDays} />
       </div>
       <QueryResult query={historyQuery} refreshIndicator={QUIET_REFRESH}>
         {(history) => (
           <>
+            {history.days.at(-1) && (
+              <p className={noteCss}>
+                {t("credit-registration-admin-snapshot-note", {
+                  day: history.days.at(-1)?.snapshot_date,
+                })}
+              </p>
+            )}
             <BucketAreaChart history={history} />
             <div className={subsectionCss}>
               <div className={sectionHeaderCss}>
@@ -493,23 +647,26 @@ const TrendSection: React.FC<{
   )
 }
 
-/** Whether anything is wrong, where the queue stands, and which way it has been moving. */
+/** Whether anything is wrong, how the finished ones ended, where the queue stands, and its trend. */
 const OverviewPage: React.FC = () => {
   const overviewQuery = useCreditRegistrationOverview()
-  const { control, watch } = useForm<DaysFields>({ defaultValues: { days: MONTH_DAYS } })
-  const historyQuery = useCreditRegistrationPipelineHistory(Number(watch("days")))
+  const reconciliationQuery = useCreditRegistrationReconciliation()
 
   return (
     <>
       <QueryResult query={overviewQuery} refreshIndicator={QUIET_REFRESH}>
         {(overview) => (
-          <>
+          <div className={sectionsCss}>
             <AttentionSection overview={overview} />
-            <QueueSection overview={overview} latestDay={historyQuery.data?.days.at(-1)} />
-          </>
+            <ThroughputSection />
+            <QueueSection overview={overview} />
+          </div>
         )}
       </QueryResult>
-      <TrendSection control={control} historyQuery={historyQuery} />
+      <TrendSection />
+      <QueryResult query={reconciliationQuery} refreshIndicator={QUIET_REFRESH}>
+        {(reconciliation) => <ReconciliationSection reconciliation={reconciliation} />}
+      </QueryResult>
     </>
   )
 }

@@ -7,7 +7,6 @@ import type {
   FieldValues,
   Path,
   UseFormHandleSubmit,
-  UseFormReset,
   UseFormSetValue,
   UseFormWatch,
 } from "react-hook-form"
@@ -50,7 +49,6 @@ export interface UseFilteredAdminQueryResult<Fields extends FieldValues, Query> 
   watch: UseFormWatch<Fields>
   setValue: UseFormSetValue<Fields>
   handleSubmit: UseFormHandleSubmit<Fields>
-  reset: UseFormReset<Fields>
   param: QueryParamFilters["param"]
   params: QueryParamFilters["params"]
   applyParams: QueryParamFilters["applyParams"]
@@ -171,7 +169,6 @@ export function useFilteredAdminQuery<Fields extends FieldValues, Query>(
     watch,
     setValue,
     handleSubmit,
-    reset,
     param,
     params,
     applyParams,

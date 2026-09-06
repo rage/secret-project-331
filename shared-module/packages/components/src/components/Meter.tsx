@@ -74,6 +74,9 @@ const trackCss = css`
   overflow: hidden;
 `
 
+const DIV_ELEMENT = "div" as const
+const SPAN_ELEMENT = "span" as const
+
 const fillCss = css`
   position: absolute;
   inset: 0 auto 0 0;
@@ -97,6 +100,43 @@ const tickCss = css`
   width: 2px;
   background: var(--color-gray-600);
 `
+
+/**
+ * The bar: the tone fill out to `fillPct`, and the threshold tick when there is one.
+ *
+ * `as` is the track's element, because the inline meter lives inside a `span` and the block one
+ * inside a `div`; `tickClassName` differs only in how far the tick overhangs each track's height.
+ */
+const MeterTrack: React.FC<{
+  as: "div" | "span"
+  className: string
+  fillPct: number
+  thresholdPct: number | null
+  tickClassName: string
+  tone: MeterTone
+}> = ({ as: Track, className, fillPct, thresholdPct, tickClassName, tone }) => (
+  <Track className={className} aria-hidden="true">
+    <span
+      className={cx(
+        fillCss,
+        fillToneCss[tone],
+        css`
+          width: ${fillPct}%;
+        `,
+      )}
+    />
+    {thresholdPct !== null ? (
+      <span
+        className={cx(
+          tickClassName,
+          css`
+            left: ${thresholdPct}%;
+          `,
+        )}
+      />
+    ) : null}
+  </Track>
+)
 
 function clampPct(value: number, min: number, max: number): number {
   if (max <= min) {
@@ -140,30 +180,20 @@ export const Meter: React.FC<MeterProps> = ({
           {valueLabel ? <span className={valueTextCss}>{valueLabel}</span> : null}
         </div>
       ) : null}
-      <div className={cx(trackCss, thresholdPct !== null && trackWithTickCss)} aria-hidden="true">
-        <div
-          className={cx(
-            fillCss,
-            fillToneCss[tone],
-            css`
-              width: ${fillPct}%;
-            `,
-          )}
-        />
-        {thresholdPct !== null ? (
-          <span
-            className={cx(
-              tickCss,
-              css`
-                left: ${thresholdPct}%;
-              `,
-            )}
-          />
-        ) : null}
-      </div>
+      <MeterTrack
+        as={DIV_ELEMENT}
+        className={cx(trackCss, thresholdPct !== null && trackWithTickCss)}
+        fillPct={fillPct}
+        thresholdPct={thresholdPct}
+        tickClassName={tickCss}
+        tone={tone}
+      />
     </div>
   )
 }
+
+/** How much room the bar is given: a short fixed length, or everything the row has left. */
+export type MeterInlineTrackWidth = "compact" | "fill"
 
 export interface MeterInlineProps {
   value: number
@@ -171,7 +201,7 @@ export interface MeterInlineProps {
   maxValue: number
   /** Accessible name. Not displayed — the visible text is `valueText`. */
   label: string
-  /** Short visible text beside the bar, e.g. "26 d". Falls back to `valueLabel` for the accessible value text when it is a string. */
+  /** Short visible text beside the bar, e.g. "26 d". Used as the accessible value text too when `valueLabel` is omitted and this is a string. */
   valueText: React.ReactNode
   /** Full accessible value text, e.g. "26 days, past the 1 day threshold". */
   valueLabel?: string
@@ -180,6 +210,13 @@ export interface MeterInlineProps {
   /** Optional reference marker on the same scale as `value` (e.g. a threshold). */
   threshold?: number
   tone?: MeterTone
+  /**
+   * `compact`, the default, keeps the bar short and sizes the meter to its own content, for a
+   * dense table cell. `fill` spreads the meter across the width it is given and hands the bar
+   * whatever the text leaves over, so a column of them can be compared bar to bar. Both hold the
+   * bar at the length below which a fill and a threshold tick stop reading.
+   */
+  trackWidth?: MeterInlineTrackWidth
   className?: string
 }
 
@@ -188,6 +225,11 @@ const inlineRootCss = css`
   align-items: center;
   gap: var(--space-2);
   max-width: 100%;
+`
+
+const inlineRootFillCss = css`
+  display: flex;
+  width: 100%;
 `
 
 const inlineValueCss = css`
@@ -205,13 +247,31 @@ const inlineSecondaryCss = css`
 
 const inlineTrackCss = css`
   position: relative;
-  flex: none;
-  width: 3rem;
+  /* Narrower than this and the fill reads as either empty or full and a threshold tick has
+     nowhere to sit; it may still give way when the row is tight. */
+  flex: 0 1 auto;
+  width: 6rem;
+  min-width: 3rem;
   height: 6px;
   border-radius: 999px;
   background: var(--color-gray-100);
   overflow: hidden;
 `
+
+const inlineTrackFillCss = css`
+  flex: 1 1 6rem;
+  width: auto;
+`
+
+const inlineRootWidthCss: Record<MeterInlineTrackWidth, string | undefined> = {
+  compact: undefined,
+  fill: inlineRootFillCss,
+}
+
+const inlineTrackWidthCss: Record<MeterInlineTrackWidth, string | undefined> = {
+  compact: undefined,
+  fill: inlineTrackFillCss,
+}
 
 const inlineTickCss = css`
   position: absolute;
@@ -236,6 +296,7 @@ export const MeterInline: React.FC<MeterInlineProps> = ({
   secondaryText,
   threshold,
   tone = "neutral",
+  trackWidth = "compact",
   className,
 }) => {
   const resolvedValueLabel = valueLabel ?? (typeof valueText === "string" ? valueText : undefined)
@@ -250,35 +311,25 @@ export const MeterInline: React.FC<MeterInlineProps> = ({
 
   const fillPct = clampPct(value, minValue, maxValue)
   const thresholdPct = threshold !== undefined ? clampPct(threshold, minValue, maxValue) : null
+  const rootClassName = cx(inlineRootCss, inlineRootWidthCss[trackWidth], className)
+  const trackClassName = cx(
+    inlineTrackCss,
+    inlineTrackWidthCss[trackWidth],
+    thresholdPct !== null && trackWithTickCss,
+  )
 
   return (
     // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- aria-valuenow is in meterProps
-    <span {...meterProps} role="meter" className={cx(inlineRootCss, className)}>
+    <span {...meterProps} role="meter" className={rootClassName}>
       <span className={inlineValueCss}>{valueText}</span>
-      <span
-        className={cx(inlineTrackCss, thresholdPct !== null && trackWithTickCss)}
-        aria-hidden="true"
-      >
-        <span
-          className={cx(
-            fillCss,
-            fillToneCss[tone],
-            css`
-              width: ${fillPct}%;
-            `,
-          )}
-        />
-        {thresholdPct !== null ? (
-          <span
-            className={cx(
-              inlineTickCss,
-              css`
-                left: ${thresholdPct}%;
-              `,
-            )}
-          />
-        ) : null}
-      </span>
+      <MeterTrack
+        as={SPAN_ELEMENT}
+        className={trackClassName}
+        fillPct={fillPct}
+        thresholdPct={thresholdPct}
+        tickClassName={inlineTickCss}
+        tone={tone}
+      />
       {secondaryText ? <span className={inlineSecondaryCss}>{secondaryText}</span> : null}
     </span>
   )

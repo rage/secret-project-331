@@ -11,13 +11,13 @@ import { ChevronIcon } from "@/shared-module/components/components/primitives/Ch
 
 import { BADGE_COMPACT } from "./constants"
 import {
-  registrationErrorHelp,
   registrationErrorShortLabel,
+  registrationLedgerStateLabel,
   registrationStatusState,
   registrationStatusTeacherLabel,
 } from "./creditRegistrationCopy"
 import CreditRegistrationDetailsDialog from "./CreditRegistrationDetailsDialog"
-import { noteCss } from "./styles"
+import { linkingEmailShortLabel } from "./teacherCreditRegistrations"
 
 interface Props {
   registration: CourseCreditRegistration
@@ -27,32 +27,55 @@ interface Props {
 export const CREDIT_REGISTRATION_CELL_CHROME_PX = 46
 
 /**
+ * The second line of the cell: what is holding this particular registration up.
+ *
+ * Each status has its own kind of reason, and only its own: an error code left over from an
+ * earlier attempt would otherwise print a failure under a pill that says the row is still waiting.
+ */
+const reasonLine = (
+  t: TFunction,
+  registration: CourseCreditRegistration,
+  locale: string,
+): string | null => {
+  switch (registration.student_facing_status) {
+    case "failed":
+      return registrationErrorShortLabel(t, registration.error_code)
+    case "needs_student_number":
+      return linkingEmailShortLabel(t, registration.linking_email, locale)
+    case "not_registering":
+      return registrationLedgerStateLabel(t, registration.state)
+    default:
+      return null
+  }
+}
+
+/**
  * The widest line this cell will render, for the off-DOM column measurement that decides how much
  * room the column gets. Without it the column falls back to its minimum and clips the badge.
  */
 export const creditRegistrationCellText = (
   t: TFunction,
   registration: CourseCreditRegistration | undefined,
+  locale: string,
 ): string => {
   if (!registration) {
     return ""
   }
   const label = registrationStatusTeacherLabel(t, registration.student_facing_status)
-  const reason = registrationErrorShortLabel(t, registration.error_code)
+  const reason = reasonLine(t, registration, locale)
   return reason && reason.length > label.length ? reason : label
 }
 
-// oxlint-disable-next-line i18next/no-literal-string
 const OPENS_A_DIALOG = "dialog" as const
 
 /**
- * The chevron, not a hover underline, is what says the cell opens something: underlined pill text
- * reads as a rendering fault, and on touch there is no hover to reveal it with.
+ * The reason line reads as a link, so a column of identical pills doesn't look like there's more
+ * to click. A row with nothing to add (registered, in progress) renders the badge alone rather
+ * than padding out to match rows that have a reason.
  */
 const triggerCss = css`
   display: grid;
   gap: 2px;
-  justify-items: start;
   padding: 0;
   border: none;
   background: none;
@@ -60,6 +83,12 @@ const triggerCss = css`
   font: inherit;
   text-align: left;
   cursor: pointer;
+
+  /* Only when a reason line is actually rendered -- otherwise this would underline the badge row. */
+  &[data-has-reason="true"]:hover > span:last-of-type,
+  &[data-has-reason="true"]:focus-visible > span:last-of-type {
+    text-decoration: underline;
+  }
 
   &:focus-visible {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -75,30 +104,35 @@ const badgeRowCss = css`
 
 const chevronCss = css`
   flex: none;
-  color: var(--color-gray-400);
+  color: var(--color-green-700);
 `
 
-// oxlint-disable-next-line i18next/no-literal-string -- a direction, not user-facing text
+// The reason is the most useful text in the row, so it is not shrunk below the cell's own size.
+const reasonCss = css`
+  color: var(--color-green-700);
+  text-underline-offset: 0.15em;
+`
+
 const CHEVRON_RIGHT = "right" as const
 
 /**
  * The registration status, and the only way into its details.
  *
  * A failure's reason goes on a second line: a column of identical "Failed" pills cannot tell a
- * course-wide cause (no course code) from a per-student one (student not found in the registry).
+ * course-wide cause (no course code) from a per-student one (student not found in Sisu).
  */
 const CreditRegistrationStatusCell: React.FC<Props> = ({ registration }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   const label = registrationStatusTeacherLabel(t, registration.student_facing_status)
-  const reason = registrationErrorShortLabel(t, registration.error_code)
-  const reasonHelp = registrationErrorHelp(t, registration.error_code)
+  const reason = reasonLine(t, registration, i18n.language)
 
   return (
     <>
       <button
         type="button"
         className={triggerCss}
+        data-has-reason={reason ? "true" : "false"}
         onClick={() => setOpen(true)}
         aria-haspopup={OPENS_A_DIALOG}
         aria-label={t("button-text-show-credit-registration-details", { status: label })}
@@ -112,11 +146,7 @@ const CreditRegistrationStatusCell: React.FC<Props> = ({ registration }) => {
           </RegistrationStatusBadge>
           <ChevronIcon direction={CHEVRON_RIGHT} className={chevronCss} />
         </span>
-        {reason && (
-          <span className={noteCss} title={reasonHelp ?? undefined}>
-            {reason}
-          </span>
-        )}
+        {reason && <span className={reasonCss}>{reason}</span>}
       </button>
       {open && (
         <CreditRegistrationDetailsDialog

@@ -8,11 +8,13 @@ import { useTranslation } from "react-i18next"
 import type { ManualCompletionPreviewUser } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
-import { FAIL_GRADE_VALUE, PASS_GRADE_VALUE } from "./completions/completionsRows"
-
 export interface PreviewUserListProps {
   users: ManualCompletionPreviewUser[]
 }
+
+/** Where a pass and a fail with no numeric grade sit on `previous_best_grade`'s numeric scale. */
+const PASS_GRADE_VALUE = 0.5
+const FAIL_GRADE_VALUE = -1
 
 const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
   const { t } = useTranslation()

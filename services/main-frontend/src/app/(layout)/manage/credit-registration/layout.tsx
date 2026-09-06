@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { usePathname } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -13,6 +14,7 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import CreditRegistrationAlertBanner from "@/components/credit-registration/admin/CreditRegistrationAlertBanner"
 import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
+import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
@@ -43,6 +45,7 @@ const flushTabListCss = css`
 
 const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation()
+  const pathname = usePathname()
 
   const crumbs = useMemo(
     () => [
@@ -74,6 +77,8 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
         title: t("credit-registration-tab-errors"),
         href: creditRegistrationErrorsRoute(),
         countHook: useCreditRegistrationAttentionCount,
+        // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
+        countTone: "danger",
       },
       {
         key: KEY_COURSES,
@@ -92,6 +97,8 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
         title: t("credit-registration-tab-system"),
         href: creditRegistrationSystemRoute(),
         countHook: useCreditRegistrationUnhealthyPhaseCount,
+        // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
+        countTone: "danger",
       },
       {
         key: KEY_AUDIT,
@@ -102,11 +109,17 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
     [t],
   )
 
+  // The breadcrumb already says "Credit registration"; the heading says which of its pages this is.
+  const activeTab = resolveActiveTab(tabs, pathname ?? "")
+  // A registration's own page is matched via the Registrations tab's `pathPrefix`, but it has a
+  // heading of its own (the student's name) — the tab title above it would only contradict it.
+  const isTabOwnPage = activeTab !== undefined && pathname === activeTab.href
+
   return (
     <div className={sectionsCss}>
-      <h1 className={pageTitleCss}>{t("title-credit-registration")}</h1>
       <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
       <RouteTabList tabs={tabs} className={flushTabListCss} />
+      {isTabOwnPage && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
       <CreditRegistrationAlertBanner />
       {children}
     </div>

@@ -1,16 +1,24 @@
 "use client"
 
+import { css, cx } from "@emotion/css"
 import React, { useState } from "react"
-import type { Control, FieldValues, Path } from "react-hook-form"
+import type { Control, FieldValues } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { ButtonVariant } from "@/shared-module/components"
+import type { ButtonVariant, DialogAction } from "@/shared-module/components"
 import { Button, Dialog } from "@/shared-module/components"
 
-import { dialogFormCss, dialogFormStartCss } from "../styles"
+import { BUTTON_DESTRUCTIVE, BUTTON_PRIMARY, BUTTON_TERTIARY } from "../constants"
+import { dialogFormCss, dialogFormStartCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
-import { isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
+import { useReasonRequiredForm } from "./ReasonConfirmDialog"
 import type { WithReason } from "./ReasonConfirmDialog"
+
+// A field's floating-label band eats into the grid gap above it, so the description reads closer
+// to the field than the form's other gaps; this makes up the difference.
+const descriptionCss = css`
+  margin-bottom: var(--space-2);
+`
 
 interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result> {
   triggerLabel: string
@@ -18,6 +26,12 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
   /** Lower it to `tertiary` where the action must not read as the row's obvious next step. */
   triggerVariant?: ButtonVariant
   dialogTitle: string
+  /** One sentence saying what confirming does, above the fields. */
+  description: React.ReactNode
+  /** Verb phrase naming the action, e.g. "Send to Sisu again". */
+  confirmLabel: string
+  /** Danger palette for an action that cannot be taken back. */
+  isDestructive?: boolean
   defaultValues: Fields
   mutationFn: (fields: Fields) => Promise<Result>
   onSuccess?: (result: Result) => void
@@ -27,13 +41,17 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
 
 /**
  * The shell every admin action dialog shares: a trigger button, a result banner from the last
- * run, and a reason-gated form dialog. `renderFields`/`renderResult` supply what differs per action.
+ * run, and a form dialog with Cancel beside a primary action named after what it does.
+ * `renderFields`/`renderResult` supply what differs per action.
  */
 export function AdminActionDialog<Fields extends FieldValues & WithReason, Result>({
   triggerLabel,
   triggerDisabled,
   triggerVariant = "secondary",
   dialogTitle,
+  description,
+  confirmLabel,
+  isDestructive = false,
   defaultValues,
   mutationFn,
   onSuccess,
@@ -42,13 +60,28 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
 }: AdminActionDialogProps<Fields, Result>) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>(defaultValues)
-  const reason = watch("reason" as Path<Fields>) as string
+  const { control, handleSubmit } = useReasonRequiredForm<Fields>(defaultValues)
 
   const { result, mutation } = useActionResult(mutationFn, (data) => {
     setOpen(false)
     onSuccess?.(data)
   })
+
+  const submit = handleSubmit((fields) => mutation.mutate(fields))
+  const actions: readonly [DialogAction, DialogAction] = [
+    {
+      label: t("button-text-cancel"),
+      variant: BUTTON_TERTIARY,
+      disabled: mutation.isPending,
+      onPress: () => setOpen(false),
+    },
+    {
+      label: confirmLabel,
+      variant: isDestructive ? BUTTON_DESTRUCTIVE : BUTTON_PRIMARY,
+      isLoading: mutation.isPending,
+      onPress: () => void submit(),
+    },
+  ]
 
   return (
     <div className={dialogFormStartCss}>
@@ -61,20 +94,10 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
         {triggerLabel}
       </Button>
       {result && renderResult(result)}
-      <Dialog open={open} onClose={() => setOpen(false)} title={dialogTitle}>
-        <form
-          className={dialogFormCss}
-          onSubmit={handleSubmit((fields) => mutation.mutate(fields))}
-        >
+      <Dialog open={open} onClose={() => setOpen(false)} title={dialogTitle} actions={actions}>
+        <form className={dialogFormCss} onSubmit={submit}>
+          <p className={cx(proseCss, descriptionCss)}>{description}</p>
           {renderFields(control)}
-          <Button
-            variant="primary"
-            size="medium"
-            type="submit"
-            disabled={isReasonConfirmDisabled(mutation.isPending, reason)}
-          >
-            {t("button-text-confirm")}
-          </Button>
         </form>
       </Dialog>
     </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { ArrowRight } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import React from "react"
@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next"
 import {
   LINK_INHERIT,
   MIDDLE_DOT,
-  TIME_COMPACT,
+  TIME_DATE,
   TONE,
 } from "@/components/credit-registration/constants"
 import {
@@ -22,6 +22,7 @@ import {
   noteCss,
   rowCss,
   sectionHeaderCss,
+  spacedRowCss,
   statusTriggerCss,
   subheadingCss,
 } from "@/components/credit-registration/styles"
@@ -50,9 +51,10 @@ const moduleNameCss = css`
   color: var(--color-gray-700);
 `
 
+/** The result is the datum beside the name's label, so it carries less weight. */
 const resultCss = css`
   color: var(--color-gray-700);
-  font-weight: 600;
+  font-weight: 500;
 `
 
 /** Name and result stack rather than sit in one `space-between` row, so a short result never jumps
@@ -61,6 +63,28 @@ const moduleHeaderCss = css`
   display: grid;
   gap: var(--space-1);
 `
+
+/** Lets a long course name shrink and wrap onto its own lines instead of pushing the button below. */
+const courseTitleCss = cx(
+  subheadingCss,
+  css`
+    min-width: 0;
+  `,
+)
+
+/** Keeps its own size on the title row rather than shrinking to make room. */
+const goToCourseLinkCss = css`
+  flex: none;
+`
+
+/** Groups the details label with its arrow icon so the two never wrap apart. */
+const detailsLabelCss = css`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+`
+
+const STATUS_ARROW_SIZE = 16
 
 const completionResultLabel = (
   t: TFunction,
@@ -83,49 +107,52 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
   const { t, i18n } = useTranslation()
 
   const modules = course.modules.toSorted((a, b) => a.order_number - b.order_number)
-  const namedModuleCount = modules.filter((module) => module.name !== null).length
+  const hasSeveralParts = modules.length > 1
+  const hasAnyCompletion = modules.some((module) => module.completion)
 
   return (
     <article className={cardCss} data-testid="profile-course-card">
       <div className={sectionHeaderCss}>
-        <h3 className={subheadingCss}>{course.course_name}</h3>
+        <div className={spacedRowCss}>
+          <h3 className={courseTitleCss}>{course.course_name}</h3>
+          <Link
+            href={navigateToCourseRoute(course.organization_slug, course.course_slug)}
+            className={goToCourseLinkCss}
+            styledAsButton
+            variant="secondary"
+            size="small"
+          >
+            {t("go-to-course")}
+          </Link>
+        </div>
         <p className={noteCss}>
           {ietfLanguageTagToHumanReadableName(course.language_code, i18n.language)}
-          {modules.length > 1
+          {hasSeveralParts
             ? `${MIDDLE_DOT}${t("modules-completed-of-total", {
                 completed: modules.filter((module) => module.completion?.passed).length,
                 total: modules.length,
               })}`
             : null}
         </p>
-        {course.is_current ? null : (
+        {/* "Kept for its completions" is only true once there are some. */}
+        {course.is_current || !hasAnyCompletion ? null : (
           <p className={noteCss}>{t("note-course-different-language-version")}</p>
         )}
       </div>
 
       <ul className={dividedListCss}>
-        {modules.map((module) => {
-          // A single module's name would only repeat the course heading above it. Among several,
-          // an unnamed one (the course's default module) omits its own name and lets its position
-          // and the named siblings carry it — unless nothing here has a name to carry it with.
-          const nameLabel =
-            modules.length > 1
-              ? (module.name ?? (namedModuleCount === 0 ? t("label-default-course-module") : null))
-              : null
-          return (
-            <ModuleRow
-              key={module.course_module_id}
-              module={module}
-              nameLabel={nameLabel}
-              registration={registrationByCourseModuleId.get(module.course_module_id) ?? null}
-            />
-          )
-        })}
+        {modules.map((module) => (
+          <ModuleRow
+            key={module.course_module_id}
+            module={module}
+            // A single module's name would only repeat the course heading. Among several, every
+            // row is named, the unnamed default one included: position is a divider line on a
+            // phone and carries nothing.
+            nameLabel={hasSeveralParts ? (module.name ?? t("label-default-course-module")) : null}
+            registration={registrationByCourseModuleId.get(module.course_module_id) ?? null}
+          />
+        ))}
       </ul>
-
-      <Link href={navigateToCourseRoute(course.organization_slug, course.course_slug)}>
-        {t("go-to-course")}
-      </Link>
     </article>
   )
 }
@@ -140,11 +167,17 @@ const ModuleRow: React.FC<{
 
   const ectsLabel =
     typeof module.ects_credits === "number" ? t("ects-n", { n: module.ects_credits }) : null
+  const registersOnCompletion = !completion && module.supports_credit_registration
   const factsLine = completion ? (
     <>
       {ectsLabel ? `${ectsLabel}${MIDDLE_DOT}` : null}
       {t("label-completed")}{" "}
-      <RelativeTime at={completion.completion_date} absoluteTime={TIME_COMPACT} />
+      <RelativeTime at={completion.completion_date} absoluteTime={TIME_DATE} />
+    </>
+  ) : registersOnCompletion ? (
+    <>
+      {ectsLabel ? `${ectsLabel}${MIDDLE_DOT}` : null}
+      {t("credit-registration-registers-on-completion")}
     </>
   ) : (
     ectsLabel
@@ -172,17 +205,17 @@ const ModuleRow: React.FC<{
               >
                 {registrationStatusLabel(t, registration.student_facing_status)}
               </RegistrationStatusBadge>
-              <ArrowRight size={14} aria-hidden="true" />
+              {/* A pill does not read as a link, and on touch there is no hover to prove it. */}
+              <span className={detailsLabelCss}>
+                {t("credit-registration-registration-details")}
+                <ArrowRight size={STATUS_ARROW_SIZE} aria-hidden="true" />
+              </span>
             </Link>
           ) : null}
         </div>
       </div>
 
       {factsLine ? <p className={noteCss}>{factsLine}</p> : null}
-
-      {!completion && module.supports_credit_registration ? (
-        <p className={noteCss}>{t("credit-registration-explanation-waiting-for-completion")}</p>
-      ) : null}
 
       {!completion && typeof module.score_maximum === "number" ? (
         <Meter

@@ -7,9 +7,10 @@ import type { Placement } from "react-aria"
 
 import { Button } from "./Button"
 import { Popover } from "./primitives/popover"
+import { comboChevronCss } from "./primitives/selectStyles"
 
-// oxlint-disable-next-line i18next/no-literal-string -- a glyph, not user-facing text
 const OVERFLOW_SYMBOL = "⋯"
+const ICON_END = "end" as const
 
 const panelCss = css`
   display: grid;
@@ -60,8 +61,13 @@ export interface MenuItemDescriptor {
 }
 
 export interface MenuProps {
-  /** Accessible name for the trigger button, since its visible content is only "⋯". */
+  /** Accessible name for the menu, and for the trigger unless `label` gives it visible text. */
   "aria-label": string
+  /**
+   * Visible trigger text, for a menu that is a control in its own right rather than a row's
+   * overflow: the trigger becomes a quiet button with a dropdown chevron, named by this text.
+   */
+  label?: React.ReactNode
   items: readonly MenuItemDescriptor[]
   placement?: Placement
   className?: string
@@ -76,6 +82,7 @@ export interface MenuProps {
  */
 export const Menu: React.FC<MenuProps> = ({
   "aria-label": ariaLabel,
+  label,
   items,
   placement = "bottom end",
   className,
@@ -167,9 +174,12 @@ export const Menu: React.FC<MenuProps> = ({
     <>
       <Button
         ref={triggerRef}
-        variant="icon"
+        variant={label === undefined ? "icon" : "tertiary"}
         size="small"
-        aria-label={ariaLabel}
+        {...(label === undefined ? { "aria-label": ariaLabel } : {})}
+        {...(label === undefined
+          ? {}
+          : { icon: <span className={comboChevronCss} />, iconPosition: ICON_END })}
         className={cx(className)}
         onPress={() => state.toggle()}
         domProps={{
@@ -180,7 +190,7 @@ export const Menu: React.FC<MenuProps> = ({
         }}
         data-testid={dataTestId}
       >
-        <span aria-hidden="true">{OVERFLOW_SYMBOL}</span>
+        {label === undefined ? <span aria-hidden="true">{OVERFLOW_SYMBOL}</span> : label}
       </Button>
       {state.isOpen ? (
         <Popover

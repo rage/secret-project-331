@@ -9,7 +9,6 @@ import {
 } from "@vectopus/atlas-icons-react"
 
 import type { BadgeTone } from "../Badge"
-import type { InfoboxTone } from "../Infobox"
 
 /**
  * `action-needed` is something the reader can fix, `failed` is not, and `superseded` is an attempt
@@ -23,16 +22,8 @@ export type RegistrationStatusState =
   | "superseded"
   | "upcoming"
 
-export const registrationStatusBadgeTone: Record<RegistrationStatusState, BadgeTone> = {
-  done: "success",
-  current: "info",
-  "action-needed": "warning",
-  failed: "danger",
-  superseded: "neutral",
-  upcoming: "neutral",
-}
-
-export const registrationStatusInfoboxTone: Record<RegistrationStatusState, InfoboxTone> = {
+/** One tone per state for both the badge and the infobox, whose tone unions are the same. */
+export const registrationStatusTone: Record<RegistrationStatusState, BadgeTone> = {
   done: "success",
   current: "info",
   "action-needed": "warning",

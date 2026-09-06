@@ -1,12 +1,14 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import { TONE } from "@/components/credit-registration/constants"
+import type { StudentNumberLinkProblem } from "@/components/credit-registration/studentSupportMail"
+import { studentNumberLinkSupportMail } from "@/components/credit-registration/studentSupportMail"
 import {
   cardCss,
   narrowPageCss,
@@ -16,6 +18,8 @@ import {
   sectionsCss,
   studentNumberCss,
 } from "@/components/credit-registration/styles"
+import SupportMailLink from "@/components/credit-registration/SupportMailLink"
+import { useCanConfirmEmailAddress } from "@/components/credit-registration/useCanConfirmEmailAddress"
 import {
   getMyCreditRegistrationsQueryKey,
   getMyVerifiedStudentNumberQueryKey,
@@ -35,26 +39,12 @@ import {
   loginRoute,
   profileStudiesRoute,
   signUpRoute,
+  userSettingsRoute,
   userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { InfoboxTone } from "@/shared-module/components"
 import { Button, DescriptionList, Infobox, Link, QueryResult } from "@/shared-module/components"
-
-const claimSummaryCss = cx(
-  cardCss,
-  css`
-    display: grid;
-    gap: var(--space-2);
-  `,
-)
-
-const claimHeroRowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2) var(--space-3);
-`
 
 const wrongAccountActionCss = css`
   color: var(--color-green-700);
@@ -80,24 +70,49 @@ const outcomeCss = css`
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-
-  &:focus {
-    outline: none;
-  }
 `
 
-/** Every way this page can end without a linked number, shared by the preview and the claim. */
+/**
+ * Every way this page can end without a linked number, shared by the preview and the claim.
+ *
+ * `support` names what a mail to support would have to ask for, and `null` marks the one ending
+ * that needs nothing: the number is already on this account.
+ */
 const DEAD_ENDS = {
-  not_found: { tone: TONE.WARNING, messageKey: "link-student-number-not-found" },
-  expired: { tone: TONE.INFO, messageKey: "link-student-number-expired" },
-  already_used: { tone: TONE.INFO, messageKey: "link-student-number-already-used" },
+  not_found: {
+    tone: TONE.WARNING,
+    messageKey: "link-student-number-not-found",
+    support: "need_a_new_link",
+  },
+  expired: {
+    tone: TONE.INFO,
+    messageKey: "link-student-number-expired",
+    support: "need_a_new_link",
+  },
+  already_used: {
+    tone: TONE.INFO,
+    messageKey: "link-student-number-already-used",
+    support: "used_by_someone_else",
+  },
   already_used_by_this_account: {
     tone: TONE.INFO,
     messageKey: "link-student-number-already-used-by-this-account",
+    support: null,
   },
-  conflict: { tone: TONE.WARNING, messageKey: "link-student-number-conflict" },
-  unusable: { tone: TONE.INFO, messageKey: "link-student-number-unusable" },
-} as const satisfies Record<string, { tone: InfoboxTone; messageKey: string }>
+  conflict: {
+    tone: TONE.WARNING,
+    messageKey: "link-student-number-conflict",
+    support: "linked_to_another_account",
+  },
+  unusable: {
+    tone: TONE.INFO,
+    messageKey: "link-student-number-unusable",
+    support: "need_a_new_link",
+  },
+} as const satisfies Record<
+  string,
+  { tone: InfoboxTone; messageKey: string; support: StudentNumberLinkProblem | null }
+>
 
 type DeadEndReason = (typeof DEAD_ENDS)[keyof typeof DEAD_ENDS]
 
@@ -147,7 +162,7 @@ const SignedIn: React.FC<{ token: string }> = ({ token }) => {
   })
 
   if (result) {
-    return <ClaimOutcome result={result} />
+    return <ClaimOutcome result={result} studentNumber={preview.data?.student_number} />
   }
   return (
     <QueryResult
@@ -161,15 +176,25 @@ const SignedIn: React.FC<{ token: string }> = ({ token }) => {
 }
 
 /**
- * A link that cannot be used again. Always paired with somewhere to go, since the student number
- * page is where the state and the remaining options are.
+ * A link that cannot be used again, with the ways out of it: a mail that already says what went
+ * wrong, the fast track that needs no mail at all, and the page where the number's state lives.
  */
-const DeadEnd: React.FC<{ reason: DeadEndReason }> = ({ reason }) => {
+const DeadEnd: React.FC<{ reason: DeadEndReason; studentNumber?: string | null | undefined }> = ({
+  reason,
+  studentNumber,
+}) => {
   const { t } = useTranslation()
+  const canConfirmEmail = useCanConfirmEmailAddress()
+
   return (
     <>
       <Infobox tone={reason.tone}>{t(reason.messageKey)}</Infobox>
       <div className={rowCss}>
+        {canConfirmEmail && reason.support === "need_a_new_link" ? (
+          <Link href={userSettingsRoute()} styledAsButton variant="primary" size="medium">
+            {t("button-confirm-your-email-address")}
+          </Link>
+        ) : null}
         <Link
           href={userSettingsStudentNumberRoute()}
           styledAsButton
@@ -179,6 +204,9 @@ const DeadEnd: React.FC<{ reason: DeadEndReason }> = ({ reason }) => {
           {t("credit-registration-about-your-student-number")}
         </Link>
       </div>
+      {reason.support ? (
+        <SupportMailLink {...studentNumberLinkSupportMail(t, reason.support, studentNumber)} />
+      ) : null}
     </>
   )
 }
@@ -207,13 +235,14 @@ const Confirmation: React.FC<{
   )
 
   if (!preview.claimable) {
-    return <DeadEnd reason={unusableLinkReason(preview)} />
+    return <DeadEnd reason={unusableLinkReason(preview)} studentNumber={preview.student_number} />
   }
 
   const sisuName = [preview.first_names, preview.last_name].filter(Boolean).join(" ")
-  const secondaryItems = preview.course_name
-    ? [{ label: t("label-course"), value: preview.course_name }]
-    : []
+  const items = [
+    ...(sisuName ? [{ label: t("label-name-in-university-records"), value: sisuName }] : []),
+    { label: t("label-mooc-fi-account"), value: preview.target_account_email },
+  ]
   // Opening the mail while logged in to the wrong account is the common mistake.
   const logoutLink = (
     // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
@@ -227,17 +256,19 @@ const Confirmation: React.FC<{
           {t("link-student-number-could-not-link")}
         </Infobox>
       )}
-      <p>{t("link-student-number-confirm-question")}</p>
-      <div className={claimSummaryCss}>
-        <div className={claimHeroRowCss}>
-          <span className={studentNumberCss}>{preview.student_number}</span>
-          {sisuName ? <span>{sisuName}</span> : null}
+      {preview.course_name ? (
+        <p>{t("link-student-number-why-you-got-this", { course: preview.course_name })}</p>
+      ) : null}
+      {/* The one moment of consent in the flow, so it says what the number will be used for. */}
+      <p>{t("link-student-number-what-linking-means")}</p>
+      <div className={cardCss}>
+        <div>
+          <p className={noteCss}>{t("label-student-number")}</p>
+          <p className={studentNumberCss}>{preview.student_number}</p>
         </div>
-        <span>
-          {t("link-student-number-to-this-account", { account: preview.target_account_email })}
-        </span>
+        <DescriptionList items={items} />
       </div>
-      {secondaryItems.length > 0 ? <DescriptionList items={secondaryItems} /> : null}
+      <p>{t("link-student-number-confirm-question")}</p>
       {preview.current_student_number ? (
         <Infobox tone={TONE.WARNING}>
           {t("link-student-number-replaces-current", {
@@ -287,14 +318,16 @@ const CLAIM_FAILURE_REASONS: Partial<
   student_number_already_linked_to_another_account: DEAD_ENDS.conflict,
 }
 
-const ClaimOutcomeBody: React.FC<{ result: ClaimStudentNumberVerificationTokenResult }> = ({
-  result,
-}) => {
+const ClaimOutcomeBody: React.FC<{
+  result: ClaimStudentNumberVerificationTokenResult
+  studentNumber: string | null | undefined
+}> = ({ result, studentNumber }) => {
   const { t } = useTranslation()
   const failure = CLAIM_FAILURE_REASONS[result.outcome]
   if (failure) {
-    return <DeadEnd reason={failure} />
+    return <DeadEnd reason={failure} studentNumber={studentNumber} />
   }
+  const hasUnblockedRegistrations = result.newly_unblocked_registration_count > 0
   return (
     <>
       <Infobox tone={TONE.SUCCESS} heading={t("link-student-number-success-heading")}>
@@ -304,25 +337,31 @@ const ClaimOutcomeBody: React.FC<{ result: ClaimStudentNumberVerificationTokenRe
             })
           : t("link-student-number-success", { studentNumber: result.student_number })}
       </Infobox>
-      {result.newly_unblocked_registration_count > 0 ? (
-        <p>
-          {t("link-student-number-success-unblocked", {
-            count: result.newly_unblocked_registration_count,
-          })}
-        </p>
+      {hasUnblockedRegistrations ? (
+        <>
+          <p>
+            {t("link-student-number-success-unblocked", {
+              count: result.newly_unblocked_registration_count,
+            })}
+          </p>
+          <p>{t("link-student-number-success-what-next")}</p>
+        </>
       ) : null}
       <div className={rowCss}>
         <Link href={profileStudiesRoute()} styledAsButton variant="primary" size="medium">
-          {t("heading-my-studies")}
+          {hasUnblockedRegistrations
+            ? t("link-text-follow-the-registration")
+            : t("heading-my-studies")}
         </Link>
       </div>
     </>
   )
 }
 
-const ClaimOutcome: React.FC<{ result: ClaimStudentNumberVerificationTokenResult }> = ({
-  result,
-}) => {
+const ClaimOutcome: React.FC<{
+  result: ClaimStudentNumberVerificationTokenResult
+  studentNumber: string | null | undefined
+}> = ({ result, studentNumber }) => {
   // The subtree swapped under the button that was pressed, so focus has to follow it or it falls
   // back to the document and the outcome goes unread.
   const outcomeRef = useRef<HTMLDivElement>(null)
@@ -332,7 +371,7 @@ const ClaimOutcome: React.FC<{ result: ClaimStudentNumberVerificationTokenResult
 
   return (
     <div className={outcomeCss} ref={outcomeRef} tabIndex={-1}>
-      <ClaimOutcomeBody result={result} />
+      <ClaimOutcomeBody result={result} studentNumber={studentNumber} />
     </div>
   )
 }

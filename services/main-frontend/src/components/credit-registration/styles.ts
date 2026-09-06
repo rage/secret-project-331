@@ -11,17 +11,33 @@ export const narrowPageCss = css`
   padding: var(--space-5) var(--space-4) var(--space-7);
 `
 
-/** Page root: stacks whole sections. */
-export const sectionsCss = css`
+/*
+ * Grid items refuse to shrink below their content unless told to, so without `min-width: 0` one
+ * wide block widens the page instead of itself, and nothing can scroll to what falls off.
+ */
+const stackCss = css`
   display: grid;
-  gap: var(--space-5);
+
+  > * {
+    min-width: 0;
+  }
 `
 
+/** Page root: stacks whole sections. */
+export const sectionsCss = cx(
+  stackCss,
+  css`
+    gap: var(--space-5);
+  `,
+)
+
 /** One section: heading, controls, tiles, table. Sub-blocks inside it take `subsectionCss`. */
-export const sectionCss = css`
-  display: grid;
-  gap: var(--space-4);
-`
+export const sectionCss = cx(
+  stackCss,
+  css`
+    gap: var(--space-4);
+  `,
+)
 
 /** Binds a heading to the `noteCss` line under it so the two read as one unit. */
 export const sectionHeaderCss = css`
@@ -30,10 +46,12 @@ export const sectionHeaderCss = css`
 `
 
 /** An h3 and the block it introduces. */
-export const subsectionCss = css`
-  display: grid;
-  gap: var(--space-3);
-`
+export const subsectionCss = cx(
+  stackCss,
+  css`
+    gap: var(--space-3);
+  `,
+)
 
 /** The page's h1. */
 export const pageTitleCss = css`
@@ -84,9 +102,24 @@ export const controlsCss = css`
 
 /** One field in a `controlsCss` row. */
 export const controlCss = css`
-  /* A field root fills its line, so without a basis each control claims a whole row of the toolbar. */
-  flex: 0 1 18rem;
+  /* A field root fills its line, so without a basis each control claims a whole row of the
+     toolbar; growing keeps a control from stopping short of the field above it. */
+  flex: 1 1 18rem;
   min-width: 12rem;
+  max-width: 24rem;
+
+  /* One or two controls to a row down here, where the cap would only leave that ragged gap. */
+  @media (max-width: 40rem) {
+    max-width: none;
+  }
+`
+
+/**
+ * A checkbox in a `controlsCss` row. `controlsCss` aligns items to `start`, but a floating-label
+ * field is much taller than an inline checkbox, so the checkbox needs centering on its own.
+ */
+export const toolbarCheckboxCss = css`
+  align-self: center;
 `
 
 /** A wrapping row of badges, buttons or chips. */
@@ -113,13 +146,6 @@ export const cardCss = css`
   border: 1px solid var(--color-clear-300);
   border-radius: var(--surface-radius);
   background: var(--color-clear-50);
-`
-
-/** Lays out repeated `cardCss` items. */
-export const cardGridCss = css`
-  display: grid;
-  gap: var(--space-4);
-  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
 `
 
 /** Rows separated by rules rather than boxes: module rows, certificates, phases. */
@@ -154,13 +180,17 @@ export const dialogFormStartCss = cx(
   `,
 )
 
-/** Sticky action bar under a table with selectable rows. */
+/**
+ * Action bar for a table with selectable rows. Belongs above the table, with the controls that
+ * filter it: a bar under the table can only stick as far as its container reaches below it, which
+ * on a long table is a row of pagination, so the actions scroll away with the last row.
+ */
 export const toolbarCss = css`
   position: sticky;
-  bottom: 0;
+  top: 0;
   z-index: 1;
   padding: var(--space-3) 0;
-  border-top: 1px solid var(--color-clear-300);
+  border-bottom: 1px solid var(--color-clear-300);
   background: var(--color-clear-50);
 `
 
@@ -177,9 +207,18 @@ export const emptyStateCss = css`
   font-size: var(--font-size-2);
 `
 
+/** The steps a reader has to take, numbered. */
+export const stepsCss = css`
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-5);
+`
+
 /** Wraps a status badge that navigates or opens a dialog; the badge keeps its own shape. */
 export const statusTriggerCss = css`
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
   padding: 0;
@@ -199,6 +238,14 @@ export const statusTriggerCss = css`
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: var(--focus-ring-offset);
   }
+`
+
+/** Holds the arrow to the state it leads away from, so it never starts a line of its own. */
+export const stateChangeFromCss = css`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
 `
 
 /** Any code-like value: identifiers, error codes, student numbers. */

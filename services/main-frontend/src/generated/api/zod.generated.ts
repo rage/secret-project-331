@@ -859,6 +859,97 @@ export const zCourseCount = z.object({
 })
 
 /**
+ * One module's live registrations, split so a teacher can add the columns up.
+ *
+ * `registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and
+ * `not_registering_count` partition `registration_count`: every live row falls in exactly one, and
+ * each is the same classification the row's own badge shows. `needs_admin_attention_count` is not
+ * one of them — it cuts across all five — so it is never added to them.
+ */
+export const zCourseCreditRegistrationModuleSummary = z.object({
+  course_module_id: z.uuid(),
+  course_module_name: z.string().nullish(),
+  enabled: z.boolean(),
+  failed_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  in_progress_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  needs_admin_attention_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  not_registering_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  paused: z.boolean(),
+  registered_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  registration_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  waiting_on_student_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+export const zCourseCreditRegistrationSummary = z.object({
+  linking_emails_failed_to_send_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  modules: z.array(zCourseCreditRegistrationModuleSummary),
+  unlinked_enrolled_student_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+/**
  * Body for the students-tab batch: the users of the current identity-list page.
  */
 export const zCourseCreditRegistrationUserIdsPayload = z.object({
@@ -1306,10 +1397,10 @@ export const zCreditRegistrationAlert = z.object({
 })
 
 /**
- * Why a row is on the attention table. One row can carry several.
+ * Which detector picked a row for the attention queue. A row can carry several.
  *
- * `needs_admin_attention` is deliberately not one of them: the flag is what the pipeline caches
- * when it wants a human, not an answer to "why". It travels on the item instead.
+ * Not `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue, but
+ * it says nothing about why, so it is reported per row rather than as a reason of its own.
  */
 export const zCreditRegistrationAttentionReason = z.enum([
   "stuck_in_state",
@@ -2046,110 +2137,6 @@ export const zCreditRegistrationPhaseList = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   paused_globally: z.boolean(),
   phases: z.array(zCreditRegistrationPhaseRow),
-})
-
-export const zCreditRegistrationStateCount = z.object({
-  count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  state: zCreditRegistrationState,
-})
-
-/**
- * One module's live registrations, split so a teacher can add the columns up.
- *
- * `registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and
- * `not_registering_count` partition `registration_count`: every live row falls in exactly one, and
- * each is the same classification the row's own badge shows. `needs_admin_attention_count` is not
- * one of them — it cuts across all five — so it is never added to them.
- */
-export const zCourseCreditRegistrationModuleSummary = z.object({
-  counts_by_state: z.array(zCreditRegistrationStateCount),
-  course_module_id: z.uuid(),
-  course_module_name: z.string().nullish(),
-  enabled: z.boolean(),
-  failed_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  in_progress_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  needs_admin_attention_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  not_registering_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  paused: z.boolean(),
-  registered_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  registration_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  waiting_on_student_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-})
-
-export const zCourseCreditRegistrationSummary = z.object({
-  linking_emails_failed_to_send_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  modules: z.array(zCourseCreditRegistrationModuleSummary),
-  unlinked_enrolled_student_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
 })
 
 export const zCreditRegistrationStateTotal = z.object({

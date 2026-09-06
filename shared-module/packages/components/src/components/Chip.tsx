@@ -1,6 +1,6 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import React from "react"
 
 const REMOVE_SYMBOL = "×"
@@ -18,11 +18,6 @@ const rootCss = css`
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
-`
-
-const iconCss = css`
-  display: inline-flex;
-  font-size: 0.9em;
 `
 
 const removeButtonCss = css`
@@ -63,26 +58,11 @@ type ChipRemoval =
 
 export type ChipProps = ChipRemoval & {
   children: React.ReactNode
-  icon?: React.ReactNode
-  className?: string
-  "data-testid"?: string
 }
 
 /** A single removable filter value: content plus, when `onRemove` is given, an "×" to clear it. */
-export const Chip: React.FC<ChipProps> = ({
-  children,
-  icon,
-  onRemove,
-  removeLabel,
-  className,
-  "data-testid": dataTestId,
-}) => (
-  <span className={cx(rootCss, className)} data-testid={dataTestId}>
-    {icon ? (
-      <span className={iconCss} aria-hidden="true">
-        {icon}
-      </span>
-    ) : null}
+export const Chip: React.FC<ChipProps> = ({ children, onRemove, removeLabel }) => (
+  <span className={rootCss}>
     <span>{children}</span>
     {onRemove ? (
       <button type="button" className={removeButtonCss} onClick={onRemove} aria-label={removeLabel}>

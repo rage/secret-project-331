@@ -103,7 +103,6 @@ type LinkButtonProps = NextProps &
 
 export type LinkProps = LinkPlainProps | LinkButtonProps
 
-// oxlint-disable-next-line i18next/no-literal-string -- prop value, not user-facing text
 const DEFAULT_APPEARANCE: LinkAppearance = "text"
 
 export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(

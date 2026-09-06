@@ -1272,7 +1272,6 @@ export type CourseCreditRegistrationModuleConfigs = {
  * one of them — it cuts across all five — so it is never added to them.
  */
 export type CourseCreditRegistrationModuleSummary = {
-  counts_by_state: Array<CreditRegistrationStateCount>
   course_module_id: string
   course_module_name?: string | null
   enabled: boolean
@@ -2007,7 +2006,7 @@ export type CreditRegistrationAttentionItem = {
   last_name?: string | null
   /**
    * The pipeline's cached "a human should look at this". A fact about the row, never a reason:
-   * see [`CreditRegistrationAttentionReason`].
+   * it says nothing about why, so it travels beside `reasons` rather than in them.
    */
   needs_admin_attention: boolean
   next_attempt_at: string
@@ -2051,10 +2050,10 @@ export type CreditRegistrationAttentionItems = {
 }
 
 /**
- * Why a row is on the attention table. One row can carry several.
+ * Which detector picked a row for the attention queue. A row can carry several.
  *
- * `needs_admin_attention` is deliberately not one of them: the flag is what the pipeline caches
- * when it wants a human, not an answer to "why". It travels on the item instead.
+ * Not `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue, but
+ * it says nothing about why, so it is reported per row rather than as a reason of its own.
  */
 export type CreditRegistrationAttentionReason =
   | "stuck_in_state"
@@ -2474,11 +2473,6 @@ export type CreditRegistrationState =
   | "failed_permanent"
   | "blocked"
   | "cancelled"
-
-export type CreditRegistrationStateCount = {
-  count: number
-  state: CreditRegistrationState
-}
 
 export type CreditRegistrationStateTotal = {
   count: number

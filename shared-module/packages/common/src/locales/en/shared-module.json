@@ -248,6 +248,7 @@
   "opens-in": "Opens in",
   "opens-now": "Opens now!",
   "otp.slotLabel": "Code character {{index}}",
+  "pagination.itemsPerPage": "{{rows}} / page",
   "pagination.label": "Pagination",
   "pagination.pageOfTotal": "Page {{page}} of {{totalPages}}",
   "pagination.range": "Showing {{first}}–{{last}} of {{total}}",

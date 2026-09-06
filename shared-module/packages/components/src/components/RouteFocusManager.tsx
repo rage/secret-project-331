@@ -1,5 +1,6 @@
 "use client"
 
+import { injectGlobal } from "@emotion/css"
 import { useEffect, useRef } from "react"
 
 const DEFAULT_TARGET_SELECTOR = "#maincontent"
@@ -7,6 +8,16 @@ const DEFAULT_TARGET_SELECTOR = "#maincontent"
 const HEADING_SELECTOR = "h1"
 
 const TABINDEX_ATTRIBUTE = "tabindex"
+
+// `:focus-visible` is what the browser uses to mean "this ring is for a keyboard user", so
+// excluding it can only ever drop a ring on focus moved by script or a mouse — never a real
+// keyboard-focus ring, which this must not weaken. Covers every programmatic focus target, not
+// just the headings this component moves focus to.
+void injectGlobal`
+  [tabindex="-1"]:focus:not(:focus-visible) {
+    outline: none;
+  }
+`
 
 export interface RouteFocusManagerProps {
   /** Current route path, e.g. from Next.js `usePathname()`. */

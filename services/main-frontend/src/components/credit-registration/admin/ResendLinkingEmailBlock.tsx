@@ -24,9 +24,7 @@ interface Fields {
   student_number: string
 }
 
-// oxlint-disable-next-line i18next/no-literal-string
 const QUEUED_TONE = "info" as const
-// oxlint-disable-next-line i18next/no-literal-string
 const REFUSED_TONE = "warning" as const
 
 /** The per-person caps are not overridable here, so a refusal is reported as it came back. */

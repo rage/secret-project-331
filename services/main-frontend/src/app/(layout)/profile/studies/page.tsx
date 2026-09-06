@@ -1,14 +1,17 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { registrationNeedsAttention } from "@/components/credit-registration/creditRegistrationCopy"
 import { StudentNumberSummaryLine } from "@/components/credit-registration/StudentNumberCard"
 import {
   emptyStateCss,
   headingCss,
   narrowPageCss,
+  noteCss,
   pageTitleCss,
   sectionCss,
   sectionsCss,
@@ -21,7 +24,7 @@ import type { MyCreditRegistration, MyStudiesCourse } from "@/generated/api/type
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Link, QueryResult } from "@/shared-module/components"
+import { EmptyState, Link, QueryResult } from "@/shared-module/components"
 
 import { FIND_MORE_COURSES_URL } from "../constants"
 import CertificatesSection from "./CertificatesSection"
@@ -29,6 +32,16 @@ import HiddenCoursesSection from "./HiddenCoursesSection"
 import RegistrationsNeedingAttention from "./RegistrationsNeedingAttention"
 import StudiesCourseCard from "./StudiesCourseCard"
 import StudiesSummary from "./StudiesSummary"
+
+/** The credit total and the student number read as one block, and collapse when neither applies. */
+const summaryBlockCss = css`
+  display: grid;
+  gap: var(--space-4);
+
+  &:empty {
+    display: none;
+  }
+`
 
 const isCompleted = (course: MyStudiesCourse): boolean =>
   course.modules.length > 0 && course.modules.every((module) => module.completion?.passed === true)
@@ -52,7 +65,7 @@ const newestRegistrationPerCourseModule = (
 
 const StudiesPage: React.FC = () => {
   const { t } = useTranslation()
-  usePageTitle(t("heading-your-studies"))
+  usePageTitle(t("heading-my-studies"))
 
   const myStudiesQuery = useQuery({ ...getMyStudiesOptions() })
   const showCreditRegistration =
@@ -63,29 +76,35 @@ const StudiesPage: React.FC = () => {
   })
   // Read directly rather than through QueryResult: the study record must render even when the
   // registration statuses cannot, and RegistrationsNeedingAttention reports that problem on its own.
-  const registrationByCourseModuleId = newestRegistrationPerCourseModule(
-    registrationsQuery.data ?? [],
+  const registrations = registrationsQuery.data ?? []
+  const registrationByCourseModuleId = newestRegistrationPerCourseModule(registrations)
+  const hasAttentionItems = registrations.some(
+    (registration) =>
+      !registration.superseded && registrationNeedsAttention(registration.student_facing_status),
   )
 
   return (
     <div className={narrowPageCss}>
-      <h1 className={pageTitleCss}>{t("heading-your-studies")}</h1>
-
-      {showCreditRegistration ? (
-        <>
-          <RegistrationsNeedingAttention />
-          <StudentNumberSummaryLine />
-        </>
-      ) : null}
+      <h1 className={pageTitleCss}>{t("heading-my-studies")}</h1>
 
       <QueryResult query={myStudiesQuery} contentClassName={sectionsCss}>
         {(myStudies) => {
           if (myStudies.courses.length === 0) {
             return (
-              <>
-                <p className={emptyStateCss}>{t("you-have-not-started-any-courses-yet")}</p>
-                <Link href={FIND_MORE_COURSES_URL}>{t("link-text-find-more-courses")}</Link>
-              </>
+              <EmptyState
+                title={t("you-have-not-started-any-courses-yet")}
+                hint={t("studies-empty-state-hint")}
+                action={
+                  <Link
+                    href={FIND_MORE_COURSES_URL}
+                    styledAsButton
+                    variant="secondary"
+                    size="medium"
+                  >
+                    {t("link-text-find-more-courses")}
+                  </Link>
+                }
+              />
             )
           }
 
@@ -112,7 +131,14 @@ const StudiesPage: React.FC = () => {
 
           return (
             <>
-              <StudiesSummary totals={myStudies.totals} />
+              <div className={summaryBlockCss}>
+                <StudiesSummary totals={myStudies.totals} />
+                {showCreditRegistration ? (
+                  <StudentNumberSummaryLine hasAttentionItems={hasAttentionItems} />
+                ) : null}
+              </div>
+
+              {showCreditRegistration ? <RegistrationsNeedingAttention /> : null}
 
               {visibleCourses.length === 0 ? (
                 <p className={emptyStateCss}>{t("all-of-your-courses-are-hidden")}</p>
@@ -123,6 +149,10 @@ const StudiesPage: React.FC = () => {
               <CertificatesSection />
 
               {hiddenCourses.length > 0 ? <HiddenCoursesSection courses={hiddenCourses} /> : null}
+
+              <p className={noteCss}>
+                <Link href={FIND_MORE_COURSES_URL}>{t("link-text-find-more-courses")}</Link>
+              </p>
             </>
           )
         }}

@@ -2,12 +2,11 @@
 
 import { css, cx } from "@emotion/css"
 import { DotsHorizontal } from "@vectopus/atlas-icons-react"
-import { useEffect, useMemo, useRef } from "react"
-import { useForm } from "react-hook-form"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { Menu, type MenuItemDescriptor } from "./Menu"
 import { ChevronIcon } from "./primitives/ChevronIcon"
-import { Select, type SelectOption } from "./Select"
 
 /**
  * Page sizes the items-per-page control offers unless the caller names its own. Nothing above a
@@ -23,11 +22,7 @@ type PageSlot = number | null
 
 const CHEVRON_LEFT = "left" as const
 const CHEVRON_RIGHT = "right" as const
-const ITEMS_PER_PAGE_FIELD_SIZE = "sm" as const
-
-interface ItemsPerPageForm {
-  itemsPerPage: string
-}
+const ITEMS_PER_PAGE_PLACEMENT = "bottom end" as const
 
 const rootCss = css`
   --pagination-item-size: 36px;
@@ -131,7 +126,7 @@ const gapCss = css`
 
 const itemsPerPageCss = css`
   flex: none;
-  width: 9rem;
+  height: var(--pagination-item-size);
 `
 
 /**
@@ -178,8 +173,8 @@ export interface PaginationProps {
 }
 
 /**
- * Page navigation for a list that arrives one page at a time: a range readout, previous/next, a
- * compact page list, and the page-size control on the same row.
+ * Page navigation for a list that arrives one page at a time: a range readout, the page-size
+ * control beside it, previous/next, and a compact page list.
  *
  * Paging state stays with the caller — `page` and `itemsPerPage` say what is on screen, the two
  * callbacks say what the reader asked for next.
@@ -196,31 +191,7 @@ export function Pagination({
 }: PaginationProps) {
   const { t } = useTranslation("shared-module")
 
-  const form = useForm<ItemsPerPageForm>({
-    defaultValues: { itemsPerPage: String(itemsPerPage) },
-  })
-  const { itemsPerPage: pickedItemsPerPage } = form.watch()
-  const reportedItemsPerPage = useRef(itemsPerPage)
-
-  // The caller owns the page size, usually through the query string, so its value has to win over
-  // the field whenever it changes underneath us: a Back button, or a caller-side reset.
-  useEffect(() => {
-    reportedItemsPerPage.current = itemsPerPage
-    form.reset({ itemsPerPage: String(itemsPerPage) })
-  }, [form, itemsPerPage])
-
-  // Callers hand us a fresh `onItemsPerPageChange` every render, so the ref — not `itemsPerPage` —
-  // is what keeps a re-run from asking for the same size twice before the caller's state settles.
-  useEffect(() => {
-    const picked = Number(pickedItemsPerPage)
-    if (!Number.isFinite(picked) || picked <= 0 || picked === reportedItemsPerPage.current) {
-      return
-    }
-    reportedItemsPerPage.current = picked
-    onItemsPerPageChange?.(picked)
-  }, [onItemsPerPageChange, pickedItemsPerPage])
-
-  const options = useMemo<SelectOption[]>(() => {
+  const itemsPerPageItems = useMemo<MenuItemDescriptor[]>(() => {
     const offered = [...(itemsPerPageOptions ?? DEFAULT_ITEMS_PER_PAGE_OPTIONS)]
     // A hand-edited `limit` in the URL is a supported way in, so keep whatever it asked for.
     if (!offered.includes(itemsPerPage)) {
@@ -228,8 +199,12 @@ export function Pagination({
     }
     return offered
       .toSorted((first, second) => first - second)
-      .map((size) => ({ value: String(size), label: String(size) }))
-  }, [itemsPerPage, itemsPerPageOptions])
+      .map((size) => ({
+        key: String(size),
+        label: t("pagination.itemsPerPage", { rows: size }),
+        onAction: () => onItemsPerPageChange?.(size),
+      }))
+  }, [itemsPerPage, itemsPerPageOptions, onItemsPerPageChange, t])
 
   const currentPage = Math.min(Math.max(page, 1), Math.max(totalPages, 1))
   const slots = useMemo(() => buildPageSlots(currentPage, totalPages), [currentPage, totalPages])
@@ -250,6 +225,16 @@ export function Pagination({
   return (
     <nav aria-label={t("pagination.label")} className={cx(rootCss, className)}>
       <p className={readoutCss}>{readout}</p>
+
+      {onItemsPerPageChange === undefined ? null : (
+        <Menu
+          aria-label={t("label-items-per-page")}
+          className={itemsPerPageCss}
+          items={itemsPerPageItems}
+          label={t("pagination.itemsPerPage", { rows: itemsPerPage })}
+          placement={ITEMS_PER_PAGE_PLACEMENT}
+        />
+      )}
 
       <ul className={pageListCss}>
         <li className={listItemCss}>
@@ -304,17 +289,6 @@ export function Pagination({
           </button>
         </li>
       </ul>
-
-      {onItemsPerPageChange === undefined ? null : (
-        <Select
-          className={itemsPerPageCss}
-          control={form.control}
-          fieldSize={ITEMS_PER_PAGE_FIELD_SIZE}
-          label={t("label-items-per-page")}
-          name="itemsPerPage"
-          options={options}
-        />
-      )}
     </nav>
   )
 }

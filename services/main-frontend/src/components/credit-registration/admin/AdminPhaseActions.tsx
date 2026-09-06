@@ -11,9 +11,8 @@ import {
 import { adminPausePhase, adminResumePhase, adminRunPhaseNow } from "@/generated/api/sdk.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Button } from "@/shared-module/components"
+import { Menu, type MenuItemDescriptor } from "@/shared-module/components"
 
-import { rowCss } from "../styles"
 import { usePauseResumeAction } from "./usePauseResumeAction"
 
 interface Props {
@@ -22,7 +21,7 @@ interface Props {
   implemented: boolean
 }
 
-/** Pause, resume and run-now for one pipeline phase, as the System tab offers them on its row. */
+/** Pause, resume and run-now for one pipeline phase, collapsed into the System tab's row menu. */
 const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -34,13 +33,13 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
       queryClient.invalidateQueries({ queryKey: listCreditRegistrationPhasesQueryKey() }),
     ])
 
-  const { pauseButton, resumeButton, dialog } = usePauseResumeAction({
+  const { pauseItem, resumeItem, dialog } = usePauseResumeAction({
     pause: (fields) => adminPausePhase({ path: { phase }, body: { reason: fields.reason } }),
     resume: () => adminResumePhase({ path: { phase }, body: { reason: null } }),
     invalidate: () => void invalidatePhases(),
     resumeConfirmMessage: t("credit-registration-admin-phase-resume-confirm", { phase }),
-    pauseButtonLabel: t("button-text-credit-registration-phase-pause"),
-    resumeButtonLabel: t("button-text-credit-registration-phase-resume"),
+    pauseActionLabel: t("button-text-credit-registration-phase-pause"),
+    resumeActionLabel: t("button-text-credit-registration-phase-resume"),
     pauseDialogTitle: t("credit-registration-admin-phase-pause-title", { phase }),
     pauseReasonDescription: t("credit-registration-admin-phase-pause-reason-description"),
   })
@@ -55,34 +54,31 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
     return null
   }
 
+  const runNowItem: MenuItemDescriptor = {
+    // oxlint-disable-next-line i18next/no-literal-string -- menu item identity, not user-facing text
+    key: "run-now",
+    label: t("button-text-credit-registration-phase-run-now"),
+    isDisabled: runNowMutation.isPending,
+    onAction: async () => {
+      const confirmed = await confirm(
+        t("credit-registration-admin-phase-run-now-confirm", { phase }),
+        undefined,
+        { yesButtonLabel: t("button-text-credit-registration-phase-run-now") },
+      )
+      if (confirmed) {
+        runNowMutation.mutate()
+      }
+    },
+  }
+
   return (
-    <div className={rowCss}>
-      {paused ? (
-        resumeButton
-      ) : (
-        <>
-          {pauseButton}
-          <Button
-            variant="tertiary"
-            size="small"
-            isLoading={runNowMutation.isPending}
-            onClick={async () => {
-              const confirmed = await confirm(
-                t("credit-registration-admin-phase-run-now-confirm", { phase }),
-                undefined,
-                { yesButtonLabel: t("button-text-credit-registration-phase-run-now") },
-              )
-              if (confirmed) {
-                runNowMutation.mutate()
-              }
-            }}
-          >
-            {t("button-text-credit-registration-phase-run-now")}
-          </Button>
-        </>
-      )}
+    <>
+      <Menu
+        aria-label={t("credit-registration-admin-phase-row-actions", { phase })}
+        items={paused ? [resumeItem] : [pauseItem, runNowItem]}
+      />
       {dialog}
-    </div>
+    </>
   )
 }
 

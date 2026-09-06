@@ -6,6 +6,7 @@ import type {
   CreditRegistrationAdminActionTarget,
   CreditRegistrationAlertId,
   CreditRegistrationAttentionReason,
+  CreditRegistrationErrorCode,
   CreditRegistrationEventKind,
   CreditRegistrationPendingReason,
   CreditRegistrationState,
@@ -17,7 +18,12 @@ import type {
 import type { BadgeTone, RegistrationStatusState } from "@/shared-module/components"
 
 import { TONE } from "../constants"
-import { labelFrom, widenedLookup } from "../labelFrom"
+import {
+  isLedgerState,
+  registrationErrorShortLabel,
+  registrationLedgerStateLabel,
+} from "../creditRegistrationCopy"
+import { labelFrom, translateKey, widenedLookup } from "../labelFrom"
 
 export {
   notificationEmailLabel as notificationKindLabel,
@@ -72,11 +78,81 @@ export const stateTone = (
   widenedLookup(STATE_TONES, state) ??
   "upcoming"
 
+/** Each sentence: what Sisu said, what it usually means, what fixes it. */
+const ADMIN_ERROR_CODE_KEYS = {
+  person_not_found: "credit-registration-admin-error-person-not-found",
+  course_code_not_found: "credit-registration-admin-error-course-code-not-found",
+  enrolment_not_found: "credit-registration-admin-error-enrolment-not-found",
+  enrolment_not_accepted: "credit-registration-admin-error-enrolment-not-accepted",
+  invalid_grade_for_grade_scale: "credit-registration-admin-error-invalid-grade-for-grade-scale",
+  course_not_allowed: "credit-registration-admin-error-course-not-allowed",
+  invalid_credits: "credit-registration-admin-error-invalid-credits",
+  study_right_not_valid: "credit-registration-admin-error-study-right-not-valid",
+  acceptor_not_found: "credit-registration-admin-error-acceptor-not-found",
+  sisu_validation_failed: "credit-registration-admin-error-sisu-validation-failed",
+  sisu_timeout: "credit-registration-admin-error-sisu-timeout",
+  sisu_temporarily_unavailable: "credit-registration-admin-error-sisu-temporarily-unavailable",
+  misregistered: "credit-registration-admin-error-misregistered",
+  unauthorized: "credit-registration-admin-error-unauthorized",
+  malformed_request: "credit-registration-admin-error-malformed-request",
+  transport_error: "credit-registration-admin-error-transport-error",
+  unexpected_response: "credit-registration-admin-error-unexpected-response",
+  no_grade_scale_mapping: "credit-registration-admin-error-no-grade-scale-mapping",
+  missing_uh_course_code: "credit-registration-admin-error-missing-uh-course-code",
+  missing_ects_credits: "credit-registration-admin-error-missing-ects-credits",
+  retry_window_expired: "credit-registration-admin-error-retry-window-expired",
+  unknown: "credit-registration-admin-error-unknown",
+} as const satisfies Record<CreditRegistrationErrorCode, string>
+
+const ADMIN_ERROR_UNKNOWN_KEY = "credit-registration-admin-error-unknown"
+
 /**
- * `ready_to_submit` as `ready to submit`, for a chart legend or an axis. Deliberately untranslated,
- * like `AdminStateBadge`: the state name is the identifier an operator quotes.
+ * The two codes whose sentence names the value Sisu rejected. Without the value the sentence still
+ * has to read, so each has a variant that refers to it rather than quoting it.
  */
-export const stateName = (state: CreditRegistrationState): string => state.replaceAll("_", " ")
+const ADMIN_ERROR_KEYS_WITHOUT_VALUE = {
+  person_not_found: "credit-registration-admin-error-person-not-found-no-number",
+  course_code_not_found: "credit-registration-admin-error-course-code-not-found-no-code",
+} as const satisfies Partial<Record<CreditRegistrationErrorCode, string>>
+
+/** What the registration carried, so the sentence can quote the value Sisu rejected. */
+export interface AdminErrorSubject {
+  studentNumber?: string | null
+  courseCode?: string | null
+}
+
+const adminErrorKey = (
+  errorCode: CreditRegistrationErrorCode,
+  subject: AdminErrorSubject | undefined,
+): string => {
+  const value = errorCode === "person_not_found" ? subject?.studentNumber : subject?.courseCode
+  return (
+    (value ? undefined : widenedLookup(ADMIN_ERROR_KEYS_WITHOUT_VALUE, errorCode)) ??
+    widenedLookup(ADMIN_ERROR_CODE_KEYS, errorCode) ??
+    ADMIN_ERROR_UNKNOWN_KEY
+  )
+}
+
+/**
+ * Why the registration failed, for the administrator who has to decide what to do about it.
+ *
+ * Not `registrationErrorHelp`, which is written to the student and ends by telling them to contact
+ * support — the reader here is support. `subject` only matters for `person_not_found` and
+ * `course_code_not_found`, whose sentences quote the value Sisu rejected.
+ */
+export const registrationErrorAdminHelp = (
+  t: TFunction,
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+  subject?: AdminErrorSubject,
+): string | null => {
+  if (!errorCode) {
+    return null
+  }
+  return translateKey(t, adminErrorKey(errorCode, subject), {
+    studentNumber: subject?.studentNumber ?? "",
+    courseCode: subject?.courseCode ?? "",
+  })
+}
 
 const EVENT_KIND_KEYS = {
   created: "credit-registration-admin-event-created",
@@ -94,9 +170,7 @@ const EVENT_KIND_UNKNOWN_KEY = "credit-registration-admin-event-unknown"
 export const eventKindLabel = (t: TFunction, kind: CreditRegistrationEventKind): string =>
   labelFrom(t, EVENT_KIND_KEYS, kind, EVENT_KIND_UNKNOWN_KEY)
 
-// oxlint-disable-next-line i18next/no-literal-string
 export const COURSE_TEACHER_ROLE = "course_teacher"
-// oxlint-disable-next-line i18next/no-literal-string
 export const GLOBAL_ADMIN_ROLE = "global_admin"
 
 /** Whose permission authorised the action. The backend types the role as a bare string. */
@@ -126,6 +200,13 @@ const ALERT_KEYS = {
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
 
+/**
+ * One alert as the sentence the banner links.
+ *
+ * `subject` is whatever the backend named as the commonest cause — a state, a mail domain, a phase.
+ * A state is translated on the way in, so the banner never shows a wire name; anything else is
+ * passed through as the backend wrote it.
+ */
 export const alertSentence = (
   t: TFunction,
   id: CreditRegistrationAlertId,
@@ -135,7 +216,10 @@ export const alertSentence = (
 ): string =>
   labelFrom(t, ALERT_KEYS, id, GENERIC_ALERT_KEY, {
     count,
-    subject: subject ?? "",
+    subject:
+      subject && isLedgerState(subject)
+        ? registrationLedgerStateLabel(t, subject)
+        : (subject ?? ""),
     total: total ?? 0,
   })
 
@@ -163,6 +247,23 @@ export const attentionReasonLabel = (
   t: TFunction,
   reason: CreditRegistrationAttentionReason,
 ): string => labelFrom(t, ATTENTION_REASON_KEYS, reason, ATTENTION_REASON_UNKNOWN_KEY)
+
+/**
+ * The error's short label beside a state badge, or `null` when it would just repeat the badge
+ * (e.g. a misregistered row's error label and state label are the same sentence).
+ */
+export const registrationErrorNote = (
+  t: TFunction,
+  state: CreditRegistrationState,
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+  pendingReason?: CreditRegistrationPendingReason | null,
+): string | null => {
+  const errorLabel = registrationErrorShortLabel(t, errorCode)
+  if (errorLabel === null) {
+    return null
+  }
+  return errorLabel === registrationLedgerStateLabel(t, state, pendingReason) ? null : errorLabel
+}
 
 const RETRYABILITY_KEYS = {
   retryable_transient: "credit-registration-admin-retryability-transient",

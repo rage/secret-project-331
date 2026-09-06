@@ -63,6 +63,31 @@ export interface StudentsListParams {
 const STALE_TIME = 60_000
 const GC_TIME = 5 * 60_000
 
+const IDENTITY_QUERY_ID = "getCourseStudentsUsers"
+const DETAIL_KEY_PREFIX = "course-students/"
+
+/**
+ * Marks the roster and every subtab's per-page detail stale, for a caller that changed a
+ * completion.
+ *
+ * Matched by predicate rather than by key: the identity query is keyed by every filter and the
+ * detail queries by the user ids that happened to be on screen, so no caller can name the keys.
+ */
+export const invalidateCourseStudents = (courseId: string): Promise<void> =>
+  queryClient.invalidateQueries({
+    predicate: (query) => {
+      const [first, second] = query.queryKey
+      if (typeof first === "string") {
+        return first.startsWith(DETAIL_KEY_PREFIX) && second === courseId
+      }
+      return (
+        typeof first === "object" &&
+        first !== null &&
+        (first as { _id?: string })._id === IDENTITY_QUERY_ID
+      )
+    },
+  })
+
 const buildIdentityOptions = (courseId: string, params: StudentsListParams) => {
   const registrationStatuses = registrationStatusesOf(params.registrationView)
   return getCourseStudentsUsersOptions({
@@ -163,7 +188,6 @@ const userScopedDetailOptions = <TData>(
       // `fetcher` is fixed per keyPrefix (already in the key), so it need not be in the key.
       // oxlint-disable-next-line @tanstack/query/exhaustive-deps
       queryOptions({
-        // oxlint-disable-next-line i18next/no-literal-string
         queryKey: [keyPrefix, courseId, ids],
         queryFn: () => fetcher(ids),
         staleTime: STALE_TIME,
@@ -173,7 +197,6 @@ const userScopedDetailOptions = <TData>(
 
 export const useCourseStudentsCompletionsDetail = (courseId: string, userIds: string[]) =>
   useQuery(
-    // oxlint-disable-next-line i18next/no-literal-string
     userScopedDetailOptions("course-students/completions", courseId, userIds, (ids) =>
       getCourseStudentsCompletions({ path: { course_id: courseId }, body: { user_ids: ids } }),
     ),
@@ -181,7 +204,6 @@ export const useCourseStudentsCompletionsDetail = (courseId: string, userIds: st
 
 export const useCourseStudentsCertificatesDetail = (courseId: string, userIds: string[]) =>
   useQuery(
-    // oxlint-disable-next-line i18next/no-literal-string
     userScopedDetailOptions("course-students/certificates", courseId, userIds, (ids) =>
       getCourseStudentsCertificates({ path: { course_id: courseId }, body: { user_ids: ids } }),
     ),
@@ -201,7 +223,6 @@ export const useCourseStudentsProgressStructure = (courseId: string) =>
 /** Per-user progress detail (chapter progress + locking statuses) for the current page's users. */
 export const useCourseStudentsProgressDetail = (courseId: string, userIds: string[]) =>
   useQuery(
-    // oxlint-disable-next-line i18next/no-literal-string
     userScopedDetailOptions("course-students/progress", courseId, userIds, (ids) =>
       getCourseStudentsProgress({ path: { course_id: courseId }, body: { user_ids: ids } }),
     ),

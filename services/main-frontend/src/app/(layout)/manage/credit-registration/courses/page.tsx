@@ -1,19 +1,26 @@
 "use client"
 
-import { cx } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import AdminCourseModulePauseButton from "@/components/credit-registration/admin/AdminCourseModulePauseButton"
 import { useCreditRegistrationCourseStats } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
+import type { ConfigFailureReason } from "@/components/credit-registration/admin/courseModuleStatus"
 import {
   backfillGap,
+  configFailureReason,
+  configFailureReasonLabel,
+  configFailureReasonOrOther,
   courseModuleStatus,
   courseModuleStatusLabel,
   courseModuleStatusTone,
+  dominantConfigFailureReason,
   failureRatePercent,
+  HIGH_FAILURE_RATE_PERCENT,
 } from "@/components/credit-registration/admin/courseModuleStatus"
+import FacetChip from "@/components/credit-registration/admin/FacetChip"
 import { formatPercent } from "@/components/credit-registration/admin/percent"
 import {
   ALIGN_END,
@@ -21,33 +28,30 @@ import {
   LINK_QUIET,
   MIDDLE_DOT,
   QUIET_REFRESH,
+  TABLE_STACK,
   TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
 import {
   controlCss,
   controlsCss,
-  headingCss,
   monospaceCss,
   noteCss,
   proseCss,
   rowCss,
   sectionCss,
   stackedCellCss,
+  statusTriggerCss,
 } from "@/components/credit-registration/styles"
 import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
-import { includeIf } from "@/shared-module/common/utils/nullability"
-import {
-  creditRegistrationRegistrationsRoute,
-  manageCourseModulesRoute,
-} from "@/shared-module/common/utils/routes"
+import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
 import {
   Badge,
-  Button,
   Checkbox,
   Dialog,
+  Infobox,
   Link,
-  Meter,
+  MeterInline,
   QueryResult,
   RelativeTime,
   Select,
@@ -56,19 +60,14 @@ import {
   Table,
 } from "@/shared-module/components"
 
-// oxlint-disable-next-line i18next/no-literal-string
 const MODULE_QUERY = "?course_module_id="
-// oxlint-disable-next-line i18next/no-literal-string
 const ATTENTION_QUERY = "&needs_admin_attention=true"
-// oxlint-disable-next-line i18next/no-literal-string
 const SORT_NAME = "name"
-// oxlint-disable-next-line i18next/no-literal-string
 const SORT_FAILURES = "failures"
-// oxlint-disable-next-line i18next/no-literal-string
 const SORT_BACKFILL = "backfill"
 
-/** Where a failure rate stops being noise and starts being a course to look at. */
-const HIGH_FAILURE_RATE_PERCENT = 20
+/** How many modules the same structured check has to fail before it earns its own banner. */
+const MANY_MODULES_THRESHOLD = 3
 
 type CourseComparator = (
   a: CreditRegistrationCourseStats,
@@ -89,6 +88,23 @@ interface ViewFields {
   sort: CourseSortKey
   problemsOnly: boolean
 }
+
+/** Centers an inline checkbox against the taller floating-label select beside it in the toolbar. */
+const checkboxAlignCss = css`
+  align-self: center;
+`
+
+/** A pause reason is free text and can run long; one line keeps the badge row from growing per-row. */
+const truncatedNoteCss = css`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
+
+const CONFIG_FAILURE_BANNER_KEYS = {
+  product_token: "credit-registration-admin-config-failure-banner-product-token",
+  course_code: "credit-registration-admin-config-failure-banner-course-code",
+} as const
 
 /** Which of the four configuration checks passed, in a dialog so the row stays one line high. */
 const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
@@ -111,9 +127,9 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
   ]
   return (
     <>
-      <Button variant="tertiary" size="small" onClick={() => setOpen(true)}>
-        {t("credit-registration-admin-which-checks")}
-      </Button>
+      <button type="button" className={statusTriggerCss} onClick={() => setOpen(true)}>
+        <span>{t("credit-registration-admin-which-checks")}</span>
+      </button>
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
@@ -135,6 +151,9 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
               </Badge>
             ))}
           </div>
+          {module.check.message && (
+            <p className={cx(noteCss, monospaceCss)}>{module.check.message}</p>
+          )}
           <p className={noteCss}>
             {module.config_checked_at === null ? (
               t("credit-registration-admin-never-config-checked")
@@ -151,62 +170,84 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
   )
 }
 
-/** Failed share of the module's finished rows, with the cutoff that made the row red as a tick. */
+/** Failed share of the module's finished rows: a percent and a bar on every row, so the shape of the
+ * column never itself looks like the signal. Only the tone marks a rate worth acting on. */
 const FailureRateCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation()
   const rate = failureRatePercent(module)
   const terminal = module.success_count + module.failed_count
+  if (rate === null) {
+    return (
+      <span>
+        {t("credit-registration-admin-failure-count-value", {
+          failed: module.failed_count,
+          terminal,
+        })}
+      </span>
+    )
+  }
   return (
-    <span className={stackedCellCss}>
-      <span>{module.failed_count}</span>
-      {rate === null ? (
-        <span className={noteCss}>{t("credit-registration-admin-too-few-to-rate")}</span>
-      ) : (
-        <Meter
-          value={module.failed_count}
-          maxValue={terminal}
-          threshold={(terminal * HIGH_FAILURE_RATE_PERCENT) / 100}
-          showLabel={false}
-          tone={rate > HIGH_FAILURE_RATE_PERCENT ? TONE.DANGER : TONE.NEUTRAL}
-          label={t("credit-registration-admin-failure-rate-label", {
-            failed: module.failed_count,
-            terminal,
-            percent: formatPercent(rate),
-          })}
-        />
-      )}
-    </span>
+    <MeterInline
+      value={module.failed_count}
+      maxValue={terminal}
+      threshold={(terminal * HIGH_FAILURE_RATE_PERCENT) / 100}
+      tone={rate > HIGH_FAILURE_RATE_PERCENT ? TONE.DANGER : TONE.NEUTRAL}
+      label={t("credit-registration-admin-failure-rate-label", {
+        failed: module.failed_count,
+        terminal,
+        percent: formatPercent(rate),
+      })}
+      valueText={t("credit-registration-admin-failure-count-percent-value", {
+        failed: module.failed_count,
+        terminal,
+        percent: formatPercent(rate),
+      })}
+    />
   )
 }
 
-/** The gap is the number to act on; the fraction behind it is the bar. */
+/** Registrations against eligible completions; the gap itself only earns a colour once it is non-zero. */
 const BackfillCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation()
   const gap = backfillGap(module)
+  const valueText = t("credit-registration-admin-backfill-value", {
+    registered: module.registration_count,
+    eligible: module.eligible_completion_count,
+  })
+  if (module.eligible_completion_count === 0) {
+    return <span>{valueText}</span>
+  }
   return (
-    <span className={stackedCellCss}>
-      <span>{gap}</span>
-      {module.eligible_completion_count > 0 && (
-        <Meter
-          value={module.registration_count}
-          maxValue={module.eligible_completion_count}
-          showLabel={false}
-          tone={gap === 0 ? TONE.SUCCESS : TONE.NEUTRAL}
-          label={t("credit-registration-admin-backfill-label", {
-            registered: module.registration_count,
-            eligible: module.eligible_completion_count,
-          })}
-        />
-      )}
-    </span>
+    <MeterInline
+      value={module.registration_count}
+      maxValue={module.eligible_completion_count}
+      tone={gap === 0 ? TONE.NEUTRAL : TONE.WARNING}
+      label={t("credit-registration-admin-backfill-label", {
+        registered: module.registration_count,
+        eligible: module.eligible_completion_count,
+      })}
+      valueText={valueText}
+    />
   )
 }
 
+const stripModulePrefix = (value: string): string => value.replace(/^Module\s+/, "")
+
 /** Module name and UH course code are one string in some configurations; printing it twice is noise. */
-const moduleSubtitle = (module: CreditRegistrationCourseStats): string[] =>
-  [module.course_module_name, module.uh_course_code].filter(
-    (part, index, parts): part is string => Boolean(part) && parts.indexOf(part) === index,
-  )
+const moduleSubtitle = (module: CreditRegistrationCourseStats): string[] => {
+  const seen = new Set<string>()
+  return [module.course_module_name, module.uh_course_code].filter((part): part is string => {
+    if (!part) {
+      return false
+    }
+    const key = stripModulePrefix(part)
+    if (seen.has(key)) {
+      return false
+    }
+    seen.add(key)
+    return true
+  })
+}
 
 /** Which course modules register credits, how well each does it, and what is wrong with the rest. */
 const CoursesPage: React.FC = () => {
@@ -217,19 +258,44 @@ const CoursesPage: React.FC = () => {
   })
   const sort = watch("sort")
   const problemsOnly = watch("problemsOnly")
+  const [reasonFilter, setReasonFilter] = useState<ConfigFailureReason | null>(null)
 
   return (
     <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-courses")}</h2>
-      <QueryResult query={statsQuery} refreshIndicator={QUIET_REFRESH}>
+      <QueryResult
+        query={statsQuery}
+        refreshIndicator={QUIET_REFRESH}
+        contentClassName={sectionCss}
+      >
         {(stats) => {
           const pausedCount = stats.modules.filter((module) => module.paused_at !== null).length
-          const shown = stats.modules.filter(
-            (module) => !problemsOnly || courseModuleStatus(module) !== "ok",
-          )
+          const shown = stats.modules.filter((module) => {
+            const isProblem = courseModuleStatus(module) !== "ok" || module.paused_at !== null
+            if (problemsOnly && !isProblem) {
+              return false
+            }
+            return reasonFilter === null || configFailureReason(module) === reasonFilter
+          })
           const modules = shown.toSorted(SORT_COMPARATORS[sort])
+          const dominantFailure = dominantConfigFailureReason(stats.modules)
+
           return (
             <>
+              <StatTileList ariaLabel={t("credit-registration-heading-courses")} maxColumns={3}>
+                <StatTile
+                  label={t("credit-registration-admin-modules-enabled")}
+                  value={stats.modules.length}
+                />
+                <StatTile
+                  label={t("credit-registration-admin-modules-misconfigured")}
+                  value={stats.misconfigured_count}
+                  alertWhenNonZero
+                />
+                <StatTile
+                  label={t("credit-registration-admin-modules-paused")}
+                  value={pausedCount}
+                />
+              </StatTileList>
               <div className={controlsCss}>
                 <div className={controlCss}>
                   <Select
@@ -249,31 +315,40 @@ const CoursesPage: React.FC = () => {
                     ]}
                   />
                 </div>
-                <Checkbox
-                  name="problemsOnly"
-                  control={control}
-                  isInline
-                  label={t("credit-registration-admin-only-problems")}
-                />
+                <div className={checkboxAlignCss}>
+                  <Checkbox
+                    name="problemsOnly"
+                    control={control}
+                    isInline
+                    label={t("credit-registration-admin-only-problems")}
+                  />
+                </div>
               </div>
-              <StatTileList ariaLabel={t("credit-registration-heading-courses")} maxColumns={3}>
-                <StatTile
-                  label={t("credit-registration-admin-modules-enabled")}
-                  value={stats.modules.length}
-                />
-                <StatTile
-                  label={t("credit-registration-admin-modules-misconfigured")}
-                  value={stats.misconfigured_count}
-                  alertWhenNonZero
-                />
-                <StatTile
-                  label={t("credit-registration-admin-modules-paused")}
-                  value={pausedCount}
-                />
-              </StatTileList>
+              {dominantFailure && dominantFailure.count >= MANY_MODULES_THRESHOLD && (
+                <Infobox tone={TONE.NEUTRAL}>
+                  <span className={rowCss}>
+                    <span>
+                      {t(CONFIG_FAILURE_BANNER_KEYS[dominantFailure.reason], {
+                        count: dominantFailure.count,
+                      })}
+                    </span>
+                    <FacetChip
+                      label={t("credit-registration-admin-filter-to-these-modules")}
+                      count={dominantFailure.count}
+                      isSelected={reasonFilter === dominantFailure.reason}
+                      onToggle={() =>
+                        setReasonFilter((current) =>
+                          current === dominantFailure.reason ? null : dominantFailure.reason,
+                        )
+                      }
+                    />
+                  </span>
+                </Infobox>
+              )}
               <Table
                 caption={t("credit-registration-heading-courses-table")}
                 density={DENSITY_COMPACT}
+                responsive={TABLE_STACK}
                 rowKey={(row) => row.course_module_id}
                 rows={modules}
                 emptyState={t("credit-registration-admin-no-enabled-modules")}
@@ -301,22 +376,32 @@ const CoursesPage: React.FC = () => {
                     minWidth: "16rem",
                     cell: (row) => {
                       const status = courseModuleStatus(row)
+                      const isPaused = row.paused_at !== null
                       return (
                         <span className={stackedCellCss}>
                           <span className={rowCss}>
-                            <Badge
-                              tone={courseModuleStatusTone(status)}
-                              size="compact"
-                              {...includeIf(row.pause_reason, { title: row.pause_reason })}
-                            >
+                            {isPaused && (
+                              <Badge tone={TONE.NEUTRAL} size="compact">
+                                {t("credit-registration-admin-module-paused")}
+                              </Badge>
+                            )}
+                            <Badge tone={courseModuleStatusTone(status)} size="compact">
                               {courseModuleStatusLabel(t, status)}
                             </Badge>
-                            {row.check.message && <ConfigDetail module={row} />}
                           </span>
-                          {/* Inline rather than behind the dialog: what is broken is the next
-                              question, and it has to be answerable while scanning. */}
+                          {isPaused && row.pause_reason && (
+                            <span
+                              className={cx(noteCss, truncatedNoteCss)}
+                              title={row.pause_reason}
+                            >
+                              {row.pause_reason}
+                            </span>
+                          )}
                           {row.check.message && (
-                            <span className={cx(noteCss, monospaceCss)}>{row.check.message}</span>
+                            <span className={noteCss}>
+                              {configFailureReasonLabel(t, configFailureReasonOrOther(row))}{" "}
+                              <ConfigDetail module={row} />
+                            </span>
                           )}
                         </span>
                       )
@@ -360,18 +445,14 @@ const CoursesPage: React.FC = () => {
                   },
                   {
                     header: t("label-actions"),
-                    minWidth: "11rem",
+                    minWidth: "4rem",
                     cell: (row) => (
-                      <span className={stackedCellCss}>
-                        <AdminCourseModulePauseButton
-                          courseModuleId={row.course_module_id}
-                          courseModuleName={row.course_module_name ?? row.course_name}
-                          paused={row.paused_at !== null}
-                        />
-                        <Link href={manageCourseModulesRoute(row.course_id)}>
-                          {t("credit-registration-admin-edit-module-configuration")}
-                        </Link>
-                      </span>
+                      <AdminCourseModulePauseButton
+                        courseId={row.course_id}
+                        courseModuleId={row.course_module_id}
+                        courseModuleName={row.course_module_name ?? row.course_name}
+                        paused={row.paused_at !== null}
+                      />
                     ),
                   },
                 ]}

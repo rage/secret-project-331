@@ -17532,7 +17532,6 @@
           "course_module_id",
           "enabled",
           "paused",
-          "counts_by_state",
           "registration_count",
           "registered_count",
           "in_progress_count",
@@ -17542,12 +17541,6 @@
           "needs_admin_attention_count"
         ],
         "properties": {
-          "counts_by_state": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreditRegistrationStateCount"
-            }
-          },
           "course_module_id": {
             "type": "string",
             "format": "uuid"
@@ -19393,7 +19386,7 @@
           },
           "needs_admin_attention": {
             "type": "boolean",
-            "description": "The pipeline's cached \"a human should look at this\". A fact about the row, never a reason:\nsee [`CreditRegistrationAttentionReason`]."
+            "description": "The pipeline's cached \"a human should look at this\". A fact about the row, never a reason:\nit says nothing about why, so it travels beside `reasons` rather than in them."
           },
           "next_attempt_at": {
             "type": "string",
@@ -19471,7 +19464,7 @@
       },
       "CreditRegistrationAttentionReason": {
         "type": "string",
-        "description": "Why a row is on the attention table. One row can carry several.\n\n`needs_admin_attention` is deliberately not one of them: the flag is what the pipeline caches\nwhen it wants a human, not an answer to \"why\". It travels on the item instead.",
+        "description": "Which detector picked a row for the attention queue. A row can carry several.\n\nNot `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue, but\nit says nothing about why, so it is reported per row rather than as a reason of its own.",
         "enum": [
           "stuck_in_state",
           "permanent_error",
@@ -20318,19 +20311,6 @@
           "blocked",
           "cancelled"
         ]
-      },
-      "CreditRegistrationStateCount": {
-        "type": "object",
-        "required": ["state", "count"],
-        "properties": {
-          "count": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "state": {
-            "$ref": "#/components/schemas/CreditRegistrationState"
-          }
-        }
       },
       "CreditRegistrationStateTotal": {
         "type": "object",

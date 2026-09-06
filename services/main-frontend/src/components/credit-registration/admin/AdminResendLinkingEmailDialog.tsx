@@ -1,7 +1,7 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -9,21 +9,22 @@ import {
   listCreditRegistrationsForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
-import { Button, Checkbox, Dialog, Infobox } from "@/shared-module/components"
+import type { DialogAction } from "@/shared-module/components"
+import { Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
-import { MIDDLE_DOT, TONE } from "../constants"
+import { BUTTON_PRIMARY, BUTTON_TERTIARY, MIDDLE_DOT, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
-import { dialogFormCss, dialogFormStartCss } from "../styles"
+import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
-import { ReasonField, isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
+import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props {
+  open: boolean
+  onClose: () => void
   studentNumber: string
   courseId: string
   courseName: string
-  /** Set it where the trigger is one cell of a table row rather than a block's own action. */
-  compact?: boolean
 }
 
 interface Fields {
@@ -31,22 +32,26 @@ interface Fields {
   reason: string
 }
 
-/** The override retires the rows the caps count rather than relaxing a cap, and needs a reason. */
+/**
+ * Sends the account-linking mail for one person and course again.
+ *
+ * The override retires the mails the caps count rather than relaxing a cap, so it needs a reason;
+ * an ordinary resend does not. Controlled, so a row's overflow menu can open it.
+ */
 const AdminResendLinkingEmailDialog: React.FC<Props> = ({
+  open,
+  onClose,
   studentNumber,
   courseId,
   courseName,
-  compact = false,
 }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const [open, setOpen] = useState(false)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
     override_rate_caps: false,
     reason: "",
   })
   const override = watch("override_rate_caps")
-  const reason = watch("reason")
 
   const { result, setResult, mutation } = useActionResult((fields: Fields) =>
     adminResendAccountLinkingEmail({
@@ -60,8 +65,9 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   )
 
   const closeDialog = () => {
-    setOpen(false)
+    onClose()
     if (result) {
+      setResult(null)
       // Deferred to close, not fired from onSuccess: a resend that lifts this row out of the
       // stale-addresses table it's rendered in would otherwise unmount the dialog — and the
       // outcome it's showing — the moment the refetch lands.
@@ -72,21 +78,30 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
     }
   }
 
+  const submit = handleSubmit((fields) => mutation.mutate(fields))
+  const actions: readonly [DialogAction, DialogAction] = [
+    {
+      label: t("button-text-cancel"),
+      variant: BUTTON_TERTIARY,
+      disabled: mutation.isPending,
+      onPress: closeDialog,
+    },
+    {
+      label: t("button-text-resend-linking-email"),
+      variant: BUTTON_PRIMARY,
+      isLoading: mutation.isPending,
+      onPress: () => void submit(),
+    },
+  ]
+
   return (
-    <div className={dialogFormStartCss}>
-      {/* Short in a table row; the full sentence stays on the accessible name. */}
-      <Button
-        variant={compact ? "tertiary" : "secondary"}
-        size={compact ? "small" : "medium"}
-        aria-label={t("button-text-resend-linking-email")}
-        onClick={() => {
-          setResult(null)
-          setOpen(true)
-        }}
-      >
-        {compact ? t("credit-registration-admin-resend") : t("button-text-resend-linking-email")}
-      </Button>
-      <Dialog open={open} onClose={closeDialog} title={t("button-text-resend-linking-email")}>
+    <Dialog
+      open={open}
+      onClose={closeDialog}
+      title={t("button-text-resend-linking-email")}
+      actions={actions}
+    >
+      <div className={dialogFormCss}>
         {result && (
           <Infobox tone={result.outcome === RESEND_QUEUED ? TONE.INFO : TONE.WARNING}>
             <div>{resendOutcomeLabel(t, result.outcome)}</div>
@@ -112,18 +127,14 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
             ))}
           </Infobox>
         )}
-        <form
-          className={dialogFormCss}
-          onSubmit={handleSubmit((fields) => mutation.mutate(fields))}
-        >
-          <p>
+        <form className={dialogFormCss} onSubmit={submit}>
+          <p className={proseCss}>
             {t("credit-registration-admin-resend-dialog-target", {
               studentNumber,
               course: courseName,
             })}
           </p>
-          <p>{t("credit-registration-admin-resend-dialog-addresses-note")}</p>
-          <p>{t("credit-registration-resend-address-they-can-read-hint")}</p>
+          <p className={noteCss}>{t("credit-registration-admin-resend-registry-addresses-only")}</p>
           <Checkbox
             name="override_rate_caps"
             control={control}
@@ -135,17 +146,9 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
             description={t("credit-registration-admin-resend-reason-description")}
             isRequired={override}
           />
-          <Button
-            variant="primary"
-            size="medium"
-            type="submit"
-            disabled={isReasonConfirmDisabled(mutation.isPending, reason, override)}
-          >
-            {t("button-text-confirm")}
-          </Button>
         </form>
-      </Dialog>
-    </div>
+      </div>
+    </Dialog>
   )
 }
 

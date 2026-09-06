@@ -138,7 +138,11 @@ export function stickyOffsetCss(offset: string): string {
 }
 
 export const controlCellCss = css`
+  /* An auto table layout treats a width as a preference and shrinks the column to its content
+     when the row is tight, which slides the pinned column off its sticky offset and over the
+     neighbouring column. A min-width is the floor that offset needs. */
   width: ${CONTROL_COLUMN_WIDTH};
+  min-width: ${CONTROL_COLUMN_WIDTH};
   padding-right: 0;
 `
 
@@ -149,6 +153,11 @@ export const controlColumnWidthCss = css`
 export const checkboxShellCss = css`
   position: relative;
   display: inline-flex;
+  cursor: pointer;
+
+  &[data-disabled="true"] {
+    cursor: not-allowed;
+  }
 
   & input:focus-visible + span {
     box-shadow: 0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.18);
@@ -253,97 +262,137 @@ export const stackLabelCss = css`
   display: none;
 `
 
+/** Hidden until the table stacks, where the toggle loses the column header that named it. */
+export const expandLabelCss = css`
+  display: none;
+`
+
+/** Width below which a table stacks; the wrapper and the cards it draws must agree on it. */
+const STACK_BELOW_PX = 640
+
 /** Neutral until the table stacks, so the wrapper does not change a wide table's layout. */
 export const stackValueCss = css`
   display: contents;
 `
 
 /**
- * Below `below` pixels each row reads as a labelled list instead of scrolling sideways. Done in
+ * Below `STACK_BELOW_PX` each row reads as a labelled list instead of scrolling sideways. Done in
  * CSS rather than at a JS breakpoint so a server-rendered page does not flip layouts after
  * hydration; `Table` pairs it with explicit ARIA roles, which `display: block` would otherwise
  * strip from the table.
  */
-export function stackCss(below: number): string {
-  return css`
-    @media (max-width: ${below - 0.02}px) {
-      & table {
-        display: block;
-        width: 100%;
-      }
-
-      & colgroup {
-        display: none;
-      }
-
-      & thead {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        margin: -1px;
-        padding: 0;
-        overflow: hidden;
-        clip-path: inset(50%);
-        white-space: nowrap;
-        border: 0;
-      }
-
-      & tbody {
-        display: block;
-      }
-
-      & tr {
-        display: block;
-        padding: var(--space-3);
-        border: 1px solid var(--color-clear-300);
-        border-radius: var(--surface-radius);
-      }
-
-      & tr + tr {
-        margin-top: var(--space-3);
-      }
-
-      & th,
-      & td {
-        position: static;
-        box-shadow: none;
-      }
-
-      & td:not([data-table-control="true"], [data-table-detail="true"]) {
-        display: grid;
-        grid-template-columns: minmax(0, 40%) minmax(0, 1fr);
-        gap: var(--space-3);
-        align-items: baseline;
-        min-width: 0;
-        padding: var(--space-2) 0;
-        border-bottom: 0;
-        white-space: normal;
-      }
-
-      & td[data-table-control="true"] {
-        display: inline-flex;
-        width: auto;
-        padding: 0 var(--space-3) var(--space-2) 0;
-        border-bottom: 0;
-      }
-
-      & td[data-table-detail="true"] {
-        display: block;
-        margin-top: var(--space-2);
-        border-bottom: 0;
-      }
-
-      & [data-table-stack-label="true"] {
-        display: block;
-        color: var(--color-gray-500);
-        font-size: var(--font-size-0);
-        font-weight: 600;
-      }
-
-      & [data-table-stack-value="true"] {
-        display: block;
-        min-width: 0;
-      }
+export const stackCss = css`
+  @media (max-width: ${STACK_BELOW_PX - 0.02}px) {
+    & table {
+      display: block;
+      width: 100%;
     }
-  `
-}
+
+    & colgroup {
+      display: none;
+    }
+
+    & tbody {
+      display: block;
+    }
+
+    & tr {
+      display: block;
+      padding: var(--space-3);
+      border: 1px solid var(--color-clear-300);
+      border-radius: var(--surface-radius);
+    }
+
+    & tr + tr {
+      margin-top: var(--space-3);
+    }
+
+    & th,
+    & td {
+      position: static;
+      box-shadow: none;
+    }
+
+    /* Blocks rather than table parts: table layout sizes a header row from its columns and
+       ignores the 1px clip, which pushed the header cells right off the viewport. The stacking
+       table spells its ARIA roles out, so dropping the table display does not cost semantics. */
+    & thead {
+      position: absolute;
+      display: block;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    & thead tr {
+      display: block;
+    }
+
+    & thead th {
+      display: block;
+      width: 1px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    & td:not([data-table-control="true"], [data-table-detail="true"]) {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-1) var(--space-3);
+      align-items: baseline;
+      min-width: 0;
+      padding: var(--space-2) 0;
+      border-bottom: 0;
+      white-space: normal;
+    }
+
+    & td[data-table-control="true"] {
+      display: inline-flex;
+      width: auto;
+      padding: 0 var(--space-3) var(--space-2) 0;
+      border-bottom: 0;
+    }
+
+    & [data-table-expand="true"] {
+      width: auto;
+      gap: var(--space-2);
+      padding: 0 var(--space-2);
+    }
+
+    & [data-table-expand-label="true"] {
+      display: inline;
+    }
+
+    & td[data-table-detail="true"] {
+      display: block;
+      margin-top: var(--space-2);
+      border-bottom: 0;
+    }
+
+    & [data-table-stack-label="true"] {
+      display: block;
+      flex: 0 0 40%;
+      color: var(--color-gray-500);
+      font-size: var(--font-size-0);
+      font-weight: 600;
+      /* A numeric column's end alignment lands on the label too, sending it to the opposite
+         edge from the labels beside it. */
+      text-align: start;
+      overflow-wrap: anywhere;
+    }
+
+    /* Keeping the flex default min-width wraps a value too wide to sit beside its label — a
+       status pill, a badge and an arrow — onto a line of its own instead of past the card's
+       edge; breaking anywhere stops ordinary text doing that for want of a break point. */
+    & [data-table-stack-value="true"] {
+      display: block;
+      flex: 1 1 0;
+      overflow-wrap: anywhere;
+    }
+  }
+`

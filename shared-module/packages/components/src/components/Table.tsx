@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useEffect, useId, useMemo, useRef, useState } from "react"
+import React, { useEffect, useId, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -28,6 +28,7 @@ import {
   emptyStateCellCss,
   expandButtonCss,
   expandIconCss,
+  expandLabelCss,
   frameCss,
   growFixedCss,
   headerCellCss,
@@ -62,7 +63,6 @@ export type TableSortDirection = "ascending" | "descending"
 /** `stack` turns each row into a labelled list on a narrow screen instead of scrolling sideways. */
 export type TableResponsive = "stack"
 
-const DEFAULT_STACK_BELOW_PX = 640
 const CHECKBOX_SIZE = "md" as const
 const CHECKBOX_SHAPE = "checkbox" as const
 const CHEVRON_RIGHT = "right" as const
@@ -141,8 +141,6 @@ export interface TableProps<Row> {
   /** Pins the leading column while the rest scrolls under it, checkbox and toggle included. */
   stickyFirstColumn?: boolean
   responsive?: TableResponsive
-  /** Width in pixels below which `responsive: "stack"` takes over. */
-  stackBelow?: number
   rowHover?: boolean
   /**
    * Extra detail for one row, revealed by a toggle in a leading column. Return `null` for a row
@@ -237,7 +235,10 @@ function TableCheckbox({
   }, [isIndeterminate])
 
   return (
-    <span className={checkboxShellCss}>
+    // The indicator below is positioned, so it paints over the transparent input and eats the
+    // click; a label ancestor is what forwards that click to the input.
+    // oxlint-disable-next-line jsx-a11y/label-has-associated-control -- the input is the child
+    <label className={checkboxShellCss} data-disabled={isDisabled ? "true" : "false"}>
       <input
         aria-label={label}
         checked={isChecked}
@@ -269,7 +270,7 @@ function TableCheckbox({
           )}
         />
       </span>
-    </span>
+    </label>
   )
 }
 
@@ -285,7 +286,6 @@ export function Table<Row>({
   overflowCue = true,
   stickyFirstColumn = false,
   responsive,
-  stackBelow = DEFAULT_STACK_BELOW_PX,
   rowHover = false,
   expandableRow,
   selection,
@@ -379,7 +379,9 @@ export function Table<Row>({
     ),
   }))
 
-  const stickyCss = (precedingControlColumns: number) =>
+  // One class per sticky position rather than per cell, for the same reason as the column classes
+  // above: every row repeats the same three offsets.
+  const stickyClassAt = (precedingControlColumns: number) =>
     stickyFirstColumn
       ? cx(
           stickyCellCss,
@@ -387,13 +389,13 @@ export function Table<Row>({
           overflow.start && stickyCellScrolledCss,
         )
       : undefined
+  const stickySelectionCellCss = stickyClassAt(0)
+  const stickyExpandCellCss = stickyClassAt(hasSelection ? 1 : 0)
+  const stickyFirstDataCellCss = stickyClassAt(controlColumnCount)
 
   const baseCellCss = cx(cellCss, compact && cellCompactCss)
   const resolvedEmptyState = emptyState === undefined ? t("table.noRows") : emptyState
-  const stackClass = useMemo(
-    () => (isStacking ? stackCss(stackBelow) : undefined),
-    [isStacking, stackBelow],
-  )
+  const stackClass = isStacking ? stackCss : undefined
 
   const selectedKeys = new Set(selection?.selectedKeys ?? [])
   const selectableKeys = rows.flatMap((row, rowIndex) =>
@@ -481,7 +483,7 @@ export function Table<Row>({
             <tr role={isStacking ? "row" : undefined}>
               {hasSelection ? (
                 <th
-                  className={cx(baseCellCss, headerCellCss, controlCellCss, stickyCss(0))}
+                  className={cx(baseCellCss, headerCellCss, controlCellCss, stickySelectionCellCss)}
                   role={isStacking ? "columnheader" : undefined}
                   scope="col"
                 >
@@ -496,12 +498,7 @@ export function Table<Row>({
               ) : null}
               {hasExpandable ? (
                 <th
-                  className={cx(
-                    baseCellCss,
-                    headerCellCss,
-                    controlCellCss,
-                    stickyCss(hasSelection ? 1 : 0),
-                  )}
+                  className={cx(baseCellCss, headerCellCss, controlCellCss, stickyExpandCellCss)}
                   role={isStacking ? "columnheader" : undefined}
                   scope="col"
                 >
@@ -519,7 +516,7 @@ export function Table<Row>({
                     baseCellCss,
                     headerCellCss,
                     columnCss[columnIndex]?.cell,
-                    columnIndex === 0 ? stickyCss(controlColumnCount) : undefined,
+                    columnIndex === 0 ? stickyFirstDataCellCss : undefined,
                   )}
                   key={columnIndex}
                   role={isStacking ? "columnheader" : undefined}
@@ -558,7 +555,12 @@ export function Table<Row>({
                     <tr role={isStacking ? "row" : undefined}>
                       {hasSelection ? (
                         <td
-                          className={cx(baseCellCss, bodyCellCss, controlCellCss, stickyCss(0))}
+                          className={cx(
+                            baseCellCss,
+                            bodyCellCss,
+                            controlCellCss,
+                            stickySelectionCellCss,
+                          )}
                           data-table-control="true"
                           role={isStacking ? "cell" : undefined}
                         >
@@ -576,7 +578,7 @@ export function Table<Row>({
                             baseCellCss,
                             bodyCellCss,
                             controlCellCss,
-                            stickyCss(hasSelection ? 1 : 0),
+                            stickyExpandCellCss,
                           )}
                           data-table-control="true"
                           role={isStacking ? "cell" : undefined}
@@ -589,6 +591,7 @@ export function Table<Row>({
                                 isExpanded ? t("table.collapseRow") : t("table.expandRow")
                               }
                               className={expandButtonCss}
+                              data-table-expand="true"
                               onClick={() => toggleExpanded(rowIndex)}
                               type="button"
                             >
@@ -598,6 +601,15 @@ export function Table<Row>({
                               >
                                 <ChevronIcon direction={CHEVRON_RIGHT} />
                               </span>
+                              {isStacking ? (
+                                <span
+                                  aria-hidden="true"
+                                  className={expandLabelCss}
+                                  data-table-expand-label="true"
+                                >
+                                  {isExpanded ? t("table.collapseRow") : t("table.expandRow")}
+                                </span>
+                              ) : null}
                             </button>
                           )}
                         </td>
@@ -608,7 +620,7 @@ export function Table<Row>({
                             baseCellCss,
                             bodyCellCss,
                             columnCss[columnIndex]?.cell,
-                            columnIndex === 0 ? stickyCss(controlColumnCount) : undefined,
+                            columnIndex === 0 ? stickyFirstDataCellCss : undefined,
                           )}
                           key={columnIndex}
                           role={isStacking ? "cell" : undefined}

@@ -3,7 +3,6 @@
 import { useSearchParams } from "next/navigation"
 import { useCallback, useMemo } from "react"
 
-// oxlint-disable-next-line i18next/no-literal-string
 const PAGE_PARAM = "page"
 
 export interface QueryParamFilters {

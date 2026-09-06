@@ -163,6 +163,9 @@ const contentCss = css`
   }
 `
 
+/** Below this the footer stacks; `actionCss` has to know, so the two cannot drift apart. */
+const STACK_ACTIONS_BELOW_PX = 480
+
 const footerCss = css`
   flex: none;
   display: flex;
@@ -170,7 +173,7 @@ const footerCss = css`
   gap: var(--space-3);
   padding: 0 clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2rem);
 
-  @media (max-width: 480px) {
+  @media (max-width: ${STACK_ACTIONS_BELOW_PX}px) {
     flex-direction: column;
 
     & > * {
@@ -181,6 +184,12 @@ const footerCss = css`
 
 const actionCss = css`
   flex: 1 1 0;
+
+  /* On a column main axis that zero basis becomes a zero height and overrides the button's own,
+     leaving an action the height of its text. */
+  @media (max-width: ${STACK_ACTIONS_BELOW_PX}px) {
+    flex: 0 0 auto;
+  }
 `
 
 /**

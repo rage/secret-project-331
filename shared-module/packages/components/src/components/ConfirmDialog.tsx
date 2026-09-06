@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -7,6 +8,12 @@ import { useTranslation } from "react-i18next"
 import { omitUndefined } from "../lib/utils/nullability"
 import { Dialog, type DialogAction, type DialogSize } from "./Dialog"
 import { TextArea } from "./TextArea"
+
+// The field's floating-label band eats into the space above it, so a flat form gap reads tighter
+// here than between two ordinary rows.
+const descriptionAboveFieldCss = css`
+  margin-bottom: calc(var(--space-4) + var(--space-2));
+`
 
 /** Config for the optional required-reason field. */
 export interface ConfirmDialogReason {
@@ -24,7 +31,7 @@ export interface ConfirmDialogProps {
   title: React.ReactNode
   /** One-sentence statement of what this action does, stated plainly. */
   description: React.ReactNode
-  /** Label and accessible name of the primary action, e.g. "Cancel registration" — a verb phrase naming the action, not a generic acknowledgement. */
+  /** Label and accessible name of the primary action: a verb phrase naming it, e.g. "Cancel registration" — not a generic acknowledgement. */
   confirmLabel: string
   /** Defaults to the shared "Cancel" label. */
   cancelLabel?: string
@@ -124,7 +131,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       actions={actions}
       {...omitUndefined({ size, "data-testid": dataTestId })}
     >
-      <div>{description}</div>
+      <div className={reason ? descriptionAboveFieldCss : undefined}>{description}</div>
       {reason ? (
         <TextArea<ConfirmDialogFormValues>
           name="reason"

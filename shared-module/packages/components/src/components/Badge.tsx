@@ -57,6 +57,8 @@ const toneCss: Record<BadgeTone, string> = {
 const rootCss = css`
   display: inline-flex;
   align-items: flex-start;
+  /* Grid defaults an item to justify-self: stretch, pulling a pill out to the whole column. */
+  justify-self: start;
   gap: var(--space-2);
   padding: var(--space-1) var(--space-3);
   border: 1px solid transparent;
@@ -64,12 +66,13 @@ const rootCss = css`
   font-size: var(--font-size-1);
   font-weight: 600;
   line-height: 1.2;
+  /* A pill that wraps inside its own outline reads as broken; let the row it sits in wrap instead. */
+  white-space: nowrap;
 `
 
 const compactCss = css`
   gap: var(--space-1);
   padding: 0 var(--space-2);
-  white-space: nowrap;
 `
 
 const iconCss = css`
@@ -82,6 +85,7 @@ const wrapCss = css`
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-self: start;
   gap: var(--space-1);
 `
 

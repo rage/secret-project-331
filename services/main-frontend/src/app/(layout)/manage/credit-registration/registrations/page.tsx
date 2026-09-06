@@ -1,14 +1,16 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { stateName } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
+import { registrationErrorNote } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
   useAdminCreditRegistrations,
   useCreditRegistrationCourseStats,
   useCreditRegistrationOverview,
+  useCreditRegistrationThresholds,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
 import {
@@ -17,23 +19,36 @@ import {
   BUCKET_ORDER,
   bucketLabel,
 } from "@/components/credit-registration/admin/queueBuckets"
+import {
+  secondsSince,
+  stuckThresholdSecs,
+} from "@/components/credit-registration/admin/stuckThreshold"
+import StudentCell from "@/components/credit-registration/admin/StudentCell"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   selectFilterField,
   useFilteredAdminQuery,
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
+  BADGE_COMPACT,
+  BUTTON_TERTIARY,
   DENSITY_COMPACT,
   ID_PREFIX_LENGTH,
-  LINK_QUIET,
+  MIDDLE_DOT,
   QUIET_REFRESH,
+  TABLE_STACK,
   TIME_COMPACT,
+  TIME_DURATION,
+  TONE,
 } from "@/components/credit-registration/constants"
+import {
+  registrationErrorShortLabel,
+  registrationLedgerStateLabel,
+} from "@/components/credit-registration/creditRegistrationCopy"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
   controlCss,
   controlsCss,
-  headingCss,
   monospaceCss,
   noteCss,
   rowCss,
@@ -44,14 +59,16 @@ import type {
   CreditRegistrationErrorCode,
   CreditRegistrationState,
 } from "@/generated/api/types.generated"
-import { formatUserName } from "@/hooks/useUserDetails"
 import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import {
+  Badge,
   Button,
   Checkbox,
-  Link,
+  Chip,
+  EmptyState,
+  MultiSelect,
   QueryResult,
   RelativeTime,
   Select,
@@ -60,70 +77,54 @@ import {
 } from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
+const SEARCH_ICON_SIZE = 16
 
 // Every filter lives in the query string, so links are shareable and the Overview can deep-link in.
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_STATE = "state"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ERROR_CODE = "error_code"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_COURSE_ID = "course_id"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_COURSE_MODULE_ID = "course_module_id"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_USER_ID = "user_id"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_STUDENT_NUMBER = "student_number"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ATTENTION = "needs_admin_attention"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_SEARCH = "search"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_SUPERSEDED = "include_superseded"
-// oxlint-disable-next-line i18next/no-literal-string
 const PARAM_SORT = "sort"
-// oxlint-disable-next-line i18next/no-literal-string
 const TRUE = "true"
-// oxlint-disable-next-line i18next/no-literal-string
 const NONE = ""
 
-// oxlint-disable-next-line i18next/no-literal-string
 const SORT_LAST_ACTIVITY = "last_activity"
-// oxlint-disable-next-line i18next/no-literal-string
 const SORT_CREATED = "created"
-// oxlint-disable-next-line i18next/no-literal-string
 const SORT_TIME_IN_STATE = "time_in_state"
-// oxlint-disable-next-line i18next/no-literal-string
 const SORT_ATTEMPTS = "attempts"
 
-const NARROWING_PARAMS = [
-  PARAM_STATE,
-  PARAM_ERROR_CODE,
-  PARAM_COURSE_ID,
-  PARAM_COURSE_MODULE_ID,
-  PARAM_USER_ID,
-  PARAM_STUDENT_NUMBER,
-]
+/** The filters shown as removable chips: the ones a deep link sets and no control on the page owns. */
+const CHIP_PARAMS = [PARAM_COURSE_MODULE_ID, PARAM_USER_ID, PARAM_STUDENT_NUMBER]
 
-/** Chip labels for `NARROWING_PARAMS`; the value itself stays untranslated, matching AdminStateBadge. */
+const NARROWING_PARAMS = [PARAM_STATE, PARAM_ERROR_CODE, PARAM_COURSE_ID, ...CHIP_PARAMS]
+
+/** Chip labels for `CHIP_PARAMS`. Their values are ids and numbers, so only the label translates. */
 const FILTER_LABEL_KEYS: Record<string, string> = {
-  [PARAM_STATE]: "label-state",
-  [PARAM_ERROR_CODE]: "label-error-code",
-  [PARAM_COURSE_ID]: "label-course",
   [PARAM_COURSE_MODULE_ID]: "label-course-module-id",
   [PARAM_USER_ID]: "label-user-id",
   [PARAM_STUDENT_NUMBER]: "label-student-number",
 }
 
 /** A uuid filter reads as noise in full; the prefix is enough to tell two of them apart. */
-const ID_PARAMS = new Set([PARAM_COURSE_ID, PARAM_COURSE_MODULE_ID, PARAM_USER_ID])
+const ID_PARAMS = new Set([PARAM_COURSE_MODULE_ID, PARAM_USER_ID])
 
-/** What a filter chip shows for its value: shortened for ids, named for states, raw otherwise. */
-const chipValue = (name: string, value: string): string => {
-  if (ID_PARAMS.has(name)) {
-    return value.slice(0, ID_PREFIX_LENGTH)
-  }
-  return name === PARAM_STATE ? stateName(value as CreditRegistrationState) : value
+/** What a filter chip shows for its value: shortened for ids, raw otherwise. */
+const chipValue = (name: string, value: string): string =>
+  ID_PARAMS.has(name) ? value.slice(0, ID_PREFIX_LENGTH) : value
+
+interface StateOption {
+  state: CreditRegistrationState
+  label: string
+}
+
+interface ErrorCodeOption {
+  code: CreditRegistrationErrorCode
+  label: string
 }
 
 interface FilterFields {
@@ -132,9 +133,8 @@ interface FilterFields {
   course_id: string
   attention: boolean
   superseded: boolean
-  /** The two multi-value filters: picking a value appends it and the control returns to empty. */
-  addState: string
-  addErrorCode: string
+  states: string[]
+  errorCodes: string[]
 }
 
 const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
@@ -163,6 +163,11 @@ const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
 const searchCss = css`
   min-width: 20rem;
   flex: 1 1 20rem;
+`
+
+/** Centers an inline checkbox against the taller floating-label selects beside it in the toolbar. */
+const checkboxAlignCss = css`
+  align-self: center;
 `
 
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
@@ -210,8 +215,8 @@ const RegistrationsPage: React.FC = () => {
       rowsPerPage: ROWS_PER_PAGE,
       manualDefaults: (filters) => ({
         search: filters.param(PARAM_SEARCH) ?? "",
-        addState: NONE,
-        addErrorCode: NONE,
+        states: filters.params(PARAM_STATE),
+        errorCodes: filters.params(PARAM_ERROR_CODE),
       }),
     },
   )
@@ -221,9 +226,8 @@ const RegistrationsPage: React.FC = () => {
   const searchPending = typedSearch.trim() !== (param(PARAM_SEARCH) ?? "")
 
   const registrationsQuery = useAdminCreditRegistrations(query, { paused: searchPending })
-  const activeNarrowings = NARROWING_PARAMS.flatMap((name) =>
-    params(name).map((value) => ({ name, value })),
-  )
+  const thresholds = useCreditRegistrationThresholds().data
+  const chipFilters = CHIP_PARAMS.flatMap((name) => params(name).map((value) => ({ name, value })))
 
   // The stats are one row per module, and a course can have several enabled modules: dedupe by
   // course_id or the Select gets two options with the same value and refuses to render at all.
@@ -236,47 +240,83 @@ const RegistrationsPage: React.FC = () => {
     return Array.from(byCourseId, ([value, label]) => ({ value, label }))
   }, [courseStatsQuery.data?.modules])
 
+  // Naming the module only tells the reader something where a course has more than one.
+  const manyModuleCourseIds = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const courseModule of courseStatsQuery.data?.modules ?? []) {
+      counts.set(courseModule.course_id, (counts.get(courseModule.course_id) ?? 0) + 1)
+    }
+    return new Set(
+      Array.from(counts)
+        .filter(([, count]) => count > 1)
+        .map(([courseId]) => courseId),
+    )
+  }, [courseStatsQuery.data?.modules])
+
   // The live ledger's codes, so the filter never offers one no row could match.
   const overviewQuery = useCreditRegistrationOverview()
-  const errorCodeOptions = (overviewQuery.data?.error_codes ?? []).map((row) => ({
-    value: row.error_code,
-    label: row.error_code,
-  }))
+  const errorCodeOptions: ErrorCodeOption[] = (overviewQuery.data?.error_codes ?? []).map(
+    (row) => ({
+      code: row.error_code,
+      label: `${registrationErrorShortLabel(t, row.error_code)}${MIDDLE_DOT}${row.error_code}`,
+    }),
+  )
 
-  const stateOptions = BUCKET_ORDER.map((bucket) => ({
-    label: bucketLabel(t, bucket),
-    options: ALL_STATES.filter((state) => BUCKET_OF_STATE[state] === bucket).map((state) => ({
-      value: state,
-      label: stateName(state),
+  const stateOptions: StateOption[] = BUCKET_ORDER.flatMap((bucket) =>
+    ALL_STATES.filter((state) => BUCKET_OF_STATE[state] === bucket).map((state) => ({
+      state,
+      label: `${registrationLedgerStateLabel(t, state)}${MIDDLE_DOT}${bucketLabel(t, bucket)}`,
     })),
-  }))
+  )
 
-  const addState = watch("addState")
-  const addErrorCode = watch("addErrorCode")
   const chosenStates = params(PARAM_STATE)
   const chosenErrorCodes = params(PARAM_ERROR_CODE)
+  const pickedStates = watch("states")
+  const pickedErrorCodes = watch("errorCodes")
 
-  // The two "add" controls hand their pick to the URL and empty themselves again, so the chip row
-  // stays the single account of what is filtered.
+  // The two multi-selects and the query string mirror each other, and each side writes only when
+  // the two differ, which is what stops the pair of effects from bouncing off each other.
   useEffect(() => {
-    if (addState !== NONE) {
-      applyParams({ [PARAM_STATE]: [...new Set([...chosenStates, addState])] })
-      setValue("addState", NONE)
+    setValue("states", chosenStates)
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [chosenStates.join()])
+
+  useEffect(() => {
+    if (pickedStates.join() !== chosenStates.join()) {
+      applyParams({ [PARAM_STATE]: pickedStates })
     }
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [addState])
+  }, [pickedStates.join()])
 
   useEffect(() => {
-    if (addErrorCode !== NONE) {
-      applyParams({ [PARAM_ERROR_CODE]: [...new Set([...chosenErrorCodes, addErrorCode])] })
-      setValue("addErrorCode", NONE)
+    setValue("errorCodes", chosenErrorCodes)
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [chosenErrorCodes.join()])
+
+  useEffect(() => {
+    if (pickedErrorCodes.join() !== chosenErrorCodes.join()) {
+      applyParams({ [PARAM_ERROR_CODE]: pickedErrorCodes })
     }
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [addErrorCode])
+  }, [pickedErrorCodes.join()])
+
+  const searchTerm = param(PARAM_SEARCH)
+  const activeFilters: string[] = [
+    ...chosenStates.map((state) =>
+      registrationLedgerStateLabel(t, state as CreditRegistrationState),
+    ),
+    ...chosenErrorCodes,
+    ...chipFilters.map(
+      ({ name, value }) =>
+        `${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${chipValue(name, value)}`,
+    ),
+    ...(searchTerm ? [searchTerm] : []),
+  ]
+
+  const clearEveryFilter = () => clearFilters([...NARROWING_PARAMS, PARAM_SEARCH])
 
   return (
     <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-registrations")}</h2>
       <form
         className={controlsCss}
         onSubmit={handleSubmit((fields) => applyParams({ [PARAM_SEARCH]: fields.search.trim() }))}
@@ -287,11 +327,9 @@ const RegistrationsPage: React.FC = () => {
             control={control}
             label={t("credit-registration-admin-search-label")}
             description={t("credit-registration-admin-search-description")}
+            iconEnd={<MagnifyingGlass size={SEARCH_ICON_SIZE} />}
           />
         </div>
-        <Button variant="secondary" size="medium" type="submit">
-          {t("button-text-search")}
-        </Button>
       </form>
       <div className={controlsCss}>
         <div className={controlCss}>
@@ -307,25 +345,25 @@ const RegistrationsPage: React.FC = () => {
           />
         </div>
         <div className={controlCss}>
-          <Select
-            name="addState"
+          <MultiSelect
+            name="states"
             control={control}
             label={t("label-state")}
-            options={[
-              { value: NONE, label: t("credit-registration-admin-add-a-state") },
-              ...stateOptions,
-            ]}
+            placeholder={t("credit-registration-admin-any-state")}
+            items={stateOptions}
+            getItemKey={(option) => option.state}
+            getItemTextValue={(option) => option.label}
           />
         </div>
         <div className={controlCss}>
-          <Select
-            name="addErrorCode"
+          <MultiSelect
+            name="errorCodes"
             control={control}
             label={t("label-error-code")}
-            options={[
-              { value: NONE, label: t("credit-registration-admin-add-an-error-code") },
-              ...errorCodeOptions,
-            ]}
+            placeholder={t("credit-registration-admin-any-error-code")}
+            items={errorCodeOptions}
+            getItemKey={(option) => option.code}
+            getItemTextValue={(option) => option.label}
           />
         </div>
         <div className={controlCss}>
@@ -347,127 +385,172 @@ const RegistrationsPage: React.FC = () => {
             ]}
           />
         </div>
-        <Checkbox
-          name="attention"
-          control={control}
-          isInline
-          label={t("credit-registration-admin-only-needs-attention")}
-        />
-        <Checkbox
-          name="superseded"
-          control={control}
-          isInline
-          label={t("credit-registration-admin-show-superseded")}
-        />
+        <div className={checkboxAlignCss}>
+          <Checkbox
+            name="attention"
+            control={control}
+            isInline
+            label={t("credit-registration-admin-only-needs-attention")}
+          />
+        </div>
+        <div className={checkboxAlignCss}>
+          <Checkbox
+            name="superseded"
+            control={control}
+            isInline
+            label={t("credit-registration-admin-show-superseded")}
+          />
+        </div>
       </div>
-      {activeNarrowings.length > 0 && (
+      {chipFilters.length > 0 && (
         <div className={rowCss}>
-          {activeNarrowings.map(({ name, value }) => (
-            <Button
+          {chipFilters.map(({ name, value }) => (
+            <Chip
               key={`${name}:${value}`}
-              variant="tertiary"
-              size="small"
-              domProps={{ title: value }}
-              aria-label={t("credit-registration-admin-remove-filter", {
+              onRemove={() => applyParams({ [name]: params(name).filter((one) => one !== value) })}
+              removeLabel={t("credit-registration-admin-remove-filter", {
                 filter: labelFrom(t, FILTER_LABEL_KEYS, name, name),
                 value,
               })}
-              onClick={() => applyParams({ [name]: params(name).filter((one) => one !== value) })}
             >
               {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${chipValue(name, value)}`}
-            </Button>
+            </Chip>
           ))}
-          <Button
-            variant="tertiary"
-            size="small"
-            onClick={() => clearFilters([...NARROWING_PARAMS, PARAM_SEARCH])}
-          >
-            {t("button-text-clear-filters")}
-          </Button>
         </div>
       )}
       <QueryResult query={registrationsQuery} refreshIndicator={QUIET_REFRESH}>
-        {(page) => (
-          <>
-            <p className={noteCss}>
-              {t("credit-registration-admin-row-count", { count: page.total_count })}
-            </p>
-            <Table
-              caption={t("credit-registration-heading-registrations")}
-              density={DENSITY_COMPACT}
-              rowKey={(row) => row.id}
-              rows={page.data}
-              emptyState={t("credit-registration-admin-no-matching-rows")}
-              columns={[
-                {
-                  header: t("label-student"),
-                  grow: true,
-                  minWidth: "12rem",
-                  cell: (row) => (
-                    <span className={stackedCellCss}>
-                      {/* Not prefetched: up to 50 of these render at once and few get clicked. */}
-                      <Link
-                        href={creditRegistrationItemRoute(row.id)}
-                        appearance={LINK_QUIET}
-                        prefetch={false}
-                      >
-                        {formatUserName(row)}
-                      </Link>
-                      <span className={noteCss}>{row.email}</span>
-                    </span>
-                  ),
-                },
-                {
-                  header: t("label-student-number"),
-                  minWidth: "7rem",
-                  nowrap: true,
-                  cell: (row) => {
-                    const number = row.verified_student_number ?? row.student_number
-                    return number === null || number === undefined ? (
-                      <span className={noteCss}>{t("credit-registration-admin-not-linked")}</span>
-                    ) : (
-                      <span className={monospaceCss}>{number}</span>
-                    )
-                  },
-                },
-                {
-                  header: t("label-course"),
-                  minWidth: "11rem",
-                  cell: (row) => (
-                    <span className={stackedCellCss}>
-                      <span>{row.course_name}</span>
-                      <span className={noteCss}>{row.course_module_name}</span>
-                    </span>
-                  ),
-                },
-                {
-                  header: t("label-state"),
-                  minWidth: "13rem",
-                  cell: (row) => (
-                    <span className={stackedCellCss}>
-                      <AdminStateBadge
-                        state={row.state}
-                        pendingReason={row.pending_reason}
-                        superseded={row.superseded}
-                        attemptNumber={row.attempt_number}
-                      />
-                      {row.error_code && <code>{row.error_code}</code>}
-                    </span>
-                  ),
-                },
-                {
-                  header: t("label-credit-registration-last-activity"),
-                  minWidth: "8rem",
-                  nowrap: true,
-                  cell: (row) => (
-                    <RelativeTime at={row.last_attempt_at} absoluteTime={TIME_COMPACT} />
-                  ),
-                },
-              ]}
+        {(page) =>
+          page.data.length === 0 ? (
+            <EmptyState
+              title={t("credit-registration-admin-no-matching-rows")}
+              // Nothing to clear when nothing is filtered, and a button that does nothing is worse
+              // than no button.
+              {...includeIf(activeFilters.length > 0, {
+                hint: t("credit-registration-admin-filters-in-use", {
+                  filters: activeFilters.join(MIDDLE_DOT),
+                }),
+                action: (
+                  <Button variant={BUTTON_TERTIARY} size="medium" onClick={clearEveryFilter}>
+                    {t("button-text-clear-filters")}
+                  </Button>
+                ),
+              })}
             />
-            <Pagination paginationInfo={paginationInfo} totalPages={page.total_pages} />
-          </>
-        )}
+          ) : (
+            <>
+              <p className={noteCss}>
+                {t("credit-registration-admin-row-count", { count: page.total_count })}
+              </p>
+              <Table
+                caption={t("credit-registration-heading-registrations")}
+                density={DENSITY_COMPACT}
+                rowKey={(row) => row.id}
+                rows={page.data}
+                responsive={TABLE_STACK}
+                stickyFirstColumn
+                rowHover
+                columns={[
+                  {
+                    header: t("label-student"),
+                    minWidth: "16rem",
+                    cell: (row) => (
+                      <StudentCell row={row} href={creditRegistrationItemRoute(row.id)} />
+                    ),
+                  },
+                  {
+                    header: t("label-student-number"),
+                    minWidth: "7rem",
+                    nowrap: true,
+                    cell: (row) => {
+                      const number = row.verified_student_number ?? row.student_number
+                      return number === null || number === undefined ? (
+                        <span className={noteCss}>{t("credit-registration-admin-not-linked")}</span>
+                      ) : (
+                        <span className={monospaceCss}>{number}</span>
+                      )
+                    },
+                  },
+                  {
+                    header: t("label-course"),
+                    grow: 1,
+                    minWidth: "11rem",
+                    cell: (row) => (
+                      <span className={stackedCellCss}>
+                        <span>{row.course_name}</span>
+                        {manyModuleCourseIds.has(row.course_id) && (
+                          <span className={noteCss}>{row.course_module_name}</span>
+                        )}
+                      </span>
+                    ),
+                  },
+                  {
+                    header: t("label-state"),
+                    minWidth: "14rem",
+                    cell: (row) => {
+                      const threshold = thresholds
+                        ? stuckThresholdSecs(row.state, thresholds)
+                        : null
+                      const isStuck =
+                        threshold !== null && secondsSince(row.state_entered_at) > threshold
+                      const errorNote = registrationErrorNote(
+                        t,
+                        row.state,
+                        row.error_code,
+                        row.pending_reason,
+                      )
+                      return (
+                        <span className={stackedCellCss}>
+                          <span className={rowCss}>
+                            <AdminStateBadge
+                              state={row.state}
+                              pendingReason={row.pending_reason}
+                              superseded={row.superseded}
+                              attemptNumber={row.attempt_number}
+                            />
+                            {isStuck && (
+                              <Badge tone={TONE.DANGER} size={BADGE_COMPACT}>
+                                {t("label-credit-registration-stuck")}
+                              </Badge>
+                            )}
+                          </span>
+                          {errorNote && (
+                            <span className={noteCss}>
+                              {errorNote} <code className={monospaceCss}>{row.error_code}</code>
+                            </span>
+                          )}
+                        </span>
+                      )
+                    },
+                  },
+                  {
+                    header: t("label-credit-registration-last-activity"),
+                    minWidth: "9rem",
+                    nowrap: true,
+                    // A blocked row has never been attempted, but entering its current state
+                    // counts as its last activity, or "—" here would read as "nothing ever
+                    // happened".
+                    cell: (row) => {
+                      const at = row.last_attempt_at ?? row.state_entered_at
+                      return (
+                        <span className={stackedCellCss}>
+                          <RelativeTime at={at} absoluteTime={TIME_DURATION} />
+                          <span className={noteCss}>
+                            <RelativeTime at={at} absoluteTime={TIME_COMPACT} />
+                          </span>
+                        </span>
+                      )
+                    },
+                  },
+                ]}
+              />
+              <Pagination
+                paginationInfo={paginationInfo}
+                totalPages={page.total_pages}
+                totalItems={page.total_count}
+              />
+            </>
+          )
+        }
       </QueryResult>
     </section>
   )

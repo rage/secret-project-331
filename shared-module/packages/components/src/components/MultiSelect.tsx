@@ -31,7 +31,6 @@ import { comboChevronCss } from "./primitives/selectStyles"
 
 export type MultiSelectKey = string | number
 
-// oxlint-disable-next-line i18next/no-literal-string
 const FILTER_SENSITIVITY = "base" as const
 const SELECTION_MODE_MULTIPLE = "multiple" as const
 const ARROW_DOWN_KEY = "ArrowDown"
@@ -270,7 +269,8 @@ export function MultiSelect<
   }
 
   const resolvedSearchLabel = searchLabel ?? t("multiSelect.search")
-  const isFloated = overlayState.isOpen || pickedKeys.length > 0
+  // A placeholder is drawn in the same band as the resting label, so one has to give way.
+  const isFloated = overlayState.isOpen || pickedKeys.length > 0 || placeholder !== undefined
   const describedBy = resolveFieldDescribedBy({
     descriptionId,
     errorMessageId,

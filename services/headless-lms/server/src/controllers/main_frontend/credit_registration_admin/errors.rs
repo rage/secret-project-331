@@ -23,47 +23,6 @@ const ATTENTION_PAGE_SIZE: u32 = 50;
 const DEFAULT_ERROR_WINDOW_SECS: i64 = 24 * 60 * 60;
 const MAX_ERROR_WINDOW_SECS: i64 = 90 * 24 * 60 * 60;
 
-/// Why a row is on the attention table. One row can carry several.
-///
-/// `needs_admin_attention` is deliberately not one of them: the flag is what the pipeline caches
-/// when it wants a human, not an answer to "why". It travels on the item instead.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum CreditRegistrationAttentionReason {
-    /// Past its state's threshold with the pipeline still owning it.
-    StuckInState,
-    PermanentError,
-    RetryWindowExpired,
-    Misregistered,
-    TooManyAttempts,
-    /// `submission_uncertain`: never retried automatically, and never in bulk.
-    OutcomeUncertain,
-}
-
-impl CreditRegistrationAttentionReason {
-    fn of(reason: AttentionReason) -> Self {
-        match reason {
-            AttentionReason::StuckInState => Self::StuckInState,
-            AttentionReason::PermanentError => Self::PermanentError,
-            AttentionReason::RetryWindowExpired => Self::RetryWindowExpired,
-            AttentionReason::Misregistered => Self::Misregistered,
-            AttentionReason::TooManyAttempts => Self::TooManyAttempts,
-            AttentionReason::OutcomeUncertain => Self::OutcomeUncertain,
-        }
-    }
-
-    fn to_model(self) -> AttentionReason {
-        match self {
-            Self::StuckInState => AttentionReason::StuckInState,
-            Self::PermanentError => AttentionReason::PermanentError,
-            Self::RetryWindowExpired => AttentionReason::RetryWindowExpired,
-            Self::Misregistered => AttentionReason::Misregistered,
-            Self::TooManyAttempts => AttentionReason::TooManyAttempts,
-            Self::OutcomeUncertain => AttentionReason::OutcomeUncertain,
-        }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationAttentionItem {
     pub credit_registration_id: Uuid,
@@ -84,15 +43,15 @@ pub struct CreditRegistrationAttentionItem {
     pub student_number: Option<String>,
     /// Every detector that picked this row, so the table can group by any of them. Empty on a row
     /// the pipeline flagged that no detector explains.
-    pub reasons: Vec<CreditRegistrationAttentionReason>,
+    pub reasons: Vec<AttentionReason>,
     /// The pipeline's cached "a human should look at this". A fact about the row, never a reason:
-    /// see [`CreditRegistrationAttentionReason`].
+    /// it says nothing about why, so it travels beside `reasons` rather than in them.
     pub needs_admin_attention: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationAttentionReasonCount {
-    pub reason: CreditRegistrationAttentionReason,
+    pub reason: AttentionReason,
     pub count: i64,
 }
 
@@ -184,7 +143,7 @@ pub async fn get_credit_registration_thresholds(
 pub struct AttentionQuery {
     page: Option<u32>,
     limit: Option<u32>,
-    reason: Option<Vec<CreditRegistrationAttentionReason>>,
+    reason: Option<Vec<AttentionReason>>,
     /// Narrows to the rows `flagged_without_reason_count` counts. Given together with `reason` it
     /// selects nothing: no row both carries a reason and lacks one.
     without_reason: Option<bool>,
@@ -208,7 +167,7 @@ Superseded attempts are outside every detector: acting on a replaced attempt is 
     params(
         ("page" = Option<u32>, Query, description = "Page number, from 1"),
         ("limit" = Option<u32>, Query, description = "Rows per page"),
-        ("reason" = Option<Vec<CreditRegistrationAttentionReason>>, Query, description = "Only rows one of these detectors picked; repeat the parameter for several"),
+        ("reason" = Option<Vec<AttentionReason>>, Query, description = "Only rows one of these detectors picked; repeat the parameter for several"),
         ("without_reason" = Option<bool>, Query, description = "Only rows no detector picked, which the pipeline's flag alone put in the queue; selects nothing alongside reason"),
         ("sort" = Option<String>, Query, description = "time_in_state, next_attempt or course")
     ),
@@ -225,13 +184,7 @@ pub async fn get_credit_registration_attention_items(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let pagination = parse_pagination(query.page, query.limit, ATTENTION_PAGE_SIZE)?;
-    let reasons: Vec<AttentionReason> = query
-        .reason
-        .as_deref()
-        .unwrap_or_default()
-        .iter()
-        .map(|reason| reason.to_model())
-        .collect();
+    let reasons: &[AttentionReason] = query.reason.as_deref().unwrap_or_default();
     let only_without_reason = query.without_reason.unwrap_or(false);
     let sort = match query.sort.as_deref() {
         Some("next_attempt") => AttentionSort::NextAttempt,
@@ -245,7 +198,7 @@ pub async fn get_credit_registration_attention_items(
         &thresholds,
         ATTENTION_TOO_MANY_ATTEMPTS,
         credit_registrations::AttentionSelection {
-            reasons: &reasons,
+            reasons,
             only_without_reason,
             sort,
             limit: pagination.limit(),
@@ -273,10 +226,7 @@ pub async fn get_credit_registration_attention_items(
         .unwrap_or_default()
         .into_iter()
         .filter(|(_, count)| *count > 0)
-        .map(|(reason, count)| CreditRegistrationAttentionReasonCount {
-            reason: CreditRegistrationAttentionReason::of(reason),
-            count,
-        })
+        .map(|(reason, count)| CreditRegistrationAttentionReasonCount { reason, count })
         .collect();
 
     token.authorized_ok(web::Json(CreditRegistrationAttentionItems {
@@ -348,11 +298,7 @@ pub async fn get_credit_registration_errors_by_code(
 
 fn to_attention_item(row: AttentionRegistration) -> CreditRegistrationAttentionItem {
     CreditRegistrationAttentionItem {
-        reasons: row
-            .reasons()
-            .into_iter()
-            .map(CreditRegistrationAttentionReason::of)
-            .collect(),
+        reasons: row.reasons(),
         credit_registration_id: row.id,
         user_id: row.user_id,
         first_name: row.first_name,

@@ -175,7 +175,6 @@ pub struct CourseCreditRegistrationModuleSummary {
     pub course_module_name: Option<String>,
     pub enabled: bool,
     pub paused: bool,
-    pub counts_by_state: Vec<CreditRegistrationStateCount>,
     /// Live registrations of this module, replaced attempts excluded. Registrations, not
     /// completions: one per student per module, and a regrade replaces rather than adds.
     pub registration_count: i64,
@@ -191,12 +190,6 @@ pub struct CourseCreditRegistrationModuleSummary {
     /// Rows the pipeline handed to support. Nothing for a teacher to do; shown so a module's
     /// failures do not read as unattended.
     pub needs_admin_attention_count: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CreditRegistrationStateCount {
-    pub state: CreditRegistrationState,
-    pub count: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -380,6 +373,7 @@ pub async fn get_course_credit_registration_summary(
     )
     .await?;
 
+    use StudentFacingCreditRegistrationStatus as Stage;
     let modules = configs
         .into_iter()
         .map(|config| {
@@ -387,17 +381,11 @@ pub async fn get_course_credit_registration_summary(
                 .iter()
                 .filter(|group| group.course_module_id == config.course_module_id)
                 .collect();
-            let in_stage = |stage: StudentFacingCreditRegistrationStatus| -> i64 {
-                groups
-                    .iter()
-                    .filter(|group| stage_of(group) == stage)
-                    .map(|group| group.count)
-                    .sum()
-            };
-            let mut counts_by_state: HashMap<CreditRegistrationState, i64> = HashMap::new();
+            let mut by_stage: HashMap<Stage, i64> = HashMap::new();
             for group in &groups {
-                *counts_by_state.entry(group.state).or_insert(0) += group.count;
+                *by_stage.entry(stage_of(group)).or_default() += group.count;
             }
+            let in_stage = |stage: Stage| -> i64 { by_stage.get(&stage).copied().unwrap_or(0) };
             CourseCreditRegistrationModuleSummary {
                 course_module_id: config.course_module_id,
                 course_module_name: module_names
@@ -407,28 +395,17 @@ pub async fn get_course_credit_registration_summary(
                 enabled: config.enable_credit_registration_via_suotar,
                 paused: config.credit_registration_paused_at.is_some(),
                 registration_count: groups.iter().map(|group| group.count).sum(),
-                registered_count: in_stage(StudentFacingCreditRegistrationStatus::Registered),
-                in_progress_count: in_stage(StudentFacingCreditRegistrationStatus::InProgress)
-                    + in_stage(StudentFacingCreditRegistrationStatus::WaitingForSisu),
-                waiting_on_student_count: in_stage(
-                    StudentFacingCreditRegistrationStatus::WaitingForCompletion,
-                ) + in_stage(
-                    StudentFacingCreditRegistrationStatus::NeedsStudentNumber,
-                ) + in_stage(
-                    StudentFacingCreditRegistrationStatus::NeedsEnrolment,
-                ),
-                failed_count: in_stage(StudentFacingCreditRegistrationStatus::Failed),
-                not_registering_count: in_stage(
-                    StudentFacingCreditRegistrationStatus::NotRegistering,
-                ),
+                registered_count: in_stage(Stage::Registered),
+                in_progress_count: in_stage(Stage::InProgress) + in_stage(Stage::WaitingForSisu),
+                waiting_on_student_count: in_stage(Stage::WaitingForCompletion)
+                    + in_stage(Stage::NeedsStudentNumber)
+                    + in_stage(Stage::NeedsEnrolment),
+                failed_count: in_stage(Stage::Failed),
+                not_registering_count: in_stage(Stage::NotRegistering),
                 needs_admin_attention_count: groups
                     .iter()
                     .map(|group| group.needs_admin_attention_count)
                     .sum(),
-                counts_by_state: counts_by_state
-                    .into_iter()
-                    .map(|(state, count)| CreditRegistrationStateCount { state, count })
-                    .collect(),
             }
         })
         .collect();

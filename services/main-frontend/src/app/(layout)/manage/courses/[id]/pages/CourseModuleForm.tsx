@@ -4,6 +4,7 @@ import { css, cx } from "@emotion/css"
 import { Trash } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import React, { useEffect, useState } from "react"
+import type { Path } from "react-hook-form"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -11,10 +12,11 @@ import { ABSENT, MIDDLE_DOT, TONE } from "@/components/credit-registration/const
 import CreditRegistrationConfigCallout, {
   hasCreditRegistrationConfigProblem,
 } from "@/components/credit-registration/CreditRegistrationConfigCallout"
-import { labelFrom } from "@/components/credit-registration/labelFrom"
+import { labelFrom, translateKey } from "@/components/credit-registration/labelFrom"
 import {
   cardCss,
   dividedListCss,
+  headingCss,
   monospaceCss,
   noteCss,
   subheadingCss,
@@ -55,10 +57,14 @@ interface Props {
   creditRegistrationConfig: CourseModuleCreditRegistrationConfig | undefined
   /** Only support may turn the study registry path on or off; a teacher still sees which one is in use. */
   canConfigureStudyRegistry: boolean
+  /** Whether the module carries edits that the page-level save has not sent yet. */
+  hasUnsavedChanges?: boolean
   onSubmitForm: (id: string, fields: CourseModuleFormFields) => void
   onDeleteModule?: (id: string) => void
   /** Closes a create card, and leaves edit mode without saving. */
   onCancel?: () => void
+  /** Shown inside the collapsed card, under the summary: the module's chapters and its registrations. */
+  children?: React.ReactNode
 }
 
 /** What the module editor hands back; the two registration flags are exclusive by construction. */
@@ -86,6 +92,9 @@ const [NO_REGISTRATION, OPEN_UNIVERSITY, STUDY_REGISTRY] = REGISTRATION_PATHS
 
 /** Shorter than this is a fragment, not a link a student can follow. */
 const MIN_COMPLETION_LINK_LENGTH = 10
+
+/** Sisu rejects a registration missing either of these. */
+const SISU_REQUIRED_FIELDS: Path<CourseModuleFormState>[] = ["uh_course_code", "ects_credits"]
 
 const VALIDATE_ON_COMMIT = "validate" as const
 
@@ -150,11 +159,19 @@ const deleteButtonCss = css`
   color: var(--color-red-600);
 `
 
+const supportReferenceCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+`
+
 const actionsCss = css`
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-3);
+  /* Stays right-aligned on its own line when the title above wraps and pushes it off headerCss's row. */
+  margin-left: auto;
 `
 
 const registrationPathOf = (module: ModuleView): RegistrationPath => {
@@ -170,7 +187,7 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModule
   name: module.name,
   starts: String(module.firstChapter ?? chapters[0] ?? 1),
   ends: String(module.lastChapter ?? chapters.at(-1) ?? 1),
-  ects_credits: Number(module.ects_credits) || 0,
+  ects_credits: module.ects_credits,
   uh_course_code: module.uh_course_code ?? "",
   automatic_completion: module.automatic_completion ?? false,
   automatic_completion_number_of_points_treshold:
@@ -184,6 +201,8 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModule
   credit_registration: module.credit_registration,
 })
 
+const GRADE_SCALE_IDS = [DERIVED_GRADE_SCALE, PASS_FAIL_GRADE_SCALE_ID, NUMERIC_GRADE_SCALE_ID]
+
 const GRADE_SCALE_LABEL_KEYS = {
   [DERIVED_GRADE_SCALE]: "grade-scale-derive-from-completion",
   [PASS_FAIL_GRADE_SCALE_ID]: "grade-scale-pass-fail",
@@ -192,6 +211,19 @@ const GRADE_SCALE_LABEL_KEYS = {
 
 const gradeScaleLabel = (t: TFunction, gradeScaleId: string): string =>
   labelFrom(t, GRADE_SCALE_LABEL_KEYS, gradeScaleId, GRADE_SCALE_LABEL_KEYS[DERIVED_GRADE_SCALE])
+
+/** The grade scale as a fact about the module rather than as the select's option label. */
+const GRADE_SCALE_SUMMARY_KEYS = {
+  [DERIVED_GRADE_SCALE]: "module-summary-grade-same-as-course",
+  [PASS_FAIL_GRADE_SCALE_ID]: "module-summary-grade-pass-fail",
+  [NUMERIC_GRADE_SCALE_ID]: "module-summary-grade-numeric",
+} as const
+
+const REGISTRATION_PATH_BADGE_KEYS = {
+  [NO_REGISTRATION]: "badge-no-completion-registration",
+  [OPEN_UNIVERSITY]: "badge-registers-to-open-university",
+  [STUDY_REGISTRY]: "badge-registers-to-study-registry",
+} as const satisfies Record<RegistrationPath, string>
 
 /** What the collapsed card says about a module, so "is this set up right?" needs no editor. */
 const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
@@ -202,12 +234,17 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
     parts.push(module.uh_course_code)
   }
   if (module.ects_credits !== null) {
-    parts.push(t("credit-registration-admin-credits", { credits: module.ects_credits }))
+    parts.push(t("module-summary-credits", { count: module.ects_credits }))
   }
   if (path === STUDY_REGISTRY) {
     parts.push(
-      gradeScaleLabel(t, module.credit_registration.grade_scale_id),
-      t("credit-registration-realisation-count", {
+      labelFrom(
+        t,
+        GRADE_SCALE_SUMMARY_KEYS,
+        module.credit_registration.grade_scale_id,
+        GRADE_SCALE_SUMMARY_KEYS[DERIVED_GRADE_SCALE],
+      ),
+      t("module-summary-sisu-course-instances", {
         count: module.credit_registration.realisations.length,
       }),
     )
@@ -218,7 +255,7 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
   return <p className={noteCss}>{parts.join(MIDDLE_DOT)}</p>
 }
 
-/** The saved study registry configuration as a teacher reads it: quotable, not editable. */
+/** The saved Sisu configuration as a teacher reads it: quotable, not editable. */
 const StudyRegistryReadOnly: React.FC<{ fields: CreditRegistrationModuleFields }> = ({
   fields,
 }) => {
@@ -228,28 +265,33 @@ const StudyRegistryReadOnly: React.FC<{ fields: CreditRegistrationModuleFields }
       <DescriptionList
         items={[
           {
-            label: t("label-open-university-product-id"),
+            label: t("label-credit-registration-grade-scale"),
+            value: gradeScaleLabel(t, fields.grade_scale_id),
+          },
+          {
+            label: t("label-credit-registration-support-reference-product"),
             value: (
               <span className={monospaceCss}>{fields.open_university_product_id || ABSENT}</span>
             ),
           },
-          {
-            label: t("label-credit-registration-grade-scale"),
-            value: gradeScaleLabel(t, fields.grade_scale_id),
-          },
         ]}
       />
-      <h4 className={subheadingCss}>{t("heading-credit-registration-realisations")}</h4>
+      <h4 className={subheadingCss}>{t("heading-credit-registration-sisu-course-instances")}</h4>
       {fields.realisations.length === 0 ? (
-        <p className={noteCss}>{t("credit-registration-no-realisations")}</p>
+        <p className={noteCss}>{t("credit-registration-no-sisu-course-instances")}</p>
       ) : (
         <ul className={dividedListCss}>
           {fields.realisations.map((realisation) => (
             <li key={realisation.course_unit_realisation_id}>
-              <span className={monospaceCss}>{realisation.course_unit_realisation_id}</span>
-              {realisation.label && `${MIDDLE_DOT}${realisation.label}`}
-              {!realisation.active &&
-                `${MIDDLE_DOT}${t("credit-registration-realisation-inactive")}`}
+              <div>
+                {realisation.label || t("credit-registration-sisu-course-instance-unnamed")}
+                {!realisation.active &&
+                  `${MIDDLE_DOT}${t("credit-registration-realisation-inactive")}`}
+              </div>
+              <div className={cx(noteCss, supportReferenceCss)}>
+                <span>{t("label-credit-registration-support-reference-course-instance")}</span>
+                <span className={monospaceCss}>{realisation.course_unit_realisation_id}</span>
+              </div>
             </li>
           ))}
         </ul>
@@ -270,9 +312,11 @@ const CourseModuleForm: React.FC<Props> = ({
   chapters,
   creditRegistrationConfig,
   canConfigureStudyRegistry,
+  hasUnsavedChanges = false,
   onSubmitForm,
   onDeleteModule,
   onCancel,
+  children,
 }) => {
   const { t } = useTranslation()
   const isCreate = mode === "create"
@@ -282,6 +326,7 @@ const CourseModuleForm: React.FC<Props> = ({
     handleSubmit,
     formState: { isValid, isSubmitting },
     reset,
+    trigger,
     watch,
   } = useForm<CourseModuleFormState>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -300,6 +345,13 @@ const CourseModuleForm: React.FC<Props> = ({
   const registrationPath = watch("registration_path")
   const automaticCompletion = watch("automatic_completion")
   const overrideLink = watch("override_completion_link")
+  const registersToStudyRegistry = registrationPath === STUDY_REGISTRY
+  // Without this, picking the Sisu path shows up only as a disabled Done button.
+  useEffect(() => {
+    if (registersToStudyRegistry) {
+      trigger(SISU_REQUIRED_FIELDS)
+    }
+  }, [registersToStudyRegistry, trigger])
 
   const onSubmitFormWrapper = ({
     registration_path,
@@ -333,7 +385,18 @@ const CourseModuleForm: React.FC<Props> = ({
   }))
   const savedPath = registrationPathOf(module)
   const hasConfigProblem = hasCreditRegistrationConfigProblem(creditRegistrationConfig)
+  const courseCodeFoundInSisu =
+    module.uh_course_code !== null &&
+    creditRegistrationConfig?.credit_registration_course_code_resolves === true
   const nameIsEditable = isCreate || module.name !== null
+
+  const configCallout = (
+    <CreditRegistrationConfigCallout
+      configs={[
+        { moduleName: module.name ?? t("default-module"), config: creditRegistrationConfig },
+      ]}
+    />
+  )
 
   return (
     <form onSubmit={handleSubmit(onSubmitFormWrapper)} className={cx(cardCss, formCss)}>
@@ -348,17 +411,17 @@ const CourseModuleForm: React.FC<Props> = ({
               rules={{ required: t("required-field") }}
             />
           ) : (
-            <span className={subheadingCss}>
+            <span className={headingCss}>
               {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
             </span>
           )}
+          {hasUnsavedChanges && <Badge tone={TONE.WARNING}>{t("badge-unsaved-changes")}</Badge>}
           {!editing && (
             <>
-              {savedPath === STUDY_REGISTRY && (
-                <Badge tone={TONE.NEUTRAL}>{t("badge-registers-to-study-registry")}</Badge>
-              )}
-              {savedPath === OPEN_UNIVERSITY && (
-                <Badge tone={TONE.NEUTRAL}>{t("badge-registers-to-open-university")}</Badge>
+              {savedPath !== NO_REGISTRATION && (
+                <Badge tone={savedPath === STUDY_REGISTRY ? TONE.INFO : TONE.NEUTRAL}>
+                  {translateKey(t, REGISTRATION_PATH_BADGE_KEYS[savedPath])}
+                </Badge>
               )}
               {hasConfigProblem && (
                 <Badge tone={TONE.WARNING}>{t("badge-credit-registration-config-problem")}</Badge>
@@ -392,11 +455,8 @@ const CourseModuleForm: React.FC<Props> = ({
         <>
           <CollapsedSummary module={module} />
           {/* A course whose credits are failing has to say so without the editor being opened. */}
-          <CreditRegistrationConfigCallout
-            configs={[
-              { moduleName: module.name ?? t("default-module"), config: creditRegistrationConfig },
-            ]}
-          />
+          {configCallout}
+          {children}
         </>
       )}
 
@@ -464,6 +524,12 @@ const CourseModuleForm: React.FC<Props> = ({
                 control={control}
                 label={t("uh-course-code")}
                 placeholder={t("uh-course-code")}
+                isRequired={registersToStudyRegistry}
+                rules={
+                  registersToStudyRegistry
+                    ? { required: t("error-course-code-required-for-sisu") }
+                    : {}
+                }
               />
               <NumberField
                 name="ects_credits"
@@ -474,26 +540,34 @@ const CourseModuleForm: React.FC<Props> = ({
                 // The step only sizes the stepper buttons: snapping to it rewrites a module
                 // already stored on, say, 1.3 credits the moment the editor opens.
                 commitBehavior={VALIDATE_ON_COMMIT}
+                isRequired={registersToStudyRegistry}
                 rules={{
-                  validate: (value) =>
-                    value === null || value === undefined || value >= 0
-                      ? true
-                      : t("ects-credits-must-be-non-negative"),
+                  validate: (value) => {
+                    if (value !== null && value !== undefined && value < 0) {
+                      return t("ects-credits-must-be-non-negative")
+                    }
+                    // Zero credits is as unregisterable as none.
+                    const missing = value === null || value === undefined || value === 0
+                    return missing && registersToStudyRegistry
+                      ? t("error-credits-required-for-sisu")
+                      : true
+                  },
                 }}
               />
             </div>
+            {/* The check is about these two fields, so its outcome sits with them. */}
+            {configCallout}
+            {courseCodeFoundInSisu && (
+              <p className={noteCss}>
+                {t("credit-registration-config-course-code-found", {
+                  courseCode: module.uh_course_code,
+                })}
+              </p>
+            )}
           </fieldset>
 
           <fieldset className={groupCss}>
             <legend className={subheadingCss}>{t("heading-credit-registration")}</legend>
-            <CreditRegistrationConfigCallout
-              configs={[
-                {
-                  moduleName: module.name ?? t("default-module"),
-                  config: creditRegistrationConfig,
-                },
-              ]}
-            />
             <RadioGroup
               name="registration_path"
               control={control}
@@ -533,14 +607,10 @@ const CourseModuleForm: React.FC<Props> = ({
                     control={control}
                     label={t("label-credit-registration-grade-scale")}
                     description={t("description-credit-registration-grade-scale")}
-                    options={[
-                      {
-                        value: DERIVED_GRADE_SCALE,
-                        label: t("grade-scale-derive-from-completion"),
-                      },
-                      { value: PASS_FAIL_GRADE_SCALE_ID, label: t("grade-scale-pass-fail") },
-                      { value: NUMERIC_GRADE_SCALE_ID, label: t("grade-scale-numeric") },
-                    ]}
+                    options={GRADE_SCALE_IDS.map((value) => ({
+                      value,
+                      label: gradeScaleLabel(t, value),
+                    }))}
                   />
                   <fieldset className={groupCss}>
                     <legend className={subheadingCss}>

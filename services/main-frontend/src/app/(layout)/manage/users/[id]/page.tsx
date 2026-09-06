@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { headingCss, sectionCss, sectionsCss } from "@/components/credit-registration/styles"
 import { getUserCourseEnrollmentsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseEnrollmentInfo, UserDetail } from "@/generated/api/types.generated"
 import {
   extractUserDetail,
   formatUserName,
@@ -29,6 +30,7 @@ import CourseEnrollmentsSection from "./components/CourseEnrollmentsSection"
 import ExerciseResetLogSection from "./components/ExerciseResetLogSection"
 import UserIdentityHeader from "./components/UserIdentityHeader"
 import UserStatBar from "./components/UserStatBar"
+import { studentNumberFrom, useUserCreditRegistrations } from "./lib/creditRegistrations"
 
 const COMPLETION_REVIEW_ID = "completion-review"
 
@@ -69,46 +71,77 @@ const UserPage: React.FC = () => {
           }}
         />
       }
-      renderData={([enrollmentsResult, userDetailsResult]) => {
-        const userDetails = extractUserDetail(userDetailsResult)
-        const userDetailsNotFound = isUserDetailsNotFound(userDetailsResult)
-        const enrollments = enrollmentsResult.course_enrollments
-        return (
-          <div className={sectionsCss}>
-            <UserIdentityHeader
-              userId={id}
-              userDetails={userDetails}
-              userDetailsNotFound={userDetailsNotFound}
-            />
-            <CompletionReviewBanner enrollments={enrollments} targetId={COMPLETION_REVIEW_ID} />
-            <UserStatBar enrollments={enrollments} reviewTargetId={COMPLETION_REVIEW_ID} />
-            {enrollments.length > 0 ? (
-              <section className={sectionCss}>
-                <h2 className={headingCss}>{t("user-activity")}</h2>
-                <ActivityTimeline enrollments={enrollments} />
-              </section>
-            ) : null}
-            <CompletionReviewSection
-              userId={id}
-              enrollments={enrollments}
-              id={COMPLETION_REVIEW_ID}
-            />
-            <section className={sectionCss}>
-              <h2 className={headingCss}>{t("header-course-enrollments")}</h2>
-              <CourseEnrollmentsSection enrollments={enrollments} userId={id} />
-            </section>
-            <OnlyRenderIfPermissions
-              action={{ type: "teach" }}
-              resource={{ type: "global_permissions" }}
-            >
-              <section className={sectionCss}>
-                <ExerciseResetLogSection userId={id} />
-              </section>
-            </OnlyRenderIfPermissions>
-          </div>
-        )
-      }}
+      renderData={([enrollmentsResult, userDetailsResult]) => (
+        <UserPageContent
+          userId={id}
+          userDetails={extractUserDetail(userDetailsResult)}
+          userDetailsNotFound={isUserDetailsNotFound(userDetailsResult)}
+          enrollments={enrollmentsResult.course_enrollments}
+        />
+      )}
     />
+  )
+}
+
+interface UserPageContentProps {
+  userId: string
+  userDetails: UserDetail | null
+  userDetailsNotFound: boolean
+  enrollments: CourseEnrollmentInfo[]
+}
+
+/**
+ * The page body once the enrolments are known.
+ *
+ * Split from `UserPage` only so the credit registrations, which are fetched per enrolled course,
+ * can be loaded by a hook rather than inside the query frame's render callback.
+ */
+const UserPageContent: React.FC<UserPageContentProps> = ({
+  userId,
+  userDetails,
+  userDetailsNotFound,
+  enrollments,
+}) => {
+  const { t } = useTranslation()
+  const registrations = useUserCreditRegistrations(userId, enrollments)
+
+  return (
+    <div className={sectionsCss}>
+      <UserIdentityHeader
+        userId={userId}
+        userDetails={userDetails}
+        userDetailsNotFound={userDetailsNotFound}
+        studentNumber={studentNumberFrom(registrations)}
+      />
+      <CompletionReviewBanner enrollments={enrollments} targetId={COMPLETION_REVIEW_ID} />
+      <UserStatBar enrollments={enrollments} registrations={registrations} />
+      {enrollments.length > 0 ? (
+        <section className={sectionCss}>
+          <h2 className={headingCss}>{t("user-activity")}</h2>
+          <ActivityTimeline enrollments={enrollments} />
+        </section>
+      ) : null}
+      {/* Unconditional, unlike the sections around it: CompletionReviewBanner links to this id,
+          and has to land somewhere even before the section's own query resolves. */}
+      <section id={COMPLETION_REVIEW_ID} className={sectionCss}>
+        <h2 className={headingCss}>{t("completion-review")}</h2>
+        <CompletionReviewSection userId={userId} enrollments={enrollments} />
+      </section>
+      <section className={sectionCss}>
+        <h2 className={headingCss}>{t("header-course-enrollments")}</h2>
+        <CourseEnrollmentsSection
+          enrollments={enrollments}
+          userId={userId}
+          registrations={registrations}
+        />
+      </section>
+      <OnlyRenderIfPermissions action={{ type: "teach" }} resource={{ type: "global_permissions" }}>
+        <section className={sectionCss}>
+          <h2 className={headingCss}>{t("label-exercise-reset-log")}</h2>
+          <ExerciseResetLogSection userId={userId} />
+        </section>
+      </OnlyRenderIfPermissions>
+    </div>
   )
 }
 

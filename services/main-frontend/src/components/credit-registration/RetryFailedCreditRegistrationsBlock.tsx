@@ -7,30 +7,34 @@ import { retryFailedCreditRegistrationsForCourse } from "@/generated/api/sdk.gen
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { Button, Infobox } from "@/shared-module/components"
 
-import { TONE } from "./constants"
+import { BUTTON_PRIMARY, TONE } from "./constants"
 import { refusalSentence } from "./resubmissionRefusal"
-import { rowCss, sectionCss } from "./styles"
+import { sectionCss } from "./styles"
 import { useInvalidateAfterRetry } from "./teacherCreditRegistrations"
 import { useActionResult } from "./useActionResult"
 
 interface Props {
   courseId: string
-  /** Rows the run would take, from the course summary; the button names it and the confirm repeats it. */
-  failedCount: number
-  /** The rest of the panel's controls, ordered after the one that changes the world. */
-  children?: React.ReactNode
+  /**
+   * Failures a resubmission could actually clear, from `useCourseFailureReasons`. Not the failure
+   * total: most failures on a real course need a setting changed, the student, or support, and
+   * sending those again fails them the same way.
+   */
+  retryableCount: number
+  /** Whether any enabled module is paused, in which case nothing this button sends will move. */
+  isAnyModulePaused: boolean
 }
 
 /**
- * The course-wide retry and the controls beside it.
+ * The course-wide retry: the action of the "worth sending again" failure group.
  *
- * It resubmits every permanently failed row, so it says how many and asks first — and it leads the
- * row as the primary action, because the exports next to it change nothing.
+ * Only ever names the failures Sisu might take on a second try, and stands down — with an
+ * explanation in place of a ghosted button — while a pause is holding the course.
  */
 const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({
   courseId,
-  failedCount,
-  children,
+  retryableCount,
+  isAnyModulePaused,
 }) => {
   const { t } = useTranslation()
   const { confirm } = useDialog()
@@ -45,10 +49,12 @@ const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({
 
   const askAndRetry = async () => {
     const confirmed = await confirm(
-      t("credit-registration-bulk-retry-confirm", { count: failedCount }),
+      t("credit-registration-bulk-retry-confirm", { count: retryableCount }),
       t("credit-registration-bulk-retry-confirm-title"),
       {
-        yesButtonLabel: t("button-text-retry-failed-credit-registrations", { count: failedCount }),
+        yesButtonLabel: t("button-text-retry-failed-credit-registrations", {
+          count: retryableCount,
+        }),
       },
     )
     if (confirmed) {
@@ -56,23 +62,24 @@ const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({
     }
   }
 
+  const hasButton = retryableCount > 0 || result !== null
+
   return (
     <div className={sectionCss}>
-      <div className={rowCss}>
-        {/* Nothing to retry and nothing said yet, so the course gets no bulk control at all. */}
-        {(failedCount > 0 || result !== null) && (
-          <Button
-            variant="primary"
-            size="medium"
-            type="button"
-            disabled={failedCount === 0 || mutation.isPending}
-            onClick={askAndRetry}
-          >
-            {t("button-text-retry-failed-credit-registrations", { count: failedCount })}
-          </Button>
-        )}
-        {children}
-      </div>
+      {hasButton && isAnyModulePaused && (
+        <Infobox tone={TONE.WARNING}>{t("credit-registration-retry-blocked-by-pause")}</Infobox>
+      )}
+      {hasButton && !isAnyModulePaused && (
+        <Button
+          variant={BUTTON_PRIMARY}
+          size="medium"
+          type="button"
+          disabled={retryableCount === 0 || mutation.isPending}
+          onClick={askAndRetry}
+        >
+          {t("button-text-retry-failed-credit-registrations", { count: retryableCount })}
+        </Button>
+      )}
       {result && (
         <Infobox tone={result.retried_count > 0 ? TONE.SUCCESS : TONE.WARNING} announce>
           <div className={sectionCss}>

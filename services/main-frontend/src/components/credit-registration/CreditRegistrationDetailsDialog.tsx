@@ -1,33 +1,47 @@
 "use client"
 
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import {
   Badge,
   CopyButton,
   DescriptionList,
   Dialog,
+  Disclosure,
   QueryResult,
+  RegistrationStatusHeadline,
   RelativeTime,
   Table,
 } from "@/shared-module/components"
 
 import { eventKindLabel } from "./admin/adminCreditRegistrationCopy"
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
-import { MIDDLE_DOT, STACKED, TIME_COMPACT, TONE } from "./constants"
+import { MIDDLE_DOT, PLAIN_DISCLOSURE, STACKED, TIME_COMPACT, TONE } from "./constants"
 import {
-  registrationErrorHelp,
+  registrationErrorTeacherHelp,
   registrationGradeLabel,
   registrationLedgerStateLabel,
+  registrationStatusState,
   registrationStatusTeacherLabel,
   registrationTeacherExplanation,
 } from "./creditRegistrationCopy"
 import RetryCreditRegistrationBlock from "./RetryCreditRegistrationBlock"
-import { monospaceCss, rowCss, sectionsCss, subheadingCss, subsectionCss } from "./styles"
+import {
+  monospaceCss,
+  noteCss,
+  proseCss,
+  rowCss,
+  sectionsCss,
+  stackedCellCss,
+  subheadingCss,
+  subsectionCss,
+} from "./styles"
 import {
   linkingEmailSentence,
   notificationEmailLabel,
@@ -42,8 +56,27 @@ interface Props {
 }
 
 // The one stage where a resend can help: nothing moves until a student number is linked.
-// oxlint-disable-next-line i18next/no-literal-string
 const WAITING_FOR_STUDENT_NUMBER = "needs_student_number" as const
+
+const leadCss = css`
+  display: grid;
+  gap: var(--space-2);
+`
+
+// Keeps the reference and its copy button on one line, truncating the id rather than wrapping the
+// button away from what it copies; the full value is still reachable in `title`.
+const supportReferenceRowCss = css`
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+`
+
+const supportReferenceValueCss = css`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
 
 const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
   const { t, i18n } = useTranslation()
@@ -54,23 +87,17 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
     enabled: open,
   })
 
-  const studentName =
-    [registration.last_name, registration.first_name].filter(Boolean).join(" ") || t("missing-name")
+  const studentName = formatUserName(registration) || t("missing-name")
   const moduleName = registration.course_module_name ?? t("default-module")
-  const errorHelp = registrationErrorHelp(t, registration.error_code)
+  // Why this row is where it is: the failure when there is one, otherwise what the stage means.
+  const leadSentence =
+    registrationErrorTeacherHelp(t, registration.error_code) ??
+    registrationTeacherExplanation(t, registration.student_facing_status)
   const verificationLabel = studentNumberVerificationLabel(
     t,
     registration.student_number_verified_via,
   )
   const items = [
-    {
-      label: t("label-status"),
-      value: registrationStatusTeacherLabel(t, registration.student_facing_status),
-    },
-    {
-      label: t("label-explanation"),
-      value: registrationTeacherExplanation(t, registration.student_facing_status),
-    },
     {
       label: t("label-verified-student-number"),
       value: registration.student_number ? (
@@ -83,19 +110,10 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
       ),
     },
   ]
-  if (errorHelp) {
-    items.push({ label: t("label-reason"), value: errorHelp })
-  }
   if (registration.enrolment_realisation_name) {
     items.push({
-      label: t("label-credit-registration-realisation"),
+      label: t("label-credit-registration-sisu-course-instance"),
       value: registration.enrolment_realisation_name,
-    })
-  }
-  if (registration.sisu_attainment_id) {
-    items.push({
-      label: t("label-attainment-id"),
-      value: <span className={monospaceCss}>{registration.sisu_attainment_id}</span>,
     })
   }
   if (registration.linking_email) {
@@ -119,25 +137,26 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
   }
 
   // The untranslated identifiers support asks for, in one copyable string rather than on every row.
-  const supportReference = [registration.id, registration.state, registration.error_code]
+  const supportReference = [
+    registration.id,
+    registration.state,
+    registration.error_code,
+    registration.sisu_attainment_id,
+  ]
     .filter(Boolean)
     .join(" ")
-  items.push({
-    label: t("label-credit-registration-support-reference"),
-    value: (
-      <span className={rowCss}>
-        <span className={monospaceCss}>{supportReference}</span>
-        <CopyButton
-          value={supportReference}
-          label={t("button-text-copy-credit-registration-support-reference")}
-        />
-      </span>
-    ),
-  })
 
   return (
     <Dialog open={open} onClose={onClose} title={`${studentName}${MIDDLE_DOT}${moduleName}`}>
       <div className={sectionsCss}>
+        <div className={leadCss}>
+          <RegistrationStatusHeadline
+            state={registrationStatusState(registration.student_facing_status)}
+          >
+            {registrationStatusTeacherLabel(t, registration.student_facing_status)}
+          </RegistrationStatusHeadline>
+          <p className={proseCss}>{leadSentence}</p>
+        </div>
         <DescriptionList items={items} layout={STACKED} />
         {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
           <ResendLinkingEmailBlock registration={registration} />
@@ -146,7 +165,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
         <QueryResult query={detailsQuery}>
           {(details) => (
             <>
-              {/* The grade already in the registry, which is why a better one was turned down. */}
+              {/* The grade already in Sisu, which is why a better one was turned down. */}
               {details.not_improved_attainment ? (
                 <DescriptionList
                   layout={STACKED}
@@ -177,20 +196,19 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
                       ),
                     },
                     {
-                      header: t("label-what-happened"),
-                      // The wire name stays quotable to support without printing on every row.
-                      cell: (event) => (
-                        <span title={event.to_state ?? event.kind}>
-                          {event.to_state
-                            ? registrationLedgerStateLabel(t, event.to_state)
-                            : eventKindLabel(t, event.kind)}
-                        </span>
-                      ),
-                    },
-                    {
-                      header: t("label-details"),
+                      header: t("label-event"),
                       grow: true,
-                      cell: (event) => event.message ?? "",
+                      cell: (event) => {
+                        const name = event.to_state
+                          ? registrationLedgerStateLabel(t, event.to_state)
+                          : eventKindLabel(t, event.kind)
+                        return (
+                          <span className={stackedCellCss}>
+                            <span>{name}</span>
+                            {event.message && <span className={noteCss}>{event.message}</span>}
+                          </span>
+                        )
+                      },
                     },
                   ]}
                 />
@@ -198,6 +216,19 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
             </>
           )}
         </QueryResult>
+        <Disclosure variant={PLAIN_DISCLOSURE} title={t("credit-registration-heading-for-support")}>
+          <div className={supportReferenceRowCss}>
+            <span className={cx(monospaceCss, supportReferenceValueCss)} title={supportReference}>
+              {supportReference}
+            </span>
+            <CopyButton
+              value={supportReference}
+              label={t("button-text-copy-credit-registration-support-reference")}
+            >
+              {t("button-text-copy")}
+            </CopyButton>
+          </div>
+        </Disclosure>
       </div>
     </Dialog>
   )

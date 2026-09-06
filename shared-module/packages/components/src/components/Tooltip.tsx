@@ -8,7 +8,6 @@ import type { Placement } from "react-aria"
 import { Button } from "./Button"
 import { Popover } from "./primitives/popover"
 
-// oxlint-disable-next-line i18next/no-literal-string -- a glyph, not user-facing text
 const HELP_SYMBOL = "?"
 
 const triggerCss = css`

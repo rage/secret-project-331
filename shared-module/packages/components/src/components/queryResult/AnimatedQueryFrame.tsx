@@ -164,11 +164,17 @@ export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
   )
 }
 
+/** The React nodes that render nothing, which a render prop returns when it has nothing to show. */
+function rendersNothing(node: React.ReactNode): boolean {
+  return node === null || node === undefined || node === false
+}
+
 /**
  * Layout shell for async query UX: skeleton, refetch progress, stale banners, and motion.
  *
  * It wraps `children` in elements of its own, so the parent's `gap` reaches the frame and stops
  * there. Pass `contentClassName` where the children were meant to be laid out by the parent.
+ * Renders nothing at all once there is neither content nor a state to report.
  */
 export function AnimatedQueryFrame<E>({
   themeMode,
@@ -252,6 +258,11 @@ export function AnimatedQueryFrame<E>({
   }
 
   const staleArgs = staleError && error !== undefined ? { error, retry } : undefined
+
+  // An empty frame is still an item in the parent's grid or flex row, costing a gap for nothing.
+  if (staleArgs === undefined && !refreshing && !blurSettling && rendersNothing(children)) {
+    return null
+  }
 
   return (
     <section

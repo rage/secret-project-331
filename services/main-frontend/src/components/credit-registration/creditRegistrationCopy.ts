@@ -2,6 +2,7 @@ import type { TFunction } from "i18next"
 
 import type {
   CreditRegistrationErrorCode,
+  CreditRegistrationPendingReason,
   CreditRegistrationState,
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
@@ -99,6 +100,34 @@ const ERROR_CODE_KEYS = {
 
 const GENERIC_ERROR_KEY = "credit-registration-error-generic"
 
+/** Third person, and every sentence ends with who acts — see `registrationFailures` for the owner. */
+const TEACHER_ERROR_CODE_KEYS = {
+  person_not_found: "credit-registration-teacher-error-person-not-found",
+  course_code_not_found: "credit-registration-teacher-error-course-code-not-found",
+  enrolment_not_found: "credit-registration-teacher-error-enrolment-not-found",
+  enrolment_not_accepted: "credit-registration-teacher-error-enrolment-not-accepted",
+  invalid_grade_for_grade_scale: "credit-registration-teacher-error-invalid-grade-for-grade-scale",
+  course_not_allowed: "credit-registration-teacher-error-course-not-allowed",
+  invalid_credits: "credit-registration-teacher-error-invalid-credits",
+  study_right_not_valid: "credit-registration-teacher-error-study-right-not-valid",
+  acceptor_not_found: "credit-registration-teacher-error-acceptor-not-found",
+  sisu_validation_failed: "credit-registration-teacher-error-sisu-validation-failed",
+  sisu_timeout: "credit-registration-teacher-error-sisu-timeout",
+  sisu_temporarily_unavailable: "credit-registration-teacher-error-sisu-temporarily-unavailable",
+  misregistered: "credit-registration-teacher-error-misregistered",
+  unauthorized: "credit-registration-teacher-error-unauthorized",
+  malformed_request: "credit-registration-teacher-error-malformed-request",
+  transport_error: "credit-registration-teacher-error-transport-error",
+  unexpected_response: "credit-registration-teacher-error-unexpected-response",
+  no_grade_scale_mapping: "credit-registration-teacher-error-no-grade-scale-mapping",
+  missing_uh_course_code: "credit-registration-teacher-error-missing-uh-course-code",
+  missing_ects_credits: "credit-registration-teacher-error-missing-ects-credits",
+  retry_window_expired: "credit-registration-teacher-error-retry-window-expired",
+  unknown: "credit-registration-teacher-error-unknown",
+} as const satisfies Record<CreditRegistrationErrorCode, string>
+
+const TEACHER_ERROR_UNKNOWN_KEY = "credit-registration-teacher-error-unknown"
+
 /** The same failures named in two or three words, short enough for a table cell or a chip. */
 const ERROR_CODE_SHORT_KEYS = {
   person_not_found: "credit-registration-reason-person-not-found",
@@ -164,6 +193,11 @@ export const registrationNeedsAttention = (
   return state === "action-needed" || state === "failed"
 }
 
+/** Every student-facing status, so a caller deriving a set from them cannot miss a new one. */
+export const ALL_REGISTRATION_STATUSES = Object.keys(
+  STATUS_STATES,
+) as StudentFacingCreditRegistrationStatus[]
+
 export const registrationExplanation = (
   t: TFunction,
   status: StudentFacingCreditRegistrationStatus,
@@ -210,6 +244,20 @@ export const registrationErrorHelp = (
 ): string | null => (errorCode ? labelFrom(t, ERROR_CODE_KEYS, errorCode, GENERIC_ERROR_KEY) : null)
 
 /**
+ * Why the registration failed and who has to act, for a teacher looking at somebody else's
+ * registration.
+ *
+ * Not `registrationErrorHelp`, which is addressed to the student it happened to and tells them to
+ * contact support — the teacher is the support the student was told to contact. Pair it with
+ * `failureActions` so the buttons match the sentence.
+ */
+export const registrationErrorTeacherHelp = (
+  t: TFunction,
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+): string | null =>
+  errorCode ? labelFrom(t, TEACHER_ERROR_CODE_KEYS, errorCode, TEACHER_ERROR_UNKNOWN_KEY) : null
+
+/**
  * Why the registration failed, in the two or three words a roster cell or a breakdown chip has
  * room for.
  *
@@ -243,13 +291,31 @@ const LEDGER_STATE_KEYS = {
 
 const LEDGER_STATE_UNKNOWN_KEY = "credit-registration-ledger-state-unknown"
 
+/** `pending` alone does not say what the row is waiting for, and the two waits are unrelated. */
+const PENDING_REASON_STATE_KEYS = {
+  completion: "credit-registration-ledger-state-pending-completion",
+  student_number: "credit-registration-ledger-state-pending-student-number",
+} as const satisfies Record<CreditRegistrationPendingReason, string>
+
+const LEDGER_STATES = Object.keys(LEDGER_STATE_KEYS) as CreditRegistrationState[]
+
+/** Lets a caller holding an opaque backend string decide whether it names a state. */
+export const isLedgerState = (value: string): value is CreditRegistrationState =>
+  (LEDGER_STATES as string[]).includes(value)
+
 /**
- * One ledger state in a sentence a teacher can act on. Coarser than the state itself, so keep the
- * raw state beside it wherever the teacher may have to quote it to support.
+ * One stored state in words, for every badge, column, chart title and select option that shows
+ * one. The wire name stays quotable beside it — an operator reporting a row to support quotes the
+ * token, not the label.
  *
+ * `pendingReason` only matters for `pending`, which otherwise does not say what the row waits for.
  * Not `registrationStatusLabel`, which names the collapsed stage the student is shown.
  */
 export const registrationLedgerStateLabel = (
   t: TFunction,
   state: CreditRegistrationState,
-): string => labelFrom(t, LEDGER_STATE_KEYS, state, LEDGER_STATE_UNKNOWN_KEY)
+  pendingReason?: CreditRegistrationPendingReason | null,
+): string =>
+  state === "pending" && pendingReason
+    ? labelFrom(t, PENDING_REASON_STATE_KEYS, pendingReason, LEDGER_STATE_KEYS.pending)
+    : labelFrom(t, LEDGER_STATE_KEYS, state, LEDGER_STATE_UNKNOWN_KEY)

@@ -35,7 +35,7 @@ const IFRAME_EDITOR = "IFRAME EDITOR"
 interface ExerciseTaskIFrameEditorProps {
   exerciseServiceSlug: string
   exerciseTaskId: string
-  onPrivateSpecChange: (newSpec: string, specFiles: string[]) => void
+  onPrivateSpecChange: (newSpec: string, specFiles: string[] | undefined) => void
   privateSpec: string | null
   url: string | null | undefined
 }
@@ -92,8 +92,10 @@ const ExerciseTaskIFrameEditor: React.FC<
               // oxlint-disable-next-line typescript/no-explicit-any
               JSON.stringify((messageContainer.data as any).private_spec),
               // Sorted because the unsaved-changes check deep-compares block attributes: declaring
-              // the same files in another order than they load in would leave the page dirty forever.
-              (messageContainer.private_spec_files ?? []).toSorted(),
+              // the same files in another order than they load in would leave the page dirty
+              // forever. Undefined stays undefined — it means "leave the declaration alone", and
+              // flattening it to [] would release the files the spec still references.
+              messageContainer.private_spec_files?.toSorted(),
             )
           }
           if (messageContainer.message === "file-upload") {

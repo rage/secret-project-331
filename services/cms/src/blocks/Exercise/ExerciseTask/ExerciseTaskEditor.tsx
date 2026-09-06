@@ -12,6 +12,7 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -257,7 +258,10 @@ const ExerciseTaskEditor: React.FC<
                       exerciseServiceSlug={exerciseType}
                       exerciseTaskId={attributes.id}
                       onPrivateSpecChange={(privateSpec, specFiles) =>
-                        setAttributes({ private_spec: privateSpec, private_spec_files: specFiles })
+                        setAttributes({
+                          private_spec: privateSpec,
+                          ...includeIf(specFiles !== undefined, { private_spec_files: specFiles }),
+                        })
                       }
                       privateSpec={privateSpecToPostToIframe}
                       url={url}

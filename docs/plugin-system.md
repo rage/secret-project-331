@@ -197,7 +197,8 @@ The backend communicates with the plugin via REST to grade answers and generate 
 > setting `declares_spec_files` in service info, which commits the plugin to two things:
 >
 > - the exercise editor lists every file the private spec references in `current-state`'s
->   `private_spec_files`, on **every** `current-state` — omitting the list releases those files;
+>   `private_spec_files`, on **every** `current-state` — an empty list releases them all, while
+>   omitting the list leaves the previous declaration standing;
 > - the public-spec and model-solution endpoints answer with `{ "spec": ..., "files": [...] }`
 >   instead of the bare spec, listing the files _that_ spec references. Both keys are required, and
 >   `spec` is `null` for a spec the plugin has none of. This is the only way the host can learn

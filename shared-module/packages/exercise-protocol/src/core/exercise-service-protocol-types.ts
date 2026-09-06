@@ -41,9 +41,10 @@ export interface CurrentStateMessage {
   /**
    * From `exercise-editor`: host file ids from `upload-result` for every file the private spec
    * references, in any order. The host cannot read the spec, so this list is the only thing that
-   * keeps those files from being reclaimed as abandoned uploads — send it on every
-   * `current-state`, since omitting it releases them. Only meaningful for a service whose
-   * service-info declares `declares_spec_files`.
+   * keeps those files from being reclaimed as abandoned uploads. Send the complete list on every
+   * `current-state`, and `[]` to release every file; omitting it leaves the previous declaration
+   * standing, so a plugin that forgets the field cannot silently lose files. Only meaningful for a
+   * service whose service-info declares `declares_spec_files`.
    *
    * Ignored from the other views. Unlike `files`, the host does not verify these ids belong to the
    * editing user, but it does reject ids it has no upload for.

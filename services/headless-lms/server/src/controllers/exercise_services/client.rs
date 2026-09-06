@@ -1848,6 +1848,7 @@ mod upload_tests {
                     has_custom_view: false,
                     supports_native_client: declares,
                     produces_file_answers: false,
+                    declares_spec_files: false,
                 },
             )
             .await
@@ -2224,6 +2225,7 @@ mod route_tests {
                 has_custom_view: false,
                 supports_native_client: true,
                 produces_file_answers: false,
+                declares_spec_files: false,
             },
         )
         .await

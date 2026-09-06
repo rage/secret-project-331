@@ -1562,6 +1562,7 @@ mod test {
                 has_custom_view: false,
                 supports_native_client: false,
                 produces_file_answers: false,
+                declares_spec_files: false,
             },
         )
         .await

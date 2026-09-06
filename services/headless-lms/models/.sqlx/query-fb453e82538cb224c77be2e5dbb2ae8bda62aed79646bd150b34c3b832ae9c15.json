@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    csv_export_definitions_endpoint_path,\n    csv_export_answers_endpoint_path,\n    supports_native_client,\n    produces_file_answers\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET user_interface_iframe_path = $2,\n  grade_endpoint_path = $3,\n  public_spec_endpoint_path = $4,\n  model_solution_spec_endpoint_path = $5,\n  has_custom_view = $6,\n  csv_export_definitions_endpoint_path = $7,\n  csv_export_answers_endpoint_path = $8,\n  supports_native_client = $9,\n  produces_file_answers = $10\nRETURNING *\n    ",
+  "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    csv_export_definitions_endpoint_path,\n    csv_export_answers_endpoint_path,\n    supports_native_client,\n    produces_file_answers,\n    declares_spec_files\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET user_interface_iframe_path = $2,\n  grade_endpoint_path = $3,\n  public_spec_endpoint_path = $4,\n  model_solution_spec_endpoint_path = $5,\n  has_custom_view = $6,\n  csv_export_definitions_endpoint_path = $7,\n  csv_export_answers_endpoint_path = $8,\n  supports_native_client = $9,\n  produces_file_answers = $10,\n  declares_spec_files = $11\nRETURNING *\n    ",
   "describe": {
     "columns": [
       {
@@ -134,6 +134,17 @@
             "name": "produces_file_answers"
           }
         }
+      },
+      {
+        "ordinal": 12,
+        "name": "declares_spec_files",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "declares_spec_files"
+          }
+        }
       }
     ],
     "parameters": {
@@ -146,6 +157,7 @@
         "Bool",
         "Text",
         "Text",
+        "Bool",
         "Bool",
         "Bool"
       ]
@@ -162,8 +174,9 @@
       true,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "066000737aa5e4bc15791b5c9df124521d6b81f003d5f32fd36b77c797981f7c"
+  "hash": "fb453e82538cb224c77be2e5dbb2ae8bda62aed79646bd150b34c3b832ae9c15"
 }

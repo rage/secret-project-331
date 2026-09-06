@@ -116,6 +116,7 @@ export const editorContentReducer = (
               id: v4(),
               exercise_type: "",
               private_spec: null,
+              private_spec_files: [],
               show_editor: false,
               order_number: 0,
             },

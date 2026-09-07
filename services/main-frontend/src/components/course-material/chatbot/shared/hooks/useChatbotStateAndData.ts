@@ -83,7 +83,7 @@ export interface ChatbotStateAndData {
  * is otherwise null there anyway.
  */
 const useChatbotStateAndData = (
-  chatbotConfigurationId: string,
+  chatbotConfigurationId: string | null,
   pageId: string | null,
 ): ChatbotStateAndData => {
   const { t } = useTranslation()

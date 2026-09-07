@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { getCurrentConversationIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
-const useCurrentConversationId = (chatbotConfigurationId: string) => {
+const useCurrentConversationId = (chatbotConfigurationId: string | null) => {
   return useQuery(
     optionalGeneratedQueryOptions({
       value: chatbotConfigurationId,

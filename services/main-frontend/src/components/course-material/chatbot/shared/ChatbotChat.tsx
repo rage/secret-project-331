@@ -7,7 +7,7 @@ import useChatbotStateAndData from "./hooks/useChatbotStateAndData"
 import useSynchronizeDefaultChatbotCommunicationChannel from "./hooks/useSynchronizeDefaultChatbotCommunicationChannel"
 
 interface ChatbotChatProps {
-  chatbotConfigurationId: string
+  chatbotConfigurationId: string | null
   isAlwaysOpen: boolean
   /** The course material page to send as context with a message, or null where there is none. */
   pageId: string | null

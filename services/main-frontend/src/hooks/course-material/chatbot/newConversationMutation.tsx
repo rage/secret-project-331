@@ -17,7 +17,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { saveChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 const useNewConversationMutation = (
-  chatbotConfigurationId: string,
+  chatbotConfigurationId: string | null,
   setNewMessage: React.Dispatch<React.SetStateAction<string>>,
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
   setConvId: React.Dispatch<string | null>,
@@ -25,15 +25,22 @@ const useNewConversationMutation = (
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   return useToastMutation(
-    () =>
-      newChatbotConversation({
+    () => {
+      if (!chatbotConfigurationId) {
+        throw new Error("NewConversationMutation called with no chatbot configuration id")
+      }
+      return newChatbotConversation({
         path: {
           chatbot_configuration_id: chatbotConfigurationId,
         },
-      }),
+      })
+    },
     { notify: false },
     {
       onSuccess: (res) => {
+        if (!chatbotConfigurationId) {
+          throw new Error("NewConversationMutation called with no chatbot configuration id")
+        }
         const anonymousToken = res.anonymous_token
         saveChatbotAnonymousToken(anonymousToken)
         queryClient.refetchQueries({

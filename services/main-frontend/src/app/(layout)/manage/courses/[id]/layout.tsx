@@ -11,8 +11,8 @@ import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/Route
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
+import createFeedbackEditProposalCountsHook from "@/hooks/count/useFeedbackEditProposalCounts"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
-import createFeedbackEditProposalCountsHook from "@/hooks/count/useUnreadFeedbackCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {

@@ -17,6 +17,10 @@ use crate::prelude::*;
 
 use super::{authorize_credit_registration_admin, required_reason};
 
+/// Suotar-enabled modules, comfortably above any real deployment's count. The only admin tab
+/// without a page or a limit of its own before this.
+const COURSES_LIMIT: i64 = 2_000;
+
 /// What the configuration check concluded about one module, freshly derived from the same facts and
 /// the same rule the `config-validation` phase uses.
 ///
@@ -62,10 +66,7 @@ pub struct CreditRegistrationCourseStats {
     pub success_count: i64,
     pub in_flight_count: i64,
     pub failed_count: i64,
-    /// Neither a success nor a failure, and shown separately so it is never read as one.
-    pub abandoned_count: i64,
     pub needs_admin_attention_count: i64,
-    pub awaiting_consent_count: i64,
     pub last_registered_at: Option<DateTime<Utc>>,
     pub top_error_code: Option<CreditRegistrationErrorCode>,
 }
@@ -108,7 +109,8 @@ pub async fn get_credit_registration_stats_by_course(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let overviews = course_module_suotar_configurations::get_module_overviews(&mut conn).await?;
+    let overviews =
+        course_module_suotar_configurations::get_module_overviews(&mut conn, COURSES_LIMIT).await?;
     let mut checks: HashMap<Uuid, CreditRegistrationCourseConfigCheck> =
         get_config_facts_for_enabled_modules(&mut conn, None)
             .await?
@@ -325,11 +327,9 @@ fn to_course_stats(
         success_count: totals.as_ref().map_or(0, |row| row.success_count),
         in_flight_count: totals.as_ref().map_or(0, |row| row.in_flight_count),
         failed_count: totals.as_ref().map_or(0, |row| row.failed_count),
-        abandoned_count: totals.as_ref().map_or(0, |row| row.abandoned_count),
         needs_admin_attention_count: totals
             .as_ref()
             .map_or(0, |row| row.needs_admin_attention_count),
-        awaiting_consent_count: totals.as_ref().map_or(0, |row| row.awaiting_consent_count),
         last_registered_at: totals.as_ref().and_then(|row| row.last_registered_at),
         top_error_code: totals.and_then(|row| row.top_error_code),
     }

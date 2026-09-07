@@ -96,11 +96,13 @@ Returns exercise submissions for user to be used in en exercise service Custom v
         )
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_user_course_module_exercises_by_exercise_type(
     path: web::Path<(Uuid, String, Uuid)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CustomViewExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
     let (course_module_id, exercise_type, course_instance_id) = path.into_inner();
@@ -121,7 +123,7 @@ async fn get_user_course_module_exercises_by_exercise_type(
         &exercise_type,
         course_module_id,
         user.id,
-    course_id)
+    course_id, file_store.as_ref(), app_conf.as_ref())
         .await?;
 
     let exercises = models::exercises::get_exercises_by_module_containing_exercise_type(

@@ -33,9 +33,7 @@
             "name": "credit_registration_state",
             "kind": {
               "Enum": [
-                "pending_prerequisites",
-                "pending_consent",
-                "pending_student_number",
+                "pending",
                 "ready_to_submit",
                 "resolving_enrolment",
                 "checking_enrolment",
@@ -50,8 +48,7 @@
                 "failed_retryable",
                 "failed_permanent",
                 "blocked",
-                "cancelled",
-                "abandoned_by_consent_withdrawal"
+                "cancelled"
               ]
             }
           }
@@ -137,9 +134,7 @@
             "name": "credit_registration_state",
             "kind": {
               "Enum": [
-                "pending_prerequisites",
-                "pending_consent",
-                "pending_student_number",
+                "pending",
                 "ready_to_submit",
                 "resolving_enrolment",
                 "checking_enrolment",
@@ -154,8 +149,7 @@
                 "failed_retryable",
                 "failed_permanent",
                 "blocked",
-                "cancelled",
-                "abandoned_by_consent_withdrawal"
+                "cancelled"
               ]
             }
           }

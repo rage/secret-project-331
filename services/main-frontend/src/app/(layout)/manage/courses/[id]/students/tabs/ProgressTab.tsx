@@ -23,7 +23,7 @@ import {
 import { StudentsTable } from "../StudentsTable"
 import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { StaleTableWrapper } from "./StaleTableWrapper"
-import { StudentPillCell } from "./StudentPillCell"
+import { STUDENT_PILL_CHROME_PX, StudentPillCell, studentPillText } from "./StudentPillCell"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
@@ -35,9 +35,22 @@ type ProgressRow = {
   email?: string | null | undefined
   total_points: number
   total_attempted: number
-} & Partial<Record<ChapterCellKey, number | string | React.ReactNode | undefined>>
+} & Partial<Record<ChapterCellKey, number>>
 
 const round2 = (n: number) => Math.round(n * 100) / 100
+
+const lockStatusColor = (status: TeacherChapterLockStatus | undefined) => {
+  switch (status) {
+    case "unlocked":
+      return baseTheme.colors.green[700]
+    case "completed_and_locked":
+      return baseTheme.colors.blue[700]
+    case "not_unlocked_yet":
+      return baseTheme.colors.crimson[700]
+    default:
+      return baseTheme.colors.gray[600]
+  }
+}
 
 export const ProgressTabContent: React.FC = () => {
   const { t } = useTranslation()
@@ -96,6 +109,15 @@ export const ProgressTabContent: React.FC = () => {
       (a, b) => (a.chapter_number ?? 0) - (b.chapter_number ?? 0),
     )
 
+    const lockStatusByUserChapter: Record<string, Record<string, TeacherChapterLockStatus>> = {}
+    for (const lockStatus of chapterLockStatuses) {
+      const uid = lockStatus.user_id
+      if (!lockStatusByUserChapter[uid]) {
+        lockStatusByUserChapter[uid] = {}
+      }
+      lockStatusByUserChapter[uid][lockStatus.chapter_id] = lockStatus.status
+    }
+
     // --- columns: Student | Total | per-chapter with maxima in subheaders
     const cols: ColumnDef<StudentsTableFeatures, ProgressRow, unknown>[] = [
       {
@@ -110,6 +132,7 @@ export const ProgressTabContent: React.FC = () => {
             email={row.original.email}
           />
         ),
+        meta: { measureValue: studentPillText, measureExtraPx: STUDENT_PILL_CHROME_PX },
       },
       {
         header: t("total"),
@@ -124,9 +147,11 @@ export const ProgressTabContent: React.FC = () => {
           },
         ],
       },
-      ...sortedChapters.map((ch) => {
+      ...sortedChapters.map((ch): ColumnDef<StudentsTableFeatures, ProgressRow, unknown> => {
         const ptsMax = maxPointsByChapter[ch.id]
         const attMax = maxAttemptsByChapter[ch.id]
+        // oxlint-disable-next-line i18next/no-literal-string
+        const attemptsKey: ChapterCellKey = `ch_${ch.id}_attempts`
         return {
           header: `${ch.name ?? "-"}`,
           columns: [
@@ -138,9 +163,38 @@ export const ProgressTabContent: React.FC = () => {
             },
             {
               header: `${t("attempts")} /${attMax ?? "0"}`,
-              // oxlint-disable-next-line i18next/no-literal-string
-              accessorKey: `ch_${ch.id}_attempts`,
+              accessorKey: attemptsKey,
               enableSorting: false,
+              meta: {
+                measureValue: (row: ProgressRow) => {
+                  const attempts = row[attemptsKey] ?? 0
+                  if (chapter_locking_enabled !== true) {
+                    return String(attempts)
+                  }
+                  const status = lockStatusByUserChapter[row.user_id]?.[ch.id]
+                  return `${attempts} (${getTeacherChapterLockLabel(t, status)})`
+                },
+              },
+              cell: ({ row }) => {
+                const attempts = row.original[attemptsKey] ?? 0
+                if (chapter_locking_enabled !== true) {
+                  return attempts
+                }
+                const lockStatus = lockStatusByUserChapter[row.original.user_id]?.[ch.id]
+                return (
+                  <span>
+                    {attempts} (
+                    <span
+                      className={css`
+                        color: ${lockStatusColor(lockStatus)};
+                      `}
+                    >
+                      {getTeacherChapterLockLabel(t, lockStatus)}
+                    </span>
+                    )
+                  </span>
+                )
+              },
             },
           ],
         }
@@ -159,14 +213,6 @@ export const ProgressTabContent: React.FC = () => {
         points: round2(typeof p.points_obtained === "number" ? p.points_obtained : 0),
         attempts: typeof p.exercises_attempted === "number" ? p.exercises_attempted : 0,
       }
-    }
-    const lockStatusByUserChapter: Record<string, Record<string, TeacherChapterLockStatus>> = {}
-    for (const lockStatus of chapterLockStatuses) {
-      const uid = lockStatus.user_id
-      if (!lockStatusByUserChapter[uid]) {
-        lockStatusByUserChapter[uid] = {}
-      }
-      lockStatusByUserChapter[uid][lockStatus.chapter_id] = lockStatus.status
     }
 
     // --- totals from same source
@@ -201,33 +247,7 @@ export const ProgressTabContent: React.FC = () => {
         const attemptsKey: ChapterCellKey = `ch_${ch.id}_attempts`
         const cell = byUserChapter[u.user_id]?.[ch.id]
         row[pointsKey] = cell ? cell.points : 0
-        const attempts = cell ? cell.attempts : 0
-        if (chapter_locking_enabled !== true) {
-          row[attemptsKey] = attempts
-          continue
-        }
-        const lockStatus = lockStatusByUserChapter[u.user_id]?.[ch.id]
-        const lockColor =
-          lockStatus === "unlocked"
-            ? baseTheme.colors.green[700]
-            : lockStatus === "completed_and_locked"
-              ? baseTheme.colors.blue[700]
-              : lockStatus === "not_unlocked_yet"
-                ? baseTheme.colors.crimson[700]
-                : baseTheme.colors.gray[600]
-        row[attemptsKey] = (
-          <span>
-            {attempts} (
-            <span
-              className={css`
-                color: ${lockColor};
-              `}
-            >
-              {getTeacherChapterLockLabel(t, lockStatus)}
-            </span>
-            )
-          </span>
-        )
+        row[attemptsKey] = cell ? cell.attempts : 0
       }
       return row
     })

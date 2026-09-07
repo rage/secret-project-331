@@ -39,6 +39,7 @@ export const zCmsPageExerciseTask = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   private_spec: z.unknown().optional(),
+  private_spec_files: z.array(z.uuid()).optional(),
 })
 
 export const zCodeGiveaway = z.object({
@@ -244,6 +245,15 @@ export const zExerciseServiceIframeRenderingInfo = z.object({
   name: z.string(),
   public_iframe_url: z.string(),
   slug: z.string(),
+})
+
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
+export const zExerciseServiceUploadResultEntry = z.object({
+  id: z.uuid(),
+  url: z.string(),
 })
 
 export const zGutenbergBlock = z.object({
@@ -877,3 +887,14 @@ export const zGetCmsRepositoryExercisesForCoursePath = z.object({
  * Repository exercises for course
  */
 export const zGetCmsRepositoryExercisesForCourseResponse = z.array(zRepositoryExercise)
+
+export const zUploadFilesFromExerciseServiceBody = z.record(z.string(), z.string())
+
+export const zUploadFilesFromExerciseServicePath = z.object({
+  exercise_service_slug: z.string(),
+})
+
+/**
+ * Uploaded files
+ */
+export const zUploadFilesFromExerciseServiceResponse = z.array(zExerciseServiceUploadResultEntry)

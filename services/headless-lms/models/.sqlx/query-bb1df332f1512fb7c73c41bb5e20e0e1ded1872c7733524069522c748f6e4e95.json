@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT c.open_university_product_id AS \"open_university_product_id!\"\nFROM course_module_suotar_configurations c\n  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = c.course_module_id\n  LEFT JOIN open_university_product_access_tokens t ON t.open_university_product_id = c.open_university_product_id\n  AND t.deleted_at IS NULL\nWHERE c.open_university_product_id IS NOT NULL\n  AND c.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR acm.course_id = $2)\nGROUP BY c.open_university_product_id,\n  t.last_refreshed_at,\n  t.last_refresh_failed_at\nORDER BY GREATEST(t.last_refreshed_at, t.last_refresh_failed_at) ASC NULLS FIRST,\n  c.open_university_product_id\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "open_university_product_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "open_university_product_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "bb1df332f1512fb7c73c41bb5e20e0e1ded1872c7733524069522c748f6e4e95"
+}

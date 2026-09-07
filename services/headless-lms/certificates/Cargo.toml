@@ -19,11 +19,11 @@ usvg = "0.48.1"
 # A simple, streaming XML writer.
 xmlwriter = "0.1.0"
 # High performance xml reader and writer
-quick-xml = "0.41.0"
+quick-xml = "0.42.0"
 # International Components for Unicode
-icu = { version = "2.3.0", features = ["serde"] }
+icu = { version = "2.3.1", features = ["serde"] }
 # Trait and struct definitions for the ICU data provider
-icu_provider = "2.3.0"
+icu_provider = "2.3.1"
 # Locale fallback adapters for ICU data providers
 icu_provider_adapters = "2.3.0"
 # Single assignment cells and lazy values.
@@ -37,7 +37,7 @@ anyhow = "1.0.104"
 # Date and time library for Rust
 chrono = "0.4.45"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.24.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.34"
 # supports loading ICU4X data from a single serialized blob

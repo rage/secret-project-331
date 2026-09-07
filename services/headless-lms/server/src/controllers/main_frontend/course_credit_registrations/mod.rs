@@ -27,8 +27,8 @@ use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, NotImprovedAttainment,
 };
 use headless_lms_models::credit_registrations::{
-    CreditRegistrationErrorCode, CreditRegistrationState, TeacherCreditRegistration,
-    TeacherCreditRegistrationFilters,
+    CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionRefusal,
+    ResubmissionStrictness, TeacherCreditRegistration, TeacherCreditRegistrationFilters,
 };
 use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::StudentFacingCreditRegistrationStatus;
@@ -36,7 +36,6 @@ use headless_lms_models::library::credit_registration::account_linking::MAX_LINK
 use headless_lms_models::library::credit_registration::student_notifications;
 use headless_lms_models::verified_student_numbers::StudentNumberVerificationMethod;
 use headless_lms_models::{
-    course_credit_registration_consents::CourseCreditRegistrationBlockedStudentCounts,
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
     verified_student_numbers,
 };
@@ -45,13 +44,30 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::credit_registration_phases::PhaseContext;
 use crate::domain::credit_registration_phases::linking_mail_resend::{
-    LinkingMailResendOutcome, ResendDecision, resend_linking_mail_for_target,
+    ResendOutcome, resend_linking_mail_for_target,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::services::suotar::SuotarClient;
 
 use super::credit_registrations::{NotificationEmailStatus, mask_email};
+
+/// Every handler here that names a student gates on this; see the module doc for why
+/// `ViewAndManageCreditRegistrations` and not a broader course permission.
+pub(crate) async fn authorize_credit_registration_teacher(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> Result<crate::domain::authorization::AuthorizationToken, ControllerError> {
+    authorize(
+        conn,
+        Act::ViewAndManageCreditRegistrations,
+        Some(user_id),
+        Res::Course(course_id),
+    )
+    .await
+    .map_err(Into::into)
+}
 
 /// A fat-finger guard on top of the per-person caps, which this endpoint cannot relax.
 const MAX_TEACHER_RESENDS_PER_HOUR: i64 = 20;
@@ -63,8 +79,10 @@ const RESEND_CALLER: &str = "teacher-resend";
 /// itself has to be bounded. Comfortably above the students tab's page size.
 const MAX_USER_IDS_PER_REQUEST: usize = 500;
 
-/// A regrade adds an attempt per student. Only a bound for the query above, not a rule.
-const MAX_REGISTRATION_ROWS_PER_USER: i64 = 50;
+/// `MAX_USER_IDS_PER_REQUEST` * a generous per-student attempt count would allow a ~25,000-row join
+/// per request; this is the real ceiling. A course with this many attempts across the named students
+/// needs a narrower request, not a bigger response.
+const MAX_ROWS_PER_REQUEST: i64 = 2_000;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -126,6 +144,9 @@ pub struct CourseCreditRegistration {
     pub credits: Option<f32>,
     pub attempt_number: i32,
     pub superseded: bool,
+    /// Why a teacher's retry would refuse this row, or `null` if it would put it back on the
+    /// pipeline: what the row's retry control renders from.
+    pub resubmission_refusal: Option<ResubmissionRefusal>,
     /// In full: a masked number cannot be checked against a student card.
     pub student_number: Option<String>,
     pub student_number_verified_at: Option<DateTime<Utc>>,
@@ -162,8 +183,9 @@ pub struct CreditRegistrationStateCount {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistrationSummary {
     pub modules: Vec<CourseCreditRegistrationModuleSummary>,
-    pub blocked_students: CourseCreditRegistrationBlockedStudentCounts,
-    /// Of the unlinked consented students, the ones whose linking mail we never managed to hand over.
+    /// Enrolled students we hold no student number for.
+    pub unlinked_enrolled_student_count: i64,
+    /// Of the unlinked enrolled students, the ones whose linking mail we never managed to hand over.
     pub linking_emails_failed_to_send_count: i64,
 }
 
@@ -225,26 +247,9 @@ pub struct ResendLinkingEmailPayload {
     pub reason: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum ResendLinkingEmailOutcome {
-    /// A mail is owed and will be handed to the sender on the next run.
-    Queued,
-    AlreadyMailedToEveryKnownAddress,
-    /// A cap refused it. Not overridable here; an admin can.
-    RefusedByRateCap,
-    NoAddressInStudyRegistry,
-    NotOnTheCourseRoster,
-    /// This account has never had a student number, so there is nothing to look up.
-    NoStudentNumberKnown,
-    /// The number is already linked to an account, so no linking mail is owed.
-    AlreadyLinked,
-    StudyRegistryUnavailable,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct ResendLinkingEmailResult {
-    pub outcome: ResendLinkingEmailOutcome,
+    pub outcome: ResendOutcome,
     /// The latest mail for this person and course after the attempt, whatever the outcome.
     pub linking_email: Option<TeacherLinkingEmailStatus>,
     pub mails_sent_for_this_course: i64,
@@ -313,13 +318,7 @@ pub async fn get_course_credit_registration_summary(
     course_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<CourseCreditRegistrationSummary>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
     let configs =
         models::course_modules::get_credit_registration_configs_by_course_id(&mut conn, *course_id)
@@ -376,16 +375,17 @@ pub async fn get_course_credit_registration_summary(
         })
         .collect();
 
-    let blocked = models::course_credit_registration_consents::count_blocked_students_for_course(
-        &mut conn, *course_id,
-    )
-    .await?;
+    let unlinked_enrolled_student_count =
+        verified_student_numbers::count_unlinked_enrolled_students_for_course(
+            &mut conn, *course_id,
+        )
+        .await?;
     let linking_emails_failed_to_send_count =
         count_failed_linking_emails(&mut conn, *course_id).await?;
 
     token.authorized_ok(web::Json(CourseCreditRegistrationSummary {
         modules,
-        blocked_students: blocked,
+        unlinked_enrolled_student_count,
         linking_emails_failed_to_send_count,
     }))
 }
@@ -413,13 +413,7 @@ pub async fn get_course_credit_registrations_for_users(
     payload: web::Json<CourseCreditRegistrationUserIdsPayload>,
 ) -> ControllerResult<web::Json<Vec<CourseCreditRegistration>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
     if payload.user_ids.len() > MAX_USER_IDS_PER_REQUEST {
         return Err(controller_err!(
@@ -437,11 +431,20 @@ pub async fn get_course_credit_registrations_for_users(
         },
         // Every attempt of every named student, not a page: the tab renders one cell per student and
         // a student's superseded attempts belong in it. Bounded by the cap above rather than by a
-        // page size, which is why the sibling endpoints' `Pagination` does not apply.
-        MAX_REGISTRATION_ROWS_PER_USER * MAX_USER_IDS_PER_REQUEST as i64,
+        // page size, which is why the sibling endpoints' `Pagination` does not apply. Queried one row
+        // over the real cap so exceeding it is detectable rather than silently truncated.
+        MAX_ROWS_PER_REQUEST + 1,
         0,
     )
     .await?;
+    if rows.len() as i64 > MAX_ROWS_PER_REQUEST {
+        return Err(controller_err!(
+            BadRequest,
+            format!(
+                "This request would return more than {MAX_ROWS_PER_REQUEST} registration rows. Name fewer students per request."
+            )
+        ));
+    }
     let res = build_teacher_registrations(&mut conn, *course_id, rows).await?;
 
     token.authorized_ok(web::Json(res))
@@ -476,21 +479,10 @@ pub async fn get_course_credit_registrations(
     query: web::Query<GetCourseCreditRegistrationsQuery>,
 ) -> ControllerResult<web::Json<CourseCreditRegistrationsPage>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
-    let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(100))
-        .map_err(|e| controller_err!(BadRequest, e.to_string()))?;
-    let search = query
-        .search
-        .as_deref()
-        .map(str::trim)
-        .filter(|search| !search.is_empty());
+    let pagination = parse_pagination(query.page, query.limit, 100)?;
+    let search = non_empty(query.search.as_deref());
     let filters = TeacherCreditRegistrationFilters {
         state: query.state,
         search,
@@ -546,13 +538,7 @@ pub async fn get_credit_registration_details(
         models::credit_registrations::get_teacher_facing_by_id(&mut conn, *credit_registration_id)
             .await?
             .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(row.course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, row.course_id).await?;
 
     let course = models::courses::get_course(&mut conn, row.course_id).await?;
     let registration_id = row.id;
@@ -631,13 +617,7 @@ pub async fn resend_course_credit_registration_linking_email(
     suotar_client: web::Data<SuotarClient>,
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
     let enabled_module_ids =
         models::course_modules::get_credit_registration_enabled_ids_for_course(
@@ -673,20 +653,13 @@ pub async fn resend_course_credit_registration_linking_email(
             *course_id,
             &payload,
             None,
-            ResendLinkingEmailOutcome::NoStudentNumberKnown,
+            ResendOutcome::NoStudentNumberKnown,
             token,
         )
         .await;
     };
 
-    let ctx = PhaseContext {
-        pool: &pool,
-        suotar_client: &suotar_client,
-        test_mode: app_conf.test_mode,
-        caller: RESEND_CALLER,
-        base_url: &app_conf.base_url,
-        suotar_conf: &app_conf.suotar_configuration,
-    };
+    let ctx = PhaseContext::from_app(&pool, &suotar_client, &app_conf, RESEND_CALLER);
     // Released first: the call below takes connections of its own and can hold the request for the
     // whole Suotar timeout, so keeping this one would tie up three of the pool per resend.
     drop(conn);
@@ -698,27 +671,7 @@ pub async fn resend_course_credit_registration_linking_email(
     )
     .await?;
     let mut conn = pool.acquire().await?;
-    let outcome = match attempt.decision {
-        ResendDecision::AlreadyLinked => ResendLinkingEmailOutcome::AlreadyLinked,
-        ResendDecision::Attempted(LinkingMailResendOutcome::Claimed) => {
-            ResendLinkingEmailOutcome::Queued
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::AlreadyMailedToEveryKnownAddress) => {
-            ResendLinkingEmailOutcome::AlreadyMailedToEveryKnownAddress
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::RefusedByRateCap) => {
-            ResendLinkingEmailOutcome::RefusedByRateCap
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::NoAddressInStudyRegistry) => {
-            ResendLinkingEmailOutcome::NoAddressInStudyRegistry
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::NotOnTheCourseRoster) => {
-            ResendLinkingEmailOutcome::NotOnTheCourseRoster
-        }
-        ResendDecision::Attempted(LinkingMailResendOutcome::StudyRegistryUnavailable) => {
-            ResendLinkingEmailOutcome::StudyRegistryUnavailable
-        }
-    };
+    let outcome = ResendOutcome::from(attempt.decision);
 
     finish_resend(
         &mut conn,
@@ -743,12 +696,7 @@ async fn resolve_resend_target(
     course_id: Uuid,
     payload: &ResendLinkingEmailPayload,
 ) -> Result<Option<String>, ControllerError> {
-    if let Some(student_number) = payload
-        .student_number
-        .as_deref()
-        .map(str::trim)
-        .filter(|number| !number.is_empty())
-    {
+    if let Some(student_number) = non_empty(payload.student_number.as_deref()) {
         return Ok(Some(student_number.to_string()));
     }
     let Some(user_id) = payload.user_id else {
@@ -779,7 +727,7 @@ async fn finish_resend(
     course_id: Uuid,
     payload: &ResendLinkingEmailPayload,
     student_number: Option<&str>,
-    outcome: ResendLinkingEmailOutcome,
+    outcome: ResendOutcome,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
@@ -959,25 +907,31 @@ pub(crate) async fn build_teacher_registrations(
 ) -> Result<Vec<CourseCreditRegistration>, ControllerError> {
     let waiting: Vec<&TeacherCreditRegistration> = rows
         .iter()
-        .filter(|row| row.state == CreditRegistrationState::PendingStudentNumber)
+        .filter(|row| {
+            StudentFacingCreditRegistrationStatus::of(row.state, row.preconditions())
+                == StudentFacingCreditRegistrationStatus::NeedsStudentNumber
+        })
         .collect();
     let mut statuses = linking_email_statuses(conn, course_id, &waiting).await?;
     let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
     let notification_mails = student_notifications::get_for_registrations(conn, &ids).await?;
-
     Ok(rows
         .into_iter()
         .map(|row| {
             let linking_email = statuses.remove(&row.id);
-            let base = CourseCreditRegistration::from(row);
-            let notification_email = NotificationEmailStatus::for_status(
-                base.student_facing_status,
-                base.id,
-                &notification_mails,
+            // The teacher's own retry strictness, so the row says exactly what that button would do.
+            let resubmission_refusal = row.state.resubmission_refusal(
+                row.superseded_by_id.is_some(),
+                ResubmissionStrictness::OnlyFailedPermanent,
             );
+            let state = row.state;
+            let base = CourseCreditRegistration::from(row);
+            let notification_email =
+                NotificationEmailStatus::for_state(state, base.id, &notification_mails);
             CourseCreditRegistration {
                 linking_email,
                 notification_email,
+                resubmission_refusal,
                 ..base
             }
         })
@@ -987,10 +941,14 @@ pub(crate) async fn build_teacher_registrations(
 impl From<TeacherCreditRegistration> for CourseCreditRegistration {
     fn from(row: TeacherCreditRegistration) -> Self {
         Self {
-            student_facing_status: StudentFacingCreditRegistrationStatus::of(row.state),
+            student_facing_status: StudentFacingCreditRegistrationStatus::of(
+                row.state,
+                row.preconditions(),
+            ),
             superseded: row.superseded_by_id.is_some(),
             linking_email: None,
             notification_email: None,
+            resubmission_refusal: None,
             id: row.id,
             user_id: row.user_id,
             first_name: row.first_name,

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import PasswordField from "@/components/forms/PasswordField"
+import { PasswordField } from "@/components/forms/PasswordField"
 import { resetUserPassword } from "@/generated/api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"

@@ -1,4 +1,6 @@
 {
+  "answer-load-failed": "Could not open your exercise files. Nothing has been lost; try again.",
+  "answer-save-failed": "Saving your answer failed. Your work is still here, but you cannot submit until it is saved.",
   "are-you-sure": "Are you sure?",
   "button.cancel": "Cancel",
   "button.ok": "OK",
@@ -35,6 +37,7 @@
   "test": "Test",
   "test-results": "Test results",
   "tests-unavailable": "Tests unavailable",
+  "try-again": "Try again",
   "upload-solution-instructions": "Upload solution archive. Supported archive types: .tar.zst",
   "waiting-for-content": "Waiting for content...",
   "waiting-for-input": "Waiting for input",

@@ -38,7 +38,7 @@ import {
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
-import mediaUploadBuilder from "../../services/mediaUpload"
+import { mediaUploadBuilder } from "../../services/mediaUpload"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
 import { modifyBlocks, removeUncommonSpacesFromBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"

@@ -15,6 +15,10 @@ use headless_lms_models::credit_registration_phase_state::{
 use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_utils::services::suotar::SuotarClient;
 
+use crate::programs::periodic_worker::{
+    PeriodicWorkerConfig, is_db_disconnect, run_periodic_worker,
+};
+
 use super::{CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseTick, run_phase_once};
 
 /// How often the loop looks for a due phase; each phase's own interval lives in
@@ -41,59 +45,55 @@ pub async fn run(
         .filter(|phase| phase.process_name() == process_name)
         .collect();
 
-    let mut interval = tokio::time::interval(Duration::from_secs(TICK_INTERVAL_SECS));
-    // A slow iteration should push later ticks out, not fire them back to back (tokio's default).
-    interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
-    let mut ticks = 0;
-    loop {
-        interval.tick().await;
-        ticks += 1;
-        if ticks >= STILL_RUNNING_MESSAGE_TICKS {
-            ticks = 0;
-            info!("{still_running_message}");
-        }
-
-        let ctx = PhaseContext {
-            pool: &db_pool,
-            suotar_client: &suotar_client,
-            test_mode: app_configuration.test_mode,
-            caller: process_name,
-            base_url: &app_configuration.base_url,
-            suotar_conf: &app_configuration.suotar_configuration,
-        };
-        let states = match phase_states(&db_pool).await {
-            Ok(states) => states,
-            Err(error) => {
-                log_failure(
-                    process_name,
-                    "Reading the credit registration phase states",
-                    &error,
-                );
-                continue;
-            }
-        };
-        for phase in &phases {
-            let Some(state) = states.get(phase.as_str()) else {
-                error!(
-                    "Credit registration phase {} has no phase-state row.",
-                    phase.as_str()
-                );
-                continue;
+    run_periodic_worker(
+        PeriodicWorkerConfig {
+            tick_interval: Duration::from_secs(TICK_INTERVAL_SECS),
+            still_running_every: STILL_RUNNING_MESSAGE_TICKS,
+            still_running_message,
+            initial_ticks: 0,
+            // A slow iteration should push later ticks out, not fire them back to back (tokio's
+            // default).
+            delay_missed_ticks: true,
+        },
+        async || {
+            let ctx =
+                PhaseContext::from_app(&db_pool, &suotar_client, &app_configuration, process_name);
+            let states = match phase_states(&db_pool).await {
+                Ok(states) => states,
+                Err(error) => {
+                    log_failure(
+                        process_name,
+                        "Reading the credit registration phase states",
+                        &error,
+                    );
+                    return Ok(());
+                }
             };
-            if !is_due(state, Utc::now()) {
-                continue;
+            for phase in &phases {
+                let Some(state) = states.get(phase.as_str()) else {
+                    error!(
+                        "Credit registration phase {} has no phase-state row.",
+                        phase.as_str()
+                    );
+                    continue;
+                };
+                if !is_due(state, Utc::now()) {
+                    continue;
+                }
+                // Logged and swallowed: one phase failing must not stop the others, and the phase-state
+                // row already carries the failure for the dashboard.
+                if let Err(error) = run_due_phase(&ctx, *phase, state).await {
+                    log_failure(
+                        process_name,
+                        &format!("Credit registration phase {}", phase.as_str()),
+                        &error,
+                    );
+                }
             }
-            // Logged and swallowed: one phase failing must not stop the others, and the phase-state
-            // row already carries the failure for the dashboard.
-            if let Err(error) = run_due_phase(&ctx, *phase, state).await {
-                log_failure(
-                    process_name,
-                    &format!("Credit registration phase {}", phase.as_str()),
-                    &error,
-                );
-            }
-        }
-    }
+            Ok(())
+        },
+    )
+    .await
 }
 
 /// Every phase's state in one read, so a tick costs one query rather than one per owned phase.
@@ -110,11 +110,7 @@ async fn phase_states(
 
 fn log_failure(process_name: &str, subject: &str, error: &anyhow::Error) {
     error!("{subject} failed: {error}");
-    if let Some(sqlx::Error::Io(..)) = error
-        .source()
-        .and_then(|source| source.downcast_ref::<sqlx::Error>())
-    {
-        // Usually the database being reset underneath a local development cluster.
+    if is_db_disconnect(error.source()) {
         info!("{process_name} may have lost its connection to the database.");
     }
 }

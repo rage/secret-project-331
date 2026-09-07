@@ -32,11 +32,13 @@ no teacher or course role.
         (status = 200, description = "Data needed to render the shared submission", body = ExerciseSlideSubmissionInfo)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_shared_submission_info(
     token: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     _user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ExerciseSlideSubmissionInfo>> {
     let mut conn = pool.acquire().await?;
     // Possession of the share token is the capability; any logged-in user may view it.
@@ -54,6 +56,8 @@ async fn get_shared_submission_info(
         submission.user_id,
         models_requests::fetch_service_info,
         true,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await?;
 

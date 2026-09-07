@@ -9,7 +9,7 @@ import { useContext, useEffect, useState } from "react"
 import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import PasswordField from "@/components/forms/PasswordField"
+import { PasswordField } from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

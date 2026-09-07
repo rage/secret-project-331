@@ -1,127 +1,70 @@
-//! Request and response bodies for the six contract endpoints, and the canonical message strings.
+//! The mock's half of the six contract endpoints: the client's own request and response types,
+//! re-exported so a mock body that the client cannot read is a compile error, plus the shapes and
+//! message strings that exist only on the answering side.
 //!
 //! Every endpoint takes a top-level JSON array and answers with one item per request item, in order.
 //! Per-item outcomes are HTTP 200; only request-level failures are 4xx/5xx.
 
-use chrono::NaiveDate;
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_utils::services::suotar::SuotarEndpoint;
+pub use headless_lms_utils::services::suotar::{
+    CreditRange, DatePeriod, EnrolmentResolutionResult, EnrolmentsListedResult, ExistingAttainment,
+    ImportAttainmentRequestItem, ImportAttainmentResult, ListByCourseRequestItem, ListedEnrolment,
+    ListedPerson, LocalizedName, PersonResult, ProductAccessTokenRequestItem,
+    ProductAccessTokenResult, ResolveEnrolmentRequestItem, ResolvePersonRequestItem,
+    SuotarAttainment, SuotarEnrolment, SuotarItemError, SuotarItemStatus, SuotarResponseItem,
+    VerifyAttainmentRequestItem, VerifyAttainmentResult,
+};
 
 use crate::prelude::*;
 
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ResolvePersonsItem {
-    pub request_item_id: String,
-    pub student_number: String,
-}
+/// A request's items are all one endpoint's shape, but the pipeline also carries fault-shaped items
+/// and logs them, so the payload is erased once the per-item logic has built it in its typed form.
+pub type ErasedResponseItem = SuotarResponseItem<serde_json::Value>;
 
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ResolveEnrolmentsItem {
-    pub request_item_id: String,
-    pub student_number: String,
-    pub course_code: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ImportItem {
-    pub request_item_id: String,
-    pub student_number: String,
-    pub course_code: String,
-    pub enrolment_id: String,
-    pub attainment_date: NaiveDate,
-    pub attainment_language: String,
-    pub grade_scale_id: String,
-    pub grade_id: String,
-    pub credits: f64,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct VerifyItem {
-    pub request_item_id: String,
-    pub submitted_attainment_id: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ProductAccessTokenItem {
-    pub request_item_id: String,
-    pub open_university_product_id: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ListByCourseItem {
-    pub request_item_id: String,
-    pub course_code: String,
-    pub course_unit_realisation_id: Option<String>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum ItemStatus {
-    Ok,
-    Error,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ItemError {
-    pub message: String,
-    /// Present only on a disclosed `sisuTimeout`, where the client is told what it may verify.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub submitted_attainment_id: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ResponseItem {
-    pub request_item_id: String,
-    pub status: ItemStatus,
-    pub code: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub result: Option<serde_json::Value>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<ItemError>,
-}
-
-impl ResponseItem {
-    pub fn ok(request_item_id: &str, code: &str, result: serde_json::Value) -> Self {
-        Self {
-            request_item_id: request_item_id.to_string(),
-            status: ItemStatus::Ok,
-            code: code.to_string(),
-            result: Some(result),
-            error: None,
-        }
+pub fn erase<R: Serialize>(item: SuotarResponseItem<R>) -> ErasedResponseItem {
+    ErasedResponseItem {
+        request_item_id: item.request_item_id,
+        status: item.status,
+        code: item.code,
+        result: item
+            .result
+            .map(|result| serde_json::to_value(result).unwrap_or(serde_json::Value::Null)),
+        error: item.error,
     }
+}
 
-    pub fn error(endpoint: SuotarEndpoint, request_item_id: &str, code: &str) -> Self {
-        Self {
-            request_item_id: request_item_id.to_string(),
-            status: ItemStatus::Error,
-            code: code.to_string(),
-            result: None,
-            error: Some(ItemError {
-                message: canonical_message(endpoint, code),
-                submitted_attainment_id: None,
-            }),
-        }
+pub fn ok_item<R>(request_item_id: &str, code: &str, result: R) -> SuotarResponseItem<R> {
+    SuotarResponseItem {
+        request_item_id: request_item_id.to_string(),
+        status: SuotarItemStatus::Ok,
+        code: code.to_string(),
+        result: Some(result),
+        error: None,
     }
+}
 
-    pub fn error_with_message(request_item_id: &str, code: &str, message: String) -> Self {
-        Self {
-            request_item_id: request_item_id.to_string(),
-            status: ItemStatus::Error,
-            code: code.to_string(),
-            result: None,
-            error: Some(ItemError {
-                message,
-                submitted_attainment_id: None,
-            }),
-        }
+pub fn error_item<R>(
+    endpoint: SuotarEndpoint,
+    request_item_id: &str,
+    code: &str,
+) -> SuotarResponseItem<R> {
+    error_item_with_message(request_item_id, code, canonical_message(endpoint, code))
+}
+
+pub fn error_item_with_message<R>(
+    request_item_id: &str,
+    code: &str,
+    message: String,
+) -> SuotarResponseItem<R> {
+    SuotarResponseItem {
+        request_item_id: request_item_id.to_string(),
+        status: SuotarItemStatus::Error,
+        code: code.to_string(),
+        result: None,
+        error: Some(SuotarItemError {
+            message,
+            submitted_attainment_id: None,
+        }),
     }
 }
 
@@ -154,172 +97,6 @@ impl RequestLevelError {
             },
         }
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LocalizedName {
-    pub fi: String,
-    pub sv: String,
-    pub en: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DatePeriod {
-    pub start_date: NaiveDate,
-    pub end_date: NaiveDate,
-}
-
-impl DatePeriod {
-    pub fn contains(&self, date: NaiveDate) -> bool {
-        self.start_date <= date && date <= self.end_date
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct CreditRange {
-    pub min: f64,
-    pub max: f64,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PersonResult {
-    pub student_number: String,
-    pub person_id: String,
-    pub first_names: String,
-    pub last_name: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct EnrolmentDto {
-    pub id: String,
-    pub state: String,
-    pub kind: String,
-    pub course_unit_id: String,
-    pub assessment_item_id: String,
-    pub course_unit_realisation_id: String,
-    pub course_unit_realisation_name: LocalizedName,
-    pub activity_period: DatePeriod,
-    pub grade_scale_id: String,
-    pub credits: CreditRange,
-    pub study_right_id: String,
-    pub study_right_validity_period: DatePeriod,
-    pub enrolment_date_time: DateTime<Utc>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ExistingAttainmentDto {
-    pub id: String,
-    #[serde(rename = "type")]
-    pub attainment_type: String,
-    pub state: String,
-    pub person_id: String,
-    pub course_unit_id: String,
-    pub assessment_item_id: String,
-    pub course_unit_realisation_id: String,
-    pub attainment_date: NaiveDate,
-    pub registration_date: NaiveDate,
-    pub grade_scale_id: String,
-    pub grade_id: String,
-    pub passed: bool,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct EnrolmentsResult {
-    pub enrolments: Vec<EnrolmentDto>,
-    pub existing_attainments: Vec<ExistingAttainmentDto>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SentResult {
-    pub submitted_attainment_id: String,
-    pub submitted_attainment_type: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AttainmentRef {
-    pub id: String,
-    #[serde(rename = "type")]
-    pub attainment_type: String,
-}
-
-/// Import's `registered` and verify's `registered` share this body, so one client-side
-/// deserializer covers both.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RegisteredResult {
-    pub attainment: AttainmentRef,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AttainmentSummary {
-    pub id: String,
-    #[serde(rename = "type")]
-    pub attainment_type: String,
-    pub state: String,
-    pub attainment_date: NaiveDate,
-    pub registration_date: NaiveDate,
-    pub grade_scale_id: String,
-    pub grade_id: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DuplicateResult {
-    pub attainment: AttainmentSummary,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct NotImprovedResult {
-    pub previous_attainment: AttainmentSummary,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ProductAccessTokenResult {
-    pub id: String,
-    pub access_token: String,
-    pub state: String,
-    pub document_state: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ListedEnrolment {
-    pub id: String,
-    pub course_unit_realisation_id: String,
-    pub state: String,
-    pub enrolment_date_time: DateTime<Utc>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ListedPerson {
-    pub student_number: String,
-    pub person_id: String,
-    pub first_names: String,
-    pub last_name: String,
-    pub primary_email: String,
-    /// Omitted rather than null when Sisu holds none.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub secondary_email: Option<String>,
-    pub enrolment: ListedEnrolment,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PeopleResult {
-    pub people: Vec<ListedPerson>,
 }
 
 /// `sisuTemporarilyUnavailable` is worded differently per endpoint, reproduced here so a client
@@ -378,19 +155,19 @@ mod tests {
     /// The proposal's own example bodies, verbatim.
     #[test]
     fn the_proposals_example_request_bodies_deserialize() {
-        let persons: Vec<ResolvePersonsItem> = serde_json::from_str(
+        let persons: Vec<ResolvePersonRequestItem> = serde_json::from_str(
             r#"[{ "requestItemId": "person-1", "studentNumber": "012345678" }]"#,
         )
         .expect("resolve-persons example");
         assert_eq!(persons[0].student_number, "012345678");
 
-        let enrolments: Vec<ResolveEnrolmentsItem> = serde_json::from_str(
+        let enrolments: Vec<ResolveEnrolmentRequestItem> = serde_json::from_str(
             r#"[{ "requestItemId": "enrolment-1", "studentNumber": "012345678", "courseCode": "TKT10001" }]"#,
         )
         .expect("resolve-enrolments example");
         assert_eq!(enrolments[0].course_code, "TKT10001");
 
-        let imports: Vec<ImportItem> = serde_json::from_str(
+        let imports: Vec<ImportAttainmentRequestItem> = serde_json::from_str(
             r#"[{
                 "requestItemId": "moocfi-completion-12345",
                 "studentNumber": "012345678",
@@ -406,19 +183,19 @@ mod tests {
         .expect("import example");
         assert_eq!(imports[0].credits, 5.0);
 
-        let verifies: Vec<VerifyItem> = serde_json::from_str(
+        let verifies: Vec<VerifyAttainmentRequestItem> = serde_json::from_str(
             r#"[{ "requestItemId": "verify-1", "submittedAttainmentId": "hy-kur-1" }]"#,
         )
         .expect("verify example");
         assert_eq!(verifies[0].submitted_attainment_id, "hy-kur-1");
 
-        let tokens: Vec<ProductAccessTokenItem> = serde_json::from_str(
+        let tokens: Vec<ProductAccessTokenRequestItem> = serde_json::from_str(
             r#"[{ "requestItemId": "token-1", "openUniversityProductId": "otm-product" }]"#,
         )
         .expect("product access token example");
         assert_eq!(tokens[0].open_university_product_id, "otm-product");
 
-        let listings: Vec<ListByCourseItem> = serde_json::from_str(
+        let listings: Vec<ListByCourseRequestItem> = serde_json::from_str(
             r#"[{ "requestItemId": "people-1", "courseCode": "TKT10001", "courseUnitRealisationId": "hy-opt-cur-1" }]"#,
         )
         .expect("list-by-course example");
@@ -430,7 +207,8 @@ mod tests {
 
     #[test]
     fn a_per_item_error_serializes_to_the_documented_shape() {
-        let item = ResponseItem::error(SuotarEndpoint::ResolvePersons, "b2", "personNotFound");
+        let item: ErasedResponseItem =
+            error_item(SuotarEndpoint::ResolvePersons, "b2", "personNotFound");
         assert_eq!(
             serde_json::to_value(&item).expect("serializes"),
             serde_json::json!({

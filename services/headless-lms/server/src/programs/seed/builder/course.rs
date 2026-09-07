@@ -414,6 +414,7 @@ impl CourseBuilder {
                 &cert_config.background_svg_path,
                 "image/svg+xml",
                 None,
+                None,
             )
             .await
             .context("inserting certificate background file")?;

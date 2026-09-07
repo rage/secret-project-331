@@ -10,10 +10,10 @@ use crate::suotar_api_calls::SuotarEndpoint;
 
 use super::backoff::{
     NO_USABLE_ENROLMENT_RECHECK_SECS, UNCERTAIN_MAX_CHECKS, UNCERTAIN_RECHECK_SECS,
-    VERIFY_GIVE_UP_POLL_SECS, submit_backoff_secs, submit_window_expired, verify_backoff_secs,
-    verify_window_expired,
+    VERIFY_FIRST_DELAY_SECS, VERIFY_GIVE_UP_POLL_SECS, next_attempt_at, submit_backoff_secs,
+    submit_window_expired, verify_backoff_secs, verify_window_expired,
 };
-use super::classification::{Retryability, retryability};
+use super::classification::{Retryability, retryability, settled_state};
 
 /// The row's scheduling history, which is all these decisions need from it.
 #[derive(Debug, Clone, PartialEq)]
@@ -106,7 +106,7 @@ pub fn submit_error_outcome(
             // can fix this, and the row heals itself once they link a working one.
             Code::PersonNotFound => Outcome {
                 drop_verified_student_number: true,
-                ..Outcome::to(CreditRegistrationState::PendingStudentNumber).with_code(code)
+                ..Outcome::to(CreditRegistrationState::Pending).with_code(code)
             },
             _ => Outcome::to(CreditRegistrationState::NoUsableEnrolment)
                 .with_code(code)
@@ -236,13 +236,34 @@ fn retry_or_expire(
 
 /// Where a successful `import` item lands the row; `sent` means Sisu has not answered yet.
 pub fn import_success_state(code: &str) -> Option<CreditRegistrationState> {
-    match code {
-        "sent" => Some(CreditRegistrationState::AwaitingVerification),
-        "registered" => Some(CreditRegistrationState::Registered),
-        "duplicateAttainment" => Some(CreditRegistrationState::Duplicate),
-        "notImprovedAttainment" => Some(CreditRegistrationState::NotImproved),
-        _ => None,
+    settled_state(SuotarEndpoint::ImportAttainments, code)
+}
+
+/// What an `import` answer that settled the row does to it, including the wait Sisu needs before
+/// the first verify poll can find anything.
+pub fn import_success_outcome(state: CreditRegistrationState) -> Outcome {
+    let outcome = Outcome::to(state);
+    if state == CreditRegistrationState::AwaitingVerification {
+        return outcome.after(VERIFY_FIRST_DELAY_SECS);
     }
+    outcome
+}
+
+/// A row `resolve-enrolments` claimed but has no completion or module to ask about. Retryable like
+/// any other failure, and it accrues retry age, so a row whose context never comes back expires
+/// instead of being repolled forever.
+pub fn missing_context_outcome(facts: &RowFacts) -> Outcome {
+    retry_or_expire(
+        CreditRegistrationErrorCode::Unknown,
+        SuotarEndpoint::ResolveEnrolments,
+        facts,
+    )
+}
+
+/// How long a verify poll pushes the row out of reach while its request is out, so a concurrent
+/// iteration cannot poll it twice. The poll's own outcome overwrites this.
+pub fn verify_poll_lease_until(now: DateTime<Utc>, attempt: i32) -> DateTime<Utc> {
+    next_attempt_at(now, verify_backoff_secs(attempt))
 }
 
 #[cfg(test)]
@@ -294,7 +315,7 @@ mod tests {
             (Code::MalformedRequest, State::FailedRetryable),
             (Code::UnexpectedResponse, State::FailedRetryable),
             (Code::SisuTimeout, State::SubmissionUncertain),
-            (Code::PersonNotFound, State::PendingStudentNumber),
+            (Code::PersonNotFound, State::Pending),
             (Code::EnrolmentNotFound, State::NoUsableEnrolment),
             (Code::EnrolmentNotAccepted, State::NoUsableEnrolment),
             (Code::StudyRightNotValid, State::NoUsableEnrolment),
@@ -368,7 +389,7 @@ mod tests {
     fn a_person_suotar_does_not_know_costs_the_stored_student_number() {
         let outcome = import(Code::PersonNotFound);
         assert!(outcome.drop_verified_student_number);
-        assert_eq!(outcome.to_state, State::PendingStudentNumber);
+        assert_eq!(outcome.to_state, State::Pending);
         for code in CreditRegistrationErrorCode::ALL {
             if code != Code::PersonNotFound {
                 assert!(!import(code).drop_verified_student_number, "{code:?}");
@@ -521,6 +542,22 @@ mod tests {
         assert_eq!(outcome.to_state, State::AwaitingVerification);
         assert_eq!(outcome.needs_admin_attention, Some(true));
         assert_eq!(outcome.delay_secs, Some(VERIFY_GIVE_UP_POLL_SECS));
+    }
+
+    /// A row the phase can build no request for has to accrue retry age like any other failure, or
+    /// nothing ever stops it being claimed again.
+    #[test]
+    fn a_row_with_nothing_to_submit_for_ages_out_of_the_retry_window() {
+        let fresh = missing_context_outcome(&facts());
+        assert_eq!(fresh.to_state, State::FailedRetryable);
+        assert!(fresh.increment_submit_retry_count);
+
+        let old = missing_context_outcome(&RowFacts {
+            first_failed_at: Some(Utc::now() - chrono::Duration::days(8)),
+            ..facts()
+        });
+        assert_eq!(old.to_state, State::FailedPermanent);
+        assert_eq!(old.error_code, Some(Code::RetryWindowExpired));
     }
 
     #[test]

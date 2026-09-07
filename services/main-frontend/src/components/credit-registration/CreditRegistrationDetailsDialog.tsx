@@ -95,11 +95,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
     },
     {
       label: t("label-explanation"),
-      value: registrationExplanation(
-        t,
-        registration.student_facing_status,
-        registration.state === "abandoned_by_consent_withdrawal",
-      ),
+      value: registrationExplanation(t, registration.student_facing_status),
     },
     {
       label: t("label-verified-student-number"),

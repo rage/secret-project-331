@@ -5,17 +5,14 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 use serde_json::json;
 use sqlx::PgPool;
 
 use crate::prelude::*;
 
 use super::default_world;
-use super::faults::{
-    Fault, FaultMatch, ItemAddress, OwnerRef, Predicate, ResolvedOwner, Stage, matches_item,
-    matches_request, resolvable_keys, validate,
-};
+use super::faults::{Fault, OwnerRef, Predicate, ResolvedOwner, Stage, validate};
 use super::ids;
 use super::scenarios;
 use super::store::{EntityHash, MockSuotarStore, OwnerKeys, World};
@@ -95,10 +92,6 @@ pub enum MockSuotarCommand {
         owner: OwnerRef,
     },
     ListFaults(FaultFilter),
-    ExplainFault {
-        fault: super::faults::FaultSpec,
-        against: Option<HypotheticalRequest>,
-    },
     SetDefaults {
         patch: DefaultsPatch,
     },
@@ -309,24 +302,6 @@ pub struct CallFilter {
     pub limit: Option<usize>,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct HypotheticalRequest {
-    pub endpoint: SuotarEndpoint,
-    #[serde(default)]
-    pub items: Vec<HypotheticalItem>,
-}
-
-#[derive(Debug, Default, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct HypotheticalItem {
-    pub request_item_id: String,
-    pub student_number: Option<String>,
-    pub course_code: Option<String>,
-    pub submitted_attainment_id: Option<String>,
-    pub product_id: Option<String>,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase", tag = "status")]
 pub enum CommandResult {
@@ -388,7 +363,6 @@ impl MockSuotarCommand {
             Self::DisarmFault { .. } => "disarmFault",
             Self::DisarmFaults { .. } => "disarmFaults",
             Self::ListFaults(_) => "listFaults",
-            Self::ExplainFault { .. } => "explainFault",
             Self::SetDefaults { .. } => "setDefaults",
             Self::ApplyScenario { .. } => "applyScenario",
             Self::ListCalls(_) => "listCalls",
@@ -644,9 +618,6 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
                 })
                 .collect();
             Ok(json!({ "faults": faults }))
-        }
-        MockSuotarCommand::ExplainFault { fault, against } => {
-            explain_fault(store, &generation, fault, against).await
         }
         MockSuotarCommand::SetDefaults { patch } => {
             let mut defaults = store.preamble(&generation).await?.defaults;
@@ -1048,62 +1019,6 @@ async fn build_fault(
     ))
 }
 
-async fn explain_fault(
-    store: &MockSuotarStore,
-    generation: &str,
-    spec: super::faults::FaultSpec,
-    against: Option<HypotheticalRequest>,
-) -> Outcome {
-    let (fault, (endpoint, stage)) = build_fault(store, generation, spec).await?;
-    let mut explanation = json!({
-        "valid": true,
-        "endpoint": endpoint,
-        "stage": stage,
-        "parallelSafe": fault.parallel_safe,
-        "owner": fault.owner,
-        "resolvableKeys": resolvable_keys(endpoint),
-        "requestShaped": fault.then.is_request_shaped(),
-    });
-    if let Some(request) = against {
-        let items: Vec<ItemAddress> = request
-            .items
-            .iter()
-            .map(|item| ItemAddress {
-                request_item_id: item.request_item_id.clone(),
-                student_number: item.student_number.clone(),
-                course_code: item.course_code.clone(),
-                product_id: item.product_id.clone(),
-                submitted_attainment_id: item.submitted_attainment_id.clone(),
-            })
-            .collect();
-        let mut per_stage = serde_json::Map::new();
-        for candidate in Stage::ALL {
-            let outcome = if fault.then.is_request_shaped() {
-                matches_request(&fault, request.endpoint, candidate, &items)
-            } else {
-                items
-                    .iter()
-                    .map(|item| matches_item(&fault, request.endpoint, candidate, item))
-                    .find(FaultMatch::fires)
-                    .unwrap_or(FaultMatch::Missed("no item matched"))
-            };
-            per_stage.insert(
-                candidate.as_str().to_string(),
-                match outcome {
-                    FaultMatch::Fires => json!({ "fires": true }),
-                    FaultMatch::Missed(predicate) => {
-                        json!({ "fires": false, "failedPredicate": predicate })
-                    }
-                },
-            );
-        }
-        if let Some(object) = explanation.as_object_mut() {
-            object.insert("against".to_string(), serde_json::Value::Object(per_stage));
-        }
-    }
-    Ok(explanation)
-}
-
 async fn resolve_owner(
     store: &MockSuotarStore,
     generation: &str,
@@ -1389,160 +1304,6 @@ fn localized(text: &str) -> LocalizedName {
     }
 }
 
-/// A command's argument shape, its result shape and whether the automated suite may call it.
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct CommandDoc {
-    pub command: &'static str,
-    pub arguments: &'static str,
-    pub result: &'static str,
-    /// False means the command reaches data its caller does not own: dev and manual debugging only.
-    pub parallel_safe: bool,
-}
-
-/// `SuotarEndpoint` values are snake_case in an otherwise camelCase surface, because the enum's
-/// serde spelling is fixed by its database type.
-pub const COMMANDS: [CommandDoc; 23] = [
-    CommandDoc {
-        command: "reset",
-        arguments: "{ scope: \"world\" | \"faults\" | \"calls\" | { persons: { studentNumbers?, owner? } } }",
-        result: "{ flushed } | { cleared } | { studentNumbers, submissions, attainments, enrolments }",
-        parallel_safe: false,
-    },
-    CommandDoc {
-        command: "pushWorld",
-        arguments: "{ defaults?, persons[], courseUnits[], enrolments[], attainments[], submissions[], productTokens[] }",
-        result: "{ generation, counts }",
-        parallel_safe: false,
-    },
-    CommandDoc {
-        command: "upsertPersons",
-        arguments: "{ persons: [{ studentNumber, personId?, firstNames, lastName, primaryEmail, secondaryEmail?, behaviour?, ownerUserEmail? }] }",
-        result: "{ studentNumbers }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "upsertCourseUnits",
-        arguments: "{ courseUnits: [{ courseCode, courseUnitId?, name?, realisations[], behaviour?, ownerCourseSlug? }] }",
-        result: "{ courseCodes }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "upsertEnrolments",
-        arguments: "{ enrolments: [{ id?, studentNumber, courseCode, realisationId?, kind?, state, studyRightId?, studyRightValidityPeriod, enrolmentDateTime? }] }",
-        result: "{ enrolmentIds }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "upsertAttainments",
-        arguments: "{ attainments: [{ id?, studentNumber, courseCode, kind?, attainmentDate, gradeScaleId, gradeId, state?, passed? }] }",
-        result: "{ attainmentIds }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "upsertProductAccessTokens",
-        arguments: "{ tokens: [{ openUniversityProductId, id?, accessToken?, state?, documentState? }] }",
-        result: "{ productIds }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "deletePersons",
-        arguments: "{ studentNumbers: [] }",
-        result: "{ studentNumbers, submissions, attainments, enrolments }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "allocatePerson",
-        arguments: "{ firstNames?, lastName?, primaryEmail?, secondaryEmail?, ownerUserEmail? }",
-        result: "{ studentNumber, personId }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "generateRoster",
-        arguments: "{ courseCode, realisationId, count, studentNumberPrefix? }",
-        result: "{ courseCode, realisationId, studentNumbers }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "setPersonBehaviour",
-        arguments: "{ studentNumber, patch: { ripeness?, duplicateDetection?, primaryEmail?, secondaryEmail? } }",
-        result: "{ studentNumber }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "setCourseBehaviour",
-        arguments: "{ courseCode, patch: { importAllowed? } }",
-        result: "{ courseCode }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "transitionSubmission",
-        arguments: "{ submittedAttainmentId, to }",
-        result: "{ submittedAttainmentIds, attainmentIds }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "transitionSubmissionsFor",
-        arguments: "{ studentNumber, courseCode?, to }",
-        result: "{ submittedAttainmentIds, attainmentIds }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "listSubmissions",
-        arguments: "{ studentNumber?, courseCode? }",
-        result: "{ submissions }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "armFault",
-        arguments: "{ id, when, then, lifetime?, provesDoubleSubmission? }",
-        result: "{ id, parallelSafe, owner, seq }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "disarmFault",
-        arguments: "{ id }",
-        result: "{ disarmed }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "disarmFaults",
-        arguments: "{ owner: { user?, course? } }",
-        result: "{ disarmed }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "listFaults",
-        arguments: "{ id?, owner? }",
-        result: "{ faults: [{ fault, remaining, spent }] }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "explainFault",
-        arguments: "{ fault, against?: { endpoint, items[] } }",
-        result: "{ valid, endpoint, stage, parallelSafe, owner, resolvableKeys, against? }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "setDefaults",
-        arguments: "{ patch: { acceptedToken?, ripeness?, duplicateDetection?, gradeScales?, callLogCapacity?, includeNonEnrolledInResult?, realisationIdRequired?, staticGradeErrorCode?, clearStaticGradeErrorCode? } }",
-        result: "the whole defaults object",
-        parallel_safe: false,
-    },
-    CommandDoc {
-        command: "applyScenario",
-        arguments: "{ name, args: { studentNumber?, courseCode, realisationKind?, owner?, primaryEmail?, secondaryEmail?, firstNames?, lastName? } }",
-        result: "{ scenario, scope, ...minted identifiers }",
-        parallel_safe: true,
-    },
-    CommandDoc {
-        command: "listCalls",
-        arguments: "{ endpoint?, studentNumber?, courseCode?, requestItemId?, faultId?, correlationId?, limit? }",
-        result: "{ calls, scanned }",
-        parallel_safe: true,
-    },
-];
-
 pub async fn health(
     app_conf: web::Data<ApplicationConfiguration>,
     store: web::Data<MockSuotarStore>,
@@ -1627,14 +1388,6 @@ async fn dump(store: &MockSuotarStore, generation: &str) -> anyhow::Result<serde
     }))
 }
 
-pub async fn commands(
-    app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<HttpResponse> {
-    super::assert_enabled(&app_conf);
-    let token = skip_authorize();
-    token.authorized_ok(HttpResponse::Ok().json(json!({ "commands": COMMANDS })))
-}
-
 pub async fn command(
     app_conf: web::Data<ApplicationConfiguration>,
     store: web::Data<MockSuotarStore>,
@@ -1677,28 +1430,12 @@ fn internal_error(error: &anyhow::Error) -> HttpResponse {
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/command", web::post().to(command))
         .route("/health", web::get().to(health))
-        .route("/world", web::get().to(world))
-        .route("/commands", web::get().to(commands));
+        .route("/world", web::get().to(world));
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    /// Serde names every variant it knows in its unknown-variant error, which is where the expected
-    /// list comes from.
-    fn variants_serde_knows() -> Vec<String> {
-        let error = serde_json::from_value::<MockSuotarCommand>(json!({ "command": "\u{1}" }))
-            .expect_err("an invented command tag must not deserialize");
-        let message = error.to_string();
-        message
-            .split('`')
-            .skip(1)
-            .step_by(2)
-            .filter(|name| *name != "\u{1}")
-            .map(str::to_string)
-            .collect()
-    }
 
     /// Nothing generates the Playwright client from the Rust side, so a rename is only caught here.
     #[test]
@@ -1750,17 +1487,5 @@ mod tests {
             serde_json::from_value(json!({ "command": "reset", "scope": "world" }))
                 .expect("reset world");
         assert_eq!(world.name(), "reset");
-    }
-
-    #[test]
-    fn the_command_listing_names_every_variant() {
-        let listed: Vec<String> = COMMANDS.iter().map(|doc| doc.command.to_string()).collect();
-        for name in variants_serde_knows() {
-            assert!(
-                listed.contains(&name),
-                "command `{name}` is missing from the listing"
-            );
-        }
-        assert_eq!(listed.len(), COMMANDS.len());
     }
 }

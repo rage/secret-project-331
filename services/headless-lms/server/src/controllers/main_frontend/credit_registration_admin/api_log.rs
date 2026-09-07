@@ -11,7 +11,7 @@ use headless_lms_models::credit_registrations::{
     CreditRegistrationState,
 };
 use headless_lms_models::suotar_api_calls::{
-    self, SuotarApiCall, SuotarApiCallFilters, SuotarEndpoint,
+    self, SuotarApiCall, SuotarApiCallFilters, SuotarApiCallPageRow, SuotarEndpoint,
 };
 use utoipa::ToSchema;
 
@@ -44,9 +44,8 @@ pub struct SuotarApiCallRow {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct SuotarApiCallsPage {
-    pub data: Vec<SuotarApiCallRow>,
-    pub total_count: i64,
-    pub total_pages: u32,
+    #[serde(flatten)]
+    pub page: Page<SuotarApiCallRow>,
     /// The `worker_name` values in the log, for the filter.
     pub worker_names: Vec<String>,
 }
@@ -142,17 +141,11 @@ pub async fn list_suotar_api_calls(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let pagination = Pagination::new(query.page.unwrap_or(1), query.limit.unwrap_or(50))
-        .map_err(|e| controller_err!(BadRequest, e.to_string()))?;
+    let pagination = parse_pagination(query.page, query.limit, 50)?;
     let filters = SuotarApiCallFilters {
         endpoint: query.endpoint,
         succeeded: query.succeeded,
-        worker_name: query
-            .worker_name
-            .as_deref()
-            .map(str::trim)
-            .filter(|name| !name.is_empty())
-            .map(str::to_string),
+        worker_name: non_empty(query.worker_name.as_deref()).map(str::to_string),
         started_after: query.started_after,
         started_before: query.started_before,
         credit_registration_id: query.credit_registration_id,
@@ -164,9 +157,11 @@ pub async fn list_suotar_api_calls(
     let worker_names = suotar_api_calls::get_worker_names(&mut conn).await?;
 
     token.authorized_ok(web::Json(SuotarApiCallsPage {
-        data: rows.into_iter().map(|row| to_call_row(row.call)).collect(),
-        total_count,
-        total_pages: pagination.total_pages(u32::try_from(total_count).unwrap_or(u32::MAX)),
+        page: Page::new(
+            pagination,
+            rows.into_iter().map(to_call_row).collect(),
+            total_count,
+        ),
         worker_names,
     }))
 }
@@ -220,7 +215,7 @@ pub async fn get_suotar_api_call(
         request_body_sample: call.request_body_sample.clone(),
         response_body_sample: call.response_body_sample.clone(),
         error_message: call.error_message.clone(),
-        call: to_call_row(call),
+        call: to_call_row_from_full(&call),
         ledger_references,
         events,
     }))
@@ -268,7 +263,7 @@ async fn resolve_ledger_references(
         .collect())
 }
 
-fn to_call_row(call: SuotarApiCall) -> SuotarApiCallRow {
+fn to_call_row(call: SuotarApiCallPageRow) -> SuotarApiCallRow {
     SuotarApiCallRow {
         id: call.id,
         endpoint: call.endpoint,
@@ -282,6 +277,24 @@ fn to_call_row(call: SuotarApiCall) -> SuotarApiCallRow {
         request_level_error_code: call.request_level_error_code,
         worker_name: call.worker_name,
         credit_registration_ids: call.credit_registration_ids,
+    }
+}
+
+/// The same summary, from the detail endpoint's full row rather than the bodyless listing one.
+fn to_call_row_from_full(call: &SuotarApiCall) -> SuotarApiCallRow {
+    SuotarApiCallRow {
+        id: call.id,
+        endpoint: call.endpoint,
+        started_at: call.started_at,
+        duration_ms: call.duration_ms,
+        http_status: call.http_status,
+        succeeded: call.succeeded,
+        request_item_count: call.request_item_count,
+        ok_item_count: call.ok_item_count,
+        error_item_count: call.error_item_count,
+        request_level_error_code: call.request_level_error_code.clone(),
+        worker_name: call.worker_name.clone(),
+        credit_registration_ids: call.credit_registration_ids.clone(),
     }
 }
 

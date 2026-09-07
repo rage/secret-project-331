@@ -13,6 +13,7 @@ import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import { Button, Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
 import { MIDDLE_DOT, TONE } from "../constants"
+import { RESEND_QUEUED } from "../resendOutcome"
 import { useActionResult } from "../useActionResult"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
@@ -29,9 +30,6 @@ interface Fields {
   override_rate_caps: boolean
   reason: string
 }
-
-// oxlint-disable-next-line i18next/no-literal-string
-const QUEUED = "queued"
 
 const rootCss = css`
   display: grid;
@@ -125,7 +123,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       )}
       <Dialog open={open} onClose={closeDialog} title={t("button-text-resend-linking-email")}>
         {result && (
-          <Infobox tone={result.outcome === QUEUED ? TONE.INFO : TONE.WARNING}>
+          <Infobox tone={result.outcome === RESEND_QUEUED ? TONE.INFO : TONE.WARNING}>
             <div>{resendOutcomeLabel(t, result.outcome)}</div>
             <div>
               {t("credit-registration-admin-resend-mails-so-far", {

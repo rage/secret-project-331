@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id\nFROM credit_registrations cr\nWHERE cr.course_id = $1\n  AND cr.state = 'failed_permanent'\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\nORDER BY cr.state_entered_at\nLIMIT $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b7bda4f668c8f4285b55502e37402a6f6c891617a0aac9dc4ba130bf7b3a4137"
+}

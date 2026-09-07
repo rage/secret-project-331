@@ -259,7 +259,7 @@ export const setTestExclusiveHold = async (
 }
 
 /**
- * Drives a consented completion as far as a submission, one phase per tick. Each phase claims what
+ * Drives a completion as far as a submission, one phase per tick. Each phase claims what
  * the one before it left, so ticking them out of order waits for a state that cannot arrive.
  */
 export const runPhasesUpToSubmission = async (

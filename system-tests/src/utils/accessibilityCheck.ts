@@ -55,6 +55,17 @@ export default async function accessibilityCheck(
         ) {
           return false
         }
+        // Gutenberg 16.2's empty-editor ghost block puts aria-multiline/aria-readonly on a
+        // role="document" element, which that role disallows. Upstream @wordpress/block-editor bug.
+        if (
+          violation.id === "aria-allowed-attr" &&
+          violation.nodes.every(
+            (node) =>
+              node.html.includes('role="document"') && node.html.includes('data-empty="true"'),
+          )
+        ) {
+          return false
+        }
         if (axeSkip && axeSkip.some((skippable) => skippable === violation.id)) {
           return false
         }

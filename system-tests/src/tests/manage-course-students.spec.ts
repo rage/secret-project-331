@@ -39,6 +39,7 @@ test.describe("Manage course students tab", () => {
     // Certificates subtab renders its table header.
     await page.getByRole("tab", { name: "Certificates" }).click()
     await expect(page).toHaveURL(/\/students\/certificates/)
-    await expect(page.getByRole("columnheader", { name: "Certificate", exact: true })).toBeVisible()
+    // Not exact: each column header also contains its resize handle's accessible name.
+    await expect(page.getByRole("columnheader", { name: "Certificate" }).first()).toBeVisible()
   })
 })

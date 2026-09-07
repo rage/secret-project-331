@@ -81,7 +81,7 @@ function buildMultipleChoiceRequest(items: ItemConfig[], quizFeedback: QuizFeedb
     })),
   }
 
-  return { grading_update_url: "example", exercise_spec, submission_data }
+  return { grading_update_url: "example", exercise_spec, submission_data, submission_files: [] }
 }
 
 async function gradeFeedback(request: unknown): Promise<ItemAnswerFeedback[]> {
@@ -325,6 +325,7 @@ describe("grade migrates raw old spec blobs before generating feedback", () => {
   test("a raw v3 spec yields migrated item and quiz feedback", async () => {
     const rawV3Request = {
       grading_update_url: "example",
+      submission_files: [],
       exercise_spec: {
         version: "3",
         awardPointsEvenIfWrong: false,

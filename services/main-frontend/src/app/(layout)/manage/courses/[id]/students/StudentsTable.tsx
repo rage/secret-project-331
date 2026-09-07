@@ -2,16 +2,25 @@
 
 import { css, cx } from "@emotion/css"
 import { flexRender, useTable } from "@tanstack/react-table"
-import type { ColumnDef, OnChangeFn, SortingState } from "@tanstack/react-table"
+import type { ColumnDef, OnChangeFn, Row, SortingState } from "@tanstack/react-table"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
+import { ColumnResizeHandle } from "./ColumnResizeHandle"
+import {
+  distributeGroupWidth,
+  MAX_COLUMN_WIDTH,
+  MIN_COLUMN_WIDTH,
+  preserveUserWidths,
+  stretchToFill,
+} from "./columnWidths"
 import { colorPairs } from "./studentsTableColors"
 import { studentsTableFeatures, type StudentsTableFeatures } from "./studentsTableFeatures"
 import {
+  cellTruncateCss,
   floatingHeaderInnerCss,
   floatingHeaderShellCss,
   floatingHeaderShellDynamic,
@@ -29,16 +38,11 @@ import {
   tdStyle,
   thStyle,
 } from "./studentsTableStyles"
-
-interface ColMeta {
-  minWidth?: number
-}
-
-function getMeta<T extends object>(
-  colDef: ColumnDef<StudentsTableFeatures, T, unknown> | undefined,
-): ColMeta | undefined {
-  return (colDef as ColumnDef<StudentsTableFeatures, T, unknown> & { meta?: ColMeta })?.meta
-}
+import {
+  type MeasurableGroupHeader,
+  type MeasurableLeafColumn,
+  useMeasuredColumnWidths,
+} from "./useMeasuredColumnWidths"
 
 // Estimated row height (px) used by the virtualizer before real rows are measured.
 const ESTIMATED_ROW_HEIGHT = 50
@@ -86,15 +90,22 @@ export function StudentsTable<T extends object>({
   const chapterHeaderStart = progressMode ? 2 : 1 // upper headers (groups) start index
   const subHeaderStart = progressMode ? 3 : 1 // lower headers / leaf cells start index
 
+  const [columnSizing, setColumnSizing] = useState<Record<string, number>>({})
+  // Columns the user dragged, so a re-measure does not undo their width.
+  const userResizedRef = useRef<Set<string>>(new Set())
+  const measuredWidthsRef = useRef<Record<string, number>>({})
+
   const table = useTable({
     features: studentsTableFeatures,
     columns,
     data,
-    state: { sorting: sorting ?? [] },
+    state: { sorting: sorting ?? [], columnSizing },
+    onColumnSizingChange: setColumnSizing,
     // Omitted when undefined to satisfy exactOptionalPropertyTypes.
     ...(onSortingChange ? { onSortingChange } : {}),
     manualSorting: true,
     enableSortingRemoval: false,
+    defaultColumn: { minSize: MIN_COLUMN_WIDTH },
   })
 
   const rows = table.getRowModel().rows
@@ -130,14 +141,6 @@ export function StudentsTable<T extends object>({
   })
 
   const virtualItems = rowVirtualizer.getVirtualItems()
-  // Identifies which rows are actually mounted right now. Column widths are decided by their real
-  // (`table-layout: auto`) content, so a different virtualized window can change them even though
-  // `data`/`columns` did not -- this re-measures the header whenever that window moves (below),
-  // keeping the floating clone's frozen widths in sync with the real table.
-  const firstVirtualIndex = virtualItems[0]?.index
-  const lastVirtualIndex = virtualItems[virtualItems.length - 1]?.index
-  // oxlint-disable-next-line i18next/no-literal-string -- not user-facing, a React dependency key
-  const virtualRangeKey = `${firstVirtualIndex}:${lastVirtualIndex}`
   const scrollMargin = rowVirtualizer.options.scrollMargin
   const paddingTop = (virtualItems[0]?.start ?? 0) - scrollMargin
   const lastVirtualItem = virtualItems[virtualItems.length - 1]
@@ -164,40 +167,53 @@ export function StudentsTable<T extends object>({
 
   const [showFloatingHeader, setShowFloatingHeader] = useState(false)
   const [floatingRect, setFloatingRect] = useState({ left: 0, width: 0 })
-  const [headerMeasurements, setHeaderMeasurements] = useState<{
-    widths: Record<string, number>
-    tableWidth: number
-  }>({ widths: {}, tableWidth: 0 })
-
-  const measureHeader = useCallback(() => {
-    const theadEl = theadRef.current
-    const tableEl = realTableRef.current
-    if (!theadEl || !tableEl) {
-      return
-    }
-    const widths: Record<string, number> = {}
-    theadEl.querySelectorAll<HTMLTableCellElement>("th[data-header-id]").forEach((th) => {
-      const id = th.getAttribute("data-header-id")
-      if (id) {
-        widths[id] = th.getBoundingClientRect().width
-      }
-    })
-    setHeaderMeasurements({ widths, tableWidth: tableEl.getBoundingClientRect().width })
-  }, [])
+  // Mirrors floatingRect for the rAF-driven horizontal sync, which runs outside React.
+  const floatingRectRef = useRef({ left: 0, width: 0 })
+  // Unpinning mid-drag would unmount the very handle being dragged, so pinning is frozen until the
+  // gesture ends.
+  const isResizingRef = useRef(false)
 
   const measureFloatingRect = useCallback(() => {
     const wrapper = tableWrapperRef.current
     if (!wrapper) {
       return
     }
-    const rect = wrapper.getBoundingClientRect()
-    setFloatingRect({ left: rect.left, width: rect.width })
+    const scroller = horizontalScrollElRef.current
+    let next: { left: number; width: number }
+    if (scroller && scroller.scrollWidth > scroller.clientWidth) {
+      // The wrapper is width: 100% of the scroller's *content* box, but a table wider than that
+      // paints out through the scroller's padding. Sized from the wrapper the header would stop
+      // one padding-width short of the columns at each edge.
+      const scrollerRect = scroller.getBoundingClientRect()
+      next = { left: scrollerRect.left + scroller.clientLeft, width: scroller.clientWidth }
+    } else {
+      // While the table fits, the wrapper is its box -- and the scroller would stretch the header
+      // strip past the wrapper's rounded border.
+      const rect = wrapper.getBoundingClientRect()
+      next = { left: rect.left, width: rect.width }
+    }
+    floatingRectRef.current = next
+    setFloatingRect((previous) =>
+      previous.left === next.left && previous.width === next.width ? previous : next,
+    )
+  }, [])
+
+  // Aligns the clone with the real table by their actual positions rather than by scrollLeft: the
+  // shell starts at the scroller's client edge, which is one padding-width left of the table.
+  const applyHorizontalTransform = useCallback(() => {
+    const inner = floatingInnerRef.current
+    const realTable = realTableRef.current
+    if (!inner || !realTable) {
+      return
+    }
+    const offset = realTable.getBoundingClientRect().left - floatingRectRef.current.left
+    inner.style.transform = `translateX(${offset}px)`
   }, [])
 
   const updateShowFloatingHeader = useCallback(() => {
     const wrapper = tableWrapperRef.current
     const theadEl = theadRef.current
-    if (!wrapper || !theadEl) {
+    if (!wrapper || !theadEl || isResizingRef.current) {
       return
     }
     const rect = wrapper.getBoundingClientRect()
@@ -205,35 +221,30 @@ export function StudentsTable<T extends object>({
     setShowFloatingHeader(rect.top < 0 && rect.bottom > headerHeight)
   }, [])
 
-  // Re-measure header cell widths whenever the rendered content could change column widths -- either
-  // because data/columns changed outright, or because virtualization mounted a different window of
-  // rows (`virtualRangeKey`) whose cell content naturally sizes the columns differently under
-  // `table-layout: auto`. Also re-check pin state since a shorter/taller page can push the table
-  // above/below the threshold.
+  // A shorter or taller page can push the table above or below the pin threshold.
   useLayoutEffect(() => {
-    measureHeader()
     updateShowFloatingHeader()
-  }, [data, columns, virtualRangeKey, measureHeader, updateShowFloatingHeader])
+  }, [data, columns, updateShowFloatingHeader])
 
   // The floating header's inner wrapper is a fresh DOM node each time it mounts (it only exists
   // while showFloatingHeader is true), so it starts untransformed -- sync it to the current
   // horizontal scroll position immediately, otherwise it renders misaligned until the next
   // horizontal scroll event.
   useLayoutEffect(() => {
-    if (showFloatingHeader && floatingInnerRef.current) {
-      const x = horizontalScrollElRef.current?.scrollLeft ?? 0
-      floatingInnerRef.current.style.transform = `translateX(-${x}px)`
+    if (showFloatingHeader) {
+      applyHorizontalTransform()
     }
-  }, [showFloatingHeader])
+  }, [showFloatingHeader, applyHorizontalTransform])
 
   useEffect(() => {
-    // Header cell widths and pin state are already measured before paint by the useLayoutEffect
-    // above (on mount and on every data/columns change); only the floating rect is measured here.
-    measureFloatingRect()
-
     const wrapper = tableWrapperRef.current
+    // Resolved before the first measurement, which needs the scroller to know whether the table
+    // overflows.
     horizontalScrollElRef.current =
       wrapper?.closest<HTMLElement>("[data-students-horizontal-scroll]") ?? null
+    // Pin state is already resolved before paint by the useLayoutEffect above (on mount and on
+    // every data/columns change); only the floating rect is measured here.
+    measureFloatingRect()
 
     // rAF-throttle the pin check so a scroll burst does at most one pair of layout reads per frame,
     // matching the horizontal-scroll handler below.
@@ -250,37 +261,35 @@ export function StudentsTable<T extends object>({
 
     const onWindowResize = () => {
       measureFloatingRect()
-      measureHeader()
       measureScrollMargin()
     }
     window.addEventListener("resize", onWindowResize)
 
     const ro = new ResizeObserver(() => {
       measureFloatingRect()
-      measureHeader()
       measureScrollMargin()
     })
     if (wrapper) {
       ro.observe(wrapper)
     }
-
-    const applyHorizontalTransform = (x: number) => {
-      if (floatingInnerRef.current) {
-        floatingInnerRef.current.style.transform = `translateX(-${x}px)`
-      }
+    // The table too: whether it overflows the scroller decides which box the header is sized from,
+    // and the wrapper's own size never reflects that.
+    if (realTableRef.current) {
+      ro.observe(realTableRef.current)
     }
+
     const onHorizontalScroll = () => {
       if (horizontalRafRef.current !== null) {
         return
       }
       horizontalRafRef.current = requestAnimationFrame(() => {
         horizontalRafRef.current = null
-        applyHorizontalTransform(horizontalScrollElRef.current?.scrollLeft ?? 0)
+        applyHorizontalTransform()
       })
     }
     const horizontalScrollEl = horizontalScrollElRef.current
     horizontalScrollEl?.addEventListener("scroll", onHorizontalScroll, { passive: true })
-    applyHorizontalTransform(horizontalScrollEl?.scrollLeft ?? 0)
+    applyHorizontalTransform()
 
     return () => {
       window.removeEventListener("scroll", onWindowScroll)
@@ -294,7 +303,186 @@ export function StudentsTable<T extends object>({
         cancelAnimationFrame(showHeaderRafRef.current)
       }
     }
-  }, [measureFloatingRect, measureHeader, measureScrollMargin, updateShowFloatingHeader])
+  }, [applyHorizontalTransform, measureFloatingRect, measureScrollMargin, updateShowFloatingHeader])
+
+  // Plain-text stand-in for a cell, so widths can be measured without mounting 1000 rows. Columns
+  // whose cell renders elements supply it through meta.measureValue.
+  const getCellText = useCallback(
+    (row: Row<StudentsTableFeatures, T>, columnId: string): string => {
+      const column = table.getColumn(columnId)
+      const measureValue = column?.columnDef.meta?.measureValue
+      if (measureValue) {
+        return measureValue(row.original as never)
+      }
+      if (!column?.accessorFn) {
+        return ""
+      }
+      const value = row.getValue(columnId)
+      return value === null || value === undefined ? "" : String(value)
+    },
+    [table],
+  )
+
+  const leafColumnsForMeasurement = useMemo<MeasurableLeafColumn[]>(
+    () =>
+      table.getVisibleLeafColumns().map((column) => ({
+        columnId: column.id,
+        headerText: typeof column.columnDef.header === "string" ? column.columnDef.header : null,
+        minWidth: column.columnDef.minSize ?? MIN_COLUMN_WIDTH,
+        cellTexts: rows.map((row) => getCellText(row, column.id)),
+        extraPx: column.columnDef.meta?.measureExtraPx ?? 0,
+      })),
+    [table, rows, getCellText],
+  )
+
+  const groupHeadersForMeasurement = useMemo<MeasurableGroupHeader[]>(
+    () =>
+      table
+        .getHeaderGroups()
+        .flatMap((headerGroup) => headerGroup.headers)
+        .filter((header) => header.subHeaders.length > 0)
+        .flatMap((header) =>
+          typeof header.column.columnDef.header === "string"
+            ? [
+                {
+                  labelText: header.column.columnDef.header,
+                  leafColumnIds: header.getLeafHeaders().map((leaf) => leaf.column.id),
+                },
+              ]
+            : [],
+        ),
+    [table],
+  )
+
+  const { widths: measuredWidths, measureCellWidth } = useMeasuredColumnWidths({
+    leafColumns: leafColumnsForMeasurement,
+    groupHeaders: groupHeadersForMeasurement,
+    containerRef: tableWrapperRef,
+    enabled: true,
+  })
+
+  useEffect(() => {
+    if (Object.keys(measuredWidths).length === 0) {
+      return
+    }
+    measuredWidthsRef.current = measuredWidths
+    setColumnSizing((previous) => {
+      const next = preserveUserWidths(measuredWidths, previous, userResizedRef.current)
+      const keys = Object.keys(next)
+      const unchanged =
+        keys.length === Object.keys(previous).length &&
+        keys.every((key) => next[key] === previous[key])
+      return unchanged ? previous : next
+    })
+  }, [measuredWidths])
+
+  // Only cells that cannot fit get a tooltip; a dense table of short numbers should not sprout one
+  // on every hover.
+  const truncatedTitleFor = useCallback(
+    (columnId: string, rowIndex: number): string | undefined => {
+      const row = rows[rowIndex]
+      if (!row) {
+        return undefined
+      }
+      const text = getCellText(row, columnId)
+      if (!text) {
+        return undefined
+      }
+      const width = measureCellWidth(text)
+      const columnWidth = table.getColumn(columnId)?.getSize()
+      if (width === null || columnWidth === undefined || width <= columnWidth) {
+        return undefined
+      }
+      return text
+    },
+    [rows, getCellText, measureCellWidth, table],
+  )
+
+  // A leaf column resolves to itself, so leaf and grouped headers share one set of resize handlers.
+  const resizeTargetsOf = useCallback(
+    (columnId: string) =>
+      (table.getColumn(columnId)?.getLeafColumns() ?? []).map((column) => ({
+        columnId: column.id,
+        minWidth: Math.max(column.columnDef.minSize ?? MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH),
+      })),
+    [table],
+  )
+
+  const getColumnWidth = useCallback(
+    (columnId: string) => {
+      const leaves = table.getColumn(columnId)?.getLeafColumns() ?? []
+      return leaves.length === 0
+        ? MIN_COLUMN_WIDTH
+        : leaves.reduce((total, leaf) => total + leaf.getSize(), 0)
+    },
+    [table],
+  )
+
+  const handleResizeStart = useCallback(() => {
+    isResizingRef.current = true
+  }, [])
+
+  const handleResize = useCallback(
+    (columnId: string, width: number) => {
+      const targets = resizeTargetsOf(columnId)
+      for (const target of targets) {
+        userResizedRef.current.add(target.columnId)
+      }
+      setColumnSizing((previous) =>
+        targets.length === 1 && targets[0]
+          ? { ...previous, [targets[0].columnId]: width }
+          : distributeGroupWidth(previous, targets, width),
+      )
+    },
+    [resizeTargetsOf],
+  )
+
+  // A drag that narrows the table would otherwise leave a gap at its right edge; the columns the
+  // user has not touched absorb it, so their own widths survive the refill.
+  const refillTrailingSpace = useCallback(() => {
+    const container = tableWrapperRef.current
+    if (!container) {
+      return
+    }
+    setColumnSizing((previous) => {
+      const flexibleIds = table
+        .getVisibleLeafColumns()
+        .map((column) => column.id)
+        .filter((id) => !userResizedRef.current.has(id) && previous[id] !== undefined)
+      if (flexibleIds.length === 0) {
+        return previous
+      }
+      const pinnedWidth = table
+        .getVisibleLeafColumns()
+        .filter((column) => !flexibleIds.includes(column.id))
+        .reduce((total, column) => total + column.getSize(), 0)
+      const next = stretchToFill(previous, flexibleIds, container.clientWidth - pinnedWidth)
+      return flexibleIds.every((id) => next[id] === previous[id]) ? previous : next
+    })
+  }, [table])
+
+  const handleResizeEnd = useCallback(() => {
+    isResizingRef.current = false
+    refillTrailingSpace()
+    updateShowFloatingHeader()
+  }, [refillTrailingSpace, updateShowFloatingHeader])
+
+  const handleResizeReset = useCallback(
+    (columnId: string) => {
+      setColumnSizing((previous) => {
+        const next = { ...previous }
+        for (const { columnId: leafId } of resizeTargetsOf(columnId)) {
+          userResizedRef.current.delete(leafId)
+          const measured = measuredWidthsRef.current[leafId]
+          if (measured !== undefined) {
+            next[leafId] = measured
+          }
+        }
+        return next
+      })
+    },
+    [resizeTargetsOf],
+  )
 
   interface HeaderBgArg {
     colSpan: number
@@ -323,6 +511,18 @@ export function StudentsTable<T extends object>({
 
   const headerGroups = table.getHeaderGroups()
   const headerRowCount = headerGroups.length
+  const hasSizedColumns = Object.keys(columnSizing).length > 0
+
+  // Both tables size from this one state, so the pinned clone cannot drift out of alignment.
+  const renderColGroup = () => (
+    <colgroup>
+      {table.getVisibleLeafColumns().map((column) => (
+        /* oxlint-disable-next-line react/forbid-dom-props -- a per-column pixel width; an Emotion
+        class per value would leak into the never-evicted style cache. */
+        <col key={column.id} style={{ width: column.getSize() }} />
+      ))}
+    </colgroup>
+  )
 
   const renderTableHead = (floating: boolean) => (
     <thead ref={floating ? undefined : theadRef}>
@@ -382,12 +582,16 @@ export function StudentsTable<T extends object>({
 
               const canSort = header.column.getCanSort()
               const sortDirection = header.column.getIsSorted()
-              const measuredWidth = headerMeasurements.widths[header.id]
+              // `subHeaders` would miss a leaf that spans both header rows; getLeafColumns()
+              // resolves a leaf to itself and a grouped header to the columns it spans, which is
+              // exactly the set the handle resizes.
+              const resizeTargets = header.column.getLeafColumns()
+              const canResize =
+                resizeTargets.length > 0 && resizeTargets.every((column) => column.getCanResize())
 
               return (
                 <th
                   key={header.id}
-                  data-header-id={header.id}
                   aria-sort={
                     sortDirection === "asc"
                       ? "ascending"
@@ -409,21 +613,12 @@ export function StudentsTable<T extends object>({
                       : undefined
                   }
                   tabIndex={!floating && canSort ? 0 : undefined}
-                  /* oxlint-disable-next-line react/forbid-dom-props -- freezes the floating
-                  header's column widths to match the real (measured) header so they stay
-                  pixel-aligned. */
-                  style={
-                    floating && typeof measuredWidth === "number"
-                      ? { width: measuredWidth, minWidth: measuredWidth, maxWidth: measuredWidth }
-                      : undefined
-                  }
                   className={cx(
                     thStyle,
                     canSort && sortableThCss,
                     removeRight && noRightBorder,
                     removeLeft && noLeftBorder,
                     (() => {
-                      const minW = getMeta<T>(header.column?.columnDef)?.minWidth ?? 80
                       const bg =
                         colorHeaders && !colorHeaderUnderline
                           ? getHeaderBg(rowIdx, colIdx, header)
@@ -434,8 +629,6 @@ export function StudentsTable<T extends object>({
                         colIdx >= chapterHeaderStart &&
                         header.colSpan === 2
                       return css`
-                        min-width: ${minW}px;
-                        width: auto;
                         ${bg ? `background: ${bg};` : ""}
                         position: relative;
                         overflow: visible;
@@ -481,6 +674,30 @@ export function StudentsTable<T extends object>({
                         )}
                       />
                     )}
+                  {canResize && (
+                    <ColumnResizeHandle
+                      columnId={header.column.id}
+                      getWidth={getColumnWidth}
+                      minWidth={resizeTargets.reduce(
+                        (total, column) =>
+                          total +
+                          Math.max(column.columnDef.minSize ?? MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH),
+                        0,
+                      )}
+                      maxWidth={resizeTargets.length * MAX_COLUMN_WIDTH}
+                      label={t("label-resize-column", {
+                        column:
+                          typeof header.column.columnDef.header === "string"
+                            ? header.column.columnDef.header
+                            : header.column.id,
+                      })}
+                      presentational={floating}
+                      onResizeStart={handleResizeStart}
+                      onResize={handleResize}
+                      onResizeEnd={handleResizeEnd}
+                      onReset={handleResizeReset}
+                    />
+                  )}
                 </th>
               )
             })}
@@ -535,8 +752,6 @@ export function StudentsTable<T extends object>({
                 removeRight && noRightBorder,
                 removeLeft && noLeftBorder,
                 (() => {
-                  const meta = getMeta<T>(cell.column.columnDef)
-                  const minW = typeof meta?.minWidth === "number" ? meta.minWidth : undefined
                   const bgClass = bg
                     ? css`
                         background: ${bg};
@@ -573,8 +788,6 @@ export function StudentsTable<T extends object>({
                   return cx(
                     bgClass,
                     css`
-                      width: auto;
-                      ${typeof minW === "number" ? `min-width: ${minW}px;` : ""}
                       padding-left: ${PAD}px;
                       padding-right: ${PAD}px;
 
@@ -592,7 +805,9 @@ export function StudentsTable<T extends object>({
                 })(),
               )}
             >
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              <div className={cellTruncateCss} title={truncatedTitleFor(cell.column.id, rowIndex)}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </div>
             </td>
           )
         })}
@@ -646,13 +861,22 @@ export function StudentsTable<T extends object>({
           <div ref={floatingInnerRef} className={floatingHeaderInnerCss}>
             {/* oxlint-disable-next-line react/forbid-dom-props -- freezes the floating table's
             overall width to match the real (measured) table so columns stay pixel-aligned. */}
-            <table className={tableStyle} style={{ width: headerMeasurements.tableWidth }}>
+            <table className={tableStyle} style={{ width: table.getTotalSize() }}>
+              {renderColGroup()}
               {renderTableHead(true)}
             </table>
           </div>
         </div>
       )}
-      <table className={tableStyle} ref={realTableRef}>
+      <table
+        className={tableStyle}
+        ref={realTableRef}
+        /* oxlint-disable-next-line react/forbid-dom-props -- pins the table to the measured column
+        total; left at 100% the fixed layout rescales the colgroup, so a drag moves the divider by
+        less than the pointer travelled. */
+        style={hasSizedColumns ? { width: table.getTotalSize() } : undefined}
+      >
+        {renderColGroup()}
         {renderTableHead(false)}
         {renderTableBody()}
       </table>

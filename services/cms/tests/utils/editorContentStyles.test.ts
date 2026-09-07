@@ -195,10 +195,9 @@ describe("canvas typography", () => {
     expect(canvasRootRule?.declarations["font-family"]).toBe(primaryFont)
   })
 
-  it("sets headings to the separate headingFont token, as GlobalStyles does", () => {
+  it("sets headings to the headingFont token, as GlobalStyles does", () => {
     const headingRule = findRule(canvasRules, "body h1")
     expect(headingRule?.declarations["font-family"]).toBe(headingFont)
-    expect(headingFont).not.toBe(primaryFont)
   })
 })
 

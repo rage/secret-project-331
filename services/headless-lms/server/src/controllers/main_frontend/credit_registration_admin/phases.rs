@@ -13,7 +13,7 @@ use headless_lms_models::credit_registrations::{self, CreditRegistrationState};
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::{
-    PHASE_CONSECUTIVE_FAILURE_LIMIT, PHASE_HEARTBEAT_INTERVAL_MULTIPLIER,
+    PHASE_CONSECUTIVE_FAILURE_LIMIT, PHASE_HEARTBEAT_INTERVAL_MULTIPLIER, is_heartbeat_late,
 };
 use crate::domain::credit_registration_phases::CreditRegistrationPhase;
 use crate::prelude::*;
@@ -22,8 +22,8 @@ use super::authorize_credit_registration_admin;
 
 /// One phase as the Workers tab renders it.
 ///
-/// Wider than the Overview strip's `CreditRegistrationPhaseStatus`: this one carries the last error,
-/// the run window and the queue, which the Overview deliberately leaves out.
+/// Wider than `CreditRegistrationPhaseStatus`, which the pause/resume/run-now responses return: this
+/// one also carries the last error, the run window and the queue.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationPhaseRow {
     pub phase: String,
@@ -135,11 +135,12 @@ fn to_phase_row(
         .map(|phase| phase.owned_states().to_vec())
         .unwrap_or_default();
     let seconds_since_heartbeat = row.last_heartbeat_at.map(|at| (now - at).num_seconds());
-    let heartbeat_late = row.paused_at.is_none()
-        && seconds_since_heartbeat.is_some_and(|secs| {
-            secs > i64::from(row.expected_interval_secs)
-                * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
-        });
+    let heartbeat_late = is_heartbeat_late(
+        row.last_heartbeat_at,
+        row.expected_interval_secs,
+        row.paused_at,
+        now,
+    );
     CreditRegistrationPhaseRow {
         implemented: known.is_some(),
         queue_depth: (!owned_states.is_empty()).then(|| {

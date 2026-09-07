@@ -30,6 +30,7 @@ struct LinkEmailsPhase;
 
 impl MailQueuePhase for LinkEmailsPhase {
     type Item = LinkingMailToQueue;
+    type Cache = ();
 
     async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>> {
         Ok(claim_unqueued(conn, QUEUE_LIMIT, scope.course_id).await?)
@@ -48,6 +49,7 @@ impl MailQueuePhase for LinkEmailsPhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
+        _cache: &mut Self::Cache,
     ) -> anyhow::Result<()> {
         let delivery = insert_email_delivery_to_address(
             conn,

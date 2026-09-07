@@ -1684,11 +1684,13 @@ gets SCV of course exercise submissions
         (status = 200, description = "Course submissions CSV", body = String, content_type = "text/csv")
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 pub async fn submission_export(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
@@ -1711,6 +1713,8 @@ pub async fn submission_export(
         ),
         CourseSubmissionExportOperation {
             course_id: *course_id,
+            file_store,
+            app_conf,
         },
         token,
     )

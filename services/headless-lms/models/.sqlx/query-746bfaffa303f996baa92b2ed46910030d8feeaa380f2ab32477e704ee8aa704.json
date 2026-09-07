@@ -1,0 +1,122 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT wanted.sisu_person_id AS \"sisu_person_id!\",\n  ud.user_id,\n  ud.email,\n  ud.email_verified_at,\n  ud.email_verified_method AS \"email_verified_method?: EmailVerificationMethod\",\n  ud.first_name,\n  ud.last_name,\n  EXISTS(\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.user_id = ud.user_id\n      AND vsn.deleted_at IS NULL\n  ) AS \"has_live_student_number!\",\n  EXISTS(\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.user_id = ud.user_id\n      AND vsn.sisu_person_id = wanted.sisu_person_id\n      AND vsn.verified_via = 'email_match_fast_track'::student_number_verification_method\n      AND vsn.deleted_at IS NOT NULL\n  ) AS \"unlinked_a_fast_track_link_before!\"\nFROM UNNEST($1::text [], $2::text []) AS wanted(email, sisu_person_id)\n  JOIN user_details ud ON LOWER(ud.email) = LOWER(wanted.email)\n  JOIN users u ON u.id = ud.user_id\nWHERE u.deleted_at IS NULL\n  AND (\n    SELECT COUNT(*)\n    FROM user_details other\n      JOIN users other_user ON other_user.id = other.user_id\n    WHERE LOWER(other.email) = LOWER(wanted.email)\n      AND other_user.deleted_at IS NULL\n  ) = 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sisu_person_id!",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "email_verified_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email_verified_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "email_verified_method?: EmailVerificationMethod",
+        "type_info": {
+          "Custom": {
+            "name": "email_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_code",
+                "password_reset_backfill",
+                "tmc_confirmed",
+                "admin_asserted"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email_verified_method"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "first_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "last_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "has_live_student_number!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "unlinked_a_fast_track_link_before!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "746bfaffa303f996baa92b2ed46910030d8feeaa380f2ab32477e704ee8aa704"
+}

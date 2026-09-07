@@ -5,14 +5,13 @@ viewpoints:
     name: Credit registration
     desc: >-
       How a completed course module becomes a credit in the University of Helsinki study registry.
-      Once the student has consented for the course and holds a student number proven to be theirs,
-      one ledger row per completion is pushed to Sisu through Suotar and polled until the registry
-      confirms the attainment.
+      Enrolment on the course is itself the student's consent to register the credit; once a student
+      number is proven to be theirs, one ledger row per completion is pushed to Sisu through Suotar
+      and polled until the registry confirms the attainment.
     tables:
       - credit_registrations
       - credit_registration_events
       - course_module_completions
-      - course_credit_registration_consents
       - verified_student_numbers
       - student_number_verification_tokens
       - user_email_codes
@@ -43,13 +42,12 @@ viewpoints:
           - credit_registrations
           - credit_registration_events
           - course_module_completions
-      - name: Preconditions
+      - name: Student number proof
         desc: >-
-          Nothing is submitted until the student has consented for the course and a student number
-          has been proven to belong to their account. Both are global per account, not per module,
-          and the token table is what turns an emailed link into a proof.
+          Nothing is submitted until a student number has been proven to belong to the student's
+          account. This is global per account, not per module, and the token table is what turns an
+          emailed link into a proof.
         tables:
-          - course_credit_registration_consents
           - verified_student_numbers
           - student_number_verification_tokens
       - name: Email ownership and the mail proofs ride on

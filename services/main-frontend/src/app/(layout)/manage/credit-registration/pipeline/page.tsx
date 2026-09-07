@@ -33,23 +33,31 @@ const YEAR_DAYS = "365"
 
 /**
  * States whose depth is a queue rather than an archive. Terminal states only ever grow, so charting
- * them beside these would flatten every queue into the axis.
+ * them beside these would flatten every queue into the axis. `satisfies` over every state means a
+ * new one added to the backend enum fails the build here instead of silently vanishing from the chart.
  */
-// oxlint-disable-next-line i18next/no-literal-string
-const QUEUE_STATES: CreditRegistrationState[] = [
-  "pending_prerequisites",
-  "pending_consent",
-  "pending_student_number",
-  "ready_to_submit",
-  "resolving_enrolment",
-  "checking_enrolment",
-  "no_usable_enrolment",
-  "submitting",
-  "submission_uncertain",
-  "awaiting_verification",
-  "failed_retryable",
-  "blocked",
-]
+const IS_QUEUE_STATE = {
+  pending: true,
+  ready_to_submit: true,
+  resolving_enrolment: true,
+  checking_enrolment: true,
+  no_usable_enrolment: true,
+  submitting: true,
+  submission_uncertain: true,
+  awaiting_verification: true,
+  registered: false,
+  duplicate: false,
+  not_improved: false,
+  misregistered: false,
+  failed_retryable: true,
+  failed_permanent: false,
+  blocked: true,
+  cancelled: false,
+} satisfies Record<CreditRegistrationState, boolean>
+
+const QUEUE_STATES = (Object.keys(IS_QUEUE_STATE) as CreditRegistrationState[]).filter(
+  (state) => IS_QUEUE_STATE[state],
+)
 
 interface DaysFields {
   days: string

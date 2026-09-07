@@ -9,7 +9,6 @@ re-derived here.
 use std::collections::HashMap;
 
 use headless_lms_models::{
-    course_credit_registration_consents,
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
     credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent},
     credit_registrations::{
@@ -30,8 +29,7 @@ use headless_lms_models::{
 use models::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
-use models::library::credit_registration::student_number_change::record_student_number_change;
-use models::library::credit_registration::withdrawal::apply_consent_change;
+use models::library::credit_registration::student_number_change;
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
@@ -52,10 +50,7 @@ const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
     dismiss_my_auto_link_notice,
     unlink_my_student_number,
     preview_student_number_verification_token,
-    claim_student_number_verification_token,
-    get_my_course_credit_registration_consent,
-    set_my_course_credit_registration_consent,
-    get_my_credit_registration_consents
+    claim_student_number_verification_token
 ))]
 pub(crate) struct MainFrontendCreditRegistrationsApiDoc;
 
@@ -77,23 +72,15 @@ pub struct NotificationEmailStatus {
 }
 
 impl NotificationEmailStatus {
-    /// The mail that belongs with the row's current status, or `None` for a status that has none:
-    /// a row shows at most one line, and an old action-needed mail on a since-registered row would
+    /// The mail that belongs with the row's current state, or `None` for a state that has none: a
+    /// row shows at most one line, and an old action-needed mail on a since-registered row would
     /// contradict the badge above it.
-    pub(crate) fn for_status(
-        status: StudentFacingCreditRegistrationStatus,
+    pub(crate) fn for_state(
+        state: CreditRegistrationState,
         credit_registration_id: Uuid,
         mails: &[RegistrationNotificationEmail],
     ) -> Option<Self> {
-        let wanted = match status {
-            StudentFacingCreditRegistrationStatus::NeedsEnrolment => {
-                CreditRegistrationNotificationKind::ActionNeeded
-            }
-            StudentFacingCreditRegistrationStatus::Registered => {
-                CreditRegistrationNotificationKind::Registered
-            }
-            _ => return None,
-        };
+        let wanted = CreditRegistrationNotificationKind::for_state(state)?;
         let mail = mails.iter().find(|mail| {
             mail.credit_registration_id == credit_registration_id && mail.kind == wanted
         })?;
@@ -117,14 +104,6 @@ pub struct MyCreditRegistration {
     pub ects_credits: Option<f32>,
     pub completion_date: DateTime<Utc>,
     pub student_facing_status: StudentFacingCreditRegistrationStatus,
-    /// The one thing the page needs beyond the status: the outcome of an import that was already in
-    /// flight is unknown, so it gets its own copy.
-    ///
-    /// The ledger state itself is deliberately not on the wire. Eligibility includes
-    /// `NOT needs_to_be_reviewed`, so `blocked` would tell a student they have been flagged as a
-    /// suspected cheater — which `users.rs` hides from them for that exact reason. Every cause of
-    /// `not_registering` has to stay indistinguishable here.
-    pub consent_withdrawn_while_in_flight: bool,
     /// The registry declined this attempt because it already holds an equal or better grade. Still a
     /// `registered` stage — the credit exists — but the student raised a grade and nothing changed,
     /// so it earns a line of its own. Unlike the ledger state, this one is safe to expose: it says
@@ -236,54 +215,6 @@ pub struct ClaimStudentNumberVerificationTokenResult {
     pub linked_course_name: Option<String>,
     /// Completions that stopped waiting for a student number because of this claim.
     pub newly_unblocked_registration_count: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CreditRegistrationConsentModule {
-    pub id: Uuid,
-    pub name: Option<String>,
-    pub uh_course_code: Option<String>,
-    pub ects_credits: Option<f32>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct MyCourseCreditRegistrationConsent {
-    pub course_id: Uuid,
-    pub course_name: String,
-    /// False means never asked, which is not the same as asked and declined.
-    pub asked: bool,
-    pub consent_given: Option<bool>,
-    pub consent_given_at: Option<DateTime<Utc>>,
-    pub consent_withdrawn_at: Option<DateTime<Utc>>,
-    pub credit_registration_enabled_for_course: bool,
-    pub modules: Vec<CreditRegistrationConsentModule>,
-    /// Completions already waiting on consent, so the dialog can say how many one click registers.
-    pub registrable_completion_count: i64,
-}
-
-#[derive(Debug, Deserialize, ToSchema)]
-pub struct SetMyCourseCreditRegistrationConsentPayload {
-    pub consent_given: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct SetMyCourseCreditRegistrationConsentResult {
-    pub consent_given: bool,
-    pub consent_given_at: Option<DateTime<Utc>>,
-    pub consent_withdrawn_at: Option<DateTime<Utc>>,
-    pub newly_unblocked_registration_count: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct MyCreditRegistrationConsent {
-    pub course_id: Uuid,
-    pub course_name: String,
-    pub consent_given: Option<bool>,
-    pub consent_given_at: Option<DateTime<Utc>>,
-    pub consent_withdrawn_at: Option<DateTime<Utc>>,
-    pub asked_at: Option<DateTime<Utc>>,
-    pub registrable_completion_count: i64,
-    pub registered_count: i64,
 }
 
 /**
@@ -500,7 +431,7 @@ pub async fn request_credit_registration_enrolment_recheck(
         },
     )
     .await?;
-    models::credit_registrations::make_due_now(&mut tx, registration.id).await?;
+    models::credit_registrations::make_due_now_batch(&mut tx, &[registration.id]).await?;
     recompute_preconditions(
         &mut tx,
         &RegistrationScope {
@@ -604,9 +535,9 @@ pub async fn unlink_my_student_number(
     };
 
     let mut tx = conn.begin().await?;
-    verified_student_numbers::soft_delete(&mut tx, linked.id).await?;
-    let affected_registration_count = record_student_number_change(
+    let affected_registration_count = student_number_change::unlink_verified_student_number(
         &mut tx,
+        linked.id,
         user.id,
         Some(user.id),
         CreditRegistrationEventKind::StudentAction,
@@ -785,160 +716,6 @@ pub async fn claim_student_number_verification_token(
     }))
 }
 
-/**
-GET `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - The signed-in
-account's credit registration consent for one course.
-*/
-#[instrument(skip(pool))]
-#[utoipa::path(
-    get,
-    path = "/courses/{course_id}/consent",
-    operation_id = "getMyCourseCreditRegistrationConsent",
-    tag = "credit-registrations",
-    params(("course_id" = Uuid, Path, description = "Course id")),
-    responses(
-        (status = 200, description = "The caller's consent for the course", body = MyCourseCreditRegistrationConsent)
-    )
-)]
-pub async fn get_my_course_credit_registration_consent(
-    user: AuthUser,
-    pool: web::Data<PgPool>,
-    course_id: web::Path<Uuid>,
-) -> ControllerResult<web::Json<MyCourseCreditRegistrationConsent>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
-
-    let res = build_course_consent(&mut conn, user.id, *course_id).await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/**
-PUT `/api/v0/main-frontend/credit-registrations/courses/{course_id}/consent` - Records the signed-in
-account's answer and applies it to that course's registrations at once.
-*/
-#[instrument(skip(pool, payload))]
-#[utoipa::path(
-    put,
-    path = "/courses/{course_id}/consent",
-    operation_id = "setMyCourseCreditRegistrationConsent",
-    tag = "credit-registrations",
-    params(("course_id" = Uuid, Path, description = "Course id")),
-    request_body = SetMyCourseCreditRegistrationConsentPayload,
-    responses(
-        (status = 200, description = "The recorded answer and what it unblocked", body = SetMyCourseCreditRegistrationConsentResult)
-    )
-)]
-pub async fn set_my_course_credit_registration_consent(
-    user: AuthUser,
-    pool: web::Data<PgPool>,
-    course_id: web::Path<Uuid>,
-    payload: web::Json<SetMyCourseCreditRegistrationConsentPayload>,
-) -> ControllerResult<web::Json<SetMyCourseCreditRegistrationConsentResult>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
-
-    let waiting_before = count_in_state(
-        &mut conn,
-        user.id,
-        *course_id,
-        CreditRegistrationState::PendingConsent,
-    )
-    .await?;
-
-    let mut tx = conn.begin().await?;
-    let consent = course_credit_registration_consents::upsert(
-        &mut tx,
-        user.id,
-        *course_id,
-        payload.consent_given,
-    )
-    .await?;
-    apply_consent_change(&mut tx, user.id, *course_id).await?;
-    let waiting_after = count_in_state(
-        &mut tx,
-        user.id,
-        *course_id,
-        CreditRegistrationState::PendingConsent,
-    )
-    .await?;
-    tx.commit().await?;
-
-    token.authorized_ok(web::Json(SetMyCourseCreditRegistrationConsentResult {
-        consent_given: consent.consent_given,
-        consent_given_at: consent.consent_given_at,
-        consent_withdrawn_at: consent.consent_withdrawn_at,
-        // Withdrawal empties the same queue by blocking the rows, so counting the difference either
-        // way would report a withdrawal as having unblocked something.
-        newly_unblocked_registration_count: if payload.consent_given {
-            (waiting_before - waiting_after).max(0)
-        } else {
-            0
-        },
-    }))
-}
-
-/**
-GET `/api/v0/main-frontend/credit-registrations/my/consents` - One row per course the signed-in
-account is enrolled on that offers credit registration, asked or not.
-*/
-#[instrument(skip(pool))]
-#[utoipa::path(
-    get,
-    path = "/my/consents",
-    operation_id = "getMyCreditRegistrationConsents",
-    tag = "credit-registrations",
-    responses(
-        (status = 200, description = "The caller's per-course consents", body = Vec<MyCreditRegistrationConsent>)
-    )
-)]
-pub async fn get_my_credit_registration_consents(
-    user: AuthUser,
-    pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<MyCreditRegistrationConsent>>> {
-    let mut conn = pool.acquire().await?;
-    let token = skip_authorize();
-
-    let course_ids = models::course_modules::get_credit_registration_course_ids_for_enrolled_user(
-        &mut conn, user.id,
-    )
-    .await?;
-    let courses = models::courses::get_by_ids(&mut conn, &course_ids).await?;
-    let consents = course_credit_registration_consents::get_by_user_id(&mut conn, user.id).await?;
-    let registrations = models::credit_registrations::get_student_facing_by_user_id(
-        &mut conn,
-        user.id,
-        StudentRegistrationFilter::default(),
-    )
-    .await?;
-
-    let mut res: Vec<MyCreditRegistrationConsent> = courses
-        .into_iter()
-        .map(|course| {
-            let consent = consents.iter().find(|row| row.course_id == course.id);
-            let live = registrations
-                .iter()
-                .filter(|row| row.course_id == course.id && row.superseded_by_id.is_none());
-            MyCreditRegistrationConsent {
-                course_id: course.id,
-                course_name: course.name,
-                consent_given: consent.map(|row| row.consent_given),
-                consent_given_at: consent.and_then(|row| row.consent_given_at),
-                consent_withdrawn_at: consent.and_then(|row| row.consent_withdrawn_at),
-                asked_at: consent.map(|row| row.asked_at),
-                registrable_completion_count: live
-                    .clone()
-                    .filter(|row| row.state == CreditRegistrationState::PendingConsent)
-                    .count() as i64,
-                registered_count: live.filter(|row| row.state.is_success()).count() as i64,
-            }
-        })
-        .collect();
-    res.sort_by(|a, b| a.course_name.cmp(&b.course_name));
-
-    token.authorized_ok(web::Json(res))
-}
-
 /// Assembles the wire rows for one account, adding the enrolment link and the linking-mail status the
 /// ledger does not carry.
 async fn build_my_credit_registrations(
@@ -956,7 +733,8 @@ async fn build_my_credit_registrations(
     let mut linking_mails: Option<LinkingMailCache> = None;
     let mut res = Vec::with_capacity(rows.len());
     for row in rows {
-        let status = StudentFacingCreditRegistrationStatus::of(row.state);
+        let state = row.state;
+        let status = StudentFacingCreditRegistrationStatus::of(state, row.preconditions());
         let enrolment_link = if status == StudentFacingCreditRegistrationStatus::NeedsEnrolment {
             resolve_enrolment_link(conn, &row, &mut enrolment_links).await?
         } else {
@@ -968,7 +746,7 @@ async fn build_my_credit_registrations(
             None
         };
         let notification_email =
-            NotificationEmailStatus::for_status(status, row.id, &notification_mails);
+            NotificationEmailStatus::for_state(state, row.id, &notification_mails);
         res.push(to_my_credit_registration(
             row,
             status,
@@ -1002,8 +780,6 @@ fn to_my_credit_registration(
         ects_credits: row.ects_credits,
         completion_date: row.completion_date,
         student_facing_status: status,
-        consent_withdrawn_while_in_flight: row.state
-            == CreditRegistrationState::AbandonedByConsentWithdrawal,
         registry_already_held_equal_or_better: row.state == CreditRegistrationState::NotImproved,
         status_is_moving: status.is_moving(),
         error_code: row.error_code,
@@ -1100,85 +876,6 @@ async fn resolve_linking_email(
     }))
 }
 
-async fn build_course_consent(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    course_id: Uuid,
-) -> Result<MyCourseCreditRegistrationConsent, ControllerError> {
-    let course = models::courses::get_course(conn, course_id).await?;
-    // This query carries the enable flag, so a course with no Suotar module never fetches its modules.
-    let enabled_configs: Vec<_> =
-        models::course_modules::get_credit_registration_configs_by_course_id(conn, course_id)
-            .await?
-            .into_iter()
-            .filter(|config| config.enable_credit_registration_via_suotar)
-            .collect();
-    let enabled_ids: Vec<Uuid> = enabled_configs
-        .iter()
-        .map(|config| config.course_module_id)
-        .collect();
-    let names: HashMap<Uuid, Option<String>> = if enabled_ids.is_empty() {
-        HashMap::new()
-    } else {
-        models::course_modules::get_by_ids(conn, &enabled_ids)
-            .await?
-            .into_iter()
-            .map(|module| (module.id, module.name))
-            .collect()
-    };
-    let modules: Vec<CreditRegistrationConsentModule> = enabled_configs
-        .into_iter()
-        .map(|config| CreditRegistrationConsentModule {
-            id: config.course_module_id,
-            name: names.get(&config.course_module_id).cloned().flatten(),
-            uh_course_code: config.uh_course_code,
-            ects_credits: config.ects_credits,
-        })
-        .collect();
-    let consent =
-        course_credit_registration_consents::get_by_user_and_course(conn, user_id, course_id)
-            .await?;
-    let registrable_completion_count = count_in_state(
-        conn,
-        user_id,
-        course_id,
-        CreditRegistrationState::PendingConsent,
-    )
-    .await?;
-
-    Ok(MyCourseCreditRegistrationConsent {
-        course_id,
-        course_name: course.name,
-        asked: consent.is_some(),
-        consent_given: consent.as_ref().map(|row| row.consent_given),
-        consent_given_at: consent.as_ref().and_then(|row| row.consent_given_at),
-        consent_withdrawn_at: consent.as_ref().and_then(|row| row.consent_withdrawn_at),
-        credit_registration_enabled_for_course: !modules.is_empty(),
-        modules,
-        registrable_completion_count,
-    })
-}
-
-/// Live registrations of one account on one course sitting in a state.
-async fn count_in_state(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    course_id: Uuid,
-    state: CreditRegistrationState,
-) -> Result<i64, ControllerError> {
-    let count = models::credit_registrations::count_admin_facing(
-        conn,
-        &models::credit_registrations::AdminCreditRegistrationFilters {
-            course_id: Some(course_id),
-            user_id: Some(user_id),
-            states: Some(&[state]),
-            ..models::credit_registrations::AdminCreditRegistrationFilters::default()
-        },
-    )
-    .await?;
-    Ok(count)
-}
-
 fn to_my_verified_student_number(link: VerifiedStudentNumber) -> MyVerifiedStudentNumber {
     MyVerifiedStudentNumber {
         student_number: link.student_number,
@@ -1245,10 +942,6 @@ pub(crate) fn mask_email(email: &str) -> String {
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/my", web::get().to(get_my_credit_registrations))
         .route(
-            "/my/consents",
-            web::get().to(get_my_credit_registration_consents),
-        )
-        .route(
             "/my/student-number",
             web::get().to(get_my_verified_student_number),
         )
@@ -1295,13 +988,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                     ..Default::default()
                 }))
                 .route(web::post().to(claim_student_number_verification_token)),
-        )
-        .route(
-            "/courses/{course_id}/consent",
-            web::get().to(get_my_course_credit_registration_consent),
-        )
-        .route(
-            "/courses/{course_id}/consent",
-            web::put().to(set_my_course_credit_registration_consent),
         );
 }

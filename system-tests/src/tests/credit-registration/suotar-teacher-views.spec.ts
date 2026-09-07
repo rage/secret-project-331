@@ -44,7 +44,7 @@ const ADMIN_MANUAL_STUDENT_NUMBER = "900000802"
 const RETRIABLE = "Retry01"
 const BULK_RETRIABLE = "Retry02"
 const SUBMISSION_UNCERTAIN = "Retry03"
-const CONSENT_WITHDRAWN = "Retry04"
+const NOT_A_FAILURE = "Retry04"
 
 /** The subset of the teacher's per-course row these tests read. */
 interface TeacherRegistrationRow {
@@ -211,7 +211,10 @@ test("A teacher of another course cannot read this course's registration", async
     expect(asAdmin.status()).toBe(403)
 
     const transition = await page.request.post(adminRegistrationTransitionUrl(own.id), {
-      data: { to_state: "cancelled", reason: "System test: a teacher is not an admin." },
+      data: {
+        action: { kind: "state_move", to_state: "cancelled" },
+        reason: "System test: a teacher is not an admin.",
+      },
     })
     expect(transition.status()).toBe(403)
 
@@ -229,7 +232,7 @@ test("A teacher retries a failed registration, and the course says who did it", 
 
   const response = await retry(page.request, failed.id)
   await expect(response).toBeOK()
-  expect(await response.json()).toMatchObject({ outcome: "retried", state: "ready_to_submit" })
+  expect(await response.json()).toMatchObject({ refusal: null, state: "ready_to_submit" })
 
   // The module is paused, so nothing claims the row and the state the retry left it in is readable.
   expect((await retryFixture(page.request, RETRIABLE)).state).toBe("ready_to_submit")
@@ -263,20 +266,20 @@ test("A teacher may not retry a row the study registry's answer left uncertain",
   const refused = await retry(page.request, uncertain.id)
   await expect(refused).toBeOK()
   expect(await refused.json()).toMatchObject({
-    outcome: "refused_submission_uncertain",
+    refusal: "submission_uncertain",
     state: "submission_uncertain",
   })
   expect((await retryFixture(page.request, SUBMISSION_UNCERTAIN)).state).toBe(
     "submission_uncertain",
   )
 
-  await test.step("Nor one the student withdrew their consent from", async () => {
-    const withdrawn = await retryFixture(page.request, CONSENT_WITHDRAWN)
-    const response = await retry(page.request, withdrawn.id)
+  await test.step("Nor a cancelled one, which is not a failure at all", async () => {
+    const cancelled = await retryFixture(page.request, NOT_A_FAILURE)
+    const response = await retry(page.request, cancelled.id)
     await expect(response).toBeOK()
     expect(await response.json()).toMatchObject({
-      outcome: "refused_consent_withdrawn",
-      state: "abandoned_by_consent_withdrawal",
+      refusal: "not_failed_permanent",
+      state: "cancelled",
     })
   })
 })
@@ -295,7 +298,7 @@ test("Bulk retry names its cap and the rows it left alone", async ({ page }) => 
   // Only this test's own row is guaranteed: the single-row test may already have taken the other
   // one out of `failed_permanent`.
   expect(result.retried_count).toBeGreaterThanOrEqual(1)
-  expect(result.skipped).toContainEqual({ outcome: "refused_submission_uncertain", count: 1 })
+  expect(result.skipped).toContainEqual({ refusal: "submission_uncertain", count: 1 })
 
   expect((await retryFixture(page.request, BULK_RETRIABLE)).state).toBe("ready_to_submit")
   expect((await retryFixture(page.request, SUBMISSION_UNCERTAIN)).state).toBe(
@@ -312,9 +315,9 @@ test("A teacher cannot retry a registration on a course they do not teach", asyn
   browser,
   page,
 }) => {
-  // The withdrawn row: no retry of any shape moves it, so its state before and after is this test's
+  // The cancelled row: no retry of any shape moves it, so its state before and after is this test's
   // alone whatever order the file runs in.
-  const victim = await retryFixture(page.request, CONSENT_WITHDRAWN)
+  const victim = await retryFixture(page.request, NOT_A_FAILURE)
 
   const context = await browser.newContext({
     storageState: "src/states/language.teacher@example.com.json",
@@ -342,7 +345,7 @@ test("A teacher cannot retry a registration on a course they do not teach", asyn
     await context.close()
   }
 
-  expect((await retryFixture(page.request, CONSENT_WITHDRAWN)).state).toBe(victim.state)
+  expect((await retryFixture(page.request, NOT_A_FAILURE)).state).toBe(victim.state)
 })
 
 test("The export carries verified student numbers in full", async ({ page }) => {

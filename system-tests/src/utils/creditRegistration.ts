@@ -26,27 +26,26 @@
  *   your own scoped ticks are unaffected. A hold set only after the row exists still races the
  *   worker's own next tick (it ticks every 10s regardless of any one test).
  *
- * | Student numbers | File                             | Courses it writes to        |
- * | --------------- | -------------------------------- | --------------------------- |
- * | `9000001xx`     | suotar-happy-path                | via-suotar                  |
- * | `9000002xx`     | suotar-account-linking           | none (seeded link tokens)   |
- * | `9000003xx`     | suotar-enrolment-problems        | via-suotar                  |
- * | `9000004xx`     | suotar-import-outcomes           | via-suotar, import-outcomes |
- * | `9000005xx`     | suotar-verify-outcomes           | via-suotar                  |
- * | `9000006xx`     | suotar-sisu-outage               | via-suotar                  |
- * | `9000007xx`     | suotar-consent                   | via-suotar                  |
- * | `9000008xx`     | suotar-teacher-views             | retry (paused), states (read)|
- * | `9000009xx`     | suotar-admin-dashboard           | admin                       |
- * | `9000010xx`     | suotar-old-flow-coexistence      | old-flow                    |
- * | `9000011xx`     | suotar-backfill-and-late-consent | backfill                    |
- * | `9000012xx`     | suotar-grade-improvement         | grade-improvement           |
- * | `9000013xx`     | suotar-student-emails            | via-suotar                  |
- * | `9000014xx`     | suotar-fast-track-linking        | via-suotar                  |
- * | `9000015xx`     | suotar-in-course-banner          | via-suotar                  |
- * | `9000016xx`     | suotar-student-profile           | none (reads seeded rows)    |
+ * | Student numbers | File                        | Courses it writes to        |
+ * | --------------- | --------------------------- | --------------------------- |
+ * | `9000001xx`     | none (shared seeded rows)   | none                        |
+ * | `9000002xx`     | suotar-account-linking      | none (seeded link tokens)   |
+ * | `9000003xx`     | suotar-enrolment-problems   | via-suotar                  |
+ * | `9000004xx`     | suotar-import-outcomes      | via-suotar, import-outcomes |
+ * | `9000005xx`     | suotar-verify-outcomes      | via-suotar                  |
+ * | `9000006xx`     | suotar-sisu-outage          | via-suotar                  |
+ * | `9000008xx`     | suotar-teacher-views        | retry (paused), states (read)|
+ * | `9000009xx`     | suotar-admin-dashboard      | admin                       |
+ * | `9000010xx`     | suotar-old-flow-coexistence | old-flow                    |
+ * | `9000011xx`     | suotar-backfill             | backfill                    |
+ * | `9000012xx`     | suotar-grade-improvement    | grade-improvement           |
+ * | `9000013xx`     | suotar-student-emails       | via-suotar                  |
+ * | `9000014xx`     | suotar-fast-track-linking   | via-suotar                  |
+ * | `9000015xx`     | suotar-in-course-banner     | via-suotar                  |
+ * | `9000016xx`     | suotar-student-profile      | none (reads seeded rows)    |
  */
 
-import type { APIRequestContext, Page } from "@playwright/test"
+import type { APIRequestContext } from "@playwright/test"
 
 import { omitUndefined } from "../shared-module/common/utils/nullability"
 import { listMockSuotarCalls, type MockSuotarEndpoint } from "./mockSuotar"
@@ -100,21 +99,16 @@ export const linkStudentNumberUrl = (token: string): string =>
  * setup needs nothing but the addresses.
  */
 export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
-  "credit-registration-backfill-2@example.com",
   "credit-registration-banner-reenrols@example.com",
   "credit-registration-banner-stuck@example.com",
-  "credit-registration-consent-withdrawn@example.com",
-  "credit-registration-consent-withheld@example.com",
-  "credit-registration-consented-linked@example.com",
   "credit-registration-emails-no-enrolment@example.com",
   "credit-registration-emails-registered@example.com",
-  "credit-registration-emails-unmailed@example.com",
   "credit-registration-grade-improvement@example.com",
   "credit-registration-import-outcomes@example.com",
   "credit-registration-import-timeout@example.com",
   "credit-registration-link-claimer@example.com",
+  "credit-registration-linked-student@example.com",
   "credit-registration-no-enrolment@example.com",
-  "credit-registration-not-consented@example.com",
   "credit-registration-profile-empty@example.com",
   "credit-registration-superseded@example.com",
   "credit-registration-two-enrolments@example.com",
@@ -131,29 +125,6 @@ export type CreditRegistrationStudentEmail = (typeof CREDIT_REGISTRATION_STUDENT
  */
 export const seededStudentStorageState = (email: CreditRegistrationStudentEmail): string =>
   `src/states/${email}.json`
-
-const DIALOG_STATE_SELECTOR = `[data-testid="dialog-decision-state"]`
-const CONSENT_DIALOG = "credit-registration-consent"
-
-/**
- * Waits on the dialog-chain sentinel rather than the consent buttons: both halves of the gate are
- * answered by queries that may still be in flight, so looking for the buttons races the decision.
- */
-export const waitForCreditRegistrationConsentDialog = (page: Page): Promise<void> =>
-  page
-    .locator(
-      `${DIALOG_STATE_SELECTOR}[data-dialogs-ready="true"][data-active-dialog="${CONSENT_DIALOG}"]`,
-    )
-    .waitFor({ state: "attached" })
-
-export const answerCreditRegistrationConsent = async (
-  page: Page,
-  answer: "accept" | "decline",
-): Promise<void> => {
-  const button = page.getByTestId(`credit-registration-consent-${answer}-button`)
-  await button.click()
-  await button.waitFor({ state: "detached" })
-}
 
 /**
  * The subset of `getMyCreditRegistrations` these specs assert on.

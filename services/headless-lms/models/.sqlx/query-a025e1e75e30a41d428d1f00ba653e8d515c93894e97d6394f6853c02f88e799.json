@@ -90,6 +90,17 @@
             "name": "uploaded_by_user"
           }
         }
+      },
+      {
+        "ordinal": 8,
+        "name": "size_bytes",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "size_bytes"
+          }
+        }
       }
     ],
     "parameters": {
@@ -105,6 +116,7 @@
       false,
       false,
       false,
+      true,
       true
     ]
   },

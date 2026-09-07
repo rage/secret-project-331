@@ -29,10 +29,10 @@
     "view-trace": "pnpm exec playwright show-trace"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.12.1",
+    "@axe-core/playwright": "^4.13.0",
     "axe-core": "^4.13.0",
-    "jose": "^6.2.8",
-    "js-yaml": "^5.2.3",
+    "jose": "^6.2.10",
+    "js-yaml": "^5.4.0",
     "png-metadata": "^1.0.2",
     "tar-fs": "^3.1.3",
     "which": "^7.0.0"
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@playwright/browser-chromium": "^1.62.1",
     "@playwright/test": "^1.62.1",
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.3.0",
     "@types/tar-fs": "^2.0.4",
     "@types/which": "^3.0.4",
     "@typescript/native": "npm:typescript@^7.0.2",
@@ -50,8 +50,9 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
+      "version": "24.18.0",
+      "onFail": "download"
     }
-  }
+  },
+  "packageManager": "pnpm@11.20.0"
 }

@@ -8,7 +8,10 @@ import { useTranslation } from "react-i18next"
 
 import AIMetadataForm from "@/components/forms/AIMetadataForm"
 import { getCoursesForAuditingQueryKey } from "@/generated/api/@tanstack/react-query.generated"
-import type { CourseAuditingData, CourseMetadata } from "@/generated/api/types.generated"
+import type {
+  CourseAuditingData,
+  CourseMetadata as CourseMetadataData,
+} from "@/generated/api/types.generated"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { undefinedToNull } from "@/shared-module/common/utils/nullability"
 import { Button } from "@/shared-module/components"
@@ -33,7 +36,7 @@ const CourseMetadata: React.FC<Props> = ({
   const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
 
-  const handleOnUpdateCourse = (data: CourseMetadata) => {
+  const handleOnUpdateCourse = (data: CourseMetadataData) => {
     const updatedData = {
       ...courseAuditingdata,
       description: undefinedToNull(data.course_description),

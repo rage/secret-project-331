@@ -23,7 +23,33 @@ export type MessageFromIframe =
 
 export interface CurrentStateMessage {
   message: "current-state"
-  data: unknown // { private_spec: unknown } | { public_spec: unknown } ?
+  /**
+   * The plugin's own answer JSON, or `{ private_spec }` from the exercise editor. When `files` is
+   * present in an answer this is metadata *about* those files, and may be omitted entirely by a
+   * plugin whose answer is nothing but the files.
+   */
+  data: unknown
+  /**
+   * From `answer-exercise`: host file ids from `upload-result` for the files the answer consists
+   * of, in the order the plugin wants them graded and displayed. Present makes the answer
+   * file-typed; absent leaves it JSON-typed. The host verifies every id was uploaded by this user
+   * for this exercise, and rejects a list that is empty or repeats an id.
+   *
+   * Ignored from the other views — the editor declares its files as `private_spec_files`.
+   */
+  files?: string[]
+  /**
+   * From `exercise-editor`: host file ids from `upload-result` for every file the private spec
+   * references, in any order. The host cannot read the spec, so this list is the only thing that
+   * keeps those files from being reclaimed as abandoned uploads. Send the complete list on every
+   * `current-state`, and `[]` to release every file; omitting it leaves the previous declaration
+   * standing, so a plugin that forgets the field cannot silently lose files. Only meaningful for a
+   * service whose service-info declares `declares_spec_files`.
+   *
+   * Ignored from the other views. Unlike `files`, the host does not verify these ids belong to the
+   * editing user, but it does reject ids it has no upload for.
+   */
+  private_spec_files?: string[]
   valid: boolean
   /**
    * Optional, already-localized reasons the current answer is not yet submittable
@@ -79,9 +105,9 @@ export interface DownloadFileMessage {
 /**
  * Asks the parent to upload files on the exercise's behalf (plugins never store data themselves —
  * the host owns storage). The parent answers with an `UploadResultMessage` carrying the same
- * `requestId`; the exercise then records the host-assigned ids and returned URLs in its `answer`. This mirrors the
- * `OpenDialogMessage`/`DialogResponseMessage` request/response pattern, so several uploads can be in
- * flight at once. Prefer the `ParentUploadClient` engine (`exercise-client`) or the `useFileUpload`
+ * `requestId`; the exercise then names the returned ids in `CurrentStateMessage.files`. This mirrors
+ * the `OpenDialogMessage`/`DialogResponseMessage` request/response pattern, so several uploads can
+ * be in flight at once. Prefer the `ParentUploadClient` engine (`exercise-client`) or the `useFileUpload`
  * hook (`exercise-react`) over hand-rolling it.
  *
  * Note: unrelated to `SpecRequest.upload_url`, which is a server-side upload URL used by the
@@ -224,6 +250,19 @@ export interface UserInformation {
 
 export type UserVariablesMap = Record<string, unknown>
 
+/** A host-stored file that an answer consists of, as handed back to a plugin for display. */
+export interface AnswerFileRef {
+  /** `file_uploads.id`; the same value the plugin put in `CurrentStateMessage.files`. */
+  id: string
+  /** Host download URL. Needs no authentication; the plugin must not persist it. */
+  url: string
+  /** Name the file was uploaded under. A plugin that anonymizes ignores this. */
+  name: string
+  mime: string
+  /** Absent for files uploaded before this column existed; the host cannot back-fill it. */
+  size_bytes?: number
+}
+
 export interface AnswerExerciseIframeState {
   view_type: "answer-exercise"
   exercise_task_id: string
@@ -233,6 +272,7 @@ export interface AnswerExerciseIframeState {
   data: {
     public_spec: unknown
     previous_submission: unknown | null
+    previous_submission_files?: AnswerFileRef[]
   }
 }
 
@@ -245,6 +285,7 @@ export interface ViewSubmissionIframeState {
   data: {
     grading: ExerciseTaskGradingResult | null
     user_answer: unknown
+    user_answer_files?: AnswerFileRef[]
     public_spec: unknown
     model_solution_spec: unknown
   }
@@ -271,6 +312,10 @@ export interface CustomViewIframeState {
       exercise_tasks: {
         task_id: string
         public_spec: unknown
+        /**
+         * The submission row, not the bare answer: read the answer from its `data_json` and any
+         * files from its `data_files`. Unlike the other views, which carry the two separately.
+         */
         user_answer: unknown
         grading: unknown
       }[]

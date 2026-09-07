@@ -57,13 +57,8 @@ pub async fn get_course_credit_registration_actions(
     course_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<CourseCreditRegistrationAction>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewAndManageCreditRegistrations,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token =
+        super::authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
     let records = models::credit_registration_admin_actions::get_page(
         &mut conn,

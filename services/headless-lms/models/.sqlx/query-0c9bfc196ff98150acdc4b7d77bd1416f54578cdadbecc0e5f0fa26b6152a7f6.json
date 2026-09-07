@@ -1,0 +1,150 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH facts AS (\n  SELECT cr.id,\n    cr.state,\n    cr.next_attempt_at,\n    cr.state_entered_at,\n    cr.first_failed_at,\n    cr.submitted_attainment_id IS NOT NULL AS has_submitted_attainment,\n    (\n      cr.selected_enrolment_id IS NOT NULL\n      AND cr.grade_id IS NOT NULL\n    ) AS has_payload_snapshot,\n    p.completion_deleted,\n    p.completion_eligible AS eligible,\n    p.has_verified_student_number AS has_student_number,\n    p.frozen_identity_stale\n  FROM credit_registrations cr\n    JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n    LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n    AND conf.deleted_at IS NULL\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.terminal_at IS NULL\n    -- Only a human moves a row the study registry reversed.\n    AND cr.state <> 'misregistered'\n    AND conf.paused_at IS NULL\n    AND ($2::uuid IS NULL OR cr.course_id = $2)\n    AND ($3::uuid IS NULL OR cr.user_id = $3)\n    AND (\n      cardinality($4::uuid []) = 0\n      OR cr.id = ANY($4::uuid [])\n    )\n),\ntargets AS (\n  SELECT facts.*,\n    CASE\n      -- A worker committed `submitting` and never came back with an answer. There is no way to\n      -- know whether the request landed, so the row is never imported again.\n      WHEN facts.state = 'submitting'\n      AND facts.state_entered_at < now() - ($5::bigint * INTERVAL '1 second') THEN 'submission_uncertain'\n      WHEN facts.state IN (\n        'submitting',\n        'submission_uncertain',\n        'awaiting_verification'\n      ) THEN facts.state\n      WHEN facts.completion_deleted THEN 'cancelled'\n      WHEN facts.state = 'failed_retryable'\n      AND NOT facts.eligible THEN 'blocked'\n      WHEN facts.state = 'failed_retryable'\n      AND facts.first_failed_at < now() - ($6::bigint * INTERVAL '1 second') THEN 'failed_permanent'\n      -- Before the resume arm below, or a retry would carry on past a precondition the student has\n      -- since removed and import would send the frozen student_number under a link they gave up.\n      WHEN facts.state = 'failed_retryable'\n      AND NOT facts.has_student_number THEN 'pending'\n      -- Resumed at whichever state matches how far it had got; decided outside this query.\n      WHEN facts.state = 'failed_retryable'\n      AND facts.next_attempt_at <= now() THEN NULL\n      WHEN facts.state = 'failed_retryable' THEN facts.state\n      -- Eligibility lost after the row had already moved on is what `blocked` is for; a row still\n      -- waiting is simply where it belongs, and the reason it reports changes to say so.\n      WHEN NOT facts.eligible\n      AND facts.state <> 'pending' THEN 'blocked'\n      WHEN NOT facts.eligible\n      OR NOT facts.has_student_number THEN 'pending'\n      -- The periodic look for an enrolment that may have appeared since.\n      WHEN facts.state = 'no_usable_enrolment'\n      AND facts.next_attempt_at > now() THEN facts.state\n      -- A relink after the payload was frozen must not let the row import against the account's\n      -- previous number: send it back to resolve a fresh payload against the current one.\n      WHEN facts.state = 'checking_enrolment'\n      AND facts.frozen_identity_stale THEN 'ready_to_submit'\n      -- Already queued for import with its payload frozen; sending it back would resolve again\n      -- forever.\n      WHEN facts.state = 'checking_enrolment' THEN facts.state\n      -- A resolve-enrolments call for this row is in flight; only that phase's own commit may\n      -- move it, or import could claim it before the enrolment is actually resolved.\n      WHEN facts.state = 'resolving_enrolment' THEN facts.state\n      ELSE 'ready_to_submit'\n    END::credit_registration_state AS target\n  FROM facts\n)\nSELECT id,\n  state AS \"state: CreditRegistrationState\",\n  target AS \"target?: CreditRegistrationState\",\n  eligible AS \"eligible!\",\n  has_student_number AS \"has_student_number!\",\n  has_submitted_attainment AS \"has_submitted_attainment!\",\n  has_payload_snapshot AS \"has_payload_snapshot!\",\n  frozen_identity_stale AS \"frozen_identity_stale!\"\nFROM targets\nWHERE target IS NULL\n  OR target <> state\nORDER BY state_entered_at\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "state: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "target?: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled"
+              ]
+            }
+          }
+        },
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "eligible!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "completion_eligible"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "has_student_number!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "has_verified_student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "has_submitted_attainment!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "has_payload_snapshot!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "frozen_identity_stale!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "frozen_identity_stale"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "UuidArray",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      true,
+      true,
+      null,
+      null,
+      true
+    ]
+  },
+  "hash": "0c9bfc196ff98150acdc4b7d77bd1416f54578cdadbecc0e5f0fa26b6152a7f6"
+}

@@ -333,14 +333,7 @@ fn tick_context<'a>(
     pool: &'a PgPool,
     suotar_client: &'a SuotarClient,
 ) -> PhaseContext<'a> {
-    PhaseContext {
-        pool,
-        suotar_client,
-        test_mode: app_conf.test_mode,
-        caller: "run-tick",
-        base_url: &app_conf.base_url,
-        suotar_conf: &app_conf.suotar_configuration,
-    }
+    PhaseContext::from_app(pool, suotar_client, app_conf, "run-tick")
 }
 
 /// The outer error is a real failure; the inner one is a scope half that names nothing.

@@ -8,13 +8,12 @@ import { useTranslation } from "react-i18next"
 import { resendCourseCreditRegistrationLinkingEmail } from "@/generated/api/sdk.generated"
 import type {
   CourseCreditRegistration,
-  ResendLinkingEmailOutcome,
   ResendLinkingEmailResult,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Infobox, TextField } from "@/shared-module/components"
 
-import { widenedLookup } from "../labelFrom"
+import { RESEND_QUEUED, resendOutcomeLabel } from "../resendOutcome"
 import { linkingEmailSentence } from "../teacherCreditRegistrations"
 
 interface Props {
@@ -38,18 +37,6 @@ const rowCss = css`
   align-items: end;
 `
 
-const OUTCOME_KEYS = {
-  queued: "credit-registration-resend-queued",
-  already_mailed_to_every_known_address: "credit-registration-resend-already-mailed",
-  refused_by_rate_cap: "credit-registration-resend-refused-by-rate-cap",
-  no_address_in_study_registry: "credit-registration-resend-no-address",
-  not_on_the_course_roster: "credit-registration-resend-not-on-roster",
-  no_student_number_known: "credit-registration-resend-no-student-number",
-  already_linked: "credit-registration-resend-already-linked",
-  study_registry_unavailable: "credit-registration-resend-registry-unavailable",
-} as const satisfies Record<ResendLinkingEmailOutcome, string>
-
-const SUCCESS_OUTCOME: ResendLinkingEmailOutcome = "queued"
 // oxlint-disable-next-line i18next/no-literal-string
 const QUEUED_TONE = "info" as const
 // oxlint-disable-next-line i18next/no-literal-string
@@ -76,8 +63,6 @@ const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
     { onSuccess: setResult },
   )
 
-  const outcomeKey = result ? widenedLookup(OUTCOME_KEYS, result.outcome) : undefined
-
   return (
     <form className={rootCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
       <Infobox>{t("credit-registration-resend-address-they-can-read-hint")}</Infobox>
@@ -93,8 +78,8 @@ const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
         </Button>
       </div>
       {result && (
-        <Infobox tone={result.outcome === SUCCESS_OUTCOME ? QUEUED_TONE : REFUSED_TONE}>
-          <div>{t(outcomeKey ?? OUTCOME_KEYS.study_registry_unavailable)}</div>
+        <Infobox tone={result.outcome === RESEND_QUEUED ? QUEUED_TONE : REFUSED_TONE}>
+          <div>{resendOutcomeLabel(t, result.outcome)}</div>
           {result.linking_email && (
             <div>
               {linkingEmailSentence(

@@ -8,27 +8,26 @@ use headless_lms_models::course_module_completion_registered_to_study_registries
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
-    claim_due, set_sisu_attainment_if_unclaimed, set_submitted_attainment, transition,
+    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, RequestPurpose,
+    Transition, claim_due, request_item_id, set_sisu_attainment_if_unclaimed,
+    set_submitted_attainment, transition,
 };
-use headless_lms_models::library::credit_registration::backoff::VERIFY_FIRST_DELAY_SECS;
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::grade_mapping::is_known_grade;
 use headless_lms_models::library::credit_registration::outcomes::{
-    Outcome, import_success_state, submission_uncertain, submit_error_outcome,
+    import_success_outcome, import_success_state, submission_uncertain, submit_error_outcome,
     unanswered_item_outcome,
 };
-use headless_lms_models::suotar_api_calls::SuotarEndpoint as AuditEndpoint;
+use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::services::suotar::{
-    ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarCallContext,
-    SuotarEndpoint, SuotarItemStatus,
+    ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarBatchResponse,
+    SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
 };
-use sqlx::{Connection, PgConnection};
+use sqlx::PgConnection;
 
 use super::{
-    CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, apply_outcome,
-    every_item_failed_transiently, request_level_failure, requests_json, response_item_json,
-    row_facts, row_moved_on,
+    CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
+    apply_outcome, apply_request_level_outcome, row_facts, run_suotar_batch_phase,
 };
 
 /// The only state this phase claims; the absence of `submitting`, `submission_uncertain` and
@@ -37,140 +36,138 @@ use super::{
 const CLAIMED_STATES: [CreditRegistrationState; 1] = [CreditRegistrationState::CheckingEnrolment];
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
-    let endpoint = SuotarEndpoint::ImportAttainments;
-    let mut conn = ctx.pool.acquire().await?;
-    let mut tx = conn.begin().await?;
-    let claimed = claim_due(
-        &mut tx,
-        &CLAIMED_STATES,
-        scope,
-        endpoint.max_batch_size() as i64,
-    )
-    .await?;
-    // Registrars only, not our own mirror rows: a grade improvement is deliberately a second
-    // submission for the same completion.
-    let already_registered = completion_ids_registered_by_a_registrar(
-        &mut tx,
-        &claimed
-            .iter()
-            .map(|row| row.course_module_completion_id)
-            .collect::<Vec<_>>(),
-    )
-    .await?;
+    run_suotar_batch_phase(&mut Import, ctx, scope).await
+}
 
-    let claimed_count = i32::try_from(claimed.len()).unwrap_or(i32::MAX);
-    let mut items = Vec::new();
-    let mut rows = Vec::new();
-    let mut items_failed = 0;
-    for row in claimed {
-        if already_registered.contains(&row.course_module_completion_id) {
-            transition(
-                &mut tx,
-                row.id,
-                &Transition {
-                    event_message: Some(
-                        "Another registrar had already registered this completion, so nothing was \
-                         submitted."
-                            .to_string(),
-                    ),
-                    ..Transition::to(CreditRegistrationState::Duplicate)
-                },
-            )
-            .await?;
-            continue;
-        }
-        match request_item(&row) {
-            Ok(item) => {
-                // Committed before the request leaves: a row found in `submitting` after a restart
-                // has an unknown outcome and is never sent again.
+struct Import;
+
+impl SuotarBatchPhase for Import {
+    type Row = CreditRegistration;
+    type Item = ImportAttainmentRequestItem;
+    type Result = ImportAttainmentResult;
+
+    const ALL_TRANSIENT_ERROR: &'static str =
+        "Every item of the batch came back transiently unavailable.";
+
+    async fn prepare(
+        &mut self,
+        _ctx: &PhaseContext<'_>,
+        conn: &mut PgConnection,
+        scope: &PhaseScope,
+    ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
+        let claimed = claim_due(
+            conn,
+            &CLAIMED_STATES,
+            scope,
+            SuotarEndpoint::ImportAttainments.max_batch_size() as i64,
+        )
+        .await?;
+        // Registrars only, not our own mirror rows: a grade improvement is deliberately a second
+        // submission for the same completion.
+        let already_registered = completion_ids_registered_by_a_registrar(
+            conn,
+            &claimed
+                .iter()
+                .map(|row| row.course_module_completion_id)
+                .collect::<Vec<_>>(),
+        )
+        .await?;
+
+        let mut prepared = Prepared::default();
+        for row in claimed {
+            if already_registered.contains(&row.course_module_completion_id) {
                 transition(
-                    &mut tx,
+                    conn,
                     row.id,
-                    &Transition::to(CreditRegistrationState::Submitting),
+                    &Transition {
+                        event_message: Some(
+                            "Another registrar had already registered this completion, so nothing \
+                             was submitted."
+                                .to_string(),
+                        ),
+                        ..Transition::to(CreditRegistrationState::Duplicate)
+                    },
                 )
                 .await?;
-                items.push(item);
-                rows.push(row);
-            }
-            Err(problem) => {
-                transition(&mut tx, row.id, &problem.transition()).await?;
-                items_failed += 1;
-            }
-        }
-    }
-    tx.commit().await?;
-    // Held only for the claim; the Suotar call below can pin it for the whole request timeout.
-    drop(conn);
-
-    if items.is_empty() {
-        return Ok(PhaseRunOutcome {
-            items_processed: claimed_count,
-            items_failed,
-            error: None,
-        });
-    }
-
-    let requests = requests_json(&items);
-    let response = ctx
-        .suotar_client
-        .import_attainments(
-            SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Import))
-                .for_registrations(rows.iter().map(|row| row.id).collect()),
-            items,
-        )
-        .await;
-    let response = match response {
-        Ok(response) => response,
-        Err(error) => {
-            return request_level_failure(
-                ctx,
-                AuditEndpoint::ImportAttainments,
-                &error,
-                &rows,
-                &requests,
-                CreditRegistrationState::Submitting,
-            )
-            .await;
-        }
-    };
-
-    let mut conn = ctx.pool.acquire().await?;
-    for (row, request) in rows.iter().zip(requests.iter()) {
-        let response_json = response_item_json(&response.raw_response, &row.request_item_id);
-        let event = OutcomeEvent {
-            suotar_api_call_id: response.call_id,
-            request: Some(request),
-            response: response_json.as_ref(),
-            sent_student_number: row.student_number.as_deref(),
-            ..OutcomeEvent::default()
-        };
-        let item = response.item(&row.request_item_id);
-        let applied = apply_answer(&mut conn, row, item, event).await;
-        let failed = match applied {
-            Ok(failed) => failed,
-            // The attainment id, if the answer carried one, is already recorded: `apply_answer`
-            // writes it before the transition. Only this row is skipped, so the rest of the batch
-            // still leaves `submitting`, which nothing claims again.
-            Err(error) if row_moved_on(&error) => {
-                warn!(
-                    "Credit registration {} moved on while the study registry answered; leaving it. {error:#}",
-                    row.id
-                );
+                prepared.decided += 1;
                 continue;
             }
-            Err(error) => return Err(error),
-        };
-        if failed {
-            items_failed += 1;
+            match request_item(&row) {
+                Ok(item) => {
+                    // Committed before the request leaves: a row found in `submitting` after a
+                    // restart has an unknown outcome and is never sent again.
+                    transition(
+                        conn,
+                        row.id,
+                        &Transition::to(CreditRegistrationState::Submitting),
+                    )
+                    .await?;
+                    prepared.sendable.push((row, item));
+                }
+                Err(problem) => {
+                    transition(conn, row.id, &problem.transition()).await?;
+                    prepared.decided += 1;
+                    prepared.failed += 1;
+                }
+            }
         }
+        Ok(prepared)
     }
 
-    Ok(PhaseRunOutcome {
-        items_processed: claimed_count,
-        items_failed,
-        error: every_item_failed_transiently(&response)
-            .then(|| "Every item of the batch came back transiently unavailable.".to_string()),
-    })
+    fn registration(row: &Self::Row) -> &CreditRegistration {
+        row
+    }
+
+    fn request_item_id(row: &Self::Row) -> String {
+        request_item_id(row, RequestPurpose::Submission)
+    }
+
+    fn sent_student_number(row: &Self::Row) -> Option<&str> {
+        row.student_number.as_deref()
+    }
+
+    async fn send(
+        &self,
+        ctx: &PhaseContext<'_>,
+        rows: &[Self::Row],
+        items: Vec<Self::Item>,
+    ) -> Result<SuotarBatchResponse<Self::Result>, UtilError> {
+        ctx.suotar_client
+            .import_attainments(
+                SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Import))
+                    .for_registrations(rows.iter().map(|row| row.id).collect()),
+                items,
+            )
+            .await
+    }
+
+    async fn apply(
+        &self,
+        conn: &mut PgConnection,
+        row: &Self::Row,
+        item: Option<&SuotarResponseItem<Self::Result>>,
+        event: OutcomeEvent<'_>,
+    ) -> anyhow::Result<bool> {
+        apply_answer(conn, row, item, event).await
+    }
+
+    async fn apply_request_rejection(
+        &self,
+        conn: &mut PgConnection,
+        row: &Self::Row,
+        request: &serde_json::Value,
+        error: &UtilError,
+    ) -> anyhow::Result<bool> {
+        apply_request_level_outcome(
+            conn,
+            SuotarEndpoint::ImportAttainments,
+            row,
+            request,
+            error,
+            CreditRegistrationState::Submitting,
+        )
+        .await
+    }
 }
 
 /// Applies the study registry's answer for one submitted row. Returns whether the row ended up in a
@@ -181,7 +178,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
 async fn apply_answer(
     conn: &mut PgConnection,
     row: &CreditRegistration,
-    item: Option<&headless_lms_utils::services::suotar::SuotarResponseItem<ImportAttainmentResult>>,
+    item: Option<&SuotarResponseItem<ImportAttainmentResult>>,
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<bool> {
     let facts = row_facts(row);
@@ -191,7 +188,7 @@ async fn apply_answer(
             apply_outcome(
                 conn,
                 row,
-                &unanswered_item_outcome(AuditEndpoint::ImportAttainments, row.state, &facts),
+                &unanswered_item_outcome(SuotarEndpoint::ImportAttainments, row.state, &facts),
                 OutcomeEvent {
                     message: Some(
                         "The study registry did not answer for this item, so whether the \
@@ -205,9 +202,9 @@ async fn apply_answer(
             Ok(true)
         }
         Some(item) if item.status == SuotarItemStatus::Error => {
-            let code = map_code(AuditEndpoint::ImportAttainments, &item.code)
+            let code = map_code(SuotarEndpoint::ImportAttainments, &item.code)
                 .unwrap_or(CreditRegistrationErrorCode::Unknown);
-            let outcome = submit_error_outcome(AuditEndpoint::ImportAttainments, code, &facts);
+            let outcome = submit_error_outcome(SuotarEndpoint::ImportAttainments, code, &facts);
             if outcome.to_state == CreditRegistrationState::SubmissionUncertain
                 && let Some(disclosed) = item
                     .error
@@ -265,10 +262,9 @@ async fn apply_answer(
                             apply_outcome(
                                 conn,
                                 row,
-                                &Outcome {
-                                    delay_secs: Some(VERIFY_FIRST_DELAY_SECS),
-                                    ..Outcome::to(CreditRegistrationState::AwaitingVerification)
-                                },
+                                &import_success_outcome(
+                                    CreditRegistrationState::AwaitingVerification,
+                                ),
                                 event,
                                 Some(CreditRegistrationState::Submitting),
                             )
@@ -308,7 +304,7 @@ async fn apply_answer(
                     apply_outcome(
                         conn,
                         row,
-                        &Outcome::to(state),
+                        &import_success_outcome(state),
                         OutcomeEvent {
                             message: message.as_deref(),
                             ..event
@@ -431,7 +427,7 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
         return Err(Unsendable::UnknownGrade);
     }
     Ok(ImportAttainmentRequestItem {
-        request_item_id: row.request_item_id.clone(),
+        request_item_id: request_item_id(row, RequestPurpose::Submission),
         student_number: student_number.to_string(),
         course_code: course_code.to_string(),
         enrolment_id: enrolment_id.to_string(),
@@ -460,7 +456,7 @@ mod tests {
             CreditRegistrationState::SubmissionUncertain,
             CreditRegistrationState::AwaitingVerification,
             CreditRegistrationState::Registered,
-            CreditRegistrationState::AbandonedByConsentWithdrawal,
+            CreditRegistrationState::Cancelled,
             CreditRegistrationState::ResolvingEnrolment,
         ] {
             assert!(!CLAIMED_STATES.contains(&state), "{state:?}");

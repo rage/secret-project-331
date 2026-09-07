@@ -11,6 +11,7 @@ use url::Url;
 use uuid::Uuid;
 
 use crate::config::program_config::ProgramConfig;
+use crate::programs::periodic_worker::{PeriodicWorkerConfig, run_periodic_worker};
 use crate::setup_tracing;
 
 use headless_lms_base::config::ApplicationConfiguration;
@@ -64,38 +65,40 @@ pub async fn main() -> anyhow::Result<()> {
     let db_pool = initialize_database_pool(&config.database_url).await?;
     let blob_client = initialize_blob_client(&config).await?;
 
-    let mut interval = tokio::time::interval(Duration::from_secs(SYNC_INTERVAL_SECS));
-    let mut ticks = 0;
     let mut reported_permanently_failing_page_ids: HashSet<Uuid> = HashSet::new();
 
     info!("Starting chatbot syncer.");
 
-    loop {
-        interval.tick().await;
-        ticks += 1;
-
-        if ticks >= PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD {
-            ticks = 0;
-            info!("Still syncing for chatbot.");
-        }
-        // Acquired per tick so that the pool's liveness check replaces a connection that died
-        // while we were idle; a checked out connection is never healed.
-        match db_pool.acquire().await {
-            Ok(mut conn) => {
-                if let Err(e) = sync_pages(
-                    &mut conn,
-                    &config,
-                    &blob_client,
-                    &mut reported_permanently_failing_page_ids,
-                )
-                .await
-                {
-                    error!("Error during synchronization: {:?}", e);
+    run_periodic_worker(
+        PeriodicWorkerConfig {
+            tick_interval: Duration::from_secs(SYNC_INTERVAL_SECS),
+            still_running_every: PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD,
+            still_running_message: "Still syncing for chatbot.",
+            initial_ticks: 0,
+            delay_missed_ticks: false,
+        },
+        async || {
+            // Acquired per tick so that the pool's liveness check replaces a connection that died
+            // while we were idle; a checked out connection is never healed.
+            match db_pool.acquire().await {
+                Ok(mut conn) => {
+                    if let Err(e) = sync_pages(
+                        &mut conn,
+                        &config,
+                        &blob_client,
+                        &mut reported_permanently_failing_page_ids,
+                    )
+                    .await
+                    {
+                        error!("Error during synchronization: {:?}", e);
+                    }
                 }
+                Err(e) => error!("Failed to acquire a database connection: {:?}", e),
             }
-            Err(e) => error!("Failed to acquire a database connection: {:?}", e),
-        }
-    }
+            Ok(())
+        },
+    )
+    .await
 }
 
 fn initialize_environment() -> anyhow::Result<()> {

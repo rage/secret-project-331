@@ -47,18 +47,32 @@ const HISTORY_REFETCH_INTERVAL_MS = 300_000
 /** The shortest window the health endpoint reports, which is the one the tab badge reads. */
 export const HOUR_SECS = 3600
 
+// Tab badges in the layout poll on every route under credit-registration, not just while their
+// own tab is open, so they use a slower cadence than the same data's own tab content does.
+const BADGE_ATTENTION_REFETCH_INTERVAL_MS = 60_000
+const BADGE_PHASE_REFETCH_HEALTHY_INTERVAL_MS = 60_000
+const BADGE_PHASE_REFETCH_UNHEALTHY_INTERVAL_MS = 30_000
+
+// The global QueryClient sets gcTime/staleTime near zero, so without an opt-in every tab switch
+// refetches everything. Each hook below is fresh until its own refetchInterval is due anyway.
+const GC_TIME_MS = 5 * 60_000
+
 /** The alert banner shares this key with the Overview tiles, so the two cannot disagree. */
 export const useCreditRegistrationOverview = () =>
   useQuery({
     ...getCreditRegistrationOverviewOptions(),
     refetchInterval: OVERVIEW_REFETCH_INTERVAL_MS,
     refetchOnWindowFocus: true,
+    staleTime: OVERVIEW_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useSuotarHealth = () =>
   useQuery({
     ...getSuotarHealthOptions(),
     refetchInterval: OVERVIEW_REFETCH_INTERVAL_MS,
+    staleTime: OVERVIEW_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 /**
@@ -69,6 +83,8 @@ export const useSuotarRequestFailureCount = () =>
   useQuery({
     ...getSuotarHealthOptions(),
     refetchInterval: OVERVIEW_REFETCH_INTERVAL_MS,
+    staleTime: OVERVIEW_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
     select: (health) =>
       (health.windows.find((window) => window.window_secs === HOUR_SECS)?.endpoints ?? []).reduce(
         (sum, endpoint) => sum + endpoint.failed_call_count,
@@ -80,6 +96,8 @@ export const useSuotarApiCalls = (query: NonNullable<ListSuotarApiCallsData["que
   useQuery({
     ...listSuotarApiCallsOptions({ query }),
     refetchInterval: CALL_LOG_REFETCH_INTERVAL_MS,
+    staleTime: CALL_LOG_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useAdminCreditRegistrations = (
@@ -90,6 +108,8 @@ export const useAdminCreditRegistrations = (
     ...listCreditRegistrationsForAdminOptions({ query }),
     // A table that reshuffles under a click is worse than a stale one.
     refetchInterval: paused ? false : LIST_REFETCH_INTERVAL_MS,
+    staleTime: LIST_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useAdminCreditRegistration = (creditRegistrationId: string) =>
@@ -99,12 +119,16 @@ export const useAdminCreditRegistration = (creditRegistrationId: string) =>
     }),
     refetchInterval: (query) =>
       query.state.data?.registration.terminal_at ? false : LIVE_ITEM_REFETCH_INTERVAL_MS,
+    staleTime: LIVE_ITEM_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useAccountLinkingStats = (windowDays: number) =>
   useQuery({
     ...getAccountLinkingStatsOptions({ query: { window_days: windowDays } }),
     refetchInterval: LIST_REFETCH_INTERVAL_MS,
+    staleTime: LIST_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useAdminVerifiedStudentNumbers = (
@@ -113,35 +137,52 @@ export const useAdminVerifiedStudentNumbers = (
   useQuery({
     ...listVerifiedStudentNumbersForAdminOptions({ query }),
     refetchInterval: LIST_REFETCH_INTERVAL_MS,
+    staleTime: LIST_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useCreditRegistrationPhases = () =>
   useQuery({
     ...listCreditRegistrationPhasesOptions(),
     refetchInterval: PHASE_REFETCH_INTERVAL_MS,
+    staleTime: PHASE_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useCreditRegistrationPhasesNeedingAttentionCount = () =>
   useQuery({
     ...listCreditRegistrationPhasesOptions(),
-    refetchInterval: PHASE_REFETCH_INTERVAL_MS,
+    refetchInterval: (query) =>
+      (query.state.data?.phases.filter(phaseNeedsAttention).length ?? 0) > 0
+        ? BADGE_PHASE_REFETCH_UNHEALTHY_INTERVAL_MS
+        : BADGE_PHASE_REFETCH_HEALTHY_INTERVAL_MS,
+    staleTime: BADGE_PHASE_REFETCH_HEALTHY_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
     select: (list) => list.phases.filter(phaseNeedsAttention).length,
   })
 
 /** The thresholds the detectors and the alert rules share, so the page never states a number of its own. */
 export const useCreditRegistrationThresholds = () =>
-  useQuery(getCreditRegistrationThresholdsOptions())
+  useQuery({
+    ...getCreditRegistrationThresholdsOptions(),
+    staleTime: GC_TIME_MS,
+    gcTime: GC_TIME_MS,
+  })
 
 export const useCreditRegistrationAttentionItems = () =>
   useQuery({
     ...getCreditRegistrationAttentionItemsOptions(),
     refetchInterval: ATTENTION_REFETCH_INTERVAL_MS,
+    staleTime: ATTENTION_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useCreditRegistrationAttentionCount = () =>
   useQuery({
     ...getCreditRegistrationAttentionItemsOptions(),
-    refetchInterval: ATTENTION_REFETCH_INTERVAL_MS,
+    refetchInterval: BADGE_ATTENTION_REFETCH_INTERVAL_MS,
+    staleTime: BADGE_ATTENTION_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
     select: (items) => items.total_count,
   })
 
@@ -159,6 +200,8 @@ export const useCreditRegistrationErrorsByCode = (windowSecs: number) =>
   useQuery({
     ...getCreditRegistrationErrorsByCodeOptions({ query: { window_secs: windowSecs } }),
     refetchInterval: ATTENTION_REFETCH_INTERVAL_MS,
+    staleTime: ATTENTION_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 /** A once-a-day series, so there is nothing to gain from polling it briskly. */
@@ -166,6 +209,8 @@ export const useCreditRegistrationPipelineHistory = (days: number) =>
   useQuery({
     ...getCreditRegistrationPipelineHistoryOptions({ query: { days } }),
     refetchInterval: HISTORY_REFETCH_INTERVAL_MS,
+    staleTime: HISTORY_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useCreditRegistrationAdminActions = (
@@ -174,6 +219,8 @@ export const useCreditRegistrationAdminActions = (
   useQuery({
     ...listCreditRegistrationAdminActionsOptions({ query }),
     refetchInterval: LIST_REFETCH_INTERVAL_MS,
+    staleTime: LIST_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 /** Heavier queries over absences rather than rows, and slow-moving with it. */
@@ -181,12 +228,16 @@ export const useCreditRegistrationReconciliation = () =>
   useQuery({
     ...getCreditRegistrationReconciliationOptions(),
     refetchInterval: RECONCILIATION_REFETCH_INTERVAL_MS,
+    staleTime: RECONCILIATION_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useCreditRegistrationFindingCount = () =>
   useQuery({
     ...getCreditRegistrationReconciliationOptions(),
     refetchInterval: RECONCILIATION_REFETCH_INTERVAL_MS,
+    staleTime: RECONCILIATION_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
     select: (reconciliation) => reconciliation.finding_count,
   })
 
@@ -200,12 +251,16 @@ export const useCreditRegistrationCourseStats = () =>
   useQuery({
     ...getCreditRegistrationStatsByCourseOptions(),
     refetchInterval: LIST_REFETCH_INTERVAL_MS,
+    staleTime: LIST_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
   })
 
 export const useCreditRegistrationMisconfiguredCourseCount = () =>
   useQuery({
     ...getCreditRegistrationStatsByCourseOptions(),
     refetchInterval: LIST_REFETCH_INTERVAL_MS,
+    staleTime: LIST_REFETCH_INTERVAL_MS,
+    gcTime: GC_TIME_MS,
     select: (stats) => stats.misconfigured_count,
   })
 

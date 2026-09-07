@@ -1,4 +1,5 @@
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::file_store::local_file_store::LocalFileStore;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
 use tokio::sync::Mutex;
@@ -39,6 +40,19 @@ async fn get_or_init_db() -> String {
 pub fn init_app_conf() -> ModelResult<ApplicationConfiguration> {
     let app_config = ApplicationConfiguration::mock_conf()?;
     Ok(app_config)
+}
+
+/// A file store for tests that only need download URLs, not stored bytes.
+///
+/// Built field-wise because `LocalFileStore::new` insists on `HEADLESS_LMS_CACHE_FILES_PATH`, which
+/// no test environment sets; nothing here reaches the cache, and setting the variable from one test
+/// would race every other test in the binary.
+pub fn init_file_store() -> LocalFileStore {
+    LocalFileStore {
+        base_path: "uploads".into(),
+        base_url: "http://localhost:3000".to_string(),
+        cache_files_path: env::temp_dir(),
+    }
 }
 
 /// Wrapper to ensure the test database isn't used without a transaction

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_answer_uploads AS u\nSET deleted_at = COALESCE(u.deleted_at, now())\nWHERE u.id = $1\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_submission_files AS s\n    WHERE s.file_upload_id = u.file_upload_id\n      AND s.deleted_at IS NULL\n  )\nRETURNING u.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_uploads",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "ec02c7f7830ea008c2c1021bdcdccf8f8d40cf6c212b20bdd91ae937122d3673"
+}

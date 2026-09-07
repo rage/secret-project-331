@@ -21,7 +21,6 @@ import {
 import { useRequestEnrolmentRecheck } from "@/components/credit-registration/enrolmentActions"
 import { getMyCreditRegistrationForCourseModuleOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
-import { useSetCreditRegistrationConsent } from "@/hooks/course-material/useCourseCreditRegistrationConsent"
 import {
   userSettingsStudentNumberRoute,
   profileCreditRegistrationRoute,
@@ -162,7 +161,6 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration }> = ({ re
   const state = registrationStatusState(status)
   const errorHelp = registrationErrorHelp(t, registration.error_code)
 
-  const giveConsent = useSetCreditRegistrationConsent()
   const recheckEnrolment = useRequestEnrolmentRecheck()
 
   const details = [
@@ -195,9 +193,7 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration }> = ({ re
       />
       <Infobox tone={state === "action-needed" || state === "failed" ? TONE.WARNING : TONE.INFO}>
         <div className={infoboxBodyCss}>
-          <p>
-            {registrationExplanation(t, status, registration.consent_withdrawn_while_in_flight)}
-          </p>
+          <p>{registrationExplanation(t, status)}</p>
           {/* Otherwise raising a grade and seeing "registered" unchanged reads as a lost submission. */}
           {registration.registry_already_held_equal_or_better ? (
             <p>{t("credit-registration-explanation-not-improved")}</p>
@@ -211,18 +207,6 @@ const LiveRegistration: React.FC<{ registration: MyCreditRegistration }> = ({ re
       </Infobox>
       {details.length > 0 ? <DescriptionList items={details} /> : null}
       <div className={actionsCss}>
-        {status === "needs_consent" ? (
-          <Button
-            variant="primary"
-            size="medium"
-            isLoading={giveConsent.isPending}
-            onClick={() =>
-              giveConsent.mutate({ courseId: registration.course_id, consentGiven: true })
-            }
-          >
-            {t("credit-registration-action-give-consent")}
-          </Button>
-        ) : null}
         {status === "needs_student_number" ? (
           <Link
             href={userSettingsStudentNumberRoute()}

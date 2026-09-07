@@ -11,7 +11,7 @@ import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import mediaUploadBuilder from "../../services/mediaUpload"
+import { mediaUploadBuilder } from "../../services/mediaUpload"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 

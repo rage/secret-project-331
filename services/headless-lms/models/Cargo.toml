@@ -22,7 +22,7 @@ dotenvy = "0.15"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.24.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # Pure Rust implementation of the SHA-2 hash function family.
@@ -86,7 +86,7 @@ reqwest = { version = "0.13.4", features = ["json"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
 # Password hashing using Argon2id
-argon2 = "0.6.0-rc.8"
+argon2 = "0.6.0"
 # Unicode normalization (NFC) so passwords hash to identical bytes regardless of input form
 unicode-normalization = "0.1.25"
 

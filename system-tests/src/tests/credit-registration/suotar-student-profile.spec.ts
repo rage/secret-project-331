@@ -1,3 +1,4 @@
+import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   CREDIT_REGISTRATIONS_API,
   PROFILE_CREDIT_REGISTRATION_URL,
@@ -11,7 +12,7 @@ import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
  * already-linked student and the replaced attempt pair. Ticks nothing; every other file that touches
  * those rows only reads them too.
  */
-const LINKED_EMAIL = "credit-registration-consented-linked@example.com"
+const LINKED_EMAIL = "credit-registration-linked-student@example.com"
 const LINKED_STUDENT_NUMBER = "900000101"
 const SUPERSEDED_EMAIL = "credit-registration-superseded@example.com"
 const EMPTY_EMAIL = "credit-registration-profile-empty@example.com"
@@ -25,11 +26,7 @@ test.describe("A student whose grade was registered twice", () => {
     await page.goto(PROFILE_CREDIT_REGISTRATION_URL)
 
     await expect(page.getByRole("tab", { name: "Credit registration" })).toBeVisible()
-    for (const heading of [
-      "Student number",
-      "Permission to register credits",
-      "My credit registrations",
-    ]) {
+    for (const heading of ["Student number", "My credit registrations"]) {
       await expect(page.getByRole("heading", { level: 3, name: heading })).toBeVisible()
     }
 
@@ -38,6 +35,8 @@ test.describe("A student whose grade was registered twice", () => {
     // The replaced attempt stays visible as history: a student who saw grade 3 registered should not
     // find that it never happened.
     await expect(registrations.getByText("Earlier attempt 1")).toBeVisible()
+
+    await accessibilityCheck(page, "Profile credit registration tab")
   })
 })
 

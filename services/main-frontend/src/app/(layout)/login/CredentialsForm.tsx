@@ -7,7 +7,7 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import PasswordField from "@/components/forms/PasswordField"
+import { PasswordField } from "@/components/forms/PasswordField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { signUpRoute } from "@/shared-module/common/utils/routes"

@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-protocol",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "The moocfi exercise-service contract: parent<->iframe postMessage protocol types, runtime guards, and shared constants. Zero dependencies, framework-agnostic.",
   "keywords": [
     "exercise-service",
@@ -47,6 +47,9 @@
     "test:playwright:debug": "playwright test --debug",
     "verify": "pnpm run build && pnpm run test:playwright"
   },
+  "dependencies": {
+    "@fontsource/commit-mono": "^5.3.0"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@playwright/test": "1.61.1",
@@ -60,8 +63,8 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
+      "version": "24.18.0",
+      "onFail": "download"
     }
   }
 }

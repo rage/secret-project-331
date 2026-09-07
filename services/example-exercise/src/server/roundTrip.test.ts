@@ -38,6 +38,7 @@ async function gradePublicChoice(
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         grading_update_url: "http://x",
+        submission_files: [],
         exercise_spec: PRIVATE_SPEC,
         submission_data: { selectedOptionId: publicOption.id },
       }),

@@ -5,9 +5,9 @@ import React, { useState } from "react"
 import type { Control, FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Dialog } from "@/shared-module/components"
 
+import { useActionResult } from "../useActionResult"
 import { isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import type { WithReason } from "./ReasonConfirmDialog"
 
@@ -28,9 +28,10 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
   dialogTitle: string
   defaultValues: Fields
   mutationFn: (fields: Fields) => Promise<Result>
-  onSuccess?: (result: Result) => void
+  onSuccess?: (result: Result, fields: Fields) => void
   renderFields: (control: Control<Fields>) => React.ReactNode
-  renderResult: (result: Result) => React.ReactNode
+  /** `fields` is what the confirmed submission sent, e.g. to phrase the result around a chosen target. */
+  renderResult: (result: Result, fields: Fields) => React.ReactNode
 }
 
 /**
@@ -49,21 +50,15 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
 }: AdminActionDialogProps<Fields, Result>) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [result, setResult] = useState<Result | null>(null)
+  const [submittedFields, setSubmittedFields] = useState<Fields | null>(null)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>(defaultValues)
   const reason = watch("reason" as Path<Fields>) as string
 
-  const mutation = useToastMutation(
-    mutationFn,
-    { notify: false },
-    {
-      onSuccess: (data) => {
-        setResult(data)
-        setOpen(false)
-        onSuccess?.(data)
-      },
-    },
-  )
+  const { result, mutation } = useActionResult(mutationFn, (data, fields) => {
+    setOpen(false)
+    setSubmittedFields(fields)
+    onSuccess?.(data, fields)
+  })
 
   return (
     <div className={rootCss}>
@@ -75,7 +70,7 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
       >
         {triggerLabel}
       </Button>
-      {result && renderResult(result)}
+      {result && submittedFields && renderResult(result, submittedFields)}
       <Dialog open={open} onClose={() => setOpen(false)} title={dialogTitle}>
         <form className={formCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
           {renderFields(control)}

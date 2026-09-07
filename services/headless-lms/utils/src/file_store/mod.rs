@@ -24,7 +24,10 @@ pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes, anyhow::Error>
 Allows storing files to a file storage backend.
 */
 #[async_trait(?Send)]
-pub trait FileStore {
+// `Send + Sync` on the trait object, not on its futures: work that must cross threads (the spawned
+// CSV exports, the parallel seed) holds a `&dyn FileStore` across awaits, while the async methods
+// themselves stay `?Send`.
+pub trait FileStore: Send + Sync {
     /// Upload a file that's in memory to a path.
     async fn upload(&self, path: &Path, contents: Vec<u8>, mime_type: &str) -> UtilResult<()>;
     /// Upload a file without loading the whole file to memory

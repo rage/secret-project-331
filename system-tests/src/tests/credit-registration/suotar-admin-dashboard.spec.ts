@@ -8,7 +8,6 @@ import {
 import {
   accountLinkingStats,
   adminAuditLog,
-  adminOverview,
   adminRegistrationDetails,
   adminRegistrationUrl,
   creditRegistrationCourseStats,
@@ -50,6 +49,7 @@ const DASHBOARD_URL = `${ORIGIN}/manage/credit-registration`
 const OVERVIEW_URL = `${DASHBOARD_URL}/overview`
 const REGISTRATIONS_URL = `${DASHBOARD_URL}/registrations`
 const LINKING_URL = `${DASHBOARD_URL}/linking`
+const WORKERS_URL = `${DASHBOARD_URL}/workers`
 
 /** In the order the layout lists them, which is the order an operator reads the shell in. */
 const TAB_NAMES = [
@@ -79,7 +79,7 @@ const STALE_ADDRESS_EXACT = new RegExp(
   `^${STALE_ADDRESS.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
 )
 
-/** Consented and linked from seed time, so it is the one row on this course a tick can register. */
+/** Linked from seed time, so it is the one row on this course a tick can register. */
 const ADMIN_LINKED_EMAIL = "credit-registration-admin-linked@example.com"
 const ADMIN_LINKED_STUDENT_NUMBER = "900000904"
 const ADMIN_LINKED_LAST_NAME = "Alreadylinked"
@@ -92,15 +92,13 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
     await expect(page.getByRole("tab", { name })).toBeVisible()
   }
   await expect(page.getByRole("heading", { name: "Where registrations stand" })).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Pipeline phases" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Study registry" })).toBeVisible()
   await accessibilityCheck(page, "Credit registration admin overview")
 
   await test.step("Both worker programs are alive and stamping their phases", async () => {
-    const overview = await adminOverview(page.request)
-    expect(overview.phases).toHaveLength(CREDIT_REGISTRATION_PHASES.length)
+    const { phases } = await listAdminPhases(page.request)
     for (const processName of ["credit-registrar", "suotar-syncer"]) {
-      const owned = overview.phases.filter((phase) => phase.process_name === processName)
+      const owned = phases.filter((phase) => phase.process_name === processName)
       expect(owned.length, `${processName} owns no phases`).toBeGreaterThan(0)
       expect(
         owned.some((phase) => phase.last_heartbeat_at !== null),
@@ -149,8 +147,8 @@ test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ 
       expect(paused.paused_at).not.toBeNull()
       expect(paused.pause_reason).toBe(pauseReason)
 
-      const overview = await adminOverview(page.request)
-      const row = overview.phases.find((candidate) => candidate.phase === phase)
+      const { phases } = await listAdminPhases(page.request)
+      const row = phases.find((candidate) => candidate.phase === phase)
       expect(row?.paused_at).not.toBeNull()
     })
 
@@ -443,12 +441,6 @@ test("The errors tab shows the window's verdicts and what needs a human", async 
   await test.step("A bulk move needs a selection", async () => {
     await expect(page.getByRole("button", { name: /Move 0 selected/ })).toBeDisabled()
   })
-
-  await test.step("Withdrawn consent is ruled out rather than counted as a failure", async () => {
-    await expect(
-      page.getByText("Withdrawn consent is neither a success nor a failure", { exact: false }),
-    ).toBeVisible()
-  })
 })
 
 test("The courses tab reports each enabled module's configuration", async ({ page }) => {
@@ -480,6 +472,9 @@ test("There is no item-level pause anywhere", async ({ page }) => {
 })
 
 test("The workers tab groups the phases under the process that runs them", async ({ page }) => {
+  await page.goto(WORKERS_URL)
+  await expect(page.getByRole("heading", { name: "Pipeline phases" })).toBeVisible()
+
   const list = await listAdminPhases(page.request)
   expect(list.phases).toHaveLength(CREDIT_REGISTRATION_PHASES.length)
 
@@ -503,7 +498,7 @@ test("The workers tab groups the phases under the process that runs them", async
   await expect(page.getByText("Paused is our own flag", { exact: false })).toBeVisible()
 })
 
-test("Reconciliation keeps the consent-withdrawal bucket out of its findings", async ({ page }) => {
+test("The reconciliation badge is the sum of its detectors", async ({ page }) => {
   const reconciliation = await creditRegistrationReconciliation(page.request)
   expect(reconciliation.finding_count).toBe(
     reconciliation.never_entered_count +
@@ -514,14 +509,7 @@ test("Reconciliation keeps the consent-withdrawal bucket out of its findings", a
   )
 
   await page.goto(`${DASHBOARD_URL}/reconciliation`)
-  await expect(
-    page.getByRole("heading", { name: "Outcome unknown, consent withdrawn" }),
-  ).toBeVisible()
-  await expect(
-    page.getByText("this list exists so the number is never mistaken for a failure", {
-      exact: false,
-    }),
-  ).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Never entered the pipeline" })).toBeVisible()
 })
 
 test("The audit tab tells the two actor kinds apart", async ({ page }) => {

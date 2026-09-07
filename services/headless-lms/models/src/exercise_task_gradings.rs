@@ -44,7 +44,23 @@ pub struct ExerciseTaskGrading {
 pub struct ExerciseTaskGradingRequest<'a> {
     pub grading_update_url: &'a str,
     pub exercise_spec: &'a Option<serde_json::Value>,
-    pub submission_data: &'a Option<serde_json::Value>,
+    /// The whole answer for a JSON-typed submission; the plugin's metadata for a file-typed one.
+    pub submission_data: Option<&'a serde_json::Value>,
+    /// The answer's files, in answer order. Empty for a JSON-typed submission.
+    pub submission_files: &'a [GradingRequestFile],
+}
+
+/// One file of a file-typed answer, as an exercise service is handed it for grading.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct GradingRequestFile {
+    pub id: Uuid,
+    pub name: String,
+    pub mime: String,
+    /// `null` for a file stored before the size was recorded; never a substitute zero, so a service
+    /// enforcing a size limit can tell an unknown size from an empty file.
+    pub size_bytes: Option<i64>,
+    /// Host-minted and short-lived; do not persist it.
+    pub download_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

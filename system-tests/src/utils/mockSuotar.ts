@@ -3,7 +3,8 @@
  * Hand-written because the mock's DTOs are deliberately not exported to `bindings.ts`, the same way
  * `mock_sisu`'s are not. `suotarControl.ts` is the tick client.
  *
- * Only the commands a spec has a reason to send are wrapped; `GET /control/commands` lists the rest.
+ * Only the commands a spec has a reason to send are wrapped; `MockSuotarCommand` in `commands.rs`
+ * lists the rest.
  * A command is parallel-safe only for arguments naming data the calling spec owns.
  */
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -14,8 +14,8 @@ import {
   useInvalidateAfterLinkingChange,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminResendLinkingEmailDialog from "@/components/credit-registration/admin/AdminResendLinkingEmailDialog"
-import { ReasonConfirmDialog } from "@/components/credit-registration/admin/ReasonConfirmDialog"
 import RelativeTime, { ABSENT } from "@/components/credit-registration/admin/RelativeTime"
+import { useReasonConfirmAction } from "@/components/credit-registration/admin/useReasonConfirmAction"
 import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
 import {
   headingCss,
@@ -26,15 +26,14 @@ import {
 } from "@/components/credit-registration/styles"
 import { adminUnlinkStudentNumber } from "@/generated/api/sdk.generated"
 import type { AccountLinkingStats, EmailSendStatus } from "@/generated/api/types.generated"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
-import { Badge, Button, Meter, QueryResult, StatTile, Table } from "@/shared-module/components"
+import { Badge, Meter, QueryResult, StatTile, Table } from "@/shared-module/components"
 
 const WINDOW_DAYS = 30
 const STUDENT_NUMBER_PAGE_SIZE = 25
 // oxlint-disable-next-line i18next/no-literal-string
-const WAITING_QUERY = "?state=pending_student_number"
+const WAITING_QUERY = "?state=pending"
 // oxlint-disable-next-line i18next/no-literal-string
 const ADMIN_MANUAL = "admin_manual"
 // oxlint-disable-next-line i18next/no-literal-string
@@ -60,37 +59,24 @@ const UnlinkButton: React.FC<{ verifiedStudentNumberId: string; number: string }
   number,
 }) => {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
-  const mutation = useToastMutation(
-    (fields: { reason: string }) =>
+  const { button, dialog } = useReasonConfirmAction({
+    mutationFn: (fields) =>
       adminUnlinkStudentNumber({
         path: { verified_student_number_id: verifiedStudentNumberId },
         body: { reason: fields.reason },
       }),
-    { notify: true, method: "POST" },
-    {
-      onSuccess: () => {
-        setOpen(false)
-        // Unlinking recomputes preconditions synchronously, so registration state moves too.
-        void invalidateAfterLinkingChange()
-      },
-    },
-  )
+    // Unlinking recomputes preconditions synchronously, so registration state moves too.
+    invalidate: () => void invalidateAfterLinkingChange(),
+    buttonLabel: t("button-text-unlink"),
+    dialogTitle: t("button-text-unlink"),
+    dialogMessage: t("credit-registration-admin-unlink-warning", { number }),
+  })
 
   return (
     <>
-      <Button variant="tertiary" size="medium" onClick={() => setOpen(true)}>
-        {t("button-text-unlink")}
-      </Button>
-      <ReasonConfirmDialog
-        open={open}
-        onClose={() => setOpen(false)}
-        title={t("button-text-unlink")}
-        message={t("credit-registration-admin-unlink-warning", { number })}
-        isPending={mutation.isPending}
-        onConfirm={(reason) => mutation.mutate({ reason })}
-      />
+      {button}
+      {dialog}
     </>
   )
 }
@@ -385,18 +371,15 @@ const StaleAddressSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }
               header: t("label-credit-registration-addresses-tried"),
               cell: (row) => (
                 <ul className={listCss}>
-                  {row.addresses.map((address, index) => {
-                    const status = row.send_statuses[index] ?? SEND_FAILED
-                    return (
-                      <li key={address}>
-                        {address}
-                        {MIDDLE_DOT}
-                        <Badge tone={status === SEND_FAILED ? TONE.WARNING : TONE.NEUTRAL}>
-                          {sendStatusLabel(t, status)}
-                        </Badge>
-                      </li>
-                    )
-                  })}
+                  {row.sends.map((send) => (
+                    <li key={send.address}>
+                      {send.address}
+                      {MIDDLE_DOT}
+                      <Badge tone={send.send_status === SEND_FAILED ? TONE.WARNING : TONE.NEUTRAL}>
+                        {sendStatusLabel(t, send.send_status)}
+                      </Badge>
+                    </li>
+                  ))}
                 </ul>
               ),
             },

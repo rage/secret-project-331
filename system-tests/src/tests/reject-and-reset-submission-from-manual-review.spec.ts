@@ -2,6 +2,7 @@ import type { BrowserContext, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { waitForExerciseServiceIframeToBeStable } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
@@ -189,8 +190,17 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/manage/courses/5158f2c6-98d9-4be9-b372-528f2c736dd7/exercises",
     )
     await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
-    await teacherPage.getByRole("button", { name: "Set points to 0" }).click()
-    await teacherPage.getByRole("checkbox", { name: "Reset answer" }).check()
+    // The grading form sits under the answer's iframe, which reports its height in a burst after
+    // the page renders. A press landing mid-reflow is lost: react-aria cancels a press whose
+    // pointerup happens over a different element, while Playwright still reports the click as done.
+    // Waiting for the frame removes the known reflow; re-pressing covers the ones it cannot.
+    await waitForExerciseServiceIframeToBeStable(teacherPage, "example-exercise", 1)
+    const resetAnswer = teacherPage.getByRole("checkbox", { name: "Reset answer" })
+    await expect(async () => {
+      await teacherPage.getByRole("button", { name: "Set points to 0" }).click()
+      await expect(resetAnswer).toBeVisible()
+    }).toPass({ timeout: 15_000 })
+    await resetAnswer.check()
     await teacherPage
       .getByRole("textbox", { name: "Feedback for student (optional)" })
       .fill(teacherFeedbackText)

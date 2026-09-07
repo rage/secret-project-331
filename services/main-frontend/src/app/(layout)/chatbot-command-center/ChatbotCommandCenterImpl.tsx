@@ -9,7 +9,7 @@ import type { ChatbotConversation } from "@/generated/course-material-api/types.
 import { baseTheme } from "@/shared-module/common/styles"
 
 import NewConversationDialog from "./NewConversationDialog"
-import SideBar from "./SideBar"
+import Sidebar from "./Sidebar"
 
 const gridContainer = css`
   display: grid;
@@ -50,7 +50,7 @@ const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
 
   return (
     <div className={gridContainer}>
-      <SideBar
+      <Sidebar
         setChatbotDialog={setChatbotDialog}
         conversations={conversations}
         chatbots={chatbots}

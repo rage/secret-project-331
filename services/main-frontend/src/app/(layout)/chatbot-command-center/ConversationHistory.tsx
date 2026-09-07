@@ -57,7 +57,6 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
   setConfigurationId,
 }) => {
   const { t } = useTranslation()
-
   const { setConvId } = useChatbotContext()
   return (
     <>
@@ -67,7 +66,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
             padding: 0 1rem;
           `}
         >
-          <Infobox tone="info">No previous conversations exist</Infobox>
+          <Infobox tone="info">There are no previous conversations.</Infobox>
         </div>
       ) : (
         conversations.map((conversation) => (
@@ -119,54 +118,6 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
           </Button>
         ))
       )}
-      {/* {conversations.map((conversation) => (
-        <Button
-          size="medium"
-          variant="icon"
-          onClick={() => {
-            setConfigurationId(conversation.chatbot_configuration_id)
-            setConvId(conversation.id)
-            if (menuState) {
-              menuState.close()
-            }
-          }}
-          className={buttonCss}
-          key={conversation.id}
-          aria-label={t("select-conversation", { title: conversation.conversation_title })}
-        >
-          <div
-            className={css`
-              display: flex;
-              flex-direction: column;
-              align-items: flex-start;
-              font-size: 14px;
-              font-weight: 500;
-            `}
-          >
-            <div
-              className={css`
-                white-space: nowrap;
-                // 400px is the width of the sidebar
-                max-width: calc(400px - 2rem);
-                overflow: hidden;
-                text-overflow: ellipsis;
-                padding-bottom: 5px;
-              `}
-            >
-              {conversation.conversation_title !== null
-                ? conversation.conversation_title
-                : // oxlint-disable-next-line i18next/no-literal-string
-                  "untitled conversation"}
-            </div>
-            <span className={chatbotLabelCss}>
-              {
-                chatbots.find((chatbot) => chatbot.id === conversation.chatbot_configuration_id)
-                  ?.chatbot_name
-              }
-            </span>
-          </div>
-        </Button>
-      ))} */}
     </>
   )
 }

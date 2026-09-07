@@ -123,10 +123,26 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
         <div
           className={css`
             display: flex;
+            align-items: baseline;
             justify-content: space-between;
+
+            flex-direction: ${!state.isExpanded ? "column-reverse" : "row"};
+
+            @media (max-width: 767.98px) {
+              flex-direction: column-reverse;
+            }
           `}
         >
-          <div>
+          <div
+            className={css`
+              display: flex;
+              flex-direction: ${!state.isExpanded ? "column" : "row"};
+              align-items: center;
+              @media (max-width: 767.98px) {
+                flex-direction: column;
+              }
+            `}
+          >
             <OnlyRenderIfPermissions
               action={{ type: "edit" }}
               resource={{ type: "global_permissions" }}

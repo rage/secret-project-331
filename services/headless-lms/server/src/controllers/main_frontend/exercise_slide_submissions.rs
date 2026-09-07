@@ -27,11 +27,13 @@ GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info"`- Re
         (status = 200, description = "Exercise slide submission info", body = ExerciseSlideSubmissionInfo)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_submission_info(
     submission_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ExerciseSlideSubmissionInfo>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -54,6 +56,8 @@ async fn get_submission_info(
         submission.user_id,
         models_requests::fetch_service_info,
         true,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await?;
 

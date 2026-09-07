@@ -2137,7 +2137,10 @@ export const fetchPeerOrSelfReviewDataByExerciseIdOptions = (
  * "exercise_task_answers": [
  * {
  * "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
- * "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
+ * "answer": {
+ * "kind": "json",
+ * "data": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
+ * }
  * }
  * ]
  * }

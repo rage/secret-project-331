@@ -31,6 +31,12 @@ const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
       type: "string",
       default: undefined,
     },
+    // Kept here rather than inside private_spec, which the CMS never parses: the backend needs the
+    // ids to know the files are still in use, and stores them in a table of its own.
+    private_spec_files: {
+      type: "array",
+      default: [],
+    },
     show_editor: {
       type: "boolean",
       default: false,

@@ -20,12 +20,14 @@ Receives a grading update from an exercise service.
         (status = 200, description = "Grading update applied")
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn grading_update(
     submission_id: web::Path<Uuid>,
     grading_result: web::Json<ExerciseTaskGradingResult>,
     grading_update_claim: GradingUpdateClaim,
     pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<()>> {
     // accessed from exercise services, can't authenticate using login,
     // the upload claim is used to verify requests instead
@@ -36,7 +38,14 @@ async fn grading_update(
     verify_claim_matches_submission(*submission_id, grading_update_claim.submission_id())?;
 
     let mut conn = pool.acquire().await?;
-    apply_grading_update(&mut conn, *submission_id, &grading_result).await?;
+    apply_grading_update(
+        &mut conn,
+        *submission_id,
+        &grading_result,
+        file_store.as_ref(),
+        app_conf.as_ref(),
+    )
+    .await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -61,8 +70,16 @@ async fn apply_grading_update(
     conn: &mut PgConnection,
     submission_id: Uuid,
     grading_result: &ExerciseTaskGradingResult,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<(), ControllerError> {
-    let submission = models::exercise_task_submissions::get_submission(conn, submission_id).await?;
+    let submission = models::exercise_task_submissions::get_submission(
+        conn,
+        submission_id,
+        file_store,
+        app_conf,
+    )
+    .await?;
     let slide =
         models::exercise_slides::get_exercise_slide(conn, submission.exercise_slide_id).await?;
     let grading =
@@ -152,9 +169,15 @@ mod tests {
         let submission_id =
             insert_task_submission(&mut tx, user, course, exercise, slide, task).await;
 
-        let err = apply_grading_update(tx.as_mut(), submission_id, &grading_result())
-            .await
-            .expect_err("a submission without a grading row must be rejected");
+        let err = apply_grading_update(
+            tx.as_mut(),
+            submission_id,
+            &grading_result(),
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect_err("a submission without a grading row must be rejected");
         assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
         let value = error_body(err);
         assert!(
@@ -185,9 +208,15 @@ mod tests {
         .await
         .unwrap();
 
-        apply_grading_update(tx.as_mut(), submission_id, &grading_result())
-            .await
-            .expect("the grading update should be applied");
+        apply_grading_update(
+            tx.as_mut(),
+            submission_id,
+            &grading_result(),
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect("the grading update should be applied");
 
         let grading = models::exercise_task_gradings::get_by_id(tx.as_mut(), grading_id)
             .await
@@ -203,9 +232,15 @@ mod tests {
     #[actix_web::test]
     async fn update_for_an_unknown_submission_is_an_error() {
         insert_data!(:tx);
-        apply_grading_update(tx.as_mut(), Uuid::new_v4(), &grading_result())
-            .await
-            .expect_err("an unknown submission id must not succeed");
+        apply_grading_update(
+            tx.as_mut(),
+            Uuid::new_v4(),
+            &grading_result(),
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect_err("an unknown submission id must not succeed");
     }
 
     /// Inserts a slide submission + task submission and returns the task submission id, which is
@@ -239,7 +274,9 @@ mod tests {
             slide_submission.id,
             slide,
             task,
-            &serde_json::Value::Null,
+            &models::library::grading::SubmittedAnswer::Json {
+                data: serde_json::Value::Null,
+            },
         )
         .await
         .unwrap()

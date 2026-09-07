@@ -22,9 +22,9 @@
             "name": "application_task",
             "kind": {
               "Enum": [
-                "cms-paragraph-suggestion",
                 "content-cleaning",
                 "message-suggestion",
+                "cms-paragraph-suggestion",
                 "sisu-description-summary",
                 "prompt-creation"
               ]
@@ -102,9 +102,9 @@
             "name": "application_task",
             "kind": {
               "Enum": [
-                "cms-paragraph-suggestion",
                 "content-cleaning",
                 "message-suggestion",
+                "cms-paragraph-suggestion",
                 "sisu-description-summary",
                 "prompt-creation"
               ]

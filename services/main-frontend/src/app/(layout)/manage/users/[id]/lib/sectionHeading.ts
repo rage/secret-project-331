@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
-/** Shared style for the page's section headings — Inter (not the legacy Raleway), tighter scale. */
+/** Shared style for the page's section headings, on a tighter scale than the global heading sizes. */
 export const sectionHeadingCss = css`
   margin: 0 0 0.75rem;
   font-family: ${primaryFont};

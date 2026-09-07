@@ -41,16 +41,13 @@ importers:
       '@fontsource-variable/inter':
         specifier: ^5.3.0
         version: 5.3.0
+      '@fontsource/commit-mono':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource/inter':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/raleway':
-        specifier: ^5.3.0
-        version: 5.3.0
       '@fontsource/roboto-mono':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource/space-mono':
         specifier: ^5.3.0
         version: 5.3.0
       '@fortawesome/fontawesome-free':
@@ -1162,17 +1159,14 @@ packages:
   '@fontsource-variable/inter@5.3.0':
     resolution: {integrity: sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA==}
 
+  '@fontsource/commit-mono@5.3.0':
+    resolution: {integrity: sha512-Bs+zlEWHDgk/cCVWEMJJaA7LbBU3Ixi5Zums+SSwMKdm2N7RJ4P7jCJTwsMHRt5WFiXYB0tu0q9HMfkn0YsLsQ==}
+
   '@fontsource/inter@5.3.0':
     resolution: {integrity: sha512-RofMylZmjlJEfELXeNHFWBRcSs75rGU/6bV2S2jfnvv/3rPXPGe0LgUJTklcHZ9lM4OZmAVFhcJPnACfb91A3g==}
 
-  '@fontsource/raleway@5.3.0':
-    resolution: {integrity: sha512-BTWr1I14Ji0DWpS/KCIq/CXcvxXWgMO73gynWpbYv7A5wlPhLevozgRmdPJvZmUf0fhH+Lju+F4nigJ6Ums24A==}
-
   '@fontsource/roboto-mono@5.3.0':
     resolution: {integrity: sha512-yhwplHMHW9dCk+1pZuERfcJe+K3rosGVZEoK0XktkxRSqQ9qsipSwwiuW2/8Qmtp9lzu3Ixa/ie4BMH3i8CkZQ==}
-
-  '@fontsource/space-mono@5.3.0':
-    resolution: {integrity: sha512-FrpBMOVWn3PRdRHlrZWC55X3kZG/2BTH7SM5ZyS/bky3iKya2BturI5lk+t0RoDQL2JyHzURsVq/EisCsxpI5A==}
 
   '@fortawesome/fontawesome-common-types@7.3.1':
     resolution: {integrity: sha512-k0C0sdHmZtAo6dRDtd1Z/qcpyHbL0CKsjV8seMY/21xGhY5Wsv0XRmiI/xEEH4y2c9b1+jvgNs/3EqhV27yUEA==}
@@ -6582,13 +6576,11 @@ snapshots:
 
   '@fontsource-variable/inter@5.3.0': {}
 
+  '@fontsource/commit-mono@5.3.0': {}
+
   '@fontsource/inter@5.3.0': {}
 
-  '@fontsource/raleway@5.3.0': {}
-
   '@fontsource/roboto-mono@5.3.0': {}
-
-  '@fontsource/space-mono@5.3.0': {}
 
   '@fortawesome/fontawesome-common-types@7.3.1': {}
 
@@ -11568,10 +11560,9 @@ time:
   '@emotion/react@11.14.0': '2024-12-09T08:43:27.996Z'
   '@emotion/styled@11.14.1': '2025-06-26T10:49:15.752Z'
   '@fontsource-variable/inter@5.3.0': '2026-07-19T03:50:25.793Z'
+  '@fontsource/commit-mono@5.3.0': '2026-07-19T03:48:28.058Z'
   '@fontsource/inter@5.3.0': '2026-07-19T03:40:13.819Z'
-  '@fontsource/raleway@5.3.0': '2026-07-19T03:45:34.357Z'
   '@fontsource/roboto-mono@5.3.0': '2026-07-19T03:45:49.869Z'
-  '@fontsource/space-mono@5.3.0': '2026-07-19T03:46:52.213Z'
   '@fortawesome/fontawesome-free@7.3.1': '2026-07-15T18:06:36.921Z'
   '@fortawesome/fontawesome-svg-core@7.3.1': '2026-07-15T18:06:10.121Z'
   '@fortawesome/free-regular-svg-icons@7.3.1': '2026-07-15T18:11:03.146Z'

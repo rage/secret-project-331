@@ -22,6 +22,7 @@ import type {
   MessageToIframe,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import { uploadFilesFromExerciseServiceEditor } from "@/utils/uploadFilesFromExerciseIframe"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
@@ -32,15 +33,16 @@ const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
 const IFRAME_EDITOR = "IFRAME EDITOR"
 
 interface ExerciseTaskIFrameEditorProps {
+  exerciseServiceSlug: string
   exerciseTaskId: string
-  onPrivateSpecChange: (newSpec: string) => void
+  onPrivateSpecChange: (newSpec: string, specFiles: string[] | undefined) => void
   privateSpec: string | null
   url: string | null | undefined
 }
 
 const ExerciseTaskIFrameEditor: React.FC<
   React.PropsWithChildren<ExerciseTaskIFrameEditorProps>
-> = ({ exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
+> = ({ exerciseServiceSlug, exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
   const { t } = useTranslation()
   const dialog = useDialog()
   const loginStateContext = useContext(LoginStateContext)
@@ -84,8 +86,43 @@ const ExerciseTaskIFrameEditor: React.FC<
       onMessageFromIframe={async (messageContainer, responsePort) => {
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
-            // oxlint-disable-next-line typescript/no-explicit-any
-            onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
+            // The declared files travel beside the spec rather than inside it, because the host
+            // stores the spec as an opaque blob and cannot look for ids in it.
+            onPrivateSpecChange(
+              // oxlint-disable-next-line typescript/no-explicit-any
+              JSON.stringify((messageContainer.data as any).private_spec),
+              // Sorted because the unsaved-changes check deep-compares block attributes: declaring
+              // the same files in another order than they load in would leave the page dirty
+              // forever. Undefined stays undefined — it means "leave the declaration alone", and
+              // flattening it to [] would release the files the spec still references.
+              messageContainer.private_spec_files?.toSorted(),
+            )
+          }
+          if (messageContainer.message === "file-upload") {
+            let response: MessageToIframe
+            try {
+              const files = await uploadFilesFromExerciseServiceEditor(
+                exerciseServiceSlug,
+                messageContainer.files,
+              )
+              response = {
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: "upload-result",
+                requestId: messageContainer.requestId,
+                success: true,
+                files,
+              }
+            } catch (e) {
+              response = {
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: "upload-result",
+                requestId: messageContainer.requestId,
+                success: false,
+                error: e instanceof Error ? e.message : String(e),
+              }
+            }
+            // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
+            responsePort.postMessage(response)
           }
           if (messageContainer.message === "request-repository-exercises") {
             if (courseId) {

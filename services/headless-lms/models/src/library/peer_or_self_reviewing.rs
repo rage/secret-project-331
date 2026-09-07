@@ -462,6 +462,8 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     exercise: &Exercise,
     reviewer_user_exercise_state: &UserExerciseState,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
     let peer_or_self_review_config = peer_or_self_review_configs::get_by_exercise_or_course_id(
         conn,
@@ -481,6 +483,8 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
             reviewer_user_exercise_state.user_id,
             exercise.id,
             fetch_service_info,
+            file_store,
+            app_conf,
         )
         .await?;
 
@@ -541,6 +545,8 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         reviewer_user_exercise_state.user_id,
         exercise.id,
         fetch_service_info,
+        file_store,
+        app_conf,
     )
     .await?;
 
@@ -553,6 +559,8 @@ pub async fn select_own_submission_for_self_review(
     exercise: &Exercise,
     reviewer_user_exercise_state: &UserExerciseState,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
     let peer_or_self_review_config = peer_or_self_review_configs::get_by_exercise_or_course_id(
         conn,
@@ -574,6 +582,8 @@ pub async fn select_own_submission_for_self_review(
         reviewer_user_exercise_state.user_id,
         exercise.id,
         fetch_service_info,
+        file_store,
+        app_conf,
     )
     .await?;
 
@@ -696,6 +706,7 @@ async fn try_to_select_peer_review_candidate_from_queue_impl(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn get_course_material_peer_or_self_review_data(
     conn: &mut PgConnection,
     peer_or_self_review_config: &PeerOrSelfReviewConfig,
@@ -703,6 +714,8 @@ async fn get_course_material_peer_or_self_review_data(
     reviewer_user_id: Uuid,
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
     let peer_or_self_review_questions =
         peer_or_self_review_questions::get_all_by_peer_or_self_review_config_id(
@@ -727,7 +740,9 @@ async fn get_course_material_peer_or_self_review_data(
                 exercise_slide_submission_id,
                 reviewer_user_id,
                  fetch_service_info,
-                 false
+                 false,
+                 file_store,
+                 app_conf,
             ).await?;
             Some(CourseMaterialPeerOrSelfReviewDataAnswerToReview {
                 exercise_slide_submission_id,

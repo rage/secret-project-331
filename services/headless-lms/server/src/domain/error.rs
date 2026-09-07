@@ -102,6 +102,11 @@ impl UnauthorizedReason {
     }
 }
 
+/// Builds a 422 whose `message_key` the client keys its error handling on.
+pub fn bad_request_with_reason(reason: BadRequestReason, message: String) -> ControllerError {
+    controller_err!(BadRequestWithReason(reason), message)
+}
+
 /// Bad request reasons a client can branch on. Only `CourseSlugAlreadyTaken` has a web-frontend
 /// translation; the rest are consumed by the VSCode client, which renders its own message.
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]

@@ -1,10 +1,12 @@
 use std::{env, error::Error, sync::Arc, time::Duration};
 
+use crate::config::FileStoreRuntimeConfig;
 use crate::config::program_config::ProgramConfig;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::programs::periodic_worker::{
     PeriodicWorkerConfig, is_db_disconnect, run_periodic_worker,
 };
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models as models;
 use models::library::regrading;
 use sqlx::PgPool;
@@ -20,6 +22,9 @@ pub async fn main() -> anyhow::Result<()> {
     let db_url = ProgramConfig::database_url_with_default();
     let jwt_password = secrecy::SecretString::new(ProgramConfig::required("JWT_PASSWORD")?.into());
     let jwt_key = Arc::new(JwtKey::new(&jwt_password)?);
+    let app_conf = ApplicationConfiguration::try_from_env()?;
+    let file_store =
+        crate::setup_file_store(&FileStoreRuntimeConfig::try_from_env()?, &app_conf.base_url).await;
 
     // Since this is repeating every 10 seconds we can keep the connection open.
     let db_pool = PgPool::connect(&db_url).await?;
@@ -44,7 +49,12 @@ pub async fn main() -> anyhow::Result<()> {
             if let Err(err) = regrading::regrade(
                 &mut conn,
                 &exercise_services_by_type,
-                models_requests::make_grading_request_sender(Arc::clone(&jwt_key)),
+                models_requests::make_grading_request_sender(
+                    Arc::clone(&jwt_key),
+                    app_conf.base_url.clone(),
+                ),
+                file_store.as_ref(),
+                &app_conf,
             )
             .await
             {

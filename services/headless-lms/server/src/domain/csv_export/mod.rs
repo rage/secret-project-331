@@ -169,7 +169,7 @@ HttpResponse::Ok()
 ```
 */
 pub fn make_authorized_streamable(
-    stream: UnboundedReceiverStream<Result<AuthorizedResponse<bytes::Bytes>, ControllerError>>,
+    stream: impl Stream<Item = Result<AuthorizedResponse<bytes::Bytes>, ControllerError>>,
 ) -> impl Stream<Item = Result<bytes::Bytes, ControllerError>> {
     stream.map(|item| item.map(|item2| item2.data))
 }
@@ -442,15 +442,16 @@ mod test {
         let mut exercise_with_user_state =
             ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
         let jwt_key = Arc::new(JwtKey::test_key());
+        let app_conf = crate::test_helper::init_app_conf().expect("app conf");
         headless_lms_models::library::grading::grade_user_submission(
             tx,
             &mut exercise_with_user_state,
             &StudentExerciseSlideSubmission {
                 exercise_slide_id: ex_slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: et,
-                    data_json: Value::Null,
-                }],
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    et,
+                    Value::Null,
+                )],
             },
             GradingPolicy::Fixed(HashMap::from([(
                 et,
@@ -464,7 +465,9 @@ mod test {
                 },
             )])),
             models_requests::fetch_service_info,
-            models_requests::make_grading_request_sender(jwt_key),
+            models_requests::make_grading_request_sender(jwt_key, app_conf.base_url.clone()),
+            &crate::test_helper::init_file_store(),
+            &app_conf,
         )
         .await
         .unwrap();

@@ -4,7 +4,7 @@
 
 import { css } from "@emotion/css"
 import React from "react"
-import { useDateFormatter, useLocale } from "react-aria"
+import { useLocale } from "react-aria"
 
 import { ABSENT_LABEL } from "../lib/displayConstants"
 
@@ -15,11 +15,10 @@ export interface RelativeTimeProps {
    * Where the absolute date and time goes.
    *
    * - `inline` (the default) prints it beside the relative distance.
-   * - `compact` prints it alone, short enough for a table column: day and month plus the time
-   *   within the current year, day, month and year before that. Use it wherever the reader is
-   *   reconciling a record rather than watching it move.
-   * - `date` prints day, month and year only, never a time — for a completion or registration
-   *   date, where the time of day is noise the reader has to read past.
+   * - `compact` prints it alone, without the zone suffix, short enough for a table column. Use it
+   *   wherever the reader is reconciling a record rather than watching it move.
+   * - `date` prints the date only, never a time — for a completion or registration date, where
+   *   the time of day is noise the reader has to read past.
    * - `duration` prints the elapsed span instead of a point in time, e.g. "26 d" or "3 h 12 min"
    *   — for a value the reader is comparing against a threshold or watching move, where an
    *   absolute timestamp would make them do the subtraction by hand. The full date sits in
@@ -68,6 +67,34 @@ function formatRelativeDistance(at: Date, locale: string): string {
     duration /= limit
   }
   return formatter.format(Math.round(duration), "years")
+}
+
+/**
+ * Timestamps in the project's format rather than the locale's: `Intl`'s date styles render a
+ * Finnish September as "7. syysk. klo 12.10", which is not a format this project shows anywhere.
+ *
+ * These reproduce `dateToString` and `formatDateForDateInputs` from the common package's
+ * `utils/time`. This package depends on neither common nor date-fns, so the two sides only stay in
+ * step by being changed together.
+ */
+const pad = (value: number): string => String(value).padStart(2, "0")
+
+/** `2026-09-07`, as `formatDateForDateInputs` returns. */
+function formatIsoDate(at: Date): string {
+  return `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}`
+}
+
+/** `2026-09-07 12:10:45`, as `dateToString(at, false)` returns. */
+function formatTimestamp(at: Date): string {
+  return `${formatIsoDate(at)} ${pad(at.getHours())}:${pad(at.getMinutes())}:${pad(at.getSeconds())}`
+}
+
+/** The same, plus the offset `dateToString` appends: `2026-09-07 12:10:45 UTC+03:00`. */
+function formatTimestampWithZone(at: Date): string {
+  const offsetMinutes = -at.getTimezoneOffset()
+  const sign = offsetMinutes < 0 ? "-" : "+"
+  const absolute = Math.abs(offsetMinutes)
+  return `${formatTimestamp(at)} UTC${sign}${pad(Math.floor(absolute / 60))}:${pad(absolute % 60)}`
 }
 
 type DurationUnit = "day" | "hour" | "minute" | "second"
@@ -137,15 +164,6 @@ const absoluteTimeCss = css`
  */
 export const RelativeTime: React.FC<RelativeTimeProps> = ({ at, absoluteTime = "inline" }) => {
   const { locale } = useLocale()
-  const absoluteFormatter = useDateFormatter({ dateStyle: "medium", timeStyle: "short" })
-  const compactThisYearFormatter = useDateFormatter({
-    day: "numeric",
-    month: "short",
-    hour: "numeric",
-    minute: "2-digit",
-  })
-  // Also the "compact" branch's fallback for a year other than the current one.
-  const dateFormatter = useDateFormatter({ day: "numeric", month: "short", year: "numeric" })
 
   if (!at) {
     return <span>{ABSENT_LABEL}</span>
@@ -156,22 +174,20 @@ export const RelativeTime: React.FC<RelativeTimeProps> = ({ at, absoluteTime = "
   if (absoluteTime === "date") {
     return (
       <time className={nowrapCss} dateTime={at}>
-        {dateFormatter.format(date)}
+        {formatIsoDate(date)}
       </time>
     )
   }
 
   if (absoluteTime === "compact") {
-    const isThisYear = date.getFullYear() === new Date().getFullYear()
-    const formatter = isThisYear ? compactThisYearFormatter : dateFormatter
     return (
       <time className={nowrapCss} dateTime={at}>
-        {formatter.format(date)}
+        {formatTimestamp(date)}
       </time>
     )
   }
 
-  const absoluteLabel = absoluteFormatter.format(date)
+  const absoluteLabel = formatTimestampWithZone(date)
 
   if (absoluteTime === "duration") {
     return (

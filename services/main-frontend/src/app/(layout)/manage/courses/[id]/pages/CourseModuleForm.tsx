@@ -276,7 +276,7 @@ const StudyRegistryReadOnly: React.FC<{ fields: CreditRegistrationModuleFields }
           },
         ]}
       />
-      <h4 className={subheadingCss}>{t("heading-credit-registration-sisu-course-instances")}</h4>
+      <h2 className={subheadingCss}>{t("heading-credit-registration-sisu-course-instances")}</h2>
       {fields.realisations.length === 0 ? (
         <p className={noteCss}>{t("credit-registration-no-sisu-course-instances")}</p>
       ) : (

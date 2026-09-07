@@ -14,7 +14,7 @@ import CreditRegistrationStatusCell, {
   CREDIT_REGISTRATION_CELL_CHROME_PX,
   creditRegistrationCellText,
 } from "@/components/credit-registration/CreditRegistrationStatusCell"
-import { noteCss, sectionCss, sectionsCss } from "@/components/credit-registration/styles"
+import { sectionsCss } from "@/components/credit-registration/styles"
 import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
 import {
   creditRegistrationKey,
@@ -335,39 +335,34 @@ export const CompletionsTabContent: React.FC = () => {
           onSelectView={setRegistrationView}
         />
       )}
+      {/* Adding a completion by hand is the one way to seed a roster, so the actions outlive the
+          empty state rather than appearing only once somebody has completed something. */}
+      <CompletionsActions courseId={courseId} courseInstanceId={courseInstanceId} />
       {isRosterEmpty ? (
         <EmptyState
           title={t("credit-registration-completions-empty-title")}
           action={
-            !courseInstanceId || canSeeCreditRegistrations ? (
-              <div className={sectionCss}>
-                {!courseInstanceId && (
-                  <p className={noteCss}>{t("completions-export-needs-an-instance")}</p>
-                )}
-                {canSeeCreditRegistrations && <CreditRegistrationSetupNote courseId={courseId} />}
-              </div>
+            canSeeCreditRegistrations ? (
+              <CreditRegistrationSetupNote courseId={courseId} />
             ) : undefined
           }
         />
       ) : (
-        <>
-          <CompletionsActions courseId={courseId} courseInstanceId={courseInstanceId} />
-          <QueryResults
-            queries={queries}
-            treatEmptyAsData
-            refreshIndicator={QUIET_REFRESH}
-            renderData={() => (
-              <StaleTableWrapper isStale={isStale}>
-                <StudentsTable
-                  columns={columns}
-                  data={data}
-                  sorting={sorting}
-                  onSortingChange={onSortingChange}
-                />
-              </StaleTableWrapper>
-            )}
-          />
-        </>
+        <QueryResults
+          queries={queries}
+          treatEmptyAsData
+          refreshIndicator={QUIET_REFRESH}
+          renderData={() => (
+            <StaleTableWrapper isStale={isStale}>
+              <StudentsTable
+                columns={columns}
+                data={data}
+                sorting={sorting}
+                onSortingChange={onSortingChange}
+              />
+            </StaleTableWrapper>
+          )}
+        />
       )}
     </div>
   )

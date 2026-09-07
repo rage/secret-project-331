@@ -33,11 +33,11 @@ import {
 export type LinkAppearance = "text" | "quiet" | "inherit"
 
 const plainLinkBaseCss = css`
-  color: var(--color-green-700);
+  color: var(--link-fg);
   text-underline-offset: 0.15em;
 
   &:hover {
-    color: var(--color-green-800);
+    color: var(--link-fg-hover);
   }
 
   &:focus-visible {

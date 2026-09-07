@@ -599,7 +599,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                     )}
                     {moduleChapters.length > 0 && (
                       <div className={subsectionCss}>
-                        <h4 className={subheadingCss}>{t("heading-module-chapters")}</h4>
+                        <h2 className={subheadingCss}>{t("heading-module-chapters")}</h2>
                         <ul className={dividedListCss}>
                           {moduleChapters.map((c) => (
                             <li key={c.id}>

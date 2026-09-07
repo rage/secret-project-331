@@ -52,7 +52,7 @@ test.describe("Course metadata generation", () => {
         page
           .locator("form")
           .filter({ hasText: "Edit module" })
-          .getByPlaceholder("University of Helsinki course"),
+          .getByLabel("University of Helsinki course code"),
       ).toHaveValue("TEST002")
       await page
         .locator("form")
@@ -63,7 +63,7 @@ test.describe("Course metadata generation", () => {
         page
           .locator("form")
           .filter({ hasText: "Default" })
-          .getByPlaceholder("University of Helsinki course"),
+          .getByLabel("University of Helsinki course code"),
       ).toHaveValue("")
     })
 
@@ -84,7 +84,7 @@ test.describe("Course metadata generation", () => {
       await page
         .locator("form")
         .filter({ hasText: "Default" })
-        .getByPlaceholder("University of Helsinki course")
+        .getByLabel("University of Helsinki course code")
         .fill("TEST001")
       await page
         .locator("form")

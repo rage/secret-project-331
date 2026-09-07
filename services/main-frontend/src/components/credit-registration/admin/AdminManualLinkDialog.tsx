@@ -217,13 +217,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
     preview?.found === true && preview.sisu_person_id !== null && chosenAccount !== null
 
   const submit = handleSubmit((values) => linkMutation.mutate(values))
-  const actions: readonly [DialogAction, DialogAction] = [
-    {
-      label: t("button-text-cancel"),
-      variant: BUTTON_TERTIARY,
-      disabled: linkMutation.isPending,
-      onPress: onClose,
-    },
+  const actions: readonly [DialogAction] = [
     {
       label: t("credit-registration-admin-manual-link-confirm"),
       variant: BUTTON_PRIMARY,

@@ -237,6 +237,11 @@ const inlineValueCss = css`
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  /* Reserves the width of the longest short value and right-aligns inside it, so a column of
+     these starts every track at the same x rather than stepping with the digit count. A value
+     longer than the reservation still takes the room it needs. */
+  min-width: 4ch;
+  text-align: right;
 `
 
 const inlineSecondaryCss = css`

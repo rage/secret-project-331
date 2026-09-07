@@ -3,12 +3,11 @@
 import { css, cx } from "@emotion/css"
 import React, { useState } from "react"
 import type { Control, FieldValues } from "react-hook-form"
-import { useTranslation } from "react-i18next"
 
 import type { ButtonVariant, DialogAction } from "@/shared-module/components"
 import { Button, Dialog } from "@/shared-module/components"
 
-import { BUTTON_DESTRUCTIVE, BUTTON_PRIMARY, BUTTON_TERTIARY } from "../constants"
+import { BUTTON_DESTRUCTIVE, BUTTON_PRIMARY } from "../constants"
 import { dialogFormCss, dialogFormStartCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { useReasonRequiredForm } from "./ReasonConfirmDialog"
@@ -58,7 +57,6 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
   renderFields,
   renderResult,
 }: AdminActionDialogProps<Fields, Result>) {
-  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const { control, handleSubmit } = useReasonRequiredForm<Fields>(defaultValues)
 
@@ -68,13 +66,7 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
   })
 
   const submit = handleSubmit((fields) => mutation.mutate(fields))
-  const actions: readonly [DialogAction, DialogAction] = [
-    {
-      label: t("button-text-cancel"),
-      variant: BUTTON_TERTIARY,
-      disabled: mutation.isPending,
-      onPress: () => setOpen(false),
-    },
+  const actions: readonly [DialogAction] = [
     {
       label: confirmLabel,
       variant: isDestructive ? BUTTON_DESTRUCTIVE : BUTTON_PRIMARY,

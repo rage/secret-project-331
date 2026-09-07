@@ -104,12 +104,12 @@ const badgeRowCss = css`
 
 const chevronCss = css`
   flex: none;
-  color: var(--color-green-700);
+  color: var(--link-fg);
 `
 
 // The reason is the most useful text in the row, so it is not shrunk below the cell's own size.
 const reasonCss = css`
-  color: var(--color-green-700);
+  color: var(--link-fg);
   text-underline-offset: 0.15em;
 `
 

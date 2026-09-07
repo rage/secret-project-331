@@ -19,6 +19,11 @@ export const tokensGlobal = injectGlobal`
     --font-size-md: var(--font-size-2);
     --font-size-lg: var(--font-size-3);
 
+    /* stacking order. A dropdown or tooltip portals to the body as a sibling of the dialog it
+       was opened from, not a descendant, so its layer has to clear the dialog's own. */
+    --z-dialog: 1000;
+    --z-popover: 1500;
+
     /* spacing scale. A new step is inserted as a half step; renumbering would move every caller. */
     --space-0: 0px;
     --space-1: 2px;
@@ -178,6 +183,11 @@ export const tokensGlobal = injectGlobal`
 
     --gradient-green: linear-gradient(to bottom right, #075854, #4de2c5);
     --gradient-blue: linear-gradient(-70deg, #020344 0%, #28b8d5 100%);
+
+    /* link. Blue, not the brand green: a green link is read as a status in a table of statuses,
+       and every other link in the app is blue. */
+    --link-fg: var(--color-blue-700);
+    --link-fg-hover: var(--color-blue-800);
 
     /* primary */
     --btn-primary-bg: var(--color-green-600);

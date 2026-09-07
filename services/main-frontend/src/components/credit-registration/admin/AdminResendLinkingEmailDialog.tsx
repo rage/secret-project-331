@@ -12,7 +12,7 @@ import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, BUTTON_TERTIARY, MIDDLE_DOT, TONE } from "../constants"
+import { BUTTON_PRIMARY, MIDDLE_DOT, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
@@ -79,13 +79,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   }
 
   const submit = handleSubmit((fields) => mutation.mutate(fields))
-  const actions: readonly [DialogAction, DialogAction] = [
-    {
-      label: t("button-text-cancel"),
-      variant: BUTTON_TERTIARY,
-      disabled: mutation.isPending,
-      onPress: closeDialog,
-    },
+  const actions: readonly [DialogAction] = [
     {
       label: t("button-text-resend-linking-email"),
       variant: BUTTON_PRIMARY,

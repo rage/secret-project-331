@@ -64,7 +64,9 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "automatic-completion-registration-page",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Register completion")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("heading", { name: "Get these credits into Sisu" }),
+    ],
   })
 
   await page.getByText("To the registration form").click()

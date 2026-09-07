@@ -66,7 +66,7 @@ const CLOSE_SYMBOL = "×"
 const underlayCss = css`
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: var(--z-dialog);
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
@@ -200,7 +200,8 @@ const actionCss = css`
  * closes. Reflows without horizontal overflow down to 320px viewports.
  *
  * The footer is either arbitrary `footer` content or an `actions` row of buttons described as
- * data, which share the footer width evenly. A dialog whose body is a form should submit through
+ * data; two or more share the footer width evenly, a lone action keeps its own width at the end of
+ * the row. A dialog whose body is a form should submit through
  * `actions`, not a button rendered in `children` — `actions` is what positions, sizes, and stacks
  * it consistently on narrow screens. For a confirm/cancel action pair, prefer the `ConfirmDialog`
  * preset over assembling `actions` by hand.
@@ -286,7 +287,12 @@ const OpenDialog: React.FC<DialogProps> = ({
           {actions !== undefined && (
             <div className={footerCss}>
               {actions.map(({ label, ...buttonProps }, index) => (
-                <Button key={index} {...buttonProps} size="medium" className={actionCss}>
+                <Button
+                  key={index}
+                  {...buttonProps}
+                  size="medium"
+                  className={cx(actions.length > 1 && actionCss)}
+                >
                   {label}
                 </Button>
               ))}

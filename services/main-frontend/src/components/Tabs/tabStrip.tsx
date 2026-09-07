@@ -37,6 +37,24 @@ export const tabStripCss = css`
   border-radius: 8px;
 `
 
+/**
+ * Stretches the strip across its container and lets its tabs share the width evenly.
+ *
+ * Opt-in, because `tabStripCss`'s content width is deliberate: a segmented control that picks a
+ * view should not span the page. A strip that *is* a page's primary navigation is the other case —
+ * spanning the content column reads as the page's own chrome rather than as a stray control.
+ */
+export const tabStripFullWidthCss = css`
+  width: 100%;
+
+  /* Pills size to their labels, which on a full-width strip leaves dead space at the end rather
+     than an even row. They still refuse to shrink below their label, so a strip too narrow for its
+     tabs keeps scrolling instead of squashing them. */
+  > * {
+    flex: 1 1 auto;
+  }
+`
+
 export const tabStripVerticalCss = css`
   flex-direction: column;
   width: auto;
@@ -198,11 +216,13 @@ export function useScrollSelectedTabIntoView(
 const tabStripClassName = (
   orientation: "horizontal" | "vertical",
   overflow: StripOverflow,
+  fullWidth: boolean,
   className: string | undefined,
 ): string =>
   cx(
     tabStripCss,
     orientation === "vertical" ? tabStripVerticalCss : tabStripFadeCss(overflow),
+    fullWidth && orientation === "horizontal" && tabStripFullWidthCss,
     className,
   )
 
@@ -214,6 +234,8 @@ export interface TabStripProps {
    * `RouteTabList` variants can just pass `state.selectedKey`, which tracks it either way.
    */
   selectedKey: React.Key | null | undefined
+  /** Span the container and share the width between the tabs; see `tabStripFullWidthCss`. */
+  fullWidth?: boolean
   className?: string | undefined
   children: React.ReactNode
 }
@@ -227,6 +249,7 @@ export const TabStrip: React.FC<TabStripProps> = ({
   state,
   orientation,
   selectedKey,
+  fullWidth = false,
   className,
   children,
 }) => {
@@ -244,7 +267,7 @@ export const TabStrip: React.FC<TabStripProps> = ({
     <div
       {...tabListProps}
       ref={stripRef}
-      className={tabStripClassName(orientation, overflow, className)}
+      className={tabStripClassName(orientation, overflow, fullWidth, className)}
     >
       {children}
     </div>

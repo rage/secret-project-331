@@ -2,11 +2,15 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQueryClient } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { markFeedbackAsReadMutation } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCourseFeedbackCountQueryKey,
+  markFeedbackAsReadMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
 import Accordion from "@/shared-module/common/components/Accordion"
@@ -18,6 +22,7 @@ import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 
 export interface FeedbackViewProps {
+  courseId: string
   feedback: Feedback
   setRead: (read: boolean) => void
 }
@@ -35,10 +40,12 @@ const TextInformationWrapper = styled.div`
 `
 
 const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
+  courseId,
   feedback,
   setRead,
 }) => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
 
   const pageInfo = usePageInfo(feedback.page_id ?? null)
 
@@ -49,9 +56,13 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
       method: "POST",
     },
     {
-      onSuccess: async () => {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: getCourseFeedbackCountQueryKey({ path: { course_id: courseId } }),
+        })
+
         const toggled = !feedback.marked_as_read
-        await setRead(toggled)
+        setRead(toggled)
       },
     },
   )

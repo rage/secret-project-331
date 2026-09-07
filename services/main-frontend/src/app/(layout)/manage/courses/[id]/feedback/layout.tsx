@@ -9,12 +9,11 @@ import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBrea
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
-import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
-import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
+import createFeedbackEditProposalCountsHook from "@/hooks/count/useUnreadFeedbackCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
-  manageCourseChangeRequestsRoute,
+  manageCourseFeedbackRoute,
   manageCourseFeedbackFeedbackRoute,
   manageCourseFeedbackChangeRequestsRoute,
 } from "@/shared-module/common/utils/routes"
@@ -26,22 +25,24 @@ export default function FeedbackLayout({ children }: { children: React.ReactNode
   const params = useParams<{ id: string }>()
   const courseId = params.id
   const { t } = useTranslation()
-  const feedbackCountHook = createUnreadFeedbackCountHook(courseId)
-  const changeRequestCountHook = createPendingChangeRequestCountHook(courseId)
+  // oxlint-disable-next-line i18next/no-literal-string
+  const feedbackCountHook = createFeedbackEditProposalCountsHook(courseId, "feedback")
+  // oxlint-disable-next-line i18next/no-literal-string
+  const changeRequestCountHook = createFeedbackEditProposalCountsHook(courseId, "change_requests")
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
   const crumbs = useMemo(
     () => [
       {
         isLoading: false as const,
-        label: t("title-change-requests"),
-        href: manageCourseChangeRequestsRoute(courseId),
+        label: t("title-feedback"),
+        href: manageCourseFeedbackRoute(courseId),
       },
     ],
     [courseId, t],
   )
 
-  useRegisterBreadcrumbs({ key: `course:${courseId}:change-requests`, order: 30, crumbs })
+  useRegisterBreadcrumbs({ key: `course:${courseId}:feedback`, order: 30, crumbs })
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     return [

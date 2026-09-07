@@ -12,8 +12,7 @@ import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTab
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
-import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
-import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
+import createFeedbackEditProposalCountsHook from "@/hooks/count/useUnreadFeedbackCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
@@ -85,9 +84,8 @@ export default function CourseManagementLayout({ children }: { children: React.R
 
   useRegisterBreadcrumbs({ key: `course:${courseId}`, order: 20, crumbs })
 
-  const feedbackCountHook = createUnreadFeedbackCountHook(courseId)
-  // todo combine counts
-  const changeRequestCountHook = createPendingChangeRequestCountHook(courseId)
+  // oxlint-disable-next-line i18next/no-literal-string
+  const feedbackCountHook = createFeedbackEditProposalCountsHook(courseId, "both")
   const answersCountHook = useCountAnswersRequiringAttentionHook(courseId)
   const flaggedCheaterCountHook = createFlaggedSuspectedCheaterCountHook(courseId)
 

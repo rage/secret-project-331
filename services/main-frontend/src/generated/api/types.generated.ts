@@ -2976,9 +2976,15 @@ export type FeedbackBlock = {
   text?: string | null
 }
 
-export type FeedbackCount = {
-  read: number
-  unread: number
+export type FeedbackEditProposalCounts = {
+  handled_edits: number
+  pending_edits: number
+  read_feedback: number
+  /**
+   * pending edits + unread feedback
+   */
+  total_waiting: number
+  unread_feedback: number
 }
 
 export type FlaggedAnswer = {
@@ -4031,11 +4037,6 @@ export type Points = {
     [key: string]: PointMap
   }
   users: Array<UserDetail>
-}
-
-export type ProposalCount = {
-  handled: number
-  pending: number
 }
 
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
@@ -7182,9 +7183,9 @@ export type GetCourseFeedbackCountData = {
 
 export type GetCourseFeedbackCountResponses = {
   /**
-   * Feedback counts for the course
+   * Feedback and edit proposal counts for the course
    */
-  200: FeedbackCount
+  200: FeedbackEditProposalCounts
 }
 
 export type GetCourseFeedbackCountResponse =
@@ -12390,28 +12391,6 @@ export type GetEditProposalsResponses = {
 }
 
 export type GetEditProposalsResponse = GetEditProposalsResponses[keyof GetEditProposalsResponses]
-
-export type GetEditProposalCountData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/proposed-edits/course/{course_id}/count"
-}
-
-export type GetEditProposalCountResponses = {
-  /**
-   * Edit proposal counts
-   */
-  200: ProposalCount
-}
-
-export type GetEditProposalCountResponse =
-  GetEditProposalCountResponses[keyof GetEditProposalCountResponses]
 
 export type ProcessEditProposalData = {
   body: EditProposalInfo

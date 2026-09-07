@@ -4,17 +4,13 @@ import { useParams } from "next/navigation"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
-import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
+import createFeedbackEditProposalCountsHook from "@/hooks/count/useUnreadFeedbackCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import {
-  manageCourseFeedbackFeedbackRoute,
-  manageCourseFeedbackRoute,
-} from "@/shared-module/common/utils/routes"
+import { manageCourseFeedbackFeedbackRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const KEY_UNREAD = "unread"
@@ -24,21 +20,9 @@ function FeedbackFeedbackLayout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>()
   const courseId = params.id
   const { t } = useTranslation()
-  const unreadCountHook = createUnreadFeedbackCountHook(courseId)
+  // oxlint-disable-next-line i18next/no-literal-string
+  const unreadCountHook = createFeedbackEditProposalCountsHook(courseId, "feedback")
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
-
-  const crumbs = useMemo(
-    () => [
-      {
-        isLoading: false as const,
-        label: t("title-feedback"),
-        href: manageCourseFeedbackRoute(courseId),
-      },
-    ],
-    [courseId, t],
-  )
-
-  useRegisterBreadcrumbs({ key: `course:${courseId}:feedback`, order: 30, crumbs })
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     return [

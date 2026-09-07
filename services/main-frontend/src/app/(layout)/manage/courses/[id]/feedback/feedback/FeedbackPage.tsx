@@ -51,6 +51,7 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
           {data.map((f) => (
             <li key={f.id}>
               <FeedbackView
+                courseId={courseId}
                 feedback={f}
                 setRead={async () => {
                   await getFeedbackList.refetch()

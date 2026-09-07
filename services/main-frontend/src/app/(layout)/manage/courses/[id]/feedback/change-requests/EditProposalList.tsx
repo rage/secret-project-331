@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { getEditProposalCountOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getCourseFeedbackCountOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
@@ -25,7 +25,7 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
   const paginationInfo = usePaginationInfo()
 
   const getEditProposalCount = useQuery({
-    ...getEditProposalCountOptions({
+    ...getCourseFeedbackCountOptions({
       path: {
         course_id: courseId,
       },
@@ -35,7 +35,7 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
   return (
     <QueryResult query={getEditProposalCount}>
       {(data) => {
-        const items = pending ? data.pending : data.handled
+        const items = pending ? data.pending_edits : data.handled_edits
         if (items <= 0) {
           return <div>{t("no-change-requests")}</div>
         }

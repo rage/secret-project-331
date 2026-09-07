@@ -30,7 +30,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   return (
     <QueryResult query={getFeedbackCount}>
       {(data) => {
-        const items = read ? data.read : data.unread
+        const items = read ? data.read_feedback : data.unread_feedback
         if (items <= 0) {
           return <div>{t("no-feedback")}</div>
         }

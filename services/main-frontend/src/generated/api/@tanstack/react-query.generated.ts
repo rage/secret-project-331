@@ -204,7 +204,6 @@ import {
   getCreditRegistrationStatsByCourse,
   getCreditRegistrationThresholds,
   getCurrentTime,
-  getEditProposalCount,
   getEditProposals,
   getEmailTemplates,
   getEmailVerificationCodeForTestMode,
@@ -740,8 +739,6 @@ import type {
   GetCreditRegistrationThresholdsResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
-  GetEditProposalCountData,
-  GetEditProposalCountResponse,
   GetEditProposalsData,
   GetEditProposalsResponse,
   GetEmailTemplatesData,
@@ -10612,30 +10609,6 @@ export const getEditProposalsInfiniteOptions = (options: Options<GetEditProposal
   )
   return opts as Omit<typeof opts, "initialData">
 }
-
-export const getEditProposalCountQueryKey = (options: Options<GetEditProposalCountData>) =>
-  createQueryKey("getEditProposalCount", options)
-
-/**
- *
- * GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
- */
-export const getEditProposalCountOptions = (options: Options<GetEditProposalCountData>) =>
-  queryOptions<
-    GetEditProposalCountResponse,
-    DefaultError,
-    GetEditProposalCountResponse,
-    ReturnType<typeof getEditProposalCountQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getEditProposalCount({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getEditProposalCountQueryKey(options),
-  })
 
 /**
  *

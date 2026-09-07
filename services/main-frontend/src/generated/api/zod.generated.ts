@@ -2919,12 +2919,24 @@ export const zFeedback = z.object({
   user_id: z.uuid().nullish(),
 })
 
-export const zFeedbackCount = z.object({
-  read: z
+export const zFeedbackEditProposalCounts = z.object({
+  handled_edits: z
     .int()
     .gte(0)
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  unread: z
+  pending_edits: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  read_feedback: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  total_waiting: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  unread_feedback: z
     .int()
     .gte(0)
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
@@ -3996,17 +4008,6 @@ export const zPodInfo = z.object({
 })
 
 export const zPointMap = z.record(z.string(), z.number())
-
-export const zProposalCount = z.object({
-  handled: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  pending: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-})
 
 export const zProposalStatus = z.enum(["Pending", "Accepted", "Rejected"])
 
@@ -6956,9 +6957,9 @@ export const zGetCourseFeedbackCountPath = z.object({
 })
 
 /**
- * Feedback counts for the course
+ * Feedback and edit proposal counts for the course
  */
-export const zGetCourseFeedbackCountResponse = zFeedbackCount
+export const zGetCourseFeedbackCountResponse = zFeedbackEditProposalCounts
 
 export const zGetCourseAudiencesPath = z.object({
   course_id: z.uuid(),
@@ -9103,15 +9104,6 @@ export const zGetEditProposalsQuery = z.object({
  * Edit proposals
  */
 export const zGetEditProposalsResponse = z.array(zPageProposal)
-
-export const zGetEditProposalCountPath = z.object({
-  course_id: z.uuid(),
-})
-
-/**
- * Edit proposal counts
- */
-export const zGetEditProposalCountResponse = zProposalCount
 
 export const zProcessEditProposalBody = zEditProposalInfo
 

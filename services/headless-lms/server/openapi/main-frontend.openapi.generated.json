@@ -3683,11 +3683,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Feedback counts for the course",
+            "description": "Feedback and edit proposal counts for the course",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FeedbackCount"
+                  "$ref": "#/components/schemas/FeedbackEditProposalCounts"
                 }
               }
             }
@@ -11937,37 +11937,6 @@
                   "items": {
                     "$ref": "#/components/schemas/PageProposal"
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/proposed-edits/course/{course_id}/count": {
-      "get": {
-        "tags": ["proposed_edits"],
-        "summary": "\nGET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.",
-        "operationId": "getEditProposalCount",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Edit proposal counts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProposalCount"
                 }
               }
             }
@@ -21816,16 +21785,38 @@
           }
         }
       },
-      "FeedbackCount": {
+      "FeedbackEditProposalCounts": {
         "type": "object",
-        "required": ["read", "unread"],
+        "required": [
+          "read_feedback",
+          "unread_feedback",
+          "pending_edits",
+          "handled_edits",
+          "total_waiting"
+        ],
         "properties": {
-          "read": {
+          "handled_edits": {
             "type": "integer",
             "format": "int32",
             "minimum": 0
           },
-          "unread": {
+          "pending_edits": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "read_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total_waiting": {
+            "type": "integer",
+            "format": "int32",
+            "description": "pending edits + unread feedback",
+            "minimum": 0
+          },
+          "unread_feedback": {
             "type": "integer",
             "format": "int32",
             "minimum": 0
@@ -24994,22 +24985,6 @@
             "items": {
               "$ref": "#/components/schemas/UserDetail"
             }
-          }
-        }
-      },
-      "ProposalCount": {
-        "type": "object",
-        "required": ["pending", "handled"],
-        "properties": {
-          "handled": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "pending": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
           }
         }
       },

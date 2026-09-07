@@ -66,7 +66,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
             padding: 0 1rem;
           `}
         >
-          <Infobox tone="info">There are no previous conversations.</Infobox>
+          <Infobox tone="info">{t("no-existing-conversations")}</Infobox>
         </div>
       ) : (
         conversations.map((conversation) => (

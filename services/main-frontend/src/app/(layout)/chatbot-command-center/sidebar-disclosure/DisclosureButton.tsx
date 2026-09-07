@@ -18,7 +18,7 @@ const disclosureButton = css`
   border: none;
   box-shadow: none;
   text-shadow: none;
-  padding: 0 12px;
+  padding: 12px 16px;
 
   ${respondToOrLarger.md} {
     display: none;

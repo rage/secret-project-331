@@ -13,7 +13,7 @@ import Sidebar from "./Sidebar"
 
 const gridContainer = css`
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   margin: 0 1rem;
   gap: 0.5rem;
   // remove navbar height and add 1rem of space to top and bottom

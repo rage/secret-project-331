@@ -37,29 +37,13 @@ const sideBarContainerCss = css`
   padding: 0;
   box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
   max-width: 400px;
+  min-width: 50px;
   // Applied when disclosure is open
   &:has(> [data-expanded]) {
     overflow-y: auto;
     overflow-x: hidden;
   }
 `
-
-const disclosureButtonCss = css`
-  background: none;
-  border: none;
-  box-shadow: none;
-  text-shadow: none;
-  padding: 12px 16px;
-  border-radius: 12px;
-  &[data-hovered] {
-    background: #f3f4f6;
-    cursor: pointer;
-  }
-  @media (max-width: 767.98px) {
-    display: none !important;
-  }
-`
-
 const dropdownMenuCss = css`
   background: none;
   border-width: medium;
@@ -78,11 +62,27 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
 
   let buttonRef = useRef<HTMLButtonElement>(null)
   let panelRef = useRef<HTMLDivElement>(null)
-  let state = useDisclosureState(props)
-  let { buttonProps, panelProps } = useDisclosure(props, state, panelRef)
+  let state = useDisclosureState({ defaultExpanded: true })
+  let { buttonProps, panelProps } = useDisclosure({}, state, panelRef)
   let { buttonProps: pressProps, isPressed } = useButton(buttonProps, buttonRef)
   let { hoverProps, isHovered } = useHover({})
   let { focusProps, isFocusVisible } = useFocusRing()
+
+  const disclosureButtonCss = css`
+    background: none;
+    border: none;
+    box-shadow: none;
+    text-shadow: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    &[data-hovered] {
+      background: #f3f4f6;
+      cursor: pointer;
+    }
+    @media (max-width: 767.98px) {
+      display: none !important;
+    }
+  `
 
   let items: DropdownMenuItem[] = [
     {

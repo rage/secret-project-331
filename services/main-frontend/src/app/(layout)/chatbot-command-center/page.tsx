@@ -53,7 +53,6 @@ const ChatbotCommandCenterPage: React.FC = () => {
       <div
         className={css`
           margin-top: 1rem;
-          display: flex;
         `}
       ></div>
       <QueryResults

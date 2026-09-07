@@ -2137,6 +2137,7 @@
   "no-data": "No data",
   "no-description-available": "No description available",
   "no-exercise-resets": "No exercises have been reset for this user.",
+  "no-existing-conversations": "There are no existing conversations",
   "no-feedback": "No feedback",
   "no-module-completions-yet": "No module completions yet.",
   "no-peer-reviews-given": "No given peer reviews",

@@ -628,7 +628,7 @@ async fn conversation_info(
                 message_suggest_llm,
                 current_conversation_messages,
                 chatbot_configuration.initial_suggested_messages,
-                course_name,
+                Some(course_name.to_owned()),
                 course_description,
             )
             .await?

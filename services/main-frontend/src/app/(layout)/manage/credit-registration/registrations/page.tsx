@@ -12,7 +12,7 @@ import {
   useCreditRegistrationOverview,
   useCreditRegistrationThresholds,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
+import AdminStateLabel from "@/components/credit-registration/admin/AdminStateLabel"
 import {
   ALL_STATES,
   BUCKET_OF_STATE,
@@ -52,8 +52,10 @@ import {
   monospaceCss,
   noteCss,
   rowCss,
-  sectionCss,
+  sectionCardCss,
+  sectionCardsCss,
   stackedCellCss,
+  toolbarCheckboxCss,
 } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationErrorCode,
@@ -163,11 +165,6 @@ const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
 const searchCss = css`
   min-width: 20rem;
   flex: 1 1 20rem;
-`
-
-/** Centers an inline checkbox against the taller floating-label selects beside it in the toolbar. */
-const checkboxAlignCss = css`
-  align-self: center;
 `
 
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
@@ -316,243 +313,256 @@ const RegistrationsPage: React.FC = () => {
   const clearEveryFilter = () => clearFilters([...NARROWING_PARAMS, PARAM_SEARCH])
 
   return (
-    <section className={sectionCss}>
-      <form
-        className={controlsCss}
-        onSubmit={handleSubmit((fields) => applyParams({ [PARAM_SEARCH]: fields.search.trim() }))}
-      >
-        <div className={searchCss}>
-          <TextField
-            name="search"
-            control={control}
-            label={t("credit-registration-admin-search-label")}
-            description={t("credit-registration-admin-search-description")}
-            iconEnd={<MagnifyingGlass size={SEARCH_ICON_SIZE} />}
-          />
-        </div>
-      </form>
-      <div className={controlsCss}>
-        <div className={controlCss}>
-          <Select
-            name="course_id"
-            control={control}
-            label={t("label-course")}
-            options={[
-              { value: NONE, label: t("credit-registration-admin-any-course") },
-              ...courseOptions,
-            ]}
-            searchEnabled
-          />
-        </div>
-        <div className={controlCss}>
-          <MultiSelect
-            name="states"
-            control={control}
-            label={t("label-state")}
-            placeholder={t("credit-registration-admin-any-state")}
-            items={stateOptions}
-            getItemKey={(option) => option.state}
-            getItemTextValue={(option) => option.label}
-          />
-        </div>
-        <div className={controlCss}>
-          <MultiSelect
-            name="errorCodes"
-            control={control}
-            label={t("label-error-code")}
-            placeholder={t("credit-registration-admin-any-error-code")}
-            items={errorCodeOptions}
-            getItemKey={(option) => option.code}
-            getItemTextValue={(option) => option.label}
-          />
-        </div>
-        <div className={controlCss}>
-          <Select
-            name="sort"
-            control={control}
-            label={t("credit-registration-admin-sort")}
-            options={[
-              {
-                value: SORT_LAST_ACTIVITY,
-                label: t("credit-registration-admin-sort-last-activity"),
-              },
-              {
-                value: SORT_TIME_IN_STATE,
-                label: t("credit-registration-admin-sort-time-in-state"),
-              },
-              { value: SORT_ATTEMPTS, label: t("credit-registration-admin-sort-attempts") },
-              { value: SORT_CREATED, label: t("credit-registration-admin-sort-created") },
-            ]}
-          />
-        </div>
-        <div className={checkboxAlignCss}>
-          <Checkbox
-            name="attention"
-            control={control}
-            isInline
-            label={t("credit-registration-admin-only-needs-attention")}
-          />
-        </div>
-        <div className={checkboxAlignCss}>
-          <Checkbox
-            name="superseded"
-            control={control}
-            isInline
-            label={t("credit-registration-admin-show-superseded")}
-          />
-        </div>
-      </div>
-      {chipFilters.length > 0 && (
-        <div className={rowCss}>
-          {chipFilters.map(({ name, value }) => (
-            <Chip
-              key={`${name}:${value}`}
-              onRemove={() => applyParams({ [name]: params(name).filter((one) => one !== value) })}
-              removeLabel={t("credit-registration-admin-remove-filter", {
-                filter: labelFrom(t, FILTER_LABEL_KEYS, name, name),
-                value,
-              })}
-            >
-              {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${chipValue(name, value)}`}
-            </Chip>
-          ))}
-        </div>
-      )}
-      <QueryResult query={registrationsQuery} refreshIndicator={QUIET_REFRESH}>
-        {(page) =>
-          page.data.length === 0 ? (
-            <EmptyState
-              title={t("credit-registration-admin-no-matching-rows")}
-              // Nothing to clear when nothing is filtered, and a button that does nothing is worse
-              // than no button.
-              {...includeIf(activeFilters.length > 0, {
-                hint: t("credit-registration-admin-filters-in-use", {
-                  filters: activeFilters.join(MIDDLE_DOT),
-                }),
-                action: (
-                  <Button variant={BUTTON_TERTIARY} size="medium" onClick={clearEveryFilter}>
-                    {t("button-text-clear-filters")}
-                  </Button>
-                ),
-              })}
+    <div className={sectionCardsCss}>
+      {/* No card header: this page is one card, and the layout's h1 already names it — a title
+          here would only repeat it. The table keeps the same string as its caption. */}
+      <section className={sectionCardCss}>
+        <form
+          className={controlsCss}
+          onSubmit={handleSubmit((fields) => applyParams({ [PARAM_SEARCH]: fields.search.trim() }))}
+        >
+          <div className={searchCss}>
+            <TextField
+              name="search"
+              control={control}
+              label={t("credit-registration-admin-search-label")}
+              description={t("credit-registration-admin-search-description")}
+              iconEnd={<MagnifyingGlass size={SEARCH_ICON_SIZE} />}
             />
-          ) : (
-            <>
-              <p className={noteCss}>
-                {t("credit-registration-admin-row-count", { count: page.total_count })}
-              </p>
-              <Table
-                caption={t("credit-registration-heading-registrations")}
-                density={DENSITY_COMPACT}
-                rowKey={(row) => row.id}
-                rows={page.data}
-                responsive={TABLE_STACK}
-                stickyFirstColumn
-                rowHover
-                columns={[
-                  {
-                    header: t("label-student"),
-                    minWidth: "16rem",
-                    cell: (row) => (
-                      <StudentCell row={row} href={creditRegistrationItemRoute(row.id)} />
-                    ),
-                  },
-                  {
-                    header: t("label-student-number"),
-                    minWidth: "7rem",
-                    nowrap: true,
-                    cell: (row) => {
-                      const number = row.verified_student_number ?? row.student_number
-                      return number === null || number === undefined ? (
-                        <span className={noteCss}>{t("credit-registration-admin-not-linked")}</span>
-                      ) : (
-                        <span className={monospaceCss}>{number}</span>
-                      )
+          </div>
+        </form>
+        <div className={controlsCss}>
+          <div className={controlCss}>
+            <Select
+              name="course_id"
+              control={control}
+              label={t("label-course")}
+              options={[
+                { value: NONE, label: t("credit-registration-admin-any-course") },
+                ...courseOptions,
+              ]}
+              searchEnabled
+            />
+          </div>
+          <div className={controlCss}>
+            <MultiSelect
+              name="states"
+              control={control}
+              label={t("label-state")}
+              placeholder={t("credit-registration-admin-any-state")}
+              items={stateOptions}
+              getItemKey={(option) => option.state}
+              getItemTextValue={(option) => option.label}
+            />
+          </div>
+          <div className={controlCss}>
+            <MultiSelect
+              name="errorCodes"
+              control={control}
+              label={t("label-error-code")}
+              placeholder={t("credit-registration-admin-any-error-code")}
+              items={errorCodeOptions}
+              getItemKey={(option) => option.code}
+              getItemTextValue={(option) => option.label}
+            />
+          </div>
+          <div className={controlCss}>
+            <Select
+              name="sort"
+              control={control}
+              label={t("credit-registration-admin-sort")}
+              options={[
+                {
+                  value: SORT_LAST_ACTIVITY,
+                  label: t("credit-registration-admin-sort-last-activity"),
+                },
+                {
+                  value: SORT_TIME_IN_STATE,
+                  label: t("credit-registration-admin-sort-time-in-state"),
+                },
+                { value: SORT_ATTEMPTS, label: t("credit-registration-admin-sort-attempts") },
+                { value: SORT_CREATED, label: t("credit-registration-admin-sort-created") },
+              ]}
+            />
+          </div>
+          <div className={toolbarCheckboxCss}>
+            <Checkbox
+              name="attention"
+              control={control}
+              isInline
+              label={t("credit-registration-admin-only-needs-attention")}
+            />
+          </div>
+          <div className={toolbarCheckboxCss}>
+            <Checkbox
+              name="superseded"
+              control={control}
+              isInline
+              label={t("credit-registration-admin-show-superseded")}
+            />
+          </div>
+        </div>
+        {chipFilters.length > 0 && (
+          <div className={rowCss}>
+            {chipFilters.map(({ name, value }) => (
+              <Chip
+                key={`${name}:${value}`}
+                onRemove={() =>
+                  applyParams({ [name]: params(name).filter((one) => one !== value) })
+                }
+                removeLabel={t("credit-registration-admin-remove-filter", {
+                  filter: labelFrom(t, FILTER_LABEL_KEYS, name, name),
+                  value,
+                })}
+              >
+                {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${chipValue(name, value)}`}
+              </Chip>
+            ))}
+          </div>
+        )}
+        <QueryResult query={registrationsQuery} refreshIndicator={QUIET_REFRESH}>
+          {(page) =>
+            page.data.length === 0 ? (
+              <EmptyState
+                title={t("credit-registration-admin-no-matching-rows")}
+                // Nothing to clear when nothing is filtered, and a button that does nothing is worse
+                // than no button.
+                {...includeIf(activeFilters.length > 0, {
+                  hint: t("credit-registration-admin-filters-in-use", {
+                    filters: activeFilters.join(MIDDLE_DOT),
+                  }),
+                  action: (
+                    <Button variant={BUTTON_TERTIARY} size="medium" onClick={clearEveryFilter}>
+                      {t("button-text-clear-filters")}
+                    </Button>
+                  ),
+                })}
+              />
+            ) : (
+              <>
+                {page.total_pages < 2 && (
+                  <p className={noteCss}>
+                    {t("credit-registration-admin-row-count", { count: page.total_count })}
+                  </p>
+                )}
+                <Table
+                  caption={t("credit-registration-heading-registrations")}
+                  density={DENSITY_COMPACT}
+                  rowKey={(row) => row.id}
+                  rows={page.data}
+                  responsive={TABLE_STACK}
+                  stickyFirstColumn
+                  rowHover
+                  columns={[
+                    {
+                      header: t("label-student"),
+                      minWidth: "16rem",
+                      cell: (row) => (
+                        <StudentCell row={row} href={creditRegistrationItemRoute(row.id)} />
+                      ),
                     },
-                  },
-                  {
-                    header: t("label-course"),
-                    grow: 1,
-                    minWidth: "11rem",
-                    cell: (row) => (
-                      <span className={stackedCellCss}>
-                        <span>{row.course_name}</span>
-                        {manyModuleCourseIds.has(row.course_id) && (
-                          <span className={noteCss}>{row.course_module_name}</span>
-                        )}
-                      </span>
-                    ),
-                  },
-                  {
-                    header: t("label-state"),
-                    minWidth: "14rem",
-                    cell: (row) => {
-                      const threshold = thresholds
-                        ? stuckThresholdSecs(row.state, thresholds)
-                        : null
-                      const isStuck =
-                        threshold !== null && secondsSince(row.state_entered_at) > threshold
-                      const errorNote = registrationErrorNote(
-                        t,
-                        row.state,
-                        row.error_code,
-                        row.pending_reason,
-                      )
-                      return (
-                        <span className={stackedCellCss}>
-                          <span className={rowCss}>
-                            <AdminStateBadge
-                              state={row.state}
-                              pendingReason={row.pending_reason}
-                              superseded={row.superseded}
-                              attemptNumber={row.attempt_number}
-                            />
-                            {isStuck && (
-                              <Badge tone={TONE.DANGER} size={BADGE_COMPACT}>
-                                {t("label-credit-registration-stuck")}
-                              </Badge>
-                            )}
+                    {
+                      header: t("label-student-number"),
+                      minWidth: "7rem",
+                      nowrap: true,
+                      cell: (row) => {
+                        const number = row.verified_student_number ?? row.student_number
+                        return number === null || number === undefined ? (
+                          <span className={noteCss}>
+                            {t("credit-registration-admin-not-linked")}
                           </span>
-                          {errorNote && (
-                            <span className={noteCss}>
-                              {errorNote} <code className={monospaceCss}>{row.error_code}</code>
-                            </span>
+                        ) : (
+                          <span className={monospaceCss}>{number}</span>
+                        )
+                      },
+                    },
+                    {
+                      header: t("label-course"),
+                      grow: 1,
+                      minWidth: "11rem",
+                      cell: (row) => (
+                        <span className={stackedCellCss}>
+                          <span>{row.course_name}</span>
+                          {manyModuleCourseIds.has(row.course_id) && (
+                            <span className={noteCss}>{row.course_module_name}</span>
                           )}
                         </span>
-                      )
+                      ),
                     },
-                  },
-                  {
-                    header: t("label-credit-registration-last-activity"),
-                    minWidth: "9rem",
-                    nowrap: true,
-                    // A blocked row has never been attempted, but entering its current state
-                    // counts as its last activity, or "—" here would read as "nothing ever
-                    // happened".
-                    cell: (row) => {
-                      const at = row.last_attempt_at ?? row.state_entered_at
-                      return (
-                        <span className={stackedCellCss}>
-                          <RelativeTime at={at} absoluteTime={TIME_DURATION} />
-                          <span className={noteCss}>
-                            <RelativeTime at={at} absoluteTime={TIME_COMPACT} />
+                    {
+                      header: t("label-state"),
+                      minWidth: "14rem",
+                      cell: (row) => {
+                        const threshold = thresholds
+                          ? stuckThresholdSecs(row.state, thresholds)
+                          : null
+                        // A superseded row is frozen, not stalled: it already carries its own badge.
+                        const isStuck =
+                          !row.superseded &&
+                          threshold !== null &&
+                          secondsSince(row.state_entered_at) > threshold
+                        const errorNote = registrationErrorNote(
+                          t,
+                          row.state,
+                          row.error_code,
+                          row.pending_reason,
+                        )
+                        return (
+                          <span className={stackedCellCss}>
+                            <span className={rowCss}>
+                              <AdminStateLabel
+                                state={row.state}
+                                pendingReason={row.pending_reason}
+                                superseded={row.superseded}
+                                attemptNumber={row.attempt_number}
+                              />
+                              {isStuck && (
+                                <Badge tone={TONE.DANGER} size={BADGE_COMPACT}>
+                                  {t("label-credit-registration-stuck")}
+                                </Badge>
+                              )}
+                            </span>
+                            {errorNote && (
+                              <span className={noteCss}>
+                                {errorNote} <code className={monospaceCss}>{row.error_code}</code>
+                              </span>
+                            )}
                           </span>
-                        </span>
-                      )
+                        )
+                      },
                     },
-                  },
-                ]}
-              />
-              <Pagination
-                paginationInfo={paginationInfo}
-                totalPages={page.total_pages}
-                totalItems={page.total_count}
-              />
-            </>
-          )
-        }
-      </QueryResult>
-    </section>
+                    {
+                      header: t("label-credit-registration-last-activity"),
+                      minWidth: "9rem",
+                      nowrap: true,
+                      // A blocked row has never been attempted, but entering its current state
+                      // counts as its last activity, or "—" here would read as "nothing ever
+                      // happened".
+                      cell: (row) => {
+                        const at = row.last_attempt_at ?? row.state_entered_at
+                        return (
+                          <span className={stackedCellCss}>
+                            <RelativeTime at={at} absoluteTime={TIME_DURATION} />
+                            <span className={noteCss}>
+                              <RelativeTime at={at} absoluteTime={TIME_COMPACT} />
+                            </span>
+                          </span>
+                        )
+                      },
+                    },
+                  ]}
+                />
+                <Pagination
+                  paginationInfo={paginationInfo}
+                  totalPages={page.total_pages}
+                  totalItems={page.total_count}
+                />
+              </>
+            )
+          }
+        </QueryResult>
+      </section>
+    </div>
   )
 }
 

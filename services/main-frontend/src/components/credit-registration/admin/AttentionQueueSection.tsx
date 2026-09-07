@@ -46,10 +46,13 @@ import {
 import {
   controlCss,
   controlsCss,
+  headingCss,
   monospaceCss,
   noteCss,
   proseCss,
   rowCss,
+  sectionCardCss,
+  sectionCardHeaderCss,
   sectionCss,
   sectionHeaderCss,
   stackedCellCss,
@@ -66,7 +69,7 @@ import {
   useCreditRegistrationThresholds,
 } from "./adminCreditRegistrationHooks"
 import AdminRequeueRetryableDialog from "./AdminRequeueRetryableDialog"
-import AdminStateBadge from "./AdminStateBadge"
+import AdminStateLabel from "./AdminStateLabel"
 import FacetChip from "./FacetChip"
 import { secondsSince, stuckThresholdSecs } from "./stuckThreshold"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
@@ -247,7 +250,7 @@ const FacetChips: React.FC<{
 
 /**
  * The work queue: every live registration a detector picked, plus the ones the pipeline flagged
- * without one. Its length is the number the tab badge and the Overview tile show.
+ * without one. Its length is the number the tab badge shows.
  */
 const AttentionQueueSection: React.FC = () => {
   const { t } = useTranslation()
@@ -317,14 +320,10 @@ const AttentionQueueSection: React.FC = () => {
     filteredCount > items.length && filteredCount <= MAX_SELECT_ALL_ROWS && !isSelectingFacet
 
   return (
-    <section className={sectionCss}>
-      {attentionQuery.data && (
-        <p className={noteCss}>
-          {t("credit-registration-admin-queue-length", {
-            count: attentionQuery.data.total_count,
-          })}
-        </p>
-      )}
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-attention")}</h2>
+      </div>
       {attentionQuery.data && (
         <FacetChips
           attention={attentionQuery.data}
@@ -460,7 +459,7 @@ const AttentionQueueSection: React.FC = () => {
                           appearance={LINK_QUIET}
                           prefetch={false}
                         >
-                          <AdminStateBadge state={row.state} />
+                          <AdminStateLabel state={row.state} />
                         </Link>
                         {errorNote && (
                           <span className={noteCss}>

@@ -1,6 +1,7 @@
 import { BACKFILL_COURSE_ID, BACKFILL_COURSE_SLUG, ORIGIN } from "@/utils/creditRegistration"
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { runMaterializeTick, runPreconditionsTick } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
@@ -34,8 +35,9 @@ test.describe("The teacher opts the module in", () => {
     await page.getByLabel("Realisation id").last().fill(REALISATION_ID)
     // Done: this module's own card. Save changes: the page-level submit that persists it.
     await moduleForm.getByRole("button", { name: "Done" }).click()
-    await page.getByRole("button", { name: "Save changes" }).click()
-    await expect(page.getByText("Success").first()).toBeVisible()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save changes" }).click()
+    })
 
     await runMaterializeTick(page.request, { courseSlug: BACKFILL_COURSE_SLUG })
     // Materialize only creates the rows; ticking preconditions ourselves is what settles them —

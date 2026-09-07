@@ -98,15 +98,15 @@ const buildIdentityOptions = (courseId: string, params: StudentsListParams) => {
       limit: params.limit,
       sort_column: params.sortColumn,
       sort_direction: params.sortDirection,
-      ...(params.search ? { search: params.search } : {}),
-      ...(params.courseInstanceId ? { course_instance_id: params.courseInstanceId } : {}),
+      ...includeIf(params.search, { search: params.search }),
+      ...includeIf(params.courseInstanceId, { course_instance_id: params.courseInstanceId }),
       ...omitUndefined({ module_id: params.moduleId ?? undefined }),
       // `grade` is only meaningful alongside a module (enforced server-side too), so it never gets
       // sent on its own.
       ...includeIf(params.moduleId, omitUndefined({ grade: params.grade ?? undefined })),
-      ...(registrationStatuses.length > 0
-        ? { registration_status: [...registrationStatuses] }
-        : {}),
+      ...includeIf(registrationStatuses.length > 0, {
+        registration_status: [...registrationStatuses],
+      }),
     },
   })
 }

@@ -1,4 +1,12 @@
+import {
+  ArrowDownChartDecrease,
+  Layers,
+  Question,
+  Warning,
+  XmarkCircle,
+} from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
+import type React from "react"
 
 import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
 import type { BadgeTone } from "@/shared-module/components"
@@ -77,6 +85,21 @@ export const courseModuleStatusLabel = (t: TFunction, status: CourseModuleStatus
 /** The Courses tab's badge tone for a module verdict. */
 export const courseModuleStatusTone = (status: CourseModuleStatus): BadgeTone =>
   STATUS_TONES[status]
+
+type StatusIcon = React.ComponentType<{ size?: number; className?: string }>
+
+const STATUS_ICONS = {
+  broken_config: XmarkCircle,
+  config_warning: Warning,
+  double_registering: Layers,
+  failing: ArrowDownChartDecrease,
+  unchecked: Question,
+  ok: null,
+} as const satisfies Record<CourseModuleStatus, StatusIcon | null>
+
+/** The glyph beside a module's status text; `null` for "ok", which gets none at all. */
+export const courseModuleStatusIcon = (status: CourseModuleStatus): StatusIcon | null =>
+  STATUS_ICONS[status]
 
 /**
  * Which of a module's structured configuration checks is failing. `check.message` covers more

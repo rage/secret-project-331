@@ -55,6 +55,9 @@ export const BADGE_COMPACT = "compact" as const
 export const BUTTON_PRIMARY = "primary" as const
 export const BUTTON_SECONDARY = "secondary" as const
 
+/** `Button.size` for an action that sits inside a card or a row rather than under a form. */
+export const BUTTON_SMALL = "small" as const
+
 /** `Button.variant` for a control that reads as a link but changes what is on screen. */
 export const BUTTON_TERTIARY = "tertiary" as const
 

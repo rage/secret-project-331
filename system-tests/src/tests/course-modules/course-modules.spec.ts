@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -88,6 +89,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   await page.getByText("2. renamed module").waitFor()
 
   // save changes
-  await page.getByText("Save changes").click()
-  await page.getByText("Success").first().waitFor()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByText("Save changes").click()
+  })
 })

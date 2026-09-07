@@ -1,9 +1,6 @@
 import type { TFunction } from "i18next"
 
-import type { BadgeTone } from "@/shared-module/components"
 import { formatDuration } from "@/utils/moduleTimeline"
-
-import { TONE } from "../constants"
 
 const MINUTE_SECS = 60
 
@@ -34,7 +31,7 @@ export interface PhaseHealthFields {
   last_heartbeat_at?: string | null
 }
 
-/** What the System tab's status badge says. `paused` wins: a paused phase is not late, it is stopped. */
+/** What the System tab's status column says. `paused` wins: a paused phase is not late, it is stopped. */
 export const phaseHealth = (phase: PhaseHealthFields): PhaseHealth => {
   if (phase.paused_at) {
     return "paused"
@@ -63,22 +60,13 @@ const HEALTH_KEYS = {
   running: "credit-registration-admin-phase-running",
 } as const satisfies Record<PhaseHealth, string>
 
-// A phase somebody stopped on purpose must not look like one that is broken.
-const HEALTH_TONES = {
-  paused: TONE.NEUTRAL,
-  not_built: TONE.NEUTRAL,
-  failing: TONE.DANGER,
-  heartbeat_late: TONE.DANGER,
-  never_reported: TONE.NEUTRAL,
-  running: TONE.SUCCESS,
-} as const satisfies Record<PhaseHealth, BadgeTone>
-
-/** The System tab's badge text for a phase health. */
+/** The System tab's status text for a phase health. */
 export const phaseHealthLabel = (t: TFunction, health: PhaseHealth): string =>
   t(HEALTH_KEYS[health])
 
-/** The System tab's badge tone for a phase health. */
-export const phaseHealthTone = (health: PhaseHealth): BadgeTone => HEALTH_TONES[health]
+/** Whether a health should stand out in the phase list rather than read as ordinary. */
+export const isUnhealthyPhase = (health: PhaseHealth): boolean =>
+  health === "failing" || health === "heartbeat_late"
 
 /** How many phases are in each health, so a caller never names one health as a bare string. */
 export const countPhasesByHealth = (phases: PhaseHealthFields[]): Record<PhaseHealth, number> => {

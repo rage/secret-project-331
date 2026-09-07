@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { ChapterSelector } from "../utils/components/ChapterSelector"
@@ -96,7 +97,9 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     .getByPlaceholder("Completion registration link")
     .fill("https://www.example.com/override")
   await page.getByRole("button", { name: "Done" }).click()
-  await page.getByRole("button", { name: "Save changes" }).click()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save changes" }).click()
+  })
 
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")

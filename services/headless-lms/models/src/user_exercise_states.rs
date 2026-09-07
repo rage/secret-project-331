@@ -428,6 +428,7 @@ FROM exercises
   JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE exercises.course_id = ANY($1)
   AND exercises.deleted_at IS NULL
+  AND chapters.deleted_at IS NULL
   AND chapters.course_module_id IS NOT NULL
 GROUP BY chapters.course_module_id
         "#,
@@ -451,6 +452,8 @@ WHERE ues.course_id = ANY($1)
   AND ues.user_id = $2
   AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.deleted_at IS NULL
+  AND exercises.deleted_at IS NULL
+  AND chapters.deleted_at IS NULL
   AND chapters.course_module_id IS NOT NULL
 GROUP BY chapters.course_module_id
         "#,

@@ -98,6 +98,10 @@ const SISU_REQUIRED_FIELDS: Path<CourseModuleFormState>[] = ["uh_course_code", "
 
 const VALIDATE_ON_COMMIT = "validate" as const
 
+/** Realisation ids are validated as they are typed, so a bad one is caught before the save. */
+const VALIDATE_ON_CHANGE = "onChange" as const
+const REALISATIONS_FIELD = "credit_registration.realisations" as const
+
 interface CourseModuleFormState extends Omit<
   CourseModuleFormFields,
   "enable_registering_completion_to_uh_open_university" | "starts" | "ends"
@@ -329,8 +333,7 @@ const CourseModuleForm: React.FC<Props> = ({
     trigger,
     watch,
   } = useForm<CourseModuleFormState>({
-    // oxlint-disable-next-line i18next/no-literal-string
-    mode: "onChange",
+    mode: VALIDATE_ON_CHANGE,
     defaultValues: makeDefaultValues(module, chapters),
   })
   useEffect(() => {
@@ -338,8 +341,7 @@ const CourseModuleForm: React.FC<Props> = ({
   }, [reset, module, chapters])
   const realisations = useFieldArray({
     control,
-    // oxlint-disable-next-line i18next/no-literal-string
-    name: "credit_registration.realisations",
+    name: REALISATIONS_FIELD,
   })
 
   const registrationPath = watch("registration_path")

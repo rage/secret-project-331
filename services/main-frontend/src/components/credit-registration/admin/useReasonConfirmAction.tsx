@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import type { MenuItemDescriptor } from "@/shared-module/components"
 import { Button } from "@/shared-module/components"
 
@@ -64,7 +65,7 @@ export function useReasonConfirmAction({
     label: buttonLabel,
     isDisabled: mutation.isPending,
     onAction: () => setOpen(true),
-    ...(isDestructive ? { tone: DESTRUCTIVE_TONE } : {}),
+    ...includeIf(isDestructive, { tone: DESTRUCTIVE_TONE }),
   }
 
   const dialog = (

@@ -3,6 +3,7 @@
 import { useTranslation } from "react-i18next"
 
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   completionRegistrationRoute,
   userSettingsRoute,
@@ -82,9 +83,9 @@ export const useStudentRegistrationActions = ({
     onAct: () => recheckEnrolment.mutate(registration),
     isDisabled: !registration.can_request_enrolment_recheck,
     isLoading: recheckEnrolment.isPending,
-    ...(registration.can_request_enrolment_recheck
-      ? {}
-      : { disabledReason: t("credit-registration-enrolment-checked-recently") }),
+    ...includeIf(!registration.can_request_enrolment_recheck, {
+      disabledReason: t("credit-registration-enrolment-checked-recently"),
+    }),
   })
 
   const checkStudentNumberAction = (): RegistrationCardAction => ({
@@ -164,7 +165,7 @@ export const useStudentRegistrationActions = ({
           ? t("link-text-see-what-happened")
           : t("link-text-what-to-do"),
       href: completionRegistrationRoute(registration.course_module_id),
-      ...(promoteSupportMail ? { appearance: "link" as const } : {}),
+      ...includeIf(promoteSupportMail, { appearance: "link" as const }),
     })
   }
 

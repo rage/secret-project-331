@@ -1,6 +1,7 @@
 import type { TFunction } from "i18next"
 
 import type { CreditRegistrationState } from "@/generated/api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 
 /** What a row in this state is waiting for, which is what an operator groups the ledger by. */
 export type QueueBucket = "waiting" | "in_progress" | "failed_or_blocked" | "done"
@@ -52,12 +53,13 @@ const BUCKET_KEYS = {
 export const bucketLabel = (t: TFunction, bucket: QueueBucket): string => t(BUCKET_KEYS[bucket])
 
 /**
- * The badge tones the rest of the surface speaks, as hex, because ECharts cannot read a CSS
- * variable. Left to its own palette it colours a healthy state red and a broken one green.
+ * The badge tones the rest of the surface speaks, read off the theme rather than left to ECharts,
+ * which colours a healthy state red and a broken one green. Hex and not a CSS variable: ECharts
+ * cannot resolve one.
  */
 export const BUCKET_COLORS = {
-  waiting: "#767b85",
-  in_progress: "#215887",
-  failed_or_blocked: "#822630",
-  done: "#065853",
+  waiting: baseTheme.colors.gray[400],
+  in_progress: baseTheme.colors.blue[600],
+  failed_or_blocked: baseTheme.colors.crimson[600],
+  done: baseTheme.colors.green[700],
 } as const satisfies Record<QueueBucket, string>

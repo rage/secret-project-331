@@ -21,7 +21,7 @@ import {
   useAdminCreditRegistration,
   useCreditRegistrationAdminActions,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
+import AdminStateLabel from "@/components/credit-registration/admin/AdminStateLabel"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
 import ErrorCodeCell from "@/components/credit-registration/admin/ErrorCodeCell"
 import HttpStatusBadge from "@/components/credit-registration/admin/HttpStatusBadge"
@@ -57,12 +57,15 @@ import {
   pageTitleCss,
   proseCss,
   rowCss,
+  sectionCardCss,
+  sectionCardHeaderCss,
+  sectionCardsCss,
   sectionCss,
   sectionHeaderCss,
-  sectionsCss,
   spacedRowCss,
   stackedCellCss,
   stateChangeFromCss,
+  subsectionCss,
 } from "@/components/credit-registration/styles"
 import type {
   AdminCreditRegistrationDetails,
@@ -74,6 +77,7 @@ import type {
   CreditRegistrationAdminActionRow,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
   creditRegistrationAuditRoute,
   creditRegistrationItemRoute,
@@ -88,7 +92,6 @@ import {
   DescriptionList,
   Dialog,
   Disclosure,
-  Infobox,
   QueryResult,
   RegistrationStatusHeadline,
   RelativeTime,
@@ -119,6 +122,11 @@ const timelineBodyCss = css`
   gap: var(--space-2);
 `
 
+/** The entry's kind, leading its line as text: a pill here would label every entry. */
+const eventKindCss = css`
+  font-weight: 500;
+`
+
 const idRowCss = cx(
   rowCss,
   css`
@@ -131,7 +139,7 @@ const factsGridCss = css`
   display: grid;
   gap: var(--space-5) var(--space-7);
 
-  @media (min-width: 64rem) {
+  ${respondToOrLarger.lg} {
     grid-template-columns: 1fr 1fr;
   }
 `
@@ -143,7 +151,10 @@ const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
   const { t } = useTranslation()
   // The registration's own id is in the page header; this is everything else it points at.
   const identifiers: { label: string; value: string | null | undefined }[] = [
-    { label: t("label-credit-registration-completion"), value: row.course_module_completion_id },
+    {
+      label: t("label-credit-registration-completion-id"),
+      value: row.course_module_completion_id,
+    },
     { label: t("label-credit-registration-request-item-id"), value: row.request_item_id },
     { label: t("label-credit-registration-enrolment"), value: row.selected_enrolment_id },
     {
@@ -167,7 +178,7 @@ const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
       }
       variant={PLAIN_DISCLOSURE}
     >
-      <div className={sectionHeaderCss}>
+      <div className={subsectionCss}>
         <CopyButton
           value={present
             .map((identifier) => `${identifier.label}: ${identifier.value}`)
@@ -237,7 +248,8 @@ const HeaderSection: React.FC<{
         </span>
       </div>
       {/* A replaced attempt keeps the state it reached, but leading with it reads as news about the
-          completion — which the newest attempt, not this one, decides. */}
+          completion — which the newest attempt, not this one, decides. That nothing can be done to
+          it is the Actions section's sentence; a banner here would say it twice. */}
       {row.superseded ? (
         <div className={sectionHeaderCss}>
           <RegistrationStatusHeadline state={STATE_SUPERSEDED}>
@@ -250,21 +262,16 @@ const HeaderSection: React.FC<{
           <p className={noteCss}>
             {t("credit-registration-admin-superseded-was", { state: stateLabel })}
           </p>
-        </div>
-      ) : (
-        <RegistrationStatusHeadline state={stateTone(row.state, row.pending_reason)}>
-          {stateLabel}
-        </RegistrationStatusHeadline>
-      )}
-      {row.superseded && (
-        <Infobox tone={TONE.INFO}>
-          <p>{t("credit-registration-admin-superseded-no-actions")}</p>
           {row.superseded_by_id && (
             <Link href={creditRegistrationItemRoute(row.superseded_by_id)} prefetch={false}>
               {t("credit-registration-admin-open-replacement")}
             </Link>
           )}
-        </Infobox>
+        </div>
+      ) : (
+        <RegistrationStatusHeadline state={stateTone(row.state, row.pending_reason)}>
+          {stateLabel}
+        </RegistrationStatusHeadline>
       )}
       {errorHelp && (
         <div className={sectionHeaderCss}>
@@ -310,9 +317,10 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
         ]
 
   const identityItems: DescriptionListItem[] = [
+    // The page heading is the student's name, so only the address is news here.
     {
-      label: t("label-student"),
-      value: [formatUserName(row), row.email].filter(Boolean).join(MIDDLE_DOT),
+      label: t("label-email"),
+      value: row.email ?? ABSENT,
     },
     {
       label: t("label-student-number"),
@@ -359,8 +367,10 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
   ]
 
   return (
-    <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-registration-facts")}</h2>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-registration-facts")}</h2>
+      </div>
       <div className={factsGridCss}>
         <DescriptionList items={identityItems} />
         <DescriptionList items={timingItems} />
@@ -380,10 +390,13 @@ const AttemptChainSection: React.FC<{
   }
   const chain = attempts.toSorted((a, b) => a.attempt_number - b.attempt_number)
   return (
-    <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-attempt-chain")}</h2>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-attempt-chain")}</h2>
+      </div>
+      {/* Capped so each timestamp stays beside its attempt instead of at the card's far edge. */}
       {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
-      <ol className={dividedListCss} role="list">
+      <ol className={cx(dividedListCss, proseCss)} role="list">
         {chain.map((attempt) => (
           <li key={attempt.id} className={spacedRowCss}>
             <span className={rowCss}>
@@ -397,7 +410,9 @@ const AttemptChainSection: React.FC<{
                   {t("credit-registration-attempt-n", { n: attempt.attempt_number })}
                 </Link>
               )}
-              <AdminStateBadge state={attempt.state} superseded={attempt.superseded} showToken />
+              {/* No replaced badge: all but the newest attempt are, so it would label the whole
+                  list. The wire name is worth quoting only on the attempt being acted on. */}
+              <AdminStateLabel state={attempt.state} showToken={attempt.id === currentId} />
             </span>
             <span className={noteCss}>
               <RelativeTime at={attempt.created_at} absoluteTime={TIME_COMPACT} />
@@ -438,18 +453,16 @@ const TimelineEntry: React.FC<{
       </span>
       <span className={timelineBodyCss}>
         <span className={rowCss}>
-          <Badge tone={TONE.NEUTRAL} size="compact">
-            {eventKindLabel(t, event.kind)}
-          </Badge>
+          <span className={eventKindCss}>{eventKindLabel(t, event.kind)}</span>
           {event.to_state && (
             <>
               {event.from_state && (
                 <span className={stateChangeFromCss}>
-                  <AdminStateBadge state={event.from_state} />
+                  <AdminStateLabel state={event.from_state} />
                   <span aria-hidden="true">{ARROW}</span>
                 </span>
               )}
-              <AdminStateBadge state={event.to_state} />
+              <AdminStateLabel state={event.to_state} />
             </>
           )}
           {event.error_code && <ErrorCodeCell errorCode={event.error_code} />}
@@ -459,7 +472,7 @@ const TimelineEntry: React.FC<{
             </span>
           )}
         </span>
-        {event.message && <span>{event.message}</span>}
+        {event.message && <span className={proseCss}>{event.message}</span>}
         {event.details !== null && event.details !== undefined && (
           <span>
             <PayloadDialog
@@ -481,8 +494,10 @@ const TimelineSection: React.FC<{
 }> = ({ events, actorNames }) => {
   const { t } = useTranslation()
   return (
-    <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-timeline")}</h2>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-timeline")}</h2>
+      </div>
       {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
       <ol className={dividedListCss} role="list">
         {events.toReversed().map((event) => (
@@ -503,13 +518,13 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
     return null
   }
   return (
-    <section className={sectionCss}>
-      <div className={sectionHeaderCss}>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
         <h2 className={headingCss}>
           {t("credit-registration-heading-api-calls-count", { count: calls.length })}
         </h2>
-        <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-api-calls-note")}</p>
       </div>
+      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-api-calls-note")}</p>
       <Table
         caption={t("credit-registration-heading-api-calls")}
         density={DENSITY_COMPACT}
@@ -608,8 +623,10 @@ const MailTable = <T extends { send_status: AdminLinkingEmail["send_status"] }>(
     return null
   }
   return (
-    <section className={sectionCss}>
-      <h2 className={headingCss}>{heading}</h2>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{heading}</h2>
+      </div>
       <Table
         caption={heading}
         density={DENSITY_COMPACT}
@@ -660,7 +677,8 @@ const NotificationSection: React.FC<{ mails: AdminNotificationEmail[] }> = ({ ma
     <MailTable
       mails={mails}
       heading={t("credit-registration-heading-notification-emails")}
-      rowKey={(mail) => mail.kind}
+      // The kind is not unique: a second mail of the same kind is exactly what this table shows.
+      rowKey={(mail) => mail.email_delivery_id}
       firstColumn={{
         header: t("label-kind"),
         grow: true,
@@ -678,8 +696,8 @@ const AuditSection: React.FC<{
 }> = ({ registrationId, query }) => {
   const { t } = useTranslation()
   return (
-    <section className={sectionCss}>
-      <div className={spacedRowCss}>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
         <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
         <Link
           href={`${creditRegistrationAuditRoute()}?target_id=${registrationId}`}
@@ -790,15 +808,17 @@ const RegistrationDetailPage: React.FC = () => {
   return (
     <QueryResult query={detailsQuery} refreshIndicator={QUIET_REFRESH}>
       {(details) => (
-        <div className={sectionsCss}>
+        <div className={sectionCardsCss}>
           <HeaderSection
             details={details}
             isLive={!details.registration.terminal_at}
             updatedAt={detailsQuery.dataUpdatedAt}
           />
           <FactsSection details={details} />
-          <section className={sectionCss}>
-            <h2 className={headingCss}>{t("label-actions")}</h2>
+          <section className={sectionCardCss}>
+            <div className={sectionCardHeaderCss}>
+              <h2 className={headingCss}>{t("label-actions")}</h2>
+            </div>
             <AdminTransitionBlock registration={details.registration} />
           </section>
           <AttemptChainSection attempts={details.attempts} currentId={details.registration.id} />

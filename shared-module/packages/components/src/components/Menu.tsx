@@ -2,9 +2,10 @@
 
 import { css, cx } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
-import React from "react"
+import React, { useEffect, useId, useMemo, useRef, useState } from "react"
 import type { Placement } from "react-aria"
 
+import { includeIf } from "../lib/utils/nullability"
 import { Button } from "./Button"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
@@ -88,14 +89,14 @@ export const Menu: React.FC<MenuProps> = ({
   className,
   "data-testid": dataTestId,
 }) => {
-  const triggerRef = React.useRef<HTMLButtonElement>(null)
-  const popoverRef = React.useRef<HTMLDivElement>(null)
-  const itemRefs = React.useRef<(HTMLButtonElement | null)[]>([])
-  const contentId = React.useId()
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const contentId = useId()
   const state = useOverlayTriggerState({})
-  const [focusedIndex, setFocusedIndex] = React.useState(0)
+  const [focusedIndex, setFocusedIndex] = useState(0)
 
-  const enabledIndices = React.useMemo(
+  const enabledIndices = useMemo(
     () =>
       items.reduce<number[]>((acc, item, index) => (item.isDisabled ? acc : [...acc, index]), []),
     [items],
@@ -106,7 +107,7 @@ export const Menu: React.FC<MenuProps> = ({
     itemRefs.current[index]?.focus()
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!state.isOpen || enabledIndices.length === 0) {
       return
     }
@@ -176,10 +177,11 @@ export const Menu: React.FC<MenuProps> = ({
         ref={triggerRef}
         variant={label === undefined ? "icon" : "tertiary"}
         size="small"
-        {...(label === undefined ? { "aria-label": ariaLabel } : {})}
-        {...(label === undefined
-          ? {}
-          : { icon: <span className={comboChevronCss} />, iconPosition: ICON_END })}
+        {...includeIf(label === undefined, { "aria-label": ariaLabel })}
+        {...includeIf(label !== undefined, {
+          icon: <span className={comboChevronCss} />,
+          iconPosition: ICON_END,
+        })}
         className={cx(className)}
         onPress={() => state.toggle()}
         domProps={{

@@ -1827,7 +1827,7 @@ pub async fn count_by_module_and_state_for_course(
         CourseModuleStateCount,
         r#"
 SELECT cr.course_module_id,
-  cr.state AS "state: CreditRegistrationState",
+  cr.state,
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
   COUNT(*) AS "count!",

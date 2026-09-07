@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -81,7 +81,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   confirmTestId,
 }) => {
   const { t } = useTranslation("shared-module")
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { control, handleSubmit } = useForm<ConfirmDialogFormValues>({
     defaultValues: { reason: "" },
   })

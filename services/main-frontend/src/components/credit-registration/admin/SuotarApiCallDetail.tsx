@@ -20,7 +20,7 @@ import {
   subsectionCss,
 } from "../styles"
 import { eventKindLabel } from "./adminCreditRegistrationCopy"
-import AdminStateBadge from "./AdminStateBadge"
+import AdminStateLabel from "./AdminStateLabel"
 import ErrorCodeCell from "./ErrorCodeCell"
 import PayloadBlock from "./PayloadBlock"
 
@@ -101,7 +101,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                   { header: t("label-course"), cell: (row) => row.course_name },
                   {
                     header: t("label-state"),
-                    cell: (row) => <AdminStateBadge state={row.state} />,
+                    cell: (row) => <AdminStateLabel state={row.state} />,
                   },
                   {
                     header: t("label-error-code"),
@@ -134,7 +134,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                   {
                     header: t("label-state"),
                     cell: (row) =>
-                      row.to_state ? <AdminStateBadge state={row.to_state} /> : ABSENT,
+                      row.to_state ? <AdminStateLabel state={row.to_state} /> : ABSENT,
                   },
                   {
                     header: t("label-error-code"),

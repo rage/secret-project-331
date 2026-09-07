@@ -26,6 +26,7 @@ import type {
   TeacherLinkingEmailStatus,
 } from "@/generated/api/types.generated"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
@@ -185,7 +186,7 @@ export const useCourseFailureReasons = (
         page: 1,
         limit: FAILED_ROWS_FETCHED,
         status: FAILED_STATUS,
-        ...(courseInstanceId ? { course_instance_id: courseInstanceId } : {}),
+        ...includeIf(courseInstanceId, { course_instance_id: courseInstanceId }),
       },
     }),
     enabled,

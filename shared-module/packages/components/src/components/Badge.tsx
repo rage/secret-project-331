@@ -3,6 +3,8 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
+import { includeIf } from "../lib/utils/nullability"
+
 export type BadgeTone = "neutral" | "info" | "success" | "warning" | "danger"
 
 /** `compact` is for a badge that is the content of a dense table cell rather than a chip in a row. */
@@ -116,7 +118,7 @@ export const Badge: React.FC<BadgeProps> = ({
         !description && className,
       )}
       title={title}
-      {...(description ? { "aria-describedby": descriptionId } : {})}
+      {...includeIf(description, { "aria-describedby": descriptionId })}
     >
       {icon ? (
         <span className={iconCss} aria-hidden="true">

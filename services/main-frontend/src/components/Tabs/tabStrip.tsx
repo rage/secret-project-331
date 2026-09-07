@@ -102,7 +102,7 @@ export function tabPillCss({
           ? baseTheme.colors.green[700]
           : baseTheme.colors.gray[500]
     };
-    background: ${isSelected ? "#fff" : "transparent"};
+    background: ${isSelected ? baseTheme.colors.clear[50] : "transparent"};
     ${
       isSelected &&
       css`

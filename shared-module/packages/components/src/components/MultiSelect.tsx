@@ -341,7 +341,8 @@ export function MultiSelect<
 
         {overlayState.isOpen ? (
           <Popover popoverRef={popoverRef} state={overlayState} triggerRef={surfaceRef}>
-            {/*oxlint-disable-next-line jsx-a11y/no-autofocus*/}
+            {/* oxlint-disable-next-line jsx-a11y/no-autofocus -- the popover opens on the user's
+                own action, and the search box is what they opened it to reach */}
             <FocusScope autoFocus>
               <div className={searchRowCss}>
                 <span aria-hidden="true" className={searchIconCss}>

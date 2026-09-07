@@ -22,7 +22,15 @@ import {
   TABLE_STACK,
   TIME_COMPACT,
 } from "../constants"
-import { controlCss, controlsCss, headingCss, noteCss, sectionCss, stackedCellCss } from "../styles"
+import {
+  controlCss,
+  controlsCss,
+  headingCss,
+  noteCss,
+  sectionCardCss,
+  sectionCardHeaderCss,
+  stackedCellCss,
+} from "../styles"
 import { useSuotarApiCalls } from "./adminCreditRegistrationHooks"
 import HttpStatusBadge from "./HttpStatusBadge"
 import SuotarApiCallDetail from "./SuotarApiCallDetail"
@@ -126,8 +134,10 @@ const ApiLogSection: React.FC = () => {
   const callsQuery = useSuotarApiCalls(query)
 
   return (
-    <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-api-calls")}</h2>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-api-calls")}</h2>
+      </div>
       <form
         className={controlsCss}
         onSubmit={handleSubmit((fields) =>
@@ -183,9 +193,13 @@ const ApiLogSection: React.FC = () => {
       <QueryResult query={callsQuery} refreshIndicator={QUIET_REFRESH}>
         {(page) => (
           <>
-            <p className={noteCss}>
-              {t("credit-registration-admin-call-count", { count: page.total_count })}
-            </p>
+            {/* Only where the pager below is absent: it renders nothing under two pages, and its
+                own "showing x of y" states the same total more usefully when it is there. */}
+            {page.total_pages < 2 && (
+              <p className={noteCss}>
+                {t("credit-registration-admin-call-count", { count: page.total_count })}
+              </p>
+            )}
             <Table
               caption={t("credit-registration-heading-api-calls")}
               density={DENSITY_COMPACT}

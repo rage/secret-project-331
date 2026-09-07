@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.course_module_id,\n  cr.state AS \"state: CreditRegistrationState\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  COUNT(*) AS \"count!\",\n  COUNT(*) FILTER (\n    WHERE cr.needs_admin_attention\n  ) AS \"needs_admin_attention_count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.course_id = $1\n  AND (\n    $2::uuid IS NULL\n    OR cr.course_instance_id = $2\n  )\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\nGROUP BY cr.course_module_id,\n  cr.state,\n  p.completion_eligible,\n  p.has_verified_student_number\n        ",
+  "query": "\nSELECT cr.course_module_id,\n  cr.state,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  COUNT(*) AS \"count!\",\n  COUNT(*) FILTER (\n    WHERE cr.needs_admin_attention\n  ) AS \"needs_admin_attention_count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.course_id = $1\n  AND (\n    $2::uuid IS NULL\n    OR cr.course_instance_id = $2\n  )\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\nGROUP BY cr.course_module_id,\n  cr.state,\n  p.completion_eligible,\n  p.has_verified_student_number\n        ",
   "describe": {
     "columns": [
       {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "state: CreditRegistrationState",
+        "name": "state",
         "type_info": {
           "Custom": {
             "name": "credit_registration_state",
@@ -99,5 +99,5 @@
       null
     ]
   },
-  "hash": "975bde194b4c150a371e817e491bc351e4b991ca80ef46d21bd7330cfb572ec0"
+  "hash": "3f832ed93566ecd502c5297e68034cd54ec16340b98163e1110c9ef7fed6596f"
 }

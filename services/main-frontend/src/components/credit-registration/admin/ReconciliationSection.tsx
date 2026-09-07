@@ -9,19 +9,29 @@ import type { CreditRegistrationReconciliation } from "@/generated/api/types.gen
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import { Badge, Disclosure, RelativeTime, Table } from "@/shared-module/components"
 
-import { BADGE_COMPACT, DENSITY_COMPACT, PLAIN_DISCLOSURE, TIME_COMPACT, TONE } from "../constants"
 import {
+  BADGE_COMPACT,
+  BUTTON_SECONDARY,
+  DENSITY_COMPACT,
+  PLAIN_DISCLOSURE,
+  TIME_COMPACT,
+  TONE,
+} from "../constants"
+import {
+  dividedListCss,
   headingCss,
   monospaceCss,
   noteCss,
   proseCss,
   rowCss,
-  sectionCss,
+  sectionCardCss,
+  sectionCardHeaderCss,
+  spacedRowCss,
   stackedCellCss,
   subsectionCss,
 } from "../styles"
 import { useInvalidateReconciliation } from "./adminCreditRegistrationHooks"
-import AdminStateBadge from "./AdminStateBadge"
+import AdminStateLabel from "./AdminStateLabel"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
 
@@ -30,8 +40,11 @@ interface Props {
 }
 
 /**
- * One check and what it found. A check that found nothing is one line with a badge: it still has
- * to say it ran, and it has nothing to expand.
+ * One check and what it found, as a row of a ruled list.
+ *
+ * A check that found nothing states that in plain secondary text: a green "None found" pill on
+ * every check reads as decoration, and it is the loudest thing in a section reporting that all is
+ * well. The badge is kept for a count, where a pill marks the one row that is not like the others.
  */
 const Check: React.FC<{
   heading: string
@@ -44,35 +57,35 @@ const Check: React.FC<{
   const { t } = useTranslation()
   if (count === 0) {
     return (
-      <p className={rowCss}>
+      <li className={spacedRowCss}>
         <span>{heading}</span>
-        <Badge tone={TONE.SUCCESS} size={BADGE_COMPACT}>
-          {t("credit-registration-admin-check-none-found")}
-        </Badge>
-      </p>
+        <span className={noteCss}>{t("credit-registration-admin-check-none-found")}</span>
+      </li>
     )
   }
   return (
-    <Disclosure
-      title={heading}
-      summary={
-        <Badge tone={TONE.WARNING} size={BADGE_COMPACT}>
-          {t("credit-registration-admin-check-found", { count })}
-        </Badge>
-      }
-      variant={PLAIN_DISCLOSURE}
-      defaultExpanded
-    >
-      <div className={subsectionCss}>
-        <p className={cx(noteCss, proseCss)}>{explanation}</p>
-        {count >= maxRows && (
-          <p className={cx(noteCss, proseCss)}>
-            {t("credit-registration-admin-detector-cap", { max: maxRows })}
-          </p>
-        )}
-        {children}
-      </div>
-    </Disclosure>
+    <li>
+      <Disclosure
+        title={heading}
+        summary={
+          <Badge tone={TONE.WARNING} size={BADGE_COMPACT}>
+            {t("credit-registration-admin-check-found", { count })}
+          </Badge>
+        }
+        variant={PLAIN_DISCLOSURE}
+        defaultExpanded
+      >
+        <div className={subsectionCss}>
+          <p className={cx(noteCss, proseCss)}>{explanation}</p>
+          {count >= maxRows && (
+            <p className={cx(noteCss, proseCss)}>
+              {t("credit-registration-admin-detector-cap", { max: maxRows })}
+            </p>
+          )}
+          {children}
+        </div>
+      </Disclosure>
+    </li>
   )
 }
 
@@ -86,8 +99,7 @@ const MaterializeButton: React.FC = () => {
     buttonLabel: t("button-text-credit-registration-materialize"),
     dialogTitle: t("button-text-credit-registration-materialize"),
     dialogMessage: t("credit-registration-admin-materialize-note"),
-    // oxlint-disable-next-line i18next/no-literal-string
-    buttonVariant: "secondary",
+    buttonVariant: BUTTON_SECONDARY,
   })
   return (
     <div className={rowCss}>
@@ -199,7 +211,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
             {
               header: t("label-state"),
               minWidth: "10rem",
-              cell: (row) => <AdminStateBadge state={row.state} />,
+              cell: (row) => <AdminStateLabel state={row.state} />,
             },
             {
               header: t("credit-registration-admin-column-submitted-at"),
@@ -237,7 +249,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
             {
               header: t("label-state"),
               minWidth: "10rem",
-              cell: (row) => <AdminStateBadge state={row.state} />,
+              cell: (row) => <AdminStateLabel state={row.state} />,
             },
             {
               header: t("credit-registration-admin-column-divergence"),
@@ -264,24 +276,30 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
   ]
 
   return (
-    <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-reconciliation")}</h2>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-reconciliation")}</h2>
+      </div>
       <p className={cx(noteCss, proseCss)}>
         {t("credit-registration-admin-reconciliation-in-queue-note")}
       </p>
-      {detectors
-        .toSorted((a, b) => b.count - a.count)
-        .map((detector) => (
-          <Check
-            key={detector.key}
-            heading={detector.key}
-            count={detector.count}
-            explanation={detector.explanation}
-            maxRows={reconciliation.max_rows_per_detector}
-          >
-            {detector.body}
-          </Check>
-        ))}
+      {/* Capped to the same measure as the note above it: pushed to the full width of the card, a
+          check's result ends up half a screen from the check it belongs to. */}
+      <ul className={cx(dividedListCss, proseCss)}>
+        {detectors
+          .toSorted((a, b) => b.count - a.count)
+          .map((detector) => (
+            <Check
+              key={detector.key}
+              heading={detector.key}
+              count={detector.count}
+              explanation={detector.explanation}
+              maxRows={reconciliation.max_rows_per_detector}
+            >
+              {detector.body}
+            </Check>
+          ))}
+      </ul>
       {/* After the checks, not beside the heading: it stays the section's action regardless of
           what the checks found, but a phone must not read it before it reads why it exists. */}
       <MaterializeButton />

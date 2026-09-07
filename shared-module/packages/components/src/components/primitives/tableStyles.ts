@@ -107,12 +107,16 @@ export const overflowMaskCss = css`
 
 export const overflowMaskStartCss = css`
   left: 0;
-  background: linear-gradient(to right, var(--table-fade-color, #ffffff), transparent);
+  background: linear-gradient(
+    to right,
+    var(--table-fade-color, var(--color-clear-50)),
+    transparent
+  );
 `
 
 export const overflowMaskEndCss = css`
   right: 0;
-  background: linear-gradient(to left, var(--table-fade-color, #ffffff), transparent);
+  background: linear-gradient(to left, var(--table-fade-color, var(--color-clear-50)), transparent);
 `
 
 export const overflowMaskVisibleCss = css`
@@ -123,7 +127,7 @@ export const overflowMaskVisibleCss = css`
 export const stickyCellCss = css`
   position: sticky;
   z-index: 1;
-  background: var(--table-sticky-bg, #ffffff);
+  background: var(--table-sticky-bg, var(--color-clear-50));
 `
 
 /** Edge shadow for a pinned cell; only earns its place once something has scrolled under it. */

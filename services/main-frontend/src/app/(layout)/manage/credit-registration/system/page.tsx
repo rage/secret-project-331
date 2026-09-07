@@ -11,9 +11,9 @@ import EndpointSummarySection from "@/components/credit-registration/admin/Endpo
 import {
   countPhasesByHealth,
   formatIntervalSecs,
+  isUnhealthyPhase,
   phaseHealth,
   phaseHealthLabel,
-  phaseHealthTone,
 } from "@/components/credit-registration/admin/phaseStatus"
 import {
   ABSENT,
@@ -32,7 +32,9 @@ import {
   noteCss,
   proseCss,
   rowCss,
-  sectionCss,
+  sectionCardCss,
+  sectionCardHeaderCss,
+  sectionCardsCss,
   sectionHeaderCss,
   stackedCellCss,
   subheadingCss,
@@ -95,20 +97,29 @@ const PhaseTable: React.FC<{
           minWidth: "11rem",
           cell: (row) => {
             const health = phaseHealth(row)
+            // `failing` already implies at least one consecutive failure, so the count badge
+            // carries the health label too rather than doubling up on red.
+            const failing = health === "failing"
             return (
               <span className={stackedCellCss}>
-                <span className={rowCss}>
-                  <Badge tone={phaseHealthTone(health)} size="compact">
-                    {phaseHealthLabel(t, health)}
+                {isUnhealthyPhase(health) ? (
+                  <Badge tone={TONE.DANGER} size="compact">
+                    {failing
+                      ? t("credit-registration-admin-consecutive-failures", {
+                          count: row.consecutive_failures,
+                        })
+                      : phaseHealthLabel(t, health)}
                   </Badge>
-                  {row.consecutive_failures > 0 && (
-                    <Badge tone={TONE.DANGER} size="compact">
-                      {t("credit-registration-admin-consecutive-failures", {
-                        count: row.consecutive_failures,
-                      })}
-                    </Badge>
-                  )}
-                </span>
+                ) : (
+                  <span>{phaseHealthLabel(t, health)}</span>
+                )}
+                {!failing && row.consecutive_failures > 0 && (
+                  <span className={noteCss}>
+                    {t("credit-registration-admin-consecutive-failures", {
+                      count: row.consecutive_failures,
+                    })}
+                  </span>
+                )}
                 {row.last_error && (
                   <span className={cx(noteCss, monospaceCss)}>{row.last_error}</span>
                 )}
@@ -184,8 +195,10 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
   const counts = countPhasesByHealth(list.phases)
 
   return (
-    <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-phases")}</h2>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-phases")}</h2>
+      </div>
       <p className={cx(noteCss, proseCss)}>
         {t("credit-registration-admin-phase-late-note", {
           multiplier: list.heartbeat_interval_multiplier,
@@ -194,18 +207,10 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
         {t("credit-registration-admin-pause-is-our-flag-note")}{" "}
         <Link href={SERVER_STATUS_PATH}>{t("credit-registration-admin-open-pod-status")}</Link>
       </p>
+      {/* Failing and heartbeat-late counts are the System tab badge's own number; repeating them
+          here would just be that badge restated. Running and paused are not shown anywhere else. */}
       <StatTileList ariaLabel={t("credit-registration-heading-phases")}>
         <StatTile label={t("credit-registration-admin-phase-running")} value={counts.running} />
-        <StatTile
-          label={t("credit-registration-admin-phase-heartbeat-late")}
-          value={counts.heartbeat_late}
-          alertWhenNonZero
-        />
-        <StatTile
-          label={t("credit-registration-admin-phase-failing")}
-          value={counts.failing}
-          alertWhenNonZero
-        />
         <StatTile label={t("credit-registration-admin-phase-paused")} value={counts.paused} />
       </StatTileList>
       {list.paused_globally && (
@@ -234,13 +239,13 @@ const SystemPage: React.FC = () => {
   const phasesQuery = useCreditRegistrationPhases()
 
   return (
-    <>
+    <div className={sectionCardsCss}>
       <QueryResult query={phasesQuery} refreshIndicator={QUIET_REFRESH}>
         {(list) => <PhaseSection list={list} />}
       </QueryResult>
       <EndpointSummarySection />
       <ApiLogSection />
-    </>
+    </div>
   )
 }
 

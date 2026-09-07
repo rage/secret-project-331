@@ -1,3 +1,4 @@
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   completionRegistrationUrl,
@@ -36,9 +37,9 @@ test.describe("A student whose grade was registered twice", () => {
       page.getByRole("heading", { name: "Registrations that need attention" }),
     ).toHaveCount(0)
 
-    const [live] = (await myCreditRegistrations(page.request)).filter((row) => !row.superseded)
-    expect(live, "the seeded pair has one live attempt").toBeDefined()
-    await page.goto(completionRegistrationUrl(live!.course_module_id))
+    const [firstLive] = (await myCreditRegistrations(page.request)).filter((row) => !row.superseded)
+    const live = assertNotNullOrUndefined(firstLive)
+    await page.goto(completionRegistrationUrl(live.course_module_id))
     // A student who saw grade 3 registered should not find that it never happened.
     await expect(page.getByRole("heading", { name: "Earlier attempts" })).toBeVisible()
     await expect(page.getByText("Attempt 1")).toBeVisible()

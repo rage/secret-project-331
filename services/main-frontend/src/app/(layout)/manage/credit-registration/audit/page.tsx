@@ -17,7 +17,7 @@ import {
   useCreditRegistrationAdminActions,
   useCreditRegistrationCourseStats,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import AdminStateBadge from "@/components/credit-registration/admin/AdminStateBadge"
+import AdminStateLabel from "@/components/credit-registration/admin/AdminStateLabel"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   selectFilterField,
@@ -37,12 +37,16 @@ import {
   TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
+import { actionSentence } from "@/components/credit-registration/creditRegistrationRetry"
 import {
   controlCss,
   controlsCss,
+  headingCss,
   noteCss,
   proseCss,
   rowCss,
+  sectionCardCss,
+  sectionCardHeaderCss,
   sectionCss,
   stackedCellCss,
   stateChangeFromCss,
@@ -202,15 +206,9 @@ const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row })
   return (
     <span className={stackedCellCss}>
       <span>{actorName(row)}</span>
-      <span className={rowCss}>
-        <Badge
-          tone={row.actor_role === COURSE_TEACHER_ROLE ? TONE.INFO : TONE.NEUTRAL}
-          size={BADGE_COMPACT}
-        >
-          {actorRoleLabel(t, row.actor_role)}
-        </Badge>
+      <span className={noteCss}>
+        {[actorRoleLabel(t, row.actor_role), row.actor_email].filter(Boolean).join(MIDDLE_DOT)}
       </span>
-      <span className={noteCss}>{row.actor_email}</span>
     </span>
   )
 }
@@ -261,11 +259,11 @@ const StateChangeCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ 
     <span className={rowCss}>
       {row.before_state && (
         <span className={stateChangeFromCss}>
-          <AdminStateBadge state={row.before_state} />
+          <AdminStateLabel state={row.before_state} />
           <span aria-hidden="true">{ARROW}</span>
         </span>
       )}
-      {row.after_state ? <AdminStateBadge state={row.after_state} /> : <span>{ABSENT}</span>}
+      {row.after_state ? <AdminStateLabel state={row.after_state} /> : <span>{ABSENT}</span>}
     </span>
   )
 }
@@ -383,7 +381,10 @@ const AuditPage: React.FC = () => {
   }
 
   return (
-    <section className={sectionCss}>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
+      </div>
       <p className={cx(noteCss, proseCss)}>
         {t("credit-registration-admin-audit-two-actor-kinds-note")}
       </p>
@@ -509,9 +510,13 @@ const AuditPage: React.FC = () => {
                 </Infobox>
               )}
               <div className={rowCss}>
-                <p className={noteCss}>
-                  {t("credit-registration-admin-action-count", { count: page.total_count })}
-                </p>
+                {/* `Pagination` renders nothing below 2 pages, and repeats this total at 2 or
+                    more: show it only where `Pagination` won't. */}
+                {page.total_pages < 2 && (
+                  <p className={noteCss}>
+                    {t("credit-registration-admin-action-count", { count: page.total_count })}
+                  </p>
+                )}
                 {filteredTargetId && (
                   <Chip
                     onRemove={clearTargetFilter}
@@ -564,10 +569,10 @@ const AuditPage: React.FC = () => {
                   },
                   {
                     header: t("credit-registration-admin-column-action"),
-                    minWidth: "8rem",
+                    minWidth: "12rem",
                     cell: (row) => (
                       <span className={stackedCellCss}>
-                        <span>{adminActionLabel(t, row.action)}</span>
+                        <span>{actionSentence(t, row.action, row.affected_row_count)}</span>
                         {isBeyondActorsRole(row) && (
                           <span className={rowCss}>
                             <Badge tone={TONE.DANGER} size={BADGE_COMPACT}>

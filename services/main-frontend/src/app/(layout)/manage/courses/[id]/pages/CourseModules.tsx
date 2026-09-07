@@ -24,7 +24,7 @@ import { updateCourseModules } from "@/generated/api/sdk.generated"
 import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { Button, QueryResults } from "@/shared-module/components"
@@ -132,7 +132,7 @@ const blankModule = (chapters: number[]): ModuleView => ({
 const rosterHrefOf = (courseId: string, moduleId: string, failed?: boolean): string =>
   `${manageCourseStudentsRoute(courseId, STUDENTS_SUBTAB_COMPLETIONS)}?${new URLSearchParams({
     [MODULE_PARAM]: moduleId,
-    ...(failed ? { [REGISTRATION_PARAM]: REGISTRATION_VIEW_FAILED } : {}),
+    ...includeIf(failed, { [REGISTRATION_PARAM]: REGISTRATION_VIEW_FAILED }),
   })}`
 
 /** What the save sends. `order_number` is renumbered locally as chapters move and is not an edit of its own. */

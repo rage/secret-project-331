@@ -13,7 +13,14 @@ import {
   TABLE_STACK,
   TIME_COMPACT,
 } from "../constants"
-import { controlCss, controlsCss, headingCss, noteCss, sectionCss, stackedCellCss } from "../styles"
+import {
+  controlCss,
+  headingCss,
+  noteCss,
+  sectionCardCss,
+  sectionCardHeaderCss,
+  stackedCellCss,
+} from "../styles"
 import { useSuotarHealth } from "./adminCreditRegistrationHooks"
 import { DAY_SECS, useWindowSecsParam, WindowSecsSelect } from "./WindowSecsSelect"
 
@@ -24,9 +31,9 @@ const EndpointSummarySection: React.FC = () => {
   const { control, windowSecs } = useWindowSecsParam(DAY_SECS)
 
   return (
-    <section className={sectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-endpoints")}</h2>
-      <div className={controlsCss}>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-endpoints")}</h2>
         <div className={controlCss}>
           <WindowSecsSelect control={control} />
         </div>

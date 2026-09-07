@@ -39,6 +39,46 @@ export const sectionCss = cx(
   `,
 )
 
+/**
+ * A section rendered as a card, for a dashboard page that stacks six or more of them. Bare
+ * sections on a shared ground give a reader no edge to find, so the section carries its own.
+ */
+export const sectionCardCss = cx(
+  sectionCss,
+  css`
+    padding: var(--space-4-5);
+    border: 1px solid var(--color-clear-400);
+    border-radius: var(--surface-radius);
+    background: var(--color-clear-50);
+  `,
+)
+
+/**
+ * A `sectionCardCss` heading row, ruled off from the body, with room on the right for the one
+ * control that scopes the section. The rule is what makes a section's start findable at a glance
+ * once every section on the page is a card.
+ */
+export const sectionCardHeaderCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+  /* Pulled back out to the card's edges: a rule inset by the card's own padding reads as an
+     underlined paragraph, where one that spans the full width reads as the card's header. */
+  margin: calc(var(--space-4-5) * -1) calc(var(--space-4-5) * -1) 0;
+  padding: var(--space-4) var(--space-4-5);
+  border-bottom: 1px solid var(--color-clear-300);
+`
+
+/** Page root for a page of `sectionCardCss` sections; cards need more air between them than blocks. */
+export const sectionCardsCss = cx(
+  stackCss,
+  css`
+    gap: var(--space-6);
+  `,
+)
+
 /** Binds a heading to the `noteCss` line under it so the two read as one unit. */
 export const sectionHeaderCss = css`
   display: grid;
@@ -57,7 +97,7 @@ export const subsectionCss = cx(
 export const pageTitleCss = css`
   margin: 0;
   color: var(--color-gray-700);
-  font-size: var(--font-size-4);
+  font-size: var(--font-size-5);
   font-weight: 600;
   line-height: 1.2;
 `
@@ -66,7 +106,7 @@ export const pageTitleCss = css`
 export const headingCss = css`
   margin: 0;
   color: var(--color-gray-700);
-  font-size: var(--font-size-3);
+  font-size: var(--font-size-3-5);
   font-weight: 600;
   line-height: 1.3;
 `
@@ -138,7 +178,10 @@ export const spacedRowCss = cx(
   `,
 )
 
-/** The only card: a repeated grid item, or a form that appears on demand. Never a page section. */
+/**
+ * A card inside a section: a repeated grid item, or a form that appears on demand. A section's own
+ * card is [`sectionCardCss`], which carries the padding and gaps a whole section needs.
+ */
 export const cardCss = css`
   display: grid;
   gap: var(--space-3);

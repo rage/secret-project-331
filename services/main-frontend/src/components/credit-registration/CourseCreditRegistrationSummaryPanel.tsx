@@ -389,7 +389,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
             label: registrationStatusViewLabel(t, view),
             count: count(module),
             state,
-            ...(onSelectView ? { onSelect: () => onSelectView(view) } : {}),
+            ...includeIf(onSelectView, { onSelect: () => onSelectView?.(view) }),
           }))
 
         return (

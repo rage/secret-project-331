@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
-import React from "react"
+import React, { useId, useRef } from "react"
 import type { Placement } from "react-aria"
 
 import { Button } from "./Button"
@@ -46,9 +46,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
   className,
   "data-testid": dataTestId,
 }) => {
-  const triggerRef = React.useRef<HTMLButtonElement>(null)
-  const popoverRef = React.useRef<HTMLDivElement>(null)
-  const contentId = React.useId()
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const contentId = useId()
   const state = useOverlayTriggerState({})
 
   return (

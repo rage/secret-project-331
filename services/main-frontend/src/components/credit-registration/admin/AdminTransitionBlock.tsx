@@ -19,7 +19,7 @@ import { formatUserName } from "@/hooks/useUserDetails"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import type { ButtonVariant } from "@/shared-module/components"
-import { Button, Infobox, Link } from "@/shared-module/components"
+import { Infobox, Link } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, TONE } from "../constants"
 import type { FailureAction, FailureRemedy } from "../registrationFailures"
@@ -176,13 +176,6 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
   )
 }
 
-/** An action this row cannot take. The reason renders once, under the whole row, not per button. */
-const BlockedAction: React.FC<{ label: string }> = ({ label }) => (
-  <Button variant={BUTTON_SECONDARY} size="medium" disabled>
-    {label}
-  </Button>
-)
-
 /**
  * The remedies this row is offered, in the order they should be tried.
  *
@@ -289,24 +282,33 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
     }
   }
 
+  // An offered action can render nothing (no email address, no student number), so the buttons that
+  // survived — not the plan — decide which one leads and whether only a sentence is left.
+  const actions = offered.reduce<React.ReactNode[]>((rendered, action) => {
+    const button = renderAction(action, rendered.length === 0)
+    return button === null ? rendered : [...rendered, button]
+  }, [])
+  const dismissFlagAction = registration.needs_admin_attention
+    ? renderTransition(CLEAR_ATTENTION, BUTTON_TERTIARY)
+    : null
+
   return (
     <div className={subsectionCss}>
       {registration.state === SUBMISSION_UNCERTAIN && (
         <Infobox tone={TONE.WARNING}>{t("credit-registration-admin-uncertain-warning")}</Infobox>
       )}
-      {/* One sentence for both state moves rather than two greyed buttons saying the same thing. */}
+      {/* A refusal drops both state moves from the row; its reason renders once in their place. */}
       {refusal !== null && <p className={cx(noteCss, proseCss)}>{refusalSentence(t, refusal)}</p>}
-      {offered.length === 0 && refusal === null && registration.error_code && (
+      {actions.length === 0 && refusal === null && registration.error_code && (
         <p className={cx(noteCss, proseCss)}>{failureOwnerHeading(t, owner)}</p>
       )}
-      <div className={actionsRowCss}>
-        {offered.map((action, index) => renderAction(action, index === 0))}
-        {retryBlockedReason && (
-          <BlockedAction label={t("credit-registration-admin-target-resubmit")} />
-        )}
-        {registration.needs_admin_attention && renderTransition(CLEAR_ATTENTION, BUTTON_TERTIARY)}
-      </div>
-      {retryBlockedReason && <p className={noteCss}>{retryBlockedReason}</p>}
+      {(actions.length > 0 || dismissFlagAction !== null) && (
+        <div className={actionsRowCss}>
+          {actions}
+          {dismissFlagAction}
+        </div>
+      )}
+      {retryBlockedReason && <p className={cx(noteCss, proseCss)}>{retryBlockedReason}</p>}
       {refusal === null && (
         <div className={cancelRowCss}>
           <TransitionAction

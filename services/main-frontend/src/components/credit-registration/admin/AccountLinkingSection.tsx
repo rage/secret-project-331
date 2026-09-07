@@ -13,11 +13,11 @@ import type {
 } from "@/generated/api/types.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import type { TableColumn } from "@/shared-module/components"
 import {
   Badge,
   DescriptionList,
-  Disclosure,
   Menu,
   MeterInline,
   QueryResult,
@@ -44,17 +44,15 @@ import {
   noteCss,
   proseCss,
   rowCss,
-  sectionCss,
+  sectionCardCss,
+  sectionCardHeaderCss,
+  sectionCardsCss,
   sectionHeaderCss,
   stackedCellCss,
   subheadingCss,
   subsectionCss,
 } from "../styles"
-import {
-  sendStatusLabel,
-  verificationMethodLabel,
-  verificationMethodTone,
-} from "./adminCreditRegistrationCopy"
+import { sendStatusLabel, verificationMethodLabel } from "./adminCreditRegistrationCopy"
 import {
   LINKING_STATS_WINDOW_DAYS,
   useAccountLinkingStats,
@@ -135,39 +133,32 @@ const FunnelSteps: React.FC<{ steps: readonly FunnelStep[]; base: number }> = ({
           value={step.value}
           maxValue={Math.max(base, MIN_FUNNEL_BASE)}
           valueText={String(step.value)}
-          {...(step.isShareOfBase && base > 0
-            ? { secondaryText: formatSharePercent(step.value, base) }
-            : {})}
+          {...includeIf(step.isShareOfBase && base > 0, {
+            secondaryText: formatSharePercent(step.value, base),
+          })}
         />
       </li>
     ))}
   </ol>
 )
 
-/** The two numbers that are about now rather than about a window: the backlog and the failures. */
+/**
+ * The number true right now, not about a window: the student-number backlog. Uncarded, as the
+ * page's opener — and missing its failure count on purpose, since the tab badge already flags that.
+ */
 const RightNow: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation()
   return (
-    <div className={subsectionCss}>
-      <h2 className={headingCss}>{t("credit-registration-heading-linking-right-now")}</h2>
-      <StatTileList
-        ariaLabel={t("credit-registration-heading-linking-right-now")}
-        maxColumns={2}
-        size="compact"
-      >
-        {/* A normal backlog, not a failure: only "Sending failed" is worth a red tile here. */}
-        <StatTile
-          label={t("credit-registration-admin-waiting-for-number")}
-          value={stats.waiting_for_student_number_count}
-        />
-        {/* The same field the tab badge counts, so the two can never disagree. */}
-        <StatTile
-          label={t("credit-registration-admin-send-status-send-failed")}
-          value={stats.send_status_totals.send_failed}
-          alertWhenNonZero
-        />
-      </StatTileList>
-    </div>
+    <StatTileList
+      ariaLabel={t("credit-registration-heading-linking-right-now")}
+      maxColumns={1}
+      size="compact"
+    >
+      <StatTile
+        label={t("credit-registration-admin-waiting-for-number")}
+        value={stats.waiting_for_student_number_count}
+      />
+    </StatTileList>
   )
 }
 
@@ -198,15 +189,15 @@ const WindowFunnel: React.FC<{ stats: AccountLinkingStats; windowDays: number }>
     },
   ]
   return (
-    <div className={subsectionCss}>
-      <div className={sectionHeaderCss}>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
         <h2 className={headingCss}>
           {t("credit-registration-heading-linking-window", { days: windowDays })}
         </h2>
-        <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-funnel-note")}</p>
       </div>
+      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-funnel-note")}</p>
       <FunnelSteps steps={steps} base={funnel.mails_sent_in_window} />
-    </div>
+    </section>
   )
 }
 
@@ -290,10 +281,10 @@ const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
           value={totals.retrying}
         />
         <StatTile label={t("credit-registration-admin-send-status-sent")} value={totals.sent} />
+        {/* Not alertWhenNonZero: the tab badge already flags this count, so it needs no second alarm here. */}
         <StatTile
           label={t("credit-registration-admin-send-status-send-failed")}
           value={totals.send_failed}
-          alertWhenNonZero
         />
       </StatTileList>
       {stats.hard_failure_domains.length > 0 && (
@@ -503,12 +494,14 @@ const StaleAddressSends: React.FC<{ row: AccountLinkingStaleAddress }> = ({ row 
       {row.sends.map((send, index) => (
         <li key={`${send.address}:${index}`} className={rowCss}>
           <span>{send.address}</span>
-          <Badge
-            tone={send.send_status === SEND_FAILED ? TONE.DANGER : TONE.NEUTRAL}
-            size={BADGE_COMPACT}
-          >
-            {sendStatusLabel(t, send.send_status)}
-          </Badge>
+          {/* Only the failed send is an exception worth a pill; a sent or queued one is routine. */}
+          {send.send_status === SEND_FAILED ? (
+            <Badge tone={TONE.DANGER} size={BADGE_COMPACT}>
+              {sendStatusLabel(t, send.send_status)}
+            </Badge>
+          ) : (
+            <span className={noteCss}>{sendStatusLabel(t, send.send_status)}</span>
+          )}
         </li>
       ))}
     </ul>
@@ -525,17 +518,15 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
       : t("credit-registration-admin-addresses-all-sent", { count: addressCount })
   }
   return (
-    <div className={subsectionCss}>
-      <div className={sectionHeaderCss}>
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
         <h2 className={headingCss}>
           {t("credit-registration-heading-stale-addresses", {
             max: stats.max_mails_per_person_and_course,
           })}
         </h2>
-        <p className={cx(noteCss, proseCss)}>
-          {t("credit-registration-admin-stale-addresses-note")}
-        </p>
       </div>
+      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-stale-addresses-note")}</p>
       <Table
         caption={t("credit-registration-heading-stale-addresses", {
           max: stats.max_mails_per_person_and_course,
@@ -580,7 +571,7 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
       <div className={rowCss}>
         <AdminManualLinkButton />
       </div>
-    </div>
+    </section>
   )
 }
 
@@ -674,9 +665,17 @@ const RecentClaimsBlock: React.FC = () => {
                     minWidth: "12rem",
                     cell: (row) => (
                       <span className={stackedCellCss}>
-                        <Badge tone={verificationMethodTone(row.verified_via)} size={BADGE_COMPACT}>
-                          {verificationMethodLabel(t, row.verified_via) ?? row.verified_via}
-                        </Badge>
+                        {/* A pill only for the exception: an admin having to link by hand, not the two
+                            self-service routes a claim normally takes. */}
+                        {row.verified_via === ADMIN_MANUAL ? (
+                          <Badge tone={TONE.NEUTRAL} size={BADGE_COMPACT}>
+                            {verificationMethodLabel(t, row.verified_via) ?? row.verified_via}
+                          </Badge>
+                        ) : (
+                          <span>
+                            {verificationMethodLabel(t, row.verified_via) ?? row.verified_via}
+                          </span>
+                        )}
                         <span className={noteCss}>{row.verified_via_email}</span>
                       </span>
                     ),
@@ -713,64 +712,62 @@ const RecentClaimsBlock: React.FC = () => {
   )
 }
 
-/**
- * How a student number reaches an account, and who is stuck on the way.
- *
- * The window's funnel and the two numbers that are true right now are the page; the per-realisation
- * counters, the send-status totals and the link history are diagnostics behind a disclosure.
- */
-const AccountLinkingSection: React.FC = () => {
+/** What our sender did with the mails, the last discovery run, and per-realisation counters: diagnostics for the funnel above. */
+const LinkingDetailsSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation()
+  return (
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-linking-details")}</h2>
+      </div>
+      <SendStatusBlock stats={stats} />
+      <DiscoveryRun stats={stats} />
+      <RealisationBlock stats={stats} />
+    </section>
+  )
+}
+
+const RecentClaimsSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
+  const { t } = useTranslation()
+  const manualLinkTotal =
+    stats.links_total_by_method.find((row) => row.verified_via === ADMIN_MANUAL)?.count ?? 0
+  return (
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-recent-claims")}</h2>
+      </div>
+      <p className={cx(noteCss, proseCss)}>
+        {t("credit-registration-admin-manual-links-total-count", { count: manualLinkTotal })}
+      </p>
+      <RecentClaimsBlock />
+    </section>
+  )
+}
+
+/** How a student number reaches an account, and who is stuck on the way. */
+const AccountLinkingSection: React.FC = () => {
   const statsQuery = useAccountLinkingStats(LINKING_STATS_WINDOW_DAYS)
 
   return (
-    <section className={sectionCss}>
-      <QueryResult
-        query={statsQuery}
-        refreshIndicator={QUIET_REFRESH}
-        contentClassName={sectionCss}
-      >
-        {(stats) => {
-          // From the response, not the request: the endpoint decides what window it measured.
-          const windowDays = Math.round(stats.window_secs / DAY_SECS)
-          const manualLinkTotal =
-            stats.links_total_by_method.find((row) => row.verified_via === ADMIN_MANUAL)?.count ?? 0
-          return (
-            <>
-              <RightNow stats={stats} />
-              <WindowFunnel stats={stats} windowDays={windowDays} />
-              <StaleAddressBlock stats={stats} />
-              <Disclosure
-                title={t("credit-registration-heading-linking-details")}
-                summary={
-                  <span className={noteCss}>
-                    {t("credit-registration-admin-linking-details-summary")}
-                  </span>
-                }
-              >
-                <div className={sectionCss}>
-                  <SendStatusBlock stats={stats} />
-                  <DiscoveryRun stats={stats} />
-                  <RealisationBlock stats={stats} />
-                </div>
-              </Disclosure>
-              <Disclosure
-                title={t("credit-registration-heading-recent-claims")}
-                summary={
-                  <span className={noteCss}>
-                    {t("credit-registration-admin-manual-links-total-count", {
-                      count: manualLinkTotal,
-                    })}
-                  </span>
-                }
-              >
-                <RecentClaimsBlock />
-              </Disclosure>
-            </>
-          )
-        }}
-      </QueryResult>
-    </section>
+    <QueryResult
+      query={statsQuery}
+      refreshIndicator={QUIET_REFRESH}
+      contentClassName={sectionCardsCss}
+    >
+      {(stats) => {
+        // From the response, not the request: the endpoint decides what window it measured.
+        const windowDays = Math.round(stats.window_secs / DAY_SECS)
+        return (
+          <>
+            <RightNow stats={stats} />
+            <WindowFunnel stats={stats} windowDays={windowDays} />
+            <StaleAddressBlock stats={stats} />
+            <LinkingDetailsSection stats={stats} />
+            <RecentClaimsSection stats={stats} />
+          </>
+        )
+      }}
+    </QueryResult>
   )
 }
 

@@ -31,7 +31,7 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
   ({ children, className, onClick, placement = "top", paddingValue = "1rem 1.5rem" }, ref) => {
     const speechBalloonCss = css`
       display: inline-block;
-      position: relative;
+      position: absolute;
       background: ${COLORS.bg};
       color: ${COLORS.text};
       padding: ${paddingValue};

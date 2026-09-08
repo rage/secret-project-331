@@ -333,6 +333,10 @@ impl BackendError for ControllerError {
 #[serde(rename_all = "snake_case")]
 pub enum ErrorMetadata {
     BlockId(Uuid),
+    ForeignKeyViolationMetadata {
+        constraint: Option<String>,
+        table: Option<String>,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
@@ -515,8 +519,15 @@ impl error::ResponseError for ControllerError {
             _ => None,
         };
 
-        let metadata_json =
-            metadata.map(|ErrorMetadata::BlockId(id)| serde_json::json!({ "block_id": id }));
+        let metadata_json = metadata.and_then(|metadata| match metadata {
+            ErrorMetadata::BlockId(id) => Some(serde_json::json!({ "block_id": id })),
+            ErrorMetadata::ForeignKeyViolationMetadata { constraint, table } => {
+                Some(serde_json::json!({
+            "constraint": constraint,
+            "table": table }))
+            }
+        });
+
         let (error_type, message_key) = self.error_type_and_message_key();
         let errors = self.validation_issues();
         let message = Some(self.message.clone());
@@ -567,9 +578,12 @@ impl ControllerError {
         match self.error_type {
             ControllerErrorType::InternalServerError => ("internal_error", "internal_error"),
             ControllerErrorType::BadRequest => ("validation_error", "validation_error"),
-            ControllerErrorType::BadRequestWithData(_) => {
+            ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(_)) => {
                 ("validation_error", "validation_error_with_metadata")
             }
+            ControllerErrorType::BadRequestWithData(
+                ErrorMetadata::ForeignKeyViolationMetadata { .. },
+            ) => ("validation_error", "foreign_key_violation"),
             ControllerErrorType::BadRequestWithReason(reason) => {
                 ("validation_error", reason.message_key())
             }
@@ -789,8 +803,13 @@ impl From<ModelError> for ControllerError {
                 backtrace,
                 span_trace,
             ),
-            ModelErrorType::ForeignKeyViolation => Self::new_with_traces(
-                ControllerErrorType::BadRequestWithReason(BadRequestReason::ForeignKeyViolation),
+            ModelErrorType::ForeignKeyViolation { constraint, table } => Self::new_with_traces(
+                ControllerErrorType::BadRequestWithData(
+                    ErrorMetadata::ForeignKeyViolationMetadata {
+                        constraint: constraint.to_owned(),
+                        table: table.to_owned(),
+                    },
+                ),
                 err.message().to_string(),
                 Some(err.into()),
                 backtrace,

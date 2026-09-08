@@ -110,7 +110,7 @@
       "title": "Forbidden"
     },
     "foreign_key_violation": {
-      "message": "Reference does not exist.",
+      "message": "Insert or update on table '{{table}}' failed due to constraint '{{constraint}}'. Please verify the related data and try again.",
       "title": "Foreign key violation"
     },
     "generic_sisu_error": {

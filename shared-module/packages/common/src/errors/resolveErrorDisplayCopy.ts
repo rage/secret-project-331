@@ -16,6 +16,10 @@ function resolveIssueCodeMessage(error: ErrorViewModel, t: TFunction): string | 
   return localized.trim() === "" ? null : localized
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
 /**
  * Resolves localized user-facing title and message from normalized error data.
  */
@@ -35,9 +39,12 @@ export function resolveErrorDisplayCopy(
     }
   }
 
+  const translationVariables = isRecord(error.metadata) ? error.metadata : null
+
   if (error.messageKey) {
     const localizedMessage = t(`error-message-key.${error.messageKey}.message`, {
       defaultValue: "",
+      ...translationVariables,
     })
     if (localizedMessage.trim() !== "") {
       return {

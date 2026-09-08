@@ -198,7 +198,10 @@ pub enum ModelErrorType {
         status_code: Option<u16>,
         response_body: Option<String>,
     },
-    ForeignKeyViolation,
+    ForeignKeyViolation {
+        constraint: Option<String>,
+        table: Option<String>,
+    },
 }
 
 /// Types of HTTP errors that can occur
@@ -232,7 +235,14 @@ impl From<sqlx::Error> for ModelError {
             ),
             sqlx::Error::Database(db_err) => {
                 if db_err.is_foreign_key_violation() {
-                    model_err!(ForeignKeyViolation, err.to_string(), err)
+                    model_err!(
+                        ForeignKeyViolation {
+                            constraint: db_err.constraint().map(str::to_string),
+                            table: db_err.table().map(str::to_string)
+                        },
+                        err.to_string(),
+                        err
+                    )
                 } else if let Some(constraint) = db_err.constraint() {
                     match constraint {
                         "email_templates_subject_check" => ModelError::new(
